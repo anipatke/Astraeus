@@ -1,0 +1,1331 @@
+{
+  "generatedBy": "tools/apollo11 (npm run apollo11:reconstruct)",
+  "targets": {
+    "anchorPositionKm": 1,
+    "anchorVelocityMs": 1,
+    "interpolationKm": 1,
+    "selectionThresholdKm": 0.25
+  },
+  "smoothingReportThreshold": {
+    "km": 100,
+    "ms": 50
+  },
+  "suspectAnchors": {
+    "reference": "A-03",
+    "ids": [
+      "A-05"
+    ],
+    "note": "A-05 is printed as 44.94 degrees but disagrees with the state propagated from A-03 (about 49.95 degrees); the other fields agree. The reconstruction uses the owner-approved inferred override in inferredOverrides; the raw value is unchanged."
+  },
+  "sampleCounts": {
+    "columbia": {
+      "startUtcMs": -14552180700,
+      "endUtcMs": -13850694300
+    },
+    "eagle": {
+      "startUtcMs": -14192160000,
+      "endUtcMs": -14091900000
+    }
+  },
+  "anchorResiduals": [
+    {
+      "anchorId": "A-01",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-02",
+      "vehicle": "columbia",
+      "positionKm": 454.706052,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-03",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-04",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-05",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-06",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-07",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-08",
+      "vehicle": "columbia",
+      "positionKm": 3.162274,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-09",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-10",
+      "vehicle": "columbia",
+      "positionKm": 38.330936,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-11",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-12",
+      "vehicle": "columbia",
+      "positionKm": 9.784336,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-13",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-14",
+      "vehicle": "columbia",
+      "positionKm": 2.453536,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-15",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-16",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-17",
+      "vehicle": "columbia",
+      "positionKm": 2.265148,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-27",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-28",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-29",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-30",
+      "vehicle": "columbia",
+      "positionKm": 9.477819,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-31",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-32",
+      "vehicle": "columbia",
+      "positionKm": 22.593541,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-33",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-34",
+      "vehicle": "columbia",
+      "positionKm": 35.158405,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-35",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-36",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-15",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-18",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-19",
+      "vehicle": "eagle",
+      "positionKm": 5.812254,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-20",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-LND",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-LIFTOFF",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-21",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-22",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-23",
+      "vehicle": "eagle",
+      "positionKm": 5.176012,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-24",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-25",
+      "vehicle": "eagle",
+      "positionKm": 0.19076,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-26",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-27",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    }
+  ],
+  "segments": [
+    {
+      "vehicle": "columbia",
+      "id": "E-02<A-01",
+      "method": "parking-orbit-backward",
+      "startUtcMs": -14552180700,
+      "endUtcMs": -14543023800,
+      "endAnchorId": "A-01",
+      "intervalS": 120,
+      "sampleCount": 77,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "interpolationMaxKm": 0.0071,
+      "interpolationMaxMs": 0.0017
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-01>A-02",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14543023800,
+      "endUtcMs": -14542676800,
+      "endAnchorId": "A-02",
+      "intervalS": 120,
+      "sampleCount": 3,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.001579390278,
+        0.008142947495,
+        0.00378477484
+      ],
+      "cutoffPositionResidualKm": 454.706052,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "earth",
+      "peakSpeedKmS": 10.840822,
+      "interpolationMaxKm": 0.0164,
+      "interpolationMaxMs": 0.0195
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-02>A-03",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14542676800,
+      "endUtcMs": -14542666800,
+      "endAnchorId": "A-03",
+      "intervalS": 5,
+      "sampleCount": 2,
+      "endMissKm": 463.219,
+      "endMissMs": 101.575,
+      "smoothedAbout": "earth",
+      "rawMissKm": 463.219,
+      "rawMissMs": 101.575,
+      "maxCorrectionKm": 463.219,
+      "maxCorrectionMs": 69263.426,
+      "interpolationMaxKm": 0.1997,
+      "interpolationMaxMs": 294.3494
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-03>A-04",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14542666800,
+      "endUtcMs": -14541055400,
+      "endAnchorId": "A-04",
+      "intervalS": 120,
+      "sampleCount": 14,
+      "endMissKm": 75.77,
+      "endMissMs": 42.854,
+      "smoothedAbout": "earth",
+      "rawMissKm": 75.77,
+      "rawMissMs": 42.854,
+      "maxCorrectionKm": 75.77,
+      "maxCorrectionMs": 76.674,
+      "interpolationMaxKm": 0.0229,
+      "interpolationMaxMs": 0.0188
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-04>A-05",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14541055400,
+      "endUtcMs": -14540636900,
+      "endAnchorId": "A-05",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 4.539,
+      "endMissMs": 1.891,
+      "smoothedAbout": "earth",
+      "rawMissKm": 4.539,
+      "rawMissMs": 1.891,
+      "maxCorrectionKm": 4.539,
+      "maxCorrectionMs": 16.082,
+      "interpolationMaxKm": 0.0699,
+      "interpolationMaxMs": 0.0302
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-05>A-06",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14540636900,
+      "endUtcMs": -14537460900,
+      "endAnchorId": "A-06",
+      "intervalS": 300,
+      "sampleCount": 11,
+      "endMissKm": 61.584,
+      "endMissMs": 43.162,
+      "smoothedAbout": "earth",
+      "rawMissKm": 61.584,
+      "rawMissMs": 43.162,
+      "maxCorrectionKm": 61.584,
+      "maxCorrectionMs": 43.223,
+      "interpolationMaxKm": 0.0203,
+      "interpolationMaxMs": 0.0061
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-06>A-07",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14537460900,
+      "endUtcMs": -14536078200,
+      "endAnchorId": "A-07",
+      "intervalS": 300,
+      "sampleCount": 5,
+      "endMissKm": 119.547,
+      "endMissMs": 40.402,
+      "smoothedAbout": "earth",
+      "rawMissKm": 119.547,
+      "rawMissMs": 40.402,
+      "maxCorrectionKm": 119.547,
+      "maxCorrectionMs": 126.813,
+      "interpolationMaxKm": 0.0157,
+      "interpolationMaxMs": 0.0003
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-07>A-08",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14536078200,
+      "endUtcMs": -14536075300,
+      "endAnchorId": "A-08",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        0.000949845283,
+        -0.001666507154,
+        -0.000948624838
+      ],
+      "cutoffPositionResidualKm": 3.162274,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "earth",
+      "peakSpeedKmS": 4.474464,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-08>A-09",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14536075300,
+      "endUtcMs": -14456581300,
+      "endAnchorId": "A-09",
+      "intervalS": 900,
+      "sampleCount": 89,
+      "endMissKm": 115.607,
+      "endMissMs": 1.08,
+      "smoothedAbout": "earth",
+      "rawMissKm": 115.607,
+      "rawMissMs": 1.08,
+      "maxCorrectionKm": 115.607,
+      "maxCorrectionMs": 2.355,
+      "interpolationMaxKm": 0.0334,
+      "interpolationMaxMs": 0.0033
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-09>A-10",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14456581300,
+      "endUtcMs": -14456578200,
+      "endAnchorId": "A-10",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        0.001475430671,
+        -0.001284518247,
+        -0.00063621061
+      ],
+      "cutoffPositionResidualKm": 38.330936,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "earth",
+      "peakSpeedKmS": 1.53162,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-10>A-11",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14456578200,
+      "endUtcMs": -14279889600,
+      "endAnchorId": "A-11",
+      "intervalS": 300,
+      "sampleCount": 589,
+      "endMissKm": 17.987,
+      "endMissMs": 8.624,
+      "smoothedAbout": "earth",
+      "rawMissKm": 17.987,
+      "rawMissMs": 8.624,
+      "maxCorrectionKm": 19.091,
+      "maxCorrectionMs": 8.624,
+      "interpolationMaxKm": 0.0759,
+      "interpolationMaxMs": 0.057
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-11>A-12",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14279889600,
+      "endUtcMs": -14279532000,
+      "endAnchorId": "A-12",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.000262792391,
+        -0.002013272335,
+        -0.001441279733
+      ],
+      "cutoffPositionResidualKm": 9.784336,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 2.5146,
+      "interpolationMaxKm": 0.1579,
+      "interpolationMaxMs": 0.164
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-12>A-13",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14279532000,
+      "endUtcMs": -14264183200,
+      "endAnchorId": "A-13",
+      "intervalS": 300,
+      "sampleCount": 52,
+      "endMissKm": 25.038,
+      "endMissMs": 28.466,
+      "smoothedAbout": "moon",
+      "rawMissKm": 25.038,
+      "rawMissMs": 28.466,
+      "maxCorrectionKm": 31.076,
+      "maxCorrectionMs": 28.466,
+      "interpolationMaxKm": 0.0275,
+      "interpolationMaxMs": 0.0063
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-13>A-14",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14264183200,
+      "endUtcMs": -14264166400,
+      "endAnchorId": "A-14",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.001543431765,
+        -0.0020282065,
+        -0.001216337504
+      ],
+      "cutoffPositionResidualKm": 2.453536,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.669481,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-14>A-15",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14264166400,
+      "endUtcMs": -14192160000,
+      "endAnchorId": "A-15",
+      "intervalS": 300,
+      "sampleCount": 241,
+      "endMissKm": 668.177,
+      "endMissMs": 713.065,
+      "smoothedAbout": "moon",
+      "rawMissKm": 668.177,
+      "rawMissMs": 713.065,
+      "maxCorrectionKm": 820.171,
+      "maxCorrectionMs": 720.853,
+      "interpolationMaxKm": 0.0289,
+      "interpolationMaxMs": 0.0067
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-15>A-16",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14192160000,
+      "endUtcMs": -14190487100,
+      "endAnchorId": "A-16",
+      "intervalS": 300,
+      "sampleCount": 6,
+      "endMissKm": 468.723,
+      "endMissMs": 38.372,
+      "smoothedAbout": "moon",
+      "rawMissKm": 468.723,
+      "rawMissMs": 38.372,
+      "maxCorrectionKm": 468.723,
+      "maxCorrectionMs": 486.2,
+      "interpolationMaxKm": 0.1162,
+      "interpolationMaxMs": 0.07
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-16>A-17",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14190487100,
+      "endUtcMs": -14190478100,
+      "endAnchorId": "A-17",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.000065939259,
+        -0.000320638648,
+        0.000623298332
+      ],
+      "cutoffPositionResidualKm": 2.265149,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.625407,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-17>A-27",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14190478100,
+      "endUtcMs": -14091900000,
+      "endAnchorId": "A-27",
+      "intervalS": 300,
+      "sampleCount": 329,
+      "endMissKm": 1354.326,
+      "endMissMs": 1208.788,
+      "smoothedAbout": "moon",
+      "rawMissKm": 1354.326,
+      "rawMissMs": 1208.788,
+      "maxCorrectionKm": 1365.875,
+      "maxCorrectionMs": 1208.788,
+      "interpolationMaxKm": 0.0263,
+      "interpolationMaxMs": 0.0065
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-27>A-28",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14091900000,
+      "endUtcMs": -14084308800,
+      "endAnchorId": "A-28",
+      "intervalS": 300,
+      "sampleCount": 26,
+      "endMissKm": 142.759,
+      "endMissMs": 264.009,
+      "smoothedAbout": "moon",
+      "rawMissKm": 142.759,
+      "rawMissMs": 264.009,
+      "maxCorrectionKm": 263.892,
+      "maxCorrectionMs": 285.874,
+      "interpolationMaxKm": 0.0266,
+      "interpolationMaxMs": 0.0058
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-28>A-29",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14084308800,
+      "endUtcMs": -14083079000,
+      "endAnchorId": "A-29",
+      "intervalS": 120,
+      "sampleCount": 11,
+      "endMissKm": 38.825,
+      "endMissMs": 1633.286,
+      "smoothedAbout": "moon",
+      "rawMissKm": 38.825,
+      "rawMissMs": 1633.286,
+      "maxCorrectionKm": 489.638,
+      "maxCorrectionMs": 1633.8,
+      "interpolationMaxKm": 0.0438,
+      "interpolationMaxMs": 0.0929
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-29>A-30",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14083079000,
+      "endUtcMs": -14083071800,
+      "endAnchorId": "A-30",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        0.001086007602,
+        -0.000117533874,
+        -0.000438647378
+      ],
+      "cutoffPositionResidualKm": 9.477819,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.624614,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-30>A-31",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14083071800,
+      "endUtcMs": -14065457700,
+      "endAnchorId": "A-31",
+      "intervalS": 300,
+      "sampleCount": 59,
+      "endMissKm": 303.667,
+      "endMissMs": 1744.725,
+      "smoothedAbout": "moon",
+      "rawMissKm": 303.667,
+      "rawMissMs": 1744.725,
+      "maxCorrectionKm": 1963.327,
+      "maxCorrectionMs": 1744.725,
+      "interpolationMaxKm": 0.1553,
+      "interpolationMaxMs": 0.1023
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-31>A-32",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14065457700,
+      "endUtcMs": -14065306300,
+      "endAnchorId": "A-32",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.001817266307,
+        0.005575845401,
+        0.002828274151
+      ],
+      "cutoffPositionResidualKm": 22.593541,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 2.617927,
+      "interpolationMaxKm": 0.0085,
+      "interpolationMaxMs": 0.0144
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-32>A-33",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14065306300,
+      "endUtcMs": -14011082600,
+      "endAnchorId": "A-33",
+      "intervalS": 300,
+      "sampleCount": 181,
+      "endMissKm": 626.664,
+      "endMissMs": 12.604,
+      "smoothedAbout": "earth",
+      "rawMissKm": 626.664,
+      "rawMissMs": 12.604,
+      "maxCorrectionKm": 626.664,
+      "maxCorrectionMs": 20.008,
+      "interpolationMaxKm": 0.112,
+      "interpolationMaxMs": 0.0884
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-33>A-34",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14011082600,
+      "endUtcMs": -14011071400,
+      "endAnchorId": "A-34",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.000071647382,
+        0.000100192482,
+        0.000083475257
+      ],
+      "cutoffPositionResidualKm": 35.158405,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "earth",
+      "peakSpeedKmS": 1.24206,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-34>A-35",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14011071400,
+      "endUtcMs": -13851527300,
+      "endAnchorId": "A-35",
+      "intervalS": 300,
+      "sampleCount": 532,
+      "endMissKm": 66.704,
+      "endMissMs": 67.741,
+      "smoothedAbout": "earth",
+      "rawMissKm": 66.704,
+      "rawMissMs": 67.741,
+      "maxCorrectionKm": 778.373,
+      "maxCorrectionMs": 67.741,
+      "interpolationMaxKm": 0.1061,
+      "interpolationMaxMs": 0.0466
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-35>A-36",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -13851527300,
+      "endUtcMs": -13850694300,
+      "endAnchorId": "A-36",
+      "intervalS": 120,
+      "sampleCount": 8,
+      "endMissKm": 32.232,
+      "endMissMs": 74.415,
+      "smoothedAbout": "earth",
+      "rawMissKm": 32.232,
+      "rawMissMs": 74.415,
+      "maxCorrectionKm": 32.232,
+      "maxCorrectionMs": 76.905,
+      "interpolationMaxKm": 0.0246,
+      "interpolationMaxMs": 0.0205
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-15>A-18",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14192160000,
+      "endUtcMs": -14187106000,
+      "endAnchorId": "A-18",
+      "intervalS": 300,
+      "sampleCount": 17,
+      "endMissKm": 456.409,
+      "endMissMs": 118.963,
+      "smoothedAbout": "moon",
+      "rawMissKm": 456.409,
+      "rawMissMs": 118.963,
+      "maxCorrectionKm": 456.409,
+      "maxCorrectionMs": 376.62,
+      "interpolationMaxKm": 0.0302,
+      "interpolationMaxMs": 0.0087
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-18>A-19",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14187106000,
+      "endUtcMs": -14187076000,
+      "endAnchorId": "A-19",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        0.000822648924,
+        -0.00020335698,
+        -0.000132010203
+      ],
+      "cutoffPositionResidualKm": 5.812254,
+      "cutoffVelocityResidualMs": 0.000001,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.634947,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-19>A-20",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14187076000,
+      "endUtcMs": -14183694900,
+      "endAnchorId": "A-20",
+      "intervalS": 300,
+      "sampleCount": 12,
+      "endMissKm": 25.844,
+      "endMissMs": 26.088,
+      "smoothedAbout": "moon",
+      "rawMissKm": 25.844,
+      "rawMissMs": 26.088,
+      "maxCorrectionKm": 25.844,
+      "maxCorrectionMs": 26.088,
+      "interpolationMaxKm": 0.035,
+      "interpolationMaxMs": 0.0082
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-20>A-LND",
+      "method": "powered-descent-two-anchor",
+      "startUtcMs": -14183694900,
+      "endUtcMs": -14182940100,
+      "endAnchorId": "A-LND",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "interpolationMaxKm": 0.0459,
+      "interpolationMaxMs": 0.0003
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LND>A-LIFTOFF",
+      "method": "surface-hold",
+      "startUtcMs": -14182940100,
+      "endUtcMs": -14105159200,
+      "endAnchorId": "A-LIFTOFF",
+      "intervalS": 3600,
+      "sampleCount": 22,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "interpolationMaxKm": 0.0001,
+      "interpolationMaxMs": 0.0002
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LIFTOFF>A-21",
+      "method": "powered-ascent-two-anchor",
+      "startUtcMs": -14105159200,
+      "endUtcMs": -14104724300,
+      "endAnchorId": "A-21",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "interpolationMaxKm": 0.0081,
+      "interpolationMaxMs": 0.0001
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-21>A-22",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14104724300,
+      "endUtcMs": -14101704500,
+      "endAnchorId": "A-22",
+      "intervalS": 300,
+      "sampleCount": 11,
+      "endMissKm": 18.081,
+      "endMissMs": 16.853,
+      "smoothedAbout": "moon",
+      "rawMissKm": 18.081,
+      "rawMissMs": 16.853,
+      "maxCorrectionKm": 21.196,
+      "maxCorrectionMs": 16.853,
+      "interpolationMaxKm": 0.0322,
+      "interpolationMaxMs": 0.007
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-22>A-23",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14101704500,
+      "endUtcMs": -14101657500,
+      "endAnchorId": "A-23",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.000262034575,
+        0.000128955895,
+        0.000151043057
+      ],
+      "cutoffPositionResidualKm": 5.176012,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.638788,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-23>A-24",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14101657500,
+      "endUtcMs": -14095448200,
+      "endAnchorId": "A-24",
+      "intervalS": 300,
+      "sampleCount": 21,
+      "endMissKm": 23.009,
+      "endMissMs": 22.999,
+      "smoothedAbout": "moon",
+      "rawMissKm": 23.009,
+      "rawMissMs": 22.999,
+      "maxCorrectionKm": 23.009,
+      "maxCorrectionMs": 22.999,
+      "interpolationMaxKm": 0.0257,
+      "interpolationMaxMs": 0.0047
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-24>A-25",
+      "method": "powered-burn-physical",
+      "startUtcMs": -14095448200,
+      "endUtcMs": -14095425500,
+      "endAnchorId": "A-25",
+      "intervalS": 3600,
+      "sampleCount": 1,
+      "endMissKm": 0,
+      "endMissMs": 0,
+      "constantAccelerationKmS2": [
+        -0.000289971042,
+        -0.00007194607,
+        -0.000008479508
+      ],
+      "cutoffPositionResidualKm": 0.19076,
+      "cutoffVelocityResidualMs": 0,
+      "speedReferenceBody": "moon",
+      "peakSpeedKmS": 1.650096,
+      "interpolationMaxKm": 0,
+      "interpolationMaxMs": 0
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-25>A-26",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14095425500,
+      "endUtcMs": -14092910200,
+      "endAnchorId": "A-26",
+      "intervalS": 300,
+      "sampleCount": 9,
+      "endMissKm": 147.719,
+      "endMissMs": 133.879,
+      "smoothedAbout": "moon",
+      "rawMissKm": 147.719,
+      "rawMissMs": 133.879,
+      "maxCorrectionKm": 147.719,
+      "maxCorrectionMs": 133.936,
+      "interpolationMaxKm": 0.0392,
+      "interpolationMaxMs": 0.0101
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-26>A-27",
+      "method": "coast-nbody-smoothed",
+      "startUtcMs": -14092910200,
+      "endUtcMs": -14091900000,
+      "endAnchorId": "A-27",
+      "intervalS": 120,
+      "sampleCount": 10,
+      "endMissKm": 116.592,
+      "endMissMs": 318.788,
+      "smoothedAbout": "moon",
+      "rawMissKm": 116.592,
+      "rawMissMs": 318.788,
+      "maxCorrectionKm": 116.592,
+      "maxCorrectionMs": 321.621,
+      "interpolationMaxKm": 0.0089,
+      "interpolationMaxMs": 0.0057
+    }
+  ],
+  "oneSecondSpeedScan": {
+    "columbia": {
+      "stepS": 1,
+      "localSpeedAt": "maximum at interval start, midpoint and end",
+      "excessToleranceKm": 0.001,
+      "checkedSeconds": 701486,
+      "violationCount": 0,
+      "firstViolations": [],
+      "worst": {
+        "startUtcMs": -14300648700,
+        "moveKm": 0.859286,
+        "localSpeedKmS": 0.859286,
+        "excessKm": 0
+      },
+      "maxExcessKm": 0
+    },
+    "eagle": {
+      "stepS": 1,
+      "localSpeedAt": "maximum at interval start, midpoint and end",
+      "excessToleranceKm": 0.001,
+      "checkedSeconds": 100260,
+      "violationCount": 0,
+      "firstViolations": [],
+      "worst": {
+        "startUtcMs": -14097508000,
+        "moveKm": 2.658019,
+        "localSpeedKmS": 2.658019,
+        "excessKm": 0
+      },
+      "maxExcessKm": 0
+    }
+  },
+  "consistency": {
+    "reference": "A-03",
+    "rows": [
+      {
+        "anchorId": "A-04",
+        "positionDifferenceKm": 71.2,
+        "printed": {
+          "latitudeDeg": 31.16,
+          "longitudeDeg": -88.76,
+          "altitudeNmi": 4110,
+          "speedFtS": 24456.8,
+          "flightPathAngleDeg": 46.24,
+          "headingDeg": 95.1
+        },
+        "predicted": {
+          "latitudeDeg": 31.1,
+          "longitudeDeg": -88.43,
+          "altitudeNmi": 4111.23,
+          "speedFtS": 24465.95,
+          "flightPathAngleDeg": 46.24,
+          "headingDeg": 95.16
+        },
+        "suspect": false,
+        "overridden": false
+      },
+      {
+        "anchorId": "A-05",
+        "positionDifferenceKm": 78.1,
+        "printed": {
+          "latitudeDeg": 30.18,
+          "longitudeDeg": -81.71,
+          "altitudeNmi": 5317.6,
+          "speedFtS": 22662.5,
+          "flightPathAngleDeg": 44.94,
+          "headingDeg": 99.57
+        },
+        "predicted": {
+          "latitudeDeg": 30.11,
+          "longitudeDeg": -81.4,
+          "altitudeNmi": 5318.66,
+          "speedFtS": 22671.64,
+          "flightPathAngleDeg": 49.95,
+          "headingDeg": 99.63
+        },
+        "suspect": true,
+        "overridden": true
+      },
+      {
+        "anchorId": "A-06",
+        "positionDifferenceKm": 91.3,
+        "printed": {
+          "latitudeDeg": 23.13,
+          "longitudeDeg": -67.7,
+          "altitudeNmi": 13506.5,
+          "speedFtS": 16060.8,
+          "flightPathAngleDeg": 62.01,
+          "headingDeg": 110.9
+        },
+        "predicted": {
+          "latitudeDeg": 23.1,
+          "longitudeDeg": -67.52,
+          "altitudeNmi": 13514.22,
+          "speedFtS": 16072.15,
+          "flightPathAngleDeg": 62.03,
+          "headingDeg": 111.94
+        },
+        "suspect": false,
+        "overridden": false
+      },
+      {
+        "anchorId": "A-07",
+        "positionDifferenceKm": 36.7,
+        "printed": {
+          "latitudeDeg": 21.16,
+          "longitudeDeg": -68.46,
+          "altitudeNmi": 16620.8,
+          "speedFtS": 14680,
+          "flightPathAngleDeg": 64.3,
+          "headingDeg": 113.73
+        },
+        "predicted": {
+          "latitudeDeg": 21.2,
+          "longitudeDeg": -68.44,
+          "altitudeNmi": 16631.76,
+          "speedFtS": 14692.65,
+          "flightPathAngleDeg": 64.32,
+          "headingDeg": 113.77
+        },
+        "suspect": false,
+        "overridden": false
+      },
+      {
+        "anchorId": "A-08",
+        "positionDifferenceKm": 34.1,
+        "printed": {
+          "latitudeDeg": 21.16,
+          "longitudeDeg": -68.46,
+          "altitudeNmi": 16627.3,
+          "speedFtS": 14663,
+          "flightPathAngleDeg": 64.25,
+          "headingDeg": 113.74
+        },
+        "predicted": {
+          "latitudeDeg": 21.2,
+          "longitudeDeg": -68.44,
+          "altitudeNmi": 16638.08,
+          "speedFtS": 14690.18,
+          "flightPathAngleDeg": 64.32,
+          "headingDeg": 113.77
+        },
+        "suspect": false,
+        "overridden": false
+      },
+      {
+        "anchorId": "A-09",
+        "positionDifferenceKm": 1386.9,
+        "printed": {
+          "latitudeDeg": 5.99,
+          "longitudeDeg": -11.16,
+          "altitudeNmi": 109475.3,
+          "speedFtS": 5025,
+          "flightPathAngleDeg": 77.05,
+          "headingDeg": 120.88
+        },
+        "predicted": {
+          "latitudeDeg": 6.11,
+          "longitudeDeg": -11.27,
+          "altitudeNmi": 110147.74,
+          "speedFtS": 5084.44,
+          "flightPathAngleDeg": 77.22,
+          "headingDeg": 120.86
+        },
+        "suspect": false,
+        "overridden": false
+      }
+    ]
+  },
+  "orbitCrossChecks": [
+    {
+      "anchorId": "A-12",
+      "source": "Table 7-V (LOI-1 resultant orbit)",
+      "publishedApoluneNmi": 169.7,
+      "computedApoluneNmi": 169.8,
+      "publishedPeriluneNmi": 60,
+      "computedPeriluneNmi": 60
+    },
+    {
+      "anchorId": "A-14",
+      "source": "Table 7-V / Sec 7.4.4 (LOI-2 resultant orbit)",
+      "publishedApoluneNmi": 65.7,
+      "computedApoluneNmi": 67.4,
+      "publishedPeriluneNmi": 53.8,
+      "computedPeriluneNmi": 56.2
+    },
+    {
+      "anchorId": "A-17",
+      "source": "Table 7-V (CSM separation burn resultant orbit)",
+      "publishedApoluneNmi": 63.7,
+      "computedApoluneNmi": 66.1,
+      "publishedPeriluneNmi": 56,
+      "computedPeriluneNmi": 60.5
+    },
+    {
+      "anchorId": "A-19",
+      "source": "Table 7-V / Sec 7.4.6 (DOI) as recorded in docs/APOLLO11_SOURCES.md; apolune value looks mis-recorded",
+      "publishedApoluneNmi": 64.3,
+      "computedApoluneNmi": 57.8,
+      "publishedPeriluneNmi": 8.5,
+      "computedPeriluneNmi": 12.1
+    },
+    {
+      "anchorId": "A-21",
+      "source": "Table 7-V (ascent insertion orbit)",
+      "publishedApoluneNmi": 48,
+      "computedApoluneNmi": 50.9,
+      "publishedPeriluneNmi": 9.4,
+      "computedPeriluneNmi": 9.5
+    },
+    {
+      "anchorId": "A-23",
+      "source": "Table 7-V (CSI resultant orbit)",
+      "publishedApoluneNmi": 49.3,
+      "computedApoluneNmi": 46,
+      "publishedPeriluneNmi": 45.7,
+      "computedPeriluneNmi": 41.2
+    },
+    {
+      "anchorId": "A-25",
+      "source": "Table 7-V (TPI resultant orbit)",
+      "publishedApoluneNmi": 61.7,
+      "computedApoluneNmi": 64.9,
+      "publishedPeriluneNmi": 43.7,
+      "computedPeriluneNmi": 44
+    },
+    {
+      "anchorId": "A-26",
+      "source": "Table 7-V (TPF resultant orbit)",
+      "publishedApoluneNmi": 63,
+      "computedApoluneNmi": 59.8,
+      "publishedPeriluneNmi": 56.5,
+      "computedPeriluneNmi": 34.2
+    }
+  ],
+  "qualitative": {
+    "departure": {
+      "angleBetweenTliPositionAndMoonAtLoiDeg": 155.92
+    },
+    "arrival": {
+      "sphereOfInfluenceUtcMs": -14332466903,
+      "propagatedSelenocentricRadiusKm": 1899.1,
+      "anchorSelenocentricRadiusKm": 1898.7
+    },
+    "lunarOrbit": {
+      "columbia": {
+        "probes": 715,
+        "minAltitudeKm": 105.5,
+        "maxAltitudeKm": 321.8,
+        "minDistanceToMoonPositionAtOrbitInsertionKm": 385.4
+      },
+      "eagle": {
+        "probes": 335,
+        "minAltitudeKm": 0,
+        "maxAltitudeKm": 124.1,
+        "minDistanceToMoonPositionAtOrbitInsertionKm": 85684.2
+      }
+    },
+    "entryInterface": {
+      "anchorTimeUtcMs": -13850694300,
+      "propagatedAltitudeAtAnchorTimeKm": 121.86,
+      "propagatedCrossingOfEntryAltitudeUtcMs": -13850694300,
+      "crossingMinusAnchorSeconds": 0,
+      "entryAltitudeKm": 121.92
+    }
+  },
+  "surfaceClearance": [
+    {
+      "segmentId": "A-20>A-LND",
+      "minAltitudeKm": 0
+    },
+    {
+      "segmentId": "A-LIFTOFF>A-21",
+      "minAltitudeKm": 0
+    }
+  ],
+  "landingSiteOffset": [
+    {
+      "timeUtcMs": -14182940100,
+      "offsetKm": 254.18,
+      "offsetDeg": 8.386
+    },
+    {
+      "timeUtcMs": -14105159200,
+      "offsetKm": 275.37,
+      "offsetDeg": 9.087
+    }
+  ]
+}

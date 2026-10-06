@@ -1,0 +1,420 @@
+{
+  "description": "Authoritative mission events for Apollo 11 extracted from NASA MSC-00171 (Apollo 11 Mission Report), Table 3-I (Sequence of Events), Table 7-II, Table 7-VII, and Table 5-IV. Covers all events identified in Astraeus Spike 02 Brief Section 12 from launch through splashdown.",
+  "source_document": {
+    "title": "Apollo 11 Mission Report",
+    "report_number": "NASA SP-238 / MSC-00171",
+    "publication_date": "1969-11",
+    "ntrs_id": "19700008096",
+    "ntrs_url": "https://ntrs.nasa.gov/citations/19700008096"
+  },
+  "range_zero_gmt": "1969-07-16T13:32:00.000Z",
+  "events": [
+    {
+      "id": "E-01",
+      "category": "launch",
+      "label": "Lift-off",
+      "vehicle": "docked_stack",
+      "get_printed": "00:00:00.6",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I",
+        "page": "3-4"
+      },
+      "notes": "Range zero was 13:32:00 G.m.t., July 16, 1969; lift-off occurred at 13:32:00.6 GMT."
+    },
+    {
+      "id": "E-02",
+      "category": "earth_orbit_insertion",
+      "label": "S-IVB engine cutoff (Earth orbit insertion)",
+      "vehicle": "docked_stack",
+      "get_printed": "00:11:39.3",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I",
+        "page": "3-4"
+      },
+      "notes": "S-IVB cutoff; Section 7.2 cites Earth parking orbit insertion at 00:11:49.3."
+    },
+    {
+      "id": "E-03",
+      "category": "translunar_injection",
+      "label": "Translunar injection maneuver ignition",
+      "vehicle": "docked_stack",
+      "get_printed": "02:44:16.2",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "S-IVB reignition for translunar injection."
+    },
+    {
+      "id": "E-04",
+      "category": "translunar_injection",
+      "label": "Translunar injection maneuver cutoff",
+      "vehicle": "docked_stack",
+      "get_printed": "02:50:03.2",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      },
+      "notes": "S-IVB cutoff after translunar injection; Table 7-II also lists TLI condition state at 02:50:13.2."
+    },
+    {
+      "id": "E-05",
+      "category": "transposition_docking_extraction",
+      "label": "Command and service module / S-IVB separation",
+      "vehicle": "Columbia",
+      "get_printed": "03:17:04.6",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "CSM separates from S-IVB stage prior to transposition and docking."
+    },
+    {
+      "id": "E-06",
+      "category": "transposition_docking_extraction",
+      "label": "First docking (CSM with LM)",
+      "vehicle": "Columbia",
+      "get_printed": "03:24:03.1",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "Command module docks with lunar module while LM is still secured in S-IVB SLA."
+    },
+    {
+      "id": "E-07",
+      "category": "transposition_docking_extraction",
+      "label": "Spacecraft ejection (from S-IVB)",
+      "vehicle": "docked_stack",
+      "get_printed": "04:16:59.1",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "Docked CSM/LM stack extracted and ejected from S-IVB stage."
+    },
+    {
+      "id": "E-08",
+      "category": "transposition_docking_extraction",
+      "label": "Separation maneuver ignition (from S-IVB)",
+      "vehicle": "docked_stack",
+      "get_printed": "04:40:01.8",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "SPS RCS separation burn to distance spacecraft from S-IVB; cutoff at 04:40:04.7."
+    },
+    {
+      "id": "E-09",
+      "category": "midcourse_correction",
+      "label": "First midcourse correction (MCC-1) ignition",
+      "vehicle": "docked_stack",
+      "get_printed": "26:44:58.7",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "Translunar midcourse correction burn; cutoff at 26:45:01.8 (firing duration 3.1 sec, delta-V 20.9 ft/sec)."
+    },
+    {
+      "id": "E-10",
+      "category": "lunar_orbit_insertion",
+      "label": "Lunar orbit insertion (LOI-1) ignition",
+      "vehicle": "docked_stack",
+      "get_printed": "75:49:50.4",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "SPS engine ignition for lunar orbit insertion into 169.7 x 60.0 n mi orbit; cutoff at 75:55:48.0 (firing time 357.5 sec, delta-V 2917.5 ft/sec)."
+    },
+    {
+      "id": "E-11",
+      "category": "lunar_orbit_insertion",
+      "label": "Lunar orbit circularization (LOI-2) ignition",
+      "vehicle": "docked_stack",
+      "get_printed": "80:11:36.8",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "SPS burn circularizing orbit to 65.7 x 53.8 n mi; cutoff at 80:11:53.6 (firing time 16.8 sec, delta-V 158.8 ft/sec)."
+    },
+    {
+      "id": "E-12",
+      "category": "lunar_module_separation",
+      "label": "Undocking",
+      "vehicle": "Columbia",
+      "get_printed": "100:12:00",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "Lunar Module Eagle undocks from Command/Service Module Columbia during lunar revolution 13."
+    },
+    {
+      "id": "E-13",
+      "category": "lunar_module_separation",
+      "label": "Separation maneuver ignition (CSM from LM)",
+      "vehicle": "Columbia",
+      "get_printed": "100:39:52.9",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "CSM RCS separation maneuver from LM; cutoff at 100:40:01.9 (delta-V 1.4 ft/sec)."
+    },
+    {
+      "id": "E-14",
+      "category": "powered_descent_initiation",
+      "label": "Descent orbit insertion (DOI) ignition",
+      "vehicle": "Eagle",
+      "get_printed": "101:36:14.0",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "LM descent propulsion system burn lowering pericynthion to ~8 n mi; cutoff at 101:36:44.0 (firing time 30.0 sec, delta-V 76.4 ft/sec)."
+    },
+    {
+      "id": "E-15",
+      "category": "powered_descent_initiation",
+      "label": "Powered descent initiation (PDI)",
+      "vehicle": "Eagle",
+      "get_printed": "102:33:05.2",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "LM descent engine ignition for final powered descent to lunar surface (printed as 102:33:05.2 in Table 3-I and 102:33:05.1 in Table 7-II)."
+    },
+    {
+      "id": "E-16",
+      "category": "lunar_landing",
+      "label": "Lunar landing (touchdown)",
+      "vehicle": "Eagle",
+      "get_printed": "102:45:39.9",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 5-IV",
+        "page": "3-4, 5-10"
+      },
+      "notes": "Touchdown at Tranquility Base (Landing Site 2 coordinates 0.67408N, 23.47297E)."
+    },
+    {
+      "id": "E-17",
+      "category": "lunar_ascent",
+      "label": "Lunar lift-off",
+      "vehicle": "Eagle",
+      "get_printed": "124:22:00.8",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-V",
+        "page": "3-4, 7-11"
+      },
+      "notes": "LM ascent stage engine ignition from lunar surface."
+    },
+    {
+      "id": "E-18",
+      "category": "lunar_ascent",
+      "label": "Lunar orbit insertion engine cutoff (Ascent)",
+      "vehicle": "Eagle",
+      "get_printed": "124:29:15.7",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II, Table 7-V",
+        "page": "7-9, 7-11"
+      },
+      "notes": "LM ascent engine cutoff into 48.0 x 9.4 n mi orbit (firing time 434.9 sec, delta-V 6070.1 ft/sec)."
+    },
+    {
+      "id": "E-19",
+      "category": "rendezvous",
+      "label": "Coelliptic sequence initiation (CSI) ignition",
+      "vehicle": "Eagle",
+      "get_printed": "125:19:35.5",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "RCS maneuver to circularize orbit relative to CSM orbit; cutoff at 125:20:22.5 (firing time 47.0 sec, delta-V 51.5 ft/sec)."
+    },
+    {
+      "id": "E-20",
+      "category": "rendezvous",
+      "label": "Constant differential height (CDH) maneuver ignition",
+      "vehicle": "Eagle",
+      "get_printed": "126:17:49.6",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-V",
+        "page": "3-4, 7-11"
+      },
+      "notes": "RCS burn equalizing orbital differential height to 15 n mi below CSM (firing time 17.8 sec, delta-V 19.9 ft/sec)."
+    },
+    {
+      "id": "E-21",
+      "category": "rendezvous",
+      "label": "Terminal phase initiation (TPI) ignition",
+      "vehicle": "Eagle",
+      "get_printed": "127:03:51.8",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-4, 7-9"
+      },
+      "notes": "RCS maneuver targeting line of sight to CSM; cutoff at 127:04:14.5 (firing time 22.7 sec, delta-V 25.3 ft/sec)."
+    },
+    {
+      "id": "E-22",
+      "category": "rendezvous",
+      "label": "Terminal phase finalize (TPFI)",
+      "vehicle": "Eagle",
+      "get_printed": "127:46:09.8",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II, Table 7-V",
+        "page": "7-9, 7-11"
+      },
+      "notes": "Braking and velocity matching with CSM in 63.0 x 56.5 n mi orbit (firing time 28.4 sec, delta-V 31.4 ft/sec)."
+    },
+    {
+      "id": "E-23",
+      "category": "rendezvous",
+      "label": "Docking (CSM and LM ascent stage)",
+      "vehicle": "docked_stack",
+      "get_printed": "128:03:00",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-5, 7-9"
+      },
+      "notes": "Eagle ascent stage docks with Columbia."
+    },
+    {
+      "id": "E-24",
+      "category": "rendezvous",
+      "label": "Ascent stage jettison",
+      "vehicle": "Columbia",
+      "get_printed": "130:09:31.2",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-5, 7-9"
+      },
+      "notes": "Eagle ascent stage jettisoned after crew and lunar sample transfer."
+    },
+    {
+      "id": "E-25",
+      "category": "rendezvous",
+      "label": "Separation maneuver ignition (from ascent stage)",
+      "vehicle": "Columbia",
+      "get_printed": "130:30:01",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-5, 7-9"
+      },
+      "notes": "CSM RCS separation burn from jettisoned ascent stage; cutoff at 130:30:08.2 (firing time 7.2 sec, delta-V 2.2 ft/sec)."
+    },
+    {
+      "id": "E-26",
+      "category": "trans_earth_injection",
+      "label": "Transearth injection maneuver ignition",
+      "vehicle": "Columbia",
+      "get_printed": "135:23:42.3",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-5, 7-9"
+      },
+      "notes": "SPS engine burn behind the Moon injecting Columbia into return trajectory toward Earth; cutoff at 135:26:13.7 (firing time 151.4 sec, delta-V 3279.0 ft/sec)."
+    },
+    {
+      "id": "E-27",
+      "category": "entry",
+      "label": "Command module / service module separation",
+      "vehicle": "Columbia",
+      "get_printed": "194:49:12.7",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-II",
+        "page": "3-5, 7-9"
+      },
+      "notes": "Columbia Command Module separates from Service Module prior to atmospheric entry."
+    },
+    {
+      "id": "E-28",
+      "category": "entry",
+      "label": "Entry interface (400 000 feet altitude)",
+      "vehicle": "Columbia",
+      "get_printed": "195:03:05.7",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I, Table 7-VII",
+        "page": "3-5, 7-12"
+      },
+      "notes": "Atmospheric entry interface at geodetic altitude 400 000 ft (65.8 n mi), inertial velocity 36 194.4 ft/sec, flight-path angle -6.48 deg."
+    },
+    {
+      "id": "E-29",
+      "category": "entry",
+      "label": "Drogue deployment",
+      "vehicle": "Columbia",
+      "get_printed": "195:12:06.9",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-VII",
+        "page": "7-12"
+      },
+      "notes": "Drogue parachutes deployed at ~10 000 ft altitude."
+    },
+    {
+      "id": "E-30",
+      "category": "splashdown",
+      "label": "Splashdown / Landing",
+      "vehicle": "Columbia",
+      "get_printed": "195:18:35",
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 3-I",
+        "page": "3-5"
+      },
+      "notes": "Splashdown in the Pacific Ocean at 13.30N, 169.15W (USS Hornet recovery)."
+    }
+  ],
+  "omitted_events": [
+    {
+      "category": "midcourse_correction",
+      "label": "Translunar MCC-2, MCC-3, MCC-4",
+      "reason": "Omitted from trajectory events because they were cancelled/not executed during flight; translunar injection and MCC-1 accuracy were sufficient to meet nominal lunar orbit insertion criteria without additional burns (MSC-00171 Section 7.4.3, page 7-3)."
+    },
+    {
+      "category": "midcourse_correction",
+      "label": "Transearth MCC-1, MCC-3, MCC-4",
+      "reason": "Omitted from trajectory events because they were cancelled/not executed during flight; the single midcourse correction executed at GET 150:29:57.4 satisfied all entry interface targeting requirements (MSC-00171 Section 7.4.9, page 7-5)."
+    },
+    {
+      "category": "lunar_surface_eva",
+      "label": "Lunar surface EVA egress and ingress",
+      "reason": "Lunar surface EVA egress (GET 109:07:33) and ingress (GET 111:39:13) are documented timeline events (Table 3-I) but omitted from spacecraft trajectory modeling because the Lunar Module remained stationary on the lunar surface throughout the surface stay."
+    }
+  ]
+}

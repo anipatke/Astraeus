@@ -1,0 +1,520 @@
+{
+  "segments": [
+    {
+      "vehicle": "columbia",
+      "id": "E-02<A-01",
+      "probes": 231,
+      "maxErrorKm": 0.007058360505275039
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-01>A-02",
+      "probes": 9,
+      "maxErrorKm": 0.016374691516572934
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-02>A-03",
+      "probes": 6,
+      "maxErrorKm": 0.20056820594295183
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-03>A-04",
+      "probes": 42,
+      "maxErrorKm": 0.02291019979510929
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-04>A-05",
+      "probes": 3,
+      "maxErrorKm": 0.06989623296491813
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-05>A-06",
+      "probes": 33,
+      "maxErrorKm": 0.020297213089716534
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-06>A-07",
+      "probes": 15,
+      "maxErrorKm": 0.015661035260554203
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-07>A-08",
+      "probes": 3,
+      "maxErrorKm": 4.946530698949438e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-08>A-09",
+      "probes": 267,
+      "maxErrorKm": 0.03336580412627595
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-09>A-10",
+      "probes": 3,
+      "maxErrorKm": 7.523342513914669e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-10>A-11",
+      "probes": 1767,
+      "maxErrorKm": 0.07590601356461073
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-11>A-12",
+      "probes": 3,
+      "maxErrorKm": 0.15785210201890137
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-12>A-13",
+      "probes": 156,
+      "maxErrorKm": 0.027524357530236496
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-13>A-14",
+      "probes": 3,
+      "maxErrorKm": 8.367091860308505e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-14>A-15",
+      "probes": 723,
+      "maxErrorKm": 0.02885309271412768
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-15>A-16",
+      "probes": 18,
+      "maxErrorKm": 0.11621898968292486
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-16>A-17",
+      "probes": 3,
+      "maxErrorKm": 4.183899052454203e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-17>A-27",
+      "probes": 987,
+      "maxErrorKm": 0.026347723139516402
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-27>A-28",
+      "probes": 78,
+      "maxErrorKm": 0.026582053613723983
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-28>A-29",
+      "probes": 33,
+      "maxErrorKm": 0.04379033899338732
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-29>A-30",
+      "probes": 3,
+      "maxErrorKm": 2.467580742971429e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-30>A-31",
+      "probes": 177,
+      "maxErrorKm": 0.15526260292100058
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-31>A-32",
+      "probes": 3,
+      "maxErrorKm": 0.008490763061827509
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-32>A-33",
+      "probes": 543,
+      "maxErrorKm": 0.1119820377437138
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-33>A-34",
+      "probes": 3,
+      "maxErrorKm": 4.1622845137279355e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-34>A-35",
+      "probes": 1596,
+      "maxErrorKm": 0.10612612056058984
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-35>A-36",
+      "probes": 21,
+      "maxErrorKm": 0.024558378698996883
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-15>A-18",
+      "probes": 51,
+      "maxErrorKm": 0.030203327597533604
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-18>A-19",
+      "probes": 3,
+      "maxErrorKm": 0.0000023008861271437504
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-19>A-20",
+      "probes": 36,
+      "maxErrorKm": 0.035045922688330636
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-20>A-LND",
+      "probes": 3,
+      "maxErrorKm": 0.045930451430848736
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LND>A-LIFTOFF",
+      "probes": 66,
+      "maxErrorKm": 0.00012471565751019645
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LIFTOFF>A-21",
+      "probes": 3,
+      "maxErrorKm": 0.008090213283520395
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-21>A-22",
+      "probes": 33,
+      "maxErrorKm": 0.03217397288274705
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-22>A-23",
+      "probes": 3,
+      "maxErrorKm": 0.000014512793147035706
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-23>A-24",
+      "probes": 63,
+      "maxErrorKm": 0.025700430294274546
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-24>A-25",
+      "probes": 3,
+      "maxErrorKm": 0.000001122548914690183
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-25>A-26",
+      "probes": 27,
+      "maxErrorKm": 0.039180242458832094
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-26>A-27",
+      "probes": 27,
+      "maxErrorKm": 0.008874641774370353
+    }
+  ],
+  "anchors": [
+    {
+      "vehicle": "columbia",
+      "id": "A-01",
+      "cutoff": false,
+      "positionKm": 5.849880618195337e-7,
+      "velocityMs": 4.6146694007455847e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-02",
+      "cutoff": true,
+      "positionKm": 454.7060523496985,
+      "velocityMs": 0.0000010228245505323063
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-03",
+      "cutoff": false,
+      "positionKm": 6.06985629450089e-7,
+      "velocityMs": 5.196428592595752e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-04",
+      "cutoff": false,
+      "positionKm": 4.818831903232474e-7,
+      "velocityMs": 1.4372037834621798e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-05",
+      "cutoff": false,
+      "positionKm": 5.720060218729562e-7,
+      "velocityMs": 3.5779156717793626e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-06",
+      "cutoff": false,
+      "positionKm": 4.1522152636894316e-7,
+      "velocityMs": 5.397655449838222e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-07",
+      "cutoff": false,
+      "positionKm": 5.428104211469747e-7,
+      "velocityMs": 5.529787997844823e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-08",
+      "cutoff": true,
+      "positionKm": 3.1622740669476275,
+      "velocityMs": 5.802793316997376e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-09",
+      "cutoff": false,
+      "positionKm": 5.223687439423637e-7,
+      "velocityMs": 4.1911660733425724e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-10",
+      "cutoff": true,
+      "positionKm": 38.33093634196215,
+      "velocityMs": 8.43421975136291e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-11",
+      "cutoff": false,
+      "positionKm": 4.726547048595889e-7,
+      "velocityMs": 2.4718730594194314e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-12",
+      "cutoff": true,
+      "positionKm": 9.7843359321121,
+      "velocityMs": 5.668825032916548e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-13",
+      "cutoff": false,
+      "positionKm": 2.9833175673219165e-7,
+      "velocityMs": 4.4147690484890044e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-14",
+      "cutoff": true,
+      "positionKm": 2.453536079928823,
+      "velocityMs": 3.928844024341965e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-15",
+      "cutoff": false,
+      "positionKm": 3.1998854035443786e-7,
+      "velocityMs": 4.647959629835273e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-16",
+      "cutoff": false,
+      "positionKm": 3.3401090375037416e-7,
+      "velocityMs": 6.334769965837008e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-17",
+      "cutoff": true,
+      "positionKm": 2.2651483870009774,
+      "velocityMs": 3.402581425729339e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-27",
+      "cutoff": false,
+      "positionKm": 6.656728506786184e-7,
+      "velocityMs": 5.900230624238418e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-28",
+      "cutoff": false,
+      "positionKm": 4.3666087500673486e-7,
+      "velocityMs": 5.59812466975207e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-29",
+      "cutoff": false,
+      "positionKm": 2.628612612562153e-7,
+      "velocityMs": 5.120621294480196e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-30",
+      "cutoff": true,
+      "positionKm": 9.477818769159473,
+      "velocityMs": 7.202600451827239e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-31",
+      "cutoff": false,
+      "positionKm": 6.239971693163922e-7,
+      "velocityMs": 7.026776028275521e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-32",
+      "cutoff": true,
+      "positionKm": 22.593541051149924,
+      "velocityMs": 0.0000010352735999255935
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-33",
+      "cutoff": false,
+      "positionKm": 5.385614293839408e-7,
+      "velocityMs": 4.5033300018035106e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-34",
+      "cutoff": true,
+      "positionKm": 35.15840519970733,
+      "velocityMs": 4.461579405897916e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-35",
+      "cutoff": false,
+      "positionKm": 5.049275813190211e-7,
+      "velocityMs": 4.802317953021447e-7
+    },
+    {
+      "vehicle": "columbia",
+      "id": "A-36",
+      "cutoff": false,
+      "positionKm": 4.525965959990311e-7,
+      "velocityMs": 2.840808294121152e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-15",
+      "cutoff": false,
+      "positionKm": 3.1998854035443786e-7,
+      "velocityMs": 4.647959629835273e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-18",
+      "cutoff": false,
+      "positionKm": 5.372071820203861e-7,
+      "velocityMs": 4.948536672252269e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-19",
+      "cutoff": true,
+      "positionKm": 5.812254484294684,
+      "velocityMs": 3.5243232828585833e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-20",
+      "cutoff": false,
+      "positionKm": 4.1328351706661904e-7,
+      "velocityMs": 5.827509232388854e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LND",
+      "cutoff": false,
+      "positionKm": 2.2132788821110978e-7,
+      "velocityMs": 4.771952466041339e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-LIFTOFF",
+      "cutoff": false,
+      "positionKm": 3.908689215416805e-7,
+      "velocityMs": 5.291785964210213e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-21",
+      "cutoff": false,
+      "positionKm": 6.347360516853618e-7,
+      "velocityMs": 5.242794378355731e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-22",
+      "cutoff": false,
+      "positionKm": 3.998134278535619e-7,
+      "velocityMs": 7.268011338003539e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-23",
+      "cutoff": true,
+      "positionKm": 5.176011920213923,
+      "velocityMs": 2.0393681968141917e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-24",
+      "cutoff": false,
+      "positionKm": 5.375766217305155e-7,
+      "velocityMs": 5.546917332480509e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-25",
+      "cutoff": true,
+      "positionKm": 0.19075987175696804,
+      "velocityMs": 6.438851290644383e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-26",
+      "cutoff": false,
+      "positionKm": 3.347538222848635e-7,
+      "velocityMs": 6.065200931279648e-7
+    },
+    {
+      "vehicle": "eagle",
+      "id": "A-27",
+      "cutoff": false,
+      "positionKm": 6.656728506786184e-7,
+      "velocityMs": 5.900230624238418e-7
+    }
+  ]
+}

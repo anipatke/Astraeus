@@ -1,0 +1,762 @@
+{
+  "description": "Conversion proof for A-32 and A-33 (T-011, I-006). Independent implementations; diagnostic only; nothing here is applied to the reconstruction.",
+  "generatedFrom": "data/apollo11/normalised/anchors.json (A-33 with its T-010 speed override), docs/evidence/conversion-proof-horizons.json",
+  "a33Standalone": {
+    "id": "A-33",
+    "independentVsTool": {
+      "positionKm": 0.1511,
+      "velocityMs": 0.0006,
+      "earthFixedToEqjMatrixDifferenceArcsec": 0.098,
+      "radiusKm": 319526.6,
+      "onePrintedArcsecAtThisRadiusKm": 1.549
+    },
+    "roundTripAgainstUsedInputs": {
+      "latitudeDeg": [
+        -13.160014,
+        -13.16
+      ],
+      "longitudeDeg": [
+        -37.790024,
+        -37.79
+      ],
+      "altitudeNmi": [
+        169087.2,
+        169087.2
+      ],
+      "speedFtS": [
+        4075,
+        4075
+      ],
+      "flightPathAngleDeg": [
+        -80.34,
+        -80.34
+      ],
+      "headingDeg": [
+        129.299986,
+        129.3
+      ]
+    },
+    "maxRoundTripResidual": {
+      "angleDeg": 0.000023913,
+      "altitudeKm": 0.000002614,
+      "speedFtS": 0.000001008
+    }
+  },
+  "a34Control": {
+    "id": "A-34",
+    "independentVsTool": {
+      "positionKm": 0.1515,
+      "velocityMs": 0.0006,
+      "earthFixedToEqjMatrixDifferenceArcsec": 0.098,
+      "radiusKm": 319514.3,
+      "onePrintedArcsecAtThisRadiusKm": 1.549
+    },
+    "roundTripAgainstUsedInputs": {
+      "latitudeDeg": [
+        -13.160014,
+        -13.16
+      ],
+      "longitudeDeg": [
+        -37.830024,
+        -37.83
+      ],
+      "altitudeNmi": [
+        169080.6,
+        169080.6
+      ],
+      "speedFtS": [
+        4074,
+        4074
+      ],
+      "flightPathAngleDeg": [
+        -80.41,
+        -80.41
+      ],
+      "headingDeg": [
+        129.299986,
+        129.3
+      ]
+    },
+    "maxRoundTripResidual": {
+      "angleDeg": 0.000023995,
+      "altitudeKm": 0.000002306,
+      "speedFtS": 3.23e-7
+    }
+  },
+  "a32Standalone": {
+    "id": "A-32",
+    "toolReproduced": {
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    "lunarOrientationDeg": {
+      "rightAscension": 270.3264,
+      "declination": 68.0815,
+      "primeMeridian": -326.9374
+    },
+    "stepA_lunarFrame": {
+      "independentBasisMatrixAgreesWithCode": 0,
+      "subEarthPointSelenographic": {
+        "astraeusMoon": {
+          "latDeg": 3.575,
+          "lonDeg": -7.491
+        },
+        "horizonsMoon": {
+          "latDeg": 3.575,
+          "lonDeg": -7.489
+        },
+        "horizonsPublished": {
+          "latDeg": 3.573614,
+          "lonDeg": -7.490169
+        }
+      },
+      "effectOnEarthCentredState": {
+        "mean axes without libration series": {
+          "positionKm": 10.385,
+          "velocityMs": 68.292
+        },
+        "principal axes instead of mean-Earth axes (PA->ME about 0.1 deg)": {
+          "positionKm": 0.887,
+          "velocityMs": 0.696
+        }
+      }
+    },
+    "stepB_radiusAndLatitude": {
+      "effectOnEarthCentredState": {
+        "radius 1737.4 km (IAU mean) instead of 1738.09": {
+          "positionKm": 0.69,
+          "velocityMs": 0
+        },
+        "radius 1738.0 km (gravity)": {
+          "positionKm": 0.09,
+          "velocityMs": 0
+        }
+      },
+      "note": "The printed latitude is selenocentric on a sphere in the tool; a +/-0.2 deg geodetic-versus-geocentric ambiguity would move position by under 0.7 km on this body."
+    },
+    "stepC_localBasis": {
+      "headingReferenceAngleBetweenPolesDeg": {
+        "lunarPoleVsEqjNorth": 21.919,
+        "eqjNorthVsMeanPoleOf1969": 0.1695,
+        "eqjNorthVsB1950Pole": 0.2784
+      },
+      "effectOnEarthCentredState": {
+        "FPA/heading against EQJ (J2000) north": {
+          "positionKm": 0,
+          "velocityMs": 984.286
+        },
+        "FPA/heading against mean equatorial pole of date (1969)": {
+          "positionKm": 0,
+          "velocityMs": 985.196
+        },
+        "FPA/heading against B1950 equatorial pole": {
+          "positionKm": 0,
+          "velocityMs": 985.753
+        },
+        "printed velocity read as Moon-fixed (relative) speed": {
+          "positionKm": 0,
+          "velocityMs": 4.917
+        }
+      }
+    },
+    "stepD_moonEphemeris": {
+      "astraeusVsHorizons": {
+        "positionKm": 9.05,
+        "velocityMs": 0.072,
+        "positionAngleArcsec": 4.81
+      },
+      "effectOnEarthCentredStateOfUsingHorizons": {
+        "positionKm": 9.05,
+        "velocityMs": 0.072
+      }
+    },
+    "baselineEarthCentred": {
+      "rKm": [
+        -345327.826,
+        -146138.476,
+        -83700.222
+      ],
+      "vKmS": [
+        -0.011007,
+        0.869076,
+        1.541916
+      ]
+    }
+  },
+  "controls": {
+    "A-11": {
+      "id": "A-11",
+      "toolReproduced": {
+        "positionKm": 0,
+        "velocityMs": 0
+      },
+      "lunarOrientationDeg": {
+        "rightAscension": 270.3077,
+        "declination": 68.0983,
+        "primeMeridian": -359.6441
+      },
+      "stepA_lunarFrame": {
+        "independentBasisMatrixAgreesWithCode": 0,
+        "subEarthPointSelenographic": {
+          "astraeusMoon": {
+            "latDeg": 0.076,
+            "lonDeg": -6.44
+          },
+          "horizonsMoon": {
+            "latDeg": 0.076,
+            "lonDeg": -6.44
+          },
+          "horizonsPublished": {
+            "latDeg": 0.074152,
+            "lonDeg": -6.437759
+          }
+        },
+        "effectOnEarthCentredState": {
+          "mean axes without libration series": {
+            "positionKm": 13.832,
+            "velocityMs": 68.596
+          },
+          "principal axes instead of mean-Earth axes (PA->ME about 0.1 deg)": {
+            "positionKm": 0.61,
+            "velocityMs": 0.895
+          }
+        }
+      },
+      "stepB_radiusAndLatitude": {
+        "effectOnEarthCentredState": {
+          "radius 1737.4 km (IAU mean) instead of 1738.09": {
+            "positionKm": 0.69,
+            "velocityMs": 0
+          },
+          "radius 1738.0 km (gravity)": {
+            "positionKm": 0.09,
+            "velocityMs": 0
+          }
+        },
+        "note": "The printed latitude is selenocentric on a sphere in the tool; a +/-0.2 deg geodetic-versus-geocentric ambiguity would move position by under 0.7 km on this body."
+      },
+      "stepC_localBasis": {
+        "headingReferenceAngleBetweenPolesDeg": {
+          "lunarPoleVsEqjNorth": 21.902,
+          "eqjNorthVsMeanPoleOf1969": 0.1696,
+          "eqjNorthVsB1950Pole": 0.2784
+        },
+        "effectOnEarthCentredState": {
+          "FPA/heading against EQJ (J2000) north": {
+            "positionKm": 0,
+            "velocityMs": 928.043
+          },
+          "FPA/heading against mean equatorial pole of date (1969)": {
+            "positionKm": 0,
+            "velocityMs": 929.242
+          },
+          "FPA/heading against B1950 equatorial pole": {
+            "positionKm": 0,
+            "velocityMs": 929.986
+          },
+          "printed velocity read as Moon-fixed (relative) speed": {
+            "positionKm": 0,
+            "velocityMs": 5.052
+          }
+        }
+      },
+      "stepD_moonEphemeris": {
+        "astraeusVsHorizons": {
+          "positionKm": 2.999,
+          "velocityMs": 0.03,
+          "positionAngleArcsec": 0.85
+        },
+        "effectOnEarthCentredStateOfUsingHorizons": {
+          "positionKm": 2.999,
+          "velocityMs": 0.03
+        }
+      },
+      "baselineEarthCentred": {
+        "rKm": [
+          -394315.693,
+          36558.931,
+          14926.2
+        ],
+        "vKmS": [
+          -0.07545,
+          0.778597,
+          1.421554
+        ]
+      }
+    },
+    "A-31": {
+      "id": "A-31",
+      "toolReproduced": {
+        "positionKm": 0,
+        "velocityMs": 0
+      },
+      "lunarOrientationDeg": {
+        "rightAscension": 270.3264,
+        "declination": 68.0815,
+        "primeMeridian": -326.9605
+      },
+      "stepA_lunarFrame": {
+        "independentBasisMatrixAgreesWithCode": 0,
+        "subEarthPointSelenographic": {
+          "astraeusMoon": {
+            "latDeg": 3.573,
+            "lonDeg": -7.491
+          },
+          "horizonsMoon": {
+            "latDeg": 3.573,
+            "lonDeg": -7.489
+          },
+          "horizonsPublished": {
+            "latDeg": 3.571342,
+            "lonDeg": -7.490197
+          }
+        },
+        "effectOnEarthCentredState": {
+          "mean axes without libration series": {
+            "positionKm": 19.095,
+            "velocityMs": 41.708
+          },
+          "principal axes instead of mean-Earth axes (PA->ME about 0.1 deg)": {
+            "positionKm": 0.835,
+            "velocityMs": 0.468
+          }
+        }
+      },
+      "stepB_radiusAndLatitude": {
+        "effectOnEarthCentredState": {
+          "radius 1737.4 km (IAU mean) instead of 1738.09": {
+            "positionKm": 0.69,
+            "velocityMs": 0
+          },
+          "radius 1738.0 km (gravity)": {
+            "positionKm": 0.09,
+            "velocityMs": 0
+          }
+        },
+        "note": "The printed latitude is selenocentric on a sphere in the tool; a +/-0.2 deg geodetic-versus-geocentric ambiguity would move position by under 0.7 km on this body."
+      },
+      "stepC_localBasis": {
+        "headingReferenceAngleBetweenPolesDeg": {
+          "lunarPoleVsEqjNorth": 21.919,
+          "eqjNorthVsMeanPoleOf1969": 0.1695,
+          "eqjNorthVsB1950Pole": 0.2784
+        },
+        "effectOnEarthCentredState": {
+          "FPA/heading against EQJ (J2000) north": {
+            "positionKm": 0,
+            "velocityMs": 597.127
+          },
+          "FPA/heading against mean equatorial pole of date (1969)": {
+            "positionKm": 0,
+            "velocityMs": 598.485
+          },
+          "FPA/heading against B1950 equatorial pole": {
+            "positionKm": 0,
+            "velocityMs": 599.339
+          },
+          "printed velocity read as Moon-fixed (relative) speed": {
+            "positionKm": 0,
+            "velocityMs": 4.914
+          }
+        }
+      },
+      "stepD_moonEphemeris": {
+        "astraeusVsHorizons": {
+          "positionKm": 9.041,
+          "velocityMs": 0.072,
+          "positionAngleArcsec": 4.81
+        },
+        "effectOnEarthCentredStateOfUsingHorizons": {
+          "positionKm": 9.041,
+          "velocityMs": 0.072
+        }
+      },
+      "baselineEarthCentred": {
+        "rKm": [
+          -345329.512,
+          -146316.668,
+          -83779.198
+        ],
+        "vKmS": [
+          0.058844,
+          0.220924,
+          0.7936
+        ]
+      }
+    }
+  },
+  "headingReferenceFit": {
+    "method": "Within one coast the orbit plane is fixed in inertial space, so r x v from each anchor must point the same way. Spread = largest angle (deg) from the mean orbit normal.",
+    "planeSpreadDeg": {
+      "north = lunar pole (as in the tool)": {
+        "LOI-1 coast (A-12, A-13)": 4.852,
+        "docked 60 nmi orbit (A-14..A-17)": 13.306,
+        "Columbia ascent-phase orbit (A-27..A-30)": 21.968
+      },
+      "north = EQJ (J2000) pole": {
+        "LOI-1 coast (A-12, A-13)": 0.353,
+        "docked 60 nmi orbit (A-14..A-17)": 11.021,
+        "Columbia ascent-phase orbit (A-27..A-30)": 31.389
+      },
+      "north = mean pole of date": {
+        "LOI-1 coast (A-12, A-13)": 0.339,
+        "docked 60 nmi orbit (A-14..A-17)": 10.932,
+        "Columbia ascent-phase orbit (A-27..A-30)": 31.396
+      },
+      "north = B1950 pole": {
+        "LOI-1 coast (A-12, A-13)": 0.332,
+        "docked 60 nmi orbit (A-14..A-17)": 10.875,
+        "Columbia ascent-phase orbit (A-27..A-30)": 31.401
+      }
+    },
+    "referencePlane": "mean orbit normal of A-12..A-14 and A-16..A-26 (Earth-north reading), RA/Dec below",
+    "referencePlaneNormalRaDecDeg": [
+      90.57,
+      -66.64
+    ],
+    "planeImpliedHeadings": {
+      "A-11": {
+        "printedHeadingDeg": -62.8,
+        "planeImpliedHeadingDeg": -67.2,
+        "differenceDeg": 4.4
+      },
+      "A-12": {
+        "printedHeadingDeg": -66.89,
+        "planeImpliedHeadingDeg": -67.16,
+        "differenceDeg": 0.27
+      },
+      "A-13": {
+        "printedHeadingDeg": -66.55,
+        "planeImpliedHeadingDeg": -67.14,
+        "differenceDeg": 0.59
+      },
+      "A-14": {
+        "printedHeadingDeg": -66.77,
+        "planeImpliedHeadingDeg": -66.87,
+        "differenceDeg": 0.1
+      },
+      "A-15": {
+        "printedHeadingDeg": -89.13,
+        "planeImpliedHeadingDeg": -74.58,
+        "differenceDeg": -14.55
+      },
+      "A-16": {
+        "printedHeadingDeg": -106.99,
+        "planeImpliedHeadingDeg": -106.81,
+        "differenceDeg": -0.18
+      },
+      "A-17": {
+        "printedHeadingDeg": -106.9,
+        "planeImpliedHeadingDeg": -106.94,
+        "differenceDeg": 0.04
+      },
+      "A-18": {
+        "printedHeadingDeg": -75.7,
+        "planeImpliedHeadingDeg": -75.78,
+        "differenceDeg": 0.08
+      },
+      "A-19": {
+        "printedHeadingDeg": -75.19,
+        "planeImpliedHeadingDeg": -75.23,
+        "differenceDeg": 0.04
+      },
+      "A-20": {
+        "printedHeadingDeg": -104.23,
+        "planeImpliedHeadingDeg": -104.17,
+        "differenceDeg": -0.06
+      },
+      "A-21": {
+        "printedHeadingDeg": -108.15,
+        "planeImpliedHeadingDeg": -108.58,
+        "differenceDeg": 0.43
+      },
+      "A-22": {
+        "printedHeadingDeg": -77.98,
+        "planeImpliedHeadingDeg": -77.9,
+        "differenceDeg": -0.08
+      },
+      "A-23": {
+        "printedHeadingDeg": -76.98,
+        "planeImpliedHeadingDeg": -77.03,
+        "differenceDeg": 0.05
+      },
+      "A-24": {
+        "printedHeadingDeg": -93.16,
+        "planeImpliedHeadingDeg": -93.42,
+        "differenceDeg": 0.26
+      },
+      "A-25": {
+        "printedHeadingDeg": -92.65,
+        "planeImpliedHeadingDeg": -92.92,
+        "differenceDeg": 0.27
+      },
+      "A-26": {
+        "printedHeadingDeg": -70.45,
+        "planeImpliedHeadingDeg": -70.92,
+        "differenceDeg": 0.47
+      },
+      "A-27": {
+        "printedHeadingDeg": -97.63,
+        "planeImpliedHeadingDeg": -87.38,
+        "differenceDeg": -10.25
+      },
+      "A-28": {
+        "printedHeadingDeg": -97.81,
+        "planeImpliedHeadingDeg": -97.63,
+        "differenceDeg": -0.18
+      },
+      "A-29": {
+        "printedHeadingDeg": -52.56,
+        "planeImpliedHeadingDeg": -113.07,
+        "differenceDeg": 60.51
+      },
+      "A-30": {
+        "printedHeadingDeg": -52.73,
+        "planeImpliedHeadingDeg": -113.08,
+        "differenceDeg": 60.35
+      },
+      "A-31": {
+        "printedHeadingDeg": -62.77,
+        "planeImpliedHeadingDeg": -67.6,
+        "differenceDeg": 4.83
+      },
+      "A-32": {
+        "printedHeadingDeg": -62.6,
+        "planeImpliedHeadingDeg": -66.85,
+        "differenceDeg": 4.25
+      }
+    },
+    "inclinationToLunarEquatorDeg": {
+      "A-11": {
+        "printedHeadingDeg": -62.8,
+        "northIsLunarPole": 152.76,
+        "northIsEqjPole": 174.18
+      },
+      "A-12": {
+        "printedHeadingDeg": -66.89,
+        "northIsLunarPole": 156.89,
+        "northIsEqjPole": 178.32
+      },
+      "A-13": {
+        "printedHeadingDeg": -66.55,
+        "northIsLunarPole": 156.55,
+        "northIsEqjPole": 177.97
+      },
+      "A-14": {
+        "printedHeadingDeg": -66.77,
+        "northIsLunarPole": 156.77,
+        "northIsEqjPole": 178.48
+      },
+      "A-15": {
+        "printedHeadingDeg": -89.13,
+        "northIsLunarPole": 178.59,
+        "northIsEqjPole": 166.26
+      },
+      "A-16": {
+        "printedHeadingDeg": -106.99,
+        "northIsLunarPole": 162.98,
+        "northIsEqjPole": 178.4
+      },
+      "A-17": {
+        "printedHeadingDeg": -106.9,
+        "northIsLunarPole": 163.07,
+        "northIsEqjPole": 178.52
+      },
+      "A-18": {
+        "printedHeadingDeg": -75.7,
+        "northIsLunarPole": 165.66,
+        "northIsEqjPole": 178.49
+      },
+      "A-19": {
+        "printedHeadingDeg": -75.19,
+        "northIsLunarPole": 165.15,
+        "northIsEqjPole": 178.47
+      },
+      "A-20": {
+        "printedHeadingDeg": -104.23,
+        "northIsLunarPole": 165.73,
+        "northIsEqjPole": 178.59
+      },
+      "A-21": {
+        "printedHeadingDeg": -108.15,
+        "northIsLunarPole": 161.84,
+        "northIsEqjPole": 178.96
+      },
+      "A-22": {
+        "printedHeadingDeg": -77.98,
+        "northIsLunarPole": 167.94,
+        "northIsEqjPole": 178.82
+      },
+      "A-23": {
+        "printedHeadingDeg": -76.98,
+        "northIsLunarPole": 166.94,
+        "northIsEqjPole": 178.65
+      },
+      "A-24": {
+        "printedHeadingDeg": -93.16,
+        "northIsLunarPole": 176.63,
+        "northIsEqjPole": 178.82
+      },
+      "A-25": {
+        "printedHeadingDeg": -92.65,
+        "northIsLunarPole": 177.1,
+        "northIsEqjPole": 178.82
+      },
+      "A-26": {
+        "printedHeadingDeg": -70.45,
+        "northIsLunarPole": 160.43,
+        "northIsEqjPole": 178.19
+      },
+      "A-27": {
+        "printedHeadingDeg": -97.63,
+        "northIsLunarPole": 172.28,
+        "northIsEqjPole": 169.74
+      },
+      "A-28": {
+        "printedHeadingDeg": -97.81,
+        "northIsLunarPole": 172.11,
+        "northIsEqjPole": 178.69
+      },
+      "A-29": {
+        "printedHeadingDeg": -52.56,
+        "northIsLunarPole": 142.55,
+        "northIsEqjPole": 120.92
+      },
+      "A-30": {
+        "printedHeadingDeg": -52.73,
+        "northIsLunarPole": 142.72,
+        "northIsEqjPole": 121.08
+      },
+      "A-31": {
+        "printedHeadingDeg": -62.77,
+        "northIsLunarPole": 152.77,
+        "northIsEqjPole": 173.76
+      },
+      "A-32": {
+        "printedHeadingDeg": -62.6,
+        "northIsLunarPole": 152.6,
+        "northIsEqjPole": 174.34
+      }
+    }
+  },
+  "propagation": {
+    "dynamics": "Geocentric RK4 10 s; Earth mu 398600.4418 + J2 0.00108263; Moon and Sun third-body from the Astraeus adapter",
+    "A-32>A-33 under the proven conversions (north = lunar pole)": {
+      "positionKm": 25031.1,
+      "velocityMs": 412.1,
+      "closestKm": 23931.9,
+      "closestMinutesBeforeTarget": 95.9
+    },
+    "A-32>A-33 with the lunar-frame variants": {
+      "mean axes without libration": {
+        "positionKm": 26940.7,
+        "velocityMs": 444,
+        "closestKm": 25626.1,
+        "closestMinutesBeforeTarget": 108.4
+      },
+      "principal axes": {
+        "positionKm": 25040.3,
+        "velocityMs": 412.3,
+        "closestKm": 23943.3,
+        "closestMinutesBeforeTarget": 95.9
+      },
+      "radius 1737.4 km": {
+        "positionKm": 25021.8,
+        "velocityMs": 411.9,
+        "closestKm": 23923.1,
+        "closestMinutesBeforeTarget": 95.9
+      },
+      "printed velocity read as Moon-fixed": {
+        "positionKm": 24995.7,
+        "velocityMs": 411.3,
+        "closestKm": 23919,
+        "closestMinutesBeforeTarget": 95.1
+      }
+    },
+    "A-32>A-33 with the heading reference changed (PROPOSED, not applied)": {
+      "north = EQJ (J2000) pole": {
+        "positionKm": 212.6,
+        "velocityMs": 3.5,
+        "closestKm": 212.6,
+        "closestMinutesBeforeTarget": 0
+      },
+      "north = mean pole of date (1969)": {
+        "positionKm": 208.6,
+        "velocityMs": 3.5,
+        "closestKm": 208.6,
+        "closestMinutesBeforeTarget": 0
+      },
+      "north = B1950 pole": {
+        "positionKm": 207.5,
+        "velocityMs": 3.5,
+        "closestKm": 207.5,
+        "closestMinutesBeforeTarget": 0
+      }
+    },
+    "controlsUnderEachReference": {
+      "north = lunar pole": {
+        "A-10>A-11": {
+          "positionKm": 16.8,
+          "velocityMs": 940.6,
+          "closestKm": 16.8,
+          "closestMinutesBeforeTarget": 0
+        },
+        "A-30>A-31": {
+          "positionKm": 199.8,
+          "velocityMs": 1737,
+          "closestKm": 199.8,
+          "closestMinutesBeforeTarget": 0
+        }
+      },
+      "north = EQJ (J2000) pole": {
+        "A-10>A-11": {
+          "positionKm": 16.8,
+          "velocityMs": 12.8,
+          "closestKm": 16.8,
+          "closestMinutesBeforeTarget": 0
+        },
+        "A-30>A-31": {
+          "positionKm": 290.2,
+          "velocityMs": 1745,
+          "closestKm": 290.2,
+          "closestMinutesBeforeTarget": 0
+        }
+      }
+    },
+    "entryInterface": {
+      "published": {
+        "Table 7-VI after TEI": {
+          "get": "195:05:57",
+          "latitudeDeg": 4.29,
+          "longitudeDeg": 180.15,
+          "flightPathAngleDeg": -0.7,
+          "speedFtS": 36195
+        },
+        "Table 7-VI after MCC-5": {
+          "get": "195:03:08",
+          "latitudeDeg": -3.17,
+          "longitudeDeg": 171.99,
+          "flightPathAngleDeg": -6.46,
+          "speedFtS": 36194
+        }
+      },
+      "from A-32, north = lunar pole": {
+        "entry": false,
+        "perigeeAltitudeKm": 61978,
+        "perigeeGet": "195:26:13.7"
+      },
+      "from A-32, north = EQJ (J2000) pole": {
+        "get": "194:59:23.7",
+        "latitudeDeg": -8.85,
+        "longitudeDeg": 166.13,
+        "flightPathAngleDeg": -10.89,
+        "speedFtS": 36229
+      },
+      "from A-33 (override applied)": {
+        "entry": false,
+        "perigeeAltitudeKm": 125,
+        "perigeeGet": "195:06:07.4"
+      }
+    }
+  }
+}

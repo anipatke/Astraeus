@@ -1,0 +1,20 @@
+html, body, #app { margin: 0; height: 100%; background: #000; color: #f0e6da; font-family: system-ui, sans-serif; }
+#app { position: relative; overflow: hidden; }
+.canvas-host { position: absolute; inset: 0; touch-action: none; }
+.hud { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 8px; max-width: calc(100vw - 24px); font-size: 13px; }
+.hud .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.hud button, .hud input { background: rgba(13, 13, 13, 0.82); color: #f0e6da; border: 1px solid #333; border-radius: 6px; padding: 5px 9px; font: inherit; }
+.hud button[aria-pressed="true"] { border-color: #fc6323; color: #fc6323; }
+.hud .readout { background: rgba(13, 13, 13, 0.7); padding: 6px 9px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+.hud .controls { display: flex; flex-direction: column; gap: 8px; }
+.hud .error { color: #ff4444; }
+.hud input[type="range"] { width: min(360px, 70vw); padding: 0; }
+.hud .overlay { margin: 0; background: rgba(13, 13, 13, 0.82); padding: 6px 9px; border-radius: 6px; font-size: 12px; font-variant-numeric: tabular-nums; max-width: min(640px, calc(100vw - 24px)); }
+.hud .overlay div { display: flex; gap: 8px; }
+.hud .overlay dt { flex: 0 0 11em; color: #b1a1df; }
+.hud .overlay dd { margin: 0; overflow-wrap: anywhere; }
+.hud .mission { display: flex; flex-direction: column; gap: 4px; background: rgba(13, 13, 13, 0.82); padding: 6px 9px; border-radius: 6px; max-width: min(640px, calc(100vw - 24px)); }
+.hud .mission .readout { padding: 0; background: none; }
+.hud select { background: rgba(13, 13, 13, 0.82); color: #f0e6da; border: 1px solid #333; border-radius: 6px; padding: 5px 9px; font: inherit; max-width: min(520px, 80vw); }
+.anchor-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.anchor-label { position: absolute; left: 0; top: 0; margin: -14px 0 0 6px; font-size: 10px; line-height: 1; white-space: nowrap; text-shadow: 0 0 2px #000, 0 0 3px #000; font-variant-numeric: tabular-nums; }

@@ -1,0 +1,123 @@
+{
+  "source": "NASA/JPL Horizons API v1.2",
+  "target": "Moon (301)",
+  "center": "500@399",
+  "ephemeris": "DE441",
+  "frame": "ICRF (EQJ to <0.02 arcsec)",
+  "units": "km, km/s",
+  "query": "EPHEM_TYPE=VECTORS VEC_TABLE=2 VEC_CORR=NONE REF_SYSTEM=ICRF REF_PLANE=FRAME (equatorial; the default plane is the ecliptic) TIME_TYPE=UT TLIST=anchor epoch",
+  "retrieved": "2026-10-06T04:20:10.751Z",
+  "samples": {
+    "A-11": {
+      "getPrinted": "75:49:50.4",
+      "utc": "1969-07-19T17:21:50.400Z",
+      "positionKm": [
+        -392455.2584036601,
+        36880.20272445344,
+        15108.02798631222
+      ],
+      "velocityKmS": [
+        -0.05266645231696075,
+        -0.8726496780595987,
+        -0.4748187325326315
+      ]
+    },
+    "A-30": {
+      "getPrinted": "130:30:08.2",
+      "utc": "1969-07-22T00:02:08.200Z",
+      "positionKm": [
+        -352081.6227899237,
+        -131810.1638857029,
+        -76071.58443578192
+      ],
+      "velocityKmS": [
+        0.4612382912347847,
+        -0.8028580211454541,
+        -0.4306673951428813
+      ]
+    },
+    "A-31": {
+      "getPrinted": "135:23:42.3",
+      "utc": "1969-07-22T04:55:42.300Z",
+      "positionKm": [
+        -343567.0132545238,
+        -145798.6376285539,
+        -83569.3030093893
+      ],
+      "velocityKmS": [
+        0.505441859788166,
+        -0.7851515140591809,
+        -0.4204925421052806
+      ]
+    },
+    "A-32": {
+      "getPrinted": "135:26:13.7",
+      "utc": "1969-07-22T04:58:13.700Z",
+      "positionKm": [
+        -343490.4608235101,
+        -145917.4974278308,
+        -83632.95862533522
+      ],
+      "velocityKmS": [
+        0.5058187476524476,
+        -0.7849910734497829,
+        -0.4204006288911775
+      ]
+    },
+    "A-33": {
+      "getPrinted": "150:29:57.4",
+      "utc": "1969-07-22T20:01:57.400Z",
+      "positionKm": [
+        -312474.6387596208,
+        -186762.0102867494,
+        -105448.351829302
+      ],
+      "velocityKmS": [
+        0.6367331017006301,
+        -0.718555936659448,
+        -0.382641813353967
+      ]
+    },
+    "A-34": {
+      "getPrinted": "150:30:08.6",
+      "utc": "1969-07-22T20:02:08.600Z",
+      "positionKm": [
+        -312467.5072025227,
+        -186770.0580264195,
+        -105452.637368562
+      ],
+      "velocityKmS": [
+        0.6367591910904984,
+        -0.7185403808759312,
+        -0.3826330267419961
+      ]
+    }
+  },
+  "subEarthQuery": "OBSERVER QUANTITIES=14 (Observer sub-longitude/latitude: selenographic point under Earth), CENTER=500@399, ANG_FORMAT=DEG",
+  "subEarth": {
+    "A-11": {
+      "longitudeDeg": 353.562241,
+      "latitudeDeg": 0.074152
+    },
+    "A-30": {
+      "longitudeDeg": 352.515061,
+      "latitudeDeg": 3.3039
+    },
+    "A-31": {
+      "longitudeDeg": 352.509803,
+      "latitudeDeg": 3.571342
+    },
+    "A-32": {
+      "longitudeDeg": 352.509831,
+      "latitudeDeg": 3.573614
+    },
+    "A-33": {
+      "longitudeDeg": 352.602924,
+      "latitudeDeg": 4.353439
+    },
+    "A-34": {
+      "longitudeDeg": 352.602961,
+      "latitudeDeg": 4.353592
+    }
+  }
+}

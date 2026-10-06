@@ -1,0 +1,10 @@
+{
+  "source": "https://ntrs.nasa.gov/api/citations/19710015566/downloads/19710015566.pdf",
+  "pdfSha256": "8b7192503c5b74dc1bc9686b6bd84560f6bbbf14fa851449ddd8ddaad6137d5d",
+  "pdfPage": 86,
+  "table": "7-II",
+  "A13Longitude": "170.09 E",
+  "A14Longitude": "169.16 E",
+  "A05FlightPathAngleDeg": 44.94,
+  "reading": "Extracted table text aligns the circularization ignition and cutoff rows with the longitude column; docking FPA stays 44.94. Text has OCR defects elsewhere; other anchors are outside this source settlement."
+}

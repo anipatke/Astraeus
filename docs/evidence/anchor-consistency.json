@@ -1,0 +1,293 @@
+{
+  "description": "Anchor-consistency audit (I-006). 'printed' rows convert the values as transcribed (no inferred override); 'reconstructed' rows use the normalised states the reconstruction uses (A-05, A-33, A-34 overrides applied). 'hypothesis' rows are diagnostic what-ifs and are not applied anywhere.",
+  "dynamics": "Geocentric RK4 10 s; Earth mu 398600.4418 + J2 0.00108263; Moon and Sun third-body from the Astraeus adapter",
+  "printed": {
+    "A-10>A-11": {
+      "positionKm": 16.8,
+      "velocityMs": 12.8,
+      "closestKm": 16.8,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-30>A-31": {
+      "positionKm": 290.2,
+      "velocityMs": 1745,
+      "closestKm": 290.2,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-32>A-33": {
+      "positionKm": 212.6,
+      "velocityMs": 91.8,
+      "closestKm": 212.6,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-34>A-35": {
+      "positionKm": 37893.2,
+      "velocityMs": 10830.8,
+      "closestKm": 861.2,
+      "closestMinutesBeforeTarget": 95.7
+    },
+    "A-35>A-36": {
+      "positionKm": 32.2,
+      "velocityMs": 74.4,
+      "closestKm": 32.2,
+      "closestMinutesBeforeTarget": 0
+    }
+  },
+  "reconstructed": {
+    "A-10>A-11": {
+      "positionKm": 16.8,
+      "velocityMs": 12.8,
+      "closestKm": 16.8,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-30>A-31": {
+      "positionKm": 290.2,
+      "velocityMs": 1745,
+      "closestKm": 290.2,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-32>A-33": {
+      "positionKm": 212.6,
+      "velocityMs": 3.5,
+      "closestKm": 212.6,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-34>A-35": {
+      "positionKm": 38.4,
+      "velocityMs": 55.6,
+      "closestKm": 38.4,
+      "closestMinutesBeforeTarget": 0
+    },
+    "A-35>A-36": {
+      "positionKm": 32.2,
+      "velocityMs": 74.4,
+      "closestKm": 32.2,
+      "closestMinutesBeforeTarget": 0
+    }
+  },
+  "conversionRoundTripKm": {
+    "A-32": 1.70402964604911e-7,
+    "A-33": 5.385614293839408e-7,
+    "A-34": 3.964576249667813e-7,
+    "A-35": 5.049275813190211e-7,
+    "A-36": 4.525965959990311e-7
+  },
+  "lunarArrival": {
+    "A-10>A-11": {
+      "propagated": {
+        "latitudeDeg": -1.21,
+        "longitudeDeg": -169.33,
+        "altitudeNmi": 82,
+        "speedFtS": 8265,
+        "flightPathAngleDeg": -10.17,
+        "headingDeg": -84.61
+      },
+      "printed": {
+        "latitudeDeg": -1.57,
+        "longitudeDeg": -169.58,
+        "altitudeNmi": 86.7,
+        "speedFtS": 8250,
+        "flightPathAngleDeg": -9.99,
+        "headingDeg": -62.8
+      }
+    },
+    "A-30>A-31": {
+      "propagated": {
+        "latitudeDeg": 8.72,
+        "longitudeDeg": 162.93,
+        "altitudeNmi": 57.5,
+        "speedFtS": 5356,
+        "flightPathAngleDeg": -0.01,
+        "headingDeg": -148.52
+      },
+      "printed": {
+        "latitudeDeg": -0.16,
+        "longitudeDeg": 164.52,
+        "altitudeNmi": 58.4,
+        "speedFtS": 5376.5,
+        "flightPathAngleDeg": -0.03,
+        "headingDeg": -62.77
+      }
+    },
+    "A-12>A-13": {
+      "propagated": {
+        "latitudeDeg": -0.01,
+        "longitudeDeg": 170.75,
+        "altitudeNmi": 60.7,
+        "speedFtS": 5475.7,
+        "flightPathAngleDeg": -0.49,
+        "headingDeg": -88.32
+      },
+      "printed": {
+        "latitudeDeg": -0.02,
+        "longitudeDeg": 170.09,
+        "altitudeNmi": 61.8,
+        "speedFtS": 5477.3,
+        "flightPathAngleDeg": -0.49,
+        "headingDeg": -66.55
+      }
+    },
+    "A-14>A-13": {
+      "propagated": {
+        "latitudeDeg": -0.04,
+        "longitudeDeg": 170.01,
+        "altitudeNmi": 61.5,
+        "speedFtS": 5338.7,
+        "flightPathAngleDeg": 0.32,
+        "headingDeg": -88.48
+      },
+      "printed": {
+        "latitudeDeg": -0.02,
+        "longitudeDeg": 170.09,
+        "altitudeNmi": 61.8,
+        "speedFtS": 5477.3,
+        "flightPathAngleDeg": -0.49,
+        "headingDeg": -66.55
+      }
+    }
+  },
+  "lunarAnchorSeparationKm": {
+    "A-13>A-14 corrected source longitude": 29.986,
+    "A-13>A-14 old 170.09W transcription": 667.101
+  },
+  "entryInterface": {
+    "published": {
+      "Table 7-VI after TEI": {
+        "get": "195:05:57",
+        "latitudeDeg": 4.29,
+        "longitudeDeg": 180.15,
+        "flightPathAngleDeg": -0.7,
+        "speedFtS": 36195
+      },
+      "Table 7-VI after MCC-5": {
+        "get": "195:03:08",
+        "latitudeDeg": -3.17,
+        "longitudeDeg": 171.99,
+        "flightPathAngleDeg": -6.46,
+        "speedFtS": 36194
+      },
+      "Table 7-VII (A-36)": {
+        "get": "195:03:05.7",
+        "latitudeDeg": -3.19,
+        "longitudeDeg": 171.96,
+        "flightPathAngleDeg": -6.48,
+        "speedFtS": 36194
+      }
+    },
+    "fromPrinted": {
+      "A-32": {
+        "get": "194:59:23.7",
+        "latitudeDeg": -8.85,
+        "longitudeDeg": 166.13,
+        "flightPathAngleDeg": -10.89,
+        "speedFtS": 36229
+      },
+      "A-33": {
+        "entry": false,
+        "perigeeAltitudeKm": 973,
+        "perigeeGet": "193:31:47.4"
+      },
+      "A-34": {
+        "entry": false,
+        "perigeeAltitudeKm": 870,
+        "perigeeGet": "193:30:58.6"
+      },
+      "A-35": {
+        "get": "195:03:12.7",
+        "latitudeDeg": -2.88,
+        "longitudeDeg": 172.2,
+        "flightPathAngleDeg": -6.12,
+        "speedFtS": 36201
+      }
+    }
+  },
+  "hypotheses": {
+    "A-13 longitude retained as the old 170.09W transcription": {
+      "A-12>A-13": {
+        "propagated": {
+          "latitudeDeg": -0.01,
+          "longitudeDeg": 170.75,
+          "altitudeNmi": 60.7,
+          "speedFtS": 5475.7,
+          "flightPathAngleDeg": -0.49,
+          "headingDeg": -88.32
+        },
+        "printed": {
+          "latitudeDeg": -0.02,
+          "longitudeDeg": -170.09,
+          "altitudeNmi": 61.8,
+          "speedFtS": 5477.3,
+          "flightPathAngleDeg": -0.49,
+          "headingDeg": -66.55
+        }
+      },
+      "A-14>A-13": {
+        "propagated": {
+          "latitudeDeg": -0.04,
+          "longitudeDeg": 170.01,
+          "altitudeNmi": 61.5,
+          "speedFtS": 5338.7,
+          "flightPathAngleDeg": 0.32,
+          "headingDeg": -88.48
+        },
+        "printed": {
+          "latitudeDeg": -0.02,
+          "longitudeDeg": -170.09,
+          "altitudeNmi": 61.8,
+          "speedFtS": 5477.3,
+          "flightPathAngleDeg": -0.49,
+          "headingDeg": -66.55
+        }
+      }
+    },
+    "A-34 speed read as 4 074.0 ft/s (printed 4 374.0; adopted as an inferred override in T-010)": {
+      "A-34>A-35": {
+        "positionKm": 38.4,
+        "velocityMs": 55.6,
+        "closestKm": 38.4,
+        "closestMinutesBeforeTarget": 0
+      },
+      "entryInterface": {
+        "get": "195:03:08.6",
+        "latitudeDeg": -3.18,
+        "longitudeDeg": 171.97,
+        "flightPathAngleDeg": -6.48,
+        "speedFtS": 36206
+      }
+    },
+    "A-33 speed read as 4 075.0 ft/s (printed 4 375.0; adopted as an inferred override in T-010)": {
+      "entryInterface": {
+        "entry": false,
+        "perigeeAltitudeKm": 125,
+        "perigeeGet": "195:06:07.4"
+      }
+    },
+    "Moon-referenced FPA/heading measured against Earth (EQJ) north": {
+      "A-10>A-11": {
+        "positionKm": 16.8,
+        "velocityMs": 12.8,
+        "closestKm": 16.8,
+        "closestMinutesBeforeTarget": 0
+      },
+      "A-30>A-31": {
+        "positionKm": 290.2,
+        "velocityMs": 1745,
+        "closestKm": 290.2,
+        "closestMinutesBeforeTarget": 0
+      },
+      "A-32>A-33": {
+        "positionKm": 212.6,
+        "velocityMs": 91.8,
+        "closestKm": 212.6,
+        "closestMinutesBeforeTarget": 0
+      },
+      "A-32 entryInterface": {
+        "get": "194:59:23.7",
+        "latitudeDeg": -8.85,
+        "longitudeDeg": 166.13,
+        "flightPathAngleDeg": -10.89,
+        "speedFtS": 36229
+      }
+    }
+  }
+}

@@ -1,0 +1,523 @@
+{
+  "url": "http://127.0.0.1:5199/",
+  "errors": [],
+  "results": [
+    {
+      "id": "earth-orbit-readable",
+      "utc": "1969-07-16 14:30:00",
+      "scale": "readable",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-16T14:30:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 6,567 km from Earth centre · 7.795 km/s (inertial)"
+      ],
+      "note": "close Earth orbit (parking orbit, backward-propagated)"
+    },
+    {
+      "id": "translunar-readable",
+      "utc": "1969-07-18 12:00:00",
+      "scale": "readable",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-18T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 298,236 km from Earth centre · 1.099 km/s (inertial)"
+      ],
+      "note": "translunar coast"
+    },
+    {
+      "id": "lunar-orbit-columbia-readable",
+      "utc": "1969-07-21 06:00:00",
+      "scale": "readable",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-21T06:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 386,260 km from Earth centre · 2.46 km/s (inertial)",
+        "Eagle (LM): 385,986 km from Earth centre · 1.007 km/s (inertial)"
+      ],
+      "note": "close lunar orbit"
+    },
+    {
+      "id": "lunar-surface-eagle-readable",
+      "utc": "1969-07-21 06:00:00",
+      "scale": "readable",
+      "focus": "follow Eagle (LM)",
+      "time": "1969-07-21T06:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 386,260 km from Earth centre · 2.46 km/s (inertial)",
+        "Eagle (LM): 385,986 km from Earth centre · 1.007 km/s (inertial)"
+      ],
+      "note": "Eagle on the surface"
+    },
+    {
+      "id": "return-readable",
+      "utc": "1969-07-23 12:00:00",
+      "scale": "readable",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-23T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 242,384 km from Earth centre · 1.514 km/s (inertial)"
+      ],
+      "note": "trans-Earth coast"
+    },
+    {
+      "id": "entry-readable",
+      "utc": "1969-07-24 16:30:00",
+      "scale": "readable",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-24T16:30:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 7,258 km from Earth centre · 10.485 km/s (inertial)"
+      ],
+      "note": "entry interface"
+    },
+    {
+      "id": "earth-orbit-true",
+      "utc": "1969-07-16 14:30:00",
+      "scale": "true",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-16T14:30:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 6,567 km from Earth centre · 7.795 km/s (inertial)"
+      ],
+      "note": "close Earth orbit (parking orbit, backward-propagated)"
+    },
+    {
+      "id": "translunar-true",
+      "utc": "1969-07-18 12:00:00",
+      "scale": "true",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-18T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 298,236 km from Earth centre · 1.099 km/s (inertial)"
+      ],
+      "note": "translunar coast"
+    },
+    {
+      "id": "lunar-orbit-columbia-true",
+      "utc": "1969-07-21 06:00:00",
+      "scale": "true",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-21T06:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 386,260 km from Earth centre · 2.46 km/s (inertial)",
+        "Eagle (LM): 385,986 km from Earth centre · 1.007 km/s (inertial)"
+      ],
+      "note": "close lunar orbit"
+    },
+    {
+      "id": "lunar-surface-eagle-true",
+      "utc": "1969-07-21 06:00:00",
+      "scale": "true",
+      "focus": "follow Eagle (LM)",
+      "time": "1969-07-21T06:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 386,260 km from Earth centre · 2.46 km/s (inertial)",
+        "Eagle (LM): 385,986 km from Earth centre · 1.007 km/s (inertial)"
+      ],
+      "note": "Eagle on the surface"
+    },
+    {
+      "id": "return-true",
+      "utc": "1969-07-23 12:00:00",
+      "scale": "true",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-23T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 242,384 km from Earth centre · 1.514 km/s (inertial)"
+      ],
+      "note": "trans-Earth coast"
+    },
+    {
+      "id": "entry-true",
+      "utc": "1969-07-24 16:30:00",
+      "scale": "true",
+      "focus": "follow Columbia (CSM)",
+      "time": "1969-07-24T16:30:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 7,258 km from Earth centre · 10.485 km/s (inertial)"
+      ],
+      "note": "entry interface"
+    }
+  ],
+  "scalePairsIdentical": [
+    {
+      "id": "earth-orbit",
+      "same": true
+    },
+    {
+      "id": "translunar",
+      "same": true
+    },
+    {
+      "id": "lunar-orbit-columbia",
+      "same": true
+    },
+    {
+      "id": "lunar-surface-eagle",
+      "same": true
+    },
+    {
+      "id": "return",
+      "same": true
+    },
+    {
+      "id": "entry",
+      "same": true
+    }
+  ],
+  "focusUnchanged": true,
+  "focusStates": [
+    {
+      "name": "Focus Earth",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    },
+    {
+      "name": "Focus Moon",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    },
+    {
+      "name": "Focus Columbia (CSM)",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    },
+    {
+      "name": "Focus Eagle (LM)",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    },
+    {
+      "name": "Follow Columbia (CSM)",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    },
+    {
+      "name": "Earth–Moon overview",
+      "time": "1969-07-19T12:00:00Z · paused",
+      "mission": [
+        "Columbia (CSM): 379,095 km from Earth centre · 0.86 km/s (inertial)"
+      ]
+    }
+  ],
+  "jumps": [
+    {
+      "id": "E-01",
+      "label": "GET 00:00:00.6 · Lift-off",
+      "time": "1969-07-16T13:32:00.600Z · paused"
+    },
+    {
+      "id": "E-02",
+      "label": "GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)",
+      "time": "1969-07-16T13:43:39.300Z · paused"
+    },
+    {
+      "id": "E-03",
+      "label": "GET 02:44:16.2 · Translunar injection maneuver ignition",
+      "time": "1969-07-16T16:16:16.200Z · paused"
+    },
+    {
+      "id": "E-04",
+      "label": "GET 02:50:03.2 · Translunar injection maneuver cutoff",
+      "time": "1969-07-16T16:22:03.200Z · paused"
+    },
+    {
+      "id": "E-05",
+      "label": "GET 03:17:04.6 · Command and service module / S-IVB separation",
+      "time": "1969-07-16T16:49:04.600Z · paused"
+    },
+    {
+      "id": "E-06",
+      "label": "GET 03:24:03.1 · First docking (CSM with LM)",
+      "time": "1969-07-16T16:56:03.100Z · paused"
+    },
+    {
+      "id": "E-07",
+      "label": "GET 04:16:59.1 · Spacecraft ejection (from S-IVB)",
+      "time": "1969-07-16T17:48:59.100Z · paused"
+    },
+    {
+      "id": "E-08",
+      "label": "GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)",
+      "time": "1969-07-16T18:12:01.800Z · paused"
+    },
+    {
+      "id": "E-09",
+      "label": "GET 26:44:58.7 · First midcourse correction (MCC-1) ignition",
+      "time": "1969-07-17T16:16:58.700Z · paused"
+    },
+    {
+      "id": "E-10",
+      "label": "GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition",
+      "time": "1969-07-19T17:21:50.400Z · paused"
+    },
+    {
+      "id": "E-11",
+      "label": "GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition",
+      "time": "1969-07-19T21:43:36.800Z · paused"
+    },
+    {
+      "id": "E-12",
+      "label": "GET 100:12:00 · Undocking",
+      "time": "1969-07-20T17:44:00Z · paused"
+    },
+    {
+      "id": "E-13",
+      "label": "GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)",
+      "time": "1969-07-20T18:11:52.900Z · paused"
+    },
+    {
+      "id": "E-14",
+      "label": "GET 101:36:14.0 · Descent orbit insertion (DOI) ignition",
+      "time": "1969-07-20T19:08:14Z · paused"
+    },
+    {
+      "id": "E-15",
+      "label": "GET 102:33:05.2 · Powered descent initiation (PDI)",
+      "time": "1969-07-20T20:05:05.200Z · paused"
+    },
+    {
+      "id": "E-16",
+      "label": "GET 102:45:39.9 · Lunar landing (touchdown)",
+      "time": "1969-07-20T20:17:39.900Z · paused"
+    },
+    {
+      "id": "E-17",
+      "label": "GET 124:22:00.8 · Lunar lift-off",
+      "time": "1969-07-21T17:54:00.800Z · paused"
+    },
+    {
+      "id": "E-18",
+      "label": "GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)",
+      "time": "1969-07-21T18:01:15.700Z · paused"
+    },
+    {
+      "id": "E-19",
+      "label": "GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition",
+      "time": "1969-07-21T18:51:35.500Z · paused"
+    },
+    {
+      "id": "E-20",
+      "label": "GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition",
+      "time": "1969-07-21T19:49:49.600Z · paused"
+    },
+    {
+      "id": "E-21",
+      "label": "GET 127:03:51.8 · Terminal phase initiation (TPI) ignition",
+      "time": "1969-07-21T20:35:51.800Z · paused"
+    },
+    {
+      "id": "E-22",
+      "label": "GET 127:46:09.8 · Terminal phase finalize (TPFI)",
+      "time": "1969-07-21T21:18:09.800Z · paused"
+    },
+    {
+      "id": "E-23",
+      "label": "GET 128:03:00 · Docking (CSM and LM ascent stage)",
+      "time": "1969-07-21T21:35:00Z · paused"
+    },
+    {
+      "id": "E-24",
+      "label": "GET 130:09:31.2 · Ascent stage jettison",
+      "time": "1969-07-21T23:41:31.200Z · paused"
+    },
+    {
+      "id": "E-25",
+      "label": "GET 130:30:01 · Separation maneuver ignition (from ascent stage)",
+      "time": "1969-07-22T00:02:01Z · paused"
+    },
+    {
+      "id": "E-26",
+      "label": "GET 135:23:42.3 · Transearth injection maneuver ignition",
+      "time": "1969-07-22T04:55:42.300Z · paused"
+    },
+    {
+      "id": "E-27",
+      "label": "GET 194:49:12.7 · Command module / service module separation",
+      "time": "1969-07-24T16:21:12.700Z · paused"
+    },
+    {
+      "id": "E-28",
+      "label": "GET 195:03:05.7 · Entry interface (400 000 feet altitude)",
+      "time": "1969-07-24T16:35:05.700Z · paused"
+    },
+    {
+      "id": "E-29",
+      "label": "GET 195:12:06.9 · Drogue deployment",
+      "time": "1969-07-24T16:44:06.900Z · paused"
+    },
+    {
+      "id": "E-30",
+      "label": "GET 195:18:35 · Splashdown / Landing",
+      "time": "1969-07-24T16:50:35Z · paused"
+    }
+  ],
+  "rates": [
+    {
+      "rate": "1×",
+      "simSecPerRealSec": 1.0002374169040835
+    },
+    {
+      "rate": "100×",
+      "simSecPerRealSec": 100.15658362989323
+    },
+    {
+      "rate": "1,000×",
+      "simSecPerRealSec": 1006.2696683611716
+    },
+    {
+      "rate": "10,000×",
+      "simSecPerRealSec": 10023.239269622954
+    }
+  ],
+  "track": [
+    {
+      "time": "1969-07-20T17:00:30.250Z · playing",
+      "m": "Columbia (CSM): 390,546 km from Earth centre · 1.607 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:01:08.720Z · playing",
+      "m": "Columbia (CSM): 390,620 km from Earth centre · 1.565 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:02:11.570Z · playing",
+      "m": "Columbia (CSM): 390,658 km from Earth centre · 1.543 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:02:51.660Z · playing",
+      "m": "Columbia (CSM): 390,729 km from Earth centre · 1.502 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:03:31.490Z · playing",
+      "m": "Columbia (CSM): 390,801 km from Earth centre · 1.459 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:04:11.410Z · playing",
+      "m": "Columbia (CSM): 390,872 km from Earth centre · 1.416 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:05:10.530Z · playing",
+      "m": "Columbia (CSM): 390,941 km from Earth centre · 1.373 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:05:51.110Z · playing",
+      "m": "Columbia (CSM): 390,975 km from Earth centre · 1.352 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:06:31.750Z · playing",
+      "m": "Columbia (CSM): 391,041 km from Earth centre · 1.309 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:07:11.160Z · playing",
+      "m": "Columbia (CSM): 391,103 km from Earth centre · 1.267 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:07:51.770Z · playing",
+      "m": "Columbia (CSM): 391,166 km from Earth centre · 1.224 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:08:50.160Z · playing",
+      "m": "Columbia (CSM): 391,227 km from Earth centre · 1.181 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:09:30.920Z · playing",
+      "m": "Columbia (CSM): 391,255 km from Earth centre · 1.161 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:10:10.430Z · playing",
+      "m": "Columbia (CSM): 391,313 km from Earth centre · 1.118 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:11:09.850Z · playing",
+      "m": "Columbia (CSM): 391,366 km from Earth centre · 1.078 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:11:51.910Z · playing",
+      "m": "Columbia (CSM): 391,418 km from Earth centre · 1.037 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:12:31.150Z · playing",
+      "m": "Columbia (CSM): 391,469 km from Earth centre · 0.997 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:13:11.400Z · playing",
+      "m": "Columbia (CSM): 391,492 km from Earth centre · 0.977 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:14:14.680Z · playing",
+      "m": "Columbia (CSM): 391,537 km from Earth centre · 0.94 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:14:51.400Z · playing",
+      "m": "Columbia (CSM): 391,579 km from Earth centre · 0.903 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:15:30.210Z · playing",
+      "m": "Columbia (CSM): 391,618 km from Earth centre · 0.869 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:16:29.950Z · playing",
+      "m": "Columbia (CSM): 391,653 km from Earth centre · 0.836 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:17:10.500Z · playing",
+      "m": "Columbia (CSM): 391,686 km from Earth centre · 0.806 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:17:49.460Z · playing",
+      "m": "Columbia (CSM): 391,702 km from Earth centre · 0.792 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:18:29.220Z · playing",
+      "m": "Columbia (CSM): 391,730 km from Earth centre · 0.766 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:19:30.560Z · playing",
+      "m": "Columbia (CSM): 391,756 km from Earth centre · 0.742 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:20:10.770Z · playing",
+      "m": "Columbia (CSM): 391,777 km from Earth centre · 0.722 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:20:49.900Z · playing",
+      "m": "Columbia (CSM): 391,796 km from Earth centre · 0.705 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:21:28.540Z · playing",
+      "m": "Columbia (CSM): 391,804 km from Earth centre · 0.699 km/s (inertial)"
+    },
+    {
+      "time": "1969-07-20T17:22:08.410Z · playing",
+      "m": "Columbia (CSM): 391,817 km from Earth centre · 0.689 km/s (inertial)"
+    }
+  ],
+  "usno": [
+    {
+      "utc": "2024-01-04 03:30:00",
+      "overlay": "UTC time\n2024-01-04T03:30:00Z\nSpeed\n100× real time\nScale policy\nreadable-scale\nEarth–Moon distance\n401013.4 km (physical)\nRendered distance\n6.2944 scene units (Earth radii)\nMoon position\n(-390852.8, -84074.4, -31262.9) km, EQJ, centre earth\nEarth orientation\n(0.00113, 0.00026, 0.97713, 0.21264) [x,y,z,w] body→EQJ\nMoon orientation\n(0.24344, -0.01219, 0.11189, 0.96336) [x,y,z,w] body→EQJ\nSun direction (from Earth)\n(0.22354, -0.89429, -0.38766) EQJ unit\nSun direction (from Moon)\n(0.22619, -0.89371, -0.38745) EQJ unit\nMoon lit (geometric)\n50.1%\nScaled origin\n(-6.1057, -0.4038, 0.6176) scene units, render axes\nEarth local\n(6.1057, 0.4038, -0.6176) scene units\nMoon local\n(-0.0292, -0.0869, 0.7021) scene units"
+    },
+    {
+      "utc": "2024-01-11 11:57:00",
+      "overlay": "UTC time\n2024-01-11T11:57:00Z\nSpeed\n100× real time\nScale policy\nreadable-scale\nEarth–Moon distance\n365204.7 km (physical)\nRendered distance\n5.7323 scene units (Earth radii)\nMoon position\n(126825.7, -300208.0, -164817.8) km, EQJ, centre earth\nEarth orientation\n(-0.00068, 0.00094, -0.57756, 0.81635) [x,y,z,w] body→EQJ\nMoon orientation\n(0.15064, -0.19129, 0.79815, 0.55106) [x,y,z,w] body→EQJ\nSun direction (from Earth)\n(0.34876, -0.85989, -0.37276) EQJ unit\nSun direction (from Moon)\n(0.34876, -0.85998, -0.37256) EQJ unit\nMoon lit (geometric)\n0.2%\nScaled origin\n(1.9904, -2.5870, 4.7122) scene units, render axes\nEarth local\n(-1.9904, 2.5870, -4.7122) scene units\nMoon local\n(0.0003, -0.0000, -0.0001) scene units"
+    },
+    {
+      "utc": "2024-01-18 03:52:00",
+      "overlay": "UTC time\n2024-01-18T03:52:00Z\nSpeed\n100× real time\nScale policy\nreadable-scale\nEarth–Moon distance\n374662.8 km (physical)\nRendered distance\n5.8808 scene units (Earth radii)\nMoon position\n(333238.4, 155243.6, 72275.8) km, EQJ, centre earth\nEarth orientation\n(0.00116, 0.00007, 0.99895, 0.04572) [x,y,z,w] body→EQJ\nMoon orientation\n(-0.04352, -0.24004, 0.94186, -0.23106) [x,y,z,w] body→EQJ\nSun direction (from Earth)\n(0.45710, -0.81604, -0.35375) EQJ unit\nSun direction (from Moon)\n(0.45484, -0.81709, -0.35424) EQJ unit\nMoon lit (geometric)\n50.1%\nScaled origin\n(5.2305, 1.1345, -2.4367) scene units, render axes\nEarth local\n(-5.2305, -1.1345, 2.4367) scene units\nMoon local\n(0.0000, -0.0000, -0.0000) scene units"
+    },
+    {
+      "utc": "2024-01-25 17:54:00",
+      "overlay": "UTC time\n2024-01-25T17:54:00Z\nSpeed\n100× real time\nScale policy\nreadable-scale\nEarth–Moon distance\n400993.6 km (physical)\nRendered distance\n6.2940 scene units (Earth radii)\nMoon position\n(-228680.4, 287296.7, 161126.3) km, EQJ, centre earth\nEarth orientation\n(0.00031, 0.00112, 0.28180, 0.95947) [x,y,z,w] body→EQJ\nMoon orientation\n(0.20970, 0.12462, -0.44646, 0.86091) [x,y,z,w] body→EQJ\nSun direction (from Earth)\n(0.57238, -0.75234, -0.32613) EQJ unit\nSun direction (from Moon)\n(0.57238, -0.75225, -0.32634) EQJ unit\nMoon lit (geometric)\n99.8%\nScaled origin\n(-3.5894, 2.5291, -4.5094) scene units, render axes\nEarth local\n(3.5894, -2.5291, 4.5094) scene units\nMoon local\n(0.0000, -0.0000, -0.0000) scene units"
+    }
+  ]
+}

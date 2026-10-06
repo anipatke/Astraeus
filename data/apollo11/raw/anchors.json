@@ -1,0 +1,941 @@
+{
+  "description": "Authoritative Apollo 11 postflight trajectory anchor states extracted from NASA MSC-00171 (Apollo 11 Mission Report), Table 7-II, Table 7-VII, and Table 5-IV. Values are transcribed exactly as printed; no unit conversion is performed in this raw dataset.",
+  "source_document": {
+    "title": "Apollo 11 Mission Report",
+    "report_number": "NASA SP-238 / MSC-00171",
+    "publication_date": "1969-11",
+    "ntrs_id": "19700008096",
+    "ntrs_url": "https://ntrs.nasa.gov/citations/19700008096"
+  },
+  "anchors": [
+    {
+      "id": "A-01",
+      "event": "S-IVB second ignition",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "2:44:16.2",
+      "latitude_printed": "9.23S",
+      "longitude_printed": "172.55E",
+      "altitude_printed": "105.8",
+      "inertial_velocity_printed": "25 562",
+      "flight_path_angle_printed": "0.02",
+      "heading_angle_printed": "57.78",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-02",
+      "event": "S-IVB second cutoff",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "2:50:03.2",
+      "latitude_printed": "9.52N",
+      "longitude_printed": "165.01W",
+      "altitude_printed": "173.3",
+      "inertial_velocity_printed": "35 567",
+      "flight_path_angle_printed": "6.91",
+      "heading_angle_printed": "59.93",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-03",
+      "event": "Translunar injection",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "2:50:13.2",
+      "latitude_printed": "9.98N",
+      "longitude_printed": "164.84W",
+      "altitude_printed": "180.6",
+      "inertial_velocity_printed": "35 546",
+      "flight_path_angle_printed": "7.37",
+      "heading_angle_printed": "60.07",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-04",
+      "event": "Command module S-IVB separation",
+      "phase": "translunar",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "3:17:04.6",
+      "latitude_printed": "31.16N",
+      "longitude_printed": "88.76W",
+      "altitude_printed": "4 110.0",
+      "inertial_velocity_printed": "24 456.8",
+      "flight_path_angle_printed": "46.24",
+      "heading_angle_printed": "95.10",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-05",
+      "event": "Docking",
+      "phase": "translunar",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "3:24:03.1",
+      "latitude_printed": "30.18N",
+      "longitude_printed": "81.71W",
+      "altitude_printed": "5 317.6",
+      "inertial_velocity_printed": "22 662.5",
+      "flight_path_angle_printed": "44.94",
+      "heading_angle_printed": "99.57",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-06",
+      "event": "Spacecraft S-IVB separation (ejection)",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "4:16:59.1",
+      "latitude_printed": "23.13N",
+      "longitude_printed": "67.70W",
+      "altitude_printed": "13 506.5",
+      "inertial_velocity_printed": "16 060.8",
+      "flight_path_angle_printed": "62.01",
+      "heading_angle_printed": "110.90",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      },
+      "correction_note": "Corrected against MSC-00171 Table 7-II (owner source check, Task T-007, Issue I-002). Earlier transcription: altitude_printed=8 506.5, longitude_printed=47.70W, inertial_velocity_printed=16 360.9."
+    },
+    {
+      "id": "A-07",
+      "event": "Separation maneuver Ignition",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "4:40:01.8",
+      "latitude_printed": "21.16N",
+      "longitude_printed": "68.46W",
+      "altitude_printed": "16 620.8",
+      "inertial_velocity_printed": "14 680.0",
+      "flight_path_angle_printed": "64.30",
+      "heading_angle_printed": "113.73",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      },
+      "correction_note": "Corrected against MSC-00171 Table 7-II (owner source check, Task T-007, Issue I-002). Earlier transcription: altitude_printed=10 620.8."
+    },
+    {
+      "id": "A-08",
+      "event": "Separation maneuver Cutoff",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "4:40:04.7",
+      "latitude_printed": "21.16N",
+      "longitude_printed": "68.46W",
+      "altitude_printed": "16 627.3",
+      "inertial_velocity_printed": "14 663.0",
+      "flight_path_angle_printed": "64.25",
+      "heading_angle_printed": "113.74",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      },
+      "correction_note": "Corrected against MSC-00171 Table 7-II (owner source check, Task T-007, Issue I-002). Earlier transcription: altitude_printed=10 627.3."
+    },
+    {
+      "id": "A-09",
+      "event": "First midcourse correction Ignition",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "26:44:58.7",
+      "latitude_printed": "5.99N",
+      "longitude_printed": "11.16W",
+      "altitude_printed": "109 475.3",
+      "inertial_velocity_printed": "5 025.0",
+      "flight_path_angle_printed": "77.05",
+      "heading_angle_printed": "120.88",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-10",
+      "event": "First midcourse correction Cutoff",
+      "phase": "translunar",
+      "vehicle": "docked_stack",
+      "ref_body": "Earth",
+      "get_printed": "26:45:01.8",
+      "latitude_printed": "6.00N",
+      "longitude_printed": "11.17W",
+      "altitude_printed": "109 477.2",
+      "inertial_velocity_printed": "5 010.0",
+      "flight_path_angle_printed": "76.88",
+      "heading_angle_printed": "120.87",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-11",
+      "event": "Lunar orbit insertion Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "docked_stack",
+      "ref_body": "Moon",
+      "get_printed": "75:49:50.4",
+      "latitude_printed": "1.57S",
+      "longitude_printed": "169.58W",
+      "altitude_printed": "86.7",
+      "inertial_velocity_printed": "8 250.0",
+      "flight_path_angle_printed": "-9.99",
+      "heading_angle_printed": "-62.80",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-12",
+      "event": "Lunar orbit insertion Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "docked_stack",
+      "ref_body": "Moon",
+      "get_printed": "75:55:48.0",
+      "latitude_printed": "0.16N",
+      "longitude_printed": "167.13E",
+      "altitude_printed": "60.1",
+      "inertial_velocity_printed": "5 479.0",
+      "flight_path_angle_printed": "-0.20",
+      "heading_angle_printed": "-66.89",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-13",
+      "event": "Lunar orbit circularization Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "docked_stack",
+      "ref_body": "Moon",
+      "get_printed": "80:11:36.8",
+      "latitude_printed": "0.02S",
+      "longitude_printed": "170.09E",
+      "altitude_printed": "61.8",
+      "inertial_velocity_printed": "5 477.3",
+      "flight_path_angle_printed": "-0.49",
+      "heading_angle_printed": "-66.55",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      },
+      "correction_note": "Corrected against NASA SP-238, Apollo 11 Mission Report, Table 7-II p. 7-9 (NASA NTRS document 19710015566, https://ntrs.nasa.gov/citations/19710015566). The indexed table text reads A-13 lunar-orbit circularization ignition longitude as 170.09 E and A-14 cutoff as 169.16 E; the earlier A-13 transcription was 170.09W. The corrected pair changes east longitude by -0.93 degrees (westward). Read 2026-10-06 during T-014."
+    },
+    {
+      "id": "A-14",
+      "event": "Lunar orbit circularization Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "docked_stack",
+      "ref_body": "Moon",
+      "get_printed": "80:11:53.6",
+      "latitude_printed": "0.02S",
+      "longitude_printed": "169.16E",
+      "altitude_printed": "61.6",
+      "inertial_velocity_printed": "5 338.3",
+      "flight_path_angle_printed": "0.32",
+      "heading_angle_printed": "-66.77",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-15",
+      "event": "Undocking",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "100:12:00.0",
+      "latitude_printed": "1.11N",
+      "longitude_printed": "116.21E",
+      "altitude_printed": "62.9",
+      "inertial_velocity_printed": "5 333.8",
+      "flight_path_angle_printed": "0.16",
+      "heading_angle_printed": "-89.13",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-16",
+      "event": "Separation maneuver Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "100:39:52.9",
+      "latitude_printed": "0.99N",
+      "longitude_printed": "31.86E",
+      "altitude_printed": "63.7",
+      "inertial_velocity_printed": "5 332.7",
+      "flight_path_angle_printed": "-0.13",
+      "heading_angle_printed": "-106.99",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-17",
+      "event": "Separation maneuver Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "100:40:01.9",
+      "latitude_printed": "1.05N",
+      "longitude_printed": "31.41E",
+      "altitude_printed": "63.5",
+      "inertial_velocity_printed": "5 332.3",
+      "flight_path_angle_printed": "-0.16",
+      "heading_angle_printed": "-106.90",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-18",
+      "event": "Descent orbit insertion Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "101:36:14.0",
+      "latitude_printed": "1.12S",
+      "longitude_printed": "140.20W",
+      "altitude_printed": "58.4",
+      "inertial_velocity_printed": "5 364.0",
+      "flight_path_angle_printed": "0.10",
+      "heading_angle_printed": "-75.70",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-19",
+      "event": "Descent orbit insertion Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "101:36:44.0",
+      "latitude_printed": "1.16S",
+      "longitude_printed": "141.88W",
+      "altitude_printed": "57.8",
+      "inertial_velocity_printed": "5 284.9",
+      "flight_path_angle_printed": "-0.06",
+      "heading_angle_printed": "-75.19",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-20",
+      "event": "Powered descent initiation",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "102:33:05.1",
+      "latitude_printed": "1.02N",
+      "longitude_printed": "39.39E",
+      "altitude_printed": "6.4",
+      "inertial_velocity_printed": "5 564.3",
+      "flight_path_angle_printed": "0.05",
+      "heading_angle_printed": "-104.23",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-21",
+      "event": "Lunar orbit insertion engine cutoff (Ascent)",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "124:29:15.7",
+      "latitude_printed": "0.73N",
+      "longitude_printed": "12.00E",
+      "altitude_printed": "10.0",
+      "inertial_velocity_printed": "5 537.9",
+      "flight_path_angle_printed": "0.28",
+      "heading_angle_printed": "-108.15",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-22",
+      "event": "Coelliptic sequence initiation Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "125:19:35.5",
+      "latitude_printed": "0.94S",
+      "longitude_printed": "147.12W",
+      "altitude_printed": "47.4",
+      "inertial_velocity_printed": "5 328.1",
+      "flight_path_angle_printed": "0.11",
+      "heading_angle_printed": "-77.98",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-23",
+      "event": "Coelliptic sequence initiation Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "125:20:22.5",
+      "latitude_printed": "1.01S",
+      "longitude_printed": "149.57W",
+      "altitude_printed": "45.4",
+      "inertial_velocity_printed": "5 376.6",
+      "flight_path_angle_printed": "0.09",
+      "heading_angle_printed": "-76.98",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-24",
+      "event": "Terminal phase initiation Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "127:03:51.8",
+      "latitude_printed": "1.17S",
+      "longitude_printed": "110.28W",
+      "altitude_printed": "44.1",
+      "inertial_velocity_printed": "5 391.5",
+      "flight_path_angle_printed": "-0.06",
+      "heading_angle_printed": "-93.16",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-25",
+      "event": "Terminal phase initiation Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "127:04:14.5",
+      "latitude_printed": "1.17S",
+      "longitude_printed": "111.46W",
+      "altitude_printed": "44.0",
+      "inertial_velocity_printed": "5 413.7",
+      "flight_path_angle_printed": "-0.03",
+      "heading_angle_printed": "-92.65",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-26",
+      "event": "Terminal phase finalize",
+      "phase": "lunar_orbit",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "127:46:09.8",
+      "latitude_printed": "0.90N",
+      "longitude_printed": "114.61E",
+      "altitude_printed": "57.6",
+      "inertial_velocity_printed": "5 319.7",
+      "flight_path_angle_printed": "0.42",
+      "heading_angle_printed": "-70.45",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-27",
+      "event": "Docking",
+      "phase": "lunar_orbit",
+      "vehicle": "docked_stack",
+      "ref_body": "Moon",
+      "get_printed": "128:03:00.0",
+      "latitude_printed": "1.19N",
+      "longitude_printed": "67.31E",
+      "altitude_printed": "60.6",
+      "inertial_velocity_printed": "5 341.5",
+      "flight_path_angle_printed": "0.16",
+      "heading_angle_printed": "-97.63",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-28",
+      "event": "Ascent stage jettison",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "130:09:31.2",
+      "latitude_printed": "1.10N",
+      "longitude_printed": "41.95E",
+      "altitude_printed": "61.6",
+      "inertial_velocity_printed": "5 335.9",
+      "flight_path_angle_printed": "0.15",
+      "heading_angle_printed": "-97.81",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-29",
+      "event": "Final separation Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "130:30:01.0",
+      "latitude_printed": "1.08N",
+      "longitude_printed": "20.12W",
+      "altitude_printed": "62.7",
+      "inertial_velocity_printed": "5 330.1",
+      "flight_path_angle_printed": "-0.05",
+      "heading_angle_printed": "-52.56",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-30",
+      "event": "Final separation Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "130:30:08.2",
+      "latitude_printed": "1.10N",
+      "longitude_printed": "20.35W",
+      "altitude_printed": "62.7",
+      "inertial_velocity_printed": "5 328.0",
+      "flight_path_angle_printed": "-0.02",
+      "heading_angle_printed": "-52.73",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-31",
+      "event": "Transearth injection Ignition",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "135:23:42.3",
+      "latitude_printed": "0.16S",
+      "longitude_printed": "164.52E",
+      "altitude_printed": "58.4",
+      "inertial_velocity_printed": "5 376.5",
+      "flight_path_angle_printed": "-0.03",
+      "heading_angle_printed": "-62.77",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-32",
+      "event": "Transearth injection Cutoff",
+      "phase": "lunar_orbit",
+      "vehicle": "Columbia",
+      "ref_body": "Moon",
+      "get_printed": "135:26:13.7",
+      "latitude_printed": "0.50N",
+      "longitude_printed": "154.02E",
+      "altitude_printed": "59.1",
+      "inertial_velocity_printed": "8 589.0",
+      "flight_path_angle_printed": "5.13",
+      "heading_angle_printed": "-62.60",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-33",
+      "event": "Second midcourse correction Ignition",
+      "phase": "transearth",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "150:29:57.4",
+      "latitude_printed": "13.16S",
+      "longitude_printed": "37.79W",
+      "altitude_printed": "169 087.2",
+      "inertial_velocity_printed": "4 375.0",
+      "flight_path_angle_printed": "-80.34",
+      "heading_angle_printed": "129.30",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-34",
+      "event": "Second midcourse correction Cutoff",
+      "phase": "transearth",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "150:30:08.6",
+      "latitude_printed": "13.16S",
+      "longitude_printed": "37.83W",
+      "altitude_printed": "169 080.6",
+      "inertial_velocity_printed": "4 374.0",
+      "flight_path_angle_printed": "-80.41",
+      "heading_angle_printed": "129.30",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-35",
+      "event": "Command module service module separation",
+      "phase": "transearth",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "194:49:12.7",
+      "latitude_printed": "35.29S",
+      "longitude_printed": "122.54E",
+      "altitude_printed": "1 778.3",
+      "inertial_velocity_printed": "29 615.5",
+      "flight_path_angle_printed": "-35.26",
+      "heading_angle_printed": "69.27",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-II",
+        "page": "7-9"
+      }
+    },
+    {
+      "id": "A-36",
+      "event": "Entry interface (400 000 feet altitude)",
+      "phase": "entry",
+      "vehicle": "Columbia",
+      "ref_body": "Earth",
+      "get_printed": "195:03:05.7",
+      "latitude_printed": "3.19S",
+      "longitude_printed": "171.96E",
+      "altitude_printed": "65.8",
+      "inertial_velocity_printed": "36 194.4",
+      "flight_path_angle_printed": "-6.48",
+      "heading_angle_printed": "50.18",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 7-VII",
+        "page": "7-12"
+      }
+    },
+    {
+      "id": "A-LND",
+      "event": "Lunar touchdown (Landing Site 2)",
+      "phase": "lunar_surface",
+      "vehicle": "Eagle",
+      "ref_body": "Moon",
+      "get_printed": "102:45:39.9",
+      "latitude_printed": "0.67408N",
+      "longitude_printed": "23.47297E",
+      "altitude_printed": "0.0",
+      "inertial_velocity_printed": "0.0",
+      "flight_path_angle_printed": "0.00",
+      "heading_angle_printed": "0.00",
+      "units": {
+        "altitude": "miles",
+        "inertial_velocity": "ft/sec",
+        "flight_path_angle": "deg",
+        "heading_angle": "deg E of N"
+      },
+      "source": {
+        "document": "Apollo 11 Mission Report (MSC-00171)",
+        "table": "Table 5-IV",
+        "page": "5-10"
+      }
+    }
+  ]
+}

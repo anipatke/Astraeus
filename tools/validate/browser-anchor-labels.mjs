@@ -1,0 +1,32 @@
+// Browser check for the anchor-label toggle (T-012). Run: npm run dev -- --port 5199, then
+//   node tools/validate/browser-anchor-labels.mjs <screenshot dir>
+const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+const chromium = pw.chromium ?? pw.default.chromium;
+const OUT = process.argv[2];
+const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const errors = [];
+page.on("pageerror", (e) => errors.push(e.message));
+page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+await page.goto("http://localhost:5199/");
+await page.waitForSelector("canvas");
+const click = (name) => page.getByRole("button", { name, exact: true }).click();
+const pauseBtn = page.getByRole("button", { name: "Pause", exact: true }); if (await pauseBtn.count()) await pauseBtn.click();
+await page.getByLabel("UTC date and time").fill("1969-07-22 20:30:00");
+await click("Seek (UTC)");
+await click("Earth–Moon overview");
+await page.waitForTimeout(1500);
+const offCount = await page.locator(".anchor-labels:not([hidden]) .anchor-label").count();
+await click("Anchor labels");
+await page.waitForTimeout(1500);
+const pressed = await page.getByRole("button", { name: "Anchor labels", exact: true }).getAttribute("aria-pressed");
+const visible = await page.locator(".anchor-labels:not([hidden]) .anchor-label:not([hidden])").allTextContents();
+await page.screenshot({ path: `${OUT}/labels-on-overview.png` });
+await click("Follow Columbia (CSM)");
+await page.waitForTimeout(2000);
+await page.screenshot({ path: `${OUT}/labels-on-follow.png` });
+await click("Anchor labels");
+await page.waitForTimeout(800);
+const hiddenAfter = await page.locator(".anchor-labels").getAttribute("hidden");
+console.log(JSON.stringify({ errors, offCount, pressed, visibleCount: visible.length, sample: visible.slice(0, 40), hiddenAfterToggle: hiddenAfter !== null }, null, 1));
+await browser.close();

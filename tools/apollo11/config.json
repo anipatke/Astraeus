@@ -1,0 +1,274 @@
+{
+  "constants": {
+    "rangeZeroUtcMs": -14552880000,
+    "nauticalMileKm": 1.852,
+    "footKm": 0.0003048,
+    "earth": {
+      "equatorialRadiusKm": 6378.166,
+      "inverseFlattening": 298.3,
+      "muKm3S2": 398600.4418,
+      "j2": 0.00108263,
+      "j2ReferenceRadiusKm": 6378.137
+    },
+    "moon": {
+      "referenceRadiusKm": 1738.09,
+      "muKm3S2": 4902.800066,
+      "sphereOfInfluenceKm": 66200
+    },
+    "sun": {
+      "muKm3S2": 132712440018
+    },
+    "ttMinusUtcSeconds": 39.7,
+    "entryInterfaceAltitudeKm": 121.92
+  },
+  "numerics": {
+    "moonVelocityHalfStepMs": 60000,
+    "rotationRateHalfStepMs": 500,
+    "coastStepS": 10,
+    "burnStepS": 0.25,
+    "coastMarginS": 300,
+    "sphereOfInfluenceScanStepS": 60,
+    "smoothingVelocityHalfStepMs": 500,
+    "correctionScanPoints": 400,
+    "joinGapMs": 1000,
+    "interpolationTargetKm": 0.25,
+    "sampleIntervalLadderS": [
+      3600,
+      1800,
+      900,
+      600,
+      300,
+      120,
+      60,
+      30,
+      10,
+      5
+    ]
+  },
+  "poweredPairs": [
+    [
+      "A-01",
+      "A-02"
+    ],
+    [
+      "A-07",
+      "A-08"
+    ],
+    [
+      "A-09",
+      "A-10"
+    ],
+    [
+      "A-11",
+      "A-12"
+    ],
+    [
+      "A-13",
+      "A-14"
+    ],
+    [
+      "A-16",
+      "A-17"
+    ],
+    [
+      "A-18",
+      "A-19"
+    ],
+    [
+      "A-22",
+      "A-23"
+    ],
+    [
+      "A-24",
+      "A-25"
+    ],
+    [
+      "A-29",
+      "A-30"
+    ],
+    [
+      "A-31",
+      "A-32"
+    ],
+    [
+      "A-33",
+      "A-34"
+    ]
+  ],
+  "specialPairs": {
+    "A-20>A-LND": "powered-descent-two-anchor",
+    "A-LND>A-LIFTOFF": "surface-hold",
+    "A-LIFTOFF>A-21": "powered-ascent-two-anchor"
+  },
+  "parkingOrbit": {
+    "fromAnchor": "A-01",
+    "startEventId": "E-02"
+  },
+  "liftoff": {
+    "anchorId": "A-LIFTOFF",
+    "surfaceAnchorId": "A-LND",
+    "eventId": "E-17"
+  },
+  "vehicles": {
+    "columbia": {
+      "chain": [
+        "A-01",
+        "A-02",
+        "A-03",
+        "A-04",
+        "A-05",
+        "A-06",
+        "A-07",
+        "A-08",
+        "A-09",
+        "A-10",
+        "A-11",
+        "A-12",
+        "A-13",
+        "A-14",
+        "A-15",
+        "A-16",
+        "A-17",
+        "A-27",
+        "A-28",
+        "A-29",
+        "A-30",
+        "A-31",
+        "A-32",
+        "A-33",
+        "A-34",
+        "A-35",
+        "A-36"
+      ]
+    },
+    "eagle": {
+      "chain": [
+        "A-15",
+        "A-18",
+        "A-19",
+        "A-20",
+        "A-LND",
+        "A-LIFTOFF",
+        "A-21",
+        "A-22",
+        "A-23",
+        "A-24",
+        "A-25",
+        "A-26",
+        "A-27"
+      ]
+    }
+  },
+  "suspectAnchors": {
+    "reference": "A-03",
+    "ids": [
+      "A-05"
+    ],
+    "note": "A-05 is printed as 44.94 degrees but disagrees with the state propagated from A-03 (about 49.95 degrees); the other fields agree. The reconstruction uses the owner-approved inferred override in inferredOverrides; the raw value is unchanged."
+  },
+  "publishedOrbits": [
+    {
+      "anchor": "A-12",
+      "apolune": 169.7,
+      "perilune": 60.0,
+      "source": "Table 7-V (LOI-1 resultant orbit)"
+    },
+    {
+      "anchor": "A-14",
+      "apolune": 65.7,
+      "perilune": 53.8,
+      "source": "Table 7-V / Sec 7.4.4 (LOI-2 resultant orbit)"
+    },
+    {
+      "anchor": "A-17",
+      "apolune": 63.7,
+      "perilune": 56.0,
+      "source": "Table 7-V (CSM separation burn resultant orbit)"
+    },
+    {
+      "anchor": "A-19",
+      "apolune": 64.3,
+      "perilune": 8.5,
+      "source": "Table 7-V / Sec 7.4.6 (DOI) as recorded in docs/APOLLO11_SOURCES.md; apolune value looks mis-recorded"
+    },
+    {
+      "anchor": "A-21",
+      "apolune": 48.0,
+      "perilune": 9.4,
+      "source": "Table 7-V (ascent insertion orbit)"
+    },
+    {
+      "anchor": "A-23",
+      "apolune": 49.3,
+      "perilune": 45.7,
+      "source": "Table 7-V (CSI resultant orbit)"
+    },
+    {
+      "anchor": "A-25",
+      "apolune": 61.7,
+      "perilune": 43.7,
+      "source": "Table 7-V (TPI resultant orbit)"
+    },
+    {
+      "anchor": "A-26",
+      "apolune": 63.0,
+      "perilune": 56.5,
+      "source": "Table 7-V (TPF resultant orbit)"
+    }
+  ],
+  "smoothingReportThreshold": {
+    "km": 100,
+    "ms": 50
+  },
+  "intervals": {
+    "lunarOrbitWindow": {
+      "fromAnchor": "A-12",
+      "toAnchor": "A-32"
+    }
+  },
+  "inferredOverrides": {
+    "A-05": {
+      "field": "flightPathAngleDeg",
+      "printedValue": 44.94,
+      "reconstructionValue": 49.94,
+      "status": "probable-source-typo",
+      "confidence": "high, not documentary-confirmed",
+      "decision": "Owner-approved reconstruction exception (T-007, Issue I-002). The raw and canonical source value stays 44.94; this is an inferred override, not a source correction, and applies to no other anchor.",
+      "evidence": [
+        "Propagation from the surrounding anchors independently predicts about 49.95 degrees.",
+        "49.94 degrees preserves trajectory and angular-momentum continuity with neighbouring anchors.",
+        "Contemporaneous PAO trajectory readouts after docking (GET 3:46 and 4:04) agree materially better with the 49.94 degree trajectory.",
+        "44.94 degrees creates large unexplained residuals into neighbouring anchors.",
+        "T-014 searched the NASA post-launch mission report, the technical air-to-ground and PAO transcripts, the Apollo Flight Journal docking transcript, and NASA-CR-108349. No independent full CSM state vector or BET near GET 3:24 was found. PAO reported scalar speed/range at GET 3:46 and 4:04; these are not a complete state. The 44.94-degree source value remains documentary-unconfirmed, so this 49.94-degree exception remains inferred with status and confidence unchanged."
+      ]
+    },
+    "A-33": {
+      "field": "inertialSpeedKmS",
+      "printedValue": 1.3335,
+      "reconstructionValue": 1.24206,
+      "status": "probable-transcription-error",
+      "confidence": "high, owner-approved; hundreds digit illegible on the MSC-00171 scan",
+      "decision": "Owner-approved reconstruction exception (T-010, Issue I-006, 2026-10-06). The raw transcription stays \"4 375.0\" ft/s; this is an inferred override, not a source correction. Printed and reconstruction values are in km/s (ft/s x 0.0003048). Reconstruction value 4 075.0 ft/s.",
+      "evidence": [
+        "The hundreds digit of the Table 7-II p. 7-9 velocity cell is illegible on the NTRS scan; the transcription read it as 3.",
+        "Owner-reported: Apollo by the Numbers (NASA SP-4029) gives 4,075.0 ft/s for the second midcourse correction ignition, with time, altitude, flight-path angle and heading identical to A-33. Not retrieved by the executor.",
+        "Propagated with Earth J2, Moon and Sun, A-33 at 4 075.0 ft/s grazes entry (125 km perigee near GET 195:06), consistent with Table 7-VI's shallow -0.70 deg entry predicted after TEI; at 4 375.0 it misses Earth by about 970 km.",
+        "Same digit as A-34, whose 4 074.0 ft/s value closes the A-34>A-35 coast (tools/validate/anchor-consistency.mjs)."
+      ]
+    },
+    "A-34": {
+      "field": "inertialSpeedKmS",
+      "printedValue": 1.3331952,
+      "reconstructionValue": 1.2417552,
+      "status": "probable-transcription-error",
+      "confidence": "high, owner-approved; hundreds digit illegible on the MSC-00171 scan",
+      "decision": "Owner-approved reconstruction exception (T-010, Issue I-006, 2026-10-06). The raw transcription stays \"4 374.0\" ft/s; this is an inferred override, not a source correction. Printed and reconstruction values are in km/s (ft/s x 0.0003048). Reconstruction value 4 074.0 ft/s.",
+      "evidence": [
+        "The hundreds digit of the Table 7-II p. 7-9 velocity cell is illegible on the NTRS scan; the transcription read it as 3.",
+        "Propagated with Earth J2, Moon and Sun, A-34 at 4 074.0 ft/s meets A-35 within 38 km / 56 m/s (print rounding 39 km); at 4 374.0 it misses by 37,893 km / 10,831 m/s with no burn in between.",
+        "At 4 074.0 ft/s A-34 reaches entry interface at GET 195:03:08.6, 3.18 S 171.97 E, -6.48 deg, against Table 7-VI after MCC-5: 195:03:08, 3.17 S 171.99 E, -6.46 deg.",
+        "A burn of 4.8 ft/s (Table 7-VI) separates A-33 and A-34, so their speeds should differ by about 1 ft/s, as 4 075.0 and 4 074.0 do."
+      ]
+    }
+  }
+}

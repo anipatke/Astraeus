@@ -1,0 +1,937 @@
+{
+  "scope": "O-004 frozen matrix /tmp/o004-scope.md",
+  "runtime": [
+    {
+      "name": "columbia",
+      "count": 701486,
+      "violations": 0,
+      "maxExcess": 9.412914891981927e-12,
+      "max": {
+        "speedKmS": 73.54927874541107,
+        "timeUtcMs": -14542672700
+      },
+      "outside": [
+        "TrajectoryOutOfRangeError",
+        "TrajectoryOutOfRangeError"
+      ],
+      "discontinuities": []
+    },
+    {
+      "name": "eagle",
+      "count": 100260,
+      "violations": 0,
+      "maxExcess": -5.4898323220697876e-8,
+      "max": {
+        "speedKmS": 2.6970910085371917,
+        "timeUtcMs": -14104476000
+      },
+      "outside": [
+        "TrajectoryOutOfRangeError",
+        "TrajectoryOutOfRangeError"
+      ],
+      "discontinuities": []
+    }
+  ],
+  "burns": [
+    {
+      "id": "A-01>A-02",
+      "accelerationKmS2": 0.009117378359401842,
+      "cutoffKm": 454.70605203989487,
+      "cutoffMs": 3.7503452081039515e-7,
+      "halfStepDifferenceKm": 7.860850888874906e-12,
+      "halfStepDifferenceKmS": 5.01427653821134e-14,
+      "publishedPeak": 10.840822
+    },
+    {
+      "id": "A-07>A-08",
+      "accelerationKmS2": 0.0021399395410606754,
+      "cutoffKm": 3.1622737182641774,
+      "cutoffMs": 1.2552919387498985e-7,
+      "halfStepDifferenceKm": 6.187238378222881e-11,
+      "halfStepDifferenceKmS": 4.3655745685100555e-11,
+      "publishedPeak": 4.474464
+    },
+    {
+      "id": "A-09>A-10",
+      "accelerationKmS2": 0.0020570966750804534,
+      "cutoffKm": 38.330935776389445,
+      "cutoffMs": 2.536999954909315e-7,
+      "halfStepDifferenceKm": 1.1136018922126071e-10,
+      "halfStepDifferenceKmS": 2.3866915532353926e-10,
+      "publishedPeak": 1.53162
+    },
+    {
+      "id": "A-11>A-12",
+      "accelerationKmS2": 0.0024899021273331167,
+      "cutoffKm": 9.784336464907895,
+      "cutoffMs": 1.3077442316622402e-7,
+      "halfStepDifferenceKm": 0.0000030273079932569715,
+      "halfStepDifferenceKmS": 4.737760346644705e-10,
+      "publishedPeak": 2.5146
+    },
+    {
+      "id": "A-13>A-14",
+      "accelerationKmS2": 0.002824053848928425,
+      "cutoffKm": 2.4535361219467973,
+      "cutoffMs": 2.8459758196789513e-7,
+      "halfStepDifferenceKm": 8.38307153816344e-9,
+      "halfStepDifferenceKmS": 6.994386796557379e-10,
+      "publishedPeak": 1.669481
+    },
+    {
+      "id": "A-16>A-17",
+      "accelerationKmS2": 0.0007040297856275417,
+      "cutoffKm": 2.2651487570024527,
+      "cutoffMs": 7.450258711353969e-10,
+      "halfStepDifferenceKm": 1.8706429010755442e-10,
+      "halfStepDifferenceKmS": 5.087681048627601e-16,
+      "publishedPeak": 1.625407
+    },
+    {
+      "id": "A-29>A-30",
+      "accelerationKmS2": 0.0011771313628562727,
+      "cutoffKm": 9.477819014111262,
+      "cutoffMs": 2.1407226065475642e-7,
+      "halfStepDifferenceKm": 3.369011946136081e-10,
+      "halfStepDifferenceKmS": 2.469541904935197e-10,
+      "publishedPeak": 1.624614
+    },
+    {
+      "id": "A-31>A-32",
+      "accelerationKmS2": 0.0065108865324707485,
+      "cutoffKm": 22.59354105295338,
+      "cutoffMs": 4.912141061547953e-7,
+      "halfStepDifferenceKm": 2.4673771744166233e-7,
+      "halfStepDifferenceKmS": 9.457625454100735e-10,
+      "publishedPeak": 2.617927
+    },
+    {
+      "id": "A-33>A-34",
+      "accelerationKmS2": 0.00014879515912040556,
+      "cutoffKm": 35.15840524138878,
+      "cutoffMs": 1.0482008554197902e-7,
+      "halfStepDifferenceKm": 4.00664200729243e-9,
+      "halfStepDifferenceKmS": 5.007212322113702e-10,
+      "publishedPeak": 1.24206
+    },
+    {
+      "id": "A-18>A-19",
+      "accelerationKmS2": 0.000857631627018899,
+      "cutoffKm": 5.812254230450565,
+      "cutoffMs": 5.890051108469328e-7,
+      "halfStepDifferenceKm": 1.6646883795325331e-9,
+      "halfStepDifferenceKmS": 6.1207111530267005e-15,
+      "publishedPeak": 1.634947
+    },
+    {
+      "id": "A-22>A-23",
+      "accelerationKmS2": 0.00032879438286944246,
+      "cutoffKm": 5.176011940981479,
+      "cutoffMs": 4.349526179807927e-10,
+      "halfStepDifferenceKm": 6.264240345459838e-9,
+      "halfStepDifferenceKmS": 9.852418143685443e-15,
+      "publishedPeak": 1.638788
+    },
+    {
+      "id": "A-24>A-25",
+      "accelerationKmS2": 0.0002988834963575059,
+      "cutoffKm": 0.19076022819858374,
+      "cutoffMs": 1.8520386416269465e-7,
+      "halfStepDifferenceKm": 4.47113367574551e-9,
+      "halfStepDifferenceKmS": 2.6031257322754127e-10,
+      "publishedPeak": 1.650096
+    }
+  ],
+  "joins": [
+    {
+      "id": "A-01>A-02 → A-02>A-03",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 10.839996820525299
+        },
+        {
+          "dt": -1,
+          "speedKmS": 10.84081335210947
+        },
+        {
+          "dt": 0,
+          "speedKmS": 10.84082159954774
+        },
+        {
+          "dt": 1,
+          "speedKmS": 10.850020974062804
+        },
+        {
+          "dt": 100,
+          "speedKmS": 12.03046596387288
+        }
+      ]
+    },
+    {
+      "id": "A-07>A-08 → A-08>A-09",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 4.469460954440107
+        },
+        {
+          "dt": -1,
+          "speedKmS": 4.469284185274323
+        },
+        {
+          "dt": 0,
+          "speedKmS": 4.469282399770508
+        },
+        {
+          "dt": 1,
+          "speedKmS": 4.4692821408018535
+        },
+        {
+          "dt": 100,
+          "speedKmS": 4.469256503136824
+        }
+      ]
+    },
+    {
+      "id": "A-09>A-10 → A-10>A-11",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 1.5271952435553655
+        },
+        {
+          "dt": -1,
+          "speedKmS": 1.5270494730927782
+        },
+        {
+          "dt": 0,
+          "speedKmS": 1.5270480007444107
+        },
+        {
+          "dt": 1,
+          "speedKmS": 1.5270479919073932
+        },
+        {
+          "dt": 100,
+          "speedKmS": 1.5270471170432525
+        }
+      ]
+    },
+    {
+      "id": "A-11>A-12 → A-12>A-13",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 0.7161022932984538
+        },
+        {
+          "dt": -1,
+          "speedKmS": 0.715915657838197
+        },
+        {
+          "dt": 0,
+          "speedKmS": 0.7159137729533165
+        },
+        {
+          "dt": 1,
+          "speedKmS": 0.7159141142868667
+        },
+        {
+          "dt": 100,
+          "speedKmS": 0.7159479136463466
+        }
+      ]
+    },
+    {
+      "id": "A-13>A-14 → A-14>A-15",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 0.658428001328233
+        },
+        {
+          "dt": -1,
+          "speedKmS": 0.6581914469404417
+        },
+        {
+          "dt": 0,
+          "speedKmS": 0.6581890575038452
+        },
+        {
+          "dt": 1,
+          "speedKmS": 0.6581893079275342
+        },
+        {
+          "dt": 100,
+          "speedKmS": 0.6582141088556341
+        }
+      ]
+    },
+    {
+      "id": "A-16>A-17 → A-17>A-27",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 2.513315361630449
+        },
+        {
+          "dt": -1,
+          "speedKmS": 2.513346071837697
+        },
+        {
+          "dt": 0,
+          "speedKmS": 2.5133463820336654
+        },
+        {
+          "dt": 1,
+          "speedKmS": 2.513346714359121
+        },
+        {
+          "dt": 100,
+          "speedKmS": 2.5133796122570993
+        }
+      ]
+    },
+    {
+      "id": "A-29>A-30 → A-30>A-31",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 2.2408634130636806
+        },
+        {
+          "dt": -1,
+          "speedKmS": 2.2408732456240457
+        },
+        {
+          "dt": 0,
+          "speedKmS": 2.2408733448981155
+        },
+        {
+          "dt": 1,
+          "speedKmS": 2.2408731613641875
+        },
+        {
+          "dt": 100,
+          "speedKmS": 2.240854990529336
+        }
+      ]
+    },
+    {
+      "id": "A-31>A-32 → A-32>A-33",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 1.6666149468292923
+        },
+        {
+          "dt": -1,
+          "speedKmS": 1.6672551108019882
+        },
+        {
+          "dt": 0,
+          "speedKmS": 1.6672615770242605
+        },
+        {
+          "dt": 1,
+          "speedKmS": 1.667261701083783
+        },
+        {
+          "dt": 100,
+          "speedKmS": 1.6672739810145392
+        }
+      ]
+    },
+    {
+      "id": "A-33>A-34 → A-34>A-35",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 1.2417579153791072
+        },
+        {
+          "dt": -1,
+          "speedKmS": 1.2417552270557157
+        },
+        {
+          "dt": 0,
+          "speedKmS": 1.2417551999014713
+        },
+        {
+          "dt": 1,
+          "speedKmS": 1.2417552031944799
+        },
+        {
+          "dt": 100,
+          "speedKmS": 1.2417555292025246
+        }
+      ]
+    },
+    {
+      "id": "A-18>A-19 → A-19>A-20",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 1.0965694313978356
+        },
+        {
+          "dt": -1,
+          "speedKmS": 1.096402059367186
+        },
+        {
+          "dt": 0,
+          "speedKmS": 1.096400368727805
+        },
+        {
+          "dt": 1,
+          "speedKmS": 1.0963994896295093
+        },
+        {
+          "dt": 100,
+          "speedKmS": 1.0963124604068888
+        }
+      ]
+    },
+    {
+      "id": "A-22>A-23 → A-23>A-24",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 0.9860808236642861
+        },
+        {
+          "dt": -1,
+          "speedKmS": 0.9860200872950987
+        },
+        {
+          "dt": 0,
+          "speedKmS": 0.986019473840817
+        },
+        {
+          "dt": 1,
+          "speedKmS": 0.986018612800157
+        },
+        {
+          "dt": 100,
+          "speedKmS": 0.9859333723558994
+        }
+      ]
+    },
+    {
+      "id": "A-24>A-25 → A-25>A-26",
+      "positionStepKm": 0,
+      "velocityStepKmS": 0,
+      "adjacent": [
+        {
+          "dt": -100,
+          "speedKmS": 1.6544849573855676
+        },
+        {
+          "dt": -1,
+          "speedKmS": 1.6544246105554372
+        },
+        {
+          "dt": 0,
+          "speedKmS": 1.6544240009916382
+        },
+        {
+          "dt": 1,
+          "speedKmS": 1.6544232111183634
+        },
+        {
+          "dt": 100,
+          "speedKmS": 1.6543450125956607
+        }
+      ]
+    }
+  ],
+  "failure": [
+    {
+      "label": "zero duration",
+      "result": "RangeError",
+      "message": "burn A-13>A-14 must have a positive duration"
+    },
+    {
+      "label": "reversed duration",
+      "result": "RangeError",
+      "message": "burn A-13>A-14 must have a positive duration"
+    },
+    {
+      "label": "body mismatch",
+      "result": "RangeError",
+      "message": "burn A-13>A-14 spans two reference bodies"
+    },
+    {
+      "label": "zero step",
+      "result": "RangeError",
+      "message": "integration step must be positive"
+    },
+    {
+      "label": "negative step",
+      "result": "RangeError",
+      "message": "integration step must be positive"
+    },
+    {
+      "label": "NaN step",
+      "result": "RangeError",
+      "message": "integration step must be positive"
+    },
+    {
+      "label": "nonfinite state",
+      "result": "success"
+    }
+  ],
+  "special": [
+    {
+      "id": "A-20>A-LND",
+      "method": "powered-descent-two-anchor",
+      "count": 1,
+      "hash": "f61905af7c238234cb8cf6baa9bd1a2c8c3f000456d0c6f94132d6f79349916f"
+    },
+    {
+      "id": "A-LND>A-LIFTOFF",
+      "method": "surface-hold",
+      "count": 22,
+      "hash": "6e8e4910c1d285179cd0ed5f8edd2d9b57dced1ae23a61dfa5a2d86c3afeb22d"
+    },
+    {
+      "id": "A-LIFTOFF>A-21",
+      "method": "powered-ascent-two-anchor",
+      "count": 1,
+      "hash": "d6fcb512c720ea7eaece9084374da0bf0bf46eb91da24e890637cef31d9f1d12"
+    }
+  ],
+  "determinism": [
+    {
+      "path": "data/apollo11/normalised/anchors.json",
+      "sha256": "ee377b7f773e6c1ceec30c9ad8c632c67ae64d83adb88161a47fe4735b4bb0e7",
+      "secondIdentical": true,
+      "diskIdentical": true
+    },
+    {
+      "path": "data/apollo11/generated/columbia.json",
+      "sha256": "dd646f3cfde6fcdf6ff1edd8c1aa0253dd5ec19b6e627c70de549c67c76dac23",
+      "secondIdentical": true,
+      "diskIdentical": true
+    },
+    {
+      "path": "data/apollo11/generated/eagle.json",
+      "sha256": "1d3c2c1bbb91a2f3d98f6cc5272f4eb825b3d3eff03612e0e7512cc348c12c53",
+      "secondIdentical": true,
+      "diskIdentical": true
+    },
+    {
+      "path": "data/apollo11/generated/events.json",
+      "sha256": "f03005ee9cee28f0d9c2ce7200a79c82262c74b9df678da4a6ab1497e3dbab3b",
+      "secondIdentical": true,
+      "diskIdentical": true
+    },
+    {
+      "path": "data/apollo11/generated/validation.json",
+      "sha256": "7da750917436f2a3427e9d70413df80d5753fa9f80edf0de5868a306c5580090",
+      "secondIdentical": true,
+      "diskIdentical": true
+    },
+    {
+      "path": "docs/APOLLO11_RECONSTRUCTION.md",
+      "sha256": "907bd1e38a80ae3ff9caf5b3e829bc92fbde20eb74404a43ce42609725612616",
+      "secondIdentical": true,
+      "diskIdentical": true
+    }
+  ],
+  "postTli": [
+    {
+      "dt": 0,
+      "speedKmS": 10.84082159954774,
+      "finiteDifferenceSpeedKmS": 10.863904137628806,
+      "positionKm": {
+        "0": 6340.859559,
+        "1": 1750.676658,
+        "2": 666.459097
+      }
+    },
+    {
+      "dt": 1000,
+      "speedKmS": 30.30591022103625,
+      "finiteDifferenceSpeedKmS": 30.305823131621487,
+      "positionKm": {
+        "0": 6340.560382401281,
+        "1": 1757.5995347084804,
+        "2": 684.6117982376
+      }
+    },
+    {
+      "dt": 2000,
+      "speedKmS": 48.99888182267471,
+      "finiteDifferenceSpeedKmS": 48.99879137116509,
+      "positionKm": {
+        "0": 6343.18659051504,
+        "1": 1760.7655709090402,
+        "2": 724.4148677188
+      }
+    },
+    {
+      "dt": 3000,
+      "speedKmS": 62.605740215661285,
+      "finiteDifferenceSpeedKmS": 62.6056489963522,
+      "positionKm": {
+        "0": 6347.780876528161,
+        "1": 1761.04287685536,
+        "2": 780.4681151812001
+      }
+    },
+    {
+      "dt": 4000,
+      "speedKmS": 70.80843393706905,
+      "finiteDifferenceSpeedKmS": 70.80834248166869,
+      "positionKm": {
+        "0": 6353.38593362752,
+        "1": 1759.2995628011201,
+        "2": 847.3713503624001
+      }
+    },
+    {
+      "dt": 5000,
+      "speedKmS": 73.54298840571279,
+      "finiteDifferenceSpeedKmS": 73.54376520465716,
+      "positionKm": {
+        "0": 6359.044455,
+        "1": 1756.403739,
+        "2": 919.724383
+      }
+    },
+    {
+      "dt": 6000,
+      "speedKmS": 71.07885320427731,
+      "finiteDifferenceSpeedKmS": 71.07875945220592,
+      "positionKm": {
+        "0": 6363.93453334752,
+        "1": 1753.2293686395199,
+        "2": 992.2690031520001
+      }
+    },
+    {
+      "dt": 7000,
+      "speedKmS": 63.00674057948766,
+      "finiteDifferenceSpeedKmS": 63.006647060113245,
+      "positionKm": {
+        "0": 6367.70779651696,
+        "1": 1750.8219929465602,
+        "2": 1059.628299602
+      }
+    },
+    {
+      "dt": 8000,
+      "speedKmS": 49.38853201547505,
+      "finiteDifferenceSpeedKmS": 49.38843927794777,
+      "positionKm": {
+        "0": 6370.117240412641,
+        "1": 1750.30708923384,
+        "2": 1116.224030176
+      }
+    },
+    {
+      "dt": 9000,
+      "speedKmS": 30.540490357989217,
+      "finiteDifferenceSpeedKmS": 30.540401058578414,
+      "positionKm": {
+        "0": 6370.91586093888,
+        "1": 1752.8101348140801,
+        "2": 1156.4779526999998
+      }
+    },
+    {
+      "dt": 10000,
+      "speedKmS": 10.834420799998759,
+      "finiteDifferenceSpeedKmS": 10.857533359315788,
+      "positionKm": {
+        "0": 6369.856654,
+        "1": 1759.456607,
+        "2": 1174.811825
+      }
+    }
+  ],
+  "postTliMinimumAverageSpeedKmS": 50.92547644233911,
+  "retryAfterFailure": 2.8459758196789513e-7,
+  "inputUnmutated": true,
+  "anchorResiduals": [
+    {
+      "anchorId": "A-01",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-02",
+      "vehicle": "columbia",
+      "positionKm": 454.706052,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-03",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-04",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-05",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-06",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-07",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-08",
+      "vehicle": "columbia",
+      "positionKm": 3.162274,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-09",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-10",
+      "vehicle": "columbia",
+      "positionKm": 38.330936,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-11",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-12",
+      "vehicle": "columbia",
+      "positionKm": 9.784336,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-13",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-14",
+      "vehicle": "columbia",
+      "positionKm": 2.453536,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-15",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-16",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-17",
+      "vehicle": "columbia",
+      "positionKm": 2.265148,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-27",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-28",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-29",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-30",
+      "vehicle": "columbia",
+      "positionKm": 9.477819,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-31",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-32",
+      "vehicle": "columbia",
+      "positionKm": 22.593541,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-33",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-34",
+      "vehicle": "columbia",
+      "positionKm": 35.158405,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-35",
+      "vehicle": "columbia",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-36",
+      "vehicle": "columbia",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-15",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-18",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-19",
+      "vehicle": "eagle",
+      "positionKm": 5.812254,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-20",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-LND",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-LIFTOFF",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-21",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-22",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-23",
+      "vehicle": "eagle",
+      "positionKm": 5.176012,
+      "velocityMs": 0
+    },
+    {
+      "anchorId": "A-24",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-25",
+      "vehicle": "eagle",
+      "positionKm": 0.19076,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-26",
+      "vehicle": "eagle",
+      "positionKm": 0,
+      "velocityMs": 0.000001
+    },
+    {
+      "anchorId": "A-27",
+      "vehicle": "eagle",
+      "positionKm": 0.000001,
+      "velocityMs": 0.000001
+    }
+  ],
+  "validationKeys": [
+    "generatedBy",
+    "targets",
+    "smoothingReportThreshold",
+    "suspectAnchors",
+    "sampleCounts",
+    "anchorResiduals",
+    "segments",
+    "oneSecondSpeedScan",
+    "consistency",
+    "orbitCrossChecks",
+    "qualitative",
+    "surfaceClearance",
+    "landingSiteOffset"
+  ]
+}
