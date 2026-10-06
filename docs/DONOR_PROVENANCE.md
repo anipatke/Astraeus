@@ -21,7 +21,10 @@ Donor lighting values (Earth ambient 0.45 / directional 1.8, Moon 0.15 / 1.4) we
 
 The donor `public/textures/README.md` documents sources and licences for other bodies but has **no source or licence entry for the Earth or the original Moon texture** (its Moon section lists only `moon-2k.jpg`/`moon-4k.jpg`). Provenance is **unresolved**. These files are used only inside this local application. They must not be placed in a public package, published, or treated as redistributable until the owner establishes their origin and licence. The 4k Moon texture (~15 MB, also unattributed) was not copied.
 
-Owner decision, 2026-10-06: the owner states both textures are publicly available and approved committing them to the public GitHub repository. Their specific source and licence are still not recorded here.
+Owner decision, 2026-10-06: the owner states both textures are publicly available and approved committing them to the public GitHub repository. A donor history check on 2026-10-06 found:
+
+- `earth-2k.jpg` (SHA-256 prefix `228deba2e4b60014`, identical to the donor file) was added in donor commit `e65e305` (2026-04-12). The donor task note records it as a "NASA Blue Marble equirectangular texture (2048×1024)". The file is actually 4096×2048. NASA Blue Marble imagery is generally free to reuse with NASA credit. The exact Blue Marble product and URL were not recorded.
+- `moon-orig-2k.jpg` (`2764ba6535ea0481`, identical) has been in the donor since its first commit, `dab0c05` (2026-04-09), originally named `moon-2k.jpg`. No source was ever recorded. In donor task 53.1 it was replaced as "misregistered" by the public-domain NASA CGI Moon Kit (SVS 4720, LROC WAC), then restored for better pole quality (`ab23531`). Its origin is still unknown. A documented, public-domain swap-in already exists: the donor's `moon-lroc-2k.jpg` (SVS 4720).
 
 No `LICENSE*` file was found at the donor checkout root, and a grep of its `package.json` found no `license` field. No redistribution rights are claimed for donor code either.
 
