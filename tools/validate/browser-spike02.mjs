@@ -34,8 +34,8 @@ async function scenario(id, { utc, focus, follow, scale, note }) {
   results.push(rec); return rec;
 }
 
+await click("Developer mode");
 await click("Mission window"); // preset + seek to window start
-await click("Debug overlay");
 const sc = [
   ["earth-orbit", "1969-07-16 14:30:00", { follow: "Columbia (CSM)" }, "close Earth orbit (parking orbit, backward-propagated)"],
   ["translunar", "1969-07-18 12:00:00", { follow: "Columbia (CSM)" }, "translunar coast"],

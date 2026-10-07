@@ -1,7 +1,7 @@
 ---
 id: O-005
 title: Build a reusable astronomy UI shell, proven on Apollo
-status: planned
+status: in_progress
 depends_on: [O-004]
 release: G-003
 ---

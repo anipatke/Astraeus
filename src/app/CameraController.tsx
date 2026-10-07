@@ -15,9 +15,12 @@ export type CameraRequest =
 
 export interface OrbitCameraState {
   azimuth: number;
+  targetAzimuth: number;
   elevation: number;
+  targetElevation: number;
   /** Camera-to-target distance in scaled units (Earth radii). */
   distance: number;
+  targetDistance: number;
   focus: FocusId;
   /** Decaying offset that tweens the displayed target from the previous focus to the new one. */
   transition: [number, number, number];
@@ -29,8 +32,11 @@ export interface OrbitCameraState {
 export function createOrbitCameraState(distance: number): OrbitCameraState {
   return {
     azimuth: Math.PI * 1.2,
+    targetAzimuth: Math.PI * 1.2,
     elevation: 0.25,
+    targetElevation: 0.25,
     distance,
+    targetDistance: distance,
     focus: "earth",
     transition: [0, 0, 0],
     cameraAbsolute: [0, 0, 0],
@@ -78,6 +84,7 @@ export function attachOrbitGestures(
       const spread = pointerSpread(pointers);
       if (pinchDistance !== null) {
         state.distance = clampDistance(state.distance * Math.exp(-(spread - pinchDistance) * PINCH_SENSITIVITY), getLimits());
+        cancelCameraTransition(state);
       }
       pinchDistance = spread;
       return;
@@ -88,6 +95,7 @@ export function attachOrbitGestures(
       -MAX_ELEVATION,
       Math.min(MAX_ELEVATION, state.elevation + ((next.y - previous.y) / window.innerHeight) * Math.PI * sensitivity),
     );
+    cancelCameraTransition(state);
   };
 
   const onPointerEnd = (event: PointerEvent) => {
@@ -98,6 +106,7 @@ export function attachOrbitGestures(
   const onWheel = (event: WheelEvent) => {
     event.preventDefault();
     state.distance = clampDistance(state.distance * Math.exp(event.deltaY * WHEEL_SENSITIVITY), getLimits());
+    cancelCameraTransition(state);
   };
 
   element.addEventListener("pointerdown", onPointerDown);
@@ -112,6 +121,14 @@ export function attachOrbitGestures(
     element.removeEventListener("pointercancel", onPointerEnd);
     element.removeEventListener("wheel", onWheel);
   };
+}
+
+/** Stops any scripted framing while keeping the viewer's current manual pose. */
+export function cancelCameraTransition(state: OrbitCameraState): void {
+  state.transition.fill(0);
+  state.targetDistance = state.distance;
+  state.targetAzimuth = state.azimuth;
+  state.targetElevation = state.elevation;
 }
 
 function pointerSpread(pointers: Map<number, { x: number; y: number }>): number {
@@ -139,6 +156,11 @@ export function resolveCamera(
   rebaseThreshold: number,
 ): void {
   const decay = Math.exp(-TRANSITION_RATE_PER_S * deltaSeconds);
+  const blend = 1 - decay;
+  state.distance += (state.targetDistance - state.distance) * blend;
+  if (Math.abs(state.targetDistance - state.distance) < 1e-9) state.distance = state.targetDistance;
+  state.azimuth += shortestAngleDelta(state.azimuth, state.targetAzimuth) * blend;
+  state.elevation += (state.targetElevation - state.elevation) * blend;
   for (let i = 0; i < 3; i += 1) {
     state.transition[i] *= decay;
     if (Math.abs(state.transition[i]) < 1e-9) state.transition[i] = 0;
@@ -152,6 +174,10 @@ export function resolveCamera(
   ];
   for (let i = 0; i < 3; i += 1) state.cameraAbsolute[i] = state.targetAbsolute[i] + offset[i];
   origin.rebaseIfFar(state.targetAbsolute, rebaseThreshold);
+}
+
+function shortestAngleDelta(from: number, to: number): number {
+  return Math.atan2(Math.sin(to - from), Math.cos(to - from));
 }
 
 /** Step 2: writes the origin-relative camera pose and clipping planes. */

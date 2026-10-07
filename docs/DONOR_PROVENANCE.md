@@ -31,3 +31,25 @@ No `LICENSE*` file was found at the donor checkout root, and a grep of its `pack
 ## Texture orientation
 
 The equirectangular Three.js sphere puts texture-centre longitude 0 on mesh +X, longitude 90°E on -Z and the pole on +Y, which is the same fixed conversion as EQJ → render. Visual checks (India/Asia shape and terminator at 2026-04-01 12:00 UTC; near-side maria and Tycho at full Moon) show no extra yaw is needed, so `EARTH_TEXTURE_YAW_RAD` and `MOON_TEXTURE_YAW_RAD` in `src/app/sceneLayout.ts` are 0.
+
+## Spike 03 — UI shell extraction candidates (T-016, 2026-10-07)
+
+Source audit: `docs/PLANETARY_EXPLORER_UI_AUDIT.md`. The donor remains read only. **Code licence unresolved; any adapted donor code stays local-use only.** This audit does not establish redistribution rights or change the earlier texture decisions. No donor code or new assets were copied in T-016. The following sources are selected for pattern adaptation in later Tasks; this is not yet a ledger of completed code adaptations.
+
+All donor paths below are relative to `/home/user/code/planetary-explorer`.
+
+| Donor sources selected for adaptation | Planned Astraeus use |
+|---|---|
+| `src/features/moon/ControlBar.tsx` | Compact labelled actions, selected state and visible focus in `src/shell/ObjectControls.tsx` / timeline chrome |
+| `src/features/intro/MobileGlobeMenu.tsx` | Semantic object buttons and touch target pattern only; no intro content, globes or textures |
+| `src/features/hotspots/useHotspotSelection.ts`, `src/features/hotspots/HotspotAutoRotate.tsx`, `src/features/moon/CameraController.tsx` | Smooth focus/zoom and interruption intent in existing `src/app/CameraController.tsx`; no mesh rotation or outer-zoom mapping |
+| `src/features/moon/useGestures.ts`, `src/features/moon/GestureLayer.tsx` | Canvas-only pointer/wheel/pinch interaction and cleanup; refine existing orbit gestures |
+| `src/features/hotspots/HotspotMarker.tsx`, `src/features/hotspots/HotspotLayer.tsx` | Projected overlay, visibility and selected-marker patterns for generic labels; no category/ring dispatch, registry or drei requirement |
+| `src/features/hotspots/BottomSheet.tsx`, `src/features/hotspots/SidePanel.tsx`, `src/features/hotspots/InfoPanelRouter.tsx` | On-demand responsive `src/shell/InfoPanel.tsx`, shared content and improved focus handling |
+| `src/features/hotspots/useSwipeToDismiss.ts` | Optional handle-only sheet dismissal with Close/Escape alternatives, if implemented |
+| `src/features/hotspots/BodyOverviewDetails.tsx` | Title/description/fact hierarchy; no donor facts, hardcoded Earth comparisons or encyclopaedia structure |
+| `src/shared/components/Badge.tsx` | Compact textual provenance disclosure, adapted to a labelled button |
+| `src/app/globals.css`, `.savepoint/visual-identity.md` | Palette, heading/data contrast, restrained spacing/motion in `src/shell/style.css`; no scanlines or font asset copying |
+| `src/app/store.ts` | Explicit selection/exclusive panel-state pattern only, implemented through app-owned React state; no copied global store |
+
+Tailwind, zustand and drei are not adopted for this spike. Font names are visual references with fallbacks; adding actual font assets requires their own source/licence record. Later Tasks must update this section with files actually adapted and any additional sources.

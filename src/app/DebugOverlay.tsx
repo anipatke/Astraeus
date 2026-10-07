@@ -3,6 +3,9 @@ import type { CenteredPosition, State } from "../core/state";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PlacedState } from "./sceneLayout";
+import { describePlaybackRate, formatUtcTimestamp } from "../shell/timelineModel";
+
+export { formatUtcTimestamp } from "../shell/timelineModel";
 
 type Triple = readonly [number, number, number];
 type Quad = readonly [number, number, number, number];
@@ -71,10 +74,6 @@ export function buildDebugReadout(input: DebugReadoutInput): DebugReadout {
   };
 }
 
-export function formatUtcTimestamp(timeUtcMs: number): string {
-  return new Date(timeUtcMs).toISOString().replace(".000Z", "Z");
-}
-
 const vec = (v: readonly number[], digits: number) => `(${v.map((c) => c.toFixed(digits)).join(", ")})`;
 
 /** Ordered label/value rows; kept separate from JSX so tests can read what the overlay shows. */
@@ -82,7 +81,7 @@ export function overlayRows(r: DebugReadout): ReadonlyArray<readonly [string, st
   const quat = (q: Quad | null) => (q === null ? "not modeled" : `${vec(q, 5)} [x,y,z,w] body→EQJ`);
   return [
     ["UTC time", formatUtcTimestamp(r.timeUtcMs)],
-    ["Speed", `${r.rate}× real time`],
+    ["Playback rate", describePlaybackRate(r.rate)],
     ["Scale policy", r.policyId],
     ["Earth–Moon distance", `${r.moonDistanceKm.toFixed(1)} km (physical)`],
     ["Rendered distance", `${r.renderedDistanceUnits.toFixed(4)} scene units (Earth radii)`],
@@ -100,14 +99,52 @@ export function overlayRows(r: DebugReadout): ReadonlyArray<readonly [string, st
 
 export function DebugOverlay({ readout }: { readonly readout: DebugReadout | null }) {
   if (readout === null) return null;
+  const illuminatedPercent = readout.lunarIlluminatedFraction * 100;
+  const hiddenInstruments = new Set([
+    "UTC time",
+    "Playback rate",
+    "Scale policy",
+    "Earth–Moon distance",
+    "Rendered distance",
+    "Moon lit (geometric)",
+  ]);
+  const advancedRows = overlayRows(readout).filter(([label]) => !hiddenInstruments.has(label));
+
   return (
-    <dl className="overlay" aria-label="Scientific debug state">
-      {overlayRows(readout).map(([label, value]) => (
-        <div key={label}>
-          <dt>{label}</dt>
-          <dd>{value}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className="scientific-instruments" aria-label="Scene measurements">
+      <div className="instrument-grid">
+        <article className="instrument-card">
+          <span className="instrument-label">Physical Earth–Moon distance</span>
+          <strong className="instrument-value">{readout.moonDistanceKm.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong>
+          <span className="instrument-unit">kilometres</span>
+        </article>
+        <article className="instrument-card">
+          <span className="instrument-label">Rendered separation</span>
+          <strong className="instrument-value">{readout.renderedDistanceUnits.toFixed(4)}</strong>
+          <span className="instrument-unit">scene units · Earth-radius mapping</span>
+        </article>
+        <article className="instrument-card instrument-card-illumination">
+          <span className="instrument-label">Geometric lunar illumination</span>
+          <progress
+            max={100}
+            value={illuminatedPercent}
+            aria-label="Geometric lunar illumination"
+            aria-valuetext={`${illuminatedPercent.toFixed(1)} percent`}
+          />
+          <strong className="instrument-value">{illuminatedPercent.toFixed(1)}<span>%</span></strong>
+        </article>
+      </div>
+      <details className="advanced-readouts">
+        <summary>Advanced coordinates and vectors</summary>
+        <dl className="overlay" aria-label="Advanced scientific readouts">
+          {advancedRows.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
+    </div>
   );
 }

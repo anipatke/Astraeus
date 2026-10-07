@@ -5,6 +5,7 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import type { MissionConfig, TrackedBody } from "../app/mission";
+import type { ExperienceConfig } from "../shell/experience";
 
 /** The wording the brief requires; never describe the path as exact. */
 export const APOLLO11_STATEMENT =
@@ -71,3 +72,37 @@ export function buildApollo11Mission(
 }
 
 export const apollo11Mission: MissionConfig = buildApollo11Mission();
+
+/** Shell-facing labels and timeline data projected from the existing Apollo scene config. */
+export const apollo11Experience: ExperienceConfig = {
+  objects: [
+    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500 },
+    { id: "moon", label: "Moon", color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500 },
+    ...apollo11Mission.bodies.map(({ id, label, color, trajectory }) => ({
+      id,
+      label,
+      color,
+      availability: trajectory.bounds,
+      labelPriority: 80,
+      labelMaxDistance: 4,
+    })),
+  ],
+  cameraPresets: [
+    { id: "overview", label: "Earth–Moon overview", request: { kind: "overview" } },
+    ...apollo11Mission.bodies.map(({ id, label }) => ({
+      id: `focus-${id}`,
+      label: `Focus ${label}`,
+      request: { kind: "focus" as const, target: id },
+    })),
+    ...apollo11Mission.bodies.map(({ id, label }) => ({
+      id: `follow-${id}`,
+      label: `Follow ${label}`,
+      request: { kind: "follow" as const, target: id },
+    })),
+    { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
+    { id: "focus-moon", label: "Focus Moon", request: { kind: "focus", target: "moon" } },
+  ],
+  events: apollo11Mission.events,
+  window: apollo11Mission.window,
+  rates: apollo11Mission.rates,
+};

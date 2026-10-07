@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 import type { SimulationClock } from "../core/clock";
-import { formatUtcTimestamp } from "./DebugOverlay";
-import { jumpToEvent, mergeSpeeds, type MissionConfig } from "./mission";
+import { describePlaybackRate, formatRate, formatUtcTimestamp, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS } from "../shell/timelineModel";
+import { jumpToEvent, type MissionConfig } from "./mission";
 
-export const SPEEDS: ReadonlyArray<{ readonly label: string; readonly rate: number }> = [
-  { label: "1×", rate: 1 },
-  { label: "1 hour/sec", rate: 3_600 },
-  { label: "1 day/sec", rate: 86_400 },
-  { label: "7 days/sec", rate: 604_800 },
-];
+export const SPEEDS = DEFAULT_PLAYBACK_SPEEDS;
 
 const DAY_MS = 86_400_000;
 export const SCRUB_HALF_SPAN_MS = 30 * DAY_MS;
-export const SCRUB_STEP_MS = 60_000;
+export const SCRUB_STEP_MS = TIMELINE_STEP_MS;
 /** Typed dates stay within the years the spike's ephemeris models are meant for. */
 export const MIN_SEEK_UTC_MS = Date.UTC(1900, 0, 1);
 export const MAX_SEEK_UTC_MS = Date.UTC(2100, 0, 1);
@@ -115,14 +110,15 @@ export function DebugControls({ clock, mission }: Props) {
           {snapshot.playing ? "Pause" : "Play"}
         </button>
         {speeds.map((option) => (
-          <button key={option.rate} aria-pressed={snapshot.rate === option.rate} onClick={() => { clock.setRate(option.rate); refresh(); }}>
-            {option.label}
+          <button key={option.rate} title={describePlaybackRate(option.rate)} aria-pressed={snapshot.rate === option.rate} onClick={() => { clock.setRate(option.rate); refresh(); }}>
+            {formatRate(option.rate)}
           </button>
         ))}
         <span className="readout" aria-live="off">
           {formatUtcTimestamp(snapshot.timeUtcMs)} · {snapshot.playing ? "playing" : "paused"}
         </span>
       </div>
+      <p className="rate-help">Rates are simulated time per real second: 1,000× is 16 min 40 sec/s; 1 hour/s is 3,600×.</p>
       {mission !== undefined && (
         <div className="row">
           <button

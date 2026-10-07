@@ -86,19 +86,8 @@ export function jumpToEvent(clock: SimulationClock, events: readonly TimelineEve
   return event.timeUtcMs;
 }
 
-export interface Speed {
-  readonly label: string;
-  readonly rate: number;
-}
-
-export const formatRate = (rate: number): string => `${rate.toLocaleString("en-US")}×`;
-
-/** Existing speeds plus any mission rates not already offered, in ascending order. */
-export function mergeSpeeds(base: readonly Speed[], rates: readonly number[]): readonly Speed[] {
-  const extra = rates.filter((rate) => !base.some((speed) => speed.rate === rate))
-    .map((rate) => ({ label: formatRate(rate), rate }));
-  return [...base, ...extra].sort((a, b) => a.rate - b.rate);
-}
+export type { PlaybackSpeed as Speed } from "../shell/timelineModel";
+export { formatRate, mergeSpeeds } from "../shell/timelineModel";
 
 export interface TrackedReadout {
   readonly id: string;

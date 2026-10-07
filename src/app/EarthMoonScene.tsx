@@ -13,6 +13,7 @@ import { AtmosphereGlow, EARTH_ATMOSPHERE } from "./AtmosphereGlow";
 import { BodyMesh, EARTH_MATERIAL, MOON_MATERIAL } from "./BodyMesh";
 import {
   attachOrbitGestures,
+  clampDistance,
   createOrbitCameraState,
   poseCamera,
   resolveCamera,
@@ -23,7 +24,7 @@ import {
 } from "./CameraController";
 import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
-import type { MissionConfig } from "./mission";
+import { stateIfInBounds, type MissionConfig } from "./mission";
 import {
   DEFAULT_PATH_SAMPLES,
   mapOrbitPath,
@@ -34,6 +35,8 @@ import {
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { bodyAbsolutes, placeBodies, type SceneHierarchy } from "./sceneLayout";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
+import { SceneLabelLayer } from "./SceneLabels";
+import type { ExperienceObject } from "../shell/experience";
 import earthTextureUrl from "./assets/textures/earth-2k.jpg";
 import moonTextureUrl from "./assets/textures/moon-orig-2k.jpg";
 
@@ -55,6 +58,8 @@ export interface SceneControls {
   cameraRequest: CameraRequest | null;
   /** Presentation only: show source-anchor ID labels beside the anchor dots. */
   showAnchorLabels: boolean;
+  readonly labelObjects: readonly ExperienceObject[];
+  selectedObjectId: string;
 }
 
 export type SceneReadout = DebugReadout;
@@ -124,6 +129,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
 
   const trackedViews = useMemo(() => runtime.mission.bodies.map((body) => new TrackedBodyView(body)), [runtime.mission]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
+  const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
   useEffect(() => {
     const host = gl.domElement.parentElement;
@@ -135,6 +141,17 @@ function SceneContents({ runtime, controls, readout }: Props) {
       anchorLabels.current = null;
     };
   }, [gl, trackedViews]);
+
+  useEffect(() => {
+    const host = gl.domElement.parentElement;
+    if (host === null) return undefined;
+    const layer = new SceneLabelLayer(host, controls.labelObjects);
+    sceneLabels.current = layer;
+    return () => {
+      layer.dispose();
+      sceneLabels.current = null;
+    };
+  }, [gl, controls.labelObjects]);
 
   const pathLine = useMemo(() => {
     const geometry = new BufferGeometry();
@@ -197,7 +214,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
       controls.cameraRequest = null;
       const target = request.kind === "overview" ? "earth" : request.target;
       switchFocus(camState, target, focusAbsolute(target));
-      if (request.kind !== "follow") camState.distance = defaultDistance(target, moonRadius, moonDistance);
+      if (request.kind !== "follow") camState.targetDistance = defaultDistance(target, moonRadius, moonDistance);
       if (request.kind === "focus" && target === "moon") {
         // Start on the Earth side of the Moon so the phase reads as an Earth observer sees it.
         const toEarth = [
@@ -205,12 +222,13 @@ function SceneContents({ runtime, controls, readout }: Props) {
           absolutes.earthAbsolute[1] - absolutes.moonAbsolute[1],
           absolutes.earthAbsolute[2] - absolutes.moonAbsolute[2],
         ];
-        camState.elevation = Math.asin(toEarth[1] / moonDistance);
-        camState.azimuth = Math.atan2(toEarth[0], toEarth[2]);
+        camState.targetElevation = Math.asin(toEarth[1] / moonDistance);
+        camState.targetAzimuth = Math.atan2(toEarth[0], toEarth[2]);
       }
     }
     const limits = focusLimits(camState.focus, moonRadius, moonDistance);
-    camState.distance = Math.min(limits.max, Math.max(limits.min, camState.distance));
+    camState.distance = clampDistance(camState.distance, limits);
+    camState.targetDistance = clampDistance(camState.targetDistance, limits);
 
     resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD);
     const hierarchy: SceneHierarchy = { root, earthGroup, earthMesh, moonGroup, moonMesh };
@@ -223,6 +241,13 @@ function SceneContents({ runtime, controls, readout }: Props) {
     );
     for (const view of trackedViews) view.update(t, policy, origin, camera);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
+    sceneLabels.current?.update((id) => {
+      if (id === "earth") return absolutes.earthAbsolute;
+      if (id === "moon") return absolutes.moonAbsolute;
+      const view = trackedViews.find((candidate) => candidate.body.id === id);
+      if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
+      return view.absolute(t, policy);
+    }, camera, size.width, size.height, origin, controls.selectedObjectId);
 
     // Physical Sun directions (before any readable compression) drive each body's own light.
     const earthSun = eqjToRenderVector(directionFromCenterToSun(sunFromEarth));

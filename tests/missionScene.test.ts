@@ -5,6 +5,7 @@ import { SimulationClock } from "../src/core/clock";
 import { readableScale, trueScale } from "../src/core/scalePolicy";
 import { SPEEDS } from "../src/app/DebugControls";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
+import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "../src/app/CameraController";
 import { projectToScreen } from "../src/app/AnchorLabels";
 import {
   anchorLabelsOf,
@@ -20,7 +21,8 @@ import { mapOrbitPath } from "../src/app/orbitPath";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { trackedAbsolute } from "../src/app/sceneLayout";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
-import { APOLLO11_STATEMENT, apollo11Mission } from "../src/mission/apollo11";
+import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/mission/apollo11";
+import { availableObjectById, findCameraPreset, isObjectAvailable } from "../src/shell/objectModel";
 
 const mission = apollo11Mission;
 const [columbia, eagle] = mission.bodies;
@@ -80,6 +82,80 @@ describe("bounds hiding", () => {
       .toEqual(Array.from(columbia.trajectory.stateAt(startUtcMs).positionKm));
     expect(Array.from(stateClampedToBounds(columbia, endUtcMs + 1e9).positionKm))
       .toEqual(Array.from(columbia.trajectory.stateAt(endUtcMs).positionKm));
+  });
+});
+
+describe("configured object selection", () => {
+  it("provides configured camera labels and marks objects unavailable outside their trajectory bounds", () => {
+    const columbiaOption = apollo11Experience.objects.find((object) => object.id === columbia.id)!;
+    const { startUtcMs, endUtcMs } = columbia.trajectory.bounds;
+    expect(columbiaOption.label).toBe(columbia.label);
+    expect(availableObjectById(apollo11Experience, columbia.id, startUtcMs - 1)).toBeUndefined();
+    expect(availableObjectById(apollo11Experience, columbia.id, startUtcMs)?.id).toBe(columbia.id);
+    expect(isObjectAvailable(columbiaOption, startUtcMs - 1)).toBe(false);
+    expect(isObjectAvailable(columbiaOption, startUtcMs)).toBe(true);
+    expect(isObjectAvailable(columbiaOption, endUtcMs)).toBe(true);
+    expect(isObjectAvailable(columbiaOption, endUtcMs + 1)).toBe(false);
+    expect(findCameraPreset(apollo11Experience, "overview")?.label).toBe("Earth–Moon overview");
+    expect(findCameraPreset(apollo11Experience, "focus", columbia.id)?.label).toBe("Focus Columbia (CSM)");
+    expect(findCameraPreset(apollo11Experience, "follow", columbia.id)?.label).toBe("Follow Columbia (CSM)");
+    expect(findCameraPreset(apollo11Experience, "follow", "earth")).toBeUndefined();
+  });
+});
+
+describe("camera presentation independence", () => {
+  it("shell object selection and overview, focus, and follow requests leave State identical at a fixed time", () => {
+    const before = columbia.trajectory.stateAt(mid);
+    const capture = () => {
+      const state = columbia.trajectory.stateAt(mid);
+      return {
+        timeUtcMs: state.timeUtcMs,
+        center: state.center,
+        positionKm: Array.from(state.positionKm),
+        velocityKmS: Array.from(state.velocityKmS ?? []),
+      };
+    };
+    const scientificBefore = capture();
+    const camera = createOrbitCameraState(10);
+    const target = trackedAbsolute(before, readableScale);
+
+    const selection = availableObjectById(apollo11Experience, columbia.id, mid);
+    expect(selection?.id).toBe(columbia.id);
+    const overview = findCameraPreset(apollo11Experience, "overview")!;
+    const focus = findCameraPreset(apollo11Experience, "focus", columbia.id)!;
+    const follow = findCameraPreset(apollo11Experience, "follow", columbia.id)!;
+    const origin = new FloatingOrigin();
+    switchFocus(camera, overview.request.kind === "overview" ? "earth" : overview.request.target, [0, 0, 0]);
+    camera.targetDistance = 144;
+    resolveCamera(camera, [0, 0, 0], origin, 0.1, 1);
+    switchFocus(camera, focus.request.kind === "overview" ? "earth" : focus.request.target, target);
+    camera.targetDistance = 0.3;
+    resolveCamera(camera, target, origin, 0.1, 1);
+    expect(camera.distance).toBeGreaterThan(0.3);
+    expect(camera.distance).toBeLessThan(144);
+    expect(camera.targetAbsolute).not.toEqual(target);
+    for (let frame = 0; frame < 80; frame += 1) resolveCamera(camera, target, origin, 0.1, 1);
+    switchFocus(camera, follow.request.kind === "overview" ? "earth" : follow.request.target, target);
+    resolveCamera(camera, target, origin, 0.1, 1);
+
+    expect(camera.focus).toBe(columbia.id);
+    expect(camera.distance).toBeCloseTo(0.3, 6);
+    camera.targetAbsolute.forEach((value, index) => expect(value).toBeCloseTo(target[index], 5));
+    expect(capture()).toEqual(scientificBefore);
+  });
+
+  it("manual input cancels pending camera motion at the current pose", () => {
+    const camera = createOrbitCameraState(4);
+    camera.transition = [1, 2, 3];
+    camera.targetDistance = 20;
+    camera.azimuth += 0.4;
+    camera.targetAzimuth -= 0.7;
+    camera.targetElevation = -0.3;
+    cancelCameraTransition(camera);
+    expect(camera.transition).toEqual([0, 0, 0]);
+    expect(camera.targetDistance).toBe(camera.distance);
+    expect(camera.targetAzimuth).toBe(camera.azimuth);
+    expect(camera.targetElevation).toBe(camera.elevation);
   });
 });
 
@@ -245,4 +321,3 @@ describe("anchor labels (presentation only)", () => {
     expect(columbia.trajectory.stateAt(mid)).toEqual(before);
   });
 });
-
