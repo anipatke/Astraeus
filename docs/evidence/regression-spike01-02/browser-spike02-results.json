@@ -1,0 +1,270 @@
+{
+  "url": "http://127.0.0.1:5199/",
+  "viewport": "1280x800",
+  "scalePairs": [
+    {
+      "id": "earth-orbit",
+      "same": true
+    },
+    {
+      "id": "translunar",
+      "same": true
+    },
+    {
+      "id": "lunar-orbit-columbia",
+      "same": true
+    },
+    {
+      "id": "lunar-surface-eagle",
+      "same": true
+    },
+    {
+      "id": "return",
+      "same": true
+    },
+    {
+      "id": "entry",
+      "same": true
+    }
+  ],
+  "cameraStates": [
+    {
+      "preset": "Focus Earth",
+      "time": "1969-07-20T20:17:00Z"
+    },
+    {
+      "preset": "Focus Moon",
+      "time": "1969-07-20T20:17:00Z"
+    },
+    {
+      "preset": "Focus Columbia (CSM)",
+      "time": "1969-07-20T20:17:00Z"
+    },
+    {
+      "preset": "Focus Eagle (LM)",
+      "time": "1969-07-20T20:17:00Z"
+    },
+    {
+      "preset": "Follow Columbia (CSM)",
+      "time": "1969-07-20T20:17:00Z"
+    },
+    {
+      "preset": "Earth–Moon overview",
+      "time": "1969-07-20T20:17:00Z"
+    }
+  ],
+  "eventJumps": [
+    {
+      "label": "GET 00:00:00.6 · Lift-off",
+      "expected": "1969-07-16T13:32:00.600Z",
+      "actual": "1969-07-16T13:32:00.600Z"
+    },
+    {
+      "label": "GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)",
+      "expected": "1969-07-16T13:43:39.300Z",
+      "actual": "1969-07-16T13:43:39.300Z"
+    },
+    {
+      "label": "GET 02:44:16.2 · Translunar injection maneuver ignition",
+      "expected": "1969-07-16T16:16:16.200Z",
+      "actual": "1969-07-16T16:16:16.200Z"
+    },
+    {
+      "label": "GET 02:50:03.2 · Translunar injection maneuver cutoff",
+      "expected": "1969-07-16T16:22:03.200Z",
+      "actual": "1969-07-16T16:22:03.200Z"
+    },
+    {
+      "label": "GET 03:17:04.6 · Command and service module / S-IVB separation",
+      "expected": "1969-07-16T16:49:04.600Z",
+      "actual": "1969-07-16T16:49:04.600Z"
+    },
+    {
+      "label": "GET 03:24:03.1 · First docking (CSM with LM)",
+      "expected": "1969-07-16T16:56:03.100Z",
+      "actual": "1969-07-16T16:56:03.100Z"
+    },
+    {
+      "label": "GET 04:16:59.1 · Spacecraft ejection (from S-IVB)",
+      "expected": "1969-07-16T17:48:59.100Z",
+      "actual": "1969-07-16T17:48:59.100Z"
+    },
+    {
+      "label": "GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)",
+      "expected": "1969-07-16T18:12:01.800Z",
+      "actual": "1969-07-16T18:12:01.800Z"
+    },
+    {
+      "label": "GET 26:44:58.7 · First midcourse correction (MCC-1) ignition",
+      "expected": "1969-07-17T16:16:58.700Z",
+      "actual": "1969-07-17T16:16:58.700Z"
+    },
+    {
+      "label": "GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition",
+      "expected": "1969-07-19T17:21:50.400Z",
+      "actual": "1969-07-19T17:21:50.400Z"
+    },
+    {
+      "label": "GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition",
+      "expected": "1969-07-19T21:43:36.800Z",
+      "actual": "1969-07-19T21:43:36.800Z"
+    },
+    {
+      "label": "GET 100:12:00 · Undocking",
+      "expected": "1969-07-20T17:44:00Z",
+      "actual": "1969-07-20T17:44:00Z"
+    },
+    {
+      "label": "GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)",
+      "expected": "1969-07-20T18:11:52.900Z",
+      "actual": "1969-07-20T18:11:52.900Z"
+    },
+    {
+      "label": "GET 101:36:14.0 · Descent orbit insertion (DOI) ignition",
+      "expected": "1969-07-20T19:08:14Z",
+      "actual": "1969-07-20T19:08:14Z"
+    },
+    {
+      "label": "GET 102:33:05.2 · Powered descent initiation (PDI)",
+      "expected": "1969-07-20T20:05:05.200Z",
+      "actual": "1969-07-20T20:05:05.200Z"
+    },
+    {
+      "label": "GET 102:45:39.9 · Lunar landing (touchdown)",
+      "expected": "1969-07-20T20:17:39.900Z",
+      "actual": "1969-07-20T20:17:39.900Z"
+    },
+    {
+      "label": "GET 124:22:00.8 · Lunar lift-off",
+      "expected": "1969-07-21T17:54:00.800Z",
+      "actual": "1969-07-21T17:54:00.800Z"
+    },
+    {
+      "label": "GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)",
+      "expected": "1969-07-21T18:01:15.700Z",
+      "actual": "1969-07-21T18:01:15.700Z"
+    },
+    {
+      "label": "GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition",
+      "expected": "1969-07-21T18:51:35.500Z",
+      "actual": "1969-07-21T18:51:35.500Z"
+    },
+    {
+      "label": "GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition",
+      "expected": "1969-07-21T19:49:49.600Z",
+      "actual": "1969-07-21T19:49:49.600Z"
+    },
+    {
+      "label": "GET 127:03:51.8 · Terminal phase initiation (TPI) ignition",
+      "expected": "1969-07-21T20:35:51.800Z",
+      "actual": "1969-07-21T20:35:51.800Z"
+    },
+    {
+      "label": "GET 127:46:09.8 · Terminal phase finalize (TPFI)",
+      "expected": "1969-07-21T21:18:09.800Z",
+      "actual": "1969-07-21T21:18:09.800Z"
+    },
+    {
+      "label": "GET 128:03:00 · Docking (CSM and LM ascent stage)",
+      "expected": "1969-07-21T21:35:00Z",
+      "actual": "1969-07-21T21:35:00Z"
+    },
+    {
+      "label": "GET 130:09:31.2 · Ascent stage jettison",
+      "expected": "1969-07-21T23:41:31.200Z",
+      "actual": "1969-07-21T23:41:31.200Z"
+    },
+    {
+      "label": "GET 130:30:01 · Separation maneuver ignition (from ascent stage)",
+      "expected": "1969-07-22T00:02:01Z",
+      "actual": "1969-07-22T00:02:01Z"
+    },
+    {
+      "label": "GET 135:23:42.3 · Transearth injection maneuver ignition",
+      "expected": "1969-07-22T04:55:42.300Z",
+      "actual": "1969-07-22T04:55:42.300Z"
+    },
+    {
+      "label": "GET 194:49:12.7 · Command module / service module separation",
+      "expected": "1969-07-24T16:21:12.700Z",
+      "actual": "1969-07-24T16:21:12.700Z"
+    },
+    {
+      "label": "GET 195:03:05.7 · Entry interface (400 000 feet altitude)",
+      "expected": "1969-07-24T16:35:05.700Z",
+      "actual": "1969-07-24T16:35:05.700Z"
+    },
+    {
+      "label": "GET 195:12:06.9 · Drogue deployment",
+      "expected": "1969-07-24T16:44:06.900Z",
+      "actual": "1969-07-24T16:44:06.900Z"
+    },
+    {
+      "label": "GET 195:18:35 · Splashdown / Landing",
+      "expected": "1969-07-24T16:50:35Z",
+      "actual": "1969-07-24T16:50:35Z"
+    }
+  ],
+  "rates": [
+    {
+      "rate": 1,
+      "measuredRate": 0.9501730103806227,
+      "simulationSeconds": 4.119,
+      "wallSeconds": 4.335
+    },
+    {
+      "rate": 100,
+      "measuredRate": 94.70343872605585,
+      "simulationSeconds": 410.35,
+      "wallSeconds": 4.333
+    },
+    {
+      "rate": 1000,
+      "measuredRate": 945.6055363321799,
+      "simulationSeconds": 4099.2,
+      "wallSeconds": 4.335
+    },
+    {
+      "rate": 10000,
+      "measuredRate": 9481.6949113516,
+      "simulationSeconds": 41179.001,
+      "wallSeconds": 4.343
+    }
+  ],
+  "followTrack": {
+    "samples": 30,
+    "start": {
+      "time": -14194767030,
+      "rangeKm": 390558,
+      "speedKmS": 1.6
+    },
+    "end": {
+      "time": -14193566340,
+      "rangeKm": 391789,
+      "speedKmS": 0.711
+    }
+  },
+  "usno": [
+    {
+      "utc": "2024-01-04 03:30:00",
+      "expectedPercent": 50.1,
+      "illuminationPercent": 50.1
+    },
+    {
+      "utc": "2024-01-11 11:57:00",
+      "expectedPercent": 0.2,
+      "illuminationPercent": 0.2
+    },
+    {
+      "utc": "2024-01-18 03:52:00",
+      "expectedPercent": 50.1,
+      "illuminationPercent": 50.1
+    },
+    {
+      "utc": "2024-01-25 17:54:00",
+      "expectedPercent": 99.8,
+      "illuminationPercent": 99.8
+    }
+  ],
+  "errors": []
+}

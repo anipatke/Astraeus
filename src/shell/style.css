@@ -43,6 +43,7 @@
 .object-picker { display: flex; align-items: center; gap: 7px; color: var(--ui-muted, #c7bdb3); font-size: 13px; white-space: nowrap; }
 .object-picker select { min-width: 118px; min-height: 38px; padding: 5px 8px; }
 .object-camera-actions { display: flex; gap: 5px; }
+.object-camera-picker { display: none; }
 .object-camera-actions button[aria-pressed="true"],
 .scale-choices button[aria-pressed="true"] { border-color: var(--ui-accent, #fc6323); color: var(--ui-accent, #fc6323); }
 
@@ -332,31 +333,84 @@
 .astraeus-shell *::-webkit-scrollbar-thumb:hover { background: #90745d; }
 
 @media (max-width: 700px) {
-  .shell-top { top: 8px; left: 8px; gap: 6px; max-width: calc(100vw - 16px); --shell-timeline-space: 262px; }
-  .shell-toolbar { gap: 6px; max-width: calc(100vw - 160px); }
+  .shell-top { top: 8px; left: 8px; gap: 6px; width: calc(100vw - 16px); max-width: calc(100vw - 16px); --shell-timeline-space: 266px; }
+  .shell-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; width: 100%; max-width: 100%; margin-top: 48px; }
   .shell-toolbar > * { max-width: 100%; box-sizing: border-box; }
   .object-picker { flex: 1 1 auto; min-width: 0; }
-  .object-picker select { flex: 1 1 auto; width: 100%; min-width: 0; }
+  .object-picker select { flex: 1 1 0; width: auto; min-width: 0; }
   .object-controls,
   .scale-control { flex-wrap: wrap; gap: 6px; padding: 6px; }
-  .scale-choices button { min-height: 40px; }
-  .info-panel { width: calc(100vw - 16px); padding: 10px; }
+  .object-controls,
+  .scale-control { width: 100%; }
+  .object-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; }
+  .object-picker { grid-column: 1; grid-row: 1; width: auto; }
+  .object-controls > .object-info-toggle { grid-column: 3; grid-row: 1; }
+  .object-camera-actions { display: none; }
+  .object-controls .object-camera-picker { display: block; grid-column: 2; grid-row: 1; width: 100%; min-height: 44px; }
+  .scale-choices { flex-wrap: wrap; min-width: 0; }
+  .info-panel {
+    position: fixed;
+    z-index: 8;
+    right: 8px;
+    bottom: calc(var(--shell-timeline-space, 266px) - 12px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    width: auto;
+    max-height: min(32dvh, max(96px, calc(100dvh - var(--shell-timeline-space, 266px) - 172px)));
+    padding: 10px;
+    border-radius: 12px;
+  }
   .object-picker { gap: 5px; }
-  .object-picker select { min-width: 110px; min-height: 40px; }
-  .object-camera-actions { flex-wrap: wrap; gap: 4px; }
-  .object-camera-actions button { min-height: 40px; padding: 5px 7px; }
+  .object-picker select { min-width: 0; min-height: 44px; }
+  .object-camera-actions { display: none; }
+  .object-controls > button,
+  .scale-control button { min-height: 44px; }
+  .info-panel button,
+  .astraeus-shell .provenance-badge { min-height: 44px; }
   .astraeus-label { font-size: 12px; }
   .timeline-bar { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 8px; gap: 7px; padding: 8px; font-size: 14px; }
-  .timeline-main-row { flex-wrap: wrap; gap: 7px; }
+  .timeline-main-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
   .timeline-transport { gap: 4px; }
-  .timeline-transport button { min-height: 40px; padding: 5px 8px; }
-  .timeline-time { order: 2; }
-  .timeline-speed { order: 3; margin-left: auto; }
-  .timeline-speed select { max-width: 60vw; }
-  .timeline-event-list { order: 4; margin-left: 0; }
-  .timeline-event-context { flex-direction: column; gap: 3px; font-size: 13px; }
+  .timeline-transport { grid-column: 1 / -1; grid-row: 1; }
+  .timeline-transport button { min-height: 44px; padding: 4px 6px; font-size: 13px; }
+  .timeline-time { grid-column: 1; grid-row: 2; width: auto; min-width: 0; overflow: hidden; font-size: 12px; text-overflow: ellipsis; }
+  .timeline-speed { grid-column: 2; grid-row: 2; justify-self: end; margin-left: 0; min-width: 0; }
+  .timeline-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .timeline-speed select { width: min(40vw, 160px); min-height: 44px; max-width: 100%; }
+  .timeline-event-list { grid-column: 2; grid-row: 1; margin-left: 0; }
+  .timeline-event-list summary { min-height: 44px; }
+  .timeline-bar .timeline-event-current { min-height: 44px; }
+  .timeline-event-context { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 6px; font-size: 12px; }
+  .timeline-event-context > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .timeline-bar .timeline-event-current { width: 100%; padding-right: 4px; padding-left: 4px; }
+  .timeline-track { height: 44px; }
+  .timeline-track input[type="range"] { height: 44px; }
   .developer-tools { top: 98px; right: 8px; left: 8px; width: auto; max-height: 44vh; padding: 9px; }
   .developer-mode-toggle { top: 8px; right: 8px; min-height: 40px !important; }
+}
+
+@media (max-width: 700px) and (max-height: 680px) {
+  .shell-top:has(.info-panel) .shell-toolbar { visibility: hidden; }
+  .shell-top:has(.info-panel) .info-panel { max-height: max(64px, calc(100dvh - var(--shell-timeline-space, 266px) - 72px)); }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
+  .shell-toolbar { max-width: calc(100vw - 164px); }
+  .timeline-main-row { flex-wrap: wrap; row-gap: 7px; }
+  .timeline-time { flex: 1 1 20ch; width: auto; }
+  .timeline-speed { margin-left: auto; }
+  .timeline-event-list { margin-left: auto; }
+  .timeline-track { height: 44px; }
+  .timeline-track input[type="range"] { height: 44px; }
+  .object-controls button,
+  .object-controls select,
+  .scale-control button,
+  .info-panel button,
+  .astraeus-shell .provenance-badge,
+  .timeline-transport button,
+  .timeline-speed select,
+  .timeline-event-list summary,
+  .timeline-bar .timeline-event-current { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
