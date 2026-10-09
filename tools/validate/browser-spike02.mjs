@@ -25,7 +25,7 @@ const overlay = async () => page.locator("dl.overlay").innerText().catch(() => "
 const seek = async (utc) => { await page.getByLabel("UTC date and time").fill(utc); await click("Seek (UTC)"); };
 async function scenario(id, { utc, focus, follow, scale, note }) {
   await pause();
-  await click(scale === "true" ? "TrueScale" : "ReadableScale");
+  await click(scale === "true" ? "True" : "Readable");
   await seek(utc);
   if (follow) await click(`Follow ${follow}`); else await click(`Focus ${focus}`);
   await page.waitForTimeout(1500);
@@ -86,7 +86,7 @@ await pause();
 
 // Spike 01 regression: orientation/phase/terminator readouts at the USNO reference dates.
 const usno = [];
-await click("ReadableScale"); await click("Focus Moon");
+await click("Readable"); await click("Focus Moon");
 for (const utc of ["2024-01-04 03:30:00", "2024-01-11 11:57:00", "2024-01-18 03:52:00", "2024-01-25 17:54:00"]) {
   await seek(utc); await page.waitForTimeout(600); usno.push({ utc, overlay: await overlay() });
 }

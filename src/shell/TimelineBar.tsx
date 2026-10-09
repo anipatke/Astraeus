@@ -1,4 +1,5 @@
 import type { ClockSnapshot } from "../core/clock";
+import type { TimelineEvent } from "../core/events";
 import { eventContextAt, eventNavigationTargets, eventPositionPercent, formatUtcTimestamp, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -9,9 +10,13 @@ interface Props {
   readonly onTogglePlayback: () => void;
   readonly onRateChange: (rate: number) => void;
   readonly onSeek: (timeUtcMs: number) => void;
+  /** Seeks to the event; an open event panel follows it. */
+  readonly onEventSeek: (event: TimelineEvent) => void;
+  /** Opens the event's details without changing time. */
+  readonly onEventInfo: (event: TimelineEvent) => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, onEventSeek, onEventInfo }: Props) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
   const navigation = eventNavigationTargets(experience.events, snapshot.timeUtcMs);
   const speeds = mergeSpeeds(DEFAULT_PLAYBACK_SPEEDS, experience.rates);
@@ -28,7 +33,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             type="button"
             aria-label="Previous event"
             disabled={navigation.previous === null}
-            onClick={() => { if (navigation.previous !== null) onSeek(navigation.previous.timeUtcMs); }}
+            onClick={() => { if (navigation.previous !== null) onEventSeek(navigation.previous); }}
           >
             Previous
           </button>
@@ -36,7 +41,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             type="button"
             aria-label="Next event"
             disabled={navigation.next === null}
-            onClick={() => { if (navigation.next !== null) onSeek(navigation.next.timeUtcMs); }}
+            onClick={() => { if (navigation.next !== null) onEventSeek(navigation.next); }}
           >
             Next
           </button>
@@ -59,7 +64,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 <button
                   type="button"
                   aria-current={context.current?.id === event.id ? "time" : undefined}
-                  onClick={() => onSeek(event.timeUtcMs)}
+                  onClick={() => { onEventSeek(event); onEventInfo(event); }}
                 >
                   <time dateTime={formatUtcTimestamp(event.timeUtcMs)}>{formatUtcTimestamp(event.timeUtcMs)}</time>
                   <span>{event.label}</span>
@@ -71,7 +76,19 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
       </div>
 
       <div className="timeline-event-context" aria-label="Event context">
-        <span><strong>Just happened:</strong> {context.current?.label ?? "No event yet"}</span>
+        {context.current === null
+          ? <span><strong>Just happened:</strong> No event yet</span>
+          : (
+            <button
+              type="button"
+              className="timeline-event-current"
+              aria-label={`Information about ${context.current.label}`}
+              aria-controls="info-panel"
+              onClick={() => { if (context.current !== null) onEventInfo(context.current); }}
+            >
+              <strong>Just happened:</strong> {context.current.label} <span aria-hidden="true">ⓘ</span>
+            </button>
+          )}
         <span><strong>Up next:</strong> {context.next?.label ?? "No upcoming event"}</span>
       </div>
 
@@ -86,7 +103,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 aria-label={`Go to ${event.label}`}
                 title={event.label}
                 style={{ left: `${eventPositionPercent(event, experience.window)}%` }}
-                onClick={() => onSeek(event.timeUtcMs)}
+                onClick={() => { onEventSeek(event); onEventInfo(event); }}
               >
                 <Label text={event.label} className="timeline-marker-label" />
               </button>

@@ -10,15 +10,28 @@
 
 .shell-canvas { position: absolute; inset: 0; }
 
-.object-controls {
+/* Top-left column: toolbar, then the info panel, bounded above the timeline. */
+.shell-top {
   position: absolute;
   z-index: 5;
   top: 12px;
   left: 12px;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: calc(100vw - 168px);
+  max-height: calc(100% - 12px - var(--shell-timeline-space, 150px));
+  pointer-events: none;
+}
+.shell-top > * { pointer-events: auto; }
+.shell-toolbar { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+
+.object-controls,
+.scale-control {
+  display: flex;
   align-items: center;
   gap: 9px;
-  max-width: calc(100vw - 116px);
   padding: 8px;
   border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
   border-radius: 10px;
@@ -30,7 +43,65 @@
 .object-picker { display: flex; align-items: center; gap: 7px; color: var(--ui-muted, #c7bdb3); font-size: 13px; white-space: nowrap; }
 .object-picker select { min-width: 118px; min-height: 38px; padding: 5px 8px; }
 .object-camera-actions { display: flex; gap: 5px; }
-.object-camera-actions button[aria-pressed="true"] { border-color: var(--ui-accent, #fc6323); color: var(--ui-accent, #fc6323); }
+.object-camera-actions button[aria-pressed="true"],
+.scale-choices button[aria-pressed="true"] { border-color: var(--ui-accent, #fc6323); color: var(--ui-accent, #fc6323); }
+
+.scale-control { position: relative; }
+.scale-choices { display: flex; align-items: center; gap: 5px; }
+.scale-control-label { margin-right: 2px; color: var(--ui-muted, #c7bdb3); font-size: 13px; }
+.scale-explain { min-width: 36px; }
+.scale-explanation {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(340px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border: 1px solid #45413d;
+  border-radius: 10px;
+  background: rgba(13, 13, 13, .97);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+  box-sizing: border-box;
+  font-size: 13px;
+}
+.scale-explanation[hidden],
+.provenance-detail[hidden] { display: none !important; }
+.scale-explanation dl { display: grid; gap: 6px; margin: 0; }
+.scale-explanation dt { color: var(--ui-color, #f0e6da); font-weight: 600; }
+.scale-explanation dd { margin: 0; color: var(--ui-muted, #c7bdb3); }
+.scale-explanation p { margin: 8px 0 0; color: var(--ui-data, #b1a1df); }
+
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 24px));
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
+  border-radius: 12px;
+  background: var(--ui-panel, rgba(13, 13, 13, .94));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .42);
+  box-sizing: border-box;
+  backdrop-filter: blur(12px);
+}
+.info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.info-panel-header h2 { margin: 6px 0 0; font-size: 16px; line-height: 1.3; }
+.info-panel-subtitle { margin: 0; color: var(--ui-data, #b1a1df); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.info-panel-description { margin: 0; color: var(--ui-muted, #c7bdb3); }
+.info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+
+.provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.astraeus-shell .provenance-badge { min-height: 30px; padding: 3px 9px; border-color: rgba(177, 161, 223, .6); border-radius: 999px; color: var(--ui-data, #b1a1df); font-size: 13px; }
+.provenance-badge[aria-expanded="true"] { border-color: var(--ui-data, #b1a1df); }
+.provenance-detail { margin: 0; font-size: 13px; }
+.provenance-detail dt { margin-top: 6px; color: var(--ui-color, #f0e6da); font-weight: 600; }
+.provenance-detail dd { margin: 2px 0 0; color: var(--ui-muted, #c7bdb3); overflow-wrap: anywhere; }
+.provenance-detail ul { margin: 0; padding-left: 18px; }
+.provenance-detail li + li { margin-top: 4px; }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .scene-labels { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
 .astraeus-label {
@@ -177,6 +248,9 @@
 
 .timeline-event-context { display: flex; gap: 20px; min-width: 0; overflow: hidden; color: var(--ui-muted, #c7bdb3); white-space: nowrap; text-overflow: ellipsis; }
 .timeline-event-context span { overflow: hidden; text-overflow: ellipsis; }
+.astraeus-shell .timeline-event-current { min-height: 28px; overflow: hidden; padding: 2px 8px; border-color: transparent; background: transparent; color: inherit; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.astraeus-shell .timeline-event-current:hover { border-color: #45413d; }
+.timeline-event-current span { color: var(--ui-data, #b1a1df); }
 .timeline-event-context strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
 .timeline-scrubber { display: flex; flex-direction: column; gap: 1px; }
 .timeline-track { position: relative; display: flex; align-items: center; height: 22px; }
@@ -258,10 +332,18 @@
 .astraeus-shell *::-webkit-scrollbar-thumb:hover { background: #90745d; }
 
 @media (max-width: 700px) {
-  .object-controls { top: 8px; left: 8px; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 16px); padding: 6px; }
+  .shell-top { top: 8px; left: 8px; gap: 6px; max-width: calc(100vw - 16px); --shell-timeline-space: 262px; }
+  .shell-toolbar { gap: 6px; max-width: calc(100vw - 160px); }
+  .shell-toolbar > * { max-width: 100%; box-sizing: border-box; }
+  .object-picker { flex: 1 1 auto; min-width: 0; }
+  .object-picker select { flex: 1 1 auto; width: 100%; min-width: 0; }
+  .object-controls,
+  .scale-control { flex-wrap: wrap; gap: 6px; padding: 6px; }
+  .scale-choices button { min-height: 40px; }
+  .info-panel { width: calc(100vw - 16px); padding: 10px; }
   .object-picker { gap: 5px; }
   .object-picker select { min-width: 110px; min-height: 40px; }
-  .object-camera-actions { gap: 4px; }
+  .object-camera-actions { flex-wrap: wrap; gap: 4px; }
   .object-camera-actions button { min-height: 40px; padding: 5px 7px; }
   .astraeus-label { font-size: 12px; }
   .timeline-bar { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 8px; gap: 7px; padding: 8px; font-size: 14px; }

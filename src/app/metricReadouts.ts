@@ -1,6 +1,7 @@
 import { EARTH, MOON } from "../core/body";
 import type { TimelineEvent } from "../core/events";
 import type { CenteredPosition } from "../core/state";
+import type { Trajectory } from "../core/trajectory";
 import type {
   AltitudeMetric,
   CoordinatesMetric,
@@ -14,7 +15,7 @@ import type {
   UncertaintyMetric,
 } from "../shell/metrics";
 import type { DebugReadout } from "./DebugOverlay";
-import { discrepancyAt, type TrackedBody, type TrackedReadout } from "./mission";
+import { discrepancyAt, trackedReadouts, type TrackedBody, type TrackedReadout } from "./mission";
 
 const HOUR_MS = 3_600_000;
 
@@ -219,4 +220,45 @@ export function sceneMetrics(readout: DebugReadout): readonly Metric[] {
     planViews: { references: [] },
   };
   return [earthMoon, rendered, illumination, moonPosition];
+}
+
+export interface ObjectMetricSources {
+  readonly bodies: readonly TrackedBody[];
+  /** Earth-centred Moon trajectory; Earth itself is the centre every value is measured from. */
+  readonly moon: Trajectory;
+  readonly earthId: string;
+  readonly moonId: string;
+}
+
+/**
+ * The info panel's distance and speed for one object, from State only: scale policy and camera never enter.
+ * Tracked bodies outside their bounds and unknown ids have none.
+ */
+export function createObjectMetrics({ bodies, moon, earthId, moonId }: ObjectMetricSources) {
+  const peaks = new Map(bodies.map((body) => [body.id, peakAnchorSpeedKmS(body)]));
+  const moonDistance = (timeUtcMs: number, id: string, label: string): DistanceMetric => {
+    const state = moon.stateAt(timeUtcMs);
+    return {
+      kind: "distance",
+      id,
+      label,
+      value: Math.hypot(...state.positionKm),
+      unit: "km",
+      digits: 0,
+      context: `centre to centre · ${state.frame}`,
+    };
+  };
+  return (objectId: string, timeUtcMs: number): readonly Metric[] => {
+    if (objectId === earthId) return [moonDistance(timeUtcMs, `${objectId}-to-moon`, "Distance to Moon")];
+    if (objectId === moonId) return [moonDistance(timeUtcMs, `${objectId}-range`, "Distance from Earth")];
+    const body = bodies.find((candidate) => candidate.id === objectId);
+    const row = body === undefined ? undefined : trackedReadouts([body], timeUtcMs)[0];
+    if (row === undefined) return [];
+    const moonState = moon.stateAt(timeUtcMs);
+    return [
+      spacecraftRangeMetric(row, referenceInSameFrame("Moon now", row, moonState)),
+      spacecraftSpeedMetric(row, peaks.get(row.id) ?? null),
+      spacecraftMoonMetric(row, moonState),
+    ];
+  };
 }

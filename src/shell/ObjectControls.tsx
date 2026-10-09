@@ -8,6 +8,8 @@ interface Props {
   readonly activePresetId: string | null;
   readonly onSelectObject: (id: string) => void;
   readonly onCameraPreset: (preset: ExperienceCameraPreset) => void;
+  readonly infoOpen: boolean;
+  readonly onToggleInfo: () => void;
 }
 
 export function ObjectControls({
@@ -17,6 +19,8 @@ export function ObjectControls({
   activePresetId,
   onSelectObject,
   onCameraPreset,
+  infoOpen,
+  onToggleInfo,
 }: Props) {
   const selected = experience.objects.find((object) => object.id === selectedObjectId);
   const selectedAvailable = selected !== undefined && isObjectAvailable(selected, timeUtcMs);
@@ -63,6 +67,17 @@ export function ObjectControls({
           })}
         </select>
       </label>
+      <button
+        type="button"
+        className="object-info-toggle"
+        aria-label={selected === undefined ? "Information" : `Information about ${selected.label}`}
+        aria-expanded={infoOpen}
+        aria-controls="info-panel"
+        disabled={!selectedAvailable}
+        onClick={onToggleInfo}
+      >
+        Info
+      </button>
       <div className="object-camera-actions">
         {renderPreset(overview)}
         {renderPreset(focus)}

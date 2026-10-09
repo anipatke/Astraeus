@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import { SimulationClock } from "../core/clock";
 import { MoonTrajectory } from "../core/moonTrajectory";
-import { readableScale, trueScale } from "../core/scalePolicy";
+import { trueScale } from "../core/scalePolicy";
+import { createObjectMetrics } from "./metricReadouts";
 import type { CameraRequest } from "./CameraController";
 import { DebugControls } from "./DebugControls";
 import { JourneyProgress, MissionSummary, MissionTelemetry } from "./MissionPanel";
@@ -10,6 +11,7 @@ import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { apollo11Experience, apollo11Mission } from "../mission/apollo11";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
+import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { EarthMoonScene, type SceneControls } from "./EarthMoonScene";
 
 export function App() {
@@ -20,6 +22,10 @@ export function App() {
     clock.play();
     return { clock, adapter, trajectory: new MoonTrajectory(adapter), mission: apollo11Mission };
   }, []);
+  const metricsFor = useMemo(
+    () => createObjectMetrics({ bodies: runtime.mission.bodies, moon: runtime.trajectory, earthId: "earth", moonId: "moon" }),
+    [runtime],
+  );
   const controls = useRef<SceneControls>({
     policy: trueScale,
     cameraRequest: null,
@@ -29,7 +35,7 @@ export function App() {
   });
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
-  const [scale, setScale] = useState<"readable-scale" | "true-scale">("true-scale");
+  const [scale, setScale] = useState<ScaleId>("true-scale");
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
   const [hud, setHud] = useState<DebugReadout | null>(null);
@@ -38,6 +44,10 @@ export function App() {
   }, []);
   const updateSelectedObject = useCallback((objectId: string) => {
     controls.current.selectedObjectId = objectId;
+  }, []);
+  const updateScale = useCallback((id: ScaleId) => {
+    controls.current.policy = scalePolicyFor(id);
+    setScale(id);
   }, []);
 
   useEffect(() => {
@@ -72,19 +82,8 @@ export function App() {
       </section>
       <section className="hud-section" aria-labelledby="developer-display-heading">
         <h3 id="developer-display-heading">Display settings</h3>
-        <div className="row scale-controls" role="group" aria-label="Scene scale and labels">
-          <button
-            aria-pressed={scale === "readable-scale"}
-            title="Compresses Earth–Moon distances to one tenth; body sizes remain physical."
-            onClick={() => { controls.current.policy = readableScale; setScale("readable-scale"); }}
-          >ReadableScale</button>
-          <button
-            aria-pressed={scale === "true-scale"}
-            title="Keeps Earth–Moon distances and body sizes in physical proportion. This is the default."
-            onClick={() => { controls.current.policy = trueScale; setScale("true-scale"); }}
-          >TrueScale</button>
+        <div className="row scale-controls" role="group" aria-label="Scene labels">
           <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>
-          <p className="scale-help">True scale is the default. ReadableScale compresses distances to 10%; body sizes stay physical.</p>
         </div>
       </section>
       <section className="hud-section" aria-labelledby="developer-mission-heading">
@@ -115,6 +114,9 @@ export function App() {
       }}
       onCameraRequest={updateCameraRequest}
       onSelectionChange={updateSelectedObject}
+      scaleId={scale}
+      onScaleChange={updateScale}
+      metricsFor={metricsFor}
       developerTools={developerTools}
     >
       <div className="canvas-host">

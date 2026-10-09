@@ -1,5 +1,6 @@
 import type { SimulationClock } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
+import type { Provenance } from "../core/provenance";
 import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import type { OrbitPathSamples } from "./orbitPath";
@@ -18,6 +19,8 @@ export interface TrackedBody {
   readonly anchorLabels?: readonly string[];
   /** Published position discrepancy per reconstruction segment, in time order. */
   readonly positionDiscrepancies?: readonly PositionDiscrepancy[];
+  /** The trajectory's own Provenance, passed through unchanged. */
+  readonly provenance?: Provenance;
 }
 
 /** How far the drawn path may depart from its source over one segment, as the data publishes it. */

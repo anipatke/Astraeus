@@ -2,8 +2,7 @@
 id: T-022
 title: Show common measurements as compact, reusable visuals
 objective: O-005
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-018, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: owner-metric-visuals-2026-10-09}
