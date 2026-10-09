@@ -9,9 +9,9 @@ owner_validation: {required: true}
 planned_by: {role: planner, session: owner-metric-visuals-2026-10-09}
 check_waiver:
   task: T-022
-  reason: Owner waived the optional Task Check after reviewing the visuals in the running app; the Full Objective Check for O-005 remains mandatory.
+  reason: Owner restated the Task Check waiver after the extension (relative distance, altitude, progress, uncertainty, coordinates radar view, anchor markers); the Full Objective Check for O-005 remains mandatory.
   actor: {role: owner, session: t018-test-and-metric-visuals-2026-10-09}
-  recorded_at: '2026-10-09T07:55:25Z'
+  recorded_at: '2026-10-09T08:19:34Z'
 ---
 
 # Show common measurements as compact, reusable visuals
@@ -115,8 +115,49 @@ Text-heavy measurements in the current UI: spacecraft range and speed (`MissionP
 - New: `src/shell/metrics.ts`, `src/shell/MetricVisual.tsx`, `src/app/metricReadouts.ts`, `tests/metricVisuals.test.ts`, `docs/ASTRAEUS_METRIC_VISUALS.md`, `docs/evidence/spike03/metric-visuals-*.png`.
 - Changed: `src/shell/style.css`, `src/app/style.css`, `src/app/MissionPanel.tsx`, `src/app/DebugOverlay.tsx`, `src/app/App.tsx`, `src/app/mission.ts`, `tools/validate/browser-shell.mjs`, `.savepoint/router.md`, this Task, and T-018 (duplicate waiver removed).
 
+### Owner-requested extension — 2026-10-09
+
+After reviewing the running app, the owner said the screenshots were fine but most types were not in the developer app, and chose all four remaining groups: Relative distance, Altitude, Progress + Uncertainty, and Coordinates. That owner request is the demonstrated need the Boundaries ask for. The Task moved from `audit` back to `build`. The owner's earlier `check_waiver` was given before this extension; it is left as recorded, and the owner may restate it.
+
+- **Contract (`src/shell/metrics.ts`).** Added `relative-distance`, `altitude`, `progress`, `uncertainty` and `coordinates` (`xyz`, `radec`, `latlon`), each with a numeric-only fallback. `metricReadings` and `metricNotes` now give the visible numbers and captions, and `describeMetric` builds the text alternative from the same two functions.
+- **Component (`src/shell/MetricVisual.tsx`).** Added a relation glyph (target disc and dot at the gap in target radii, broken beyond 6 radii), a horizon glyph (height in body radii, broken beyond 1 radius), a progress line with milestones, a centred ± band, and coordinate-system glyphs. Caption wording changed slightly: "Moon now 387,130 km"; "value outside this range".
+- **Apollo (`src/app/metricReadouts.ts`, `src/app/mission.ts`, `src/mission/apollo11.ts`).** Each spacecraft card now shows distance to Moon, altitude above the nearer body's mean radius, position discrepancy and XYZ position. The scene shows the Moon's position as coordinates (its advanced row is hidden), and Time and playback shows the journey from lift-off to splashdown. Discrepancies are read from the generated `segments` (coast `maxCorrectionKm`, burn `cutoffPositionResidualKm`; others say "no figure published (method)"). `TrackedReadout` now carries `positionKm`; `TrackedBody` has optional `positionDiscrepancies`; `MissionConfig` has optional `journey` labels.
+- **Arithmetic outside the core.** Vector differences and magnitudes, subtraction of `EARTH`/`MOON` mean radii, and elapsed-hours division. All of it is presentation of existing State and data, and the doc names each.
+- **Layout fix.** The altitude glyph's CSS class collided with the card's type class and collapsed the card; it was renamed `metric-horizon-glyph`.
+
+Named tests added in `tests/metricVisuals.test.ts`:
+- `draws a relative distance in the target's radii, broken beyond the window, numeric-only without a radius`
+- `draws altitude against the body's radius and says when the value is below the datum`
+- `shows progress as a share of a known total with milestones`
+- `shows a ± half-width, banded only against the largest half-width in the same data`
+- `names the coordinate system, frame and origin for each system`
+- `measures the spacecraft–Moon gap and altitude from the same centre and frame, above the nearer body's mean radius`
+- `reads each segment's published discrepancy from the generated data, and none where none is published`
+- `measures journey progress from the first to the last event`
+
+The reuse fixture adds RA/Dec coordinates and a progress window. `tools/validate/browser-shell.mjs` now asserts two of each new spacecraft metric, Eagle's altitude against the Moon, the journey caption and three Moon-position rows, and saves `metric-visuals-journey-1280x800.png`.
+
+### Owner-requested anchor marker restyle — 2026-10-09
+
+The owner asked for the square markers along the Earth–Moon path to be "something more modern". These are the NASA source anchors drawn as untextured `Points`, which render square. `src/app/TrackedBodyView.ts` now uses a generated round sprite (`anchorSpriteTexture`, a `DataTexture` built from pixels so node tests run without a DOM): a crisp ring around a soft centre dot, cream `#f0e6da`, 9 px, 0.85 opacity, with `depthWrite` off. Positions, count and the anchor-label diagnostic are unchanged. This is scene rendering outside the Metric Visuals scope, done on direct owner instruction; recorded under Drift Notes.
+
+### Verification of the extension
+
+- 2026-10-09T08:03:38Z, Node v22.22.2: `npm run typecheck` exit 0; `npm run build` exit 0 (existing chunk advisory); `npm test` exit 0, 9 files, 158 tests (19 in `tests/metricVisuals.test.ts`); `git diff --check` exit 0; shell naming search no matches; `git diff --stat -- src/core data` empty.
+- Browser scenario (same command as above, `ASTRAEUS_URL=http://localhost:5199/` against `npm run dev -- --port 5199`) at 2026-10-09T08:04:41Z: exit 0 at 1280×800 and 390×844 with zero page or console errors. The first run failed on the old scene-card count (3, now 4 with Moon position); the assertion was updated.
+- Visual inspection in headless Chromium: telemetry at the lunar surface stay (1969-07-21 06:00Z) and translunar coast (1969-07-18 12:00Z), the journey line, the scene section, and the anchor rings at overview and Moon focus.
+- Extra reads: `src/core/body.ts` (radii), the `segments` block of `data/apollo11/generated/columbia.json` and `eagle.json` (discrepancy fields per method), and `src/app/TrackedBodyView.ts` (anchor rendering).
+
+### Owner-directed position visual — 2026-10-09
+
+The owner asked whether the coordinates glyph was functional; it was a static system symbol. To compare, an oblique arrow on labelled axes was prototyped. It showed the ambiguity the brief warns about: Columbia's mostly negative x read as pointing between y and z. After discussing how instrument panels handle 3D, the owner chose top (x–y) and side (x–z) views. Those were built, then judged "too big, too chunky". From three alternatives the owner chose the radar view: `CoordinatesMetric.planViews` draws a ~56×42 px round top view with the origin at the centre, the Moon as a reference dot, and a z tick beside it on one scale (rim = largest planar distance or |z|). Labels and references are in the caption and the `describeMetric` text. Both prototypes were removed; only the radar view remains. Named tests: `coordinate radar view` › `projects onto x–y and z on one scale that fits every point inside the round view and the tick` and `draws views only when asked, for XYZ, with a non-zero position`. The Apollo test now covers the same-frame Moon reference. The browser scenario asserts a radar on each vehicle position and its text alternative.
+
+Fresh run at 2026-10-09T08:16:20Z: `npm run typecheck`, `npm run build` and `npm test` (9 files, 160 tests) exit 0; `git diff --check` exit 0; shell naming search no matches; `src/core` and `data` unchanged. Browser scenario at 2026-10-09T08:17:03Z: exit 0 at 1280×800 and 390×844, zero page or console errors.
+
 No Task Check, owner visual validation or completion is recorded. `audit` means ready for a Check and owner review, not passed.
 
 ## Drift Notes
 
-Record architecture deltas and reconcile through the planner before Check.
+- 2026-10-09: on owner instruction, the anchor markers in `src/app/TrackedBodyView.ts` were restyled from square points to a round sprite. This is scene rendering, outside the Metric Visuals scope; reconcile in T-020's visual review and Design.
+- 2026-10-09: the owner kept the radar position view provisionally ("still not convinced, but let's keep it for now"). This is not owner visual validation of the position visual; revisit it in T-020's visual review.
+- 2026-10-09: `TrackedReadout.positionKm`, `TrackedBody.positionDiscrepancies` and `MissionConfig.journey` were added to the app-layer mission types; reconcile in Design.md at T-020.

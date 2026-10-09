@@ -16,6 +16,26 @@ export interface TrackedBody {
   readonly anchorTimesUtcMs: readonly number[];
   /** Optional short label per anchor (same order as anchorTimesUtcMs), shown on request for diagnosis. */
   readonly anchorLabels?: readonly string[];
+  /** Published position discrepancy per reconstruction segment, in time order. */
+  readonly positionDiscrepancies?: readonly PositionDiscrepancy[];
+}
+
+/** How far the drawn path may depart from its source over one segment, as the data publishes it. */
+export interface PositionDiscrepancy {
+  readonly startUtcMs: number;
+  readonly endUtcMs: number;
+  /** Null when the data publishes no figure for this segment. */
+  readonly km: number | null;
+  readonly basis: string;
+}
+
+/** The segment covering `timeUtcMs`; a shared boundary belongs to the later segment. */
+export function discrepancyAt(body: TrackedBody, timeUtcMs: number): PositionDiscrepancy | null {
+  const segments = body.positionDiscrepancies ?? [];
+  const index = segments.findIndex((segment) => timeUtcMs >= segment.startUtcMs && timeUtcMs < segment.endUtcMs);
+  if (index >= 0) return segments[index];
+  const last = segments[segments.length - 1];
+  return last !== undefined && timeUtcMs === last.endUtcMs ? last : null;
 }
 
 export interface MissionConfig {
@@ -26,6 +46,8 @@ export interface MissionConfig {
   /** Timeline preset: the span the scrubber covers when the mission is selected. */
   readonly window: TimeBounds;
   readonly rates: readonly number[];
+  /** Names for the first and last events on the journey progress line. */
+  readonly journey?: { readonly start: string; readonly end: string };
 }
 
 /** The body's anchor labels, or null when it has none; a count mismatch is a wiring error. */
@@ -92,6 +114,7 @@ export { formatRate, mergeSpeeds } from "../shell/timelineModel";
 export interface TrackedReadout {
   readonly id: string;
   readonly label: string;
+  readonly positionKm: readonly [number, number, number];
   readonly rangeFromEarthKm: number;
   readonly speedKmS: number | null;
   /** Frame and centre the range and speed are measured in. */
@@ -108,6 +131,7 @@ export function trackedReadouts(bodies: readonly TrackedBody[], timeUtcMs: numbe
     rows.push({
       id: body.id,
       label: body.label,
+      positionKm: [state.positionKm[0], state.positionKm[1], state.positionKm[2]],
       rangeFromEarthKm: Math.hypot(...state.positionKm),
       speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS),
       frame: state.frame,

@@ -108,6 +108,7 @@ export function DebugOverlay({ readout }: { readonly readout: DebugReadout | nul
     "Earth–Moon distance",
     "Rendered distance",
     "Moon lit (geometric)",
+    "Moon position",
   ]);
   const advancedRows = overlayRows(readout).filter(([label]) => !hiddenInstruments.has(label));
 

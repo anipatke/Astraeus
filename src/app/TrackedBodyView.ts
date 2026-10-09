@@ -1,6 +1,7 @@
 import {
   BufferAttribute,
   BufferGeometry,
+  DataTexture,
   Group,
   Line,
   LineBasicMaterial,
@@ -8,6 +9,7 @@ import {
   MeshBasicMaterial,
   Points,
   PointsMaterial,
+  RGBAFormat,
   SphereGeometry,
   type Camera,
   type Vector3,
@@ -30,6 +32,36 @@ function lineWithCapacity(count: number, color: string, opacity: number): Line {
   line.frustumCulled = false;
   line.layers.set(TRACK_LAYER);
   return line;
+}
+
+const ANCHOR_SPRITE_PX = 64;
+let anchorSprite: DataTexture | null = null;
+
+/**
+ * Round sprite for source anchors: a crisp ring around a soft centre dot, so a data point reads as a
+ * point rather than the square an untextured WebGL point draws. Built from pixels, not a canvas, so it
+ * also works where there is no DOM.
+ */
+export function anchorSpriteTexture(): DataTexture {
+  if (anchorSprite !== null) return anchorSprite;
+  const size = ANCHOR_SPRITE_PX;
+  const pixels = new Uint8Array(size * size * 4);
+  const smooth = (edge0: number, edge1: number, x: number) => {
+    const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+  };
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const r = Math.hypot(x + 0.5 - size / 2, y + 0.5 - size / 2) / (size / 2);
+      const ring = smooth(0.6, 0.68, r) * (1 - smooth(0.86, 0.94, r));
+      const dot = 1 - smooth(0.2, 0.3, r);
+      const alpha = Math.max(ring, dot * 0.9);
+      pixels.set([255, 255, 255, Math.round(alpha * 255)], (y * size + x) * 4);
+    }
+  }
+  anchorSprite = new DataTexture(pixels, size, size, RGBAFormat);
+  anchorSprite.needsUpdate = true;
+  return anchorSprite;
 }
 
 /**
@@ -64,7 +96,16 @@ export class TrackedBodyView {
     anchorGeometry.setAttribute("position", new BufferAttribute(new Float32Array(this.#anchorKm.length), 3));
     this.#anchors = new Points(
       anchorGeometry,
-      new PointsMaterial({ color: "#ffffff", size: 6, sizeAttenuation: false }),
+      new PointsMaterial({
+        color: "#f0e6da",
+        map: anchorSpriteTexture(),
+        size: 9,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0.85,
+        alphaTest: 0.05,
+        depthWrite: false,
+      }),
     );
     this.#anchors.frustumCulled = false;
     this.#anchors.layers.set(TRACK_LAYER);

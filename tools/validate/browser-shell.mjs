@@ -134,7 +134,7 @@ try {
   assert.equal(await page.getByLabel("UTC date and time").isVisible(), true);
   assert.equal(await page.getByRole("button", { name: "ReadableScale", exact: true }).isVisible(), true);
   await page.locator(".scientific-instruments .metric").first().waitFor();
-  assert.equal(await page.locator(".scientific-instruments .metric").count(), 3);
+  assert.equal(await page.locator(".scientific-instruments .metric").count(), 4);
   // Metric Visuals: a shape only where a real reference exists, and the same text without it.
   assert.equal(await page.locator('[data-metric="earth-moon-distance"] svg').count(), 0, "Earth–Moon distance has no reference, so it stays numeric-only");
   assert.equal(await page.locator('[data-metric="lunar-illumination"] svg[role="img"]').count(), 1);
@@ -143,11 +143,20 @@ try {
   const speedArc = page.locator('.mission .metric-speed svg[role="img"]').first();
   const rangeBar = page.locator('.mission .metric-distance svg[role="img"]').first();
   assert.match(await speedArc.getAttribute("aria-label"), /km\/s.*peak at NASA source anchors/);
-  assert.match(await rangeBar.getAttribute("aria-label"), /Moon now at [\d,]+ km/);
+  assert.match(await rangeBar.getAttribute("aria-label"), /Moon now [\d,]+ km/);
+  for (const kind of ["relative-distance", "altitude", "uncertainty", "coordinates"]) {
+    assert.equal(await page.locator(`.mission .metric-${kind}`).count(), 2, `each in-bounds vehicle shows a ${kind} metric`);
+  }
+  assert.match(await page.locator('[data-metric="eagle-altitude"]').innerText(), /(above|below) Moon mean radius/);
+  assert.match(await page.locator('[data-metric="journey-progress"]').innerText(), /lift-off → splashdown/);
+  assert.equal(await page.locator('[data-metric="moon-position"] .metric-reading').count(), 3);
+  assert.equal(await page.locator('.mission [data-metric$="-position"] svg.metric-radar').count(), 2, "each vehicle position shows the radar view");
+  assert.match(await page.locator('[data-metric="columbia-position"] svg.metric-radar').getAttribute("aria-label"), /round: top view x–y · tick: z · rim ±[\d,]+ km · lavender: Moon/);
   const metricShot = process.env.ASTRAEUS_METRIC_SCREENSHOTS;
   if (metricShot) {
     await page.locator('.hud-section:has(#developer-telemetry-heading)').screenshot({ path: `${metricShot}/metric-visuals-telemetry-1280x800.png` });
     await page.locator('.hud-section:has(#developer-scene-heading)').screenshot({ path: `${metricShot}/metric-visuals-scene-1280x800.png` });
+    await page.locator(".hud-section-clock").screenshot({ path: `${metricShot}/metric-visuals-journey-1280x800.png` });
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);

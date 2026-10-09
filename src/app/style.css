@@ -95,16 +95,15 @@ body,
 .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: #b9d7bd; font-size: 11px; }
 .telemetry-state > span { width: 7px; height: 7px; border-radius: 50%; background: #77c58b; box-shadow: 0 0 7px rgba(119, 197, 139, .5); }
 .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-/* The vehicle card already frames its metrics, so they drop their own box. */
-.spacecraft-metrics .metric { padding: 0; border: 0; background: none; }
-.spacecraft-metrics .metric + .metric { padding-left: 8px; border-left: 1px solid rgba(240, 230, 218, .12); border-radius: 0; }
 .hud .mission-empty { margin: 0; color: var(--ui-muted); font-size: 13px; line-height: 1.4; }
 .scale-controls { align-items: center; }
 .scale-controls .scale-help { flex-basis: 100%; }
 
 .scientific-instruments { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
 .instrument-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-.instrument-grid .metric-phase { grid-column: 1 / -1; }
+.instrument-grid .metric-phase,
+.instrument-grid .metric-coordinates { grid-column: 1 / -1; }
+.hud-section-clock .metric-progress { margin-top: 8px; }
 .advanced-readouts { min-width: 0; }
 .hud .advanced-readouts .overlay { margin-top: 8px; }
 

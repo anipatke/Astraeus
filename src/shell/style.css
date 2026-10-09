@@ -210,12 +210,15 @@
 .metric-unit { color: var(--ui-muted, #c7bdb3); font-size: 12px; }
 .metric-context { color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; }
 .metric-scale { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; font-variant-numeric: tabular-nums; }
-.metric-marker-key { display: inline-block; width: 2px; height: 9px; margin-right: 5px; background: var(--ui-data, #b1a1df); vertical-align: -1px; }
+.metric-readings { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.metric-coordinates .metric-value { font-size: 14px; }
 
 .metric-visual { flex: 0 0 auto; overflow: visible; }
 .metric-arc { width: 46px; height: 39px; }
 .metric-glyph { width: 30px; height: 30px; }
 .metric-bar { flex: 1 0 100%; width: 100%; height: 14px; }
+.metric-relation { width: 74px; height: 20px; }
+.metric-horizon-glyph { width: 34px; height: 34px; }
 .metric-track,
 .metric-fill { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .metric-track { stroke: #34302c; stroke-width: 5px; }
@@ -224,6 +227,28 @@
 .metric-marker { stroke: var(--ui-data, #b1a1df); stroke-width: 2px; vector-effect: non-scaling-stroke; }
 .metric-disc { fill: #2a2724; stroke: rgba(240, 230, 218, .35); stroke-width: 1px; vector-effect: non-scaling-stroke; }
 .metric-lit { fill: #e9d6a8; }
+.metric-track-thin { stroke-width: 2px; }
+.metric-link { stroke: var(--ui-subtle, #a99e94); stroke-width: 1.5px; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+.metric-break { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.metric-dot { fill: var(--ui-accent, #fc6323); }
+.metric-horizon { fill: none; stroke: #e9d6a8; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.metric-band { fill: rgba(177, 161, 223, .35); stroke: var(--ui-data, #b1a1df); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.metric-centre { stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.metric-axis,
+.metric-outline { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.metric-outline { stroke: rgba(240, 230, 218, .45); }
+.metric-radar { width: 56px; height: 42px; }
+.metric-view-frame { fill: rgba(255, 255, 255, .03); stroke: rgba(240, 230, 218, .22); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.metric-view-axis { stroke: rgba(240, 230, 218, .16); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.metric-view-origin { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.metric-view-reference { fill: var(--ui-data, #b1a1df); }
+.metric-view-link { stroke: var(--ui-accent, #fc6323); stroke-opacity: .55; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.metric-view-origin-tick,
+.metric-view-reference-tick,
+.metric-view-object-tick { stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.metric-view-origin-tick { stroke: rgba(240, 230, 218, .6); stroke-width: 1px; }
+.metric-view-reference-tick { stroke: var(--ui-data, #b1a1df); }
+.metric-view-object-tick { stroke: var(--ui-accent, #fc6323); }
 
 /* Keep scroll areas visually tied to the rest of the dark control surface. */
 .astraeus-shell * { scrollbar-color: #66584a #181716; scrollbar-width: thin; }

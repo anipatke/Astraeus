@@ -5,7 +5,7 @@ import { MoonTrajectory } from "../core/moonTrajectory";
 import { readableScale, trueScale } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import { DebugControls } from "./DebugControls";
-import { MissionSummary, MissionTelemetry } from "./MissionPanel";
+import { JourneyProgress, MissionSummary, MissionTelemetry } from "./MissionPanel";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { apollo11Experience, apollo11Mission } from "../mission/apollo11";
 import { AstraeusShell } from "../shell/AstraeusShell";
@@ -60,6 +60,7 @@ export function App() {
       <section className="hud-section hud-section-clock" aria-labelledby="developer-clock-heading">
         <h3 id="developer-clock-heading">Time and playback</h3>
         <DebugControls clock={runtime.clock} mission={runtime.mission} />
+        <JourneyProgress mission={runtime.mission} clock={runtime.clock} />
       </section>
       <section className="hud-section" aria-labelledby="developer-telemetry-heading">
         <h3 id="developer-telemetry-heading">Spacecraft telemetry</h3>

@@ -2,7 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import type { SimulationClock } from "../core/clock";
 import type { Trajectory } from "../core/trajectory";
 import { MetricVisual } from "../shell/MetricVisual";
-import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftRangeMetric, spacecraftSpeedMetric } from "./metricReadouts";
+import {
+  journeyProgressMetric,
+  peakAnchorSpeedKmS,
+  referenceInSameFrame,
+  spacecraftAltitudeMetric,
+  spacecraftDiscrepancyMetric,
+  spacecraftMoonMetric,
+  spacecraftPositionMetric,
+  spacecraftRangeMetric,
+  spacecraftSpeedMetric,
+} from "./metricReadouts";
 import { trackedReadouts, type MissionConfig, type TrackedReadout } from "./mission";
 
 interface TelemetryProps {
@@ -45,6 +55,7 @@ export function MissionTelemetry({ mission, clock, moon }: TelemetryProps) {
     return () => globalThis.clearInterval(id);
   }, [mission, clock]);
   const peaks = useMemo(() => new Map(mission.bodies.map((body) => [body.id, peakAnchorSpeedKmS(body)])), [mission]);
+  const bodies = useMemo(() => new Map(mission.bodies.map((body) => [body.id, body])), [mission]);
   const moonState = rows.length === 0 ? null : moon.stateAt(timeUtcMs);
 
   return (
@@ -60,9 +71,24 @@ export function MissionTelemetry({ mission, clock, moon }: TelemetryProps) {
             <div className="spacecraft-metrics">
               <MetricVisual metric={spacecraftRangeMetric(row, referenceInSameFrame("Moon now", row, moonState))} />
               <MetricVisual metric={spacecraftSpeedMetric(row, peaks.get(row.id) ?? null)} />
+              <MetricVisual metric={spacecraftMoonMetric(row, moonState)} />
+              <MetricVisual metric={spacecraftAltitudeMetric(row, moonState)} />
+              <MetricVisual metric={spacecraftDiscrepancyMetric(bodies.get(row.id)!, timeUtcMs)} />
+              <MetricVisual metric={spacecraftPositionMetric(row, moonState)} />
             </div>
           </article>
         ))}
     </div>
   );
+}
+
+/** Elapsed share of the journey between the experience's first and last events. */
+export function JourneyProgress({ mission, clock }: { readonly mission: MissionConfig; readonly clock: SimulationClock }) {
+  const [timeUtcMs, setTimeUtcMs] = useState(() => clock.now());
+  useEffect(() => {
+    const id = globalThis.setInterval(() => setTimeUtcMs(clock.now()), 250);
+    return () => globalThis.clearInterval(id);
+  }, [clock]);
+  if (mission.journey === undefined) return null;
+  return <MetricVisual metric={journeyProgressMetric(mission.events, timeUtcMs, mission.journey)} />;
 }

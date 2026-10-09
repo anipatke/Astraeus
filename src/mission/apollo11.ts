@@ -4,7 +4,7 @@ import eventsFile from "../../data/apollo11/generated/events.json";
 import { createEvents, type TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
-import type { MissionConfig, TrackedBody } from "../app/mission";
+import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../app/mission";
 import type { ExperienceConfig } from "../shell/experience";
 
 /** The wording the brief requires; never describe the path as exact. */
@@ -19,14 +19,35 @@ export const APOLLO11_NOTES: readonly string[] = [
 
 const RATES: readonly number[] = [1, 100, 1_000, 10_000];
 
+interface GeneratedSegment {
+  readonly method: string;
+  readonly startUtcMs: number;
+  readonly endUtcMs: number;
+  readonly maxCorrectionKm?: number;
+  readonly cutoffPositionResidualKm?: number;
+}
+
 interface GeneratedFile {
   readonly provenance: Provenance;
+  readonly segments: readonly GeneratedSegment[];
   readonly anchors: readonly { readonly id: string; readonly timeUtcMs: number }[];
   readonly samples: readonly TrajectorySample[];
 }
 
 interface GeneratedEvents {
   readonly events: readonly (TimelineEvent & { readonly getPrinted: string })[];
+}
+
+/** The reconstruction's own per-segment figure: a coast's smoothing correction or a burn's cutoff miss. */
+function discrepancyOf(segment: GeneratedSegment): PositionDiscrepancy {
+  const { startUtcMs, endUtcMs } = segment;
+  if (segment.maxCorrectionKm !== undefined) {
+    return { startUtcMs, endUtcMs, km: segment.maxCorrectionKm, basis: "largest smoothing correction on this coast" };
+  }
+  if (segment.cutoffPositionResidualKm !== undefined) {
+    return { startUtcMs, endUtcMs, km: segment.cutoffPositionResidualKm, basis: "modelled burn cutoff miss against the NASA anchor" };
+  }
+  return { startUtcMs, endUtcMs, km: null, basis: `no figure published (${segment.method})` };
 }
 
 function trackedBody(id: string, label: string, color: string, file: GeneratedFile): TrackedBody {
@@ -44,6 +65,7 @@ function trackedBody(id: string, label: string, color: string, file: GeneratedFi
     pathTimesUtcMs: file.samples.map((sample) => sample.timeUtcMs),
     anchorTimesUtcMs: file.anchors.map((anchor) => anchor.timeUtcMs),
     anchorLabels: file.anchors.map((anchor) => anchor.id),
+    positionDiscrepancies: file.segments.map(discrepancyOf),
   };
 }
 
@@ -68,6 +90,7 @@ export function buildApollo11Mission(
     events,
     window: { startUtcMs: events[0].timeUtcMs, endUtcMs: events[events.length - 1].timeUtcMs },
     rates: RATES,
+    journey: { start: "lift-off", end: "splashdown" },
   };
 }
 

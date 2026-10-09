@@ -1,7 +1,22 @@
+import { EARTH, MOON } from "../core/body";
+import type { TimelineEvent } from "../core/events";
 import type { CenteredPosition } from "../core/state";
-import type { DistanceMetric, Metric, MetricReference, PhaseMetric, SpeedMetric } from "../shell/metrics";
+import type {
+  AltitudeMetric,
+  CoordinatesMetric,
+  DistanceMetric,
+  Metric,
+  MetricReference,
+  PhaseMetric,
+  ProgressMetric,
+  RelativeDistanceMetric,
+  SpeedMetric,
+  UncertaintyMetric,
+} from "../shell/metrics";
 import type { DebugReadout } from "./DebugOverlay";
-import type { TrackedBody, TrackedReadout } from "./mission";
+import { discrepancyAt, type TrackedBody, type TrackedReadout } from "./mission";
+
+const HOUR_MS = 3_600_000;
 
 const centreName = (center: string) => `${center.charAt(0).toUpperCase()}${center.slice(1)} centre`;
 
@@ -57,6 +72,109 @@ export function spacecraftSpeedMetric(row: TrackedReadout, peakKmS: number | nul
   };
 }
 
+/** The Moon's state when it shares the spacecraft's centre and frame, otherwise null. */
+function moonInSameFrame(row: TrackedReadout, moon: CenteredPosition | null): CenteredPosition | null {
+  return moon !== null && moon.center === row.center && moon.frame === row.frame ? moon : null;
+}
+
+const separationKm = (a: readonly number[], b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+
+/** Centre-to-centre distance from the spacecraft to the Moon, drawn in Moon radii. */
+export function spacecraftMoonMetric(row: TrackedReadout, moon: CenteredPosition | null): RelativeDistanceMetric {
+  const same = moonInSameFrame(row, moon);
+  return {
+    kind: "relative-distance",
+    id: `${row.id}-to-moon`,
+    label: "Distance to Moon",
+    value: same === null ? null : separationKm(row.positionKm, same.positionKm),
+    unit: "km",
+    digits: 0,
+    from: row.label,
+    to: "Moon",
+    targetRadius: MOON.radiusKm,
+    context: `centre to centre · ${row.frame}`,
+    unavailable: "no Moon state in this frame",
+  };
+}
+
+/**
+ * Height above the mean radius of whichever of Earth and the Moon is closer to the surface.
+ * Mean radius, not terrain: on the lunar surface the value can be negative.
+ */
+export function spacecraftAltitudeMetric(row: TrackedReadout, moon: CenteredPosition | null): AltitudeMetric {
+  const aboveEarth = row.rangeFromEarthKm - EARTH.radiusKm;
+  const same = moonInSameFrame(row, moon);
+  const aboveMoon = same === null ? Infinity : separationKm(row.positionKm, same.positionKm) - MOON.radiusKm;
+  const nearMoon = aboveMoon < aboveEarth;
+  return {
+    kind: "altitude",
+    id: `${row.id}-altitude`,
+    label: "Altitude",
+    value: nearMoon ? aboveMoon : aboveEarth,
+    unit: "km",
+    digits: 1,
+    body: nearMoon ? "Moon" : "Earth",
+    datum: "mean radius",
+    bodyRadius: nearMoon ? MOON.radiusKm : EARTH.radiusKm,
+  };
+}
+
+export function spacecraftPositionMetric(row: TrackedReadout, moon: CenteredPosition | null): CoordinatesMetric {
+  const same = moonInSameFrame(row, moon);
+  return {
+    kind: "coordinates",
+    id: `${row.id}-position`,
+    label: "Position",
+    system: "xyz",
+    components: (["x", "y", "z"] as const).map((label, index) => ({ label, value: row.positionKm[index], unit: "km", digits: 0 })),
+    frame: row.frame,
+    origin: centreName(row.center),
+    planViews: {
+      references: same === null ? [] : [{ label: "Moon", xyz: [same.positionKm[0], same.positionKm[1], same.positionKm[2]] }],
+    },
+  };
+}
+
+/** The data's own discrepancy for the segment at this time, compared with the vehicle's largest. */
+export function spacecraftDiscrepancyMetric(body: TrackedBody, timeUtcMs: number): UncertaintyMetric {
+  const segment = discrepancyAt(body, timeUtcMs);
+  const published = (body.positionDiscrepancies ?? []).flatMap((d) => (d.km === null ? [] : [d.km]));
+  return {
+    kind: "uncertainty",
+    id: `${body.id}-discrepancy`,
+    label: "Position discrepancy",
+    value: segment?.km ?? null,
+    unit: "km",
+    digits: 1,
+    context: segment?.basis ?? "outside the reconstructed segments",
+    unavailable: "not published",
+    ...(published.length === 0 ? {} : { scale: { max: Math.max(...published), basis: "this vehicle's reconstruction" } }),
+  };
+}
+
+/** Elapsed time from the first to the last event, with every event as a milestone. */
+export function journeyProgressMetric(
+  events: readonly TimelineEvent[],
+  timeUtcMs: number,
+  labels: { readonly start: string; readonly end: string },
+): ProgressMetric {
+  const start = events[0]?.timeUtcMs ?? timeUtcMs;
+  const end = events[events.length - 1]?.timeUtcMs ?? timeUtcMs;
+  const hours = (ms: number) => (ms - start) / HOUR_MS;
+  return {
+    kind: "progress",
+    id: "journey-progress",
+    label: "Journey",
+    value: Math.min(Math.max(hours(timeUtcMs), 0), hours(end)),
+    total: hours(end),
+    unit: "h",
+    digits: 1,
+    startLabel: labels.start,
+    endLabel: labels.end,
+    markers: events.map((event) => ({ label: event.label, value: hours(event.timeUtcMs) })),
+  };
+}
+
 /** Scene measurements. Earth–Moon distance has no meaningful reference here, so it stays numeric-only. */
 export function sceneMetrics(readout: DebugReadout): readonly Metric[] {
   const earthMoon: DistanceMetric = {
@@ -85,5 +203,20 @@ export function sceneMetrics(readout: DebugReadout): readonly Metric[] {
     fraction: readout.lunarIlluminatedFraction,
     context: "fraction of the disc lit, seen from Earth's centre",
   };
-  return [earthMoon, rendered, illumination];
+  const moonPosition: CoordinatesMetric = {
+    kind: "coordinates",
+    id: "moon-position",
+    label: "Moon position",
+    system: "xyz",
+    components: (["x", "y", "z"] as const).map((label, index) => ({
+      label,
+      value: readout.moonPosition.positionKm[index],
+      unit: readout.moonPosition.units,
+      digits: 0,
+    })),
+    frame: readout.moonPosition.frame,
+    origin: centreName(readout.moonPosition.center),
+    planViews: { references: [] },
+  };
+  return [earthMoon, rendered, illumination, moonPosition];
 }
