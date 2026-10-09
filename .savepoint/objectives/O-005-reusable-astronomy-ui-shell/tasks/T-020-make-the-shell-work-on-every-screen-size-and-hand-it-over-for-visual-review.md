@@ -2,7 +2,8 @@
 id: T-020
 title: Make the shell work on every screen size and hand it over for visual review
 objective: O-005
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-019, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: g002-replan-2026-10-06}

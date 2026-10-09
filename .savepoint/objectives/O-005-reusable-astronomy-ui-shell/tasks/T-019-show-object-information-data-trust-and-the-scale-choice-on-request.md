@@ -2,11 +2,19 @@
 id: T-019
 title: Show object information, data trust and the scale choice on request
 objective: O-005
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-022, requires: clear}]
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: g002-replan-2026-10-06}
+check_waiver:
+    task: T-019
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-09T19:27:11Z"
 ---
 
 # Show object information, data trust and the scale choice on request
