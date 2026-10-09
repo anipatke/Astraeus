@@ -63,7 +63,7 @@ export function App() {
       </section>
       <section className="hud-section" aria-labelledby="developer-telemetry-heading">
         <h3 id="developer-telemetry-heading">Spacecraft telemetry</h3>
-        <MissionTelemetry mission={runtime.mission} clock={runtime.clock} />
+        <MissionTelemetry mission={runtime.mission} clock={runtime.clock} moon={runtime.trajectory} />
       </section>
       <section className="hud-section" aria-labelledby="developer-scene-heading">
         <h3 id="developer-scene-heading">Scene instrumentation</h3>

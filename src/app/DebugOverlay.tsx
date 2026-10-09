@@ -4,6 +4,8 @@ import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PlacedState } from "./sceneLayout";
 import { describePlaybackRate, formatUtcTimestamp } from "../shell/timelineModel";
+import { MetricVisual } from "../shell/MetricVisual";
+import { sceneMetrics } from "./metricReadouts";
 
 export { formatUtcTimestamp } from "../shell/timelineModel";
 
@@ -99,7 +101,6 @@ export function overlayRows(r: DebugReadout): ReadonlyArray<readonly [string, st
 
 export function DebugOverlay({ readout }: { readonly readout: DebugReadout | null }) {
   if (readout === null) return null;
-  const illuminatedPercent = readout.lunarIlluminatedFraction * 100;
   const hiddenInstruments = new Set([
     "UTC time",
     "Playback rate",
@@ -113,26 +114,7 @@ export function DebugOverlay({ readout }: { readonly readout: DebugReadout | nul
   return (
     <div className="scientific-instruments" aria-label="Scene measurements">
       <div className="instrument-grid">
-        <article className="instrument-card">
-          <span className="instrument-label">Physical Earth–Moon distance</span>
-          <strong className="instrument-value">{readout.moonDistanceKm.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong>
-          <span className="instrument-unit">kilometres</span>
-        </article>
-        <article className="instrument-card">
-          <span className="instrument-label">Rendered separation</span>
-          <strong className="instrument-value">{readout.renderedDistanceUnits.toFixed(4)}</strong>
-          <span className="instrument-unit">scene units · Earth-radius mapping</span>
-        </article>
-        <article className="instrument-card instrument-card-illumination">
-          <span className="instrument-label">Geometric lunar illumination</span>
-          <progress
-            max={100}
-            value={illuminatedPercent}
-            aria-label="Geometric lunar illumination"
-            aria-valuetext={`${illuminatedPercent.toFixed(1)} percent`}
-          />
-          <strong className="instrument-value">{illuminatedPercent.toFixed(1)}<span>%</span></strong>
-        </article>
+        {sceneMetrics(readout).map((metric) => <MetricVisual key={metric.id} metric={metric} />)}
       </div>
       <details className="advanced-readouts">
         <summary>Advanced coordinates and vectors</summary>

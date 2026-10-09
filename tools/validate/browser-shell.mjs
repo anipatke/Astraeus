@@ -133,13 +133,38 @@ try {
   assert.equal(await page.getByRole("button", { name: "Mission window", exact: true }).isVisible(), true);
   assert.equal(await page.getByLabel("UTC date and time").isVisible(), true);
   assert.equal(await page.getByRole("button", { name: "ReadableScale", exact: true }).isVisible(), true);
-  await page.locator(".scientific-instruments .instrument-card").first().waitFor();
-  assert.equal(await page.locator(".scientific-instruments .instrument-card").count(), 3);
+  await page.locator(".scientific-instruments .metric").first().waitFor();
+  assert.equal(await page.locator(".scientific-instruments .metric").count(), 3);
+  // Metric Visuals: a shape only where a real reference exists, and the same text without it.
+  assert.equal(await page.locator('[data-metric="earth-moon-distance"] svg').count(), 0, "Earth–Moon distance has no reference, so it stays numeric-only");
+  assert.equal(await page.locator('[data-metric="lunar-illumination"] svg[role="img"]').count(), 1);
+  await seekTo(Math.round((eagleStart + eagleEnd) / 2)); // both vehicles in bounds
+  await page.locator(".mission .metric-speed").nth(1).waitFor();
+  const speedArc = page.locator('.mission .metric-speed svg[role="img"]').first();
+  const rangeBar = page.locator('.mission .metric-distance svg[role="img"]').first();
+  assert.match(await speedArc.getAttribute("aria-label"), /km\/s.*peak at NASA source anchors/);
+  assert.match(await rangeBar.getAttribute("aria-label"), /Moon now at [\d,]+ km/);
+  const metricShot = process.env.ASTRAEUS_METRIC_SCREENSHOTS;
+  if (metricShot) {
+    await page.locator('.hud-section:has(#developer-telemetry-heading)').screenshot({ path: `${metricShot}/metric-visuals-telemetry-1280x800.png` });
+    await page.locator('.hud-section:has(#developer-scene-heading)').screenshot({ path: `${metricShot}/metric-visuals-scene-1280x800.png` });
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(400);
+  const overflow = await page.evaluate(() => [...document.querySelectorAll(".metric")]
+    .filter((metric) => metric.getBoundingClientRect().right > window.innerWidth + 0.5 || metric.scrollWidth > metric.clientWidth + 1)
+    .map((metric) => metric.getAttribute("data-metric")));
+  assert.deepEqual(overflow, [], "metric visuals should fit mobile portrait without overflow");
+  if (metricShot) {
+    await page.locator(".developer-tools").evaluate((panel) => { panel.scrollTop = panel.querySelector("#developer-telemetry-heading").offsetTop - 8; });
+    await page.screenshot({ path: `${metricShot}/metric-visuals-390x844.png` });
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
   await page.locator(".advanced-readouts summary").click();
   await page.locator("dl.overlay").waitFor();
   assert.equal(await page.locator("dl.overlay").count(), 1);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ url, viewport: "1280x800", events: await eventRows.count(), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length, errors }, null, 2));
+  console.log(JSON.stringify({ url, viewports: ["1280x800", "390x844"], metricVisuals: true, events: await eventRows.count(), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length, errors }, null, 2));
 } finally {
   await browser.close();
 }

@@ -95,28 +95,16 @@ body,
 .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: #b9d7bd; font-size: 11px; }
 .telemetry-state > span { width: 7px; height: 7px; border-radius: 50%; background: #77c58b; box-shadow: 0 0 7px rgba(119, 197, 139, .5); }
 .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-.spacecraft-metric { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; gap: 2px; }
-.spacecraft-metric + .spacecraft-metric { padding-left: 8px; border-left: 1px solid rgba(240, 230, 218, .12); }
-.spacecraft-metric .instrument-value { font-size: 18px; }
-.spacecraft-metric .instrument-unit { overflow-wrap: anywhere; }
+/* The vehicle card already frames its metrics, so they drop their own box. */
+.spacecraft-metrics .metric { padding: 0; border: 0; background: none; }
+.spacecraft-metrics .metric + .metric { padding-left: 8px; border-left: 1px solid rgba(240, 230, 218, .12); border-radius: 0; }
 .hud .mission-empty { margin: 0; color: var(--ui-muted); font-size: 13px; line-height: 1.4; }
 .scale-controls { align-items: center; }
 .scale-controls .scale-help { flex-basis: 100%; }
 
 .scientific-instruments { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
 .instrument-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-.instrument-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; gap: 3px; padding: 8px; border: 1px solid rgba(240, 230, 218, .12); border-radius: 7px; background: rgba(0, 0, 0, .22); }
-.instrument-label { color: var(--ui-muted); font-size: 11px; line-height: 1.3; }
-.instrument-value { color: var(--ui-color); font: 600 19px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
-.instrument-value span { margin-left: 2px; color: var(--ui-muted); font-size: 13px; }
-.instrument-unit { color: var(--ui-subtle); font-size: 11px; line-height: 1.3; }
-.instrument-card-illumination { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 24px; align-items: center; column-gap: 10px; }
-.instrument-card-illumination .instrument-label { grid-column: 1 / -1; }
-.instrument-card-illumination progress { grid-column: 1; grid-row: 2; width: 100%; height: 8px; margin: 3px 0; appearance: none; border: 0; border-radius: 8px; background: #282522; accent-color: var(--ui-accent); }
-.instrument-card-illumination progress::-webkit-progress-bar { border-radius: 8px; background: #282522; }
-.instrument-card-illumination progress::-webkit-progress-value { border-radius: 8px; background: linear-gradient(90deg, #6a553f, #f0d8a2); }
-.instrument-card-illumination progress::-moz-progress-bar { border-radius: 8px; background: linear-gradient(90deg, #6a553f, #f0d8a2); }
-.instrument-card-illumination .instrument-value { grid-column: 2; grid-row: 2; }
+.instrument-grid .metric-phase { grid-column: 1 / -1; }
 .advanced-readouts { min-width: 0; }
 .hud .advanced-readouts .overlay { margin-top: 8px; }
 

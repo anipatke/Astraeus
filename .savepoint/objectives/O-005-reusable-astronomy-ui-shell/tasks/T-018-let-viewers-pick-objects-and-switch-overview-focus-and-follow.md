@@ -2,11 +2,19 @@
 id: T-018
 title: Let viewers pick objects and switch overview, focus and follow
 objective: O-005
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-017, requires: clear}]
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: g002-replan-2026-10-06}
+check_waiver:
+    task: T-018
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-09T07:13:04Z"
 ---
 
 # Let viewers pick objects and switch overview, focus and follow

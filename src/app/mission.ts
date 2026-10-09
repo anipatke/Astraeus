@@ -94,6 +94,9 @@ export interface TrackedReadout {
   readonly label: string;
   readonly rangeFromEarthKm: number;
   readonly speedKmS: number | null;
+  /** Frame and centre the range and speed are measured in. */
+  readonly frame: State["frame"];
+  readonly center: State["center"];
 }
 
 /** Current-position rows for the bodies whose trajectories cover `timeUtcMs`; the rest are omitted. */
@@ -107,6 +110,8 @@ export function trackedReadouts(bodies: readonly TrackedBody[], timeUtcMs: numbe
       label: body.label,
       rangeFromEarthKm: Math.hypot(...state.positionKm),
       speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS),
+      frame: state.frame,
+      center: state.center,
     });
   }
   return rows;

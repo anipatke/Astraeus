@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SimulationClock } from "../core/clock";
+import type { Trajectory } from "../core/trajectory";
+import { MetricVisual } from "../shell/MetricVisual";
+import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftRangeMetric, spacecraftSpeedMetric } from "./metricReadouts";
 import { trackedReadouts, type MissionConfig, type TrackedReadout } from "./mission";
 
 interface TelemetryProps {
   readonly mission: MissionConfig;
   readonly clock: SimulationClock;
+  /** Supplies the Moon's current distance as a reference mark on each range bar. */
+  readonly moon: Trajectory;
+}
+
+interface TelemetryFrame {
+  readonly timeUtcMs: number;
+  readonly rows: readonly TrackedReadout[];
 }
 
 interface SummaryProps {
   readonly mission: MissionConfig;
 }
-
-const fmt = (value: number, digits: number) => value.toLocaleString("en-US", { maximumFractionDigits: digits });
 
 export function MissionSummary({ mission }: SummaryProps) {
   return (
@@ -26,12 +34,18 @@ export function MissionSummary({ mission }: SummaryProps) {
   );
 }
 
-export function MissionTelemetry({ mission, clock }: TelemetryProps) {
-  const [rows, setRows] = useState<readonly TrackedReadout[]>(() => trackedReadouts(mission.bodies, clock.now()));
+function telemetryAt(mission: MissionConfig, timeUtcMs: number): TelemetryFrame {
+  return { timeUtcMs, rows: trackedReadouts(mission.bodies, timeUtcMs) };
+}
+
+export function MissionTelemetry({ mission, clock, moon }: TelemetryProps) {
+  const [{ timeUtcMs, rows }, setFrame] = useState<TelemetryFrame>(() => telemetryAt(mission, clock.now()));
   useEffect(() => {
-    const id = globalThis.setInterval(() => setRows(trackedReadouts(mission.bodies, clock.now())), 250);
+    const id = globalThis.setInterval(() => setFrame(telemetryAt(mission, clock.now())), 250);
     return () => globalThis.clearInterval(id);
   }, [mission, clock]);
+  const peaks = useMemo(() => new Map(mission.bodies.map((body) => [body.id, peakAnchorSpeedKmS(body)])), [mission]);
+  const moonState = rows.length === 0 ? null : moon.stateAt(timeUtcMs);
 
   return (
     <div className="mission spacecraft-grid" aria-label="Live spacecraft telemetry">
@@ -44,16 +58,8 @@ export function MissionTelemetry({ mission, clock }: TelemetryProps) {
               <span className="telemetry-state"><span aria-hidden="true" />In bounds</span>
             </header>
             <div className="spacecraft-metrics">
-              <div className="spacecraft-metric">
-                <span className="instrument-label">Range</span>
-                <strong className="instrument-value">{fmt(row.rangeFromEarthKm, 0)}</strong>
-                <span className="instrument-unit">km from Earth centre</span>
-              </div>
-              <div className="spacecraft-metric">
-                <span className="instrument-label">Speed</span>
-                <strong className="instrument-value">{row.speedKmS === null ? "—" : fmt(row.speedKmS, 3)}</strong>
-                <span className="instrument-unit">{row.speedKmS === null ? "not modeled" : "km/s · inertial"}</span>
-              </div>
+              <MetricVisual metric={spacecraftRangeMetric(row, referenceInSameFrame("Moon now", row, moonState))} />
+              <MetricVisual metric={spacecraftSpeedMetric(row, peaks.get(row.id) ?? null)} />
             </div>
           </article>
         ))}
