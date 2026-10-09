@@ -198,7 +198,7 @@ describe("debug readout", () => {
 
   it("overlay rows list every required item", () => {
     const labels = overlayRows(readoutFor(T, readableScale)).map(([label]) => label);
-    for (const wanted of ["UTC time", "Speed", "Scale policy", "Earth–Moon distance", "Rendered distance", "Moon position",
+    for (const wanted of ["UTC time", "Playback rate", "Scale policy", "Earth–Moon distance", "Rendered distance", "Moon position",
       "Earth orientation", "Moon orientation", "Sun direction (from Earth)", "Moon lit (geometric)", "Scaled origin", "Moon local"]) {
       expect(labels).toContain(wanted);
     }

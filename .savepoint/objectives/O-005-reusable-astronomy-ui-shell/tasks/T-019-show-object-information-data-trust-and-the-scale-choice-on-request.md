@@ -3,7 +3,7 @@ id: T-019
 title: Show object information, data trust and the scale choice on request
 objective: O-005
 status: planned
-depends_on: [{task: T-018, requires: clear}]
+depends_on: [{task: T-022, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: g002-replan-2026-10-06}
 ---
@@ -20,7 +20,7 @@ Select Columbia: see its info, open "Reconstructed ⓘ" and read the sources, ac
 
 ## Done When
 
-1. Info content and known limitations live in configuration and data (STYLE-09); the panel renders any experience's objects and events.
+1. Info content and known limitations live in configuration and data (STYLE-09); the panel renders any experience's objects and events, and shows distance/speed through T-022's Metric Visuals rather than new ad-hoc readouts.
 2. The provenance badge reads the existing per-trajectory `Provenance` (and an equivalent for Earth/Moon ephemerides) plus configured known limitations; no core type changes.
 3. Apollo's known limitations take their figures from the generated reconstruction data (`data/apollo11/generated/validation.json` and the report), not hand-copied numbers, and cover the smoothed joins, published burn cutoff residuals, I-008's accepted post-TLI speed limitation and I-004's landing-site offset.
 4. The scale control states the Readable trade-off; `ScalePolicy` is unchanged and a test confirms identical State under both policies through the shell.

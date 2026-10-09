@@ -32,6 +32,7 @@ The brief's ten success criteria, with these confirmed specifics:
 10. Spike 01/02 behaviour is unchanged: `src/core/`, generated Apollo data and existing tests pass unmodified except tests of replaced UI; browser checks report no console errors.
 11. Screenshots cover Earth–Moon overview, translunar coast, close Earth, close Moon, spacecraft follow, event/provenance open, mobile and 1280×800, and the owner validates the design visually.
 12. `docs/ASTRAEUS_SPIKE_03.md` covers the brief's thirteen design-note topics, including the storytelling requirements discovered and a Perseids recommendation; `.savepoint/Design.md` is reconciled.
+13. Metric Visuals (owner brief `docs/ASTRAEUS_SPIKE_03_METRIC_VISUALS_BRIEF.md`): a small set of reusable, numbers-first measurement readouts in the shell, configured per experience, with a numeric-only fallback and no invented ranges. They are shown to work with a non-Apollo configuration and documented in `docs/ASTRAEUS_METRIC_VISUALS.md` (T-022).
 
 ## Confirmed Decisions — 2026-10-06
 
@@ -43,6 +44,10 @@ Owner confirmed in the G-002 replan session:
 - **ReadableScale radii (I-005):** unchanged and explained in the scale control; a radius treatment is recorded as a future need.
 - **Out of scope:** the imperative `Astraeus.Scene` developer API from the project Idea (a later spike), Perseids, and everything in the brief's "Do not build" list.
 - **Design summary** confirmed with "confirm".
+
+## Confirmed Decisions — 2026-10-09
+
+- **Metric Visuals:** owner brief adopted within Spike 03 scope. It replaces the earlier T-022 instrument prototype (range tape, range-rate, trend trace). The owner chose this over expanding T-018, which closes on its existing scope. T-022 now follows T-018, and T-019 follows T-022 so its info panel uses the visuals. T-020's visual review covers them. Reuse is shown with a non-Apollo test fixture; Perseids stays out of scope.
 
 ## Architectural Considerations
 

@@ -234,8 +234,8 @@ describe("event jumps and playback", () => {
   it("offers 1×, 100×, 1,000× and 10,000× on top of the existing speeds", () => {
     const speeds = mergeSpeeds(SPEEDS, mission.rates);
     expect(speeds.map((s) => s.rate)).toEqual([1, 100, 1_000, 3_600, 10_000, 86_400, 604_800]);
-    expect(speeds.find((s) => s.rate === 10_000)?.label).toBe("10,000×");
-    expect(speeds.find((s) => s.rate === 1)?.label).toBe("1×");
+    expect(speeds.find((s) => s.rate === 10_000)?.label).toBe("10,000× — 2 hours 46 min 40 sec per real second");
+    expect(speeds.find((s) => s.rate === 1)?.label).toBe("1× — real time");
   });
 });
 

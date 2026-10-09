@@ -133,6 +133,9 @@ try {
   assert.equal(await page.getByRole("button", { name: "Mission window", exact: true }).isVisible(), true);
   assert.equal(await page.getByLabel("UTC date and time").isVisible(), true);
   assert.equal(await page.getByRole("button", { name: "ReadableScale", exact: true }).isVisible(), true);
+  await page.locator(".scientific-instruments .instrument-card").first().waitFor();
+  assert.equal(await page.locator(".scientific-instruments .instrument-card").count(), 3);
+  await page.locator(".advanced-readouts summary").click();
   await page.locator("dl.overlay").waitFor();
   assert.equal(await page.locator("dl.overlay").count(), 1);
   assert.deepEqual(errors, []);

@@ -3,7 +3,7 @@ id: T-018
 title: Let viewers pick objects and switch overview, focus and follow
 objective: O-005
 status: in_progress
-stage: test
+stage: audit
 depends_on: [{task: T-017, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: g002-replan-2026-10-06}
@@ -100,6 +100,30 @@ The owner also requested the same instrumentation treatment for spacecraft telem
 
 Files changed for this follow-up: `src/app/App.tsx`, `src/app/DebugControls.tsx`, `src/app/DebugOverlay.tsx`, `src/app/MissionPanel.tsx`, `src/app/style.css`, `src/shell/TimelineBar.tsx`, `src/shell/timelineModel.ts`, and `src/shell/style.css`.
 
+### Test-stage verification of the follow-up — 2026-10-09
+
+Fresh run against the post-follow-up tree. The first `npm test` at 2026-10-09T06:38:55Z failed 2 of 139 tests. Both are tests of UI replaced by the owner-requested follow-up (Objective success condition 10 allows updating these), not regressions:
+
+- `tests/missionScene.test.ts` › `event jumps and playback` › `offers 1×, 100×, 1,000× and 10,000× on top of the existing speeds` expected the old bare labels. Now it asserts the new owner-requested wording, `10,000× — 2 hours 46 min 40 sec per real second` and `1× — real time`. Rate set and ordering are unchanged.
+- `tests/controls.test.ts` › `debug readout` › `overlay rows list every required item` expected the row `Speed`. The follow-up renamed it to `Playback rate`, and the test now requires that label. All other required rows are unchanged.
+
+`tools/validate/browser-shell.mjs` failed at `dl.overlay` because the follow-up put the advanced readouts in a collapsed `<details>` element. Now the scenario waits for the scene-measurement cards, asserts there are three, opens `.advanced-readouts summary` as a viewer would, and then asserts `dl.overlay`.
+
+Commands, final tree, 2026-10-09T06:43:31Z, Node v22.22.2:
+- `npm run typecheck`: exit 0. `npm run build`: exit 0 (existing large-chunk advisory). `npm test`: exit 0, 8 files, 139 tests.
+- `PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js ASTRAEUS_URL=http://127.0.0.1:5199/ node tools/validate/browser-shell.mjs` against `npx vite --port 5199` at 2026-10-09T06:42:16Z: exit 0 at 1280×800. 30 event rows; overview, focus and follow; 2 visible labels; scene-measurement cards and advanced readouts; zero page or console errors. Chromium needed an unsandboxed run, as before.
+- `git diff --check`: exit 0. `rg -in 'apollo|columbia|eagle' src/shell`: no matches.
+
+The acceptance outcomes recorded on 2026-10-07 still hold on this tree; the named test for criterion 3 passes in the fresh run.
+
+Limitations:
+- `tools/validate/browser-spike02.mjs` (waits for `Follow Columbia (CSM)`) and `tools/validate/browser-anchor-labels.mjs` (waits for a visible `UTC date and time` without opening Developer mode) fail with timeouts. Both drive the Spike 01/02 controls that T-017/T-018 replaced. Re-running or superseding them with named equivalents is T-020 Done When 4, so they were not changed here. Neither reached its evidence write, so `docs/evidence/spike02*` was not overwritten.
+- Responsive and mobile layouts and owner visual review remain in T-020.
+
+Extra reads for this stage: `src/app/DebugOverlay.tsx` and `src/app/App.tsx` (diagnose the hidden `dl.overlay` and the 250 ms readout refresh); `src/shell/timelineModel.ts` (confirm the new rate labels); `tools/validate/browser-spike02.mjs`, `tools/validate/browser-anchor-labels.mjs` and T-017's evidence (decide whether those failures belong to this Task).
+
+Files changed in this stage: `tests/missionScene.test.ts`, `tests/controls.test.ts`, `tools/validate/browser-shell.mjs`, and this Task.
+
 ### Files read
 
 - Workflow and selection: `agent-skills/savepoint-task/SKILL.md`, `.savepoint/router.md`, this Task, `.savepoint/objectives/O-005-reusable-astronomy-ui-shell/Objective.md`, T-017 (dependency), `.savepoint/config.yml`, `.savepoint/Guardrails.md`.
@@ -114,7 +138,7 @@ Files changed for this follow-up: `src/app/App.tsx`, `src/app/DebugControls.tsx`
 - `src/shell/AstraeusShell.tsx`, `src/shell/experience.ts`, `src/shell/TimelineBar.tsx`, `src/shell/style.css`, new `src/shell/ObjectControls.tsx`, `src/shell/objectModel.ts`, `src/shell/Label.tsx`
 - `tests/missionScene.test.ts`, `tools/validate/browser-shell.mjs`
 
-Responsive screenshots and final owner visual review remain in T-020. No Task Check, Task completion, or owner Task-check waiver is recorded; this Task remains `in_progress` at `test` while fresh test/browser evidence for the follow-up is pending.
+Responsive screenshots and final owner visual review remain in T-020. No Task Check, Task completion, or owner Task-check waiver is recorded. Fresh test and browser evidence was recorded on 2026-10-09 (above) and the Task moved to `audit`, which means it is ready for a Check, not that it has passed one.
 
 ## Drift Notes
 

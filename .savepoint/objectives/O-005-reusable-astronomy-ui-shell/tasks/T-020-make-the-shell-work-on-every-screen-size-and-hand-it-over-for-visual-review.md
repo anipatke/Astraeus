@@ -22,7 +22,7 @@ Open the screenshot set and the design note. Judge whether the canvas feels like
 
 1. Layouts at the four viewports follow the progressive-disclosure hierarchy; no permanent sidebar on tablet or mobile.
 2. Primary controls are keyboard-reachable with visible focus, labelled, at least ~44 px tap targets on touch layouts, readable contrast, and nothing critical is hover-only (named checks or scenario validations).
-3. A browser script under `tools/validate/` captures screenshots into `docs/evidence/spike03/` for Earth–Moon overview, translunar coast, close Earth, close Moon, spacecraft follow, event/provenance open, mobile and 1280×800, and reports 0 console errors, identical readouts under both scales and unchanged readouts across camera changes.
+3. A browser script under `tools/validate/` captures screenshots into `docs/evidence/spike03/` for Earth–Moon overview, translunar coast, close Earth, close Moon, spacecraft follow, event/provenance open, Metric Visuals, mobile and 1280×800, and reports 0 console errors, identical readouts under both scales and unchanged readouts across camera changes.
 4. Spike 01/02 browser and unit evidence still holds (the existing scripts re-run or are superseded with named equivalents).
 5. `docs/ASTRAEUS_SPIKE_03.md` covers the brief's thirteen design-note topics, including storytelling requirements discovered (and the recorded future needs: time-ranged provenance, Readable-scale radii, imperative Scene API) and a Perseids recommendation.
 6. `.savepoint/Design.md` is reconciled to the implemented shell; configured gates pass fresh.
