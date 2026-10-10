@@ -8,6 +8,7 @@ import { directionFromCenterToSun, directionToSun } from "../core/illumination";
 import type { MoonTrajectory } from "../core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "../core/referenceCenters";
 import type { ScalePolicy } from "../core/scalePolicy";
+import type { State } from "../core/state";
 import { AnchorLabelLayer } from "./AnchorLabels";
 import { AtmosphereGlow, EARTH_ATMOSPHERE } from "./AtmosphereGlow";
 import { BodyMesh, EARTH_MATERIAL, MOON_MATERIAL } from "./BodyMesh";
@@ -24,7 +25,8 @@ import {
 } from "./CameraController";
 import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
-import { stateIfInBounds, type MissionConfig } from "./mission";
+import type { GroupLayer } from "./experienceDefinition";
+import { stateIfInBounds, type TrackedBody } from "./mission";
 import {
   DEFAULT_PATH_SAMPLES,
   mapOrbitPath,
@@ -34,6 +36,9 @@ import {
 } from "./orbitPath";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { bodyAbsolutes, placeBodies, type SceneHierarchy } from "./sceneLayout";
+import type { FrameStats } from "./frameStats";
+import type { GroupFill } from "./FrameRateSection";
+import { PointsView } from "./PointsView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import type { ExperienceObject } from "../shell/experience";
@@ -45,12 +50,19 @@ const EARTH_LAYER = 1;
 const MOON_LAYER = 2;
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
 const REBASE_THRESHOLD = 1;
+/** Camera framing span in Earth radii when the Earth–Moon layer is off and there is no Moon distance to frame by. */
+const BARE_SCENE_SPAN = 60;
 
 export interface SceneRuntime {
   readonly clock: SimulationClock;
   readonly adapter: AstronomyAdapter;
   readonly trajectory: MoonTrajectory;
-  readonly mission: MissionConfig;
+  /** Bodies the `tracked-bodies` layer draws; empty when the experience has none. */
+  readonly trackedBodies: readonly TrackedBody[];
+  /** Groups the `points` layer draws as dots; empty when the experience has none. */
+  readonly groups: readonly GroupLayer[];
+  /** Whether the `earth-moon` layer is mounted: Earth and Moon meshes, their lights and the Moon path. */
+  readonly earthMoon: boolean;
 }
 
 export interface SceneControls {
@@ -60,6 +72,10 @@ export interface SceneControls {
   showAnchorLabels: boolean;
   readonly labelObjects: readonly ExperienceObject[];
   selectedObjectId: string;
+  /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
+  frameStats: FrameStats | null;
+  /** Each group's refill count, written by the scene while `frameStats` is set; read by the Developer tools poll. */
+  readonly groupFills: GroupFill[];
 }
 
 export type SceneReadout = DebugReadout;
@@ -79,6 +95,8 @@ export function EarthMoonScene(props: Props) {
       gl={{ antialias: true }}
       style={{ background: "#000000" }}
       data-testid="earth-moon-canvas"
+      data-earth-moon={props.runtime.earthMoon}
+      data-point-groups={props.runtime.groups.length}
     >
       <SceneContents {...props} />
       <LayeredRender />
@@ -127,7 +145,8 @@ function SceneContents({ runtime, controls, readout }: Props) {
     builtRealMs: Number.NEGATIVE_INFINITY,
   });
 
-  const trackedViews = useMemo(() => runtime.mission.bodies.map((body) => new TrackedBodyView(body)), [runtime.mission]);
+  const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
+  const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
@@ -175,18 +194,28 @@ function SceneContents({ runtime, controls, readout }: Props) {
     const moonGroup = moonGroupRef.current;
     const moonMesh = moonMeshRef.current;
     const root = rootRef.current;
-    if (!root || !earthGroup || !earthMesh || !moonGroup || !moonMesh) return;
+    if (!root) return;
+    const { clock, adapter, trajectory, earthMoon } = runtime;
+    if (earthMoon && (!earthGroup || !earthMesh || !moonGroup || !moonMesh)) return;
 
-    const { clock, adapter, trajectory } = runtime;
     const policy = controls.policy;
     const t = clock.now();
-    const moonFromEarth = trajectory.stateAt(t, "earth");
-    const earth = earthStateAt(adapter, t);
-    const sunFromEarth = sunPositionFromEarthAt(adapter, t);
-
+    const moonFromEarth = earthMoon ? trajectory.stateAt(t, "earth") : null;
     const camState = orbit.current;
-    const absolutes = bodyAbsolutes(moonFromEarth, policy);
-    const moonDistance = Math.hypot(
+    for (const view of groupViews) view.sync(t, adapter, policy);
+    if (controls.frameStats !== null) {
+      controls.frameStats.tick(performance.now());
+      groupViews.forEach((view, i) => {
+        const fill = controls.groupFills[i];
+        if (fill === undefined) controls.groupFills[i] = { id: view.id, count: view.fillCount };
+        else fill.count = view.fillCount;
+      });
+    }
+    // Without the layer, "earth" is only the Earth-centred origin that tracked bodies are measured from.
+    const absolutes = moonFromEarth === null
+      ? { earthAbsolute: eqjToRenderVector(policy.mapPosition([0, 0, 0])), moonAbsolute: eqjToRenderVector(policy.mapPosition([0, 0, 0])) }
+      : bodyAbsolutes(moonFromEarth, policy);
+    const moonDistance = moonFromEarth === null ? BARE_SCENE_SPAN : Math.hypot(
       absolutes.moonAbsolute[0] - absolutes.earthAbsolute[0],
       absolutes.moonAbsolute[1] - absolutes.earthAbsolute[1],
       absolutes.moonAbsolute[2] - absolutes.earthAbsolute[2],
@@ -204,6 +233,8 @@ function SceneContents({ runtime, controls, readout }: Props) {
     const focusAbsolute = (focus: FocusId): RenderVector => {
       if (focus === "earth") return absolutes.earthAbsolute;
       if (focus === "moon") return absolutes.moonAbsolute;
+      const group = groupViews.find((candidate) => candidate.id === focus);
+      if (group) return group.absolute();
       const view = trackedViews.find((candidate) => candidate.body.id === focus);
       if (!view) throw new RangeError(`unknown focus target "${focus}"`);
       return view.absolute(t, policy);
@@ -214,7 +245,12 @@ function SceneContents({ runtime, controls, readout }: Props) {
       controls.cameraRequest = null;
       const target = request.kind === "overview" ? "earth" : request.target;
       switchFocus(camState, target, focusAbsolute(target));
-      if (request.kind !== "follow") camState.targetDistance = defaultDistance(target, moonRadius, moonDistance);
+      const framedGroup = groupViews.find((candidate) => candidate.id === target);
+      if (request.kind !== "follow") {
+        camState.targetDistance = framedGroup
+          ? Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * framedGroup.extentUnits(policy))
+          : defaultDistance(target, moonRadius, moonDistance);
+      }
       if (request.kind === "focus" && target === "moon") {
         // Start on the Earth side of the Moon so the phase reads as an Earth observer sees it.
         const toEarth = [
@@ -231,8 +267,12 @@ function SceneContents({ runtime, controls, readout }: Props) {
     camState.targetDistance = clampDistance(camState.targetDistance, limits);
 
     resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD);
-    const hierarchy: SceneHierarchy = { root, earthGroup, earthMesh, moonGroup, moonMesh };
-    placeBodies(hierarchy, earth, moonFromEarth, policy, origin);
+    let earth: State | null = null;
+    if (moonFromEarth !== null && earthGroup && earthMesh && moonGroup && moonMesh) {
+      earth = earthStateAt(adapter, t);
+      const hierarchy: SceneHierarchy = { root, earthGroup, earthMesh, moonGroup, moonMesh };
+      placeBodies(hierarchy, earth, moonFromEarth, policy, origin);
+    }
     poseCamera(
       camera as import("three").PerspectiveCamera,
       camState,
@@ -240,16 +280,23 @@ function SceneContents({ runtime, controls, readout }: Props) {
       origin,
     );
     for (const view of trackedViews) view.update(t, policy, origin, camera);
+    for (const view of groupViews) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     sceneLabels.current?.update((id) => {
-      if (id === "earth") return absolutes.earthAbsolute;
-      if (id === "moon") return absolutes.moonAbsolute;
+      if (id === "earth" || id === "moon") return earthMoon ? absolutes[id === "earth" ? "earthAbsolute" : "moonAbsolute"] : null;
+      const group = groupViews.find((candidate) => candidate.id === id);
+      if (group !== undefined) return group.drawn ? group.absolute() : null;
       const view = trackedViews.find((candidate) => candidate.body.id === id);
       if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
       return view.absolute(t, policy);
     }, camera, size.width, size.height, origin, controls.selectedObjectId);
 
+    if (moonFromEarth === null || earth === null) {
+      readout.current = null;
+      return;
+    }
     // Physical Sun directions (before any readable compression) drive each body's own light.
+    const sunFromEarth = sunPositionFromEarthAt(adapter, t);
     const earthSun = eqjToRenderVector(directionFromCenterToSun(sunFromEarth));
     const moonSun = eqjToRenderVector(directionToSun(moonFromEarth, sunFromEarth));
     earthLightRef.current?.position.set(earthSun[0], earthSun[1], earthSun[2]);
@@ -275,23 +322,28 @@ function SceneContents({ runtime, controls, readout }: Props) {
 
   return (
     <group ref={rootRef}>
-      <group ref={earthGroupRef}>
-        <group ref={earthMeshRef}>
-          <BodyMesh radius={earthRadius} textureUrl={earthTextureUrl} material={EARTH_MATERIAL} layer={EARTH_LAYER} />
-          <AtmosphereGlow radius={earthRadius} atmosphere={EARTH_ATMOSPHERE} layer={EARTH_LAYER} />
-        </group>
-      </group>
-      <group ref={moonGroupRef}>
-        <group ref={moonMeshRef}>
-          <BodyMesh radius={moonRadius} textureUrl={moonTextureUrl} material={MOON_MATERIAL} layer={MOON_LAYER} />
-        </group>
-      </group>
-      <primitive object={pathLine} />
+      {runtime.earthMoon && (
+        <>
+          <group ref={earthGroupRef}>
+            <group ref={earthMeshRef}>
+              <BodyMesh radius={earthRadius} textureUrl={earthTextureUrl} material={EARTH_MATERIAL} layer={EARTH_LAYER} />
+              <AtmosphereGlow radius={earthRadius} atmosphere={EARTH_ATMOSPHERE} layer={EARTH_LAYER} />
+            </group>
+          </group>
+          <group ref={moonGroupRef}>
+            <group ref={moonMeshRef}>
+              <BodyMesh radius={moonRadius} textureUrl={moonTextureUrl} material={MOON_MATERIAL} layer={MOON_LAYER} />
+            </group>
+          </group>
+          <primitive object={pathLine} />
+          <ambientLight layers={EARTH_LAYER} intensity={0.18} />
+          <directionalLight ref={earthLightRef} layers={EARTH_LAYER} intensity={1.8} />
+          <ambientLight layers={MOON_LAYER} intensity={0.08} />
+          <directionalLight ref={moonLightRef} layers={MOON_LAYER} intensity={1.4} />
+        </>
+      )}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
-      <ambientLight layers={EARTH_LAYER} intensity={0.18} />
-      <directionalLight ref={earthLightRef} layers={EARTH_LAYER} intensity={1.8} />
-      <ambientLight layers={MOON_LAYER} intensity={0.08} />
-      <directionalLight ref={moonLightRef} layers={MOON_LAYER} intensity={1.4} />
+      {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
     </group>
   );
 }
@@ -299,6 +351,8 @@ function SceneContents({ runtime, controls, readout }: Props) {
 /** A tracked body is a point: the camera may come very close and is framed in Earth radii. */
 const TRACKED_MIN_DISTANCE = 0.002;
 const TRACKED_DEFAULT_DISTANCE = 0.3;
+/** A focused group is framed at this many times its widest member's distance from the centroid. */
+const GROUP_FRAMING = 2.5;
 
 function focusLimits(focus: FocusId, moonRadiusScaled: number, moonDistanceScaled: number) {
   const reach = Math.max(30, moonDistanceScaled * 3.5);

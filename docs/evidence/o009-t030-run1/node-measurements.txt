@@ -1,0 +1,5 @@
+fill median 9.36 ms
+span 60s: slide-frame sync median 12.70 ms (n=3), plain-frame sync 0.001 ms, place 0.02 ms, blend error worst 0.3 km mean 0.3 km
+span 300s: slide-frame sync median 12.91 ms (n=3), plain-frame sync 0.000 ms, place 0.02 ms, blend error worst 7.9 km mean 6.7 km
+span 600s: slide-frame sync median 12.48 ms (n=3), plain-frame sync 0.000 ms, place 0.02 ms, blend error worst 31.4 km mean 26.7 km
+span 1800s: slide-frame sync median 13.25 ms (n=3), plain-frame sync 0.000 ms, place 0.02 ms, blend error worst 280.5 km mean 240.0 km

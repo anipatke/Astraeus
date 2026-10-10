@@ -107,6 +107,19 @@
         "**/*_generated.*",
         "**/*.min.js"
       ]
+    },
+    {
+      "capability": "coverage",
+      "provider": "vitest-v8-coverage",
+      "report": "coverage/coverage-final.json",
+      "exclusions": [
+        "node_modules/**",
+        "dist/**",
+        ".savepoint/**",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/*.min.js"
+      ]
     }
   ]
 }

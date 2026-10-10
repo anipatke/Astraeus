@@ -8,6 +8,9 @@
   --ui-panel: rgba(13, 13, 13, .94);
   --ui-accent: #fc6323;
   --ui-data: #b1a1df;
+  --perf-good: #6fcf8f;
+  --perf-warn: #f0b84a;
+  --perf-bad: #ff6b5e;
 }
 
 html,
@@ -107,7 +110,8 @@ body,
 .advanced-readouts { min-width: 0; }
 .hud .advanced-readouts .overlay { margin-top: 8px; }
 
-.hud .overlay {
+.hud .overlay,
+.hud .frame-readouts {
   display: grid;
   grid-template-columns: minmax(130px, .36fr) minmax(0, 1fr);
   gap: 4px 10px;
@@ -118,9 +122,12 @@ body,
   font-variant-numeric: tabular-nums;
 }
 
-.hud .overlay div { display: contents; }
-.hud .overlay dt { color: var(--ui-data); }
-.hud .overlay dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.hud .overlay div,
+.hud .frame-readouts div { display: contents; }
+.hud .overlay dt,
+.hud .frame-readouts dt { color: var(--ui-data); }
+.hud .overlay dd,
+.hud .frame-readouts dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 
 .anchor-labels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .anchor-label {
@@ -139,5 +146,14 @@ body,
   .hud { grid-template-columns: minmax(0, 1fr); }
   .developer-heading,
   .hud-section-clock { grid-column: 1; }
-  .hud .overlay { grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr); }
+  .hud .overlay,
+  .hud .frame-readouts { grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr); }
 }
+
+.hud .fps-graph { display: block; width: 100%; height: auto; margin-top: 10px; color: var(--ui-data); }
+.hud .tone-good { color: var(--perf-good); fill: var(--perf-good); }
+.hud .tone-warn { color: var(--perf-warn); fill: var(--perf-warn); }
+.hud .tone-bad { color: var(--perf-bad); fill: var(--perf-bad); }
+.hud .fps-graph line.tone-good, .hud .fps-graph line.tone-warn, .hud .fps-graph line.tone-bad { stroke: currentColor; }
+.hud .frame-readouts dd[class^="tone-"] { font-weight: 600; }
+.hud .fps-graph-key { display: flex; gap: 12px; margin: 4px 0 0; font-size: 11px; color: var(--ui-muted); }

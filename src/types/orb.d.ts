@@ -48,3 +48,28 @@ declare module "@lizard-isana/orb/models/earth-epv00" {
   export const earthEpv00: { state(instant: AstroInstant): OrbEphemerisState };
   export const sunEpv00: { state(instant: AstroInstant): OrbEphemerisState };
 }
+
+declare module "@lizard-isana/orb/kepler" {
+  export const GM: { readonly sun: number; readonly earth: number; readonly moon: number };
+  export interface KeplerVectors {
+    readonly r: Float64Array;
+    readonly v: Float64Array;
+  }
+  export function propagateKepler(
+    r0: ArrayLike<number>,
+    v0: ArrayLike<number>,
+    dtSeconds: number,
+    mu: number,
+  ): KeplerVectors;
+  export function elementsToState(
+    elements: {
+      readonly semiMajorAxis: number;
+      readonly eccentricity: number;
+      readonly inclination: number;
+      readonly raan: number;
+      readonly argumentOfPeriapsis: number;
+      readonly trueAnomaly: number;
+    },
+    mu: number,
+  ): KeplerVectors;
+}

@@ -44,15 +44,34 @@ Each GAP answers the brief's five items and rule 7 (why Astraeus, not the adapte
 - **Capability tested:** that the timeline can show something that lasts and changes.
 - **Contract reused:** `TimelineEvent`, `ExperienceConfig.window/rates`, `Provenance`.
 - **Gap:** events are instants; there is no window or rate-over-time.
-- **Generic change:** a time-ranged counterpart to `TimelineEvent` (start, end, optional peak/rate samples) and, if needed, a time-ranged provenance span. Additive; existing events untouched.
+- **Generic change:** a time-ranged counterpart to `TimelineEvent` (start, end, optional peak/rate samples). Additive; existing events untouched.
 - **Independent evidence:** a synthetic eclipse or launch-window experience.
 - **Why Astraeus:** eclipses, occultations, comms windows and mission phases are windows too.
 
+### GAP-3b — Time-ranged provenance (O-010, optional)
+Shares GAP-3's capability, reused contract and ownership answer: the five answers above cover both gaps, and the items below are the ones specific to 3b.
+- **Capability tested:** that a window's data can carry its own source and accuracy where they differ along the window.
+- **Contract reused:** `Provenance` and `ExperienceConfig.eventProvenance`.
+- **Gap:** provenance is one record per trajectory or per event list, so it cannot say "published for this part, modelled for that part".
+- **Generic change:** an optional provenance span (start, end, `Provenance`) attached to a time window; existing single records stay valid. Built only if GAP-3's windows need it.
+- **Independent evidence:** a synthetic window whose first half is `observed` and second half `illustrative`, shown to differ in the shell, with a test that a window without spans is unchanged.
+- **Why Astraeus:** the shell owns how provenance is shown; any mixed-source window (a reconstructed burn inside an observed mission) has the same need, and the adapter cannot change what the shell displays.
+
 ### GAP-4 — Rate metric (O-010)
-- **Gap:** `Metric` has no rate kind for "N per hour". **Generic change:** one `rate` kind in `src/shell/metrics.ts` with the existing scalar/range/context fields. **Evidence:** a synthetic event-rate readout. **Why Astraeus:** the shell owns metric kinds; the adapter can only supply values.
+- **Capability tested:** that the shell can show "how many per unit time" next to the existing distance, speed and progress metrics.
+- **Contract reused:** `Metric` and its `MetricVisual` components in `src/shell/`, with the existing value, unit, range and context fields.
+- **Gap:** `Metric` has no rate kind for "N per hour".
+- **Generic change:** one `rate` kind in `src/shell/metrics.ts` that reuses those fields; no new data path.
+- **Independent evidence:** a synthetic event-rate readout (for example launches per day) rendered by the same components, with no meteor concept, plus a test that the existing kinds are unchanged.
+- **Why Astraeus, not the adapter:** the shell owns metric kinds; the adapter can only supply values.
 
 ### GAP-5 — Fixed-direction marker (minor, deferred)
-A radiant is a direction, not a body. Using a stationary two-sample `SampledTrajectory` at an arbitrary distance would make a presentation choice look like scientific State, which the brief's stop condition forbids. Decide in O-011 whether a generic direction-marker layer is worth adding; default is to leave it out and show the radiant as a `radec` metric only.
+- **Capability tested:** that a direction in space, with no position, can be marked in the scene.
+- **Contract reused:** the `radec` coordinates metric and the scene layers of the plug-in contract (`ExperienceDefinition.sceneLayers`); explicitly not `State`/`Trajectory`.
+- **Gap:** a radiant is a direction, not a body. Using a stationary two-sample `SampledTrajectory` at an arbitrary distance would make a presentation choice look like scientific State, which the brief's stop condition forbids.
+- **Generic change:** none now. If wanted, a generic direction-marker layer drawn at a fixed angular position on a presentation sphere, labelled as presentation only. Default is to leave it out and show the radiant as a `radec` metric only. Decided in O-011.
+- **Independent evidence (when built):** a synthetic fixed-direction experience, such as a celestial pole or a fixed star, with its marker verified not to enter any `State`.
+- **Why Astraeus, not the adapter:** the adapter cannot add a scene layer, and every experience that points at a direction (constellations, poles, a spacecraft's antenna) has the same need. Deferred because the metric alone is enough for Spike 04, not because the answer is missing.
 
 ## 3. "Many ordinary Trajectories" versus a group provider
 

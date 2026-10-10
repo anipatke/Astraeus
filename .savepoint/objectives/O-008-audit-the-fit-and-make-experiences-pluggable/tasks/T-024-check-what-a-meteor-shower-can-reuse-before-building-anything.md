@@ -2,11 +2,19 @@
 id: T-024
 title: Check what a meteor shower can reuse before building anything
 objective: O-008
-status: in_progress
-stage: audit
+status: done
 depends_on: []
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: g004-plan-2026-10-10}
+check_waiver:
+    task: T-024
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-10T20:18:12Z"
 ---
 
 # Check what a meteor shower can reuse before building anything

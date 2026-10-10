@@ -159,6 +159,37 @@ describe("two-body propagation and Hermite arcs", () => {
   });
 });
 
+/** Rounding allowance: well under one unit of the coarsest printed digit (1e-6 km). */
+const ROUNDING_TOLERANCE = 2e-6;
+
+function sameWithin(actual: unknown, expected: unknown, path: string): string | null {
+  if (typeof actual === "number" && typeof expected === "number") {
+    return Math.abs(actual - expected) <= ROUNDING_TOLERANCE ? null : `${path}: ${actual} vs ${expected}`;
+  }
+  if (Array.isArray(actual) && Array.isArray(expected)) {
+    if (actual.length !== expected.length) return `${path}: length ${actual.length} vs ${expected.length}`;
+    for (let i = 0; i < actual.length; i += 1) {
+      const diff = sameWithin(actual[i], expected[i], `${path}[${i}]`);
+      if (diff !== null) return diff;
+    }
+    return null;
+  }
+  if (typeof actual === "object" && typeof expected === "object" && actual !== null && expected !== null) {
+    const keys = Object.keys(actual);
+    if (keys.join() !== Object.keys(expected).join()) return `${path}: keys differ`;
+    for (const key of keys) {
+      const diff = sameWithin((actual as Record<string, unknown>)[key], (expected as Record<string, unknown>)[key], `${path}.${key}`);
+      if (diff !== null) return diff;
+    }
+    return null;
+  }
+  return actual === expected ? null : `${path}: ${String(actual)} vs ${String(expected)}`;
+}
+
+function expectSameWithin(actualText: string, expectedText: string): void {
+  expect(sameWithin(JSON.parse(actualText), JSON.parse(expectedText), "$")).toBeNull();
+}
+
 describe("Apollo 11 reconstruction pipeline", () => {
   const raw = { anchors: rawAnchors, events: rawEvents } as unknown as RawInputs;
   let first: OutputFiles;
@@ -180,10 +211,11 @@ describe("Apollo 11 reconstruction pipeline", () => {
 
   it("matches the committed data package and report", () => {
     expect(first["data/apollo11/normalised/anchors.json"]).toBe(anchorsText);
-    expect(first["data/apollo11/generated/columbia.json"]).toBe(columbiaText);
-    expect(first["data/apollo11/generated/eagle.json"]).toBe(eagleText);
-    expect(first["data/apollo11/generated/events.json"]).toBe(eventsText);
-    expect(first["data/apollo11/generated/validation.json"]).toBe(validationText);
+    // Numbers may differ in the last printed digit between machines (I-014); structure and text may not.
+    expectSameWithin(first["data/apollo11/generated/columbia.json"], columbiaText);
+    expectSameWithin(first["data/apollo11/generated/eagle.json"], eagleText);
+    expectSameWithin(first["data/apollo11/generated/events.json"], eventsText);
+    expectSameWithin(first["data/apollo11/generated/validation.json"], validationText);
     expect(first["docs/APOLLO11_RECONSTRUCTION.md"]).toBe(reportText);
   });
 

@@ -1,0 +1,38 @@
+
+> astraeus-earth-moon-spike@0.1.0 typecheck
+> tsc --noEmit
+
+
+> astraeus-earth-moon-spike@0.1.0 build
+> vite build
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 104 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                            0.41 kB │ gzip:   0.28 kB
+dist/assets/moon-orig-2k-BMpRMzYO.jpg  1,053.86 kB
+dist/assets/earth-2k-CClELF0E.jpg      1,461.87 kB
+dist/assets/index-B4l0saQd.css            21.09 kB │ gzip:   4.68 kB
+dist/assets/index-CKCzWQDr.js          1,481.29 kB │ gzip: 440.47 kB
+
+✓ built in 241ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+> astraeus-earth-moon-spike@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+
+ Test Files  15 passed (15)
+      Tests  241 passed (241)
+   Start at  08:55:00
+   Duration  25.37s (tests 83%, transform 13%, import 4%)
+

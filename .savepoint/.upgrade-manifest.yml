@@ -1,6 +1,13 @@
 version: 1
 skills:
-    agent-skills/savepoint-check/SKILL.md: 669430bb6f82cbbdabe867fe4e15968de07aed986830fe347210b4d4e50cca44
-    agent-skills/savepoint-design/SKILL.md: 8adaa024ce5e4fc6612bfb8bdc2c00ee54b4120b4c96ccb6999fd926cfe9d91c
-    agent-skills/savepoint-idea/SKILL.md: b1c880e404f6f9d80da64d7ec2b339b718f0277b8bab98eed0b39c57a06740c5
-    agent-skills/savepoint-task/SKILL.md: a0885213c74ab51cf4d1169c125112450c47836dc1db4404f2067f9630120720
+    .claude/hooks/guard.js: ae8dde236eb5e58dbfe1e9d18bdd7e9d29395cafdae4942c40041f0a993f181d
+    .claude/hooks/savepoint-find.js: a2d146ba9784dcb57ad07ff9d3aae82f70befafbde2fb3426b128ff1e62fa1a1
+    .claude/hooks/session-start.js: 64286369f8373bb07b95156f2cef6a80f981533d3444fabb01de13e8dd2bf41a
+    .claude/skills/savepoint-check/SKILL.md: 32d2a1a4453f293927306ebc5e293b06cd486db33d48d527f0e12665337c9b5f
+    .claude/skills/savepoint-design/SKILL.md: 1d76715678d983158bb11943b31f50bdd4f7ae2f0ede32d74b28f063ea3b48c2
+    .claude/skills/savepoint-idea/SKILL.md: 33fae3537916f7c8ffc046d76790838f9ee3cca4cfaffa722f8acc997d25d167
+    .claude/skills/savepoint-task/SKILL.md: 8f6d960c47653ed20ed1f06c25f9ece4492df5d8ec86d9e748a93fba27559201
+    agent-skills/savepoint-check/SKILL.md: c29d709733bab7baa6c28fb53faf18a336109d22e7cb3c181b30578873bc69bc
+    agent-skills/savepoint-design/SKILL.md: de5f1e6658195ccf80f716944ca3c157241047397d1be45eaf5ba4303fd4aa5c
+    agent-skills/savepoint-idea/SKILL.md: 7628c4e8466b43b7d8fd3880f59f21d2f6c9b1ef747651e77c40c167c39c4c5d
+    agent-skills/savepoint-task/SKILL.md: 29732e8a5639abf08dd8e92fe940ac96a07e1faf47420a6459fa515aa2265d5f

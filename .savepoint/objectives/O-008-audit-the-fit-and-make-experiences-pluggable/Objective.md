@@ -1,7 +1,7 @@
 ---
 id: O-008
 title: Audit the meteor-shower fit and make experiences pluggable
-status: in_progress
+status: done
 depends_on: []
 release: G-004
 ---
