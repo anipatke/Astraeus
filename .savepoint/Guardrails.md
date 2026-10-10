@@ -36,6 +36,7 @@ If a rule can block a Check's verdict or require remediation, it must be defined
 |---|---|---|
 | ARCH-01 | Required | No mission, experience or dataset names in `src/core/` or generic shell/presentation code; experience content arrives as configuration or data. |
 | ARCH-02 | Required | Scientific State never depends on presentation: scale policy, camera, selection, UI and rendering consume State and never change it. |
+| ARCH-03 | Required | A new or changed generic capability is proven with a synthetic or alternative configuration in contract-level tests; one experience passing, including Apollo, is not evidence of reuse. |
 | PROV-01 | Required | Reconstructed, approximated or illustrative data carries provenance and its published known limitations, and is never presented as measured or exact. |
 
 ### Data
