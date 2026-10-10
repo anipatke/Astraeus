@@ -6,7 +6,8 @@ status: done
 depends_on: [{task: T-019, requires: clear}]
 owner_validation:
     required: true
-    accepted_check: ""
+    accepted_check: C-008
+    accepted_by: {role: owner, session: owner-directed-visual-review-2026-10-10}
 planned_by: {role: planner, session: g002-replan-2026-10-06}
 check_waiver:
     task: T-020
@@ -77,7 +78,11 @@ Regression-script repair after T-020 completion (I-011): the stale Spike 02 harn
 
 Fresh configured gates on 2026-10-10 (Australia/Sydney): `npm run typecheck` passed; `npm run build` passed with the existing advisory that the minified JavaScript chunk exceeds 500 kB; `npm test` passed (10 files, 170 tests). Lint is not configured. `git diff --check` passed.
 
-`docs/ASTRAEUS_SPIKE_03.md` covers all thirteen design-note topics and the future needs for time-ranged provenance, Readable-scale radii and the imperative `Astraeus.Scene` API. `.savepoint/Design.md` describes the implemented generic shell, app boundary, current regression scripts and review status. `docs/DONOR_PROVENANCE.md` records the adapted patterns without claiming copied code or licence clearance. The screenshot set is ready for visual review of canvas dominance and control clarity, especially with the mobile information sheet open. T-020 is complete by the owner's recorded decision and owner Task-check waiver; the visual review and mandatory Full Objective Check remain outstanding.
+`docs/ASTRAEUS_SPIKE_03.md` covers all thirteen design-note topics and the future needs for time-ranged provenance, Readable-scale radii and the imperative `Astraeus.Scene` API. `.savepoint/Design.md` describes the implemented generic shell, app boundary, current regression scripts and review status. `docs/DONOR_PROVENANCE.md` records the adapted patterns without claiming copied code or licence clearance. T-020 is complete by the owner's recorded decision and owner Task-check waiver. C-008 is the current CLEAR Full Objective Check.
+
+### Owner visual validation — C-008 (2026-10-10)
+
+Accepted. Reviewed the refreshed True-scale captures at 1440×900, 1280×800, 768×1024 and 390×844, including the mobile information sheet, timeline, controls, event/provenance panel, spacecraft-follow view and round anchor markers. The canvas remains dominant; controls and information are understandable; the mobile sheet clears the timeline and remains scrollable. No layout issue blocks acceptance.
 
 ## Drift Notes
 

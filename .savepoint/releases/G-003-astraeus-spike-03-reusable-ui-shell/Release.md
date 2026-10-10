@@ -1,7 +1,7 @@
 ---
 id: G-003
 title: Astraeus Spike 03 — Reusable UI shell
-status: planned
+status: done
 ---
 
 ## Outcome

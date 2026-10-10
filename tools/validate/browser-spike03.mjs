@@ -8,7 +8,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
-const out = "docs/evidence/spike03";
+const out = process.env.ASTRAEUS_EVIDENCE_DIR ?? "docs/evidence/spike03";
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
@@ -56,7 +56,7 @@ const camera = async (objectId, presetName) => {
   await page.waitForTimeout(1250);
 };
 const capture = async (name) => {
-  const trueScale = page.getByRole("button", { name: "True", exact: true });
+  const trueScale = page.getByRole("button", { name: "True", exact: true, includeHidden: true });
   if (await trueScale.getAttribute("aria-pressed") !== "true") {
     await trueScale.click();
     await page.waitForTimeout(250);
@@ -234,6 +234,45 @@ try {
   await assertTouchTargets("mobile info sheet 390x844");
   await capture("mobile-info-sheet-390x844");
 
+  // Diagnostics must receive taps even where the toolbar or info sheet overlaps it.
+  const developerPanels = [];
+  for (const [width, height] of [[390, 844], [390, 640], [768, 1024], [1280, 800]]) {
+    await setViewport(width, height);
+    for (const infoOpen of [false, true]) {
+      await closeInfo();
+      if (infoOpen) await page.locator(".object-info-toggle").click();
+      await page.getByRole("button", { name: "Developer mode" }).click();
+      const diagnostics = page.locator(".developer-tools");
+      const coverage = await diagnostics.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        const covered = [];
+        let samples = 0;
+        for (let y = rect.top + 12; y < rect.bottom - 12; y += 24) {
+          for (let x = rect.left + 12; x < rect.right - 20; x += 24) {
+            samples += 1;
+            const hit = document.elementFromPoint(x, y);
+            if (!element.contains(hit)) covered.push({ x, y, hit: hit?.className });
+          }
+        }
+        element.scrollTop = element.scrollHeight;
+        return { samples, covered, scrolledToEnd: Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) <= 1 };
+      });
+      assert.ok(coverage.samples > 0, "diagnostics has visible interior points");
+      assert.deepEqual(coverage.covered, [], `${width}×${height}, info ${infoOpen}: diagnostics receives taps across its panel`);
+      assert.ok(coverage.scrolledToEnd, "diagnostics scrolls to its final section");
+      developerPanels.push({ width, height, infoOpen, ...coverage });
+      if (width === 390 && infoOpen) await capture(`mobile-developer-${width}x${height}`);
+      await page.getByRole("button", { name: "Developer mode" }).click();
+      assert.equal(await diagnostics.isVisible(), false);
+      if (infoOpen) await closeInfo();
+      await page.locator(".object-info-toggle").click();
+      await panel.waitFor();
+      await closeInfo();
+    }
+  }
+  await setViewport(390, 844);
+  await page.locator(".object-info-toggle").click();
+
   // Keyboard focus remains visible for the primary controls.
   await page.locator(".object-info-toggle").focus();
   await page.keyboard.press("Tab");
@@ -254,6 +293,7 @@ try {
     cameraPresetsChecked: readoutsAcrossCameras.map(({ presetName }) => presetName),
     tabletTouchTargets: tabletTargets,
     mobileTouchTargets: mobileTargets,
+    developerPanels,
     keyboardFocus: focusStyle,
     errors,
   };

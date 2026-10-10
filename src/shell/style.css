@@ -161,7 +161,8 @@
 
 .developer-tools {
   position: absolute;
-  z-index: 4;
+  /* Diagnostics must receive input above the toolbar and its information sheet. */
+  z-index: 6;
   top: 72px;
   right: 12px;
   width: min(860px, calc(100vw - 24px));

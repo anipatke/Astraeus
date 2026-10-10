@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: g002-retro-2026-10-06}
     kind: observed
     note: Recorded by the G-002 retrospective (O-003) as suggestions for the packaged Savepoint skills; project rules were tuned separately in AGENTS.md and Guardrails.
+  - at: '2026-10-09T22:51:41Z'
+    actor: {role: executor, session: t023-codex-20261010}
+    kind: observed
+    note: O-007 reviewed these suggestions against the current workflow. Retrospective closure now follows a planned Task and mandatory Full Objective Check; the earlier no-Full-Check proposal remains historical, not project policy. No additional package suggestion was found.
 ---
 
 # I-010: Packaged-skill suggestions from the G-002 retrospective
@@ -32,3 +36,9 @@ These are suggestions for the packaged skills and shared references, which this 
 ## Proof Needed
 
 A packaged-skill update that addresses each point, or an explicit "no change" decision by the package owner.
+
+## G-003 retrospective update — 2026-10-10
+
+T-023 searched the Issue index for retrospective, packaged, browser, historical-evidence and reconciliation concerns before deciding on capture. I-011 and I-012 already record the concrete integration failures, now verified by C-008. Their prevention belongs to Astraeus project guidance, not a new package Issue.
+
+Suggestion 3 above records the G-002 proposal at that time. The current savepoint-task and savepoint-check skills require Task evidence and a mandatory Full Objective Check; O-007 has planned T-023 on that path. This removes the practical closure ambiguity for this retrospective and does not adopt the earlier proposed exemption. No package-owner disposition is inferred, and this Issue stays open. Suggestions 1 and 2 were not exercised by the selected G-003 records and remain historical follow-up; no duplicate or new package suggestion is warranted.

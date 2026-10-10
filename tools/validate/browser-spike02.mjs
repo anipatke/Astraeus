@@ -8,7 +8,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
-const out = "docs/evidence/regression-spike01-02";
+const out = process.env.ASTRAEUS_EVIDENCE_DIR ?? "docs/evidence/regression-spike01-02";
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });

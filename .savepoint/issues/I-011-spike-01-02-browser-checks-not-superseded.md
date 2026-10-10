@@ -2,14 +2,14 @@
 id: I-011
 title: Spike 01/02 browser checks neither re-run nor superseded by named equivalents
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-007
   actor: {role: checker, session: o005-check-claude-20261010}
   at: '2026-10-09T21:35:00Z'
 tasks: [T-020]
-checks: [C-007]
+checks: [C-007, C-008]
 history:
   - at: '2026-10-09T21:35:00Z'
     actor: {role: checker, session: o005-check-claude-20261010}
@@ -20,6 +20,17 @@ history:
     actor: {role: executor, session: codex-g003-spike03-repair-20261010}
     kind: repair_attempted
     note: Repaired and ran the current-shell Spike 01/02 and anchor-label scripts plus the neighboring responsive validation. Results are isolated under docs/evidence/regression-spike01-02/ and docs/evidence/spike03/; see Repair Attempt below. No browser errors; Issue awaits independent Full Check verification.
+  - at: '2026-10-09T22:30:31Z'
+    actor: {role: checker, session: o005-full-check-codex-20261010}
+    kind: rechecked
+    note: "C-008 Full Objective Check passed the named current-shell regression scripts at 1280x800: six scale pairs, six camera presets, 30 event jumps, four playback-rate assertions, a 30-sample 100x follow track, four USNO phase values, and the anchor-label toggle; browser errors were empty. Run outputs were isolated under /tmp, so committed Spike 02 evidence was not overwritten."
+    check: C-008
+resolution:
+  disposition: verified
+  check: C-008
+  actor: {role: checker, session: o005-full-check-codex-20261010}
+  at: '2026-10-09T22:30:31Z'
+  reason: C-008 CLEAR independently verifies the restored browser regression coverage and isolated evidence paths.
 ---
 
 # I-011: Spike 01/02 browser checks neither re-run nor superseded by named equivalents

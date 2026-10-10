@@ -2,14 +2,14 @@
 id: I-012
 title: Design.md not reconciled for O-005 Task drift notes
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-007
   actor: {role: checker, session: o005-check-claude-20261010}
   at: '2026-10-09T21:35:00Z'
 tasks: [T-018, T-019, T-020, T-022]
-checks: [C-007]
+checks: [C-007, C-008]
 history:
   - at: '2026-10-09T21:35:00Z'
     actor: {role: checker, session: o005-check-claude-20261010}
@@ -20,6 +20,17 @@ history:
     actor: {role: executor, session: codex-g003-spike03-repair-20261010}
     kind: repair_attempted
     note: Reconciled Design.md with T-018/T-019/T-022 shell, app, type and rendering changes and current browser scripts. See Repair Attempt below; Issue awaits independent Full Check verification.
+  - at: '2026-10-09T22:30:31Z'
+    actor: {role: checker, session: o005-full-check-codex-20261010}
+    kind: rechecked
+    note: C-008 independently verified the Design architecture and data flow, true-scale default and unchanged policy mapping, provenance/known limitations, app-layer type additions, round anchor sprite, and all four current browser-validation scopes. The T-018, T-019 and T-022 drift is reflected.
+    check: C-008
+resolution:
+  disposition: verified
+  check: C-008
+  actor: {role: checker, session: o005-full-check-codex-20261010}
+  at: '2026-10-09T22:30:31Z'
+  reason: C-008 CLEAR independently verifies the Design reconciliation required by T-020 and O-005.
 ---
 
 # I-012: Design.md not reconciled for O-005 Task drift notes
