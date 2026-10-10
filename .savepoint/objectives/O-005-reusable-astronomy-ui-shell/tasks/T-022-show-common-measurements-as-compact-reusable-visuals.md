@@ -4,7 +4,10 @@ title: Show common measurements as compact, reusable visuals
 objective: O-005
 status: done
 depends_on: [{task: T-018, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+  required: true
+  accepted_check: C-008
+  accepted_by: {role: owner, session: owner-directed-visual-review-2026-10-10}
 planned_by: {role: planner, session: owner-metric-visuals-2026-10-09}
 check_waiver:
   task: T-022
@@ -153,10 +156,14 @@ The owner asked whether the coordinates glyph was functional; it was a static sy
 
 Fresh run at 2026-10-09T08:16:20Z: `npm run typecheck`, `npm run build` and `npm test` (9 files, 160 tests) exit 0; `git diff --check` exit 0; shell naming search no matches; `src/core` and `data` unchanged. Browser scenario at 2026-10-09T08:17:03Z: exit 0 at 1280×800 and 390×844, zero page or console errors.
 
-No Task Check, owner visual validation or completion is recorded. `audit` means ready for a Check and owner review, not passed.
+The mandatory O-005 Full Objective Check is C-008 (CLEAR). The owner visual verdict is recorded below; the earlier Task-check waiver remains as recorded.
 
 ## Drift Notes
 
 - 2026-10-09: on owner instruction, the anchor markers in `src/app/TrackedBodyView.ts` were restyled from square points to a round sprite. This is scene rendering, outside the Metric Visuals scope; reconcile in T-020's visual review and Design.
 - 2026-10-09: the owner kept the radar position view provisionally ("still not convinced, but let's keep it for now"). This is not owner visual validation of the position visual; revisit it in T-020's visual review.
 - 2026-10-09: `TrackedReadout.positionKm`, `TrackedBody.positionDiscrepancies` and `MissionConfig.journey` were added to the app-layer mission types; reconcile in Design.md at T-020.
+
+### Owner visual validation — C-008 (2026-10-10)
+
+Accepted. At 1280×800, the Columbia cards present range, speed and distance-to-Moon values and units clearly; their scale, source-anchor and Moon-radius references make the visuals informative. At 390×844, the range, speed and distance readings remain legible in the compact card layout without horizontal overflow; lower cards remain available by scrolling. The scene's geometric lunar illumination reads as a percentage with a proportional band and an explicit Earth-centre caption. This is a clear fraction indicator; the true phase glyph remains deferred because the current core does not provide the lit-limb side. C-008's mobile overflow check and refreshed captures support the review.

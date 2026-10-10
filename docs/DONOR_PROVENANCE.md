@@ -53,3 +53,18 @@ All donor paths below are relative to `/home/user/code/planetary-explorer`.
 | `src/app/store.ts` | Explicit selection/exclusive panel-state pattern only, implemented through app-owned React state; no copied global store |
 
 Tailwind, zustand and drei are not adopted for this spike. Font names are visual references with fallbacks; adding actual font assets requires their own source/licence record. Later Tasks must update this section with files actually adapted and any additional sources.
+
+## Spike 03 — implemented pattern adaptations (T-020, 2026-10-10)
+
+The following records the patterns used by the Astraeus shell. They are interaction and layout adaptations informed by the source audit, not copied donor components or cleared third-party code. The donor remains read only; code licence remains unresolved and any future adapted donor code remains local-use only.
+
+| Audited donor pattern | Astraeus adaptation | Astraeus files |
+|---|---|---|
+| Compact control bar and semantic mobile selection | Labelled object and camera controls; small-screen camera mode uses a native select; active state remains explicit | `src/shell/ObjectControls.tsx`, `src/shell/style.css` |
+| Tweened hotspot selection and camera framing | Experience-configured overview/focus/follow requests handled by the app camera controller; UI changes do not alter simulation time or physical readouts | `src/shell/ObjectControls.tsx`, `src/shell/AstraeusShell.tsx`, `src/app/CameraController.tsx` |
+| Projected markers and restrained visual hierarchy | Generic configured scene labels and concise timeline event context, with selected/focus states kept named | `src/app/AnchorLabels.ts`, `src/shell/TimelineBar.tsx`, `src/shell/style.css` |
+| Responsive side panel / bottom sheet | One shared object/event/provenance panel; mobile sheet is bounded above the persistent timeline and can be closed explicitly | `src/shell/InfoPanel.tsx`, `src/shell/AstraeusShell.tsx`, `src/shell/style.css` |
+| Object overview facts and status badge | Configured descriptions and live Metric Visuals; textual provenance status opens source, accuracy, notes and limitations | `src/shell/InfoPanel.tsx`, `src/shell/ProvenanceBadge.tsx`, `src/shell/MetricVisual.tsx`, `src/shell/metrics.ts` |
+| Donor palette, focus treatment and state ownership | Scoped shell CSS, visible focus styles and React-owned selection/panel state; no new global store or UI dependency | `src/shell/style.css`, `src/shell/AstraeusShell.tsx` |
+
+No Planetary Explorer source file or asset was copied in T-020. The adaptation record does not grant publication or redistribution rights.

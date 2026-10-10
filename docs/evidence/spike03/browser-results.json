@@ -1,0 +1,242 @@
+{
+  "url": "http://127.0.0.1:5199/",
+  "screenshots": [
+    {
+      "name": "earth-moon-overview-1440x900",
+      "path": "docs/evidence/spike03/earth-moon-overview-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "translunar-coast-1440x900",
+      "path": "docs/evidence/spike03/translunar-coast-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "close-earth-1440x900",
+      "path": "docs/evidence/spike03/close-earth-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "close-moon-1440x900",
+      "path": "docs/evidence/spike03/close-moon-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "spacecraft-follow-1440x900",
+      "path": "docs/evidence/spike03/spacecraft-follow-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "metric-visuals-1440x900",
+      "path": "docs/evidence/spike03/metric-visuals-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "event-provenance-open-1440x900",
+      "path": "docs/evidence/spike03/event-provenance-open-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "laptop-1280x800",
+      "path": "docs/evidence/spike03/laptop-1280x800.png",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      }
+    },
+    {
+      "name": "tablet-768x1024",
+      "path": "docs/evidence/spike03/tablet-768x1024.png",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    {
+      "name": "mobile-390x844",
+      "path": "docs/evidence/spike03/mobile-390x844.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "mobile-info-sheet-390x844",
+      "path": "docs/evidence/spike03/mobile-info-sheet-390x844.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "viewports": [
+    "1440x900",
+    "1280x800",
+    "768x1024",
+    "390x844"
+  ],
+  "scaleReadoutsIdentical": true,
+  "cameraReadoutsUnchanged": true,
+  "cameraPresetsChecked": [
+    "Focus Earth",
+    "Focus Moon",
+    "Follow Columbia (CSM)",
+    "Follow Eagle (LM)",
+    "Earth–Moon overview"
+  ],
+  "tabletTouchTargets": [
+    {
+      "selector": ".object-controls button",
+      "label": "Information about Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Earth–Moon overview",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Focus Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls select",
+      "label": "Select object",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "True",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "Readable",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "What do True and Readable scale mean?",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Play playback",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Previous event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Next event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-speed select",
+      "label": "Playback speed",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-event-list summary",
+      "label": "Events (30)",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-track input[type=\"range\"]",
+      "label": "Seek timeline",
+      "height": 44
+    }
+  ],
+  "mobileTouchTargets": [
+    {
+      "selector": ".object-controls button",
+      "label": "Information about Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls select",
+      "label": "Select object",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls select",
+      "label": "Camera mode",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "True",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "Readable",
+      "height": 44
+    },
+    {
+      "selector": ".scale-control button",
+      "label": "What do True and Readable scale mean?",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Play playback",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Previous event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Next event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-speed select",
+      "label": "Playback speed",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-event-list summary",
+      "label": "Events (30)",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-track input[type=\"range\"]",
+      "label": "Seek timeline",
+      "height": 44
+    }
+  ],
+  "keyboardFocus": {
+    "outlineStyle": "solid",
+    "outlineWidth": "2px"
+  },
+  "errors": []
+}

@@ -1,0 +1,15 @@
+{
+  "url": "http://127.0.0.1:5199/",
+  "viewport": "1280x800",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 40,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "screenshots": [
+    "docs/evidence/regression-spike01-02/anchor-labels/labels-on-overview.png",
+    "docs/evidence/regression-spike01-02/anchor-labels/labels-on-follow.png"
+  ],
+  "errors": []
+}

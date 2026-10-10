@@ -27,6 +27,8 @@ export function ObjectControls({
   const overview = findCameraPreset(experience, "overview");
   const focus = selected === undefined ? undefined : findCameraPreset(experience, "focus", selected.id);
   const follow = selected === undefined ? undefined : findCameraPreset(experience, "follow", selected.id);
+  const cameraPresets = [overview, focus, follow].filter((preset): preset is ExperienceCameraPreset => preset !== undefined);
+  const selectedPreset = cameraPresets.find((preset) => preset.id === activePresetId) ?? overview;
 
   const renderPreset = (preset: ExperienceCameraPreset | undefined) => preset && (
     <button
@@ -83,6 +85,25 @@ export function ObjectControls({
         {renderPreset(focus)}
         {renderPreset(follow)}
       </div>
+      <select
+        className="object-camera-picker"
+        aria-label="Camera mode"
+        value={selectedPreset?.id ?? ""}
+        onChange={(event) => {
+          const preset = cameraPresets.find((candidate) => candidate.id === event.target.value);
+          if (preset !== undefined) onCameraPreset(preset);
+        }}
+      >
+        {cameraPresets.map((preset) => (
+          <option
+            key={preset.id}
+            value={preset.id}
+            disabled={preset.request.kind !== "overview" && !selectedAvailable}
+          >
+            {preset.label}
+          </option>
+        ))}
+      </select>
     </section>
   );
 }
