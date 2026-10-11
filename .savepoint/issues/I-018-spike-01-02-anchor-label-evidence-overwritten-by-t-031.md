@@ -2,14 +2,19 @@
 id: I-018
 title: Committed Spike 01/02 anchor-label evidence was overwritten by a T-031 browser run
 type: verification
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-012
   actor: {role: checker, session: o009-check-20261011}
   at: '2026-10-11T04:26:07Z'
 tasks: [T-031]
-checks: [C-012]
+checks: [C-012, C-013]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: owner-chat-20261011}
+  at: '2026-10-11T04:38:20Z'
+  reason: Owner accepted the restore after C-013 independently confirmed the Proof Needed; recorded by the agent on the owner's direct instruction.
 history:
   - at: '2026-10-11T04:26:07Z'
     actor: {role: checker, session: o009-check-20261011}
@@ -25,6 +30,10 @@ history:
     kind: rechecked
     note: 'Repair proof verified independently: git diff --stat ebc40df -- docs/evidence/regression-spike01-02/ is empty; git diff --name-status --diff-filter=MDRTC ebc40df -- docs/evidence is empty; T-031 correction present with the original text kept. Not closed as verified because the verified disposition requires a Check that recorded CLEAR, and C-013 is NEEDS WORK (T-030/DW3 rests on an owner exception). The Issue stays in_progress; its Proof Needed is satisfied. The owner may resolve it as accepted, or a later CLEAR Check can verify it.'
     check: C-013
+  - at: '2026-10-11T04:38:20Z'
+    actor: {role: owner, session: owner-chat-20261011}
+    kind: owner_decision
+    note: Owner accepted I-018 (instruction in chat); restored files committed and pushed in 297b4f1. Recorded by the agent on the owner's direct instruction.
 ---
 
 # I-018: Committed Spike 01/02 anchor-label evidence was overwritten by a T-031 browser run

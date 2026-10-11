@@ -1,7 +1,7 @@
 ---
 id: O-009
 title: Provide state for groups of objects
-status: in_progress
+status: done
 depends_on: [O-008]
 release: G-004
 ---
@@ -53,6 +53,11 @@ Owner decision: keep the 8 ms bar as the stated test, record the miss as a findi
 ## Finding And Owner Decision — 2026-10-11 (smooth group motion)
 
 At the T-029 owner look, the ring looked right but its own motion looked shaky (Issue I-017). The cause is that positions refresh in steps (the T-028 mitigation for the fill-cost miss). The owner asked for the smoothing to be planned now, inside this Objective, and asked for the best balance of performance and visuals. Planner choice: present a blend of two exact fills each frame (presentation only, ARCH-02), rather than recalculating every frame (misses the 8 ms bar) or a background thread (not bounded). Planned as T-030. The blend is a straight-line approximation between exact fills, whose error is measured and recorded in T-030. Success Conditions 3 and 4 are unchanged; the owner's visual judgement of the ring's motion is recorded in T-030.
+
+
+## Closure — owner decision (2026-10-11T04:43:22Z)
+
+Closed by the owner (instruction in chat, recorded by the agent) by exception. The latest Objective Check is C-013 (NEEDS WORK, supersedes C-012). Its only unmet item, T-030/DW3 (the "before" headless frame-pacing figure), is covered by the owner `exception` on T-030, carried forward at C-013. I-017 and I-018 are resolved as accepted. Owner validation is recorded on T-029, T-030 and T-031 against C-013. This is completion by exception, not CLEAR. The owner has raised the exception-closure loop with the Savepoint maintainers.
 
 ## Boundaries
 

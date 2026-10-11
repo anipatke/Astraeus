@@ -6,7 +6,8 @@ status: done
 depends_on: [{task: T-030, requires: clear}]
 owner_validation:
     required: true
-    accepted_check: ""
+    accepted_check: C-013
+    accepted_by: {role: owner, session: owner-chat-20261011}
 planned_by: {role: planner, session: o009-perf-counter-plan-2026-10-11}
 check_waiver:
     task: T-031
@@ -94,6 +95,8 @@ Owner-requested addition (2026-10-11): a line graph of frames per second over th
 Gates: `npm run typecheck`, `npm run build`, `npm test` pass (16 files, 249 tests). Limits: figures are headless software-rendered; `anchor-consistency` and `conversion-proof` do not load the app and were not run.
 
 Correction (2026-10-11, I-018 repair, session o009-i018-repair-20261011): criterion 5 above is stated as "Met" but its restore clause was not satisfied at the time. The `r2` `browser-anchor-labels` run was started without an output-directory argument and overwrote three historical Spike 01/02 files (`docs/evidence/regression-spike01-02/anchor-labels/browser-anchor-labels-results.json`, `labels-on-follow.png`, `labels-on-overview.png`); they were not restored and were committed in `bc080c4`. They were restored from `601a9ff` (identical to `ebc40df`) under I-018, and `git diff --stat ebc40df -- docs/evidence/regression-spike01-02/` is now empty. The original text above is kept unchanged. Criterion 5 stays subject to the Check's judgement after this repair.
+
+Owner validation recorded 2026-10-11T04:38:20Z (owner instruction in chat, accepted against C-013): owner signed off T-029, T-030 and T-031; on the owner's machine the counter holds at about 100 frames per second for the ring at the default rate.
 
 ## Drift Notes
 
