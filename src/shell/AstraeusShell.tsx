@@ -9,7 +9,7 @@ import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
 import { ObjectControls } from "./ObjectControls";
 import { ScaleControl } from "./ScaleControl";
-import type { ScaleId } from "./scaleModel";
+import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAvailable } from "./objectModel";
 import "./style.css";
 
@@ -25,6 +25,7 @@ interface Props {
   readonly onSelectionChange: (objectId: string) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
+  readonly scaleChoices?: readonly ScaleChoice[];
   /** Live measurements for an object's info panel, from the app's own State; empty when it has none. */
   readonly metricsFor?: (objectId: string, timeUtcMs: number) => readonly Metric[];
   readonly developerTools?: ReactNode;
@@ -44,6 +45,7 @@ export function AstraeusShell({
   onSelectionChange,
   scaleId,
   onScaleChange,
+  scaleChoices,
   metricsFor,
   developerTools,
   children,
@@ -143,7 +145,7 @@ export function AstraeusShell({
             infoOpen={info?.kind === "object"}
             onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
           />
-          <ScaleControl scaleId={scaleId} onScaleChange={onScaleChange} />
+          <ScaleControl scaleId={scaleId} onScaleChange={onScaleChange} choices={scaleChoices} />
         </div>
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>

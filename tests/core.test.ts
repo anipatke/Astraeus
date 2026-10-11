@@ -12,7 +12,7 @@ import {
   sunPositionFromEarthAt,
 } from "../src/core/referenceCenters";
 import { createCenteredPosition, createState } from "../src/core/state";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { createSolarSystemScale, readableScale, trueScale } from "../src/core/scalePolicy";
 
 function magnitude(vector: ArrayLike<number>): number {
   return Math.hypot(vector[0], vector[1], vector[2]);
@@ -237,5 +237,44 @@ describe("provider trajectories and scale policies", () => {
     expect(() => trueScale.mapPosition([0, Number.NaN, 0])).toThrow(TypeError);
     expect(() => readableScale.mapRadius(-1)).toThrow(RangeError);
     expect(() => adapter.moonPositionKm(Number.NaN)).toThrow(RangeError);
+  });
+});
+
+describe("solar-system scale policy", () => {
+  const policy = createSolarSystemScale({ exaggeration: { earth: 50, moon: 20 }, defaultExaggeration: 5 });
+
+  it("maps positions exactly as True scale does", () => {
+    for (const v of [[0, 0, 0], [1.5e8, -2e7, 3e5], [EARTH.radiusKm, 0, 0]]) {
+      expect(Array.from(policy.mapPosition(v))).toEqual(Array.from(trueScale.mapPosition(v)));
+    }
+    expect(() => policy.mapPosition([0, Number.NaN, 0])).toThrow(TypeError);
+  });
+
+  it("enlarges each radius by its declared factor, else the default", () => {
+    expect(policy.mapRadius(EARTH.radiusKm, "earth")).toBe(trueScale.mapRadius(EARTH.radiusKm) * 50);
+    expect(policy.mapRadius(MOON.radiusKm, "moon")).toBe(trueScale.mapRadius(MOON.radiusKm) * 20);
+    expect(policy.mapRadius(1000, "ceres")).toBe(trueScale.mapRadius(1000) * 5);
+    expect(policy.mapRadius(1000)).toBe(trueScale.mapRadius(1000) * 5);
+    expect(() => policy.mapRadius(-1, "earth")).toThrow(RangeError);
+  });
+
+  it("rejects factors that are not finite or are below 1", () => {
+    for (const bad of [0.5, 0, -2, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(() => createSolarSystemScale({ exaggeration: {}, defaultExaggeration: bad })).toThrow(RangeError);
+      expect(() => createSolarSystemScale({ exaggeration: { earth: bad }, defaultExaggeration: 1 })).toThrow(RangeError);
+    }
+    expect(createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 }).mapRadius(1000, "x")).toBe(trueScale.mapRadius(1000));
+  });
+
+  it("states every factor in its explanation", () => {
+    expect(policy.id).toBe("solar-system");
+    expect(policy.explanation).toContain("earth \u00d750");
+    expect(policy.explanation).toContain("moon \u00d720");
+    expect(policy.explanation).toContain("\u00d75.");
+  });
+
+  it("leaves True and Readable ignoring the body id", () => {
+    expect(trueScale.mapRadius(MOON.radiusKm, "moon")).toBe(trueScale.mapRadius(MOON.radiusKm));
+    expect(readableScale.mapRadius(MOON.radiusKm, "moon")).toBe(readableScale.mapRadius(MOON.radiusKm));
   });
 });
