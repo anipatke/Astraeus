@@ -10,7 +10,7 @@ import {
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
-import { PathView, SunView, createSunCentredViews } from "../src/app/SunCentredView";
+import { PathView, BodyMarkerView, createSunCentredViews } from "../src/app/SunCentredView";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createProvenance } from "../src/core/provenance";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
@@ -147,7 +147,7 @@ describe("Earth's path and the Sun are placed through centre composition", () =>
 
   it.each([["True", trueScale], ["Readable", readableScale]])("places the Sun body and every vertex at %s scale", (_name, policy) => {
     const t = START + 30 * 86_400_000;
-    const sunView = new SunView(syntheticSun);
+    const sunView = new BodyMarkerView(syntheticSun);
     sunView.sync(t, adapter, policy);
     const sunKm = sunPositionFromEarthAt(adapter, t).positionKm;
     expect(Array.from(sunView.absolute())).toEqual(Array.from(eqjToRenderVector(policy.mapPosition(sunKm))));

@@ -1,14 +1,14 @@
-import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial, Points, PointsMaterial } from "three";
+import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial } from "three";
+import { catalogue, type BodyAsset } from "../assets/catalogue";
 import type { AstronomyAdapter } from "../core/astronomyAdapter";
 import { sunPositionFromEarthAt } from "../core/referenceCenters";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { samplePathKm } from "../core/sunCentredSources";
 import { DEFAULT_PATH_SAMPLE_COUNT, type PathLayer, type SunBody } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
+import { createMarker } from "./bodyDraw";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
-
-const DEFAULT_SUN_SIZE_PX = 9;
 
 /** What the scene needs from anything drawn here: a focus point, a label anchor, and a size to frame. */
 export interface SunCentredItem {
@@ -30,25 +30,20 @@ function sunOffsetKm(adapter: AstronomyAdapter, timeUtcMs: number): ArrayLike<nu
 
 const scaleLength = (policy: ScalePolicy, km: number): number => policy.mapPosition([km, 0, 0])[0];
 
-/** The Sun's marker at the Sun's composed Earth-centred position. Drawn size is presentation only. */
-export class SunView implements SunCentredItem {
-  readonly group = new Group();
-  readonly #positions = new BufferAttribute(new Float32Array(3), 3);
+/**
+ * A body drawn as a marker (the Sun) at its composed Earth-centred position, from its visual record. Drawn size is
+ * presentation only; the experience's own colour and size, when it names them, replace the record's.
+ */
+export class BodyMarkerView implements SunCentredItem {
+  readonly group: Group;
+  readonly #positions: BufferAttribute;
   #absolute: RenderVector = [0, 0, 0];
   #frameKm = 0;
 
-  constructor(readonly layer: SunBody) {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", this.#positions);
-    const points = new Points(geometry, new PointsMaterial({
-      color: layer.color,
-      size: layer.markerSizePx ?? DEFAULT_SUN_SIZE_PX,
-      sizeAttenuation: false,
-      depthTest: false,
-    }));
-    points.frustumCulled = false;
-    points.layers.set(TRACK_LAYER);
-    this.group.add(points);
+  constructor(readonly layer: SunBody, asset: BodyAsset = catalogue.get("sun")) {
+    const marker = createMarker(asset, TRACK_LAYER, { color: layer.color, sizePx: layer.markerSizePx });
+    this.group = marker.group;
+    this.#positions = marker.position;
   }
 
   get id(): string {
@@ -194,7 +189,7 @@ export class PathView implements SunCentredItem {
 /** Builds the views for a Sun and its paths; the Sun frames the farthest path. */
 export function createSunCentredViews(sun: SunBody | undefined, paths: readonly PathLayer[]): readonly SunCentredItem[] {
   const pathViews = paths.map((layer) => new PathView(layer));
-  const sunView = sun === undefined ? null : new SunView(sun);
+  const sunView = sun === undefined ? null : new BodyMarkerView(sun);
   sunView?.setFramingKm(Math.max(0, ...pathViews.map((view) => view.maxRadiusKm)));
   return [...(sunView === null ? [] : [sunView]), ...pathViews];
 }

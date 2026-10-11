@@ -1,16 +1,12 @@
 import { Object3D, Quaternion as ThreeQuaternion, Vector3 } from "three";
+import { catalogue } from "../assets/catalogue";
 import type { State } from "../core/state";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { FloatingOrigin } from "./floatingOrigin";
 import { eqjToRenderQuaternion, eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 
-/**
- * Texture-facing offsets (radians about the body's mesh-local pole axis +Y).
- * These are presentation-only alignment of the donor image to the scientific body-fixed axes;
- * they never feed time, position or scientific orientation. Values are set by visual verification.
- */
-export const EARTH_TEXTURE_YAW_RAD = 0;
-export const MOON_TEXTURE_YAW_RAD = 0;
+const EARTH_TEXTURE_YAW_RAD = catalogue.get("earth").visual.textureYawRad ?? 0;
+const MOON_TEXTURE_YAW_RAD = catalogue.get("moon").visual.textureYawRad ?? 0;
 
 /** Stationary scientific scene root and its siblings; nothing here is parented to a body mesh. */
 export interface SceneHierarchy {
@@ -40,7 +36,7 @@ function applyOrientation(mesh: Object3D, state: State, textureYawRad: number): 
   if (state.orientation === null) throw new TypeError(`${state.body} requires scientific orientation`);
   const [x, y, z, w] = eqjToRenderQuaternion(state.orientation);
   mesh.quaternion.set(x, y, z, w);
-  // Texture-facing offset is applied in the body-fixed frame, i.e. before the scientific rotation.
+  // Texture-facing offset (the body visual's textureYawRad, presentation only) is applied in the body-fixed frame, i.e. before the scientific rotation.
   mesh.quaternion.multiply(yaw.setFromAxisAngle(pole, textureYawRad));
 }
 

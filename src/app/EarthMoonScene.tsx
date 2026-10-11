@@ -10,8 +10,8 @@ import { earthStateAt, sunPositionFromEarthAt } from "../core/referenceCenters";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { State } from "../core/state";
 import { AnchorLabelLayer } from "./AnchorLabels";
-import { AtmosphereGlow, EARTH_ATMOSPHERE } from "./AtmosphereGlow";
-import { BodyMesh, EARTH_MATERIAL, MOON_MATERIAL } from "./BodyMesh";
+import { catalogue } from "../assets/catalogue";
+import { BodyView } from "./BodyView";
 import {
   attachOrbitGestures,
   clampDistance,
@@ -43,12 +43,14 @@ import { createSunCentredViews } from "./SunCentredView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import type { ExperienceObject } from "../shell/experience";
-import earthTextureUrl from "./assets/textures/earth-2k.jpg";
-import moonTextureUrl from "./assets/textures/moon-orig-2k.jpg";
 
 // Render passes: Earth (layer 1) and Moon (layer 2) each get their own physical Sun direction.
 const EARTH_LAYER = 1;
 const MOON_LAYER = 2;
+const EARTH_ASSET = catalogue.get("earth");
+const MOON_ASSET = catalogue.get("moon");
+const EARTH_LIGHT = EARTH_ASSET.visual.light!;
+const MOON_LIGHT = MOON_ASSET.visual.light!;
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
 const REBASE_THRESHOLD = 1;
 /** Camera framing span in Earth radii when the Earth–Moon layer is off and there is no Moon distance to frame by. */
@@ -333,29 +335,17 @@ function SceneContents({ runtime, controls, readout }: Props) {
     });
   });
 
-  const earthRadius = controls.policy.mapRadius(EARTH.radiusKm);
-  const moonRadius = controls.policy.mapRadius(MOON.radiusKm);
-
   return (
     <group ref={rootRef}>
       {runtime.earthMoon && (
         <>
-          <group ref={earthGroupRef}>
-            <group ref={earthMeshRef}>
-              <BodyMesh radius={earthRadius} textureUrl={earthTextureUrl} material={EARTH_MATERIAL} layer={EARTH_LAYER} />
-              <AtmosphereGlow radius={earthRadius} atmosphere={EARTH_ATMOSPHERE} layer={EARTH_LAYER} />
-            </group>
-          </group>
-          <group ref={moonGroupRef}>
-            <group ref={moonMeshRef}>
-              <BodyMesh radius={moonRadius} textureUrl={moonTextureUrl} material={MOON_MATERIAL} layer={MOON_LAYER} />
-            </group>
-          </group>
+          <BodyView asset={EARTH_ASSET} policy={controls.policy} layer={EARTH_LAYER} groupRef={earthGroupRef} orientRef={earthMeshRef} />
+          <BodyView asset={MOON_ASSET} policy={controls.policy} layer={MOON_LAYER} groupRef={moonGroupRef} orientRef={moonMeshRef} />
           <primitive object={pathLine} />
-          <ambientLight layers={EARTH_LAYER} intensity={0.18} />
-          <directionalLight ref={earthLightRef} layers={EARTH_LAYER} intensity={1.8} />
-          <ambientLight layers={MOON_LAYER} intensity={0.08} />
-          <directionalLight ref={moonLightRef} layers={MOON_LAYER} intensity={1.4} />
+          <ambientLight layers={EARTH_LAYER} intensity={EARTH_LIGHT.ambient} />
+          <directionalLight ref={earthLightRef} layers={EARTH_LAYER} intensity={EARTH_LIGHT.directional} />
+          <ambientLight layers={MOON_LAYER} intensity={MOON_LIGHT.ambient} />
+          <directionalLight ref={moonLightRef} layers={MOON_LAYER} intensity={MOON_LIGHT.directional} />
         </>
       )}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}

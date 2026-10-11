@@ -1,6 +1,7 @@
 // Adapted from planetary-explorer src/features/moon/AtmosphereGlow.tsx (owner's donor checkout).
 import { useMemo } from "react";
 import { AdditiveBlending, BackSide, Color } from "three";
+import type { AtmosphereConfig } from "../assets/visual";
 
 const VERTEX = /* glsl */ `
   varying vec3 vNormal;
@@ -28,16 +29,6 @@ const FRAGMENT = /* glsl */ `
     gl_FragColor = vec4(uColor, alpha);
   }
 `;
-
-export interface AtmosphereConfig {
-  readonly color: string;
-  readonly intensity?: number;
-  readonly power?: number;
-  readonly scale?: number;
-}
-
-/** Donor Earth atmosphere parameters (src/entities/earth.ts). */
-export const EARTH_ATMOSPHERE: AtmosphereConfig = { color: "#6eaaff", intensity: 0.4, power: 4.5, scale: 1.04 };
 
 export function AtmosphereGlow({ radius, atmosphere, layer }: { radius: number; atmosphere: AtmosphereConfig; layer: number }) {
   const { color, intensity = 0.9, power = 3.5, scale = 1.08 } = atmosphere;

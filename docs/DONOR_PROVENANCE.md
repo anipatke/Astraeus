@@ -16,8 +16,8 @@ Donor lighting values (Earth ambient 0.45 / directional 1.8, Moon 0.15 / 1.4) we
 
 ## Texture assets (local application assets, not for redistribution)
 
-- `src/app/assets/textures/earth-2k.jpg` ← `public/textures/earth-2k.jpg`
-- `src/app/assets/textures/moon-orig-2k.jpg` ← `public/textures/moon-orig-2k.jpg`
+- `src/assets/textures/earth-2k.jpg` ← `public/textures/earth-2k.jpg`
+- `src/assets/textures/moon-orig-2k.jpg` ← `public/textures/moon-orig-2k.jpg`
 
 The donor `public/textures/README.md` documents sources and licences for other bodies but has **no source or licence entry for the Earth or the original Moon texture** (its Moon section lists only `moon-2k.jpg`/`moon-4k.jpg`). Provenance is **unresolved**. These files are used only inside this local application. They must not be placed in a public package, published, or treated as redistributable until the owner establishes their origin and licence. The 4k Moon texture (~15 MB, also unattributed) was not copied.
 
@@ -30,7 +30,7 @@ No `LICENSE*` file was found at the donor checkout root, and a grep of its `pack
 
 ## Texture orientation
 
-The equirectangular Three.js sphere puts texture-centre longitude 0 on mesh +X, longitude 90°E on -Z and the pole on +Y, which is the same fixed conversion as EQJ → render. Visual checks (India/Asia shape and terminator at 2026-04-01 12:00 UTC; near-side maria and Tycho at full Moon) show no extra yaw is needed, so `EARTH_TEXTURE_YAW_RAD` and `MOON_TEXTURE_YAW_RAD` in `src/app/sceneLayout.ts` are 0.
+The equirectangular Three.js sphere puts texture-centre longitude 0 on mesh +X, longitude 90°E on -Z and the pole on +Y, which is the same fixed conversion as EQJ → render. Visual checks (India/Asia shape and terminator at 2026-04-01 12:00 UTC; near-side maria and Tycho at full Moon) show no extra yaw is needed, so `textureYawRad` in the Earth and Moon visual records (`src/assets/bodies/`) is 0.
 
 ## Spike 03 — UI shell extraction candidates (T-016, 2026-10-07)
 

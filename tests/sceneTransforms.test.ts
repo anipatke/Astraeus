@@ -17,6 +17,7 @@ import {
 } from "../src/app/orbitPath";
 import { eqjToRenderQuaternion, eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createSceneHierarchy, placeBodies } from "../src/app/sceneLayout";
+import before from "./fixtures/scene-placement-pre-t043.json";
 
 const adapter = createOrbAstronomyAdapter();
 const trajectory = new MoonTrajectory(adapter);
@@ -254,5 +255,24 @@ describe("physical Sun illumination", () => {
     const moon = trajectory.stateAt(time, "earth");
     const sun = sunPositionFromEarthAt(adapter, time);
     expect(Math.abs(lunarIlluminatedFraction(moon, sun) - fraction)).toBeLessThan(0.03);
+  });
+});
+
+describe("Earth and Moon placement is unchanged by the visual records", () => {
+  // Recorded at ea592a3, before T-043, from placeBodies with a fresh FloatingOrigin; compared exactly.
+  const dates = [Date.UTC(2020, 0, 5), Date.UTC(2023, 6, 20), T, Date.UTC(2026, 3, 17, 11, 52), Date.UTC(2031, 10, 2)];
+  it.each(dates)("matches the recorded positions and mesh quaternions at %i under both policies", (date) => {
+    for (const policy of policies) {
+      const h = createSceneHierarchy();
+      placeBodies(h, earthStateAt(adapter, date), trajectory.stateAt(date, "earth"), policy, new FloatingOrigin());
+      // JSON stores -0 as 0, so signed zeros are normalised; every other digit is compared exactly.
+      const plain = (values: number[]) => values.map((value) => value + 0);
+      const recorded = (before as Record<string, { earthPos: number[]; moonPos: number[]; earthQ: number[]; moonQ: number[] }>)[`${date}/${policy.id}`];
+      expect(recorded).toBeDefined();
+      expect(plain(h.earthGroup.position.toArray())).toEqual(recorded.earthPos);
+      expect(plain(h.moonGroup.position.toArray())).toEqual(recorded.moonPos);
+      expect(plain(h.earthMesh.quaternion.toArray())).toEqual(recorded.earthQ);
+      expect(plain(h.moonMesh.quaternion.toArray())).toEqual(recorded.moonQ);
+    }
   });
 });
