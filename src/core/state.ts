@@ -1,4 +1,7 @@
 import { assertCenterId, type BodyId, type CenterId } from "./body";
+import { EARTH } from "./bodies/earth";
+import { MOON } from "./bodies/moon";
+import { SUN } from "./bodies/sun";
 
 export const EQJ = "EQJ" as const;
 export type FrameId = typeof EQJ;
@@ -59,11 +62,14 @@ function copyQuaternion(value: Quaternion | null): Quaternion | null {
 export function createCenteredPosition(input: Omit<StateInput, "orientation">): CenteredPosition {
   assertUtcUnixMs(input.timeUtcMs);
   assertCenterId(input.center);
-  if (input.body === input.center) throw new RangeError("a body cannot be positioned relative to itself");
   const positionKm = copyVector(input.positionKm, "positionKm");
   const velocityKmS = input.velocityKmS === undefined
     ? undefined
     : copyVector(input.velocityKmS, "velocityKmS");
+  if (input.body === input.center
+    && (positionKm.some((component) => component !== 0) || velocityKmS?.some((component) => component !== 0))) {
+    throw new RangeError("a body can be positioned relative to itself only at exactly zero");
+  }
   const frame = input.frame ?? EQJ;
   if (frame !== EQJ) throw new RangeError("this spike's scientific states use the EQJ frame only");
   return Object.freeze({
@@ -76,9 +82,19 @@ export function createCenteredPosition(input: Omit<StateInput, "orientation">): 
   });
 }
 
-export function createState(input: StateInput): State {
+/** Whether a body's definition says its State must carry a modelled orientation. */
+export type OrientationRule = (body: BodyId) => boolean;
+
+const BUILT_IN_ORIENTED: ReadonlySet<BodyId> = new Set(
+  [SUN, EARTH, MOON].filter((definition) => definition.orientation !== "none").map((definition) => definition.id),
+);
+
+// The resolver supplies the rule for its own catalogue; callers outside a resolver get the three built-in bodies.
+const builtInRule: OrientationRule = (body) => BUILT_IN_ORIENTED.has(body);
+
+export function createState(input: StateInput, requiresOrientation: OrientationRule = builtInRule): State {
   const position = createCenteredPosition(input);
-  if ((input.body === "earth" || input.body === "moon") && input.orientation === null) {
+  if (requiresOrientation(input.body) && input.orientation === null) {
     throw new TypeError(`${input.body} State requires a modeled orientation`);
   }
   return Object.freeze({ ...position, orientation: copyQuaternion(input.orientation) });

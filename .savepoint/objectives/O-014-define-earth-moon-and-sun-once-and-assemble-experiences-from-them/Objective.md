@@ -1,7 +1,7 @@
 ---
 id: O-014
 title: Define Earth, Moon and Sun once and assemble experiences from them
-status: planned
+status: in_progress
 depends_on: [O-010]
 release: G-004
 priority: high

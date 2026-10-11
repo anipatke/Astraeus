@@ -1,7 +1,10 @@
-import { GM, elementsToState, propagateKepler } from "@lizard-isana/orb/kepler";
+import { elementsToState, propagateKepler } from "@lizard-isana/orb/kepler";
 import { transformationMatrix } from "@lizard-isana/orb/frames";
 import { AstroInstant } from "@lizard-isana/orb/time";
-import type { CenterId } from "./body";
+import type { CelestialBodyDefinition, CenterId } from "./body";
+import { EARTH } from "./bodies/earth";
+import { MOON } from "./bodies/moon";
+import { SUN } from "./bodies/sun";
 
 /** Classical orbital elements, angles in radians, in whichever plane the caller names. */
 export interface ClassicalElements {
@@ -32,8 +35,21 @@ export interface TwoBodyAdapter {
   ): void;
 }
 
-// The library keeps a table of centre gravitational parameters; reading from it keeps one source of truth.
-export function createOrbTwoBodyAdapter(): TwoBodyAdapter {
+/**
+ * Gravitational parameters come from the body definitions, so any catalogued body that carries one can be a centre.
+ * The default is the three built-in bodies; a test asserts their values equal the library's own table.
+ */
+export function createOrbTwoBodyAdapter(
+  definitions: readonly CelestialBodyDefinition[] = [SUN, EARTH, MOON],
+): TwoBodyAdapter {
+  const gmByCenter = new Map(definitions.map((definition) => [definition.id, definition.gmKm3S2]));
+  const gmOf = (center: CenterId): number => {
+    const gm = gmByCenter.get(center);
+    if (gm === undefined || !(gm > 0) || !Number.isFinite(gm)) {
+      throw new RangeError(`"${center}" has no gravitational parameter, so it cannot be a two-body centre`);
+    }
+    return gm;
+  };
   const eclipticToEqj = Float64Array.from(
     transformationMatrix("ecliptic-j2000", "equatorial-j2000", AstroInstant.fromUnixMs(0)),
   );
@@ -50,7 +66,7 @@ export function createOrbTwoBodyAdapter(): TwoBodyAdapter {
         raan: elements.raanRad,
         argumentOfPeriapsis: elements.argumentOfPeriapsisRad,
         trueAnomaly: elements.trueAnomalyRad,
-      }, GM[center]);
+      }, gmOf(center));
       return { position: Float64Array.from(state.r), velocity: Float64Array.from(state.v) };
     },
 
@@ -60,7 +76,7 @@ export function createOrbTwoBodyAdapter(): TwoBodyAdapter {
         [initialStates[o], initialStates[o + 1], initialStates[o + 2]],
         [initialStates[o + 3], initialStates[o + 4], initialStates[o + 5]],
         dtSeconds,
-        GM[center],
+        gmOf(center),
       );
       out[3 * member] = next.r[0];
       out[3 * member + 1] = next.r[1];

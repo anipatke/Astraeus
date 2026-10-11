@@ -133,7 +133,7 @@ describe("SampledTrajectory validation", () => {
     expect(() => build(two({ positionKm: [Number.NaN, 0, 0] }))).toThrow(/finite/);
     expect(() => build(two({ velocityKmS: [0, 0, 0] }))).toThrow(/every sample or on none/);
     expect(() => build(two({}), { frame: "ICRF" as never })).toThrow(/EQJ/);
-    expect(() => build(two({}), { center: "mars" as never })).toThrow(/reference center/);
+    expect(() => build(two({}), { center: "" })).toThrow(/reference center/);
     expect(() => build(two({}), { body: "" })).toThrow();
   });
 });

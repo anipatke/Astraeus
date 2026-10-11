@@ -9,12 +9,14 @@ import type { TwoBodyAdapter } from "./twoBodyAdapter";
 
 const RADIANS = Math.PI / 180;
 
-function assertSunCentre(center: CenterId): void {
-  if (center !== "sun") throw new RangeError(`this Trajectory is Sun-centred; centre "${center}" is not offered`);
+function assertCentre(native: CenterId, center: CenterId): void {
+  if (center !== native) throw new RangeError(`this Trajectory is ${native === "sun" ? "Sun-centred" : `centred on "${native}"`}; centre "${center}" is not offered`);
 }
 
 export interface TwoBodyTrajectoryInput {
   readonly body: BodyId;
+  /** The body the elements orbit; its definition must carry a gravitational parameter. Defaults to the Sun. */
+  readonly center?: CenterId;
   /** Plane the elements are expressed in; positions are always output in EQJ. */
   readonly plane: ElementPlane;
   /** Instant at which the elements hold. */
@@ -24,12 +26,13 @@ export interface TwoBodyTrajectoryInput {
 }
 
 /**
- * A Sun-centred Trajectory from classical elements under unperturbed two-body motion. It is a state
+ * A Trajectory about one centre (the Sun unless named) from classical elements under unperturbed two-body motion. It is a state
  * source like any other: a path, a label or a group centre can be drawn from it without orbit maths of their own.
  */
 export function createTwoBodyTrajectory(input: TwoBodyTrajectoryInput, adapter: TwoBodyAdapter): Trajectory {
   assertUtcUnixMs(input.epochUtcMs);
   const { elements } = input;
+  const native = input.center ?? "sun";
   for (const [key, value] of Object.entries(elements)) {
     if (!Number.isFinite(value)) throw new GroupElementsError(`${input.body}: ${key} must be finite`);
   }
@@ -44,7 +47,7 @@ export function createTwoBodyTrajectory(input: TwoBodyTrajectoryInput, adapter: 
     raanRad: elements.raanDeg * RADIANS,
     argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
     trueAnomalyRad: elements.trueAnomalyDeg * RADIANS,
-  }, "sun");
+  }, native);
   const rotation = input.plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
   const states = new Float64Array(6);
   for (const [offset, vector] of [[0, initial.position], [3, initial.velocity]] as const) {
@@ -58,13 +61,13 @@ export function createTwoBodyTrajectory(input: TwoBodyTrajectoryInput, adapter: 
   return Object.freeze({
     body,
     ...(bounds === undefined ? {} : { bounds }),
-    stateAt(timeUtcMs: number, center: CenterId = "sun"): State {
-      assertSunCentre(center);
+    stateAt(timeUtcMs: number, center: CenterId = native): State {
+      assertCentre(native, center);
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
       const position = new Float64Array(3);
-      adapter.propagateMemberInto(states, 0, (timeUtcMs - epochUtcMs) / 1000, "sun", position);
-      return createState({ body, center: "sun", timeUtcMs, frame: EQJ, positionKm: position, orientation: null });
+      adapter.propagateMemberInto(states, 0, (timeUtcMs - epochUtcMs) / 1000, native, position);
+      return createState({ body, center: native, timeUtcMs, frame: EQJ, positionKm: position, orientation: null });
     },
   });
 }
@@ -74,7 +77,7 @@ export function createEarthSunTrajectory(adapter: AstronomyAdapter): Trajectory 
   return Object.freeze({
     body: "earth",
     stateAt(timeUtcMs: number, center: CenterId = "sun"): State {
-      assertSunCentre(center);
+      assertCentre("sun", center);
       return earthStateAt(adapter, timeUtcMs);
     },
   });
