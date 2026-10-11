@@ -22,9 +22,19 @@ async function checkWindow(label, size) {
   const band = page.locator(".timeline-window");
   assert.equal(await band.count(), 1, `${label}: one window band`);
   assert.ok((await band.boundingBox()).width > 0, `${label}: band has width`);
-  assert.equal(await page.locator(".timeline-window-curve path").count(), 1, `${label}: rate curve`);
+  assert.equal(await page.locator(".timeline-window-line").count(), 1, `${label}: rate curve line`);
+  assert.equal(await page.locator(".timeline-window-area").count(), 1, `${label}: rate curve filled area`);
   assert.equal(await page.locator(".timeline-window-peak").count(), 1, `${label}: peak marker`);
   assert.equal(await page.locator(".timeline-window-current").count(), 0, `${label}: no Inside line before the window`);
+  // I-019: band, curve and peak are one linked shape, together on one side of the slider.
+  const box = (selector) => page.locator(selector).boundingBox();
+  const [strip, slider, curve, peak, bandBox] = await Promise.all([box(".timeline-windows"), box("input[aria-label='Seek timeline']"), box(".timeline-window-curve"), box(".timeline-window-peak"), band.boundingBox()]);
+  assert.ok(strip.y + strip.height <= slider.y + 1, `${label}: window strip sits above the slider, not split by it`);
+  assert.ok(curve.y >= strip.y - 1 && curve.y + curve.height <= strip.y + strip.height + 1, `${label}: curve inside the strip`);
+  assert.ok(peak.x + peak.width / 2 >= bandBox.x && peak.x + peak.width / 2 <= bandBox.x + bandBox.width, `${label}: peak sits inside the band`);
+  assert.ok(curve.height >= 30, `${label}: curve height ${curve.height} shows the rise and fall`);
+  const touchMin = size.width < 700 ? 44 : 28;
+  assert.ok(bandBox.height >= touchMin && peak.width >= touchMin, `${label}: window targets at least ${touchMin}px (band h ${bandBox.height}, peak w ${peak.width})`);
   const next = page.getByRole("button", { name: /^Next/, exact: false }).first();
   const steps = [];
   for (let i = 0; i < 6 && !(await next.isDisabled()); i += 1) {
@@ -79,6 +89,14 @@ async function checkWindow(label, size) {
   await seekTo(0);
   await page.waitForTimeout(200);
   assert.match(await page.locator("#info-panel").innerText(), /outside the contact window/);
+  // A click along the band seeks to that point (not the start) and opens the window details.
+  await page.mouse.click(bandBox.x + bandBox.width * 0.25, bandBox.y + bandBox.height * 0.4);
+  await page.waitForTimeout(200);
+  const clicked = Date.parse(await page.locator(".timeline-time").getAttribute("datetime"));
+  const lo = Number(await page.locator("input[aria-label='Seek timeline']").getAttribute("min"));
+  const hi = Number(await page.locator("input[aria-label='Seek timeline']").getAttribute("max"));
+  assert.ok(Math.abs((clicked - lo) / (hi - lo) - (30 + 180 * 0.25) / 480) < 0.02, `${label}: band click seeks to the clicked point`);
+  await page.waitForSelector("#info-panel");
   if (outDir) {
     mkdirSync(outDir, { recursive: true });
     await page.screenshot({ path: `${outDir}/synthetic-window-${label}.png` });
@@ -124,6 +142,10 @@ try {
   assert.equal(await page.locator('option[value="columbia"]').count(), 1);
   assert.equal(await page.locator('option[value="survey-marker"]').count(), 0);
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-earth-moon"), "true");
+  // Apollo has no windows, so no window strip is drawn and the timeline is as before.
+  assert.equal(await page.locator(".timeline-windows").count(), 0, "Apollo: no window strip");
+  assert.equal(await page.locator(".timeline-window").count(), 0, "Apollo: no window band");
+  assert.ok((await page.locator(".timeline-scrubber").boundingBox()).height < 50, "Apollo: scrubber height unchanged");
 } finally {
   await browser.close();
 }

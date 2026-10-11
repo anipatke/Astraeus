@@ -266,14 +266,18 @@
 .timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
 .timeline-marker:hover::after,
 .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
-.timeline-windows { position: absolute; z-index: 2; inset: 0 8px; pointer-events: none; }
-.timeline-window { position: absolute; bottom: 1px; height: 7px; min-height: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 2px !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 35%, transparent) !important; pointer-events: auto; }
+.timeline-windows { position: relative; height: 44px; margin: 0 8px; }
+.timeline-window-group { position: absolute; inset: 0; pointer-events: none; }
+.timeline-window { position: absolute; top: 0; bottom: 0; min-height: 0 !important; padding: 0 !important; overflow: hidden; border: 0 !important; border-bottom: 4px solid color-mix(in srgb, var(--ui-data, #b1a1df) 85%, transparent) !important; border-radius: 3px 3px 0 0 !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 12%, transparent) !important; text-align: left; pointer-events: auto; cursor: pointer; }
 .timeline-window:hover,
-.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 55%, transparent) !important; }
-.timeline-window-curve { position: absolute; inset: 2px 0 9px; width: 100%; height: calc(100% - 11px); overflow: visible; pointer-events: none; }
-.timeline-window-curve path { fill: none; stroke: var(--ui-data, #b1a1df); stroke-opacity: .6; stroke-width: 1.5; }
-.timeline-window-peak { position: absolute; bottom: 0; width: 14px; min-height: 12px !important; height: 12px; padding: 0 !important; border: 0 !important; background: transparent !important; transform: translateX(-50%); pointer-events: auto; }
-.timeline-window-peak::after { display: block; width: 7px; height: 7px; margin: auto; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
+.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 28%, transparent) !important; }
+.timeline-window-label { position: absolute; top: 2px; left: 6px; max-width: calc(100% - 12px); overflow: hidden; color: var(--ui-color, #f0e6da); font-size: 11px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; opacity: .85; pointer-events: none; }
+.timeline-window-curve { position: absolute; inset: 6px 0 4px; width: 100%; height: calc(100% - 10px); overflow: visible; pointer-events: none; }
+.timeline-window-area { fill: color-mix(in srgb, var(--ui-data, #b1a1df) 45%, transparent); stroke: none; }
+.timeline-window-line { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 2; }
+.timeline-window-peak { position: absolute; top: 0; bottom: 0; width: 28px; min-height: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; transform: translateX(-50%); pointer-events: auto; cursor: pointer; }
+.astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 196px; }
+.timeline-window-peak::after { position: absolute; bottom: calc(4px + (100% - 10px) * var(--peak, 100) / 100); left: 50%; width: 9px; height: 9px; margin: 0 0 -4px -4px; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
 .timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
 .timeline-marker:hover .timeline-marker-label,
 .timeline-marker:focus .timeline-marker-label { display: block; }
@@ -397,6 +401,9 @@
   .timeline-bar .timeline-event-current { width: 100%; padding-right: 4px; padding-left: 4px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
+  .timeline-windows { height: 56px; }
+  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 344px; }
+  .timeline-window-peak { width: 44px; }
   .developer-tools { top: 98px; right: 8px; left: 8px; width: auto; max-height: 44vh; padding: 9px; }
   .developer-mode-toggle { top: 8px; right: 8px; min-height: 40px !important; }
 }
@@ -413,6 +420,7 @@
   .timeline-time { flex: 1 1 20ch; width: auto; }
   .timeline-speed { margin-left: auto; }
   .timeline-event-list { margin-left: auto; }
+  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 228px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
   .object-controls button,

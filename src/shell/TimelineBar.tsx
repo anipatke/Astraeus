@@ -1,7 +1,8 @@
+import type { CSSProperties } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 
@@ -119,33 +120,43 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
       </div>
 
       <div className="timeline-scrubber">
-        <div className="timeline-track">
+        {windows.length > 0 && (
           <div className="timeline-windows" aria-label="Timeline windows">
             {windows.map((window) => {
               const { startPercent, endPercent } = windowPositionPercent(window, experience.window);
+              const area = windowAreaPath(window, experience.window);
               const curve = windowCurvePath(window, experience.window);
+              const peakHeight = windowPeakHeightPercent(window);
               return (
                 <div key={window.id} className="timeline-window-group">
+                  {area !== null && curve !== null && (
+                    <svg className="timeline-window-curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                      <path className="timeline-window-area" d={area} />
+                      <path className="timeline-window-line" d={curve} vectorEffect="non-scaling-stroke" />
+                    </svg>
+                  )}
                   <button
                     type="button"
                     className="timeline-window"
                     aria-label={`${window.label}, ${formatUtcTimestamp(window.startUtcMs)} to ${formatUtcTimestamp(window.endUtcMs)}`}
-                    title={window.label}
+                    title={`${window.label}: click to jump to that time and open its details`}
                     style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }}
-                    onClick={() => { onWindowSeek(window, window.startUtcMs); onWindowInfo(window); }}
-                  />
-                  {curve !== null && (
-                    <svg className="timeline-window-curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                      <path d={curve} vectorEffect="non-scaling-stroke" />
-                    </svg>
-                  )}
+                    onClick={(event) => {
+                      const box = event.currentTarget.getBoundingClientRect();
+                      const fraction = box.width > 0 ? (event.clientX - box.left) / box.width : 0;
+                      onWindowSeek(window, windowTimeAtFraction(window, fraction));
+                      onWindowInfo(window);
+                    }}
+                  >
+                    <span className="timeline-window-label">{window.label}</span>
+                  </button>
                   {window.peakUtcMs !== undefined && (
                     <button
                       type="button"
                       className="timeline-window-peak"
                       aria-label={`Go to peak of ${window.label}`}
                       title={`${window.label} peak`}
-                      style={{ left: `${timePositionPercent(window.peakUtcMs, experience.window)}%` }}
+                      style={{ left: `${timePositionPercent(window.peakUtcMs, experience.window)}%`, "--peak": peakHeight ?? 100 } as CSSProperties}
                       onClick={() => { if (window.peakUtcMs !== undefined) onWindowSeek(window, window.peakUtcMs); onWindowInfo(window); }}
                     />
                   )}
@@ -153,6 +164,8 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
               );
             })}
           </div>
+        )}
+        <div className="timeline-track">
           <div className="timeline-markers" aria-label="Timeline event markers">
             {experience.events.map((event) => (
               <button

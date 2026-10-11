@@ -1,8 +1,8 @@
 ---
 id: O-011
 title: Run Perseids and a second shower as test fixtures
-status: planned
-depends_on: [O-009, O-010]
+status: in_progress
+depends_on: [O-010]
 release: G-004
 lanes:
   - {key: timeline-window, title: Readable time window}
@@ -47,6 +47,10 @@ Owner confirmed in the O-011 planning session:
 4. **Radiant appears in the information panel only** (a `radec` readout). No scene marker; GAP-5 stays a recorded open gap for the findings.
 
 Planner-settled choices, stated in the confirmation summary and confirmed with it: Geminids as the second shower; the entry discovers shower settings by name, so the entry itself does not change for a new shower; a Geminids code need stops and is reported as a finding; owner looks at the repaired window, at Perseids, and at the final cross-experience run; the window repair and camera reach can run side by side.
+
+## Owner Decision — 2026-10-11 (dependency on O-009)
+
+The owner directed that O-009 be removed from `depends_on`. O-009 was closed by owner exception (C-013 NEEDS WORK, not CLEAR), so the dependency gate kept O-011 from starting. O-011 still uses O-009's delivered group contract and `points` layer; removing the dependency waives only the gate, not that reliance. Recorded by the agent on the owner's direct instruction.
 
 ## Boundaries
 

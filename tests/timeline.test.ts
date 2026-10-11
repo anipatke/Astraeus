@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { apollo11Experience } from "../src/mission/apollo11";
 import {
   eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
-  windowContextAt, windowCurvePath, windowPositionPercent, DEFAULT_PLAYBACK_SPEEDS,
+  windowAreaPath, windowContextAt, windowCurvePath, windowPeakHeightPercent, windowPositionPercent, windowTimeAtFraction, DEFAULT_PLAYBACK_SPEEDS,
 } from "../src/shell/timelineModel";
 import { createWindows } from "../src/core/timeWindow";
 import type { TimelineEvent } from "../src/core/events";
@@ -88,6 +88,24 @@ describe("timeline windows", () => {
     expect(windowCurvePath(windows[1], bounds)).toBeNull();
     expect(windowCurvePath(windows[0], { startUtcMs: 12, endUtcMs: 20 })).toBe("M0 100 L100 0");
     expect(windowCurvePath(windows[0], { startUtcMs: 21, endUtcMs: 30 })).toBeNull();
+  });
+
+  it("closes the curve down to the baseline so the rate reads as one filled shape", () => {
+    expect(windowAreaPath(windows[0], bounds)).toBe("M10 100 L50 0 L90 75 L90 100 L10 100 Z");
+    expect(windowAreaPath(windows[1], bounds)).toBeNull();
+  });
+
+  it("puts the peak at its height on the curve, and omits it without a peak or rate", () => {
+    expect(windowPeakHeightPercent(windows[0])).toBe(100);
+    expect(windowPeakHeightPercent({ ...windows[0], peakUtcMs: 28 })).toBe(25);
+    expect(windowPeakHeightPercent(windows[1])).toBeNull();
+  });
+
+  it("turns a click along the band into a time inside the window", () => {
+    expect(windowTimeAtFraction(windows[0], 0)).toBe(12);
+    expect(windowTimeAtFraction(windows[0], 0.5)).toBe(20);
+    expect(windowTimeAtFraction(windows[0], 2)).toBe(28);
+    expect(windowTimeAtFraction(windows[0], -1)).toBe(12);
   });
 
   it("reports the windows the clock is inside, with their rate, boundaries included", () => {

@@ -139,6 +139,29 @@ export function windowCurvePath(window: TimelineWindow, bounds: TimeBounds): str
   return samples.map((sample, index) => `${index === 0 ? "M" : "L"}${point(sample)}`).join(" ");
 }
 
+/** The rate curve closed down to the window's baseline, so the rate reads as a filled shape. Same box as the curve. */
+export function windowAreaPath(window: TimelineWindow, bounds: TimeBounds): string | null {
+  const curve = windowCurvePath(window, bounds);
+  if (curve === null) return null;
+  const xs = [...curve.matchAll(/[ML]([\d.]+) /g)].map((match) => match[1]);
+  return `${curve} L${xs[xs.length - 1]} 100 L${xs[0]} 100 Z`;
+}
+
+/** How high the peak sits on the curve, 0–100 of the window's own highest rate; null without a peak or rate. */
+export function windowPeakHeightPercent(window: TimelineWindow): number | null {
+  if (window.peakUtcMs === undefined) return null;
+  const top = Math.max(0, ...(window.rate?.samples ?? []).map((sample) => sample.value));
+  const at = rateAt(window, window.peakUtcMs);
+  if (top === 0 || at === null) return null;
+  return Math.max(0, Math.min(100, (at / top) * 100));
+}
+
+/** The time a click lands on inside a window, from how far along its band (0–1) the click was. */
+export function windowTimeAtFraction(window: TimelineWindow, fraction: number): number {
+  const clamped = Math.max(0, Math.min(1, fraction));
+  return Math.round(window.startUtcMs + (window.endUtcMs - window.startUtcMs) * clamped);
+}
+
 export function formatWindowRate(value: number, unit: string): string {
   return `${Number(value.toPrecision(3)).toLocaleString("en-US")} ${unit}`;
 }

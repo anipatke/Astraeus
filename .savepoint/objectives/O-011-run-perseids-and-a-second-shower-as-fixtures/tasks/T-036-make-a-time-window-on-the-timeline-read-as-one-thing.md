@@ -2,13 +2,22 @@
 id: T-036
 title: Make a time window on the timeline read as one thing
 objective: O-011
-status: planned
+status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation:
+    required: true
+    accepted_check: ""
 planned_by: {role: planner, session: o011-plan-2026-10-11}
 lane: timeline-window
 planned_reads: [src/shell/TimelineBar.tsx, src/shell/timelineModel.ts, src/shell/style.css, src/shell/infoModel.ts, src/synthetic/syntheticDefinition.ts, tests/timeline.test.ts, tools/validate/browser-synthetic.mjs, tools/validate/browser-shell.mjs, tools/validate/browser-spike03.mjs]
 planned_writes: [src/shell/TimelineBar.tsx, src/shell/timelineModel.ts, src/shell/style.css, tests/timeline.test.ts, tools/validate/browser-synthetic.mjs]
+check_waiver:
+    task: T-036
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T07:33:31Z"
 ---
 
 # Make a time window on the timeline read as one thing
@@ -69,7 +78,29 @@ Focused `tests/timeline.test.ts` during iteration. Handoff runs the configured g
 
 ## Technical Evidence
 
-Pending execution.
+### Choice (plan step 2)
+Window strip above the slider, as one block: a faint tinted rectangle for the window, the rate curve filled as an area rising out of its bottom baseline, the peak diamond on the curve, and the window's name inside. Everything sits on the same side of the slider (strip bottom is above the slider top), curve scaled to the window's own peak, 44 px strip on desktop and 56 px on phone (was an 11 px-offset 22 px track). A click on the band seeks to the clicked point and opens the window details (title says so); the peak button seeks to the peak. Info-panel reserved space is raised only when a window strip exists (`:has(.timeline-windows)`), so Apollo is unchanged.
+
+### Files
+Read: the Context Files (Objective, I-019, TimelineBar.tsx, timelineModel.ts, style.css, tests/timeline.test.ts, tools/validate/browser-synthetic.mjs). Not read: infoModel.ts, syntheticDefinition.ts, browser-shell.mjs and browser-spike03.mjs were only run, not opened. Extra reads: none.
+Changed: src/shell/TimelineBar.tsx, src/shell/timelineModel.ts (new `windowAreaPath`, `windowPeakHeightPercent`, `windowTimeAtFraction`; `windowCurvePath`, `rateAt`, contract unchanged), src/shell/style.css, tests/timeline.test.ts, tools/validate/browser-synthetic.mjs.
+
+### Per-criterion outcome
+1. Met: browser-synthetic asserts strip above slider, curve inside strip, peak inside band, curve height >= 30 px (desktop and mobile); screenshots `docs/evidence/o011-t036-2026-10-11-final/synthetic/synthetic-window-{desktop,mobile}.png`. Unit tests for area path, peak height, click time.
+2. Met: asserts band height and peak width >= 28 px desktop, >= 44 px phone; band click at 25% seeks to ~25% along the window (not the start) and opens details.
+3. Met: browser-synthetic asserts on the default Apollo page: no `.timeline-windows`, no `.timeline-window`, scrubber height < 50 px. browser-shell and browser-spike03 (Apollo) pass with zero errors.
+4. Met with a note below. Prior scenario mapping in browser-synthetic: band exists -> kept; "one curve path" -> `.timeline-window-line` count 1 plus `.timeline-window-area` count 1; peak marker -> kept; stops, Inside line, source wording, rate readout, outside-window text -> unchanged assertions (all still pass). New: linked geometry, touch size, click behaviour, Apollo no strip.
+5. Met: typecheck clean; tests 17 files, 307 passed (was 303 + 4 new); build succeeds (existing chunk-size warning only).
+6. Pending the owner's visual judgement (desktop and phone) against I-019 Proof Needed; I-019 stays open.
+
+### Commands (final run 2026-10-11)
+`npm run typecheck`; `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml`; `npm run build`; `npx vite --port 5199`; with `PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js` and `ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-t036-2026-10-11-final/<script>`: `node tools/validate/browser-{synthetic,synthetic-ring,shell,spike02,spike03}.mjs`, all `errors: []`. An earlier pass is in `docs/evidence/o011-t036-2026-10-11/` (before the panel-space fix and a browser-script reorder).
+
+### Limitations
+- `browser-anchor-labels.mjs` has a fixed output folder (`docs/evidence/regression-spike01-02/anchor-labels/`); running it overwrote that historical evidence, which I restored with git checkout. It passed with zero errors, but no fresh evidence folder exists for it. Not run again; owner decision needed on whether it should take an output directory.
+- On phone, the open info panel now ends just above the transport buttons; judged by screenshot only.
+- Owner visual judgement not yet recorded. Headless Chromium only.
+
 
 ## Drift Notes
 
