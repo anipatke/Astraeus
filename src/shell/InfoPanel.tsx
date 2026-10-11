@@ -36,6 +36,11 @@ export function InfoPanel({ view, metrics, onClose }: Props) {
       {view.subtitle !== undefined && <p className="info-panel-subtitle">{view.subtitle}</p>}
       {view.provenance !== null && <ProvenanceBadge key={targetKey} provenance={view.provenance} />}
       {view.description !== undefined && <p className="info-panel-description">{view.description}</p>}
+      {view.facts !== undefined && (
+        <dl className="info-panel-facts">
+          {view.facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+        </dl>
+      )}
       {metrics.length > 0 && (
         <div className="info-panel-metrics">
           {metrics.map((metric) => <MetricVisual key={metric.id} metric={metric} />)}

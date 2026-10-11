@@ -2,13 +2,22 @@
 id: T-034
 title: Draw windows on the timeline and let viewers jump to them
 objective: O-010
-status: planned
+status: done
 depends_on: [{task: T-032, requires: clear}]
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: o010-plan-2026-10-11}
 lane: core-windows
 planned_reads: [src/core/timeWindow.ts, src/core/events.ts, src/shell/experience.ts, src/shell/timelineModel.ts, src/shell/TimelineBar.tsx, src/shell/AstraeusShell.tsx, src/shell/infoModel.ts, src/shell/InfoPanel.tsx, src/shell/ProvenanceBadge.tsx, src/app/style.css, tests/timeline.test.ts, tests/infoProvenance.test.ts, tools/validate/browser-shell.mjs, tools/validate/browser-spike03.mjs]
 planned_writes: [src/shell/experience.ts, src/shell/timelineModel.ts, src/shell/TimelineBar.tsx, src/shell/AstraeusShell.tsx, src/shell/infoModel.ts, src/shell/InfoPanel.tsx, src/app/style.css, tests/timeline.test.ts, tests/infoProvenance.test.ts]
+check_waiver:
+    task: T-034
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T05:01:09Z"
 ---
 
 # Draw windows on the timeline and let viewers jump to them
@@ -69,8 +78,24 @@ Focused `tests/timeline.test.ts` and `tests/infoProvenance.test.ts` during itera
 
 ## Technical Evidence
 
-Pending execution.
+### Executor evidence (2026-10-11)
+
+**Files read:** the Context Files only (Objective, `timeWindow.ts`, `experience.ts`, `timelineModel.ts`, `TimelineBar.tsx`, `AstraeusShell.tsx`, `infoModel.ts`, `InfoPanel.tsx`, `ProvenanceBadge.tsx`, tests, both browser scripts). Extra reads: `src/shell/style.css` (the plan names `src/app/style.css`, which does not exist; the shell styles live in `src/shell/style.css`, so that file was read and changed instead); `src/core/provenance.ts` (provenance shape for tests).
+
+**Files changed:** `src/shell/experience.ts`, `timelineModel.ts`, `TimelineBar.tsx`, `AstraeusShell.tsx`, `infoModel.ts`, `InfoPanel.tsx`, `style.css`; `tests/timeline.test.ts`, `tests/infoProvenance.test.ts`.
+
+**Per criterion:**
+1. Model: met. `windowPositionPercent`, `windowCurvePath` (normalised to the window's own max, drawn from samples only), `windowContextAt` (uses `rateAt`), `navigationStops` merging events with window start/peak/end. Tests in `tests/timeline.test.ts` ("timeline windows") cover inside/outside, boundaries, overlap, no rate/peak, coincident event and window times.
+2. Presentation: met in code only. Band (button with accessible name), faint curve, peak marker (seeks and opens details), "Inside: label — rate" context button (rate omitted when none), Previous/Next labelled "Previous/Next: <label> opens|peaks|closes". Apollo has no windows, so bands/curve/peak were never rendered in a browser; legibility and overlap at mobile/desktop widths is unverified until the integration Task (T-035) mounts a made-up window.
+3. Details: met. `infoView(experience, {kind:"window"}, timeUtcMs)` shows label, start, end, peak, rate now; provenance from `provenanceAt`, falling back to `eventProvenance`. Shell passes the clock time, so it updates as the clock crosses a boundary. Tests in `tests/infoProvenance.test.ts` ("window information") show the change at the 40 boundary and the fallback.
+4. Unchanged without windows: met. All existing timeline and Apollo info cases pass unmodified (e.g. `timeline event context`, `experience timeline data`); new test "behaves exactly as before without windows" compares `navigationStops` with `eventNavigationTargets` including tied times; button names stay "Previous event"/"Next event" without windows. Browser: `browser-shell.mjs` and `browser-spike03.mjs` run 2026-10-11T04:59Z against `npx vite --port 5199` with `PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js`; spike03 wrote to `docs/evidence/o010-t034-2026-10-11/browser-spike03/` (`ASTRAEUS_EVIDENCE_DIR`); both printed `"errors": []`. browser-shell wrote nothing to the run directory (stdout only).
+5. Name check: met (`generic shell boundary` test now also forbids meteor/shower/perseid in `src/shell/`). Gates: `npm run typecheck` pass; `npm run build` pass (existing chunk-size warning only); `npm test` 17 files, 289 tests pass.
+
+**Limitations:** no browser render of a window (see 2). Previous/Next to a window stop follows an open window panel but does not open one, matching events. Planned path `src/app/style.css` was wrong (see extra reads).
+
 
 ## Drift Notes
 
 Record architecture deltas here for reconciliation in the integration Task.
+
+- (Deferred to T-035) Shell gains optional `ExperienceConfig.windows`, a `window` info target that takes the clock time (`infoView(..., timeUtcMs)`), and merged navigation stops in `timelineModel`. Design.md shell/interface sections need these reflected or marked non-architectural.

@@ -5,6 +5,30 @@ import { apollo11Definition } from "../src/mission/apollo11Definition";
 
 const appSources = import.meta.glob<string>("../src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
 
+const genericWindowFiles = [
+  "../src/core/timeWindow.ts",
+  "../src/shell/timelineModel.ts",
+  "../src/shell/TimelineBar.tsx",
+  "../src/shell/infoModel.ts",
+  "../src/shell/InfoPanel.tsx",
+  "../src/shell/MetricVisual.tsx",
+  "../src/shell/metrics.ts",
+  "../src/shell/experience.ts",
+  "../src/shell/AstraeusShell.tsx",
+  "../src/shell/style.css",
+];
+const windowSources = import.meta.glob<string>(
+  ["../src/core/timeWindow.ts", "../src/shell/*.{ts,tsx,css}"],
+  { query: "?raw", import: "default", eager: true },
+);
+
+describe("window files stay generic", () => {
+  it.each(genericWindowFiles)("%s is covered and has no meteor, shower or Perseids naming", (path) => {
+    expect(windowSources[path]).toBeDefined();
+    expect(windowSources[path]).not.toMatch(/meteor|shower|perseid/i);
+  });
+});
+
 describe("experience plug-in contract", () => {
   it("keeps generic src/app code free of src/mission and src/synthetic imports", () => {
     const offenders = Object.entries(appSources)

@@ -1,0 +1,172 @@
+import { describe, expect, it } from "vitest";
+import { createWindows, provenanceAt, rateAt, type TimelineWindow } from "/home/user/code/Astraeus/src/core/timeWindow";
+import { navigationStops, windowContextAt, windowCurvePath, windowPositionPercent, eventNavigationTargets } from "/home/user/code/Astraeus/src/shell/timelineModel";
+import { infoView } from "/home/user/code/Astraeus/src/shell/infoModel";
+import { rateScale, metricNotes, type RateMetric } from "/home/user/code/Astraeus/src/shell/metrics";
+import { createEvents } from "/home/user/code/Astraeus/src/core/events";
+
+const P = (n: string, t: "observed" | "illustrative" = "illustrative") => ({ sourceType: t, sources: ["probe"], accuracy: n, notes: n });
+const base: TimelineWindow = { id: "w", label: "W", startUtcMs: 1000, endUtcMs: 2000 };
+const row = (name: string, fn: () => unknown) => {
+  try { return [name, "ok", JSON.stringify(fn())]; } catch (e) { return [name, "throws", `${(e as Error).name}: ${(e as Error).message}`]; }
+};
+
+describe("O-010 independent probe matrix", () => {
+  it("createWindows input-shape matrix", () => {
+    const cases: [string, () => unknown][] = [
+      ["normal", () => createWindows([base]).length],
+      ["empty list", () => createWindows([]).length],
+      ["non-integer start", () => createWindows([{ ...base, startUtcMs: 1000.5 }])],
+      ["NaN end", () => createWindows([{ ...base, endUtcMs: NaN }])],
+      ["Infinity end", () => createWindows([{ ...base, endUtcMs: Infinity }])],
+      ["end == start", () => createWindows([{ ...base, endUtcMs: 1000 }])],
+      ["end < start", () => createWindows([{ ...base, endUtcMs: 999 }])],
+      ["empty id", () => createWindows([{ ...base, id: "" }])],
+      ["duplicate id", () => createWindows([base, { ...base }])],
+      ["empty label", () => createWindows([{ ...base, label: "" }]).length],
+      ["peak at start", () => createWindows([{ ...base, peakUtcMs: 1000 }]).length],
+      ["peak at end", () => createWindows([{ ...base, peakUtcMs: 2000 }]).length],
+      ["peak below", () => createWindows([{ ...base, peakUtcMs: 999 }])],
+      ["peak above", () => createWindows([{ ...base, peakUtcMs: 2001 }])],
+      ["peak NaN", () => createWindows([{ ...base, peakUtcMs: NaN }])],
+      ["sample outside", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 2001, value: 1 }] } }])],
+      ["samples unsorted", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: 1 }, { timeUtcMs: 1200, value: 1 }] } }])],
+      ["samples duplicate time", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: 1 }, { timeUtcMs: 1500, value: 2 }] } }])],
+      ["negative value", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: -1 }] } }])],
+      ["NaN value", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: NaN }] } }])],
+      ["-0 value", () => createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: -0 }] } }]).length],
+      ["empty unit", () => createWindows([{ ...base, rate: { unit: "", samples: [] } }])],
+      ["empty samples", () => createWindows([{ ...base, rate: { unit: "u", samples: [] } }]).length],
+      ["span outside", () => createWindows([{ ...base, provenance: [{ startUtcMs: 900, endUtcMs: 1500, provenance: P("a") }] }])],
+      ["span zero length", () => createWindows([{ ...base, provenance: [{ startUtcMs: 1500, endUtcMs: 1500, provenance: P("a") }] }])],
+      ["spans overlap", () => createWindows([{ ...base, provenance: [{ startUtcMs: 1000, endUtcMs: 1600, provenance: P("a") }, { startUtcMs: 1500, endUtcMs: 2000, provenance: P("b") }] }])],
+      ["spans unsorted", () => createWindows([{ ...base, provenance: [{ startUtcMs: 1500, endUtcMs: 2000, provenance: P("b") }, { startUtcMs: 1000, endUtcMs: 1500, provenance: P("a") }] }])],
+      ["span bad provenance", () => createWindows([{ ...base, provenance: [{ startUtcMs: 1000, endUtcMs: 1500, provenance: { sourceType: "bogus" } as never }] }])],
+      ["spans with gap", () => createWindows([{ ...base, provenance: [{ startUtcMs: 1000, endUtcMs: 1200, provenance: P("a") }, { startUtcMs: 1500, endUtcMs: 2000, provenance: P("b") }] }]).length],
+      ["sort by start, tie stable", () => createWindows([{ ...base, id: "b", startUtcMs: 1500 }, { ...base, id: "a" }, { ...base, id: "c" }]).map((w) => w.id)],
+    ];
+    const results = cases.map(([n, f]) => row(n, f));
+    console.table(results);
+    const throwsExpected = new Set(["non-integer start", "NaN end", "Infinity end", "end == start", "end < start", "empty id", "duplicate id", "peak below", "peak above", "peak NaN", "sample outside", "samples unsorted", "samples duplicate time", "negative value", "NaN value", "empty unit", "span outside", "span zero length", "spans overlap", "spans unsorted", "span bad provenance"]);
+    for (const [n, status] of results) expect(`${n}:${status}`).toBe(`${n}:${throwsExpected.has(n as string) ? "throws" : "ok"}`);
+  });
+
+  it("frozen copies and mutation after validation", () => {
+    const samples = [{ timeUtcMs: 1000, value: 0 }, { timeUtcMs: 2000, value: 10 }];
+    const input = { ...base, rate: { unit: "u", samples } };
+    const [w] = createWindows([input]);
+    samples[1].value = 999;
+    expect(rateAt(w, 2000)).toBe(10);
+    expect(Object.isFrozen(w) && Object.isFrozen(w.rate) && Object.isFrozen(w.rate!.samples) && Object.isFrozen(w.rate!.samples[0])).toBe(true);
+  });
+
+  it("rateAt against an independent oracle", () => {
+    const [w] = createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1100, value: 0 }, { timeUtcMs: 1300, value: 30 }, { timeUtcMs: 1700, value: 10 }, { timeUtcMs: 1900, value: 10 }] } }]);
+    const oracle = (t: number) => {
+      const pts = [[1100, 0], [1300, 30], [1700, 10], [1900, 10]];
+      if (t < 1100 || t > 1900) return null;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const [t0, v0] = pts[i], [t1, v1] = pts[i + 1];
+        if (t >= t0 && t <= t1) return v0 + (v1 - v0) * (t - t0) / (t1 - t0);
+      }
+      return null;
+    };
+    for (let t = 900; t <= 2100; t += 7) {
+      const got = rateAt(w, t), want = oracle(t);
+      if (want === null) expect(got).toBeNull(); else expect(got).toBeCloseTo(want, 9);
+    }
+    expect(rateAt(w, 1099)).toBeNull();
+    expect(rateAt(w, 1901)).toBeNull();
+    const [one] = createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1500, value: 5 }] } }]);
+    expect([rateAt(one, 1500), rateAt(one, 1499), rateAt(one, 1501)]).toEqual([5, null, null]);
+    expect(rateAt(createWindows([base])[0], 1500)).toBeNull();
+  });
+
+  it("provenanceAt boundaries, gaps and differing source types", () => {
+    const [w] = createWindows([{ ...base, provenance: [
+      { startUtcMs: 1000, endUtcMs: 1200, provenance: P("obs", "observed") },
+      { startUtcMs: 1200, endUtcMs: 1400, provenance: P("ill") },
+      { startUtcMs: 1600, endUtcMs: 2000, provenance: P("late") },
+    ] }]);
+    const n = (t: number) => provenanceAt(w, t)?.accuracy ?? null;
+    expect([n(999), n(1000), n(1199), n(1200), n(1399), n(1400), n(1500), n(1600), n(2000), n(2001)])
+      .toEqual([null, "obs", "obs", "ill", "ill", null, null, "late", "late", null]);
+    expect(provenanceAt(w, 1100)?.sourceType).toBe("observed");
+    expect(provenanceAt(w, 1300)?.sourceType).toBe("illustrative");
+  });
+
+  it("navigation stops: merge, de-dup, ties, overlap, strict before/after", () => {
+    const events = createEvents([{ id: "e1", label: "E1", timeUtcMs: 1500 }, { id: "e2", label: "E2", timeUtcMs: 3000 }]);
+    const ws = createWindows([
+      { ...base, peakUtcMs: 1500 },
+      { id: "v", label: "V", startUtcMs: 1200, endUtcMs: 2500, peakUtcMs: 1200 },
+    ]);
+    const walk: string[] = [];
+    let t = 0;
+    for (let i = 0; i < 20; i++) {
+      const { next } = navigationStops(events, ws, t);
+      if (next === null) break;
+      expect(next.timeUtcMs).toBeGreaterThan(t);
+      walk.push(`${next.timeUtcMs}:${next.label}`);
+      t = next.timeUtcMs;
+    }
+    const back: string[] = [];
+    for (let i = 0; i < 20; i++) {
+      const { previous } = navigationStops(events, ws, t);
+      if (previous === null) break;
+      expect(previous.timeUtcMs).toBeLessThan(t);
+      back.push(`${previous.timeUtcMs}`);
+      t = previous.timeUtcMs;
+    }
+    console.log("forward", walk, "backward", back);
+    expect(walk.map((s) => Number(s.split(":")[0]))).toEqual([1000, 1200, 1500, 2000, 2500, 3000]);
+    expect(walk[2]).toBe("1500:E1");
+    expect(back.map(Number)).toEqual([2500, 2000, 1500, 1200, 1000]);
+    for (const at of [0, 1500, 2999, 3000, 4000]) {
+      const a = navigationStops(events, [], at), b = eventNavigationTargets(events, at);
+      expect([a.previous?.event ?? null, a.next?.event ?? null]).toEqual([b.previous, b.next]);
+    }
+  });
+
+  it("window context and positions", () => {
+    const [w] = createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1200, value: 4 }, { timeUtcMs: 1800, value: 8 }] } }]);
+    expect(windowContextAt([w], 999)).toEqual([]);
+    expect(windowContextAt([w], 1000).map((c) => c.rate)).toEqual([null]);
+    expect(windowContextAt([w], 1500).map((c) => c.rate)).toEqual([6]);
+    expect(windowContextAt([w], 2000).length).toBe(1);
+    expect(windowContextAt([w], 2001)).toEqual([]);
+    expect(windowPositionPercent(w, { startUtcMs: 1500, endUtcMs: 2500 })).toEqual({ startPercent: 0, endPercent: 50 });
+    expect(windowPositionPercent(w, { startUtcMs: 3000, endUtcMs: 4000 })).toEqual({ startPercent: 0, endPercent: 0 });
+    expect(windowCurvePath(w, { startUtcMs: 0, endUtcMs: 4000 })).toBe("M30 50 L45 0");
+    expect(windowCurvePath(w, { startUtcMs: 1500, endUtcMs: 4000 })).toBeNull();
+    const [z] = createWindows([{ ...base, rate: { unit: "u", samples: [{ timeUtcMs: 1200, value: 0 }, { timeUtcMs: 1800, value: 0 }] } }]);
+    expect(windowCurvePath(z, { startUtcMs: 0, endUtcMs: 4000 })).toBeNull();
+  });
+
+  it("info view: provenance follows the clock and falls back", () => {
+    const [w] = createWindows([{ ...base, peakUtcMs: 1500, rate: { unit: "u", samples: [{ timeUtcMs: 1000, value: 0 }, { timeUtcMs: 2000, value: 10 }] }, provenance: [{ startUtcMs: 1000, endUtcMs: 1500, provenance: P("first") }, { startUtcMs: 1500, endUtcMs: 1800, provenance: P("second") }] }]);
+    const fallback = P("fallback", "observed");
+    const exp = { objects: [], cameraPresets: [], events: [], windows: [w], window: { startUtcMs: 0, endUtcMs: 4000 }, rates: [], eventProvenance: fallback } as never;
+    const acc = (t?: number) => infoView(exp, { kind: "window", id: "w" }, t)?.provenance?.accuracy;
+    expect([acc(1499), acc(1500), acc(1900), acc(undefined)]).toEqual(["first", "second", "fallback", "fallback"]);
+    const facts = infoView(exp, { kind: "window", id: "w" }, 1250)!.facts!;
+    expect(facts.map((f) => f.label)).toEqual(["Starts", "Ends", "Peak", "Rate now"]);
+    expect(facts[3].value).toBe("2.5 u");
+    expect(infoView(exp, { kind: "window", id: "missing" }, 1250)).toBeNull();
+    const noProv = { ...(exp as object), eventProvenance: undefined } as never;
+    expect(infoView(noProv, { kind: "window", id: "w" }, 1900)!.provenance).toBeNull();
+  });
+
+  it("rate metric scale and notes", () => {
+    const m = (over: Partial<RateMetric>): RateMetric => ({ kind: "rate", id: "r", label: "R", value: 5, unit: "per hour", digits: 0, ...over } as RateMetric);
+    expect(rateScale(m({}))).toBeNull();
+    expect(rateScale(m({ value: null, peak: { label: "Peak", value: 10 } }))).toBeNull();
+    expect(rateScale(m({ peak: { label: "Peak", value: 10 } }))?.valueFraction).toBe(0.5);
+    expect(rateScale(m({ value: 20, peak: { label: "Peak", value: 10 } }))?.valueFraction).toBe(1);
+    expect(rateScale(m({ value: 0, peak: { label: "Peak", value: 0 } }))).toBeNull();
+    expect(rateScale(m({ range: { min: 0, max: 0, basis: "b" } }))).toBeNull();
+    expect(rateScale(m({ value: 50, range: { min: 0, max: 20, basis: "b" } }))?.valueFraction).toBe(1);
+    expect(metricNotes(m({ value: 50, range: { min: 0, max: 20, basis: "b" } }))).toEqual(["0–20 per hour · value outside this range", "b"]);
+    expect(metricNotes(m({ value: null, range: { min: 0, max: 20, basis: "b" } }))).toEqual([]);
+  });
+});

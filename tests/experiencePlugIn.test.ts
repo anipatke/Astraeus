@@ -8,6 +8,9 @@ import { trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienc
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { apollo11Definition } from "../src/mission/apollo11Definition";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { provenanceAt, rateAt } from "../src/core/timeWindow";
+import { infoView } from "../src/shell/infoModel";
+import type { RateMetric } from "../src/shell/metrics";
 
 const sources = import.meta.glob<string>(
   ["../src/core/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx,css}", "../src/app/*.{ts,tsx,css}"],
@@ -73,6 +76,62 @@ describe("the synthetic experience", () => {
       expect(event.timeUtcMs).toBeGreaterThanOrEqual(window.startUtcMs);
       expect(event.timeUtcMs).toBeLessThanOrEqual(window.endUtcMs);
     }
+  });
+});
+
+describe("the synthetic window", () => {
+  const { windows = [], window: bounds } = syntheticDefinition.experience;
+  const [contact] = windows;
+  const minutes = (value: number) => contact.startUtcMs + value * 60_000;
+  const metricsAt = (timeUtcMs: number) => {
+    const adapter = createOrbAstronomyAdapter();
+    const clock = new SimulationClock(syntheticDefinition.clock.startUtcMs);
+    return syntheticDefinition.createMetrics({ clock, adapter, moon: new MoonTrajectory(adapter) })("survey-marker", timeUtcMs);
+  };
+
+  it("mounts one window through ExperienceConfig.windows, inside the timeline", () => {
+    expect(windows).toHaveLength(1);
+    expect(contact.startUtcMs).toBeGreaterThanOrEqual(bounds.startUtcMs);
+    expect(contact.endUtcMs).toBeLessThanOrEqual(bounds.endUtcMs);
+    expect(contact.peakUtcMs).toBeDefined();
+    expect(shellMarkup(syntheticDefinition)).toContain("Contact window");
+  });
+
+  it("computes its rate readout from the same window samples as rateAt", () => {
+    for (const offset of [0, 17, 45, 90, 105, 135, 150, 179, 180]) {
+      const time = minutes(offset);
+      const rate = metricsAt(time).find((metric): metric is RateMetric => metric.kind === "rate");
+      expect(rate?.value).toBe(rateAt(contact, time));
+      expect(rate?.unit).toBe(contact.rate?.unit);
+    }
+    expect(rateAt(contact, contact.peakUtcMs ?? 0)).toBe(48);
+  });
+
+  it("shows the rate as unavailable outside the window", () => {
+    for (const time of [bounds.startUtcMs, contact.startUtcMs - 60_000, contact.endUtcMs + 60_000, bounds.endUtcMs]) {
+      const rate = metricsAt(time).find((metric): metric is RateMetric => metric.kind === "rate");
+      expect(rate?.value).toBeNull();
+      expect(rate?.unavailable).toBeTruthy();
+    }
+  });
+
+  it("changes its source wording across the span boundary, never labelled measured", () => {
+    const before = provenanceAt(contact, minutes(60));
+    const after = provenanceAt(contact, minutes(150));
+    expect(before?.sourceType).toBe("illustrative");
+    expect(after?.sourceType).toBe("illustrative");
+    expect(before?.accuracy).not.toBe(after?.accuracy);
+    expect(before?.notes).not.toBe(after?.notes);
+    const first = infoView(syntheticDefinition.experience, { kind: "window", id: contact.id }, minutes(60));
+    const second = infoView(syntheticDefinition.experience, { kind: "window", id: contact.id }, minutes(150));
+    expect(first?.provenance?.notes).not.toBe(second?.provenance?.notes);
+    expect(first?.provenance?.status).not.toMatch(/measured/i);
+  });
+
+  it("leaves Apollo without windows and with its events unchanged", () => {
+    expect(apollo11Definition.experience.windows).toBeUndefined();
+    expect(apollo11Definition.experience.events.length).toBeGreaterThan(0);
+    expect(syntheticDefinition.experience.events.map((event) => event.id)).toEqual(["marker-start", "marker-quarter"]);
   });
 });
 

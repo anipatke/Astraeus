@@ -1,5 +1,6 @@
 import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
+import type { TimelineWindow } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
 
 export interface ExperienceObject {
@@ -35,6 +36,8 @@ export interface ExperienceConfig {
   readonly objects: readonly ExperienceObject[];
   readonly cameraPresets: readonly ExperienceCameraPreset[];
   readonly events: readonly TimelineEvent[];
+  /** Periods with an optional rate and peak, drawn on the timeline. Omit for an experience of instants only. */
+  readonly windows?: readonly TimelineWindow[];
   readonly window: TimeBounds;
   readonly rates: readonly number[];
   /** Where the event times come from, shown with every event. */

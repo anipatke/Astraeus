@@ -2,12 +2,23 @@
 id: T-035
 title: Show a made-up window in the test experience and check nothing else broke
 objective: O-010
-status: planned
+status: done
 depends_on: [{task: T-032, requires: clear}, {task: T-033, requires: clear}, {task: T-034, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+    required: true
+    accepted_check: C-014
+    scope: [T-035/DW6]
+    accepted_by: {role: owner, session: owner-chat-o010-look-20261011}
 planned_by: {role: planner, session: o010-plan-2026-10-11}
 planned_reads: [src/synthetic/syntheticDefinition.ts, src/app/metricReadouts.ts, src/core/timeWindow.ts, src/shell/metrics.ts, src/shell/experience.ts, tests/experiencePlugIn.test.ts, tests/experienceDefinition.test.ts, tools/validate/browser-synthetic.mjs, tools/validate/browser-shell.mjs, tools/validate/browser-spike03.mjs, tools/validate/browser-spike02.mjs, tools/validate/browser-anchor-labels.mjs, tools/validate/browser-synthetic-ring.mjs, .savepoint/Design.md]
 planned_writes: [src/synthetic/syntheticDefinition.ts, tests/experiencePlugIn.test.ts, tests/experienceDefinition.test.ts, tools/validate/browser-synthetic.mjs, .savepoint/Design.md]
+check_waiver:
+    task: T-035
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T05:14:15Z"
 ---
 
 # Show a made-up window in the test experience and check nothing else broke
@@ -68,7 +79,25 @@ Focused tests during iteration; handoff runs the configured build and test gates
 
 ## Technical Evidence
 
-Pending execution.
+Executor handoff, 2026-10-11 (ready for the owner's User Check; not a Check and not clearance).
+
+**Per criterion**
+1. Made-up window: met. `src/synthetic/syntheticDefinition.ts` declares "Contact window" (30–210 min), "passes per hour" samples peaking at 48 at minute 135, two `illustrative` provenance spans split at the peak with differing accuracy and notes, and a contact-rate metric from `rateAt` (null with "outside the contact window" outside it). `synthetic-bare` unchanged and its browser check still passes.
+2. Contract tests: met. `tests/experiencePlugIn.test.ts` (new "the synthetic window" block: mounts through `ExperienceConfig.windows`, rate metric equals `rateAt` at nine sampled times, unavailable outside, source wording differs across the boundary and is never "measured", Apollo has no windows and the synthetic events are unchanged). `tests/experienceDefinition.test.ts` names ten generic files (timeWindow.ts, timelineModel.ts, TimelineBar.tsx, infoModel.ts, InfoPanel.tsx, MetricVisual.tsx, metrics.ts, experience.ts, AstraeusShell.tsx, style.css) and finds no meteor, shower or Perseids naming.
+3. Browser: met. `tools/validate/browser-synthetic.mjs` now checks, at 1280×800 and 390×780: one band with width, rate curve, peak marker, no Inside line before the window, Next stops that include "opens", "peaks" and "closes", the Inside line with "48 passes per hour" at the peak, first-half and second-half source wording, nothing labelled measured, the Contact rate readout and its unavailable text outside the window. All six scripts pass with zero console errors in `docs/evidence/o010-t035-2026-10-11/` (run at 2026-10-11T05:04:29Z UTC, Chromium headless, `PLAYWRIGHT_CORE` as in project rules): `node tools/validate/browser-synthetic.mjs` (top of the folder), `browser-shell`, `browser-spike03`, `browser-spike02`, `browser-anchor-labels`, `browser-synthetic-ring` (a log per script). No older script was invalidated, so no scenario mapping was needed. The anchor-labels script writes to a fixed historical folder; it overwrote spike evidence, so I copied the new output to `anchor-labels-output/` and restored the originals with git. That script should take an output-directory setting (not changed here).
+4. Gates: met. `npm run typecheck` clean; `npm run build` succeeds (existing large-chunk warning only); `npm test` 304 tests in 17 files pass.
+5. Design.md: met. New "Time windows and rates (O-010)" section, plus the Current Technical State line; each T-032, T-033 and T-034 drift note accounted for as reflected or non-architectural with a reason.
+6. Owner visual judgement: pending (User Check).
+
+**Finding (generic change, recorded per Boundaries):** `.timeline-windows` in `src/shell/style.css` had `z-index: 0`, under the seek slider, so a mouse click on the band or peak hit the slider (Playwright reported the slider intercepting). Raised to `z-index: 2`, matching the event markers. Not a REPLAN case: one-line stacking fix, and the window mounted with no other generic change.
+
+**Files read:** the Context Files, plus `src/shell/TimelineBar.tsx`, `src/shell/timelineModel.ts`, `src/shell/infoModel.ts`, `src/shell/InfoPanel.tsx`, `src/shell/ProvenanceBadge.tsx` and `src/shell/style.css` (extra reads, to write the browser assertions and diagnose the click failure). **Files changed:** `src/synthetic/syntheticDefinition.ts`, `tests/experiencePlugIn.test.ts`, `tests/experienceDefinition.test.ts`, `tools/validate/browser-synthetic.mjs`, `src/shell/style.css`, `.savepoint/Design.md`, this Task, new `docs/evidence/o010-t035-2026-10-11/`.
+
+**Limitations:** headless screenshots exist (`synthetic-window-desktop.png`, `synthetic-window-mobile.png`) but I have not judged them visually; the owner look is pending. Browser scripts need the dev server on port 5199. No Code Health snapshot was run (Task, not Full Check).
+
+### Owner visual judgement (2026-10-11T05:27:04Z)
+
+Recorded on the owner's direct instruction after C-014 (CLEAR). The owner looked at the made-up window and accepted that it works, with this judgement: "Window works, but the presentation is confusing. The bar and the curve read as two separate things split by the slider, and the curve is too flat to read as a rate." The owner saw the band (below the slider), the curve (above it) and the peak marker, and could not tell at first what they meant. The presentation follow-up is I-019. What was seen: the desktop view of the made-up window (the owner did not say whether in the C-014 screenshot or the running app). The owner did not separately state judgements on the phone size, on stepping through opens/peaks/closes, on the source wording change, or on Apollo's timeline.
 
 ## Drift Notes
 

@@ -2,13 +2,22 @@
 id: T-032
 title: Let the engine describe windows of time with a rate and changing sources
 objective: O-010
-status: planned
+status: done
 depends_on: []
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: o010-plan-2026-10-11}
 lane: core-windows
 planned_reads: [src/core/events.ts, src/core/provenance.ts, src/core/state.ts, src/core/trajectory.ts, tests/core.test.ts, tests/experienceDefinition.test.ts]
 planned_writes: [src/core/timeWindow.ts, tests/timeWindow.test.ts, tests/experienceDefinition.test.ts]
+check_waiver:
+    task: T-032
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T04:54:43Z"
 ---
 
 # Let the engine describe windows of time with a rate and changing sources
@@ -67,7 +76,21 @@ Focused `tests/timeWindow.test.ts` during iteration; handoff runs the configured
 
 ## Technical Evidence
 
-Pending execution.
+Executor evidence (2026-10-11), claims for a fresh Check to verify.
+
+Per criterion:
+1. `createWindows` returns frozen copies (nested rate and spans too), sorts by start with ties allowed, allows gaps, and rejects every listed case with a named error; each has a test in `tests/timeWindow.test.ts` ("createWindows" block).
+2. `rateAt`: exact at sample times, linear between, `null` outside the window, before the first or after the last sample, and with no rate or no samples. `provenanceAt`: span covering the time, shared boundary goes to the later span, `null` for gaps or no spans; the end of the last span counts as covered (my reading, tested).
+3. Contract tests use made-up windows (no-rate eclipse-like, a pass with a rate, observed-then-illustrative spans). `git status` shows no change to the files of `TimelineEvent`, `createEvents`, `State`, `Trajectory`, `Provenance` or `ScalePolicy`.
+4. The existing "generic code boundary" case ("contains no experience-specific names in core, shell or generic app code", `tests/experiencePlugIn.test.ts`) scans `src/core/` and passes with the new file; the file has no meteor/shower/Perseids naming.
+5. Gates pass.
+
+Commands run: `npx vitest run tests/timeWindow.test.ts tests/experiencePlugIn.test.ts` (30 passed); `npm run typecheck` (clean); `npm run build` (succeeds, existing chunk-size warning only); `npm test` (17 files, 274 tests passed).
+
+Files read: Objective.md, GAP audit doc, `src/core/events.ts`, `provenance.ts`, `state.ts` (only `assertUtcUnixMs`), `tests/experiencePlugIn.test.ts` (name check). Not read: `trajectory.ts`, `core.test.ts`, `experienceDefinition.test.ts` (nothing needed from them). Extra read beyond Context Files: `tests/experiencePlugIn.test.ts`, to confirm the name check covers `src/core/`.
+Files changed: `src/core/timeWindow.ts` (new), `tests/timeWindow.test.ts` (new); Task and Objective status.
+
+Limitations: no scene validation scripts run (no rendering change). Whether the end of the last span is covered is not stated in the Task; I chose inclusive.
 
 ## Drift Notes
 

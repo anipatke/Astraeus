@@ -1,7 +1,7 @@
 ---
 id: O-010
 title: Show time windows and rates on the timeline
-status: planned
+status: done
 depends_on: [O-008]
 release: G-004
 lanes:

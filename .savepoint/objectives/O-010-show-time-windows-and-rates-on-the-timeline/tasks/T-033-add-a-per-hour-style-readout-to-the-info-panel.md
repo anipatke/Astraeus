@@ -2,13 +2,22 @@
 id: T-033
 title: Add a "per hour" style readout to the info panel
 objective: O-010
-status: planned
+status: done
 depends_on: []
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: o010-plan-2026-10-11}
 lane: rate-metric
 planned_reads: [src/shell/metrics.ts, src/shell/MetricVisual.tsx, tests/metricVisuals.test.ts, src/app/style.css]
 planned_writes: [src/shell/metrics.ts, src/shell/MetricVisual.tsx, tests/metricVisuals.test.ts, src/app/style.css]
+check_waiver:
+    task: T-033
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T04:56:37Z"
 ---
 
 # Add a "per hour" style readout to the info panel
@@ -66,7 +75,20 @@ Focused `tests/metricVisuals.test.ts` during iteration; handoff runs the configu
 
 ## Technical Evidence
 
-Pending execution.
+Executed 2026-10-11.
+
+**Per criterion**
+1. Met. `RateMetric` (`kind: "rate"`) renders value and unit first; `range` draws a bar with limits and basis noted (and "value outside this range" when pinned); `peak` is drawn as a marker; neither gives numeric-only; null shows `unavailable` text. Tests: "reads numbers-first…", "draws a bar against the stated limits…", "marks a peak…", "states an unavailable value…".
+2. Met. Six tests in `describe("rate metric")` use made-up rates ("passes per hour", "launches per day"). Existing-kind test "leaves every existing kind rendering as before" plus all prior cases (speed, distance, phase, progress, uncertainty, coordinates, Apollo configuration) still pass unchanged.
+3. Partly verified. No new CSS was needed: the rate readout reuses the existing `Bar` and `.metric-*` classes in `src/shell/style.css`. Legibility at mobile and desktop widths is not checked here; it is for the integration Task's browser run.
+4. Met. `grep -riE "meteor|shower|perseid" src/shell` returns nothing; the full test suite (including the name check) passes.
+5. Met. `npm run typecheck` clean; `npm run build` succeeded (only the existing chunk-size warning); `npm test`: 17 files, 280 tests passed.
+
+**Files read:** `src/shell/metrics.ts`, `src/shell/MetricVisual.tsx`, `tests/metricVisuals.test.ts` (partly), the Task and Objective. **Extra read:** `src/shell/style.css` (metric classes) — the plan named `src/app/style.css`, but metric styles live in the shell stylesheet.
+**Files changed:** `src/shell/metrics.ts`, `src/shell/MetricVisual.tsx`, `tests/metricVisuals.test.ts`. `src/app/style.css` untouched.
+
+**Limitations:** Browser validation not run (no scene change; deferred to the integration Task). The test script's junit output option was not used; plain `npm test` was run. No Task Check requested and no waiver recorded.
+
 
 ## Drift Notes
 

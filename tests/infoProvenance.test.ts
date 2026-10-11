@@ -2,6 +2,7 @@ import validationFile from "../data/apollo11/generated/validation.json";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createEvents } from "../src/core/events";
+import { createWindows } from "../src/core/timeWindow";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { createProvenance } from "../src/core/provenance";
 import { createObjectMetrics } from "../src/app/metricReadouts";
@@ -81,6 +82,56 @@ describe("provenance reachability", () => {
     expect(infoView(stream, { kind: "object", id: "comet" })?.description).toBe("Source of the stream.");
     expect(infoView(stream, { kind: "event", id: "peak" })).toMatchObject({ title: "Shower peak", provenance: null });
     expect(infoView(stream, { kind: "object", id: "missing" })).toBeNull();
+  });
+});
+
+describe("window information", () => {
+  const src = (name: string, sourceType: "observed" | "illustrative") => createProvenance({ sourceType, sources: [name], accuracy: "test", notes: "" });
+  const windowed: ExperienceConfig = {
+    objects: [],
+    cameraPresets: [],
+    events: [],
+    window: { startUtcMs: 0, endUtcMs: 100 },
+    rates: [1],
+    eventProvenance: src("event list", "observed"),
+    windows: createWindows([
+      {
+        id: "w", label: "Made-up period", startUtcMs: 10, endUtcMs: 90, peakUtcMs: 50,
+        rate: { unit: "things per hour", samples: [{ timeUtcMs: 10, value: 0 }, { timeUtcMs: 50, value: 20 }, { timeUtcMs: 90, value: 0 }] },
+        provenance: [
+          { startUtcMs: 10, endUtcMs: 40, provenance: src("first source", "observed") },
+          { startUtcMs: 40, endUtcMs: 90, provenance: src("second source", "illustrative") },
+        ],
+      },
+      { id: "bare", label: "Bare period", startUtcMs: 20, endUtcMs: 30 },
+    ]),
+  };
+  const at = (id: string, time?: number) => infoView(windowed, { kind: "window", id }, time);
+
+  it("shows label, start, end, peak and the current rate", () => {
+    const view = at("w", 30);
+    expect(view?.title).toBe("Made-up period");
+    expect(view?.facts).toEqual([
+      { label: "Starts", value: formatUtcTimestamp(10) },
+      { label: "Ends", value: formatUtcTimestamp(90) },
+      { label: "Peak", value: formatUtcTimestamp(50) },
+      { label: "Rate now", value: "10 things per hour" },
+    ]);
+    expect(at("w", 95)?.facts?.at(-1)?.value).toBe("Not available at this time");
+  });
+
+  it("changes provenance when the clock crosses a span boundary", () => {
+    expect(at("w", 39)?.provenance).toMatchObject({ status: "Observed", sources: ["first source"] });
+    expect(at("w", 40)?.provenance).toMatchObject({ status: "Illustrative", sources: ["second source"] });
+  });
+
+  it("falls back to the event provenance when no span applies, and omits rate and peak when absent", () => {
+    expect(at("w", 95)?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("w")?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("bare", 25)?.facts?.map((fact) => fact.label)).toEqual(["Starts", "Ends"]);
+    expect(at("bare", 25)?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("missing", 25)).toBeNull();
+    expect(infoView({ ...windowed, windows: undefined }, { kind: "window", id: "w" })).toBeNull();
   });
 });
 

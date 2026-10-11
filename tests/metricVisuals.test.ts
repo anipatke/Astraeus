@@ -29,12 +29,14 @@ import {
   phaseVisual,
   planViews,
   progressScale,
+  rateScale,
   relationGlyph,
   speedGauge,
   uncertaintyBand,
   type DistanceMetric,
   type Metric,
   type PhaseMetric,
+  type RateMetric,
   type SpeedMetric,
 } from "../src/shell/metrics";
 
@@ -302,5 +304,57 @@ describe("Apollo metric configuration", () => {
     expect(again).toBe(first);
     expect(clock.now()).toBe(time);
     expect(states()).toEqual(before);
+  });
+});
+
+describe("rate metric", () => {
+  const rate = (overrides: Partial<RateMetric> = {}): RateMetric => ({
+    kind: "rate", id: "r", label: "Passes", value: 40, unit: "per hour", digits: 0, ...overrides,
+  });
+
+  it("reads numbers-first and is numeric-only without a range or peak", () => {
+    const html = render(rate());
+    expect(html).toContain("<strong class=\"metric-value\">40</strong>");
+    expect(html).toContain("per hour");
+    expect(html).not.toContain("<svg");
+    expect(rateScale(rate())).toBeNull();
+  });
+
+  it("draws a bar against the stated limits and shows their basis", () => {
+    const limits = { min: 0, max: 100, basis: "busiest hour on record" };
+    expect(rateScale(rate({ range: limits }))).toMatchObject({ valueFraction: 0.4, markers: [] });
+    const html = render(rate({ range: limits }));
+    expect(html).toContain("<svg");
+    expect(html).toContain("0–100 per hour");
+    expect(html).toContain("busiest hour on record");
+    expect(render(rate({ value: 130, range: limits }))).toContain("value outside this range");
+    expect(rateScale(rate({ value: 130, range: limits }))?.valueFraction).toBe(1);
+  });
+
+  it("marks a peak, on the range or on a bar spanning value and peak", () => {
+    const peak = { label: "Last year's peak", value: 80 };
+    expect(rateScale(rate({ peak }))).toMatchObject({ span: 80, valueFraction: 0.5, markers: [{ fraction: 1 }] });
+    expect(rateScale(rate({ value: 100, peak }))?.markers[0]?.fraction).toBe(0.8);
+    expect(rateScale(rate({ peak, range: { min: 0, max: 160, basis: "b" } }))?.markers[0]?.fraction).toBe(0.5);
+    expect(render(rate({ peak }))).toContain("Last year&#x27;s peak 80 per hour");
+  });
+
+  it("states an unavailable value instead of a bar", () => {
+    const html = render(rate({ value: null, unavailable: "not observed", range: { min: 0, max: 100, basis: "b" } }));
+    expect(html).toContain("not observed");
+    expect(html).not.toContain("<svg");
+  });
+
+  it("works for any per-time count with its own wording", () => {
+    const html = render(rate({ label: "Launches", unit: "per day", digits: 1, value: 2.5 }));
+    expect(html).toContain("2.5");
+    expect(html).toContain("per day");
+    expect(html).not.toMatch(/meteor|shower|perseid/i);
+  });
+
+  it("leaves every existing kind rendering as before (speed, distance, phase, progress, uncertainty, coordinates cases above still pass)", () => {
+    expect(render(speed())).not.toContain("<svg");
+    expect(render(distance({ markers: [{ label: "M", value: 200 }] }))).toContain("<svg");
+    expect(render(phase())).toContain("25.0");
   });
 });

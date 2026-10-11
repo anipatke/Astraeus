@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
+import type { TimelineWindow } from "../core/timeWindow";
 import { TimelineBar } from "./TimelineBar";
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
@@ -52,7 +53,7 @@ export function AstraeusShell({
   );
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   /** The object panel follows the selected object; an event panel names its event. */
-  const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | null>(null);
+  const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | null>(null);
 
   useEffect(() => {
     onSelectionChange(selectedObjectId);
@@ -117,9 +118,14 @@ export function AstraeusShell({
     if (info?.kind === "event") setInfo({ kind: "event", id: event.id });
   };
 
+  const seekToWindow = (window: TimelineWindow, timeUtcMs: number) => {
+    onSeek(timeUtcMs);
+    if (info?.kind === "window") setInfo({ kind: "window", id: window.id });
+  };
+
   const view = info === null
     ? null
-    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info);
+    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, snapshot.timeUtcMs);
   const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, snapshot.timeUtcMs) : [];
 
   return (
@@ -162,6 +168,8 @@ export function AstraeusShell({
         onSeek={onSeek}
         onEventSeek={seekToEvent}
         onEventInfo={(event) => setInfo({ kind: "event", id: event.id })}
+        onWindowSeek={seekToWindow}
+        onWindowInfo={(window) => setInfo({ kind: "window", id: window.id })}
       />
     </main>
   );

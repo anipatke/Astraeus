@@ -69,6 +69,21 @@ Deferred notes from T-024 and T-025, accounted for by T-026:
 - *Optional `camera` limits not added* (T-025): same item as camera limits above.
 - *Selecting an experience*: a query parameter in the entry file; no registry. Non-architectural for now.
 
+#### Time windows and rates (O-010)
+
+A window is a labelled period that lasts, independent of any trajectory. `TimelineWindow` (`src/core/timeWindow.ts`) has an id, label, start, end, an optional peak inside it, optional rate samples with a unit label, and optional provenance spans inside it. `createWindows` validates and freezes them with named errors (start before end, peak and samples inside, sorted unique sample times, finite non-negative values, sorted non-overlapping spans, unique ids). `rateAt` is linear between samples and null outside the window, outside the samples or without a rate. `provenanceAt` returns the span covering a time (a shared boundary belongs to the later span) or null; a window without spans falls back to the experience's `eventProvenance`. `TimelineEvent`, `State`, `Trajectory`, `Provenance` and `ScalePolicy` are unchanged, and nothing in a window is derived from a State (ARCH-02).
+
+`ExperienceConfig.windows` is optional. An experience without it (Apollo) renders and navigates exactly as before. The shell draws each window on the timeline bar as a shaded band, a faint rate curve and a peak marker (`timelineModel` builds positions and the curve path). The context row adds an "Inside" line with the current rate while the clock is in a window. `navigationStops` merges event times with each window's start, peak and end for Previous/Next; where an event and a window point share a time the event is the stop. Opening a window uses a `window` info target and `infoView(..., timeUtcMs)`, so its rate and source depend on the clock and the source wording changes across a span boundary. A new shell metric kind `rate` ("N per unit time") reuses value, unit, range and context and renders through the existing Metric Visuals; an experience supplies it through `createMetrics` from the same window samples (`rateAt`), so the curve and the readout share one source.
+
+Made-up evidence (T-035): `src/synthetic/syntheticDefinition.ts` declares a "Contact window" with a rising and falling "passes per hour" rate, a peak, and two `illustrative` provenance spans whose accuracy and notes differ. Its object's metrics add a contact-rate readout (unavailable outside the window). No generic code was needed to mount it. One generic fix was needed: the window layer sat below the seek slider, so the band and peak could not be clicked; its stacking was raised to match the event markers.
+
+Drift notes from T-032, T-033 and T-034, accounted for by T-035:
+- *Window contract, `ExperienceConfig.windows`, timeline presentation, merged navigation, time-ranged provenance in the information panel and the `rate` kind* (T-032 to T-034): reflected above.
+- *`window` info target and `infoView(..., timeUtcMs)`* (T-034): reflected above.
+- *Event wins a shared time* (T-034): reflected above; the made-up peak sits at a different minute from its event so both stops show.
+- *Window layer stacking* (T-035): non-architectural; a CSS stacking fix so the band and peak are clickable.
+- *Rate bar scale* (T-033): the bar spans the stated range, or 0 to the larger of the value and the peak; non-architectural presentation detail inside the Metric Visuals.
+
 ## Boundaries
 
 G-001 covers the internal Earth–Moon spike; G-003 extends it with a reusable UI shell. Planetary Explorer is a read-only donor at `/home/user/code/planetary-explorer`.
@@ -90,5 +105,7 @@ The app now starts at True scale; Readable is an explicit viewer choice. App-to-
 The app now loads its experience through the plug-in boundary above (O-008, T-025 and T-026). The browser scripts last passed on 2026-10-11; the made-up experience adds 9 tests (182 in 12 files at T-026 handoff, before the I-015 repair).
 
 O-009 added groups of objects (above): at T-029 handoff 236 tests in 15 files pass, and all six browser scripts, including the debris ring, pass with zero console errors (`docs/evidence/o009-t029-run1/`). The owner found the ring right but its motion shaky (I-017); T-030 smoothed it by blending two fills (241 tests in 15 files, all six browser scripts clean, `docs/evidence/o009-t030-run1/`). The owner's look at the smoothed motion is pending.
+
+O-010 added time windows and rates (above): at T-035 handoff 304 tests in 17 files pass with typecheck and build clean, and all six browser scripts pass with zero console errors (`docs/evidence/o010-t035-2026-10-11/`). The made-up window is proven with made-up data only; the owner's visual judgement is recorded in the Task.
 
 Known open items: O-001 and O-002 have CLEAR Full Objective Checks (C-001, C-004); I-001 and I-006 are resolved (verified); I-008 is resolved by owner acceptance as an Apollo sample limitation, not verified as physically plausible. I-002 (A-05 override not documentary-confirmed) and I-007 (A-13 longitude, burn-arc speed spikes) are escalated to O-004. O-005 addresses I-003 through explicit provenance/uncertainty content, I-004 by stating the landing-site offset as a liberty, and I-005 by explaining current True/Readable behaviour without changing radii. Time-ranged provenance, a future Readable-scale radius treatment and the imperative `Astraeus.Scene` API remain outside Spike 03. The G-003 shell implementation and limits are recorded in `docs/ASTRAEUS_SPIKE_03.md`; O-005 is complete with C-008 CLEAR and owner visual acceptance recorded against C-008 in T-020 and T-022 (2026-10-10). Earth and original-Moon texture provenance is unresolved (local use only); the donor code licence was not found. The donor repository `/home/user/code/planetary-explorer` remains read-only.

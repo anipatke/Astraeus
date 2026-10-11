@@ -4,6 +4,8 @@ import type { TrackedBody } from "../app/mission";
 import { createEvents } from "../core/events";
 import { createProvenance } from "../core/provenance";
 import { SampledTrajectory } from "../core/sampledTrajectory";
+import { createWindows, rateAt } from "../core/timeWindow";
+import type { Metric, RateMetric } from "../shell/metrics";
 import type { ExperienceConfig } from "../shell/experience";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
@@ -49,6 +51,74 @@ const events = createEvents([
   { id: "marker-quarter", label: "Marker passes a quarter turn", timeUtcMs: START_UTC_MS + 120 * MINUTE_MS },
 ]);
 
+const at = (minutes: number) => START_UTC_MS + minutes * MINUTE_MS;
+
+const windowProvenance = (accuracy: string, notes: string) =>
+  createProvenance({
+    sourceType: "illustrative",
+    sources: ["Made up for the window contract test; not real observations"],
+    accuracy,
+    notes,
+  });
+
+const windows = createWindows([
+  {
+    id: "contact-window",
+    label: "Contact window",
+    type: "contact",
+    startUtcMs: at(30),
+    endUtcMs: at(210),
+    peakUtcMs: at(135),
+    rate: {
+      unit: "passes per hour",
+      samples: [
+        [30, 0],
+        [60, 12],
+        [90, 30],
+        [135, 48],
+        [165, 30],
+        [190, 12],
+        [210, 0],
+      ].map(([minutes, value]) => ({ timeUtcMs: at(minutes), value })),
+    },
+    provenance: [
+      {
+        startUtcMs: at(30),
+        endUtcMs: at(135),
+        provenance: windowProvenance(
+          "None claimed. A smooth rise invented for this fixture.",
+          "First half: a plain made-up ramp up to the peak.",
+        ),
+      },
+      {
+        startUtcMs: at(135),
+        endUtcMs: at(210),
+        provenance: windowProvenance(
+          "None claimed. A looser fall invented for this fixture, less certain than the rise.",
+          "Second half: a made-up fall, drawn with wider guesses than the first half.",
+        ),
+      },
+    ],
+  },
+]);
+const contactWindow = windows[0];
+const peakRate = Math.max(...(contactWindow.rate?.samples.map((sample) => sample.value) ?? [0]));
+
+/** The made-up rate readout, from the same window samples the timeline curve draws (one source). */
+function contactRateMetric(timeUtcMs: number): RateMetric {
+  return {
+    kind: "rate",
+    id: "survey-marker-contact-rate",
+    label: "Contact rate",
+    value: rateAt(contactWindow, timeUtcMs),
+    unit: contactWindow.rate?.unit ?? "",
+    digits: 0,
+    context: contactWindow.label,
+    unavailable: "outside the contact window",
+    peak: { label: "Peak", value: peakRate },
+  };
+}
+
 const experience: ExperienceConfig = {
   objects: [
     { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "The planet the marker circles." },
@@ -71,6 +141,7 @@ const experience: ExperienceConfig = {
     { id: "follow-marker", label: "Follow marker", request: { kind: "follow", target: marker.id } },
   ],
   events,
+  windows,
   window: bounds,
   rates: [60, 600, 3_600],
 };
@@ -81,7 +152,11 @@ export const syntheticDefinition: ExperienceDefinition = {
   clock: { startUtcMs: bounds.startUtcMs, rate: 600 },
   sceneLayers: ["earth-moon", "tracked-bodies"],
   trackedBodies: [marker],
-  createMetrics: ({ moon }) => createObjectMetrics({ bodies: [marker], moon, earthId: "earth", moonId: "moon" }),
+  createMetrics: ({ moon }) => {
+    const base = createObjectMetrics({ bodies: [marker], moon, earthId: "earth", moonId: "moon" });
+    return (objectId: string, timeUtcMs: number): readonly Metric[] =>
+      objectId === marker.id ? [...base(objectId, timeUtcMs), contactRateMetric(timeUtcMs)] : base(objectId, timeUtcMs);
+  },
 };
 
 const BARE_EXPERIENCE: ExperienceConfig = {
