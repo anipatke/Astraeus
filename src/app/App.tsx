@@ -11,7 +11,7 @@ import type { ExperienceCameraRequest } from "../shell/experience";
 import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
-import { EarthMoonScene, type SceneControls } from "./EarthMoonScene";
+import { AstraeusScene, type SceneControls } from "./AstraeusScene";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
@@ -141,7 +141,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       developerTools={developerTools}
     >
       <div className="canvas-host">
-        <EarthMoonScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />
       </div>
     </AstraeusShell>
   );

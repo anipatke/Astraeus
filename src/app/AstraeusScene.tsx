@@ -97,7 +97,7 @@ interface Props {
   readonly scaleId: ScalePolicy["id"];
 }
 
-export function EarthMoonScene(props: Props) {
+export function AstraeusScene(props: Props) {
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: props.runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}

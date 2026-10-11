@@ -2,7 +2,8 @@
 id: T-044
 title: Mount a composition of bodies with its centre as a setting
 objective: O-014
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-043, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
@@ -73,7 +74,10 @@ Focused tests during iteration; handoff runs the gates and every browser script 
 
 ## Technical Evidence
 
-Pending execution.
+### Context Log
+
+- Started 2026-10-11: status in_progress, stage build; router task T-044 (release G-004 preserved).
+- Rename step (no behaviour change): `git mv src/app/EarthMoonScene.tsx src/app/AstraeusScene.tsx`; component `EarthMoonScene` -> `AstraeusScene`; imports updated in `src/app/App.tsx` and `tests/experienceDefinition.test.ts` (import and the camera source-file list). No browser script or test id referenced the old name. `npm run typecheck` clean; `npm test` 23 files / 426 tests passed. Awaiting orchestrator commit before the generalisation.
 
 ## Drift Notes
 

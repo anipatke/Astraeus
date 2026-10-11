@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { focusLimits } from "../src/app/EarthMoonScene";
+import { focusLimits } from "../src/app/AstraeusScene";
 import {
   DEFAULT_CAMERA_FAR,
   cameraReachOf,
@@ -77,7 +77,7 @@ describe("experience plug-in contract", () => {
   });
 });
 
-const camera = ["experienceDefinition.ts", "EarthMoonScene.tsx", "CameraController.tsx", "App.tsx"].map((file) => `../src/app/${file}`);
+const camera = ["experienceDefinition.ts", "AstraeusScene.tsx", "CameraController.tsx", "App.tsx"].map((file) => `../src/app/${file}`);
 
 describe("camera reach files stay generic", () => {
   it.each(camera)("%s is covered and has no meteor, shower or Perseids naming", (path) => {
