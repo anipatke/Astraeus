@@ -1,0 +1,74 @@
+
+ RUN  v5.0.3 /tmp/claude-1000/-home-user-code-Astraeus/5511e3c3-0391-4a40-aef1-6c872631426c/scratchpad/c012
+
+stdout | c012-harness.test.ts > core: orbit group > OBSERVATION probes: reversed bounds, caller mutation of bounds, Moon centre
+{"reversedBoundsAccepted":true,"boundsFollowCallerMutation":true,"moonCentredFinite":true}
+
+stdout | c012-harness.test.ts > points layer > plays forward at 600x for 2 h in 60 fps frames: one fill per 300 s span, blend within 10 km of exact
+{"forwardFills":25,"expectedAbout":25,"worstBlendKmIncludingFloat32":7.302536836974347}
+
+ ✓ c012-harness.test.ts > core: orbit group > matches an independent Kepler solver (zero spread, EQJ plane) over several periods 2ms
+ ✓ c012-harness.test.ts > core: orbit group > ecliptic plane equals an independent obliquity rotation about +x 0ms
+ ✓ c012-harness.test.ts > core: orbit group > is deterministic across separate instances and differs by seed; single read equals batch 3ms
+ ✓ c012-harness.test.ts > core: orbit group > names errors for bad inputs and boundary times 2ms
+ ✓ c012-harness.test.ts > core: orbit group > OBSERVATION probes: reversed bounds, caller mutation of bounds, Moon centre 1ms
+ ✓ c012-harness.test.ts > points layer > plays forward at 600x for 2 h in 60 fps frames: one fill per 300 s span, blend within 10 km of exact 617ms
+ ✓ c012-harness.test.ts > points layer > plays backward from the end to past the start: fills clamp inside bounds, nothing drawn after 131ms
+ ✓ c012-harness.test.ts > points layer > a jump just past the held span refills once and draws the exact fill (no blend across the gap) 48ms
+ ✓ c012-harness.test.ts > points layer > scale switch and camera move remap without a fill and leave State identical (ARCH-02) 38ms
+ ✓ c012-harness.test.ts > points layer > Sun-centred belt: member render position equals Sun-from-Earth plus member State through the policy 14ms
+ ✓ c012-harness.test.ts > points layer > rejects a non-positive span; Moon-centred groups fail at the first sync with a named message 1ms
+ ✓ c012-harness.test.ts > points layer > plug-in contract: points opt-in, one shell item, Apollo unchanged 1ms
+stdout | c012-harness.test.ts > measurements (reported, SC3 bar 8 ms at 10^4) > fill cost at 10^3, 10^4, 10^5 and a PointsView slide frame at 10^4
+[
+ {
+  "center": "earth",
+  "count": 1000,
+  "buildMs": 2.7,
+  "fillMedianMs": 1.09
+ },
+ {
+  "center": "earth",
+  "count": 10000,
+  "buildMs": 21.3,
+  "fillMedianMs": 11.01
+ },
+ {
+  "center": "earth",
+  "count": 100000,
+  "buildMs": 225.6,
+  "fillMedianMs": 103.29
+ },
+ {
+  "center": "sun",
+  "count": 1000,
+  "buildMs": 2.1,
+  "fillMedianMs": 0.91
+ },
+ {
+  "center": "sun",
+  "count": 10000,
+  "buildMs": 20.2,
+  "fillMedianMs": 9.28
+ },
+ {
+  "center": "sun",
+  "count": 100000,
+  "buildMs": 230.6,
+  "fillMedianMs": 92.47
+ },
+ {
+  "pointsViewSlideFrameMedianMs": 13.73,
+  "slideFrames": 20,
+  "plainFrameMedianMs": 0.019,
+  "plainFrames": 580
+ }
+]
+
+ ✓ c012-harness.test.ts > measurements (reported, SC3 bar 8 ms at 10^4) > fill cost at 10^3, 10^4, 10^5 and a PointsView slide frame at 10^4 4611ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  15:24:52
+   Duration  6.60s (tests 84%, transform 12%, import 4%)
+

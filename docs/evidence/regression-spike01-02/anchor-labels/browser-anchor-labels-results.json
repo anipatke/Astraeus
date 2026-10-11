@@ -1,5 +1,5 @@
 {
-  "url": "http://localhost:5199/",
+  "url": "http://127.0.0.1:5199/",
   "viewport": "1280x800",
   "hiddenInitially": true,
   "countWhenOff": 0,

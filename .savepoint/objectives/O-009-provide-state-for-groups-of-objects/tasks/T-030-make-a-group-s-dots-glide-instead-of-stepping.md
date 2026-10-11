@@ -15,6 +15,18 @@ check_waiver:
         role: owner
         session: board-owner
     recorded_at: "2026-10-10T22:00:22Z"
+exception:
+    requirements: [T-030/DW3]
+    reason: The "before" headless frame-pacing measurement cannot be produced because the pre-blend PointsView was never committed; the owner's real-browser judgement ("looks smooth", T-031) covers the purpose. Waives only the "before" pacing figure; the fill, blend and remap costs and the interval choice remain proven by C-012.
+    owner: owner
+    recorded_at: "2026-10-11T04:40:00Z"
+    check: C-012
+    carried_forward:
+        - check: C-013
+          applies: true
+          assessed_by: {role: checker, session: o009-recheck-20261011}
+          assessed_at: "2026-10-11T04:31:35Z"
+          reason: The exception waives only the "before" headless frame-pacing figure for T-030 Done When 3. No source, test, tool, dependency or gate-definition file changed since C-012 (git diff HEAD is empty for them; only historical anchor-label evidence and .savepoint records changed), so the behavior, requirement and scope it covers are unchanged. The pre-blend PointsView is still not recoverable.
 ---
 
 # Make a group's dots glide instead of stepping
