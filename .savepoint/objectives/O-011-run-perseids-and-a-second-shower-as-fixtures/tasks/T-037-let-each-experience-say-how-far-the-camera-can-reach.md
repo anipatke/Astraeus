@@ -2,13 +2,22 @@
 id: T-037
 title: Let each experience say how far the camera can reach
 objective: O-011
-status: planned
+status: done
 depends_on: []
-owner_validation: {required: false}
+owner_validation:
+    required: false
+    accepted_check: ""
 planned_by: {role: planner, session: o011-plan-2026-10-11}
 lane: camera-reach
 planned_reads: [src/app/experienceDefinition.ts, src/app/EarthMoonScene.tsx, src/app/CameraController.tsx, src/app/App.tsx, src/app/PointsView.ts, src/synthetic/syntheticRingDefinition.ts, tests/experienceDefinition.test.ts, tests/pointsLayer.test.ts, tests/syntheticRing.test.ts, tools/validate/browser-synthetic-ring.mjs]
 planned_writes: [src/app/experienceDefinition.ts, src/app/EarthMoonScene.tsx, src/app/CameraController.tsx, src/main.tsx, src/synthetic/syntheticRingDefinition.ts, tests/experienceDefinition.test.ts, tests/syntheticRing.test.ts, tools/validate/browser-synthetic-ring.mjs]
+check_waiver:
+    task: T-037
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-11T07:44:52Z"
 ---
 
 # Let each experience say how far the camera can reach
@@ -68,8 +77,23 @@ Focused tests during iteration. Handoff runs the configured gates and every brow
 
 ## Technical Evidence
 
-Pending execution.
+**Per criterion**
+1. Met. `validateCameraReach` throws named errors (`camera.maxFocusDistance must be finite/positive`, `camera.far ...`, `camera.far (x) must exceed camera.maxFocusDistance (y)`). Tests in `tests/experienceDefinition.test.ts` pin today's limits (Earth min 1.15, Moon min 1.6 x radius, tracked min 0.002, max `max(30, moonDistance x 3.5)`, far 5000) for Earth, Moon and a tracked focus at three Moon distances when omitted.
+2. Met. Declared reach replaces only the farthest distance (test) and the far plane (`poseCamera` takes `far`; Canvas `far` follows). Belt run zoomed out to the 400,000-radius reach and back in at True and Readable; near plane formula unchanged. Screenshots show no depth fighting. Depth precision at close focus was only inspected visually, not measured numerically.
+3. Met. `?experience=synthetic-belt` (`syntheticBeltDefinition`, Sun-centred, points layer only) shows the belt at True and Readable (lit-pixel counts 93k focused, 33k-57k zoomed out); `tools/validate/browser-synthetic-belt.mjs` passes with zero console errors.
+4. Met. Test: belt group fills and `experienceWithGroups` output are identical with and without a declared reach. State, scale policy and floating-origin threshold untouched.
+5. Met. Name check (no meteor/shower/Perseids) covers `experienceDefinition.ts`, `EarthMoonScene.tsx`, `CameraController.tsx`, `App.tsx`. All seven browser scripts passed with zero errors in fresh folder `docs/evidence/o011-t037-2026-10-11/<script>/` (results in `<script>.json`).
+6. Met. `npm run typecheck`, `npm run build` and `npm test`: 17 files, 326 tests passed. No lint gate configured.
+
+**Commands run:** `npm run typecheck`; `npm run build`; `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml`; `node tools/validate/browser-*.mjs` (7 scripts, Vite dev server on port 5199, 2026-10-11).
+
+**Files read:** the Task's Context Files plus `tests/pointsLayer.test.ts` (planned read). Extra reads: `src/shell/ObjectControls.tsx` grep only, to learn why camera buttons need an overview preset. **Files changed:** `src/app/experienceDefinition.ts`, `EarthMoonScene.tsx`, `CameraController.tsx`, `App.tsx`, `src/main.tsx`, `src/synthetic/syntheticRingDefinition.ts`, `tests/experienceDefinition.test.ts`, `tests/syntheticRing.test.ts`, new `tools/validate/browser-synthetic-belt.mjs`, new evidence folder.
+
+**Limitations:** headless software rendering only; no owner visual judgement. Floating-origin and depth precision at about 2.5 AU looked fine in screenshots but were not measured. No logarithmic depth buffer was needed or added. `poseCamera` keeps a default far of 5000 that duplicates `DEFAULT_CAMERA_FAR`.
 
 ## Drift Notes
 
 Record architecture deltas here; T-040 reconciles them into Design.
+
+- `ExperienceDefinition` gains optional `camera?: CameraReach` (`maxFocusDistance`, `far`, Earth radii), validated by `validateCameraReach`; `SceneRuntime` carries `cameraReach`. This closes the camera-reach drift notes from T-024/T-025 and T-028 (architectural; T-040 reconciles). `focusLimits` is now exported.
+- New made-up entry `?experience=synthetic-belt` (`syntheticBeltDefinition`); `main.tsx` entry list changes (non-architectural).

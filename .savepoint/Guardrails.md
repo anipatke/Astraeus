@@ -37,7 +37,10 @@ If a rule can block a Check's verdict or require remediation, it must be defined
 | ARCH-01 | Required | No mission, experience or dataset names in `src/core/` or generic shell/presentation code; experience content arrives as configuration or data. |
 | ARCH-02 | Required | Scientific State never depends on presentation: scale policy, camera, selection, UI and rendering consume State and never change it. |
 | ARCH-03 | Required | A new or changed generic capability is proven with a synthetic or alternative configuration in contract-level tests; one experience passing, including Apollo, is not evidence of reuse. |
+| ARCH-04 | Required | Layer rule: `src/core/` imports nothing from `src/assets/`, `src/app/`, `src/shell/` or `src/experiences/`; `src/assets/` imports core and Three.js only; experiences are the only modules that name a mission, shower or dataset. |
+| ARCH-05 | Required | A celestial body is defined once, in `src/core/`, with one state-source binding; every other module references it by id through the catalogue and the resolver, and no experience supplies a state source, dimension or orientation for a catalogued body. |
 | PROV-01 | Required | Reconstructed, approximated or illustrative data carries provenance and its published known limitations, and is never presented as measured or exact. |
+| PROV-02 | Required | Every texture carries a recorded source and licence, or an explicit local-only declaration naming its public replacement; a public build contains no local-only bytes. |
 
 ### Data
 

@@ -186,12 +186,13 @@ export function poseCamera(
   state: OrbitCameraState,
   focusRadius: number,
   origin: FloatingOrigin,
+  far = 5_000,
 ): void {
   const [cx, cy, cz] = origin.toLocal(state.cameraAbsolute);
   const [tx, ty, tz] = origin.toLocal(state.targetAbsolute);
   camera.position.set(cx, cy, cz);
   camera.lookAt(tx, ty, tz);
   camera.near = Math.max(1e-3, 0.1 * (state.distance - focusRadius));
-  camera.far = 5_000;
+  camera.far = far;
   camera.updateProjectionMatrix();
 }

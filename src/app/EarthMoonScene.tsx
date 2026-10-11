@@ -25,7 +25,7 @@ import {
 } from "./CameraController";
 import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
-import type { GroupLayer } from "./experienceDefinition";
+import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody } from "./experienceDefinition";
 import { stateIfInBounds, type TrackedBody } from "./mission";
 import {
   DEFAULT_PATH_SAMPLES,
@@ -39,6 +39,7 @@ import { bodyAbsolutes, placeBodies, type SceneHierarchy } from "./sceneLayout";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
+import { createSunCentredViews } from "./SunCentredView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import type { ExperienceObject } from "../shell/experience";
@@ -61,8 +62,14 @@ export interface SceneRuntime {
   readonly trackedBodies: readonly TrackedBody[];
   /** Groups the `points` layer draws as dots; empty when the experience has none. */
   readonly groups: readonly GroupLayer[];
+  /** The Sun the `sun-centred` layer draws, if the experience declares one. */
+  readonly sun?: SunBody;
+  /** Paths the `sun-centred` layer draws; empty when the experience has none. */
+  readonly paths?: readonly PathLayer[];
   /** Whether the `earth-moon` layer is mounted: Earth and Moon meshes, their lights and the Moon path. */
   readonly earthMoon: boolean;
+  /** The experience's declared camera reach; empty keeps the built-in limits. */
+  readonly cameraReach: CameraReach;
 }
 
 export interface SceneControls {
@@ -91,12 +98,13 @@ interface Props {
 export function EarthMoonScene(props: Props) {
   return (
     <Canvas
-      camera={{ fov: 45, near: 0.05, far: 5000 }}
+      camera={{ fov: 45, near: 0.05, far: props.runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
       gl={{ antialias: true }}
       style={{ background: "#000000" }}
       data-testid="earth-moon-canvas"
       data-earth-moon={props.runtime.earthMoon}
       data-point-groups={props.runtime.groups.length}
+      data-sun-centred={(props.runtime.sun === undefined ? 0 : 1) + (props.runtime.paths?.length ?? 0)}
     >
       <SceneContents {...props} />
       <LayeredRender />
@@ -147,6 +155,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
+  const sunCentredViews = useMemo(() => createSunCentredViews(runtime.sun, runtime.paths ?? []), [runtime.sun, runtime.paths]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
@@ -183,7 +192,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
   useEffect(() => {
     const limits = () => {
       const moonRadius = controls.policy.mapRadius(MOON.radiusKm);
-      return focusLimits(orbit.current.focus, moonRadius, moonDistanceScaled.current);
+      return focusLimits(orbit.current.focus, moonRadius, moonDistanceScaled.current, runtime.cameraReach);
     };
     return attachOrbitGestures(gl.domElement, orbit.current, limits);
   }, [gl, controls]);
@@ -203,6 +212,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
     const moonFromEarth = earthMoon ? trajectory.stateAt(t, "earth") : null;
     const camState = orbit.current;
     for (const view of groupViews) view.sync(t, adapter, policy);
+    for (const view of sunCentredViews) view.sync(t, adapter, policy);
     if (controls.frameStats !== null) {
       controls.frameStats.tick(performance.now());
       groupViews.forEach((view, i) => {
@@ -235,6 +245,8 @@ function SceneContents({ runtime, controls, readout }: Props) {
       if (focus === "moon") return absolutes.moonAbsolute;
       const group = groupViews.find((candidate) => candidate.id === focus);
       if (group) return group.absolute();
+      const sunCentred = sunCentredViews.find((candidate) => candidate.id === focus);
+      if (sunCentred) return sunCentred.absolute();
       const view = trackedViews.find((candidate) => candidate.body.id === focus);
       if (!view) throw new RangeError(`unknown focus target "${focus}"`);
       return view.absolute(t, policy);
@@ -245,7 +257,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
       controls.cameraRequest = null;
       const target = request.kind === "overview" ? "earth" : request.target;
       switchFocus(camState, target, focusAbsolute(target));
-      const framedGroup = groupViews.find((candidate) => candidate.id === target);
+      const framedGroup = groupViews.find((candidate) => candidate.id === target) ?? sunCentredViews.find((candidate) => candidate.id === target);
       if (request.kind !== "follow") {
         camState.targetDistance = framedGroup
           ? Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * framedGroup.extentUnits(policy))
@@ -262,7 +274,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
         camState.targetAzimuth = Math.atan2(toEarth[0], toEarth[2]);
       }
     }
-    const limits = focusLimits(camState.focus, moonRadius, moonDistance);
+    const limits = focusLimits(camState.focus, moonRadius, moonDistance, runtime.cameraReach);
     camState.distance = clampDistance(camState.distance, limits);
     camState.targetDistance = clampDistance(camState.targetDistance, limits);
 
@@ -278,14 +290,18 @@ function SceneContents({ runtime, controls, readout }: Props) {
       camState,
       focusRadius(camState.focus, policy, moonRadius),
       origin,
+      runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
     );
     for (const view of trackedViews) view.update(t, policy, origin, camera);
     for (const view of groupViews) view.place(origin);
+    for (const view of sunCentredViews) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     sceneLabels.current?.update((id) => {
       if (id === "earth" || id === "moon") return earthMoon ? absolutes[id === "earth" ? "earthAbsolute" : "moonAbsolute"] : null;
       const group = groupViews.find((candidate) => candidate.id === id);
       if (group !== undefined) return group.drawn ? group.absolute() : null;
+      const sunCentred = sunCentredViews.find((candidate) => candidate.id === id);
+      if (sunCentred !== undefined) return sunCentred.labelAnchor();
       const view = trackedViews.find((candidate) => candidate.body.id === id);
       if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
       return view.absolute(t, policy);
@@ -344,6 +360,7 @@ function SceneContents({ runtime, controls, readout }: Props) {
       )}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
+      {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
     </group>
   );
 }
@@ -354,8 +371,9 @@ const TRACKED_DEFAULT_DISTANCE = 0.3;
 /** A focused group is framed at this many times its widest member's distance from the centroid. */
 const GROUP_FRAMING = 2.5;
 
-function focusLimits(focus: FocusId, moonRadiusScaled: number, moonDistanceScaled: number) {
-  const reach = Math.max(30, moonDistanceScaled * 3.5);
+/** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
+export function focusLimits(focus: FocusId, moonRadiusScaled: number, moonDistanceScaled: number, declared: CameraReach) {
+  const reach = declared.maxFocusDistance ?? Math.max(30, moonDistanceScaled * 3.5);
   if (focus === "earth") return { min: 1.15, max: reach };
   if (focus === "moon") return { min: moonRadiusScaled * 1.6, max: reach };
   return { min: TRACKED_MIN_DISTANCE, max: reach };

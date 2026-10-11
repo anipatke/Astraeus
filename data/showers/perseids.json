@@ -1,0 +1,57 @@
+{
+  "id": "perseids",
+  "label": "Perseids",
+  "parentBody": "109P/Swift-Tuttle",
+  "orbit": {
+    "plane": "ecliptic-j2000",
+    "elementsEpochUtc": "1995-10-10T00:00:00Z",
+    "elements": {
+      "semiMajorAxisAu": 26.0920694978266,
+      "eccentricity": 0.963225755046038,
+      "inclinationDeg": 113.453816997171,
+      "raanDeg": 139.3811920815948,
+      "argumentOfPeriapsisDeg": 152.9821676305871
+    },
+    "source": {
+      "name": "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution 32 (equinox J2000, epoch JD 2450000.5)",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1",
+      "accessed": "2026-10-11"
+    }
+  },
+  "stream": {
+    "encounterNode": "descending",
+    "memberCount": 10000,
+    "seed": 20270813,
+    "spread": {
+      "semiMajorAxisAu": 0,
+      "eccentricity": 0.0005,
+      "inclinationDeg": 1,
+      "raanDeg": 24,
+      "argumentOfPeriapsisDeg": 1,
+      "trueAnomalyDeg": 40
+    }
+  },
+  "activity": {
+    "startUtc": "2027-07-17T00:00:00Z",
+    "endUtc": "2027-08-25T00:00:00Z",
+    "peakUtc": "2027-08-13T00:00:00Z",
+    "peakPublishedNight": "Aug 12-13, 2027",
+    "peakRate": 100,
+    "rateUnit": "meteors per hour (ZHR)",
+    "fallOffPerDay": 0.1,
+    "source": {
+      "name": "American Meteor Society, Meteor Shower Calendar 2026/2027: Perseids active Jul 17 - Aug 24, peak night Aug 12-13, ZHR 100 (not the IMO figure)",
+      "url": "https://www.amsmeteors.org/calendar/",
+      "accessed": "2026-10-11"
+    }
+  },
+  "radiant": {
+    "raDeg": 48,
+    "decDeg": 58.1,
+    "source": {
+      "name": "American Meteor Society, Meteor Shower Calendar 2026/2027: radiant 03h 12m, +58.1 deg (equinox not stated)",
+      "url": "https://www.amsmeteors.org/calendar/",
+      "accessed": "2026-10-11"
+    }
+  }
+}

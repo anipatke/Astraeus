@@ -4,12 +4,15 @@ import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
-import { trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
+import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { apollo11Definition } from "../src/mission/apollo11Definition";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { infoView } from "../src/shell/infoModel";
+import perseidsFile from "../data/showers/perseids.json";
+import { buildShowerDefinition } from "../src/showers/showerDefinition";
+import { parseShowerSettings } from "../src/showers/showerSettings";
 import type { RateMetric } from "../src/shell/metrics";
 
 const sources = import.meta.glob<string>(
@@ -135,7 +138,21 @@ describe("the synthetic window", () => {
   });
 });
 
+describe("a shower built from a settings file", () => {
+  const shower = buildShowerDefinition(parseShowerSettings(perseidsFile));
+
+  it("mounts through the shell with its own stream and none of Apollo's objects", () => {
+    const markup = shellMarkup({ ...shower, experience: experienceWithGroups(shower) });
+    expect(markup).toContain("Perseids stream");
+    expect(markup).not.toMatch(/columbia|eagle|apollo/i);
+  });
+});
+
 describe("generic code boundary", () => {
+  it("leaves the shower builder outside its scope by design: it is where a shower's own words live", () => {
+    expect(Object.keys(sources).some((path) => path.includes("/showers/"))).toBe(false);
+  });
+
   it("contains no experience-specific names in core, shell or generic app code", () => {
     expect(Object.keys(sources).some((path) => path.includes("/src/core/") || path.includes("/core/"))).toBe(true);
     expect(Object.keys(sources).some((path) => path.includes("/shell/"))).toBe(true);

@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { trackedBodiesOf, usesEarthMoon, type ExperienceDefinition } from "../src/app/experienceDefinition";
+import { focusLimits } from "../src/app/EarthMoonScene";
+import {
+  DEFAULT_CAMERA_FAR,
+  cameraReachOf,
+  experienceWithGroups,
+  groupsOf,
+  trackedBodiesOf,
+  usesEarthMoon,
+  validateCameraReach,
+  type ExperienceDefinition,
+} from "../src/app/experienceDefinition";
+import { syntheticBeltDefinition } from "../src/synthetic/syntheticRingDefinition";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { apollo11Definition } from "../src/mission/apollo11Definition";
 
@@ -63,5 +74,74 @@ describe("experience plug-in contract", () => {
     expect(usesEarthMoon(syntheticBareDefinition)).toBe(false);
     expect(usesEarthMoon(syntheticDefinition)).toBe(true);
     expect(trackedBodiesOf(syntheticBareDefinition)).toHaveLength(1);
+  });
+});
+
+const camera = ["experienceDefinition.ts", "EarthMoonScene.tsx", "CameraController.tsx", "App.tsx"].map((file) => `../src/app/${file}`);
+
+describe("camera reach files stay generic", () => {
+  it.each(camera)("%s is covered and has no meteor, shower or Perseids naming", (path) => {
+    expect(appSources[path]).toBeDefined();
+    expect(appSources[path]).not.toMatch(/meteor|shower|perseid/i);
+  });
+});
+
+describe("optional camera reach", () => {
+  // Today's scene constants: reach max(30, moonDistance x 3.5), Earth min 1.15, Moon min 1.6 x radius, tracked min 0.002, far 5000.
+  const moonRadius = 0.27;
+  it.each([6, 60, 600])("keeps today's limits for every focus kind when omitted (Moon distance %d)", (moonDistance) => {
+    const reach = Math.max(30, moonDistance * 3.5);
+    expect(focusLimits("earth", moonRadius, moonDistance, {})).toEqual({ min: 1.15, max: reach });
+    expect(focusLimits("moon", moonRadius, moonDistance, {})).toEqual({ min: moonRadius * 1.6, max: reach });
+    expect(focusLimits("columbia", moonRadius, moonDistance, {})).toEqual({ min: 0.002, max: reach });
+  });
+
+  it("keeps the 5000 far plane and no reach for definitions that declare none", () => {
+    expect(DEFAULT_CAMERA_FAR).toBe(5_000);
+    expect(cameraReachOf(apollo11Definition)).toEqual({});
+    expect(cameraReachOf(syntheticDefinition)).toEqual({});
+  });
+
+  it("replaces only the farthest distance when declared, for every focus kind", () => {
+    const declared = { maxFocusDistance: 400_000, far: 1_000_000 };
+    expect(focusLimits("earth", moonRadius, 60, declared)).toEqual({ min: 1.15, max: 400_000 });
+    expect(focusLimits("moon", moonRadius, 60, declared)).toEqual({ min: moonRadius * 1.6, max: 400_000 });
+    expect(focusLimits("dust-belt", moonRadius, 60, declared)).toEqual({ min: 0.002, max: 400_000 });
+  });
+
+  it("lets the made-up belt declare a reach that exceeds today's far plane", () => {
+    const reach = cameraReachOf(syntheticBeltDefinition);
+    expect(reach.maxFocusDistance).toBeGreaterThan(DEFAULT_CAMERA_FAR);
+    expect(reach.far).toBeGreaterThan(reach.maxFocusDistance ?? Infinity);
+  });
+
+  it.each([
+    [{ maxFocusDistance: Number.NaN }, /camera\.maxFocusDistance must be finite/],
+    [{ far: Infinity }, /camera\.far must be finite/],
+    [{ maxFocusDistance: 0 }, /camera\.maxFocusDistance must be positive/],
+    [{ far: -1 }, /camera\.far must be positive/],
+    [{ maxFocusDistance: 100, far: 100 }, /camera\.far \(100\) must exceed camera\.maxFocusDistance \(100\)/],
+    [{ maxFocusDistance: 100, far: 50 }, /must exceed/],
+  ])("rejects %j with a named error", (reach, message) => {
+    expect(() => validateCameraReach(reach)).toThrow(message);
+  });
+
+  it("accepts a partial or empty reach", () => {
+    expect(validateCameraReach({})).toEqual({});
+    expect(validateCameraReach({ far: 9_000 })).toEqual({ far: 9_000 });
+    expect(validateCameraReach({ maxFocusDistance: 90 })).toEqual({ maxFocusDistance: 90 });
+  });
+
+  it("leaves group fills and the shell's objects identical with and without a declared reach", () => {
+    const without: ExperienceDefinition = { ...syntheticBeltDefinition, camera: undefined };
+    const [declared] = groupsOf(syntheticBeltDefinition);
+    const [plain] = groupsOf(without);
+    const a = new Float64Array(3 * declared.group.count);
+    const b = new Float64Array(3 * plain.group.count);
+    const t = syntheticBeltDefinition.clock.startUtcMs + 3_600_000;
+    declared.group.fillPositionsKm(t, a);
+    plain.group.fillPositionsKm(t, b);
+    expect(a).toEqual(b);
+    expect(experienceWithGroups(syntheticBeltDefinition)).toEqual(experienceWithGroups(without));
   });
 });

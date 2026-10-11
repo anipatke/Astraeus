@@ -5,7 +5,7 @@ import { MoonTrajectory } from "../core/moonTrajectory";
 import { trueScale } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { experienceWithGroups, groupsOf, trackedBodiesOf, usesEarthMoon, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { cameraReachOf, experienceWithGroups, groupsOf, sunCentredOf, trackedBodiesOf, usesEarthMoon, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
@@ -22,7 +22,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     const clock = new SimulationClock(definition.clock.startUtcMs);
     clock.setRate(definition.clock.rate);
     clock.play();
-    return { clock, adapter, trajectory: new MoonTrajectory(adapter), trackedBodies: trackedBodiesOf(definition), groups: groupsOf(definition), earthMoon: usesEarthMoon(definition) };
+    return { clock, adapter, trajectory: new MoonTrajectory(adapter), trackedBodies: trackedBodiesOf(definition), groups: groupsOf(definition), ...sunCentredOf(definition), earthMoon: usesEarthMoon(definition), cameraReach: cameraReachOf(definition) };
   }, [definition]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, adapter: runtime.adapter, moon: runtime.trajectory }),

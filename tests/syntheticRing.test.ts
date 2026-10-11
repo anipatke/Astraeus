@@ -14,6 +14,7 @@ import { findCameraPreset } from "../src/shell/objectModel";
 import {
   BELT_MEMBER_COUNT,
   RING_MEMBER_COUNT,
+  syntheticBeltDefinition,
   syntheticBeltLayer,
   syntheticRingDefinition,
   syntheticRingLayer,
@@ -144,5 +145,17 @@ describe("the made-up Sun-centred belt through the same definition path", () => 
     group.fillPositionsKm(startUtcMs, b);
     expect(a).toEqual(b);
     expect(() => group.fillPositionsKm(endUtcMs + 1, a)).toThrow();
+  });
+});
+
+describe("the made-up belt as a mounted experience", () => {
+  it("mounts only the points layer and lists the belt once with focus and follow presets", () => {
+    expect(usesEarthMoon(syntheticBeltDefinition)).toBe(false);
+    expect(groupsOf(syntheticBeltDefinition).map((layer) => layer.object.id)).toEqual(["dust-belt"]);
+    const experience = experienceWithGroups(syntheticBeltDefinition);
+    expect(experience.objects.filter((object) => object.id === "dust-belt")).toHaveLength(1);
+    expect(findCameraPreset(experience, "focus", "dust-belt")).toBeDefined();
+    expect(findCameraPreset(experience, "follow", "dust-belt")).toBeDefined();
+    expect(shellMarkup(syntheticBeltDefinition)).toContain("Dust belt");
   });
 });
