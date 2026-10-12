@@ -6,6 +6,7 @@ import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createEvents } from "../core/events";
 import { createOrbitGroup, type OrbitGroupInput } from "../core/orbitGroup";
 import { createProvenance } from "../core/provenance";
+import { sunEarthSystem } from "../assets/compositions";
 import type { ExperienceConfig } from "../shell/experience";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
@@ -195,11 +196,12 @@ export const syntheticRingDefinition: ExperienceDefinition = {
 
 const beltExperience: ExperienceConfig = {
   objects: [
-    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "The Earth-centred origin; the belt circles the Sun." },
+    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "Earth, on its path round the Sun; the belt circles the Sun." },
   ],
   cameraPresets: [
     { id: "overview", label: "Overview", request: { kind: "overview" } },
     { id: "sun-view", label: "Sun view", request: { kind: "focus", target: "sun" } },
+    { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
     { id: "focus-belt", label: "Focus belt", request: { kind: "focus", target: "dust-belt" } },
     { id: "follow-belt", label: "Follow belt", request: { kind: "follow", target: "dust-belt" } },
   ],
@@ -212,7 +214,7 @@ const beltExperience: ExperienceConfig = {
 };
 
 /**
- * A made-up Sun-centred experience, about 2.5 AU across. Its declared reach (Earth radii: 1 AU is about
+ * A made-up Sun-centred experience, about 2.5 AU across: the Sun and Earth about the Sun, the Sun at the scene's zero. Its declared reach (Earth radii: 1 AU is about
  * 23,500) lets the camera pull back far enough to frame the whole belt, and it declares the Sun and two paths
  * (Earth's own and a made-up object's) so the belt has a frame of reference.
  */
@@ -220,6 +222,8 @@ export const syntheticBeltDefinition: ExperienceDefinition = {
   experience: beltExperience,
   clock: { startUtcMs: START_UTC_MS, rate: 600 },
   sceneLayers: ["points", "sun-centred"],
+  composition: sunEarthSystem,
+  sceneCenter: "sun",
   trackedBodies: [],
   groups: [syntheticBeltLayer],
   sun: syntheticSun,

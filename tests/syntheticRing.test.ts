@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { experienceWithGroups, groupsOf, usesEarthMoon, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
+import { placementAbout } from "./scenePlacement";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
@@ -21,6 +22,7 @@ import {
 } from "../src/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
+const earthPlacement = placementAbout("earth", adapter);
 const { startUtcMs, endUtcMs } = syntheticRingDefinition.experience.window;
 const noop = () => undefined;
 
@@ -93,10 +95,10 @@ describe("the made-up debris ring through the plug-in contract", () => {
     const view = new PointsView(syntheticRingLayer);
     const before = syntheticRingLayer.group.stateAt(42, startUtcMs);
     const origin = new FloatingOrigin();
-    view.sync(startUtcMs, adapter, trueScale);
+    view.sync(startUtcMs, earthPlacement, trueScale);
     view.place(origin);
     expect(view.drawn).toBe(true);
-    view.sync(startUtcMs, adapter, readableScale);
+    view.sync(startUtcMs, earthPlacement, readableScale);
     view.place(origin);
     expect(syntheticRingLayer.group.stateAt(42, startUtcMs)).toEqual(before);
     expect(view.fillCount).toBe(1);
@@ -104,7 +106,7 @@ describe("the made-up debris ring through the plug-in contract", () => {
 
   it("is hidden outside its time bounds", () => {
     const view = new PointsView(syntheticRingLayer);
-    view.sync(endUtcMs + 1, adapter, trueScale);
+    view.sync(endUtcMs + 1, earthPlacement, trueScale);
     expect(view.drawn).toBe(false);
   });
 });
@@ -128,7 +130,7 @@ describe("the made-up Sun-centred belt through the same definition path", () => 
   it("places a member where the composed single-member State puts it", () => {
     const view = new PointsView(syntheticBeltLayer);
     const t = startUtcMs + 3_600_000;
-    view.sync(t, adapter, trueScale);
+    view.sync(t, earthPlacement, trueScale);
     view.place(new FloatingOrigin());
     const composed = composeCenteredPositions(syntheticBeltLayer.group.stateAt(11, t), sunPositionFromEarthAt(adapter, t));
     const expected = eqjToRenderVector(trueScale.mapPosition(composed.positionKm));

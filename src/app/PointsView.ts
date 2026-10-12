@@ -1,10 +1,9 @@
 import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial } from "three";
-import type { AstronomyAdapter } from "../core/astronomyAdapter";
-import { sunPositionFromEarthAt } from "../core/referenceCenters";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
+import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
 
 // Measured in T-030 for 10^4 members: a 5-minute span blends to within about 8 km of the exact position on a ring 26,000 km
@@ -12,15 +11,14 @@ import { TRACK_LAYER } from "./TrackedBodyView";
 export const DEFAULT_REFILL_AFTER_MS = 300_000;
 const DEFAULT_POINT_SIZE_PX = 2.5;
 
-/** Earth-centred offset of the group's centre, from the existing centre composition. */
-function centreOffsetKm(layer: GroupLayer, adapter: AstronomyAdapter, timeUtcMs: number): ArrayLike<number> {
-  const { center } = layer.group;
-  if (center === "earth") return [0, 0, 0];
-  if (center === "sun") return sunPositionFromEarthAt(adapter, timeUtcMs).positionKm;
-  throw new RangeError(`${layer.object.id}: groups centred on "${center}" are not supported by the points layer`);
+const NO_OFFSET: ArrayLike<number> = Object.freeze([0, 0, 0]);
+
+/** The group's centre measured from the scene centre; nothing to add when they are the same body. */
+function centreOffsetKm(layer: GroupLayer, placement: ScenePlacement, timeUtcMs: number): ArrayLike<number> {
+  return sceneOffsetKm(placement, layer.group.center, timeUtcMs) ?? NO_OFFSET;
 }
 
-/** One exact fill, already composed to the scene's Earth-centred placement and mapped through the policy. */
+/** One exact fill, already expressed from the scene centre and mapped through the policy. */
 interface Fill {
   timeUtcMs: number;
   readonly km: Float64Array;
@@ -32,8 +30,8 @@ interface Fill {
 }
 
 /**
- * Dots for one group. Positions come from batch fills into reused buffers, are composed to the
- * scene's Earth-centred placement, and then go through ScalePolicy -> render axes -> floating origin
+ * Dots for one group. Positions come from batch fills into reused buffers, are expressed from the
+ * scene centre, and then go through ScalePolicy -> render axes -> floating origin
  * like every other body. Two exact fills are held, one at or before the clock time and one at or
  * after it, `refillAfterMs` apart; each frame draws a straight-line blend of them, so the dots glide
  * between fills and a fill happens once per interval. The blend is presentation only: it never
@@ -116,15 +114,15 @@ export class PointsView {
    * Brings the held fills up to `timeUtcMs` and `policy`. Outside the group's bounds nothing is
    * filled and nothing is drawn; the representative point holds its last value.
    */
-  sync(timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void {
+  sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const { group } = this.layer;
     const bounds = group.bounds;
     this.#drawn = bounds === undefined || (timeUtcMs >= bounds.startUtcMs && timeUtcMs <= bounds.endUtcMs);
     if (!this.#drawn) {
-      if (!this.#filled && this.#holdKm === null) this.#holdCentre(adapter, bounds?.startUtcMs ?? timeUtcMs, policy);
+      if (!this.#filled && this.#holdKm === null) this.#holdCentre(placement, bounds?.startUtcMs ?? timeUtcMs, policy);
       return;
     }
-    this.#advance(timeUtcMs, adapter, policy);
+    this.#advance(timeUtcMs, placement, policy);
     if (this.#mappedFor !== policy.id) {
       this.#remap(this.#before, policy);
       this.#remap(this.#after, policy);
@@ -167,7 +165,7 @@ export class PointsView {
    * Keeps `before <= time <= after`. Playing on in either direction slides the pair and fills one new
    * end; a seek fills once and holds that fill at both ends until the clock moves.
    */
-  #advance(timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void {
+  #advance(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const bounds = this.layer.group.bounds;
     const span = this.#spanMs;
     const a = this.#before;
@@ -176,13 +174,13 @@ export class PointsView {
     if (this.#filled && timeUtcMs > b.timeUtcMs && timeUtcMs <= b.timeUtcMs + span) {
       this.#before = b;
       this.#after = a;
-      this.#fill(a, Math.min(b.timeUtcMs + span, bounds?.endUtcMs ?? Infinity), adapter, policy);
+      this.#fill(a, Math.min(b.timeUtcMs + span, bounds?.endUtcMs ?? Infinity), placement, policy);
     } else if (this.#filled && timeUtcMs < a.timeUtcMs && timeUtcMs >= a.timeUtcMs - span) {
       this.#after = a;
       this.#before = b;
-      this.#fill(b, Math.max(a.timeUtcMs - span, bounds?.startUtcMs ?? -Infinity), adapter, policy);
+      this.#fill(b, Math.max(a.timeUtcMs - span, bounds?.startUtcMs ?? -Infinity), placement, policy);
     } else {
-      this.#fill(a, timeUtcMs, adapter, policy);
+      this.#fill(a, timeUtcMs, placement, policy);
       b.km.set(a.km);
       b.scaled.set(a.scaled);
       b.timeUtcMs = a.timeUtcMs;
@@ -194,13 +192,13 @@ export class PointsView {
     }
   }
 
-  #fill(target: Fill, timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void {
+  #fill(target: Fill, timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const { group } = this.layer;
     const km = target.km;
     group.fillPositionsKm(timeUtcMs, km);
     this.fillCount += 1;
     target.timeUtcMs = timeUtcMs;
-    const offset = centreOffsetKm(this.layer, adapter, timeUtcMs);
+    const offset = centreOffsetKm(this.layer, placement, timeUtcMs);
     let cx = 0;
     let cy = 0;
     let cz = 0;
@@ -242,8 +240,8 @@ export class PointsView {
   }
 
   /** Before any fill and outside bounds, the group's centre stands in for the representative point. */
-  #holdCentre(adapter: AstronomyAdapter, timeUtcMs: number, policy: ScalePolicy): void {
-    const offset = centreOffsetKm(this.layer, adapter, timeUtcMs);
+  #holdCentre(placement: ScenePlacement, timeUtcMs: number, policy: ScalePolicy): void {
+    const offset = centreOffsetKm(this.layer, placement, timeUtcMs);
     this.#holdKm = [offset[0], offset[1], offset[2]];
     this.#centroid = eqjToRenderVector(policy.mapPosition(this.#holdKm));
   }

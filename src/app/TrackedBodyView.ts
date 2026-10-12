@@ -19,7 +19,7 @@ import type { FloatingOrigin } from "./floatingOrigin";
 import { anchorLabelsOf, markerRadiusUnits, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
 import { mapOrbitPath } from "./orbitPath";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { trackedAbsolute } from "./sceneLayout";
+import { sceneOffsetKm, trackedAbsolute, type ScenePlacement } from "./sceneLayout";
 
 /** Drawn after Earth and Moon so overlays are never swallowed by a body in a compressed scale. */
 export const TRACK_LAYER = 3;
@@ -77,6 +77,7 @@ export class TrackedBodyView {
   readonly #samples: ReturnType<typeof sampleTrackedPositions>;
   readonly #anchorKm: Float64Array;
   #mappedFor = "";
+  #placedFor: string | null = null;
   #mappedPath: Float64Array = new Float64Array(0);
   #mappedAnchors: Float64Array = new Float64Array(0);
   readonly #materials: readonly { depthTest: boolean }[];
@@ -115,17 +116,17 @@ export class TrackedBodyView {
   }
 
   /** Scaled absolute target for the camera; holds the nearest bound outside the trajectory. */
-  absolute(timeUtcMs: number, policy: ScalePolicy): RenderVector {
-    return trackedAbsolute(stateClampedToBounds(this.body, timeUtcMs), policy);
+  absolute(timeUtcMs: number, policy: ScalePolicy, placement: ScenePlacement): RenderVector {
+    return trackedAbsolute(stateClampedToBounds(this.body, timeUtcMs), policy, placement);
   }
 
-  update(timeUtcMs: number, policy: ScalePolicy, origin: FloatingOrigin, camera: Camera): void {
-    this.#remap(policy);
+  update(timeUtcMs: number, policy: ScalePolicy, origin: FloatingOrigin, camera: Camera, placement: ScenePlacement): void {
+    this.#remap(policy, placement);
     // Mapped positions are not consistent with body radii in ReadableScale, so only TrueScale occludes.
     const occlude = policy.id === "true-scale";
     for (const material of this.#materials) material.depthTest = occlude;
     const state = stateIfInBounds(this.body, timeUtcMs);
-    const current = state === null ? null : trackedAbsolute(state, policy);
+    const current = state === null ? null : trackedAbsolute(state, policy, placement);
     const split = travelledCount(this.#samples.timesUtcMs, timeUtcMs);
     const total = this.#samples.timesUtcMs.length;
     this.#fillPath(this.#travelled, 0, split, null, current, origin);
@@ -140,11 +141,29 @@ export class TrackedBodyView {
     }
   }
 
-  #remap(policy: ScalePolicy): void {
-    if (this.#mappedFor === policy.id) return;
-    this.#mappedPath = mapOrbitPath(this.#samples, policy);
-    this.#mappedAnchors = mapOrbitPath({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, policy);
+  /**
+   * A relative trail: each sample is the body's position from the scene centre at that sample's own time, so a
+   * scene centred where the trajectory is measured draws the samples as they are.
+   */
+  #remap(policy: ScalePolicy, placement: ScenePlacement): void {
+    const placed = placement.center;
+    if (this.#mappedFor === policy.id && this.#placedFor === placed) return;
+    this.#mappedPath = mapOrbitPath(this.#shifted(this.#samples.timesUtcMs, this.#samples.positionsKm, placement), policy);
+    this.#mappedAnchors = mapOrbitPath(this.#shifted(this.body.anchorTimesUtcMs, this.#anchorKm, placement), policy);
     this.#mappedFor = policy.id;
+    this.#placedFor = placed;
+  }
+
+  #shifted(timesUtcMs: readonly number[], positionsKm: Float64Array, placement: ScenePlacement): { readonly timesUtcMs: readonly number[]; readonly positionsKm: Float64Array } {
+    if (timesUtcMs.length === 0) return { timesUtcMs, positionsKm };
+    const from = this.body.trajectory.stateAt(timesUtcMs[0]).center;
+    if (from === placement.center) return { timesUtcMs, positionsKm };
+    const shifted = Float64Array.from(positionsKm);
+    timesUtcMs.forEach((time, index) => {
+      const offset = sceneOffsetKm(placement, from, time)!;
+      for (let k = 0; k < 3; k += 1) shifted[index * 3 + k] += offset[k];
+    });
+    return { timesUtcMs, positionsKm: shifted };
   }
 
   /** Writes [leading?] samples [from, to) [trailing?] into the line and sets how much of it is drawn. */

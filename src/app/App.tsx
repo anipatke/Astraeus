@@ -5,13 +5,14 @@ import { MoonTrajectory } from "../core/moonTrajectory";
 import { trueScale } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { cameraReachOf, experienceWithGroups, groupsOf, sunCentredOf, trackedBodiesOf, usesEarthMoon, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { cameraReachOf, compositionOf, experienceWithGroups, groupsOf, mountedBodiesOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
+import { createSceneResolver } from "./sceneLayout";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
@@ -22,10 +23,23 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     const clock = new SimulationClock(definition.clock.startUtcMs);
     clock.setRate(definition.clock.rate);
     clock.play();
-    return { clock, adapter, trajectory: new MoonTrajectory(adapter), trackedBodies: trackedBodiesOf(definition), groups: groupsOf(definition), ...sunCentredOf(definition), earthMoon: usesEarthMoon(definition), cameraReach: cameraReachOf(definition) };
+    // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
+    const resolver = createSceneResolver(adapter);
+    return {
+      clock,
+      adapter,
+      resolver,
+      bodies: mountedBodiesOf(definition),
+      composition: compositionOf(definition),
+      sceneCenter: sceneCenterOf(definition),
+      trackedBodies: trackedBodiesOf(definition),
+      groups: groupsOf(definition),
+      ...sunCentredOf(definition),
+      cameraReach: cameraReachOf(definition),
+    };
   }, [definition]);
   const experienceRuntime = useMemo(
-    () => ({ clock: runtime.clock, adapter: runtime.adapter, moon: runtime.trajectory }),
+    () => ({ clock: runtime.clock, adapter: runtime.adapter, moon: new MoonTrajectory(runtime.adapter) }),
     [runtime],
   );
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);

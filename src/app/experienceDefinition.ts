@@ -4,6 +4,9 @@ import type { SimulationClock } from "../core/clock";
 import type { MoonTrajectory } from "../core/moonTrajectory";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
+import type { BodyId } from "../core/body";
+import { catalogue } from "../assets/catalogue";
+import { earthMoonSystem, type SystemComposition } from "../assets/compositions";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import type { TrackedBody } from "./mission";
@@ -101,8 +104,12 @@ export const DEFAULT_CAMERA_FAR = 5_000;
 export interface ExperienceDefinition {
   readonly experience: ExperienceConfig;
   readonly clock: { readonly startUtcMs: number; readonly rate: number };
-  /** Layers the scene mounts, e.g. the Earth/Moon bodies and the tracked-body list. */
+  /** Layers the scene mounts, e.g. the tracked-body list. The `earth-moon` layer is an alias for `composition: earthMoonSystem`. */
   readonly sceneLayers: readonly SceneLayerId[];
+  /** The catalogued bodies the scene draws, one view each. Absent: none (unless the `earth-moon` alias is listed). */
+  readonly composition?: SystemComposition;
+  /** The catalogued body at the scene's zero. Presentation only; defaults to the composition's own centre, else Earth. */
+  readonly sceneCenter?: BodyId;
   /** Drawn only when the `tracked-bodies` layer is listed. */
   readonly trackedBodies: readonly TrackedBody[];
   /** Drawn only when the `points` layer is listed. */
@@ -136,9 +143,37 @@ export function cameraReachOf(definition: ExperienceDefinition): CameraReach {
   return definition.camera === undefined ? {} : validateCameraReach(definition.camera);
 }
 
-/** Whether the scene mounts the Earth and Moon bodies. */
+/** The composition the scene mounts: the declared one, else Earth and the Moon for the `earth-moon` alias, else none. */
+export function compositionOf(definition: ExperienceDefinition): SystemComposition | undefined {
+  if (definition.composition !== undefined) return definition.composition;
+  return definition.sceneLayers.includes("earth-moon") ? earthMoonSystem : undefined;
+}
+
+/**
+ * The catalogued body at the scene's zero. A scene with no composition keeps Earth as its zero, the origin that
+ * tracked bodies and groups are measured from. Throws for a centre the catalogue lacks or the composition omits.
+ */
+export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
+  const composition = compositionOf(definition);
+  const centre = definition.sceneCenter ?? composition?.defaultCenter ?? "earth";
+  if (!catalogue.has(centre)) throw new RangeError(`sceneCenter "${centre}" is not in the catalogue`);
+  if (composition !== undefined && !composition.bodies.includes(centre)) {
+    throw new RangeError(`sceneCenter "${centre}" is not one of composition "${composition.id}" bodies (${composition.bodies.join(", ")})`);
+  }
+  return centre;
+}
+
+/** The bodies the scene draws, in draw order: the composition's, plus the Sun when a Sun is declared and not already listed. */
+export function mountedBodiesOf(definition: ExperienceDefinition): readonly BodyId[] {
+  const bodies = [...(compositionOf(definition)?.bodies ?? [])];
+  if (sunCentredOf(definition).sun !== undefined && !bodies.includes("sun")) bodies.push("sun");
+  return bodies;
+}
+
+/** Whether the scene mounts both the Earth and the Moon. */
 export function usesEarthMoon(definition: ExperienceDefinition): boolean {
-  return definition.sceneLayers.includes("earth-moon");
+  const bodies = compositionOf(definition)?.bodies ?? [];
+  return bodies.includes("earth") && bodies.includes("moon");
 }
 
 /** The tracked bodies the scene should draw: none unless the layer is listed. */

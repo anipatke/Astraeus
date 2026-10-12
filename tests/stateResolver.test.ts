@@ -48,17 +48,25 @@ describe("built-in catalogue", () => {
 describe("resolver equals today's recentring sites", () => {
   const moon = new MoonTrajectory(adapter);
 
-  it("places the Moon from the Sun as MoonTrajectory's Sun branch does, at every archived Horizons date", () => {
+  it("places the Moon from the Sun as the removed Sun branch did (Moon-from-Earth plus Earth-from-Sun), at every archived Horizons date", () => {
     for (const sample of moonFixture.samples) {
       const time = Date.parse(sample.utc);
       const viaResolver = real.stateOf("moon", time, "sun");
-      const viaBranch = moon.stateAt(time, "sun");
+      // The old branch, written out: the Moon's own Earth-centred state shifted by Earth's position from the Sun.
+      const moonFromEarth = moon.stateAt(time, "earth");
+      const earthFromSun = earthStateAt(adapter, time);
       expect(viaResolver.center).toBe("sun");
       for (let axis = 0; axis < 3; axis += 1) {
-        expect(Math.abs(viaResolver.positionKm[axis] - viaBranch.positionKm[axis])).toBeLessThanOrEqual(1e-9);
+        expect(Math.abs(viaResolver.positionKm[axis] - (moonFromEarth.positionKm[axis] + earthFromSun.positionKm[axis]))).toBeLessThanOrEqual(1e-9);
       }
-      expect(viaResolver.orientation).toEqual(viaBranch.orientation);
+      expect(viaResolver.orientation).toEqual(moonFromEarth.orientation);
     }
+  });
+
+  it("no longer recentres the Moon itself: any centre but Earth is the resolver's job", () => {
+    expect(() => moon.stateAt(T, "sun")).toThrow(/Earth/);
+    expect(() => moon.stateAt(T, "moon")).toThrow(/Earth/);
+    expect(moon.stateAt(T).center).toBe("earth");
   });
 
   it("places Earth and the Sun as earthStateAt and sunPositionFromEarthAt do, exactly", () => {

@@ -10,7 +10,8 @@ import {
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
-import { PathView, BodyMarkerView, createSunCentredViews } from "../src/app/SunCentredView";
+import { PathView, createSunCentredViews, pathReachKm } from "../src/app/SunCentredView";
+import { placementAbout } from "./scenePlacement";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createProvenance } from "../src/core/provenance";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
@@ -28,6 +29,8 @@ import {
 } from "../src/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
+const earthPlacement = placementAbout("earth", adapter);
+const sunPlacement = placementAbout("sun", adapter);
 const twoBody = createOrbTwoBodyAdapter();
 const AU_KM = 149_597_870.7;
 const YEAR_MS = Math.round(365.256363 * 86_400_000);
@@ -145,15 +148,29 @@ describe("Earth's path and the Sun are placed through centre composition", () =>
     }
   });
 
-  it.each([["True", trueScale], ["Readable", readableScale]])("places the Sun body and every vertex at %s scale", (_name, policy) => {
+  it("takes the Sun's offset from the resolver, within the Sun series' own agreement with the negated Earth geometry", () => {
     const t = START + 30 * 86_400_000;
-    const sunView = new BodyMarkerView(syntheticSun);
-    sunView.sync(t, adapter, policy);
-    const sunKm = sunPositionFromEarthAt(adapter, t).positionKm;
-    expect(Array.from(sunView.absolute())).toEqual(Array.from(eqjToRenderVector(policy.mapPosition(sunKm))));
+    const fromResolver = earthPlacement.resolver.offsetKm("sun", "earth", t);
+    const fromSeries = sunPositionFromEarthAt(adapter, t).positionKm;
+    for (let k = 0; k < 3; k += 1) expect(Math.abs(fromResolver[k] - fromSeries[k])).toBeLessThan(1);
+    expect(Array.from(earthPlacement.resolver.offsetKm("sun", "sun", t))).toEqual([0, 0, 0]);
+  });
 
+  it("adds nothing to a path in a Sun-centred scene, where the vertices are the samples", () => {
+    const t = START + 30 * 86_400_000;
     const far = new PathView(syntheticFarPath);
-    far.sync(t, adapter, policy);
+    far.sync(t, sunPlacement, trueScale);
+    for (const k of [0, 100, 255]) {
+      const km = [0, 1, 2].map((c) => far.samplesKm[3 * k + c]);
+      expect(Array.from(far.vertexAbsolute(k))).toEqual(Array.from(eqjToRenderVector(trueScale.mapPosition(km))));
+    }
+  });
+
+  it.each([["True", trueScale], ["Readable", readableScale]])("places every path vertex at %s scale from the scene centre", (_name, policy) => {
+    const t = START + 30 * 86_400_000;
+    const sunKm = earthPlacement.resolver.offsetKm("sun", "earth", t);
+    const far = new PathView(syntheticFarPath);
+    far.sync(t, earthPlacement, policy);
     far.place(new FloatingOrigin());
     for (const k of [0, 100, 255]) {
       const km = [0, 1, 2].map((c) => far.samplesKm[3 * k + c] + sunKm[c]);
@@ -165,12 +182,10 @@ describe("Earth's path and the Sun are placed through centre composition", () =>
   });
 
   it("frames the Sun by the farthest path and anchors a path's label on its own line", () => {
-    const views = createSunCentredViews(syntheticSun, [syntheticEarthPath, syntheticFarPath]);
-    const sunView = views[0];
-    const far = views[2] as PathView;
-    sunView.sync(START, adapter, trueScale);
-    expect(sunView.extentUnits(trueScale)).toBeCloseTo((far.maxRadiusKm / 6371), 0);
-    far.sync(START, adapter, trueScale);
+    const views = createSunCentredViews([syntheticEarthPath, syntheticFarPath]);
+    const far = views[1];
+    expect(pathReachKm(views)).toBe(far.maxRadiusKm);
+    far.sync(START, earthPlacement, trueScale);
     expect(Array.from(far.labelAnchor())).toEqual(Array.from(far.vertexAbsolute(0)));
   });
 });
@@ -182,8 +197,8 @@ describe("State is untouched and an experience without the declaration is unchan
     const before = new Float64Array(3 * layer.group.count);
     const after = new Float64Array(3 * layer.group.count);
     layer.group.fillPositionsKm(t, before);
-    const views = createSunCentredViews(syntheticSun, [syntheticEarthPath, syntheticFarPath]);
-    for (const view of views) { view.sync(t, adapter, trueScale); view.place(new FloatingOrigin()); }
+    const views = createSunCentredViews([syntheticEarthPath, syntheticFarPath]);
+    for (const view of views) { view.sync(t, earthPlacement, trueScale); view.place(new FloatingOrigin()); }
     layer.group.fillPositionsKm(t, after);
     expect(Array.from(after)).toEqual(Array.from(before));
     expect(Array.from(earthStateAt(adapter, t).positionKm)).toEqual(Array.from(adapter.earthPositionFromSunKm(t)));

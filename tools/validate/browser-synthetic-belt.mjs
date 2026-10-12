@@ -1,4 +1,4 @@
-// Browser check for the made-up Sun-centred belt (declared camera reach). Run the app on port 5199, then:
+// Browser check for the made-up Sun-centred belt (declared camera reach), now a Sun-centred composition (T-044). Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic-belt.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
@@ -33,6 +33,7 @@ const litPixels = async (target = page) => {
 };
 const lit = {};
 const sunCentred = {};
+const compositionCounts = {};
 
 // T-041: the Sun and two paths. Pixel families on the canvas, by colour: Sun marker (pale yellow), Earth's path (blue),
 // the made-up far path (purple), belt dots (amber). Counted from a canvas screenshot, so they are relative evidence.
@@ -94,6 +95,110 @@ try {
   }
   await page.getByRole("button", { name: "Play playback" }).click();
   await page.waitForTimeout(800);
+
+  // T-044: the belt mounts the Sun and Earth about the Sun, with the Sun at the scene's zero. Each prior scenario above and in
+  // checkSunCentred is kept unchanged (belt dots focus and zoom, Sun and path families in the Sun view, selection and info); these
+  // add the composition: the scene says what it mounted, the Sun sits at the origin the camera orbits, and Earth is drawn on its path.
+  const composition = async (target, label) => {
+    const targetCanvas = target.getByTestId("earth-moon-canvas");
+    assert.equal(await targetCanvas.getAttribute("data-scene-center"), "sun", `${label}: the scene is centred on the Sun`);
+    assert.equal(await targetCanvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted, in that order`);
+    assert.equal(await targetCanvas.getAttribute("data-earth-moon"), "false", `${label}: no Moon is mounted`);
+    const pause = target.getByRole("button", { name: "Pause playback", exact: true });
+    if (await pause.count()) await pause.click();
+    const closeInfo = async () => { const c = target.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
+    const pickPreset = async (name) => {
+      const compact = target.locator(".object-camera-picker");
+      if (await compact.isVisible()) {
+        const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);
+        assert.ok(value, `${label}: preset ${name} exists`);
+        await compact.selectOption(value);
+      } else {
+        await target.getByRole("button", { name, exact: true }).click();
+      }
+    };
+    // Counts of pixels within `radius` px of the canvas centre: the camera orbits the focused body, so what sits at the centre is that body.
+    const nearCentre = async (radius) => {
+      await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+      const png = (await targetCanvas.screenshot()).toString("base64");
+      await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+      return target.evaluate(async ([data, r]) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${data}`;
+        await image.decode();
+        const copy = document.createElement("canvas");
+        copy.width = image.width; copy.height = image.height;
+        const ctx = copy.getContext("2d");
+        ctx.drawImage(image, 0, 0);
+        const cx = Math.round(image.width / 2);
+        const cy = Math.round(image.height / 2);
+        const px = ctx.getImageData(cx - r, cy - r, 2 * r + 1, 2 * r + 1).data;
+        const counts = { sun: 0, path: 0, lit: 0 };
+        for (let i = 0; i < px.length; i += 4) {
+          const [red, green, blue] = [px[i], px[i + 1], px[i + 2]];
+          if (red + green + blue > 45) counts.lit += 1;
+          // The Sun marker reads (227, 222, 196) in the canvas: its #fff1b0 colour as the software renderer shows it.
+          if (red > 215 && red < 240 && green > 210 && green < 232 && blue > 185 && blue < 208) counts.sun += 1;
+          else if (blue > 60 && blue - red > 25) counts.path += 1;
+        }
+        return counts;
+      }, [png, radius]);
+    };
+    const seekTo = async (utc) => {
+      await target.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }, utc);
+      await target.waitForTimeout(400);
+    };
+    for (const scale of ["True", "Readable"]) {
+      await target.getByRole("button", { name: scale, exact: true }).click();
+      for (const [when, utc] of [["start", Date.UTC(2030, 0, 1, 1, 0, 0)], ["twelve hours on", Date.UTC(2030, 0, 1, 13, 0, 0)]]) {
+        await seekTo(utc);
+        // The Sun is the scene's zero: focusing it puts its marker on the axis the camera orbits.
+        await target.getByLabel("Select object").selectOption("sun");
+        await closeInfo();
+        await pickPreset("Sun view");
+        await target.waitForTimeout(1800);
+        // Zoom right in on the focused Sun so the belt's dots thin out around it and the marker stands alone at the centre.
+        const sunBox = await targetCanvas.boundingBox();
+        await target.mouse.move(sunBox.x + sunBox.width / 2, sunBox.y + sunBox.height / 2);
+        for (let i = 0; i < 40; i += 1) await target.mouse.wheel(0, -600);
+        await target.waitForTimeout(1200);
+        const sun = await nearCentre(8);
+        compositionCounts[`${label}-${scale}-${when}-sun`] = sun;
+        assert.ok(sun.sun > 20, `${label}/${scale}/${when}: the Sun marker sits at the scene's zero (${sun.sun})`);
+        // Earth is a drawn body: focused, it fills the view; pulled back, the path line passes through it.
+        await target.getByLabel("Select object").selectOption("earth");
+        await closeInfo();
+        await pickPreset("Focus Earth");
+        await target.waitForTimeout(1800);
+        const near = await nearCentre(8);
+        compositionCounts[`${label}-${scale}-${when}-earth-near`] = near;
+        assert.ok(near.lit > 100, `${label}/${scale}/${when}: Earth is drawn where the camera focuses (${JSON.stringify(near)})`);
+        const box = await targetCanvas.boundingBox();
+        await target.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        for (let i = 0; i < 6; i += 1) await target.mouse.wheel(0, 600);
+        await target.waitForTimeout(1200);
+        const far = await nearCentre(8);
+        compositionCounts[`${label}-${scale}-${when}-earth-far`] = far;
+        assert.ok(far.path > 3, `${label}/${scale}/${when}: Earth's path line passes through Earth (${JSON.stringify(far)})`);
+        if (outDir) await target.screenshot({ path: `${outDir}/${label}-${scale.toLowerCase()}-${when.replace(/ /g, "-")}-earth-on-path.png` });
+      }
+    }
+  };
+  await composition(page, "desktop-composition");
+  const phoneComposition = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  phoneComposition.on("pageerror", (error) => errors.push(`pageerror(phone composition): ${error.message}`));
+  phoneComposition.on("console", (message) => { if (message.type() === "error") errors.push(`console(phone composition): ${message.text()}`); });
+  try {
+    await phoneComposition.goto(`${base}?experience=synthetic-belt`);
+    await phoneComposition.waitForSelector("canvas");
+    await phoneComposition.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await composition(phoneComposition, "phone-composition");
+  } finally {
+    await phoneComposition.close();
+  }
 
   // T-041: the Sun and paths, at desktop and phone sizes, True and Readable scale. Prior scenarios above are kept unchanged.
   const checkSunCentred = async (target, label) => {
@@ -183,5 +288,5 @@ try {
 } finally {
   await browser.close();
 }
-console.log(JSON.stringify({ lit, sunCentred, errors }, null, 2));
+console.log(JSON.stringify({ lit, sunCentred, compositionCounts, errors }, null, 2));
 if (errors.length > 0) process.exit(1);

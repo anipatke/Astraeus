@@ -2,15 +2,14 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial, type DirectionalLight } from "three";
 import type { SimulationClock } from "../core/clock";
-import type { AstronomyAdapter } from "../core/astronomyAdapter";
-import { EARTH, MOON } from "../core/body";
-import { directionFromCenterToSun, directionToSun } from "../core/illumination";
-import type { MoonTrajectory } from "../core/moonTrajectory";
-import { earthStateAt, sunPositionFromEarthAt } from "../core/referenceCenters";
+import type { BodyId } from "../core/body";
+import { directionFromCenterToSun } from "../core/illumination";
 import type { ScalePolicy } from "../core/scalePolicy";
-import type { State } from "../core/state";
+import type { StateResolver } from "../core/stateResolver";
+import type { Trajectory } from "../core/trajectory";
 import { AnchorLabelLayer } from "./AnchorLabels";
-import { catalogue } from "../assets/catalogue";
+import { catalogue, type BodyAsset } from "../assets/catalogue";
+import type { CompositionPath, SystemComposition } from "../assets/compositions";
 import { BodyView } from "./BodyView";
 import {
   attachOrbitGestures,
@@ -19,8 +18,8 @@ import {
   poseCamera,
   resolveCamera,
   switchFocus,
-  type FocusId,
   type CameraRequest,
+  type FocusId,
   type OrbitCameraState,
 } from "./CameraController";
 import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
@@ -35,41 +34,46 @@ import {
   type OrbitPathSamples,
 } from "./orbitPath";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { bodyAbsolutes, placeBodies, type SceneHierarchy } from "./sceneLayout";
+import { bodyAbsolute, placeBody, placeComposition, sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
+import {
+  assignBodyLayers,
+  defaultDistance,
+  focusLimits,
+  focusRadius,
+  GROUP_FRAMING,
+  scaleLength,
+  TRACKED_DEFAULT_DISTANCE,
+  type SceneFrame,
+} from "./sceneFraming";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
-import { createSunCentredViews } from "./SunCentredView";
+import { createSunCentredViews, pathReachKm } from "./SunCentredView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import type { ExperienceObject } from "../shell/experience";
 
-// Render passes: Earth (layer 1) and Moon (layer 2) each get their own physical Sun direction.
-const EARTH_LAYER = 1;
-const MOON_LAYER = 2;
-const EARTH_ASSET = catalogue.get("earth");
-const MOON_ASSET = catalogue.get("moon");
-const EARTH_LIGHT = EARTH_ASSET.visual.light!;
-const MOON_LIGHT = MOON_ASSET.visual.light!;
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
 const REBASE_THRESHOLD = 1;
-/** Camera framing span in Earth radii when the Earth–Moon layer is off and there is no Moon distance to frame by. */
-const BARE_SCENE_SPAN = 60;
 
 export interface SceneRuntime {
   readonly clock: SimulationClock;
-  readonly adapter: AstronomyAdapter;
-  readonly trajectory: MoonTrajectory;
+  /** The one resolver every position in the scene comes from. */
+  readonly resolver: StateResolver;
+  /** The catalogued bodies drawn, one view each, in draw order. */
+  readonly bodies: readonly BodyId[];
+  /** The composition the bodies come from, if the experience declares one; its paths are drawn. */
+  readonly composition?: SystemComposition;
+  /** The catalogued body at the scene's zero. */
+  readonly sceneCenter: BodyId;
   /** Bodies the `tracked-bodies` layer draws; empty when the experience has none. */
   readonly trackedBodies: readonly TrackedBody[];
   /** Groups the `points` layer draws as dots; empty when the experience has none. */
   readonly groups: readonly GroupLayer[];
-  /** The Sun the `sun-centred` layer draws, if the experience declares one. */
+  /** Presentation of the Sun body (colour, marker size) and its shell item, if the experience declares one. */
   readonly sun?: SunBody;
   /** Paths the `sun-centred` layer draws; empty when the experience has none. */
   readonly paths?: readonly PathLayer[];
-  /** Whether the `earth-moon` layer is mounted: Earth and Moon meshes, their lights and the Moon path. */
-  readonly earthMoon: boolean;
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
 }
@@ -98,34 +102,43 @@ interface Props {
 }
 
 export function AstraeusScene(props: Props) {
+  const { runtime } = props;
+  const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER), [runtime.bodies]);
+  const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers]);
   return (
     <Canvas
-      camera={{ fov: 45, near: 0.05, far: props.runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
+      camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
       gl={{ antialias: true }}
       style={{ background: "#000000" }}
       data-testid="earth-moon-canvas"
-      data-earth-moon={props.runtime.earthMoon}
-      data-point-groups={props.runtime.groups.length}
-      data-sun-centred={(props.runtime.sun === undefined ? 0 : 1) + (props.runtime.paths?.length ?? 0)}
+      data-earth-moon={runtime.bodies.includes("earth") && runtime.bodies.includes("moon")}
+      data-scene-center={runtime.sceneCenter}
+      data-bodies={runtime.bodies.join(",")}
+      data-point-groups={runtime.groups.length}
+      data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
     >
-      <SceneContents {...props} />
-      <LayeredRender />
+      <SceneContents {...props} layers={layers} />
+      <LayeredRender lightLayers={lightLayers} />
     </Canvas>
   );
 }
 
-/** Takes over rendering so each body is lit only by its own Sun direction. */
-function LayeredRender() {
+/** Takes over rendering so each lit body is lit only by its own Sun direction, one pass per body. */
+function LayeredRender({ lightLayers }: { readonly lightLayers: readonly number[] }) {
   useFrame(({ gl, scene, camera }) => {
     const previousAutoClear = gl.autoClear;
     const previousMask = camera.layers.mask;
     gl.autoClear = false;
     gl.clear();
-    // Layer 0 (path) is drawn with Earth's pass, then the Moon pass shares the depth buffer.
-    camera.layers.mask = 1 | (1 << EARTH_LAYER);
-    gl.render(scene, camera);
-    camera.layers.mask = 1 << MOON_LAYER;
-    gl.render(scene, camera);
+    // Layer 0 (paths) is drawn with the first body's pass, then every later body's pass shares the depth buffer.
+    lightLayers.forEach((layer, index) => {
+      camera.layers.mask = (index === 0 ? 1 : 0) | (1 << layer);
+      gl.render(scene, camera);
+    });
+    if (lightLayers.length === 0) {
+      camera.layers.mask = 1;
+      gl.render(scene, camera);
+    }
     camera.layers.mask = 1 << TRACK_LAYER;
     gl.render(scene, camera);
     camera.layers.mask = previousMask;
@@ -134,30 +147,57 @@ function LayeredRender() {
   return null;
 }
 
-function SceneContents({ runtime, controls, readout }: Props) {
+interface OrbitLine {
+  readonly path: CompositionPath;
+  readonly parent: BodyId;
+  readonly source: Trajectory;
+  readonly line: Line;
+  samples: OrbitPathSamples | null;
+  mappedFor: string;
+  mapped: Float64Array | null;
+  builtRealMs: number;
+}
+
+function createOrbitLine(path: CompositionPath, resolver: StateResolver): OrbitLine {
+  const parent = catalogue.get(path.body).definition.parentId;
+  if (parent === undefined) throw new RangeError(`path body "${path.body}" has no parent to orbit`);
+  const geometry = new BufferGeometry();
+  const count = path.samples ?? DEFAULT_PATH_SAMPLES;
+  geometry.setAttribute("position", new BufferAttribute(new Float32Array(count * 3), 3));
+  const line = new Line(geometry, new LineBasicMaterial({ color: "#f0e6da", transparent: true, opacity: 0.45 }));
+  line.frustumCulled = false;
+  // The body's positions about its parent, from the resolver: the centre argument sampleOrbitPath passes is the parent already.
+  const source: Trajectory = { body: path.body, stateAt: (timeUtcMs) => resolver.stateOf(path.body, timeUtcMs, parent) };
+  return { path, parent, source, line, samples: null, mappedFor: "", mapped: null, builtRealMs: Number.NEGATIVE_INFINITY };
+}
+
+interface SceneContentsProps extends Props {
+  readonly layers: ReadonlyMap<BodyId, number>;
+}
+
+function SceneContents({ runtime, controls, readout, layers }: SceneContentsProps) {
   const { gl, camera, size } = useThree();
   const rootRef = useRef<Group>(null);
-  const earthGroupRef = useRef<Group>(null);
-  const earthMeshRef = useRef<Group>(null);
-  const moonGroupRef = useRef<Group>(null);
-  const moonMeshRef = useRef<Group>(null);
-  const earthLightRef = useRef<DirectionalLight>(null);
-  const moonLightRef = useRef<DirectionalLight>(null);
+  const groupRefs = useRef(new Map<BodyId, Group>());
+  const orientRefs = useRef(new Map<BodyId, Group>());
+  const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
+  const placed = useRef<ReadonlyMap<BodyId, RenderVector>>(new Map());
+  const refFor = (map: Map<BodyId, Group>, id: BodyId) => (node: Group | null) => {
+    if (node === null) map.delete(id);
+    else map.set(id, node);
+  };
 
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16));
-  const moonDistanceScaled = useRef(6);
+  const spanScaled = useRef(6);
   const lastPolicyId = useRef(controls.policy.id);
-  const pathState = useRef<{ samples: OrbitPathSamples | null; mappedFor: string; mapped: Float64Array | null; builtRealMs: number }>({
-    samples: null,
-    mappedFor: "",
-    mapped: null,
-    builtRealMs: Number.NEGATIVE_INFINITY,
-  });
+  const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
+  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => catalogue.get(id)), [runtime.bodies]);
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
-  const sunCentredViews = useMemo(() => createSunCentredViews(runtime.sun, runtime.paths ?? []), [runtime.sun, runtime.paths]);
+  const sunCentredViews = useMemo(() => createSunCentredViews(runtime.paths ?? []), [runtime.paths]);
+  const orbitLines = useMemo(() => (runtime.composition?.paths ?? []).map((path) => createOrbitLine(path, runtime.resolver)), [runtime.composition, runtime.resolver]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
@@ -183,38 +223,29 @@ function SceneContents({ runtime, controls, readout }: Props) {
     };
   }, [gl, controls.labelObjects]);
 
-  const pathLine = useMemo(() => {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new BufferAttribute(new Float32Array(DEFAULT_PATH_SAMPLES * 3), 3));
-    const line = new Line(geometry, new LineBasicMaterial({ color: "#f0e6da", transparent: true, opacity: 0.45 }));
-    line.frustumCulled = false;
-    return line;
-  }, []);
+  /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
+  const bodyIdFor = (id: string): BodyId | null => {
+    if (runtime.sun !== undefined && id === runtime.sun.object.id) return "sun";
+    return catalogue.has(id) ? id : null;
+  };
 
   useEffect(() => {
-    const limits = () => {
-      const moonRadius = controls.policy.mapRadius(MOON.radiusKm);
-      return focusLimits(orbit.current.focus, moonRadius, moonDistanceScaled.current, runtime.cameraReach);
-    };
+    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: spanScaled.current }, controls.policy, runtime.cameraReach);
     return attachOrbitGestures(gl.domElement, orbit.current, limits);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, controls]);
 
   useFrame((_state, delta) => {
-    const earthGroup = earthGroupRef.current;
-    const earthMesh = earthMeshRef.current;
-    const moonGroup = moonGroupRef.current;
-    const moonMesh = moonMeshRef.current;
     const root = rootRef.current;
     if (!root) return;
-    const { clock, adapter, trajectory, earthMoon } = runtime;
-    if (earthMoon && (!earthGroup || !earthMesh || !moonGroup || !moonMesh)) return;
+    const { clock, resolver, sceneCenter } = runtime;
+    for (const id of runtime.bodies) if (!groupRefs.current.has(id) || !orientRefs.current.has(id)) return;
 
     const policy = controls.policy;
     const t = clock.now();
-    const moonFromEarth = earthMoon ? trajectory.stateAt(t, "earth") : null;
     const camState = orbit.current;
-    for (const view of groupViews) view.sync(t, adapter, policy);
-    for (const view of sunCentredViews) view.sync(t, adapter, policy);
+    for (const view of groupViews) view.sync(t, placement, policy);
+    for (const view of sunCentredViews) view.sync(t, placement, policy);
     if (controls.frameStats !== null) {
       controls.frameStats.tick(performance.now());
       groupViews.forEach((view, i) => {
@@ -223,131 +254,152 @@ function SceneContents({ runtime, controls, readout }: Props) {
         else fill.count = view.fillCount;
       });
     }
-    // Without the layer, "earth" is only the Earth-centred origin that tracked bodies are measured from.
-    const absolutes = moonFromEarth === null
-      ? { earthAbsolute: eqjToRenderVector(policy.mapPosition([0, 0, 0])), moonAbsolute: eqjToRenderVector(policy.mapPosition([0, 0, 0])) }
-      : bodyAbsolutes(moonFromEarth, policy);
-    const moonDistance = moonFromEarth === null ? BARE_SCENE_SPAN : Math.hypot(
-      absolutes.moonAbsolute[0] - absolutes.earthAbsolute[0],
-      absolutes.moonAbsolute[1] - absolutes.earthAbsolute[1],
-      absolutes.moonAbsolute[2] - absolutes.earthAbsolute[2],
-    );
+    // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
+    const composed = placeComposition(runtime.bodies, placement, policy, t);
+    placed.current = composed.absolutes;
+    const absoluteOf = (id: BodyId): RenderVector =>
+      composed.absolutes.get(id) ?? bodyAbsolute(resolver.stateOf(id, t, sceneCenter).positionKm, policy);
+    const span = composed.span;
     if (policy.id !== lastPolicyId.current) {
       // Keep the same relative framing when the visual scale changes; physical state is untouched.
-      // Moon framing depends on its radius, which both policies map identically.
-      if (camState.focus === "earth") camState.distance *= moonDistance / moonDistanceScaled.current;
-      for (let i = 0; i < 3; i += 1) camState.transition[i] *= moonDistance / moonDistanceScaled.current;
+      if (camState.focus === sceneCenter) camState.distance *= span / spanScaled.current;
+      for (let i = 0; i < 3; i += 1) camState.transition[i] *= span / spanScaled.current;
       lastPolicyId.current = policy.id;
     }
-    moonDistanceScaled.current = moonDistance;
+    spanScaled.current = span;
+    const frame: SceneFrame = { centre: sceneCenter, span };
 
-    const moonRadius = policy.mapRadius(MOON.radiusKm);
     const focusAbsolute = (focus: FocusId): RenderVector => {
-      if (focus === "earth") return absolutes.earthAbsolute;
-      if (focus === "moon") return absolutes.moonAbsolute;
+      const body = bodyIdFor(focus);
+      if (body !== null) return absoluteOf(body);
       const group = groupViews.find((candidate) => candidate.id === focus);
       if (group) return group.absolute();
       const sunCentred = sunCentredViews.find((candidate) => candidate.id === focus);
       if (sunCentred) return sunCentred.absolute();
       const view = trackedViews.find((candidate) => candidate.body.id === focus);
       if (!view) throw new RangeError(`unknown focus target "${focus}"`);
-      return view.absolute(t, policy);
+      return view.absolute(t, policy, placement);
     };
 
     if (controls.cameraRequest) {
       const request = controls.cameraRequest;
       controls.cameraRequest = null;
-      const target = request.kind === "overview" ? "earth" : request.target;
+      const target = request.kind === "overview" ? sceneCenter : request.target;
+      const targetBody = bodyIdFor(target);
       switchFocus(camState, target, focusAbsolute(target));
       const framedGroup = groupViews.find((candidate) => candidate.id === target) ?? sunCentredViews.find((candidate) => candidate.id === target);
       if (request.kind !== "follow") {
-        camState.targetDistance = framedGroup
-          ? Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * framedGroup.extentUnits(policy))
-          : defaultDistance(target, moonRadius, moonDistance);
+        if (framedGroup) {
+          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * framedGroup.extentUnits(policy));
+        } else if (targetBody !== null && catalogue.get(targetBody).visual.kind === "marker") {
+          // A marker is a point: it is framed by how far the declared paths reach from it.
+          const reachKm = pathReachKm(sunCentredViews);
+          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * scaleLength(policy, reachKm));
+        } else {
+          camState.targetDistance = defaultDistance(targetBody ?? target, frame, policy);
+        }
       }
-      if (request.kind === "focus" && target === "moon") {
-        // Start on the Earth side of the Moon so the phase reads as an Earth observer sees it.
-        const toEarth = [
-          absolutes.earthAbsolute[0] - absolutes.moonAbsolute[0],
-          absolutes.earthAbsolute[1] - absolutes.moonAbsolute[1],
-          absolutes.earthAbsolute[2] - absolutes.moonAbsolute[2],
-        ];
-        camState.targetElevation = Math.asin(toEarth[1] / moonDistance);
-        camState.targetAzimuth = Math.atan2(toEarth[0], toEarth[2]);
+      const parent = targetBody === null ? undefined : catalogue.get(targetBody).definition.parentId;
+      if (request.kind === "focus" && targetBody !== null && targetBody !== sceneCenter && parent !== undefined && placed.current.has(parent)) {
+        // Start on the side of the body that faces its parent, so a phase reads as an observer on the parent sees it.
+        const at = placed.current.get(targetBody)!;
+        const from = placed.current.get(parent)!;
+        const toParent = [from[0] - at[0], from[1] - at[1], from[2] - at[2]];
+        const distance = Math.hypot(toParent[0], toParent[1], toParent[2]);
+        camState.targetElevation = Math.asin(toParent[1] / distance);
+        camState.targetAzimuth = Math.atan2(toParent[0], toParent[2]);
       }
     }
-    const limits = focusLimits(camState.focus, moonRadius, moonDistance, runtime.cameraReach);
+    const focusBody = bodyIdFor(camState.focus) ?? camState.focus;
+    const limits = focusLimits(focusBody, frame, policy, runtime.cameraReach);
     camState.distance = clampDistance(camState.distance, limits);
     camState.targetDistance = clampDistance(camState.targetDistance, limits);
 
     resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD);
-    let earth: State | null = null;
-    if (moonFromEarth !== null && earthGroup && earthMesh && moonGroup && moonMesh) {
-      earth = earthStateAt(adapter, t);
-      const hierarchy: SceneHierarchy = { root, earthGroup, earthMesh, moonGroup, moonMesh };
-      placeBodies(hierarchy, earth, moonFromEarth, policy, origin);
+    for (const asset of assets) {
+      const id = asset.definition.id;
+      const state = composed.states.get(id)!;
+      const mesh = asset.definition.orientation === "none" ? null : orientRefs.current.get(id)!;
+      placeBody(groupRefs.current.get(id)!, mesh, state, state.positionKm, asset.visual.textureYawRad ?? 0, policy, origin);
     }
     poseCamera(
       camera as import("three").PerspectiveCamera,
       camState,
-      focusRadius(camState.focus, policy, moonRadius),
+      focusRadius(focusBody, policy),
       origin,
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
     );
-    for (const view of trackedViews) view.update(t, policy, origin, camera);
+    for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     sceneLabels.current?.update((id) => {
-      if (id === "earth" || id === "moon") return earthMoon ? absolutes[id === "earth" ? "earthAbsolute" : "moonAbsolute"] : null;
+      const body = bodyIdFor(id);
+      if (body !== null) return placed.current.get(body) ?? null;
       const group = groupViews.find((candidate) => candidate.id === id);
       if (group !== undefined) return group.drawn ? group.absolute() : null;
       const sunCentred = sunCentredViews.find((candidate) => candidate.id === id);
       if (sunCentred !== undefined) return sunCentred.labelAnchor();
       const view = trackedViews.find((candidate) => candidate.body.id === id);
       if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
-      return view.absolute(t, policy);
+      return view.absolute(t, policy, placement);
     }, camera, size.width, size.height, origin, controls.selectedObjectId);
 
-    if (moonFromEarth === null || earth === null) {
+    // Each lit body is lit along its own physical Sun direction (before any readable compression).
+    for (const asset of assets) {
+      const light = lightRefs.current.get(asset.definition.id);
+      if (light === undefined) continue;
+      const toSun = eqjToRenderVector(directionFromCenterToSun(resolver.sunFrom(asset.definition.id, t)));
+      light.position.set(toSun[0], toSun[1], toSun[2]);
+    }
+    for (const line of orbitLines) updateOrbitLine(line, placement, policy, origin, t);
+
+    if (!runtime.bodies.includes("earth") || !runtime.bodies.includes("moon")) {
       readout.current = null;
       return;
     }
-    // Physical Sun directions (before any readable compression) drive each body's own light.
-    const sunFromEarth = sunPositionFromEarthAt(adapter, t);
-    const earthSun = eqjToRenderVector(directionFromCenterToSun(sunFromEarth));
-    const moonSun = eqjToRenderVector(directionToSun(moonFromEarth, sunFromEarth));
-    earthLightRef.current?.position.set(earthSun[0], earthSun[1], earthSun[2]);
-    moonLightRef.current?.position.set(moonSun[0], moonSun[1], moonSun[2]);
-
-    updatePath(pathState.current, pathLine, runtime.trajectory, policy, origin, t);
-
+    const earthAbsolute = absoluteOf("earth");
+    const moonAbsolute = absoluteOf("moon");
     readout.current = buildDebugReadout({
       timeUtcMs: t,
       rate: clock.rate,
       policy,
-      earth,
-      moonFromEarth,
-      sunFromEarth,
-      placed: absolutes,
-      renderedDistanceUnits: moonDistance,
+      earth: resolver.stateOf("earth", t, "sun"),
+      moonFromEarth: resolver.stateOf("moon", t, "earth"),
+      sunFromEarth: resolver.sunFrom("earth", t),
+      placed: { earthAbsolute, moonAbsolute },
+      renderedDistanceUnits: Math.hypot(moonAbsolute[0] - earthAbsolute[0], moonAbsolute[1] - earthAbsolute[1], moonAbsolute[2] - earthAbsolute[2]),
       origin,
     });
   });
 
   return (
     <group ref={rootRef}>
-      {runtime.earthMoon && (
-        <>
-          <BodyView asset={EARTH_ASSET} policy={controls.policy} layer={EARTH_LAYER} groupRef={earthGroupRef} orientRef={earthMeshRef} />
-          <BodyView asset={MOON_ASSET} policy={controls.policy} layer={MOON_LAYER} groupRef={moonGroupRef} orientRef={moonMeshRef} />
-          <primitive object={pathLine} />
-          <ambientLight layers={EARTH_LAYER} intensity={EARTH_LIGHT.ambient} />
-          <directionalLight ref={earthLightRef} layers={EARTH_LAYER} intensity={EARTH_LIGHT.directional} />
-          <ambientLight layers={MOON_LAYER} intensity={MOON_LIGHT.ambient} />
-          <directionalLight ref={moonLightRef} layers={MOON_LAYER} intensity={MOON_LIGHT.directional} />
-        </>
-      )}
+      {assets.map((asset) => {
+        const id = asset.definition.id;
+        const layer = layers.get(id)!;
+        const light = asset.visual.light;
+        const override = id === "sun" && runtime.sun !== undefined ? { color: runtime.sun.color, sizePx: runtime.sun.markerSizePx } : undefined;
+        return (
+          <group key={id}>
+            <BodyView asset={asset} policy={controls.policy} layer={layer} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} markerOverride={override} />
+            {light !== undefined && (
+              <>
+                <ambientLight layers={layer} intensity={light.ambient} />
+                <directionalLight
+                  ref={(node: DirectionalLight | null) => {
+                    if (node === null) lightRefs.current.delete(id);
+                    else lightRefs.current.set(id, node);
+                  }}
+                  layers={layer}
+                  intensity={light.directional}
+                />
+              </>
+            )}
+          </group>
+        );
+      })}
+      {orbitLines.map((orbitLine) => <primitive key={orbitLine.path.body} object={orbitLine.line} />)}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
       {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
@@ -355,53 +407,39 @@ function SceneContents({ runtime, controls, readout }: Props) {
   );
 }
 
-/** A tracked body is a point: the camera may come very close and is framed in Earth radii. */
-const TRACKED_MIN_DISTANCE = 0.002;
-const TRACKED_DEFAULT_DISTANCE = 0.3;
-/** A focused group is framed at this many times its widest member's distance from the centroid. */
-const GROUP_FRAMING = 2.5;
-
-/** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
-export function focusLimits(focus: FocusId, moonRadiusScaled: number, moonDistanceScaled: number, declared: CameraReach) {
-  const reach = declared.maxFocusDistance ?? Math.max(30, moonDistanceScaled * 3.5);
-  if (focus === "earth") return { min: 1.15, max: reach };
-  if (focus === "moon") return { min: moonRadiusScaled * 1.6, max: reach };
-  return { min: TRACKED_MIN_DISTANCE, max: reach };
-}
-
-function defaultDistance(focus: FocusId, moonRadiusScaled: number, moonDistanceScaled: number): number {
-  if (focus === "earth") return Math.max(3.2, moonDistanceScaled * 2.4);
-  return focus === "moon" ? moonRadiusScaled * 4 : TRACKED_DEFAULT_DISTANCE;
-}
-
-function focusRadius(focus: FocusId, policy: ScalePolicy, moonRadiusScaled: number): number {
-  if (focus === "earth") return policy.mapRadius(EARTH.radiusKm);
-  return focus === "moon" ? moonRadiusScaled : 0;
-}
-
-function updatePath(
-  state: { samples: OrbitPathSamples | null; mappedFor: string; mapped: Float64Array | null; builtRealMs: number },
-  line: Line,
-  trajectory: MoonTrajectory,
-  policy: ScalePolicy,
-  origin: FloatingOrigin,
-  timeUtcMs: number,
-): void {
+/**
+ * A co-moving orbit: the body's positions about its parent over the declared span, carried with the parent, so the line
+ * sits at the parent's position from the scene centre at the clock time. A scene centred on the parent draws the samples as they are.
+ */
+function updateOrbitLine(orbitLine: OrbitLine, placement: ScenePlacement, policy: ScalePolicy, origin: FloatingOrigin, timeUtcMs: number): void {
   const realNow = performance.now();
   let rebuilt = false;
-  if (pathNeedsRefresh(state.samples, timeUtcMs, realNow, state.builtRealMs)) {
-    state.samples = sampleOrbitPath(trajectory, timeUtcMs);
-    state.builtRealMs = realNow;
+  if (pathNeedsRefresh(orbitLine.samples, timeUtcMs, realNow, orbitLine.builtRealMs)) {
+    orbitLine.samples = sampleOrbitPath(orbitLine.source, timeUtcMs, orbitLine.path.spanMs, orbitLine.path.samples);
+    orbitLine.builtRealMs = realNow;
     rebuilt = true;
   }
-  const samples = state.samples;
+  const samples = orbitLine.samples;
   if (!samples) return;
-  if (rebuilt || state.mappedFor !== policy.id || state.mapped === null) {
-    state.mapped = mapOrbitPath(samples, policy);
-    state.mappedFor = policy.id;
+  const offset = sceneOffsetKm(placement, orbitLine.parent, timeUtcMs);
+  let mapped: Float64Array;
+  if (offset === null) {
+    if (rebuilt || orbitLine.mappedFor !== policy.id || orbitLine.mapped === null) {
+      orbitLine.mapped = mapOrbitPath(samples, policy);
+      orbitLine.mappedFor = policy.id;
+    }
+    mapped = orbitLine.mapped;
+  } else {
+    const shifted = Float64Array.from(samples.positionsKm);
+    for (let i = 0; i < shifted.length; i += 3) {
+      shifted[i] += offset[0];
+      shifted[i + 1] += offset[1];
+      shifted[i + 2] += offset[2];
+    }
+    mapped = mapOrbitPath({ timesUtcMs: samples.timesUtcMs, positionsKm: shifted }, policy);
+    orbitLine.mapped = null;
   }
-  const positions = line.geometry.getAttribute("position") as BufferAttribute;
-  const mapped = state.mapped;
+  const positions = orbitLine.line.geometry.getAttribute("position") as BufferAttribute;
   const local: [number, number, number] = [0, 0, 0];
   for (let i = 0; i < samples.timesUtcMs.length; i += 1) {
     origin.toLocal(eqjToRenderVector(mapped.subarray(i * 3, i * 3 + 3)), local);

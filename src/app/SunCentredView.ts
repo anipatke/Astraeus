@@ -1,20 +1,17 @@
 import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial } from "three";
-import { catalogue, type BodyAsset } from "../assets/catalogue";
-import type { AstronomyAdapter } from "../core/astronomyAdapter";
-import { sunPositionFromEarthAt } from "../core/referenceCenters";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { samplePathKm } from "../core/sunCentredSources";
-import { DEFAULT_PATH_SAMPLE_COUNT, type PathLayer, type SunBody } from "./experienceDefinition";
+import { DEFAULT_PATH_SAMPLE_COUNT, type PathLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { createMarker } from "./bodyDraw";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
+import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
 
-/** What the scene needs from anything drawn here: a focus point, a label anchor, and a size to frame. */
+/** What the scene needs from a drawn path: a focus point, a label anchor, and a size to frame. */
 export interface SunCentredItem {
   readonly id: string;
   readonly group: Group;
-  sync(timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void;
+  sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void;
   place(origin: FloatingOrigin): void;
   /** Scaled absolute point the camera focuses on. */
   absolute(): RenderVector;
@@ -24,63 +21,12 @@ export interface SunCentredItem {
   extentUnits(policy: ScalePolicy): number;
 }
 
-function sunOffsetKm(adapter: AstronomyAdapter, timeUtcMs: number): ArrayLike<number> {
-  return sunPositionFromEarthAt(adapter, timeUtcMs).positionKm;
-}
-
+const ZERO_OFFSET: ArrayLike<number> = Object.freeze([0, 0, 0]);
 const scaleLength = (policy: ScalePolicy, km: number): number => policy.mapPosition([km, 0, 0])[0];
 
 /**
- * A body drawn as a marker (the Sun) at its composed Earth-centred position, from its visual record. Drawn size is
- * presentation only; the experience's own colour and size, when it names them, replace the record's.
- */
-export class BodyMarkerView implements SunCentredItem {
-  readonly group: Group;
-  readonly #positions: BufferAttribute;
-  #absolute: RenderVector = [0, 0, 0];
-  #frameKm = 0;
-
-  constructor(readonly layer: SunBody, asset: BodyAsset = catalogue.get("sun")) {
-    const marker = createMarker(asset, TRACK_LAYER, { color: layer.color, sizePx: layer.markerSizePx });
-    this.group = marker.group;
-    this.#positions = marker.position;
-  }
-
-  get id(): string {
-    return this.layer.object.id;
-  }
-
-  /** The farthest a declared path reaches from the Sun, so focusing the Sun frames them all. */
-  setFramingKm(km: number): void {
-    this.#frameKm = km;
-  }
-
-  sync(timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void {
-    this.#absolute = eqjToRenderVector(policy.mapPosition(sunOffsetKm(adapter, timeUtcMs)));
-  }
-
-  place(origin: FloatingOrigin): void {
-    const [ox, oy, oz] = origin.scaledCameraOrigin;
-    this.#positions.setXYZ(0, this.#absolute[0] - ox, this.#absolute[1] - oy, this.#absolute[2] - oz);
-    this.#positions.needsUpdate = true;
-  }
-
-  absolute(): RenderVector {
-    return this.#absolute;
-  }
-
-  labelAnchor(): RenderVector {
-    return this.#absolute;
-  }
-
-  extentUnits(policy: ScalePolicy): number {
-    return scaleLength(policy, this.#frameKm);
-  }
-}
-
-/**
  * A path: a state source sampled once over its span, with every vertex Sun-centred. Each frame the vertices
- * are composed to the Earth-centred scene at the Sun's position for the clock time, then go through
+ * are expressed from the scene centre at the Sun's position for the clock time, then go through
  * ScalePolicy -> render axes -> floating origin like every other body.
  */
 export class PathView implements SunCentredItem {
@@ -130,8 +76,8 @@ export class PathView implements SunCentredItem {
     return this.layer.object.id;
   }
 
-  sync(timeUtcMs: number, adapter: AstronomyAdapter, policy: ScalePolicy): void {
-    const offset = sunOffsetKm(adapter, timeUtcMs);
+  sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
+    const offset = sceneOffsetKm(placement, "sun", timeUtcMs) ?? ZERO_OFFSET;
     const vertex = new Float64Array(3);
     for (let i = 0; i < this.samplesKm.length; i += 3) {
       vertex[0] = this.samplesKm[i] + offset[0];
@@ -186,10 +132,12 @@ export class PathView implements SunCentredItem {
   }
 }
 
-/** Builds the views for a Sun and its paths; the Sun frames the farthest path. */
-export function createSunCentredViews(sun: SunBody | undefined, paths: readonly PathLayer[]): readonly SunCentredItem[] {
-  const pathViews = paths.map((layer) => new PathView(layer));
-  const sunView = sun === undefined ? null : new BodyMarkerView(sun);
-  sunView?.setFramingKm(Math.max(0, ...pathViews.map((view) => view.maxRadiusKm)));
-  return [...(sunView === null ? [] : [sunView]), ...pathViews];
+/** The distance in km from the Sun to the farthest vertex of any path: what a view of the Sun frames. */
+export function pathReachKm(views: readonly PathView[]): number {
+  return Math.max(0, ...views.map((view) => view.maxRadiusKm));
+}
+
+/** Builds the views for the declared paths. The Sun itself is a composition body, drawn by the scene like any other. */
+export function createSunCentredViews(paths: readonly PathLayer[]): readonly PathView[] {
+  return paths.map((layer) => new PathView(layer));
 }

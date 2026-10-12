@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import { SimulationClock } from "../src/core/clock";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
+import { catalogue } from "../src/assets/catalogue";
+import { createStateResolver } from "../src/core/stateResolver";
 import { MissionTelemetry } from "../src/app/MissionPanel";
 import {
   journeyProgressMetric,
@@ -207,7 +209,9 @@ describe("metric visuals reuse outside Apollo", () => {
 
 describe("Apollo metric configuration", () => {
   const [columbia, eagle] = apollo11Mission.bodies;
-  const moon = new MoonTrajectory(createOrbAstronomyAdapter());
+  const adapter = createOrbAstronomyAdapter();
+  const moon = new MoonTrajectory(adapter);
+  const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), adapter);
   const time = Math.round((eagle.trajectory.bounds.startUtcMs + eagle.trajectory.bounds.endUtcMs) / 2);
 
   it("tops each speed gauge at the vehicle's peak speed at NASA source anchors, not at a reconstruction artefact", () => {
@@ -233,7 +237,7 @@ describe("Apollo metric configuration", () => {
     const moonFromEarth = moon.stateAt(time);
     const marker = referenceInSameFrame("Moon now", row, moonFromEarth);
     expect(marker?.value).toBeCloseTo(Math.hypot(...moonFromEarth.positionKm), 9);
-    expect(referenceInSameFrame("Moon now", row, moon.stateAt(time, "sun"))).toBeNull();
+    expect(referenceInSameFrame("Moon now", row, resolver.stateOf("moon", time, "sun"))).toBeNull();
     expect(referenceInSameFrame("Moon now", row, null)).toBeNull();
     expect(distanceScale(spacecraftRangeMetric(row, marker))).not.toBeNull();
     expect(spacecraftRangeMetric(row, marker).origin).toBe("Earth centre · EQJ");
@@ -257,7 +261,7 @@ describe("Apollo metric configuration", () => {
     const moonFromEarth = moon.stateAt(time);
     const gap = spacecraftMoonMetric(eagleRow, moonFromEarth);
     expect(gap.value).toBeCloseTo(Math.hypot(...eagleRow.positionKm.map((c, i) => c - moonFromEarth.positionKm[i])), 9);
-    expect(spacecraftMoonMetric(eagleRow, moon.stateAt(time, "sun")).value).toBeNull();
+    expect(spacecraftMoonMetric(eagleRow, resolver.stateOf("moon", time, "sun")).value).toBeNull();
     const eagleAltitude = spacecraftAltitudeMetric(eagleRow, moonFromEarth);
     expect(eagleAltitude.body).toBe("Moon");
     expect(eagleAltitude.value).toBeCloseTo(gap.value! - MOON.radiusKm, 9);
@@ -267,7 +271,7 @@ describe("Apollo metric configuration", () => {
     expect(spacecraftAltitudeMetric(parked, moon.stateAt(columbia.trajectory.bounds.startUtcMs)).body).toBe("Earth");
     expect(spacecraftPositionMetric(columbiaRow, null).components?.map((c) => c.value)).toEqual([...columbiaRow.positionKm]);
     expect(spacecraftPositionMetric(columbiaRow, null).planViews?.references).toEqual([]);
-    expect(spacecraftPositionMetric(columbiaRow, moon.stateAt(time, "sun")).planViews?.references).toEqual([]);
+    expect(spacecraftPositionMetric(columbiaRow, resolver.stateOf("moon", time, "sun")).planViews?.references).toEqual([]);
     expect(spacecraftPositionMetric(columbiaRow, moonFromEarth).planViews?.references).toEqual([
       { label: "Moon", xyz: [moonFromEarth.positionKm[0], moonFromEarth.positionKm[1], moonFromEarth.positionKm[2]] },
     ]);

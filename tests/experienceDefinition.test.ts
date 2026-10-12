@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { focusLimits } from "../src/app/AstraeusScene";
+import { focusLimits } from "../src/app/sceneFraming";
+import { MOON } from "../src/core/body";
+import { readableScale, trueScale } from "../src/core/scalePolicy";
 import {
   DEFAULT_CAMERA_FAR,
   cameraReachOf,
@@ -88,12 +90,15 @@ describe("camera reach files stay generic", () => {
 
 describe("optional camera reach", () => {
   // Today's scene constants: reach max(30, moonDistance x 3.5), Earth min 1.15, Moon min 1.6 x radius, tracked min 0.002, far 5000.
-  const moonRadius = 0.27;
+  const moonRadius = trueScale.mapRadius(MOON.radiusKm);
   it.each([6, 60, 600])("keeps today's limits for every focus kind when omitted (Moon distance %d)", (moonDistance) => {
     const reach = Math.max(30, moonDistance * 3.5);
-    expect(focusLimits("earth", moonRadius, moonDistance, {})).toEqual({ min: 1.15, max: reach });
-    expect(focusLimits("moon", moonRadius, moonDistance, {})).toEqual({ min: moonRadius * 1.6, max: reach });
-    expect(focusLimits("columbia", moonRadius, moonDistance, {})).toEqual({ min: 0.002, max: reach });
+    const frame = { centre: "earth", span: moonDistance };
+    for (const policy of [trueScale, readableScale]) {
+      expect(focusLimits("earth", frame, policy, {})).toEqual({ min: 1.15, max: reach });
+      expect(focusLimits("moon", frame, policy, {})).toEqual({ min: moonRadius * 1.6, max: reach });
+      expect(focusLimits("columbia", frame, policy, {})).toEqual({ min: 0.002, max: reach });
+    }
   });
 
   it("keeps the 5000 far plane and no reach for definitions that declare none", () => {
@@ -104,9 +109,10 @@ describe("optional camera reach", () => {
 
   it("replaces only the farthest distance when declared, for every focus kind", () => {
     const declared = { maxFocusDistance: 400_000, far: 1_000_000 };
-    expect(focusLimits("earth", moonRadius, 60, declared)).toEqual({ min: 1.15, max: 400_000 });
-    expect(focusLimits("moon", moonRadius, 60, declared)).toEqual({ min: moonRadius * 1.6, max: 400_000 });
-    expect(focusLimits("dust-belt", moonRadius, 60, declared)).toEqual({ min: 0.002, max: 400_000 });
+    const frame = { centre: "earth", span: 60 };
+    expect(focusLimits("earth", frame, trueScale, declared)).toEqual({ min: 1.15, max: 400_000 });
+    expect(focusLimits("moon", frame, trueScale, declared)).toEqual({ min: moonRadius * 1.6, max: 400_000 });
+    expect(focusLimits("dust-belt", frame, trueScale, declared)).toEqual({ min: 0.002, max: 400_000 });
   });
 
   it("lets the made-up belt declare a reach that exceeds today's far plane", () => {

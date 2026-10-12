@@ -2,11 +2,11 @@ import type { AstronomyAdapter } from "./astronomyAdapter";
 import type { CenterId } from "./body";
 import type { Trajectory } from "./trajectory";
 import { moonOrientationFromOrbit } from "./bodyOrientation";
-import { composeCenteredPositions, earthStateAt } from "./referenceCenters";
-import { assertUtcUnixMs, createCenteredPosition, createState, EQJ, type State } from "./state";
+import { assertUtcUnixMs, createState, EQJ, type State } from "./state";
 
 const ORIENTATION_SAMPLE_SECONDS = 1800;
 
+/** The Moon in its one native centre, Earth. Any other centre is the state resolver's composition, not this provider's. */
 export class MoonTrajectory implements Trajectory {
   readonly body = "moon" as const;
 
@@ -14,12 +14,12 @@ export class MoonTrajectory implements Trajectory {
 
   stateAt(timeUtcMs: number, center: CenterId = "earth"): State {
     assertUtcUnixMs(timeUtcMs);
-    if (center !== "earth" && center !== "sun") throw new RangeError("Moon trajectory center must be Earth or Sun");
+    if (center !== "earth") throw new RangeError("Moon trajectory center must be Earth; the state resolver recentres it");
     const moonFromEarthKm = this.adapter.moonPositionKm(timeUtcMs);
     const earlier = this.adapter.moonPositionKm(timeUtcMs - ORIENTATION_SAMPLE_SECONDS * 1000);
     const later = this.adapter.moonPositionKm(timeUtcMs + ORIENTATION_SAMPLE_SECONDS * 1000);
     const orientation = moonOrientationFromOrbit(moonFromEarthKm, earlier, later);
-    const moonFromEarth = createState({
+    return createState({
       body: "moon",
       center: "earth",
       timeUtcMs,
@@ -27,27 +27,5 @@ export class MoonTrajectory implements Trajectory {
       positionKm: moonFromEarthKm,
       orientation,
     });
-    if (center === "earth") return moonFromEarth;
-
-    const earthFromSun = earthStateAt(this.adapter, timeUtcMs);
-    return recenterMoon(moonFromEarth, createCenteredPosition({
-      body: earthFromSun.body,
-      center: earthFromSun.center,
-      timeUtcMs,
-      frame: earthFromSun.frame,
-      positionKm: earthFromSun.positionKm,
-    }));
   }
-}
-
-function recenterMoon(moonFromEarth: State, earthFromSun: ReturnType<typeof createCenteredPosition>): State {
-  const composed = composeCenteredPositions(moonFromEarth, earthFromSun);
-  return createState({
-    body: "moon",
-    center: "sun",
-    timeUtcMs: composed.timeUtcMs,
-    frame: EQJ,
-    positionKm: composed.positionKm,
-    orientation: moonFromEarth.orientation,
-  });
 }

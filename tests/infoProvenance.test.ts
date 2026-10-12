@@ -7,6 +7,7 @@ import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { createProvenance } from "../src/core/provenance";
 import { createObjectMetrics } from "../src/app/metricReadouts";
 import { trackedAbsolute } from "../src/app/sceneLayout";
+import { placementAbout } from "./scenePlacement";
 import {
   apollo11Experience,
   apollo11KnownLimitations,
@@ -205,7 +206,7 @@ describe("scale choice independence", () => {
     });
     const readouts = SCALE_CHOICES.map((choice) => {
       const policy = scalePolicyFor(choice.id);
-      for (const body of apollo11Mission.bodies) trackedAbsolute(body.trajectory.stateAt(eagleMid), policy);
+      for (const body of apollo11Mission.bodies) trackedAbsolute(body.trajectory.stateAt(eagleMid), policy, placementAbout("earth"));
       return { metrics: snapshot(), states: states() };
     });
     expect(readouts[0].metrics.every((metrics) => metrics.length > 0)).toBe(true);

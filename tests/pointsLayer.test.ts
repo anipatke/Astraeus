@@ -12,6 +12,7 @@ import {
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
+import { placementAbout } from "./scenePlacement";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import type { CenterId } from "../src/core/body";
@@ -26,6 +27,7 @@ import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
+const earthPlacement = placementAbout("earth", adapter);
 const START = Date.UTC(2030, 0, 1);
 const END = START + 6 * 3_600_000;
 const COUNT = 50;
@@ -147,7 +149,7 @@ describe("points view", () => {
     const view = new PointsView(layerFor("ring-sun", "sun"));
     const origin = new FloatingOrigin();
     const t = START + 1_800_000;
-    view.sync(t, adapter, trueScale);
+    view.sync(t, earthPlacement, trueScale);
     view.place(origin);
     const member = view.layer.group.stateAt(7, t);
     const composed = composeCenteredPositions(member, sunPositionFromEarthAt(adapter, t));
@@ -159,7 +161,7 @@ describe("points view", () => {
 
   it("places an Earth-centred member without any offset", () => {
     const view = new PointsView(layerFor("ring-earth", "earth"));
-    view.sync(START, adapter, trueScale);
+    view.sync(START, earthPlacement, trueScale);
     view.place(new FloatingOrigin());
     const expected = eqjToRenderVector(trueScale.mapPosition(view.layer.group.stateAt(3, START).positionKm));
     const local = view.memberLocalPosition(3);
@@ -171,10 +173,10 @@ describe("points view", () => {
     const group = view.layer.group;
     const before = group.stateAt(5, START);
     const origin = new FloatingOrigin();
-    view.sync(START, adapter, trueScale);
+    view.sync(START, earthPlacement, trueScale);
     view.place(origin);
     const trueLocal = view.memberLocalPosition(5);
-    view.sync(START, adapter, readableScale);
+    view.sync(START, earthPlacement, readableScale);
     origin.set([100, -50, 25]); // a camera move
     view.place(origin);
     const readableLocal = view.memberLocalPosition(5);
@@ -189,7 +191,7 @@ describe("points view", () => {
 
   it("holds the representative point at the centroid of the members", () => {
     const view = new PointsView(layerFor("ring-earth", "earth"));
-    view.sync(START, adapter, trueScale);
+    view.sync(START, earthPlacement, trueScale);
     const km = [0, 0, 0];
     for (let i = 0; i < COUNT; i += 1) {
       const p = view.layer.group.stateAt(i, START).positionKm;
@@ -205,14 +207,14 @@ describe("points view", () => {
     const view = new PointsView(layerFor("ring-earth", "earth", fills));
     const origin = new FloatingOrigin();
     for (const outside of [START - 1, END + 1]) {
-      view.sync(outside, adapter, trueScale);
+      view.sync(outside, earthPlacement, trueScale);
       view.place(origin);
       expect(view.drawn).toBe(false);
       expect(view.group.children[0].visible).toBe(false);
     }
     expect(fills.count).toBe(0);
     for (const boundary of [START, END]) {
-      view.sync(boundary, adapter, trueScale);
+      view.sync(boundary, earthPlacement, trueScale);
       view.place(origin);
       expect(view.drawn).toBe(true);
       expect(view.group.children[0].visible).toBe(true);
@@ -222,7 +224,7 @@ describe("points view", () => {
 
   it("still gives the camera a representative point when it starts outside the bounds", () => {
     const view = new PointsView(layerFor("ring-sun", "sun"));
-    view.sync(START - 1, adapter, trueScale);
+    view.sync(START - 1, earthPlacement, trueScale);
     const centre = eqjToRenderVector(trueScale.mapPosition(sunPositionFromEarthAt(adapter, START).positionKm));
     expect(view.absolute()).toEqual(centre);
     expect(view.drawn).toBe(false);
@@ -234,11 +236,11 @@ describe("points view", () => {
     const fills = { count: 0 };
     const view = new PointsView(layerFor("ring-earth", "earth", fills, { refillAfterMs: 60_000 }));
     const start = START + 600_000;
-    view.sync(start, adapter, trueScale);
+    view.sync(start, earthPlacement, trueScale);
     expect(fills.count).toBe(1);
-    for (let t = start + 5_000; t <= start + 150_000; t += 5_000) view.sync(t, adapter, trueScale);
+    for (let t = start + 5_000; t <= start + 150_000; t += 5_000) view.sync(t, earthPlacement, trueScale);
     expect(fills.count).toBe(4); // pair slides at +5 s, +65 s and +125 s
-    view.sync(start + 150_000, adapter, trueScale);
+    view.sync(start + 150_000, earthPlacement, trueScale);
     expect(fills.count).toBe(4); // a repeated time never fills
   });
 
@@ -246,19 +248,19 @@ describe("points view", () => {
     const fills = { count: 0 };
     const view = new PointsView(layerFor("ring-earth", "earth", fills, { refillAfterMs: 60_000 }));
     const start = START + 3_000_000;
-    view.sync(start, adapter, trueScale);
-    for (let t = start - 5_000; t >= start - 150_000; t -= 5_000) view.sync(t, adapter, trueScale);
+    view.sync(start, earthPlacement, trueScale);
+    for (let t = start - 5_000; t >= start - 150_000; t -= 5_000) view.sync(t, earthPlacement, trueScale);
     expect(fills.count).toBe(4);
   });
 
   it("refills once on a seek outside the held pair and does not blend across the gap", () => {
     const fills = { count: 0 };
     const view = new PointsView(layerFor("ring-earth", "earth", fills, { refillAfterMs: 60_000 }));
-    view.sync(START + 600_000, adapter, trueScale);
-    view.sync(START + 600_000 + 5_000, adapter, trueScale);
+    view.sync(START + 600_000, earthPlacement, trueScale);
+    view.sync(START + 600_000 + 5_000, earthPlacement, trueScale);
     const before = fills.count;
     const target = START + 4_000_000;
-    view.sync(target, adapter, trueScale);
+    view.sync(target, earthPlacement, trueScale);
     view.place(new FloatingOrigin());
     expect(fills.count).toBe(before + 1);
     const exact = eqjToRenderVector(trueScale.mapPosition(view.layer.group.stateAt(9, target).positionKm));
@@ -271,14 +273,14 @@ describe("points view", () => {
     const view = new PointsView(layerFor("ring-earth", "earth", undefined, { refillAfterMs: span }));
     const start = START + 1_200_000;
     const origin = new FloatingOrigin();
-    view.sync(start, adapter, trueScale);
-    view.sync(start + 1, adapter, trueScale); // slides the pair so the after-fill is one span on
-    view.sync(start, adapter, trueScale);
+    view.sync(start, earthPlacement, trueScale);
+    view.sync(start + 1, earthPlacement, trueScale); // slides the pair so the after-fill is one span on
+    view.sync(start, earthPlacement, trueScale);
     view.place(origin);
     const at = (member: number, t: number) => eqjToRenderVector(trueScale.mapPosition(view.layer.group.stateAt(member, t).positionKm));
     for (let i = 0; i < 3; i += 1) expect(view.memberLocalPosition(11)[i]).toBeCloseTo(at(11, start)[i], 4);
     const mid = start + span / 2;
-    view.sync(mid, adapter, trueScale);
+    view.sync(mid, earthPlacement, trueScale);
     view.place(origin);
     const exact = at(11, mid);
     const local = view.memberLocalPosition(11);
@@ -293,10 +295,10 @@ describe("points view", () => {
     const group = view.layer.group;
     const t = START + 900_000;
     const before = group.stateAt(4, t + 20_000);
-    view.sync(t, adapter, trueScale);
-    view.sync(t + 20_000, adapter, trueScale);
+    view.sync(t, earthPlacement, trueScale);
+    view.sync(t + 20_000, earthPlacement, trueScale);
     view.place(new FloatingOrigin());
-    view.sync(t + 20_000, adapter, readableScale);
+    view.sync(t + 20_000, earthPlacement, readableScale);
     view.place(new FloatingOrigin());
     expect(group.stateAt(4, t + 20_000)).toEqual(before);
   });
@@ -305,11 +307,11 @@ describe("points view", () => {
     const layer = syntheticRingLayer;
     const view = new PointsView(layer);
     const end = layer.group.bounds!.endUtcMs;
-    for (let t = end - 150_000; t <= end; t += 5_000) view.sync(t, adapter, trueScale);
+    for (let t = end - 150_000; t <= end; t += 5_000) view.sync(t, earthPlacement, trueScale);
     expect(view.drawn).toBe(true);
     const start = layer.group.bounds!.startUtcMs;
     const back = new PointsView(layer);
-    for (let t = start + 150_000; t >= start; t -= 5_000) back.sync(t, adapter, trueScale);
+    for (let t = start + 150_000; t >= start; t -= 5_000) back.sync(t, earthPlacement, trueScale);
     expect(back.drawn).toBe(true);
   });
 
@@ -318,8 +320,33 @@ describe("points view", () => {
     expect(() => new PointsView(layerFor("ring-earth", "earth", undefined, { refillAfterMs: Number.NaN }))).toThrow(RangeError);
   });
 
-  it("refuses a group centred on a body the layer cannot compose", () => {
+  it("composes a group centred on the Moon through the resolver, like any catalogued centre", () => {
     const view = new PointsView(layerFor("ring-moon", "moon"));
-    expect(() => view.sync(START, adapter, trueScale)).toThrow(/not supported/);
+    const t = START + 1_800_000;
+    view.sync(t, earthPlacement, trueScale);
+    view.place(new FloatingOrigin());
+    const member = view.layer.group.stateAt(7, t);
+    const moonFromEarth = earthPlacement.resolver.offsetKm("moon", "earth", t);
+    const expected = eqjToRenderVector(trueScale.mapPosition([0, 1, 2].map((k) => member.positionKm[k] + moonFromEarth[k])));
+    const local = view.memberLocalPosition(7);
+    for (let i = 0; i < 3; i += 1) expect(local[i]).toBeCloseTo(expected[i], 1);
+  });
+
+  it("adds nothing to a group whose centre is the scene centre, and shifts it by the centre's offset otherwise", () => {
+    const t = START + 1_800_000;
+    const about = (center: string) => {
+      const view = new PointsView(layerFor("ring-sun", "sun"));
+      view.sync(t, placementAbout(center, adapter), trueScale);
+      view.place(new FloatingOrigin());
+      return view.memberLocalPosition(3);
+    };
+    const member = layerFor("ring-sun", "sun").group.stateAt(3, t).positionKm;
+    const fromSun = eqjToRenderVector(trueScale.mapPosition(member));
+    const sunCentred = about("sun");
+    for (let i = 0; i < 3; i += 1) expect(sunCentred[i]).toBeCloseTo(fromSun[i], 1);
+    const earthCentred = about("earth");
+    const sunFromEarth = earthPlacement.resolver.offsetKm("sun", "earth", t);
+    const shifted = eqjToRenderVector(trueScale.mapPosition([0, 1, 2].map((k) => member[k] + sunFromEarth[k])));
+    for (let i = 0; i < 3; i += 1) expect(earthCentred[i]).toBeCloseTo(shifted[i], 1);
   });
 });
