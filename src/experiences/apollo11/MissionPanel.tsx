@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import type { SimulationClock } from "../core/clock";
-import type { Trajectory } from "../core/trajectory";
-import { MetricVisual } from "../shell/MetricVisual";
+import type { SimulationClock } from "../../core/clock";
+import type { Trajectory } from "../../core/trajectory";
+import { MetricVisual } from "../../shell/MetricVisual";
+import { journeyProgressMetric } from "../../app/metricReadouts";
 import {
-  journeyProgressMetric,
   peakAnchorSpeedKmS,
   referenceInSameFrame,
   spacecraftAltitudeMetric,
@@ -12,8 +12,8 @@ import {
   spacecraftPositionMetric,
   spacecraftRangeMetric,
   spacecraftSpeedMetric,
-} from "./metricReadouts";
-import { trackedReadouts, type MissionConfig, type TrackedReadout } from "./mission";
+} from "./spacecraftMetrics";
+import { trackedReadouts, type MissionConfig, type TrackedReadout } from "../../app/mission";
 
 interface TelemetryProps {
   readonly mission: MissionConfig;

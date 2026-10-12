@@ -1,0 +1,50 @@
+
+> astraeus-earth-moon-spike@0.1.0 test
+> vitest run --reporter=default --reporter=junit --outputFile.junit=junit.xml
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ✓ tests/stateResolver.test.ts (21 tests) 31ms
+ ✓ tests/orbitGroup.test.ts (18 tests) 35ms
+ ✓ tests/sceneTransforms.test.ts (23 tests) 52ms
+stdout | tests/frameStats.test.ts > FrameStats > costs little per frame
+frameStats cost: tick 0.017 us/frame, snapshot 0.644 us/read (window 120)
+
+ ✓ tests/frameStats.test.ts (12 tests) 16ms
+ ✓ tests/metricVisuals.test.ts (27 tests) 79ms
+ ✓ tests/missionScene.test.ts (29 tests) 119ms
+ ✓ tests/core.test.ts (15 tests) 65ms
+ ✓ tests/controls.test.ts (29 tests) 76ms
+ ✓ tests/showers.test.ts (23 tests) 186ms
+ ✓ tests/orientationIllumination.test.ts (5 tests) 28ms
+ ✓ tests/timeWindow.test.ts (21 tests) 15ms
+ ✓ tests/sampledTrajectory.test.ts (13 tests) 23ms
+ ✓ tests/timeline.test.ts (18 tests) 13ms
+ ✓ tests/sunCentred.test.ts (29 tests) 139ms
+ ✓ tests/experiences.test.ts (30 tests) 136ms
+ ✓ tests/assets.test.ts (7 tests) 30ms
+ ✓ tests/infoProvenance.test.ts (13 tests) 24ms
+ ✓ tests/pointsLayer.test.ts (26 tests) 170ms
+ ✓ tests/layerRule.test.ts (3 tests) 4ms
+ ✓ tests/textureLicence.test.ts (3 tests) 3ms
+ ✓ tests/publicBuild.test.ts (3 tests) 9ms
+ ✓ tests/syntheticRing.test.ts (11 tests) 334ms
+ ✓ tests/experiencePlugIn.test.ts (16 tests) 26ms
+ ✓ tests/experienceDefinition.test.ts (35 tests) 102ms
+ ✓ tests/paths.test.ts (34 tests) 1196ms
+   ✓ a tracked body's path is a relative trail (5)
+     ✓ draws the same vertices as the formula it replaced (centre moon, three times) 581ms
+ ✓ tests/compositions.test.ts (30 tests) 1935ms
+   ✓ tracked data and groups follow the scene centre (3)
+     ✓ a relative trail is drawn from each sample's own-time offset, and unchanged when the scene is Earth-centred 321ms
+   ✓ State is untouched by how a scene presents it (design E step 3) (3)
+     ✓ (i) is byte-identical for every body, time and centre whatever the scene centre, scale or camera 1545ms
+ ✓ tests/apollo11Reconstruction.test.ts (30 tests) 24806ms
+
+ Test Files  27 passed (27)
+      Tests  524 passed (524)
+   Start at  20:01:18
+   Duration  25.52s (tests 73%, transform 17%, import 10%)
+
+JUNIT report written to /home/user/code/Astraeus/junit.xml

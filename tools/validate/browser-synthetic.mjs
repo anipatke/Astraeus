@@ -124,10 +124,10 @@ try {
     mkdirSync(outDir, { recursive: true });
     await page.screenshot({ path: `${outDir}/synthetic.png` });
   }
-  // Without the Earth–Moon layer the canvas still mounts and the marker is still available.
+  // Without a composition (data-bodies is empty; it replaces the retired data-earth-moon flag) the canvas still mounts and the marker is still available.
   await page.goto(`${base}?experience=synthetic-bare`);
   await page.waitForSelector("canvas");
-  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-earth-moon"), "false");
+  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "");
   assert.equal(await page.locator('option[value="survey-marker"]').count(), 1);
   await page.getByLabel("Select object").selectOption("survey-marker");
   await page.getByRole("button", { name: "Follow marker", exact: true }).click();
@@ -135,13 +135,13 @@ try {
   if (outDir) await page.screenshot({ path: `${outDir}/synthetic-bare.png` });
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
-  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-earth-moon"), "true");
+  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
   // Apollo stays the default.
   await page.goto(base);
   await page.waitForSelector("canvas");
   assert.equal(await page.locator('option[value="columbia"]').count(), 1);
   assert.equal(await page.locator('option[value="survey-marker"]').count(), 0);
-  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-earth-moon"), "true");
+  assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
   // Apollo has no windows, so no window strip is drawn and the timeline is as before.
   assert.equal(await page.locator(".timeline-windows").count(), 0, "Apollo: no window strip");
   assert.equal(await page.locator(".timeline-window").count(), 0, "Apollo: no window band");

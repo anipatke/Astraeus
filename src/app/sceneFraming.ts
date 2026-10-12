@@ -29,7 +29,7 @@ export interface SceneFrame {
 function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue): number | null {
   if (!source.has(focus)) return null;
   const asset = source.get(focus);
-  return asset.visual.kind === "sphere" ? policy.mapRadius(asset.definition.radiusKm) : null;
+  return asset.visual.kind === "sphere" ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id) : null;
 }
 
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */

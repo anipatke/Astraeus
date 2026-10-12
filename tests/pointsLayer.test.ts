@@ -5,14 +5,13 @@ import {
   experienceWithGroups,
   groupsOf,
   trackedBodiesOf,
-  usesEarthMoon,
   type ExperienceDefinition,
   type GroupLayer,
   type SceneLayerId,
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
-import { placementAbout } from "./scenePlacement";
+import { hasEarthMoon, placementAbout } from "./scenePlacement";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import type { CenterId } from "../src/core/body";
@@ -66,13 +65,14 @@ function layerFor(id: string, center: CenterId, fills?: { count: number }, extra
   };
 }
 
-function definitionWith(layers: readonly SceneLayerId[], groups: readonly GroupLayer[]): ExperienceDefinition {
+function definitionWith(layers: readonly SceneLayerId[], groups: readonly GroupLayer[], withComposition = true): ExperienceDefinition {
+  const { composition: _composition, ...bodiless } = syntheticDefinition;
   const presets = groups.flatMap((layer) => [
     { id: `focus-${layer.object.id}`, label: "Focus", request: { kind: "focus", target: layer.object.id } },
     { id: `follow-${layer.object.id}`, label: "Follow", request: { kind: "follow", target: layer.object.id } },
   ] as const);
   return {
-    ...syntheticDefinition,
+    ...(withComposition ? syntheticDefinition : bodiless),
     sceneLayers: layers,
     groups,
     experience: { ...syntheticDefinition.experience, cameraPresets: [...syntheticDefinition.experience.cameraPresets, ...presets] },
@@ -95,18 +95,18 @@ describe("points layer: layer matrix through the plug-in helpers", () => {
     ["empty", [], 0, false, 0],
     ["tracked-only", ["tracked-bodies"], 0, false, 1],
     ["points-only", ["points"], 1, false, 0],
-    ["earth-moon + points", ["earth-moon", "points"], 1, true, 0],
-    ["all three", ["earth-moon", "tracked-bodies", "points"], 1, true, 1],
-    ["duplicates", ["points", "points", "earth-moon", "earth-moon", "tracked-bodies", "tracked-bodies"], 1, true, 1],
+    ["composition + points", ["points"], 1, true, 0],
+    ["all three", ["tracked-bodies", "points"], 1, true, 1],
+    ["duplicates", ["points", "points", "tracked-bodies", "tracked-bodies"], 1, true, 1],
   ] as const)("%s", (_name, layers, groups, earthMoon, tracked) => {
-    const definition = definitionWith(layers, [ring, ring]);
+    const definition = definitionWith(layers, [ring, ring], earthMoon);
     expect(groupsOf(definition)).toHaveLength(groups);
-    expect(usesEarthMoon(definition)).toBe(earthMoon);
+    expect(hasEarthMoon(definition)).toBe(earthMoon);
     expect(trackedBodiesOf(definition)).toHaveLength(tracked);
   });
 
   it("draws no group, and adds no shell item, without the points layer", () => {
-    const definition = definitionWith(["earth-moon", "tracked-bodies"], [ring]);
+    const definition = definitionWith(["tracked-bodies"], [ring]);
     expect(groupsOf(definition)).toEqual([]);
     expect(experienceWithGroups(definition)).toBe(definition.experience);
     expect(shellMarkup(definition)).not.toContain("Ring ring-a");

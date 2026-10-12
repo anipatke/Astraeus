@@ -18,10 +18,10 @@ export interface DrawnRadii {
 export function drawnRadii(definition: CelestialBodyDefinition, policy: ScalePolicy): DrawnRadii {
   const { equatorialRadiusKm, polarRadiusKm } = definition;
   if (equatorialRadiusKm === undefined || polarRadiusKm === undefined) {
-    const mean = policy.mapRadius(definition.radiusKm);
+    const mean = policy.mapRadius(definition.radiusKm, definition.id);
     return { equatorial: mean, polar: mean };
   }
-  return { equatorial: policy.mapRadius(equatorialRadiusKm), polar: policy.mapRadius(polarRadiusKm) };
+  return { equatorial: policy.mapRadius(equatorialRadiusKm, definition.id), polar: policy.mapRadius(polarRadiusKm, definition.id) };
 }
 
 /** A marker's colour and screen size: the record's, unless the experience chooses otherwise. */

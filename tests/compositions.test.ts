@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Object3D } from "three";
-import { catalogue, createCatalogue, type VisualEntry } from "../src/assets/catalogue";
+import { catalogue, createCatalogue, rootBodyId, type VisualEntry } from "../src/assets/catalogue";
 import { CompositionError, createComposition, earthMoonSystem, SIDEREAL_MONTH_MS, sunEarthSystem } from "../src/assets/compositions";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
@@ -15,16 +15,14 @@ import {
   compositionOf,
   mountedBodiesOf,
   sceneCenterOf,
-  usesEarthMoon,
   type ExperienceDefinition,
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import {
-  createSceneHierarchy,
   createSceneResolver,
-  placeBodies,
+  readoutPairOf,
   placeBody,
   placeComposition,
   trackedAbsolute,
@@ -39,7 +37,7 @@ import perseidsFile from "../data/showers/perseids.json";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";
 import { PerspectiveCamera } from "three";
-import { placementAbout } from "./scenePlacement";
+import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "./scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();
 const DATES = [Date.UTC(2023, 0, 15, 3), Date.UTC(2024, 6, 1, 12), Date.UTC(2025, 2, 20, 9, 30)];
@@ -66,17 +64,17 @@ describe("compositions", () => {
   });
 });
 
-describe("experience definitions keep their results through the alias", () => {
+describe("experience definitions name their compositions", () => {
   const withAlias: readonly (readonly [string, ExperienceDefinition, boolean])[] = [
     ["Apollo", apollo11Definition, true],
     ["synthetic", syntheticDefinition, true],
     ["the ring", syntheticRingDefinition, true],
-    ["a shower", buildShowerDefinition(parseShowerSettings(perseidsFile)), true],
+    ["a shower", buildShowerDefinition(parseShowerSettings(perseidsFile)), false],
     ["bare", syntheticBareDefinition, false],
     ["the belt", syntheticBeltDefinition, false],
   ];
   it.each(withAlias)("%s: usesEarthMoon is %s-consistent and the centre is as before", (_name, definition, earthMoon) => {
-    expect(usesEarthMoon(definition)).toBe(earthMoon);
+    expect(hasEarthMoon(definition)).toBe(earthMoon);
     if (earthMoon) {
       expect(compositionOf(definition)).toBe(earthMoonSystem);
       expect(mountedBodiesOf(definition)).toEqual(["earth", "moon"]);
@@ -84,10 +82,11 @@ describe("experience definitions keep their results through the alias", () => {
     }
   });
 
-  it("gives a scene with no composition an Earth zero and no bodies", () => {
+  it("gives a scene with no composition no bodies and the zero it declares, and refuses to guess one", () => {
     expect(compositionOf(syntheticBareDefinition)).toBeUndefined();
     expect(mountedBodiesOf(syntheticBareDefinition)).toEqual([]);
     expect(sceneCenterOf(syntheticBareDefinition)).toBe("earth");
+    expect(() => sceneCenterOf({ ...syntheticBareDefinition, sceneCenter: undefined })).toThrow(/must declare its sceneCenter/);
   });
 
   it("mounts the belt as the Sun and Earth about the Sun", () => {
@@ -264,6 +263,16 @@ const fakeCatalogue = createCatalogue(fakeDefinitions, fakeBindings, [
   { body: "moonlet", visual: flatVisual },
 ]);
 const fakeResolver = createStateResolver(fakeCatalogue.definitions(), fakeCatalogue.sources(), adapter);
+
+describe("generic lookups on a made-up catalogue", () => {
+  it("finds the root and the pair the developer readout measures without naming a body", () => {
+    expect(rootBodyId(fakeCatalogue)).toBe("star");
+    expect(readoutPairOf(["star", "world", "moonlet"], fakeCatalogue)).toEqual({ parent: "world", child: "moonlet" });
+    expect(readoutPairOf(["star", "world"], fakeCatalogue)).toBeNull();
+    expect(readoutPairOf(["moonlet"], fakeCatalogue)).toBeNull();
+    expect(readoutPairOf([], fakeCatalogue)).toBeNull();
+  });
+});
 
 describe("a made-up composition of three bodies about a centre that is not Earth", () => {
   const system = createComposition(fakeCatalogue, { id: "made-up", bodies: ["star", "world", "moonlet"], defaultCenter: "world" });

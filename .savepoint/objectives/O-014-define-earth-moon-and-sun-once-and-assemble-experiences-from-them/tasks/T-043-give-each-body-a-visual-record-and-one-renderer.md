@@ -2,10 +2,9 @@
 id: T-043
 title: Give each body a visual record and one renderer
 objective: O-014
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-042, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-016, accepted_by: {role: owner, session: owner-chat-o014-live-look-20261012}}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
 lane: assets
 planned_reads: [src/core/body.ts, src/core/bodies/index.ts, src/app/BodyMesh.tsx, src/app/AtmosphereGlow.tsx, src/app/useBodyTexture.ts, src/app/EarthMoonScene.tsx, src/app/SunCentredView.ts, src/app/sceneLayout.ts, src/app/experienceDefinition.ts, docs/DONOR_PROVENANCE.md, docs/ASTRAEUS_SPIKE_04_ASSET_ARCHITECTURE.md]
@@ -118,3 +117,7 @@ Record architecture deltas here; the integration Task reconciles them into Desig
 - Build: assets layer, BodyView/bodyDraw, scene and Sun item rewired; baseline placement fixture captured at ea592a3 before editing.
 - Test: stage test; 417 tests pass; browser runs in a fresh evidence directory; temporary ea592a3 worktree and both vite servers removed.
 - Audit: stage audit, ready for a Check. Not done; no owner waiver or acceptance recorded.
+
+## Completion
+
+- 2026-10-12 — Owner accepted T-043 against C-016 after a live side-by-side look (pre-O-014 8fc6fce on :5301 vs 2d8b2dd on :5302): Apollo unchanged at the six mission moments in both scales, Sun-centred belt with the Sun at the centre and Earth on its path. Owner's words: "accept T-043, T-044". Recorded and `status: done` set by the orchestrator on the owner's direct instruction.

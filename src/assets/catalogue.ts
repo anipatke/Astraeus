@@ -85,5 +85,12 @@ export function createCatalogue(
   });
 }
 
+/** The id of the catalogue's one root body (the one with no parent), the origin every chain ends at. */
+export function rootBodyId(source: BodyCatalogue = catalogue): BodyId {
+  const root = source.definitions().find((definition) => definition.parentId === undefined);
+  if (root === undefined) throw new AssetCatalogueError("the catalogue has no root body");
+  return root.id;
+}
+
 /** Explicit, import-built, no discovery. */
 export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY]);

@@ -1,9 +1,14 @@
-import { createObjectMetrics } from "../../app/metricReadouts";
-import type { ExperienceDefinition, GroupLayer } from "../../app/experienceDefinition";
+import { bodyMetrics } from "../../app/bodyMetrics";
+import { catalogueItem } from "../../app/catalogueItem";
+import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
+import type { ExperienceDefinition, GroupLayer, PathLayer } from "../../app/experienceDefinition";
+import { sunEarthSystem } from "../../assets/compositions";
+import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createEvents } from "../../core/events";
 import { createOrbitGroup, type OrbitElements, type OrbitSpread } from "../../core/orbitGroup";
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../core/timeWindow";
+import { createEarthSunTrajectory, createTwoBodyTrajectory } from "../../core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
@@ -15,6 +20,13 @@ const HOUR_MS = 3_600_000;
 const STREAM_COLOR = "#ffb86b";
 /** Sun-centred scenes are about 2 AU across; one AU is about 23,500 Earth radii. */
 const CAMERA_REACH = { maxFocusDistance: 400_000, far: 1_000_000 };
+/** How much larger than life Earth is drawn under the solar-system scale; stated in Earth's info panel. */
+export const EARTH_EXAGGERATION = 400;
+const EARTH_PATH_COLOR = "#7ab8ff";
+const PARENT_PATH_COLOR = "#c79bff";
+const YEAR_MS = Math.round(365.256363 * DAY_MS);
+/** The parent's path is drawn for this long either side of the peak: the stretch of its orbit that lies in the inner solar system. */
+const PARENT_PATH_HALF_SPAN_MS = 180 * DAY_MS;
 /** Presentation only: the stream drifts slowly, so exact fills six simulated hours apart are enough. */
 const REFILL_AFTER_MS = 6 * HOUR_MS;
 
@@ -185,6 +197,54 @@ function radiantMetricOf(settings: ShowerSettings): CoordinatesMetric {
   };
 }
 
+/** Earth's path round the Sun over the year about the peak, from the same Earth–Sun geometry that places Earth. */
+export function createEarthPathLayer(settings: ShowerSettings): PathLayer {
+  const peakUtcMs = Date.parse(settings.activity.peakUtc);
+  return {
+    kind: "orbit",
+    color: EARTH_PATH_COLOR,
+    source: createEarthSunTrajectory(createOrbAstronomyAdapter()),
+    span: { startUtcMs: peakUtcMs - Math.floor(YEAR_MS / 2), endUtcMs: peakUtcMs + Math.ceil(YEAR_MS / 2) },
+    samples: 361,
+    object: {
+      id: "earth-path",
+      label: "Earth's path",
+      color: EARTH_PATH_COLOR,
+      labelPriority: 60,
+      description: "Earth's path round the Sun over one year, drawn from the same Earth–Sun geometry that places Earth.",
+      provenance: EARTH_EPHEMERIS.provenance,
+      knownLimitations: ["A year's samples joined by straight segments."],
+    },
+  };
+}
+
+/** The parent body's orbit near the inner solar system: the published elements, set so the parent crosses Earth's path at the peak. */
+export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer {
+  const peakUtcMs = Date.parse(settings.activity.peakUtc);
+  const id = `${settings.id}-parent-orbit`;
+  return {
+    kind: "orbit",
+    color: PARENT_PATH_COLOR,
+    source: createTwoBodyTrajectory({ body: settings.parentBody, plane: settings.orbit.plane, epochUtcMs: peakUtcMs, elements: streamBase(settings).base }, createOrbTwoBodyAdapter()),
+    span: { startUtcMs: peakUtcMs - PARENT_PATH_HALF_SPAN_MS, endUtcMs: peakUtcMs + PARENT_PATH_HALF_SPAN_MS },
+    samples: 361,
+    object: {
+      id,
+      label: `${settings.parentBody} orbit`,
+      color: PARENT_PATH_COLOR,
+      labelPriority: 55,
+      description: `The part of the orbit of ${settings.parentBody}, the source of the ${settings.label}, that lies in the inner solar system. The stream follows this orbit.`,
+      provenance: createProvenance({
+        sourceType: "illustrative",
+        sources: [sourceLine(settings.orbit.source)],
+        accuracy: "The shape and tilt of the orbit are the published elements. Where the parent is along it is set so that it crosses Earth's path at the peak.",
+        notes: `${MODELLED_LIMITATION} Only about a year of the orbit is drawn, centred on the peak.`,
+      }),
+      knownLimitations: [MODELLED_LIMITATION, "Unperturbed two-body motion about the Sun; the full orbit reaches far beyond the part drawn."],
+    },
+  };
+}
+
 /** Turns shower settings into an experience definition; nothing here names a particular shower. */
 export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefinition {
   const layer = createStreamLayer(settings);
@@ -194,11 +254,27 @@ export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefin
   const radiant = radiantMetricOf(settings);
   const experience: ExperienceConfig = {
     objects: [
-      { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: CAMERA_REACH.far, description: `The planet that crosses the stream of the ${settings.label}.` },
-      { id: "moon", label: "Moon", color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500, description: "Shown for scale only." },
+      catalogueItem("sun", {
+        labelPriority: 95,
+        labelMaxDistance: CAMERA_REACH.far,
+        description: "The Sun, the centre of the scene. The stream and Earth's path circle it.",
+        knownLimitations: ["The Sun is drawn as a marker of fixed screen size, not to scale."],
+      }),
+      catalogueItem("earth", {
+        color: "#9fd8ff",
+        labelPriority: 100,
+        labelMaxDistance: CAMERA_REACH.far,
+        description: `The planet that crosses the stream of the ${settings.label}.`,
+        knownLimitations: [
+          ...EARTH_EPHEMERIS.knownLimitations,
+          `In the Solar system scale Earth is drawn ${EARTH_EXAGGERATION} times larger than life so it can be seen; distances stay true.`,
+        ],
+      }),
     ],
     cameraPresets: [
       { id: "overview", label: "Overview", request: { kind: "overview" } },
+      { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
+      { id: "follow-earth", label: "Follow Earth", request: { kind: "follow", target: "earth" } },
       { id: "focus-stream", label: "Focus stream", request: { kind: "focus", target: streamId } },
       { id: "follow-stream", label: "Follow stream", request: { kind: "follow", target: streamId } },
     ],
@@ -220,12 +296,17 @@ export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefin
   return {
     experience,
     clock: { startUtcMs, rate: 86_400 },
-    sceneLayers: ["earth-moon", "points"],
+    sceneLayers: ["points", "sun-centred"],
+    composition: sunEarthSystem,
+    sceneCenter: "sun",
+    scaleChoices: ["true-scale", "solar-system"],
+    visualOverrides: { earth: { exaggeration: EARTH_EXAGGERATION } },
     trackedBodies: [],
     groups: [layer],
+    paths: [createEarthPathLayer(settings), createParentOrbitPathLayer(settings)],
     camera: CAMERA_REACH,
-    createMetrics: ({ moon }) => {
-      const base = createObjectMetrics({ bodies: [], moon, earthId: "earth", moonId: "moon" });
+    createMetrics: ({ resolver }) => {
+      const base = bodyMetrics(resolver, sunEarthSystem.bodies, ["distance"]);
       return (objectId: string, timeUtcMs: number): readonly Metric[] =>
         objectId === streamId ? [rateMetricOf(settings, window, timeUtcMs), radiant] : base(objectId, timeUtcMs);
     },

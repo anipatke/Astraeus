@@ -6,7 +6,7 @@ import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createEvents } from "../core/events";
 import { createOrbitGroup, type OrbitGroupInput } from "../core/orbitGroup";
 import { createProvenance } from "../core/provenance";
-import { sunEarthSystem } from "../assets/compositions";
+import { earthMoonSystem, sunEarthSystem } from "../assets/compositions";
 import type { ExperienceConfig } from "../shell/experience";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
@@ -96,8 +96,6 @@ const YEAR_MS = Math.round(365.256363 * 86_400_000);
 
 /** The Sun as a drawn body: its position is the engine's Earth–Sun geometry; its marker size is a presentation choice. */
 export const syntheticSun: SunBody = {
-  color: "#fff1b0",
-  markerSizePx: 10,
   object: {
     id: "sun",
     label: "Sun",
@@ -190,7 +188,8 @@ const experience: ExperienceConfig = {
 export const syntheticRingDefinition: ExperienceDefinition = {
   experience,
   clock: { startUtcMs: START_UTC_MS, rate: 600 },
-  sceneLayers: ["earth-moon", "points"],
+  sceneLayers: ["points"],
+  composition: earthMoonSystem,
   trackedBodies: [],
   groups: [syntheticRingLayer],
   createMetrics: () => () => [],
@@ -229,6 +228,7 @@ export const syntheticBeltDefinition: ExperienceDefinition = {
   trackedBodies: [],
   groups: [syntheticBeltLayer],
   sun: syntheticSun,
+  visualOverrides: { sun: { marker: { sizePx: 10 } } },
   paths: [syntheticEarthPath, syntheticFarPath],
   createMetrics: () => () => [],
   camera: { maxFocusDistance: 400_000, far: 1_000_000 },

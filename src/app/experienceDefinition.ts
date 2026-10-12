@@ -1,25 +1,26 @@
 import type { ReactNode } from "react";
-import type { AstronomyAdapter } from "../core/astronomyAdapter";
 import type { SimulationClock } from "../core/clock";
-import type { MoonTrajectory } from "../core/moonTrajectory";
+import type { StateResolver } from "../core/stateResolver";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import type { BodyId, CenterId } from "../core/body";
-import { catalogue } from "../assets/catalogue";
-import { earthMoonSystem, type SystemComposition } from "../assets/compositions";
+import { catalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
+import type { SystemComposition } from "../assets/compositions";
+import type { BodyVisual } from "../assets/visual";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
+import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 
 /** Generic scene parts an experience opts into. Nothing here names a mission. */
-export type SceneLayerId = "earth-moon" | "tracked-bodies" | "points" | "sun-centred";
+export type SceneLayerId = "tracked-bodies" | "points" | "sun-centred";
 
 /** What the generic app owns and hands to the experience's factories. */
 export interface ExperienceRuntime {
   readonly clock: SimulationClock;
-  readonly adapter: AstronomyAdapter;
-  /** Earth-centred Moon trajectory for the `earth-moon` layer. */
-  readonly moon: MoonTrajectory;
+  /** The one resolver every position in the mount comes from; a metric reads a body's state through it. */
+  readonly resolver: StateResolver;
+  readonly catalogue: BodyCatalogue;
 }
 
 /** One developer-tools section; the app draws the heading and the experience supplies the body. */
@@ -56,16 +57,25 @@ export interface GroupLayer {
 }
 
 /**
- * The Sun as a drawn body: a marker at the Sun's composed position. Its size is a presentation choice in screen
- * pixels, not a physical radius, and the info panel says so. Focusing it frames every declared path.
+ * The Sun's shell item in a Sun-centred scene. The Sun itself is the catalogue's: its colour and marker size are the
+ * record's, and an experience that wants another marker size says so in `visualOverrides`, not here. Focusing it frames
+ * every declared path.
  */
 export interface SunBody {
   /** The Sun's one shell item. Its id is also the camera focus id. */
   readonly object: ExperienceObject;
-  readonly color: string;
-  /** Marker size in screen pixels; defaults to 9. */
-  readonly markerSizePx?: number;
 }
+
+/**
+ * A per-body presentation change for one experience: any appearance field of the body's record, an enlargement for the
+ * solar-system scale, or hiding the body. It cannot touch state, so no metric, position or label distance reads it.
+ */
+export type VisualOverride = Partial<BodyVisual> & {
+  /** Radius multiplier applied under the solar-system scale (at least 1); the experience states it in the body's info. */
+  readonly exaggeration?: number;
+  /** False leaves the body out of the scene (it still resolves as a centre). */
+  readonly visible?: boolean;
+};
 
 /** A rolling span: a window this wide, centred on the clock time and resampled as the clock moves. */
 export interface RollingSpan {
@@ -118,12 +128,16 @@ export const DEFAULT_CAMERA_FAR = 5_000;
 export interface ExperienceDefinition {
   readonly experience: ExperienceConfig;
   readonly clock: { readonly startUtcMs: number; readonly rate: number };
-  /** Layers the scene mounts, e.g. the tracked-body list. The `earth-moon` layer is an alias for `composition: earthMoonSystem`. */
+  /** Layers the scene mounts, e.g. the tracked-body list. */
   readonly sceneLayers: readonly SceneLayerId[];
-  /** The catalogued bodies the scene draws, one view each. Absent: none (unless the `earth-moon` alias is listed). */
+  /** The catalogued bodies the scene draws, one view each. Absent: none, as in the bodiless fixture. */
   readonly composition?: SystemComposition;
   /** The catalogued body at the scene's zero. Presentation only; defaults to the composition's own centre, else Earth. */
   readonly sceneCenter?: BodyId;
+  /** Per-body presentation overrides; state is untouched. */
+  readonly visualOverrides?: Readonly<Record<BodyId, VisualOverride>>;
+  /** The scale choices offered, in order; the first is the starting one. Default: true and readable scale. */
+  readonly scaleChoices?: readonly ScaleId[];
   /** Drawn only when the `tracked-bodies` layer is listed. */
   readonly trackedBodies: readonly TrackedBody[];
   /** Drawn only when the `points` layer is listed. */
@@ -157,19 +171,55 @@ export function cameraReachOf(definition: ExperienceDefinition): CameraReach {
   return definition.camera === undefined ? {} : validateCameraReach(definition.camera);
 }
 
-/** The composition the scene mounts: the declared one, else Earth and the Moon for the `earth-moon` alias, else none. */
+/** The composition the scene mounts: the declared one, else none. */
 export function compositionOf(definition: ExperienceDefinition): SystemComposition | undefined {
-  if (definition.composition !== undefined) return definition.composition;
-  return definition.sceneLayers.includes("earth-moon") ? earthMoonSystem : undefined;
+  return definition.composition;
+}
+
+/** The scale choices to offer: the declared ones validated, or none declared (the shell's own pair). */
+export function scaleChoiceIdsOf(definition: ExperienceDefinition): readonly ScaleId[] | undefined {
+  const ids = definition.scaleChoices;
+  if (ids === undefined) return undefined;
+  if (ids.length === 0) throw new RangeError("scaleChoices must name at least one choice");
+  if (new Set(ids).size !== ids.length) throw new RangeError(`scaleChoices lists a choice twice: ${ids.join(", ")}`);
+  scaleChoicesFor(ids);
+  return ids;
+}
+
+/** The validated overrides: every body catalogued, every enlargement finite and at least 1. Empty when none are declared. */
+export function visualOverridesOf(definition: ExperienceDefinition): ReadonlyMap<BodyId, VisualOverride> {
+  const overrides = new Map<BodyId, VisualOverride>();
+  for (const [id, override] of Object.entries(definition.visualOverrides ?? {})) {
+    if (!catalogue.has(id)) throw new RangeError(`visualOverrides names "${id}", which the catalogue lacks`);
+    const factor = override.exaggeration;
+    if (factor !== undefined && !(Number.isFinite(factor) && factor >= 1)) throw new RangeError(`visualOverrides.${id}.exaggeration must be finite and at least 1, got ${factor}`);
+    overrides.set(id, override);
+  }
+  return overrides;
+}
+
+/** A catalogued body as this experience draws it: the record with its overrides laid over the appearance. */
+export function assetWithOverride(asset: BodyAsset, override: VisualOverride | undefined): BodyAsset {
+  if (override === undefined) return asset;
+  const { exaggeration: _exaggeration, visible: _visible, marker, material, ...rest } = override;
+  const visual: BodyVisual = {
+    ...asset.visual,
+    ...rest,
+    material: { ...asset.visual.material, ...material },
+    ...(marker === undefined && asset.visual.marker === undefined ? {} : { marker: { ...asset.visual.marker, ...marker } as { sizePx: number } }),
+  };
+  return { ...asset, visual };
 }
 
 /**
- * The catalogued body at the scene's zero. A scene with no composition keeps Earth as its zero, the origin that
- * tracked bodies and groups are measured from. Throws for a centre the catalogue lacks or the composition omits.
+ * The catalogued body at the scene's zero: the declared one, else the composition's own centre. A scene with no
+ * composition has to say which body its tracked bodies and groups are measured from. Throws for a centre the catalogue lacks,
+ * the composition omits, or none declared.
  */
 export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
   const composition = compositionOf(definition);
-  const centre = definition.sceneCenter ?? composition?.defaultCenter ?? "earth";
+  const centre = definition.sceneCenter ?? composition?.defaultCenter;
+  if (centre === undefined) throw new RangeError("an experience with no composition must declare its sceneCenter");
   if (!catalogue.has(centre)) throw new RangeError(`sceneCenter "${centre}" is not in the catalogue`);
   if (composition !== undefined && !composition.bodies.includes(centre)) {
     throw new RangeError(`sceneCenter "${centre}" is not one of composition "${composition.id}" bodies (${composition.bodies.join(", ")})`);
@@ -180,14 +230,20 @@ export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
 /** The bodies the scene draws, in draw order: the composition's, plus the Sun when a Sun is declared and not already listed. */
 export function mountedBodiesOf(definition: ExperienceDefinition): readonly BodyId[] {
   const bodies = [...(compositionOf(definition)?.bodies ?? [])];
-  if (sunCentredOf(definition).sun !== undefined && !bodies.includes("sun")) bodies.push("sun");
-  return bodies;
+  const root = rootBodyId();
+  if (sunCentredOf(definition).sun !== undefined && !bodies.includes(root)) bodies.push(root);
+  const overrides = visualOverridesOf(definition);
+  return bodies.filter((id) => overrides.get(id)?.visible !== false);
 }
 
-/** Whether the scene mounts both the Earth and the Moon. */
-export function usesEarthMoon(definition: ExperienceDefinition): boolean {
-  const bodies = compositionOf(definition)?.bodies ?? [];
-  return bodies.includes("earth") && bodies.includes("moon");
+/**
+ * The object the shell starts with selected: the scene's own centre when the experience lists it, else its first
+ * shell item (a group, path or tracked body included). Never a body the experience does not mount.
+ */
+export function initialObjectIdOf(definition: ExperienceDefinition): string {
+  const objects = experienceWithGroups(definition).objects;
+  const centre = sceneCenterOf(definition);
+  return objects.some((object) => object.id === centre) ? centre : objects[0]?.id ?? centre;
 }
 
 /** The tracked bodies the scene should draw: none unless the layer is listed. */
@@ -263,9 +319,8 @@ export function validateSunCentred(sun: SunBody | undefined, paths: readonly Pat
     return id;
   };
   if (sun !== undefined) {
-    const id = claim(sun.object?.id, "sun");
+    const id = claim(sun.object?.id, "Sun body");
     if (sun.object.provenance === undefined) throw new TypeError(`sun "${id}" needs provenance on its object`);
-    if (sun.markerSizePx !== undefined && !(sun.markerSizePx > 0)) throw new RangeError(`sun "${id}" markerSizePx must be positive`);
   }
   for (const path of paths) {
     const id = claim(path.object?.id, "path");

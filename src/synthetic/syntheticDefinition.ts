@@ -1,6 +1,8 @@
-import { createObjectMetrics } from "../app/metricReadouts";
+import { bodyMetrics, resolverTrajectory } from "../app/bodyMetrics";
+import { createTrackedMetrics } from "../experiences/apollo11/spacecraftMetrics";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import type { TrackedBody } from "../app/mission";
+import { earthMoonSystem } from "../assets/compositions";
 import { createEvents } from "../core/events";
 import { createProvenance } from "../core/provenance";
 import { SampledTrajectory } from "../core/sampledTrajectory";
@@ -150,12 +152,14 @@ const experience: ExperienceConfig = {
 export const syntheticDefinition: ExperienceDefinition = {
   experience,
   clock: { startUtcMs: bounds.startUtcMs, rate: 600 },
-  sceneLayers: ["earth-moon", "tracked-bodies"],
+  sceneLayers: ["tracked-bodies"],
+  composition: earthMoonSystem,
   trackedBodies: [marker],
-  createMetrics: ({ moon }) => {
-    const base = createObjectMetrics({ bodies: [marker], moon, earthId: "earth", moonId: "moon" });
+  createMetrics: ({ resolver }) => {
+    const catalogued = bodyMetrics(resolver, earthMoonSystem.bodies, ["distance"]);
+    const tracked = createTrackedMetrics({ bodies: [marker], moon: resolverTrajectory(resolver, "moon", "earth") });
     return (objectId: string, timeUtcMs: number): readonly Metric[] =>
-      objectId === marker.id ? [...base(objectId, timeUtcMs), contactRateMetric(timeUtcMs)] : base(objectId, timeUtcMs);
+      objectId === marker.id ? [...tracked(objectId, timeUtcMs), contactRateMetric(timeUtcMs)] : catalogued(objectId, timeUtcMs);
   },
 };
 
@@ -164,9 +168,12 @@ const BARE_EXPERIENCE: ExperienceConfig = {
   objects: experience.objects.filter((object) => object.id === marker.id),
 };
 
-/** The same experience with Earth and the Moon left out of the scene and the object list; proves the layer list is honoured. */
+/** The same experience with Earth and the Moon left out of the scene and the object list; proves a scene mounts with no composition. */
 export const syntheticBareDefinition: ExperienceDefinition = {
-  ...syntheticDefinition,
   experience: BARE_EXPERIENCE,
+  clock: syntheticDefinition.clock,
   sceneLayers: ["tracked-bodies"],
+  sceneCenter: "earth",
+  trackedBodies: [marker],
+  createMetrics: syntheticDefinition.createMetrics,
 };

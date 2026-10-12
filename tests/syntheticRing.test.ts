@@ -1,10 +1,10 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { experienceWithGroups, groupsOf, usesEarthMoon, type ExperienceDefinition } from "../src/app/experienceDefinition";
+import { experienceWithGroups, groupsOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
-import { placementAbout } from "./scenePlacement";
+import { hasEarthMoon, placementAbout } from "./scenePlacement";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
@@ -38,7 +38,7 @@ function shellMarkup(definition: ExperienceDefinition): string {
 // The Sun-centred group goes through the same definition path as the ring.
 const beltDefinition: ExperienceDefinition = {
   ...syntheticRingDefinition,
-  sceneLayers: ["earth-moon", "points"],
+  sceneLayers: ["points"],
   groups: [syntheticBeltLayer],
   experience: {
     ...syntheticRingDefinition.experience,
@@ -69,7 +69,7 @@ describe("the made-up debris ring through the plug-in contract", () => {
     expect(shellMarkup(syntheticRingDefinition).match(/Debris ring/g)?.length).toBeGreaterThan(0);
     expect(findCameraPreset(experience, "focus", "debris-ring")).toBeDefined();
     expect(findCameraPreset(experience, "follow", "debris-ring")).toBeDefined();
-    expect(usesEarthMoon(syntheticRingDefinition)).toBe(true);
+    expect(hasEarthMoon(syntheticRingDefinition)).toBe(true);
   });
 
   it("names no meteor, shower or Apollo object", () => {
@@ -152,7 +152,7 @@ describe("the made-up Sun-centred belt through the same definition path", () => 
 
 describe("the made-up belt as a mounted experience", () => {
   it("mounts only the points layer and lists the belt once with focus and follow presets", () => {
-    expect(usesEarthMoon(syntheticBeltDefinition)).toBe(false);
+    expect(hasEarthMoon(syntheticBeltDefinition)).toBe(false);
     expect(groupsOf(syntheticBeltDefinition).map((layer) => layer.object.id)).toEqual(["dust-belt"]);
     const experience = experienceWithGroups(syntheticBeltDefinition);
     expect(experience.objects.filter((object) => object.id === "dust-belt")).toHaveLength(1);

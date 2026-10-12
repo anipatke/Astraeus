@@ -69,7 +69,7 @@ try {
   await page.getByRole("region", { name: "Timeline controls" }).waitFor();
   const canvas = page.getByTestId("earth-moon-canvas");
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
-  assert.equal(await canvas.getAttribute("data-earth-moon"), "false");
+  assert.equal(await canvas.getAttribute("data-bodies"), "sun,earth");
   assert.equal(await page.locator('option[value="dust-belt"]').count(), 1);
   await page.getByRole("button", { name: "Pause playback" }).click();
   await page.getByLabel("Select object").selectOption("dust-belt");
@@ -103,7 +103,7 @@ try {
     const targetCanvas = target.getByTestId("earth-moon-canvas");
     assert.equal(await targetCanvas.getAttribute("data-scene-center"), "sun", `${label}: the scene is centred on the Sun`);
     assert.equal(await targetCanvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted, in that order`);
-    assert.equal(await targetCanvas.getAttribute("data-earth-moon"), "false", `${label}: no Moon is mounted`);
+    assert.equal(await targetCanvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted and no Moon`);
     const pause = target.getByRole("button", { name: "Pause playback", exact: true });
     if (await pause.count()) await pause.click();
     const closeInfo = async () => { const c = target.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };

@@ -1,0 +1,18 @@
+export interface LocalOnlySource {
+  readonly file: string;
+  readonly path: string;
+}
+export interface PublicBuildMatch {
+  readonly source: string;
+  readonly path: string;
+  readonly how: "identical file" | "embedded as base64";
+}
+export interface PublicBuildResult {
+  readonly ok: boolean;
+  readonly checked: number;
+  readonly sources: readonly { readonly file: string; readonly sha256: string; readonly bytes: number }[];
+  readonly matches: readonly PublicBuildMatch[];
+}
+export function findLocalOnlySources(rootDir?: string): readonly LocalOnlySource[];
+export function checkPublicBuild(input: { readonly distDir: string; readonly sources: readonly LocalOnlySource[] }): PublicBuildResult;
+export function proveItFails(): { readonly clean: PublicBuildResult; readonly copied: PublicBuildResult; readonly embedded: PublicBuildResult };

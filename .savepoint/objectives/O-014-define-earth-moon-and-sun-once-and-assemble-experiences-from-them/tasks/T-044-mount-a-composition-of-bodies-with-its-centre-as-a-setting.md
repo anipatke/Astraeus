@@ -2,10 +2,9 @@
 id: T-044
 title: Mount a composition of bodies with its centre as a setting
 objective: O-014
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-043, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-018, accepted_by: {role: owner, session: owner-chat-o014-live-look-20261012}}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
 lane: scene
 planned_reads: [src/app/EarthMoonScene.tsx, src/app/App.tsx, src/app/experienceDefinition.ts, src/app/sceneLayout.ts, src/app/PointsView.ts, src/app/SunCentredView.ts, src/app/TrackedBodyView.ts, src/app/mission.ts, src/app/CameraController.tsx, src/app/BodyView.ts, src/core/stateResolver.ts, src/core/moonTrajectory.ts, src/assets/catalogue.ts, src/synthetic/syntheticRingDefinition.ts, tests/metricVisuals.test.ts, tests/experienceDefinition.test.ts, tests/experiencePlugIn.test.ts, tests/syntheticRing.test.ts, tests/missionScene.test.ts, tools/validate/browser-synthetic-belt.mjs]
@@ -139,3 +138,7 @@ Deferred to T-050 (the integration Task); each to be accounted for as reflected 
 - `data-scene-center`, `data-bodies` attributes on the canvas; `data-earth-moon` now means both Earth and Moon are mounted.
 - Belt gained a "Focus Earth" preset; selecting Earth there applies the parent-facing start side.
 - Test-only: `tests/scenePlacement.ts`; tools `capture-apollo-compare.mjs`, `diff-screenshots.mjs`.
+
+## Completion
+
+- 2026-10-12 — Owner accepted T-044 against C-018 after a live side-by-side look (pre-O-014 8fc6fce on :5301 vs 2d8b2dd on :5302): Apollo unchanged at the six mission moments in both scales, Sun-centred belt with the Sun at the centre and Earth on its path. Owner's words: "accept T-043, T-044". Recorded and `status: done` set by the orchestrator on the owner's direct instruction.

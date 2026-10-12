@@ -13,7 +13,7 @@ import { DEFAULT_WINDOW_SAMPLE_COUNT } from "../src/app/experienceDefinition";
 import { SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { samplePositionsKm, windowTimesUtcMs } from "../src/core/sunCentredSources";
 import { eqjToRenderQuaternion, eqjToRenderVector } from "../src/app/renderCoordinates";
-import { createSceneHierarchy, placeBodies } from "../src/app/sceneLayout";
+import { createSceneHierarchy, placeBodies } from "./scenePlacement";
 import before from "./fixtures/scene-placement-pre-t043.json";
 
 const adapter = createOrbAstronomyAdapter();

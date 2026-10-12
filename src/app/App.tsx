@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import { SimulationClock } from "../core/clock";
-import { MoonTrajectory } from "../core/moonTrajectory";
-import { trueScale } from "../core/scalePolicy";
+import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
+import { catalogue } from "../assets/catalogue";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { cameraReachOf, compositionOf, experienceWithGroups, groupsOf, mountedBodiesOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { cameraReachOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
-import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
+import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
@@ -31,6 +31,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       resolver,
       bodies: mountedBodiesOf(definition),
       composition: compositionOf(definition),
+      overrides: visualOverridesOf(definition),
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),
@@ -39,23 +40,32 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     };
   }, [definition]);
   const experienceRuntime = useMemo(
-    () => ({ clock: runtime.clock, adapter: runtime.adapter, moon: new MoonTrajectory(runtime.adapter) }),
+    () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue }),
     [runtime],
   );
+  // The choices offered, in the experience's order; the solar-system policy enlarges only the bodies the experience names.
+  const scaleChoiceIds = useMemo(() => scaleChoiceIdsOf(definition), [definition]);
+  const scaleChoices = useMemo(() => (scaleChoiceIds === undefined ? undefined : scaleChoicesFor(scaleChoiceIds)), [scaleChoiceIds]);
+  const suppliedPolicies = useMemo<readonly ScalePolicy[]>(() => {
+    const exaggeration: Record<string, number> = {};
+    for (const [id, override] of runtime.overrides) if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
+    return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
+  }, [runtime]);
+  const startScale: ScaleId = scaleChoiceIds?.[0] ?? "true-scale";
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const controls = useRef<SceneControls>({
-    policy: trueScale,
+    policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
     showAnchorLabels: false,
     labelObjects: experience.objects,
-    selectedObjectId: "earth",
+    selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
     groupFills: [],
   });
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
-  const [scale, setScale] = useState<ScaleId>("true-scale");
+  const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
   const [hud, setHud] = useState<DebugReadout | null>(null);
@@ -69,9 +79,9 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     controls.current.selectedObjectId = objectId;
   }, []);
   const updateScale = useCallback((id: ScaleId) => {
-    controls.current.policy = scalePolicyFor(id);
+    controls.current.policy = scalePolicyFor(id, suppliedPolicies);
     setScale(id);
-  }, []);
+  }, [suppliedPolicies]);
 
   useEffect(() => {
     const id = window.setInterval(() => setClockSnapshot(runtime.clock.snapshot()), 100);
@@ -151,6 +161,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}
+      scaleChoices={scaleChoices}
       metricsFor={metricsFor}
       developerTools={developerTools}
     >

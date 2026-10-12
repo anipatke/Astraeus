@@ -3,7 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
-import { MoonTrajectory } from "../src/core/moonTrajectory";
+import { catalogue } from "../src/assets/catalogue";
+import { createSceneResolver } from "../src/app/sceneLayout";
 import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
@@ -16,7 +17,7 @@ import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import type { RateMetric } from "../src/shell/metrics";
 
 const sources = import.meta.glob<string>(
-  ["../src/core/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx,css}", "../src/app/*.{ts,tsx,css}"],
+  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx,css}", "../src/app/*.{ts,tsx,css}"],
   { query: "?raw", import: "default", eager: true },
 );
 
@@ -54,9 +55,8 @@ describe.each([
   });
 
   it("builds metrics for its own bodies through the generic factory", () => {
-    const adapter = createOrbAstronomyAdapter();
     const clock = new SimulationClock(definition.clock.startUtcMs);
-    const metrics = definition.createMetrics({ clock, adapter, moon: new MoonTrajectory(adapter) });
+    const metrics = definition.createMetrics({ clock, resolver: createSceneResolver(createOrbAstronomyAdapter()), catalogue });
     const body = definition.trackedBodies[0];
     expect(metrics(body.id, body.trajectory.bounds.startUtcMs).length).toBeGreaterThan(0);
   });
@@ -87,9 +87,8 @@ describe("the synthetic window", () => {
   const [contact] = windows;
   const minutes = (value: number) => contact.startUtcMs + value * 60_000;
   const metricsAt = (timeUtcMs: number) => {
-    const adapter = createOrbAstronomyAdapter();
     const clock = new SimulationClock(syntheticDefinition.clock.startUtcMs);
-    return syntheticDefinition.createMetrics({ clock, adapter, moon: new MoonTrajectory(adapter) })("survey-marker", timeUtcMs);
+    return syntheticDefinition.createMetrics({ clock, resolver: createSceneResolver(createOrbAstronomyAdapter()), catalogue })("survey-marker", timeUtcMs);
   };
 
   it("mounts one window through ExperienceConfig.windows, inside the timeline", () => {
@@ -157,6 +156,7 @@ describe("generic code boundary", () => {
     expect(Object.keys(sources).some((path) => path.includes("/src/core/") || path.includes("/core/"))).toBe(true);
     expect(Object.keys(sources).some((path) => path.includes("/shell/"))).toBe(true);
     expect(Object.keys(sources).some((path) => path.includes("/app/"))).toBe(true);
+    expect(Object.keys(sources).some((path) => path.includes("/assets/"))).toBe(true);
     const offenders = Object.entries(sources)
       .filter(([, source]) => /apollo|columbia|eagle|perseid|meteor/i.test(source))
       .map(([path]) => path);

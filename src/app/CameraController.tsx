@@ -5,7 +5,7 @@ import { PerspectiveCamera } from "three";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
 
-/** "earth", "moon", or the id of any tracked trajectory body. */
+/** The id of a catalogued body, or of any tracked trajectory body, group or path. */
 export type FocusId = string;
 
 /** Focus re-frames the target; follow keeps the current framing; overview frames Earth and Moon. */
@@ -29,7 +29,7 @@ export interface OrbitCameraState {
   targetAbsolute: [number, number, number];
 }
 
-export function createOrbitCameraState(distance: number): OrbitCameraState {
+export function createOrbitCameraState(distance: number, focus: FocusId): OrbitCameraState {
   return {
     azimuth: Math.PI * 1.2,
     targetAzimuth: Math.PI * 1.2,
@@ -37,7 +37,7 @@ export function createOrbitCameraState(distance: number): OrbitCameraState {
     targetElevation: 0.25,
     distance,
     targetDistance: distance,
-    focus: "earth",
+    focus,
     transition: [0, 0, 0],
     cameraAbsolute: [0, 0, 0],
     targetAbsolute: [0, 0, 0],

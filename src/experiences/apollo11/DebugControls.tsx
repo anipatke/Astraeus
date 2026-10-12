@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { SimulationClock } from "../core/clock";
-import { describePlaybackRate, formatRate, formatUtcTimestamp, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS } from "../shell/timelineModel";
-import { jumpToEvent, type MissionConfig } from "./mission";
+import type { SimulationClock } from "../../core/clock";
+import { describePlaybackRate, formatRate, formatUtcTimestamp, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS } from "../../shell/timelineModel";
+import { jumpToEvent, type MissionConfig } from "../../app/mission";
 
 export const SPEEDS = DEFAULT_PLAYBACK_SPEEDS;
 

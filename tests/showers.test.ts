@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { groupsOf } from "../src/app/experienceDefinition";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
-import { MoonTrajectory } from "../src/core/moonTrajectory";
+import { catalogue } from "../src/assets/catalogue";
+import { sunEarthSystem } from "../src/assets/compositions";
+import { createSceneResolver } from "../src/app/sceneLayout";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import {
   buildShowerDefinition,
@@ -15,6 +17,7 @@ import perseidsFile from "../data/showers/perseids.json";
 import { parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
 
 const adapter = createOrbAstronomyAdapter();
+const runtimeAt = (timeUtcMs: number) => ({ clock: new SimulationClock(timeUtcMs), resolver: createSceneResolver(adapter), catalogue });
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
 
@@ -86,11 +89,13 @@ describe("the shared shower builder with a made-up shower", () => {
   const layer = groupsOf(definition)[0];
 
   it("builds an Earth-visible, Sun-centred experience with one stream item", () => {
-    expect(definition.sceneLayers).toEqual(["earth-moon", "points"]);
+    expect(definition.sceneLayers).toEqual(["points", "sun-centred"]);
+    expect(definition.composition).toBe(sunEarthSystem);
+    expect(definition.sceneCenter).toBe("sun");
     expect(layer.group.center).toBe("sun");
     expect(layer.group.count).toBe(300);
     expect(layer.object.id).toBe(streamIdOf(settings));
-    expect(definition.experience.cameraPresets.map((p) => p.id)).toEqual(["overview", "focus-stream", "follow-stream"]);
+    expect(definition.experience.cameraPresets.map((p) => p.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-stream", "follow-stream"]);
     expect(definition.camera?.maxFocusDistance).toBeGreaterThan(100_000);
   });
 
@@ -110,8 +115,7 @@ describe("the shared shower builder with a made-up shower", () => {
     const peak = Date.parse(settings.activity.peakUtc);
     expect(rateAt(window!, peak)).toBeCloseTo(40, 6);
     expect(rateAt(window!, peak + 2 * DAY_MS)).toBeCloseTo(40 * 10 ** -0.4, 6);
-    const moon = new MoonTrajectory(adapter);
-    const metrics = definition.createMetrics({ clock: new SimulationClock(peak), adapter, moon })(streamIdOf(settings), peak + 2 * DAY_MS);
+    const metrics = definition.createMetrics(runtimeAt(peak))(streamIdOf(settings), peak + 2 * DAY_MS);
     const rate = metrics.find((m) => m.kind === "rate");
     expect(rate?.kind === "rate" ? rate.value : null).toBeCloseTo(rateAt(window!, peak + 2 * DAY_MS) ?? Number.NaN, 9);
     expect(metrics.find((m) => m.kind === "coordinates")).toMatchObject({ system: "radec" });
@@ -164,17 +168,17 @@ describe("Perseids from its settings file", () => {
     const window = definition.experience.windows![0];
     expect(rateAt(window, peak)).toBe(settings.activity.peakRate);
     expect(rateAt(window, start)).toBeLessThan(1);
-    const moon = new MoonTrajectory(adapter);
-    const metrics = definition.createMetrics({ clock: new SimulationClock(start), adapter, moon })(streamIdOf(settings), peak);
+    const metrics = definition.createMetrics(runtimeAt(start))(streamIdOf(settings), peak);
     const radiant = metrics.find((m) => m.kind === "coordinates");
     expect(radiant?.kind === "coordinates" ? radiant.components?.map((c) => c.value) : null).toEqual([settings.radiant.raDeg, settings.radiant.decDeg]);
     expect(radiant?.context).toMatch(/Published/);
   });
 
-  it("leaves Moon readings off the stream and on Earth only", () => {
-    const moon = new MoonTrajectory(adapter);
-    const metrics = definition.createMetrics({ clock: new SimulationClock(start), adapter, moon });
-    expect(metrics("earth", peak).some((m) => /moon/i.test(m.label))).toBe(true);
-    expect(metrics(streamIdOf(settings), peak).some((m) => /moon/i.test(m.label))).toBe(false);
+  it("reads no Moon anywhere: Earth reports its distance from the Sun, the stream reports no distance", () => {
+    const metrics = definition.createMetrics(runtimeAt(start));
+    expect(metrics("earth", peak).map((m) => m.label)).toEqual(["Distance from Sun"]);
+    expect(metrics("sun", peak).map((m) => m.label)).toEqual(["Distance to Earth"]);
+    expect(metrics("moon", peak)).toEqual([]);
+    expect(metrics(streamIdOf(settings), peak).some((m) => /distance/i.test(m.label))).toBe(false);
   });
 });

@@ -1,3 +1,4 @@
+import { hasEarthMoon } from "./scenePlacement";
 import { describe, expect, it } from "vitest";
 import { focusLimits } from "../src/app/sceneFraming";
 import { MOON } from "../src/core/body";
@@ -8,7 +9,6 @@ import {
   experienceWithGroups,
   groupsOf,
   trackedBodiesOf,
-  usesEarthMoon,
   validateCameraReach,
   type ExperienceDefinition,
 } from "../src/app/experienceDefinition";
@@ -52,7 +52,7 @@ describe("experience plug-in contract", () => {
 
   it("supplies Apollo's tracked bodies only through the tracked-bodies layer", () => {
     expect(trackedBodiesOf(apollo11Definition).length).toBeGreaterThan(0);
-    const withoutLayer: ExperienceDefinition = { ...apollo11Definition, sceneLayers: ["earth-moon"] };
+    const withoutLayer: ExperienceDefinition = { ...apollo11Definition, sceneLayers: [] };
     expect(trackedBodiesOf(withoutLayer)).toEqual([]);
   });
 
@@ -61,20 +61,18 @@ describe("experience plug-in contract", () => {
   });
 
   it.each([
-    [[], false, 0],
-    [["tracked-bodies"], false, 1],
-    [["earth-moon"], true, 0],
-    [["earth-moon", "tracked-bodies"], true, 1],
-    [["tracked-bodies", "tracked-bodies", "earth-moon", "earth-moon"], true, 1],
-  ] as const)("reads layers %j as earth-moon=%s with %i tracked body", (layers, earthMoon, tracked) => {
+    [[], 0],
+    [["tracked-bodies"], 1],
+    [["tracked-bodies", "tracked-bodies"], 1],
+  ] as const)("reads layers %j as %i tracked body, whatever the composition", (layers, tracked) => {
     const definition: ExperienceDefinition = { ...syntheticDefinition, sceneLayers: layers };
-    expect(usesEarthMoon(definition)).toBe(earthMoon);
+    expect(hasEarthMoon(definition)).toBe(true);
     expect(trackedBodiesOf(definition)).toHaveLength(tracked);
   });
 
   it("offers a bare synthetic variant without Earth and Moon", () => {
-    expect(usesEarthMoon(syntheticBareDefinition)).toBe(false);
-    expect(usesEarthMoon(syntheticDefinition)).toBe(true);
+    expect(hasEarthMoon(syntheticBareDefinition)).toBe(false);
+    expect(hasEarthMoon(syntheticDefinition)).toBe(true);
     expect(trackedBodiesOf(syntheticBareDefinition)).toHaveLength(1);
   });
 });

@@ -1,5 +1,5 @@
 import { Object3D, Quaternion as ThreeQuaternion, Vector3 } from "three";
-import { catalogue } from "../assets/catalogue";
+import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId, CenterId } from "../core/body";
 import type { State } from "../core/state";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -8,30 +8,6 @@ import { createStateResolver, type StateResolver } from "../core/stateResolver";
 import { FloatingOrigin } from "./floatingOrigin";
 import { BARE_SCENE_SPAN } from "./sceneFraming";
 import { eqjToRenderQuaternion, eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-
-const EARTH_TEXTURE_YAW_RAD = catalogue.get("earth").visual.textureYawRad ?? 0;
-const MOON_TEXTURE_YAW_RAD = catalogue.get("moon").visual.textureYawRad ?? 0;
-
-/** Stationary scientific scene root and its siblings; nothing here is parented to a body mesh. */
-export interface SceneHierarchy {
-  readonly root: Object3D;
-  readonly earthGroup: Object3D;
-  readonly earthMesh: Object3D;
-  readonly moonGroup: Object3D;
-  readonly moonMesh: Object3D;
-}
-
-export function createSceneHierarchy(): SceneHierarchy {
-  const root = new Object3D();
-  const earthGroup = new Object3D();
-  const earthMesh = new Object3D();
-  const moonGroup = new Object3D();
-  const moonMesh = new Object3D();
-  earthGroup.add(earthMesh);
-  moonGroup.add(moonMesh);
-  root.add(earthGroup, moonGroup);
-  return { root, earthGroup, earthMesh, moonGroup, moonMesh };
-}
 
 const yaw = new ThreeQuaternion();
 const pole = new Vector3(0, 1, 0);
@@ -67,6 +43,19 @@ export interface PlacedState {
   /** Scaled absolute positions in render axes (Float64), before origin subtraction. */
   readonly earthAbsolute: RenderVector;
   readonly moonAbsolute: RenderVector;
+}
+
+/**
+ * The pair the developer readout measures: a mounted body that orbits another mounted body which itself orbits something (so the
+ * pair is a satellite and its planet, not a planet and the root). Null when the scene mounts no such pair.
+ */
+export function readoutPairOf(bodies: readonly BodyId[], source: BodyCatalogue = catalogue): { readonly parent: BodyId; readonly child: BodyId } | null {
+  for (const id of bodies) {
+    const parentId = source.get(id).definition.parentId;
+    if (parentId === undefined || !bodies.includes(parentId)) continue;
+    if (source.get(parentId).definition.parentId !== undefined) return { parent: parentId, child: id };
+  }
+  return null;
 }
 
 /** Scientific position (from the scene centre) -> ScalePolicy -> fixed axis conversion, in Float64 (no origin yet). */
@@ -109,29 +98,6 @@ export function bodyAbsolutes(
   return {
     earthAbsolute: bodyAbsolute(earthPositionKm, policy),
     moonAbsolute: bodyAbsolute(moonKm, policy),
-  };
-}
-
-/**
- * The Earth/Moon pair on a fixed hierarchy, placed through `placeBody`. Earth/Moon positions are expressed in a
- * common centre (earth-centred: Earth is the zero vector).
- */
-export function placeBodies(
-  hierarchy: SceneHierarchy,
-  earth: State,
-  moon: State,
-  policy: ScalePolicy,
-  origin: FloatingOrigin,
-  earthPositionKm: ArrayLike<number> = [0, 0, 0],
-): PlacedState {
-  const moonKm = [
-    earthPositionKm[0] + moon.positionKm[0],
-    earthPositionKm[1] + moon.positionKm[1],
-    earthPositionKm[2] + moon.positionKm[2],
-  ];
-  return {
-    earthAbsolute: placeBody(hierarchy.earthGroup, hierarchy.earthMesh, earth, earthPositionKm, EARTH_TEXTURE_YAW_RAD, policy, origin),
-    moonAbsolute: placeBody(hierarchy.moonGroup, hierarchy.moonMesh, moon, moonKm, MOON_TEXTURE_YAW_RAD, policy, origin),
   };
 }
 

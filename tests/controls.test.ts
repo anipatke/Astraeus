@@ -17,7 +17,7 @@ import {
   seekClock,
   setPlaying,
   SPEEDS,
-} from "../src/app/DebugControls";
+} from "../src/experiences/apollo11/DebugControls";
 import { buildDebugReadout, overlayRows, type DebugReadout } from "../src/app/DebugOverlay";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { pathNeedsRefresh } from "../src/app/pathRules";

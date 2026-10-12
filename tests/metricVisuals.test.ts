@@ -6,19 +6,18 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { catalogue } from "../src/assets/catalogue";
 import { createStateResolver } from "../src/core/stateResolver";
-import { MissionTelemetry } from "../src/app/MissionPanel";
+import { MissionTelemetry } from "../src/experiences/apollo11/MissionPanel";
+import { journeyProgressMetric, sceneMetrics } from "../src/app/metricReadouts";
 import {
-  journeyProgressMetric,
   peakAnchorSpeedKmS,
   referenceInSameFrame,
-  sceneMetrics,
   spacecraftAltitudeMetric,
   spacecraftDiscrepancyMetric,
   spacecraftMoonMetric,
   spacecraftPositionMetric,
   spacecraftRangeMetric,
   spacecraftSpeedMetric,
-} from "../src/app/metricReadouts";
+} from "../src/experiences/apollo11/spacecraftMetrics";
 import { discrepancyAt, stateIfInBounds, trackedReadouts } from "../src/app/mission";
 import { MOON } from "../src/core/body";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";

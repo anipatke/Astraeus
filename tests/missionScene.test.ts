@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "../src/core/clock";
 import { readableScale, trueScale } from "../src/core/scalePolicy";
-import { SPEEDS } from "../src/app/DebugControls";
+import { SPEEDS } from "../src/experiences/apollo11/DebugControls";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "../src/app/CameraController";
 import { projectToScreen } from "../src/app/AnchorLabels";
@@ -118,7 +118,7 @@ describe("camera presentation independence", () => {
       };
     };
     const scientificBefore = capture();
-    const camera = createOrbitCameraState(10);
+    const camera = createOrbitCameraState(10, "earth");
     const target = trackedAbsolute(before, readableScale, earthPlacement);
 
     const selection = availableObjectById(apollo11Experience, columbia.id, mid);
@@ -147,7 +147,7 @@ describe("camera presentation independence", () => {
   });
 
   it("manual input cancels pending camera motion at the current pose", () => {
-    const camera = createOrbitCameraState(4);
+    const camera = createOrbitCameraState(4, "earth");
     camera.transition = [1, 2, 3];
     camera.targetDistance = 20;
     camera.azimuth += 0.4;

@@ -19,7 +19,7 @@ export interface AtmosphereConfig {
  * both an equatorial and a polar radius.
  */
 export interface BodyVisual {
-  /** The Sun at 1 AU is a marker until a star renderer exists. */
+  /** A star at interplanetary distance is a marker until a star renderer exists. */
   readonly kind: "sphere" | "marker";
   /** Sphere only; absent means a flat colour from the material. */
   readonly texture?: TextureRef;

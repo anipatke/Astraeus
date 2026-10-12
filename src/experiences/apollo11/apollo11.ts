@@ -6,7 +6,8 @@ import { createEvents, type TimelineEvent } from "../../core/events";
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../../core/sampledTrajectory";
 import type { Trajectory } from "../../core/trajectory";
-import { EARTH_EPHEMERIS, MOON_EPHEMERIS } from "../../app/ephemerisProvenance";
+import { MOON_EPHEMERIS } from "../../app/ephemerisProvenance";
+import { catalogueItem } from "../../app/catalogueItem";
 import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../../app/mission";
 import type { ExperienceConfig } from "../../shell/experience";
 import { formatMetricNumber } from "../../shell/metrics";
@@ -222,14 +223,8 @@ export function buildApollo11Experience(mission: MissionConfig = apollo11Mission
   const limitations = apollo11KnownLimitations(mission);
   return {
     objects: [
-      {
-        id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500,
-        description: DESCRIPTIONS.earth, provenance: EARTH_EPHEMERIS.provenance, knownLimitations: EARTH_EPHEMERIS.knownLimitations,
-      },
-      {
-        id: "moon", label: "Moon", color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500,
-        description: DESCRIPTIONS.moon, provenance: MOON_EPHEMERIS.provenance, knownLimitations: MOON_EPHEMERIS.knownLimitations,
-      },
+      catalogueItem("earth", { color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: DESCRIPTIONS.earth }),
+      catalogueItem("moon", { color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500, description: DESCRIPTIONS.moon, knownLimitations: MOON_EPHEMERIS.knownLimitations }),
       ...mission.bodies.map(({ id, label, color, trajectory, provenance }) => ({
         id,
         label,

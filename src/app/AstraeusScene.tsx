@@ -7,7 +7,7 @@ import { directionFromCenterToSun } from "../core/illumination";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
-import { catalogue, type BodyAsset } from "../assets/catalogue";
+import { catalogue, rootBodyId, type BodyAsset } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView } from "./BodyView";
 import {
@@ -23,10 +23,10 @@ import {
 } from "./CameraController";
 import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
-import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody } from "./experienceDefinition";
+import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
 import { stateIfInBounds, type TrackedBody } from "./mission";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { bodyAbsolute, placeBody, placeComposition, type ScenePlacement } from "./sceneLayout";
+import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import {
   assignBodyLayers,
   defaultDistance,
@@ -62,8 +62,10 @@ export interface SceneRuntime {
   readonly trackedBodies: readonly TrackedBody[];
   /** Groups the `points` layer draws as dots; empty when the experience has none. */
   readonly groups: readonly GroupLayer[];
-  /** Presentation of the Sun body (colour, marker size) and its shell item, if the experience declares one. */
+  /** The Sun's shell item, if the experience declares one; the Sun itself is the catalogue's. */
   readonly sun?: SunBody;
+  /** The experience's per-body presentation overrides, laid over the catalogue's records. */
+  readonly overrides?: ReadonlyMap<BodyId, VisualOverride>;
   /** Paths the `sun-centred` layer draws; empty when the experience has none. */
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
@@ -103,9 +105,9 @@ export function AstraeusScene(props: Props) {
       gl={{ antialias: true }}
       style={{ background: "#000000" }}
       data-testid="earth-moon-canvas"
-      data-earth-moon={runtime.bodies.includes("earth") && runtime.bodies.includes("moon")}
       data-scene-center={runtime.sceneCenter}
       data-bodies={runtime.bodies.join(",")}
+      data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
     >
@@ -156,11 +158,12 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   };
 
   const origin = useMemo(() => new FloatingOrigin(), []);
-  const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16));
+  const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16, runtime.sceneCenter));
   const spanScaled = useRef(6);
   const lastPolicyId = useRef(controls.policy.id);
   const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
-  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => catalogue.get(id)), [runtime.bodies]);
+  const readoutPair = useMemo(() => readoutPairOf(runtime.bodies), [runtime.bodies]);
+  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides]);
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
@@ -193,7 +196,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
 
   /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
   const bodyIdFor = (id: string): BodyId | null => {
-    if (runtime.sun !== undefined && id === runtime.sun.object.id) return "sun";
+    if (runtime.sun !== undefined && id === runtime.sun.object.id) return rootBodyId();
     return catalogue.has(id) ? id : null;
   };
 
@@ -323,19 +326,19 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       light.position.set(toSun[0], toSun[1], toSun[2]);
     }
 
-    if (!runtime.bodies.includes("earth") || !runtime.bodies.includes("moon")) {
+    if (readoutPair === null) {
       readout.current = null;
       return;
     }
-    const earthAbsolute = absoluteOf("earth");
-    const moonAbsolute = absoluteOf("moon");
+    const earthAbsolute = absoluteOf(readoutPair.parent);
+    const moonAbsolute = absoluteOf(readoutPair.child);
     readout.current = buildDebugReadout({
       timeUtcMs: t,
       rate: clock.rate,
       policy,
-      earth: resolver.stateOf("earth", t, "sun"),
-      moonFromEarth: resolver.stateOf("moon", t, "earth"),
-      sunFromEarth: resolver.sunFrom("earth", t),
+      earth: resolver.stateOf(readoutPair.parent, t, rootBodyId()),
+      moonFromEarth: resolver.stateOf(readoutPair.child, t, readoutPair.parent),
+      sunFromEarth: resolver.sunFrom(readoutPair.parent, t),
       placed: { earthAbsolute, moonAbsolute },
       renderedDistanceUnits: Math.hypot(moonAbsolute[0] - earthAbsolute[0], moonAbsolute[1] - earthAbsolute[1], moonAbsolute[2] - earthAbsolute[2]),
       origin,
@@ -348,10 +351,9 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         const id = asset.definition.id;
         const layer = layers.get(id)!;
         const light = asset.visual.light;
-        const override = id === "sun" && runtime.sun !== undefined ? { color: runtime.sun.color, sizePx: runtime.sun.markerSizePx } : undefined;
         return (
           <group key={id}>
-            <BodyView asset={asset} policy={controls.policy} layer={layer} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} markerOverride={override} />
+            <BodyView asset={asset} policy={controls.policy} layer={layer} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
             {light !== undefined && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />

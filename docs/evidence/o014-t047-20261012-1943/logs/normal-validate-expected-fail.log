@@ -1,0 +1,29 @@
+{
+  "distDir": "/home/user/code/Astraeus/dist",
+  "ok": false,
+  "checked": 5,
+  "sources": [
+    {
+      "file": "earth-2k.jpg",
+      "sha256": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
+      "bytes": 1461877
+    },
+    {
+      "file": "moon-orig-2k.jpg",
+      "sha256": "2764ba6535ea0481a062846ee033cc7a909dae05b31a8fd13f3e98f3a7fd92bd",
+      "bytes": 1053869
+    }
+  ],
+  "matches": [
+    {
+      "source": "earth-2k.jpg",
+      "path": "/home/user/code/Astraeus/dist/assets/earth-2k-CClELF0E.jpg",
+      "how": "identical file"
+    },
+    {
+      "source": "moon-orig-2k.jpg",
+      "path": "/home/user/code/Astraeus/dist/assets/moon-orig-2k-BMpRMzYO.jpg",
+      "how": "identical file"
+    }
+  ]
+}

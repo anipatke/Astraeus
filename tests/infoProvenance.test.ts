@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createEvents } from "../src/core/events";
 import { createWindows } from "../src/core/timeWindow";
-import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { createProvenance } from "../src/core/provenance";
-import { createObjectMetrics } from "../src/app/metricReadouts";
+import { createSceneResolver } from "../src/app/sceneLayout";
+import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
 import { trackedAbsolute } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";
 import {
@@ -197,8 +197,7 @@ describe("scale choice independence", () => {
   });
 
   it("leaves State and every info readout identical under True and Readable through the shell's choice", () => {
-    const moon = new MoonTrajectory(createOrbAstronomyAdapter());
-    const metricsFor = createObjectMetrics({ bodies: apollo11Mission.bodies, moon, earthId: "earth", moonId: "moon" });
+    const metricsFor = apolloMetrics(apollo11Mission.bodies, createSceneResolver(createOrbAstronomyAdapter()));
     const snapshot = () => objectIds.map((id) => metricsFor(id, eagleMid));
     const states = () => apollo11Mission.bodies.map((body) => {
       const state = body.trajectory.stateAt(eagleMid);

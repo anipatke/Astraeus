@@ -54,7 +54,7 @@ const path = (over: Record<string, unknown> = {}): PathLayer => ({
   span: { startUtcMs: START, endUtcMs: START + 4 * YEAR_MS },
   ...over,
 }) as PathLayer;
-const sun = (over: Partial<SunBody> = {}): SunBody => ({ object: object("test-sun"), color: "#ffff00", ...over });
+const sun = (over: Partial<SunBody> = {}): SunBody => ({ object: object("test-sun"), ...over });
 
 describe("the Sun and path declaration", () => {
   it("accepts a valid Sun and path", () => {
@@ -73,7 +73,6 @@ describe("the Sun and path declaration", () => {
     ["a source that cannot give a Sun-centred state", () => validateSunCentred(undefined, [path({
       source: { body: "x", stateAt: () => { throw new RangeError("no such state"); } },
     })]), /cannot give a state about its centre at the span start: no such state/],
-    ["a bad marker size", () => validateSunCentred(sun({ markerSizePx: 0 }), []), /markerSizePx must be positive/],
   ])("names the problem for %s", (_what, act, message) => {
     expect(act).toThrow(message);
   });
