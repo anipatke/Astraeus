@@ -2,13 +2,14 @@ import { bodyMetrics } from "../../app/bodyMetrics";
 import { catalogueItem } from "../../app/catalogueItem";
 import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../../app/experienceDefinition";
+import { catalogue, rootBodyId } from "../../assets/catalogue";
 import { sunEarthSystem } from "../../assets/compositions";
 import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createEvents } from "../../core/events";
 import { createOrbitGroup, type OrbitElements, type OrbitSpread } from "../../core/orbitGroup";
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../core/timeWindow";
-import { createEarthSunTrajectory, createTwoBodyTrajectory } from "../../core/sunCentredSources";
+import { createEarthSunTrajectory, createTwoBodyTrajectory, fullTurnSpanMs } from "../../core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
@@ -218,6 +219,48 @@ export function createEarthPathLayer(settings: ShowerSettings): PathLayer {
   };
 }
 
+/** The turn search walks in two-day steps; the longest orbit among the planets is a dozen years. */
+const PLANET_TURN_STEP_MS = 2 * DAY_MS;
+const PLANET_TURN_MAX_STEPS = 3_000;
+
+/**
+ * The orbit of every catalogued body that circles the Sun and is not already in the scene, from its own catalogue state source and
+ * drawn for one full turn from the peak. No body is named here: the planets are whatever the catalogue holds.
+ */
+export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer[] {
+  const peakUtcMs = Date.parse(settings.activity.peakUtc);
+  const adapter = createOrbAstronomyAdapter();
+  const root = rootBodyId();
+  return catalogue.ids()
+    .filter((id) => catalogue.get(id).definition.parentId === root && !sunEarthSystem.bodies.includes(id))
+    .map((id): PathLayer => {
+      const { definition, source, visual } = catalogue.get(id);
+      const trajectory = source!.create(adapter);
+      const spanMs = fullTurnSpanMs(trajectory, peakUtcMs, PLANET_TURN_STEP_MS, PLANET_TURN_MAX_STEPS);
+      const { endUtcMs: validUntil } = definition.accuracy.validUtc;
+      const beyond = peakUtcMs + spanMs > validUntil;
+      return {
+        kind: "orbit",
+        color: visual.material.color,
+        source: trajectory,
+        span: { startUtcMs: peakUtcMs, endUtcMs: peakUtcMs + spanMs },
+        samples: 361,
+        object: {
+          id: `${id}-orbit`,
+          label: `${definition.label}'s orbit`,
+          color: visual.material.color,
+          labelPriority: 50,
+          description: `${definition.label}'s path round the Sun for one full turn from the peak, from the same position source that places ${definition.label} when it is drawn.`,
+          provenance: definition.accuracy.position,
+          knownLimitations: [
+            "A turn's samples joined by straight segments.",
+            ...(beyond ? [`The turn reaches past ${new Date(validUntil).getUTCFullYear()}, the last year the position was compared with JPL Horizons; the series itself is not limited to that range.`] : []),
+          ],
+        },
+      };
+    });
+}
+
 /** The parent body's orbit near the inner solar system: the published elements, set so the parent crosses Earth's path at the peak. */
 export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer {
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
@@ -303,7 +346,7 @@ export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefin
     visualOverrides: { earth: { exaggeration: EARTH_EXAGGERATION } },
     trackedBodies: [],
     groups: [layer],
-    paths: [createEarthPathLayer(settings), createParentOrbitPathLayer(settings)],
+    paths: [createEarthPathLayer(settings), ...createPlanetOrbitPathLayers(settings), createParentOrbitPathLayer(settings)],
     camera: CAMERA_REACH,
     createMetrics: ({ resolver }) => {
       const base = bodyMetrics(resolver, sunEarthSystem.bodies, ["distance"]);

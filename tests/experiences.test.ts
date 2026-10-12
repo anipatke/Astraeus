@@ -143,7 +143,12 @@ describe("Perseids in the Sun–Earth composition", () => {
   it("declares Earth's path and the parent's orbit as orbit paths about the Sun", () => {
     const { paths, sun } = sunCentredOf(perseids);
     expect(sun).toBeUndefined();
-    expect(paths.map((path) => [path.object.id, path.kind])).toEqual([["earth-path", "orbit"], [`${settings.id}-parent-orbit`, "orbit"]]);
+    // Earth's path, then one orbit per catalogued planet that circles the Sun and is not in the scene (T-049), then the parent's.
+    expect(paths.map((path) => [path.object.id, path.kind])).toEqual([
+      ["earth-path", "orbit"],
+      ...["mercury", "venus", "mars", "jupiter"].map((id) => [`${id}-orbit`, "orbit"]),
+      [`${settings.id}-parent-orbit`, "orbit"],
+    ]);
     expect(paths.every((path) => path.object.provenance !== undefined)).toBe(true);
   });
 

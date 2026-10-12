@@ -132,3 +132,33 @@ Horizons evidently uses the earlier IAU 2009 Mars constants (pole 317.68143, 52.
 ### Dimensions and gravitational parameters
 
 Radii are from the NASA NSSDC fact sheets (read 2026-10-12): Mercury volumetric mean 2439.7 km; Venus 6051.8 km (equatorial and polar equal); Mars 3389.5 mean, 3396.2 equatorial, 3376.2 polar; Jupiter 69,911 mean, 71,492 equatorial (1 bar), 66,854 polar. Gravitational parameters (km^3/s^2) are from the physical-data header of the Horizons API for each planet (Mercury 22031.86855, Venus 324858.592, Mars 42828.375662, Jupiter 126686531.9; fetched 2026-10-12). The Horizons header's volumetric mean radius for Mercury is 2439.4 km; the fact-sheet 2439.7 is used.
+
+## Io about Jupiter (O-014 / T-049)
+
+### Source of the elements
+
+Mean orbital elements of Io about Jupiter are the JPL Solar System Dynamics "Planetary Satellite Mean Elements" table (`https://ssd.jpl.nasa.gov/sats/elem/`, ephemeris JUP365 after R. A. Jacobson 2021, read 2026-10-12), row for Io (501), Laplace-plane frame, epoch 2000-01-01.5 TDB: a = 421,800 km, e = 0.004, omega = 49.1 deg, M = 330.9 deg, i = 0.0 deg, node = 0.0 deg, P = 1.762732 d, period of the apsides 1.333 yr, Laplace-plane pole RA 268.1 deg, Dec 64.5 deg, tilt 0.0 deg. The page itself warns the elements "are not intended for ephemeris computation". Jupiter's GM, 126,686,531.9 km^3/s^2, is the Horizons physical-data value recorded in T-048; Io's GM 5959.9155 and mean radius 1821.49 km are printed in the Horizons satellite header archived in `io-horizons-source.txt` (the radius is 3642.98 km as a diameter, the one-Io-diameter line).
+
+### How the elements become a position
+
+`src/core/bodies/io.ts` builds the Laplace plane as an EQJ-plane orbit with inclination 90 - Dec and node RA + 90 deg (the plane whose pole is RA/Dec, with its node reference on the EQJ equator), keeps omega as the table gives it, converts M to the true anomaly by solving Kepler's equation, and propagates by unperturbed two-body motion about Jupiter's GM through `createTwoBodyTrajectory` (no contract change). Two choices came from measurement against Horizons, not from the table text:
+
+- J2000 in UTC is 64.184 s before 2000-01-01 12:00 UTC (TT minus UTC); the epoch is converted, because 64 s of Io's motion is about 1100 km.
+- The table's P (1.762732 d) is the anomalistic period, not the sidereal one, and the period of the apsides is given without a sign. A fixed ellipse cannot precess, so the semi-major axis is the one whose two-body period equals the sidereal period 1 / (1/P - 1/Papsis) = 1.7691 d (the retrograde sign; the Horizons header says about 1.77 d). Tried first, the table's own a of 421,800 km gives a period of 1.7699 d and the prograde sign 1.756 d.
+
+| Variant | Distance from Horizons at the six dates (km), 1969 to 2030 |
+|---|---|
+| Table a, M from epoch | 301,922; 785,042; 830; 18,355; 632,498; 319,784 |
+| a from the anomalistic period (1.762732 d) | 396,570; 150,618; 1,335; 323,870; 14,739; 454,808 |
+| a from a prograde sidereal period (1.756 d) | 700,704; 297,183; 2,218; 598,463; 23,931; 768,224 |
+| **a from the retrograde sidereal period (shipped)** | **2,398; 1,114; 826; 2,780; 5,537; 9,387** |
+
+### Horizons comparison
+
+Raw Horizons response archived in [`io-horizons-source.txt`](../tests/fixtures/io-horizons-source.txt) (one API response preceded by a `==== QUERY ... ====` line with the exact parameters; text unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='501'`, `CENTER='500@599'` Jupiter's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` the same six Julian dates as the planets: 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). Target Io (501) and centre Jupiter (599) are both `jup365_merged`. Normalized vectors: `io-horizons.json`.
+
+Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**, at 2030-06-01; the J2000 sample is 825.5 km. The one-Io-diameter line (3,643 km) is exceeded, so Io's record says "approximate demonstration" and the figure is in its known limitations; the test asserts the recorded figure (9,388 km, rounded up) equals the measured one and that the classification follows from it. The error grows away from the epoch (mean elements fitted for a precessing ellipse, no Europa and Ganymede resonance, fixed rather than precessing periapsis). Orientation is the Moon's approximate tidal lock about Jupiter (near side towards the parent, no libration).
+
+### Lighting model measurement
+
+Each frame's lit body is lit along its own Sun direction (one pass per body), or by one point light at the Sun's scaled position (`?lighting=single-sun`, a measurement mode). Geometric result on the four January 2024 USNO phase events, True and Readable scales, Moon seen from Earth (`tests/jupiterIo.test.ts`): the point light's illuminated fraction differs from the per-body figure by at most 7.2e-9 and its direction by at most 1.5e-6 degrees (float32 narrowing included); one directional light pointed at the scene centre differs by 1.36e-3 in fraction and 0.156 degrees. Rendered comparison (`tools/validate/browser-lighting.mjs`, headless Chromium, per-pixel mean difference of 255 over lit pixels): Earth 0.0 and 0.006, Jupiter 0.004 and 0.006, Io 0.0, 0.0 and 0.0; Moon 7.7 to 13.0, which is brightness only: Earth's light is stronger (1.8/0.18) than the Moon's (1.4/0.08) and one light has one strength. With the Moon's own strength the Moon difference is 0.0005 to 0.009. Recommendation: keep per-body lights for Spike 04; the single point light is viable for larger systems.

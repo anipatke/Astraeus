@@ -1,0 +1,75 @@
+{
+ "source": "NASA/JPL Horizons API v1.2",
+ "center": "Jupiter body centre (500@599)",
+ "frame": "ICRF, treated as EQJ",
+ "correction": "geometric; VEC_CORR=NONE",
+ "units": "km",
+ "timeScale": "UTC (the 2030 sample is labelled UT~, a predicted leap-second offset)",
+ "retrievedLocal": "2026-10-12 02:47 Pasadena, USA",
+ "rawFile": "io-horizons-source.txt",
+ "bodies": {
+  "io": {
+   "command": "501",
+   "target": "Io (501)",
+   "ephemerisSource": "jup365_merged",
+   "meanRadiusKm": 1821.49,
+   "gmKm3S2": 5959.9155,
+   "samples": [
+    {
+     "jdUtc": 2440423.5,
+     "utcMs": -14169600000,
+     "positionKm": [
+      -239832.6127428316,
+      -312411.8658968375,
+      -153000.9779543615
+     ]
+    },
+    {
+     "jdUtc": 2446217.5,
+     "utcMs": 486432000000,
+     "positionKm": [
+      -140583.2863604111,
+      -359222.8111986643,
+      -173591.3133218808
+     ]
+    },
+    {
+     "jdUtc": 2451545.0,
+     "utcMs": 946728000000,
+     "positionKm": [
+      399366.424494867,
+      115318.5981896766,
+      61654.35340174302
+     ]
+    },
+    {
+     "jdUtc": 2455378.5,
+     "utcMs": 1277942400000,
+     "positionKm": [
+      376083.9898304243,
+      -176180.9618865935,
+      -78214.25157187221
+     ]
+    },
+    {
+     "jdUtc": 2460310.5,
+     "utcMs": 1704067200000,
+     "positionKm": [
+      -69559.43470338549,
+      -376472.0367794206,
+      -180314.8803716121
+     ]
+    },
+    {
+     "jdUtc": 2462653.5,
+     "utcMs": 1906502400000,
+     "positionKm": [
+      345156.3415698722,
+      215945.6327144267,
+      108535.4215716052
+     ]
+    }
+   ]
+  }
+ }
+}

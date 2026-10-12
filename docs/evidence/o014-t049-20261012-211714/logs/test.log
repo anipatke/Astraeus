@@ -1,0 +1,67 @@
+
+> astraeus-earth-moon-spike@0.1.0 test
+> vitest run --reporter=default --reporter=junit --outputFile.junit=junit.xml
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ✓ tests/orbitGroup.test.ts (18 tests) 45ms
+ ✓ tests/stateResolver.test.ts (21 tests) 36ms
+stdout | tests/jupiterIo.test.ts > Io about Jupiter > compares with JPL Horizons at six dates and classifies by the one-Io-diameter line
+IO-HORIZONS errors km: 2398.0, 1114.2, 825.5, 2780.3, 5536.7, 9387.5; max 9387.47
+
+stdout | tests/jupiterIo.test.ts > lighting over any composition > measures one Sun light at the Sun's scaled position against the per-body lights on the Spike 01 USNO dates
+LIGHTING-MEASUREMENT
+true-scale Last Quarter: per-body 0.501443 point 0.501443 directional 0.500080
+true-scale New Moon: per-body 0.001911 point 0.001911 directional 0.001901
+true-scale First Quarter: per-body 0.501177 point 0.501177 directional 0.499904
+true-scale Full Moon: per-body 0.998254 point 0.998254 directional 0.998245
+readable-scale Last Quarter: per-body 0.501443 point 0.501443 directional 0.500080
+readable-scale New Moon: per-body 0.001911 point 0.001911 directional 0.001901
+readable-scale First Quarter: per-body 0.501177 point 0.501177 directional 0.499904
+readable-scale Full Moon: per-body 0.998254 point 0.998254 directional 0.998245
+max |fraction diff| point=7.168e-9 directional-from-centre=1.363e-3; max direction angle point=1.479e-6 deg directional=1.562e-1 deg
+
+ ✓ tests/sceneTransforms.test.ts (23 tests) 55ms
+stdout | tests/frameStats.test.ts > FrameStats > costs little per frame
+frameStats cost: tick 0.012 us/frame, snapshot 0.804 us/read (window 120)
+
+ ✓ tests/frameStats.test.ts (12 tests) 19ms
+ ✓ tests/planets.test.ts (11 tests) 24ms
+ ✓ tests/metricVisuals.test.ts (27 tests) 46ms
+ ✓ tests/missionScene.test.ts (29 tests) 85ms
+ ✓ tests/jupiterIo.test.ts (13 tests) 264ms
+ ✓ tests/orientationIllumination.test.ts (5 tests) 25ms
+ ✓ tests/infoProvenance.test.ts (13 tests) 33ms
+ ✓ tests/core.test.ts (15 tests) 45ms
+ ✓ tests/sampledTrajectory.test.ts (13 tests) 14ms
+ ✓ tests/sunCentred.test.ts (29 tests) 141ms
+ ✓ tests/iauRotation.test.ts (9 tests) 54ms
+ ✓ tests/controls.test.ts (29 tests) 47ms
+ ✓ tests/timeWindow.test.ts (21 tests) 12ms
+ ✓ tests/assets.test.ts (7 tests) 13ms
+ ✓ tests/timeline.test.ts (18 tests) 10ms
+ ✓ tests/layerRule.test.ts (3 tests) 4ms
+ ✓ tests/pointsLayer.test.ts (26 tests) 193ms
+ ✓ tests/nameCheck.test.ts (5 tests) 7ms
+ ✓ tests/showers.test.ts (23 tests) 78ms
+ ✓ tests/syntheticRing.test.ts (11 tests) 405ms
+ ✓ tests/textureLicence.test.ts (3 tests) 3ms
+ ✓ tests/publicBuild.test.ts (3 tests) 8ms
+ ✓ tests/experienceDefinition.test.ts (35 tests) 157ms
+ ✓ tests/experiences.test.ts (35 tests) 289ms
+ ✓ tests/experiencePlugIn.test.ts (16 tests) 27ms
+ ✓ tests/paths.test.ts (34 tests) 1238ms
+   ✓ a tracked body's path is a relative trail (5)
+     ✓ draws the same vertices as the formula it replaced (centre moon, three times) 714ms
+ ✓ tests/compositions.test.ts (31 tests) 1892ms
+   ✓ State is untouched by how a scene presents it (design E step 3) (3)
+     ✓ (i) is byte-identical for every body, time and centre whatever the scene centre, scale or camera 1547ms
+ ✓ tests/apollo11Reconstruction.test.ts (30 tests) 25023ms
+
+ Test Files  31 passed (31)
+      Tests  568 passed (568)
+   Start at  21:27:34
+   Duration  25.62s (tests 69%, transform 17%, import 13%)
+
+JUNIT report written to /home/user/code/Astraeus/junit.xml

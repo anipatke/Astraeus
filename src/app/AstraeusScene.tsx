@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group } from "three";
+import type { DirectionalLight, Group, PointLight } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
-import { directionFromCenterToSun } from "../core/illumination";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
@@ -25,7 +24,8 @@ import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
 import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
 import { stateIfInBounds, type TrackedBody } from "./mission";
-import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
+import { bodyLightDirections, DEFAULT_LIGHTING, sunScaledPosition, type LightingModel, type SunLightStrength } from "./lighting";
+import type { RenderVector } from "./renderCoordinates";
 import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import {
   assignBodyLayers,
@@ -70,6 +70,10 @@ export interface SceneRuntime {
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
+  /** How the Sun lights the scene; absent means each body is lit by its own Sun direction. */
+  readonly lighting?: LightingModel;
+  /** Single Sun light only: its strength; absent takes the strongest of the lit bodies' own values. */
+  readonly sunLight?: SunLightStrength | null;
 }
 
 export interface SceneControls {
@@ -107,23 +111,34 @@ export function AstraeusScene(props: Props) {
       data-testid="earth-moon-canvas"
       data-scene-center={runtime.sceneCenter}
       data-bodies={runtime.bodies.join(",")}
+      data-lighting={runtime.lighting ?? DEFAULT_LIGHTING}
       data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
     >
       <SceneContents {...props} layers={layers} />
-      <LayeredRender lightLayers={lightLayers} />
+      <LayeredRender lightLayers={lightLayers} merged={runtime.lighting === "single-sun"} />
     </Canvas>
   );
 }
 
 /** Takes over rendering so each lit body is lit only by its own Sun direction, one pass per body. */
-function LayeredRender({ lightLayers }: { readonly lightLayers: readonly number[] }) {
+function LayeredRender({ lightLayers, merged }: { readonly lightLayers: readonly number[]; readonly merged: boolean }) {
   useFrame(({ gl, scene, camera }) => {
     const previousAutoClear = gl.autoClear;
     const previousMask = camera.layers.mask;
     gl.autoClear = false;
     gl.clear();
+    if (merged) {
+      // One Sun light lights every body, so every body is drawn in one pass.
+      camera.layers.mask = lightLayers.reduce((mask, layer) => mask | (1 << layer), 1);
+      gl.render(scene, camera);
+      camera.layers.mask = 1 << TRACK_LAYER;
+      gl.render(scene, camera);
+      camera.layers.mask = previousMask;
+      gl.autoClear = previousAutoClear;
+      return;
+    }
     // Layer 0 (paths) is drawn with the first body's pass, then every later body's pass shares the depth buffer.
     lightLayers.forEach((layer, index) => {
       camera.layers.mask = (index === 0 ? 1 : 0) | (1 << layer);
@@ -151,6 +166,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupRefs = useRef(new Map<BodyId, Group>());
   const orientRefs = useRef(new Map<BodyId, Group>());
   const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
+  const sunLight = useRef<PointLight>(null);
+  const singleSun = runtime.lighting === "single-sun";
   const placed = useRef<ReadonlyMap<BodyId, RenderVector>>(new Map());
   const refFor = (map: Map<BodyId, Group>, id: BodyId) => (node: Group | null) => {
     if (node === null) map.delete(id);
@@ -163,6 +180,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const lastPolicyId = useRef(controls.policy.id);
   const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
   const readoutPair = useMemo(() => readoutPairOf(runtime.bodies), [runtime.bodies]);
+  const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair]);
   const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides]);
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
@@ -318,12 +336,19 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       return view.absolute(t, policy, placement);
     }, camera, size.width, size.height, origin, controls.selectedObjectId);
 
-    // Each lit body is lit along its own physical Sun direction (before any readable compression).
-    for (const asset of assets) {
-      const light = lightRefs.current.get(asset.definition.id);
-      if (light === undefined) continue;
-      const toSun = eqjToRenderVector(directionFromCenterToSun(resolver.sunFrom(asset.definition.id, t)));
-      light.position.set(toSun[0], toSun[1], toSun[2]);
+    if (singleSun) {
+      // One point light at the Sun's scaled position, expressed from the floating origin like every other position.
+      const at = origin.toLocal(sunScaledPosition(resolver, sceneCenter, policy, t));
+      sunLight.current?.position.set(at[0], at[1], at[2]);
+    } else {
+      // Each lit body is lit along its own physical Sun direction (before any readable compression).
+      const directions: Map<BodyId, RenderVector> = bodyLightDirections(assets.filter((asset) => lightRefs.current.has(asset.definition.id)).map((asset) => asset.definition.id), resolver, t);
+      for (const asset of assets) {
+        const light = lightRefs.current.get(asset.definition.id);
+        const toSun = directions.get(asset.definition.id);
+        if (light === undefined || toSun === undefined) continue;
+        light.position.set(toSun[0], toSun[1], toSun[2]);
+      }
     }
 
     if (readoutPair === null) {
@@ -333,6 +358,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const earthAbsolute = absoluteOf(readoutPair.parent);
     const moonAbsolute = absoluteOf(readoutPair.child);
     readout.current = buildDebugReadout({
+      pair: pairLabels,
       timeUtcMs: t,
       rate: clock.rate,
       policy,
@@ -345,8 +371,16 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     });
   });
 
+  const lit = assets.map((asset) => asset.visual.light).filter((light) => light !== undefined);
+  const sunStrength: SunLightStrength = runtime.sunLight ?? { ambient: Math.max(0, ...lit.map((light) => light.ambient)), directional: Math.max(0, ...lit.map((light) => light.directional)) };
   return (
     <group ref={rootRef}>
+      {singleSun && lit.length > 0 && (
+        <>
+          <ambientLight layers={0} intensity={sunStrength.ambient} />
+          <pointLight ref={sunLight} layers={0} decay={0} intensity={sunStrength.directional} />
+        </>
+      )}
       {assets.map((asset) => {
         const id = asset.definition.id;
         const layer = layers.get(id)!;
@@ -354,7 +388,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         return (
           <group key={id}>
             <BodyView asset={asset} policy={controls.policy} layer={layer} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
-            {light !== undefined && (
+            {light !== undefined && !singleSun && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />
                 <directionalLight

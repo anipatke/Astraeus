@@ -1,4 +1,4 @@
-import { directionFromCenterToSun, directionToSun, lunarIlluminatedFraction } from "../core/illumination";
+import { directionFromCenterToSun, directionToSun, illuminatedFraction } from "../core/illumination";
 import type { CenteredPosition, State } from "../core/state";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -30,13 +30,25 @@ export interface DebugReadout {
   readonly moonOrientation: Quad | null;
   readonly earthSunDirection: Triple;
   readonly moonSunDirection: Triple;
+  /** Fraction of the child's disc lit, seen from the parent's centre (any satellite pair, not only the Moon). */
   readonly lunarIlluminatedFraction: number;
+  /** Labels of the measured pair; absent means Earth and Moon. */
+  readonly pair?: PairLabels;
   readonly scaledOrigin: Triple;
   readonly earthLocal: Triple;
   readonly moonLocal: Triple;
 }
 
+/** Display names of the pair the readout measures. */
+export interface PairLabels {
+  readonly parent: string;
+  readonly child: string;
+}
+
+export const EARTH_MOON_LABELS: PairLabels = Object.freeze({ parent: "Earth", child: "Moon" });
+
 export interface DebugReadoutInput {
+  readonly pair?: PairLabels;
   readonly timeUtcMs: number;
   readonly rate: number;
   readonly policy: ScalePolicy;
@@ -57,6 +69,7 @@ export function buildDebugReadout(input: DebugReadoutInput): DebugReadout {
     timeUtcMs: input.timeUtcMs,
     rate: input.rate,
     policyId: input.policy.id,
+    ...(input.pair === undefined ? {} : { pair: input.pair }),
     moonPosition: {
       frame: moonFromEarth.frame,
       center: moonFromEarth.center,
@@ -69,7 +82,7 @@ export function buildDebugReadout(input: DebugReadoutInput): DebugReadout {
     moonOrientation: moonFromEarth.orientation,
     earthSunDirection: triple(directionFromCenterToSun(sunFromEarth)),
     moonSunDirection: triple(directionToSun(moonFromEarth, sunFromEarth)),
-    lunarIlluminatedFraction: lunarIlluminatedFraction(moonFromEarth, sunFromEarth),
+    lunarIlluminatedFraction: illuminatedFraction(moonFromEarth, sunFromEarth),
     scaledOrigin: triple(origin.scaledCameraOrigin),
     earthLocal: triple(origin.toLocal(placed.earthAbsolute)),
     moonLocal: triple(origin.toLocal(placed.moonAbsolute)),
@@ -80,35 +93,37 @@ const vec = (v: readonly number[], digits: number) => `(${v.map((c) => c.toFixed
 
 /** Ordered label/value rows; kept separate from JSX so tests can read what the overlay shows. */
 export function overlayRows(r: DebugReadout): ReadonlyArray<readonly [string, string]> {
+  const { parent, child } = r.pair ?? EARTH_MOON_LABELS;
   const quat = (q: Quad | null) => (q === null ? "not modeled" : `${vec(q, 5)} [x,y,z,w] body→EQJ`);
   return [
     ["UTC time", formatUtcTimestamp(r.timeUtcMs)],
     ["Playback rate", describePlaybackRate(r.rate)],
     ["Scale policy", r.policyId],
-    ["Earth–Moon distance", `${r.moonDistanceKm.toFixed(1)} km (physical)`],
+    [`${parent}–${child} distance`, `${r.moonDistanceKm.toFixed(1)} km (physical)`],
     ["Rendered distance", `${r.renderedDistanceUnits.toFixed(4)} scene units (Earth radii)`],
-    ["Moon position", `${vec(r.moonPosition.positionKm, 1)} ${r.moonPosition.units}, ${r.moonPosition.frame}, centre ${r.moonPosition.center}`],
-    ["Earth orientation", quat(r.earthOrientation)],
-    ["Moon orientation", quat(r.moonOrientation)],
-    ["Sun direction (from Earth)", `${vec(r.earthSunDirection, 5)} EQJ unit`],
-    ["Sun direction (from Moon)", `${vec(r.moonSunDirection, 5)} EQJ unit`],
-    ["Moon lit (geometric)", `${(r.lunarIlluminatedFraction * 100).toFixed(1)}%`],
+    [`${child} position`, `${vec(r.moonPosition.positionKm, 1)} ${r.moonPosition.units}, ${r.moonPosition.frame}, centre ${r.moonPosition.center}`],
+    [`${parent} orientation`, quat(r.earthOrientation)],
+    [`${child} orientation`, quat(r.moonOrientation)],
+    [`Sun direction (from ${parent})`, `${vec(r.earthSunDirection, 5)} EQJ unit`],
+    [`Sun direction (from ${child})`, `${vec(r.moonSunDirection, 5)} EQJ unit`],
+    [`${child} lit (geometric)`, `${(r.lunarIlluminatedFraction * 100).toFixed(1)}%`],
     ["Scaled origin", `${vec(r.scaledOrigin, 4)} scene units, render axes`],
-    ["Earth local", `${vec(r.earthLocal, 4)} scene units`],
-    ["Moon local", `${vec(r.moonLocal, 4)} scene units`],
+    [`${parent} local`, `${vec(r.earthLocal, 4)} scene units`],
+    [`${child} local`, `${vec(r.moonLocal, 4)} scene units`],
   ];
 }
 
 export function DebugOverlay({ readout }: { readonly readout: DebugReadout | null }) {
   if (readout === null) return null;
+  const { parent, child } = readout.pair ?? EARTH_MOON_LABELS;
   const hiddenInstruments = new Set([
     "UTC time",
     "Playback rate",
     "Scale policy",
-    "Earth–Moon distance",
+    `${parent}–${child} distance`,
     "Rendered distance",
-    "Moon lit (geometric)",
-    "Moon position",
+    `${child} lit (geometric)`,
+    `${child} position`,
   ]);
   const advancedRows = overlayRows(readout).filter(([label]) => !hiddenInstruments.has(label));
 

@@ -1,0 +1,21 @@
+{
+ "res": {
+  "default": {
+   "bodies": "earth,moon",
+   "failed": []
+  },
+  "earth-moon": {
+   "bodies": "earth,moon",
+   "failed": []
+  },
+  "jupiter-io": {
+   "bodies": "jupiter,io",
+   "failed": []
+  },
+  "shower-perseids": {
+   "bodies": "sun,earth",
+   "failed": []
+  }
+ },
+ "errors": []
+}

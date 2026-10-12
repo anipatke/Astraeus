@@ -11,6 +11,10 @@
 //   Apollo default and synthetic-ring still mount ........... unchanged
 //   NEW (replaces the retired Earth-Moon alias scene) ....... Sun at the origin, no Moon item, Earth on its path at start and peak,
 //                                                              solar-system scale shows Earth and states its factor, follow Earth
+//   T-049 additions (nothing above changed except the declared-path count 2 -> 6 and the listed ids):
+//     Mercury, Venus, Mars and Jupiter orbit paths declared ... data-sun-centred is 6, the four `<planet>-orbit` items are listed, each
+//                                                              opens an info panel with provenance, Jupiter's states the span passes 2030
+//     the four orbits are drawn around the Sun with Earth's .. tan orbit-line pixels appear in the far overview (checkPlanetOrbits)
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 
@@ -82,14 +86,62 @@ const seek = async (page, timeUtcMs) => {
   await page.waitForTimeout(500);
 };
 
+// Planet orbit lines are drawn in the planets' own tan material colours at 70% opacity (about 150,120,90): not the blue of Earth's path,
+// the violet of the parent's orbit or the amber of the stream.
+const planetOrbitPixels = async (page) => {
+  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
+  return page.evaluate(async (data) => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${data}`;
+    await image.decode();
+    const copy = document.createElement("canvas");
+    copy.width = image.width; copy.height = image.height;
+    const ctx = copy.getContext("2d");
+    ctx.drawImage(image, 0, 0);
+    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
+    let tan = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
+      if (r > 110 && r < 200 && r - g > 15 && r - g < 45 && g - b > 15 && g - b < 50 && r - b > 40) tan += 1;
+    }
+    return tan;
+  }, png);
+};
+
+// T-049: the four planet orbits are items with provenance, and their lines are drawn around the Sun.
+async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
+  const out = (results[label].planetOrbits = {});
+  for (const id of ["mercury", "venus", "mars", "jupiter"]) {
+    await page.getByLabel("Select object").selectOption(`${id}-orbit`);
+    if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: new RegExp(`^Information about .+ orbit$`) }).click();
+    await page.locator("#info-panel").waitFor();
+    const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+    assert.match(text, /orbit/i, `${label}: ${id}'s orbit panel opens`);
+    await page.locator("#info-panel .provenance-badge").click();
+    const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+    assert.match(detail, /Horizons/, `${label}: ${id}'s orbit carries the planet's position provenance`);
+    if (id === "jupiter") assert.match(detail, /reaches past 2030/, `${label}: Jupiter's orbit states that it passes the compared range`);
+    out[id] = detail.slice(0, 200);
+    await closeInfo();
+  }
+  await choose("sun", "Overview");
+  const box = await canvas.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 900);
+  await page.waitForTimeout(1200);
+  out.tanPixels = await planetOrbitPixels(page);
+  assert.ok(out.tanPixels > 150, `${label}: the planets' orbit lines are drawn around the Sun (${out.tanPixels})`);
+  await shot("planet-orbits");
+}
+
 // The Sun-Earth composition: the Sun is the scene's zero, Earth moves on its drawn path, no Moon exists, and the solar-system scale shows Earth.
 async function checkSunEarth(page, label, shot, canvas) {
   const out = (results[label].sunEarth = {});
   assert.equal(await canvas.getAttribute("data-scene-center"), "sun", `${label}: the Sun is the scene centre`);
   assert.equal(await canvas.getAttribute("data-bodies"), "sun,earth", `${label}: the mounted bodies are the Sun and Earth`);
-  assert.equal(await canvas.getAttribute("data-sun-centred"), "2", `${label}: Earth's path and the parent's orbit are declared`);
+  assert.equal(await canvas.getAttribute("data-sun-centred"), "6", `${label}: Earth's path, four planet orbits and the parent's orbit are declared`);
   const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
-  for (const id of ["sun", "earth", "earth-path", `${shower}-parent-orbit`, `${shower}-stream`]) assert.ok(options.includes(id), `${label}: ${id} is listed`);
+  for (const id of ["sun", "earth", "earth-path", "mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", `${shower}-parent-orbit`, `${shower}-stream`]) assert.ok(options.includes(id), `${label}: ${id} is listed`);
   assert.ok(!options.includes("moon"), `${label}: no Moon item`);
   const scales = await page.locator(".scale-choices button[data-scale]").evaluateAll((buttons) => buttons.map((b) => b.dataset.scale));
   assert.deepEqual(scales, ["true-scale", "solar-system"], `${label}: true and solar-system scale`);
@@ -112,6 +164,7 @@ async function checkSunEarth(page, label, shot, canvas) {
   const start = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));
   const peak = Number(await page.locator("button.timeline-window-peak").evaluate((button) => button.dataset.timeUtcMs ?? 0)) || null;
   out.path = {};
+  await checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo);
   // Earth on its path at the start and at the peak: overview shows the blue path; following Earth keeps the line passing both sides of it.
   for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await page.locator("button.timeline-window-peak").click(); await page.waitForTimeout(500); await closeInfo(); }]]) {
     await move();

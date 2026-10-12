@@ -23,12 +23,17 @@ describe("texture rights (PROV-02)", () => {
       const texture = catalogue.get(id).visual.texture;
       if (texture !== undefined) textures.push([id, texture]);
     }
-    expect(textures.map(([id]) => id)).toEqual(["earth", "moon", "mercury", "venus", "mars"]);
-    for (const [id, texture] of textures.slice(2)) {
+    expect(textures.map(([id]) => id)).toEqual(["earth", "moon", "mercury", "venus", "mars", "io"]);
+    for (const [id, texture] of textures.slice(2, 5)) {
       expect(textureRightsProblem(texture), id).toBeNull();
       expect(texture.licence?.licence, id).toBe("CC BY 4.0");
       expect(texture.localOnly, id).toBeUndefined();
     }
+    // Io's map is the USGS public-domain mosaic, so it is licensed rather than local-only.
+    const io = textures[5][1];
+    expect(textureRightsProblem(io)).toBeNull();
+    expect(io.licence?.licence).toBe("public domain");
+    expect(io.localOnly).toBeUndefined();
     for (const [, texture] of textures.slice(0, 2)) {
       expect(textureRightsProblem(texture)).toBeNull();
       expect(texture.localOnly?.reason.length).toBeGreaterThan(20);

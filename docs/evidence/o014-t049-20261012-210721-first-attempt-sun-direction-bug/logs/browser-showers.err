@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.innerText: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#info-panel')[22m
+
+    at checkPlanetOrbits (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:117:53)
+    at async checkSunEarth (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:166:3)
+    at async run (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:325:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:332:3 {
+  name: 'TimeoutError'
+}
+
+Node.js v24.16.0

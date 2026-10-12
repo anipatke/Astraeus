@@ -12,6 +12,7 @@ import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleMod
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
+import { lightingFromSearch, sunLightFromSearch } from "./lighting";
 import { createSceneResolver } from "./sceneLayout";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -37,6 +38,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       groups: groupsOf(definition),
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
+      lighting: lightingFromSearch(window.location.search),
+      sunLight: sunLightFromSearch(window.location.search),
     };
   }, [definition]);
   const experienceRuntime = useMemo(

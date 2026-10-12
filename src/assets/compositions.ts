@@ -1,4 +1,5 @@
 import type { BodyId } from "../core/body";
+import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { catalogue, type BodyCatalogue } from "./catalogue";
 
 /** One sidereal month, the span the Moon's orbit path covers. */
@@ -68,4 +69,12 @@ export const sunEarthSystem: SystemComposition = createComposition(catalogue, {
   id: "sun-earth",
   bodies: ["sun", "earth"],
   defaultCenter: "sun",
+});
+
+/** Jupiter and Io, about Jupiter, with Io's loop: a centre that is neither Earth nor the Sun. */
+export const jupiterIoSystem: SystemComposition = createComposition(catalogue, {
+  id: "jupiter-io",
+  bodies: ["jupiter", "io"],
+  defaultCenter: "jupiter",
+  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000 }],
 });

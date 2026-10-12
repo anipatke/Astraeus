@@ -1,6 +1,6 @@
 import type { TimelineEvent } from "../core/events";
 import type { CoordinatesMetric, DistanceMetric, Metric, PhaseMetric, ProgressMetric } from "../shell/metrics";
-import type { DebugReadout } from "./DebugOverlay";
+import { EARTH_MOON_LABELS, type DebugReadout } from "./DebugOverlay";
 
 const HOUR_MS = 3_600_000;
 
@@ -31,14 +31,15 @@ export function journeyProgressMetric(
 
 /** Scene measurements. Earth–Moon distance has no meaningful reference here, so it stays numeric-only. */
 export function sceneMetrics(readout: DebugReadout): readonly Metric[] {
+  const { parent, child } = readout.pair ?? EARTH_MOON_LABELS;
   const earthMoon: DistanceMetric = {
     kind: "distance",
     id: "earth-moon-distance",
-    label: "Physical Earth–Moon distance",
+    label: `Physical ${parent}–${child} distance`,
     value: readout.moonDistanceKm,
     unit: "km",
     digits: 0,
-    context: `${centreName(readout.moonPosition.center)} to Moon centre · ${readout.moonPosition.frame}`,
+    context: `${centreName(readout.moonPosition.center)} to ${child} centre · ${readout.moonPosition.frame}`,
   };
   const rendered: DistanceMetric = {
     kind: "distance",
@@ -53,14 +54,14 @@ export function sceneMetrics(readout: DebugReadout): readonly Metric[] {
   const illumination: PhaseMetric = {
     kind: "phase",
     id: "lunar-illumination",
-    label: "Geometric lunar illumination",
+    label: `Geometric ${child === "Moon" ? "lunar" : child} illumination`,
     fraction: readout.lunarIlluminatedFraction,
-    context: "fraction of the disc lit, seen from Earth's centre",
+    context: `fraction of the disc lit, seen from ${parent}'s centre`,
   };
   const moonPosition: CoordinatesMetric = {
     kind: "coordinates",
     id: "moon-position",
-    label: "Moon position",
+    label: `${child} position`,
     system: "xyz",
     components: (["x", "y", "z"] as const).map((label, index) => ({
       label,

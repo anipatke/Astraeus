@@ -1,0 +1,12 @@
+jupiter-io 0
+showers 1
+earth-moon 0
+synthetic 0
+synthetic-ring 0
+synthetic-belt 0
+precision 0
+spike02 0
+spike03 0
+anchor-labels 0
+shell 0
+finished

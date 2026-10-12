@@ -124,3 +124,24 @@ export function samplePositionsKm(source: Trajectory, timesUtcMs: readonly numbe
 export function samplePathKm(source: Trajectory, span: TimeBounds, count: number, center?: CenterId): Float64Array {
   return samplePositionsKm(source, pathTimesUtcMs(span, count), center);
 }
+
+/**
+ * How long a state source takes to sweep one full turn about its centre, found by walking forward from `startUtcMs` in `stepMs` steps,
+ * adding the angle between successive positions, and interpolating inside the step that completes the turn. For a path that should
+ * show one whole orbit of a body whose period the source does not state. Throws when no full turn is made within `maxSteps` steps.
+ */
+export function fullTurnSpanMs(source: Trajectory, startUtcMs: number, stepMs: number, maxSteps: number, center?: CenterId): number {
+  assertUtcUnixMs(startUtcMs);
+  if (!(stepMs > 0) || !Number.isFinite(stepMs)) throw new RangeError("a turn search needs a positive finite step");
+  let previous = source.stateAt(startUtcMs, center).positionKm;
+  let swept = 0;
+  for (let step = 1; step <= maxSteps; step += 1) {
+    const next = source.stateAt(startUtcMs + step * stepMs, center).positionKm;
+    const cosine = (previous[0] * next[0] + previous[1] * next[1] + previous[2] * next[2]) / (Math.hypot(previous[0], previous[1], previous[2]) * Math.hypot(next[0], next[1], next[2]));
+    const angle = Math.acos(Math.max(-1, Math.min(1, cosine)));
+    if (swept + angle >= 2 * Math.PI) return Math.round((step - 1 + (2 * Math.PI - swept) / angle) * stepMs);
+    swept += angle;
+    previous = next;
+  }
+  throw new RangeError(`no full turn within ${maxSteps} steps of ${stepMs} ms`);
+}

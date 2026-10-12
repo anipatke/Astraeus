@@ -22,7 +22,7 @@ const binding = (body: string): StateSourceBinding => ({ body, create: () => { t
 
 describe("body catalogue", () => {
   it("builds from the built-in records and hands the resolver exactly its inputs", () => {
-    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter"]);
+    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io"]);
     expect(catalogue.definitions()).toEqual(BUILT_IN_BODIES);
     expect(catalogue.sources()).toEqual(BUILT_IN_BINDINGS);
     expect(catalogue.get("sun").source).toBeUndefined();
