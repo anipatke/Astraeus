@@ -1,8 +1,12 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "../core/body";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../core/bodies";
 import { EARTH_ENTRY } from "./bodies/earth";
+import { JUPITER_ENTRY } from "./bodies/jupiter";
+import { MARS_ENTRY } from "./bodies/mars";
+import { MERCURY_ENTRY } from "./bodies/mercury";
 import { MOON_ENTRY } from "./bodies/moon";
 import { SUN_ENTRY } from "./bodies/sun";
+import { VENUS_ENTRY } from "./bodies/venus";
 import { textureRightsProblem } from "./licence";
 import type { BodyVisual } from "./visual";
 
@@ -93,4 +97,4 @@ export function rootBodyId(source: BodyCatalogue = catalogue): BodyId {
 }
 
 /** Explicit, import-built, no discovery. */
-export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY]);
+export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY, MERCURY_ENTRY, VENUS_ENTRY, MARS_ENTRY, JUPITER_ENTRY]);

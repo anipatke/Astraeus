@@ -68,3 +68,17 @@ The following records the patterns used by the Astraeus shell. They are interact
 | Donor palette, focus treatment and state ownership | Scoped shell CSS, visible focus styles and React-owned selection/panel state; no new global store or UI dependency | `src/shell/style.css`, `src/shell/AstraeusShell.tsx` |
 
 No Planetary Explorer source file or asset was copied in T-020. The adaptation record does not grant publication or redistribution rights.
+
+## Spike 04 — planet textures (T-048, 2026-10-12)
+
+Copied unchanged from the donor `public/textures/` (read only) into `src/assets/textures/`:
+
+| Astraeus file | Donor file | Source recorded in the donor README | Licence recorded |
+|---|---|---|---|
+| `mercury-2k.jpg` (2048x1024) | `mercury-2k.jpg` | Solar System Scope, `https://www.solarsystemscope.com/textures/download/2k_mercury.jpg` | CC BY 4.0 |
+| `venus-2k.jpg` (2048x1024) | `venus-2k.jpg` | Solar System Scope Venus surface, `.../2k_venus_surface.jpg` | CC BY 4.0 |
+| `mars-2k.jpg` (2048x1024) | `mars-2k.jpg` | Solar System Scope, derived locally by the donor from `8k_mars.jpg` | CC BY 4.0 |
+
+The licence is the donor README's statement ("CC BY 4.0 per the Solar System Scope textures page"); the Solar System Scope page itself was not opened in T-048, so the access date in each `AssetLicence` (2026-10-12) is the date the donor record was read. The credit line each texture carries is "Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA elevation and imagery data"; the README notes the textures are based on NASA data with colour tuning and possible gap-filling. The Mars 2K file is a derivative of the 8K original (resized by the donor). The donor's balanced Venus (`venus-2k-balanced.jpg`, derived from USGS/NASA Magellan data) was not used.
+
+**Jupiter has no texture.** The donor's `jupiter-2k.jpg` and `jupiter-4k.jpg` have no source or licence entry in its texture README (the only mention is the size-exception table). Jupiter is therefore drawn flat in the donor's material colour `#d4a97a` (roughness 0.85, metalness 0). A Jupiter texture awaits a sourced and licensed map. Because the licence is recorded, none of the three planet textures is declared local-only, so a public build may include them.

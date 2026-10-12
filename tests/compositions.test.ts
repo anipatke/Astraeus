@@ -55,7 +55,7 @@ describe("compositions", () => {
   it("rejects an id the catalogue lacks, a repeat, a centre not in the list, and a path off the list", () => {
     const base = { id: "x", bodies: ["earth", "moon"], defaultCenter: "earth" };
     expect(() => createComposition(catalogue, base)).not.toThrow();
-    expect(() => createComposition(catalogue, { ...base, bodies: ["earth", "mars"] })).toThrow(/catalogue lacks/);
+    expect(() => createComposition(catalogue, { ...base, bodies: ["earth", "saturn"] })).toThrow(/catalogue lacks/);
     expect(() => createComposition(catalogue, { ...base, bodies: ["earth", "earth"] })).toThrow(/twice/);
     expect(() => createComposition(catalogue, { ...base, defaultCenter: "sun" })).toThrow(/not one of its bodies/);
     expect(() => createComposition(catalogue, { ...base, bodies: [] })).toThrow(CompositionError);
@@ -96,7 +96,7 @@ describe("experience definitions name their compositions", () => {
   });
 
   it("rejects a scene centre outside the catalogue or the composition", () => {
-    expect(() => sceneCenterOf({ ...syntheticDefinition, sceneCenter: "mars" })).toThrow(/not in the catalogue/);
+    expect(() => sceneCenterOf({ ...syntheticDefinition, sceneCenter: "saturn" })).toThrow(/not in the catalogue/);
     expect(() => sceneCenterOf({ ...syntheticDefinition, sceneCenter: "sun" })).toThrow(/not one of composition/);
     expect(sceneCenterOf({ ...syntheticDefinition, sceneCenter: "moon" })).toBe("moon");
   });

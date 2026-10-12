@@ -2,7 +2,7 @@
 id: T-048
 title: Bring in the planets from the library's ephemeris with dated orientation
 objective: O-014
-status: planned
+status: done
 depends_on: [{task: T-043, requires: clear}, {task: T-044, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
@@ -67,8 +67,55 @@ Focused tests during iteration; handoff runs the gates and every browser script.
 
 ## Technical Evidence
 
-Pending execution.
+Executor session o014-exec-T-048, 2026-10-12. Claims for a fresh Check to verify, not clearance.
+
+### Per-criterion outcomes
+
+1. Positions. `planetPositionFromSunKm` (src/core/astronomyAdapter.ts) returns EQJ km about the Sun for mercury, venus, mars, jupiter, via Orb VSOP87A and the `ecliptic-j2000` to `equatorial-j2000` transform with label checks. Raw Horizons responses (199, 299, 499, 599; centre 500@10; geometric vectors; ICRF; six dates, 1969-07-21 to 2030-06-01) are archived verbatim in tests/fixtures/planets-horizons-source.txt (curl against ssd.jpl.nasa.gov/api/horizons.api on 2026-10-12; each response preceded by a `==== QUERY ... ====` line naming the parameters, so it is four responses in one file, not one). Normalized: tests/fixtures/planets-horizons.json. Measured maxima (tests/planets.test.ts asserts targets): Mercury 30.4 km / 0.108 arcsec (range 1.7 km); Venus 50.1 km / 0.095 arcsec (0.9 km); Mars 95.8 km / 0.092 arcsec (3.5 km); Jupiter 1269.4 km / 0.325 arcsec (166.9 km). Recorded in docs/ASTRONOMY_VALIDATION.md and each definition's `accuracy.position`; `accuracy.validUtc` is 1969-07-21 to 2030-06-01. The compact default VSOP87A table was measured and rejected (errors 2,877 to 142,044 km), so the full series is registered (see drift).
+2. Rotation. src/core/iauRotation.ts builds the body-to-EQJ quaternion from pole RA/Dec (per century) and W (per day). Constants: IAU 2015 report via NAIF pck00011.tpc (fetched 2026-10-12), exact lines archived in tests/fixtures/iau-pck-excerpt.txt; a test asserts the shipped numbers equal them. Horizons OBSERVER fixtures (tests/fixtures/planets-rotation-horizons-source.txt, .json; quantities 14 and 20): Jupiter sub-Earth west longitude max difference 0.0051 degrees (tolerance 0.02). Mars with the IAU 2009 constants (pck00010.tpc, in the same excerpt) 0.0028 degrees (tolerance 0.02), which shows Horizons uses the 2009 Mars constants. Mars with the shipped IAU 2015 constants 0.934 degrees (test: over 0.3, under 1.2); this is the size of the change between reports (pole moved ~1.5 degrees), not a code error, and it means the shipped Mars data is not itself confirmed by Horizons beyond that. Limitations (no periodic terms, TT for TDB) in `accuracy.orientationLimitations`. Citation is carried in `IauRotationElements.citation` beside the data (src/core/bodies/<planet>.ts).
+3. Definitions. src/core/bodies/{mercury,venus,mars,jupiter}.ts: parent sun, orientation iau-rotation, GM from the Horizons physical-data header (22031.86855, 324858.592, 42828.375662, 126686531.9), radii from NASA NSSDC fact sheets fetched 2026-10-12: Mercury mean 2439.7 only; Venus 6051.8 (equatorial and polar both given, equal); Mars 3389.5/3396.2/3376.2; Jupiter 69911/71492/66854. Catalogue validates (createCatalogue); layer-rule/name-check tests pass.
+4. Visuals. Mercury, Venus, Mars `TextureRef`s with `AssetLicence` (Solar System Scope, CC BY 4.0, attribution, access date 2026-10-12 = date the donor README was read; the SSS page itself was not opened), files copied byte-for-byte to src/assets/textures/{mercury,venus,mars}-2k.jpg (2048x1024). Jupiter: no texture, donor material colour #d4a97a; gap recorded in docs/DONOR_PROVENANCE.md. `drawnRadii` test: Jupiter equatorial 71492/6371 and polar 66854/6371, mapped independently.
+5. Gates (all run after the final edit unless noted): `npm run typecheck` clean; `npm run build` clean (chunk-size warning); `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml`: 30 files, 555 tests pass. Public build: `ASTRAEUS_PUBLIC_BUILD=1 npm run build` then `node tools/validate/public-build-assets.mjs`: ok true, 6 checked, no matches (the planet textures are licensed, not local-only; the local-only list is unchanged: earth, moon). The normal build was re-run afterwards. Browser: own vite on port 5199, PLAYWRIGHT_CORE donor playwright-core, fresh run directory docs/evidence/o014-t048-20261012T203410/ (one subdirectory and stdout.txt per script): earth-moon, showers, spike02, spike03, synthetic, synthetic-belt, synthetic-ring, precision, shell, anchor-labels; all exit 0 with `"errors": []`. anchor-labels first failed only because PLAYWRIGHT_CORE was missing from that shell; rerun with it passed. Vite stopped. No mounted change was expected and none was seen; earlier spike screenshots were not overwritten.
+
+### Extra reads (logged)
+
+- node_modules/@lizard-isana/orb/{package.json,usage.en.md,src/orb-planet.js,src/orb-vsop87a-registry.js}, src/types/orb.d.ts: to find the planet API and full-coefficient registration (reason: the Task names "the library's VSOP87A" without saying how it is exposed).
+- src/core/{stateResolver,referenceCenters,sunCentredSources,trajectory,state,provenance,moonTrajectory}.ts, src/core/bodies/{earth,sun,moon}.ts, src/assets/{licence,visual}.ts, src/assets/bodies/{moon,sun}.ts, src/app/bodyDraw.ts, tests/nameCheck.test.ts, tests/assets.test.ts, tests/stateResolver.test.ts, tests/textureLicence.test.ts, tests/compositions.test.ts, tests/experiences.test.ts: patterns for the new files, and failing tests found after cataloguing four bodies.
+- Donor: /home/user/code/planetary-explorer/public/textures/README.md, src/entities/{jupiter,mars,mercury,venus}.ts (material values).
+- External, fetched 2026-10-12: JPL Horizons API (vectors, observer table, physical data); NASA NSSDC fact sheets (mercury, venus, mars, jupiter); NAIF pck00011.tpc and pck00010.tpc.
+- C-015 observation 1 (resolver composes positions only, no velocity): planets need none here; no velocity is modelled and the definitions say so.
+
+### Files changed
+
+New: src/core/iauRotation.ts; src/core/bodies/{mercury,venus,mars,jupiter,planetRecords,planetTrajectory}.ts; src/assets/bodies/{mercury,venus,mars,jupiter}.ts; src/assets/textures/{mercury,venus,mars}-2k.jpg; tests/{planets,iauRotation}.test.ts; tests/planetFixtures.ts; tests/fixtures/{planets-horizons-source.txt,planets-horizons.json,planets-rotation-horizons-source.txt,planets-rotation-horizons.json,iau-pck-excerpt.txt}; docs/evidence/o014-t048-20261012T203410/.
+Modified: src/core/astronomyAdapter.ts; src/core/bodies/index.ts; src/assets/catalogue.ts; src/types/orb.d.ts; docs/ASTRONOMY_VALIDATION.md; docs/DONOR_PROVENANCE.md; tests/assets.test.ts, compositions.test.ts, experiences.test.ts, stateResolver.test.ts, textureLicence.test.ts (their hard-coded three-body expectations and the use of "mars" as an uncatalogued example; behaviour unchanged).
+
+### Limitations and unverified
+
+- Mars's shipped IAU 2015 orientation is not confirmed by Horizons (Horizons uses 2009 constants for Mars); its constants are confirmed only against the NAIF kernel text. Mercury and Venus rotation were not compared with Horizons at all, only with the kernel text.
+- Positions are sample maxima over six dates, not bounds; Jupiter's 1.3 thousand km is the largest. No velocity.
+- The 2030 Horizons sample uses a predicted UT offset (labelled UT~).
+- Texture licence is the donor README's statement; the Solar System Scope page was not opened. The Mercury `2k_mercury.jpg` and Venus `2k_venus_surface.jpg` files are taken as the donor says.
+- Fact sheet radius for Mercury (2439.7) differs from Horizons' 2439.4.
+- Bundle size: the full VSOP87A tables raise the JS bundle from 1,537.6 kB (458.8 kB gzip) to 2,938.7 kB (1,022.5 kB gzip), because the catalogue imports them although nothing mounts the planets yet. Lazy loading was not attempted (outside the boundaries).
+- Not run: no Task Check (the orchestrator runs it).
+
+### Context Log
+
+Started T-048 (status in_progress, stage build; router task T-048); read Task, Context Files; fetched Horizons vectors and observer tables, fact sheets, NAIF kernels; found compact VSOP87A too coarse and switched to the full series; found Horizons Mars uses IAU 2009 constants and recorded both comparisons; implemented, then stage test, then audit; gates and browser scripts as above.
+
 
 ## Drift Notes
 
-Record architecture deltas here; the integration Task reconciles them into Design.
+Record architecture deltas here; the integration Task (T-050) reconciles them into Design.md (each as reflected, or explicitly non-architectural, with a reason).
+
+1. `AstronomyAdapter` gained two methods, not one: `planetPositionFromSunKm(planet, t)` and `daysSinceJ2000Tt(t)` (the IAU models count TT days; only the adapter may import Orb, and a UTC to TT table in core would duplicate the library's). Architectural (adapter contract); T-050.
+2. The full VSOP87A coefficient series is registered by the adapter (`registerVSOP87A`, mutating Orb's module-level registry) because the compact default is off by tens of thousands of km. Costs about 1.4 MB raw (0.56 MB gzip) of bundle even though no experience mounts the planets. Architectural (provider choice and bundle cost); a lazy-loaded planet provider is a later option; T-050.
+3. Rotation data sit beside each definition (`MARS_ROTATION` etc. in src/core/bodies/<planet>.ts, with a citation field) and `CelestialBodyDefinition` was not changed; `src/core/bodies/planetTrajectory.ts` is the one generic planet state source (placed under bodies/ so the name check needs no allowlist entry). Architectural (where rotation data live); T-050.
+4. Horizons uses IAU 2009 constants for its Mars frame; the engine ships the 2015 report's. Recorded in ASTRONOMY_VALIDATION.md. Non-architectural (data provenance note).
+5. Existing tests that assumed a three-body catalogue or used "mars" as an unknown id were updated. Non-architectural.
+6. `CelestialBodyDefinition.accuracy.validUtc` for planets is the sampled range, as for the Moon.
+
+## Completion
+
+- 2026-10-12T10:00Z — Task Check C-022 CLEAR. `status: done` set by the orchestrator under the owner's explicit delegation in chat on 2026-10-11 ("I authorise you to move tasks to Done once you have checked and are satisfied"), actor {role: owner-delegate, session: o014-orchestrator-check-20261012}. Bundle-size observation (C-022 obs 1) raised with the owner.

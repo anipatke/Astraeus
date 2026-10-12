@@ -225,7 +225,7 @@ describe("visual overrides and scale choices", () => {
   });
 
   it.each([
-    ["an uncatalogued body", { mars: { exaggeration: 2 } }, /catalogue lacks/],
+    ["an uncatalogued body", { saturn: { exaggeration: 2 } }, /catalogue lacks/],
     ["a factor below 1", { earth: { exaggeration: 0.5 } }, /at least 1/],
     ["a non-finite factor", { earth: { exaggeration: Number.POSITIVE_INFINITY } }, /at least 1/],
   ] as const)("rejects %s", (_what, overrides, message) => {
@@ -247,7 +247,7 @@ describe("catalogueItem", () => {
     const item = catalogueItem("earth", { description: "Mine.", labelPriority: 7 });
     expect(item).toMatchObject({ id: "earth", label: "Earth", description: "Mine.", labelPriority: 7 });
     expect(item.provenance).toBe(catalogue.get("earth").definition.accuracy.position);
-    expect(() => catalogueItem("mars")).toThrow();
+    expect(() => catalogueItem("saturn")).toThrow();
   });
 });
 

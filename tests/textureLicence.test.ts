@@ -23,8 +23,13 @@ describe("texture rights (PROV-02)", () => {
       const texture = catalogue.get(id).visual.texture;
       if (texture !== undefined) textures.push([id, texture]);
     }
-    expect(textures.map(([id]) => id)).toEqual(["earth", "moon"]);
-    for (const [, texture] of textures) {
+    expect(textures.map(([id]) => id)).toEqual(["earth", "moon", "mercury", "venus", "mars"]);
+    for (const [id, texture] of textures.slice(2)) {
+      expect(textureRightsProblem(texture), id).toBeNull();
+      expect(texture.licence?.licence, id).toBe("CC BY 4.0");
+      expect(texture.localOnly, id).toBeUndefined();
+    }
+    for (const [, texture] of textures.slice(0, 2)) {
       expect(textureRightsProblem(texture)).toBeNull();
       expect(texture.localOnly?.reason.length).toBeGreaterThan(20);
     }

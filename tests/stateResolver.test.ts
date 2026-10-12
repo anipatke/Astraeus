@@ -27,7 +27,7 @@ const accuracy = {
 
 describe("built-in catalogue", () => {
   it("defines each body once with its parent, orientation model and accuracy record", () => {
-    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon"]);
+    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter"]);
     expect([SUN.parentId, EARTH.parentId, MOON.parentId]).toEqual([undefined, "sun", "earth"]);
     expect([SUN.orientation, EARTH.orientation, MOON.orientation]).toEqual(["none", "ecef", "tidal-lock"]);
     for (const body of BUILT_IN_BODIES) {
@@ -37,11 +37,12 @@ describe("built-in catalogue", () => {
     }
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/254 km.*8\.4°/);
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/no libration/);
-    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon"]);
+    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter"]);
   });
 
   it("carries gravitational parameters equal to the library's own table", () => {
-    for (const body of BUILT_IN_BODIES) expect(body.gmKm3S2).toBe(GM[body.id as keyof typeof GM]);
+    // The library table covers the Sun, Earth and Moon; the planets' values come from Horizons (tests/planets.test.ts).
+    for (const body of BUILT_IN_BODIES.slice(0, 3)) expect(body.gmKm3S2).toBe(GM[body.id as keyof typeof GM]);
   });
 });
 

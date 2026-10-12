@@ -1,4 +1,18 @@
 declare module "@lizard-isana/orb" {
+  interface OrbPlanetVector {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    readonly coordinate_keywords: string;
+    readonly unit_keywords: string;
+  }
+  interface OrbPlanetOptions { readonly vsop87a?: "short" | "full"; }
+  export class Mercury { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+  export class Venus { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+  export class Mars { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+  export class Jupiter { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+  /** Registers a planet's full VSOP87A coefficients, which a planet built with `{ vsop87a: "full" }` then uses. */
+  export function registerVSOP87A(body: string, data: readonly unknown[]): readonly unknown[];
   export class Luna {
     xyz(date: Date): {
       readonly x: number;
@@ -73,3 +87,8 @@ declare module "@lizard-isana/orb/kepler" {
     mu: number,
   ): KeplerVectors;
 }
+
+declare module "@lizard-isana/orb/vsop87a/mercury" { export const MERCURY_FULL_COEF: readonly unknown[]; }
+declare module "@lizard-isana/orb/vsop87a/venus" { export const VENUS_FULL_COEF: readonly unknown[]; }
+declare module "@lizard-isana/orb/vsop87a/mars" { export const MARS_FULL_COEF: readonly unknown[]; }
+declare module "@lizard-isana/orb/vsop87a/jupiter" { export const JUPITER_FULL_COEF: readonly unknown[]; }

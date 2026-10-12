@@ -1,0 +1,102 @@
+{
+  "source": "NASA/JPL Horizons API v1.2, OBSERVER table, quantities 14 (ObsSub-LON/LAT, degrees, body-frame west longitude positive) and 20 (delta, au)",
+  "center": "Earth geocentre (500@399)",
+  "rawFile": "planets-rotation-horizons-source.txt",
+  "retrievedLocal": "2026-10-12 02:25 Pasadena, USA",
+  "bodies": {
+    "mars": {
+      "command": "499",
+      "samples": [
+        {
+          "jdUtc": 2440423.5,
+          "utcMs": -14169600000,
+          "subObserverWestLonDeg": 105.819493,
+          "subObserverLatDeg": 11.939948,
+          "deltaAu": 0.5919506364386
+        },
+        {
+          "jdUtc": 2446217.5,
+          "utcMs": 486432000000,
+          "subObserverWestLonDeg": 51.982039,
+          "subObserverLatDeg": 0.018394,
+          "deltaAu": 2.54372172051264
+        },
+        {
+          "jdUtc": 2451545.0,
+          "utcMs": 946728000000,
+          "subObserverWestLonDeg": 69.543497,
+          "subObserverLatDeg": -23.259282,
+          "deltaAu": 1.84968786270204
+        },
+        {
+          "jdUtc": 2455378.5,
+          "utcMs": 1277942400000,
+          "subObserverWestLonDeg": 58.022184,
+          "subObserverLatDeg": 25.636872,
+          "deltaAu": 1.7927119108641
+        },
+        {
+          "jdUtc": 2460310.5,
+          "utcMs": 1704067200000,
+          "subObserverWestLonDeg": 30.909245,
+          "subObserverLatDeg": -1.378553,
+          "deltaAu": 2.4238067535467
+        },
+        {
+          "jdUtc": 2462653.5,
+          "utcMs": 1906502400000,
+          "subObserverWestLonDeg": 127.290564,
+          "subObserverLatDeg": -6.78971,
+          "deltaAu": 2.52633292639985
+        }
+      ]
+    },
+    "jupiter": {
+      "command": "599",
+      "samples": [
+        {
+          "jdUtc": 2440423.5,
+          "utcMs": -14169600000,
+          "subObserverWestLonDeg": 66.943433,
+          "subObserverLatDeg": -2.39631,
+          "deltaAu": 5.8437805162892
+        },
+        {
+          "jdUtc": 2446217.5,
+          "utcMs": 486432000000,
+          "subObserverWestLonDeg": 222.863447,
+          "subObserverLatDeg": -0.16722,
+          "deltaAu": 4.61253568143905
+        },
+        {
+          "jdUtc": 2451545.0,
+          "utcMs": 946728000000,
+          "subObserverWestLonDeg": 55.395133,
+          "subObserverLatDeg": 3.308067,
+          "deltaAu": 4.62117524331177
+        },
+        {
+          "jdUtc": 2455378.5,
+          "utcMs": 1277942400000,
+          "subObserverWestLonDeg": 77.350406,
+          "subObserverLatDeg": 2.522349,
+          "deltaAu": 4.74930841079256
+        },
+        {
+          "jdUtc": 2460310.5,
+          "utcMs": 1704067200000,
+          "subObserverWestLonDeg": 169.455616,
+          "subObserverLatDeg": 3.49089,
+          "deltaAu": 4.48150367162417
+        },
+        {
+          "jdUtc": 2462653.5,
+          "utcMs": 1906502400000,
+          "subObserverWestLonDeg": 240.737883,
+          "subObserverLatDeg": -3.732651,
+          "deltaAu": 4.42800550978385
+        }
+      ]
+    }
+  }
+}

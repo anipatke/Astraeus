@@ -86,3 +86,49 @@ clamp((1 + unit(Moon→Sun) · unit(Moon→Earth)) / 2, 0, 1)
 using same-time, geometric EQJ vectors. The recorded Orb 3.1.1 values are 0.501443, 0.001911, 0.501177 and 0.998254. Tests allow absolute error 0.01 from the USNO event's ideal fraction (0, 0, 0.5, 1); this intentionally tolerates the difference between a named phase event and the simplified geometric model. This does not claim observed topocentric phase or include lunar shadow geometry.
 
 For Earth rotation, Orb's `gmst82` was checked at UT1 JD 2453736.5 against the IAU SOFA validation value `1.754174981860675096` radians; the difference was about `1.29e-12` radians. A separate 24-hour check advances sidereal phase by approximately 360.985647366 degrees. These tests establish convention and rotation behavior; they do not remove the adapter's documented `dut1=0` default or substitute for polar-motion data.
+
+## Planets: Mercury, Venus, Mars and Jupiter (O-014 / T-048)
+
+### Position
+
+`planetPositionFromSunKm(planet, t)` on the adapter takes the pinned Orb 3.1.1 `Mercury`, `Venus`, `Mars` and `Jupiter` VSOP87A series, reads the heliocentric ecliptic-J2000 position in au, and converts it to EQJ km about the Sun through Orb's `ecliptic-j2000` to `equatorial-j2000` transform, checking the library's documented coordinate, unit and centre labels like the other methods. **The full coefficient series is registered** (`@lizard-isana/orb/vsop87a/*`). The compact default table was measured first and is not usable here: against the same six Horizons dates its largest vector error was 18,929 km (Mercury), 2,877 km (Venus), 80,199 km (Mars) and 142,044 km (Jupiter). The full series cost about 780 kB of unminified source across the four planets (see the build size recorded in the Task evidence).
+
+Raw Horizons responses are archived in [`planets-horizons-source.txt`](../tests/fixtures/planets-horizons-source.txt) (four concatenated API responses, each preceded by a `==== QUERY ... ====` line giving the exact parameters; the text of each response is unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND` 199, 299, 499, 599, `CENTER='500@10'` the Sun's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1` position only, `VEC_CORR=NONE` geometric, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` of JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). The normalized vectors are in `planets-horizons.json`. Targets are Mercury, Venus (DE441) and Mars (`mar099` satellite ephemeris on DE441) and Jupiter (`jup365_merged` on DE441) body centres. The 2030 sample is labelled `UT~` by Horizons, because UTC for that date uses a predicted leap-second offset.
+
+| UTC sample | Why |
+|---|---|
+| 1969-07-21 00:00 | start of the validated range |
+| 1985-06-01 00:00 | mid-range |
+| 2000-01-01 12:00 | J2000 |
+| 2010-07-01 00:00 | mid-range |
+| 2024-01-01 00:00 | recent |
+| 2030-06-01 00:00 | end of range |
+
+Measured maxima over the six samples (Orb 3.1.1, full VSOP87A, `tests/planets.test.ts`):
+
+| Planet | Max angular separation | Max range residual | Max vector distance | Test target |
+|---|---:|---:|---:|---|
+| Mercury 199 | 0.108 arcsec | 1.7 km | 30.4 km | under 40 km, 0.5 arcsec |
+| Venus 299 | 0.095 arcsec | 0.9 km | 50.1 km | under 70 km, 0.5 arcsec |
+| Mars 499 | 0.092 arcsec | 3.5 km | 95.8 km | under 120 km, 0.5 arcsec |
+| Jupiter 599 | 0.325 arcsec | 166.9 km | 1269.4 km | under 1500 km, 0.5 arcsec |
+
+These are sample maxima, not bounds for every date. They are recorded in each definition's `accuracy.position`, with the sampled range (1969-07-21 to 2030-06-01) as `accuracy.validUtc`; outside it the series is extrapolated without a measurement. Geometric positions only (no light time or aberration). No velocity is modelled for planets.
+
+### Orientation
+
+`src/core/iauRotation.ts` builds the body-to-EQJ rotation from a pole right ascension and declination (linear per Julian century) and a prime meridian W (linear per day), all from J2000 and counted here in TT days from the adapter's `daysSinceJ2000Tt` (TT standing in for TDB, a difference under 2 ms). Body +Z is the pole, +X the prime meridian and +Y completes the basis. The constants come from the IAU Working Group report of 2015 (Archinal et al., Celest. Mech. Dyn. Astron. 130, 22, 2018) as transcribed in NAIF `pck00011.tpc` (fetched 2026-10-12); the exact kernel lines are archived in [`iau-pck-excerpt.txt`](../tests/fixtures/iau-pck-excerpt.txt) and a test asserts the shipped numbers equal them. The report's periodic nutation and libration terms are left out (Mercury's would reach about 0.01 degrees in W; Mars's and Jupiter's pole terms are below 0.001 degrees), and the secular terms only are kept.
+
+Independent check: Horizons' OBSERVER table for Mars and Jupiter at the same six dates, quantities 14 and 20 ([`planets-rotation-horizons-source.txt`](../tests/fixtures/planets-rotation-horizons-source.txt), fetched 2026-10-12, geocentre, normalized in `planets-rotation-horizons.json`). `ObsSub-LON` is the sub-observer planetographic longitude, west positive. The test makes the same number by taking the planet one light time ago, the Earth now, and the Earth direction in the body frame. Results:
+
+| Case | Max sub-Earth longitude difference | Test tolerance |
+|---|---:|---:|
+| Jupiter, shipped constants (System III, identical in both reports) | 0.0051 degrees | 0.02 |
+| Mars, IAU 2009 constants (NAIF `pck00010.tpc`) | 0.0028 degrees | 0.02 |
+| Mars, shipped IAU 2015 constants | 0.934 degrees | under 1.2, over 0.3 |
+
+Horizons evidently uses the earlier IAU 2009 Mars constants (pole 317.68143, 52.88650; W0 176.630) for its Mars frame: with those the code reproduces it to 0.003 degrees, which validates the rotation maths, light-time handling and time scale. The shipped Mars data are the 2015 report's (pole 317.269202, 54.432516; W0 176.049863), which moved the Mars pole by about 1.5 degrees and W by up to about 0.9 degrees at these dates; that difference is a change between published reports, not an error, and the 0.934 degree figure is the measured size of it. Mercury and Venus rotation were not compared with Horizons (unverified); their constants are checked only against the NAIF excerpt. Jupiter's latitude comparison is limited by Horizons' planetographic versus the model's planetocentric latitude.
+
+### Dimensions and gravitational parameters
+
+Radii are from the NASA NSSDC fact sheets (read 2026-10-12): Mercury volumetric mean 2439.7 km; Venus 6051.8 km (equatorial and polar equal); Mars 3389.5 mean, 3396.2 equatorial, 3376.2 polar; Jupiter 69,911 mean, 71,492 equatorial (1 bar), 66,854 polar. Gravitational parameters (km^3/s^2) are from the physical-data header of the Horizons API for each planet (Mercury 22031.86855, Venus 324858.592, Mars 42828.375662, Jupiter 126686531.9; fetched 2026-10-12). The Horizons header's volumetric mean radius for Mercury is 2439.4 km; the fact-sheet 2439.7 is used.
