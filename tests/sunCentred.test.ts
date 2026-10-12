@@ -10,7 +10,7 @@ import {
 } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
-import { PathView, createSunCentredViews, pathReachKm } from "../src/app/SunCentredView";
+import { PathView, createPathViews, pathReachKm } from "../src/app/PathView";
 import { placementAbout } from "./scenePlacement";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createProvenance } from "../src/core/provenance";
@@ -46,13 +46,14 @@ const madeUpSource = createTwoBodyTrajectory({
   epochUtcMs: START,
   elements: { semiMajorAxisKm: 3 * AU_KM, eccentricity: 0.3, inclinationDeg: 12, raanDeg: 40, argumentOfPeriapsisDeg: 70, trueAnomalyDeg: 25 },
 }, twoBody);
-const path = (over: Partial<PathLayer> = {}): PathLayer => ({
+const path = (over: Record<string, unknown> = {}): PathLayer => ({
+  kind: "orbit",
   object: object("test-path"),
   color: "#ffffff",
   source: madeUpSource,
   span: { startUtcMs: START, endUtcMs: START + 4 * YEAR_MS },
   ...over,
-});
+}) as PathLayer;
 const sun = (over: Partial<SunBody> = {}): SunBody => ({ object: object("test-sun"), color: "#ffff00", ...over });
 
 describe("the Sun and path declaration", () => {
@@ -71,7 +72,7 @@ describe("the Sun and path declaration", () => {
     ["a source with no stateAt", () => validateSunCentred(undefined, [path({ source: {} as never })]), /source must be a Trajectory/],
     ["a source that cannot give a Sun-centred state", () => validateSunCentred(undefined, [path({
       source: { body: "x", stateAt: () => { throw new RangeError("no such state"); } },
-    })]), /cannot give a Sun-centred state at the span start: no such state/],
+    })]), /cannot give a state about its centre at the span start: no such state/],
     ["a bad marker size", () => validateSunCentred(sun({ markerSizePx: 0 }), []), /markerSizePx must be positive/],
   ])("names the problem for %s", (_what, act, message) => {
     expect(act).toThrow(message);
@@ -182,7 +183,7 @@ describe("Earth's path and the Sun are placed through centre composition", () =>
   });
 
   it("frames the Sun by the farthest path and anchors a path's label on its own line", () => {
-    const views = createSunCentredViews([syntheticEarthPath, syntheticFarPath]);
+    const views = createPathViews([syntheticEarthPath, syntheticFarPath]);
     const far = views[1];
     expect(pathReachKm(views)).toBe(far.maxRadiusKm);
     far.sync(START, earthPlacement, trueScale);
@@ -197,7 +198,7 @@ describe("State is untouched and an experience without the declaration is unchan
     const before = new Float64Array(3 * layer.group.count);
     const after = new Float64Array(3 * layer.group.count);
     layer.group.fillPositionsKm(t, before);
-    const views = createSunCentredViews([syntheticEarthPath, syntheticFarPath]);
+    const views = createPathViews([syntheticEarthPath, syntheticFarPath]);
     for (const view of views) { view.sync(t, earthPlacement, trueScale); view.place(new FloatingOrigin()); }
     layer.group.fillPositionsKm(t, after);
     expect(Array.from(after)).toEqual(Array.from(before));

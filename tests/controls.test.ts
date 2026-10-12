@@ -20,7 +20,8 @@ import {
 } from "../src/app/DebugControls";
 import { buildDebugReadout, overlayRows, type DebugReadout } from "../src/app/DebugOverlay";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { pathNeedsRefresh, sampleOrbitPath } from "../src/app/orbitPath";
+import { pathNeedsRefresh } from "../src/app/pathRules";
+import { SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { bodyAbsolutes } from "../src/app/sceneLayout";
 
 const adapter = createOrbAstronomyAdapter();
@@ -211,16 +212,14 @@ describe("debug readout", () => {
 
 describe("path refresh after seeking", () => {
   it("rebuilds the path when a seek leaves the sampled window and not for tiny moves", () => {
-    const samples = sampleOrbitPath(trajectory, T);
-    expect(pathNeedsRefresh(samples, T + 1000, 0, 0)).toBe(false);
-    expect(pathNeedsRefresh(samples, T - 20 * 86_400_000, 0, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 20 * 86_400_000, 0, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 1000, 0, 0)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T - 20 * 86_400_000, 0, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 20 * 86_400_000, 0, 0)).toBe(true);
   });
 
   it("a scrub within the sampled window rebuilds once drift exceeds the threshold", () => {
-    const samples = sampleOrbitPath(trajectory, T);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 1000, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 100, 0)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 1000, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 100, 0)).toBe(false);
   });
 });
 

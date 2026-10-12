@@ -17,7 +17,7 @@ import {
   trackedReadouts,
   travelledCount,
 } from "../src/app/mission";
-import { mapOrbitPath } from "../src/app/orbitPath";
+import { mapPathKm } from "../src/app/pathRules";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { trackedAbsolute } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";
@@ -316,7 +316,7 @@ describe("anchor labels (presentation only)", () => {
     view.update(mid, readableScale, origin, camera, earthPlacement);
     const index = anchorLabelsOf(columbia)!.indexOf("A-33");
     const anchorTime = columbia.anchorTimesUtcMs[index];
-    const mapped = mapOrbitPath({ timesUtcMs: [anchorTime], positionsKm: Float64Array.from(columbia.trajectory.stateAt(anchorTime).positionKm) }, readableScale);
+    const mapped = mapPathKm(Float64Array.from(columbia.trajectory.stateAt(anchorTime).positionKm), readableScale);
     const expected = eqjToRenderVector(mapped.subarray(0, 3));
     const local = view.anchorLocalPosition(index, new Vector3());
     expect(local.distanceTo(new Vector3(...origin.toLocal(expected)))).toBeLessThan(1e-4);

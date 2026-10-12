@@ -17,9 +17,10 @@ import {
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { anchorLabelsOf, markerRadiusUnits, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
-import { mapOrbitPath } from "./orbitPath";
+import { mapPathKm, relativeTrailKm, type PathSamples } from "./pathRules";
+import type { PathRule } from "./experienceDefinition";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { sceneOffsetKm, trackedAbsolute, type ScenePlacement } from "./sceneLayout";
+import { trackedAbsolute, type ScenePlacement } from "./sceneLayout";
 
 /** Drawn after Earth and Moon so overlays are never swallowed by a body in a compressed scale. */
 export const TRACK_LAYER = 3;
@@ -69,6 +70,8 @@ export function anchorSpriteTexture(): DataTexture {
  * stateAt -> ScalePolicy -> render axes -> floating origin, exactly like Earth and the Moon.
  */
 export class TrackedBodyView {
+  /** A tracked body's path is a relative trail, drawn by the same rule as every path (`pathRules.ts`). */
+  static readonly pathRule: PathRule = Object.freeze({ kind: "trail", frame: "relative" });
   readonly group = new Group();
   readonly #marker: Mesh;
   readonly #travelled: Line;
@@ -148,22 +151,15 @@ export class TrackedBodyView {
   #remap(policy: ScalePolicy, placement: ScenePlacement): void {
     const placed = placement.center;
     if (this.#mappedFor === policy.id && this.#placedFor === placed) return;
-    this.#mappedPath = mapOrbitPath(this.#shifted(this.#samples.timesUtcMs, this.#samples.positionsKm, placement), policy);
-    this.#mappedAnchors = mapOrbitPath(this.#shifted(this.body.anchorTimesUtcMs, this.#anchorKm, placement), policy);
+    this.#mappedPath = mapPathKm(this.#relative(this.#samples, placement), policy);
+    this.#mappedAnchors = mapPathKm(this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement), policy);
     this.#mappedFor = policy.id;
     this.#placedFor = placed;
   }
 
-  #shifted(timesUtcMs: readonly number[], positionsKm: Float64Array, placement: ScenePlacement): { readonly timesUtcMs: readonly number[]; readonly positionsKm: Float64Array } {
-    if (timesUtcMs.length === 0) return { timesUtcMs, positionsKm };
-    const from = this.body.trajectory.stateAt(timesUtcMs[0]).center;
-    if (from === placement.center) return { timesUtcMs, positionsKm };
-    const shifted = Float64Array.from(positionsKm);
-    timesUtcMs.forEach((time, index) => {
-      const offset = sceneOffsetKm(placement, from, time)!;
-      for (let k = 0; k < 3; k += 1) shifted[index * 3 + k] += offset[k];
-    });
-    return { timesUtcMs, positionsKm: shifted };
+  #relative(samples: PathSamples, placement: ScenePlacement): Float64Array {
+    if (samples.timesUtcMs.length === 0) return samples.positionsKm;
+    return relativeTrailKm(samples, this.body.trajectory.stateAt(samples.timesUtcMs[0]).center, placement);
   }
 
   /** Writes [leading?] samples [from, to) [trailing?] into the line and sets how much of it is drawn. */

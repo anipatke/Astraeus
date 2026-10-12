@@ -4,7 +4,7 @@ import type { SimulationClock } from "../core/clock";
 import type { MoonTrajectory } from "../core/moonTrajectory";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
-import type { BodyId } from "../core/body";
+import type { BodyId, CenterId } from "../core/body";
 import { catalogue } from "../assets/catalogue";
 import { earthMoonSystem, type SystemComposition } from "../assets/compositions";
 import type { Metric } from "../shell/metrics";
@@ -67,21 +67,35 @@ export interface SunBody {
   readonly markerSizePx?: number;
 }
 
-/**
- * The path of a Sun-centred object: the positions of a state source sampled over a span, drawn as a line.
- * Any source that answers `stateAt(time, "sun")` works (published elements, Earth's own geometry, a recorded
- * trajectory); the path adds no orbit maths of its own. The line is Sun-fixed, so it is placed at the Sun's
- * position at the clock time, not each sample's own time.
- */
-export interface PathLayer {
-  /** The path's one shell item. Its id is also the camera focus id; it needs provenance. */
-  readonly object: ExperienceObject;
+/** A rolling span: a window this wide, centred on the clock time and resampled as the clock moves. */
+export interface RollingSpan {
+  readonly windowMs: number;
+}
+
+/** Which transformation rule a path is drawn by; see `pathRules.ts`. */
+export type PathRule =
+  /** The shape the source traces about `center`, carried with that centre to where it is from the scene centre at the clock time. */
+  | { readonly kind: "orbit"; readonly center?: CenterId }
+  /** Where the body was. `relative`: each sample from the scene centre at its own time. `inertial`: each sample in the root frame at its own time, then from the scene centre at the display time. */
+  | { readonly kind: "trail"; readonly frame: "relative" | "inertial" };
+
+/** What a path is drawn from: a rule, a state source, a span and a colour. Any source that answers `stateAt` works (published elements, a recorded trajectory, the resolver). */
+export type PathSpec = PathRule & {
   readonly color: string;
   readonly source: Trajectory;
-  readonly span: TimeBounds;
-  /** Number of samples along the span; defaults to 256. */
+  /** Absolute times, or a window about the clock. */
+  readonly span: TimeBounds | RollingSpan;
+  /** Number of samples along the span; defaults to 256 (181 for a rolling span, which must be odd so the clock time is a vertex). */
   readonly samples?: number;
-}
+};
+
+/**
+ * A path an experience declares, with its one shell item. Its id is also the camera focus id; it needs provenance. The orbit's
+ * samples are about its `center` (default the source's own centre); a trail's about the source's own centre.
+ */
+export type PathLayer = PathSpec & {
+  readonly object: ExperienceObject;
+};
 
 /**
  * How far the camera may reach, in scaled units (Earth radii). Both fields are optional: an omitted
@@ -193,10 +207,52 @@ export function groupsOf(definition: ExperienceDefinition): readonly GroupLayer[
 }
 
 export const DEFAULT_PATH_SAMPLE_COUNT = 256;
+/** Default sample count of a rolling span (the Moon's monthly loop). */
+export const DEFAULT_WINDOW_SAMPLE_COUNT = 181;
+
+export const isRollingSpan = (span: PathSpec["span"]): span is RollingSpan => "windowMs" in span;
 
 /**
- * Checks the Sun and path declarations and returns them, naming the offending item and field: empty or repeated id,
- * missing provenance, a source that cannot answer a Sun-centred state, an empty or reversed span, or a bad sample count.
+ * Checks one path declaration, naming `id` and the offending field: an unknown rule or frame, an uncatalogued centre, a source that
+ * cannot answer a state, an empty or reversed span (or a bad window), or a bad sample count.
+ */
+export function validatePathSpec(id: string, path: PathSpec): void {
+  const rule = path as { kind?: unknown; frame?: unknown; center?: unknown };
+  if (rule.kind !== "orbit" && rule.kind !== "trail") throw new TypeError(`path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`);
+  if (rule.kind === "trail" && rule.frame !== "relative" && rule.frame !== "inertial") {
+    throw new TypeError(`path "${id}" frame must be "relative" or "inertial", got ${String(rule.frame)}`);
+  }
+  if (rule.kind === "orbit" && rule.center !== undefined && !(typeof rule.center === "string" && catalogue.has(rule.center))) {
+    throw new RangeError(`path "${id}" center "${String(rule.center)}" is not a catalogued body`);
+  }
+  if (typeof path.source?.stateAt !== "function") throw new TypeError(`path "${id}" source must be a Trajectory with stateAt`);
+  const center = path.kind === "orbit" ? path.center : undefined;
+  let first: number;
+  if (path.span !== undefined && isRollingSpan(path.span)) {
+    const { windowMs } = path.span;
+    if (!(windowMs > 0) || !Number.isFinite(windowMs)) throw new RangeError(`path "${id}" span windowMs must be positive and finite`);
+    const samples = path.samples ?? DEFAULT_WINDOW_SAMPLE_COUNT;
+    if (!Number.isInteger(samples) || samples < 3 || samples % 2 === 0) throw new RangeError(`path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`);
+    first = Number.NaN;
+  } else {
+    const { startUtcMs, endUtcMs } = path.span ?? {};
+    if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs)) throw new RangeError(`path "${id}" span needs finite start and end times`);
+    if (!(endUtcMs > startUtcMs)) throw new RangeError(`path "${id}" span must end after it starts`);
+    const samples = path.samples ?? DEFAULT_PATH_SAMPLE_COUNT;
+    if (!Number.isInteger(samples) || samples < 2) throw new RangeError(`path "${id}" samples must be a whole number of at least 2, got ${samples}`);
+    first = startUtcMs;
+  }
+  if (Number.isNaN(first)) return; // a rolling span has no fixed start to probe; its source is asked at the clock time
+  try {
+    path.source.stateAt(first, center);
+  } catch (error) {
+    throw new TypeError(`path "${id}" source cannot give a state about its centre${center === undefined ? "" : ` "${center}"`} at the span start: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/**
+ * Checks the Sun and path declarations and returns them, naming the offending item and field (see `validatePathSpec`),
+ * an empty or repeated id or missing provenance.
  */
 export function validateSunCentred(sun: SunBody | undefined, paths: readonly PathLayer[]): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
   const seen = new Set<string>();
@@ -214,17 +270,7 @@ export function validateSunCentred(sun: SunBody | undefined, paths: readonly Pat
   for (const path of paths) {
     const id = claim(path.object?.id, "path");
     if (path.object.provenance === undefined) throw new TypeError(`path "${id}" needs provenance on its object`);
-    if (typeof path.source?.stateAt !== "function") throw new TypeError(`path "${id}" source must be a Trajectory with stateAt`);
-    const { startUtcMs, endUtcMs } = path.span ?? {};
-    if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs)) throw new RangeError(`path "${id}" span needs finite start and end times`);
-    if (!(endUtcMs > startUtcMs)) throw new RangeError(`path "${id}" span must end after it starts`);
-    const samples = path.samples ?? DEFAULT_PATH_SAMPLE_COUNT;
-    if (!Number.isInteger(samples) || samples < 2) throw new RangeError(`path "${id}" samples must be a whole number of at least 2, got ${samples}`);
-    try {
-      path.source.stateAt(startUtcMs, "sun");
-    } catch (error) {
-      throw new TypeError(`path "${id}" source cannot give a Sun-centred state at the span start: ${error instanceof Error ? error.message : String(error)}`);
-    }
+    validatePathSpec(id, path);
   }
   return { sun, paths };
 }

@@ -119,6 +119,7 @@ const earthPathSource = createEarthSunTrajectory(earthAdapter);
 
 /** Earth's own path round the Sun over one year, sampled from Earth's Sun-centred state. */
 export const syntheticEarthPath: PathLayer = {
+  kind: "orbit",
   color: "#7ab8ff",
   source: earthPathSource,
   span: { startUtcMs: START_UTC_MS, endUtcMs: START_UTC_MS + YEAR_MS },
@@ -147,6 +148,7 @@ const madeUpPathSource = createTwoBodyTrajectory({
 
 /** A made-up Sun-centred object's path, from made-up elements; proves a path needs no built-in planet. */
 export const syntheticFarPath: PathLayer = {
+  kind: "orbit",
   color: "#c79bff",
   source: madeUpPathSource,
   span: { startUtcMs: START_UTC_MS, endUtcMs: START_UTC_MS + Math.round(9.5 * YEAR_MS) },

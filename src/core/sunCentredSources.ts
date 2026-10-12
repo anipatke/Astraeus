@@ -83,19 +83,44 @@ export function createEarthSunTrajectory(adapter: AstronomyAdapter): Trajectory 
   });
 }
 
-/**
- * Positions (km, EQJ, about `center`) of a state source at `count` evenly spaced times (rounded to whole milliseconds) from the span's start to
- * its end inclusive: 3 × count values. This is all a path is; no orbit maths lives here.
- */
-export function samplePathKm(source: Trajectory, span: TimeBounds, count: number, center: CenterId = "sun"): Float64Array {
+/** A path's sample times: `count` evenly spaced from the span's start to its end inclusive, rounded to whole milliseconds. */
+export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {
   if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);
   assertUtcUnixMs(span.startUtcMs);
   assertUtcUnixMs(span.endUtcMs);
   if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError("a path span must end after it starts");
-  const out = new Float64Array(3 * count);
-  for (let k = 0; k < count; k += 1) {
-    const timeUtcMs = Math.round(span.startUtcMs + ((span.endUtcMs - span.startUtcMs) * k) / (count - 1));
-    out.set(source.stateAt(timeUtcMs, center).positionKm, 3 * k);
+  const times: number[] = [];
+  for (let k = 0; k < count; k += 1) times.push(Math.round(span.startUtcMs + ((span.endUtcMs - span.startUtcMs) * k) / (count - 1)));
+  return times;
+}
+
+/**
+ * Sample times of a window `windowMs` wide centred on `centerUtcMs`: `count` evenly spaced, the centre exactly one of them
+ * (so the clock time is always a vertex). The count must be odd.
+ */
+export function windowTimesUtcMs(centerUtcMs: number, windowMs: number, count: number): number[] {
+  assertUtcUnixMs(centerUtcMs);
+  if (!Number.isInteger(count) || count < 3 || count % 2 === 0) throw new RangeError("a window needs an odd sample count of at least 3 so the centre is a sample");
+  if (!(windowMs > 0) || !Number.isFinite(windowMs)) throw new RangeError("a window needs a positive finite width");
+  const half = (count - 1) / 2;
+  const times: number[] = [];
+  for (let index = 0; index < count; index += 1) {
+    times.push(index === half ? centerUtcMs : Math.round(centerUtcMs + ((index - half) / half) * (windowMs / 2)));
   }
+  return times;
+}
+
+/** Positions (km, EQJ) of a state source about `center` at the given times: 3 values per time. */
+export function samplePositionsKm(source: Trajectory, timesUtcMs: readonly number[], center?: CenterId): Float64Array {
+  const out = new Float64Array(3 * timesUtcMs.length);
+  timesUtcMs.forEach((time, k) => out.set(source.stateAt(time, center).positionKm, 3 * k));
   return out;
+}
+
+/**
+ * Positions (km, EQJ, about `center`, default the source's own) of a state source at `count` evenly spaced times from the span's start to
+ * its end inclusive: 3 × count values. This is all a path is; no orbit maths lives here.
+ */
+export function samplePathKm(source: Trajectory, span: TimeBounds, count: number, center?: CenterId): Float64Array {
+  return samplePositionsKm(source, pathTimesUtcMs(span, count), center);
 }

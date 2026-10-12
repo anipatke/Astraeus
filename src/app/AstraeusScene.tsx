@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial, type DirectionalLight } from "three";
+import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import { directionFromCenterToSun } from "../core/illumination";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
-import type { Trajectory } from "../core/trajectory";
 import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue, type BodyAsset } from "../assets/catalogue";
-import type { CompositionPath, SystemComposition } from "../assets/compositions";
+import type { SystemComposition } from "../assets/compositions";
 import { BodyView } from "./BodyView";
 import {
   attachOrbitGestures,
@@ -26,15 +25,8 @@ import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
 import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody } from "./experienceDefinition";
 import { stateIfInBounds, type TrackedBody } from "./mission";
-import {
-  DEFAULT_PATH_SAMPLES,
-  mapOrbitPath,
-  pathNeedsRefresh,
-  sampleOrbitPath,
-  type OrbitPathSamples,
-} from "./orbitPath";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { bodyAbsolute, placeBody, placeComposition, sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
+import { bodyAbsolute, placeBody, placeComposition, type ScenePlacement } from "./sceneLayout";
 import {
   assignBodyLayers,
   defaultDistance,
@@ -48,7 +40,7 @@ import {
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
-import { createSunCentredViews, pathReachKm } from "./SunCentredView";
+import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import type { ExperienceObject } from "../shell/experience";
@@ -147,30 +139,6 @@ function LayeredRender({ lightLayers }: { readonly lightLayers: readonly number[
   return null;
 }
 
-interface OrbitLine {
-  readonly path: CompositionPath;
-  readonly parent: BodyId;
-  readonly source: Trajectory;
-  readonly line: Line;
-  samples: OrbitPathSamples | null;
-  mappedFor: string;
-  mapped: Float64Array | null;
-  builtRealMs: number;
-}
-
-function createOrbitLine(path: CompositionPath, resolver: StateResolver): OrbitLine {
-  const parent = catalogue.get(path.body).definition.parentId;
-  if (parent === undefined) throw new RangeError(`path body "${path.body}" has no parent to orbit`);
-  const geometry = new BufferGeometry();
-  const count = path.samples ?? DEFAULT_PATH_SAMPLES;
-  geometry.setAttribute("position", new BufferAttribute(new Float32Array(count * 3), 3));
-  const line = new Line(geometry, new LineBasicMaterial({ color: "#f0e6da", transparent: true, opacity: 0.45 }));
-  line.frustumCulled = false;
-  // The body's positions about its parent, from the resolver: the centre argument sampleOrbitPath passes is the parent already.
-  const source: Trajectory = { body: path.body, stateAt: (timeUtcMs) => resolver.stateOf(path.body, timeUtcMs, parent) };
-  return { path, parent, source, line, samples: null, mappedFor: "", mapped: null, builtRealMs: Number.NEGATIVE_INFINITY };
-}
-
 interface SceneContentsProps extends Props {
   readonly layers: ReadonlyMap<BodyId, number>;
 }
@@ -196,8 +164,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
-  const sunCentredViews = useMemo(() => createSunCentredViews(runtime.paths ?? []), [runtime.paths]);
-  const orbitLines = useMemo(() => (runtime.composition?.paths ?? []).map((path) => createOrbitLine(path, runtime.resolver)), [runtime.composition, runtime.resolver]);
+  const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
+  const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => new PathView(compositionPathLayer(path, runtime.resolver), COMPOSITION_PATH_STYLE)), [runtime.composition, runtime.resolver]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
@@ -246,6 +214,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const camState = orbit.current;
     for (const view of groupViews) view.sync(t, placement, policy);
     for (const view of sunCentredViews) view.sync(t, placement, policy);
+    for (const view of compositionPaths) view.sync(t, placement, policy);
     if (controls.frameStats !== null) {
       controls.frameStats.tick(performance.now());
       groupViews.forEach((view, i) => {
@@ -332,6 +301,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
+    for (const view of compositionPaths) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     sceneLabels.current?.update((id) => {
       const body = bodyIdFor(id);
@@ -352,7 +322,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       const toSun = eqjToRenderVector(directionFromCenterToSun(resolver.sunFrom(asset.definition.id, t)));
       light.position.set(toSun[0], toSun[1], toSun[2]);
     }
-    for (const line of orbitLines) updateOrbitLine(line, placement, policy, origin, t);
 
     if (!runtime.bodies.includes("earth") || !runtime.bodies.includes("moon")) {
       readout.current = null;
@@ -399,51 +368,10 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
           </group>
         );
       })}
-      {orbitLines.map((orbitLine) => <primitive key={orbitLine.path.body} object={orbitLine.line} />)}
+      {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
       {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
     </group>
   );
-}
-
-/**
- * A co-moving orbit: the body's positions about its parent over the declared span, carried with the parent, so the line
- * sits at the parent's position from the scene centre at the clock time. A scene centred on the parent draws the samples as they are.
- */
-function updateOrbitLine(orbitLine: OrbitLine, placement: ScenePlacement, policy: ScalePolicy, origin: FloatingOrigin, timeUtcMs: number): void {
-  const realNow = performance.now();
-  let rebuilt = false;
-  if (pathNeedsRefresh(orbitLine.samples, timeUtcMs, realNow, orbitLine.builtRealMs)) {
-    orbitLine.samples = sampleOrbitPath(orbitLine.source, timeUtcMs, orbitLine.path.spanMs, orbitLine.path.samples);
-    orbitLine.builtRealMs = realNow;
-    rebuilt = true;
-  }
-  const samples = orbitLine.samples;
-  if (!samples) return;
-  const offset = sceneOffsetKm(placement, orbitLine.parent, timeUtcMs);
-  let mapped: Float64Array;
-  if (offset === null) {
-    if (rebuilt || orbitLine.mappedFor !== policy.id || orbitLine.mapped === null) {
-      orbitLine.mapped = mapOrbitPath(samples, policy);
-      orbitLine.mappedFor = policy.id;
-    }
-    mapped = orbitLine.mapped;
-  } else {
-    const shifted = Float64Array.from(samples.positionsKm);
-    for (let i = 0; i < shifted.length; i += 3) {
-      shifted[i] += offset[0];
-      shifted[i + 1] += offset[1];
-      shifted[i + 2] += offset[2];
-    }
-    mapped = mapOrbitPath({ timesUtcMs: samples.timesUtcMs, positionsKm: shifted }, policy);
-    orbitLine.mapped = null;
-  }
-  const positions = orbitLine.line.geometry.getAttribute("position") as BufferAttribute;
-  const local: [number, number, number] = [0, 0, 0];
-  for (let i = 0; i < samples.timesUtcMs.length; i += 1) {
-    origin.toLocal(eqjToRenderVector(mapped.subarray(i * 3, i * 3 + 3)), local);
-    positions.setXYZ(i, local[0], local[1], local[2]);
-  }
-  positions.needsUpdate = true;
 }

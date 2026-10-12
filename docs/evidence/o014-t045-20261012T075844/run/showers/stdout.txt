@@ -1,0 +1,48 @@
+{
+  "shower": "perseids",
+  "results": {
+    "desktop": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 26752,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 31369,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 33498,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 11806,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)"
+    },
+    "phone": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 19236,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 19212,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 19780,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 6642,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)"
+    }
+  },
+  "errors": []
+}
