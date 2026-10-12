@@ -14,7 +14,7 @@ import {
   apollo11Mission,
   POST_TLI_COAST_ID,
   type GeneratedValidation,
-} from "../src/mission/apollo11";
+} from "../src/experiences/apollo11/apollo11";
 import type { ExperienceConfig } from "../src/shell/experience";
 import { infoView, PROVENANCE_STATUS } from "../src/shell/infoModel";
 import { formatMetricNumber } from "../src/shell/metrics";

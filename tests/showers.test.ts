@@ -10,9 +10,9 @@ import {
   nodeTrueAnomalyDeg,
   showerEntryName,
   streamIdOf,
-} from "../src/showers/showerDefinition";
+} from "../src/experiences/showers/showerDefinition";
 import perseidsFile from "../data/showers/perseids.json";
-import { parseShowerSettings, ShowerSettingsError } from "../src/showers/showerSettings";
+import { parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
 
 const adapter = createOrbAstronomyAdapter();
 const AU_KM = 149_597_870.7;

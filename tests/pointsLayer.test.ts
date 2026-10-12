@@ -22,7 +22,7 @@ import { composeCenteredPositions, sunPositionFromEarthAt } from "../src/core/re
 import { readableScale, trueScale } from "../src/core/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { findCameraPreset } from "../src/shell/objectModel";
-import { apollo11Definition } from "../src/mission/apollo11Definition";
+import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";
 

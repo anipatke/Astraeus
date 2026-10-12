@@ -14,7 +14,7 @@ import {
 } from "../src/app/experienceDefinition";
 import { syntheticBeltDefinition } from "../src/synthetic/syntheticRingDefinition";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { apollo11Definition } from "../src/mission/apollo11Definition";
+import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 
 const appSources = import.meta.glob<string>("../src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
 
@@ -43,9 +43,9 @@ describe("window files stay generic", () => {
 });
 
 describe("experience plug-in contract", () => {
-  it("keeps generic src/app code free of src/mission and src/synthetic imports", () => {
+  it("keeps generic src/app code free of src/mission, src/experiences and src/synthetic imports", () => {
     const offenders = Object.entries(appSources)
-      .filter(([, source]) => /from\s+["'][^"']*\/(mission|synthetic)\/[^"']*["']/.test(source))
+      .filter(([, source]) => /from\s+["'][^"']*\/(mission|experiences|synthetic)\/[^"']*["']/.test(source))
       .map(([path]) => path);
     expect(offenders).toEqual([]);
   });

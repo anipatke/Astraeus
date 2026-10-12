@@ -18,7 +18,7 @@ import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCente
 import { readableScale, trueScale } from "../src/core/scalePolicy";
 import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "../src/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
-import { apollo11Definition } from "../src/mission/apollo11Definition";
+import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import {
   syntheticBeltDefinition,

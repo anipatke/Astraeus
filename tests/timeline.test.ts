@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { apollo11Experience } from "../src/mission/apollo11";
+import { apollo11Experience } from "../src/experiences/apollo11/apollo11";
 import {
   eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
   windowAreaPath, windowContextAt, windowCurvePath, windowPeakHeightPercent, windowPositionPercent, windowTimeAtFraction, DEFAULT_PLAYBACK_SPEEDS,

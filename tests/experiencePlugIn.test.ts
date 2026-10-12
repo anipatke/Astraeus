@@ -6,13 +6,13 @@ import { SimulationClock } from "../src/core/clock";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
-import { apollo11Definition } from "../src/mission/apollo11Definition";
+import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { infoView } from "../src/shell/infoModel";
 import perseidsFile from "../data/showers/perseids.json";
-import { buildShowerDefinition } from "../src/showers/showerDefinition";
-import { parseShowerSettings } from "../src/showers/showerSettings";
+import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import type { RateMetric } from "../src/shell/metrics";
 
 const sources = import.meta.glob<string>(

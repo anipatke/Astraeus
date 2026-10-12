@@ -31,10 +31,10 @@ import {
 } from "../src/app/sceneLayout";
 import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "../src/app/sceneFraming";
 import { TRACK_LAYER, TrackedBodyView } from "../src/app/TrackedBodyView";
-import { apollo11Definition } from "../src/mission/apollo11Definition";
-import { apollo11Mission } from "../src/mission/apollo11";
-import { buildShowerDefinition } from "../src/showers/showerDefinition";
-import { parseShowerSettings } from "../src/showers/showerSettings";
+import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
+import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
+import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";

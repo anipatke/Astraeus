@@ -21,7 +21,7 @@ import {
 } from "../src/app/metricReadouts";
 import { discrepancyAt, stateIfInBounds, trackedReadouts } from "../src/app/mission";
 import { MOON } from "../src/core/body";
-import { apollo11Mission } from "../src/mission/apollo11";
+import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { MetricVisual } from "../src/shell/MetricVisual";
 import {
   altitudeGlyph,

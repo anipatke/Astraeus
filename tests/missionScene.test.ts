@@ -22,7 +22,7 @@ import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { trackedAbsolute } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
-import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/mission/apollo11";
+import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { availableObjectById, findCameraPreset, isObjectAvailable } from "../src/shell/objectModel";
 
 const earthPlacement = placementAbout("earth");

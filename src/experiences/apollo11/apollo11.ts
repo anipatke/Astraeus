@@ -1,15 +1,15 @@
-import columbiaFile from "../../data/apollo11/generated/columbia.json";
-import eagleFile from "../../data/apollo11/generated/eagle.json";
-import eventsFile from "../../data/apollo11/generated/events.json";
-import validationFile from "../../data/apollo11/generated/validation.json";
-import { createEvents, type TimelineEvent } from "../core/events";
-import { createProvenance, type Provenance } from "../core/provenance";
-import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
-import type { Trajectory } from "../core/trajectory";
-import { EARTH_EPHEMERIS, MOON_EPHEMERIS } from "../app/ephemerisProvenance";
-import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../app/mission";
-import type { ExperienceConfig } from "../shell/experience";
-import { formatMetricNumber } from "../shell/metrics";
+import columbiaFile from "../../../data/apollo11/generated/columbia.json";
+import eagleFile from "../../../data/apollo11/generated/eagle.json";
+import eventsFile from "../../../data/apollo11/generated/events.json";
+import validationFile from "../../../data/apollo11/generated/validation.json";
+import { createEvents, type TimelineEvent } from "../../core/events";
+import { createProvenance, type Provenance } from "../../core/provenance";
+import { SampledTrajectory, type TrajectorySample } from "../../core/sampledTrajectory";
+import type { Trajectory } from "../../core/trajectory";
+import { EARTH_EPHEMERIS, MOON_EPHEMERIS } from "../../app/ephemerisProvenance";
+import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../../app/mission";
+import type { ExperienceConfig } from "../../shell/experience";
+import { formatMetricNumber } from "../../shell/metrics";
 
 /** The wording the brief requires; never describe the path as exact. */
 export const APOLLO11_STATEMENT =

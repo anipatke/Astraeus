@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app/App";
-import { apollo11Definition } from "./mission/apollo11Definition";
+import { apollo11Definition } from "./experiences/apollo11/apollo11Definition";
 import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { syntheticBeltDefinition, syntheticRingDefinition } from "./synthetic/syntheticRingDefinition";
-import { buildShowerDefinition, showerEntryName } from "./showers/showerDefinition";
-import { parseShowerSettings } from "./showers/showerSettings";
+import { buildShowerDefinition, showerEntryName } from "./experiences/showers/showerDefinition";
+import { parseShowerSettings } from "./experiences/showers/showerSettings";
 import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");

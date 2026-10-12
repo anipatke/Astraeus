@@ -2,7 +2,8 @@
 id: T-047
 title: Assemble the three experiences from the shared assets
 objective: O-014
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-045, requires: clear}, {task: T-046, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
@@ -70,7 +71,12 @@ Focused tests during iteration; handoff runs the gates, the public build and eve
 
 ## Technical Evidence
 
-Pending execution.
+### Context Log
+
+- Step 2 (folder moves, behaviour-free, uncommitted pending orchestrator): `git mv src/mission src/experiences/apollo11`; `git mv src/showers src/experiences/showers`. Updated relative imports inside the moved files (extra directory depth), `src/main.tsx` imports, and `src/experiences/...` paths in tests (sunCentred, metricVisuals, experiencePlugIn, compositions, infoProvenance, pointsLayer, showers, timeline, experienceDefinition, paths, missionScene). No change in tools/validate/ or vite.config.ts (no references). `MissionPanel`/`DebugControls` remain in `src/app/` until the later build step.
+- Test-guard adjustment: tests/experienceDefinition.test.ts import-guard regex now matches `/experiences/` as well as `/mission/` so the generic-app boundary check stays meaningful after the move (no production behaviour change).
+- Gate after moves: `npm run typecheck` clean; `npm test` 25 files / 494 tests passed.
+
 
 ## Drift Notes
 

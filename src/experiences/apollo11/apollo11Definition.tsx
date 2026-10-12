@@ -1,7 +1,7 @@
-import { createObjectMetrics } from "../app/metricReadouts";
-import { DebugControls } from "../app/DebugControls";
-import type { ExperienceDefinition } from "../app/experienceDefinition";
-import { JourneyProgress, MissionSummary, MissionTelemetry } from "../app/MissionPanel";
+import { createObjectMetrics } from "../../app/metricReadouts";
+import { DebugControls } from "../../app/DebugControls";
+import type { ExperienceDefinition } from "../../app/experienceDefinition";
+import { JourneyProgress, MissionSummary, MissionTelemetry } from "../../app/MissionPanel";
 import { apollo11Experience, apollo11Mission } from "./apollo11";
 
 /** Apollo 11 as the first experience supplied to the generic app. */
