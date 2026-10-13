@@ -3,14 +3,14 @@ id: T-038
 title: Build Perseids from a settings file through a shared shower builder
 objective: O-011
 status: planned
-depends_on: [{task: T-036, requires: clear}, {task: T-037, requires: clear}]
+depends_on: [{task: T-052, requires: clear}, {task: T-053, requires: clear}, {task: T-054, requires: clear}]
 owner_validation:
     required: true
     accepted_check: ""
-planned_by: {role: planner, session: o011-replan-t038-2026-10-11}
+planned_by: {role: planner, session: o011-replan-i025-2026-10-13}
 lane: showers
-planned_reads: [src/app/experienceDefinition.ts, src/core/orbitGroup.ts, src/core/pointGroup.ts, src/core/timeWindow.ts, src/core/provenance.ts, src/shell/experience.ts, src/shell/metrics.ts, src/synthetic/syntheticDefinition.ts, src/synthetic/syntheticRingDefinition.ts, src/main.tsx, src/showers/showerSettings.ts, src/showers/showerDefinition.ts, data/showers/perseids.json, tests/showers.test.ts, tests/experiencePlugIn.test.ts, tests/syntheticRing.test.ts, tools/validate/browser-showers.mjs, tools/validate/browser-synthetic-belt.mjs]
-planned_writes: [src/showers/showerSettings.ts, src/showers/showerDefinition.ts, data/showers/perseids.json, src/main.tsx, tests/showers.test.ts, tests/experiencePlugIn.test.ts, tools/validate/browser-showers.mjs]
+planned_reads: [docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md, docs/ASTRAEUS_SPIKE_04_PERSEIDS_REFERENCE.md, data/showers/perseids.json, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, src/core/listedOrbitGroup.ts, src/core/bodies/swiftTuttle.ts, src/assets/compositions.ts, src/assets/catalogue.ts, src/app/experienceDefinition.ts, src/main.tsx, tests/showers.test.ts, tools/validate/browser-showers.mjs]
+planned_writes: [data/showers/perseids.json, data/showers/perseids-orbits.json, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, src/assets/compositions.ts, tests/showers.test.ts, tools/validate/browser-showers.mjs, docs/ASTRONOMY_VALIDATION.md]
 check_waiver:
     task: T-038
     reason: Owner completed this Task via the board without requesting a Task Check.
@@ -24,63 +24,58 @@ check_waiver:
 
 ## Outcome
 
-A shared shower builder in `src/showers/` turns a shower settings file into an `ExperienceDefinition`, and Perseids runs from `data/showers/perseids.json`. Published facts are cited and carry their stated source. The modelled stream is the parent's whole loop around the Sun at true scale plus a denser band where Earth crosses, presented with the Sun and the planets' paths through O-014's Sun–Earth composition, catalogue planets and path layer (the Objective's Re-plan of 2026-10-11 replaces every T-041 reference in this Task with O-014). The story target is meteorshowers.org's presentation of a shower (Objective Replan Decision 4), reached only through generic contracts. The whole loop is also an engine stress test: whether camera reach, precision at about 51 AU, groups and frame rate hold, recorded whether they pass or fail. The stream and the rate curve between published points are `illustrative`. Earth visibly passes through the stream across the activity window. The entry finds shower settings files by name, so a later shower needs no entry change.
+Perseids is visually and factually correct against the reference (I-025, O-011 Success Conditions 6, 8, 11 and 12). The stream is drawn from the measured CAMS Perseid orbits (filtered subset committed under `data/showers/`, each member traceable to its record) through the listed-orbit group. 109P/Swift–Tuttle is drawn as a body with its whole orbit; the planets and Earth sit on their orbits as labelled markers; the real sky is behind them. The shower builder gains only generic wiring: settings name the measured-orbit file, the composition includes the comet and planets, and the presets include a whole-orbit overview. The information panel says which parts are measured, which are modelled, and where each comes from.
 
 ## Astraeus Hypothesis
 
-- **Capability tested:** that a materially different experience (many particles, a lasting activity window, mixed published and modelled data) is hosted by existing generic contracts alone.
-- **Contract reused:** `ExperienceDefinition` with the `points` layer and `groups`; `createOrbitGroup` (Sun-centred, `ecliptic-j2000`, uniform spread, seed); `TimelineWindow` with peak, rate samples and provenance spans; the `rate` metric through `createMetrics` and `rateAt`; the `radec` coordinates metric for the radiant; camera presets; camera reach (T-037); `Provenance`.
-- **Contract reused (added by the replan, updated for O-014):** the Sun as a catalogue asset, the `sunEarthSystem` composition with `sceneCenter: "sun"`, `PathLayer` orbits sampled from catalogue planet providers and the parent's Keplerian source, and the solar-system scale choice.
-- **Stress hypothesis (added by the replan):** the whole loop at true scale (out to about 51 AU) is hosted by the existing groups, camera reach (T-037) and floating origin without a generic change. Measured: framing within reach, precision at that range, members near Earth, frame rate. A failure is a recorded finding for O-012 and REPLAN REQUIRED, not a patch.
-- **Gap or hypothesis:** that no further generic change is needed beyond O-014. Watch in particular: whether a uniform spread of elements gives a stream that Earth passes through across the whole window; whether centroid focus suits a stream; whether `createObjectMetrics`' Moon readings leak into a shower; and whether the entry can find settings by name without per-shower code.
-- **Generic change:** none expected. Any need is STOP — REPLAN REQUIRED, with the gap and a proposed generic solution recorded. It is not patched in this Task.
-- **Perseids-independent evidence:** the builder's contract tests run with a made-up shower settings object (no Perseids values). The name check confirms generic files gained no shower naming. Geminids (next Task) is the configuration-only test.
+- **Capability tested:** Gate C of the brief end to end: a materially different experience assembled from generic capabilities only (listed-orbit group, catalogued comet, markers, long-orbit paths, sky, Sun-centred scene, solar-system scale).
+- **Contract reused:** everything from O-014 and T-052–T-054; `TimelineWindow`, `rateAt`.
+- **Gap:** the stand-in uniform-spread stream (`data/showers/perseids.json` `stream.spread`); invisible planets; a truncated parent orbit; no sky.
+- **Generic change:** none expected beyond wiring. Any engine need is REPLAN REQUIRED.
 
 ## User Check
 
-Open the Perseids experience at desktop and phone sizes. In the Sun-centred overview, the stream is a loop around the Sun among the planets' orbits, crossing Earth's orbit. Switch to the follow-Earth view and play through the activity window: Earth passes through the denser band, the timeline shows the window with its peak, and the rate readout rises and falls. Open the stream's, the band's and the window's details and see which parts are published and which are modelled.
+Open Perseids and meteorshowers.org/view/Perseids side by side. The stream follows Swift–Tuttle's orbit out into the outer solar system, as a swarm, not a sheet. The comet and planets are visible on their orbits, the sky is real, Earth crosses the stream around Aug 12–13, and following Earth through the encounter works. The owner accepts the shape and orbit, or names what differs.
 
 ## Done When
 
-1. **Facts.** `perseids.json` holds the 109P/Swift-Tuttle orbital elements and epoch (JPL Small-Body Database), the radiant RA/Dec, activity start and end, peak time and peak ZHR (IMO Working List or calendar), each with its source and access date. Values are fetched and checked by the executor from the primary source, not recalled. Anything not stated by a source is marked modelled.
-2. **Settings contract.** `src/showers/showerSettings.ts` validates a settings object with named errors: required facts, finite numbers, window order, peak inside the window, spread widths, seed, member count. The builder (`showerDefinition.ts`) produces the definition from settings alone and contains no Perseids values.
-3. **Stream (revised by the 2026-10-11 replan).** Two Sun-centred orbit-based groups from the settings file, both `illustrative` with limitations "modelled spread, two-body, not observed": the **whole loop** (true-anomaly spread covering the full orbit, at true scale) and a **crossing band** (the earlier local spread around the encounter node, or a justified revision). Spreads and member counts are justified in Technical Evidence. A test measures the nearest member of the combined stream to Earth at start, peak and end (under 0.05 AU, or a justified bound). Stress measurements recorded: framing the whole loop (about 51 AU aphelion) within camera reach, depth and floating-origin behaviour at that range, and frame rate with both groups (Developer frame-rate counter). A failure is recorded as a finding and returned (REPLAN REQUIRED), not patched in generic code.
-3a. **Sun, paths and views.** The definition mounts the `sunEarthSystem` composition (O-014 rewired the builder to it) and declares Earth's orbit path and the planets' orbit paths as `PathLayer` entries sampled from the catalogue's providers (Mercury, Venus, Mars, Jupiter at least; their provenance is the catalogue's accuracy record; PROV-01), with no shower or planet naming in generic code. Camera presets: a Sun-centred overview that frames the whole loop, and follow Earth.
-4. **Window and rate.** The activity window carries the published peak and ZHR and an `illustrative` rate curve. Provenance spans make the published peak and the modelled shape distinguishable in the info panel. The rate readout and the timeline curve both use `rateAt` over the same samples.
-5. **Radiant.** The radiant appears as a `radec` readout in the info panel only, with its source.
-6. **Entry discovery.** The entry finds every `data/showers/*.json` by name (for example through Vite's glob import) and mounts it as `?experience=shower-<name>` or an equivalent stated scheme. Existing experience names still work.
-7. **Evidence.** Contract tests with a made-up shower settings object (`tests/showers.test.ts`). The name check still passes, and `src/showers/` is outside its generic scope only by design (stated). A browser script loads Perseids at desktop and phone sizes, steps to window start, peak and end, and checks the stream, window and readouts with zero console errors in a fresh run directory. Every other browser script still passes.
-8. Configured typecheck, build and test gates pass; record counts. Owner visual judgement of Perseids as a story, against the story target (Objective Replan Decision 4), is recorded. It is required, and it is separate from the engine evidence above; neither stands in for the other.
+1. The stream is the CAMS Perseid subset chosen in T-051, loaded through `createListedOrbitGroup`; the committed data file carries source, release, licence and access date; the member count is recorded; every member's `recordId` resolves to its CAMS record (test on a sample of 20).
+2. **Factual checks, each against an independent source, recorded with figures:**
+   - (a) Earth's distance to the nearest stream members is smallest within ±2 days of the published peak.
+   - (b) The radiant computed from the members crossing Earth's orbit at the peak lies within 3° of the published radiant (RA 48°, Dec +58°, source cited).
+   - (c) The comet's position comes from T-054's Horizons-checked body.
+   - (d) The planets' positions come from the O-014 catalogue.
+3. The comet's whole orbit is drawn, and the overview preset frames it. The planets and comet show as labelled markers at true scale and as bodies under the solar-system scale. The sky is on.
+4. Performance: frames per second with every stream member drawn, measured on the owner's machine with the Developer counter, are at least 30. Phone figures are recorded, not required. If the subset has fewer than 20,000 members, all are drawn and the count is stated.
+5. The stand-in `stream.spread` is removed, and no invented member remains. `browser-showers.mjs` asserts the members are drawn, the comet and planets are visible with labels, the crossing is at the peak, and there are zero console errors at both sizes. Each prior scenario is kept and mapped.
+6. The name check passes; gates pass; every browser script passes in a fresh run directory; the owner's look against meteorshowers.org is recorded separately.
 
 ## Context Files
 
-`.savepoint/objectives/O-011-run-perseids-and-a-second-shower-as-fixtures/Objective.md`, `docs/ASTRAEUS_SPIKE_04_BRIEF.md`, `docs/ASTRAEUS_SPIKE_04_GAP_AUDIT.md`, `src/app/experienceDefinition.ts`, `src/core/orbitGroup.ts`, `src/core/pointGroup.ts`, `src/core/timeWindow.ts`, `src/core/provenance.ts`, `src/shell/experience.ts`, `src/shell/metrics.ts`, `src/synthetic/syntheticDefinition.ts`, `src/synthetic/syntheticRingDefinition.ts`, `src/main.tsx`, `tests/experiencePlugIn.test.ts`, `tests/syntheticRing.test.ts`, `tools/validate/browser-synthetic-ring.mjs`.
+`docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md`, `docs/ASTRAEUS_SPIKE_04_PERSEIDS_REFERENCE.md`, `data/showers/perseids.json`, `src/experiences/showers/showerSettings.ts`, `src/experiences/showers/showerDefinition.ts`, `src/core/listedOrbitGroup.ts`, `src/core/bodies/swiftTuttle.ts`, `src/assets/compositions.ts`, `src/assets/catalogue.ts`, `src/app/experienceDefinition.ts`, `src/main.tsx`, `tests/showers.test.ts`, `tools/validate/browser-showers.mjs`.
 
 ## Design References
 
-Design: Experience plug-in boundary; Groups and the `points` layer (O-009); Time windows and rates (O-010); T-037's camera reach.
+Design: Asset architecture (O-014); groups and points layer; the shower builder.
 
 ## Guardrails
 
-ARCH-01, ARCH-02, ARCH-03, PROV-01, TEST-01, TEST-03, STYLE-05, STYLE-06, STYLE-07, STYLE-09.
+ARCH-01, ARCH-02, ARCH-03, ARCH-04, ARCH-05, PROV-01, PROV-02, TEST-01, TEST-03.
 
 ## Implementation Plan
 
-Rework after the 2026-10-11 replan. The earlier work stands (facts, settings contract, builder, entry discovery, window and rate, radiant); rework only what the replan changed. The owner returned the Task to `planned`; the rework starts it again at `build`.
-
-1. Confirm O-014 landed as planned (Sun asset, `sunEarthSystem`, `PathLayer` orbits from catalogue planets, solar-system scale, the shower builder already on the Sun–Earth composition); return REPLAN REQUIRED if not.
-2. Extend the settings contract for the whole loop, the crossing band, and the Sun and planets' paths if they come from the settings file; named errors and made-up tests as before.
-3. Build both stream groups and declare the Sun and planets' paths; widen camera reach to frame the whole loop; add the overview and follow-Earth presets.
-4. Re-measure Earth's nearest member at start, peak and end; record the stress measurements in criterion 3.
-5. Update `browser-showers.mjs` (each prior scenario mapped to its new assertion): overview shows loop, Sun and orbits; follow Earth through start, peak, end. Run every browser script in a fresh run directory; gates; owner look.
+1. Confirm T-051's decision allows shipping the subset, and that T-052–T-054 landed; REPLAN REQUIRED otherwise.
+2. Commit the filtered Perseid subset with its provenance header; wire the settings and builder to the listed group, the comet, the planets and the sky.
+3. Factual checks (a)–(d) as tests with cited reference values.
+4. Browser assertions and performance measurement; gates and every browser script.
 
 ## Boundaries
 
-No change to `src/core/`, `src/shell/` or generic `src/app/` code. A need for one is REPLAN REQUIRED. No radiant marker, no meteor entry effects, no observed meteor data, no perturbations. Geminids is the next Task.
+No Watch-from-Earth view, no radiant marker in the scene, no meteor entry. No invented members.
 
 ## Technical Verification
 
-Focused tests during iteration. Handoff runs the configured gates and every browser script (scene-affecting fuller gate). Evaluated later under `agent-skills/references/check-method.md`.
+Focused tests, configured gates, every browser script in a fresh run directory, and the performance figure on the owner's machine. Evaluated under `agent-skills/references/check-method.md`.
 
 ## Technical Evidence
 
@@ -133,3 +128,7 @@ Recorded by the executor after the owner's visual look at the Perseids screensho
 ## Replan Resolution
 
 Resolved 2026-10-11 by the planner (session o011-replan-t038-2026-10-11) with the owner's decisions recorded in the Objective's "Replan Decisions — 2026-10-11 (T-038)". The proposed generic reference layer became T-041 (landmarks, proven on the made-up belt), and this Task now depends on it. The stream becomes the whole loop at true scale plus a crossing band (criteria 3 and 3a). The `replan:` frontmatter block is removed; the original reason, recorded by the executor at 2026-10-11T08:12:36Z, is kept in the Replan Handoff above. Status and stage are unchanged by the planner.
+
+## Replan — 2026-10-13 (I-025)
+
+Rewritten in planning after O-014 and the owner's look at Perseids on the Sun-centred scene. The earlier Outcome, Done When and Implementation Plan (shower builder with an `illustrative` swarm) are superseded by the sections above. The earlier evidence, Replan Handoff and Replan Resolution remain as history. The existing `check_waiver` predates this rewrite, and its scope (the earlier Task content) has materially changed, so it does not cover this Task's new outcome. A Task Check or a fresh owner waiver is needed at handoff.

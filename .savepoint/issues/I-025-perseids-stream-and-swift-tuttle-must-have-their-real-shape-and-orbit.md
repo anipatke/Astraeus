@@ -7,11 +7,16 @@ source:
   kind: report
   actor: {role: owner, session: owner-chat-o014-live-look-20261013}
   at: '2026-10-13T08:49:53Z'
+tasks: [T-051, T-052, T-054, T-038]
 history:
   - at: '2026-10-13T08:49:53Z'
     actor: {role: owner, session: owner-chat-o014-live-look-20261013}
     kind: owner_decision
     note: 'Owner, after the live look at Perseids against https://www.meteorshowers.org/view/Perseids: "O11 MUST have the right shape and orbit of perseids and tutle". Recorded by the orchestrator on the owner''s direct instruction as a must-have for O-011 (success conditions 6 and 8), not a condition on O-014.'
+  - at: '2026-10-13T08:57:00Z'
+    actor: {role: planner, session: o011-replan-i025-2026-10-13}
+    kind: deferred
+    note: Planned into O-011 (owner-confirmed replan 2026-10-13); repair carried by T-051 (data decision), T-052 (measured-orbit group), T-054 (comet and whole orbit) and T-038 (Perseids rebuild with factual checks and the owner's look). Status stays open until a Check verifies the repair.
 ---
 
 # I-025: Perseids stream and 109P/Swift-Tuttle must have their real shape and orbit

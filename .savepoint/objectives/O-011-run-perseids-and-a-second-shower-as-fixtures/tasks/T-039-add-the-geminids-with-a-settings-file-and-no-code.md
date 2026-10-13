@@ -7,8 +7,8 @@ depends_on: [{task: T-038, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o011-plan-2026-10-11}
 lane: showers
-planned_reads: [data/showers/perseids.json, src/showers/showerSettings.ts, src/showers/showerDefinition.ts, tools/validate/browser-showers.mjs]
-planned_writes: [data/showers/geminids.json]
+planned_reads: [docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md, data/showers/perseids.json, data/showers/perseids-orbits.json, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, tools/validate/browser-showers.mjs]
+planned_writes: [data/showers/geminids.json, data/showers/geminids-orbits.json]
 ---
 
 # Add the Geminids with a settings file and no code
@@ -31,8 +31,8 @@ Open the Geminids experience and confirm it loads with its own window, peak, rat
 
 ## Done When
 
-1. `geminids.json` holds 3200 Phaethon's elements and epoch (JPL Small-Body Database) and the radiant, activity window, peak and peak ZHR (IMO), each with source and access date, fetched from the source. Modelled parts are marked `illustrative`.
-2. `git diff --stat` for this Task shows `data/showers/geminids.json` as the only changed file outside `.savepoint/` and `docs/evidence/`.
+1. `geminids.json` holds 3200 Phaethon's elements and epoch (JPL Small-Body Database) and the radiant, activity window, peak and peak ZHR, each with source and access date, fetched from the source. `geminids-orbits.json` is the CAMS Geminid (IAU 4) subset, filtered by the same method as Perseids (T-051, T-038), with its provenance header. No member is invented.
+2. `git diff --stat` for this Task shows `data/showers/geminids.json` and `data/showers/geminids-orbits.json` as the only changed files outside `.savepoint/` and `docs/evidence/`. If the parent body needs a catalogued definition (as Swift–Tuttle did), that is code, so it is a FINDING returned to the owner, not a silent change.
 3. Run with the existing browser shower script, pointed at Geminids by its existing parameters or by running the script as written over every discovered shower: the experience loads with zero console errors at desktop and phone sizes, the stream is near Earth across its window, and the window, peak and rate readouts are present. Evidence goes in a fresh run directory.
 4. Existing tests pass unchanged. If the builder's tests iterate over discovered settings, Geminids is covered with no test edit.
 5. **Result recorded** in Technical Evidence: PASS (configuration only) or FINDING (the exact file, change and reason). A FINDING is returned to the owner before anything is changed. It is a valid spike outcome, not a failed Task.
@@ -72,3 +72,7 @@ Pending execution.
 ## Drift Notes
 
 Record the PASS or FINDING here for T-040 and O-012.
+
+## Replan — 2026-10-13 (I-025)
+
+Amended in planning: "configuration only" now means a settings file plus its measured-orbit data file, because the owner decided on measured CAMS orbits with no invented members. The dependency on T-038 is unchanged.
