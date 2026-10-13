@@ -10,9 +10,9 @@ Donor: the owner's local checkout `/home/user/code/planetary-explorer` (read onl
 | `src/app/useBodyTexture.ts` | `src/features/moon/usePlanetTexture.ts` | Safe loader, sRGB colour space, max anisotropy kept; viewport variants and store dropped. |
 | `src/app/BodyMesh.tsx` | `MoonMesh.tsx`, `CompanionMoon.tsx`, `src/entities/{earth,moon}.ts` | Sphere (64 segments) and material colour/roughness/metalness kept; drag/auto-spin rotation, hotspots, halo, store dropped. |
 | `src/app/CameraController.tsx` | `useGestures.ts`, `CameraController.tsx` | Drag sensitivities, wheel/pinch zoom and tweened focus idea kept; rebuilt as an orbit camera around a focus target. Donor mesh rotation by drag is not used. |
-| `src/app/EarthMoonScene.tsx` | `OrbitalTrail.tsx` (line colour `#f0e6da`) | Circular `lineLoop` replaced by a sampled open trajectory line. |
+| `src/app/AstraeusScene.tsx` (named `EarthMoonScene.tsx` until O-014; the trail line is now drawn by `PathView.ts`) | `OrbitalTrail.tsx` (line colour `#f0e6da`) | Circular `lineLoop` replaced by a sampled open trajectory line. |
 
-Donor lighting values (Earth ambient 0.45 / directional 1.8, Moon 0.15 / 1.4) were changed to a restrained fill (Earth ambient 0.18, Moon 0.08, directional unchanged) so the day/night boundary and lunar phase read. This is a tuning choice, not a donor value.
+Donor lighting values (now carried by the Earth and Moon visual records in `src/assets/bodies/`; Earth ambient 0.45 / directional 1.8, Moon 0.15 / 1.4) were changed to a restrained fill (Earth ambient 0.18, Moon 0.08, directional unchanged) so the day/night boundary and lunar phase read. This is a tuning choice, not a donor value.
 
 ## Texture assets (local application assets, not for redistribution)
 

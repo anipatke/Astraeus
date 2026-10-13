@@ -1,5 +1,7 @@
 # Astraeus Spike 04 — Reusable Asset Architecture
 
+> **Status (2026-10-12): built.** O-014 (T-042 to T-049) implemented steps 1 to 6 of the migration plan; T-050 reconciled the design. The text below is the design as approved (the review and proposal, written when no production code had changed); see "Built — 2026-10-12" at the end for what was built as planned and what differs.
+
 Design-phase deliverable for the owner's brief of 2026-10-11 ("Spike 04: Reusable Asset Architecture"). This is a review and a proposal. **No production code was changed.** It stops at the design review gate; the decisions in section F need the owner's answer before any implementation Task is planned.
 
 Evidence basis: a targeted read of `src/core/`, `src/app/`, `src/shell/`, `src/mission/`, `src/showers/`, `src/synthetic/`, the Savepoint Design and Objective records, the Spike 04 brief, gap audit and Perseids reference, the T-038 replan handoff and the stopped T-041 session, the pinned `@lizard-isana/orb` 3.1.1 package, and the read-only donor `/home/user/code/planetary-explorer`. The configured gates were run at the start of the review: typecheck, build and 379 tests in 19 files pass on the current (uncommitted) `spike-04` tree.
@@ -572,7 +574,7 @@ Incremental; each step leaves every browser script green and ends with a Savepoi
 4. Earth–Moon Explorer, Apollo and the Sun-centred belt each render with zero console errors at 1280×800 and 390×844, in fresh evidence directories.
 5. `browser-spike02.mjs` passes on Apollo without modification.
 6. The shower builder mounts Perseids on `sunEarthSystem` with the Sun drawn, Earth on its path, and no Moon, through the existing `points` and path layers; its only code change is the composition swap and catalogue items.
-7. Name check: no mission, shower, dataset or planet name in `src/core/`, `src/shell/`, generic `src/app/`; `src/assets/` may name bodies (they are the assets) but never an experience.
+7. Name check: no mission, shower, dataset or planet name in `src/core/`, `src/shell/`, generic `src/app/`; `src/assets/` may name bodies (they are the assets) but never an experience. *(As built: bodies are named only in `src/core/bodies/`, `src/assets/bodies/` and ten allowlisted files, each with a stated reason, see "Built", deviation 6.)*
 8. A measured precision record at 1 AU exists in `docs/evidence/`.
 
 ---
@@ -789,4 +791,30 @@ The third independent pass approved the scientific architecture, the catalogue, 
 | 2 | A trail is either *relative* (position from the scene centre at the sample time; today's behaviour) or *inertial* (common root frame at the sample time, offset by the scene centre at display time); test with a moving centre and a stationary object | C.6 |
 | 3 | Under True scale a spheroid's equatorial and polar radii are mapped independently; the mean radius remains the metric and framing value | C.3 |
 
-**Review status.** Approved for implementation planning. No implementation Tasks exist yet. `savepoint-design` now plans the new Objective (Decision 6) from migration steps 1–6 with Gates A–D as its success conditions, carries these three corrections into the relevant Tasks and acceptance tests, and records the O-011 re-plan.
+**Review status (at approval, 2026-10-11).** Approved for implementation planning. No implementation Tasks existed yet (see "Built" below). `savepoint-design` now plans the new Objective (Decision 6) from migration steps 1–6 with Gates A–D as its success conditions, carries these three corrections into the relevant Tasks and acceptance tests, and records the O-011 re-plan.
+
+---
+
+## Built — 2026-10-12
+
+Status: steps 1 to 6 of section E are built (O-014, T-042 to T-049) and integrated (T-050); step 7 (rings, remaining moons, full system) is not built, as planned. The Perseids story work belongs to O-011. Evidence for T-050: `docs/evidence/o014-t050-20261012T103336/`.
+
+**Built as planned.** Catalogue and resolver (`src/core/body.ts`, `src/core/bodies/`, `src/core/stateResolver.ts`, `src/assets/catalogue.ts`); visual records and the one renderer (`src/assets/visual.ts`, `BodyView`); compositions and the scene centre as data; the open `CenterId`; `MoonTrajectory`'s Sun branch removed; the solar-system scale policy; the three experiences (Earth-Moon Explorer, Apollo, Perseids) plus Jupiter-Io; `src/mission/` moved to `src/experiences/apollo11/`; public-build texture exclusion; the planets from VSOP87A with dated IAU orientation; Io from published mean elements about Jupiter's GM with the one-Io-diameter classification; the per-body light loop over any composition and the measured single-light comparison (Decision 4).
+
+**Differs from the plan** (each with its Task; the reconciliation table is in the T-050 evidence):
+
+1. `createCatalogue(definitions, bindings, visuals)` takes three lists, not `BodyAsset[]` (T-043).
+2. `ExperienceDefinition.composition` is optional, only for the bodiless fixture `synthetic-bare`, which then must declare `sceneCenter` (T-044, T-047). C.6 showed it required.
+3. `BodyView` is split into `bodyDraw.ts` (pure) and `BodyView.tsx` (mount); `bodyMetrics` and `catalogueItem` sit in `src/app/`, not `src/assets/`, because of the layer rule (T-043, T-047).
+4. `ExperienceRuntime` is `{clock, resolver, catalogue}`; the resolver replaced the separate `MoonTrajectory` (T-047).
+5. `PathLayer` span may be a `RollingSpan {windowMs}` (T-045); the path rule functions live in `src/app/pathRules.ts`.
+6. Name check: body names are permitted in ten allowlisted core and assets files with stated reasons, not in none of `src/core/` (T-047).
+7. `AstronomyAdapter` gained two methods (`planetPositionFromSunKm`, `daysSinceJ2000Tt`), not one, and the full VSOP87A series is registered because the compact table is off by up to 142,044 km; this raises the main bundle from 1,537.6 kB to 2,938.7 kB (2,947.5 kB at T-050). Lazy loading is I-022, after O-014 (T-048).
+8. Rotation data sit beside each planet definition (`CelestialBodyDefinition` unchanged); `planetTrajectory.ts` is the one generic planet source (T-048).
+9. The Earth-Moon Explorer window is 2025-01-01 to 2025-04-01, inside the Moon's checked 2022 to 2025 range, not the sketch's 2026 (T-047). The Moon's `validUtc` is the sampled range, not a model validity (T-042).
+10. Jupiter-Io offers True scale only (T-049); Jupiter has no texture (no sourced licence).
+11. The lighting decision is per-body lights kept (T-049); a single point light is viable for larger systems.
+
+**Measured figures.** Precision at 1 AU (T-045, re-run by T-050): Earth 1 AU from the Sun marker, static 1e-9 px, sweep residual 0.00058 px (path 0.00056 px; zoomed out 0.0013 px); Float32 grid at 1 AU 12.4 km. Planet position maxima against Horizons: Mercury 30.4 km, Venus 50.1 km, Mars 95.8 km, Jupiter 1,269.4 km. Io: maximum Jupiter-centred error 9,387.47 km = 2.58 Io diameters, 825.5 km at J2000, classified an approximate demonstration. Lighting: single point light against per-body lights differs by at most 7.2e-9 in illuminated fraction and 1.5e-6 degrees in direction on the four USNO events; rendered Earth, Jupiter and Io at most 0.006 of 255; Moon 7.7 to 13.0 of 255 (brightness, from one light's single strength; 0.0005 to 0.009 with the Moon's strength).
+
+**Gates at T-050.** Typecheck and build pass; 568 tests in 31 files pass; all twelve browser scripts pass with zero console errors at 1280x800 and 390x844 where each script supports sizes; the public build passes `public-build-assets.mjs`. Not built or not verified here: the owner's visual look at each experience (T-050 User Check), the GPU's own Float32 arithmetic in the precision figures, and a hardware GPU run (all browser evidence is headless SwiftShader).
