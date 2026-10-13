@@ -10,7 +10,7 @@ owner_validation:
 planned_by: {role: planner, session: o011-replan-i025-2026-10-13}
 lane: showers
 planned_reads: [docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md, docs/ASTRAEUS_SPIKE_04_PERSEIDS_REFERENCE.md, data/showers/perseids.json, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, src/core/listedOrbitGroup.ts, src/core/bodies/swiftTuttle.ts, src/assets/compositions.ts, src/assets/catalogue.ts, src/app/experienceDefinition.ts, src/main.tsx, tests/showers.test.ts, tools/validate/browser-showers.mjs]
-planned_writes: [data/showers/perseids.json, data/showers/perseids-orbits.json, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, src/assets/compositions.ts, tests/showers.test.ts, tools/validate/browser-showers.mjs, docs/ASTRONOMY_VALIDATION.md]
+planned_writes: [data/showers/perseids.json, tools/data/fetch-meteoroid-orbits.mjs, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, src/assets/compositions.ts, tests/showers.test.ts, tools/validate/browser-showers.mjs, docs/ASTRONOMY_VALIDATION.md]
 check_waiver:
     task: T-038
     reason: Owner completed this Task via the board without requesting a Task Check.
@@ -39,7 +39,7 @@ Open Perseids and meteorshowers.org/view/Perseids side by side. The stream follo
 
 ## Done When
 
-1. The stream is the CAMS Perseid subset chosen in T-051, loaded through `createListedOrbitGroup`; the committed data file carries source, release, licence and access date; the member count is recorded; every member's `recordId` resolves to its CAMS record (test on a sample of 20).
+1. The stream is the CAMS Perseid subset chosen in T-051, loaded through `createListedOrbitGroup`; the local data file (git-ignored `data/local/`, written by a committed generic fetch tool that selects by the IAU shower code in the settings file; never committed or shipped, owner decision T-051 replan) carries source, release, terms status and access date; without it the experience says the data is not fetched and draws no stream; the member count is recorded; every member's `recordId` resolves to its CAMS record (test on a sample of 20).
 2. **Factual checks, each against an independent source, recorded with figures:**
    - (a) Earth's distance to the nearest stream members is smallest within ±2 days of the published peak.
    - (b) The radiant computed from the members crossing Earth's orbit at the peak lies within 3° of the published radiant (RA 48°, Dec +58°, source cited).
@@ -64,8 +64,8 @@ ARCH-01, ARCH-02, ARCH-03, ARCH-04, ARCH-05, PROV-01, PROV-02, TEST-01, TEST-03.
 
 ## Implementation Plan
 
-1. Confirm T-051's decision allows shipping the subset, and that T-052–T-054 landed; REPLAN REQUIRED otherwise.
-2. Commit the filtered Perseid subset with its provenance header; wire the settings and builder to the listed group, the comet, the planets and the sky.
+1. Confirm T-051's local-data decision is recorded, and that T-052–T-054 landed; REPLAN REQUIRED otherwise.
+2. Write the generic fetch tool and fetch the Perseid subset locally with its provenance header; wire the settings and builder to the listed group, the comet, the planets and the sky.
 3. Factual checks (a)–(d) as tests with cited reference values.
 4. Browser assertions and performance measurement; gates and every browser script.
 

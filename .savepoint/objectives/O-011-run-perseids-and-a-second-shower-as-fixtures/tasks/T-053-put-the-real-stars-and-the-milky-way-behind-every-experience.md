@@ -8,7 +8,7 @@ owner_validation: {required: true}
 planned_by: {role: planner, session: o011-replan-i025-2026-10-13}
 lane: sky
 planned_reads: [src/app/AstraeusScene.tsx, src/app/renderCoordinates.ts, src/app/floatingOrigin.ts, src/app/CameraController.tsx, src/assets/licence.ts, src/app/experienceDefinition.ts, vite.config.ts, tools/validate/public-build-assets.mjs, docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md]
-planned_writes: [src/assets/sky.ts, src/assets/sky/stars.json, src/assets/textures/milky-way.jpg, src/app/SkyView.ts, src/app/AstraeusScene.tsx, src/app/experienceDefinition.ts, tests/sky.test.ts, tools/validate/browser-sky.mjs, docs/DONOR_PROVENANCE.md]
+planned_writes: [src/assets/sky.ts, tools/data/fetch-stars.mjs, .gitignore, src/assets/textures/milky-way.jpg, src/app/SkyView.ts, src/app/AstraeusScene.tsx, src/app/experienceDefinition.ts, tests/sky.test.ts, tools/validate/browser-sky.mjs, docs/DONOR_PROVENANCE.md]
 ---
 
 # Put the real stars and the Milky Way behind every experience
@@ -33,7 +33,7 @@ Open Perseids, Earth–Moon Explorer and Apollo. Stars and the Milky Way are beh
 1. Star directions: for at least five named stars (Sirius, Polaris, Betelgeuse, Vega, Algol), the drawn direction equals the catalogue RA/Dec through `eqjToRenderVector` to 1e-9 rad (independent oracle: the catalogue values).
 2. The Milky Way alignment is checked: the galactic north pole and the galactic centre fall at their cited J2000 coordinates within 0.5°.
 3. Invariance: changing scene centre, scale policy, floating-origin rebase or follow target changes no star's screen direction for a fixed camera orientation (test); State is untouched.
-4. A made-up three-star catalogue mounts in a test first (ARCH-03); the real catalogue subset and image carry licences (PROV-02); the public-build validator passes.
+4. A made-up three-star catalogue mounts in a test first (ARCH-03); the real catalogue subset and image carry licences (PROV-02); the public-build validator passes and proves no `data/local/` content is in the build.
 5. Performance: the frame rate with the sky on is recorded for Perseids and Apollo, and each stays at or above the previous figure minus 10% (recorded).
 6. `browser-sky.mjs` asserts stars are drawn, the sky is fixed under a centre change, and zero console errors at both sizes; every browser script passes in a fresh run directory; the owner's look recorded separately.
 
@@ -52,7 +52,7 @@ ARCH-01, ARCH-02, ARCH-03, ARCH-04, PROV-01, PROV-02, TEST-01, TEST-03, STYLE-05
 ## Implementation Plan
 
 1. Confirm the research record named both sources with licences; REPLAN REQUIRED otherwise.
-2. Convert the catalogue subset to a compact JSON file under `src/assets/sky/` with a provenance header.
+2. Write a committed fetch tool that downloads the Yale BSC from its source and writes the subset with a provenance header to the git-ignored `data/local/` (owner decision, T-051 replan); nothing from the catalogue is committed. Without the file, the sky draws the Milky Way only and says the stars are not fetched; tests needing real stars skip with a stated reason.
 3. Write `SkyView` (camera-relative, no floating-origin offset, drawn first, depth write off).
 4. Tests per Done When on a made-up catalogue first, then the real one.
 5. Wire the default-on sky into the scene; add `browser-sky.mjs`; run gates, the public build and every browser script.
