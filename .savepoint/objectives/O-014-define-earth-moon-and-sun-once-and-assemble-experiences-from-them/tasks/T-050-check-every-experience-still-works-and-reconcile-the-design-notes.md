@@ -2,10 +2,9 @@
 id: T-050
 title: Check every experience still works and reconcile the design notes
 objective: O-014
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-049, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-025, accepted_by: {role: owner, session: owner-chat-o014-live-look-20261013}}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
 lane: integration
 planned_reads: [.savepoint/Design.md, .savepoint/Guardrails.md, docs/ASTRAEUS_SPIKE_04_ASSET_ARCHITECTURE.md, tools/validate/browser-spike02.mjs, tools/validate/browser-spike03.mjs, tools/validate/browser-shell.mjs, tools/validate/browser-anchor-labels.mjs, tools/validate/browser-synthetic.mjs, tools/validate/browser-synthetic-ring.mjs, tools/validate/browser-synthetic-belt.mjs, tools/validate/browser-earth-moon.mjs, tools/validate/browser-showers.mjs, tools/validate/browser-jupiter-io.mjs, tools/validate/public-build-assets.mjs]
@@ -207,3 +206,7 @@ Gates re-run fresh: `npm run typecheck` exit 0; `npm run build` exit 0; `npm tes
 ## Drift Notes
 
 None new. This Task's reconciliation table above closes the drift notes of T-042 to T-049. Open items outside this Task: I-022 (lazy-load the planet series); the stale `sunEarthSystem` doc comment (T-045 note 6); Apollo-flavoured labels in `MissionPanel`, `DebugControls`, `DebugOverlay`.
+
+## Completion
+
+- 2026-10-13T08:49:53Z — Owner accepted T-050 against C-025 after a live side-by-side look (pre-O-014 8fc6fce on :5301 vs 20a4aff on :5302; code identical to c06605d). Owner's words: "accept T-047, T-049, T-050". Recorded and `status: done` set by the orchestrator on the owner's direct instruction. The owner noted at the same time that Jupiter has no texture and that O-011 must give the Perseids stream and 109P/Swift-Tuttle their right shape and orbit (recorded as Issues, not conditions on this acceptance).

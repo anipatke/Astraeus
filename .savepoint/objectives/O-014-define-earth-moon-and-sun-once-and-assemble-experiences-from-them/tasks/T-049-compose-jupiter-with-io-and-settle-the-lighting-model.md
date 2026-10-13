@@ -2,10 +2,9 @@
 id: T-049
 title: Compose Jupiter with Io and settle the lighting model
 objective: O-014
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-047, requires: clear}, {task: T-048, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-023, accepted_by: {role: owner, session: owner-chat-o014-live-look-20261013}}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
 lane: planets
 planned_reads: [src/core/bodies/jupiter.ts, src/core/sunCentredSources.ts, src/core/twoBodyAdapter.ts, src/core/illumination.ts, src/assets/catalogue.ts, src/assets/compositions.ts, src/app/AstraeusScene.tsx, src/app/BodyView.ts, src/experiences/showers/showerDefinition.ts, src/main.tsx, tests/fixtures/planets-horizons.json, tests/orientationIllumination.test.ts, docs/DONOR_PROVENANCE.md, docs/ASTRAEUS_SPIKE_04_ASSET_ARCHITECTURE.md]
@@ -126,3 +125,7 @@ Architecture deltas for the integration Task (T-050) to reconcile into Design.md
 5. **Io accuracy tier.** Published mean elements through two-body motion are an approximate demonstration (2.6 diameters worst case), not an ephemeris-tier source; ephemeris tier needs a satellite theory or an SPK reader (not in the library). Reconstructed provenance is used; the elements' own warning is carried in the known limitations.
 6. **Perseids planet orbits.** The planets come from the catalogue (every body whose parent is the root and not already in the composition), so adding a planet to the catalogue adds its orbit to every Sun-centred shower with no code change. Jupiter's full turn reaches 2039; the series is extrapolated past the 2030 comparison range and says so. The default Sun overview is edge-on to the ecliptic, so the orbits read as thin ellipses until the camera is tilted (the owner may want a tilted default).
 7. **Planned-write drift.** `src/core/bodies/index.ts`, `src/core/illumination.ts`, `src/core/sunCentredSources.ts`, `src/app/{App,DebugOverlay,metricReadouts}`, `src/app/lighting.ts`, `tools/validate/browser-lighting.mjs`, five existing tests and the docs were touched beyond the manifest; all were required (the readout threw for Io; five tests assert the catalogue lists).
+
+## Completion
+
+- 2026-10-13T08:49:53Z — Owner accepted T-049 against C-023 after a live side-by-side look (pre-O-014 8fc6fce on :5301 vs 20a4aff on :5302; code identical to c06605d). Owner's words: "accept T-047, T-049, T-050". Recorded and `status: done` set by the orchestrator on the owner's direct instruction. The owner noted at the same time that Jupiter has no texture and that O-011 must give the Perseids stream and 109P/Swift-Tuttle their right shape and orbit (recorded as Issues, not conditions on this acceptance).

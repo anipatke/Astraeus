@@ -2,10 +2,9 @@
 id: T-047
 title: Assemble the three experiences from the shared assets
 objective: O-014
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-045, requires: clear}, {task: T-046, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-021, accepted_by: {role: owner, session: owner-chat-o014-live-look-20261013}}
 planned_by: {role: planner, session: o014-plan-2026-10-11}
 lane: experiences
 planned_reads: [src/main.tsx, src/app/App.tsx, src/app/experienceDefinition.ts, src/app/metricReadouts.ts, src/app/MissionPanel.tsx, src/app/DebugControls.tsx, src/mission/apollo11.ts, src/mission/apollo11Definition.tsx, src/showers/showerDefinition.ts, src/showers/showerSettings.ts, src/synthetic/syntheticDefinition.ts, src/synthetic/syntheticRingDefinition.ts, src/assets/catalogue.ts, src/assets/compositions.ts, vite.config.ts, tests/experienceDefinition.test.ts, tests/experiencePlugIn.test.ts, tests/showers.test.ts, tests/missionScene.test.ts, tools/validate/browser-showers.mjs, tools/validate/browser-spike02.mjs, docs/ASTRAEUS_SPIKE_04_ASSET_ARCHITECTURE.md]
@@ -143,3 +142,7 @@ Record architecture deltas here; the integration Task reconciles them into Desig
 - Deferred Design notes, to be accounted for as reflected in Design.md or non-architectural by T-050: the layer-boundary placement, optional `composition`, `SunBody` reduction, `visualOverrides` semantics, Earth-path and parent-orbit declaration, public-build mechanism.
 - Core providers outside `src/core/bodies/` name the built-in bodies and are allowlisted with reasons in `tests/nameCheck.test.ts` (astronomyAdapter, body, illumination, moonTrajectory, referenceCenters, scalePolicy, state, sunCentredSources, twoBodyAdapter), as is `src/assets/compositions.ts`. The Task text (bodies only in `src/core/bodies/` and `src/assets/bodies/`) and design section E check 7 differ on this; T-050 to reconcile it in Design.md (or move the providers).
 - Repair additions for T-050: `rootBodyId` and `readoutPairOf` and `initialObjectIdOf` are generic lookups; `ExperienceDefinition.sceneCenter` is required when there is no composition; spacecraft metrics live under `src/experiences/apollo11/` (the synthetic fixture imports them from there); `data-earth-moon` replaced by `data-bodies` in browser assertions.
+
+## Completion
+
+- 2026-10-13T08:49:53Z — Owner accepted T-047 against C-021 after a live side-by-side look (pre-O-014 8fc6fce on :5301 vs 20a4aff on :5302; code identical to c06605d). Owner's words: "accept T-047, T-049, T-050". Recorded and `status: done` set by the orchestrator on the owner's direct instruction. The owner noted at the same time that Jupiter has no texture and that O-011 must give the Perseids stream and 109P/Swift-Tuttle their right shape and orbit (recorded as Issues, not conditions on this acceptance).
