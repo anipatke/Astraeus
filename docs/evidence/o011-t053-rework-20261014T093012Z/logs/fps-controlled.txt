@@ -1,0 +1,4 @@
+apollo desktop {"off":[33.7,35.8],"on":[30.8,31.7],"noPic":[35.4,35.8]}
+apollo phone {"off":[60,60],"on":[54.3,59.4],"noPic":[60,60]}
+perseids desktop {"off":[32.8,32.3],"on":[25.7,25.7],"noPic":[27.7,31.5]}
+perseids phone {"off":[45.6,45.8],"on":[38.4,36.7],"noPic":[46,44.5]}

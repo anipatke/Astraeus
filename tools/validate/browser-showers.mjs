@@ -11,6 +11,9 @@
 //   Apollo default and synthetic-ring still mount ........... unchanged
 //   NEW (replaces the retired Earth-Moon alias scene) ....... Sun at the origin, no Moon item, Earth on its path at start and peak,
 //                                                              solar-system scale shows Earth and states its factor, follow Earth
+//   T-053: the shower scenes above count pixels by colour against a black background (amber stream dots, orbit lines, bright-pixel counts),
+//     so this script opens them with ?sky=off, leaving every scenario and assertion unchanged. The sky on Perseids is covered by
+//     browser-sky.mjs (stars drawn, fixed under centre/scale/follow changes, panel item, frame rate); the Apollo and synthetic-ring mounts below keep the sky on.
 //   T-049 additions (nothing above changed except the declared-path count 2 -> 6 and the listed ids):
 //     Mercury, Venus, Mars and Jupiter orbit paths declared ... data-sun-centred is 6, the four `<planet>-orbit` items are listed, each
 //                                                              opens an info panel with provenance, Jupiter's states the span passes 2030
@@ -227,7 +230,7 @@ async function run(label, viewport) {
   const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const streamId = `${shower}-stream`;
   try {
-    await page.goto(`${base}?experience=shower-${shower}`);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");

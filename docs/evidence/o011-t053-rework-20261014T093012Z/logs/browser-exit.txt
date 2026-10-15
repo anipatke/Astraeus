@@ -1,0 +1,13 @@
+earth-moon exit 0 30s
+jupiter-io exit 0 45s
+lighting exit 0 207s
+precision exit 0 71s
+showers exit 0 99s
+synthetic-belt exit 0 164s
+synthetic-ring exit 0 40s
+synthetic exit 0 17s
+anchor-labels exit 0 13s
+shell exit 0 22s
+spike02 exit 0 160s
+spike03 exit 0 54s
+done

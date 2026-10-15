@@ -88,7 +88,8 @@ async function run(name, viewport) {
     assert.equal(await canvas.getAttribute("data-composition-paths"), "1", `${name}: Io's loop is drawn`);
     await page.getByRole("button", { name: "Pause playback" }).click();
     const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
-    assert.deepEqual(options, ["jupiter", "io"], `${name}: the object list is Jupiter and Io`);
+    // T-053: the sky is every experience's last item ("sky"); the two bodies are unchanged.
+    assert.deepEqual(options, ["jupiter", "io", "sky"], `${name}: the object list is Jupiter, Io and the sky`);
     const body = await page.locator("body").innerText();
     assert.doesNotMatch(body, /apollo|columbia|mission|perseid/i, `${name}: no other experience's content`);
     const scales = await page.locator(".scale-choices button[data-scale]").evaluateAll((buttons) => buttons.map((b) => b.dataset.scale));

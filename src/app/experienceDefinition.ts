@@ -11,6 +11,7 @@ import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
+import type { SkySettings } from "../assets/sky";
 
 /** Generic scene parts an experience opts into. Nothing here names a mission. */
 export type SceneLayerId = "tracked-bodies" | "points" | "sun-centred";
@@ -150,6 +151,8 @@ export interface ExperienceDefinition {
   readonly developerSections?: readonly DeveloperSection[];
   /** Optional camera reach; omitted, the scene keeps its built-in limits. */
   readonly camera?: CameraReach;
+  /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
+  readonly sky?: SkySettings;
 }
 
 /** Checks a declared camera reach, naming the offending field. Returns it unchanged. */

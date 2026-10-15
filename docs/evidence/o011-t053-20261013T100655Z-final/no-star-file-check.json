@@ -1,0 +1,6 @@
+{
+ "stars": "0",
+ "notFetched": true,
+ "errors": [],
+ "detail": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this machine only. The Milky Way panorama, ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC B"
+}

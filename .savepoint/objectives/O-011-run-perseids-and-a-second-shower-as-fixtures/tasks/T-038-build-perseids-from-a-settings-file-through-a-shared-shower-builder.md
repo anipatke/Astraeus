@@ -41,13 +41,14 @@ Open Perseids and meteorshowers.org/view/Perseids side by side. The stream follo
 
 1. The stream is the CAMS Perseid subset chosen in T-051, loaded through `createListedOrbitGroup`; the local data file (git-ignored `data/local/`, written by a committed generic fetch tool that selects by the IAU shower code in the settings file; never committed or shipped, owner decision T-051 replan) carries source, release, terms status and access date; without it the experience says the data is not fetched and draws no stream; the member count is recorded; every member's `recordId` resolves to its CAMS record (test on a sample of 20).
 2. **Factual checks, each against an independent source, recorded with figures:**
-   - (a) Earth's distance to the nearest stream members is smallest within ±2 days of the published peak.
-   - (b) The radiant computed from the members crossing Earth's orbit at the peak lies within 3° of the published radiant (RA 48°, Dec +58°, source cited).
+   - (a) Earth's distance to the nearest stream orbits (the measured ellipses, not the illustrative dots) is smallest within ±2 days of the published peak (IAU MDC: solar longitude 140.1°, cited in the T-051 record).
+   - (b) The radiant computed from the members crossing Earth's orbit at the peak lies within 3° of the published radiant (IAU MDC: RA 47.9°, Dec +57.9°, cited in the T-051 record).
    - (c) The comet's position comes from T-054's Horizons-checked body.
    - (d) The planets' positions come from the O-014 catalogue.
 3. The comet's whole orbit is drawn, and the overview preset frames it. The planets and comet show as labelled markers at true scale and as bodies under the solar-system scale. The sky is on.
 4. Performance: frames per second with every stream member drawn, measured on the owner's machine with the Developer counter, are at least 30. Phone figures are recorded, not required. If the subset has fewer than 20,000 members, all are drawn and the count is stated.
-5. The stand-in `stream.spread` is removed, and no invented member remains. `browser-showers.mjs` asserts the members are drawn, the comet and planets are visible with labels, the crossing is at the peak, and there are zero console errors at both sizes. Each prior scenario is kept and mapped.
+5. **Clump near the comet (owner decision 2026-10-13):** the Perseid settings use the listed group's `concentration` around 109P; the fraction and width are cited from published Perseid stream modelling (for example Brown & Jones 1998, or Jenniskens' work on the 1990s outbursts) or stated as illustrative defaults. The information panel says: position along each orbit is illustrative; the clump near the comet is a model; parts of the stream that miss Earth are not shown. The owner's look includes the clump.
+6. The stand-in `stream.spread` is removed, and no invented member remains. `browser-showers.mjs` asserts the members are drawn, the comet and planets are visible with labels, the crossing is at the peak, and there are zero console errors at both sizes. Each prior scenario is kept and mapped.
 6. The name check passes; gates pass; every browser script passes in a fresh run directory; the owner's look against meteorshowers.org is recorded separately.
 
 ## Context Files

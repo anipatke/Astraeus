@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group, PointLight } from "three";
+import type { DirectionalLight, Group, PerspectiveCamera, PointLight } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -40,6 +40,8 @@ import {
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
+import { SkyView } from "./SkyView";
+import { loadStarCatalogue } from "../assets/sky";
 import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
@@ -74,6 +76,8 @@ export interface SceneRuntime {
   readonly lighting?: LightingModel;
   /** Single Sun light only: its strength; absent takes the strongest of the lit bodies' own values. */
   readonly sunLight?: SunLightStrength | null;
+  /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
+  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
 }
 
 export interface SceneControls {
@@ -81,6 +85,11 @@ export interface SceneControls {
   cameraRequest: CameraRequest | null;
   /** Presentation only: show source-anchor ID labels beside the anchor dots. */
   showAnchorLabels: boolean;
+  /** Presentation only: draw the Milky Way picture behind the stars (the stars are always drawn while the sky is). */
+  showMilkyWay: boolean;
+  /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
+  starBrightness: number;
+  milkyWayBrightness: number;
   readonly labelObjects: readonly ExperienceObject[];
   selectedObjectId: string;
   /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
@@ -187,8 +196,28 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => new PathView(compositionPathLayer(path, runtime.resolver), COMPOSITION_PATH_STYLE)), [runtime.composition, runtime.resolver]);
+  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay }) : null), [runtime.sky, gl]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
+
+  // The stars load from the local file when it exists; without it the Milky Way is drawn alone.
+  useEffect(() => {
+    if (skyView === null) return undefined;
+    let cancelled = false;
+    gl.domElement.dataset.skyStars = "0";
+    void loadStarCatalogue().then((loaded) => {
+      if (cancelled || loaded === null) return;
+      skyView.setStars(loaded.stars);
+      gl.domElement.dataset.skyStars = String(skyView.starCount);
+    });
+    return () => {
+      cancelled = true;
+      delete gl.domElement.dataset.skyStars;
+      delete gl.domElement.dataset.skyPicture;
+      delete gl.domElement.dataset.skyStarBrightness;
+      skyView.dispose();
+    };
+  }, [gl, skyView]);
 
   useEffect(() => {
     const host = gl.domElement.parentElement;
@@ -319,6 +348,18 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       origin,
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
     );
+    if (skyView !== null) {
+      skyView.follow(camera as PerspectiveCamera);
+      skyView.setPictureVisible(controls.showMilkyWay);
+      skyView.setStarBrightness(controls.starBrightness);
+      skyView.setMilkyWayBrightness(controls.milkyWayBrightness);
+      const starGain = String(controls.starBrightness);
+      if (gl.domElement.dataset.skyStarBrightness !== starGain) gl.domElement.dataset.skyStarBrightness = starGain;
+      const picture = controls.showMilkyWay ? "on" : "off";
+      if (gl.domElement.dataset.skyPicture !== picture) gl.domElement.dataset.skyPicture = picture;
+      // Developer mode reads the sky back so the invariance can be checked from outside (orientation in, screen position out).
+      if (controls.frameStats !== null) gl.domElement.dataset.skyProbe = JSON.stringify(skyView.probe(camera));
+    }
     for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
@@ -404,6 +445,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
           </group>
         );
       })}
+      {skyView !== null && <primitive object={skyView.group} />}
       {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}

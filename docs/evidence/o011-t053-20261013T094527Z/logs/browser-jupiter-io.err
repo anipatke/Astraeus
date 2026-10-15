@@ -1,0 +1,24 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: the object list is Jupiter and Io
++ actual - expected
+
+  [
+    'jupiter',
+    'io',
++   'sky'
+  ]
+
+    at run (file:///home/user/code/Astraeus/tools/validate/browser-jupiter-io.mjs:91:12)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-jupiter-io.mjs:158:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [ 'jupiter', 'io', 'sky' ],
+  expected: [ 'jupiter', 'io' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

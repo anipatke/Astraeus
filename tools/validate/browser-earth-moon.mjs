@@ -73,7 +73,8 @@ async function run(label, viewport) {
 
     // Only Earth and the Moon, and no mission content anywhere.
     const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
-    assert.deepEqual(options, ["earth", "moon"], `${label}: the object list is Earth and the Moon`);
+    // T-053: the sky is every experience's last item ("sky"); the two bodies are unchanged.
+    assert.deepEqual(options, ["earth", "moon", "sky"], `${label}: the object list is Earth, the Moon and the sky`);
     const body = await page.locator("body").innerText();
     assert.doesNotMatch(body, /apollo|columbia|eagle|mission|GET \d/i, `${label}: no mission content`);
     assert.equal(await page.getByRole("button", { name: "Developer mode" }).count(), 1, `${label}: the shell is the usual one`);

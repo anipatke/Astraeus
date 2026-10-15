@@ -36,4 +36,13 @@ describe("public build texture exclusion (design C.3)", () => {
     expect(embedded.ok).toBe(false);
     expect(embedded.matches.map((match) => match.how)).toEqual(["embedded as base64"]);
   });
+
+  it("fails on fetched data under data/local/, as a copied file, as text inside a script or by its path, and passes a clean build", () => {
+    const result = proveItFails();
+    expect(result.dataSources).toBe(1);
+    expect(result.dataClean.ok).toBe(true);
+    expect(result.dataCopied.matches.map((match) => match.how)).toEqual(["identical file"]);
+    expect(result.dataEmbedded.matches.map((match) => match.how)).toEqual(["embedded as text"]);
+    expect(result.dataPath.matches.map((match) => match.how)).toEqual(["path under data/local"]);
+  });
 });

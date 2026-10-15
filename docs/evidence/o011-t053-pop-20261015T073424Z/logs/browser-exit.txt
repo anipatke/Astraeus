@@ -1,0 +1,4 @@
+sky exit 0 07:38:22Z
+earth-moon exit 0 07:38:46Z
+jupiter-io exit 0 07:39:19Z
+showers exit 0 07:41:00Z

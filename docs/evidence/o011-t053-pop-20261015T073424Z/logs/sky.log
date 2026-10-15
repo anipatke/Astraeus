@@ -1,0 +1,159 @@
+{
+  "starsFetched": true,
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 34.7,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 12246,
+          "lit": 582031,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 10927,
+          "lit": 243004,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 11436,
+          "lit": 247728,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 20.5,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 26.3,
+      "probeChecks": 4
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 60,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 6656,
+          "lit": 185134,
+          "total": 329160
+        },
+        "off": {
+          "bright": 6371,
+          "lit": 145695,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 6606,
+          "lit": 146422,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 36.4,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 54.4,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "earth-moon-desktop": {
+      "fpsWithoutSky": 35.2,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 9020,
+          "lit": 568630,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 7976,
+          "lit": 213819,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 8578,
+          "lit": 218692,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 22.2,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 27.8,
+      "probeChecks": 5
+    },
+    "earth-moon-mobile": {
+      "fpsWithoutSky": 37.3,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 5104,
+          "lit": 170302,
+          "total": 329160
+        },
+        "off": {
+          "bright": 4990,
+          "lit": 129347,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 5090,
+          "lit": 129970,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 29,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 28.8,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "perseids-desktop": {
+      "fpsWithoutSky": 19,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 33393,
+          "lit": 636351,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 32013,
+          "lit": 311464,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 32685,
+          "lit": 315987,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 19.9,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 18.4,
+      "probeChecks": 3
+    },
+    "perseids-mobile": {
+      "fpsWithoutSky": 44.9,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 12193,
+          "lit": 216428,
+          "total": 329160
+        },
+        "off": {
+          "bright": 11971,
+          "lit": 183518,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 12214,
+          "lit": 184413,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 26.8,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 60,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    }
+  },
+  "errors": 0
+}

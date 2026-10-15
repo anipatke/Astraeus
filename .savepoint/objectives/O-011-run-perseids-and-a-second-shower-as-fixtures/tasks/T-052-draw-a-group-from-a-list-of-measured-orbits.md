@@ -15,14 +15,14 @@ planned_writes: [src/core/listedOrbitGroup.ts, tests/listedOrbitGroup.test.ts, s
 
 ## Outcome
 
-A generic `PointGroup` built from a list of per-member orbits, each with its own elements, epoch and source record id, instead of one base orbit with a random spread. Members are propagated by two-body motion about their centre to the requested time, in one batch fill, as fast as the existing orbit group. Each member's `State` carries the record it came from. It is proven on a made-up list and drawn by the existing points layer, with no shower naming.
+A generic `PointGroup` built from a list of per-member orbits, each with its own elements, epoch and source record id, instead of one base orbit with a random spread. Each member's orbit is measured, but its position along that orbit is not (owner decision 2026-10-13, Objective.md "placing measured members"): the group places each member at a deterministic, evenly spread mean anomaly at a stated reference time, marked `illustrative` in provenance, and propagates it by two-body motion about its centre to the requested time, in one batch fill, as fast as the existing orbit group. Each member's `State` carries the record it came from. It is proven on a made-up list and drawn by the existing points layer, with no shower naming.
 
 ## Astraeus Hypothesis
 
 - **Capability tested:** that measured populations (meteoroids, asteroids, debris) enter through the existing group contract, so a measured stream needs no shower-specific code.
 - **Contract reused:** `PointGroup` (`fillPositionsKm`, `stateAt`), `TwoBodyAdapter.propagateMemberInto`, `Provenance`, `PointsView`.
 - **Gap:** `createOrbitGroup` only invents members around one base orbit (`src/core/orbitGroup.ts`, uniform spread).
-- **Generic change:** `createListedOrbitGroup({ id, center, plane, members: [{ recordId, epochUtcMs, elements }], bounds?, provenance })`. Members are validated (finite, bound, `e < 1`), with the rejection rule from the research record. A per-member `recordId` is readable from `stateAt`.
+- **Generic change:** `createListedOrbitGroup({ id, center, plane, members: [{ recordId, epochUtcMs, elements }], phase: { referenceUtcMs, seed?, concentration?: { around: <a Trajectory, e.g. a parent body>, fraction, widthDeg } }, bounds?, provenance })`. Members are validated (finite, bound, `e < 1`), with the rejection rule from the research record. A per-member `recordId` is readable from `stateAt`.
 
 ## User Check
 
@@ -32,7 +32,7 @@ None required. The owner may open the made-up listed group and see dots followin
 
 1. `createListedOrbitGroup` fills positions for every member at a time; each member equals a single-member `createTwoBodyTrajectory` with the same elements and epoch to 1e-6 km (independent oracle); `stateAt(i)` reports `recordId`.
 2. Validation names the member and field for non-finite, unbound or hyperbolic elements, empty lists and duplicate record ids.
-3. Members with different epochs propagate correctly (a test with three epochs years apart).
+3. Phase rule (elements carry no anomaly: a, e, i, ω, Ω): members' mean anomalies at the reference time are evenly spread and deterministic; each member's drawn path lies on its own measured ellipse (relative distance from the analytic ellipse < 1e-6 at five times); provenance marks the along-orbit position `illustrative` and the elements measured. The epoch is kept as the record's time, not used to place the dot. With the optional `concentration` (owner decision 2026-10-13, clump near the parent), the stated fraction of members' mean anomalies cluster within `widthDeg` of the reference body's mean anomaly at the reference time (test on a made-up parent: fraction within the width is as stated ± sampling tolerance; the rest stay evenly spread; deterministic), and provenance marks the concentration as a model.
 4. Performance: 30,000 members fill in under the frame budget measured by `FrameStats` (record the figure); same input gives bit-identical output.
 5. A made-up listed experience (`src/synthetic/`) mounts with the points layer; `browser-synthetic-listed.mjs` passes at 1280×800 and 390×844 with zero console errors; the name check passes.
 6. Gates pass; every browser script passes in a fresh run directory.

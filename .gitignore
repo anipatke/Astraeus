@@ -5,3 +5,6 @@ junit.xml
 
 # Browser-run screenshots stay local; results JSON and logs are still committed as evidence.
 docs/evidence/**/*.png
+
+# Local-only data fetched by tools/data/* (never committed, never in a public build).
+data/local/

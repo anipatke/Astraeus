@@ -1,0 +1,115 @@
+{
+  "results": [
+    {
+      "label": "desktop",
+      "scalePairs": 6,
+      "cameraPresets": 6,
+      "eventJumps": 30,
+      "rates": [
+        {
+          "rate": 1,
+          "measuredRate": 0.948589626933576,
+          "simulationSeconds": 4.17,
+          "wallSeconds": 4.396
+        },
+        {
+          "rate": 100,
+          "measuredRate": 94.72279733149297,
+          "simulationSeconds": 411.76,
+          "wallSeconds": 4.347
+        },
+        {
+          "rate": 1000,
+          "measuredRate": 952.9519033508094,
+          "simulationSeconds": 4180.6,
+          "wallSeconds": 4.387
+        },
+        {
+          "rate": 10000,
+          "measuredRate": 9371.343921389394,
+          "simulationSeconds": 41009.001,
+          "wallSeconds": 4.376
+        }
+      ],
+      "followSamples": 30,
+      "usno": [
+        {
+          "utc": "2024-01-04 03:30:00",
+          "expectedPercent": 50.1,
+          "illuminationPercent": 50.1
+        },
+        {
+          "utc": "2024-01-11 11:57:00",
+          "expectedPercent": 0.2,
+          "illuminationPercent": 0.2
+        },
+        {
+          "utc": "2024-01-18 03:52:00",
+          "expectedPercent": 50.1,
+          "illuminationPercent": 50.1
+        },
+        {
+          "utc": "2024-01-25 17:54:00",
+          "expectedPercent": 99.8,
+          "illuminationPercent": 99.8
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "scalePairs": 6,
+      "cameraPresets": 6,
+      "eventJumps": 30,
+      "rates": [
+        {
+          "rate": 1,
+          "measuredRate": 0.9321113374066531,
+          "simulationSeconds": 4.119,
+          "wallSeconds": 4.419
+        },
+        {
+          "rate": 100,
+          "measuredRate": 94.22812643151626,
+          "simulationSeconds": 411.4,
+          "wallSeconds": 4.366
+        },
+        {
+          "rate": 1000,
+          "measuredRate": 964.9142857142857,
+          "simulationSeconds": 4221.5,
+          "wallSeconds": 4.375
+        },
+        {
+          "rate": 10000,
+          "measuredRate": 9459.489456159823,
+          "simulationSeconds": 42615,
+          "wallSeconds": 4.505
+        }
+      ],
+      "followSamples": 30,
+      "usno": [
+        {
+          "utc": "2024-01-04 03:30:00",
+          "expectedPercent": 50.1,
+          "illuminationPercent": 50.1
+        },
+        {
+          "utc": "2024-01-11 11:57:00",
+          "expectedPercent": 0.2,
+          "illuminationPercent": 0.2
+        },
+        {
+          "utc": "2024-01-18 03:52:00",
+          "expectedPercent": 50.1,
+          "illuminationPercent": 50.1
+        },
+        {
+          "utc": "2024-01-25 17:54:00",
+          "expectedPercent": 99.8,
+          "illuminationPercent": 99.8
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

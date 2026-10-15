@@ -1,0 +1,172 @@
+// The sky behind every experience: directions at infinity in the EQJ (J2000 equatorial) frame. Frame layer only; it never
+// touches State (ARCH-02). The stars come from a locally fetched file (tools/data/fetch-stars.mjs, git-ignored data/local/);
+// the Milky Way image is committed with its licence (PROV-02).
+import type { AssetLicence, TextureRef } from "./licence";
+import milkyWayLeftUrl from "./textures/milky-way-left.jpg";
+import milkyWayRightUrl from "./textures/milky-way-right.jpg";
+
+const RAD = Math.PI / 180;
+
+// ---------------------------------------------------------------- galactic frame
+
+/** IAU 1958 galactic frame carried to J2000 (Astropy `galactic.py`, citing Blaauw et al. 1960; read 2026-10-13). */
+export const GALACTIC_NORTH_POLE = Object.freeze({ raDeg: 192.8594812065348, decDeg: 27.12825118085622 });
+/** Galactic longitude of the north celestial pole. */
+export const NORTH_CELESTIAL_POLE_LONGITUDE_DEG = 122.9319185680026;
+/** The galactic centre (l = 0, b = 0) in J2000, as the record computed it from the constants above. */
+export const GALACTIC_CENTRE = Object.freeze({ raDeg: 266.405, decDeg: -28.936 });
+
+type Vec3 = [number, number, number];
+const dot = (a: ArrayLike<number>, b: ArrayLike<number>): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a: Vec3, b: Vec3): Vec3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+/** Unit vector in EQJ for a right ascension and declination in degrees. */
+export function eqjUnit(raDeg: number, decDeg: number): Vec3 {
+  const ra = raDeg * RAD;
+  const dec = decDeg * RAD;
+  return [Math.cos(dec) * Math.cos(ra), Math.cos(dec) * Math.sin(ra), Math.sin(dec)];
+}
+
+/** The galactic axes in EQJ: x toward the centre (l = 0), y toward l = 90, z the north pole. */
+export function galacticAxes(): { readonly x: Vec3; readonly y: Vec3; readonly z: Vec3 } {
+  const z = eqjUnit(GALACTIC_NORTH_POLE.raDeg, GALACTIC_NORTH_POLE.decDeg);
+  // The north celestial pole sits at galactic longitude l_NCP; its component perpendicular to z fixes x and y.
+  const k = dot([0, 0, 1], z);
+  const perpendicular: Vec3 = [-k * z[0], -k * z[1], 1 - k * z[2]];
+  const length = Math.hypot(...perpendicular);
+  const p = perpendicular.map((value) => value / length) as Vec3;
+  const h = cross(z, p);
+  const l = NORTH_CELESTIAL_POLE_LONGITUDE_DEG * RAD;
+  const x = p.map((value, i) => Math.cos(l) * value - Math.sin(l) * h[i]) as Vec3;
+  const y = p.map((value, i) => Math.sin(l) * value + Math.cos(l) * h[i]) as Vec3;
+  return { x, y, z };
+}
+
+const AXES = galacticAxes();
+
+/** EQJ unit vector of a galactic longitude and latitude, in degrees. */
+export function galacticToEqj(lDeg: number, bDeg: number): Vec3 {
+  const l = lDeg * RAD;
+  const b = bDeg * RAD;
+  const gx = Math.cos(b) * Math.cos(l);
+  const gy = Math.cos(b) * Math.sin(l);
+  const gz = Math.sin(b);
+  return [0, 1, 2].map((i) => gx * AXES.x[i] + gy * AXES.y[i] + gz * AXES.z[i]) as Vec3;
+}
+
+/** Galactic longitude (-180..180) and latitude, in degrees, of an EQJ direction. */
+export function eqjToGalactic(eqj: ArrayLike<number>): [lDeg: number, bDeg: number] {
+  const length = Math.hypot(eqj[0], eqj[1], eqj[2]);
+  const unit: Vec3 = [eqj[0] / length, eqj[1] / length, eqj[2] / length];
+  return [Math.atan2(dot(unit, AXES.y), dot(unit, AXES.x)) / RAD, Math.asin(Math.max(-1, Math.min(1, dot(unit, AXES.z)))) / RAD];
+}
+
+/** The picture is equirectangular and galactic: longitude 0 at the centre, increasing leftwards; latitude +90 at the top. */
+export function milkyWayUv(eqj: ArrayLike<number>): [u: number, v: number] {
+  const [l, b] = eqjToGalactic(eqj);
+  return [0.5 - l / 360, 0.5 + b / 180];
+}
+
+// ---------------------------------------------------------------- stars
+
+/** One catalogue row: J2000 right ascension and declination (degrees), V magnitude, B-V colour index (null when unknown). */
+export type StarRow = readonly [raDeg: number, decDeg: number, vMag: number, bMinusV: number | null];
+
+export interface StarCatalogue {
+  readonly stars: readonly StarRow[];
+  /** The file's own provenance header, if it has one. */
+  readonly provenance?: Readonly<Record<string, unknown>>;
+}
+
+/** Validates a parsed star file (`{ provenance?, stars: [[ra, dec, v, bv|null], ...] }`); throws naming the first bad row. */
+export function parseStarFile(json: unknown): StarCatalogue {
+  const file = json as { stars?: unknown; provenance?: unknown } | null;
+  if (file === null || typeof file !== "object" || !Array.isArray(file.stars)) throw new TypeError("star file needs a stars array");
+  file.stars.forEach((row: unknown, index: number) => {
+    const ok = Array.isArray(row) && row.length === 4
+      && [0, 1, 2].every((i) => Number.isFinite(row[i]))
+      && (row[3] === null || Number.isFinite(row[3]))
+      && row[1] >= -90 && row[1] <= 90;
+    if (!ok) throw new RangeError(`star ${index} must be [raDeg, decDeg, vMag, bMinusV|null]`);
+  });
+  const provenance = file.provenance !== null && typeof file.provenance === "object" ? (file.provenance as Record<string, unknown>) : undefined;
+  return { stars: file.stars as StarRow[], ...(provenance === undefined ? {} : { provenance }) };
+}
+
+/** Where `tools/data/fetch-stars.mjs` writes the subset; the dev server serves it from the project root. */
+export const LOCAL_STAR_URL = "/data/local/yale-bsc-v65.json";
+export const FETCH_STARS_COMMAND = "node tools/data/fetch-stars.mjs";
+
+let starRequest: Promise<StarCatalogue | null> | null = null;
+
+/**
+ * The locally fetched catalogue, or null when it is absent (or in a production build, which never reads `data/local/`).
+ * The dev server answers an unknown path with the app's page, so anything that is not a valid star file counts as absent.
+ */
+export function loadStarCatalogue(): Promise<StarCatalogue | null> {
+  if (import.meta.env.PROD) return Promise.resolve(null);
+  starRequest ??= fetch(LOCAL_STAR_URL)
+    .then(async (response) => (response.ok ? parseStarFile(JSON.parse(await response.text())) : null))
+    .catch(() => null);
+  return starRequest;
+}
+
+/** Temperature in kelvin from B-V (Ballesteros 2012). */
+export function temperatureFromBV(bMinusV: number): number {
+  return 4600 * (1 / (0.92 * bMinusV + 1.7) + 1 / (0.92 * bMinusV + 0.62));
+}
+
+/** sRGB 0..1 for a blackbody temperature (Tanner Helland's fit), blended halfway to white so the tints stay subtle. */
+export function colourFromTemperature(kelvin: number): [number, number, number] {
+  const t = Math.min(40000, Math.max(1000, kelvin)) / 100;
+  const r = t <= 66 ? 255 : 329.698727446 * (t - 60) ** -0.1332047592;
+  const g = t <= 66 ? 99.4708025861 * Math.log(t) - 161.1195681661 : 288.1221695283 * (t - 60) ** -0.0755148492;
+  const b = t >= 66 ? 255 : t <= 19 ? 0 : 138.5177312231 * Math.log(t - 10) - 305.0447927307;
+  const clamp = (value: number) => Math.min(255, Math.max(0, value)) / 255;
+  return [clamp(r), clamp(g), clamp(b)].map((value) => 0.5 + 0.5 * value) as [number, number, number];
+}
+
+/**
+ * Star width and brightness (0..1) from V magnitude. `sizePx` is the full width at half maximum of the star's bright core in CSS
+ * pixels (never below 1.5, so the faintest star is still a visible point); brighter stars are wider and stronger.
+ */
+export function starAppearance(vMag: number): { readonly sizePx: number; readonly brightness: number } {
+  const x = Math.min(1, Math.max(0, (6.5 - vMag) / 8));
+  return { sizePx: 1.5 + 2.9 * x ** 0.9, brightness: 0.3 + 0.7 * x ** 0.55 };
+}
+
+// ---------------------------------------------------------------- sources and the shell item
+
+export const MILKY_WAY_LICENCE: AssetLicence = Object.freeze({
+  source: "The Milky Way panorama (eso0932a), ESO/S. Brunier",
+  url: "https://www.eso.org/public/images/eso0932a/",
+  licence: "CC BY 4.0",
+  attribution: "ESO/S. Brunier. The 6000x3000 original (TIFF) was cut into two 3000x3000 halves and re-encoded as JPEG; no other change.",
+  accessed: "2026-10-13",
+});
+
+/** The picture in two square halves, left (longitude 180 to 0, running to the centre) then right; each is under every GPU's texture limit. */
+export const MILKY_WAY_TILES: readonly TextureRef[] = Object.freeze([
+  Object.freeze({ url: milkyWayLeftUrl, widthPx: 3000, heightPx: 3000, licence: MILKY_WAY_LICENCE }),
+  Object.freeze({ url: milkyWayRightUrl, widthPx: 3000, heightPx: 3000, licence: MILKY_WAY_LICENCE }),
+]);
+
+export const SKY_SOURCES: readonly string[] = Object.freeze([
+  "Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this machine only.",
+  "The Milky Way panorama, ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0.",
+]);
+
+
+// ---------------------------------------------------------------- settings
+
+/** What an experience may say about the sky: all fields optional, default on at full brightness, with the Milky Way picture off. */
+export interface SkySettings {
+  readonly visible?: boolean;
+  /** Scales the catalogue stars, 0 to 2; 1 is the baseline star curve and 0 hides them in effect. Defaults to 1. */
+  readonly starBrightness?: number;
+  /** Scales the Milky Way picture, 0 to 2; 1 is the baseline strength. Defaults to 1. */
+  readonly milkyWayBrightness?: number;
+  /** Whether the Milky Way picture is drawn behind the stars. Defaults to false (owner decision, 2026-10-15); the catalogue stars are drawn either way. */
+  readonly milkyWay?: boolean;
+}
+

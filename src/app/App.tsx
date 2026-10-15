@@ -14,9 +14,21 @@ import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
 import { lightingFromSearch, sunLightFromSearch } from "./lighting";
 import { createSceneResolver } from "./sceneLayout";
+import { loadStarCatalogue } from "../assets/sky";
+import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
+import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
+
+/** The sky settings in force: the experience's own, hidden when the address says `?sky=off`. */
+function skySettingsOf(definition: ExperienceDefinition) {
+  const settings = resolveSkySettings(definition.sky);
+  const milkyWay = milkyWayFromSearch(window.location.search) ?? settings.milkyWay;
+  const starBrightness = brightnessFromSearch(window.location.search, "stars") ?? settings.starBrightness;
+  const milkyWayBrightness = brightnessFromSearch(window.location.search, "milkywaybrightness") ?? settings.milkyWayBrightness;
+  return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(window.location.search) };
+}
 
 export function App({ definition }: { readonly definition: ExperienceDefinition }) {
   const runtime = useMemo(() => {
@@ -40,6 +52,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       cameraReach: cameraReachOf(definition),
       lighting: lightingFromSearch(window.location.search),
       sunLight: sunLightFromSearch(window.location.search),
+      sky: skySettingsOf(definition),
     };
   }, [definition]);
   const experienceRuntime = useMemo(
@@ -56,11 +69,24 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   }, [runtime]);
   const startScale: ScaleId = scaleChoiceIds?.[0] ?? "true-scale";
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);
+  // The shell also lists the sky, citing its sources and saying whether the stars were fetched.
+  const [starStatus, setStarStatus] = useState<StarStatus>({ kind: "loading" });
+  useEffect(() => {
+    let cancelled = false;
+    void loadStarCatalogue().then((loaded) => {
+      if (!cancelled) setStarStatus(loaded === null ? { kind: "absent" } : { kind: "loaded", count: loaded.stars.length });
+    });
+    return () => { cancelled = true; };
+  }, []);
+  const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const controls = useRef<SceneControls>({
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
     showAnchorLabels: false,
+    showMilkyWay: runtime.sky.milkyWay,
+    starBrightness: runtime.sky.starBrightness,
+    milkyWayBrightness: runtime.sky.milkyWayBrightness,
     labelObjects: experience.objects,
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
@@ -71,6 +97,9 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
+  const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
+  const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
+  const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
@@ -129,12 +158,23 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         <DebugOverlay readout={hud} />
       </section>
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {runtime.trackedBodies.length > 0 && (
+      {(runtime.trackedBodies.length > 0 || runtime.sky.visible) && (
         <section className="hud-section" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
           <div className="row scale-controls" role="group" aria-label="Scene labels">
-            <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>
+            {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
+            {runtime.sky.visible && <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>}
           </div>
+          {runtime.sky.visible && (
+            <div className="row" role="group" aria-label="Sky brightness">
+              <label>Star brightness <output data-testid="star-brightness-value">{starBrightness.toFixed(2)}</output>
+                <input type="range" min={0} max={2} step={0.05} value={starBrightness} aria-label="Star brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.starBrightness = value; setStarBrightness(value); }} />
+              </label>
+              <label>Milky Way brightness <output data-testid="milky-way-brightness-value">{milkyWayBrightness.toFixed(2)}</output>
+                <input type="range" min={0} max={2} step={0.05} value={milkyWayBrightness} aria-label="Milky Way brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.milkyWayBrightness = value; setMilkyWayBrightness(value); }} />
+              </label>
+            </div>
+          )}
         </section>
       )}
       {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
@@ -143,7 +183,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
 
   return (
     <AstraeusShell
-      experience={experience}
+      experience={shellExperience}
       snapshot={clockSnapshot}
       developerMode={developerMode}
       onDeveloperModeChange={setDeveloperMode}
