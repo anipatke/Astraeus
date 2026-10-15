@@ -8,7 +8,8 @@ import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue, rootBodyId, type BodyAsset } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
-import { BodyView } from "./BodyView";
+import { BodyView, type BodyParts } from "./BodyView";
+import { drawnRadii, drawsAsMarker, projectedRadiusPx, type BodyMarkerSettings } from "./bodyDraw";
 import {
   attachOrbitGestures,
   clampDistance,
@@ -30,6 +31,7 @@ import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePla
 import {
   assignBodyLayers,
   defaultDistance,
+  fitDistance,
   focusLimits,
   focusRadius,
   GROUP_FRAMING,
@@ -87,6 +89,8 @@ export interface SceneControls {
   showAnchorLabels: boolean;
   /** Presentation only: draw the Milky Way picture behind the stars (the stars are always drawn while the sky is). */
   showMilkyWay: boolean;
+  /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */
+  bodyMarker: BodyMarkerSettings;
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
@@ -182,6 +186,12 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     if (node === null) map.delete(id);
     else map.set(id, node);
   };
+  const partsRefs = useRef(new Map<BodyId, BodyParts>());
+  // One stable callback per body, so a body's effect is not re-run by every render.
+  const partsFor = useMemo(() => new Map(runtime.bodies.map((id) => [id, (parts: BodyParts | null) => {
+    if (parts === null) partsRefs.current.delete(id);
+    else partsRefs.current.set(id, parts);
+  }] as const)), [runtime.bodies]);
 
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16, runtime.sceneCenter));
@@ -309,7 +319,9 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       const framedGroup = groupViews.find((candidate) => candidate.id === target) ?? sunCentredViews.find((candidate) => candidate.id === target);
       if (request.kind !== "follow") {
         if (framedGroup) {
-          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * framedGroup.extentUnits(policy));
+          const extent = framedGroup.extentUnits(policy);
+          const whole = framedGroup instanceof PathView && framedGroup.fitsWhole;
+          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, whole ? fitDistance(extent, (camera as PerspectiveCamera).fov) : GROUP_FRAMING * extent);
         } else if (targetBody !== null && catalogue.get(targetBody).visual.kind === "marker") {
           // A marker is a point: it is framed by how far the declared paths reach from it.
           const reachKm = pathReachKm(sunCentredViews);
@@ -348,6 +360,22 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       origin,
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
     );
+    // The marker rule: a sphere that would be under a few pixels across is drawn as a marker at the same place. Presentation only.
+    const swapped: BodyId[] = [];
+    for (const asset of assets) {
+      const parts = partsRefs.current.get(asset.definition.id);
+      if (parts === undefined) continue;
+      const at = groupRefs.current.get(asset.definition.id)!.position;
+      const radiusPx = projectedRadiusPx(drawnRadii(asset.definition, policy).equatorial, at.distanceTo(camera.position), (camera as PerspectiveCamera).fov, size.height);
+      const marker = drawsAsMarker(radiusPx, controls.bodyMarker);
+      parts.sphere.visible = !marker;
+      parts.marker.visible = marker;
+      if (marker) swapped.push(asset.definition.id);
+    }
+    const swappedList = swapped.join(",");
+    if (gl.domElement.dataset.markerBodies !== swappedList) gl.domElement.dataset.markerBodies = swappedList;
+    const threshold = String(controls.bodyMarker.minSpherePx);
+    if (gl.domElement.dataset.markerPx !== threshold) gl.domElement.dataset.markerPx = threshold;
     if (skyView !== null) {
       skyView.follow(camera as PerspectiveCamera);
       skyView.setPictureVisible(controls.showMilkyWay);
@@ -428,7 +456,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         const light = asset.visual.light;
         return (
           <group key={id}>
-            <BodyView asset={asset} policy={controls.policy} layer={layer} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
+            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
             {light !== undefined && !singleSun && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />

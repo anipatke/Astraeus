@@ -8,6 +8,18 @@ export const TRACKED_MIN_DISTANCE = 0.002;
 export const TRACKED_DEFAULT_DISTANCE = 0.3;
 /** A focused group or path is framed at this many times its widest member's distance from its centre. */
 export const GROUP_FRAMING = 2.5;
+/** Extra room, as a multiple, around a path framed to fit whole (see `fitDistance`). */
+export const FIT_MARGIN = 1.05;
+
+/**
+ * The camera distance at which a sphere of radius `extentUnits` about the focus point fits the vertical field of view `fovDeg` from any
+ * direction, with `FIT_MARGIN` to spare. A rule-of-thumb multiple of the extent (`GROUP_FRAMING`) can clip the tips of a long thin shape
+ * seen end-on; a path that must be shown whole uses this.
+ */
+export function fitDistance(extentUnits: number, fovDeg: number): number {
+  return (FIT_MARGIN * extentUnits) / Math.sin((fovDeg * Math.PI) / 360);
+}
+
 /** Camera framing span in Earth radii when the scene has no second drawn body to frame by. */
 export const BARE_SCENE_SPAN = 60;
 /** Closest approach to the scene's own centre body, as a multiple of its drawn radius. */

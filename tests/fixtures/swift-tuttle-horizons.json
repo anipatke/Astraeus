@@ -1,0 +1,93 @@
+{
+  "source": "NASA/JPL Horizons API v1.2 (target 109P/Swift-Tuttle, solution JPL#32; small perturbers on)",
+  "command": "DES=109P;CAP",
+  "center": "Sun body center (500@10)",
+  "frame": "ICRF, treated as EQJ",
+  "correction": "geometric; VEC_CORR=NONE",
+  "units": "km",
+  "timeScale": "UTC (the 2030 sample is labelled UT~, a predicted leap-second offset)",
+  "retrievedUtc": "2026-10-15T08:39:41Z",
+  "rawFile": "swift-tuttle-horizons-source.txt",
+  "samples": [
+    {
+      "jdUtc": 2447892.5,
+      "utcMs": 631152000000,
+      "label": "1990-Jan-01 00:00 UTC",
+      "positionKm": [
+        -1112364230.49967,
+        889024051.6018983,
+        523547517.6167427
+      ]
+    },
+    {
+      "jdUtc": 2448257.5,
+      "utcMs": 662688000000,
+      "label": "1991-Jan-01 00:00 UTC",
+      "positionKm": [
+        -788284043.6424792,
+        645055641.0860612,
+        508500169.1488484
+      ]
+    },
+    {
+      "jdUtc": 2448968.5,
+      "utcMs": 724118400000,
+      "label": "1992-Dec-12 00:00 UTC",
+      "positionKm": [
+        113725413.7525206,
+        -81678210.6921945,
+        30729672.29596754
+      ]
+    },
+    {
+      "jdUtc": 2451545.0,
+      "utcMs": 946728000000,
+      "label": "2000-Jan-01 12:00 UTC",
+      "positionKm": [
+        -1881215598.749002,
+        1245294069.571314,
+        -1485586480.196743
+      ]
+    },
+    {
+      "jdUtc": 2455197.5,
+      "utcMs": 1262304000000,
+      "label": "2010-Jan-01 00:00 UTC",
+      "positionKm": [
+        -3428852971.447368,
+        2351591847.707081,
+        -1925240107.37709
+      ]
+    },
+    {
+      "jdUtc": 2458849.5,
+      "utcMs": 1577836800000,
+      "label": "2020-Jan-01 00:00 UTC",
+      "positionKm": [
+        -4465994514.508493,
+        3109716588.16373,
+        -2065147317.786686
+      ]
+    },
+    {
+      "jdUtc": 2461265.5,
+      "utcMs": 1786579200000,
+      "label": "2026-Aug-13 00:00 UTC",
+      "positionKm": [
+        -4977830239.254554,
+        3492060326.066084,
+        -2073471173.164697
+      ]
+    },
+    {
+      "jdUtc": 2462502.5,
+      "utcMs": 1893456000000,
+      "label": "2030-Jan-01 00:00 UT~",
+      "positionKm": [
+        -5196646819.499864,
+        3655765216.574075,
+        -2060016837.273018
+      ]
+    }
+  ]
+}

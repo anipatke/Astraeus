@@ -16,6 +16,7 @@ import { lightingFromSearch, sunLightFromSearch } from "./lighting";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
+import { markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -85,6 +86,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     cameraRequest: null,
     showAnchorLabels: false,
     showMilkyWay: runtime.sky.milkyWay,
+    bodyMarker: markerSettingsFromSearch(window.location.search),
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
     labelObjects: experience.objects,
@@ -100,6 +102,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
+  const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
@@ -158,9 +161,14 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         <DebugOverlay readout={hud} />
       </section>
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(runtime.trackedBodies.length > 0 || runtime.sky.visible) && (
+      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || runtime.bodies.some((id) => catalogue.get(id).visual.kind === "sphere")) && (
         <section className="hud-section" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
+          <div className="row" role="group" aria-label="Small bodies">
+            <label>Body marker threshold (px) <output data-testid="body-marker-value">{markerPx.toFixed(1)}</output>
+              <input type="range" min={0} max={20} step={0.5} value={markerPx} aria-label="Body marker threshold" onChange={(event) => { const value = Number(event.target.value); controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
+            </label>
+          </div>
           <div className="row scale-controls" role="group" aria-label="Scene labels">
             {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
             {runtime.sky.visible && <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>}

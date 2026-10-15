@@ -10,6 +10,7 @@ import { createOrbitGroup, type OrbitElements, type OrbitSpread } from "../../co
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../core/timeWindow";
 import { createEarthSunTrajectory, createTwoBodyTrajectory, fullTurnSpanMs } from "../../core/sunCentredSources";
+import type { Trajectory } from "../../core/trajectory";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
@@ -233,13 +234,15 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
   const root = rootBodyId();
   return catalogue.ids()
     .filter((id) => catalogue.get(id).definition.parentId === root && !sunEarthSystem.bodies.includes(id))
-    .map((id): PathLayer => {
+    .flatMap((id): PathLayer[] => {
       const { definition, source, visual } = catalogue.get(id);
       const trajectory = source!.create(adapter);
-      const spanMs = fullTurnSpanMs(trajectory, peakUtcMs, PLANET_TURN_STEP_MS, PLANET_TURN_MAX_STEPS);
+      // An orbit too long to sweep within the search (a comet's, over a century) is not a planet's turn; the search finds none and it is left out here.
+      const spanMs = turnSpanOrNull(trajectory, peakUtcMs);
+      if (spanMs === null) return [];
       const { endUtcMs: validUntil } = definition.accuracy.validUtc;
       const beyond = peakUtcMs + spanMs > validUntil;
-      return {
+      return [{
         kind: "orbit",
         color: visual.material.color,
         source: trajectory,
@@ -257,8 +260,17 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
             ...(beyond ? [`The turn reaches past ${new Date(validUntil).getUTCFullYear()}, the last year the position was compared with JPL Horizons; the series itself is not limited to that range.`] : []),
           ],
         },
-      };
+      }];
     });
+}
+
+function turnSpanOrNull(trajectory: Trajectory, peakUtcMs: number): number | null {
+  try {
+    return fullTurnSpanMs(trajectory, peakUtcMs, PLANET_TURN_STEP_MS, PLANET_TURN_MAX_STEPS);
+  } catch (error) {
+    if (error instanceof RangeError && /no full turn/.test(error.message)) return null;
+    throw error;
+  }
 }
 
 /** The parent body's orbit near the inner solar system: the published elements, set so the parent crosses Earth's path at the peak. */

@@ -162,3 +162,41 @@ Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**,
 ### Lighting model measurement
 
 Each frame's lit body is lit along its own Sun direction (one pass per body), or by one point light at the Sun's scaled position (`?lighting=single-sun`, a measurement mode). Geometric result on the four January 2024 USNO phase events, True and Readable scales, Moon seen from Earth (`tests/jupiterIo.test.ts`): the point light's illuminated fraction differs from the per-body figure by at most 7.2e-9 and its direction by at most 1.5e-6 degrees (float32 narrowing included); one directional light pointed at the scene centre differs by 1.36e-3 in fraction and 0.156 degrees. Rendered comparison (`tools/validate/browser-lighting.mjs`, headless Chromium, per-pixel mean difference of 255 over lit pixels): Earth 0.0 and 0.006, Jupiter 0.004 and 0.006, Io 0.0, 0.0 and 0.0; Moon 7.7 to 13.0, which is brightness only: Earth's light is stronger (1.8/0.18) than the Moon's (1.4/0.08) and one light has one strength. With the Moon's own strength the Moon difference is 0.0005 to 0.009. Recommendation: keep per-body lights for Spike 04; the single point light is viable for larger systems.
+
+## 109P/Swift-Tuttle about the Sun (O-011 / T-054)
+
+### Source of the elements
+
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1`, fetched 2026-10-15T08:39Z), solution SB405-CPV-2 (M.S.W. Keesey, 2001-10-09; 652 observations 1737 to 1995), epoch JD 2450000.5 TDB (1995-10-10), ecliptic J2000: e 0.963225755046038, a 26.0920694978266 AU, i 113.453816997171 deg, node 139.3811920815948 deg, omega 152.9821676305871 deg, M 7.631696167124212 deg, tp JD 2448968.499784556297, period 48681.19346262312 d, aphelion 51.2246 AU. The raw response is archived in [`swift-tuttle-horizons-source.txt`](../tests/fixtures/swift-tuttle-horizons-source.txt) (first of two responses, each preceded by a `==== QUERY ... ====` line); `tests/swiftTuttle.test.ts` asserts every constant equals the archived value. Nucleus diameter 26 km (Lamy, Toth, Fernandez and Weaver 2004, Comets II, pp. 223-264, as SBDB prints it), so radius 13 km, which is also what Horizons prints (`RAD= 13.`). Neither source gives a gravitational parameter for the comet, so none is recorded and it cannot be a centre.
+
+### How the elements become a position
+
+`src/core/bodies/swiftTuttle.ts` converts M to the true anomaly by solving Kepler's equation and propagates by unperturbed two-body motion about the catalogue's solar GM through `createTwoBodyTrajectory`. The epoch is converted from TDB to UTC (TT minus UTC was 61.184 s in October 1995; a 61 s error would move the comet at most 2.6 thousand km, small beside the figures below). The model period from the catalogue's GM is 48681.19347 d against SBDB's 48681.19346 d. There are no planetary perturbations and no non-gravitational forces; the accuracy record says so.
+
+### Horizons comparison
+
+Raw Horizons response archived in the same file, second response, with its query line: fetched 2026-10-15T08:39:41Z against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='DES=109P;CAP'` (solution JPL#32, the same fit as SBDB, small perturbers on), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). Positions parsed into [`swift-tuttle-horizons.json`](../tests/fixtures/swift-tuttle-horizons.json); ICRF is treated as EQJ and UTC as UTC. A date list is not a bound for other dates.
+
+| Date (UTC) | Distance from the Sun | Difference from Horizons | As a fraction of the distance |
+|---|---|---|---|
+| 1990-01-01 | 10.14 AU | 2,715,375 km | 0.179% |
+| 1991-01-01 | 7.61 AU | 1,896,210 km | 0.167% |
+| 1992-12-12 (perihelion) | 0.958 AU | 1,228,932 km | **0.857%** |
+| 2000-01-01 12:00 | 18.06 AU | 1,527,641 km | 0.057% |
+| 2010-01-01 | 30.63 AU | 4,587,715 km | 0.100% |
+| 2020-01-01 | 38.91 AU | 7,592,269 km | 0.130% |
+| 2026-08-13 | 42.94 AU | 9,384,149 km | 0.146% |
+| 2030-01-01 | 44.65 AU | **10,686,093 km (0.0714 AU)** | 0.160% |
+
+Maximum error **10,686,093 km (0.071 AU) at 2030-01-01**; largest fraction 0.857% at the 1992 perihelion. The error grows with distance from the 1995 epoch because Horizons integrates the same fit with the planets' pull and a fixed two-body ellipse cannot. **Classification: approximate.** A body's own diameter is no yardstick (the nucleus is 26 km), so the line is the comet's distance from the Sun: within 1% at every compared date is good enough to draw the orbit and the comet's place on it at overview scale, not an ephemeris and not good enough for a close approach. The test asserts the recorded figure and that the classification follows from it (`tests/swiftTuttle.test.ts`, "has a maximum Sun-centred error equal to the figure the definition records" and "has a largest fractional error equal to the recorded one"). Validity is stated as 1990 to 2030 only; the 2026 comparison date is the nearest to the Perseid peak the comparison covers.
+
+### Drawing a long orbit (O-011 / T-054)
+
+Even-in-time sampling of an e = 0.96 orbit leaves a few long chords across the sharp end. `eccentricPathTimesUtcMs` (`src/core/sunCentredSources.ts`) spaces the samples evenly in eccentric anomaly instead; the source is still asked for its own state at each time, so the line passes through the source's positions. Measured on a made-up e = 0.96, a = 26 AU orbit (`tests/longOrbitPaths.test.ts`), longest chord as a fraction of the local orbit radius (mean of the segment's end radii):
+
+| Samples | Even in time | Even in eccentric anomaly | Ratio |
+|---|---|---|---|
+| 256 | 1.708 | 0.172 | 9.9 |
+| 512 (default for such a path) | 1.373 | 0.086 | 16.0 |
+
+At 256 samples the ratio misses the one-tenth requirement by a hair, so a path declared with `sampling` defaults to 512 samples (a setting, `PathLayer.samples`). Precision 50 AU out is measured in the browser with the method of `tools/validate/browser-precision.mjs`; figures are in the Task evidence and the run directory named there.

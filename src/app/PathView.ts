@@ -1,12 +1,13 @@
 import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial } from "three";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
-import { pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
+import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
 import { catalogue } from "../assets/catalogue";
 import type { CompositionPath } from "../assets/compositions";
 import {
+  DEFAULT_ECCENTRIC_SAMPLE_COUNT,
   DEFAULT_PATH_SAMPLE_COUNT,
   DEFAULT_WINDOW_SAMPLE_COUNT,
   isRollingSpan,
@@ -62,9 +63,9 @@ export class PathView {
     this.#refresh = refresh;
     this.#explicitCentre = layer.kind === "orbit" ? layer.center : undefined;
     const rolling = isRollingSpan(layer.span);
-    this.#capacity = layer.samples ?? (rolling ? DEFAULT_WINDOW_SAMPLE_COUNT : DEFAULT_PATH_SAMPLE_COUNT);
+    this.#capacity = layer.samples ?? (rolling ? DEFAULT_WINDOW_SAMPLE_COUNT : layer.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
     this.#scaled = new Float64Array(this.#capacity * 3);
-    if (!isRollingSpan(layer.span)) this.#resample(pathTimesUtcMs(layer.span, this.#capacity));
+    if (!isRollingSpan(layer.span)) this.#resample(layer.sampling === undefined ? pathTimesUtcMs(layer.span, this.#capacity) : eccentricPathTimesUtcMs(layer.span, this.#capacity, layer.sampling));
     const geometry = new BufferGeometry();
     this.#positions = new BufferAttribute(new Float32Array(this.#capacity * 3), 3);
     geometry.setAttribute("position", this.#positions);
@@ -83,6 +84,11 @@ export class PathView {
 
   get id(): string {
     return this.layer.object.id;
+  }
+
+  /** Whether this path is a long eccentric orbit, framed to fit whole rather than by the usual multiple of its extent. */
+  get fitsWhole(): boolean {
+    return this.layer.sampling !== undefined;
   }
 
   /** The samples as the source gave them (km, EQJ, about the centre they are measured from), 3 per vertex. */
@@ -159,7 +165,7 @@ export class PathView {
       cy += km[i + 1];
       cz += km[i + 2];
     }
-    this.#centreKm = [cx / count, cy / count, cz / count];
+    this.#centreKm = this.layer.sampling === undefined ? [cx / count, cy / count, cz / count] : boundsMidpoint(km);
     let widest = 0;
     for (let i = 0; i < km.length; i += 3) {
       widest = Math.max(widest, Math.hypot(km[i] - this.#centreKm[0], km[i + 1] - this.#centreKm[1], km[i + 2] - this.#centreKm[2]));
@@ -204,6 +210,22 @@ export class PathView {
     const a = this.#positions.array;
     return [a[3 * index], a[3 * index + 1], a[3 * index + 2]];
   }
+}
+
+/**
+ * The middle of the box that holds every vertex. A highly eccentric orbit's vertices crowd at one end (the mean of them sits near the
+ * sharp end, not in the middle of the line), so a path spaced by eccentric anomaly is centred by its extremes and framed whole.
+ */
+function boundsMidpoint(km: Float64Array): [number, number, number] {
+  const low = [Infinity, Infinity, Infinity];
+  const high = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < km.length; i += 3) {
+    for (let k = 0; k < 3; k += 1) {
+      low[k] = Math.min(low[k], km[i + k]);
+      high[k] = Math.max(high[k], km[i + k]);
+    }
+  }
+  return [(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, (low[2] + high[2]) / 2];
 }
 
 /** Physical positions (km, EQJ) -> ScalePolicy -> render axes, 3 per vertex, in Float64. */

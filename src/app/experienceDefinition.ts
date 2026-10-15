@@ -3,6 +3,7 @@ import type { SimulationClock } from "../core/clock";
 import type { StateResolver } from "../core/stateResolver";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
+import type { EccentricSampling } from "../core/sunCentredSources";
 import type { BodyId, CenterId } from "../core/body";
 import { catalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
@@ -96,8 +97,16 @@ export type PathSpec = PathRule & {
   readonly source: Trajectory;
   /** Absolute times, or a window about the clock. */
   readonly span: TimeBounds | RollingSpan;
-  /** Number of samples along the span; defaults to 256 (181 for a rolling span, which must be odd so the clock time is a vertex). */
+  /**
+   * Number of samples along the span; defaults to 256 (181 for a rolling span, which must be odd so the clock time is a vertex; 512 when
+   * `sampling` is given, since an eccentric orbit needs the density).
+   */
   readonly samples?: number;
+  /**
+   * For a highly eccentric orbit: space the samples evenly in eccentric anomaly instead of in time, so the sharp end near periapsis is
+   * not drawn with a few long chords. Fixed spans only. Absent means evenly spaced in time.
+   */
+  readonly sampling?: EccentricSampling;
 };
 
 /**
@@ -266,6 +275,8 @@ export function groupsOf(definition: ExperienceDefinition): readonly GroupLayer[
 }
 
 export const DEFAULT_PATH_SAMPLE_COUNT = 256;
+/** Default sample count of a path spaced by eccentric anomaly: at 256 an e = 0.96 orbit is only about ten times finer than by time, at 512 about sixteen. */
+export const DEFAULT_ECCENTRIC_SAMPLE_COUNT = 512;
 /** Default sample count of a rolling span (the Moon's monthly loop). */
 export const DEFAULT_WINDOW_SAMPLE_COUNT = 181;
 
@@ -292,12 +303,19 @@ export function validatePathSpec(id: string, path: PathSpec): void {
     if (!(windowMs > 0) || !Number.isFinite(windowMs)) throw new RangeError(`path "${id}" span windowMs must be positive and finite`);
     const samples = path.samples ?? DEFAULT_WINDOW_SAMPLE_COUNT;
     if (!Number.isInteger(samples) || samples < 3 || samples % 2 === 0) throw new RangeError(`path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`);
+    if (path.sampling !== undefined) throw new RangeError(`path "${id}" sampling by eccentric anomaly needs a fixed span, not a rolling window`);
     first = Number.NaN;
   } else {
     const { startUtcMs, endUtcMs } = path.span ?? {};
+    if (path.sampling !== undefined) {
+      const { eccentricity, periodMs, periapsisUtcMs } = path.sampling;
+      if (!(eccentricity >= 0 && eccentricity < 1)) throw new RangeError(`path "${id}" sampling eccentricity must be at least 0 and below 1, got ${eccentricity}`);
+      if (!(periodMs > 0) || !Number.isFinite(periodMs)) throw new RangeError(`path "${id}" sampling periodMs must be positive and finite`);
+      if (!Number.isFinite(periapsisUtcMs)) throw new RangeError(`path "${id}" sampling periapsisUtcMs must be finite`);
+    }
     if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs)) throw new RangeError(`path "${id}" span needs finite start and end times`);
     if (!(endUtcMs > startUtcMs)) throw new RangeError(`path "${id}" span must end after it starts`);
-    const samples = path.samples ?? DEFAULT_PATH_SAMPLE_COUNT;
+    const samples = path.samples ?? (path.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
     if (!Number.isInteger(samples) || samples < 2) throw new RangeError(`path "${id}" samples must be a whole number of at least 2, got ${samples}`);
     first = startUtcMs;
   }

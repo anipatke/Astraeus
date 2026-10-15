@@ -1,0 +1,161 @@
+==== QUERY https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 retrieved 2026-10-15T08:39:27Z UTC (raw response follows) ====
+{"signature":{"source":"NASA/JPL Small-Body Database (SBDB) API","version":"1.3"},"object":{"spkid":"1000140","kind":"cn","des":"109P","prefix":"P","neo":true,"fullname":"109P/Swift-Tuttle","orbit_class":{"code":"HTC","name":"Halley-type Comet*"},"pha":false,"orbit_id":"32"},"orbit":{"data_arc":"94131","sb_used":"SB405-CPV-2","producer":"M.S.W. Keesey","n_dop_obs_used":null,"source":"JPL","elements":[{"title":"eccentricity","value":"0.963225755046038","name":"e","units":null,"label":"e","sigma":"6.8344E-9"},{"title":"semi-major axis","value":"26.0920694978266","sigma":"8.2048E-7","name":"a","label":"a","units":"au"},{"sigma":"1.7657E-7","units":"au","label":"q","name":"q","value":"0.959516155068868","title":"perihelion distance"},{"label":"i","units":"deg","name":"i","sigma":"2.1907E-5","value":"113.453816997171","title":"inclination; angle with respect to x-y ecliptic plane"},{"title":"longitude of the ascending node","value":"139.3811920815948","sigma":"2.7841E-5","name":"om","label":"node","units":"deg"},{"units":"deg","label":"peri","name":"w","sigma":"3.2865E-5","value":"152.9821676305871","title":"argument of perihelion"},{"sigma":"3.1321E-7","name":"ma","units":"deg","label":"M","title":"mean anomaly","value":"7.631696167124212"},{"title":"time of perihelion passage","value":"2448968.499784556297","sigma":"2.9166E-5","name":"tp","units":"TDB","label":"tp"},{"title":"sidereal orbital period","value":"48681.19346262312","name":"per","units":"d","label":"period","sigma":".0022962"},{"sigma":"3.4881E-10","name":"n","label":"n","units":"deg/d","title":"mean motion","value":".007395052881692476"},{"title":"aphelion distance","value":"51.22462284058444","sigma":"1.6108E-6","name":"ad","label":"Q","units":"au"}],"t_jup":"-0.280","n_del_obs_used":null,"epoch":"2450000.5","condition_code":"0","first_obs":"1737-07-08","not_valid_after":null,"cov_epoch":"2450000.5","soln_date":"2001-10-09 15:34:49","n_obs_used":652,"model_pars":[],"last_obs":"1995-03-29","two_body":null,"moid":".000892135","rms":"1.1984","not_valid_before":null,"pe_used":"DE405","orbit_id":"32","comment":null,"moid_jup":null,"equinox":"J2000"},"phys_par":[{"sigma":null,"desc":"absolute magnitude of comet and coma (i.e. total)","name":"M1","value":"4.5","ref":"ICQ 1994 Handbook","units":null,"notes":null,"title":"comet total magnitude"},{"title":"comet total magnitude slope","notes":null,"units":null,"ref":"ICQ 1994 Handbook","value":"15.0","sigma":null,"desc":"comet total magnitude slope parameter","name":"K1"},{"title":"comet nuclear magnitude","notes":null,"ref":"ICQ 1994 Handbook","units":null,"value":"8.5","desc":"absolute magnitude of comet nucleus","name":"M2","sigma":null},{"units":null,"ref":"ICQ 1994 Handbook","title":"comet nuclear magnitude slope","notes":null,"sigma":null,"name":"K2","desc":"comet nuclear magnitude slope parameter","value":"10.0"},{"sigma":null,"desc":"effective body diameter","name":"diameter","value":"26","ref":"Lamy,P.L.;Toth,I.;Fernandez,Y.R.;Weaver,H.A. (2004) Comets II, pp. 223-264","units":"km","title":"diameter","notes":null}]}
+
+
+==== QUERY https://ssd.jpl.nasa.gov/api/horizons.api format=text COMMAND='DES=109P;CAP' EPHEM_TYPE=VECTORS CENTER=500@10 REF_SYSTEM=ICRF REF_PLANE=FRAME VEC_TABLE=1 VEC_CORR=NONE OUT_UNITS=KM-S TIME_TYPE=UT TLIST='2447892.5 2448257.5 2448968.5 2451545.0 2455197.5 2458849.5 2461265.5 2462502.5' retrieved 2026-10-15T08:39:41Z UTC (raw response follows) ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS                  109P/Swift-Tuttle            2026-Oct-15 01:39:41
+Rec #:90000985 (+COV) Soln.date: 2001-Oct-09_15:34:49    # obs: 652 (1737-1995)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2450000.5 ! 1995-Oct-10.0000000 (TDB)    RMSW= n.a.
+   EC= .9632257550460384   QR= .9595161550688684   TP= 2448968.4997845562
+   OM= 139.3811920815948   W= 152.9821676305871    IN= 113.4538169971712
+   A= 26.09206949782666    MA= 7.631696167124793   ADIST= 51.22462284058444
+   PER= 133.281843840504   N= .007395053           ANGMOM= .023609822
+   DAN= 13.27557           DDN= 1.0138             L= 330.8536722
+   B= 24.6287339           MOID= .00089214         TP= 1992-Dec-11.9997845562
+ 
+Comet physical (GM= km^3/s^2; RAD= km):
+   GM= n.a.                RAD= 13.
+   M1=  4.5      M2=  8.5      k1=  15.    k2=  10.     PHCOF= n.a.
+
+COMET comments 
+1: soln ref.= JPL#32, data arc: 1737-07-08 to 1995-03-29
+2: k1=15.0, k2=10.0;
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Thu Oct 15 01:39:41 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 109P/Swift-Tuttle               {source: JPL#32}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 1990-Jan-01 00:00:00.0000 UT 
+Stop  time      : A.D. 2030-Jan-01 00:00:00.0000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261014.p270110
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-14. PREDICTS-> 2027-JAN-09
+Reference frame : ICRF
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2450000.5 ! 1995-Oct-10.0000000 (TDB)    RMSW= n.a.                  
+   EC= .9632257550460384   QR= .9595161550688684   TP= 2448968.4997845562      
+   OM= 139.3811920815948   W= 152.9821676305871    IN= 113.4538169971712       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-5.961434623156935E+00  Y= 3.700438936751722E+00  Z=-6.922297729421842E+00
+  VX=-5.226325508711362E-03 VY= 3.593351825095821E-03 VZ=-2.911438559166090E-03
+Comet physical (GM= km^3/s^2; RAD= km):                                        
+   GM= n.a.                RAD= 13.                                            
+   M1=  4.5      M2=  8.5      k1=  15.    k2=  10.     PHCOF= n.a.            
+*******************************************************************************
+JDUT 
+   X     Y     Z
+*******************************************************************************
+$$SOE
+2447892.500000000 = A.D. 1990-Jan-01 00:00:00.0000 UTC 
+ X =-1.112364230499670E+09 Y = 8.890240516018983E+08 Z = 5.235475176167427E+08
+2448257.500000000 = A.D. 1991-Jan-01 00:00:00.0000 UTC 
+ X =-7.882840436424792E+08 Y = 6.450556410860612E+08 Z = 5.085001691488484E+08
+2448968.500000000 = A.D. 1992-Dec-12 00:00:00.0000 UTC 
+ X = 1.137254137525206E+08 Y =-8.167821069219451E+07 Z = 3.072967229596754E+07
+2451545.000000000 = A.D. 2000-Jan-01 12:00:00.0000 UTC 
+ X =-1.881215598749002E+09 Y = 1.245294069571314E+09 Z =-1.485586480196743E+09
+2455197.500000000 = A.D. 2010-Jan-01 00:00:00.0000 UTC 
+ X =-3.428852971447368E+09 Y = 2.351591847707081E+09 Z =-1.925240107377090E+09
+2458849.500000000 = A.D. 2020-Jan-01 00:00:00.0000 UTC 
+ X =-4.465994514508493E+09 Y = 3.109716588163730E+09 Z =-2.065147317786686E+09
+2461265.500000000 = A.D. 2026-Aug-13 00:00:00.0000 UTC 
+ X =-4.977830239254554E+09 Y = 3.492060326066084E+09 Z =-2.073471173164697E+09
+2462502.500000000 = A.D. 2030-Jan-01 00:00:00.0000 UT~ 
+ X =-5.196646819499864E+09 Y = 3.655765216574075E+09 Z =-2.060016837273018E+09
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

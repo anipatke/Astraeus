@@ -94,6 +94,59 @@ export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {
   return times;
 }
 
+/** The shape and timing of one bound two-body orbit: what spacing samples by eccentric anomaly needs, and nothing else. */
+export interface EccentricSampling {
+  /** At least 0 and below 1. */
+  readonly eccentricity: number;
+  /** Time for one full turn. */
+  readonly periodMs: number;
+  /** Any instant the body is at periapsis (a past or future one works as well as the nearest). */
+  readonly periapsisUtcMs: number;
+}
+
+/** The eccentric anomaly E (radians, unwrapped) whose mean anomaly M = E - e sin E equals `meanRad`. */
+export function eccentricAnomalyFromMean(meanRad: number, eccentricity: number): number {
+  const turns = Math.round(meanRad / (2 * Math.PI));
+  const reduced = meanRad - turns * 2 * Math.PI;
+  let anomaly = eccentricity < 0.8 ? reduced : Math.PI * Math.sign(reduced || 1);
+  for (let step = 0; step < 60; step += 1) {
+    const change = (anomaly - eccentricity * Math.sin(anomaly) - reduced) / (1 - eccentricity * Math.cos(anomaly));
+    anomaly -= change;
+    if (Math.abs(change) < 1e-14) break;
+  }
+  return anomaly + turns * 2 * Math.PI;
+}
+
+/**
+ * A path's sample times for a highly eccentric orbit: `count` times from the span's start to its end inclusive, spaced evenly in
+ * eccentric anomaly rather than in time. A body spends most of its time far out and passes periapsis fast, so equal time steps leave
+ * a few long chords across the sharp end; equal anomaly steps shorten them there. The ends are exactly the span's. The source is
+ * still asked for its own state at every time, so the line passes through the source's positions.
+ */
+export function eccentricPathTimesUtcMs(span: TimeBounds, count: number, orbit: EccentricSampling): number[] {
+  if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);
+  assertUtcUnixMs(span.startUtcMs);
+  assertUtcUnixMs(span.endUtcMs);
+  if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError("a path span must end after it starts");
+  const { eccentricity, periodMs, periapsisUtcMs } = orbit;
+  if (!(eccentricity >= 0 && eccentricity < 1)) throw new RangeError("sampling by eccentric anomaly needs an eccentricity of at least 0 and below 1");
+  if (!(periodMs > 0) || !Number.isFinite(periodMs)) throw new RangeError("sampling by eccentric anomaly needs a positive finite period");
+  if (!Number.isFinite(periapsisUtcMs)) throw new RangeError("sampling by eccentric anomaly needs a finite periapsis time");
+  const meanOf = (timeUtcMs: number): number => (2 * Math.PI * (timeUtcMs - periapsisUtcMs)) / periodMs;
+  const first = eccentricAnomalyFromMean(meanOf(span.startUtcMs), eccentricity);
+  const last = eccentricAnomalyFromMean(meanOf(span.endUtcMs), eccentricity);
+  const times: number[] = [];
+  for (let k = 0; k < count; k += 1) {
+    if (k === 0) times.push(span.startUtcMs);
+    else if (k === count - 1) times.push(span.endUtcMs);
+    else {
+      const anomaly = first + ((last - first) * k) / (count - 1);
+      times.push(Math.round(periapsisUtcMs + (periodMs * (anomaly - eccentricity * Math.sin(anomaly))) / (2 * Math.PI)));
+    }
+  }
+  return times;
+}
+
 /**
  * Sample times of a window `windowMs` wide centred on `centerUtcMs`: `count` evenly spaced, the centre exactly one of them
  * (so the clock time is always a vertex). The count must be odd.
