@@ -57,7 +57,7 @@ const RADIANS = Math.PI / 180;
 const TWO_BODY_NOTE = "Motion is unperturbed two-body about the centre; no perturbations are modelled.";
 
 // Local so a group never shares random state with other code (mulberry32, 32-bit seed).
-function seededRandom(seed: number): () => number {
+export function seededRandom(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
     state = (state + 0x6d2b79f5) >>> 0;
@@ -110,7 +110,7 @@ function sampleMembers(input: OrbitGroupInput): ClassicalElements[] {
   return members;
 }
 
-function rotateInto(matrix: Float64Array, v: ArrayLike<number>, out: Float64Array, offset: number): void {
+export function rotateInto(matrix: Float64Array, v: ArrayLike<number>, out: Float64Array, offset: number): void {
   for (let row = 0; row < 3; row++) {
     out[offset + row] = matrix[3 * row] * v[0] + matrix[3 * row + 1] * v[1] + matrix[3 * row + 2] * v[2];
   }

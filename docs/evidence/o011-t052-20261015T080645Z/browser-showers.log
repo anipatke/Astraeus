@@ -1,0 +1,154 @@
+{
+  "shower": "perseids",
+  "results": {
+    "desktop": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 26328,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 29817,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 32829,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 10935,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "start": {
+            "overview": {
+              "blue": 301,
+              "violet": 2015,
+              "left": 273,
+              "right": 28,
+              "bright": 92996
+            },
+            "near": {
+              "blue": 1147,
+              "violet": 1607,
+              "left": 571,
+              "right": 576,
+              "bright": 90201
+            }
+          },
+          "peak": {
+            "overview": {
+              "blue": 114,
+              "violet": 1999,
+              "left": 110,
+              "right": 4,
+              "bright": 92567
+            },
+            "near": {
+              "blue": 1468,
+              "violet": 1608,
+              "left": 701,
+              "right": 767,
+              "bright": 91051
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 91077,
+          "solarSystem": 132303
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          118371,
+          190994,
+          137832
+        ]
+      },
+      "planetOrbits": {
+        "mercury": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "venus": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "mars": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "jupiter": "Known limitations A turn's samples joined by straight segments. The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range. S",
+        "tanPixels": 509
+      }
+    },
+    "phone": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 19031,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 17703,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 19364,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 5702,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "start": {
+            "overview": {
+              "blue": 305,
+              "violet": 897,
+              "left": 276,
+              "right": 29,
+              "bright": 46122
+            },
+            "near": {
+              "blue": 415,
+              "violet": 483,
+              "left": 172,
+              "right": 243,
+              "bright": 37230
+            }
+          },
+          "peak": {
+            "overview": {
+              "blue": 116,
+              "violet": 897,
+              "left": 111,
+              "right": 5,
+              "bright": 44903
+            },
+            "near": {
+              "blue": 511,
+              "violet": 483,
+              "left": 213,
+              "right": 298,
+              "bright": 37522
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 37506,
+          "solarSystem": 56888
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          56690,
+          119901,
+          60006
+        ]
+      },
+      "planetOrbits": {
+        "mercury": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "venus": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "mars": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "jupiter": "Known limitations A turn's samples joined by straight segments. The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range. S",
+        "tanPixels": 430
+      }
+    }
+  },
+  "errors": []
+}

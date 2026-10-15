@@ -2,7 +2,7 @@
 id: T-052
 title: Draw a group from a list of measured orbits
 objective: O-011
-status: planned
+status: done
 depends_on: [{task: T-051, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o011-replan-i025-2026-10-13}
@@ -66,8 +66,50 @@ Focused tests, then the configured gates and every browser script in a fresh run
 
 ## Technical Evidence
 
-Pending execution.
+Executor: builder session, 2026-10-15 (started 2026-10-15T07:59:49Z, handoff 2026-10-15T08:33Z). Not a Check; not CLEAR.
+
+### Design as built
+
+`createListedOrbitGroup(input, adapter)` in `src/core/listedOrbitGroup.ts`. Members are `{ recordId, epochUtcMs, elements: {a, e, i, raan, argPeriapsis} }`. No contract change was needed for per-member epochs: the epoch is the record's time and does not place the dot, so every member's initial state is built at `phase.referenceUtcMs` and propagated by the unchanged `TwoBodyAdapter.propagateMemberInto` (REPLAN not triggered). Mean anomalies: a seeded shuffle (mulberry32, default seed 0) deals evenly spaced slots (k + 0.5)/n of 360 degrees; with `concentration`, the first round(fraction n) of the shuffle sit evenly across +/- widthDeg about the reference body's mean anomaly (read from `around.stateAt(referenceUtcMs, center)`, velocity by a +/-1000 s central difference when the State has none, mu probed from the adapter) and the rest spread evenly round the whole orbit. Mean anomaly goes to true anomaly by Newton on Kepler's equation. Provenance is always `illustrative`; accuracy states the elements are "as listed (<input sourceType>)" and the position along each orbit is illustrative; notes add the concentration as "a model, not a measurement". State body is `<group id>:<recordId>`; `recordIdAt(i)` and `meanAnomalyDegAt(i)` are extra readers.
+
+### Per Done When
+
+1. PASS. Test "puts every member where a single-member two-body trajectory ... 1e-6 km": 60 members, 4 times (reference, +37 d, -200 d, +1500 d), oracle is `createTwoBodyTrajectory` with the same elements and an independent bisection Kepler solve. Sun-centred tolerance is max(1e-6 km, 1e-13 x |r|): the anomaly solve agrees to about 4e-14 rad for e up to 0.95 (measured worst difference 4.4e-14 rad), which times a 7e7 km distance exceeds 1e-6 km (observed 3.5e-6 km), so the literal 1e-6 km is not reachable at Sun scale in double precision. A second test about a planet (40 members, a 8,000 to 28,000 km) holds the plain 1e-6 km. `stateAt(i).body` is `listed-test:rec-7`; batch equals `stateAt` positions exactly.
+2. PASS. Tests name member index and record id and the field for non-finite (all five elements, NaN and Infinity), e < 1 / e < 0 / a <= 0 (the rejection rule from the research record: e >= 1 rows are dropped by the loader, here they throw), inclination outside 0..180, bad epoch, blank record id, duplicate record id (`GroupElementsError`), and an empty list (`GroupCountError`). Bad phase (seed, fraction, widthDeg) also named.
+3. PASS. 400 made-up members: sorted mean anomalies equal (k+0.5)/400 x 360 to 9 decimals; identical across two builds; different seed gives a different dealing; list neighbours are not orbit neighbours. Ellipse test: 400 members x 5 times (0, +11 d, +160 d, -420 d, +3000 d), orbit-plane residual of ((x+ae)/a, y/b) against 1 and out-of-plane z/a both < 1e-6. Provenance test: sourceType illustrative, sources kept, accuracy/notes state elements-as-listed and illustrative position; epoch shift of +123 days changes no position. Concentration (made-up parent, epoch 700 days before reference, expected mean anomaly computed independently from the epoch true anomaly plus mean motion): 2,000 members, fraction 0.3, width 12 deg: share inside the window within 0.01 of 0.3 + 0.7 x 24/360, at least 600 inside, clump centred within 1 deg, rest evenly spread; deterministic; provenance adds "model, not a measurement"; all members stay between perihelion and aphelion distance (no orbit invented); fraction 0 equals the plain spread, fraction 1 puts all within the width.
+4. PASS. 30,000 members, best of 5 fills (`FrameStats` reset and ticked either side of each fill): listed 5.62, 5.74, 5.79 ms across three runs (and 5.77 ms in the first run) against the 33.4 ms `FRAME_BUDGET_MS`; the existing `createOrbitGroup` at 30,000 measured 5.09 to 7.73 ms in the same runs, so the listed fill is as fast (asserted < 1.5x). Bit-identical: two separately built groups, fill at +400 d, all 720,000 bytes equal; mean anomalies at four indices equal. (Software timing on this machine: relative evidence.)
+5. PASS. `src/synthetic/syntheticListedDefinition.ts`: 3,000 invented orbits, Sun-centred, with a made-up parent (clump fraction 0.25, width 15 deg), the Sun, Earth's path and the parent's path; mounted as `?experience=synthetic-listed` (one-line addition to `src/main.tsx`). Look-and-feel numbers (dot colour, point size, refill span, clump fraction/width) are exported settings (`LISTED_LOOK`, `LISTED_REFILL_AFTER_MS`, `LISTED_CLUMP`), per the owner preference; `PointsView` was not touched. `browser-synthetic-listed.mjs` passes at 1280x800 and 390x844 with zero console errors: dot pixels on canvas desktop 8,222 (True) / 8,182 (Readable), phone 864 / 850; panel states made up, position along each orbit illustrative, clump a model, parts missing not shown; information identical under True and Readable; no meteor/shower/Perseid/Geminid/Apollo/Columbia text in the page; Apollo remains the default. Unit tests in `tests/listedOrbitGroup.test.ts` mount it through `groupsOf`, `experienceWithGroups`, `PointsView` (True scale), the shell markup, and check names. `tests/nameCheck.test.ts` passes (no shower naming in `src/core` or `src/synthetic`).
+6. PASS (see commands).
+
+### Commands run
+
+- `npm run typecheck`: pass, no output errors.
+- `npm run build`: pass (existing chunk-size warning only).
+- `npm test`: 33 files, 613 tests passed (`tests/listedOrbitGroup.test.ts` contributes 20 of them).
+- Own vite on port 5199 (stopped afterwards; :5301 and :5302 untouched). Browser scripts, each with `PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-t052-20261015T080645Z/<script>`: browser-synthetic-listed (run first, writes screenshots straight into the run directory: 1280x800 and `phone-` 390x844), then browser-earth-moon, browser-jupiter-io, browser-lighting, browser-precision, browser-shell, browser-showers, browser-sky, browser-spike02, browser-spike03, browser-synthetic, browser-synthetic-belt, browser-synthetic-ring, capture-apollo-compare: all exit 0, `errors` empty (browser-sky reports `"errors": 0`). Window 2026-10-15T08:06Z to 08:32Z; logs are `docs/evidence/o011-t052-20261015T080645Z/<script>.log`.
+- Not run: `browser-anchor-labels.mjs` (per instruction; it overwrites `docs/evidence/regression-spike01-02`), `diff-screenshots.mjs` (a comparison utility with its own arguments, not an app scenario), `anchor-consistency.mjs` (not a browser script). `docs/evidence/regression-spike01-02` unchanged (`git status` clean for it); no earlier evidence directory was written to.
+
+### Files
+
+Changed: `src/core/orbitGroup.ts` (only added `export` to `seededRandom` and `rotateInto`; behaviour unchanged, its tests pass), `src/main.tsx` (registers `synthetic-listed`). New: `src/core/listedOrbitGroup.ts`, `src/synthetic/syntheticListedDefinition.ts`, `tests/listedOrbitGroup.test.ts`, `tools/validate/browser-synthetic-listed.mjs`, `docs/evidence/o011-t052-20261015T080645Z/`.
+
+### Extra reads
+
+None outside the Context Files, except the Objective's two owner-decision sections, `docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md` lines 30-75 (rejection rule; Task planned_reads), `src/core/state.ts`, `src/core/trajectory.ts`, `tests/nameCheck.test.ts`, `tests/syntheticRing.test.ts`, `src/app/frameStats.ts` and `src/main.tsx` (how definitions mount, name rules, frame budget), `src/assets/compositions.ts` by import only, and `node_modules/@lizard-isana/orb/src/kepler/index.js` (GM table, to build an independent oracle).
+
+### Limitations
+
+- Sun-scale oracle tolerance is relative (see DW1), not the literal 1e-6 km.
+- The concentration clump is evenly spaced across the window (deterministic), not random; the window is +/- widthDeg, uniform. Its size and fraction are fixture settings, not cited from literature (the CAMS-based fixture must cite or state illustrative defaults).
+- The parent's mean anomaly uses the parent's own orbit; members with different orbits sit at the same mean anomaly, not the same place. Parent velocity is a central difference when the State has none; mu is probed from `elementsToState` (a circular orbit gives v^2 r = mu) because the adapter exposes no mu.
+- Frame timing is software-rendered Node timing; browser dot-pixel counts are relative evidence. Headless evidence is not owner visual judgement.
 
 ## Drift Notes
 
-Record architecture deltas here; T-040 reconciles them.
+- Architecture delta for T-040: a new generic group, `createListedOrbitGroup` (`src/core/listedOrbitGroup.ts`), beside `createOrbitGroup`; it implements `PointGroup` with extras `recordIdAt` / `meanAnomalyDegAt`, uses the unchanged `TwoBodyAdapter`, and states every member's State body as `<group id>:<recordId>`. The phase rule (even mean-anomaly spread at a reference time, optional model concentration) is a Design-level decision from the owner (2026-10-13). Deferred to T-040: add to Design.md Components / Interfaces.
+- `TwoBodyAdapter` exposes no gravitational parameter; mu is probed through `elementsToState`. If the owner or T-040 prefers an explicit accessor, that is a small adapter change (non-breaking) for a later Task; not architectural otherwise.
+- `src/main.tsx` and `src/core/orbitGroup.ts` were touched though not in `planned_writes` (one registry line; two `export` keywords).
+
+## Done
+
+Task Check C-029 CLEAR, 2026-10-15T08:37Z. No owner look required. `status: done` set by the O-011 orchestrator under the owner's delegation in chat ("You may mark a task Done after a satisfactory check, except tasks that need my look"), actor {role: owner-delegate, session: o011-orchestrator-check-20261013}.
