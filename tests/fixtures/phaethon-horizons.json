@@ -1,0 +1,93 @@
+{
+  "source": "NASA/JPL Horizons API v1.2 (target 3200 Phaethon (1983 TB), solution JPL#1017, soln.date 2026-Oct-15_11:51:19; small perturbers on; non-gravitational A2 on)",
+  "command": "3200;",
+  "center": "Sun body center (500@10)",
+  "frame": "ICRF, treated as EQJ",
+  "correction": "geometric; VEC_CORR=NONE",
+  "units": "km",
+  "timeScale": "UT (dates from 2028 are labelled UT~, a predicted leap-second offset)",
+  "retrievedUtc": "2026-10-16T03:43:16Z",
+  "rawFile": "phaethon-horizons-source.txt",
+  "samples": [
+    {
+      "jdUtc": 2459197.5,
+      "utcMs": 1607904000000,
+      "label": "2020-Dec-14 00:00 UTC",
+      "positionKm": [
+        31321771.24071947,
+        -29269301.77179001,
+        2198770.531090729
+      ]
+    },
+    {
+      "jdUtc": 2459927.5,
+      "utcMs": 1670976000000,
+      "label": "2022-Dec-14 00:00 UTC",
+      "positionKm": [
+        239243102.5963618,
+        185650483.397657,
+        177853624.3011918
+      ]
+    },
+    {
+      "jdUtc": 2460658.5,
+      "utcMs": 1734134400000,
+      "label": "2024-Dec-14 00:00 UTC",
+      "positionKm": [
+        108276005.023111,
+        206485089.5376133,
+        128574000.7806274
+      ]
+    },
+    {
+      "jdUtc": 2461200.5,
+      "utcMs": 1780963200000,
+      "label": "2026-Jun-09 00:00 UTC",
+      "positionKm": [
+        86175965.22663818,
+        193319585.9889452,
+        113709690.8092726
+      ]
+    },
+    {
+      "jdUtc": 2461388.5,
+      "utcMs": 1797206400000,
+      "label": "2026-Dec-14 00:00 UTC",
+      "positionKm": [
+        212876141.0571493,
+        91601600.2684191,
+        129390714.7232469
+      ]
+    },
+    {
+      "jdUtc": 2462119.5,
+      "utcMs": 1860364800000,
+      "label": "2028-Dec-14 00:00 UT~",
+      "positionKm": [
+        203314244.1046807,
+        225001298.7382405,
+        177529625.1782021
+      ]
+    },
+    {
+      "jdUtc": 2462849.5,
+      "utcMs": 1923436800000,
+      "label": "2030-Dec-14 00:00 UT~",
+      "positionKm": [
+        -26214158.83961557,
+        37759796.0988178,
+        3285581.450043608
+      ]
+    },
+    {
+      "jdUtc": 2463580.5,
+      "utcMs": 1986595200000,
+      "label": "2032-Dec-14 00:00 UT~",
+      "positionKm": [
+        240265634.0269271,
+        177564678.7556477,
+        175158952.1112354
+      ]
+    }
+  ]
+}

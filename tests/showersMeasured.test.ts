@@ -127,7 +127,7 @@ suite(title, () => {
     expect(near / group.count).toBeGreaterThan(expected - 0.01);
     expect(near / group.count).toBeLessThan(expected + 0.01);
     console.info(`CLUMP ${settings.stream.concentration.status} fraction=${fraction} widthDeg=${widthDeg} nearShare=${(near / group.count).toFixed(4)} cometMeanAnomalyDeg=${phase.toFixed(2)}`);
-    expect(streamLimitations(settings).join(" ")).toMatch(/clump near the comet is a model/);
+    expect(streamLimitations(settings).join(" ")).toContain(`clump near ${settings.parentBody} is a model`);
   });
 
   for (const set of ["all", "reliable"] as const) it(`DW2(a), ${set} orbits: Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1)`, () => {

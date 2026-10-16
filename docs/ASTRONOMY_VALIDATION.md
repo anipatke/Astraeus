@@ -222,3 +222,32 @@ Method: the measured ellipses themselves (not the dots), from the elements in th
 - **(c) and (d)** The comet's position and orbit, and the planets' positions and orbits, are the catalogue bodies' own (T-054 and T-048); the test asserts the comet path's source returns the catalogue body's positions.
 
 Limits: the check uses only orbit geometry, so it is a consistency check of the data against the published values and not a measurement of the stream's density; the dots' places along their orbits (illustrative) play no part in it.
+
+## A body defined in a settings file: 3200 Phaethon (O-011 / T-055)
+
+### What is validated
+
+`src/core/elementsBody.ts` builds a body from a validated record (published elements, epoch with time scale, source and solution, optional radius with source, accuracy class and statement) with the same two-body Sun-centred source the built-in comet uses. `tests/elementsBody.test.ts` holds both checks below. No body name appears in the generic code (the name check asserts it).
+
+**Equivalence.** The built-in comet's published elements, written as a record and built through the generic path, give positions identical to the hand-written source at 1990-01-01, 1995-10-10, 2000-06-01, 2026-08-13 and 2100-01-01: relative difference 0 (bit-identical) against a bound of 1e-9. The epoch and the periapsis instant also match exactly. The TDB epoch is converted with the record's stated TT minus UTC (61.184 s there), the same figure the hand-written source uses.
+
+### Source of the elements
+
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1`, fetched 2026-10-16T03:43:15Z), solution SB441-N16 of 2026-10-15 (8682 observations 1983 to 2026), epoch JD 2461200.5 TDB (2026-06-09), ecliptic J2000: a 1.271464620766258 AU, e 0.8896722843984632, i 22.31052728903618 deg, node 265.0988060336058 deg, omega 322.300168494526 deg, M 301.4858238591272 deg, q 0.1402777870773155 AU, period 523.67 d. Radius 3.125 km (SBDB effective diameter 6.25 km, Taylor et al. 2019; Horizons prints RAD = 3.125). The fit also carries a small transverse non-gravitational term (A2 = -6.2e-15 au/d^2) that the two-body model leaves out. TT minus UTC at the epoch is 69.184 s (32.184 s plus 37 leap seconds). The record is in `data/showers/geminids.json` (`parentElements`); the raw responses are archived in [`phaethon-horizons-source.txt`](../tests/fixtures/phaethon-horizons-source.txt) (first the SBDB response, second the Horizons response, each preceded by a `==== QUERY ... ====` line) and parsed into [`phaethon-horizons.json`](../tests/fixtures/phaethon-horizons.json).
+
+### Horizons comparison
+
+Fetched 2026-10-16T03:43:16Z from `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='3200;'` (solution JPL#1017, soln. date 2026-Oct-15 11:51:19, the same fit as SBDB), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). ICRF is treated as EQJ and UT as UTC. The dates span 12 years, about 8 orbits, around the December 2026 peak.
+
+| Date (UTC) | Distance from the Sun | Difference from Horizons | As a fraction of the distance |
+|---|---|---|---|
+| 2020-12-14 | 0.287 AU | **935,344 km** | **2.18%** |
+| 2022-12-14 | 2.348 AU | 100,735 km | 0.029% |
+| 2024-12-14 | 1.780 AU | 120,713 km | 0.045% |
+| 2026-06-09 (the epoch) | 1.606 AU | 47 km | 0.00002% |
+| 2026-12-14 (the peak) | 1.774 AU | 11,309 km | 0.004% |
+| 2028-12-14 | 2.349 AU | 37,653 km | 0.011% |
+| 2030-12-14 | 0.308 AU | 48,316 km | 0.105% |
+| 2032-12-14 | 2.315 AU | 32,673 km | 0.009% |
+
+Maximum error **935,344 km at 2020-12-14**, 2.18% of its 0.287 AU distance from the Sun there; the agreement at the epoch (47 km) confirms the time-scale conversion. The error is largest close to perihelion, as expected: the body moves fastest there (q = 0.14 AU), so a small timing difference is a large position difference, and Horizons integrates the planets' pull and the non-gravitational term that the fixed ellipse leaves out. **Classification: indicative** (rule in `classifyPositionError`: within 1% of the distance from the Sun at every compared date is "approximate", within 5% "indicative"; 2.18% earns the second). It is good enough to show where the asteroid is on its orbit at overview scale (935,344 km is 0.4% of the semi-major axis), not an ephemeris and not good enough for a close approach. The record states two-body, no perturbations, no non-gravitational forces, and names the small perihelion as the weak point; validity is stated as 2020-12-14 to 2032-12-14 only. The test asserts the recorded figure, the percentage and that the classification follows from them. A date list is not a bound for other dates.

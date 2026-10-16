@@ -1,5 +1,6 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "../core/body";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../core/bodies";
+import { buildElementsBody, type ElementsBodyRecord } from "../core/elementsBody";
 import { EARTH_ENTRY } from "./bodies/earth";
 import { IO_ENTRY } from "./bodies/io";
 import { JUPITER_ENTRY } from "./bodies/jupiter";
@@ -89,6 +90,34 @@ export function createCatalogue(
     definitions: (): readonly CelestialBodyDefinition[] => orderedDefinitions,
     sources: (): readonly StateSourceBinding[] => orderedSources,
   });
+}
+
+/**
+ * A catalogue that holds everything `base` holds plus one body per record, each a Sun-centred two-body source with a marker visual (the
+ * record's colour and size). `base` is not changed: the extension belongs to the experience that asks for it. Rejects an id the base
+ * already holds, like any other duplicate.
+ */
+export function extendCatalogue(base: BodyCatalogue, records: readonly ElementsBodyRecord[]): BodyCatalogue {
+  if (records.length === 0) return base;
+  const root = base.get(rootBodyId(base)).definition;
+  const centre = { id: root.id, gmKm3S2: root.gmKm3S2! };
+  const built = records.map((record) => ({ record, body: buildElementsBody(record, centre) }));
+  const visuals: VisualEntry[] = base.ids().map((id) => ({ body: id, visual: base.get(id).visual }));
+  for (const { record, body } of built) {
+    visuals.push({
+      body: body.definition.id,
+      visual: Object.freeze({
+        kind: "marker",
+        material: Object.freeze({ color: record.marker.color, roughness: 1, metalness: 0 }),
+        marker: Object.freeze({ sizePx: record.marker.sizePx }),
+      }),
+    });
+  }
+  return createCatalogue(
+    [...base.definitions(), ...built.map(({ body }) => body.definition)],
+    [...base.sources(), ...built.map(({ body }) => body.binding)],
+    visuals,
+  );
 }
 
 /** The id of the catalogue's one root body (the one with no parent), the origin every chain ends at. */

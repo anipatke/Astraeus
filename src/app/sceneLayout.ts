@@ -21,8 +21,8 @@ export function applyOrientation(mesh: Object3D, state: State, textureYawRad: nu
 }
 
 /** The resolver a scene mount owns: the built-in catalogue's definitions and state sources over one adapter. */
-export function createSceneResolver(adapter: AstronomyAdapter): StateResolver {
-  return createStateResolver(catalogue.definitions(), catalogue.sources(), adapter);
+export function createSceneResolver(adapter: AstronomyAdapter, source: BodyCatalogue = catalogue): StateResolver {
+  return createStateResolver(source.definitions(), source.sources(), adapter);
 }
 
 /** Where the scene's zero is: every position handed to a view is first expressed from `center`. */

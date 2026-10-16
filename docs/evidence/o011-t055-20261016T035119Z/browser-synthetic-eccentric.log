@@ -1,0 +1,97 @@
+{
+  "markerRule": {
+    "default": {
+      "threshold": "3",
+      "earthClose": "",
+      "earthPulledBack": "earth",
+      "earthPulledBackProbe": {
+        "drawn": true,
+        "inFront": true,
+        "bright": 35
+      },
+      "sunViewTrue": "earth"
+    },
+    "threshold0": {
+      "threshold": "0",
+      "earthClose": "",
+      "earthPulledBack": "",
+      "earthPulledBackProbe": {
+        "drawn": false,
+        "bright": 0
+      },
+      "sunViewTrue": ""
+    },
+    "threshold100": {
+      "threshold": "100",
+      "earthClose": "",
+      "earthPulledBack": "earth",
+      "earthPulledBackProbe": {
+        "drawn": true,
+        "inFront": true,
+        "bright": 35
+      },
+      "sunViewTrue": "earth"
+    }
+  },
+  "solarSystemScale": {
+    "nearSunTrue": "earth",
+    "nearSunSolarSystem": "",
+    "pulledFarBack": "earth"
+  },
+  "framing": {
+    "desktop": {
+      "count": 214,
+      "minX": 32,
+      "minY": 217,
+      "maxX": 729,
+      "maxY": 759,
+      "width": 1280,
+      "height": 800,
+      "spanFraction": 0.6775
+    },
+    "desktop-zoomed-out": {
+      "count": 60,
+      "minX": 32,
+      "minY": 343,
+      "maxX": 677,
+      "maxY": 759,
+      "width": 1280,
+      "height": 800
+    },
+    "phone": {
+      "count": 219,
+      "minX": 24,
+      "minY": 229,
+      "maxX": 289,
+      "maxY": 785,
+      "width": 390,
+      "height": 844,
+      "spanFraction": 0.6794871794871795
+    },
+    "phone-zoomed-out": {
+      "count": 65,
+      "minX": 24,
+      "minY": 362,
+      "maxX": 234,
+      "maxY": 785,
+      "width": 390,
+      "height": 844
+    }
+  },
+  "precisionAt50Au": {
+    "method": "same as tools/validate/browser-precision.mjs: Float32 local position read back from the GPU buffer, projected in Float64 with the camera's matrices; static (60 frames, nothing moves) and sweep (60 frames, 1 px of drag per frame, cubic residual)",
+    "vertexIndex": 256,
+    "distanceFromOriginUnits": 1196584.039914673,
+    "distanceFromOriginAu": 50.959595440300056,
+    "float32GridSpacingUnits": 0.125,
+    "float32GridSpacingKm": 796.37605,
+    "vertexOnScreenPx": {
+      "x": 658.3880716922023,
+      "y": 474.30256043596273
+    },
+    "staticMaxDisplacementPx": 0,
+    "sweepCubicResidualMaxPx": 0.0019173438677171362
+  },
+  "errors": []
+}
+exit 0

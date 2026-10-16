@@ -7,7 +7,7 @@ import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
-import { catalogue, rootBodyId, type BodyAsset } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
 import { drawnRadii, drawsAsMarker, projectedRadiusPx, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
@@ -61,6 +61,8 @@ export interface SceneRuntime {
   readonly clock: SimulationClock;
   /** The one resolver every position in the scene comes from. */
   readonly resolver: StateResolver;
+  /** The catalogue the bodies come from; absent means the built-in one. */
+  readonly catalogue?: BodyCatalogue;
   /** The catalogued bodies drawn, one view each, in draw order. */
   readonly bodies: readonly BodyId[];
   /** The composition the bodies come from, if the experience declares one; its paths are drawn. */
@@ -127,8 +129,9 @@ interface Props {
 
 export function AstraeusScene(props: Props) {
   const { runtime } = props;
-  const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER), [runtime.bodies]);
-  const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers]);
+  const catalogue = runtime.catalogue ?? builtInCatalogue;
+  const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER, catalogue), [runtime.bodies, catalogue]);
+  const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers, catalogue]);
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
@@ -187,6 +190,7 @@ interface SceneContentsProps extends Props {
 }
 
 function SceneContents({ runtime, controls, readout, layers }: SceneContentsProps) {
+  const catalogue = runtime.catalogue ?? builtInCatalogue;
   const { gl, camera, size } = useThree();
   const rootRef = useRef<Group>(null);
   const groupRefs = useRef(new Map<BodyId, Group>());
@@ -212,9 +216,9 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const lastPolicyId = useRef(controls.policy.id);
   const lastUp = useRef<RenderVector | null>(null);
   const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
-  const readoutPair = useMemo(() => readoutPairOf(runtime.bodies), [runtime.bodies]);
-  const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair]);
-  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides]);
+  const readoutPair = useMemo(() => readoutPairOf(runtime.bodies, catalogue), [runtime.bodies, catalogue]);
+  const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
+  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
 
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
@@ -272,7 +276,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   };
 
   useEffect(() => {
-    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: spanScaled.current }, controls.policy, runtime.cameraReach);
+    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: spanScaled.current, bodies: catalogue }, controls.policy, runtime.cameraReach);
     return attachOrbitGestures(gl.domElement, orbit.current, limits);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, controls]);
@@ -312,7 +316,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       lastPolicyId.current = policy.id;
     }
     spanScaled.current = span;
-    const frame: SceneFrame = { centre: sceneCenter, span };
+    const frame: SceneFrame = { centre: sceneCenter, span, bodies: catalogue };
 
     const focusAbsolute = (focus: FocusId): RenderVector => {
       const body = bodyIdFor(focus);
@@ -384,7 +388,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     poseCamera(
       camera as import("three").PerspectiveCamera,
       camState,
-      focusRadius(focusBody, policy),
+      focusRadius(focusBody, policy, catalogue),
       origin,
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
       viewUp,

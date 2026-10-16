@@ -21,12 +21,15 @@ import {
 } from "../src/experiences/showers/showerDefinition";
 import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
 import perseidsFile from "../data/showers/perseids.json";
+import geminidsFile from "../data/showers/geminids.json";
+import { buildElementsBody } from "../src/core/elementsBody";
 import { parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 
 const adapter = createOrbAstronomyAdapter();
 const runtimeAt = (timeUtcMs: number) => ({ clock: new SimulationClock(timeUtcMs), resolver: createSceneResolver(adapter), catalogue });
 const DAY_MS = 86_400_000;
+const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };
 
 // A made-up shower: none of these values belong to any real shower. Its parent is a catalogued body only because the settings must name one.
 const madeUp = {
@@ -163,7 +166,8 @@ describe("the shared shower builder with a made-up shower", () => {
   it("builds a Sun-centred experience of the Sun, Earth, the planets and the parent, with one stream item", () => {
     expect(definition.sceneLayers).toEqual(["points", "sun-centred"]);
     expect(definition.composition).toEqual(showerComposition(settings));
-    expect(mountedBodiesOf(definition)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
+    // The Sun, the planets and this shower's own parent (here Mars, a planet); no other shower's parent.
+    expect(mountedBodiesOf(definition)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter"]);
     expect(definition.sceneCenter).toBe("sun");
     expect(layer.group.center).toBe("sun");
     expect(layer.group.count).toBe(300);
@@ -199,10 +203,10 @@ describe("the shared shower builder with a made-up shower", () => {
     expect(layer.group.provenance.sourceType).toBe("illustrative");
     const text = streamLimitations(settings).join(" ");
     expect(text).toMatch(/position of each dot along its orbit is illustrative/i);
-    expect(text).toMatch(/clump near the comet is a model/i);
+    expect(text).toContain(`clump near ${settings.parentBody} is a model`);
     expect(text).toMatch(/25% of the dots are placed within ±30°/);
     expect(text).toMatch(/\(illustrative defaults: Made-up default for the builder test\.\)/);
-    expect(text).toMatch(/band at the comet's phase, not a blob on the comet/);
+    expect(text).toContain(`band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}`);
     expect(text).toMatch(/Parts of the stream that miss Earth are not shown/);
     expect(layer.object.knownLimitations).toEqual(streamLimitations(settings, { set: "all", counts: orbitSetCounts(loaded.orbits, settings.stream.quality.rule) }));
     const window = createActivityWindow(settings);
@@ -461,5 +465,106 @@ describe("object labels as settings", () => {
     expect([...hiddenLabelsFrom("", objects)]).toEqual(["sun"]);
     expect([...hiddenLabelsFrom("?labels=sun:on,earth:off", objects)]).toEqual(["earth"]);
     expect([...hiddenLabelsFrom("?labels=mars:off,bad,:on,earth:maybe", objects)].sort()).toEqual(["mars", "sun"]);
+  });
+});
+
+describe("a parent defined in the settings file", () => {
+  const defined = structuredClone(geminidsFile) as Record<string, any>;
+  const parent = (): Record<string, any> => structuredClone(defined);
+  const parsed = parseShowerSettings(defined);
+  const definition = buildShowerDefinition(parsed, { kind: "loaded", orbits: madeUpOrbits(77, 120) });
+
+  it("is given by exactly one of a catalogued id or its published elements", () => {
+    const both = parent();
+    both.parentBodyId = "mars";
+    expect(() => parseShowerSettings(both)).toThrow(/parentBodyId and parentElements: exactly one must be given/);
+    const neither = parent();
+    delete neither.parentElements;
+    expect(() => parseShowerSettings(neither)).toThrow(/parentBodyId and parentElements: exactly one must be given/);
+    expect(parseShowerSettings(perseidsFile).parentElements).toBeUndefined();
+    expect(parsed.parentBodyId).toBe(parsed.parentElements?.id);
+  });
+
+  it("names the field of a bad parent value", () => {
+    const bad = parent();
+    bad.parentElements.elements.eccentricity = 1.2;
+    expect(() => parseShowerSettings(bad)).toThrow(/parentElements\.elements\.eccentricity must be at least 0 and below 1/);
+    const missing = parent();
+    delete missing.parentElements.source.solution;
+    expect(() => parseShowerSettings(missing)).toThrow(/parentElements\.source\.solution is required/);
+    expect(() => parseShowerSettings(bad)).toThrow(ShowerSettingsError);
+  });
+
+  it("must agree with the orbit size and shape the file states once more", () => {
+    const off = parent();
+    off.orbit.elements.semiMajorAxisAu = 1.3;
+    expect(() => parseShowerSettings(off)).toThrow(/orbit\.elements\.semiMajorAxisAu must equal parentElements\.elements\.semiMajorAxisAu/);
+  });
+
+  it("adds the parent to the experience's own catalogue and leaves the built-in one alone", () => {
+    expect(catalogue.has(parsed.parentBodyId)).toBe(false);
+    expect(definition.catalogue?.has(parsed.parentBodyId)).toBe(true);
+    expect(mountedBodiesOf(definition)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", parsed.parentBodyId]);
+    expect(mountedBodiesOf(definition)).not.toContain("swift-tuttle");
+    expect(definition.composition?.bodies).toContain(parsed.parentBodyId);
+    expect(showerComposition(parsed).bodies).toContain(parsed.parentBodyId);
+  });
+
+  it("draws the parent's whole orbit like a catalogued one and does not repeat it among the planets' orbits", () => {
+    const ids = (definition.paths ?? []).map((path) => path.object.id);
+    expect(ids).toContain(parentOrbitIdOf(parsed));
+    expect(ids.filter((id) => id === parentOrbitIdOf(parsed))).toHaveLength(1);
+    const whole = definition.paths!.find((path) => path.object.id === parentOrbitIdOf(parsed))!;
+    expect(whole.sampling?.eccentricity).toBe(parsed.parentElements!.elements.eccentricity);
+    expect(whole.object.provenance?.accuracy).toMatch(/^indicative: /);
+    const span = whole.span as { startUtcMs: number; endUtcMs: number };
+    const spanDays = (span.endUtcMs - span.startUtcMs) / DAY_MS;
+    expect(spanDays).toBeGreaterThan(520);
+    expect(spanDays).toBeLessThan(527);
+  });
+
+  it("puts the parent's own periapsis where the sweep finds it", () => {
+    const sampled = parentSamplingOf(parsed, Date.parse(parsed.activity.peakUtc));
+    const built = buildElementsBody(parsed.parentElements!, CENTRE);
+    const period = built.sampling.periodMs;
+    const offset = (((sampled.periapsisUtcMs - built.sampling.periapsisUtcMs) % period) + period) % period;
+    expect(Math.min(offset, period - offset)).toBeLessThan(60_000);
+  });
+
+  it("labels the camera preset generically, not as a comet", () => {
+    const labels = definition.experience.cameraPresets.map((preset) => preset.label);
+    expect(labels).toContain("Focus parent");
+    expect(labels.join(" ")).not.toMatch(/comet/i);
+    expect(definition.experience.cameraPresets.find((preset) => preset.id === "focus-parent")?.request).toEqual({ kind: "focus", target: parsed.parentBodyId });
+  });
+
+  it("gives the parent's shell item the record's own provenance and limits", () => {
+    const item = definition.experience.objects.find((object) => object.id === parsed.parentBodyId)!;
+    expect(item.label).toBe(parsed.parentElements!.label);
+    expect(item.color).toBe(parsed.parentElements!.marker.color);
+    expect(item.provenance?.accuracy).toMatch(/^indicative: /);
+    expect(item.knownLimitations?.join(" ")).toMatch(/no planetary perturbations and no non-gravitational forces/);
+  });
+
+  it("resolves from the scene's own resolver, and the planets' orbit list is unchanged", () => {
+    const resolver = createSceneResolver(adapter, definition.catalogue);
+    const t = Date.parse(parsed.activity.peakUtc);
+    const state = resolver.stateOf(parsed.parentBodyId, t, "sun");
+    expect(Math.hypot(...state.positionKm) / 149_597_870.7).toBeGreaterThan(0.1);
+    expect(() => createSceneResolver(adapter).stateOf(parsed.parentBodyId, t, "sun")).toThrow();
+    const orbitIds = (definition.paths ?? []).map((path) => path.object.id).filter((id) => id.endsWith("-orbit"));
+    expect(orbitIds.sort()).toEqual(["jupiter-orbit", "mars-orbit", "mercury-orbit", "phaethon-orbit", "venus-orbit"]);
+  });
+
+  it("leaves Perseids with its own comet and the same four planets, and no other shower's parent", () => {
+    const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
+    expect(mountedBodiesOf(perseids)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
+    expect(mountedBodiesOf(perseids)).not.toContain("phaethon");
+  });
+
+  it("leaves Perseids with its catalogued parent and no extension", () => {
+    const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
+    expect(perseids.catalogue).toBeUndefined();
+    expect(perseids.experience.cameraPresets.find((preset) => preset.id === "focus-parent")?.label).toBe("Focus parent");
   });
 });

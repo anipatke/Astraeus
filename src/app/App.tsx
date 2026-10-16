@@ -4,10 +4,9 @@ import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { SimulationClock } from "../core/clock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
-import { catalogue } from "../assets/catalogue";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { cameraReachOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
@@ -58,11 +57,12 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     clock.setRate(definition.clock.rate);
     clock.play();
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
-    const resolver = createSceneResolver(adapter);
+    const resolver = createSceneResolver(adapter, catalogueOf(definition));
     return {
       clock,
       adapter,
       resolver,
+      catalogue: catalogueOf(definition),
       bodies: mountedBodiesOf(definition),
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
@@ -79,7 +79,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     };
   }, [definition]);
   const experienceRuntime = useMemo(
-    () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue }),
+    () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
   );
   // The choices offered, in the experience's order; the solar-system policy enlarges only the bodies the experience names.
@@ -103,7 +103,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   }, []);
   const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
-  const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => catalogue.get(id))), [runtime.bodies]);
+  const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const controls = useRef<SceneControls>({
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
@@ -197,7 +197,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         <DebugOverlay readout={hud} />
       </section>
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || runtime.bodies.some((id) => catalogue.get(id).visual.kind === "sphere")) && (
+      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
         <section className="hud-section" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
           <div className="row" role="group" aria-label="Small bodies">

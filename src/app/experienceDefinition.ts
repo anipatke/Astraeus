@@ -5,7 +5,7 @@ import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import type { EccentricSampling } from "../core/sunCentredSources";
 import type { BodyId, CenterId } from "../core/body";
-import { catalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import type { BodyVisual } from "../assets/visual";
 import type { Metric } from "../shell/metrics";
@@ -142,6 +142,8 @@ export interface ExperienceDefinition {
   readonly sceneLayers: readonly SceneLayerId[];
   /** The catalogued bodies the scene draws, one view each. Absent: none, as in the bodiless fixture. */
   readonly composition?: SystemComposition;
+  /** The catalogue this experience draws from: the built-in one plus bodies it defines itself. Absent: the built-in catalogue. */
+  readonly catalogue?: BodyCatalogue;
   /** The catalogued body at the scene's zero. Presentation only; defaults to the composition's own centre, else Earth. */
   readonly sceneCenter?: BodyId;
   /** Per-body presentation overrides; state is untouched. */
@@ -195,6 +197,11 @@ export function cameraReachOf(definition: ExperienceDefinition): CameraReach {
   return definition.camera === undefined ? {} : validateCameraReach(definition.camera);
 }
 
+/** The catalogue the experience draws from: its own extension when it declares one, else the built-in catalogue. */
+export function catalogueOf(definition: ExperienceDefinition): BodyCatalogue {
+  return definition.catalogue ?? builtInCatalogue;
+}
+
 /** The composition the scene mounts: the declared one, else none. */
 export function compositionOf(definition: ExperienceDefinition): SystemComposition | undefined {
   return definition.composition;
@@ -213,6 +220,7 @@ export function scaleChoiceIdsOf(definition: ExperienceDefinition): readonly Sca
 /** The validated overrides: every body catalogued, every enlargement finite and at least 1. Empty when none are declared. */
 export function visualOverridesOf(definition: ExperienceDefinition): ReadonlyMap<BodyId, VisualOverride> {
   const overrides = new Map<BodyId, VisualOverride>();
+  const catalogue = catalogueOf(definition);
   for (const [id, override] of Object.entries(definition.visualOverrides ?? {})) {
     if (!catalogue.has(id)) throw new RangeError(`visualOverrides names "${id}", which the catalogue lacks`);
     const factor = override.exaggeration;
@@ -244,7 +252,7 @@ export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
   const composition = compositionOf(definition);
   const centre = definition.sceneCenter ?? composition?.defaultCenter;
   if (centre === undefined) throw new RangeError("an experience with no composition must declare its sceneCenter");
-  if (!catalogue.has(centre)) throw new RangeError(`sceneCenter "${centre}" is not in the catalogue`);
+  if (!catalogueOf(definition).has(centre)) throw new RangeError(`sceneCenter "${centre}" is not in the catalogue`);
   if (composition !== undefined && !composition.bodies.includes(centre)) {
     throw new RangeError(`sceneCenter "${centre}" is not one of composition "${composition.id}" bodies (${composition.bodies.join(", ")})`);
   }
@@ -254,7 +262,7 @@ export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
 /** The bodies the scene draws, in draw order: the composition's, plus the Sun when a Sun is declared and not already listed. */
 export function mountedBodiesOf(definition: ExperienceDefinition): readonly BodyId[] {
   const bodies = [...(compositionOf(definition)?.bodies ?? [])];
-  const root = rootBodyId();
+  const root = rootBodyId(catalogueOf(definition));
   if (sunCentredOf(definition).sun !== undefined && !bodies.includes(root)) bodies.push(root);
   const overrides = visualOverridesOf(definition);
   return bodies.filter((id) => overrides.get(id)?.visible !== false);
@@ -298,7 +306,7 @@ export const isRollingSpan = (span: PathSpec["span"]): span is RollingSpan => "w
  * Checks one path declaration, naming `id` and the offending field: an unknown rule or frame, an uncatalogued centre, a source that
  * cannot answer a state, an empty or reversed span (or a bad window), or a bad sample count.
  */
-export function validatePathSpec(id: string, path: PathSpec): void {
+export function validatePathSpec(id: string, path: PathSpec, catalogue: BodyCatalogue = builtInCatalogue): void {
   const rule = path as { kind?: unknown; frame?: unknown; center?: unknown };
   if (rule.kind !== "orbit" && rule.kind !== "trail") throw new TypeError(`path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`);
   if (rule.kind === "trail" && rule.frame !== "relative" && rule.frame !== "inertial") {
@@ -343,7 +351,7 @@ export function validatePathSpec(id: string, path: PathSpec): void {
  * Checks the Sun and path declarations and returns them, naming the offending item and field (see `validatePathSpec`),
  * an empty or repeated id or missing provenance.
  */
-export function validateSunCentred(sun: SunBody | undefined, paths: readonly PathLayer[]): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
+export function validateSunCentred(sun: SunBody | undefined, paths: readonly PathLayer[], catalogue: BodyCatalogue = builtInCatalogue): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
   const seen = new Set<string>();
   const claim = (id: unknown, what: string): string => {
     if (typeof id !== "string" || id.length === 0) throw new TypeError(`${what} id must be non-empty`);
@@ -358,7 +366,7 @@ export function validateSunCentred(sun: SunBody | undefined, paths: readonly Pat
   for (const path of paths) {
     const id = claim(path.object?.id, "path");
     if (path.object.provenance === undefined) throw new TypeError(`path "${id}" needs provenance on its object`);
-    validatePathSpec(id, path);
+    validatePathSpec(id, path, catalogue);
   }
   return { sun, paths };
 }
@@ -366,7 +374,7 @@ export function validateSunCentred(sun: SunBody | undefined, paths: readonly Pat
 /** The Sun and paths the scene should draw: none unless the layer is listed; validated. */
 export function sunCentredOf(definition: ExperienceDefinition): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
   if (!definition.sceneLayers.includes("sun-centred")) return { sun: undefined, paths: [] };
-  return validateSunCentred(definition.sun, definition.paths ?? []);
+  return validateSunCentred(definition.sun, definition.paths ?? [], catalogueOf(definition));
 }
 
 /** The experience config the shell receives: its own objects plus one item per drawn group, Sun and path, never listed twice. */

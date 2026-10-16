@@ -1,3 +1,5 @@
+import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../core/elementsBody";
+
 /** A cited fact: where a value was read, and when. */
 export interface ShowerSource {
   readonly name: string;
@@ -38,8 +40,13 @@ export interface ShowerSettings {
   readonly label: string;
   /** The parent body's name as the panel shows it. */
   readonly parentBody: string;
-  /** The parent's catalogue id: its position, orbit and marker come from the catalogue. */
+  /**
+   * The parent's id. Either a catalogued body (its position, orbit and marker come from the catalogue) or the id of `parentElements`.
+   * In the file exactly one of `parentBodyId` and `parentElements` is given.
+   */
   readonly parentBodyId: string;
+  /** A parent the catalogue does not hold, defined by its published elements in this file; the experience adds it to its own catalogue. */
+  readonly parentElements?: ElementsBodyRecord;
   readonly orbit: {
     readonly elements: ShowerOrbitElements;
     readonly source: ShowerSource;
@@ -157,6 +164,27 @@ function orbitElements(raw: Raw, path: string): ShowerOrbitElements {
   return { semiMajorAxisAu, eccentricity };
 }
 
+/** A parent defined in the file, checked by the body-record validator; its errors are reported as settings errors. */
+function parentRecord(input: unknown): ElementsBodyRecord {
+  try {
+    return parseElementsBodyRecord(input, "parentElements");
+  } catch (error) {
+    if (error instanceof ElementsBodyError) throw new ShowerSettingsError(`shower settings ${error.message}`);
+    throw error;
+  }
+}
+
+/** The orbit's size and shape; a parent defined in the file must agree with its own elements (one fact, said once). */
+function orbitElementsOf(orbit: Raw, parent: ElementsBodyRecord | undefined): ShowerOrbitElements {
+  const elements = orbitElements(record(orbit.elements, "orbit.elements"), "orbit.elements");
+  if (parent !== undefined) {
+    for (const key of ["semiMajorAxisAu", "eccentricity"] as const) {
+      if (elements[key] !== parent.elements[key]) fail(`orbit.elements.${key}`, `must equal parentElements.elements.${key} (${parent.elements[key]}), got ${elements[key]}`);
+    }
+  }
+  return elements;
+}
+
 function positive(parent: Raw, key: string, path: string): number {
   const value = finite(parent, key, path);
   if (!(value > 0)) fail(`${path}.${key}`, `must be above zero, got ${value}`);
@@ -246,6 +274,12 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
   const id = text(root, "id", "settings");
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail("settings.id", `must be lower-case words joined by hyphens, got "${id}"`);
 
+  const hasId = root.parentBodyId !== undefined;
+  const hasElements = root.parentElements !== undefined;
+  if (hasId === hasElements) fail("parentBodyId", "and parentElements: exactly one must be given (a catalogued parent id, or the parent's published elements)");
+  const parentElements = hasElements ? parentRecord(root.parentElements) : undefined;
+  const parentBodyId = parentElements === undefined ? text(root, "parentBodyId", "settings") : parentElements.id;
+
   const orbit = record(root.orbit, "orbit");
 
   const stream = record(root.stream, "stream");
@@ -277,8 +311,9 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
     id,
     label: text(root, "label", "settings"),
     parentBody: text(root, "parentBody", "settings"),
-    parentBodyId: text(root, "parentBodyId", "settings"),
-    orbit: { elements: orbitElements(record(orbit.elements, "orbit.elements"), "orbit.elements"), source: source(orbit, "source", "orbit") },
+    parentBodyId,
+    ...(parentElements === undefined ? {} : { parentElements }),
+    orbit: { elements: orbitElementsOf(orbit, parentElements), source: source(orbit, "source", "orbit") },
     stream: { iauCode, source: source(stream, "source", "stream"), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) },
     labels: labels(root.labels),
     timeline: timeline(root.timeline),

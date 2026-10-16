@@ -1,0 +1,127 @@
+{
+  "id": "geminids",
+  "label": "Geminids",
+  "parentBody": "3200 Phaethon",
+  "parentElements": {
+    "id": "phaethon",
+    "label": "3200 Phaethon (1983 TB)",
+    "elements": {
+      "semiMajorAxisAu": 1.271464620766258,
+      "eccentricity": 0.8896722843984632,
+      "inclinationDeg": 22.31052728903618,
+      "ascendingNodeDeg": 265.0988060336058,
+      "argumentOfPerihelionDeg": 322.300168494526,
+      "meanAnomalyDeg": 301.4858238591272
+    },
+    "epoch": {
+      "jd": 2461200.5,
+      "timeScale": "TDB",
+      "ttMinusUtcSeconds": 69.184
+    },
+    "frame": "ecliptic-j2000",
+    "source": {
+      "name": "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB); osculating elements, equinox J2000, ecliptic plane; archived in tests/fixtures/phaethon-horizons-source.txt",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1",
+      "solution": "SB441-N16 (2026-10-15, 8682 observations 1983 to 2026)",
+      "accessed": "2026-10-16"
+    },
+    "radius": {
+      "km": 3.125,
+      "source": "JPL Small-Body Database effective diameter 6.25 km (Taylor et al. 2019, Planetary and Space Science, doi 10.1016/j.pss.2019.01.009), half of it; JPL Horizons prints RAD = 3.125 km"
+    },
+    "accuracy": {
+      "classification": "indicative",
+      "statement": "Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. It is unperturbed two-body motion from osculating elements: no planetary perturbations and no non-gravitational forces (the fit carries a small transverse non-gravitational term that this model leaves out). The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date; see docs/ASTRONOMY_VALIDATION.md.",
+      "validFromUtc": "2020-12-14T00:00:00Z",
+      "validToUtc": "2032-12-14T00:00:00Z",
+      "limitations": [
+        "Horizons integrates the same orbit fit with the planets' pull and the non-gravitational term, so the two drift apart; the largest difference over 2020 to 2032 is stated in the position accuracy.",
+        "Positions before 2020-12-14 or after 2032-12-14 were not compared with Horizons.",
+        "The body's size is the effective diameter of a 6 km body; no shape, spin or orientation is modelled."
+      ]
+    }
+  },
+  "orbit": {
+    "elements": {
+      "semiMajorAxisAu": 1.271464620766258,
+      "eccentricity": 0.8896722843984632
+    },
+    "source": {
+      "name": "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB), orbit solution of 2026-10-15 (SB441-N16, equinox J2000, osculating epoch JD 2461200.5); sizes the whole-orbit path's sampling, the asteroid's position is the two-body source built from parentElements",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1",
+      "accessed": "2026-10-16"
+    }
+  },
+  "stream": {
+    "iauCode": 4,
+    "source": {
+      "name": "CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016), IAU shower 4; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29; fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs and never committed or shipped",
+      "url": "https://cams.seti.org/CAMS-v3-2010to2016.xlsx",
+      "accessed": "2026-10-16"
+    },
+    "seed": 20261214,
+    "quality": {
+      "default": "all",
+      "rule": {
+        "minConvergenceAngleDeg": 15,
+        "maxVelocityErrorFraction": 0.1,
+        "quote": "\"requiring a minimum convergence angle of 15 degrees between cameras, ensuring an estimated velocity error of no more than 10% of the nominal value\" (the 2025 HDBSCAN paper words it: \"a minimum convergence angle of 15° between camera detections to ensure reliable triangulation, ... a velocity error not exceeding 10% of the nominal value\"); both apply it to the CAMS v3.0 database; they also drop hyperbolic orbits, which the data file already does",
+        "source": {
+          "name": "Peña-Asensio and Sánchez-Lozano 2024, Statistical Equivalence of Metrics for Meteor Dynamical Association, Advances in Space Research, doi 10.1016/j.asr.2024.05.005 (arXiv 2405.03308); and arXiv 2507.01501, Meteoroid stream identification with HDBSCAN",
+          "url": "https://arxiv.org/abs/2405.03308",
+          "accessed": "2026-10-16"
+        }
+      }
+    },
+    "concentration": {
+      "fraction": 0,
+      "widthDeg": 20,
+      "status": "illustrative",
+      "basis": "no clump is drawn. The Geminid stream is old and broad, and no published fraction or width of dust near Phaethon is claimed; every dot is a measured CAMS orbit spread uniformly in mean anomaly."
+    }
+  },
+  "labels": {
+    "sun": false
+  },
+  "timeline": {
+    "span": "year",
+    "rateSecondsPerSecond": 604800
+  },
+  "look": {
+    "loop": true,
+    "viewUp": "ecliptic",
+    "streamColor": "#7fe3c4",
+    "pointSizePx": 1.6,
+    "refillAfterHours": 72,
+    "earthPathColor": "#7ab8ff",
+    "parentPathColor": "#c79bff",
+    "planetExaggeration": 400,
+    "cameraMaxFocusDistance": 400000,
+    "cameraFar": 1200000
+  },
+  "activity": {
+    "startUtc": "2026-12-04T00:00:00Z",
+    "endUtc": "2026-12-18T00:00:00Z",
+    "peakUtc": "2026-12-14T00:00:00Z",
+    "peakPublishedNight": "Dec 13-14, 2026",
+    "peakRate": 150,
+    "rateUnit": "meteors per hour (ZHR)",
+    "fallOffPerDay": 0.1,
+    "source": {
+      "name": "American Meteor Society, Meteor Shower Calendar 2026: Geminids active Dec 4-17, peak night Dec 13-14, ZHR 150, parent 3200 Phaethon (not the IMO figure; IMO site not consulted)",
+      "url": "https://www.amsmeteors.org/calendar/",
+      "accessed": "2026-10-16"
+    }
+  },
+  "radiant": {
+    "raDeg": 113.0,
+    "decDeg": 32.4,
+    "equinox": "J2000",
+    "peakSolarLongitudeDeg": 261.6,
+    "source": {
+      "name": "IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 261.6 deg, geocentric radiant RA 113.0, Dec +32.4 deg, J2000",
+      "url": "https://www.ta3.sk/IAUC22DB/MDC2022/Etc/streamestablisheddata2026.txt",
+      "accessed": "2026-10-16"
+    }
+  }
+}

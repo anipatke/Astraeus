@@ -3,7 +3,7 @@ import { catalogueItem } from "../../app/catalogueItem";
 import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../../app/experienceDefinition";
 import type { BodyId } from "../../core/body";
-import { catalogue, rootBodyId } from "../../assets/catalogue";
+import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../../assets/catalogue";
 import { createComposition, type SystemComposition } from "../../assets/compositions";
 import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createEvents } from "../../core/events";
@@ -24,6 +24,20 @@ const HOUR_MS = 3_600_000;
 const YEAR_MS = Math.round(365.256363 * DAY_MS);
 /** Label priorities: the stream and the planets Earth meets first, then the Sun, the parent, the paths. */
 const LABEL_PRIORITY = { earth: 100, sun: 95, parent: 90, planet: 80, stream: 70, parentOrbit: 65, earthPath: 60, planetOrbit: 50 } as const;
+
+/** The catalogue this shower draws from: the built-in one, plus the parent when the settings define it. The built-in catalogue is never changed. */
+export function showerCatalogue(settings: ShowerSettings): BodyCatalogue {
+  if (settings.parentElements === undefined) return builtInCatalogue;
+  let held = EXTENDED.get(settings);
+  if (held === undefined) {
+    held = extendCatalogue(builtInCatalogue, [settings.parentElements]);
+    EXTENDED.set(settings, held);
+  }
+  return held;
+}
+
+/** One extended catalogue per settings object, so every part of one experience shares it. */
+const EXTENDED = new WeakMap<ShowerSettings, BodyCatalogue>();
 
 const sourceLine = (source: ShowerSource): string => `${source.name} (${source.url}, accessed ${source.accessed})`;
 
@@ -62,7 +76,7 @@ export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonl
   return [
     ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
-    `The clump near the comet is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at the comet's phase, not a blob on the comet.`,
+    `The clump near ${settings.parentBody} is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}.`,
     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
     "The semi-major axis of a measured orbit is poorly determined (the speed error dominates it), so the sizes of the orbits are less certain than their shape and tilt.",
   ];
@@ -116,6 +130,7 @@ function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad
  * stated drawing choice. A stated share is clumped near the parent's orbital phase, a model.
  */
 export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default): GroupLayer {
+  const catalogue = showerCatalogue(settings);
   const counts = orbitSetCounts(all, settings.stream.quality.rule);
   const orbits = selectOrbits(all, set, settings.stream.quality.rule);
   const { peakUtc } = settings.activity;
@@ -258,11 +273,12 @@ const PLANET_TURN_MAX_STEPS = 3_000;
  * are whatever the catalogue holds.
  */
 export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer[] {
+  const catalogue = showerCatalogue(settings);
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
   const adapter = createOrbAstronomyAdapter();
   const root = rootBodyId();
   return catalogue.ids()
-    .filter((id) => catalogue.get(id).definition.parentId === root && id !== "earth" && id !== settings.parentBodyId)
+    .filter((id) => catalogue.get(id).definition.parentId === root && catalogue.get(id).visual.kind === "sphere" && id !== "earth" && id !== settings.parentBodyId)
     .flatMap((id): PathLayer[] => {
       const { definition, source, visual } = catalogue.get(id);
       const trajectory = source!.create(adapter);
@@ -314,6 +330,7 @@ const REFINE_ITERATIONS = 80;
  * nearest the Sun, found by a coarse sweep over one period about `aroundUtcMs` and then refined. Nothing here names a body.
  */
 export function parentSamplingOf(settings: ShowerSettings, aroundUtcMs: number): EccentricSampling {
+  const catalogue = showerCatalogue(settings);
   const gm = catalogue.get(rootBodyId()).definition.gmKm3S2;
   if (gm === undefined) throw new RangeError("the catalogue's root body has no gravitational parameter");
   const { semiMajorAxisAu, eccentricity } = settings.orbit.elements;
@@ -340,6 +357,7 @@ export function parentSamplingOf(settings: ShowerSettings, aroundUtcMs: number):
  * eccentric anomaly so the sharp end near the Sun is smooth.
  */
 export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer {
+  const catalogue = showerCatalogue(settings);
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
   const { definition, source } = catalogue.get(settings.parentBodyId);
   if (source === undefined) throw new RangeError(`parentBodyId "${settings.parentBodyId}" has no state source`);
@@ -355,7 +373,7 @@ export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer 
       label: `${definition.label} orbit`,
       color: settings.look.parentPathColor,
       labelPriority: LABEL_PRIORITY.parentOrbit,
-      description: `The whole orbit of ${settings.parentBody}, the source of the ${settings.label}, from the Sun out to the outer solar system and back. The stream follows orbits like this one.`,
+      description: `The whole orbit of ${settings.parentBody}, the source of the ${settings.label}, from its nearest point to the Sun out to its farthest and back. The stream follows orbits like this one.`,
       provenance: definition.accuracy.position,
       knownLimitations: [
         "One full turn of unperturbed two-body motion about the Sun, starting at the nearest point to the Sun; the samples are spaced by eccentric anomaly and joined by straight segments.",
@@ -365,18 +383,23 @@ export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer 
   };
 }
 
-/** Every body of the catalogue that circles the Sun, with the Sun: the planets, Earth and the parent, as the catalogue holds them. */
+/** The Sun, the catalogue's planets (Earth included) and this shower's parent, as the catalogue holds them. */
 export function showerComposition(settings: ShowerSettings): SystemComposition {
+  const catalogue = showerCatalogue(settings);
   const root = rootBodyId();
-  const around = catalogue.ids().filter((id) => catalogue.get(id).definition.parentId === root);
-  if (!around.includes(settings.parentBodyId)) {
-    throw new RangeError(`parentBodyId "${settings.parentBodyId}" is not a catalogued body that circles the Sun (${around.join(", ")})`);
+  const circling = catalogue.ids().filter((id) => catalogue.get(id).definition.parentId === root);
+  if (!circling.includes(settings.parentBodyId)) {
+    throw new RangeError(`parentBodyId "${settings.parentBodyId}" is not a catalogued body that circles the Sun (${circling.join(", ")})`);
   }
+  // The Sun, the planets and this shower's own parent. A "planet" is a Sun-circling body drawn as a sphere (the catalogue has no category field; a marker body is a
+  // comet or asteroid), so another shower's parent is never mounted here.
+  const around = circling.filter((id) => id === settings.parentBodyId || catalogue.get(id).visual.kind === "sphere");
   return createComposition(catalogue, { id: `${settings.id}-sun-system`, bodies: [root, ...around], defaultCenter: root });
 }
 
 /** The composition's planets: every drawn sphere except the Sun and the parent (a comet is a marker; its nucleus is under a pixel at any scale). */
 function planetIdsOf(composition: SystemComposition, settings: ShowerSettings): BodyId[] {
+  const catalogue = showerCatalogue(settings);
   return composition.bodies.filter((id) => id !== rootBodyId() && id !== settings.parentBodyId && catalogue.get(id).visual.kind === "sphere");
 }
 
@@ -393,6 +416,7 @@ function withLabelSetting(settings: ShowerSettings, object: ExperienceObject): E
 
 function bodyObject(settings: ShowerSettings, _composition: SystemComposition, id: BodyId, reach: number): ExperienceObject {
   {
+    const catalogue = showerCatalogue(settings);
     const { definition } = catalogue.get(id);
     if (id === rootBodyId()) {
       return catalogueItem(id, {
@@ -400,7 +424,7 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
         labelMaxDistance: reach,
         description: "The Sun, the centre of the scene. The stream and the planets' paths circle it.",
         knownLimitations: ["The Sun is drawn as an emissive sphere at its true radius with a soft halo; the halo is a drawing aid sized on screen, not part of the Sun.", ...(catalogue.get(id).definition.accuracy.orientationLimitations ?? [])],
-      });
+      }, catalogue);
     }
     if (id === "earth") {
       return catalogueItem(id, {
@@ -412,14 +436,14 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
           ...EARTH_EPHEMERIS.knownLimitations,
           `In the Solar system scale Earth is drawn ${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`,
         ],
-      });
+      }, catalogue);
     }
     if (id === settings.parentBodyId) {
       return catalogueItem(id, {
         labelPriority: LABEL_PRIORITY.parent,
         labelMaxDistance: reach,
         description: `${definition.label}, the parent of the ${settings.label}, at its position on the date shown. Its whole orbit is drawn.`,
-      });
+      }, catalogue);
     }
     return catalogueItem(id, {
       labelPriority: LABEL_PRIORITY.planet,
@@ -429,7 +453,7 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
         ...(definition.accuracy.orientationLimitations ?? []),
         `In the Solar system scale ${definition.label} is drawn ${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`,
       ],
-    });
+    }, catalogue);
   }
 }
 
@@ -451,7 +475,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
       { id: "overview", label: "Overview", request: { kind: "overview" } },
       { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
       { id: "follow-earth", label: "Follow Earth", request: { kind: "follow", target: "earth" } },
-      { id: "focus-parent", label: "Focus comet", request: { kind: "focus", target: settings.parentBodyId } },
+      { id: "focus-parent", label: "Focus parent", request: { kind: "focus", target: settings.parentBodyId } },
       { id: "whole-orbit", label: "Whole orbit", request: { kind: "focus", target: parentOrbitId } },
       ...(layer === null
         ? []
@@ -488,6 +512,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
     viewUp: settings.look.viewUp,
     sceneLayers: ["points", "sun-centred"],
     composition,
+    ...(settings.parentElements === undefined ? {} : { catalogue: showerCatalogue(settings) }),
     sceneCenter: rootBodyId(),
     scaleChoices: ["true-scale", "solar-system"],
     visualOverrides: Object.fromEntries(planetIdsOf(composition, settings).map((id) => [id, { exaggeration: settings.look.planetExaggeration }])),
