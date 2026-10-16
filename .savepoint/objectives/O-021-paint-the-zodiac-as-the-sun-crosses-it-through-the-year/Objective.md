@@ -30,6 +30,10 @@ Owner, 2026-10-17: a third demo "for funsies", painting or tracing the 12 zodiac
 1. **Framing: the Sun's year through the zodiac,** Earth at the centre.
 2. **A new Goal** (G-006), after the cleanup and first release ("new goal obv").
 
+## Planning Notes
+
+- **The Sun must not hide the zodiac** (owner question, 2026-10-17: "Won't the sun obscure the zodiac"). The Sun's disc is about 0.5 degrees across and a zodiac constellation spans 20 to 40 degrees, so only glare hides them. The sky stays dark (no daylight scattering), and the Sun is a small bright marker whose glow is a setting with a live control, so the constellation behind it stays readable. A story panel says that in reality daylight hides the Sun's constellation, and the one visible at midnight is opposite; planning decides whether to mark that one faintly.
+
 ## Boundaries
 
 **In scope:** the experience, its data, the generic sky-line and paint-in parts, story panels, credits on the assets page.
