@@ -1,0 +1,3477 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 10,
+        "endLoc": {
+          "column": 39,
+          "line": 10,
+          "position": 501
+        },
+        "name": "apollo11/run.mjs",
+        "start": 2,
+        "startLoc": {
+          "column": 61,
+          "line": 2,
+          "position": 175
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdir, readFile, writeFile } from \"node:fs/promises\";\nimport path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nimport { runnerImport } from \"vite\";\n\nconst root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), \"../..\");\nconst load = (file) => runnerImport(path.join(root, file)).then((result) => result.module);\n\nconst [{ createOrbAstronomyAdapter }, { reconstruct }] = await Promise.all([",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 39,
+          "line": 17,
+          "position": 1035
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 10,
+        "startLoc": {
+          "column": 64,
+          "line": 10,
+          "position": 710
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 117,
+        "endLoc": {
+          "column": 1,
+          "line": 117,
+          "position": 6536
+        },
+        "name": "data/fetch-hyg-stars.mjs",
+        "start": 111,
+        "startLoc": {
+          "column": 92,
+          "line": 111,
+          "position": 6225
+        }
+      },
+      "format": "javascript",
+      "fragment": "  writeFileSync(out, `${JSON.stringify(starFile(parsed, new Date().toISOString().slice(0, 10)))}\\n`);\n  console.log(`wrote ${parsed.stars.length} stars (${parsed.records} records, ${parsed.skipped} skipped) to ${out}`);\n}\n\nif (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {\n  main().catch((error) => { console.error(error.message); process.exit(1); });\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 87,
+        "endLoc": {
+          "column": 1,
+          "line": 87,
+          "position": 4872
+        },
+        "name": "data/fetch-stars.mjs",
+        "start": 81,
+        "startLoc": {
+          "column": 79,
+          "line": 81,
+          "position": 4561
+        }
+      },
+      "tokens": 92
+    },
+    {
+      "firstFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 109,
+          "line": 17,
+          "position": 1105
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 10,
+        "startLoc": {
+          "column": 0,
+          "line": 10,
+          "position": 646
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, readFileSync, writeFileSync } from \"node:fs\";\nimport path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nimport { runnerImport } from \"vite\";\n\nconst root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), \"../..\");\nconst load = (file) => runnerImport(path.join(root, file)).then((result) => result.module);\nconst [{ createOrbAstronomyAdapter }, { nativeState }, { toEarthCentred, moonFromEarth }, frames, { CONSTANTS }] =",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 109,
+          "line": 18,
+          "position": 1223
+        },
+        "name": "validate/conversion-proof.mjs",
+        "start": 11,
+        "startLoc": {
+          "column": 0,
+          "line": 11,
+          "position": 764
+        }
+      },
+      "tokens": 104
+    },
+    {
+      "firstFile": {
+        "end": 51,
+        "endLoc": {
+          "column": 8,
+          "line": 51,
+          "position": 2572
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 45,
+        "startLoc": {
+          "column": 50,
+          "line": 45,
+          "position": 2352
+        }
+      },
+      "format": "javascript",
+      "fragment": "const deg = (radians) => (radians * 180) / Math.PI;\nconst getOf = (t) => {\n  const s = (t - CONSTANTS.rangeZeroUtcMs) / 1000;\n  return `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, \"0\")}:${(s % 60).toFixed(1).padStart(4, \"0\")}`;\n};\n\nfunction thirdBody(r, body, mu) {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 76,
+        "endLoc": {
+          "column": 8,
+          "line": 76,
+          "position": 4302
+        },
+        "name": "validate/conversion-proof.mjs",
+        "start": 65,
+        "startLoc": {
+          "column": 74,
+          "line": 65,
+          "position": 3671
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 83,
+        "endLoc": {
+          "column": 19,
+          "line": 83,
+          "position": 3915
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 68,
+        "startLoc": {
+          "column": 20,
+          "line": 68,
+          "position": 3291
+        }
+      },
+      "format": "javascript",
+      "fragment": "    k * r[2] + j * r[2] * (5 * z2 - 3) + moon[2] + sun[2],\n  ];\n}\n\n/** One RK4 step of dtS seconds (signed). */\nfunction step(t, y, dtS) {\n  const f = (tt, yy) => [yy[3], yy[4], yy[5], ...acceleration(tt, yy.slice(0, 3))];\n  const k1 = f(t, y);\n  const k2 = f(t + dtS * 500, y.map((x, i) => x + (dtS / 2) * k1[i]));\n  const k3 = f(t + dtS * 500, y.map((x, i) => x + (dtS / 2) * k2[i]));\n  const k4 = f(t + dtS * 1000, y.map((x, i) => x + dtS * k3[i]));\n  return y.map((x, i) => x + (dtS / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));\n}\n\n/** Propagates to t1; optionally tracks the closest approach to a target position. */\nfunction propagate(s, t1, target) {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 16,
+      "secondFile": {
+        "end": 486,
+        "endLoc": {
+          "column": 19,
+          "line": 486,
+          "position": 23918
+        },
+        "name": "validate/conversion-proof.mjs",
+        "start": 473,
+        "startLoc": {
+          "column": 20,
+          "line": 473,
+          "position": 23425
+        }
+      },
+      "tokens": 240
+    },
+    {
+      "firstFile": {
+        "end": 97,
+        "endLoc": {
+          "column": 43,
+          "line": 97,
+          "position": 4357
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 89,
+        "startLoc": {
+          "column": 47,
+          "line": 89,
+          "position": 4123
+        }
+      },
+      "format": "javascript",
+      "fragment": "    const dtS = dir * Math.min(STEP_S, Math.abs(t1 - t) / 1000);\n    y = step(t, y, dtS);\n    t += dtS * 1000;\n    if (target) {\n      const km = norm(sub(y.slice(0, 3), target));\n      if (km < closest.km) closest = { km, t };\n    }\n  }\n  return { r: y.slice(0, 3), v: y.slice(3), t, closest };",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 499,
+        "endLoc": {
+          "column": 43,
+          "line": 499,
+          "position": 24317
+        },
+        "name": "validate/conversion-proof.mjs",
+        "start": 491,
+        "startLoc": {
+          "column": 33,
+          "line": 491,
+          "position": 24083
+        }
+      },
+      "tokens": 91
+    },
+    {
+      "firstFile": {
+        "end": 240,
+        "endLoc": {
+          "column": 26,
+          "line": 240,
+          "position": 10908
+        },
+        "name": "validate/anchor-consistency.mjs",
+        "start": 235,
+        "startLoc": {
+          "column": 3,
+          "line": 235,
+          "position": 10566
+        }
+      },
+      "format": "javascript",
+      "fragment": "  },\n  entryInterface: {\n    published: {\n      \"Table 7-VI after TEI\": { get: \"195:05:57\", latitudeDeg: 4.29, longitudeDeg: 180.15, flightPathAngleDeg: -0.70, speedFtS: 36195 },\n      \"Table 7-VI after MCC-5\": { get: \"195:03:08\", latitudeDeg: -3.17, longitudeDeg: 171.99, flightPathAngleDeg: -6.46, speedFtS: 36194 },\n      \"Table 7-VII (A-36)\": { get: \"195:03:05.7\", latitudeDeg: -3.19, longitudeDeg: 171.96, flightPathAngleDeg: -6.48, speedFtS: 36194 },",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 606,
+        "endLoc": {
+          "column": 5,
+          "line": 606,
+          "position": 29930
+        },
+        "name": "validate/conversion-proof.mjs",
+        "start": 601,
+        "startLoc": {
+          "column": 5,
+          "line": 601,
+          "position": 29609
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 20,
+          "line": 23,
+          "position": 1772
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 0,
+          "line": 17,
+          "position": 1456
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst url = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst out = process.argv[2] ?? \"docs/evidence/regression-spike01-02/anchor-labels\";",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 20,
+          "line": 27,
+          "position": 2191
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 21,
+        "startLoc": {
+          "column": 0,
+          "line": 21,
+          "position": 1875
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 20,
+          "line": 23,
+          "position": 1772
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 0,
+          "line": 17,
+          "position": 1456
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst url = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst out = process.argv[2] ?? \"docs/evidence/regression-spike01-02/anchor-labels\";",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 20,
+          "line": 11,
+          "position": 581
+        },
+        "name": "validate/browser-spike03.mjs",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 265
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 20,
+          "line": 23,
+          "position": 1772
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 18,
+          "line": 18,
+          "position": 1515
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst url = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst out = process.argv[2] ?? \"docs/evidence/regression-spike01-02/anchor-labels\";",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 20,
+          "line": 11,
+          "position": 810
+        },
+        "name": "validate/browser-story-panels.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 45,
+          "line": 6,
+          "position": 553
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 44,
+        "endLoc": {
+          "column": 5,
+          "line": 44,
+          "position": 2780
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 37,
+        "startLoc": {
+          "column": 2,
+          "line": 37,
+          "position": 2303
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const close = page.locator(\"#info-panel .info-panel-close\");\n  if (!(await close.count())) return;\n  // The phone's open Developer panel overlays the sheet's Close button, so the phone closes the sheet with Escape from the focused Close button (a documented alternative).\n  if (page.viewportSize().width < 600) { await close.focus(); await page.keyboard.press(\"Escape\"); }\n  else await close.click();\n  await page.locator(\"#info-panel\").waitFor({ state: \"detached\" });\n};\nconst visibleAnchorCount = async () => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 61,
+        "endLoc": {
+          "column": 5,
+          "line": 61,
+          "position": 4062
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 52,
+        "startLoc": {
+          "column": 2,
+          "line": 52,
+          "position": 3329
+        }
+      },
+      "tokens": 83
+    },
+    {
+      "firstFile": {
+        "end": 56,
+        "endLoc": {
+          "column": 9,
+          "line": 56,
+          "position": 3393
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 47,
+        "startLoc": {
+          "column": 60,
+          "line": 47,
+          "position": 2985
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return layer.locator(\".anchor-label:not([hidden])\").count();\n};\nconst choosePreset = async (name) => {\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);\n    assert.ok(value, `camera preset exists: ${name}`);\n    await compact.selectOption(value);\n  } else {\n    await click(name);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 33,
+        "endLoc": {
+          "column": 9,
+          "line": 33,
+          "position": 2174
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 25,
+        "startLoc": {
+          "column": 107,
+          "line": 25,
+          "position": 1766
+        }
+      },
+      "tokens": 101
+    },
+    {
+      "firstFile": {
+        "end": 57,
+        "endLoc": {
+          "column": 3,
+          "line": 57,
+          "position": 3410
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 50,
+        "startLoc": {
+          "column": 2,
+          "line": 50,
+          "position": 3032
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);\n    assert.ok(value, `camera preset exists: ${name}`);\n    await compact.selectOption(value);\n  } else {\n    await click(name);\n  }",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 83,
+        "endLoc": {
+          "column": 3,
+          "line": 83,
+          "position": 5007
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 76,
+        "startLoc": {
+          "column": 2,
+          "line": 76,
+          "position": 4629
+        }
+      },
+      "tokens": 94
+    },
+    {
+      "firstFile": {
+        "end": 68,
+        "endLoc": {
+          "column": 55,
+          "line": 68,
+          "position": 3957
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 62,
+        "startLoc": {
+          "column": 2,
+          "line": 62,
+          "position": 3512
+        }
+      },
+      "format": "javascript",
+      "fragment": "  page = await browser.newPage({ viewport });\n  page.on(\"pageerror\", (error) => errors.push(`${label} pageerror: ${error.message}`));\n  page.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`${label} console: ${message.text()}`); });\n  await page.goto(url);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"button\", { name: \"Developer mode\" }).click();\n  await page.getByLabel(\"UTC date and time\").waitFor();",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 94,
+        "endLoc": {
+          "column": 55,
+          "line": 94,
+          "position": 5531
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 88,
+        "startLoc": {
+          "column": 2,
+          "line": 88,
+          "position": 5086
+        }
+      },
+      "tokens": 121
+    },
+    {
+      "firstFile": {
+        "end": 69,
+        "endLoc": {
+          "column": 7,
+          "line": 69,
+          "position": 3965
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 63,
+        "startLoc": {
+          "column": 46,
+          "line": 63,
+          "position": 3602
+        }
+      },
+      "format": "javascript",
+      "fragment": "  page.on(\"pageerror\", (error) => errors.push(`${label} pageerror: ${error.message}`));\n  page.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`${label} console: ${message.text()}`); });\n  await page.goto(url);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"button\", { name: \"Developer mode\" }).click();\n  await page.getByLabel(\"UTC date and time\").waitFor();\n  const pause = page.getByRole(\"button\", { name: \"Pause playback\", exact: true });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 95,
+        "endLoc": {
+          "column": 7,
+          "line": 95,
+          "position": 5539
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 89,
+        "startLoc": {
+          "column": 46,
+          "line": 89,
+          "position": 5176
+        }
+      },
+      "tokens": 95
+    },
+    {
+      "firstFile": {
+        "end": 129,
+        "endLoc": {
+          "column": 1,
+          "line": 129,
+          "position": 6835
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 120,
+        "startLoc": {
+          "column": 45,
+          "line": 120,
+          "position": 6658
+        }
+      },
+      "format": "javascript",
+      "fragment": "  console.log(JSON.stringify(result, null, 2));\n  await page.close();\n}\n\ntry {\n  await run(\"desktop\", { width: 1280, height: 800 });\n  await run(\"phone\", { width: 390, height: 844 });\n} finally {\n  await browser.close();\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 134,
+        "endLoc": {
+          "column": 1,
+          "line": 134,
+          "position": 7174
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 125,
+        "startLoc": {
+          "column": 77,
+          "line": 125,
+          "position": 6997
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 129,
+        "endLoc": {
+          "column": 1,
+          "line": 129,
+          "position": 6835
+        },
+        "name": "validate/browser-anchor-labels.mjs",
+        "start": 120,
+        "startLoc": {
+          "column": 46,
+          "line": 120,
+          "position": 6659
+        }
+      },
+      "format": "javascript",
+      "fragment": "  console.log(JSON.stringify(result, null, 2));\n  await page.close();\n}\n\ntry {\n  await run(\"desktop\", { width: 1280, height: 800 });\n  await run(\"phone\", { width: 390, height: 844 });\n} finally {\n  await browser.close();\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 159,
+        "endLoc": {
+          "column": 1,
+          "line": 159,
+          "position": 8971
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 150,
+        "startLoc": {
+          "column": 148,
+          "line": 150,
+          "position": 8795
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 38,
+        "endLoc": {
+          "column": 28,
+          "line": 38,
+          "position": 1900
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst results = {};\n\n// Pixels on the canvas that are not black: something is drawn.\nconst litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;\n    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;\n    return lit;\n  }, png);\n};\n\nconst seek = async (page, timeUtcMs) => {\n  await page.locator('input[aria-label=\"Seek timeline\"]').evaluate((input, time) => {\n    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, \"value\").set.call(input, String(time));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n  }, timeUtcMs);\n  await page.waitForTimeout(400);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 36,
+      "secondFile": {
+        "end": 42,
+        "endLoc": {
+          "column": 28,
+          "line": 42,
+          "position": 2389
+        },
+        "name": "validate/browser-jupiter-io.mjs",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 806
+        }
+      },
+      "tokens": 379
+    },
+    {
+      "firstFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 878
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst results = {};\n\n// Pixels on the canvas that are not black: something is drawn.\nconst litPixels = async (page) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 14,
+      "secondFile": {
+        "end": 21,
+        "endLoc": {
+          "column": 5,
+          "line": 21,
+          "position": 1514
+        },
+        "name": "validate/browser-sun.mjs",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 793
+        }
+      },
+      "tokens": 109
+    },
+    {
+      "firstFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 5,
+          "line": 12,
+          "position": 774
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 5,
+          "line": 12,
+          "position": 793
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 272
+        }
+      },
+      "tokens": 97
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 131,
+          "line": 11,
+          "position": 768
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 131,
+          "line": 20,
+          "position": 1592
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 12,
+        "startLoc": {
+          "column": 0,
+          "line": 12,
+          "position": 1077
+        }
+      },
+      "tokens": 96
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 131,
+          "line": 11,
+          "position": 768
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 131,
+          "line": 23,
+          "position": 1920
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 15,
+        "startLoc": {
+          "column": 0,
+          "line": 15,
+          "position": 1405
+        }
+      },
+      "tokens": 96
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 49,
+          "line": 9,
+          "position": 584
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 49,
+          "line": 9,
+          "position": 529
+        },
+        "name": "validate/browser-synthetic.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 198
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 5,
+          "line": 9,
+          "position": 540
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 253
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 10,
+        "endLoc": {
+          "column": 5,
+          "line": 10,
+          "position": 663
+        },
+        "name": "validate/capture-apollo-compare.mjs",
+        "start": 4,
+        "startLoc": {
+          "column": 0,
+          "line": 4,
+          "position": 376
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 793
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 4,
+        "startLoc": {
+          "column": 19,
+          "line": 4,
+          "position": 313
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst results = {};",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 5,
+          "line": 15,
+          "position": 1061
+        },
+        "name": "validate/browser-lighting.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 34,
+          "line": 6,
+          "position": 581
+        }
+      },
+      "tokens": 95
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 49,
+          "line": 9,
+          "position": 584
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 4,
+        "startLoc": {
+          "column": 19,
+          "line": 4,
+          "position": 313
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 49,
+          "line": 18,
+          "position": 1655
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 13,
+        "startLoc": {
+          "column": 33,
+          "line": 13,
+          "position": 1384
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 5,
+          "line": 11,
+          "position": 642
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 4,
+        "startLoc": {
+          "column": 35,
+          "line": 4,
+          "position": 329
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 5,
+          "line": 26,
+          "position": 2374
+        },
+        "name": "validate/browser-sky.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 32,
+          "line": 18,
+          "position": 1897
+        }
+      },
+      "tokens": 65
+    },
+    {
+      "firstFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 878
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 8,
+        "startLoc": {
+          "column": 73,
+          "line": 8,
+          "position": 533
+        }
+      },
+      "format": "javascript",
+      "fragment": "const base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst results = {};\n\n// Pixels on the canvas that are not black: something is drawn.\nconst litPixels = async (page) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 94,
+        "endLoc": {
+          "column": 5,
+          "line": 94,
+          "position": 9658
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 87,
+        "startLoc": {
+          "column": 76,
+          "line": 87,
+          "position": 9208
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 31,
+        "endLoc": {
+          "column": 1,
+          "line": 31,
+          "position": 1556
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 16,
+        "startLoc": {
+          "column": 34,
+          "line": 16,
+          "position": 907
+        }
+      },
+      "format": "javascript",
+      "fragment": "const litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;\n    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;\n    return lit;\n  }, png);\n};",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 16,
+      "secondFile": {
+        "end": 83,
+        "endLoc": {
+          "column": 1,
+          "line": 83,
+          "position": 5307
+        },
+        "name": "validate/browser-lite.mjs",
+        "start": 68,
+        "startLoc": {
+          "column": 31,
+          "line": 68,
+          "position": 4658
+        }
+      },
+      "tokens": 184
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 72,
+          "line": 26,
+          "position": 1401
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 16,
+        "startLoc": {
+          "column": 16,
+          "line": 16,
+          "position": 889
+        }
+      },
+      "format": "javascript",
+      "fragment": "const litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 11,
+      "secondFile": {
+        "end": 152,
+        "endLoc": {
+          "column": 72,
+          "line": 152,
+          "position": 12729
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 142,
+        "startLoc": {
+          "column": 17,
+          "line": 142,
+          "position": 12217
+        }
+      },
+      "tokens": 132
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 7,
+          "line": 27,
+          "position": 1409
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 16,
+        "startLoc": {
+          "column": 16,
+          "line": 16,
+          "position": 889
+        }
+      },
+      "format": "javascript",
+      "fragment": "const litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 187,
+        "endLoc": {
+          "column": 7,
+          "line": 187,
+          "position": 14379
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 176,
+        "startLoc": {
+          "column": 24,
+          "line": 176,
+          "position": 13859
+        }
+      },
+      "tokens": 133
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 7,
+          "line": 27,
+          "position": 1409
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 16,
+        "startLoc": {
+          "column": 16,
+          "line": 16,
+          "position": 889
+        }
+      },
+      "format": "javascript",
+      "fragment": "const litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 657,
+        "endLoc": {
+          "column": 7,
+          "line": 657,
+          "position": 46790
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 646,
+        "startLoc": {
+          "column": 16,
+          "line": 646,
+          "position": 46270
+        }
+      },
+      "tokens": 133
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 7,
+          "line": 27,
+          "position": 1409
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 16,
+        "startLoc": {
+          "column": 16,
+          "line": 16,
+          "position": 889
+        }
+      },
+      "format": "javascript",
+      "fragment": "const litPixels = async (page) => {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 68,
+        "endLoc": {
+          "column": 7,
+          "line": 68,
+          "position": 5332
+        },
+        "name": "validate/browser-sky.mjs",
+        "start": 57,
+        "startLoc": {
+          "column": 19,
+          "line": 57,
+          "position": 4812
+        }
+      },
+      "tokens": 133
+    },
+    {
+      "firstFile": {
+        "end": 28,
+        "endLoc": {
+          "column": 94,
+          "line": 28,
+          "position": 1513
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 25,
+          "line": 17,
+          "position": 934
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;\n    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 30,
+        "endLoc": {
+          "column": 94,
+          "line": 30,
+          "position": 1927
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 19,
+        "startLoc": {
+          "column": 27,
+          "line": 19,
+          "position": 1348
+        }
+      },
+      "tokens": 162
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 9,
+          "line": 26,
+          "position": 1338
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 90,
+          "line": 17,
+          "position": 999
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 119,
+        "endLoc": {
+          "column": 9,
+          "line": 119,
+          "position": 6808
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 110,
+        "startLoc": {
+          "column": 118,
+          "line": 110,
+          "position": 6469
+        }
+      },
+      "tokens": 84
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 72,
+          "line": 26,
+          "position": 1401
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 34,
+          "line": 18,
+          "position": 1036
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 72,
+          "line": 96,
+          "position": 6127
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 88,
+        "startLoc": {
+          "column": 46,
+          "line": 88,
+          "position": 5762
+        }
+      },
+      "tokens": 95
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 7,
+          "line": 27,
+          "position": 1409
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 9,
+          "line": 18,
+          "position": 1011
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let lit = 0;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 488,
+        "endLoc": {
+          "column": 7,
+          "line": 488,
+          "position": 34599
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 479,
+        "startLoc": {
+          "column": 23,
+          "line": 479,
+          "position": 34201
+        }
+      },
+      "tokens": 103
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 9,
+          "line": 26,
+          "position": 1338
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 13,
+          "line": 18,
+          "position": 1015
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 53,
+        "endLoc": {
+          "column": 9,
+          "line": 53,
+          "position": 3085
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 45,
+        "startLoc": {
+          "column": 15,
+          "line": 45,
+          "position": 2762
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 9,
+          "line": 26,
+          "position": 1338
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 18,
+        "startLoc": {
+          "column": 34,
+          "line": 18,
+          "position": 1036
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 133,
+        "endLoc": {
+          "column": 13,
+          "line": 133,
+          "position": 8017
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 125,
+        "startLoc": {
+          "column": 45,
+          "line": 125,
+          "position": 7683
+        }
+      },
+      "tokens": 74
+    },
+    {
+      "firstFile": {
+        "end": 38,
+        "endLoc": {
+          "column": 28,
+          "line": 38,
+          "position": 1900
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 29,
+        "startLoc": {
+          "column": 14,
+          "line": 29,
+          "position": 1542
+        }
+      },
+      "format": "javascript",
+      "fragment": "    return lit;\n  }, png);\n};\n\nconst seek = async (page, timeUtcMs) => {\n  await page.locator('input[aria-label=\"Seek timeline\"]').evaluate((input, time) => {\n    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, \"value\").set.call(input, String(time));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n  }, timeUtcMs);\n  await page.waitForTimeout(400);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 171,
+        "endLoc": {
+          "column": 28,
+          "line": 171,
+          "position": 13623
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 162,
+        "startLoc": {
+          "column": 16,
+          "line": 162,
+          "position": 13265
+        }
+      },
+      "tokens": 86
+    },
+    {
+      "firstFile": {
+        "end": 54,
+        "endLoc": {
+          "column": 2,
+          "line": 54,
+          "position": 2580
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 38,
+        "startLoc": {
+          "column": 31,
+          "line": 38,
+          "position": 1903
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.waitForTimeout(400);\n};\n\nconst preset = async (page, objectId, name) => {\n  await page.getByLabel(\"Select object\").selectOption(objectId);\n  const close = page.locator(\"#info-panel .info-panel-close\");\n  if (await close.count()) await close.click();\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((o) => o.textContent.trim() === label)?.value ?? null, name);\n    assert.ok(value, `preset exists: ${name}`);\n    await compact.selectOption(value);\n  } else {\n    await page.getByRole(\"button\", { name, exact: true }).click();\n  }\n  await page.waitForTimeout(1500);\n};",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 17,
+      "secondFile": {
+        "end": 58,
+        "endLoc": {
+          "column": 2,
+          "line": 58,
+          "position": 3069
+        },
+        "name": "validate/browser-jupiter-io.mjs",
+        "start": 42,
+        "startLoc": {
+          "column": 31,
+          "line": 42,
+          "position": 2392
+        }
+      },
+      "tokens": 174
+    },
+    {
+      "firstFile": {
+        "end": 47,
+        "endLoc": {
+          "column": 49,
+          "line": 47,
+          "position": 2276
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 41,
+        "startLoc": {
+          "column": 47,
+          "line": 41,
+          "position": 1957
+        }
+      },
+      "format": "javascript",
+      "fragment": "const preset = async (page, objectId, name) => {\n  await page.getByLabel(\"Select object\").selectOption(objectId);\n  const close = page.locator(\"#info-panel .info-panel-close\");\n  if (await close.count()) await close.click();\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((o) => o.textContent.trim() === label)?.value ?? null, name);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 67,
+        "endLoc": {
+          "column": 49,
+          "line": 67,
+          "position": 4422
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 61,
+        "startLoc": {
+          "column": 44,
+          "line": 61,
+          "position": 4103
+        }
+      },
+      "tokens": 71
+    },
+    {
+      "firstFile": {
+        "end": 47,
+        "endLoc": {
+          "column": 48,
+          "line": 47,
+          "position": 2275
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 42,
+        "startLoc": {
+          "column": 62,
+          "line": 42,
+          "position": 2021
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.getByLabel(\"Select object\").selectOption(objectId);\n  const close = page.locator(\"#info-panel .info-panel-close\");\n  if (await close.count()) await close.click();\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((o) => o.textContent.trim() === label)?.value ?? null, name);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 473,
+        "endLoc": {
+          "column": 48,
+          "line": 473,
+          "position": 33796
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 468,
+        "startLoc": {
+          "column": 71,
+          "line": 468,
+          "position": 33542
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 47,
+        "endLoc": {
+          "column": 48,
+          "line": 47,
+          "position": 2275
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 42,
+        "startLoc": {
+          "column": 62,
+          "line": 42,
+          "position": 2021
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.getByLabel(\"Select object\").selectOption(objectId);\n  const close = page.locator(\"#info-panel .info-panel-close\");\n  if (await close.count()) await close.click();\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((o) => o.textContent.trim() === label)?.value ?? null, name);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 590,
+        "endLoc": {
+          "column": 48,
+          "line": 590,
+          "position": 42235
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 585,
+        "startLoc": {
+          "column": 72,
+          "line": 585,
+          "position": 41981
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 77,
+        "endLoc": {
+          "column": 31,
+          "line": 77,
+          "position": 4114
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 71,
+        "startLoc": {
+          "column": 100,
+          "line": 71,
+          "position": 3727
+        }
+      },
+      "format": "javascript",
+      "fragment": "    assert.equal(await canvas.getAttribute(\"data-sun-centred\"), \"0\", `${label}: nothing Sun-centred`);\n    await page.getByRole(\"button\", { name: \"Pause playback\" }).click();\n\n    // Only Earth and the Moon, and no mission content anywhere.\n    const options = await page.getByLabel(\"Select object\").evaluate((select) => [...select.options].map((o) => o.value));\n    // T-053: the sky is every experience's last item (\"sky\"); the two bodies are unchanged.\n    assert.deepEqual(options, [\"earth\", \"moon\", \"sky\"], `${label}: the object list is Earth, the Moon and the sky`);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 31,
+          "line": 92,
+          "position": 5211
+        },
+        "name": "validate/browser-jupiter-io.mjs",
+        "start": 88,
+        "startLoc": {
+          "column": 104,
+          "line": 88,
+          "position": 4890
+        }
+      },
+      "tokens": 63
+    },
+    {
+      "firstFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 39,
+          "line": 131,
+          "position": 7110
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 118,
+        "startLoc": {
+          "column": 119,
+          "line": 118,
+          "position": 6814
+        }
+      },
+      "format": "javascript",
+      "fragment": "    assert.equal(await canvas.getAttribute(\"data-composition-paths\"), \"1\", `${label}: the Moon's monthly path is drawn`);\n  } finally {\n    await page.close();\n  }\n}\n\ntry {\n  await run(\"desktop\", { width: 1280, height: 800 });\n  await run(\"phone\", { width: 390, height: 844 });\n} finally {\n  await browser.close();\n}\nconsole.log(JSON.stringify({ results, errors }, null, 2));\nif (errors.length > 0) process.exit(1);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 14,
+      "secondFile": {
+        "end": 165,
+        "endLoc": {
+          "column": 39,
+          "line": 165,
+          "position": 9382
+        },
+        "name": "validate/browser-jupiter-io.mjs",
+        "start": 152,
+        "startLoc": {
+          "column": 24,
+          "line": 152,
+          "position": 9086
+        }
+      },
+      "tokens": 94
+    },
+    {
+      "firstFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 39,
+          "line": 131,
+          "position": 7110
+        },
+        "name": "validate/browser-earth-moon.mjs",
+        "start": 122,
+        "startLoc": {
+          "column": 0,
+          "line": 122,
+          "position": 6859
+        }
+      },
+      "format": "javascript",
+      "fragment": "}\n\ntry {\n  await run(\"desktop\", { width: 1280, height: 800 });\n  await run(\"phone\", { width: 390, height: 844 });\n} finally {\n  await browser.close();\n}\nconsole.log(JSON.stringify({ results, errors }, null, 2));\nif (errors.length > 0) process.exit(1);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 136,
+        "endLoc": {
+          "column": 39,
+          "line": 136,
+          "position": 7273
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 127,
+        "startLoc": {
+          "column": 0,
+          "line": 127,
+          "position": 7022
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 45,
+        "endLoc": {
+          "column": 5,
+          "line": 45,
+          "position": 2404
+        },
+        "name": "validate/browser-jupiter-io.mjs",
+        "start": 39,
+        "startLoc": {
+          "column": 10,
+          "line": 39,
+          "position": 2186
+        }
+      },
+      "format": "javascript",
+      "fragment": "    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, \"value\").set.call(input, String(time));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n  }, timeUtcMs);\n  await page.waitForTimeout(500);\n};\n\nconst preset = async (page, objectId, name) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 176,
+        "endLoc": {
+          "column": 5,
+          "line": 176,
+          "position": 13840
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 168,
+        "startLoc": {
+          "column": 10,
+          "line": 168,
+          "position": 13420
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 5,
+          "line": 15,
+          "position": 1061
+        },
+        "name": "validate/browser-lighting.mjs",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 506
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst DAY = 86_400_000;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 11,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 1111
+        },
+        "name": "validate/browser-marker-existing.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 556
+        }
+      },
+      "tokens": 105
+    },
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 910
+        },
+        "name": "validate/browser-lighting.mjs",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 506
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 21,
+        "endLoc": {
+          "column": 5,
+          "line": 21,
+          "position": 1696
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 13,
+        "startLoc": {
+          "column": 0,
+          "line": 13,
+          "position": 1292
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 910
+        },
+        "name": "validate/browser-lighting.mjs",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 506
+        }
+      },
+      "format": "javascript",
+      "fragment": "import assert from \"node:assert/strict\";\nimport { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 5,
+          "line": 17,
+          "position": 1257
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 9,
+        "startLoc": {
+          "column": 0,
+          "line": 9,
+          "position": 853
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 74,
+        "endLoc": {
+          "column": 35,
+          "line": 74,
+          "position": 4367
+        },
+        "name": "validate/browser-lighting.mjs",
+        "start": 67,
+        "startLoc": {
+          "column": 30,
+          "line": 67,
+          "position": 4059
+        }
+      },
+      "format": "javascript",
+      "fragment": "      const read = async (data) => {\n        const image = new Image();\n        image.src = `data:image/png;base64,${data}`;\n        await image.decode();\n        const c = document.createElement(\"canvas\");\n        c.width = image.width; c.height = image.height;\n        const ctx = c.getContext(\"2d\");\n        ctx.drawImage(image, 0, 0);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 58,
+        "endLoc": {
+          "column": 31,
+          "line": 58,
+          "position": 3954
+        },
+        "name": "validate/browser-sun.mjs",
+        "start": 51,
+        "startLoc": {
+          "column": 54,
+          "line": 51,
+          "position": 3674
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 30,
+        "endLoc": {
+          "column": 13,
+          "line": 30,
+          "position": 2181
+        },
+        "name": "validate/browser-marker-existing.mjs",
+        "start": 25,
+        "startLoc": {
+          "column": 86,
+          "line": 25,
+          "position": 1841
+        }
+      },
+      "format": "javascript",
+      "fragment": "        await page.goto(`${base}?${[query, extra, \"sky=off\"].filter(Boolean).join(\"&\")}`);\n        await page.waitForSelector(\"canvas\");\n        await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n        await page.getByRole(\"button\", { name: \"Pause playback\", exact: true }).click();\n        // The default view when the experience offers no Overview preset (Apollo's presets are its own).\n        const overview = page.getByRole(\"button\", { name: \"Overview\", exact: true });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 8,
+          "line": 49,
+          "position": 2797
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 45,
+        "startLoc": {
+          "column": 72,
+          "line": 45,
+          "position": 2586
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 5,
+          "line": 22,
+          "position": 1715
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 0,
+          "line": 17,
+          "position": 1461
+        }
+      },
+      "format": "javascript",
+      "fragment": "const chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst FRAMES = 60;\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 5,
+          "line": 18,
+          "position": 1276
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 13,
+        "startLoc": {
+          "column": 0,
+          "line": 13,
+          "position": 1022
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 112,
+          "line": 26,
+          "position": 2130
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 21,
+        "startLoc": {
+          "column": 17,
+          "line": 21,
+          "position": 1708
+        }
+      },
+      "format": "javascript",
+      "fragment": "const FRAMES = 60;\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst page = await browser.newPage({ viewport: { width: 1280, height: 800 } });\nconst errors = [];\npage.on(\"pageerror\", (error) => errors.push(`pageerror: ${error.message}`));\npage.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 112,
+          "line": 12,
+          "position": 823
+        },
+        "name": "validate/browser-shell.mjs",
+        "start": 7,
+        "startLoc": {
+          "column": 72,
+          "line": 7,
+          "position": 401
+        }
+      },
+      "tokens": 110
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 112,
+          "line": 26,
+          "position": 2130
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 21,
+        "startLoc": {
+          "column": 17,
+          "line": 21,
+          "position": 1708
+        }
+      },
+      "format": "javascript",
+      "fragment": "const FRAMES = 60;\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst page = await browser.newPage({ viewport: { width: 1280, height: 800 } });\nconst errors = [];\npage.on(\"pageerror\", (error) => errors.push(`pageerror: ${error.message}`));\npage.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 112,
+          "line": 15,
+          "position": 1076
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 10,
+        "startLoc": {
+          "column": 50,
+          "line": 10,
+          "position": 654
+        }
+      },
+      "tokens": 110
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 112,
+          "line": 26,
+          "position": 2130
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 21,
+        "startLoc": {
+          "column": 17,
+          "line": 21,
+          "position": 1708
+        }
+      },
+      "format": "javascript",
+      "fragment": "const FRAMES = 60;\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst page = await browser.newPage({ viewport: { width: 1280, height: 800 } });\nconst errors = [];\npage.on(\"pageerror\", (error) => errors.push(`pageerror: ${error.message}`));\npage.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 112,
+          "line": 14,
+          "position": 950
+        },
+        "name": "validate/browser-synthetic.mjs",
+        "start": 9,
+        "startLoc": {
+          "column": 48,
+          "line": 9,
+          "position": 528
+        }
+      },
+      "tokens": 110
+    },
+    {
+      "firstFile": {
+        "end": 39,
+        "endLoc": {
+          "column": 1,
+          "line": 39,
+          "position": 2658
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 31,
+        "startLoc": {
+          "column": 6,
+          "line": 31,
+          "position": 2306
+        }
+      },
+      "format": "javascript",
+      "fragment": "  hook.addEventListener(\"observe\", (event) => {\n    const o = event.detail;\n    if (o && o.isWebGLRenderer && !window.__probe.renderer) {\n      window.__probe.renderer = o;\n      const render = o.render.bind(o);\n      o.render = (scene, camera) => { window.__probe.scene = scene; window.__probe.camera = camera; return render(scene, camera); };\n    }\n  });\n});",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 40,
+        "endLoc": {
+          "column": 1,
+          "line": 40,
+          "position": 2339
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 32,
+        "startLoc": {
+          "column": 8,
+          "line": 32,
+          "position": 1987
+        }
+      },
+      "tokens": 95
+    },
+    {
+      "firstFile": {
+        "end": 135,
+        "endLoc": {
+          "column": 1,
+          "line": 135,
+          "position": 6855
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 118,
+        "startLoc": {
+          "column": 2,
+          "line": 118,
+          "position": 6132
+        }
+      },
+      "format": "javascript",
+      "fragment": "  }\n  for (let col = 0; col <= degree; col += 1) {\n    let pivot = col;\n    for (let r = col + 1; r <= degree; r += 1) if (Math.abs(a[r][col]) > Math.abs(a[pivot][col])) pivot = r;\n    [a[col], a[pivot]] = [a[pivot], a[col]];\n    for (let r = col + 1; r <= degree; r += 1) {\n      const f = a[r][col] / a[col][col];\n      for (let c = col; c <= degree + 1; c += 1) a[r][c] -= f * a[col][c];\n    }\n  }\n  const coef = new Array(degree + 1).fill(0);\n  for (let r = degree; r >= 0; r -= 1) {\n    let s = a[r][degree + 1];\n    for (let c = r + 1; c <= degree; c += 1) s -= a[r][c] * coef[c];\n    coef[r] = s / a[r][r];\n  }\n  return Math.max(...values.map((v, i) => Math.abs(v - coef.reduce((s, k, p) => s + k * t[i] ** p, 0))));\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 18,
+      "secondFile": {
+        "end": 347,
+        "endLoc": {
+          "column": 5,
+          "line": 347,
+          "position": 19919
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 337,
+        "startLoc": {
+          "column": 184,
+          "line": 337,
+          "position": 19186
+        }
+      },
+      "tokens": 314
+    },
+    {
+      "firstFile": {
+        "end": 157,
+        "endLoc": {
+          "column": 41,
+          "line": 157,
+          "position": 8123
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 151,
+        "startLoc": {
+          "column": 162,
+          "line": 151,
+          "position": 7846
+        }
+      },
+      "format": "javascript",
+      "fragment": "const result = { method: \"see the header of tools/validate/browser-precision.mjs\", viewport: \"1280x800\", scale: \"True\", frames: FRAMES, clockUtc: null, focus: {} };\ntry {\n  await page.goto(`${base}?experience=synthetic-belt`);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n  const canvas = page.getByTestId(\"earth-moon-canvas\");\n  assert.equal(await canvas.getAttribute(\"data-scene-center\"), \"sun\", \"the belt is a Sun-centred scene\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 71,
+        "endLoc": {
+          "column": 41,
+          "line": 71,
+          "position": 3922
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 64,
+        "startLoc": {
+          "column": 0,
+          "line": 64,
+          "position": 3644
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 201,
+        "endLoc": {
+          "column": 9,
+          "line": 201,
+          "position": 10451
+        },
+        "name": "validate/browser-precision.mjs",
+        "start": 192,
+        "startLoc": {
+          "column": 38,
+          "line": 192,
+          "position": 10152
+        }
+      },
+      "format": "javascript",
+      "fragment": "    const still = await frames(FRAMES);\n    await page.mouse.move(centre.x, centre.y);\n    await page.mouse.down();\n    const swept = [];\n    for (let i = 0; i < FRAMES; i += 1) {\n      await page.mouse.move(centre.x + (i + 1), centre.y + 0.4 * (i + 1));\n      swept.push((await frames(1))[0]);\n    }\n    await page.mouse.up();\n    const first = still[0];",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 333,
+        "endLoc": {
+          "column": 9,
+          "line": 333,
+          "position": 18775
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 323,
+        "startLoc": {
+          "column": 74,
+          "line": 323,
+          "position": 18343
+        }
+      },
+      "tokens": 105
+    },
+    {
+      "firstFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 1,
+          "line": 43,
+          "position": 2934
+        },
+        "name": "validate/browser-public-showers.mjs",
+        "start": 38,
+        "startLoc": {
+          "column": 141,
+          "line": 38,
+          "position": 2626
+        }
+      },
+      "format": "javascript",
+      "fragment": "  if (!(await page.locator(\"#info-panel\").count())) await page.getByRole(\"button\", { name: new RegExp(`^Information about ${label} stream$`) }).click();\n  const description = (await page.locator(\"#info-panel\").innerText()).replace(/\\s+/g, \" \");\n  await page.locator(\"#info-panel .provenance-badge\").click();\n  const detail = (await page.locator(\"#info-panel .provenance-detail\").innerText()).replace(/\\s+/g, \" \");\n  return { description, detail };\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 124,
+        "endLoc": {
+          "column": 1,
+          "line": 124,
+          "position": 7532
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 119,
+        "startLoc": {
+          "column": 129,
+          "line": 119,
+          "position": 7224
+        }
+      },
+      "tokens": 75
+    },
+    {
+      "firstFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 113,
+          "line": 18,
+          "position": 1083
+        },
+        "name": "validate/browser-shell.mjs",
+        "start": 12,
+        "startLoc": {
+          "column": 111,
+          "line": 12,
+          "position": 822
+        }
+      },
+      "format": "javascript",
+      "fragment": "page.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });\n\ntry {\n  await page.goto(url);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n  assert.equal(await page.getByRole(\"button\", { name: \"Developer mode\" }).getAttribute(\"aria-pressed\"), \"false\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 113,
+          "line": 131,
+          "position": 6619
+        },
+        "name": "validate/browser-spike03.mjs",
+        "start": 125,
+        "startLoc": {
+          "column": 1,
+          "line": 125,
+          "position": 6358
+        }
+      },
+      "tokens": 63
+    },
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 5,
+          "line": 19,
+          "position": 1661
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 13,
+        "startLoc": {
+          "column": 49,
+          "line": 13,
+          "position": 1400
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, readFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nconst settings = JSON.parse(readFileSync(new URL(\"../../data/showers/perseids.json\", import.meta.url), \"utf8\"));",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 10,
+        "endLoc": {
+          "column": 5,
+          "line": 10,
+          "position": 535
+        },
+        "name": "validate/browser-synthetic.mjs",
+        "start": 4,
+        "startLoc": {
+          "column": 35,
+          "line": 4,
+          "position": 274
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 1,
+          "line": 37,
+          "position": 2811
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 32,
+        "startLoc": {
+          "column": 43,
+          "line": 32,
+          "position": 2545
+        }
+      },
+      "format": "javascript",
+      "fragment": "async function openPage(viewport = VIEWPORT) {\n  const page = await browser.newPage({ viewport });\n  page.on(\"pageerror\", (error) => errors.push(`pageerror: ${error.message}`));\n  page.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });\n  return page;\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 104,
+        "endLoc": {
+          "column": 1,
+          "line": 104,
+          "position": 10278
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 99,
+        "startLoc": {
+          "column": 32,
+          "line": 99,
+          "position": 10012
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 39,
+        "endLoc": {
+          "column": 5,
+          "line": 39,
+          "position": 2818
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 34,
+        "startLoc": {
+          "column": 34,
+          "line": 34,
+          "position": 2635
+        }
+      },
+      "format": "javascript",
+      "fragment": "  page.on(\"pageerror\", (error) => errors.push(`pageerror: ${error.message}`));\n  page.on(\"console\", (message) => { if (message.type() === \"error\") errors.push(`console: ${message.text()}`); });\n  return page;\n}\n\nasync function load(page, query) {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 107,
+        "endLoc": {
+          "column": 5,
+          "line": 107,
+          "position": 10438
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 101,
+        "startLoc": {
+          "column": 34,
+          "line": 101,
+          "position": 10102
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 110,
+        "endLoc": {
+          "column": 11,
+          "line": 110,
+          "position": 6812
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 86,
+        "startLoc": {
+          "column": 31,
+          "line": 86,
+          "position": 5621
+        }
+      },
+      "format": "javascript",
+      "fragment": "async function litPixels(page) {\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  return page.evaluate(async ({ data, colour }) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    const hueOf = (r, g, b) => {\n      const max = Math.max(r, g, b); const min = Math.min(r, g, b);\n      if (max === min) return null;\n      const d = max - min;\n      const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;\n      return (h * 60 + 360) % 360;\n    };\n    const target = hueOf(parseInt(colour.slice(1, 3), 16), parseInt(colour.slice(3, 5), 16), parseInt(colour.slice(5, 7), 16));\n    let lit = 0;\n    for (let i = 0; i < pixels.length; i += 4) {\n      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];\n      const max = Math.max(r, g, b);\n      if (max <= 150 || (max - Math.min(r, g, b)) / max < 0.35) continue;\n      const gap = Math.abs(hueOf(r, g, b) - target);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 25,
+      "secondFile": {
+        "end": 133,
+        "endLoc": {
+          "column": 11,
+          "line": 133,
+          "position": 11852
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 107,
+        "startLoc": {
+          "column": 34,
+          "line": 107,
+          "position": 10467
+        }
+      },
+      "tokens": 385
+    },
+    {
+      "firstFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 72,
+          "line": 96,
+          "position": 6127
+        },
+        "name": "validate/browser-showers-gmn.mjs",
+        "start": 88,
+        "startLoc": {
+          "column": 45,
+          "line": 88,
+          "position": 5761
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async ({ data, colour }) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 342,
+        "endLoc": {
+          "column": 72,
+          "line": 342,
+          "position": 24345
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 334,
+        "startLoc": {
+          "column": 51,
+          "line": 334,
+          "position": 23979
+        }
+      },
+      "tokens": 96
+    },
+    {
+      "firstFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 5,
+          "line": 96,
+          "position": 9865
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 89,
+        "startLoc": {
+          "column": 0,
+          "line": 89,
+          "position": 9260
+        }
+      },
+      "format": "javascript",
+      "fragment": "if (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nconst errors = [];\nconst results = {};\n/** The engine default camera (Sun, azimuth 216, elevation 14.32, Overview distance) that the geometry assertions were written for, independent of any look.startView. */\nconst ENGINE_DEFAULT_VIEW = \"&view=sun,216,14.32,3007000\";\n// Every stream-pixel count the scenarios assert on, by shower, viewport and scenario, so a floor can be judged against what was actually measured.\nconst litLog = (results.litCounts = {});",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 5,
+          "line": 23,
+          "position": 1574
+        },
+        "name": "validate/browser-sun.mjs",
+        "start": 15,
+        "startLoc": {
+          "column": 0,
+          "line": 15,
+          "position": 1125
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 380,
+        "endLoc": {
+          "column": 13,
+          "line": 380,
+          "position": 26934
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 375,
+        "startLoc": {
+          "column": 54,
+          "line": 375,
+          "position": 26621
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === \"Overview\")?.value ?? null);\n    await compact.selectOption(value);\n  } else await page.getByRole(\"button\", { name: \"Overview\", exact: true }).click();\n  await page.waitForTimeout(1200);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 444,
+        "endLoc": {
+          "column": 13,
+          "line": 444,
+          "position": 32047
+        },
+        "name": "validate/browser-showers.mjs",
+        "start": 439,
+        "startLoc": {
+          "column": 18,
+          "line": 439,
+          "position": 31734
+        }
+      },
+      "tokens": 88
+    },
+    {
+      "firstFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 49,
+          "line": 12,
+          "position": 958
+        },
+        "name": "validate/browser-sky-map.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 18,
+          "line": 6,
+          "position": 637
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, writeFileSync } from \"node:fs\";\nimport { join } from \"node:path\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 49,
+          "line": 23,
+          "position": 2152
+        },
+        "name": "validate/browser-sky.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 44,
+          "line": 17,
+          "position": 1831
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 48,
+          "line": 27,
+          "position": 2219
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 22,
+        "startLoc": {
+          "column": 20,
+          "line": 22,
+          "position": 1936
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst url = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst out = process.env.ASTRAEUS_EVIDENCE_DIR ?? \"docs/evidence/regression-spike01-02\";",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 48,
+          "line": 11,
+          "position": 609
+        },
+        "name": "validate/browser-spike03.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 20,
+          "line": 6,
+          "position": 326
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 24,
+          "line": 27,
+          "position": 2195
+        },
+        "name": "validate/browser-spike02.mjs",
+        "start": 22,
+        "startLoc": {
+          "column": 20,
+          "line": 22,
+          "position": 1936
+        }
+      },
+      "format": "javascript",
+      "fragment": "import { mkdirSync, writeFileSync } from \"node:fs\";\n\nconst pw = await import(process.env.PLAYWRIGHT_CORE ?? \"playwright-core\");\nconst chromium = pw.chromium ?? pw.default.chromium;\nconst url = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst out = process.env.ASTRAEUS_EVIDENCE_DIR ?? \"docs/evidence/regression-spike01-02\";",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 24,
+          "line": 11,
+          "position": 814
+        },
+        "name": "validate/browser-story-panels.mjs",
+        "start": 6,
+        "startLoc": {
+          "column": 47,
+          "line": 6,
+          "position": 555
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 29,
+        "endLoc": {
+          "column": 32,
+          "line": 29,
+          "position": 1449
+        },
+        "name": "validate/browser-spike03.mjs",
+        "start": 24,
+        "startLoc": {
+          "column": 1,
+          "line": 24,
+          "position": 1250
+        }
+      },
+      "format": "javascript",
+      "fragment": "};\nconst pause = async () => {\n  const button = page.getByRole(\"button\", { name: \"Pause playback\", exact: true });\n  if (await button.count()) await button.click();\n};\nconst seek = async (isoUtc) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 36,
+          "line": 37,
+          "position": 2313
+        },
+        "name": "validate/capture-apollo-compare.mjs",
+        "start": 32,
+        "startLoc": {
+          "column": 121,
+          "line": 32,
+          "position": 2094
+        }
+      },
+      "tokens": 56
+    },
+    {
+      "firstFile": {
+        "end": 59,
+        "endLoc": {
+          "column": 9,
+          "line": 59,
+          "position": 3964
+        },
+        "name": "validate/browser-sun.mjs",
+        "start": 51,
+        "startLoc": {
+          "column": 44,
+          "line": 51,
+          "position": 3664
+        }
+      },
+      "format": "javascript",
+      "fragment": "  return page.evaluate(async ({ data, cx, cy, radius }) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const c = document.createElement(\"canvas\");\n    c.width = image.width; c.height = image.height;\n    const ctx = c.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const px = ctx.getImageData(0, 0, c.width, c.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 132,
+        "endLoc": {
+          "column": 11,
+          "line": 132,
+          "position": 8547
+        },
+        "name": "validate/browser-sun.mjs",
+        "start": 124,
+        "startLoc": {
+          "column": 37,
+          "line": 124,
+          "position": 8231
+        }
+      },
+      "tokens": 77
+    },
+    {
+      "firstFile": {
+        "end": 53,
+        "endLoc": {
+          "column": 68,
+          "line": 53,
+          "position": 3144
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 48,
+        "startLoc": {
+          "column": 24,
+          "line": 48,
+          "position": 2894
+        }
+      },
+      "format": "javascript",
+      "fragment": "    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const px = ctx.getImageData(0, 0, copy.width, copy.height).data;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 119,
+        "endLoc": {
+          "column": 68,
+          "line": 119,
+          "position": 6867
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 114,
+        "startLoc": {
+          "column": 24,
+          "line": 114,
+          "position": 6617
+        }
+      },
+      "tokens": 70
+    },
+    {
+      "firstFile": {
+        "end": 72,
+        "endLoc": {
+          "column": 20,
+          "line": 72,
+          "position": 3970
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 67,
+        "startLoc": {
+          "column": 54,
+          "line": 67,
+          "position": 3708
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.goto(`${base}?experience=synthetic-belt`);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n  const canvas = page.getByTestId(\"earth-moon-canvas\");\n  assert.equal(await canvas.getAttribute(\"data-point-groups\"), \"1\");\n  assert.equal(await canvas.getAttribute(\"data-bodies\"), \"sun,earth\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 67,
+        "endLoc": {
+          "column": 20,
+          "line": 67,
+          "position": 3999
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 62,
+        "startLoc": {
+          "column": 56,
+          "line": 62,
+          "position": 3737
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 72,
+        "endLoc": {
+          "column": 20,
+          "line": 72,
+          "position": 3970
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 67,
+        "startLoc": {
+          "column": 54,
+          "line": 67,
+          "position": 3708
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.goto(`${base}?experience=synthetic-belt`);\n  await page.waitForSelector(\"canvas\");\n  await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n  const canvas = page.getByTestId(\"earth-moon-canvas\");\n  assert.equal(await canvas.getAttribute(\"data-point-groups\"), \"1\");\n  assert.equal(await canvas.getAttribute(\"data-bodies\"), \"sun,earth\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 60,
+        "endLoc": {
+          "column": 20,
+          "line": 60,
+          "position": 3762
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 54,
+        "startLoc": {
+          "column": 54,
+          "line": 54,
+          "position": 3437
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 119,
+        "endLoc": {
+          "column": 6,
+          "line": 119,
+          "position": 7120
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 108,
+        "startLoc": {
+          "column": 47,
+          "line": 108,
+          "position": 6483
+        }
+      },
+      "format": "javascript",
+      "fragment": "    if (await pause.count()) await pause.click();\n    const closeInfo = async () => { const c = target.locator(\"#info-panel .info-panel-close\"); if (await c.count()) await c.click(); };\n    const pickPreset = async (name) => {\n      const compact = target.locator(\".object-camera-picker\");\n      if (await compact.isVisible()) {\n        const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);\n        assert.ok(value, `${label}: preset ${name} exists`);\n        await compact.selectOption(value);\n      } else {\n        await target.getByRole(\"button\", { name, exact: true }).click();\n      }\n    };",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 230,
+        "endLoc": {
+          "column": 6,
+          "line": 230,
+          "position": 14430
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 219,
+        "startLoc": {
+          "column": 35,
+          "line": 219,
+          "position": 13793
+        }
+      },
+      "tokens": 159
+    },
+    {
+      "firstFile": {
+        "end": 121,
+        "endLoc": {
+          "column": 9,
+          "line": 121,
+          "position": 7272
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 113,
+        "startLoc": {
+          "column": 28,
+          "line": 113,
+          "position": 6793
+        }
+      },
+      "format": "javascript",
+      "fragment": "        const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);\n        assert.ok(value, `${label}: preset ${name} exists`);\n        await compact.selectOption(value);\n      } else {\n        await target.getByRole(\"button\", { name, exact: true }).click();\n      }\n    };\n    // Counts of pixels within `radius` px of the canvas centre: the camera orbits the focused body, so what sits at the centre is that body.\n    const nearCentre = async (radius) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 231,
+        "endLoc": {
+          "column": 7,
+          "line": 231,
+          "position": 14438
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 224,
+        "startLoc": {
+          "column": 28,
+          "line": 224,
+          "position": 14103
+        }
+      },
+      "tokens": 88
+    },
+    {
+      "firstFile": {
+        "end": 133,
+        "endLoc": {
+          "column": 13,
+          "line": 133,
+          "position": 8017
+        },
+        "name": "validate/browser-synthetic-belt.mjs",
+        "start": 125,
+        "startLoc": {
+          "column": 44,
+          "line": 125,
+          "position": 7682
+        }
+      },
+      "format": "javascript",
+      "fragment": "      return target.evaluate(async ([data, r]) => {\n        const image = new Image();\n        image.src = `data:image/png;base64,${data}`;\n        await image.decode();\n        const copy = document.createElement(\"canvas\");\n        copy.width = image.width; copy.height = image.height;\n        const ctx = copy.getContext(\"2d\");\n        ctx.drawImage(image, 0, 0);\n        const cx = Math.round(image.width / 2);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 9,
+          "line": 96,
+          "position": 5459
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 88,
+        "startLoc": {
+          "column": 55,
+          "line": 88,
+          "position": 5156
+        }
+      },
+      "tokens": 75
+    },
+    {
+      "firstFile": {
+        "end": 120,
+        "endLoc": {
+          "column": 7,
+          "line": 120,
+          "position": 6875
+        },
+        "name": "validate/browser-synthetic-eccentric.mjs",
+        "start": 107,
+        "startLoc": {
+          "column": 30,
+          "line": 107,
+          "position": 6124
+        }
+      },
+      "format": "javascript",
+      "fragment": "const pinkExtent = async (page) => {\n  await page.evaluate(() => { for (const el of document.querySelectorAll(\".scene-labels\")) el.style.visibility = \"hidden\"; });\n  const png = (await page.getByTestId(\"earth-moon-canvas\").screenshot()).toString(\"base64\");\n  await page.evaluate(() => { for (const el of document.querySelectorAll(\".scene-labels\")) el.style.visibility = \"\"; });\n  return page.evaluate(async (data) => {\n    const image = new Image();\n    image.src = `data:image/png;base64,${data}`;\n    await image.decode();\n    const copy = document.createElement(\"canvas\");\n    copy.width = image.width; copy.height = image.height;\n    const ctx = copy.getContext(\"2d\");\n    ctx.drawImage(image, 0, 0);\n    const px = ctx.getImageData(0, 0, copy.width, copy.height).data;\n    let minX = Infinity, minY = Infinity, maxX = -1, maxY = -1, count = 0;",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 14,
+      "secondFile": {
+        "end": 50,
+        "endLoc": {
+          "column": 7,
+          "line": 50,
+          "position": 3150
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 37,
+        "startLoc": {
+          "column": 25,
+          "line": 37,
+          "position": 2399
+        }
+      },
+      "tokens": 193
+    },
+    {
+      "firstFile": {
+        "end": 24,
+        "endLoc": {
+          "column": 5,
+          "line": 24,
+          "position": 1644
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 17,
+        "startLoc": {
+          "column": 25,
+          "line": 17,
+          "position": 1309
+        }
+      },
+      "format": "javascript",
+      "fragment": "const base = process.env.ASTRAEUS_URL ?? \"http://localhost:5199/app.html\";\nconst outDir = process.env.ASTRAEUS_EVIDENCE_DIR;\nif (outDir) mkdirSync(outDir, { recursive: true });\nconst browser = await chromium.launch({ args: [\"--use-gl=swiftshader\", \"--enable-unsafe-swiftshader\", \"--ignore-gpu-blocklist\"] });\nlet page;\nlet prefix = \"\";\nconst errors = [];\nconst results = {};",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 5,
+          "line": 27,
+          "position": 1972
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 20,
+        "startLoc": {
+          "column": 25,
+          "line": 20,
+          "position": 1637
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 35,
+        "endLoc": {
+          "column": 2,
+          "line": 35,
+          "position": 2238
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 24,
+        "startLoc": {
+          "column": 18,
+          "line": 24,
+          "position": 1657
+        }
+      },
+      "format": "javascript",
+      "fragment": "const results = {};\nconst shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${prefix}${name}.png` }); };\nconst choosePreset = async (name) => {\n  const compact = page.locator(\".object-camera-picker\");\n  if (await compact.isVisible()) {\n    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);\n    assert.ok(value, `camera preset exists: ${name}`);\n    await compact.selectOption(value);\n  } else {\n    await page.getByRole(\"button\", { name, exact: true }).click();\n  }\n};",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 12,
+      "secondFile": {
+        "end": 45,
+        "endLoc": {
+          "column": 2,
+          "line": 45,
+          "position": 2984
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 34,
+        "startLoc": {
+          "column": 2,
+          "line": 34,
+          "position": 2403
+        }
+      },
+      "tokens": 153
+    },
+    {
+      "firstFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 5,
+          "line": 37,
+          "position": 2379
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 29,
+        "startLoc": {
+          "column": 78,
+          "line": 29,
+          "position": 1981
+        }
+      },
+      "format": "javascript",
+      "fragment": "    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);\n    assert.ok(value, `camera preset exists: ${name}`);\n    await compact.selectOption(value);\n  } else {\n    await page.getByRole(\"button\", { name, exact: true }).click();\n  }\n};\n// Pixels on the canvas close to the group's dot colour (#9de3a8), with the text labels hidden: relative evidence that dots are drawn.\nconst dotPixels = async () => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 47,
+        "endLoc": {
+          "column": 5,
+          "line": 47,
+          "position": 2991
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 39,
+        "startLoc": {
+          "column": 78,
+          "line": 39,
+          "position": 2727
+        }
+      },
+      "tokens": 71
+    },
+    {
+      "firstFile": {
+        "end": 72,
+        "endLoc": {
+          "column": 54,
+          "line": 72,
+          "position": 4304
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 67,
+        "startLoc": {
+          "column": 65,
+          "line": 67,
+          "position": 4044
+        }
+      },
+      "format": "javascript",
+      "fragment": "  assert.equal(await page.locator('option[value=\"listed-orbits\"]').count(), 1);\n  assert.equal(await page.locator('option[value=\"columbia\"]').count(), 0);\n  await page.getByRole(\"button\", { name: \"Pause playback\" }).click();\n\n  const panel = page.locator(\"#info-panel\");\n  await page.getByLabel(\"Select object\").selectOption(\"listed-orbits\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 66,
+        "endLoc": {
+          "column": 54,
+          "line": 66,
+          "position": 4137
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 60,
+        "startLoc": {
+          "column": 63,
+          "line": 60,
+          "position": 3805
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 80,
+        "endLoc": {
+          "column": 36,
+          "line": 80,
+          "position": 4702
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 74,
+        "startLoc": {
+          "column": 72,
+          "line": 74,
+          "position": 4419
+        }
+      },
+      "format": "javascript",
+      "fragment": "  assert.equal(await panel.getAttribute(\"data-info-id\"), \"listed-orbits\");\n  const badge = panel.locator(\".provenance-badge\");\n  assert.match(await badge.innerText(), /^Illustrative ⓘ/);\n  await badge.click();\n  const detail = await panel.locator(\".provenance-detail\").innerText();\n  assert.match(detail, /Made up/);\n  assert.match(detail, /two-body/i);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 74,
+        "endLoc": {
+          "column": 36,
+          "line": 74,
+          "position": 4531
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 68,
+        "startLoc": {
+          "column": 70,
+          "line": 68,
+          "position": 4248
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 108,
+        "endLoc": {
+          "column": 21,
+          "line": 108,
+          "position": 6113
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 101,
+        "startLoc": {
+          "column": 46,
+          "line": 101,
+          "position": 5697
+        }
+      },
+      "format": "javascript",
+      "fragment": "  const infoUnderTrue = await panel.innerText();\n  const readable = page.getByRole(\"button\", { name: \"Readable\", exact: true });\n  await readable.click();\n  assert.equal(await readable.getAttribute(\"aria-pressed\"), \"true\");\n  await page.waitForTimeout(800);\n  assert.equal(await canvas.getAttribute(\"data-point-groups\"), \"1\");\n  assert.equal(await panel.innerText(), infoUnderTrue, \"group information is identical under True and Readable\");\n  await choosePreset(\"Focus listed orbits\");",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 95,
+        "endLoc": {
+          "column": 21,
+          "line": 95,
+          "position": 5460
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 86,
+        "startLoc": {
+          "column": 31,
+          "line": 86,
+          "position": 4954
+        }
+      },
+      "tokens": 86
+    },
+    {
+      "firstFile": {
+        "end": 135,
+        "endLoc": {
+          "column": 28,
+          "line": 135,
+          "position": 7203
+        },
+        "name": "validate/browser-synthetic-listed.mjs",
+        "start": 126,
+        "startLoc": {
+          "column": 18,
+          "line": 126,
+          "position": 7018
+        }
+      },
+      "format": "javascript",
+      "fragment": "  await page.close();\n}\n\ntry {\n  await run(\"desktop\", { width: 1280, height: 800 });\n  await run(\"phone\", { width: 390, height: 844 });\n} finally {\n  await browser.close();\n}\nconsole.log(JSON.stringify({ results, errors }, null, 2));",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 160,
+        "endLoc": {
+          "column": 28,
+          "line": 160,
+          "position": 9000
+        },
+        "name": "validate/browser-synthetic-ring.mjs",
+        "start": 151,
+        "startLoc": {
+          "column": 18,
+          "line": 151,
+          "position": 8815
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 79,
+        "endLoc": {
+          "column": 16,
+          "line": 79,
+          "position": 4531
+        },
+        "name": "validate/capture-apollo-compare.mjs",
+        "start": 73,
+        "startLoc": {
+          "column": 24,
+          "line": 73,
+          "position": 4264
+        }
+      },
+      "format": "javascript",
+      "fragment": "    await page.goto(base);\n    await page.waitForSelector(\"canvas\");\n    await page.getByRole(\"region\", { name: \"Timeline controls\" }).waitFor();\n    await pause();\n    for (const scale of SCALES) {\n      await page.getByRole(\"button\", { name: scale, exact: true }).click();\n      for (const phase of PHASES) {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 100,
+        "endLoc": {
+          "column": 16,
+          "line": 100,
+          "position": 5452
+        },
+        "name": "validate/capture-apollo-compare.mjs",
+        "start": 94,
+        "startLoc": {
+          "column": 55,
+          "line": 94,
+          "position": 5185
+        }
+      },
+      "tokens": 66
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-10-16T20:09:14.901Z",
+    "formats": {
+      "javascript": {
+        "clones": 90,
+        "duplicatedLines": 827,
+        "duplicatedTokens": 8637,
+        "lines": 7746,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 10.676478182287633,
+        "percentageTokens": 9.406447397081246,
+        "sources": 34,
+        "tokens": 91820
+      },
+      "json": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 274,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 682
+      },
+      "typescript": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 2303,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 21,
+        "tokens": 20756
+      }
+    },
+    "total": {
+      "clones": 90,
+      "duplicatedLines": 827,
+      "duplicatedTokens": 8637,
+      "lines": 10323,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 8.011237043495107,
+      "percentageTokens": 7.625951367673807,
+      "sources": 56,
+      "tokens": 113258
+    }
+  }
+}

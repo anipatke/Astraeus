@@ -1,0 +1,285 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 109,
+        "endLoc": {
+          "column": 8,
+          "line": 109,
+          "position": 4585
+        },
+        "name": "core/elementsBody.ts",
+        "start": 89,
+        "startLoc": {
+          "column": 45,
+          "line": 89,
+          "position": 3870
+        }
+      },
+      "format": "typescript",
+      "fragment": "  throw new ElementsBodyError(`body record ${path} ${problem}`);\n}\n\nfunction record(value: unknown, path: string): Raw {\n  if (typeof value !== \"object\" || value === null || Array.isArray(value)) fail(path, \"is required and must be an object\");\n  return value as Raw;\n}\n\nfunction text(parent: Raw, key: string, path: string): string {\n  const value = parent[key];\n  if (typeof value !== \"string\" || value.trim().length === 0) fail(`${path}.${key}`, \"is required and must be non-empty text\");\n  return value;\n}\n\nfunction finite(parent: Raw, key: string, path: string): number {\n  const value = parent[key];\n  if (typeof value !== \"number\" || !Number.isFinite(value)) fail(`${path}.${key}`, \"is required and must be a finite number\");\n  return value;\n}\n\nfunction instant(parent: Raw, key: string, path: string): string {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 21,
+      "secondFile": {
+        "end": 164,
+        "endLoc": {
+          "column": 8,
+          "line": 164,
+          "position": 7717
+        },
+        "name": "experiences/showers/showerSettings.ts",
+        "start": 144,
+        "startLoc": {
+          "column": 51,
+          "line": 144,
+          "position": 7002
+        }
+      },
+      "tokens": 167
+    },
+    {
+      "firstFile": {
+        "end": 115,
+        "endLoc": {
+          "column": 1,
+          "line": 115,
+          "position": 4910
+        },
+        "name": "core/elementsBody.ts",
+        "start": 105,
+        "startLoc": {
+          "column": 124,
+          "line": 105,
+          "position": 4555
+        }
+      },
+      "format": "typescript",
+      "fragment": "  if (typeof value !== \"number\" || !Number.isFinite(value)) fail(`${path}.${key}`, \"is required and must be a finite number\");\n  return value;\n}\n\nfunction instant(parent: Raw, key: string, path: string): string {\n  const value = text(parent, key, path);\n  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$/.test(value) || !Number.isFinite(Date.parse(value))) {\n    fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got \"${value}\"`);\n  }\n  return value;\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 11,
+      "secondFile": {
+        "end": 176,
+        "endLoc": {
+          "column": 1,
+          "line": 176,
+          "position": 8254
+        },
+        "name": "experiences/showers/showerSettings.ts",
+        "start": 166,
+        "startLoc": {
+          "column": 76,
+          "line": 166,
+          "position": 7899
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 257,
+        "endLoc": {
+          "column": 5,
+          "line": 257,
+          "position": 12511
+        },
+        "name": "core/listedOrbitGroup.ts",
+        "start": 249,
+        "startLoc": {
+          "column": 7,
+          "line": 249,
+          "position": 12245
+        }
+      },
+      "format": "typescript",
+      "fragment": "    }, center);\n    if (rotation === null) {\n      states.set(position, 6 * member);\n      states.set(velocity, 6 * member + 3);\n    } else {\n      rotateInto(rotation, position, states, 6 * member);\n      rotateInto(rotation, velocity, states, 6 * member + 3);\n    }\n  });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 5,
+          "line": 131,
+          "position": 5007
+        },
+        "name": "core/orbitGroup.ts",
+        "start": 123,
+        "startLoc": {
+          "column": 75,
+          "line": 123,
+          "position": 4741
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 288,
+        "endLoc": {
+          "column": 57,
+          "line": 288,
+          "position": 13884
+        },
+        "name": "core/listedOrbitGroup.ts",
+        "start": 280,
+        "startLoc": {
+          "column": 5,
+          "line": 280,
+          "position": 13512
+        }
+      },
+      "format": "typescript",
+      "fragment": "    },\n    stateAt(index: number, timeUtcMs: number) {\n      assertMemberIndex(count, index);\n      assertUtcUnixMs(timeUtcMs);\n      assertWithinBounds(bounds, timeUtcMs);\n      const position = new Float64Array(3);\n      const single = new Float64Array(6);\n      single.set(states.subarray(6 * index, 6 * index + 6));\n      adapter.propagateMemberInto(single, 0, (timeUtcMs - referenceUtcMs) / 1000, center, position);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 9,
+      "secondFile": {
+        "end": 170,
+        "endLoc": {
+          "column": 57,
+          "line": 170,
+          "position": 6402
+        },
+        "name": "core/orbitGroup.ts",
+        "start": 161,
+        "startLoc": {
+          "column": 19,
+          "line": 161,
+          "position": 5936
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 7,
+          "line": 92,
+          "position": 4470
+        },
+        "name": "core/sunCentredSources.ts",
+        "start": 87,
+        "startLoc": {
+          "column": 62,
+          "line": 87,
+          "position": 4159
+        }
+      },
+      "format": "typescript",
+      "fragment": "export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {\n  if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);\n  assertUtcUnixMs(span.startUtcMs);\n  assertUtcUnixMs(span.endUtcMs);\n  if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError(\"a path span must end after it starts\");\n  const times: number[] = [];",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 7,
+          "line": 131,
+          "position": 6632
+        },
+        "name": "core/sunCentredSources.ts",
+        "start": 126,
+        "startLoc": {
+          "column": 97,
+          "line": 126,
+          "position": 6321
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 123,
+        "endLoc": {
+          "column": 9,
+          "line": 123,
+          "position": 5665
+        },
+        "name": "synthetic/syntheticListedDefinition.ts",
+        "start": 117,
+        "startLoc": {
+          "column": 179,
+          "line": 117,
+          "position": 5375
+        }
+      },
+      "format": "typescript",
+      "fragment": "    { id: \"earth\", label: \"Earth\", color: \"#9fd8ff\", labelPriority: 100, labelMaxDistance: 500, description: \"Earth, on its path round the Sun; the listed orbits circle the Sun.\" },\n  ],\n  cameraPresets: [\n    { id: \"overview\", label: \"Overview\", request: { kind: \"overview\" } },\n    { id: \"sun-view\", label: \"Sun view\", request: { kind: \"focus\", target: \"sun\" } },\n    { id: \"focus-earth\", label: \"Focus Earth\", request: { kind: \"focus\", target: \"earth\" } },\n    { id: \"focus-listed\", label: \"Focus listed orbits\", request: { kind: \"focus\", target: \"listed-orbits\" } },",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 206,
+        "endLoc": {
+          "column": 9,
+          "line": 206,
+          "position": 9046
+        },
+        "name": "synthetic/syntheticRingDefinition.ts",
+        "start": 200,
+        "startLoc": {
+          "column": 171,
+          "line": 200,
+          "position": 8756
+        }
+      },
+      "tokens": 72
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-10-16T20:09:14.728Z",
+    "formats": {
+      "css": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 760,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 2,
+        "tokens": 14185
+      },
+      "tsx": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 3057,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 22,
+        "tokens": 28298
+      },
+      "typescript": {
+        "clones": 6,
+        "duplicatedLines": 63,
+        "duplicatedTokens": 530,
+        "lines": 10731,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.5870841487279843,
+        "percentageTokens": 0.6635118555797592,
+        "sources": 97,
+        "tokens": 79878
+      }
+    },
+    "total": {
+      "clones": 6,
+      "duplicatedLines": 63,
+      "duplicatedTokens": 530,
+      "lines": 14548,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 0.4330492163871323,
+      "percentageTokens": 0.43314454769084926,
+      "sources": 121,
+      "tokens": 122361
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 id: O-017
 title: Simplify and slim Astraeus before its first public release
-status: planned
+status: in_progress
 depends_on: [O-011, O-012]
 release: G-005
 ---
