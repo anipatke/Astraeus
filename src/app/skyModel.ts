@@ -1,6 +1,6 @@
 // The sky as the app uses it: render-frame directions and buffers, the shell item that cites the sources, the settings check.
 import { createProvenance, type Provenance } from "../core/provenance";
-import { colourFromTemperature, galacticToEqj, FETCH_STARS_COMMAND, DEFAULT_SKY_MAP, SKY_SOURCES, starAppearance, temperatureFromBV, eqjUnit, type PictureFrame, type SkyMapSource, type SkySettings, type StarRow } from "../assets/sky";
+import { colourFromTemperature, galacticToEqj, DEFAULT_SKY_MAP, SKY_SOURCES, starAppearance, temperatureFromBV, eqjUnit, type PictureFrame, type SkyMapSource, type SkySettings, type StarRow, type StarSource } from "../assets/sky";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 
@@ -35,17 +35,22 @@ export function buildStarBuffers(stars: readonly StarRow[]): StarBuffers {
 }
 
 /** Whether the star file was found: still loading, absent, or loaded with a count. */
-export type StarStatus = { readonly kind: "loading" } | { readonly kind: "absent" } | { readonly kind: "loaded"; readonly count: number };
+export type StarStatus = { readonly kind: "loading" } | { readonly kind: "absent" } | { readonly kind: "loaded"; readonly count: number; readonly source?: StarSource };
+
+const STAR_SOURCE_NAMES: Readonly<Record<StarSource, string>> = {
+  hyg: "HYG catalogue (CC BY-SA 4.0)",
+  yale: "locally fetched Yale catalogue",
+};
 
 export const SKY_OBJECT_ID = "sky";
 
 /** The sky's one shell item: it cites both sources and states what is and is not drawn. */
 export function skyObject(status: StarStatus): ExperienceObject {
   const starLine = status.kind === "loaded"
-    ? `${status.count} stars of magnitude 6.5 or brighter are drawn from the locally fetched Yale catalogue.`
+    ? `${status.count} stars of magnitude 6.5 or brighter are drawn from the ${status.source === undefined ? "star catalogue (HYG by default, the locally fetched Yale catalogue with ?stars=yale)" : STAR_SOURCE_NAMES[status.source]}.`
     : status.kind === "loading"
-      ? "Looking for the locally fetched star catalogue."
-      : `Stars are not drawn: the star catalogue is not fetched on this machine. Run "${FETCH_STARS_COMMAND}" to fetch it. The Milky Way picture, when switched on, is drawn without them.`;
+      ? "Loading the star catalogue."
+      : "Stars are not drawn: the star file could not be loaded. The Milky Way picture, when switched on, is drawn without them.";
   const provenance: Provenance = createProvenance({
     sourceType: "observed",
     sources: SKY_SOURCES,

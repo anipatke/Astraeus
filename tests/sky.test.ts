@@ -257,15 +257,17 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(MILKY_WAY_TILES.reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(6000); // the full original width
   });
 
-  it("cites both sources and says plainly whether the stars were fetched", () => {
+  it("cites both sources and says plainly which star file is drawn", () => {
     const absent = skyObject({ kind: "absent" });
     expect(absent.provenance?.sources.join(" ")).toMatch(/Yale Bright Star Catalogue/);
     expect(absent.provenance?.sources.join(" ")).toMatch(/ESO\/S\. Brunier/);
-    expect(absent.provenance?.notes).toMatch(/not fetched/);
+    expect(absent.provenance?.sources.join(" ")).toMatch(/HYG star database v4\.2.*CC BY-SA 4\.0/);
+    expect(absent.provenance?.notes).toMatch(/could not be loaded/);
     expect(absent.provenance?.notes).toMatch(/Stars are not drawn/);
     expect(absent.provenance?.notes).not.toMatch(/only the Milky Way/);
-    expect(absent.provenance?.notes).toMatch(/fetch-stars/);
     expect(skyObject({ kind: "loaded", count: 8404 }).provenance?.notes).toMatch(/8404 stars/);
+    expect(skyObject({ kind: "loaded", count: 8920, source: "hyg" }).provenance?.notes).toMatch(/8920 stars.*HYG catalogue/);
+    expect(skyObject({ kind: "loaded", count: 8404, source: "yale" }).provenance?.notes).toMatch(/locally fetched Yale/);
     expect(absent.knownLimitations?.join(" ")).toMatch(/precession/);
   });
 

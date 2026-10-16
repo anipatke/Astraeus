@@ -1,7 +1,7 @@
 ---
 id: O-016
 title: Make the public site launch-ready
-status: planned
+status: in_progress
 depends_on: []
 release: G-005
 ---
