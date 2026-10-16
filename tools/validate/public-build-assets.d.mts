@@ -31,3 +31,15 @@ export const REQUIRED_PAGES: readonly string[];
 export const SHIPPABLE_LICENCES: readonly string[];
 /** Which files of a made-up data/local/ the validator would still check (CAMS, Yale, a non-shippable licence) and which it passes (a declared CC BY 4.0). */
 export function proveLicenceHandling(): readonly string[];
+export const STAR_ASSET: string;
+export const STAR_LICENCES: readonly string[];
+export interface StarAssetResult {
+  readonly ok: boolean;
+  readonly problems: readonly string[];
+  readonly file: string;
+  readonly sha256: string | null;
+  readonly bytes: number;
+}
+/** The committed star asset must declare a shippable licence and be present, byte for byte, in the build. */
+export function checkStarAsset(input: { readonly distDir: string; readonly rootDir?: string; readonly starPath?: string }): StarAssetResult;
+export function proveStarAssetHandling(): { readonly good: StarAssetResult; readonly empty: StarAssetResult; readonly badLicence: StarAssetResult };

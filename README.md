@@ -90,9 +90,9 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 
 Optional steps, each local only and never committed:
 
-- **Real stars:** `node tools/data/fetch-stars.mjs` fetches the Yale Bright Star Catalogue, 8,404 naked-eye stars. Without it the sky shows the Milky Way only.
-- **CAMS orbits:** `node tools/data/fetch-meteoroid-orbits.mjs 7` fetches the CAMS Perseid orbits, and `4` fetches the Geminids. The CAMS terms are not confirmed, so these are not shipped. The Geminids need this step to show a stream.
-- **Perseids work out of the box.** They default to the Global Meteor Network orbits (CC BY 4.0), and a compact copy of those 25,588 orbits is committed at `data/stories/perseids/gmn-iau-7.json`. Nothing needs fetching.
+- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file. `node tools/data/fetch-stars.mjs` fetches the Yale Bright Star Catalogue (8,404 stars) to this machine, and `?stars=yale` draws it instead. The Yale file is never shipped.
+- **CAMS orbits:** `node tools/data/fetch-meteoroid-orbits.mjs 7` fetches the CAMS Perseid orbits, and `4` fetches the Geminids. The CAMS terms are not confirmed, so these are not shipped, and a public build offers only the Global Meteor Network source.
+- **Perseids and Geminids work out of the box.** They default to the Global Meteor Network orbits (CC BY 4.0), and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching.
 
 ## Develop
 
@@ -118,7 +118,8 @@ Everything the demos draw, with its source, licence and whether it can go public
 | Asset | Source | Licence | Status |
 |---|---|---|---|
 | Milky Way panorama | ESO eso0932a, ESO/S. Brunier | CC BY 4.0 | Public |
-| Bright stars (8,404) | Yale Bright Star Catalogue, 5th rev., Hoffleit & Warren 1991 | Terms not established as public domain | This machine only |
+| Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
+| Yale stars (8,404, option) | Yale Bright Star Catalogue, 5th rev., Hoffleit & Warren 1991 | Terms not established as public domain | This machine only |
 | Sun, Mercury, Venus, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
 | Io map | USGS Galileo and Voyager mosaic | Public domain | Public |
 | Earth map | NASA Earth Observatory, Blue Marble: Next Generation with topography and bathymetry, July 2004 (Reto Stöckli) | Public domain | Public |
@@ -141,7 +142,8 @@ Credit lines, word for word:
 - Global Meteor Network, CC BY 4.0: Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).
 - CAMS: CAMS Meteoroid Orbit Database v3, P. Jenniskens, SETI Institute. Jenniskens et al. 2018, Planetary and Space Science 154.
 - IAU Meteor Data Center: Jenniskens et al. 2020, Planetary and Space Science 182; Jopek & Kanuchova 2017, Planetary and Space Science 143.
-- Bright stars: Yale Bright Star Catalogue, 5th revised edition, Hoffleit & Warren 1991, via CDS Strasbourg.
+- Bright stars, CC BY-SA 4.0: HYG database v4.2 (Hipparcos, Yale Bright Star and Gliese catalogues), astronexus, astronexus.com/projects/hyg. Changed: stars of magnitude 6.5 or brighter kept, right ascension converted from hours to degrees. The CC BY-SA 4.0 licence covers this star file only; the code stays MIT.
+- Yale stars (local option, never shipped): Yale Bright Star Catalogue, 5th revised edition, Hoffleit & Warren 1991, via CDS Strasbourg.
 - Orbits and positions: NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon & Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.
 - Apollo 11, public domain: NASA Apollo 11 Mission Report, MSC-00171 / SP-238.
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.

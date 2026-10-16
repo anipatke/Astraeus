@@ -2,6 +2,7 @@ import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimelineWindow } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
+import type { StoryPanelSet } from "./storyPanels";
 
 export interface ExperienceObject {
   readonly id: string;
@@ -45,6 +46,8 @@ export interface ExperienceConfig {
   readonly windows?: readonly TimelineWindow[];
   readonly window: TimeBounds;
   readonly rates: readonly number[];
+  /** Short story panels that open as playback reaches their time; see `parseStoryPanels`. Omit for an experience with none. */
+  readonly storyPanels?: StoryPanelSet;
   /** Where the event times come from, shown with every event. */
   readonly eventProvenance?: Provenance;
 }

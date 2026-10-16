@@ -12,6 +12,8 @@ import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
 import { SettingButtons, SettingGroup, SettingSlider } from "./SettingControls";
+import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
+import type { StoryMarkerSpec } from "./StoryMarkers";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
@@ -110,6 +112,11 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
+  const storySet = definition.experience.storyPanels;
+  const storyMarkerSpecs = useMemo<readonly StoryMarkerSpec[]>(
+    () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title }])),
+    [storySet],
+  );
   const controls = useRef<SceneControls>({
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
@@ -123,6 +130,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
     hiddenLabels: hiddenLabelsFrom(window.location.search, experience.objects),
     labelObjects: experience.objects,
+    storyMarkers: storyMarkerSpecs,
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
     groupFills: [],
@@ -142,6 +150,9 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
+  const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
+  const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
+  const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
@@ -151,6 +162,14 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
+  const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
+  const markOpenPanel = useCallback((id: string | null) => { controls.current.openStoryPanelId = id; }, []);
+  const setPlaying = useCallback((playing: boolean) => {
+    if (playing) runtime.clock.play();
+    else runtime.clock.pause();
+    setClockSnapshot(runtime.clock.snapshot());
+  }, [runtime]);
+  controls.current.onStoryMarker = requestPanel;
   const updateSelectedObject = useCallback((objectId: string) => {
     controls.current.selectedObjectId = objectId;
   }, []);
@@ -220,7 +239,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         </section>
       )}
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
+      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
         <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
           <div className="setting-groups">
@@ -248,6 +267,15 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
             </SettingButtons>
           </SettingGroup>
+          {storySet !== undefined && storySet.panels.length > 0 && (
+            <SettingGroup id="story-panels" title="Story panels">
+              <SettingButtons>
+                <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
+              </SettingButtons>
+              <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
+                onChange={setStoryPauseSeconds} />
+            </SettingGroup>
+          )}
           {runtime.sky.visible && (
             <SettingGroup id="sky" title="Sky">
               <SettingButtons>
@@ -331,6 +359,10 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       scaleChoices={scaleChoices}
       metricsFor={metricsFor}
       developerTools={developerTools}
+      storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
+      onSetPlaying={setPlaying}
+      panelRequest={panelRequest}
+      onOpenPanelChange={markOpenPanel}
     >
       <div className="canvas-host">
         <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />

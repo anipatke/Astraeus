@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
@@ -61,3 +61,29 @@ describe("shippable measured orbits (T-056)", () => {
   });
 });
 
+
+describe("shipped HYG star asset (T-060)", () => {
+  const proof = proveStarAssetHandling();
+
+  it("accepts the build that contains the licensed HYG file, whatever the hashed name", () => {
+    expect(proof.good.problems).toEqual([]);
+    expect(proof.good.ok).toBe(true);
+    expect(proof.good.file).toBe(STAR_ASSET);
+  });
+
+  it("rejects a build without the star file, so an empty public sky cannot pass", () => {
+    expect(proof.empty.ok).toBe(false);
+    expect(proof.empty.problems).toEqual(["the build does not contain the star asset"]);
+  });
+
+  it("rejects a star file whose licence is not CC BY-SA 4.0 or whose record is incomplete", () => {
+    expect(proof.badLicence.ok).toBe(false);
+    expect(proof.badLicence.problems.join("; ")).toMatch(/licence "CC BY-NC 4.0" is not one of CC BY-SA 4.0/);
+    expect(proof.badLicence.problems.join("; ")).toMatch(/no attribution/);
+  });
+
+  it("still rejects Yale: a copy of the Yale file in the build is found by the data check", () => {
+    expect(proveLicenceHandling()).toContain("data/local/yale-bsc-v65.json");
+    expect(proveItFails().dataCopied.ok).toBe(false);
+  });
+});

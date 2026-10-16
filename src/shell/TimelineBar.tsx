@@ -5,6 +5,7 @@ import type { TimelineWindow } from "../core/timeWindow";
 import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
+import type { StoryPanel } from "./storyPanels";
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -12,6 +13,10 @@ interface Props {
   readonly onTogglePlayback: () => void;
   readonly onRateChange: (rate: number) => void;
   readonly onSeek: (timeUtcMs: number) => void;
+  /** Story panels drawn as markers on the track; pressing one seeks to it and opens it. */
+  readonly panels?: readonly StoryPanel[];
+  readonly openPanelId?: string | null;
+  readonly onPanelOpen?: (panel: StoryPanel) => void;
   /** Seeks to the event; an open event panel follows it. */
   readonly onEventSeek: (event: TimelineEvent) => void;
   /** Opens the event's details without changing time. */
@@ -22,7 +27,7 @@ interface Props {
   readonly onWindowInfo: (window: TimelineWindow) => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo }: Props) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
   const windows = experience.windows ?? [];
   const navigation = navigationStops(experience.events, windows, snapshot.timeUtcMs);
@@ -178,6 +183,21 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 onClick={() => { onEventSeek(event); onEventInfo(event); }}
               >
                 <Label text={event.label} className="timeline-marker-label" />
+              </button>
+            ))}
+            {panels.map((panel) => (
+              <button
+                key={panel.id}
+                className="timeline-marker timeline-panel-marker"
+                type="button"
+                data-panel-id={panel.id}
+                aria-pressed={openPanelId === panel.id}
+                aria-label={`Open story panel: ${panel.title}`}
+                title={panel.title}
+                style={{ left: `${timePositionPercent(panel.timeUtcMs, experience.window)}%` }}
+                onClick={() => onPanelOpen?.(panel)}
+              >
+                <Label text={panel.title} className="timeline-marker-label" />
               </button>
             ))}
           </div>

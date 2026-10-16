@@ -1,6 +1,7 @@
 import columbiaFile from "../../../data/apollo11/generated/columbia.json";
 import eagleFile from "../../../data/apollo11/generated/eagle.json";
 import eventsFile from "../../../data/apollo11/generated/events.json";
+import panelsFile from "../../../data/stories/apollo11/panels.json";
 import validationFile from "../../../data/apollo11/generated/validation.json";
 import { createEvents, type TimelineEvent } from "../../core/events";
 import { createProvenance, type Provenance } from "../../core/provenance";
@@ -11,6 +12,7 @@ import { catalogueItem } from "../../app/catalogueItem";
 import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../../app/mission";
 import type { ExperienceConfig } from "../../shell/experience";
 import { formatMetricNumber } from "../../shell/metrics";
+import { parseStoryPanels } from "../../shell/storyPanels";
 
 /** The wording the brief requires; never describe the path as exact. */
 export const APOLLO11_STATEMENT =
@@ -219,10 +221,10 @@ function eventProvenance(events: GeneratedEvents = eventsFile as unknown as Gene
 }
 
 /** Shell-facing objects, content and timeline data projected from the existing Apollo scene config. */
-export function buildApollo11Experience(mission: MissionConfig = apollo11Mission): ExperienceConfig {
+export function buildApollo11Experience(mission: MissionConfig = apollo11Mission, panels: unknown = panelsFile): ExperienceConfig {
   const limitations = apollo11KnownLimitations(mission);
-  return {
-    objects: [
+  const anchors = new Map(mission.bodies.flatMap((body) => (body.anchorLabels ?? []).map((label, index): [string, number] => [label, body.anchorTimesUtcMs[index]!])));
+  const objects: ExperienceConfig["objects"] = [
       catalogueItem("earth", { color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: DESCRIPTIONS.earth }),
       catalogueItem("moon", { color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500, description: DESCRIPTIONS.moon, knownLimitations: MOON_EPHEMERIS.knownLimitations }),
       ...mission.bodies.map(({ id, label, color, trajectory, provenance }) => ({
@@ -236,7 +238,9 @@ export function buildApollo11Experience(mission: MissionConfig = apollo11Mission
         ...(provenance === undefined ? {} : { provenance }),
         knownLimitations: limitations[id] ?? [],
       })),
-    ],
+    ];
+  return {
+    objects,
     cameraPresets: [
       { id: "overview", label: "Earth–Moon overview", request: { kind: "overview" } },
       ...mission.bodies.map(({ id, label }) => ({
@@ -256,6 +260,7 @@ export function buildApollo11Experience(mission: MissionConfig = apollo11Mission
     window: mission.window,
     rates: mission.rates,
     eventProvenance: eventProvenance(),
+    storyPanels: parseStoryPanels(panels, { events: mission.events, anchors, objectIds: objects.map((object) => object.id), window: mission.window }),
   };
 }
 

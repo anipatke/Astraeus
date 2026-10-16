@@ -1,0 +1,35 @@
+{
+  "pauseSeconds": 6,
+  "autoOpen": true,
+  "panels": [
+    {
+      "id": "tli-cutoff",
+      "at": { "anchor": "A-02" },
+      "object": "columbia",
+      "title": "Leaving Earth orbit",
+      "badge": "observed",
+      "body": [
+        "At ground elapsed time 2:50:03.2 (16:22:03 UTC, 16 July 1969) the S-IVB's second burn cut off. NASA's postflight table puts the stack about 321 km above Earth, moving at about 10.84 km/s relative to Earth's centre.",
+        "The next anchor, translunar injection, follows ten seconds later."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-02, S-IVB second cutoff"
+      ]
+    },
+    {
+      "id": "touchdown",
+      "at": { "anchor": "A-LND" },
+      "object": "eagle",
+      "title": "Touchdown at Landing Site 2",
+      "badge": "observed",
+      "body": [
+        "Eagle touched down at ground elapsed time 102:45:39.9 (20:17:40 UTC, 20 July 1969), at 0.674° N, 23.473° E on the Moon.",
+        "The touchdown time and place are published values. The descent path drawn to reach them is a reconstruction: powered descent is a two-anchor interpolation, not a measured track."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 5-IV, p. 5-10: anchor A-LND, lunar touchdown (Landing Site 2)",
+        "Astraeus Apollo 11 reconstruction notes: powered descent and ascent remain two-anchor interpolations"
+      ]
+    }
+  ]
+}

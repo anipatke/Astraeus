@@ -102,6 +102,55 @@ export function proveLicenceHandling() {
   }
 }
 
+/** The committed star asset the public build draws (HYG, CC BY-SA 4.0). */
+export const STAR_ASSET = "src/assets/stars/hyg-v42-naked-eye.json";
+/** The licences a star file may declare to ship. Yale declares none, so it never qualifies. */
+export const STAR_LICENCES = ["CC BY-SA 4.0"];
+
+/**
+ * The star asset must carry a complete licence record (PROV-02) with a shippable licence, and the build must contain it byte for
+ * byte, so the public sky is the licensed HYG set and not an empty one. Returns { ok, problems, file, sha256, bytes }.
+ */
+export function checkStarAsset({ distDir, rootDir = root, starPath = join(rootDir, STAR_ASSET) }) {
+  const problems = [];
+  let bytes = null;
+  let provenance = null;
+  try {
+    bytes = readFileSync(starPath);
+    provenance = JSON.parse(bytes.toString("utf8"))?.provenance ?? null;
+  } catch (error) {
+    problems.push(`star asset unreadable: ${error.message}`);
+  }
+  if (provenance !== null) {
+    for (const key of ["source", "version", "licence", "licenceUrl", "attribution", "accessed"]) {
+      if (typeof provenance[key] !== "string" || provenance[key] === "") problems.push(`star asset provenance has no ${key}`);
+    }
+    if (!STAR_LICENCES.includes(provenance.licence)) problems.push(`star asset licence "${provenance.licence}" is not one of ${STAR_LICENCES.join(", ")}`);
+  } else if (bytes !== null) problems.push("star asset has no provenance record");
+  const hash = bytes === null ? null : sha256(bytes);
+  if (hash !== null && ![...walk(distDir)].some((path) => sha256(readFileSync(path)) === hash)) problems.push("the build does not contain the star asset");
+  return { ok: problems.length === 0, problems, file: STAR_ASSET, sha256: hash, bytes: bytes?.length ?? 0 };
+}
+
+/** Proves the star check can pass and fail: the real asset in a made-up build, an empty build, and a bad licence record. */
+export function proveStarAssetHandling() {
+  const temp = mkdtempSync(join(tmpdir(), "astraeus-star-asset-"));
+  try {
+    const good = join(temp, "good");
+    const empty = join(temp, "empty");
+    mkdirSync(join(good, "assets"), { recursive: true });
+    mkdirSync(empty, { recursive: true });
+    writeFileSync(join(good, "assets", "hyg-v42-naked-eye-AbC123.json"), readFileSync(join(root, STAR_ASSET)));
+    writeFileSync(join(empty, "index.html"), "<html></html>");
+    const body = JSON.parse(readFileSync(join(root, STAR_ASSET), "utf8"));
+    const bad = join(temp, "bad.json");
+    writeFileSync(bad, JSON.stringify({ ...body, provenance: { ...body.provenance, licence: "CC BY-NC 4.0", attribution: "" } }));
+    return { good: checkStarAsset({ distDir: good }), empty: checkStarAsset({ distDir: empty }), badLicence: checkStarAsset({ distDir: good, starPath: bad }) };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
 /** Proves the check can fail: a fake unlicensed texture is found as a file and as base64, and a clean build passes. */
 export function proveItFails() {
   const temp = mkdtempSync(join(tmpdir(), "astraeus-public-build-"));
@@ -157,7 +206,8 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   }
   const missingPages = REQUIRED_PAGES.filter((page) => !existsSync(join(distDir, page)));
   const checked = checkPublicBuild({ distDir, sources });
-  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, ...checked, ok: checked.ok && missingPages.length === 0 };
+  const starAsset = checkStarAsset({ distDir });
+  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, ...checked, ok: checked.ok && missingPages.length === 0 && starAsset.ok };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

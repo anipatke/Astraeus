@@ -51,6 +51,7 @@ import { loadStarCatalogue } from "../assets/sky";
 import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
+import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
 import type { ExperienceObject } from "../shell/experience";
 
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
@@ -113,6 +114,12 @@ export interface SceneControls {
   /** Ids of objects whose label is switched off (live). Their objects stay listed and selectable. */
   hiddenLabels?: Set<string>;
   readonly labelObjects: readonly ExperienceObject[];
+  /** Objects that story panels name; each gets a marker that reopens its panel. */
+  readonly storyMarkers?: readonly StoryMarkerSpec[];
+  /** Called with the panel id when a story marker is pressed. */
+  onStoryMarker?: (panelId: string) => void;
+  /** The story panel now open, so its marker reads as pressed. */
+  openStoryPanelId?: string | null;
   selectedObjectId: string;
   /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
   frameStats: FrameStats | null;
@@ -235,6 +242,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, source: skyMapFromSearch(window.location.search) ?? runtime.sky.source }) : null), [runtime.sky, gl]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
+  const storyMarkers = useRef<StoryMarkerLayer | null>(null);
 
   // The stars load from the local file when it exists; without it the Milky Way is drawn alone.
   useEffect(() => {
@@ -277,6 +285,17 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       sceneLabels.current = null;
     };
   }, [gl, controls.labelObjects]);
+
+  useEffect(() => {
+    const host = gl.domElement.parentElement;
+    if (host === null || controls.storyMarkers === undefined || controls.storyMarkers.length === 0) return undefined;
+    const layer = new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId));
+    storyMarkers.current = layer;
+    return () => {
+      layer.dispose();
+      storyMarkers.current = null;
+    };
+  }, [gl, controls]);
 
   /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
   const bodyIdFor = (id: string): BodyId | null => {
@@ -464,7 +483,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
-    sceneLabels.current?.update((id) => {
+    const positionFor = (id: string): RenderVector | null => {
       const body = bodyIdFor(id);
       if (body !== null) return placed.current.get(body) ?? null;
       const group = groupViews.find((candidate) => candidate.id === id);
@@ -474,7 +493,9 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       const view = trackedViews.find((candidate) => candidate.body.id === id);
       if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
       return view.absolute(t, policy, placement);
-    }, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
+    };
+    sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
+    storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null);
 
     if (singleSun) {
       // One point light at the Sun's scaled position, expressed from the floating origin like every other position.

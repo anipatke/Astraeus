@@ -1,7 +1,7 @@
 ---
 id: O-015
 title: Tell the Apollo 11 and Perseids stories in light panels
-status: planned
+status: in_progress
 depends_on: []
 release: G-005
 ---

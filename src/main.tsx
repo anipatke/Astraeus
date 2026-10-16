@@ -9,7 +9,7 @@ import { syntheticBeltDefinition, syntheticRingDefinition } from "./synthetic/sy
 import { syntheticEccentricDefinition } from "./synthetic/syntheticEccentricDefinition";
 import { syntheticListedDefinition } from "./synthetic/syntheticListedDefinition";
 import { buildShowerDefinition, showerEntryName } from "./experiences/showers/showerDefinition";
-import { loadMeasuredOrbits } from "./experiences/showers/measuredOrbits";
+import { loadMeasuredOrbits, offeredSources } from "./experiences/showers/measuredOrbits";
 import { parseShowerSettings, type ShowerSettings } from "./experiences/showers/showerSettings";
 import type { ExperienceDefinition } from "./app/experienceDefinition";
 import "./app/style.css";
@@ -35,8 +35,11 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
     // ?source=cams|gmn picks the catalogue the orbits are read from (gmn only for a shower whose settings name it); the settings file's own choice otherwise.
     const requestedSource = new URLSearchParams(window.location.search).get("source");
-    const source = requestedSource === "cams" || (requestedSource === "gmn" && settings.stream.sources.gmn !== undefined) ? requestedSource : settings.stream.source;
-    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, source, settings.id), set, source);
+    // A production build reads only what it ships: a source it does not ship is neither offered nor honoured (the address falls back to the settings file's own, shipped, choice), so no choice draws an empty stream.
+    const offered = offeredSources(settings.id, settings.stream.iauCode, settings.stream.sources.gmn === undefined ? ["cams"] : ["cams", "gmn"]);
+    const wanted = requestedSource === "cams" || (requestedSource === "gmn" && settings.stream.sources.gmn !== undefined) ? requestedSource : settings.stream.source;
+    const source = offered.includes(wanted) ? wanted : offered.includes(settings.stream.source) ? settings.stream.source : (offered[0] ?? settings.stream.source);
+    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, source, settings.id), set, source, offered);
   }
   return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested as keyof typeof DEFINITIONS] : apollo11Definition;
 }
