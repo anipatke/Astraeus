@@ -1,0 +1,30 @@
+checker run 20261016T190443Z; HEAD 94ee998 + committed tree snapshot at /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/check-snap
+typecheck | exit=0 | 19:04:44-19:04:44 | npm run typecheck
+vitest | exit=0 | 19:04:44-19:05:14 | npx vitest run
+build | exit=0 | 19:05:14-19:05:15 | npm run build
+public-build | exit=0 | 19:05:15-19:05:15 | env ASTRAEUS_PUBLIC_BUILD=1 npm run build
+public-build-assets | exit=0 | 19:05:15-19:05:16 | node tools/validate/public-build-assets.mjs dist /home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/public-build-assets.json
+public-showers | exit=0 | 19:05:21-19:06:04 | env ASTRAEUS_URL=http://localhost:5452/app.html ASTRAEUS_EVIDENCE_DIR=/home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/public-showers node tools/validate/browser-public-showers.mjs
+spike02 | exit=0 | 19:06:10-19:08:21 | console-error-lines=0 | node tools/validate/browser-spike02.mjs
+spike03 | exit=0 | 19:08:21-19:08:58 | console-error-lines=0 | node tools/validate/browser-spike03.mjs
+shell | exit=0 | 19:08:58-19:09:13 | console-error-lines=0 | env ASTRAEUS_SCREENSHOT=/home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/shell/start.png ASTRAEUS_INFO_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/shell/info ASTRAEUS_METRIC_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/shell/metric node tools/validate/browser-shell.mjs
+anchor-labels | exit=0 | 19:09:13-19:09:24 | console-error-lines=0 | node tools/validate/browser-anchor-labels.mjs /home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/anchor-labels
+synthetic | exit=0 | 19:09:24-19:09:36 | console-error-lines=0 | node tools/validate/browser-synthetic.mjs
+synthetic-ring | exit=0 | 19:09:36-19:10:10 | console-error-lines=0 | node tools/validate/browser-synthetic-ring.mjs
+synthetic-belt | exit=0 | 19:10:10-19:12:24 | console-error-lines=0 | node tools/validate/browser-synthetic-belt.mjs
+synthetic-listed | exit=0 | 19:12:24-19:12:49 | console-error-lines=0 | node tools/validate/browser-synthetic-listed.mjs
+synthetic-eccentric | exit=0 | 19:12:49-19:14:34 | console-error-lines=0 | node tools/validate/browser-synthetic-eccentric.mjs
+marker-existing | exit=0 | 19:14:34-19:15:50 | console-error-lines=0 | node tools/validate/browser-marker-existing.mjs
+sky | exit=0 | 19:15:50-19:20:40 | console-error-lines=0 | node tools/validate/browser-sky.mjs
+sky-map | exit=0 | 19:20:40-19:21:14 | console-error-lines=0 | node tools/validate/browser-sky-map.mjs
+sun | exit=0 | 19:21:14-19:22:56 | console-error-lines=0 | node tools/validate/browser-sun.mjs
+earth-moon | exit=0 | 19:22:56-19:23:16 | console-error-lines=0 | node tools/validate/browser-earth-moon.mjs
+jupiter-io | exit=0 | 19:23:16-19:23:45 | console-error-lines=0 | node tools/validate/browser-jupiter-io.mjs
+showers-perseids | exit=0 | 19:23:45-19:29:15 | console-error-lines=0 | node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=0 | 19:29:15-19:35:39 | console-error-lines=0 | node tools/validate/browser-showers.mjs geminids
+showers-gmn | exit=0 | 19:35:39-19:37:24 | console-error-lines=1 | node tools/validate/browser-showers-gmn.mjs
+view-link | exit=0 | 19:37:24-19:37:55 | console-error-lines=0 | node tools/validate/browser-view-link.mjs
+precision | exit=0 | 19:37:55-19:38:41 | console-error-lines=0 | node tools/validate/browser-precision.mjs
+lighting | exit=0 | 19:38:41-19:41:21 | console-error-lines=0 | node tools/validate/browser-lighting.mjs
+story-panels | exit=0 | 19:41:21-19:43:17 | console-error-lines=1 | env ASTRAEUS_OUT=/home/user/code/Astraeus/docs/evidence/objective-check-20261016T190443Z/story-panels-out node tools/validate/browser-story-panels.mjs
+ALLDONE

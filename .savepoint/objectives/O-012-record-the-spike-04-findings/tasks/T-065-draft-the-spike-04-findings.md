@@ -92,6 +92,35 @@ Design.md gaps noticed (for the owner; not edited):
 - `published` provenance type candidate is not in Design.md.
 - Not checked whether Design.md describes story panels, the lazy planet loader (`src/core/planetSeries.ts`, `planetModels.ts`), the shipped data folder `data/stories/` with its licence allow-list, HYG stars, view links, or the one-shape timeline window; the first draft did not cover these and I did not grep Design.md for them.
 
+### Design reconciliation 2026-10-17
+
+Executor edit of `.savepoint/Design.md` only (no code, tests, data, router, Check or Task status touched; nothing committed). Changes:
+
+1. Known open items rewritten: the stale Earth/Moon texture provenance line is gone; states I-019, I-022, I-024, I-029, I-030 resolved (owner accepted 2026-10-17), I-026, I-031, I-032 open, GAP-5 and the Earth-based view deferred, CAMS/Yale local-only, Full Objective Checks pending. A new Current Technical State paragraph records O-015/O-016 without restating gate counts.
+2. Jupiter paragraph: now the Solar System Scope CC BY 4.0 map (I-024, `src/assets/bodies/jupiter.ts`).
+3. `published` provenance type: does not exist. `ProvenanceSourceType` in `src/core/provenance.ts` has four members (ephemeris, observed, reconstructed, illustrative); "Open after O-011" now says so and leaves the fifth member to the owner.
+4. New or updated Design text: lazy planet series (Planets paragraph, `src/core` row; `planetSeries.ts`, `planetModels.ts`, `planetNeeds.ts`, `main.tsx`); Texture rights rewritten (no local-only texture since I-029; empty `LOCAL_ONLY_TEXTURES`); sky paragraph (HYG default, `?stars=yale`, `checkStarAsset`, ESO/NASA picture source); window strip one-hump caption (I-019); new paragraphs Measured orbits from a second source (T-056, I-030), Story panels (T-059, T-061, T-062), Public site and launch (T-057, T-058, T-060, T-063, T-064); map rows for story panels, the public site files, `src/assets/stars/`, `data/local/` vs `data/stories/`, tools/validate additions, `docs/ASTRAEUS_SPIKE_04.md`.
+5. Deferred notes accounted for: T-056 (GMN source, settings, switch, panel sentence, reliable rule): reflected, new GMN paragraph. T-057 (site/app page split): reflected, Public site paragraph and map row. T-058 (Developer panel tidy, none expected): non-architectural layout; its view links are reflected under Public site. T-059 (`storyPanels`, `parseStoryPanels`, `CrossingTracker`, `StoryPanelView`, `useStoryPanels`, `StoryMarkerLayer`, `SceneControls.storyMarkers`): reflected, Story panels paragraph; the integration Task that accounts for it is this reconciliation (T-065 / O-012), not T-063 as T-059 guessed (T-063 is a re-shoot). T-060 (HYG default, `?stars=`, `checkStarAsset`): reflected, sky paragraph. T-060 `.story-panel-close` selector note: non-architectural, a browser-script selector (`browser-sky.mjs`). T-061 and T-063/T-064 (none): nothing to account for; T-063's `look.startView` regression-script edit is a test change, and the `startView` setting is reflected. T-062 (`story.panels` in shower settings): reflected. T-062 stacked markers: reflected as open I-031. Checks C-038 to C-043 raise no Design drift (grep for design, drift, deferred, reconcil found nothing).
+6. Not confirmed: that the owner's looks at panels/HYG sky are pending is taken from the Objective and Check text; the Milky Way picture is still off by default (`resolveSkySettings`), read in code. No gates run; counts not restated.
+
+Extra reads beyond the listed files (targeted, to confirm facts): `src/core/provenance.ts` (source type union); `src/shell/storyPanels.ts`, `useStoryPanels.ts`, `src/app/StoryMarkers.ts`, `showerDefinition.ts`/`showerSettings.ts` story parts (panel contract, filtering, `PANELS_PATH`); `src/core/planetSeries.ts`, `planetModels.ts`, `src/app/planetNeeds.ts`, `src/main.tsx` (lazy load); `src/assets/sky.ts`, `skyModel.ts`, `tools/validate/public-build-assets.mjs` (HYG, star check); `src/assets/bodies/{jupiter,earth,moon}.ts`, `vite.config.ts`, `vercel.json` (textures, public build); `src/app/viewLink.ts`, `App.tsx` (view links); `src/shell/TimelineBar.tsx`, `timelineModel.ts` (hump and caption); `src/experiences/showers/measuredOrbits.ts`, `data/showers/*.json` (GMN source); `tools/validate/capture-site-pictures.mjs` header; issue front matter I-019..I-032.
+
+### Touch-up 2026-10-17
+
+Executor edit of `docs/ASTRAEUS_SPIKE_04.md` only, on the owner's instruction ("do the findings touch-up"), from C-044's two observations. Documentation only; no Design.md, code, test, data, router, Check, Issue or Task status touched; nothing committed or staged. Refreshed against HEAD `94ee998` (`git log cd40140..HEAD`). Changes:
+
+1. Banner, short answers, section 3 rows, open questions 2 and 3, evidence index: I-019, I-022, I-024, I-029, I-030 now read "accepted by the owner 2026-10-17" (resolution `accepted`, an owner decision; stated as not a Check and not verified). I-026 stays open by owner decision (needs a better photo); a Milky Way limitation line added (off unless a sky setting turns it on: `milkyWay` defaults to false in `src/app/skyModel.ts`).
+2. Swift-Tuttle panel badge `modelled` (owner, `94ee998`) and the kept IAU MDC plus AMS mix on the "Earth crosses the stream" panel are stated in the story panels row. The note stated no badge counts, so none changed.
+3. I-032 (donor pictures traced, none shipped; `docs/DONOR_TEXTURE_INVENTORY.md`, `e5b7f08`, `8b3ad85`) added as a limitation; I-033 (lite and full browser tiers in AGENTS.md; `tools/validate/browser-lite.mjs`) added as a recommendation, marked process not engine.
+4. `published` wording now matches Design: no such type, four members in `src/core/provenance.ts`; the decision is the owner's. Recommendation line says the same.
+5. Section 6 and short answer 6: the zero-`src/` claim is stated as C-033's review of the T-039 working tree, and `1734bd8` also carries T-055's generic body code (C-044 observation 2).
+6. C-044 added to the evidence index (CLEAR, owner reading pending). Full Objective Checks for O-011 and O-012 stated as running and pending; no result claimed.
+7. Banner states HEAD `94ee998`, 2026-10-17, and that the note is a draft until the owner reads it.
+
+Link check (python and shell, 2026-10-17): 100 backticked path tokens, 0 missing once four script names and two evidence directory names written relative to `tools/validate/` and `docs/evidence/` were resolved there; 32 commit hashes, 0 unresolved (`git cat-file -e`); 26 Check ids, 0 missing from `.savepoint/checks/`; every I-### cited exists in `.savepoint/issues/`. No gates run, no browsers or servers started.
+
+Not verified: the owner's acceptance of the five Issues is read from the Issue files (status resolved) and commit `94ee998`'s message; the contents of the Full Objective Check runs are not read.
+
 ## Drift Notes
 
 - Design.md "Known open items" paragraph (around line 175) still describes the Spike 03 position; it does not list the Spike 04 limitations (no ground view, local-only CAMS/Yale data, group-fill 10^4 miss from O-009). T-040 added a separate "Open after O-011" paragraph; the older paragraph is stale.

@@ -1,13 +1,12 @@
 ---
 id: T-058
 title: Tidy the Developer panel so it has no empty gaps
-objective: O-011
+objective: O-016
 status: in_progress
 stage: audit
 depends_on: [{task: T-038, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o011-orchestrator-check-20261013}
-lane: shell
 planned_reads: [src/app/App.tsx, src/app/FrameRateSection.tsx, src/shell/style.css, src/shell/experience.ts, src/app/experienceDefinition.ts, tools/validate/browser-shell.mjs]
 planned_writes: [src/app/App.tsx, src/app/FrameRateSection.tsx, src/shell/style.css, src/shell/experience.ts, tools/validate/browser-shell.mjs, tests/]
 ---
@@ -65,6 +64,10 @@ Additive edits outside own files: src/app/AstraeusScene.tsx (SceneControls.start
 
 Files changed: src/app/App.tsx, FrameRateSection.tsx, SettingControls.tsx (new), viewLink.ts (new), src/app/style.css, src/shell/style.css, plus the additive edits above.
 Limitations: owner visual check of panel and view restore outstanding; phone panel top (172px) is a fixed offset tuned to the current toolbar height.
+
+## Moved — 2026-10-17
+
+Moved from O-011 to O-016 on the owner's direction (structured question: "Move the 2 site tasks, then you close the rest"): this is site work, filed under O-011 before O-016 existed. Its Task Check (C-036 or C-037) stands; the O-016 Full Objective Check covers it. The O-011 lane key was dropped because O-016 has no such lane.
 
 ## Drift Notes
 

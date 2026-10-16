@@ -1,13 +1,12 @@
 ---
 id: T-057
 title: Put the pitch page in front of the app and link the demos
-objective: O-011
+objective: O-016
 status: in_progress
 stage: audit
 depends_on: [{task: T-038, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o011-orchestrator-check-20261013}
-lane: site
 planned_reads: [index.html, vite.config.ts, src/main.tsx, tools/validate/public-build-assets.mjs, tests/publicBuild.test.ts]
 planned_writes: [index.html, app.html, vite.config.ts, site/, vercel.json, tools/validate/, tests/publicBuild.test.ts, README.md]
 ---
@@ -67,6 +66,10 @@ Site screenshots, desktop 1440x900 and phone 390x844, in `site/`: front page, as
 
 **Deploy notes for the owner.** Address `https://astraeus.curiouscode.ai/` (canonical and og tags use it; astraeus.anipatke.com may point at the same deploy). Import the repository in Vercel; `vercel.json` sets `ASTRAEUS_PUBLIC_BUILD=1 npm run build`, output `dist`, framework vite. Add the domain in Vercel and the DNS record at the registrar. Before pointing the domain, settle I-029 (Earth and Moon thumbnails) and the star-sky images. The public Perseids demo reads the shipped GMN copy `data/stories/perseids/gmn-iau-7.json`; the Geminids and CAMS data stay local. Nothing has been committed or deployed.
 
+
+## Moved — 2026-10-17
+
+Moved from O-011 to O-016 on the owner's direction (structured question: "Move the 2 site tasks, then you close the rest"): this is site work, filed under O-011 before O-016 existed. Its Task Check (C-036 or C-037) stands; the O-016 Full Objective Check covers it. The O-011 lane key was dropped because O-016 has no such lane.
 
 ## Drift Notes
 
