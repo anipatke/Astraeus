@@ -43,7 +43,8 @@ const madeUp = {
   },
   stream: {
     iauCode: 999,
-    source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" },
+    source: "cams",
+    sources: { cams: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
     seed: 11,
     quality: {
       default: "all",
@@ -104,7 +105,10 @@ describe("shower settings contract", () => {
     ["a bad seed", (s: Record<string, any>) => { s.stream.seed = 1.5; }, /stream\.seed/],
     ["a missing IAU code", (s: Record<string, any>) => { delete s.stream.iauCode; }, /stream\.iauCode/],
     ["a fractional IAU code", (s: Record<string, any>) => { s.stream.iauCode = 7.5; }, /stream\.iauCode/],
-    ["a missing data source", (s: Record<string, any>) => { delete s.stream.source; }, /stream\.source/],
+    ["a missing data source", (s: Record<string, any>) => { delete s.stream.sources.cams; }, /stream\.sources\.cams/],
+    ["a GMN choice with no GMN entry", (s: Record<string, any>) => { s.stream.source = "gmn"; }, /stream\.source/],
+    ["an unknown orbit source", (s: Record<string, any>) => { s.stream.source = "mdc"; }, /stream\.source/],
+    ["GMN months that are not YYYYMM", (s: Record<string, any>) => { s.stream.sources.gmn = { source: s.stream.sources.cams, months: ["2025-08"], licence: "CC BY 4.0", licenceUrl: "https://example.invalid/l", ruleNote: "x" }; }, /stream\.sources\.gmn\.months/],
     ["a clump share above one", (s: Record<string, any>) => { s.stream.concentration.fraction = 1.5; }, /stream\.concentration\.fraction/],
     ["a clump of no width", (s: Record<string, any>) => { s.stream.concentration.widthDeg = 0; }, /stream\.concentration\.widthDeg/],
     ["a clump with no status", (s: Record<string, any>) => { s.stream.concentration.status = "guessed"; }, /stream\.concentration\.status/],
@@ -243,6 +247,25 @@ describe("the shared shower builder with a made-up shower", () => {
     const moonParent = clone();
     moonParent.parentBodyId = "moon";
     expect(() => buildShowerDefinition(parseShowerSettings(moonParent), loaded)).toThrow(/not a catalogued body that circles the Sun/);
+  });
+});
+
+describe("the orbit source (T-056)", () => {
+  const perseids = parseShowerSettings(perseidsFile);
+  it("defaults to the GMN (owner, 2026-10-16), keeps CAMS available, names the GMN months and licence in the settings, and offers the live source switch only where GMN is configured", () => {
+    expect(perseids.stream.source).toBe("gmn");
+    expect(parseShowerSettings(geminidsFile).stream.source).toBe("cams");
+    expect(perseids.stream.sources.gmn).toMatchObject({ months: ["202507", "202508"], licence: "CC BY 4.0" });
+    const switches = buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn").alternates?.filter((a) => a.param === "source");
+    expect(switches?.map((a) => [a.value, a.active])).toEqual([["cams", false], ["gmn", true]]);
+    expect(buildShowerDefinition(parseShowerSettings(madeUp), { kind: "absent" }).alternates).toBeUndefined();
+  });
+
+  it("says how to fetch the GMN months when they are not on this machine", () => {
+    const definition = buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn");
+    const item = experienceWithGroups(definition).objects.find((o) => o.id === streamIdOf(perseids));
+    expect(item?.description).toContain("node tools/data/fetch-meteoroid-orbits.mjs 7 --source gmn --months 202507,202508");
+    expect(item?.provenance?.sources.join(" ")).toContain("Global Meteor Network");
   });
 });
 

@@ -54,10 +54,13 @@
   },
   "stream": {
     "iauCode": 4,
-    "source": {
-      "name": "CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016), IAU shower 4; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29; fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs and never committed or shipped",
-      "url": "https://cams.seti.org/CAMS-v3-2010to2016.xlsx",
-      "accessed": "2026-10-16"
+    "source": "cams",
+    "sources": {
+      "cams": {
+        "name": "CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016), IAU shower 4; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29; fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs and never committed or shipped",
+        "url": "https://cams.seti.org/CAMS-v3-2010to2016.xlsx",
+        "accessed": "2026-10-16"
+      }
     },
     "seed": 20261214,
     "quality": {

@@ -5,13 +5,13 @@
 //   4. precision of a vertex of that orbit 50 AU from the Sun, by the same method as browser-precision.mjs.
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic-eccentric.mjs
-// Options: ASTRAEUS_URL (default http://localhost:5199/), ASTRAEUS_EVIDENCE_DIR (screenshots and eccentric.json; use a new directory).
+// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots and eccentric.json; use a new directory).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 const FRAMES = 60;

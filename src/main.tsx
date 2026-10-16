@@ -33,7 +33,10 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     // ?orbits=all|reliable picks the orbit set; the settings file's own choice otherwise.
     const orbits = new URLSearchParams(window.location.search).get("orbits");
     const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
-    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode), set);
+    // ?source=cams|gmn picks the catalogue the orbits are read from (gmn only for a shower whose settings name it); the settings file's own choice otherwise.
+    const requestedSource = new URLSearchParams(window.location.search).get("source");
+    const source = requestedSource === "cams" || (requestedSource === "gmn" && settings.stream.sources.gmn !== undefined) ? requestedSource : settings.stream.source;
+    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, source, settings.id), set, source);
   }
   return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested as keyof typeof DEFINITIONS] : apollo11Definition;
 }

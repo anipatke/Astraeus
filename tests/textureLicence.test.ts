@@ -17,33 +17,30 @@ describe("texture rights (PROV-02)", () => {
     expect(textureRightsProblem({ ...base, localOnly: { reason: "origin unknown", publicReplacement: "material-colour" } })).toBeNull();
   });
 
-  it("holds for every texture the catalogue references; Earth and the original Moon map are declared local-only", () => {
+  it("holds for every texture the catalogue references; no texture is local-only now", () => {
     const textures: [string, TextureRef][] = [];
     for (const id of catalogue.ids()) {
       const texture = catalogue.get(id).visual.texture;
       if (texture !== undefined) textures.push([id, texture]);
     }
-    expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "io"]);
+    expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io"]);
     // The Sun's map is from the same Solar System Scope set, so it is licensed like the planets'.
-    for (const [id, texture] of [textures[0], ...textures.slice(3, 6)]) {
+    for (const [id, texture] of [textures[0], ...textures.slice(3, 7)]) {
       expect(textureRightsProblem(texture), id).toBeNull();
       expect(texture.licence?.licence, id).toBe("CC BY 4.0");
       expect(texture.localOnly, id).toBeUndefined();
     }
-    // Io's map is the USGS public-domain mosaic, so it is licensed rather than local-only.
-    const io = textures[6][1];
-    expect(textureRightsProblem(io)).toBeNull();
-    expect(io.licence?.licence).toBe("public domain");
-    expect(io.localOnly).toBeUndefined();
-    for (const [, texture] of textures.slice(1, 3)) {
-      expect(textureRightsProblem(texture)).toBeNull();
-      expect(texture.localOnly?.reason.length).toBeGreaterThan(20);
+    // Io's map is the USGS public-domain mosaic, and Earth and the Moon are NASA products (I-029), so all three are licensed rather than local-only.
+    for (const [id, texture] of [textures[7], textures[1], textures[2]]) {
+      expect(textureRightsProblem(texture), id).toBeNull();
+      expect(texture.licence?.licence, id).toBe("public domain");
+      expect(texture.localOnly, id).toBeUndefined();
     }
-    expect(textures[1][1].url).toContain("earth-2k");
-    expect(textures[1][1].localOnly?.publicReplacement).toBe("material-colour");
-    expect(textures[2][1].url).toContain("moon-orig-2k");
-    const moonReplacement = textures[2][1].localOnly?.publicReplacement;
-    expect(moonReplacement).not.toBe("material-colour");
-    expect(typeof moonReplacement === "object" && moonReplacement.licence.licence).toBe("public domain");
+    expect(textures[1][1].url).toContain("earth-bmng-july");
+    expect(textures[1][1].licence?.attribution).toBe("NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli)");
+    expect(textures[1][1].licence?.url).toContain("science.nasa.gov/earth/earth-observatory/blue-marble-next-generation");
+    expect(textures[2][1].url).toContain("moon-lroc");
+    expect(textures[2][1].licence?.attribution).toBe("NASA's Scientific Visualization Studio");
+    expect(textures[2][1].licence?.url).toBe("https://svs.gsfc.nasa.gov/4720");
   });
 });

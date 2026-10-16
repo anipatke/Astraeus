@@ -10,6 +10,8 @@
 //   the clump "30% ... ±20° ... 109P/Swift-Tuttle" ........... settings stream.concentration and parentBody
 //   fetch command "... 7" and orbit file cams-iau-7 .......... settings stream.iauCode
 //   "Information about Perseids stream" ....................... settings label
+// T-056: every URL here pins ?source=cams so the CAMS path stays covered (the Perseids default is the GMN since the owner's 2026-10-16 choice; browser-showers-gmn.mjs covers that default).
+// I-028 (new scenario, "plain load"): a load with no preset clicked and the sky on draws the stream (>50 stream-coloured pixels: the Geminid dots are 1.6 px aqua and read thin, 95 on the phone) and is not a Sun close-up (<30% lit).
 //   the comet "swift-tuttle" and "Focus comet" ................ the parent id (parentElements.id or parentBodyId) and the generic "Focus parent" preset
 //   the mounted bodies (seven) ................................ the built-in Sun-circling bodies, plus the parent when the settings define it
 //
@@ -50,7 +52,7 @@ import { fileURLToPath } from "node:url";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const shower = process.argv[2] ?? process.env.ASTRAEUS_SHOWER;
 const showersDir = new URL("../../data/showers/", import.meta.url);
 if (shower === undefined) {
@@ -538,7 +540,7 @@ async function checkNotFetched() {
   try {
     // As the dev server answers an unfetched path: the app's page, 200, not JSON (a 404 would be logged as a console error by the browser itself).
     await page.route("**/data/local/cams-iau-*.json", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>app</title>" }));
-    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -611,7 +613,7 @@ async function checkLoop(page, label, canvas) {
 async function checkLoopOff() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&sky=off&loop=off`);
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&loop=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     await page.getByRole("button", { name: "Pause playback" }).click();
@@ -665,7 +667,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   const out = (results[label].eclipticFlat ??= {});
   const p = await openPage(page.viewportSize());
   try {
-    await p.goto(`${base}?experience=shower-${shower}&sky=off${query}`);
+    await p.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${query}`);
     await p.waitForSelector("canvas");
     await p.getByRole("region", { name: "Timeline controls" }).waitFor();
     await p.getByRole("button", { name: "Pause playback" }).click();
@@ -745,7 +747,7 @@ async function checkYear(page, label, canvas) {
 async function checkSpanActivity() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&sky=off&span=activity`);
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&span=activity`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const slider = page.locator('input[aria-label="Seek timeline"]');
@@ -772,7 +774,7 @@ async function checkQuality() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
     for (const set of ["all", "reliable"]) {
-      await page.goto(`${base}?experience=shower-${shower}&sky=off&orbits=${set}`);
+      await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&orbits=${set}`);
       await page.waitForSelector("canvas");
       await page.getByRole("region", { name: "Timeline controls" }).waitFor();
       await page.getByRole("button", { name: "Pause playback" }).click();
@@ -796,7 +798,7 @@ async function checkQuality() {
       if (outDir) await page.screenshot({ path: `${outDir}/quality-${set}.png` });
     }
     // The live switch: Developer > Display settings, choosing the other set reloads with it.
-    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("button", { name: "Developer mode" }).click();
     const reliableButton = page.getByRole("button", { name: `Reliable only (${counts.reliable})` });
@@ -838,7 +840,22 @@ async function run(label, viewport) {
   const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const streamId = `${shower}-stream`;
   try {
-    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
+    // I-028: a plain load (no preset clicked, sky on) opens on the experience's overview: the stream is drawn and the Sun's disc does not cover the canvas.
+    const plain = await openPage(viewport);
+    try {
+      await plain.goto(`${base}?experience=shower-${shower}&source=cams`);
+      await plain.waitForSelector("canvas");
+      await plain.getByRole("region", { name: "Timeline controls" }).waitFor();
+      await plain.waitForTimeout(2500);
+      const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
+      const plainArea = viewport.width * viewport.height;
+      assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} stream-coloured pixels)`);
+      assert.ok(plainLit < 0.3 * plainArea, `${label}: a plain load is not a close-up of the Sun (${plainLit} of ${plainArea} pixels are stream-coloured)`);
+      if (outDir) await plain.screenshot({ path: `${outDir}/${label}-plain-load.png` });
+    } finally {
+      await plain.close();
+    }
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");

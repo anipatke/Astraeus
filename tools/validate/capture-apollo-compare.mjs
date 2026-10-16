@@ -1,12 +1,12 @@
 // Before/after screenshots for owner look: Apollo at the six Spike 02 mission times, True and Readable, desktop and phone,
 // plus the made-up belt. Pauses the clock so two runs of one tree differ only by software-GL noise.
-// ASTRAEUS_URL=http://localhost:5199/ ASTRAEUS_EVIDENCE_DIR=<fresh dir> PLAYWRIGHT_CORE=<path> node tools/validate/capture-apollo-compare.mjs
+// ASTRAEUS_URL=http://localhost:5199/app.html ASTRAEUS_EVIDENCE_DIR=<fresh dir> PLAYWRIGHT_CORE=<path> node tools/validate/capture-apollo-compare.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.env.ASTRAEUS_EVIDENCE_DIR;
 assert.ok(out, "ASTRAEUS_EVIDENCE_DIR is required: write to a fresh directory");
 mkdirSync(out, { recursive: true });

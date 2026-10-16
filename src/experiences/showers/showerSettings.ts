@@ -1,3 +1,4 @@
+import { validateStartView, type StartView } from "../../app/viewLink";
 import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../core/elementsBody";
 
 /** A cited fact: where a value was read, and when. */
@@ -13,6 +14,20 @@ export interface ShowerOrbitElements {
   readonly eccentricity: number;
 }
 
+/** Where a shower's measured orbits come from: the CAMS workbook or the Global Meteor Network's monthly summaries. */
+export type OrbitSource = "cams" | "gmn";
+
+/** The Global Meteor Network catalogue as a second orbit source: its months, licence and how its columns map to the all/reliable rule. */
+export interface GmnSourceSettings {
+  readonly source: ShowerSource;
+  /** The monthly summary files read, as YYYYMM (the fetch tool takes the same list). */
+  readonly months: readonly string[];
+  readonly licence: string;
+  readonly licenceUrl: string;
+  /** How the reliable rule is applied to GMN's own columns (stated in the panel). */
+  readonly ruleNote: string;
+}
+
 export type ConcentrationStatus = "illustrative" | "cited";
 
 /** Presentation numbers an experience owns: how the shower looks, not what it is. */
@@ -21,6 +36,8 @@ export interface ShowerLook {
   readonly loop: boolean;
   /** The camera's up: "ecliptic" draws the planets' plane flat (default "equatorial", celestial north). */
   readonly viewUp: "equatorial" | "ecliptic";
+  /** The camera view to open on, when the file declares one (see `StartView`); absent: the usual opening. */
+  readonly startView?: StartView;
   readonly streamColor: string;
   readonly pointSizePx: number;
   /** How long the clock runs between two exact fills of the stream (hours of simulated time); presentation only. */
@@ -54,8 +71,10 @@ export interface ShowerSettings {
   readonly stream: {
     /** The IAU shower number the measured orbits are selected by (the fetch tool takes the same number). */
     readonly iauCode: number;
-    /** Where the measured orbits come from (the database and its release), cited in the stream's panel. */
-    readonly source: ShowerSource;
+    /** Which catalogue the orbits are read from unless the address says `?source=`. The default stays "cams" until the owner decides. */
+    readonly source: OrbitSource;
+    /** Each catalogue's citation (the database and its release), cited in the stream's panel. CAMS is always given; GMN when the shower can use it. */
+    readonly sources: { readonly cams: ShowerSource; readonly gmn?: GmnSourceSettings };
     readonly seed: number;
     /** Which orbit set is drawn unless the address says otherwise, and the published rule that defines the "reliable" one. */
     readonly quality: {
@@ -156,6 +175,29 @@ function source(parent: Raw, key: string, path: string): ShowerSource {
   return { name: text(raw, "name", here), url: text(raw, "url", here), accessed: text(raw, "accessed", here) };
 }
 
+function orbitSources(stream: Raw): { readonly source: OrbitSource; readonly sources: ShowerSettings["stream"]["sources"] } {
+  const raw = record(stream.sources, "stream.sources");
+  const cams = source(raw, "cams", "stream.sources");
+  let gmn: GmnSourceSettings | undefined;
+  if (raw.gmn !== undefined) {
+    const g = record(raw.gmn, "stream.sources.gmn");
+    const path = "stream.sources.gmn";
+    if (!Array.isArray(g.months) || g.months.length === 0 || !g.months.every((m) => typeof m === "string" && /^\d{4}(0[1-9]|1[0-2])$/.test(m))) {
+      fail(`${path}.months`, `must be a non-empty list of YYYYMM months, got ${JSON.stringify(g.months)}`);
+    }
+    gmn = { source: source(g, "source", path), months: g.months as string[], licence: text(g, "licence", path), licenceUrl: text(g, "licenceUrl", path), ruleNote: text(g, "ruleNote", path) };
+  }
+  const choice = stream.source === undefined ? "cams" : stream.source;
+  if (choice !== "cams" && choice !== "gmn") fail("stream.source", `must be "cams" or "gmn", got ${String(choice)}`);
+  if (choice === "gmn" && gmn === undefined) fail("stream.source", `is "gmn" but stream.sources.gmn is not given`);
+  return { source: choice, sources: gmn === undefined ? { cams } : { cams, gmn } };
+}
+
+/** The cited source (name, url, access date) of one catalogue; GMN falls back to CAMS when the shower has no GMN entry. */
+export function citedSourceOf(settings: ShowerSettings, source: OrbitSource = settings.stream.source): ShowerSource {
+  return source === "gmn" && settings.stream.sources.gmn !== undefined ? settings.stream.sources.gmn.source : settings.stream.sources.cams;
+}
+
 function orbitElements(raw: Raw, path: string): ShowerOrbitElements {
   const semiMajorAxisAu = finite(raw, "semiMajorAxisAu", path);
   const eccentricity = finite(raw, "eccentricity", path);
@@ -223,6 +265,14 @@ function timeline(input: unknown): ShowerSettings["timeline"] {
   return { span, rateSecondsPerSecond: rate };
 }
 
+function startViewOf(value: unknown): StartView {
+  try {
+    return validateStartView(value, "look.startView");
+  } catch (error) {
+    return fail("look.startView", `is not a valid view: ${(error as Error).message}`);
+  }
+}
+
 function look(raw: Raw): ShowerLook {
   const cameraMaxFocusDistance = positive(raw, "cameraMaxFocusDistance", "look");
   const cameraFar = positive(raw, "cameraFar", "look");
@@ -233,6 +283,7 @@ function look(raw: Raw): ShowerLook {
   return {
     loop: raw.loop === true,
     viewUp: viewUp(raw),
+    ...(raw.startView === undefined ? {} : { startView: startViewOf(raw.startView) }),
     streamColor: colour(raw, "streamColor", "look"),
     pointSizePx: positive(raw, "pointSizePx", "look"),
     refillAfterHours: positive(raw, "refillAfterHours", "look"),
@@ -314,7 +365,7 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
     parentBodyId,
     ...(parentElements === undefined ? {} : { parentElements }),
     orbit: { elements: orbitElementsOf(orbit, parentElements), source: source(orbit, "source", "orbit") },
-    stream: { iauCode, source: source(stream, "source", "stream"), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) },
+    stream: { iauCode, ...orbitSources(stream), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) },
     labels: labels(root.labels),
     timeline: timeline(root.timeline),
     look: look(record(root.look, "look")),

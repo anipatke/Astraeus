@@ -5,7 +5,7 @@ import { mkdirSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });

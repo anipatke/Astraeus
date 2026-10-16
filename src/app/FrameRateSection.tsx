@@ -63,8 +63,9 @@ function overTone(frames: FrameSnapshot): Tone {
 
 export function FrameRateSection({ frames, fills, fpsHistory = [] }: { readonly frames: FrameSnapshot | null; readonly fills: readonly GroupFill[]; readonly fpsHistory?: readonly number[] }) {
   return (
-    <section className="hud-section" aria-labelledby="developer-frame-rate-heading" data-testid="frame-rate">
+    <section className="hud-section hud-section-frame" aria-labelledby="developer-frame-rate-heading" data-testid="frame-rate">
       <h3 id="developer-frame-rate-heading">Frame rate</h3>
+      <div className="frame-body">
       {frames === null || frames.frames === 0 ? <p>Measuring…</p> : (
         <dl className="frame-readouts" aria-label="Frame timing">
           <div><dt>Frames per second</dt><dd data-frame-fps className={`tone-${fpsTone(frames.fps)}`}>{frames.fps.toFixed(1)}</dd></div>
@@ -73,10 +74,13 @@ export function FrameRateSection({ frames, fills, fpsHistory = [] }: { readonly 
           {fills.map((fill) => <div key={fill.id}><dt>Position fills: {fill.id}</dt><dd data-fill-count={fill.id}>{fill.count}</dd></div>)}
         </dl>
       )}
-      {fpsHistory.length > 1 && <FpsGraph history={fpsHistory} />}
       {fpsHistory.length > 1 && (
-        <p className="fps-graph-key"><span className="tone-good">● smooth, 50+</span><span className="tone-warn">● uneven, 30–50</span><span className="tone-bad">● rough, under 30</span></p>
+        <div className="frame-graph">
+          <FpsGraph history={fpsHistory} />
+          <p className="fps-graph-key"><span className="tone-good">● smooth, 50+</span><span className="tone-warn">● uneven, 30–50</span><span className="tone-bad">● rough, under 30</span></p>
+        </div>
       )}
+      </div>
       <p>These figures are for this browser and machine, measured over the last second or so.</p>
     </section>
   );

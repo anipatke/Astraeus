@@ -19,7 +19,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.argv[2] ?? "docs/evidence/regression-spike01-02/anchor-labels";
 mkdirSync(out, { recursive: true });
 

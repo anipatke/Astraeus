@@ -174,6 +174,8 @@ export interface ExperienceDefinition {
   readonly alternates?: readonly { readonly label: string; readonly param: string; readonly value: string; readonly active: boolean }[];
   /** Which direction the camera treats as up (default "equatorial", celestial north; "ecliptic" orbits about the ecliptic pole so the planets' plane reads flat). */
   readonly viewUp?: import("./viewUp").ViewUp;
+  /** The camera view to open on (focus id, azimuth and elevation in degrees, distance in scaled units). Absent: the usual opening. `?view=` overrides it. */
+  readonly startView?: import("./viewLink").StartView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
 }

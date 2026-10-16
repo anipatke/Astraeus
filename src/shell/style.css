@@ -170,12 +170,21 @@
   top: 72px;
   right: 12px;
   width: min(860px, calc(100vw - 24px));
-  max-height: min(64vh, 560px);
-  overflow: auto;
+  max-height: min(calc(100dvh - 72px - 200px), 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #888078 transparent;
   padding: 12px;
   border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
   border-radius: 12px;
-  background: var(--ui-panel, rgba(13, 13, 13, .94));
+  /* Edge cues: a soft shadow shows at whichever edge still has content to scroll to. */
+  background:
+    linear-gradient(#0d0d0d 30%, rgba(13, 13, 13, 0)) top / 100% 28px local no-repeat,
+    linear-gradient(rgba(13, 13, 13, 0), #0d0d0d 70%) bottom / 100% 28px local no-repeat,
+    radial-gradient(farthest-side at 50% 0, rgba(252, 99, 35, .35), rgba(252, 99, 35, 0)) top / 100% 12px scroll no-repeat,
+    radial-gradient(farthest-side at 50% 100%, rgba(252, 99, 35, .35), rgba(252, 99, 35, 0)) bottom / 100% 12px scroll no-repeat,
+    #0d0d0d;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .42);
   box-sizing: border-box;
   backdrop-filter: blur(12px);
@@ -404,7 +413,8 @@
   .timeline-windows { height: 56px; }
   .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 344px; }
   .timeline-window-peak { width: 44px; }
-  .developer-tools { top: 98px; right: 8px; left: 8px; width: auto; max-height: 44vh; padding: 9px; }
+  /* Below the object and scale bars, above the timeline: it scrolls inside that space and never covers either. */
+  .developer-tools { top: 172px; right: 8px; left: 8px; width: auto; max-height: max(160px, calc(100dvh - 172px - 276px)); padding: 9px; }
   .developer-mode-toggle { top: 8px; right: 8px; min-height: 40px !important; }
 }
 

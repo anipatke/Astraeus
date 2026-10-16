@@ -29,9 +29,12 @@ import { stateIfInBounds, type TrackedBody } from "./mission";
 import { bodyLightDirections, DEFAULT_LIGHTING, sunScaledPosition, type LightingModel, type SunLightStrength } from "./lighting";
 import type { RenderVector } from "./renderCoordinates";
 import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
+import { viewFromAngles, type StartView } from "./viewLink";
 import {
   assignBodyLayers,
   defaultDistance,
+  START_CAMERA_DISTANCE,
+  startsInsideFocus,
   fitDistance,
   focusLimits,
   focusRadius,
@@ -43,7 +46,7 @@ import {
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
-import { SkyView } from "./SkyView";
+import { SkyView, skyMapFromSearch } from "./SkyView";
 import { loadStarCatalogue } from "../assets/sky";
 import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
@@ -86,7 +89,7 @@ export interface SceneRuntime {
   /** Single Sun light only: its strength; absent takes the strongest of the lit bodies' own values. */
   readonly sunLight?: SunLightStrength | null;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
-  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
+  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly source?: import("../assets/sky").SkyMapSource };
 }
 
 export interface SceneControls {
@@ -115,6 +118,10 @@ export interface SceneControls {
   frameStats: FrameStats | null;
   /** Each group's refill count, written by the scene while `frameStats` is set; read by the Developer tools poll. */
   readonly groupFills: GroupFill[];
+  /** The view to open on (from `?view=` or the experience's `startView`). Used once, on the first frame; absent: today's opening. */
+  startView?: StartView;
+  /** The camera's current view, written every frame by the scene for "Copy view link". */
+  viewReadout?: StartView;
 }
 
 export type SceneReadout = DebugReadout;
@@ -211,7 +218,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   }] as const)), [runtime.bodies]);
 
   const origin = useMemo(() => new FloatingOrigin(), []);
-  const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16, runtime.sceneCenter));
+  const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
+  const started = useRef(false);
   const spanScaled = useRef(6);
   const lastPolicyId = useRef(controls.policy.id);
   const lastUp = useRef<RenderVector | null>(null);
@@ -224,7 +232,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => new PathView(compositionPathLayer(path, runtime.resolver), COMPOSITION_PATH_STYLE)), [runtime.composition, runtime.resolver]);
-  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay }) : null), [runtime.sky, gl]);
+  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, source: skyMapFromSearch(window.location.search) ?? runtime.sky.source }) : null), [runtime.sky, gl]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
 
@@ -242,6 +250,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       cancelled = true;
       delete gl.domElement.dataset.skyStars;
       delete gl.domElement.dataset.skyPicture;
+      delete gl.domElement.dataset.skyPictureSource;
       delete gl.domElement.dataset.skyStarBrightness;
       skyView.dispose();
     };
@@ -330,6 +339,28 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       return view.absolute(t, policy, placement);
     };
 
+    const canFocus = (focus: FocusId): boolean => {
+      try { focusAbsolute(focus); return true; } catch { return false; }
+    };
+    // The first frame: a start distance below what the centre body allows (a large centre body) would be clamped up to its closest approach,
+    // so the experience opens on a close-up of that body. It opens at its overview instead (I-028); other experiences start as before.
+    let openedAtOverview = false;
+    if (!started.current) {
+      started.current = true;
+      if (controls.startView !== undefined && canFocus(controls.startView.focus)) {
+        // An explicit start view wins over the overview rule: the camera opens exactly there (the zoom limits still apply below).
+        const view = controls.startView;
+        camState.focus = view.focus;
+        camState.transition.fill(0);
+        camState.azimuth = camState.targetAzimuth = (view.azimuthDeg * Math.PI) / 180;
+        camState.elevation = camState.targetElevation = (view.elevationDeg * Math.PI) / 180;
+        camState.distance = camState.targetDistance = view.distance;
+        controls.cameraRequest = null;
+      } else if (controls.cameraRequest === null && startsInsideFocus(camState.distance, bodyIdFor(camState.focus) ?? camState.focus, frame, policy, runtime.cameraReach)) {
+        controls.cameraRequest = { kind: "overview" };
+        openedAtOverview = true;
+      }
+    }
     if (controls.cameraRequest) {
       const request = controls.cameraRequest;
       controls.cameraRequest = null;
@@ -363,6 +394,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         camState.targetAzimuth = Math.atan2(along(east), along(south));
       }
     }
+    if (openedAtOverview) camState.distance = camState.targetDistance;
     // A change of up direction keeps the camera where it is: the same offset from the target is re-expressed in the new orbit basis.
     if (lastUp.current !== null && lastUp.current.some((v, k) => v !== viewUp[k])) {
       const offset = [0, 1, 2].map((k) => camState.cameraAbsolute[k] - camState.targetAbsolute[k]);
@@ -393,6 +425,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
       viewUp,
     );
+    controls.viewReadout = viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
     // The marker rule: a sphere that would be under a few pixels across is drawn as a marker at the same place. Presentation only.
     const swapped: BodyId[] = [];
     for (const asset of assets) {
@@ -414,12 +447,15 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     if (skyView !== null) {
       skyView.follow(camera as PerspectiveCamera);
       skyView.setPictureVisible(controls.showMilkyWay);
+      if (controls.showMilkyWay) skyView.requestPicture();
       skyView.setStarBrightness(controls.starBrightness);
       skyView.setMilkyWayBrightness(controls.milkyWayBrightness);
       const starGain = String(controls.starBrightness);
       if (gl.domElement.dataset.skyStarBrightness !== starGain) gl.domElement.dataset.skyStarBrightness = starGain;
       const picture = controls.showMilkyWay ? "on" : "off";
       if (gl.domElement.dataset.skyPicture !== picture) gl.domElement.dataset.skyPicture = picture;
+      const pictureSource = skyView.pictureSource ?? "none";
+      if (gl.domElement.dataset.skyPictureSource !== pictureSource) gl.domElement.dataset.skyPictureSource = pictureSource;
       // Developer mode reads the sky back so the invariance can be checked from outside (orientation in, screen position out).
       if (controls.frameStats !== null) gl.domElement.dataset.skyProbe = JSON.stringify(skyView.probe(camera));
     }

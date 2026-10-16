@@ -10,6 +10,8 @@ import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groups
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
+import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
+import { SettingButtons, SettingGroup, SettingSlider } from "./SettingControls";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
@@ -55,6 +57,9 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     const adapter = createOrbAstronomyAdapter();
     const clock = new SimulationClock(definition.clock.startUtcMs);
     clock.setRate(definition.clock.rate);
+    // A copied view link carries the time it was copied at.
+    const linkedTime = timeFromSearch(window.location.search);
+    if (linkedTime !== undefined) clock.seek(linkedTime);
     clock.play();
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
     const resolver = createSceneResolver(adapter, catalogueOf(definition));
@@ -90,7 +95,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     for (const [id, override] of runtime.overrides) if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
     return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
   }, [runtime]);
-  const startScale: ScaleId = scaleChoiceIds?.[0] ?? "true-scale";
+  const linkedScale = scaleFromSearch(window.location.search);
+  const startScale: ScaleId = linkedScale !== undefined && (scaleChoiceIds ?? ["true-scale", "readable-scale"]).includes(linkedScale) ? linkedScale : scaleChoiceIds?.[0] ?? "true-scale";
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);
   // The shell also lists the sky, citing its sources and saying whether the stars were fetched.
   const [starStatus, setStarStatus] = useState<StarStatus>({ kind: "loading" });
@@ -120,6 +126,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
     groupFills: [],
+    ...((viewFromSearch(window.location.search) ?? definition.startView) === undefined ? {} : { startView: (viewFromSearch(window.location.search) ?? definition.startView)! }),
   });
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
@@ -138,6 +145,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
+  const [viewNow, setViewNow] = useState<StartView | null>(null);
+  const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
   const [fills, setFills] = useState<readonly GroupFill[]>([]);
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
     controls.current.cameraRequest = request as CameraRequest;
@@ -169,6 +178,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       setFrames(snapshot);
       if (snapshot.frames > 0) setFpsHistory((history) => [...history.slice(-(FPS_HISTORY - 1)), snapshot.fps]);
       setFills(controls.current.groupFills.map((fill) => ({ ...fill })));
+      setViewNow(controls.current.viewReadout === undefined ? null : { ...controls.current.viewReadout });
     }, 250);
     return () => {
       window.clearInterval(id);
@@ -178,6 +188,17 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     };
   }, [developerMode, runtime]);
 
+  /** Writes the current view, scale, up direction and time into the address, then copies the full link (or shows it to copy by hand). */
+  const copyViewLink = async () => {
+    const view = controls.current.viewReadout;
+    if (view === undefined) return;
+    const search = viewLinkSearch(window.location.search, { view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs });
+    try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
+    const url = `${window.location.origin}${window.location.pathname}${search}`;
+    let copied = false;
+    try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
+    setViewLink({ url, copied });
+  };
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (
     <section key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} aria-labelledby={`developer-${section.id}-heading`}>
@@ -189,76 +210,95 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     <div className="hud">
       <header className="developer-heading">
         <h2>Developer tools</h2>
-        <p>Time controls, mission context, live telemetry and scene diagnostics.</p>
+        <p>Live readouts, controls and diagnostics for this scene.</p>
       </header>
       {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
-      <section className="hud-section" aria-labelledby="developer-scene-heading">
-        <h3 id="developer-scene-heading">Scene instrumentation</h3>
-        <DebugOverlay readout={hud} />
-      </section>
+      {hud !== null && (
+        <section className="hud-section" aria-labelledby="developer-scene-heading">
+          <h3 id="developer-scene-heading">Scene instrumentation</h3>
+          <DebugOverlay readout={hud} />
+        </section>
+      )}
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
       {(runtime.trackedBodies.length > 0 || runtime.sky.visible || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
-        <section className="hud-section" aria-labelledby="developer-display-heading">
+        <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
-          <div className="row" role="group" aria-label="Small bodies">
-            <label>Body marker threshold (px) <output data-testid="body-marker-value">{markerPx.toFixed(1)}</output>
-              <input type="range" min={0} max={20} step={0.5} value={markerPx} aria-label="Body marker threshold" onChange={(event) => { const value = Number(event.target.value); controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
-            </label>
-          </div>
-          {glowShown !== null && (
-            <div className="row" role="group" aria-label="Sun glow">
-              <label>Sun glow size (px) <output data-testid="sun-glow-size-value">{glowShown.sizePx.toFixed(0)}</output>
-                <input type="range" min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx} aria-label="Sun glow size" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-              </label>
-              <label>Sun glow reach (× disc) <output data-testid="sun-glow-scale-value">{glowShown.scale.toFixed(1)}</output>
-                <input type="range" min={GLOW_LIMITS.scale.min} max={GLOW_LIMITS.scale.max} step={0.1} value={glowShown.scale} aria-label="Sun glow reach" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-              </label>
-              <label>Sun glow brightness <output data-testid="sun-glow-brightness-value">{glowShown.brightness.toFixed(2)}</output>
-                <input type="range" min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness} aria-label="Sun glow brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.brightness = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-              </label>
-            </div>
-          )}
-          {labelToggles.length > 0 && (
-            <div className="row scale-controls" role="group" aria-label="Object labels">
-              {labelToggles.map((object) => (
-                <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
-                  const hidden = controls.current.hiddenLabels ?? new Set<string>();
-                  if (hidden.has(object.id)) hidden.delete(object.id);
-                  else hidden.add(object.id);
-                  controls.current.hiddenLabels = hidden;
-                  setHiddenLabels(new Set(hidden));
-                }}>{`${object.label} label`}</button>
+          <div className="setting-groups">
+          <SettingGroup id="view" title="View">
+            <SettingButtons label="Up direction">
+              {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
+                <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
               ))}
+            </SettingButtons>
+            <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
+              onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
+            <div className="view-link" role="group" aria-label="Camera view">
+              <SettingButtons label="Camera view">
+                <button onClick={() => void copyViewLink()}>Copy view link</button>
+              </SettingButtons>
+              {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
+              {viewLink !== null && (
+                <p className="view-link-field">
+                  <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />
+                  <span>{viewLink.copied ? "Copied to the clipboard." : "Clipboard unavailable: select the link above and copy it."}</span>
+                </p>
+              )}
             </div>
-          )}
-          <div className="row scale-controls" role="group" aria-label="Up direction">
-            <span>Up direction</span>
-            {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
-              <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
-            ))}
-          </div>
-          <div className="row scale-controls" role="group" aria-label="Scene labels">
-            {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
-            <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
-            {(definition.alternates ?? []).map((alternate) => (
-              <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
-                const url = new URL(window.location.href);
-                url.searchParams.set(alternate.param, alternate.value);
-                window.location.assign(url.toString());
-              }}>{alternate.label}</button>
-            ))}
-            {runtime.sky.visible && <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>}
-          </div>
+            <SettingButtons>
+              <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
+            </SettingButtons>
+          </SettingGroup>
           {runtime.sky.visible && (
-            <div className="row" role="group" aria-label="Sky brightness">
-              <label>Star brightness <output data-testid="star-brightness-value">{starBrightness.toFixed(2)}</output>
-                <input type="range" min={0} max={2} step={0.05} value={starBrightness} aria-label="Star brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.starBrightness = value; setStarBrightness(value); }} />
-              </label>
-              <label>Milky Way brightness <output data-testid="milky-way-brightness-value">{milkyWayBrightness.toFixed(2)}</output>
-                <input type="range" min={0} max={2} step={0.05} value={milkyWayBrightness} aria-label="Milky Way brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.milkyWayBrightness = value; setMilkyWayBrightness(value); }} />
-              </label>
-            </div>
+            <SettingGroup id="sky" title="Sky">
+              <SettingButtons>
+                <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>
+              </SettingButtons>
+              <SettingSlider label="Star brightness" ariaLabel="Star brightness" testId="star-brightness-value" display={starBrightness.toFixed(2)} min={0} max={2} step={0.05} value={starBrightness}
+                onChange={(value) => { controls.current.starBrightness = value; setStarBrightness(value); }} />
+              <SettingSlider label="Milky Way brightness" ariaLabel="Milky Way brightness" testId="milky-way-brightness-value" display={milkyWayBrightness.toFixed(2)} min={0} max={2} step={0.05} value={milkyWayBrightness}
+                onChange={(value) => { controls.current.milkyWayBrightness = value; setMilkyWayBrightness(value); }} />
+            </SettingGroup>
           )}
+          {glowShown !== null && (
+            <SettingGroup id="glow" title="Sun glow">
+              <SettingSlider label="Glow size (px)" ariaLabel="Sun glow size" testId="sun-glow-size-value" display={glowShown.sizePx.toFixed(0)} min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx}
+                onChange={(value) => { controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              <SettingSlider label="Glow brightness" ariaLabel="Sun glow brightness" testId="sun-glow-brightness-value" display={glowShown.brightness.toFixed(2)} min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness}
+                onChange={(value) => { controls.current.glowLook!.brightness = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              <SettingSlider label="Glow reach (× disc)" ariaLabel="Sun glow reach" testId="sun-glow-scale-value" display={glowShown.scale.toFixed(1)} min={GLOW_LIMITS.scale.min} max={GLOW_LIMITS.scale.max} step={0.1} value={glowShown.scale}
+                onChange={(value) => { controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+            </SettingGroup>
+          )}
+          {(labelToggles.length > 0 || runtime.trackedBodies.length > 0) && (
+            <SettingGroup id="labels" title="Labels">
+              <SettingButtons>
+                {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
+                {labelToggles.map((object) => (
+                  <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
+                    const hidden = controls.current.hiddenLabels ?? new Set<string>();
+                    if (hidden.has(object.id)) hidden.delete(object.id);
+                    else hidden.add(object.id);
+                    controls.current.hiddenLabels = hidden;
+                    setHiddenLabels(new Set(hidden));
+                  }}>{`${object.label} label`}</button>
+                ))}
+              </SettingButtons>
+            </SettingGroup>
+          )}
+          {(definition.alternates ?? []).length > 0 && (
+            <SettingGroup id="data" title="Data">
+              <SettingButtons>
+                {(definition.alternates ?? []).map((alternate) => (
+                  <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set(alternate.param, alternate.value);
+                    window.location.assign(url.toString());
+                  }}>{alternate.label}</button>
+                ))}
+              </SettingButtons>
+            </SettingGroup>
+          )}
+          </div>
         </section>
       )}
       {sections.filter((section) => section.placement === "after-scene").map(renderSection)}

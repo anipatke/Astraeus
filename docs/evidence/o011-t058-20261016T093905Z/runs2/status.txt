@@ -1,0 +1,7 @@
+shell exit 0
+spike03 exit 1
+sky exit 1
+sun exit 0
+view-link exit 0
+showers exit 0
+ALLDONE

@@ -19,7 +19,7 @@ import { join } from "node:path";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 const haveStars = existsSync(new URL("../../data/local/yale-bsc-v65.json", import.meta.url));

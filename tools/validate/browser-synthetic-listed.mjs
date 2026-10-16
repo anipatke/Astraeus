@@ -1,6 +1,6 @@
 // Browser smoke for the made-up listed-orbits experience (a group drawn from a list of per-member orbits). Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic-listed.mjs
-// Options: ASTRAEUS_URL (default http://localhost:5199/), ASTRAEUS_EVIDENCE_DIR (screenshots; use a new directory, never an old one).
+// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots; use a new directory, never an old one).
 //
 // Runs at 1280x800 (desktop) and 390x844 (phone) in one browser with the same assertions; phone screenshots carry a `phone-` prefix.
 // Every assertion reads data attributes, option lists, panel text or canvas pixels rather than layout:
@@ -14,7 +14,7 @@ import { mkdirSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });

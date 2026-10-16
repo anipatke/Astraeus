@@ -15,8 +15,8 @@ import type { Trajectory } from "../../core/trajectory";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
-import { fetchOrbitsCommand, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
-import type { ShowerSettings, ShowerSource } from "./showerSettings";
+import { fetchOrbitsCommand, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
+import { citedSourceOf, type OrbitSource, type ShowerSettings, type ShowerSource } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
@@ -63,18 +63,33 @@ export function showerEntryName(path: string): string {
 const percent = (fraction: number): string => `${Math.round(fraction * 100)}%`;
 
 /** The words the stream's panel must carry about what is measured, what is a drawing choice and what is not shown. */
-export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts): string {
+export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts, source: OrbitSource = "cams"): string {
   const { rule } = settings.stream.quality;
+  const gmn = source === "gmn" ? settings.stream.sources.gmn : undefined;
+  if (gmn !== undefined) {
+    const shownGmn = set === "reliable" ? counts.reliable : counts.all;
+    const cutGmn = `Qc (the maximum convergence angle between the stations that saw the meteor) at least ${rule.minConvergenceAngleDeg}° and the Vgeo sigma at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of Vgeo`;
+    return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shownGmn} of ${counts.all} bound orbits; the reliable set, ${cutGmn}, has ${counts.reliable} and cuts ${counts.cut}). The cut is the published rule: ${rule.quote} (${rule.source.name}, ${rule.source.url}), mapped to GMN's own columns: ${gmn.ruleNote} GMN has no double-entry flag.`;
+  }
   const cut = `convergence angle Q at least ${rule.minConvergenceAngleDeg}° and velocity error at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of the geocentric velocity`;
   const shown = set === "reliable" ? counts.reliable : counts.all;
   return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shown} of ${counts.all} bound orbits; the reliable set, ${cut}, has ${counts.reliable} and cuts ${counts.cut}). The cut is published: ${rule.quote} (${rule.source.name}, ${rule.source.url}). ${counts.pairsFlagged} records flagged as double entries are kept in both sets (${counts.pairsFlaggedReliable} of them in the reliable set).`;
 }
 
-export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonly set: OrbitSet; readonly counts: OrbitSetCounts }): readonly string[] {
+/** What the stream's panel says about the catalogue itself, when it is the GMN: the source, its licence and what was read. */
+export function gmnSourceSentence(settings: ShowerSettings, provenance?: MeasuredOrbitProvenance): string {
+  const gmn = settings.stream.sources.gmn;
+  if (gmn === undefined) return "";
+  const read = provenance === undefined ? "" : ` Read from ${gmn.months.join(" and ")}: ${provenance.counts.members} records, ${provenance.counts.unbound} unbound orbits dropped, ${provenance.counts.kept} bound orbits kept.`;
+  return `Source: ${gmn.source.name}. Licence ${gmn.licence} (${gmn.licenceUrl}), credit the Global Meteor Network.${read}`;
+}
+
+export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly source?: OrbitSource; readonly provenance?: MeasuredOrbitProvenance }): readonly string[] {
   const { concentration } = settings.stream;
   const status = concentration.status === "cited" ? `cited; basis: ${concentration.basis}` : `illustrative defaults: ${concentration.basis}`;
   return [
-    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
+    ...(orbitSet?.source === "gmn" ? [gmnSourceSentence(settings, orbitSet.provenance)] : []),
+    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts, orbitSet.source)]),
     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
     `The clump near ${settings.parentBody} is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}.`,
     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
@@ -82,7 +97,7 @@ export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonl
   ];
 }
 
-function streamObject(settings: ShowerSettings, description: string, orbitSet: { readonly set: OrbitSet; readonly counts: OrbitSetCounts }): ExperienceObject {
+function streamObject(settings: ShowerSettings, description: string, orbitSet: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly source?: OrbitSource; readonly provenance?: MeasuredOrbitProvenance }): ExperienceObject {
   return {
     id: streamIdOf(settings),
     label: `${settings.label} stream`,
@@ -93,22 +108,24 @@ function streamObject(settings: ShowerSettings, description: string, orbitSet: {
   };
 }
 
-function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, shown: number, set: OrbitSet): Provenance {
+function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, shown: number, set: OrbitSet, source: OrbitSource): Provenance {
   const { provenance } = orbits;
   const { counts } = provenance;
   return createProvenance({
     sourceType: "observed",
-    sources: [provenance.citation, sourceLine(settings.stream.source)],
+    sources: [...(provenance.citations ?? [provenance.citation]), sourceLine(citedSourceOf(settings, source))],
     accuracy: "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element.",
-    notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.`,
+    notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.${provenance.licence === undefined ? "" : ` Licence ${provenance.licence}.`}`,
   });
 }
 
 /** What the stream's item says when its data is not on this machine: nothing is drawn and no stand-in is invented. */
-function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>): ExperienceObject {
+function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>, source: OrbitSource): ExperienceObject {
+  const command = fetchOrbitsCommand(settings.stream.iauCode, source, settings.stream.sources.gmn?.months ?? []);
+  const size = source === "gmn" ? `the ${settings.stream.sources.gmn?.months.length ?? 0} monthly files, about 100 MB each` : "about 322 MB";
   const why = load.kind === "invalid"
-    ? `The fetched file cannot be used: ${load.problem}. Run "${fetchOrbitsCommand(settings.stream.iauCode)}" again.`
-    : `The measured orbits are not fetched on this machine, so no stream is drawn. Run "${fetchOrbitsCommand(settings.stream.iauCode)}" to fetch them (about 322 MB downloaded, kept out of the repository and out of public builds).`;
+    ? `The fetched file cannot be used: ${load.problem}. Run "${command}" again.`
+    : `The measured orbits are not fetched on this machine, so no stream is drawn. Run "${command}" to fetch them (${size} downloaded, kept out of the repository and out of public builds).`;
   return {
     id: streamIdOf(settings),
     label: `${settings.label} stream`,
@@ -117,7 +134,7 @@ function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad
     description: `The ${settings.label} stream is drawn from measured meteoroid orbits. ${why}`,
     provenance: createProvenance({
       sourceType: "observed",
-      sources: [sourceLine(settings.stream.source)],
+      sources: [sourceLine(citedSourceOf(settings, source))],
       accuracy: "Nothing is drawn, so nothing is claimed.",
       notes: why,
     }),
@@ -129,7 +146,7 @@ function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad
  * The stream as one group, centred on the Sun: one dot per measured orbit, on its own ellipse, with the dot's place along the orbit a
  * stated drawing choice. A stated share is clumped near the parent's orbital phase, a model.
  */
-export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default): GroupLayer {
+export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source): GroupLayer {
   const catalogue = showerCatalogue(settings);
   const counts = orbitSetCounts(all, settings.stream.quality.rule);
   const orbits = selectOrbits(all, set, settings.stream.quality.rule);
@@ -149,7 +166,7 @@ export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits,
       concentration: { around: parent.source.create(adapter), fraction: concentration.fraction, widthDeg: concentration.widthDeg },
     },
     bounds: timelineBoundsOf(settings),
-    provenance: measuredProvenance(settings, all, orbits.members.length, set),
+    provenance: measuredProvenance(settings, all, orbits.members.length, set, source),
   }, createOrbTwoBodyAdapter());
   const description = `${group.count} measured meteoroid orbits of the ${settings.label}, each drawn as one dot (${orbits.provenance.database}). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near ${settings.parentBody} is a model. One item stands for the whole stream; its focus point is the centroid of the dots.`;
   return {
@@ -157,7 +174,7 @@ export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits,
     color: settings.look.streamColor,
     pointSizePx: settings.look.pointSizePx,
     refillAfterMs: settings.look.refillAfterHours * HOUR_MS,
-    object: streamObject(settings, description, { set, counts }),
+    object: streamObject(settings, description, { set, counts, source, provenance: all.provenance }),
   };
 }
 
@@ -457,20 +474,39 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
   }
 }
 
+/** The live switches the Developer section lists: the orbit set (once loaded) and, for a shower that can read the GMN, the source. Undefined when there is none. */
+function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet, source: OrbitSource): ExperienceDefinition["alternates"] {
+  const alternates = [
+    ...(load.kind !== "loaded" ? [] : (["all", "reliable"] as const).map((option) => ({
+      label: option === "all" ? `All orbits (${orbitSetCounts(load.orbits, settings.stream.quality.rule).all})` : `Reliable only (${orbitSetCounts(load.orbits, settings.stream.quality.rule).reliable})`,
+      param: "orbits",
+      value: option,
+      active: option === set,
+    }))),
+    ...(settings.stream.sources.gmn === undefined ? [] : (["cams", "gmn"] as const).map((option) => ({
+      label: option === "cams" ? "Orbits from CAMS" : "Orbits from GMN",
+      param: "source",
+      value: option,
+      active: option === source,
+    }))),
+  ];
+  return alternates.length === 0 ? undefined : alternates;
+}
+
 /**
  * Turns shower settings and the shower's measured orbits into an experience definition; nothing here names a particular shower. When the
  * orbits are not on this machine the experience says so and draws no stream: there is no stand-in.
  */
-export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default): ExperienceDefinition {
+export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source): ExperienceDefinition {
   const composition = showerComposition(settings);
-  const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set) : null;
+  const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set, source) : null;
   const window = createActivityWindow(settings);
   const streamId = streamIdOf(settings);
   const { startUtcMs, endUtcMs } = timelineBoundsOf(settings);
   const radiant = radiantMetricOf(settings);
   const parentOrbitId = parentOrbitIdOf(settings);
   const experience: ExperienceConfig = {
-    objects: [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load)])],
+    objects: [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load, source)])],
     cameraPresets: [
       { id: "overview", label: "Overview", request: { kind: "overview" } },
       { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
@@ -502,14 +538,10 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
   return {
     experience,
     clock: { startUtcMs, rate: settings.timeline.rateSecondsPerSecond },
-    alternates: load.kind !== "loaded" ? undefined : (["all", "reliable"] as const).map((option) => ({
-      label: option === "all" ? `All orbits (${orbitSetCounts(load.orbits, settings.stream.quality.rule).all})` : `Reliable only (${orbitSetCounts(load.orbits, settings.stream.quality.rule).reliable})`,
-      param: "orbits",
-      value: option,
-      active: option === set,
-    })),
+    alternates: alternatesOf(settings, load, set, source),
     loop: settings.look.loop,
     viewUp: settings.look.viewUp,
+    ...(settings.look.startView === undefined ? {} : { startView: settings.look.startView }),
     sceneLayers: ["points", "sun-centred"],
     composition,
     ...(settings.parentElements === undefined ? {} : { catalogue: showerCatalogue(settings) }),
