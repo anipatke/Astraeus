@@ -1,0 +1,40 @@
+{
+  "distDir": "/home/user/code/Astraeus/dist",
+  "localDataFilesChecked": 3,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html"
+  ],
+  "missingPages": [],
+  "ok": true,
+  "checked": 24,
+  "sources": [
+    {
+      "file": "earth-2k.jpg",
+      "sha256": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
+      "bytes": 1461877
+    },
+    {
+      "file": "moon-orig-2k.jpg",
+      "sha256": "2764ba6535ea0481a062846ee033cc7a909dae05b31a8fd13f3e98f3a7fd92bd",
+      "bytes": 1053869
+    },
+    {
+      "file": "data/local/cams-iau-4.json",
+      "sha256": "d7e0876536697b882485a12c0cf09913b929f037177cf8842b22e4ed80e5b1f8",
+      "bytes": 1340833
+    },
+    {
+      "file": "data/local/cams-iau-7.json",
+      "sha256": "486f27dfb86747239286fadf59b47cae075bd315f01de42e63776cedfa99a37b",
+      "bytes": 1713718
+    },
+    {
+      "file": "data/local/yale-bsc-v65.json",
+      "sha256": "eef03d8196823afdaeeba906e20b538e246391d47df747367f7932bcc152385b",
+      "bytes": 256817
+    }
+  ],
+  "matches": []
+}

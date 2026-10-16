@@ -1,0 +1,49 @@
+{
+  "framePacingMs": {
+    "desktop": {
+      "frames": 116,
+      "median": 33.3,
+      "p95": 50,
+      "max": 66.7,
+      "over33ms": 35
+    },
+    "phone": {
+      "frames": 224,
+      "median": 16.7,
+      "p95": 33.3,
+      "max": 33.4,
+      "over33ms": 1
+    }
+  },
+  "counterReadings": {
+    "desktop": {
+      "ring": {
+        "fps": 22.2,
+        "longestMs": 70.8,
+        "over": "4 of 5",
+        "fills": 12
+      },
+      "apollo": {
+        "fps": 1.1,
+        "longestMs": 887.6,
+        "over": "1 of 1",
+        "fills": null
+      }
+    },
+    "phone": {
+      "ring": {
+        "fps": 54.2,
+        "longestMs": 30.3,
+        "over": "0 of 15",
+        "fills": 12
+      },
+      "apollo": {
+        "fps": 4.3,
+        "longestMs": 837.9,
+        "over": "2 of 4",
+        "fills": null
+      }
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,36 @@
+{
+  "perseids": {
+    "link": "http://localhost:5406/app.html?experience=shower-perseids&view=sun,145,18.4,358330&scale=true-scale&up=ecliptic&t=2027-03-22T16:03:45.000Z",
+    "copied": {
+      "focus": "sun",
+      "az": 145,
+      "el": 18.4,
+      "dist": 358330
+    },
+    "restored": {
+      "focus": "sun",
+      "az": 145,
+      "el": 18.4,
+      "dist": 358330
+    }
+  },
+  "default": {
+    "link": "http://localhost:5406/app.html?view=earth,330,75,160&scale=true-scale&up=equatorial&t=1969-07-16T16:27:51.000Z",
+    "copied": {
+      "focus": "earth",
+      "az": 330,
+      "el": 75,
+      "dist": 160
+    },
+    "restored": {
+      "focus": "earth",
+      "az": 330,
+      "el": 75,
+      "dist": 160
+    }
+  },
+  "fallback": "field shown",
+  "badLink": "opened normally",
+  "errors": []
+}
+exit 0

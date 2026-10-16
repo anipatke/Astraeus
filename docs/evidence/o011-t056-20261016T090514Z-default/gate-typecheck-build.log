@@ -1,0 +1,45 @@
+
+> astraeus@0.1.0 typecheck
+> tsc --noEmit
+
+
+> astraeus@0.1.0 build
+> vite build
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 176 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/app.html                                 0.40 kB │ gzip:     0.28 kB
+dist/assets/t-milky-way-BpzDL6CS.jpg          7.56 kB
+dist/index.html                              15.36 kB │ gzip:     5.65 kB
+dist/assets/t-mars-2k-C1F1cZqq.jpg           19.68 kB
+dist/assets/t-io-2k-BOLMOZ6N.jpg             21.06 kB
+dist/assets/t-mercury-2k-YI6CwAf2.jpg        21.77 kB
+dist/assets/t-earth-2k-DCLCvvVu.jpg          22.81 kB
+dist/assets/t-moon-orig-2k-DsivoY5l.jpg      27.55 kB
+dist/assets.html                             28.32 kB │ gzip:     8.80 kB
+dist/assets/t-venus-2k-CaKlBPYD.jpg          30.54 kB
+dist/assets/t-sun-2k-06TFWV66.jpg            39.65 kB
+dist/assets/perseids-card-pQ_U6HW9.jpg       45.76 kB
+dist/assets/apollo-moon-B923ax4h.jpg         81.41 kB
+dist/assets/io-2k-CG7hitww.jpg              364.82 kB
+dist/assets/mars-2k-CmcQf1fB.jpg            429.76 kB
+dist/assets/sun-2k-BfaUCBxs.jpg             822.42 kB
+dist/assets/mercury-2k-lhhbYhEJ.jpg         872.55 kB
+dist/assets/venus-2k-B7XKoL-0.jpg           885.07 kB
+dist/assets/moon-orig-2k-BMpRMzYO.jpg     1,053.86 kB
+dist/assets/earth-2k-CClELF0E.jpg         1,461.87 kB
+dist/assets/milky-way-left-BVH6yQ3I.jpg   1,751.81 kB
+dist/assets/milky-way-right-CiMp2gkm.jpg  1,951.62 kB
+dist/assets/gmn-iau-7-BmVg4vLV.json       2,860.19 kB │ gzip: 1,228.16 kB
+dist/assets/app-BBM1REwi.css                 26.18 kB │ gzip:     5.68 kB
+dist/assets/app-CbbqP4sF.js               3,016.88 kB │ gzip: 1,047.48 kB
+
+✓ built in 428ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

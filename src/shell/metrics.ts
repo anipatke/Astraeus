@@ -48,6 +48,15 @@ export interface DistanceMetric extends ScalarMetric {
   readonly markers?: readonly MetricReference[];
 }
 
+/** How many per unit of time, for example "passes per hour". The value arrives already computed. */
+export interface RateMetric extends ScalarMetric {
+  readonly kind: "rate";
+  /** Real limits of the rate, with where they come from. Without a range or a peak the readout is numeric-only. */
+  readonly range?: MetricRange;
+  /** A labelled rate to compare with, such as the highest known. Without a range the bar spans 0 to the larger of it and the value. */
+  readonly peak?: MetricReference;
+}
+
 /** Centre-to-centre distance between two objects. */
 export interface RelativeDistanceMetric extends ScalarMetric {
   readonly kind: "relative-distance";
@@ -123,6 +132,7 @@ export interface CoordinateReference {
 export type Metric =
   | SpeedMetric
   | DistanceMetric
+  | RateMetric
   | RelativeDistanceMetric
   | AltitudeMetric
   | ProgressMetric
@@ -179,6 +189,20 @@ export function distanceScale(metric: DistanceMetric): LinearScale | null {
     valueFraction: value / span,
     markers: markers.map((marker) => ({ ...marker, fraction: clamp01(marker.value / span) })),
   };
+}
+
+/** Bar for a rate against its stated limits or peak, or null without a value or either (numeric-only). */
+export function rateScale(metric: RateMetric): LinearScale | null {
+  const { value, range, peak } = metric;
+  if (value === null) return null;
+  if (range !== undefined && range.max > range.min) {
+    const at = (v: number) => clamp01((v - range.min) / (range.max - range.min));
+    return { span: range.max - range.min, valueFraction: at(value), markers: peak === undefined ? [] : [{ ...peak, fraction: at(peak.value) }] };
+  }
+  if (peak === undefined || value < 0 || peak.value < 0) return null;
+  const span = Math.max(value, peak.value);
+  if (!(span > 0)) return null;
+  return { span, valueFraction: value / span, markers: [{ ...peak, fraction: peak.value / span }] };
 }
 
 /** Journey line from start to total, or null without a value or a positive total. */
@@ -314,6 +338,14 @@ export function metricNotes(metric: Metric): readonly string[] {
       if (gauge === null || metric.range === undefined) return [];
       const { min, max, basis, digits = metric.digits } = metric.range;
       return [`${n(min, digits)}–${n(max, digits)} ${metric.unit}${gauge.outside ? " · value outside this range" : ""}`, basis];
+    }
+    case "rate": {
+      const { range, value } = metric;
+      const limits = range === undefined || value === null || !(range.max > range.min)
+        ? []
+        : [`${n(range.min, range.digits ?? metric.digits)}–${n(range.max, range.digits ?? metric.digits)} ${metric.unit}${value < range.min || value > range.max ? " · value outside this range" : ""}`, range.basis];
+      const peak = metric.peak === undefined || value === null ? [] : [`${metric.peak.label} ${n(metric.peak.value, metric.digits)} ${metric.unit}`];
+      return [...limits, ...peak];
     }
     case "distance": {
       const scale = distanceScale(metric);

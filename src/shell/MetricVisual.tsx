@@ -8,6 +8,7 @@ import {
   phaseVisual,
   planViews,
   progressScale,
+  rateScale,
   RADII_WINDOW,
   relationGlyph,
   speedGauge,
@@ -185,6 +186,10 @@ function Visual({ metric }: { readonly metric: Metric }) {
     case "speed": return <SpeedVisual metric={metric} />;
     case "distance": {
       const scale = distanceScale(metric);
+      return scale === null ? null : <Bar metric={metric} scale={scale} />;
+    }
+    case "rate": {
+      const scale = rateScale(metric);
       return scale === null ? null : <Bar metric={metric} scale={scale} />;
     }
     case "progress": {

@@ -1,0 +1,8 @@
+11:50:13 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+error when starting dev server:
+Error: Port 5409 is already in use
+    at httpServerStart (file:///home/user/code/Astraeus/node_modules/vite/dist/node/chunks/node.js:14540:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async startServer (file:///home/user/code/Astraeus/node_modules/vite/dist/node/chunks/node.js:24946:30)
+    at async Object.listen (file:///home/user/code/Astraeus/node_modules/vite/dist/node/chunks/node.js:24760:4)
+    at async CAC.<anonymous> (file:///home/user/code/Astraeus/node_modules/vite/dist/node/cli.js:725:3)

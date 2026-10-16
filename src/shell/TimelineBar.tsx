@@ -1,8 +1,11 @@
+import type { CSSProperties } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
-import { eventContextAt, eventNavigationTargets, eventPositionPercent, formatUtcTimestamp, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import type { TimelineWindow } from "../core/timeWindow";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowPeakRateText, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
+import type { StoryPanel } from "./storyPanels";
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -10,15 +13,31 @@ interface Props {
   readonly onTogglePlayback: () => void;
   readonly onRateChange: (rate: number) => void;
   readonly onSeek: (timeUtcMs: number) => void;
+  /** Story panels drawn as markers on the track; pressing one seeks to it and opens it. */
+  readonly panels?: readonly StoryPanel[];
+  readonly openPanelId?: string | null;
+  readonly onPanelOpen?: (panel: StoryPanel) => void;
   /** Seeks to the event; an open event panel follows it. */
   readonly onEventSeek: (event: TimelineEvent) => void;
   /** Opens the event's details without changing time. */
   readonly onEventInfo: (event: TimelineEvent) => void;
+  /** Seeks to a time inside the window; an open window panel follows it. */
+  readonly onWindowSeek: (window: TimelineWindow, timeUtcMs: number) => void;
+  /** Opens the window's details without changing time. */
+  readonly onWindowInfo: (window: TimelineWindow) => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, onEventSeek, onEventInfo }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo }: Props) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
-  const navigation = eventNavigationTargets(experience.events, snapshot.timeUtcMs);
+  const windows = experience.windows ?? [];
+  const navigation = navigationStops(experience.events, windows, snapshot.timeUtcMs);
+  const inside = windowContextAt(windows, snapshot.timeUtcMs);
+  const goToStop = (stop: NavigationStop) => {
+    if (stop.event !== undefined) onEventSeek(stop.event);
+    else if (stop.window !== undefined) onWindowSeek(stop.window, stop.timeUtcMs);
+  };
+  const stopLabel = (direction: "Previous" | "Next", stop: NavigationStop | null) =>
+    windows.length === 0 || stop === null ? `${direction} event` : `${direction}: ${stop.label}`;
   const speeds = mergeSpeeds(DEFAULT_PLAYBACK_SPEEDS, experience.rates);
   const timestamp = formatUtcTimestamp(snapshot.timeUtcMs);
 
@@ -31,17 +50,17 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           </button>
           <button
             type="button"
-            aria-label="Previous event"
+            aria-label={stopLabel("Previous", navigation.previous)}
             disabled={navigation.previous === null}
-            onClick={() => { if (navigation.previous !== null) onEventSeek(navigation.previous); }}
+            onClick={() => { if (navigation.previous !== null) goToStop(navigation.previous); }}
           >
             Previous
           </button>
           <button
             type="button"
-            aria-label="Next event"
+            aria-label={stopLabel("Next", navigation.next)}
             disabled={navigation.next === null}
-            onClick={() => { if (navigation.next !== null) onEventSeek(navigation.next); }}
+            onClick={() => { if (navigation.next !== null) goToStop(navigation.next); }}
           >
             Next
           </button>
@@ -90,9 +109,71 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             </button>
           )}
         <span><strong>Up next:</strong> {context.next?.label ?? "No upcoming event"}</span>
+        {inside.map(({ window, rate }) => (
+          <button
+            key={window.id}
+            type="button"
+            className="timeline-event-current timeline-window-current"
+            aria-label={`Information about ${window.label}`}
+            aria-controls="info-panel"
+            onClick={() => onWindowInfo(window)}
+          >
+            <strong>Inside:</strong> {window.label}
+            {rate !== null && window.rate !== undefined && <> — {formatWindowRate(rate, window.rate.unit)}</>} <span aria-hidden="true">ⓘ</span>
+          </button>
+        ))}
       </div>
 
       <div className="timeline-scrubber">
+        {windows.length > 0 && (
+          <div className="timeline-windows" aria-label="Timeline windows">
+            {windows.map((window) => {
+              const { startPercent, endPercent } = windowPositionPercent(window, experience.window);
+              const area = windowAreaPath(window, experience.window);
+              const curve = windowCurvePath(window, experience.window);
+              const peakHeight = windowPeakHeightPercent(window);
+              const peakRate = windowPeakRateText(window);
+              return (
+                <div key={window.id} className="timeline-window-group">
+                  {/* One plain caption for the whole shape: what it is (the window's own label) and what the curve measures (its rate, from the data). */}
+                  <span className="timeline-window-caption" style={{ left: `${startPercent}%` }}>
+                    <strong>{window.label}</strong>
+                    {peakRate !== null && <span> · peak {peakRate}</span>}
+                  </span>
+                  {area !== null && curve !== null && (
+                    <svg className="timeline-window-curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                      <path className="timeline-window-area" d={area} />
+                      <path className="timeline-window-line" d={curve} vectorEffect="non-scaling-stroke" />
+                    </svg>
+                  )}
+                  <button
+                    type="button"
+                    className="timeline-window"
+                    aria-label={`${window.label}, ${formatUtcTimestamp(window.startUtcMs)} to ${formatUtcTimestamp(window.endUtcMs)}`}
+                    title={`${window.label}${peakRate === null ? "" : ` (the curve is the rate, peak ${peakRate})`}: click to jump to that time and open its details`}
+                    style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }}
+                    onClick={(event) => {
+                      const box = event.currentTarget.getBoundingClientRect();
+                      const fraction = box.width > 0 ? (event.clientX - box.left) / box.width : 0;
+                      onWindowSeek(window, windowTimeAtFraction(window, fraction));
+                      onWindowInfo(window);
+                    }}
+                  />
+                  {window.peakUtcMs !== undefined && (
+                    <button
+                      type="button"
+                      className="timeline-window-peak"
+                      aria-label={`Go to peak of ${window.label}`}
+                      title={`${window.label} peak`}
+                      style={{ left: `${timePositionPercent(window.peakUtcMs, experience.window)}%`, "--peak": peakHeight ?? 100 } as CSSProperties}
+                      onClick={() => { if (window.peakUtcMs !== undefined) onWindowSeek(window, window.peakUtcMs); onWindowInfo(window); }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
         <div className="timeline-track">
           <div className="timeline-markers" aria-label="Timeline event markers">
             {experience.events.map((event) => (
@@ -106,6 +187,21 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 onClick={() => { onEventSeek(event); onEventInfo(event); }}
               >
                 <Label text={event.label} className="timeline-marker-label" />
+              </button>
+            ))}
+            {panels.map((panel) => (
+              <button
+                key={panel.id}
+                className="timeline-marker timeline-panel-marker"
+                type="button"
+                data-panel-id={panel.id}
+                aria-pressed={openPanelId === panel.id}
+                aria-label={`Open story panel: ${panel.title}`}
+                title={panel.title}
+                style={{ left: `${timePositionPercent(panel.timeUtcMs, experience.window)}%` }}
+                onClick={() => onPanelOpen?.(panel)}
+              >
+                <Label text={panel.title} className="timeline-marker-label" />
               </button>
             ))}
           </div>

@@ -1,0 +1,11 @@
+after spike03 exit=0
+after spike02 exit=0
+after showers exit=0
+after synthetic exit=0
+after synthetic-ring exit=0
+after synthetic-belt exit=1
+after anchor-labels exit=0
+after shell exit=0
+before spike03 exit=0
+before synthetic-belt exit=1
+before synthetic exit=0

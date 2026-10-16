@@ -1,0 +1,556 @@
+{
+  "version": 1,
+  "id": "sha256:ef806b7ae985c8d79b2f153945592e900741a163ab8dd58c82e02936e6fade2c",
+  "origin": "official",
+  "retention": "permanent",
+  "created_at": "2026-10-16T19:45:24Z",
+  "repository": {
+    "commit": "94ee99869d2b48d032e6419aeebbdb12d21dc0bb",
+    "dirty": true,
+    "input_fingerprint": "sha256:80b930a0bee1ebd8dfad2878ed80a62793de12a2a2929b050415b3c668317647"
+  },
+  "results": [
+    {
+      "capability": "complexity",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-16T19:45:23Z",
+      "provenance": {
+        "provider": "lizard-csv",
+        "provider_version": "unknown",
+        "measurement_definition": "highest cyclomatic complexity (CCN) of any function"
+      },
+      "config_digest": "sha256:4667400ee5cf4e091afddafa6e024021dcd67f1ce64142baf5e7aa8d3810649d",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 138,
+        "unit": "ccn"
+      },
+      "reason": "Lizard's CSV does not state its version",
+      "details": [
+        {
+          "key": "average_ccn",
+          "number": 1.8801711840228246
+        },
+        {
+          "key": "functions",
+          "number": 3505
+        },
+        {
+          "key": "functions_over_10",
+          "number": 46
+        },
+        {
+          "key": "functions_over_20",
+          "number": 10
+        }
+      ],
+      "evidence": [
+        {
+          "path": "src/app/AstraeusScene.tsx",
+          "line": 169,
+          "note": "LayeredRender has complexity 138"
+        },
+        {
+          "path": "src/app/PathView.ts",
+          "line": 61,
+          "note": "constructor has complexity 18"
+        },
+        {
+          "path": "src/app/PointsView.ts",
+          "line": 168,
+          "note": "#advance has complexity 14"
+        },
+        {
+          "path": "src/app/experienceDefinition.ts",
+          "line": 311,
+          "note": "validatePathSpec has complexity 45"
+        },
+        {
+          "path": "src/assets/catalogue.ts",
+          "line": 42,
+          "note": "createCatalogue has complexity 18"
+        },
+        {
+          "path": "src/assets/sky.ts",
+          "line": 115,
+          "note": "parseSkyManifest has complexity 25"
+        },
+        {
+          "path": "src/core/elementsBody.ts",
+          "line": 118,
+          "note": "parseElementsBodyRecord has complexity 41"
+        },
+        {
+          "path": "src/experiences/showers/measuredOrbits.ts",
+          "line": 120,
+          "note": "parseMeasuredOrbits has complexity 16"
+        },
+        {
+          "path": "src/experiences/showers/showerSettings.ts",
+          "line": 344,
+          "note": "parseShowerSettings has complexity 21"
+        },
+        {
+          "path": "src/main.tsx",
+          "line": 31,
+          "note": "chooseDefinition has complexity 16"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "line": 46,
+          "note": "AstraeusShell has complexity 21"
+        },
+        {
+          "path": "src/shell/TimelineBar.tsx",
+          "line": 30,
+          "note": "TimelineBar has complexity 15"
+        },
+        {
+          "path": "tests/apollo11Reconstruction.test.ts",
+          "line": 165,
+          "note": "sameWithin has complexity 17"
+        },
+        {
+          "path": "tests/showers.test.ts",
+          "line": 293,
+          "note": "(anonymous) has complexity 15"
+        },
+        {
+          "path": "tools/data/fetch-hyg-stars.mjs",
+          "line": 43,
+          "note": "parseHyg has complexity 22"
+        },
+        {
+          "path": "tools/data/fetch-meteoroid-orbits.mjs",
+          "line": 84,
+          "note": "readZipEntries has complexity 15"
+        },
+        {
+          "path": "tools/data/fetch-meteoroid-orbits.mjs",
+          "line": 140,
+          "note": "openEntry has complexity 96"
+        },
+        {
+          "path": "tools/validate/browser-showers.mjs",
+          "line": 367,
+          "note": "checkBodies has complexity 23"
+        },
+        {
+          "path": "tools/validate/browser-sky.mjs",
+          "line": 40,
+          "note": "open has complexity 27"
+        },
+        {
+          "path": "tools/validate/browser-synthetic-belt.mjs",
+          "line": 45,
+          "note": "(anonymous) has complexity 17"
+        }
+      ]
+    },
+    {
+      "capability": "coverage",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-16T19:45:24Z",
+      "provenance": {
+        "provider": "vitest-v8-coverage",
+        "provider_version": "unknown",
+        "measurement_definition": "covered statements as a share of all statements"
+      },
+      "config_digest": "sha256:4fe9e969d32d636c07b00cbbedda1b3494c711f8c4dec8db16cf592e8f79265a",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 77.94973732784325,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "covered_branches",
+          "number": 2834
+        },
+        {
+          "key": "covered_functions",
+          "number": 1119
+        },
+        {
+          "key": "covered_statements",
+          "number": 5490
+        },
+        {
+          "key": "total_branches",
+          "number": 3940
+        },
+        {
+          "key": "total_functions",
+          "number": 1464
+        },
+        {
+          "key": "total_statements",
+          "number": 7043
+        }
+      ],
+      "evidence": [
+        {
+          "path": "src/app/AnchorLabels.ts",
+          "note": "15.4% of 26 statements covered"
+        },
+        {
+          "path": "src/app/App.tsx",
+          "note": "6.9% of 203 statements covered"
+        },
+        {
+          "path": "src/app/AstraeusScene.tsx",
+          "note": "0.3% of 373 statements covered"
+        },
+        {
+          "path": "src/app/AtmosphereGlow.tsx",
+          "note": "33.3% of 6 statements covered"
+        },
+        {
+          "path": "src/app/BodyMesh.tsx",
+          "note": "14.3% of 7 statements covered"
+        },
+        {
+          "path": "src/app/BodyView.tsx",
+          "note": "4.0% of 25 statements covered"
+        },
+        {
+          "path": "src/app/SceneLabels.ts",
+          "note": "0.0% of 44 statements covered"
+        },
+        {
+          "path": "src/app/SettingControls.tsx",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "src/app/StoryMarkers.ts",
+          "note": "3.3% of 30 statements covered"
+        },
+        {
+          "path": "src/app/useBodyTexture.ts",
+          "note": "0.0% of 11 statements covered"
+        },
+        {
+          "path": "src/experiences/apollo11/DebugControls.tsx",
+          "note": "35.0% of 80 statements covered"
+        },
+        {
+          "path": "src/experiences/apollo11/apollo11Definition.tsx",
+          "note": "40.0% of 5 statements covered"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "note": "26.5% of 83 statements covered"
+        },
+        {
+          "path": "src/shell/InfoPanel.tsx",
+          "note": "0.0% of 8 statements covered"
+        },
+        {
+          "path": "src/shell/Label.tsx",
+          "note": "12.5% of 8 statements covered"
+        },
+        {
+          "path": "src/shell/ProvenanceBadge.tsx",
+          "note": "0.0% of 6 statements covered"
+        },
+        {
+          "path": "src/shell/StoryPanelView.tsx",
+          "note": "25.5% of 47 statements covered"
+        },
+        {
+          "path": "src/shell/useStoryPanels.ts",
+          "note": "35.0% of 40 statements covered"
+        },
+        {
+          "path": "tests/helpers/workbook.mjs",
+          "note": "17.6% of 17 statements covered"
+        },
+        {
+          "path": "tools/data/fetch-sky-map.mjs",
+          "note": "28.8% of 52 statements covered"
+        }
+      ]
+    },
+    {
+      "capability": "dependency_vulnerabilities",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-16T19:45:24Z",
+      "provenance": {
+        "provider": "osv-scanner-json",
+        "provider_version": "unknown",
+        "measurement_definition": "vulnerability groups per package, bucketed by CVSS"
+      },
+      "config_digest": "sha256:2cda3da7e8294ce5825bf297cb75d799ba0925aee672f8dac8d3bd78c4684ac4",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 0,
+        "unit": "count"
+      },
+      "reason": "Vulnerability database was queried at collection time; its snapshot is unknown.",
+      "details": [
+        {
+          "key": "critical",
+          "number": 0
+        },
+        {
+          "key": "high",
+          "number": 0
+        },
+        {
+          "key": "low",
+          "number": 0
+        },
+        {
+          "key": "medium",
+          "number": 0
+        },
+        {
+          "key": "unknown",
+          "number": 0
+        }
+      ]
+    },
+    {
+      "capability": "duplication",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-16T19:45:23Z",
+      "provenance": {
+        "provider": "jscpd-json",
+        "provider_version": "unknown",
+        "measurement_definition": "share of lines that are part of a repeated block"
+      },
+      "config_digest": "sha256:1e2002e6e6e834cd96ab0161ea32ab1133e7af1d06eb45480345aaf28380c965",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/testdata/**",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 40.24254499716159,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "clones",
+          "number": 1293
+        },
+        {
+          "key": "duplicated_lines",
+          "number": 72307
+        },
+        {
+          "key": "sources",
+          "number": 1200
+        },
+        {
+          "key": "total_lines",
+          "number": 179678
+        }
+      ],
+      "evidence": [
+        {
+          "path": "data/apollo11/generated/validation.json",
+          "line": 29,
+          "note": "243 lines repeated at docs/evidence/o004-independent-check.json:679"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike02/browser-spike02-results-phone.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/i019-20261016T132151Z/spike02/browser-spike02-results-phone.json…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike02/browser-spike02-results-phone.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/i022-20261016T115528Z/rerun-baseline-HEAD-INVALID-unclear-server…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike02/browser-spike02-results.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/i019-20261016T132151Z/spike02/browser-spike02-results.json:1"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike02/browser-spike02-results.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/i022-20261016T115528Z/rerun-baseline-HEAD-INVALID-unclear-server…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/i019-20261016T132151Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/i022-20261016T115528Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/night-check-20261016T152607Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o011-check-20261016T105315Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o011-i029-20261016T103813Z/after-spike03/browser-results.json:10…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o011-i029-20261016T103813Z/before-spike03/browser-results.json:1…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o011-t058-20261016T093905Z/runs2/rerun/spike03/browser-results.j…"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o015-t059-20261016T105725Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o015-t061-20261016T120743Z/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/objective-check-20261016T190443Z/spike03/browser-results.json:10…"
+        },
+        {
+          "path": "docs/evidence/night-check-20261016T152607Z/spike02/browser-spike02-results-phone.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/objective-check-20261016T190443Z/spike02/browser-spike02-results…"
+        },
+        {
+          "path": "docs/evidence/o004-independent-check.json",
+          "line": 1,
+          "note": "937 lines repeated at docs/evidence/o004-recheck.json:1"
+        },
+        {
+          "path": "docs/evidence/o004-interpolation.json",
+          "line": 1,
+          "note": "520 lines repeated at docs/evidence/o004-recheck-interpolation.json:1"
+        },
+        {
+          "path": "docs/evidence/o014-t049-20261012-210721-first-attempt-sun-direction-bug/logs/browser-precision.json",
+          "line": 1,
+          "note": "2484 lines repeated at docs/evidence/o014-t049-20261012-210721-first-attempt-sun-direction-bug/preci…"
+        },
+        {
+          "path": "docs/evidence/o014-t049-20261012-210721-first-attempt-sun-direction-bug/logs/browser-precision.json",
+          "line": 164,
+          "note": "2318 lines repeated at docs/evidence/o014-t049-20261012-210721-first-attempt-sun-direction-bug/logs/…"
+        }
+      ]
+    },
+    {
+      "capability": "tests",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-16T19:45:22Z",
+      "provenance": {
+        "provider": "vitest-junit",
+        "provider_version": "unknown",
+        "measurement_definition": "failed tests plus errored tests"
+      },
+      "config_digest": "sha256:0aff58554fee731cddc805e5d92799b4aa35067c0a3da27650abfe7b055b66cd",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 0,
+        "unit": "count"
+      },
+      "details": [
+        {
+          "key": "errors",
+          "number": 0
+        },
+        {
+          "key": "skipped_tests",
+          "number": 1
+        },
+        {
+          "key": "total_tests",
+          "number": 907
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "overall": "needs_attention",
+    "capabilities": [
+      {
+        "capability": "complexity",
+        "provider": "lizard-csv",
+        "classification": "needs_attention",
+        "explanation": "Highest complexity 138 is beyond the watch range. Materially worse than recent median 85. Recent range 34 to 138 over 5 official checks, declining."
+      },
+      {
+        "capability": "coverage",
+        "provider": "vitest-v8-coverage",
+        "classification": "needs_attention",
+        "explanation": "Coverage 77.9% is within the watch range. Materially worse than recent median 84.5%. Recent range 77.9% to 84.5% over 5 official checks, declining."
+      },
+      {
+        "capability": "dependency_vulnerabilities",
+        "provider": "osv-scanner-json",
+        "classification": "good",
+        "explanation": "Vulnerabilities 0 meets the good threshold. Unchanged at 0 over 5 official checks."
+      },
+      {
+        "capability": "duplication",
+        "provider": "jscpd-json",
+        "classification": "needs_attention",
+        "explanation": "Duplication 40.2% is beyond the watch range. Materially worse than recent median 29.5%. Recent range 16.5% to 40.2% over 5 official checks, declining."
+      },
+      {
+        "capability": "tests",
+        "provider": "vitest-junit",
+        "classification": "good",
+        "explanation": "Failing tests 0 meets the good threshold. Unchanged at 0 over 5 official checks."
+      }
+    ]
+  }
+}

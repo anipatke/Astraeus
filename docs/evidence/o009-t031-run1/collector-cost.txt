@@ -1,0 +1,1 @@
+frameStats cost: tick 0.010 us/frame, snapshot 0.541 us/read (window 120), Node, tests/frameStats.test.ts

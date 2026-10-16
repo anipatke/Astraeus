@@ -1,0 +1,24 @@
+{
+  "framePacingMs": {
+    "frames": 165,
+    "median": 16.7,
+    "p95": 33.4,
+    "max": 50.1,
+    "over33ms": 10
+  },
+  "counterReadings": {
+    "ring": {
+      "fps": 36.6,
+      "longestMs": 50.1,
+      "over": "2 of 9",
+      "fills": 13
+    },
+    "apollo": {
+      "fps": 2.1,
+      "longestMs": 478.2,
+      "over": "1 of 1",
+      "fills": null
+    }
+  },
+  "errors": []
+}

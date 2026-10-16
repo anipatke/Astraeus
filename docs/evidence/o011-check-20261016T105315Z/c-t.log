@@ -1,0 +1,9 @@
+
+ RUN  v5.0.3 /home/user/code/astraeus-check-8130ff6
+
+
+ Test Files  45 passed (45)
+      Tests  828 passed | 1 skipped (829)
+   Start at  21:52:07
+   Duration  32.66s (tests 68%, transform 16%, import 16%)
+

@@ -1,0 +1,15 @@
+{
+  "url": "http://localhost:5199/",
+  "viewport": "1280x800",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 40,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "screenshots": [
+    "docs/evidence/o014-t044-20261012T073652/gates/anchor-labels/labels-on-overview.png",
+    "docs/evidence/o014-t044-20261012T073652/gates/anchor-labels/labels-on-follow.png"
+  ],
+  "errors": []
+}

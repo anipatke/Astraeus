@@ -1,0 +1,473 @@
+{
+  "version": 1,
+  "id": "sha256:90a01e833dbf8f715629ccbf0322adc472554452e9fca349baf9a039de63c2aa",
+  "origin": "official",
+  "retention": "permanent",
+  "created_at": "2026-10-10T21:02:47Z",
+  "repository": {
+    "commit": "ebc40dfab76c8404a69bdb1cbd28f9a39ecc7a85",
+    "dirty": true,
+    "input_fingerprint": "sha256:f28736ee8b2ed486fdc839d7bee088990842d14d6f140f46ed6419c5c1082e50"
+  },
+  "results": [
+    {
+      "capability": "complexity",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-10T21:02:20Z",
+      "provenance": {
+        "provider": "lizard-csv",
+        "provider_version": "unknown",
+        "measurement_definition": "highest cyclomatic complexity (CCN) of any function"
+      },
+      "config_digest": "sha256:4667400ee5cf4e091afddafa6e024021dcd67f1ce64142baf5e7aa8d3810649d",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 30,
+        "unit": "ccn"
+      },
+      "reason": "Lizard's CSV does not state its version",
+      "details": [
+        {
+          "key": "average_ccn",
+          "number": 1.7189542483660132
+        },
+        {
+          "key": "functions",
+          "number": 1224
+        },
+        {
+          "key": "functions_over_10",
+          "number": 9
+        },
+        {
+          "key": "functions_over_20",
+          "number": 1
+        }
+      ],
+      "evidence": [
+        {
+          "path": "src/app/EarthMoonScene.tsx",
+          "line": 179,
+          "note": "(anonymous) has complexity 30"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "line": 34,
+          "note": "AstraeusShell has complexity 15"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "line": 61,
+          "note": "(anonymous) has complexity 12"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "line": 83,
+          "note": "selectObject has complexity 14"
+        },
+        {
+          "path": "src/shell/MetricVisual.tsx",
+          "line": 171,
+          "note": "Visual has complexity 12"
+        },
+        {
+          "path": "src/shell/metrics.ts",
+          "line": 289,
+          "note": "metricReadings has complexity 14"
+        },
+        {
+          "path": "tests/apollo11Reconstruction.test.ts",
+          "line": 165,
+          "note": "sameWithin has complexity 17"
+        },
+        {
+          "path": "tools/apollo11/report.ts",
+          "line": 55,
+          "note": "renderReport has complexity 12"
+        },
+        {
+          "path": "tools/apollo11/validation.ts",
+          "line": 60,
+          "note": "oneSecondSpeedScan has complexity 13"
+        }
+      ]
+    },
+    {
+      "capability": "coverage",
+      "outcome": "available",
+      "freshness": "stale",
+      "collected_at": "2026-10-10T21:02:47Z",
+      "provenance": {
+        "provider": "vitest-v8-coverage",
+        "provider_version": "unknown",
+        "measurement_definition": "covered statements as a share of all statements"
+      },
+      "config_digest": "sha256:4fe9e969d32d636c07b00cbbedda1b3494c711f8c4dec8db16cf592e8f79265a",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 84.52593917710196,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "covered_branches",
+          "number": 813
+        },
+        {
+          "key": "covered_functions",
+          "number": 461
+        },
+        {
+          "key": "covered_statements",
+          "number": 1890
+        },
+        {
+          "key": "total_branches",
+          "number": 1092
+        },
+        {
+          "key": "total_functions",
+          "number": 553
+        },
+        {
+          "key": "total_statements",
+          "number": 2236
+        }
+      ],
+      "evidence": [
+        {
+          "path": "src/app/AnchorLabels.ts",
+          "note": "15.4% of 26 statements covered"
+        },
+        {
+          "path": "src/app/CameraController.tsx",
+          "note": "41.1% of 90 statements covered"
+        },
+        {
+          "path": "src/app/DebugControls.tsx",
+          "note": "35.0% of 80 statements covered"
+        },
+        {
+          "path": "src/app/DebugOverlay.tsx",
+          "note": "55.6% of 18 statements covered"
+        },
+        {
+          "path": "src/app/MissionPanel.tsx",
+          "note": "44.8% of 29 statements covered"
+        },
+        {
+          "path": "src/core/astronomyAdapter.ts",
+          "note": "82.1% of 28 statements covered"
+        },
+        {
+          "path": "src/core/bodyOrientation.ts",
+          "note": "77.3% of 66 statements covered"
+        },
+        {
+          "path": "src/core/illumination.ts",
+          "note": "81.5% of 27 statements covered"
+        },
+        {
+          "path": "src/core/provenance.ts",
+          "note": "85.7% of 7 statements covered"
+        },
+        {
+          "path": "src/mission/apollo11Definition.tsx",
+          "note": "40.0% of 5 statements covered"
+        },
+        {
+          "path": "src/shell/AstraeusShell.tsx",
+          "note": "19.4% of 62 statements covered"
+        },
+        {
+          "path": "src/shell/InfoPanel.tsx",
+          "note": "0.0% of 7 statements covered"
+        },
+        {
+          "path": "src/shell/Label.tsx",
+          "note": "12.5% of 8 statements covered"
+        },
+        {
+          "path": "src/shell/ObjectControls.tsx",
+          "note": "72.7% of 22 statements covered"
+        },
+        {
+          "path": "src/shell/ProvenanceBadge.tsx",
+          "note": "0.0% of 6 statements covered"
+        },
+        {
+          "path": "src/shell/ScaleControl.tsx",
+          "note": "71.4% of 7 statements covered"
+        },
+        {
+          "path": "src/shell/TimelineBar.tsx",
+          "note": "40.0% of 20 statements covered"
+        },
+        {
+          "path": "tools/apollo11/burn.ts",
+          "note": "80.0% of 20 statements covered"
+        },
+        {
+          "path": "tools/apollo11/ephemeris.ts",
+          "note": "66.7% of 12 statements covered"
+        },
+        {
+          "path": "tools/apollo11/trajectory.ts",
+          "note": "88.5% of 52 statements covered"
+        }
+      ]
+    },
+    {
+      "capability": "dependency_vulnerabilities",
+      "outcome": "failed",
+      "freshness": "unknown",
+      "collected_at": "2026-10-10T21:02:47Z",
+      "provenance": {
+        "provider": "osv-scanner-json"
+      },
+      "config_digest": "sha256:2cda3da7e8294ce5825bf297cb75d799ba0925aee672f8dac8d3bd78c4684ac4",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "reason": "osv-scanner exited with status 127: …lookup api.osv.dev on 10.255.255.254:53: dial udp 10.255.255.254:53: socket: operation not permitted"
+    },
+    {
+      "capability": "duplication",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-10T21:02:21Z",
+      "provenance": {
+        "provider": "jscpd-json",
+        "provider_version": "unknown",
+        "measurement_definition": "share of lines that are part of a repeated block"
+      },
+      "config_digest": "sha256:1e2002e6e6e834cd96ab0161ea32ab1133e7af1d06eb45480345aaf28380c965",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/testdata/**",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 10.852759995168498,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "clones",
+          "number": 49
+        },
+        {
+          "key": "duplicated_lines",
+          "number": 3594
+        },
+        {
+          "key": "sources",
+          "number": 171
+        },
+        {
+          "key": "total_lines",
+          "number": 33116
+        }
+      ],
+      "evidence": [
+        {
+          "path": "data/apollo11/generated/validation.json",
+          "line": 29,
+          "note": "243 lines repeated at docs/evidence/o004-independent-check.json:679"
+        },
+        {
+          "path": "docs/evidence/anchor-consistency.json",
+          "line": 4,
+          "note": "19 lines repeated at docs/evidence/anchor-consistency.json:265"
+        },
+        {
+          "path": "docs/evidence/conversion-proof.json",
+          "line": 121,
+          "note": "26 lines repeated at docs/evidence/conversion-proof.json:322"
+        },
+        {
+          "path": "docs/evidence/o004-check.mjs",
+          "line": 1,
+          "note": "54 lines repeated at docs/evidence/o004-recheck.mjs:1"
+        },
+        {
+          "path": "docs/evidence/o004-independent-check.json",
+          "line": 1,
+          "note": "937 lines repeated at docs/evidence/o004-recheck.json:1"
+        },
+        {
+          "path": "docs/evidence/o004-interpolation.json",
+          "line": 1,
+          "note": "520 lines repeated at docs/evidence/o004-recheck-interpolation.json:1"
+        },
+        {
+          "path": "docs/evidence/o004-interpolation.mjs",
+          "line": 1,
+          "note": "31 lines repeated at docs/evidence/o004-recheck-interpolation.mjs:1"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/o008-t025-run1/spike02/browser-spike02-results.json:1"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 1,
+          "note": "211 lines repeated at docs/evidence/o008-t026-run1/spike02/browser-spike02-results.json:1"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 2,
+          "note": "210 lines repeated at docs/evidence/regression-spike01-02/browser-spike02-results.json:2"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 4,
+          "note": "26 lines repeated at docs/evidence/spike02-browser.json:142"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 245,
+          "note": "26 lines repeated at docs/evidence/o008-t025-run1/spike02/browser-spike02-results.json:245"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 245,
+          "note": "26 lines repeated at docs/evidence/o008-t026-run1/spike02/browser-spike02-results.json:245"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike02/browser-spike02-results.json",
+          "line": 245,
+          "note": "26 lines repeated at docs/evidence/regression-spike01-02/browser-spike02-results.json:245"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o008-t025-run1/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike03/browser-results.json",
+          "line": 102,
+          "note": "223 lines repeated at docs/evidence/o008-t026-run1/spike03/browser-results.json:102"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike03/browser-results.json",
+          "line": 106,
+          "note": "147 lines repeated at docs/evidence/spike03/browser-results.json:90"
+        },
+        {
+          "path": "docs/evidence/o008-i015-run1/spike03/browser-results.json",
+          "line": 142,
+          "note": "49 lines repeated at docs/evidence/o008-i015-run1/spike03/browser-results.json:204"
+        },
+        {
+          "path": "tests/fixtures/moon-horizons-source.txt",
+          "line": 9,
+          "note": "25 lines repeated at tests/fixtures/sun-horizons-source.txt:9"
+        },
+        {
+          "path": "tests/fixtures/moon-horizons-source.txt",
+          "line": 48,
+          "note": "75 lines repeated at tests/fixtures/sun-horizons-source.txt:48"
+        }
+      ]
+    },
+    {
+      "capability": "tests",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-10T21:02:20Z",
+      "provenance": {
+        "provider": "vitest-junit",
+        "provider_version": "unknown",
+        "measurement_definition": "failed tests plus errored tests"
+      },
+      "config_digest": "sha256:0aff58554fee731cddc805e5d92799b4aa35067c0a3da27650abfe7b055b66cd",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 0,
+        "unit": "count"
+      },
+      "details": [
+        {
+          "key": "errors",
+          "number": 0
+        },
+        {
+          "key": "skipped_tests",
+          "number": 0
+        },
+        {
+          "key": "total_tests",
+          "number": 188
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "overall": "needs_attention",
+    "capabilities": [
+      {
+        "capability": "complexity",
+        "provider": "lizard-csv",
+        "classification": "needs_attention",
+        "explanation": "Highest complexity 30 is beyond the watch range. Not enough comparable official history for a recent range yet."
+      },
+      {
+        "capability": "coverage",
+        "provider": "vitest-v8-coverage",
+        "classification": "watch",
+        "explanation": "Coverage 84.5% meets the good threshold. The evidence is stale; re-measure before relying on it. Not enough comparable official history for a recent range yet."
+      },
+      {
+        "capability": "dependency_vulnerabilities",
+        "provider": "osv-scanner-json",
+        "classification": "unknown",
+        "explanation": "Collection failed, so health is unknown."
+      },
+      {
+        "capability": "duplication",
+        "provider": "jscpd-json",
+        "classification": "needs_attention",
+        "explanation": "Duplication 10.9% is beyond the watch range. Not enough comparable official history for a recent range yet."
+      },
+      {
+        "capability": "tests",
+        "provider": "vitest-junit",
+        "classification": "watch",
+        "explanation": "Failing tests 0 meets the good threshold. Not enough comparable official history for a recent range yet. Good needs three comparable official checks."
+      }
+    ]
+  }
+}

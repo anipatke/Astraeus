@@ -1,0 +1,14 @@
+before(3e881cf) capture exit=0
+after(final code) capture exit=0
+before-rerun(3e881cf noise baseline) capture exit=0
+gate spike03 exit=0
+gate spike02 exit=0
+gate showers exit=0
+gate synthetic exit=0
+gate synthetic-ring exit=0
+gate synthetic-belt exit=1
+gate shell exit=0
+gate anchor-labels exit=0
+HEAD belt script vs :5198 exit=1: AssertionError [ERR_ASSERTION]: desktop/True: Earth's path is drawn (16)
+HEAD belt script vs :5199 exit=1: AssertionError [ERR_ASSERTION]: desktop/True: Earth's path is drawn (16)
+current belt script with I-020 thresholds lowered to 5 (supplementary) exit=0

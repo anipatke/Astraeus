@@ -1,10 +1,14 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { ScaleControl } from "../src/shell/ScaleControl";
+import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor } from "../src/shell/scaleModel";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { EARTH, MOON } from "../src/core/body";
 import { SimulationClock } from "../src/core/clock";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
-import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
 import {
   clampToWindow,
   formatUtcInput,
@@ -13,10 +17,11 @@ import {
   seekClock,
   setPlaying,
   SPEEDS,
-} from "../src/app/DebugControls";
+} from "../src/experiences/apollo11/DebugControls";
 import { buildDebugReadout, overlayRows, type DebugReadout } from "../src/app/DebugOverlay";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { pathNeedsRefresh, sampleOrbitPath } from "../src/app/orbitPath";
+import { pathNeedsRefresh } from "../src/app/pathRules";
+import { SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { bodyAbsolutes } from "../src/app/sceneLayout";
 
 const adapter = createOrbAstronomyAdapter();
@@ -207,15 +212,47 @@ describe("debug readout", () => {
 
 describe("path refresh after seeking", () => {
   it("rebuilds the path when a seek leaves the sampled window and not for tiny moves", () => {
-    const samples = sampleOrbitPath(trajectory, T);
-    expect(pathNeedsRefresh(samples, T + 1000, 0, 0)).toBe(false);
-    expect(pathNeedsRefresh(samples, T - 20 * 86_400_000, 0, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 20 * 86_400_000, 0, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 1000, 0, 0)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T - 20 * 86_400_000, 0, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 20 * 86_400_000, 0, 0)).toBe(true);
   });
 
   it("a scrub within the sampled window rebuilds once drift exceeds the threshold", () => {
-    const samples = sampleOrbitPath(trajectory, T);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 1000, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 100, 0)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 1000, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 100, 0)).toBe(false);
+  });
+});
+
+describe("scale choices", () => {
+  const render = (ids: readonly string[] | undefined, scaleId: string) => renderToStaticMarkup(createElement(ScaleControl, {
+    scaleId, onScaleChange: () => undefined, choices: ids === undefined ? undefined : scaleChoicesFor(ids),
+  }));
+
+  it("yields today's two choices and wording for the two existing ids", () => {
+    expect(scaleChoicesFor(["true-scale", "readable-scale"])).toEqual(SCALE_CHOICES);
+  });
+
+  it("adds a third choice with its explanation, and rejects an unknown id", () => {
+    const three = scaleChoicesFor(["true-scale", "readable-scale", "solar-system"]);
+    expect(three.map((choice) => choice.label)).toEqual(["True", "Readable", "Solar system"]);
+    expect(three[2].explanation).toMatch(/Distances are true/);
+    expect(() => scaleChoicesFor(["nope"])).toThrow(RangeError);
+  });
+
+  it("renders N buttons with pressed state and the default pair when none is supplied", () => {
+    const three = render(["true-scale", "readable-scale", "solar-system"], "solar-system");
+    expect(three.match(/data-scale="/g)).toHaveLength(3);
+    expect(three).toContain('aria-pressed="true" data-scale="solar-system"');
+    expect(three).toContain("What do True, Readable and Solar system scale mean?");
+    const two = render(undefined, "true-scale");
+    expect(two.match(/data-scale="/g)).toHaveLength(2);
+    expect(two).toContain("What do True and Readable scale mean?");
+  });
+
+  it("selects a supplied policy by id and otherwise keeps the existing mapping", () => {
+    const solar = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 3 });
+    expect(scalePolicyFor("solar-system", [solar])).toBe(solar);
+    expect(scalePolicyFor("readable-scale", [solar])).toBe(readableScale);
+    expect(scalePolicyFor("true-scale")).toBe(trueScale);
   });
 });

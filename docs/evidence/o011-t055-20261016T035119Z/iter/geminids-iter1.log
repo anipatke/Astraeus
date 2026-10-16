@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: jupiter draws as a marker at true scale
+    at checkBodies (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:395:77)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:904:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:919:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

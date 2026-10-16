@@ -1,0 +1,47 @@
+{
+  "results": {
+    "desktop": {
+      "overviewLit": 38069,
+      "ioLabel": {
+        "t0": [
+          791,
+          464
+        ],
+        "sixHours": [
+          549,
+          398
+        ]
+      },
+      "lit": {
+        "overview": 38026,
+        "focus-jupiter": 38027,
+        "focus-io": 64083,
+        "follow-io": 64661
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations The largest planet, flattened by its fast spin. Io circles it once in about 42 hours. Distance to Io 420,693 km centre to centre · EQJ",
+      "ioDetail": "Known limitations Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration. Largest sampled difference from Horizons is about 9,388 km, 2.6 Io diameters; the position is an approximate demonstration, not an ephemeris. It is nearest right at the J2000 epoch (about 0.8 thousand km) and grows with distance from it. Io moves on one unperturbed ellipse: the precession of its periapsis and the resonance with Europa and Ganymede are not modelled, only the mean longitude is kept right by using the sidereal period. The source table says its mean elements ar"
+    },
+    "phone": {
+      "overviewLit": 23544,
+      "ioLabel": {
+        "t0": [
+          353,
+          490
+        ],
+        "sixHours": [
+          97,
+          420
+        ]
+      },
+      "lit": {
+        "overview": 23470,
+        "focus-jupiter": 23574,
+        "focus-io": 37796,
+        "follow-io": 35671
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations The largest planet, flattened by its fast spin. Io circles it once in about 42 hours. Distance to Io 420,693 km centre to centre · EQJ",
+      "ioDetail": "Known limitations Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration. Largest sampled difference from Horizons is about 9,388 km, 2.6 Io diameters; the position is an approximate demonstration, not an ephemeris. It is nearest right at the J2000 epoch (about 0.8 thousand km) and grows with distance from it. Io moves on one unperturbed ellipse: the precession of its periapsis and the resonance with Europa and Ganymede are not modelled, only the mean longitude is kept right by using the sidereal period. The source table says its mean elements ar"
+    }
+  },
+  "errors": []
+}

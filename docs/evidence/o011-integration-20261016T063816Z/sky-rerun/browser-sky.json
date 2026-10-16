@@ -1,0 +1,124 @@
+{
+  "starsFetched": true,
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 34.7,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 12258,
+          "lit": 582051,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 10950,
+          "lit": 243059,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 11655,
+          "lit": 247852,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 21.7,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 27.8,
+      "probeChecks": 4
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 60,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 6624,
+          "lit": 185154,
+          "total": 329160
+        },
+        "off": {
+          "bright": 6359,
+          "lit": 145684,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 6621,
+          "lit": 146409,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 37.6,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 57.1,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "earth-moon-desktop": {
+      "fpsWithoutSky": 34.6,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 9020,
+          "lit": 568633,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 7990,
+          "lit": 213797,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 8568,
+          "lit": 218695,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 17.3,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 27.2,
+      "probeChecks": 5
+    },
+    "earth-moon-mobile": {
+      "fpsWithoutSky": 59.3,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 5116,
+          "lit": 170442,
+          "total": 329160
+        },
+        "off": {
+          "bright": 4989,
+          "lit": 129289,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 5086,
+          "lit": 130040,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 29.6,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this mach",
+      "fpsWithSky": 49.6,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "perseids-desktop": {
+      "fpsWithoutSky": 26.7,
+      "stars": 8404,
+      "pixels": {
+        "on": {
+          "bright": 605448,
+          "lit": 1024000,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 605335,
+          "lit": 1024000,
+          "total": 1024000
+        }
+      }
+    }
+  },
+  "errors": []
+}

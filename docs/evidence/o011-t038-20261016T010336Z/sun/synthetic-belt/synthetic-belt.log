@@ -1,0 +1,157 @@
+{
+  "lit": {
+    "True-focus": 97627,
+    "True-zoomed-out": 59398,
+    "Readable-focus": 97596,
+    "Readable-zoomed-out": 35793
+  },
+  "sunCentred": {
+    "desktop-True": {
+      "sun": 1179,
+      "earthPath": 85,
+      "farPath": 823,
+      "belt": 20149
+    },
+    "desktop-Readable": {
+      "sun": 1197,
+      "earthPath": 83,
+      "farPath": 883,
+      "belt": 19958
+    },
+    "phone-True": {
+      "sun": 1068,
+      "earthPath": 84,
+      "farPath": 664,
+      "belt": 20783
+    },
+    "phone-Readable": {
+      "sun": 1100,
+      "earthPath": 74,
+      "farPath": 385,
+      "belt": 18952
+    }
+  },
+  "compositionCounts": {
+    "desktop-composition-True-start-sun": {
+      "sun": 110,
+      "path": 0,
+      "lit": 289
+    },
+    "desktop-composition-True-start-earth-near": {
+      "sun": 0,
+      "path": 108,
+      "lit": 289
+    },
+    "desktop-composition-True-start-earth-far": {
+      "sun": 0,
+      "path": 23,
+      "lit": 38
+    },
+    "desktop-composition-True-twelve hours on-sun": {
+      "sun": 128,
+      "path": 0,
+      "lit": 289
+    },
+    "desktop-composition-True-twelve hours on-earth-near": {
+      "sun": 0,
+      "path": 26,
+      "lit": 289
+    },
+    "desktop-composition-True-twelve hours on-earth-far": {
+      "sun": 0,
+      "path": 20,
+      "lit": 53
+    },
+    "desktop-composition-Readable-start-sun": {
+      "sun": 143,
+      "path": 0,
+      "lit": 289
+    },
+    "desktop-composition-Readable-start-earth-near": {
+      "sun": 0,
+      "path": 119,
+      "lit": 289
+    },
+    "desktop-composition-Readable-start-earth-far": {
+      "sun": 0,
+      "path": 23,
+      "lit": 44
+    },
+    "desktop-composition-Readable-twelve hours on-sun": {
+      "sun": 128,
+      "path": 0,
+      "lit": 289
+    },
+    "desktop-composition-Readable-twelve hours on-earth-near": {
+      "sun": 0,
+      "path": 28,
+      "lit": 289
+    },
+    "desktop-composition-Readable-twelve hours on-earth-far": {
+      "sun": 0,
+      "path": 20,
+      "lit": 52
+    },
+    "phone-composition-True-start-sun": {
+      "sun": 110,
+      "path": 0,
+      "lit": 289
+    },
+    "phone-composition-True-start-earth-near": {
+      "sun": 0,
+      "path": 109,
+      "lit": 289
+    },
+    "phone-composition-True-start-earth-far": {
+      "sun": 0,
+      "path": 22,
+      "lit": 43
+    },
+    "phone-composition-True-twelve hours on-sun": {
+      "sun": 120,
+      "path": 0,
+      "lit": 289
+    },
+    "phone-composition-True-twelve hours on-earth-near": {
+      "sun": 0,
+      "path": 27,
+      "lit": 289
+    },
+    "phone-composition-True-twelve hours on-earth-far": {
+      "sun": 0,
+      "path": 19,
+      "lit": 55
+    },
+    "phone-composition-Readable-start-sun": {
+      "sun": 131,
+      "path": 0,
+      "lit": 289
+    },
+    "phone-composition-Readable-start-earth-near": {
+      "sun": 0,
+      "path": 122,
+      "lit": 289
+    },
+    "phone-composition-Readable-start-earth-far": {
+      "sun": 0,
+      "path": 22,
+      "lit": 46
+    },
+    "phone-composition-Readable-twelve hours on-sun": {
+      "sun": 120,
+      "path": 0,
+      "lit": 289
+    },
+    "phone-composition-Readable-twelve hours on-earth-near": {
+      "sun": 0,
+      "path": 28,
+      "lit": 289
+    },
+    "phone-composition-Readable-twelve hours on-earth-far": {
+      "sun": 0,
+      "path": 19,
+      "lit": 55
+    }
+  },
+  "errors": []
+}

@@ -4,8 +4,9 @@
 import { PerspectiveCamera } from "three";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
+import { EQUATORIAL_UP, orbitBasis } from "./viewUp";
 
-/** "earth", "moon", or the id of any tracked trajectory body. */
+/** The id of a catalogued body, or of any tracked trajectory body, group or path. */
 export type FocusId = string;
 
 /** Focus re-frames the target; follow keeps the current framing; overview frames Earth and Moon. */
@@ -29,7 +30,7 @@ export interface OrbitCameraState {
   targetAbsolute: [number, number, number];
 }
 
-export function createOrbitCameraState(distance: number): OrbitCameraState {
+export function createOrbitCameraState(distance: number, focus: FocusId): OrbitCameraState {
   return {
     azimuth: Math.PI * 1.2,
     targetAzimuth: Math.PI * 1.2,
@@ -37,7 +38,7 @@ export function createOrbitCameraState(distance: number): OrbitCameraState {
     targetElevation: 0.25,
     distance,
     targetDistance: distance,
-    focus: "earth",
+    focus,
     transition: [0, 0, 0],
     cameraAbsolute: [0, 0, 0],
     targetAbsolute: [0, 0, 0],
@@ -154,6 +155,7 @@ export function resolveCamera(
   origin: FloatingOrigin,
   deltaSeconds: number,
   rebaseThreshold: number,
+  up: RenderVector = EQUATORIAL_UP,
 ): void {
   const decay = Math.exp(-TRANSITION_RATE_PER_S * deltaSeconds);
   const blend = 1 - decay;
@@ -167,11 +169,9 @@ export function resolveCamera(
     state.targetAbsolute[i] = focusAbsolute[i] + state.transition[i];
   }
   const cosEl = Math.cos(state.elevation);
-  const offset: RenderVector = [
-    state.distance * cosEl * Math.sin(state.azimuth),
-    state.distance * Math.sin(state.elevation),
-    state.distance * cosEl * Math.cos(state.azimuth),
-  ];
+  const { east, south } = orbitBasis(up);
+  const [sa, ca, se] = [Math.sin(state.azimuth), Math.cos(state.azimuth), Math.sin(state.elevation)];
+  const offset = [0, 1, 2].map((k) => state.distance * (cosEl * (sa * east[k] + ca * south[k]) + se * up[k])) as RenderVector;
   for (let i = 0; i < 3; i += 1) state.cameraAbsolute[i] = state.targetAbsolute[i] + offset[i];
   origin.rebaseIfFar(state.targetAbsolute, rebaseThreshold);
 }
@@ -186,12 +186,15 @@ export function poseCamera(
   state: OrbitCameraState,
   focusRadius: number,
   origin: FloatingOrigin,
+  far = 5_000,
+  up: RenderVector = EQUATORIAL_UP,
 ): void {
   const [cx, cy, cz] = origin.toLocal(state.cameraAbsolute);
   const [tx, ty, tz] = origin.toLocal(state.targetAbsolute);
   camera.position.set(cx, cy, cz);
+  camera.up.set(up[0], up[1], up[2]);
   camera.lookAt(tx, ty, tz);
   camera.near = Math.max(1e-3, 0.1 * (state.distance - focusRadius));
-  camera.far = 5_000;
+  camera.far = far;
   camera.updateProjectionMatrix();
 }

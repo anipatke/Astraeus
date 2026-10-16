@@ -1,0 +1,17 @@
+node:internal/bootstrap/switches/does_own_process_state:142
+    cachedCwd = rawMethods.cwd();
+                           ^
+
+Error: ENOENT: process.cwd failed with error no such file or directory, the current working directory was likely removed without changing the working directory, uv_cwd
+    at process.wrappedCwd [as cwd] (node:internal/bootstrap/switches/does_own_process_state:142:28)
+    at node:path:1236:24
+    at Object.resolve (node:path:1270:19)
+    at resolveMainPath (node:internal/modules/run_main:35:36)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:146:20)
+    at node:internal/main/run_main_module:33:47 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'uv_cwd'
+}
+
+Node.js v24.16.0

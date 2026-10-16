@@ -1,0 +1,1449 @@
+{
+  "dirA": "docs/evidence/o014-t047-20261012-1943/compare-before",
+  "dirB": "docs/evidence/o014-t047-20261012-1943/compare-after",
+  "files": 160,
+  "identical": 18,
+  "maxOver16Pct": 0.1622,
+  "rows": [
+    {
+      "name": "apollo-desktop-readable-earth-focus-scene.png",
+      "pixels": 1024000,
+      "differing": 3,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "apollo-desktop-readable-earth-focus.png",
+      "pixels": 1024000,
+      "differing": 12,
+      "differingPct": 0.0012,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 6
+    },
+    {
+      "name": "apollo-desktop-readable-earth-orbit-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 111,
+      "differingPct": 0.0108,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 24
+    },
+    {
+      "name": "apollo-desktop-readable-earth-orbit-follow.png",
+      "pixels": 1024000,
+      "differing": 86,
+      "differingPct": 0.0084,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 19
+    },
+    {
+      "name": "apollo-desktop-readable-earth-orbit-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 38,
+      "differingPct": 0.0037,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 14
+    },
+    {
+      "name": "apollo-desktop-readable-earth-orbit-overview.png",
+      "pixels": 1024000,
+      "differing": 15,
+      "differingPct": 0.0015,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 10
+    },
+    {
+      "name": "apollo-desktop-readable-entry-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 19,
+      "differingPct": 0.0019,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 12
+    },
+    {
+      "name": "apollo-desktop-readable-entry-follow.png",
+      "pixels": 1024000,
+      "differing": 3,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 12
+    },
+    {
+      "name": "apollo-desktop-readable-entry-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 55,
+      "differingPct": 0.0054,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 22
+    },
+    {
+      "name": "apollo-desktop-readable-entry-overview.png",
+      "pixels": 1024000,
+      "differing": 55,
+      "differingPct": 0.0054,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 13
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-orbit-columbia-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 287,
+      "differingPct": 0.028,
+      "over16": 36,
+      "over16Pct": 0.0035,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-orbit-columbia-follow.png",
+      "pixels": 1024000,
+      "differing": 388,
+      "differingPct": 0.0379,
+      "over16": 58,
+      "over16Pct": 0.0057,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-orbit-columbia-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 116,
+      "differingPct": 0.0113,
+      "over16": 23,
+      "over16Pct": 0.0022,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-orbit-columbia-overview.png",
+      "pixels": 1024000,
+      "differing": 136,
+      "differingPct": 0.0133,
+      "over16": 23,
+      "over16Pct": 0.0022,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-surface-eagle-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 345,
+      "differingPct": 0.0337,
+      "over16": 57,
+      "over16Pct": 0.0056,
+      "maxDelta": 67
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-surface-eagle-follow.png",
+      "pixels": 1024000,
+      "differing": 493,
+      "differingPct": 0.0481,
+      "over16": 57,
+      "over16Pct": 0.0056,
+      "maxDelta": 66
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-surface-eagle-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 70,
+      "differingPct": 0.0068,
+      "over16": 18,
+      "over16Pct": 0.0018,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-lunar-surface-eagle-overview.png",
+      "pixels": 1024000,
+      "differing": 79,
+      "differingPct": 0.0077,
+      "over16": 22,
+      "over16Pct": 0.0021,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-moon-focus-scene.png",
+      "pixels": 1024000,
+      "differing": 4162,
+      "differingPct": 0.4064,
+      "over16": 88,
+      "over16Pct": 0.0086,
+      "maxDelta": 107
+    },
+    {
+      "name": "apollo-desktop-readable-moon-focus.png",
+      "pixels": 1024000,
+      "differing": 13160,
+      "differingPct": 1.2852,
+      "over16": 248,
+      "over16Pct": 0.0242,
+      "maxDelta": 107
+    },
+    {
+      "name": "apollo-desktop-readable-return-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 210,
+      "differingPct": 0.0205,
+      "over16": 5,
+      "over16Pct": 0.0005,
+      "maxDelta": 102
+    },
+    {
+      "name": "apollo-desktop-readable-return-follow.png",
+      "pixels": 1024000,
+      "differing": 217,
+      "differingPct": 0.0212,
+      "over16": 33,
+      "over16Pct": 0.0032,
+      "maxDelta": 110
+    },
+    {
+      "name": "apollo-desktop-readable-return-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 110,
+      "differingPct": 0.0107,
+      "over16": 18,
+      "over16Pct": 0.0018,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-return-overview.png",
+      "pixels": 1024000,
+      "differing": 111,
+      "differingPct": 0.0108,
+      "over16": 18,
+      "over16Pct": 0.0018,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-readable-translunar-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 176,
+      "differingPct": 0.0172,
+      "over16": 36,
+      "over16Pct": 0.0035,
+      "maxDelta": 66
+    },
+    {
+      "name": "apollo-desktop-readable-translunar-follow.png",
+      "pixels": 1024000,
+      "differing": 377,
+      "differingPct": 0.0368,
+      "over16": 56,
+      "over16Pct": 0.0055,
+      "maxDelta": 57
+    },
+    {
+      "name": "apollo-desktop-readable-translunar-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 101,
+      "differingPct": 0.0099,
+      "over16": 5,
+      "over16Pct": 0.0005,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-desktop-readable-translunar-overview.png",
+      "pixels": 1024000,
+      "differing": 59,
+      "differingPct": 0.0058,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 26
+    },
+    {
+      "name": "apollo-desktop-true-earth-focus-scene.png",
+      "pixels": 1024000,
+      "differing": 23,
+      "differingPct": 0.0022,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 17
+    },
+    {
+      "name": "apollo-desktop-true-earth-focus.png",
+      "pixels": 1024000,
+      "differing": 24,
+      "differingPct": 0.0023,
+      "over16": 2,
+      "over16Pct": 0.0002,
+      "maxDelta": 28
+    },
+    {
+      "name": "apollo-desktop-true-earth-orbit-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 206,
+      "differingPct": 0.0201,
+      "over16": 155,
+      "over16Pct": 0.0151,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-desktop-true-earth-orbit-follow.png",
+      "pixels": 1024000,
+      "differing": 206,
+      "differingPct": 0.0201,
+      "over16": 155,
+      "over16Pct": 0.0151,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-desktop-true-earth-orbit-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 181,
+      "differingPct": 0.0177,
+      "over16": 144,
+      "over16Pct": 0.0141,
+      "maxDelta": 102
+    },
+    {
+      "name": "apollo-desktop-true-earth-orbit-overview.png",
+      "pixels": 1024000,
+      "differing": 223,
+      "differingPct": 0.0218,
+      "over16": 171,
+      "over16Pct": 0.0167,
+      "maxDelta": 94
+    },
+    {
+      "name": "apollo-desktop-true-entry-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 84,
+      "differingPct": 0.0082,
+      "over16": 3,
+      "over16Pct": 0.0003,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-desktop-true-entry-follow.png",
+      "pixels": 1024000,
+      "differing": 82,
+      "differingPct": 0.008,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-desktop-true-entry-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 139,
+      "differingPct": 0.0136,
+      "over16": 18,
+      "over16Pct": 0.0018,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-true-entry-overview.png",
+      "pixels": 1024000,
+      "differing": 137,
+      "differingPct": 0.0134,
+      "over16": 18,
+      "over16Pct": 0.0018,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-desktop-true-lunar-orbit-columbia-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 47,
+      "differingPct": 0.0046,
+      "over16": 5,
+      "over16Pct": 0.0005,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-desktop-true-lunar-orbit-columbia-follow.png",
+      "pixels": 1024000,
+      "differing": 39,
+      "differingPct": 0.0038,
+      "over16": 3,
+      "over16Pct": 0.0003,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-desktop-true-lunar-orbit-columbia-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 25,
+      "differingPct": 0.0024,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 2
+    },
+    {
+      "name": "apollo-desktop-true-lunar-orbit-columbia-overview.png",
+      "pixels": 1024000,
+      "differing": 33,
+      "differingPct": 0.0032,
+      "over16": 2,
+      "over16Pct": 0.0002,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-desktop-true-lunar-surface-eagle-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 108,
+      "differingPct": 0.0105,
+      "over16": 19,
+      "over16Pct": 0.0019,
+      "maxDelta": 91
+    },
+    {
+      "name": "apollo-desktop-true-lunar-surface-eagle-follow.png",
+      "pixels": 1024000,
+      "differing": 163,
+      "differingPct": 0.0159,
+      "over16": 35,
+      "over16Pct": 0.0034,
+      "maxDelta": 145
+    },
+    {
+      "name": "apollo-desktop-true-lunar-surface-eagle-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 152,
+      "differingPct": 0.0148,
+      "over16": 50,
+      "over16Pct": 0.0049,
+      "maxDelta": 96
+    },
+    {
+      "name": "apollo-desktop-true-lunar-surface-eagle-overview.png",
+      "pixels": 1024000,
+      "differing": 180,
+      "differingPct": 0.0176,
+      "over16": 38,
+      "over16Pct": 0.0037,
+      "maxDelta": 58
+    },
+    {
+      "name": "apollo-desktop-true-moon-focus-scene.png",
+      "pixels": 1024000,
+      "differing": 16546,
+      "differingPct": 1.6158,
+      "over16": 476,
+      "over16Pct": 0.0465,
+      "maxDelta": 110
+    },
+    {
+      "name": "apollo-desktop-true-moon-focus.png",
+      "pixels": 1024000,
+      "differing": 38923,
+      "differingPct": 3.8011,
+      "over16": 694,
+      "over16Pct": 0.0678,
+      "maxDelta": 111
+    },
+    {
+      "name": "apollo-desktop-true-return-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 156,
+      "differingPct": 0.0152,
+      "over16": 7,
+      "over16Pct": 0.0007,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-desktop-true-return-follow.png",
+      "pixels": 1024000,
+      "differing": 184,
+      "differingPct": 0.018,
+      "over16": 16,
+      "over16Pct": 0.0016,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-desktop-true-return-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 32,
+      "differingPct": 0.0031,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 2
+    },
+    {
+      "name": "apollo-desktop-true-return-overview.png",
+      "pixels": 1024000,
+      "differing": 31,
+      "differingPct": 0.003,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-desktop-true-translunar-follow-scene.png",
+      "pixels": 1024000,
+      "differing": 31,
+      "differingPct": 0.003,
+      "over16": 2,
+      "over16Pct": 0.0002,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-desktop-true-translunar-follow.png",
+      "pixels": 1024000,
+      "differing": 108,
+      "differingPct": 0.0105,
+      "over16": 28,
+      "over16Pct": 0.0027,
+      "maxDelta": 61
+    },
+    {
+      "name": "apollo-desktop-true-translunar-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 56,
+      "differingPct": 0.0055,
+      "over16": 1,
+      "over16Pct": 0.0001,
+      "maxDelta": 17
+    },
+    {
+      "name": "apollo-desktop-true-translunar-overview.png",
+      "pixels": 1024000,
+      "differing": 83,
+      "differingPct": 0.0081,
+      "over16": 8,
+      "over16Pct": 0.0008,
+      "maxDelta": 73
+    },
+    {
+      "name": "apollo-phone-readable-earth-focus-scene.png",
+      "pixels": 329160,
+      "differing": 67,
+      "differingPct": 0.0204,
+      "over16": 2,
+      "over16Pct": 0.0006,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-readable-earth-focus.png",
+      "pixels": 329160,
+      "differing": 40,
+      "differingPct": 0.0122,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 3
+    },
+    {
+      "name": "apollo-phone-readable-earth-orbit-follow-scene.png",
+      "pixels": 329160,
+      "differing": 13,
+      "differingPct": 0.0039,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 4
+    },
+    {
+      "name": "apollo-phone-readable-earth-orbit-follow.png",
+      "pixels": 329160,
+      "differing": 14,
+      "differingPct": 0.0043,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 16
+    },
+    {
+      "name": "apollo-phone-readable-earth-orbit-overview-scene.png",
+      "pixels": 329160,
+      "differing": 26,
+      "differingPct": 0.0079,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 16
+    },
+    {
+      "name": "apollo-phone-readable-earth-orbit-overview.png",
+      "pixels": 329160,
+      "differing": 21,
+      "differingPct": 0.0064,
+      "over16": 3,
+      "over16Pct": 0.0009,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-phone-readable-entry-follow-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-readable-entry-follow.png",
+      "pixels": 329160,
+      "differing": 82,
+      "differingPct": 0.0249,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 2
+    },
+    {
+      "name": "apollo-phone-readable-entry-overview-scene.png",
+      "pixels": 329160,
+      "differing": 2,
+      "differingPct": 0.0006,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-phone-readable-entry-overview.png",
+      "pixels": 329160,
+      "differing": 2,
+      "differingPct": 0.0006,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-phone-readable-lunar-orbit-columbia-follow-scene.png",
+      "pixels": 329160,
+      "differing": 403,
+      "differingPct": 0.1224,
+      "over16": 8,
+      "over16Pct": 0.0024,
+      "maxDelta": 46
+    },
+    {
+      "name": "apollo-phone-readable-lunar-orbit-columbia-follow.png",
+      "pixels": 329160,
+      "differing": 229,
+      "differingPct": 0.0696,
+      "over16": 3,
+      "over16Pct": 0.0009,
+      "maxDelta": 46
+    },
+    {
+      "name": "apollo-phone-readable-lunar-orbit-columbia-overview-scene.png",
+      "pixels": 329160,
+      "differing": 100,
+      "differingPct": 0.0304,
+      "over16": 20,
+      "over16Pct": 0.0061,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-phone-readable-lunar-orbit-columbia-overview.png",
+      "pixels": 329160,
+      "differing": 169,
+      "differingPct": 0.0513,
+      "over16": 24,
+      "over16Pct": 0.0073,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-phone-readable-lunar-surface-eagle-follow-scene.png",
+      "pixels": 329160,
+      "differing": 373,
+      "differingPct": 0.1133,
+      "over16": 11,
+      "over16Pct": 0.0033,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-phone-readable-lunar-surface-eagle-follow.png",
+      "pixels": 329160,
+      "differing": 72,
+      "differingPct": 0.0219,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 23
+    },
+    {
+      "name": "apollo-phone-readable-lunar-surface-eagle-overview-scene.png",
+      "pixels": 329160,
+      "differing": 42,
+      "differingPct": 0.0128,
+      "over16": 2,
+      "over16Pct": 0.0006,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-readable-lunar-surface-eagle-overview.png",
+      "pixels": 329160,
+      "differing": 85,
+      "differingPct": 0.0258,
+      "over16": 4,
+      "over16Pct": 0.0012,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-readable-moon-focus-scene.png",
+      "pixels": 329160,
+      "differing": 7845,
+      "differingPct": 2.3833,
+      "over16": 35,
+      "over16Pct": 0.0106,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-phone-readable-moon-focus.png",
+      "pixels": 329160,
+      "differing": 9401,
+      "differingPct": 2.8561,
+      "over16": 19,
+      "over16Pct": 0.0058,
+      "maxDelta": 57
+    },
+    {
+      "name": "apollo-phone-readable-return-follow-scene.png",
+      "pixels": 329160,
+      "differing": 403,
+      "differingPct": 0.1224,
+      "over16": 6,
+      "over16Pct": 0.0018,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-phone-readable-return-follow.png",
+      "pixels": 329160,
+      "differing": 247,
+      "differingPct": 0.075,
+      "over16": 8,
+      "over16Pct": 0.0024,
+      "maxDelta": 89
+    },
+    {
+      "name": "apollo-phone-readable-return-overview-scene.png",
+      "pixels": 329160,
+      "differing": 23,
+      "differingPct": 0.007,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 9
+    },
+    {
+      "name": "apollo-phone-readable-return-overview.png",
+      "pixels": 329160,
+      "differing": 42,
+      "differingPct": 0.0128,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 41
+    },
+    {
+      "name": "apollo-phone-readable-translunar-follow-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-readable-translunar-follow.png",
+      "pixels": 329160,
+      "differing": 79,
+      "differingPct": 0.024,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 2
+    },
+    {
+      "name": "apollo-phone-readable-translunar-overview-scene.png",
+      "pixels": 329160,
+      "differing": 58,
+      "differingPct": 0.0176,
+      "over16": 4,
+      "over16Pct": 0.0012,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-phone-readable-translunar-overview.png",
+      "pixels": 329160,
+      "differing": 75,
+      "differingPct": 0.0228,
+      "over16": 6,
+      "over16Pct": 0.0018,
+      "maxDelta": 49
+    },
+    {
+      "name": "apollo-phone-true-earth-focus-scene.png",
+      "pixels": 329160,
+      "differing": 62,
+      "differingPct": 0.0188,
+      "over16": 23,
+      "over16Pct": 0.007,
+      "maxDelta": 80
+    },
+    {
+      "name": "apollo-phone-true-earth-focus.png",
+      "pixels": 329160,
+      "differing": 138,
+      "differingPct": 0.0419,
+      "over16": 27,
+      "over16Pct": 0.0082,
+      "maxDelta": 80
+    },
+    {
+      "name": "apollo-phone-true-earth-orbit-follow-scene.png",
+      "pixels": 329160,
+      "differing": 112,
+      "differingPct": 0.034,
+      "over16": 106,
+      "over16Pct": 0.0322,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-true-earth-orbit-follow.png",
+      "pixels": 329160,
+      "differing": 109,
+      "differingPct": 0.0331,
+      "over16": 105,
+      "over16Pct": 0.0319,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-true-earth-orbit-overview-scene.png",
+      "pixels": 329160,
+      "differing": 124,
+      "differingPct": 0.0377,
+      "over16": 102,
+      "over16Pct": 0.031,
+      "maxDelta": 50
+    },
+    {
+      "name": "apollo-phone-true-earth-orbit-overview.png",
+      "pixels": 329160,
+      "differing": 187,
+      "differingPct": 0.0568,
+      "over16": 110,
+      "over16Pct": 0.0334,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-phone-true-entry-follow-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-entry-follow.png",
+      "pixels": 329160,
+      "differing": 1,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "apollo-phone-true-entry-overview-scene.png",
+      "pixels": 329160,
+      "differing": 42,
+      "differingPct": 0.0128,
+      "over16": 18,
+      "over16Pct": 0.0055,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-phone-true-entry-overview.png",
+      "pixels": 329160,
+      "differing": 42,
+      "differingPct": 0.0128,
+      "over16": 18,
+      "over16Pct": 0.0055,
+      "maxDelta": 64
+    },
+    {
+      "name": "apollo-phone-true-lunar-orbit-columbia-follow-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-lunar-orbit-columbia-follow.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-lunar-orbit-columbia-overview-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-lunar-orbit-columbia-overview.png",
+      "pixels": 329160,
+      "differing": 1,
+      "differingPct": 0.0003,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-phone-true-lunar-surface-eagle-follow-scene.png",
+      "pixels": 329160,
+      "differing": 1,
+      "differingPct": 0.0003,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 53
+    },
+    {
+      "name": "apollo-phone-true-lunar-surface-eagle-follow.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-lunar-surface-eagle-overview-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-lunar-surface-eagle-overview.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-moon-focus-scene.png",
+      "pixels": 329160,
+      "differing": 62547,
+      "differingPct": 19.002,
+      "over16": 534,
+      "over16Pct": 0.1622,
+      "maxDelta": 106
+    },
+    {
+      "name": "apollo-phone-true-moon-focus.png",
+      "pixels": 329160,
+      "differing": 35116,
+      "differingPct": 10.6684,
+      "over16": 219,
+      "over16Pct": 0.0665,
+      "maxDelta": 110
+    },
+    {
+      "name": "apollo-phone-true-return-follow-scene.png",
+      "pixels": 329160,
+      "differing": 1,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "apollo-phone-true-return-follow.png",
+      "pixels": 329160,
+      "differing": 3,
+      "differingPct": 0.0009,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 54
+    },
+    {
+      "name": "apollo-phone-true-return-overview-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-return-overview.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-translunar-follow-scene.png",
+      "pixels": 329160,
+      "differing": 23,
+      "differingPct": 0.007,
+      "over16": 8,
+      "over16Pct": 0.0024,
+      "maxDelta": 25
+    },
+    {
+      "name": "apollo-phone-true-translunar-follow.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-translunar-overview-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "apollo-phone-true-translunar-overview.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "belt-desktop-readable-spring-focus-belt-scene.png",
+      "pixels": 1024000,
+      "differing": 181,
+      "differingPct": 0.0177,
+      "over16": 63,
+      "over16Pct": 0.0062,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-readable-spring-focus-belt.png",
+      "pixels": 1024000,
+      "differing": 291,
+      "differingPct": 0.0284,
+      "over16": 136,
+      "over16Pct": 0.0133,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-readable-spring-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 223,
+      "differingPct": 0.0218,
+      "over16": 34,
+      "over16Pct": 0.0033,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-readable-spring-overview.png",
+      "pixels": 1024000,
+      "differing": 226,
+      "differingPct": 0.0221,
+      "over16": 37,
+      "over16Pct": 0.0036,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-readable-spring-sun-view-scene.png",
+      "pixels": 1024000,
+      "differing": 177,
+      "differingPct": 0.0173,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 10
+    },
+    {
+      "name": "belt-desktop-readable-spring-sun-view.png",
+      "pixels": 1024000,
+      "differing": 177,
+      "differingPct": 0.0173,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 10
+    },
+    {
+      "name": "belt-desktop-readable-start-focus-belt-scene.png",
+      "pixels": 1024000,
+      "differing": 122,
+      "differingPct": 0.0119,
+      "over16": 88,
+      "over16Pct": 0.0086,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-readable-start-focus-belt.png",
+      "pixels": 1024000,
+      "differing": 225,
+      "differingPct": 0.022,
+      "over16": 134,
+      "over16Pct": 0.0131,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-readable-start-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 234,
+      "differingPct": 0.0229,
+      "over16": 17,
+      "over16Pct": 0.0017,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-readable-start-overview.png",
+      "pixels": 1024000,
+      "differing": 964,
+      "differingPct": 0.0941,
+      "over16": 511,
+      "over16Pct": 0.0499,
+      "maxDelta": 67
+    },
+    {
+      "name": "belt-desktop-readable-start-sun-view-scene.png",
+      "pixels": 1024000,
+      "differing": 856,
+      "differingPct": 0.0836,
+      "over16": 264,
+      "over16Pct": 0.0258,
+      "maxDelta": 79
+    },
+    {
+      "name": "belt-desktop-readable-start-sun-view.png",
+      "pixels": 1024000,
+      "differing": 638,
+      "differingPct": 0.0623,
+      "over16": 204,
+      "over16Pct": 0.0199,
+      "maxDelta": 79
+    },
+    {
+      "name": "belt-desktop-true-spring-focus-belt-scene.png",
+      "pixels": 1024000,
+      "differing": 225,
+      "differingPct": 0.022,
+      "over16": 80,
+      "over16Pct": 0.0078,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-true-spring-focus-belt.png",
+      "pixels": 1024000,
+      "differing": 169,
+      "differingPct": 0.0165,
+      "over16": 54,
+      "over16Pct": 0.0053,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-true-spring-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 92,
+      "differingPct": 0.009,
+      "over16": 34,
+      "over16Pct": 0.0033,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-spring-overview.png",
+      "pixels": 1024000,
+      "differing": 107,
+      "differingPct": 0.0104,
+      "over16": 35,
+      "over16Pct": 0.0034,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-spring-sun-view-scene.png",
+      "pixels": 1024000,
+      "differing": 271,
+      "differingPct": 0.0265,
+      "over16": 56,
+      "over16Pct": 0.0055,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-spring-sun-view.png",
+      "pixels": 1024000,
+      "differing": 271,
+      "differingPct": 0.0265,
+      "over16": 56,
+      "over16Pct": 0.0055,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-start-focus-belt-scene.png",
+      "pixels": 1024000,
+      "differing": 118,
+      "differingPct": 0.0115,
+      "over16": 4,
+      "over16Pct": 0.0004,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-true-start-focus-belt.png",
+      "pixels": 1024000,
+      "differing": 849,
+      "differingPct": 0.0829,
+      "over16": 516,
+      "over16Pct": 0.0504,
+      "maxDelta": 67
+    },
+    {
+      "name": "belt-desktop-true-start-overview-scene.png",
+      "pixels": 1024000,
+      "differing": 295,
+      "differingPct": 0.0288,
+      "over16": 57,
+      "over16Pct": 0.0056,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-start-overview.png",
+      "pixels": 1024000,
+      "differing": 1005,
+      "differingPct": 0.0981,
+      "over16": 555,
+      "over16Pct": 0.0542,
+      "maxDelta": 73
+    },
+    {
+      "name": "belt-desktop-true-start-sun-view-scene.png",
+      "pixels": 1024000,
+      "differing": 82,
+      "differingPct": 0.008,
+      "over16": 6,
+      "over16Pct": 0.0006,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-desktop-true-start-sun-view.png",
+      "pixels": 1024000,
+      "differing": 90,
+      "differingPct": 0.0088,
+      "over16": 6,
+      "over16Pct": 0.0006,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-spring-focus-belt-scene.png",
+      "pixels": 329160,
+      "differing": 97,
+      "differingPct": 0.0295,
+      "over16": 29,
+      "over16Pct": 0.0088,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-spring-focus-belt.png",
+      "pixels": 329160,
+      "differing": 105,
+      "differingPct": 0.0319,
+      "over16": 33,
+      "over16Pct": 0.01,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-spring-overview-scene.png",
+      "pixels": 329160,
+      "differing": 174,
+      "differingPct": 0.0529,
+      "over16": 56,
+      "over16Pct": 0.017,
+      "maxDelta": 64
+    },
+    {
+      "name": "belt-phone-readable-spring-overview.png",
+      "pixels": 329160,
+      "differing": 191,
+      "differingPct": 0.058,
+      "over16": 59,
+      "over16Pct": 0.0179,
+      "maxDelta": 64
+    },
+    {
+      "name": "belt-phone-readable-spring-sun-view-scene.png",
+      "pixels": 329160,
+      "differing": 51,
+      "differingPct": 0.0155,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 4
+    },
+    {
+      "name": "belt-phone-readable-spring-sun-view.png",
+      "pixels": 329160,
+      "differing": 51,
+      "differingPct": 0.0155,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 4
+    },
+    {
+      "name": "belt-phone-readable-start-focus-belt-scene.png",
+      "pixels": 329160,
+      "differing": 140,
+      "differingPct": 0.0425,
+      "over16": 17,
+      "over16Pct": 0.0052,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-start-focus-belt.png",
+      "pixels": 329160,
+      "differing": 215,
+      "differingPct": 0.0653,
+      "over16": 72,
+      "over16Pct": 0.0219,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-start-overview-scene.png",
+      "pixels": 329160,
+      "differing": 51,
+      "differingPct": 0.0155,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 5
+    },
+    {
+      "name": "belt-phone-readable-start-overview.png",
+      "pixels": 329160,
+      "differing": 63,
+      "differingPct": 0.0191,
+      "over16": 7,
+      "over16Pct": 0.0021,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-start-sun-view-scene.png",
+      "pixels": 329160,
+      "differing": 109,
+      "differingPct": 0.0331,
+      "over16": 9,
+      "over16Pct": 0.0027,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-readable-start-sun-view.png",
+      "pixels": 329160,
+      "differing": 144,
+      "differingPct": 0.0437,
+      "over16": 23,
+      "over16Pct": 0.007,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-spring-focus-belt-scene.png",
+      "pixels": 329160,
+      "differing": 247,
+      "differingPct": 0.075,
+      "over16": 52,
+      "over16Pct": 0.0158,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-spring-focus-belt.png",
+      "pixels": 329160,
+      "differing": 241,
+      "differingPct": 0.0732,
+      "over16": 44,
+      "over16Pct": 0.0134,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-spring-overview-scene.png",
+      "pixels": 329160,
+      "differing": 311,
+      "differingPct": 0.0945,
+      "over16": 52,
+      "over16Pct": 0.0158,
+      "maxDelta": 64
+    },
+    {
+      "name": "belt-phone-true-spring-overview.png",
+      "pixels": 329160,
+      "differing": 310,
+      "differingPct": 0.0942,
+      "over16": 53,
+      "over16Pct": 0.0161,
+      "maxDelta": 64
+    },
+    {
+      "name": "belt-phone-true-spring-sun-view-scene.png",
+      "pixels": 329160,
+      "differing": 4,
+      "differingPct": 0.0012,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-spring-sun-view.png",
+      "pixels": 329160,
+      "differing": 4,
+      "differingPct": 0.0012,
+      "over16": 1,
+      "over16Pct": 0.0003,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-start-focus-belt-scene.png",
+      "pixels": 329160,
+      "differing": 407,
+      "differingPct": 0.1236,
+      "over16": 54,
+      "over16Pct": 0.0164,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-start-focus-belt.png",
+      "pixels": 329160,
+      "differing": 503,
+      "differingPct": 0.1528,
+      "over16": 63,
+      "over16Pct": 0.0191,
+      "maxDelta": 52
+    },
+    {
+      "name": "belt-phone-true-start-overview-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "belt-phone-true-start-overview.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "belt-phone-true-start-sun-view-scene.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "belt-phone-true-start-sun-view.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    }
+  ]
+}

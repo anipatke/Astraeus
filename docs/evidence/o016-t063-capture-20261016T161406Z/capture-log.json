@@ -1,0 +1,76 @@
+{
+  "startedUtc": "2026-10-16T16:14:15.081Z",
+  "base": "http://localhost:5406",
+  "command": "/home/user/.nvm/versions/node/v24.16.0/bin/node /home/user/code/Astraeus/tools/validate/capture-site-pictures.mjs",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "pictures": [
+    {
+      "name": "apollo-moon",
+      "path": "docs/evidence/o016-t063-capture-20261016T161406Z/pictures/apollo-moon.jpg",
+      "bytes": 88521,
+      "capturedUtc": "2026-10-16T16:14:20.135Z",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "app.html?view=earth,0,70,130&scale=true-scale",
+      "timeUtc": "1969-07-20T20:17:39Z",
+      "panel": "touchdown"
+    },
+    {
+      "name": "apollo-provenance",
+      "path": "docs/evidence/o016-t063-capture-20261016T161406Z/pictures/apollo-provenance.jpg",
+      "bytes": 83305,
+      "capturedUtc": "2026-10-16T16:14:26.795Z",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "app.html?scale=true-scale (Focus Moon, landing event info with provenance open)",
+      "timeUtc": "1969-07-20T20:17:39Z"
+    },
+    {
+      "name": "apollo-phone",
+      "path": "docs/evidence/o016-t063-capture-20261016T161406Z/pictures/apollo-phone.jpg",
+      "bytes": 31218,
+      "capturedUtc": "2026-10-16T16:14:31.401Z",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "app.html?view=moon,270,50,214&scale=true-scale",
+      "timeUtc": "1969-07-20T20:17:39Z"
+    },
+    {
+      "name": "perseids-gmn",
+      "path": "docs/evidence/o016-t063-capture-20261016T161406Z/pictures/perseids-gmn.jpg",
+      "bytes": 86182,
+      "capturedUtc": "2026-10-16T16:14:37.457Z",
+      "viewport": {
+        "width": 1200,
+        "height": 675
+      },
+      "url": "app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic",
+      "timeUtc": "2027-08-12T12:00:00Z"
+    },
+    {
+      "name": "perseids-year-gif",
+      "path": "docs/evidence/o016-t063-capture-20261016T161406Z/pictures/readme/perseids-year.gif",
+      "bytes": 1911226,
+      "capturedUtc": "2026-10-16T16:15:30.132Z",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "outputWidth": 960,
+      "frames": 40,
+      "url": "app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic",
+      "window": {
+        "startUtc": "2027-02-11T19:36:43.119Z",
+        "endUtc": "2028-02-12T01:45:52.882Z"
+      }
+    }
+  ],
+  "errors": [],
+  "finishedUtc": "2026-10-16T16:15:30.174Z"
+}

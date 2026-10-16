@@ -1,0 +1,4 @@
+rerun in /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/snap
+synthetic | exit=1 | 13:19:40-13:19:42 | node tools/validate/browser-synthetic.mjs
+synthetic-eccentric | exit=1 | 13:19:42-13:20:48 | node tools/validate/browser-synthetic-eccentric.mjs
+ALLDONE

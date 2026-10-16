@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop-composition/True/start: the Sun marker sits at the scene's zero (0)
+    at composition (file:///home/user/code/Astraeus/tools/validate/browser-synthetic-belt.mjs:170:16)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-synthetic-belt.mjs:190:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

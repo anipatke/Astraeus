@@ -4,22 +4,23 @@ import { describe, expect, it } from "vitest";
 import { SimulationClock } from "../src/core/clock";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
-import { MissionTelemetry } from "../src/app/MissionPanel";
+import { catalogue } from "../src/assets/catalogue";
+import { createStateResolver } from "../src/core/stateResolver";
+import { MissionTelemetry } from "../src/experiences/apollo11/MissionPanel";
+import { journeyProgressMetric, sceneMetrics } from "../src/app/metricReadouts";
 import {
-  journeyProgressMetric,
   peakAnchorSpeedKmS,
   referenceInSameFrame,
-  sceneMetrics,
   spacecraftAltitudeMetric,
   spacecraftDiscrepancyMetric,
   spacecraftMoonMetric,
   spacecraftPositionMetric,
   spacecraftRangeMetric,
   spacecraftSpeedMetric,
-} from "../src/app/metricReadouts";
+} from "../src/experiences/apollo11/spacecraftMetrics";
 import { discrepancyAt, stateIfInBounds, trackedReadouts } from "../src/app/mission";
 import { MOON } from "../src/core/body";
-import { apollo11Mission } from "../src/mission/apollo11";
+import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { MetricVisual } from "../src/shell/MetricVisual";
 import {
   altitudeGlyph,
@@ -29,12 +30,14 @@ import {
   phaseVisual,
   planViews,
   progressScale,
+  rateScale,
   relationGlyph,
   speedGauge,
   uncertaintyBand,
   type DistanceMetric,
   type Metric,
   type PhaseMetric,
+  type RateMetric,
   type SpeedMetric,
 } from "../src/shell/metrics";
 
@@ -205,7 +208,9 @@ describe("metric visuals reuse outside Apollo", () => {
 
 describe("Apollo metric configuration", () => {
   const [columbia, eagle] = apollo11Mission.bodies;
-  const moon = new MoonTrajectory(createOrbAstronomyAdapter());
+  const adapter = createOrbAstronomyAdapter();
+  const moon = new MoonTrajectory(adapter);
+  const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), adapter);
   const time = Math.round((eagle.trajectory.bounds.startUtcMs + eagle.trajectory.bounds.endUtcMs) / 2);
 
   it("tops each speed gauge at the vehicle's peak speed at NASA source anchors, not at a reconstruction artefact", () => {
@@ -231,7 +236,7 @@ describe("Apollo metric configuration", () => {
     const moonFromEarth = moon.stateAt(time);
     const marker = referenceInSameFrame("Moon now", row, moonFromEarth);
     expect(marker?.value).toBeCloseTo(Math.hypot(...moonFromEarth.positionKm), 9);
-    expect(referenceInSameFrame("Moon now", row, moon.stateAt(time, "sun"))).toBeNull();
+    expect(referenceInSameFrame("Moon now", row, resolver.stateOf("moon", time, "sun"))).toBeNull();
     expect(referenceInSameFrame("Moon now", row, null)).toBeNull();
     expect(distanceScale(spacecraftRangeMetric(row, marker))).not.toBeNull();
     expect(spacecraftRangeMetric(row, marker).origin).toBe("Earth centre · EQJ");
@@ -255,7 +260,7 @@ describe("Apollo metric configuration", () => {
     const moonFromEarth = moon.stateAt(time);
     const gap = spacecraftMoonMetric(eagleRow, moonFromEarth);
     expect(gap.value).toBeCloseTo(Math.hypot(...eagleRow.positionKm.map((c, i) => c - moonFromEarth.positionKm[i])), 9);
-    expect(spacecraftMoonMetric(eagleRow, moon.stateAt(time, "sun")).value).toBeNull();
+    expect(spacecraftMoonMetric(eagleRow, resolver.stateOf("moon", time, "sun")).value).toBeNull();
     const eagleAltitude = spacecraftAltitudeMetric(eagleRow, moonFromEarth);
     expect(eagleAltitude.body).toBe("Moon");
     expect(eagleAltitude.value).toBeCloseTo(gap.value! - MOON.radiusKm, 9);
@@ -265,7 +270,7 @@ describe("Apollo metric configuration", () => {
     expect(spacecraftAltitudeMetric(parked, moon.stateAt(columbia.trajectory.bounds.startUtcMs)).body).toBe("Earth");
     expect(spacecraftPositionMetric(columbiaRow, null).components?.map((c) => c.value)).toEqual([...columbiaRow.positionKm]);
     expect(spacecraftPositionMetric(columbiaRow, null).planViews?.references).toEqual([]);
-    expect(spacecraftPositionMetric(columbiaRow, moon.stateAt(time, "sun")).planViews?.references).toEqual([]);
+    expect(spacecraftPositionMetric(columbiaRow, resolver.stateOf("moon", time, "sun")).planViews?.references).toEqual([]);
     expect(spacecraftPositionMetric(columbiaRow, moonFromEarth).planViews?.references).toEqual([
       { label: "Moon", xyz: [moonFromEarth.positionKm[0], moonFromEarth.positionKm[1], moonFromEarth.positionKm[2]] },
     ]);
@@ -302,5 +307,57 @@ describe("Apollo metric configuration", () => {
     expect(again).toBe(first);
     expect(clock.now()).toBe(time);
     expect(states()).toEqual(before);
+  });
+});
+
+describe("rate metric", () => {
+  const rate = (overrides: Partial<RateMetric> = {}): RateMetric => ({
+    kind: "rate", id: "r", label: "Passes", value: 40, unit: "per hour", digits: 0, ...overrides,
+  });
+
+  it("reads numbers-first and is numeric-only without a range or peak", () => {
+    const html = render(rate());
+    expect(html).toContain("<strong class=\"metric-value\">40</strong>");
+    expect(html).toContain("per hour");
+    expect(html).not.toContain("<svg");
+    expect(rateScale(rate())).toBeNull();
+  });
+
+  it("draws a bar against the stated limits and shows their basis", () => {
+    const limits = { min: 0, max: 100, basis: "busiest hour on record" };
+    expect(rateScale(rate({ range: limits }))).toMatchObject({ valueFraction: 0.4, markers: [] });
+    const html = render(rate({ range: limits }));
+    expect(html).toContain("<svg");
+    expect(html).toContain("0–100 per hour");
+    expect(html).toContain("busiest hour on record");
+    expect(render(rate({ value: 130, range: limits }))).toContain("value outside this range");
+    expect(rateScale(rate({ value: 130, range: limits }))?.valueFraction).toBe(1);
+  });
+
+  it("marks a peak, on the range or on a bar spanning value and peak", () => {
+    const peak = { label: "Last year's peak", value: 80 };
+    expect(rateScale(rate({ peak }))).toMatchObject({ span: 80, valueFraction: 0.5, markers: [{ fraction: 1 }] });
+    expect(rateScale(rate({ value: 100, peak }))?.markers[0]?.fraction).toBe(0.8);
+    expect(rateScale(rate({ peak, range: { min: 0, max: 160, basis: "b" } }))?.markers[0]?.fraction).toBe(0.5);
+    expect(render(rate({ peak }))).toContain("Last year&#x27;s peak 80 per hour");
+  });
+
+  it("states an unavailable value instead of a bar", () => {
+    const html = render(rate({ value: null, unavailable: "not observed", range: { min: 0, max: 100, basis: "b" } }));
+    expect(html).toContain("not observed");
+    expect(html).not.toContain("<svg");
+  });
+
+  it("works for any per-time count with its own wording", () => {
+    const html = render(rate({ label: "Launches", unit: "per day", digits: 1, value: 2.5 }));
+    expect(html).toContain("2.5");
+    expect(html).toContain("per day");
+    expect(html).not.toMatch(/meteor|shower|perseid/i);
+  });
+
+  it("leaves every existing kind rendering as before (speed, distance, phase, progress, uncertainty, coordinates cases above still pass)", () => {
+    expect(render(speed())).not.toContain("<svg");
+    expect(render(distance({ markers: [{ label: "M", value: 200 }] }))).toContain("<svg");
+    expect(render(phase())).toContain("25.0");
   });
 });

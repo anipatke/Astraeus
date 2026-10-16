@@ -1,0 +1,23 @@
+checker run 20261016T105315Z; HEAD 8130ff6; http://localhost:5450/app.html
+spike02 | exit=0 | 10:53:21-10:56:14 | console-error-lines=0 | node tools/validate/browser-spike02.mjs
+spike03 | exit=0 | 10:56:14-10:57:06 | console-error-lines=0 | node tools/validate/browser-spike03.mjs
+shell | exit=0 | 10:57:06-10:57:28 | console-error-lines=0 | env ASTRAEUS_SCREENSHOT=docs/evidence/o011-check-20261016T105315Z/shell/start.png ASTRAEUS_INFO_SCREENSHOTS=docs/evidence/o011-check-20261016T105315Z/shell/info ASTRAEUS_METRIC_SCREENSHOTS=docs/evidence/o011-check-20261016T105315Z/shell/metric node tools/validate/browser-shell.mjs
+anchor-labels | exit=0 | 10:57:28-10:57:44 | console-error-lines=0 | node tools/validate/browser-anchor-labels.mjs docs/evidence/o011-check-20261016T105315Z/anchor-labels
+synthetic | exit=0 | 10:57:44-10:58:10 | console-error-lines=0 | node tools/validate/browser-synthetic.mjs
+synthetic-ring | exit=0 | 10:58:10-10:59:01 | console-error-lines=0 | node tools/validate/browser-synthetic-ring.mjs
+synthetic-belt | exit=0 | 10:59:01-11:02:30 | console-error-lines=0 | node tools/validate/browser-synthetic-belt.mjs
+synthetic-listed | exit=0 | 11:02:30-11:03:02 | console-error-lines=0 | node tools/validate/browser-synthetic-listed.mjs
+synthetic-eccentric | exit=0 | 11:03:02-11:05:18 | console-error-lines=0 | node tools/validate/browser-synthetic-eccentric.mjs
+marker-existing | exit=0 | 11:05:18-11:07:04 | console-error-lines=0 | node tools/validate/browser-marker-existing.mjs
+sky | exit=0 | 11:07:04-11:12:55 | console-error-lines=0 | node tools/validate/browser-sky.mjs
+sky-map | exit=0 | 11:12:55-11:13:42 | console-error-lines=0 | node tools/validate/browser-sky-map.mjs
+sun | exit=0 | 11:13:42-11:16:48 | console-error-lines=0 | node tools/validate/browser-sun.mjs
+earth-moon | exit=0 | 11:16:48-11:17:30 | console-error-lines=0 | node tools/validate/browser-earth-moon.mjs
+jupiter-io | exit=0 | 11:17:30-11:18:29 | console-error-lines=0 | node tools/validate/browser-jupiter-io.mjs
+showers-perseids | exit=0 | 11:18:29-11:26:58 | console-error-lines=0 | node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=0 | 11:26:58-11:35:13 | console-error-lines=0 | node tools/validate/browser-showers.mjs geminids
+showers-gmn | exit=0 | 11:35:13-11:36:50 | console-error-lines=1 | node tools/validate/browser-showers-gmn.mjs
+view-link | exit=0 | 11:36:50-11:37:24 | console-error-lines=0 | node tools/validate/browser-view-link.mjs
+precision | exit=0 | 11:37:24-11:38:29 | console-error-lines=0 | node tools/validate/browser-precision.mjs
+lighting | exit=0 | 11:38:29-11:41:32 | console-error-lines=0 | node tools/validate/browser-lighting.mjs
+ALLDONE

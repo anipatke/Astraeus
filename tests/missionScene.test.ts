@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "../src/core/clock";
 import { readableScale, trueScale } from "../src/core/scalePolicy";
-import { SPEEDS } from "../src/app/DebugControls";
+import { SPEEDS } from "../src/experiences/apollo11/DebugControls";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "../src/app/CameraController";
 import { projectToScreen } from "../src/app/AnchorLabels";
@@ -17,13 +17,15 @@ import {
   trackedReadouts,
   travelledCount,
 } from "../src/app/mission";
-import { mapOrbitPath } from "../src/app/orbitPath";
+import { mapPathKm } from "../src/app/pathRules";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { trackedAbsolute } from "../src/app/sceneLayout";
+import { placementAbout } from "./scenePlacement";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
-import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/mission/apollo11";
+import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { availableObjectById, findCameraPreset, isObjectAvailable } from "../src/shell/objectModel";
 
+const earthPlacement = placementAbout("earth");
 const mission = apollo11Mission;
 const [columbia, eagle] = mission.bodies;
 const mid = (columbia.trajectory.bounds.startUtcMs + columbia.trajectory.bounds.endUtcMs) / 2;
@@ -116,8 +118,8 @@ describe("camera presentation independence", () => {
       };
     };
     const scientificBefore = capture();
-    const camera = createOrbitCameraState(10);
-    const target = trackedAbsolute(before, readableScale);
+    const camera = createOrbitCameraState(10, "earth");
+    const target = trackedAbsolute(before, readableScale, earthPlacement);
 
     const selection = availableObjectById(apollo11Experience, columbia.id, mid);
     expect(selection?.id).toBe(columbia.id);
@@ -145,7 +147,7 @@ describe("camera presentation independence", () => {
   });
 
   it("manual input cancels pending camera motion at the current pose", () => {
-    const camera = createOrbitCameraState(4);
+    const camera = createOrbitCameraState(4, "earth");
     camera.transition = [1, 2, 3];
     camera.targetDistance = 20;
     camera.azimuth += 0.4;
@@ -171,7 +173,7 @@ describe("travelled/future path split", () => {
     const total = columbia.pathTimesUtcMs.length;
     const split = travelledCount(columbia.pathTimesUtcMs, mid);
     for (const policy of [trueScale, readableScale]) {
-      view.update(mid, policy, new FloatingOrigin(), camera);
+      view.update(mid, policy, new FloatingOrigin(), camera, earthPlacement);
       const [travelled, future] = view.group.children.slice(0, 2) as import("three").Line[];
       expect(travelled.geometry.drawRange.count).toBe(split + 1);
       expect(future.geometry.drawRange.count).toBe(total - split + 1);
@@ -180,7 +182,7 @@ describe("travelled/future path split", () => {
       // Both segments meet exactly at the marker (origin at zero, so local == absolute).
       const meet = [t.getX(split), t.getY(split), t.getZ(split)];
       expect([f.getX(0), f.getY(0), f.getZ(0)]).toEqual(meet);
-      const expected = trackedAbsolute(columbia.trajectory.stateAt(mid), policy);
+      const expected = trackedAbsolute(columbia.trajectory.stateAt(mid), policy, earthPlacement);
       meet.forEach((value, i) => expect(value).toBeCloseTo(expected[i], 4));
     }
   });
@@ -190,11 +192,11 @@ describe("travelled/future path split", () => {
     const camera = new PerspectiveCamera();
     const [travelled, future] = view.group.children.slice(0, 2) as import("three").Line[];
     const marker = view.group.children[3];
-    view.update(columbia.trajectory.bounds.startUtcMs - 1, trueScale, new FloatingOrigin(), camera);
+    view.update(columbia.trajectory.bounds.startUtcMs - 1, trueScale, new FloatingOrigin(), camera, earthPlacement);
     expect(travelled.geometry.drawRange.count).toBe(0);
     expect(future.geometry.drawRange.count).toBe(columbia.pathTimesUtcMs.length);
     expect(marker.visible).toBe(false);
-    view.update(columbia.trajectory.bounds.endUtcMs + 1, trueScale, new FloatingOrigin(), camera);
+    view.update(columbia.trajectory.bounds.endUtcMs + 1, trueScale, new FloatingOrigin(), camera, earthPlacement);
     expect(travelled.geometry.drawRange.count).toBe(columbia.pathTimesUtcMs.length);
     expect(future.geometry.drawRange.count).toBe(0);
     expect(marker.visible).toBe(false);
@@ -242,21 +244,21 @@ describe("event jumps and playback", () => {
 describe("scale and rebasing independence for spacecraft State", () => {
   it("leaves the scientific State untouched by either scale policy", () => {
     const before = Array.from(columbia.trajectory.stateAt(mid).positionKm);
-    trackedAbsolute(columbia.trajectory.stateAt(mid), trueScale);
-    trackedAbsolute(columbia.trajectory.stateAt(mid), readableScale);
+    trackedAbsolute(columbia.trajectory.stateAt(mid), trueScale, earthPlacement);
+    trackedAbsolute(columbia.trajectory.stateAt(mid), readableScale, earthPlacement);
     expect(Array.from(columbia.trajectory.stateAt(mid).positionKm)).toEqual(before);
     expect(columbia.trajectory.stateAt(mid).center).toBe("earth");
   });
 
   it("maps through the same ScalePolicy and render axes as Earth and the Moon", () => {
     const state = columbia.trajectory.stateAt(mid);
-    expect(trackedAbsolute(state, trueScale)).toEqual(eqjToRenderVector(trueScale.mapPosition(state.positionKm)));
-    const ratio = Math.hypot(...trackedAbsolute(state, trueScale)) / Math.hypot(...trackedAbsolute(state, readableScale));
+    expect(trackedAbsolute(state, trueScale, earthPlacement)).toEqual(eqjToRenderVector(trueScale.mapPosition(state.positionKm)));
+    const ratio = Math.hypot(...trackedAbsolute(state, trueScale, earthPlacement)) / Math.hypot(...trackedAbsolute(state, readableScale, earthPlacement));
     expect(ratio).toBeCloseTo(10, 9);
   });
 
   it("keeps the absolute position exact however the floating origin is rebased", () => {
-    const absolute = trackedAbsolute(columbia.trajectory.stateAt(mid), trueScale);
+    const absolute = trackedAbsolute(columbia.trajectory.stateAt(mid), trueScale, earthPlacement);
     for (const originAt of [[0, 0, 0], [59.9, -3, 12], absolute]) {
       const origin = new FloatingOrigin();
       origin.set(originAt);
@@ -274,9 +276,9 @@ describe("scale and rebasing independence for spacecraft State", () => {
     const view = new TrackedBodyView(columbia);
     const camera = new PerspectiveCamera();
     const marker = view.group.children[3] as import("three").Mesh;
-    view.update(mid, readableScale, new FloatingOrigin(), camera);
+    view.update(mid, readableScale, new FloatingOrigin(), camera, earthPlacement);
     expect((marker.material as { depthTest: boolean }).depthTest).toBe(false);
-    view.update(mid, trueScale, new FloatingOrigin(), camera);
+    view.update(mid, trueScale, new FloatingOrigin(), camera, earthPlacement);
     expect((marker.material as { depthTest: boolean }).depthTest).toBe(true);
   });
 });
@@ -311,10 +313,10 @@ describe("anchor labels (presentation only)", () => {
     const before = columbia.trajectory.stateAt(mid);
     const origin = new FloatingOrigin();
     const camera = new PerspectiveCamera();
-    view.update(mid, readableScale, origin, camera);
+    view.update(mid, readableScale, origin, camera, earthPlacement);
     const index = anchorLabelsOf(columbia)!.indexOf("A-33");
     const anchorTime = columbia.anchorTimesUtcMs[index];
-    const mapped = mapOrbitPath({ timesUtcMs: [anchorTime], positionsKm: Float64Array.from(columbia.trajectory.stateAt(anchorTime).positionKm) }, readableScale);
+    const mapped = mapPathKm(Float64Array.from(columbia.trajectory.stateAt(anchorTime).positionKm), readableScale);
     const expected = eqjToRenderVector(mapped.subarray(0, 3));
     const local = view.anchorLocalPosition(index, new Vector3());
     expect(local.distanceTo(new Vector3(...origin.toLocal(expected)))).toBeLessThan(1e-4);

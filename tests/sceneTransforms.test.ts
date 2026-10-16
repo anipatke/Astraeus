@@ -8,15 +8,13 @@ import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
 import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import {
-  DEFAULT_PATH_SAMPLES,
-  mapOrbitPath,
-  pathNeedsRefresh,
-  sampleOrbitPath,
-  SIDEREAL_MONTH_MS,
-} from "../src/app/orbitPath";
+import { mapPathKm, pathNeedsRefresh } from "../src/app/pathRules";
+import { DEFAULT_WINDOW_SAMPLE_COUNT } from "../src/app/experienceDefinition";
+import { SIDEREAL_MONTH_MS } from "../src/assets/compositions";
+import { samplePositionsKm, windowTimesUtcMs } from "../src/core/sunCentredSources";
 import { eqjToRenderQuaternion, eqjToRenderVector } from "../src/app/renderCoordinates";
-import { createSceneHierarchy, placeBodies } from "../src/app/sceneLayout";
+import { createSceneHierarchy, placeBodies } from "./scenePlacement";
+import before from "./fixtures/scene-placement-pre-t043.json";
 
 const adapter = createOrbAstronomyAdapter();
 const trajectory = new MoonTrajectory(adapter);
@@ -176,11 +174,17 @@ describe("floating origin", () => {
   });
 });
 
+/** The Moon's monthly window as the path layer samples it: times about the clock, positions about Earth. */
+function monthlySamples(centerUtcMs: number) {
+  const timesUtcMs = windowTimesUtcMs(centerUtcMs, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);
+  return { timesUtcMs, positionsKm: samplePositionsKm(trajectory, timesUtcMs, "earth") };
+}
+
 describe("sampled orbit path", () => {
   it("derives from the same trajectory, is open, includes the selected timestamp and maps through the policy", () => {
-    const samples = sampleOrbitPath(trajectory, T);
+    const samples = monthlySamples(T);
     const n = samples.timesUtcMs.length;
-    expect(n).toBe(DEFAULT_PATH_SAMPLES);
+    expect(n).toBe(DEFAULT_WINDOW_SAMPLE_COUNT);
     expect(samples.timesUtcMs[(n - 1) / 2]).toBe(T);
     expect(Math.abs(samples.timesUtcMs[n - 1] - samples.timesUtcMs[0] - SIDEREAL_MONTH_MS)).toBeLessThan(2);
     const first = samples.positionsKm.slice(0, 3);
@@ -191,21 +195,21 @@ describe("sampled orbit path", () => {
       expect(Array.from(samples.positionsKm.subarray(index * 3, index * 3 + 3))).toEqual(Array.from(exact));
     }
     for (const policy of policies) {
-      const mapped = mapOrbitPath(samples, policy);
+      const mapped = mapPathKm(samples.positionsKm, policy);
       const centre = (n - 1) / 2;
       expect(Array.from(mapped.subarray(centre * 3, centre * 3 + 3))).toEqual(Array.from(policy.mapPosition(trajectory.stateAt(T, "earth").positionKm)));
     }
-    expect(Math.hypot(...Array.from(mapOrbitPath(samples, trueScale).subarray(0, 3))) /
-      Math.hypot(...Array.from(mapOrbitPath(samples, readableScale).subarray(0, 3)))).toBeCloseTo(10, 6);
+    expect(Math.hypot(...Array.from(mapPathKm(samples.positionsKm, trueScale).subarray(0, 3))) /
+      Math.hypot(...Array.from(mapPathKm(samples.positionsKm, readableScale).subarray(0, 3)))).toBeCloseTo(10, 6);
+    expect(trueScale.mapRadius(MOON.radiusKm)).toBe(readableScale.mapRadius(MOON.radiusKm));
   });
 
   it("refreshes on seek, drift and respects the playback cadence", () => {
-    const samples = sampleOrbitPath(trajectory, T);
-    expect(pathNeedsRefresh(null, T, 0, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 60_000, 1_000, 0)).toBe(false);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 1_000, 0)).toBe(true);
-    expect(pathNeedsRefresh(samples, T + 2 * 3_600_000, 1_100, 1_000)).toBe(false);
-    expect(pathNeedsRefresh(samples, T + 20 * 86_400_000, 1_100, 1_000)).toBe(true);
+    expect(pathNeedsRefresh(null, SIDEREAL_MONTH_MS, T, 0, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 60_000, 1_000, 0)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 1_000, 0)).toBe(true);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 2 * 3_600_000, 1_100, 1_000)).toBe(false);
+    expect(pathNeedsRefresh(T, SIDEREAL_MONTH_MS, T + 20 * 86_400_000, 1_100, 1_000)).toBe(true);
   });
 });
 
@@ -254,5 +258,24 @@ describe("physical Sun illumination", () => {
     const moon = trajectory.stateAt(time, "earth");
     const sun = sunPositionFromEarthAt(adapter, time);
     expect(Math.abs(lunarIlluminatedFraction(moon, sun) - fraction)).toBeLessThan(0.03);
+  });
+});
+
+describe("Earth and Moon placement is unchanged by the visual records", () => {
+  // Recorded at ea592a3, before T-043, from placeBodies with a fresh FloatingOrigin; compared exactly.
+  const dates = [Date.UTC(2020, 0, 5), Date.UTC(2023, 6, 20), T, Date.UTC(2026, 3, 17, 11, 52), Date.UTC(2031, 10, 2)];
+  it.each(dates)("matches the recorded positions and mesh quaternions at %i under both policies", (date) => {
+    for (const policy of policies) {
+      const h = createSceneHierarchy();
+      placeBodies(h, earthStateAt(adapter, date), trajectory.stateAt(date, "earth"), policy, new FloatingOrigin());
+      // JSON stores -0 as 0, so signed zeros are normalised; every other digit is compared exactly.
+      const plain = (values: number[]) => values.map((value) => value + 0);
+      const recorded = (before as Record<string, { earthPos: number[]; moonPos: number[]; earthQ: number[]; moonQ: number[] }>)[`${date}/${policy.id}`];
+      expect(recorded).toBeDefined();
+      expect(plain(h.earthGroup.position.toArray())).toEqual(recorded.earthPos);
+      expect(plain(h.moonGroup.position.toArray())).toEqual(recorded.moonPos);
+      expect(plain(h.earthMesh.quaternion.toArray())).toEqual(recorded.earthQ);
+      expect(plain(h.moonMesh.quaternion.toArray())).toEqual(recorded.moonQ);
+    }
   });
 });

@@ -1,0 +1,55 @@
+{
+  "scalePairs": 6,
+  "cameraPresets": 6,
+  "eventJumps": 30,
+  "rates": [
+    {
+      "rate": 1,
+      "measuredRate": 0.9443933823529412,
+      "simulationSeconds": 4.11,
+      "wallSeconds": 4.352
+    },
+    {
+      "rate": 100,
+      "measuredRate": 94.21052631578948,
+      "simulationSeconds": 408.12,
+      "wallSeconds": 4.332
+    },
+    {
+      "rate": 1000,
+      "measuredRate": 564.1942009440323,
+      "simulationSeconds": 4183.5,
+      "wallSeconds": 7.415
+    },
+    {
+      "rate": 10000,
+      "measuredRate": 9416.055045871559,
+      "simulationSeconds": 41054,
+      "wallSeconds": 4.36
+    }
+  ],
+  "followSamples": 30,
+  "usno": [
+    {
+      "utc": "2024-01-04 03:30:00",
+      "expectedPercent": 50.1,
+      "illuminationPercent": 50.1
+    },
+    {
+      "utc": "2024-01-11 11:57:00",
+      "expectedPercent": 0.2,
+      "illuminationPercent": 0.2
+    },
+    {
+      "utc": "2024-01-18 03:52:00",
+      "expectedPercent": 50.1,
+      "illuminationPercent": 50.1
+    },
+    {
+      "utc": "2024-01-25 17:54:00",
+      "expectedPercent": 99.8,
+      "illuminationPercent": 99.8
+    }
+  ],
+  "errors": []
+}

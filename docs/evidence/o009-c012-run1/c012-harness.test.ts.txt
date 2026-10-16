@@ -1,0 +1,293 @@
+// C-012 independent Check harness for O-009. Not part of the project suite; run with
+// npx vitest run --root /home/user/code/Astraeus --dir <this dir>
+import { describe, expect, it } from "vitest";
+const R = "/home/user/code/Astraeus/src";
+const { createOrbitGroup } = await import(`${R}/core/orbitGroup.ts`);
+const { createOrbTwoBodyAdapter } = await import(`${R}/core/twoBodyAdapter.ts`);
+const { createProvenance } = await import(`${R}/core/provenance.ts`);
+const { createOrbAstronomyAdapter } = await import(`${R}/core/astronomyAdapter.ts`);
+const { trueScale, readableScale } = await import(`${R}/core/scalePolicy.ts`);
+const { FloatingOrigin } = await import(`${R}/app/floatingOrigin.ts`);
+const { PointsView } = await import(`${R}/app/PointsView.ts`);
+const { eqjToRenderVector } = await import(`${R}/app/renderCoordinates.ts`);
+const { sunPositionFromEarthAt } = await import(`${R}/core/referenceCenters.ts`);
+const { groupsOf, experienceWithGroups } = await import(`${R}/app/experienceDefinition.ts`);
+const { syntheticRingLayer, syntheticBeltLayer, syntheticRingDefinition } = await import(`${R}/synthetic/syntheticRingDefinition.ts`);
+const { apollo11Definition } = await import(`${R}/mission/apollo11Definition.tsx`);
+
+const two = createOrbTwoBodyAdapter();
+const astro = createOrbAstronomyAdapter();
+const T0 = Date.UTC(2031, 5, 1);
+const prov = createProvenance({ sourceType: "illustrative", sources: ["C-012 harness"], accuracy: "none", notes: "probe" });
+const MU_EARTH = 398600.4418; // independent constant (IERS), km^3/s^2
+const DEG = Math.PI / 180;
+
+function input(over: Record<string, unknown> = {}) {
+  return {
+    id: "probe", count: 100, center: "earth", plane: "EQJ", epochUtcMs: T0,
+    base: { semiMajorAxisKm: 12000, eccentricity: 0.1, inclinationDeg: 30, raanDeg: 40, argumentOfPeriapsisDeg: 50, trueAnomalyDeg: 10 },
+    spread: {}, seed: 1, provenance: prov, ...over,
+  };
+}
+
+/** Independent two-body oracle: Kepler's equation by Newton, perifocal -> inertial by 3-1-3 rotation. */
+function keplerOracle(a: number, e: number, i: number, raan: number, w: number, nu0: number, dt: number, mu: number) {
+  const E0 = 2 * Math.atan(Math.sqrt((1 - e) / (1 + e)) * Math.tan(nu0 / 2));
+  const M = E0 - e * Math.sin(E0) + Math.sqrt(mu / a ** 3) * dt;
+  let E = M;
+  for (let k = 0; k < 50; k++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+  const xp = a * (Math.cos(E) - e);
+  const yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+  const [cO, sO, cw, sw, ci, si] = [Math.cos(raan), Math.sin(raan), Math.cos(w), Math.sin(w), Math.cos(i), Math.sin(i)];
+  return [
+    (cO * cw - sO * sw * ci) * xp + (-cO * sw - sO * cw * ci) * yp,
+    (sO * cw + cO * sw * ci) * xp + (-sO * sw + cO * cw * ci) * yp,
+    (sw * si) * xp + (cw * si) * yp,
+  ];
+}
+
+describe("core: orbit group", () => {
+  it("matches an independent Kepler solver (zero spread, EQJ plane) over several periods", () => {
+    const g = createOrbitGroup(input({ count: 3 }), two);
+    const out = new Float64Array(9);
+    for (const dt of [0, 600, 3 * 3600, 86400, 7 * 86400]) {
+      g.fillPositionsKm(T0 + dt * 1000, out);
+      const exp = keplerOracle(12000, 0.1, 30 * DEG, 40 * DEG, 50 * DEG, 10 * DEG, dt, MU_EARTH);
+      const err = Math.hypot(out[0] - exp[0], out[1] - exp[1], out[2] - exp[2]);
+      expect(err, `dt=${dt}`).toBeLessThan(0.05);
+    }
+  });
+
+  it("ecliptic plane equals an independent obliquity rotation about +x", () => {
+    const eps = 84381.406 / 3600 * DEG; // IAU 2006 J2000 obliquity
+    const g = createOrbitGroup(input({ count: 1, plane: "ecliptic-j2000" }), two);
+    const out = new Float64Array(3);
+    g.fillPositionsKm(T0 + 5000_000, out);
+    const ecl = keplerOracle(12000, 0.1, 30 * DEG, 40 * DEG, 50 * DEG, 10 * DEG, 5000, MU_EARTH);
+    const exp = [ecl[0], Math.cos(eps) * ecl[1] - Math.sin(eps) * ecl[2], Math.sin(eps) * ecl[1] + Math.cos(eps) * ecl[2]];
+    expect(Math.hypot(out[0] - exp[0], out[1] - exp[1], out[2] - exp[2])).toBeLessThan(0.05);
+  });
+
+  it("is deterministic across separate instances and differs by seed; single read equals batch", () => {
+    const s = { semiMajorAxisKm: 500, eccentricity: 0.05, inclinationDeg: 5, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 };
+    const a = createOrbitGroup(input({ spread: s, seed: 42 }), two);
+    const b = createOrbitGroup(input({ spread: s, seed: 42 }), two);
+    const c = createOrbitGroup(input({ spread: s, seed: 43 }), two);
+    const [oa, ob, oc] = [new Float64Array(300), new Float64Array(300), new Float64Array(300)];
+    const t = T0 + 123_456_789;
+    a.fillPositionsKm(t, oa); b.fillPositionsKm(t, ob); c.fillPositionsKm(t, oc);
+    expect(oa.every((v, i) => Object.is(v, ob[i]))).toBe(true);
+    expect(oa.some((v, i) => v !== oc[i])).toBe(true);
+    for (const i of [0, 37, 99]) {
+      const st = a.stateAt(i, t);
+      expect([...st.positionKm]).toEqual([oa[3 * i], oa[3 * i + 1], oa[3 * i + 2]]);
+      expect(st.center).toBe("earth");
+      expect(st.frame).toBe("EQJ");
+    }
+  });
+
+  it("names errors for bad inputs and boundary times", () => {
+    const bounds = { startUtcMs: T0, endUtcMs: T0 + 1000 };
+    const g = createOrbitGroup(input({ count: 2, bounds }), two);
+    const out = new Float64Array(6);
+    expect(() => g.fillPositionsKm(T0, out)).not.toThrow();
+    expect(() => g.fillPositionsKm(T0 + 1000, out)).not.toThrow();
+    expect(() => g.fillPositionsKm(T0 - 1, out)).toThrow(/bounds/);
+    expect(() => g.fillPositionsKm(T0 + 1001, out)).toThrow(/bounds/);
+    expect(() => g.fillPositionsKm(Number.NaN, out)).toThrow(RangeError);
+    expect(() => g.fillPositionsKm(T0, new Float64Array(5))).toThrow(/buffer/);
+    expect(() => g.stateAt(2, T0)).toThrow(RangeError);
+    expect(() => g.stateAt(-1, T0)).toThrow(RangeError);
+    for (const count of [0, -1, 1.5, Number.NaN, Infinity, 2 ** 53]) {
+      expect(() => createOrbitGroup(input({ count }), two), String(count)).toThrow(/count/);
+    }
+    expect(() => createOrbitGroup(input({ base: { ...input().base, eccentricity: 1 } }), two)).toThrow(/bound orbit/);
+    expect(() => createOrbitGroup(input({ base: { ...input().base, inclinationDeg: 179 }, spread: { inclinationDeg: 5 } }), two)).toThrow(/bound orbit/);
+    expect(() => createOrbitGroup(input({ seed: -1 }), two)).toThrow(/seed/);
+    expect(() => createOrbitGroup(input({ seed: 2 ** 32 }), two)).toThrow(/seed/);
+    expect(() => createOrbitGroup(input({ spread: { raanDeg: Number.NaN } }), two)).toThrow(/spread/);
+  });
+
+  it("OBSERVATION probes: reversed bounds, caller mutation of bounds, Moon centre", () => {
+    const rev = { startUtcMs: T0 + 1000, endUtcMs: T0 };
+    let created = true;
+    try { createOrbitGroup(input({ bounds: rev }), two); } catch { created = false; }
+    const shared = { startUtcMs: T0, endUtcMs: T0 + 1000 };
+    const g = createOrbitGroup(input({ count: 1, bounds: shared }), two);
+    shared.endUtcMs = T0 + 10_000_000;
+    let mutatedAccepted = true;
+    try { g.fillPositionsKm(T0 + 5_000_000, new Float64Array(3)); } catch { mutatedAccepted = false; }
+    const moon = createOrbitGroup(input({ count: 1, center: "moon", base: { ...input().base, semiMajorAxisKm: 3000 } }), two);
+    const mo = new Float64Array(3);
+    moon.fillPositionsKm(T0 + 60_000, mo);
+    console.log(JSON.stringify({ reversedBoundsAccepted: created, boundsFollowCallerMutation: mutatedAccepted, moonCentredFinite: mo.every(Number.isFinite) }));
+    expect(mo.every(Number.isFinite)).toBe(true);
+  });
+});
+
+function layer(group: unknown, refillAfterMs?: number) {
+  return { group, color: "#fff", object: { id: (group as { id: string }).id, label: "probe", color: "#fff" }, ...(refillAfterMs ? { refillAfterMs } : {}) };
+}
+
+describe("points layer", () => {
+  const ring = syntheticRingLayer.group;
+  const start = ring.bounds!.startUtcMs;
+  const end = ring.bounds!.endUtcMs;
+  const exactScaled = (t: number, i: number) => {
+    const km = new Float64Array(3 * ring.count);
+    ring.fillPositionsKm(t, km);
+    return eqjToRenderVector(trueScale.mapPosition([km[3 * i], km[3 * i + 1], km[3 * i + 2]]));
+  };
+
+  it("plays forward at 600x for 2 h in 60 fps frames: one fill per 300 s span, blend within 10 km of exact", () => {
+    const view = new PointsView(syntheticRingLayer);
+    const origin = new FloatingOrigin();
+    let worstKm = 0;
+    const stepMs = 600 * (1000 / 60); // 10 s simulation per frame
+    let t = start + 1;
+    for (let k = 0; k < 720; k++, t += stepMs) {
+      view.sync(t, astro, trueScale);
+      view.place(origin);
+      if (k % 97 === 0) {
+        for (const i of [0, 4999, 9999]) {
+          const got = view.memberLocalPosition(i);
+          const exp = exactScaled(t, i);
+          worstKm = Math.max(worstKm, Math.hypot(got[0] - exp[0], got[1] - exp[1], got[2] - exp[2]) * 6378.1366);
+        }
+      }
+    }
+    const simulated = 720 * stepMs;
+    console.log(JSON.stringify({ forwardFills: view.fillCount, expectedAbout: 1 + Math.ceil(simulated / 300_000), worstBlendKmIncludingFloat32: worstKm }));
+    expect(view.fillCount).toBeLessThanOrEqual(2 + Math.ceil(simulated / 300_000));
+    expect(worstKm).toBeLessThan(10);
+  });
+
+  it("plays backward from the end to past the start: fills clamp inside bounds, nothing drawn after", () => {
+    const view = new PointsView(syntheticRingLayer);
+    const origin = new FloatingOrigin();
+    let t = start + 1_000_000;
+    view.sync(t, astro, trueScale);
+    const afterSeek = view.fillCount;
+    while (t > start) {
+      t = Math.max(start, t - 10_000);
+      view.sync(t, astro, trueScale);
+      view.place(origin);
+    }
+    expect(view.drawn).toBe(true); // at the boundary
+    const fillsAtStart = view.fillCount;
+    view.sync(start - 1, astro, trueScale);
+    view.place(origin);
+    expect(view.drawn).toBe(false);
+    expect(view.fillCount).toBe(fillsAtStart);
+    expect(afterSeek).toBe(1);
+    expect(fillsAtStart - afterSeek).toBeLessThanOrEqual(Math.ceil(1_000_000 / 300_000) + 1);
+    // forward to the end bound
+    const v2 = new PointsView(syntheticRingLayer);
+    let u = end - 1_000_000;
+    while (u < end) { u = Math.min(end, u + 10_000); v2.sync(u, astro, trueScale); }
+    expect(v2.drawn).toBe(true);
+    const f2 = v2.fillCount;
+    v2.sync(end + 1, astro, trueScale);
+    expect(v2.drawn).toBe(false);
+    expect(v2.fillCount).toBe(f2);
+  });
+
+  it("a jump just past the held span refills once and draws the exact fill (no blend across the gap)", () => {
+    const view = new PointsView(syntheticRingLayer);
+    const origin = new FloatingOrigin();
+    view.sync(start + 10, astro, trueScale);
+    view.sync(start + 20_000, astro, trueScale); // slide -> pair [10, 300010]
+    const before = view.fillCount;
+    const jump = start + 10 + 300_000 + 300_000 + 5_000; // beyond after + span
+    view.sync(jump, astro, trueScale);
+    view.place(origin);
+    expect(view.fillCount).toBe(before + 1);
+    const exp = exactScaled(jump, 123);
+    const got = view.memberLocalPosition(123);
+    expect(Math.hypot(got[0] - exp[0], got[1] - exp[1], got[2] - exp[2]) * 6378.1366).toBeLessThan(0.01);
+  });
+
+  it("scale switch and camera move remap without a fill and leave State identical (ARCH-02)", () => {
+    const view = new PointsView(syntheticRingLayer);
+    const origin = new FloatingOrigin();
+    const t = start + 777_777;
+    const s0 = ring.stateAt(321, t);
+    view.sync(t, astro, trueScale); view.place(origin);
+    const fills = view.fillCount;
+    view.sync(t, astro, readableScale); origin.set([5, -3, 2]); view.place(origin);
+    view.sync(t, astro, trueScale); view.place(origin);
+    expect(view.fillCount).toBe(fills);
+    expect(ring.stateAt(321, t)).toEqual(s0);
+    const exp = exactScaled(t, 321);
+    const got = view.memberLocalPosition(321);
+    expect(Math.hypot(got[0] + 5 - exp[0], got[1] - 3 - exp[1], got[2] + 2 - exp[2])).toBeLessThan(1e-4);
+  });
+
+  it("Sun-centred belt: member render position equals Sun-from-Earth plus member State through the policy", () => {
+    const view = new PointsView(syntheticBeltLayer);
+    const origin = new FloatingOrigin();
+    const t = start + 3_600_000;
+    view.sync(t, astro, trueScale); view.place(origin);
+    const st = syntheticBeltLayer.group.stateAt(42, t);
+    const sun = sunPositionFromEarthAt(astro, t).positionKm;
+    const exp = eqjToRenderVector(trueScale.mapPosition([st.positionKm[0] + sun[0], st.positionKm[1] + sun[1], st.positionKm[2] + sun[2]]));
+    const got = view.memberLocalPosition(42);
+    const rel = Math.hypot(got[0] - exp[0], got[1] - exp[1], got[2] - exp[2]) / Math.hypot(...exp);
+    expect(rel).toBeLessThan(1e-6); // Float32 narrowing
+  });
+
+  it("rejects a non-positive span; Moon-centred groups fail at the first sync with a named message", () => {
+    expect(() => new PointsView(layer(ring, -5) as never)).toThrow(/refillAfterMs/);
+    const moon = createOrbitGroup(input({ id: "moon-probe", count: 1, center: "moon", base: { ...input().base, semiMajorAxisKm: 3000 } }), two);
+    const v = new PointsView(layer(moon) as never);
+    expect(() => v.sync(T0, astro, trueScale)).toThrow(/not supported/);
+  });
+
+  it("plug-in contract: points opt-in, one shell item, Apollo unchanged", () => {
+    expect(groupsOf({ ...syntheticRingDefinition, sceneLayers: ["earth-moon"] })).toEqual([]);
+    expect(groupsOf({ ...syntheticRingDefinition, groups: [syntheticRingLayer, syntheticRingLayer] })).toHaveLength(1);
+    const exp = experienceWithGroups(syntheticRingDefinition);
+    const items = exp.objects.filter((o: { id: string }) => o.id === "debris-ring");
+    expect(items).toHaveLength(1);
+    expect(items[0].provenance.sourceType).toBe("illustrative");
+    expect(items[0].availability).toEqual(ring.bounds);
+    expect(groupsOf(apollo11Definition)).toEqual([]);
+    expect(experienceWithGroups(apollo11Definition)).toBe(apollo11Definition.experience);
+  });
+});
+
+describe("measurements (reported, SC3 bar 8 ms at 10^4)", () => {
+  const median = (xs: number[]) => xs.sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+  it("fill cost at 10^3, 10^4, 10^5 and a PointsView slide frame at 10^4", () => {
+    const rows: Record<string, unknown>[] = [];
+    for (const center of ["earth", "sun"] as const) {
+      for (const count of [1_000, 10_000, 100_000]) {
+        const base = center === "earth" ? input().base : { ...input().base, semiMajorAxisKm: 3.7e8 };
+        const spread = { semiMajorAxisKm: center === "earth" ? 500 : 4e7, eccentricity: 0.05, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 };
+        const b0 = performance.now();
+        const g = createOrbitGroup(input({ count, center, spread, base }), two);
+        const build = performance.now() - b0;
+        const out = new Float64Array(3 * count);
+        for (let w = 0; w < 5; w++) g.fillPositionsKm(T0 + w * 1000, out);
+        const runs = count === 100_000 ? 10 : 50;
+        const times: number[] = [];
+        for (let r = 0; r < runs; r++) { const s = performance.now(); g.fillPositionsKm(T0 + 60_000 * r, out); times.push(performance.now() - s); }
+        rows.push({ center, count, buildMs: +build.toFixed(1), fillMedianMs: +median(times).toFixed(2) });
+      }
+    }
+    const view = new PointsView(syntheticRingLayer);
+    const origin = new FloatingOrigin();
+    const start = syntheticRingLayer.group.bounds!.startUtcMs;
+    let t = start + 1; view.sync(t, astro, trueScale);
+    const slide: number[] = []; const plain: number[] = [];
+    for (let k = 0; k < 600; k++) {
+      t += 10_000;
+      const f = view.fillCount; const s = performance.now();
+      view.sync(t, astro, trueScale); view.place(origin);
+      const d = performance.now() - s;
+      (view.fillCount > f ? slide : plain).push(d);
+    }
+    rows.push({ pointsViewSlideFrameMedianMs: +median(slide).toFixed(2), slideFrames: slide.length, plainFrameMedianMs: +median(plain).toFixed(3), plainFrames: plain.length });
+    console.log(JSON.stringify(rows, null, 1));
+  }, 120_000);
+});

@@ -41,9 +41,14 @@ export class SceneLabelLayer {
     heightPx: number,
     origin: FloatingOrigin,
     selectedObjectId: string,
+    hiddenIds?: ReadonlySet<string>,
   ): void {
     camera.updateMatrixWorld(true);
     const candidates = this.#entries.flatMap((entry) => {
+      if (hiddenIds?.has(entry.object.id) === true) {
+        entry.element.hidden = true;
+        return [];
+      }
       const absolute = positionFor(entry.object.id);
       if (absolute === null) {
         entry.element.hidden = true;

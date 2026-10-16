@@ -1,0 +1,10 @@
+> tsc --noEmit
+
+✓ built in 259ms
+[plugin builtin:vite-reporter] 
+ Test Files  24 passed (24)
+      Tests  460 passed (460)
+   Start at  18:36:53
+   Duration  28.56s (tests 77%, transform 16%, import 7%)
+
+JUNIT report written to /home/user/code/Astraeus/junit.xml

@@ -1,101 +1,341 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
+import type { GlowLook } from "./bodyDraw";
+import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { SimulationClock } from "../core/clock";
-import { MoonTrajectory } from "../core/moonTrajectory";
-import { trueScale } from "../core/scalePolicy";
-import { createObjectMetrics } from "./metricReadouts";
+import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
-import { DebugControls } from "./DebugControls";
-import { JourneyProgress, MissionSummary, MissionTelemetry } from "./MissionPanel";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { apollo11Experience, apollo11Mission } from "../mission/apollo11";
+import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
-import { scalePolicyFor, type ScaleId } from "../shell/scaleModel";
-import { EarthMoonScene, type SceneControls } from "./EarthMoonScene";
+import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
+import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
+import { SettingButtons, SettingGroup, SettingSlider } from "./SettingControls";
+import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
+import type { StoryMarkerSpec } from "./StoryMarkers";
+import { FrameRateSection, type GroupFill } from "./FrameRateSection";
+import { FrameStats, type FrameSnapshot } from "./frameStats";
+import { AstraeusScene, type SceneControls } from "./AstraeusScene";
+import { lightingFromSearch, sunLightFromSearch } from "./lighting";
+import { createSceneResolver } from "./sceneLayout";
+import { loadStarCatalogue } from "../assets/sky";
+import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
+import { baseGlowOf, GLOW_LIMITS, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
+import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
-export function App() {
+/** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
+const FPS_HISTORY = 60;
+
+/** The sky settings in force: the experience's own, hidden when the address says `?sky=off`. */
+function skySettingsOf(definition: ExperienceDefinition) {
+  const settings = resolveSkySettings(definition.sky);
+  const milkyWay = milkyWayFromSearch(window.location.search) ?? settings.milkyWay;
+  const starBrightness = brightnessFromSearch(window.location.search, "stars") ?? settings.starBrightness;
+  const milkyWayBrightness = brightnessFromSearch(window.location.search, "milkywaybrightness") ?? settings.milkyWayBrightness;
+  return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(window.location.search) };
+}
+
+/** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
+export function hiddenLabelsFrom(search: string, objects: readonly { readonly id: string; readonly showLabel?: boolean }[]): Set<string> {
+  const hidden = new Set(objects.filter((object) => object.showLabel === false).map((object) => object.id));
+  for (const part of (new URLSearchParams(search).get("labels") ?? "").split(",")) {
+    const [id, state] = part.split(":");
+    if (id === undefined || id === "" || (state !== "on" && state !== "off")) continue;
+    if (state === "off") hidden.add(id);
+    else hidden.delete(id);
+  }
+  return hidden;
+}
+
+/** `?loop=on` or `?loop=off` overrides the experience's own looping setting. */
+export function loopFromSearch(search: string, fallback: boolean): boolean {
+  const value = new URLSearchParams(search).get("loop");
+  return value === "on" ? true : value === "off" ? false : fallback;
+}
+
+export function App({ definition }: { readonly definition: ExperienceDefinition }) {
   const runtime = useMemo(() => {
     const adapter = createOrbAstronomyAdapter();
-    const clock = new SimulationClock(apollo11Mission.window.startUtcMs);
-    clock.setRate(3_600);
+    const clock = new SimulationClock(definition.clock.startUtcMs);
+    clock.setRate(definition.clock.rate);
+    // A copied view link carries the time it was copied at.
+    const linkedTime = timeFromSearch(window.location.search);
+    if (linkedTime !== undefined) clock.seek(linkedTime);
     clock.play();
-    return { clock, adapter, trajectory: new MoonTrajectory(adapter), mission: apollo11Mission };
-  }, []);
-  const metricsFor = useMemo(
-    () => createObjectMetrics({ bodies: runtime.mission.bodies, moon: runtime.trajectory, earthId: "earth", moonId: "moon" }),
+    // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
+    const resolver = createSceneResolver(adapter, catalogueOf(definition));
+    return {
+      clock,
+      adapter,
+      resolver,
+      catalogue: catalogueOf(definition),
+      bodies: mountedBodiesOf(definition),
+      composition: compositionOf(definition),
+      overrides: visualOverridesOf(definition),
+      sceneCenter: sceneCenterOf(definition),
+      trackedBodies: trackedBodiesOf(definition),
+      groups: groupsOf(definition),
+      ...sunCentredOf(definition),
+      cameraReach: cameraReachOf(definition),
+      lighting: lightingFromSearch(window.location.search),
+      sunLight: sunLightFromSearch(window.location.search),
+      sky: skySettingsOf(definition),
+      loopWindow: definition.experience.window,
+      up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
+    };
+  }, [definition]);
+  const experienceRuntime = useMemo(
+    () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
   );
+  // The choices offered, in the experience's order; the solar-system policy enlarges only the bodies the experience names.
+  const scaleChoiceIds = useMemo(() => scaleChoiceIdsOf(definition), [definition]);
+  const scaleChoices = useMemo(() => (scaleChoiceIds === undefined ? undefined : scaleChoicesFor(scaleChoiceIds)), [scaleChoiceIds]);
+  const suppliedPolicies = useMemo<readonly ScalePolicy[]>(() => {
+    const exaggeration: Record<string, number> = {};
+    for (const [id, override] of runtime.overrides) if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
+    return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
+  }, [runtime]);
+  const linkedScale = scaleFromSearch(window.location.search);
+  const startScale: ScaleId = linkedScale !== undefined && (scaleChoiceIds ?? ["true-scale", "readable-scale"]).includes(linkedScale) ? linkedScale : scaleChoiceIds?.[0] ?? "true-scale";
+  const experience = useMemo(() => experienceWithGroups(definition), [definition]);
+  // The shell also lists the sky, citing its sources and saying whether the stars were fetched.
+  const [starStatus, setStarStatus] = useState<StarStatus>({ kind: "loading" });
+  useEffect(() => {
+    let cancelled = false;
+    void loadStarCatalogue().then((loaded) => {
+      if (!cancelled) setStarStatus(loaded === null ? { kind: "absent" } : { kind: "loaded", count: loaded.stars.length });
+    });
+    return () => { cancelled = true; };
+  }, []);
+  const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
+  const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
+  const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
+  const storySet = definition.experience.storyPanels;
+  const storyMarkerSpecs = useMemo<readonly StoryMarkerSpec[]>(
+    () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title }])),
+    [storySet],
+  );
   const controls = useRef<SceneControls>({
-    policy: trueScale,
+    policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
     showAnchorLabels: false,
-    labelObjects: apollo11Experience.objects,
-    selectedObjectId: "earth",
+    loop: loopFromSearch(window.location.search, definition.loop === true),
+    up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
+    showMilkyWay: runtime.sky.milkyWay,
+    bodyMarker: markerSettingsFromSearch(window.location.search),
+    ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(window.location.search, glowBase) }),
+    starBrightness: runtime.sky.starBrightness,
+    milkyWayBrightness: runtime.sky.milkyWayBrightness,
+    hiddenLabels: hiddenLabelsFrom(window.location.search, experience.objects),
+    labelObjects: experience.objects,
+    storyMarkers: storyMarkerSpecs,
+    selectedObjectId: initialObjectIdOf(definition),
+    frameStats: null,
+    groupFills: [],
+    ...((viewFromSearch(window.location.search) ?? definition.startView) === undefined ? {} : { startView: (viewFromSearch(window.location.search) ?? definition.startView)! }),
   });
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
-  const [scale, setScale] = useState<ScaleId>("true-scale");
+  const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
+  const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
+  const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
+  const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
+  const [loopOn, setLoopOn] = useState(controls.current.loop === true);
+  const [upChoice, setUpChoice] = useState<ViewUp>(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial"));
+  const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
+  const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
+  const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
+  const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
+  const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
+  const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
+  const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
+  const [frames, setFrames] = useState<FrameSnapshot | null>(null);
+  const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
+  const [viewNow, setViewNow] = useState<StartView | null>(null);
+  const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
+  const [fills, setFills] = useState<readonly GroupFill[]>([]);
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
+  const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
+  const markOpenPanel = useCallback((id: string | null) => { controls.current.openStoryPanelId = id; }, []);
+  const setPlaying = useCallback((playing: boolean) => {
+    if (playing) runtime.clock.play();
+    else runtime.clock.pause();
+    setClockSnapshot(runtime.clock.snapshot());
+  }, [runtime]);
+  controls.current.onStoryMarker = requestPanel;
   const updateSelectedObject = useCallback((objectId: string) => {
     controls.current.selectedObjectId = objectId;
   }, []);
   const updateScale = useCallback((id: ScaleId) => {
-    controls.current.policy = scalePolicyFor(id);
+    controls.current.policy = scalePolicyFor(id, suppliedPolicies);
     setScale(id);
-  }, []);
+  }, [suppliedPolicies]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setClockSnapshot(runtime.clock.snapshot()), 100);
+    const id = window.setInterval(() => {
+      // The readout wraps with the scene, so the shown time never rests past the end while looping.
+      if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
+      setClockSnapshot(runtime.clock.snapshot());
+    }, 100);
     return () => window.clearInterval(id);
   }, [runtime]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
-    const id = window.setInterval(() => setHud(readout.current), 250);
-    return () => window.clearInterval(id);
-  }, [developerMode]);
+    const stats = new FrameStats();
+    controls.current.frameStats = stats;
+    const id = window.setInterval(() => {
+      setHud(readout.current);
+      const snapshot = stats.snapshot();
+      setFrames(snapshot);
+      if (snapshot.frames > 0) setFpsHistory((history) => [...history.slice(-(FPS_HISTORY - 1)), snapshot.fps]);
+      setFills(controls.current.groupFills.map((fill) => ({ ...fill })));
+      setViewNow(controls.current.viewReadout === undefined ? null : { ...controls.current.viewReadout });
+    }, 250);
+    return () => {
+      window.clearInterval(id);
+      controls.current.frameStats = null;
+      setFrames(null);
+      setFpsHistory([]);
+    };
+  }, [developerMode, runtime]);
 
+  /** Writes the current view, scale, up direction and time into the address, then copies the full link (or shows it to copy by hand). */
+  const copyViewLink = async () => {
+    const view = controls.current.viewReadout;
+    if (view === undefined) return;
+    const search = viewLinkSearch(window.location.search, { view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs });
+    try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
+    const url = `${window.location.origin}${window.location.pathname}${search}`;
+    let copied = false;
+    try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
+    setViewLink({ url, copied });
+  };
+  const sections = definition.developerSections ?? [];
+  const renderSection = (section: DeveloperSection) => (
+    <section key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} aria-labelledby={`developer-${section.id}-heading`}>
+      <h3 id={`developer-${section.id}-heading`}>{section.heading}</h3>
+      {section.render(experienceRuntime)}
+    </section>
+  );
   const developerTools = (
     <div className="hud">
       <header className="developer-heading">
         <h2>Developer tools</h2>
-        <p>Time controls, mission context, live telemetry and scene diagnostics.</p>
+        <p>Live readouts, controls and diagnostics for this scene.</p>
       </header>
-      <section className="hud-section hud-section-clock" aria-labelledby="developer-clock-heading">
-        <h3 id="developer-clock-heading">Time and playback</h3>
-        <DebugControls clock={runtime.clock} mission={runtime.mission} />
-        <JourneyProgress mission={runtime.mission} clock={runtime.clock} />
-      </section>
-      <section className="hud-section" aria-labelledby="developer-telemetry-heading">
-        <h3 id="developer-telemetry-heading">Spacecraft telemetry</h3>
-        <MissionTelemetry mission={runtime.mission} clock={runtime.clock} moon={runtime.trajectory} />
-      </section>
-      <section className="hud-section" aria-labelledby="developer-scene-heading">
-        <h3 id="developer-scene-heading">Scene instrumentation</h3>
-        <DebugOverlay readout={hud} />
-      </section>
-      <section className="hud-section" aria-labelledby="developer-display-heading">
-        <h3 id="developer-display-heading">Display settings</h3>
-        <div className="row scale-controls" role="group" aria-label="Scene labels">
-          <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>
-        </div>
-      </section>
-      <section className="hud-section" aria-labelledby="developer-mission-heading">
-        <h3 id="developer-mission-heading">Mission context</h3>
-        <MissionSummary mission={runtime.mission} />
-      </section>
+      {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
+      {hud !== null && (
+        <section className="hud-section" aria-labelledby="developer-scene-heading">
+          <h3 id="developer-scene-heading">Scene instrumentation</h3>
+          <DebugOverlay readout={hud} />
+        </section>
+      )}
+      <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
+      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
+        <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
+          <h3 id="developer-display-heading">Display settings</h3>
+          <div className="setting-groups">
+          <SettingGroup id="view" title="View">
+            <SettingButtons label="Up direction">
+              {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
+                <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
+              ))}
+            </SettingButtons>
+            <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
+              onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
+            <div className="view-link" role="group" aria-label="Camera view">
+              <SettingButtons label="Camera view">
+                <button onClick={() => void copyViewLink()}>Copy view link</button>
+              </SettingButtons>
+              {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
+              {viewLink !== null && (
+                <p className="view-link-field">
+                  <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />
+                  <span>{viewLink.copied ? "Copied to the clipboard." : "Clipboard unavailable: select the link above and copy it."}</span>
+                </p>
+              )}
+            </div>
+            <SettingButtons>
+              <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
+            </SettingButtons>
+          </SettingGroup>
+          {storySet !== undefined && storySet.panels.length > 0 && (
+            <SettingGroup id="story-panels" title="Story panels">
+              <SettingButtons>
+                <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
+              </SettingButtons>
+              <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
+                onChange={setStoryPauseSeconds} />
+            </SettingGroup>
+          )}
+          {runtime.sky.visible && (
+            <SettingGroup id="sky" title="Sky">
+              <SettingButtons>
+                <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>
+              </SettingButtons>
+              <SettingSlider label="Star brightness" ariaLabel="Star brightness" testId="star-brightness-value" display={starBrightness.toFixed(2)} min={0} max={2} step={0.05} value={starBrightness}
+                onChange={(value) => { controls.current.starBrightness = value; setStarBrightness(value); }} />
+              <SettingSlider label="Milky Way brightness" ariaLabel="Milky Way brightness" testId="milky-way-brightness-value" display={milkyWayBrightness.toFixed(2)} min={0} max={2} step={0.05} value={milkyWayBrightness}
+                onChange={(value) => { controls.current.milkyWayBrightness = value; setMilkyWayBrightness(value); }} />
+            </SettingGroup>
+          )}
+          {glowShown !== null && (
+            <SettingGroup id="glow" title="Sun glow">
+              <SettingSlider label="Glow size (px)" ariaLabel="Sun glow size" testId="sun-glow-size-value" display={glowShown.sizePx.toFixed(0)} min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx}
+                onChange={(value) => { controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              <SettingSlider label="Glow brightness" ariaLabel="Sun glow brightness" testId="sun-glow-brightness-value" display={glowShown.brightness.toFixed(2)} min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness}
+                onChange={(value) => { controls.current.glowLook!.brightness = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              <SettingSlider label="Glow reach (× disc)" ariaLabel="Sun glow reach" testId="sun-glow-scale-value" display={glowShown.scale.toFixed(1)} min={GLOW_LIMITS.scale.min} max={GLOW_LIMITS.scale.max} step={0.1} value={glowShown.scale}
+                onChange={(value) => { controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+            </SettingGroup>
+          )}
+          {(labelToggles.length > 0 || runtime.trackedBodies.length > 0) && (
+            <SettingGroup id="labels" title="Labels">
+              <SettingButtons>
+                {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
+                {labelToggles.map((object) => (
+                  <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
+                    const hidden = controls.current.hiddenLabels ?? new Set<string>();
+                    if (hidden.has(object.id)) hidden.delete(object.id);
+                    else hidden.add(object.id);
+                    controls.current.hiddenLabels = hidden;
+                    setHiddenLabels(new Set(hidden));
+                  }}>{`${object.label} label`}</button>
+                ))}
+              </SettingButtons>
+            </SettingGroup>
+          )}
+          {(definition.alternates ?? []).length > 0 && (
+            <SettingGroup id="data" title="Data">
+              <SettingButtons>
+                {(definition.alternates ?? []).map((alternate) => (
+                  <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set(alternate.param, alternate.value);
+                    window.location.assign(url.toString());
+                  }}>{alternate.label}</button>
+                ))}
+              </SettingButtons>
+            </SettingGroup>
+          )}
+          </div>
+        </section>
+      )}
+      {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
     </div>
   );
 
   return (
     <AstraeusShell
-      experience={apollo11Experience}
+      experience={shellExperience}
       snapshot={clockSnapshot}
       developerMode={developerMode}
       onDeveloperModeChange={setDeveloperMode}
@@ -116,11 +356,16 @@ export function App() {
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}
+      scaleChoices={scaleChoices}
       metricsFor={metricsFor}
       developerTools={developerTools}
+      storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
+      onSetPlaying={setPlaying}
+      panelRequest={panelRequest}
+      onOpenPanelChange={markOpenPanel}
     >
       <div className="canvas-host">
-        <EarthMoonScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />
       </div>
     </AstraeusShell>
   );

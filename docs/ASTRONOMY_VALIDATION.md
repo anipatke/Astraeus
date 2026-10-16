@@ -86,3 +86,202 @@ clamp((1 + unit(Moon→Sun) · unit(Moon→Earth)) / 2, 0, 1)
 using same-time, geometric EQJ vectors. The recorded Orb 3.1.1 values are 0.501443, 0.001911, 0.501177 and 0.998254. Tests allow absolute error 0.01 from the USNO event's ideal fraction (0, 0, 0.5, 1); this intentionally tolerates the difference between a named phase event and the simplified geometric model. This does not claim observed topocentric phase or include lunar shadow geometry.
 
 For Earth rotation, Orb's `gmst82` was checked at UT1 JD 2453736.5 against the IAU SOFA validation value `1.754174981860675096` radians; the difference was about `1.29e-12` radians. A separate 24-hour check advances sidereal phase by approximately 360.985647366 degrees. These tests establish convention and rotation behavior; they do not remove the adapter's documented `dut1=0` default or substitute for polar-motion data.
+
+## Planets: Mercury, Venus, Mars and Jupiter (O-014 / T-048)
+
+### Position
+
+`planetPositionFromSunKm(planet, t)` on the adapter takes the pinned Orb 3.1.1 `Mercury`, `Venus`, `Mars` and `Jupiter` VSOP87A series, reads the heliocentric ecliptic-J2000 position in au, and converts it to EQJ km about the Sun through Orb's `ecliptic-j2000` to `equatorial-j2000` transform, checking the library's documented coordinate, unit and centre labels like the other methods. **The full coefficient series is registered** (`@lizard-isana/orb/vsop87a/*`). The compact default table was measured first and is not usable here: against the same six Horizons dates its largest vector error was 18,929 km (Mercury), 2,877 km (Venus), 80,199 km (Mars) and 142,044 km (Jupiter). The full series cost about 780 kB of unminified source across the four planets (see the build size recorded in the Task evidence).
+
+Raw Horizons responses are archived in [`planets-horizons-source.txt`](../tests/fixtures/planets-horizons-source.txt) (four concatenated API responses, each preceded by a `==== QUERY ... ====` line giving the exact parameters; the text of each response is unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND` 199, 299, 499, 599, `CENTER='500@10'` the Sun's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1` position only, `VEC_CORR=NONE` geometric, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` of JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). The normalized vectors are in `planets-horizons.json`. Targets are Mercury, Venus (DE441) and Mars (`mar099` satellite ephemeris on DE441) and Jupiter (`jup365_merged` on DE441) body centres. The 2030 sample is labelled `UT~` by Horizons, because UTC for that date uses a predicted leap-second offset.
+
+| UTC sample | Why |
+|---|---|
+| 1969-07-21 00:00 | start of the validated range |
+| 1985-06-01 00:00 | mid-range |
+| 2000-01-01 12:00 | J2000 |
+| 2010-07-01 00:00 | mid-range |
+| 2024-01-01 00:00 | recent |
+| 2030-06-01 00:00 | end of range |
+
+Measured maxima over the six samples (Orb 3.1.1, full VSOP87A, `tests/planets.test.ts`):
+
+| Planet | Max angular separation | Max range residual | Max vector distance | Test target |
+|---|---:|---:|---:|---|
+| Mercury 199 | 0.108 arcsec | 1.7 km | 30.4 km | under 40 km, 0.5 arcsec |
+| Venus 299 | 0.095 arcsec | 0.9 km | 50.1 km | under 70 km, 0.5 arcsec |
+| Mars 499 | 0.092 arcsec | 3.5 km | 95.8 km | under 120 km, 0.5 arcsec |
+| Jupiter 599 | 0.325 arcsec | 166.9 km | 1269.4 km | under 1500 km, 0.5 arcsec |
+
+These are sample maxima, not bounds for every date. They are recorded in each definition's `accuracy.position`, with the sampled range (1969-07-21 to 2030-06-01) as `accuracy.validUtc`; outside it the series is extrapolated without a measurement. Geometric positions only (no light time or aberration). No velocity is modelled for planets.
+
+### Orientation
+
+`src/core/iauRotation.ts` builds the body-to-EQJ rotation from a pole right ascension and declination (linear per Julian century) and a prime meridian W (linear per day), all from J2000 and counted here in TT days from the adapter's `daysSinceJ2000Tt` (TT standing in for TDB, a difference under 2 ms). Body +Z is the pole, +X the prime meridian and +Y completes the basis. The constants come from the IAU Working Group report of 2015 (Archinal et al., Celest. Mech. Dyn. Astron. 130, 22, 2018) as transcribed in NAIF `pck00011.tpc` (fetched 2026-10-12); the exact kernel lines are archived in [`iau-pck-excerpt.txt`](../tests/fixtures/iau-pck-excerpt.txt) and a test asserts the shipped numbers equal them. The report's periodic nutation and libration terms are left out (Mercury's would reach about 0.01 degrees in W; Mars's and Jupiter's pole terms are below 0.001 degrees), and the secular terms only are kept.
+
+Independent check: Horizons' OBSERVER table for Mars and Jupiter at the same six dates, quantities 14 and 20 ([`planets-rotation-horizons-source.txt`](../tests/fixtures/planets-rotation-horizons-source.txt), fetched 2026-10-12, geocentre, normalized in `planets-rotation-horizons.json`). `ObsSub-LON` is the sub-observer planetographic longitude, west positive. The test makes the same number by taking the planet one light time ago, the Earth now, and the Earth direction in the body frame. Results:
+
+| Case | Max sub-Earth longitude difference | Test tolerance |
+|---|---:|---:|
+| Jupiter, shipped constants (System III, identical in both reports) | 0.0051 degrees | 0.02 |
+| Mars, IAU 2009 constants (NAIF `pck00010.tpc`) | 0.0028 degrees | 0.02 |
+| Mars, shipped IAU 2015 constants | 0.934 degrees | under 1.2, over 0.3 |
+
+Horizons evidently uses the earlier IAU 2009 Mars constants (pole 317.68143, 52.88650; W0 176.630) for its Mars frame: with those the code reproduces it to 0.003 degrees, which validates the rotation maths, light-time handling and time scale. The shipped Mars data are the 2015 report's (pole 317.269202, 54.432516; W0 176.049863), which moved the Mars pole by about 1.5 degrees and W by up to about 0.9 degrees at these dates; that difference is a change between published reports, not an error, and the 0.934 degree figure is the measured size of it. Mercury and Venus rotation were not compared with Horizons (unverified); their constants are checked only against the NAIF excerpt. Jupiter's latitude comparison is limited by Horizons' planetographic versus the model's planetocentric latitude.
+
+### Dimensions and gravitational parameters
+
+Radii are from the NASA NSSDC fact sheets (read 2026-10-12): Mercury volumetric mean 2439.7 km; Venus 6051.8 km (equatorial and polar equal); Mars 3389.5 mean, 3396.2 equatorial, 3376.2 polar; Jupiter 69,911 mean, 71,492 equatorial (1 bar), 66,854 polar. Gravitational parameters (km^3/s^2) are from the physical-data header of the Horizons API for each planet (Mercury 22031.86855, Venus 324858.592, Mars 42828.375662, Jupiter 126686531.9; fetched 2026-10-12). The Horizons header's volumetric mean radius for Mercury is 2439.4 km; the fact-sheet 2439.7 is used.
+
+## Io about Jupiter (O-014 / T-049)
+
+### Source of the elements
+
+Mean orbital elements of Io about Jupiter are the JPL Solar System Dynamics "Planetary Satellite Mean Elements" table (`https://ssd.jpl.nasa.gov/sats/elem/`, ephemeris JUP365 after R. A. Jacobson 2021, read 2026-10-12), row for Io (501), Laplace-plane frame, epoch 2000-01-01.5 TDB: a = 421,800 km, e = 0.004, omega = 49.1 deg, M = 330.9 deg, i = 0.0 deg, node = 0.0 deg, P = 1.762732 d, period of the apsides 1.333 yr, Laplace-plane pole RA 268.1 deg, Dec 64.5 deg, tilt 0.0 deg. The page itself warns the elements "are not intended for ephemeris computation". Jupiter's GM, 126,686,531.9 km^3/s^2, is the Horizons physical-data value recorded in T-048; Io's GM 5959.9155 and mean radius 1821.49 km are printed in the Horizons satellite header archived in `io-horizons-source.txt` (the radius is 3642.98 km as a diameter, the one-Io-diameter line).
+
+### How the elements become a position
+
+`src/core/bodies/io.ts` builds the Laplace plane as an EQJ-plane orbit with inclination 90 - Dec and node RA + 90 deg (the plane whose pole is RA/Dec, with its node reference on the EQJ equator), keeps omega as the table gives it, converts M to the true anomaly by solving Kepler's equation, and propagates by unperturbed two-body motion about Jupiter's GM through `createTwoBodyTrajectory` (no contract change). Two choices came from measurement against Horizons, not from the table text:
+
+- J2000 in UTC is 64.184 s before 2000-01-01 12:00 UTC (TT minus UTC); the epoch is converted, because 64 s of Io's motion is about 1100 km.
+- The table's P (1.762732 d) is the anomalistic period, not the sidereal one, and the period of the apsides is given without a sign. A fixed ellipse cannot precess, so the semi-major axis is the one whose two-body period equals the sidereal period 1 / (1/P - 1/Papsis) = 1.7691 d (the retrograde sign; the Horizons header says about 1.77 d). Tried first, the table's own a of 421,800 km gives a period of 1.7699 d and the prograde sign 1.756 d.
+
+| Variant | Distance from Horizons at the six dates (km), 1969 to 2030 |
+|---|---|
+| Table a, M from epoch | 301,922; 785,042; 830; 18,355; 632,498; 319,784 |
+| a from the anomalistic period (1.762732 d) | 396,570; 150,618; 1,335; 323,870; 14,739; 454,808 |
+| a from a prograde sidereal period (1.756 d) | 700,704; 297,183; 2,218; 598,463; 23,931; 768,224 |
+| **a from the retrograde sidereal period (shipped)** | **2,398; 1,114; 826; 2,780; 5,537; 9,387** |
+
+### Horizons comparison
+
+Raw Horizons response archived in [`io-horizons-source.txt`](../tests/fixtures/io-horizons-source.txt) (one API response preceded by a `==== QUERY ... ====` line with the exact parameters; text unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='501'`, `CENTER='500@599'` Jupiter's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` the same six Julian dates as the planets: 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). Target Io (501) and centre Jupiter (599) are both `jup365_merged`. Normalized vectors: `io-horizons.json`.
+
+Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**, at 2030-06-01; the J2000 sample is 825.5 km. The one-Io-diameter line (3,643 km) is exceeded, so Io's record says "approximate demonstration" and the figure is in its known limitations; the test asserts the recorded figure (9,388 km, rounded up) equals the measured one and that the classification follows from it. The error grows away from the epoch (mean elements fitted for a precessing ellipse, no Europa and Ganymede resonance, fixed rather than precessing periapsis). Orientation is the Moon's approximate tidal lock about Jupiter (near side towards the parent, no libration).
+
+### Lighting model measurement
+
+Each frame's lit body is lit along its own Sun direction (one pass per body), or by one point light at the Sun's scaled position (`?lighting=single-sun`, a measurement mode). Geometric result on the four January 2024 USNO phase events, True and Readable scales, Moon seen from Earth (`tests/jupiterIo.test.ts`): the point light's illuminated fraction differs from the per-body figure by at most 7.2e-9 and its direction by at most 1.5e-6 degrees (float32 narrowing included); one directional light pointed at the scene centre differs by 1.36e-3 in fraction and 0.156 degrees. Rendered comparison (`tools/validate/browser-lighting.mjs`, headless Chromium, per-pixel mean difference of 255 over lit pixels): Earth 0.0 and 0.006, Jupiter 0.004 and 0.006, Io 0.0, 0.0 and 0.0; Moon 7.7 to 13.0, which is brightness only: Earth's light is stronger (1.8/0.18) than the Moon's (1.4/0.08) and one light has one strength. With the Moon's own strength the Moon difference is 0.0005 to 0.009. Recommendation: keep per-body lights for Spike 04; the single point light is viable for larger systems.
+
+## 109P/Swift-Tuttle about the Sun (O-011 / T-054)
+
+### Source of the elements
+
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1`, fetched 2026-10-15T08:39Z), solution SB405-CPV-2 (M.S.W. Keesey, 2001-10-09; 652 observations 1737 to 1995), epoch JD 2450000.5 TDB (1995-10-10), ecliptic J2000: e 0.963225755046038, a 26.0920694978266 AU, i 113.453816997171 deg, node 139.3811920815948 deg, omega 152.9821676305871 deg, M 7.631696167124212 deg, tp JD 2448968.499784556297, period 48681.19346262312 d, aphelion 51.2246 AU. The raw response is archived in [`swift-tuttle-horizons-source.txt`](../tests/fixtures/swift-tuttle-horizons-source.txt) (first of two responses, each preceded by a `==== QUERY ... ====` line); `tests/swiftTuttle.test.ts` asserts every constant equals the archived value. Nucleus diameter 26 km (Lamy, Toth, Fernandez and Weaver 2004, Comets II, pp. 223-264, as SBDB prints it), so radius 13 km, which is also what Horizons prints (`RAD= 13.`). Neither source gives a gravitational parameter for the comet, so none is recorded and it cannot be a centre.
+
+### How the elements become a position
+
+`src/core/bodies/swiftTuttle.ts` converts M to the true anomaly by solving Kepler's equation and propagates by unperturbed two-body motion about the catalogue's solar GM through `createTwoBodyTrajectory`. The epoch is converted from TDB to UTC (TT minus UTC was 61.184 s in October 1995; a 61 s error would move the comet at most 2.6 thousand km, small beside the figures below). The model period from the catalogue's GM is 48681.19347 d against SBDB's 48681.19346 d. There are no planetary perturbations and no non-gravitational forces; the accuracy record says so.
+
+### Horizons comparison
+
+Raw Horizons response archived in the same file, second response, with its query line: fetched 2026-10-15T08:39:41Z against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='DES=109P;CAP'` (solution JPL#32, the same fit as SBDB, small perturbers on), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). Positions parsed into [`swift-tuttle-horizons.json`](../tests/fixtures/swift-tuttle-horizons.json); ICRF is treated as EQJ and UTC as UTC. A date list is not a bound for other dates.
+
+| Date (UTC) | Distance from the Sun | Difference from Horizons | As a fraction of the distance |
+|---|---|---|---|
+| 1990-01-01 | 10.14 AU | 2,715,375 km | 0.179% |
+| 1991-01-01 | 7.61 AU | 1,896,210 km | 0.167% |
+| 1992-12-12 (perihelion) | 0.958 AU | 1,228,932 km | **0.857%** |
+| 2000-01-01 12:00 | 18.06 AU | 1,527,641 km | 0.057% |
+| 2010-01-01 | 30.63 AU | 4,587,715 km | 0.100% |
+| 2020-01-01 | 38.91 AU | 7,592,269 km | 0.130% |
+| 2026-08-13 | 42.94 AU | 9,384,149 km | 0.146% |
+| 2030-01-01 | 44.65 AU | **10,686,093 km (0.0714 AU)** | 0.160% |
+
+Maximum error **10,686,093 km (0.071 AU) at 2030-01-01**; largest fraction 0.857% at the 1992 perihelion. The error grows with distance from the 1995 epoch because Horizons integrates the same fit with the planets' pull and a fixed two-body ellipse cannot. **Classification: approximate.** A body's own diameter is no yardstick (the nucleus is 26 km), so the line is the comet's distance from the Sun: within 1% at every compared date is good enough to draw the orbit and the comet's place on it at overview scale, not an ephemeris and not good enough for a close approach. The test asserts the recorded figure and that the classification follows from it (`tests/swiftTuttle.test.ts`, "has a maximum Sun-centred error equal to the figure the definition records" and "has a largest fractional error equal to the recorded one"). Validity is stated as 1990 to 2030 only; the 2026 comparison date is the nearest to the Perseid peak the comparison covers.
+
+### Drawing a long orbit (O-011 / T-054)
+
+Even-in-time sampling of an e = 0.96 orbit leaves a few long chords across the sharp end. `eccentricPathTimesUtcMs` (`src/core/sunCentredSources.ts`) spaces the samples evenly in eccentric anomaly instead; the source is still asked for its own state at each time, so the line passes through the source's positions. Measured on a made-up e = 0.96, a = 26 AU orbit (`tests/longOrbitPaths.test.ts`), longest chord as a fraction of the local orbit radius (mean of the segment's end radii):
+
+| Samples | Even in time | Even in eccentric anomaly | Ratio |
+|---|---|---|---|
+| 256 | 1.708 | 0.172 | 9.9 |
+| 512 (default for such a path) | 1.373 | 0.086 | 16.0 |
+
+At 256 samples the ratio misses the one-tenth requirement by a hair, so a path declared with `sampling` defaults to 512 samples (a setting, `PathLayer.samples`). Precision 50 AU out is measured in the browser with the method of `tools/validate/browser-precision.mjs`; figures are in the Task evidence and the run directory named there.
+
+## Perseid stream from measured CAMS orbits (O-011 / T-038)
+
+### Source and what is drawn
+
+The stream is the 18,699 bound Perseid orbits (IAU shower 7) of the CAMS Meteoroid Orbit Database v3.0 (`CAMS-v3-2010to2016.xlsx`, 321,511,540 bytes, SHA-256 `ec886496...a85845`, the release T-051 recorded; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29). `tools/data/fetch-meteoroid-orbits.mjs 7` downloads it, reads the workbook with Node built-ins only and writes `data/local/cams-iau-7.json` (git-ignored; never committed, never in a public build, no stand-in when absent). The workbook uses the 1904 date system, so the Date serial plus 1,462 days is the 1900 serial. **The header labels sit over the wrong letters** (for example "a" is printed over BJ while its values are in BL, "Shower I.D." over AM while the shower number is in AK), so the tool reads the letters found from the data (shower AK; a BL, e BM, i BO, w BQ, node BS; solar longitude BF; Catalog # A; date C and time D, repeated in AN and AO) and verifies them from the values on every run: elements in range, the repeated date and time equal to 9 s, and the node within 1 degree (mod 180) of the solar longitude for at least 95% of the rows.
+
+IAU 7 has 24,928 records; 6,229 have e >= 1 (a is the sentinel 999) and are dropped; 18,699 remain, none with a <= 0 and none with an empty element. All 18,699 are drawn (under the 20,000 line). Each dot's `recordId` is its Catalog # and the file keeps its sheet row. A sample of 20 members resolves to its record: the member's own energy gives back the record's semi-major axis to 1e-4, and with `CAMS_XLSX` set the same 20 are read back from the workbook (catalogue number, shower and elements equal), run 2026-10-15 against the scratch copy of the workbook.
+
+### The clump near the comet
+
+Each orbit's dot is placed by an even spread of mean anomaly (illustrative); 30% of the dots are placed within 20 degrees of mean anomaly of 109P's (about 15 years of its 133-year orbit), settings in `data/showers/perseids.json`. These are **illustrative defaults, not a published fit**: no citation is claimed. Because the orbits differ in size (CAMS `a` runs 12 to 49 AU in the worked examples T-051 recorded, against the comet's 26 AU), members at the comet's phase lie along the same direction from the Sun at their own distances, so the clump is a band at the comet's phase and not a blob on the comet; the panel says so.
+
+### Factual checks (`tests/showersMeasured.test.ts`, run with the fetched data)
+
+Method: the measured ellipses themselves (not the dots), from the elements in the ecliptic J2000 frame, with Earth from the engine's ephemeris and the Sun's GM; the geometry is in `tests/helpers/streamFacts.ts` and does not use the engine's propagation. **Convention (I-027): J2000 against J2000.** The IAU MDC file states "All records on J2000" and the CAMS solar longitudes are J2000 too, so the published peak 140.1 degrees is a longitude in the J2000.0 ecliptic and equinox. The helper therefore uses the Sun's geometric J2000 longitude (Earth's heliocentric longitude in the J2000 ecliptic plus 180 degrees); general precession is not added (adding it gives the longitude of date, 0.37 degrees larger in 2027, and had put the peak about 9 hours early); aberration and nutation, under 0.01 degree, are not applied. The browser check (`tools/validate/browser-showers.mjs`) uses the Astronomical Almanac low-precision formula, which is of date, and subtracts general precession (5,028.796 arcsec per Julian century, IAU 2006 / Capitaine et al. 2003). `tests/solarLongitudeConvention.test.ts` pins the convention against JPL Horizons geometric vectors of Earth about the Sun in the J2000 ecliptic (fetched 2026-10-16, raw response in `tests/fixtures/earth-ecliptic-j2000-horizons.json`): 139.673 degrees at 2027-08-13T00:00Z and 261.620 at 2026-12-14T00:00Z (the old helper read 140.06 and 262.00), the helper within 0.005 degrees of Horizons. The published peak instant is where that longitude is 140.1 degrees (IAU MDC, `streamestablisheddata2026.txt`, Perseids set AdNo 9): **2027-08-13T10:41:18Z**, now `activity.peakUtc` in `data/showers/perseids.json` (it was 2027-08-13T00:00Z; the earlier note of 01:02Z was the of-date reading).
+
+- **(a) Peak.** The distance from Earth to the nearest measured ellipse (closest point by a golden-section search along each ellipse) was found daily across the window, and the mean distance of the 100 nearest ellipses is smallest on 2027-08-13 (0.00028 AU; 0.00041 on the 12th, 0.00035 on the 14th). A parabola through the minimum puts it at 2027-08-13T14:37Z, **0.16 days from the published peak** (limit 2 days; re-run 2026-10-16 after I-027: the daily samples are taken at the peak's time of day, so they moved with the peak, and the earlier 05:41Z was against the 01:02Z peak, 0.19 days). The number of ellipses within 0.01 AU of Earth is largest (5,004) on the same day, against 2,514 on the 12th and 2,730 on the 14th. The test checks 6 days either side, daily; a 40-day sweep run once while building showed the same single peak, falling to 389 ellipses within 0.01 AU on 3 August and 361 on 18 August.
+- **(b) Radiant.** The 7,769 members whose ellipse passes within 0.02 AU of Earth at the peak were taken; for each, the heliocentric velocity at its closest point (vis-viva with the record's own a) minus Earth's velocity (a plus-or-minus 1 hour central difference of the ephemeris) is its geocentric velocity, and the radiant is the direction it comes from, rotated to equatorial J2000. Mean direction: **RA 48.39, Dec +57.78** against the MDC's RA 47.9, Dec +57.9, **0.29 degrees apart** (limit 3; 7,769 members within 0.02 AU of Earth at the corrected peak); median geocentric speed 58.76 km/s against the MDC's 58.8. No zenith-attraction correction is applied, so this is the geocentric radiant before that correction, as the orbit elements give it.
+- **(c) and (d)** The comet's position and orbit, and the planets' positions and orbits, are the catalogue bodies' own (T-054 and T-048); the test asserts the comet path's source returns the catalogue body's positions.
+
+Limits: the check uses only orbit geometry, so it is a consistency check of the data against the published values and not a measurement of the stream's density; the dots' places along their orbits (illustrative) play no part in it.
+
+### Second source: Perseids from the Global Meteor Network (O-011 / T-056)
+
+Source: the GMN monthly trajectory summaries `traj_summary_monthly_202507.txt` and `..._202508.txt` (Jul and Aug 2025; licence CC BY 4.0; Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); column documentation https://globalmeteornetwork.org/data/media/GMN_orbit_data_columns.pdf), selected by IAU number 7 (code PER), read by `tools/data/fetch-meteoroid-orbits.mjs 7 --source gmn --months 202507,202508`, written to the git-ignored `data/local/gmn-iau-7.json` in the same column layout as the CAMS file. Column positions are found from the two header rows (name over unit) on every run. The reliable set is Qc (GMN's maximum convergence angle between stations) at least 15 degrees and the Vgeo sigma at most 10% of Vgeo: the CAMS rule's numbers on GMN's own columns. GMN has no double-entry flag. The facts below come from `tests/showersMeasured.test.ts` (the GMN suite) beside the CAMS suite, the same J2000 helpers and the same peak instant (2027-08-13T10:41:18Z).
+
+Counts (fetched 2026-10-16): 214,156 data rows scanned; 32,234 PER records (1,896 in Jul, 30,338 in Aug, the checker's Aug figure); 6,619 unbound (e >= 1) and 27 incomplete dropped; **25,588 bound orbits drawn** in the all set, **23,335 reliable** (2,253 cut). CAMS: 24,928 records, 6,229 unbound dropped, 18,699 drawn, 15,644 reliable (2010-2016).
+
+| Fact | Published (IAU MDC) | CAMS, all / reliable | GMN, all / reliable |
+|------|---------------------|----------------------|---------------------|
+| Median Vgeo, km/s | 58.8 | 58.59 / 58.59 | 58.63 / 58.64 |
+| Busiest 0.5 deg solar-longitude bin | 140.1 | 139.5-140.0 (2,431 / 2,049 orbits) | 140.0-140.5 (5,747 / 5,225 orbits) |
+| Day of the smallest mean distance of the 100 nearest ellipses (fitted minimum, offset from the peak instant) | 2027-08-13T10:41Z (solar longitude 140.1) | 13 Aug 14:38Z, +0.16 d / 13:51Z, +0.13 d | 13 Aug 08:25Z, -0.09 d / 09:21Z, -0.06 d |
+| Ellipses within 0.01 AU of Earth at the peak day | n/a | 5,004 / 4,239 | 6,886 / 6,279 |
+| Radiant from members within 0.02 AU of Earth (RA, Dec) | 47.9, +57.9 | 48.39, +57.78 (0.29 deg off, 7,769 members) / 48.36, +57.76 (0.28 deg, 6,491) | 47.85, +57.86 (0.04 deg off, 11,251 members) / 47.86, +57.87 (0.04 deg, 10,118) |
+| Median geocentric speed of those members, km/s | 58.8 | 58.76 / 58.76 | 58.75 / 58.77 |
+
+The GMN set sits closer to the published radiant and peak than CAMS in these figures, with a median Vgeo error of 0.3% of Vgeo against 0.6% for CAMS and a median Qc of 53 degrees against 32. The GMN months are one year (2025) and the busiest bin is 0.25 degree from the peak; the CAMS set spans 2011-2016. As for CAMS, only orbit geometry is used, so these are consistency checks against the published values and not density measurements; the dots' places along their orbits are illustrative. Limits specific to this source: a year of data from one network, hyperbolic records (20% of the PER rows) dropped, no zenith-attraction correction in the radiant, and the elements are taken as published without a separate check of their equinox beyond the node-against-solar-longitude test the fetch tool runs (within 1 degree for 95% of the rows).
+
+### Geminids from the Global Meteor Network (I-030)
+
+Source: the GMN monthly trajectory summaries `traj_summary_monthly_202412.txt` and `..._202512.txt` (Dec 2024 and Dec 2025; licence CC BY 4.0; the same two citations and column documentation as the Perseids above), selected by IAU number 4 (code GEM), read by `node tools/data/fetch-meteoroid-orbits.mjs 4 --source gmn --months 202412,202512 --ship geminids`, written to the git-ignored `data/local/gmn-iau-4.json` and, as the compact shipped copy, `data/stories/geminids/gmn-iau-4.json` (5.6 MB, 2.3 MB gzipped). The reliable set is the same rule as the Perseids (Qc at least 15 degrees, Vgeo sigma at most 10% of Vgeo). Published values: IAU MDC established showers, GEM (4), parameter set AdNo 8 (Jenniskens 2023): solar longitude 261.6, radiant RA 113.0 Dec +32.4, Vg 33.8 km/s, all J2000. The CAMS Geminid file stays a local option and has no facts recorded here. The facts come from `tests/showersMeasuredGeminids.test.ts`, the same J2000 helpers as the Perseid GMN suite, and the same peak instant rule (the Sun at solar longitude 261.6: 2026-12-13T23:31:44Z).
+
+Counts (fetched 2026-10-16): 207,384 data rows scanned; 51,156 GEM records (13,814 in Dec 2024, 37,342 in Dec 2025); no unbound (e >= 1) records and 41 incomplete dropped; **51,115 bound orbits drawn** in the all set, **46,828 reliable** (4,287 cut).
+
+| Fact | Published (IAU MDC) | GMN, all / reliable |
+|------|---------------------|---------------------|
+| Median Vgeo, km/s | 33.8 | 33.84 / 33.84 |
+| Busiest 0.5 deg solar-longitude bin | 261.6 | 261.5-262.0 (12,563 / 11,406 orbits; centre 261.75) |
+| Day of the smallest mean distance of the 100 nearest ellipses (fitted minimum, offset from the peak instant) | 2026-12-13T23:31Z (solar longitude 261.6) | 14 Dec 12:02Z, +0.52 d / 14 Dec 12:03Z, +0.52 d |
+| Ellipses within 0.01 AU of Earth at the peak day | n/a | 26,769 / 24,488 |
+| Radiant from members within 0.02 AU of Earth (RA, Dec) | 113.0, +32.4 | 113.21, +32.40 (0.18 deg off, 41,300 members) / 113.21, +32.40 (0.18 deg, 37,765) |
+| Median geocentric speed of those members, km/s | 33.8 | 33.92 / 33.92 |
+
+The tests allow 1 km/s for the speed, 1 degree for the busiest bin, 2 days for the minimum distance and 3 degrees for the radiant, as for the Perseids. The minimum falls half a day after the peak instant, inside the daily step of the table (the mean distance is 0.00006 AU on 13 Dec and 0.00004 AU on 14 Dec). The GMN months are two years (2024 and 2025, mostly 2025); the busiest bin is 0.15 degree from the peak. As for the Perseids, only orbit geometry is used, so these are consistency checks and not density measurements; the dots' places along their orbits are illustrative, and no clump is drawn. Limits: two Decembers from one network, no zenith-attraction correction in the radiant, and the elements are taken as published without a separate check of their equinox beyond the node-against-solar-longitude test the fetch tool runs.
+
+## A body defined in a settings file: 3200 Phaethon (O-011 / T-055)
+
+### What is validated
+
+`src/core/elementsBody.ts` builds a body from a validated record (published elements, epoch with time scale, source and solution, optional radius with source, accuracy class and statement) with the same two-body Sun-centred source the built-in comet uses. `tests/elementsBody.test.ts` holds both checks below. No body name appears in the generic code (the name check asserts it).
+
+**Equivalence.** The built-in comet's published elements, written as a record and built through the generic path, give positions identical to the hand-written source at 1990-01-01, 1995-10-10, 2000-06-01, 2026-08-13 and 2100-01-01: relative difference 0 (bit-identical) against a bound of 1e-9. The epoch and the periapsis instant also match exactly. The TDB epoch is converted with the record's stated TT minus UTC (61.184 s there), the same figure the hand-written source uses.
+
+### Source of the elements
+
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1`, fetched 2026-10-16T03:43:15Z), solution SB441-N16 of 2026-10-15 (8682 observations 1983 to 2026), epoch JD 2461200.5 TDB (2026-06-09), ecliptic J2000: a 1.271464620766258 AU, e 0.8896722843984632, i 22.31052728903618 deg, node 265.0988060336058 deg, omega 322.300168494526 deg, M 301.4858238591272 deg, q 0.1402777870773155 AU, period 523.67 d. Radius 3.125 km (SBDB effective diameter 6.25 km, Taylor et al. 2019; Horizons prints RAD = 3.125). The fit also carries a small transverse non-gravitational term (A2 = -6.2e-15 au/d^2) that the two-body model leaves out. TT minus UTC at the epoch is 69.184 s (32.184 s plus 37 leap seconds). The record is in `data/showers/geminids.json` (`parentElements`); the raw responses are archived in [`phaethon-horizons-source.txt`](../tests/fixtures/phaethon-horizons-source.txt) (first the SBDB response, second the Horizons response, each preceded by a `==== QUERY ... ====` line) and parsed into [`phaethon-horizons.json`](../tests/fixtures/phaethon-horizons.json).
+
+### Horizons comparison
+
+Fetched 2026-10-16T03:43:16Z from `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='3200;'` (solution JPL#1017, soln. date 2026-Oct-15 11:51:19, the same fit as SBDB), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). ICRF is treated as EQJ and UT as UTC. The dates span 12 years, about 8 orbits, around the December 2026 peak.
+
+| Date (UTC) | Distance from the Sun | Difference from Horizons | As a fraction of the distance |
+|---|---|---|---|
+| 2020-12-14 | 0.287 AU | **935,344 km** | **2.18%** |
+| 2022-12-14 | 2.348 AU | 100,735 km | 0.029% |
+| 2024-12-14 | 1.780 AU | 120,713 km | 0.045% |
+| 2026-06-09 (the epoch) | 1.606 AU | 47 km | 0.00002% |
+| 2026-12-14 (the peak) | 1.774 AU | 11,309 km | 0.004% |
+| 2028-12-14 | 2.349 AU | 37,653 km | 0.011% |
+| 2030-12-14 | 0.308 AU | 48,316 km | 0.105% |
+| 2032-12-14 | 2.315 AU | 32,673 km | 0.009% |
+
+Maximum error **935,344 km at 2020-12-14**, 2.18% of its 0.287 AU distance from the Sun there; the agreement at the epoch (47 km) confirms the time-scale conversion. The error is largest close to perihelion, as expected: the body moves fastest there (q = 0.14 AU), so a small timing difference is a large position difference, and Horizons integrates the planets' pull and the non-gravitational term that the fixed ellipse leaves out. **Classification: indicative** (rule in `classifyPositionError`: within 1% of the distance from the Sun at every compared date is "approximate", within 5% "indicative"; 2.18% earns the second). It is good enough to show where the asteroid is on its orbit at overview scale (935,344 km is 0.4% of the semi-major axis), not an ephemeris and not good enough for a close approach. The record states two-body, no perturbations, no non-gravitational forces, and names the small perihelion as the weak point; validity is stated as 2020-12-14 to 2032-12-14 only. The test asserts the recorded figure, the percentage and that the classification follows from them. A date list is not a bound for other dates.

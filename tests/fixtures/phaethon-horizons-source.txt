@@ -1,0 +1,174 @@
+==== QUERY https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1 retrieved 2026-10-16T03:43:15Z UTC (raw response follows) ====
+{"signature":{"source":"NASA/JPL Small-Body Database (SBDB) API","version":"1.3"},"object":{"neo":true,"spkid":"20003200","shortname":"3200 Phaethon","kind":"an","orbit_class":{"name":"Apollo","code":"APO"},"fullname":"3200 Phaethon (1983 TB)","orbit_id":"1017","des":"3200","prefix":null,"pha":true},"phys_par":[{"ref":"MPO964322","title":"absolute magnitude","desc":"absolute magnitude (magnitude at 1 au from Sun and observer)","sigma":null,"units":null,"value":"14.38","name":"H","notes":null},{"notes":"Delay-depth and 5% bandwidth variations suggest slightly oblong equatorial dimensions of 6.1 x 6.4 km. Thermophysical modeling by Hanus et al. (2016) found effective diameter of 5.1 +/- 0.2km.","name":"diameter","value":"6.25","sigma":"0.15","units":"km","desc":"effective body diameter","title":"diameter","ref":"Taylor et al, \"Arecibo Radar Observations of near-Earth asteroid (3200) Phaethon during the 2017 apparition\", Planetary and Space Science. 10.1016/j.pss.2019.01.009"},{"ref":"LCDB (Rev. 2023-October); Warner et al., 2009","title":"rotation period","sigma":null,"units":"h","desc":"body rotation period (synodic)","value":"3.604","name":"rot_per","notes":"REFERENCE LIST:[Meech, K.J.; Hainaut, O.R.; Buie, M.W. (1996) Abstracts of ACM 1996, 42.], [Pravec, P.; Wolf, M.; Sarounova, L. (1998) Icarus 136, 124-153.], [Krugly, Yu.N.; Bel'skaya, I.N.; Shevchenko, V.G.; et al. (2002) Icarus 158, 294-304.], [Pravec, P.; Wolf, M.; Sarounova, L. (2004) http://www.asu.cas.cz/~ppravec/neo.htm], [Dundon, L.R. (2005) M.Sc. Thesis. https://scholarspace.manoa.hawaii.edu/bitstream/10125/10391/1/uhm_m s_3980_r.pdf], [Pan, S.K-S.; Abe, S.; Kinos, D. (2012) ACM 2012, #6294.], [Ansdell, M.; Meech, K.J.; Hainaut, O.; Buie, M.W.; et al. (2014) Astrophys. J. 793, A50.], [Warner, B.D. (2015) Minor Planet Bull. 42, 115-127.], [Hanus, J.; Delbo, M.; Vokrouhlicky, D.; Pravec, P.; et al. (2016). Astron. Astrophys. 586, A108.], [Warner, B.D. (2017) Minor Planet Bull. 44, 98-107.], [Hanus, J.; Vokrouhlicky, D.; Delbo, M.; Farnocchia, D.; et al. (2018) Astron. Astrophys. 620, L8.], [Kim, M.-J.; Lee, H.-J.; Lee, S.-M.; Kim, D.-H; et al. (2018) Astron. Astrophys. 619, A123.], [Schmidt, R.E. (2018) Minor Planet Bull. 45, 131.], [Warner, B.D; Stephens, R.D. (2018) (3200 Phaethon). http://www.planetarysciences.org/PHP/CS3_Lightcurves.php], [Warner, B.D.; Stephens, R.D. (2020) Minor Planet Bull. 47, 105-120.], [Warner, B.D.; Stephens, R.D. (2022) Minor Planet Bull. 49, 83-89.]"},{"value":"0.1066","name":"albedo","notes":"IRAS observations used: 18","ref":"IRAS-A-FPA-3-RDR-IMPS-V6.0","title":"geometric albedo","desc":"geometric albedo","units":null,"sigma":"0.011"},{"name":"spec_T","notes":"used 4 color indices","value":"F","desc":"Tholen spectral taxonomic classification","sigma":null,"units":null,"ref":"EAR-A-5-DDR-TAXONOMY-V4.0","title":"Tholen spectral type"},{"title":"SMASSII spectral type","ref":"EAR-A-5-DDR-TAXONOMY-V4.0","units":null,"sigma":null,"desc":"SMASSII spectral taxonomic classification","value":"B","notes":"based on a high-resolution spectrum by Xu et al. (1995) or Bus and Binzel (2002)","name":"spec_B"}],"orbit":{"moid_jup":"2.73395","pe_used":"DE441","model_pars":[{"title":"non-grav. transverse accel.","units":"au/d^2","sigma":"3.56E-16","desc":"non-gravitational transverse acceleration parameter","n":1,"value":"-6.211322373903533E-15","kind":"EST","name":"A2"},{"n":0,"kind":"SET","value":"1.","name":"ALN","title":"normalizing factor","desc":"normalizing factor [default 0.1112620426]","units":null,"sigma":null},{"name":"NK","kind":"SET","value":"0.","n":0,"desc":"non-grav. model constant, exponent k [default 4.6142]","sigma":null,"units":null,"title":"non-grav. model exp. k"},{"title":"non-grav. model exp. m","desc":"non-grav. model constant, exponent m [default 2.15]","units":null,"sigma":null,"n":0,"kind":"SET","value":"2.","name":"NM"},{"sigma":null,"units":null,"desc":"non-grav. model constant, exponent n [default 5.093]","title":"non-grav. model exp. n","name":"NN","value":"0.","kind":"SET","n":0},{"n":0,"value":"1.","kind":"SET","name":"R0","title":"normalizing distance","units":"au","sigma":null,"desc":"normalizing distance, au [default 2.808 au]"}],"data_arc":"15692","last_obs":"2026-10-13","first_obs":"1983-10-27","equinox":"J2000","elements":[{"name":"e","value":".8896722843984632","units":null,"sigma":"4.6799E-10","label":"e","title":"eccentricity"},{"title":"semi-major axis","sigma":"7.4698E-10","units":"au","label":"a","value":"1.271464620766258","name":"a"},{"name":"q","value":".1402777870773155","units":"au","sigma":"6.236E-10","label":"q","title":"perihelion distance"},{"value":"22.31052728903618","name":"i","title":"inclination; angle with respect to x-y ecliptic plane","label":"i","units":"deg","sigma":"9.354E-8"},{"name":"om","value":"265.0988060336058","units":"deg","sigma":"1.704E-7","label":"node","title":"longitude of the ascending node"},{"units":"deg","sigma":"1.5058E-7","label":"peri","title":"argument of perihelion","name":"w","value":"322.300168494526"},{"title":"mean anomaly","label":"M","sigma":"1.3126E-6","units":"deg","value":"301.4858238591272","name":"ma"},{"value":"2461285.616438067600","name":"tp","title":"time of perihelion passage","sigma":"1.9838E-6","units":"TDB","label":"tp"},{"name":"per","value":"523.6665663815473","label":"period","units":"d","sigma":"4.6148E-7","title":"sidereal orbital period"},{"value":".6874603480751936","name":"n","title":"mean motion","label":"n","units":"deg/d","sigma":"6.0582E-10"},{"label":"Q","units":"au","sigma":"1.4116E-9","title":"aphelion distance","name":"ad","value":"2.402651454455201"}],"cov_epoch":"2457606.5","n_dop_obs_used":0,"n_obs_used":8682,"sb_used":"SB441-N16","condition_code":"0","epoch":"2461200.5","n_del_obs_used":8,"moid":".0187322","orbit_id":"1017","not_valid_after":null,"rms":".34579","source":"JPL","two_body":null,"t_jup":"4.510","comment":"Nongravitational accels. using nonstandard g(r) = (1 au/ r)^2","not_valid_before":null,"producer":"Otto Matic","soln_date":"2026-10-15 11:51:19"}}
+
+==== QUERY https://ssd.jpl.nasa.gov/api/horizons.api format=text COMMAND='3200;' EPHEM_TYPE=VECTORS CENTER=500@10 REF_SYSTEM=ICRF REF_PLANE=FRAME VEC_TABLE=1 VEC_CORR=NONE OUT_UNITS=KM-S TIME_TYPE=UT TLIST='2459197.5 2459927.5 2460658.5 2461200.5 2461388.5 2462119.5 2462849.5 2463580.5' retrieved 2026-10-16T03:43:16Z UTC (raw response follows) ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS               3200 Phaethon (1983 TB)         2026-Oct-15 20:43:17
+Rec #:    3200 (+COV) Soln.date: 2026-Oct-15_11:51:19   # obs: 8682 (1983-2026)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2457606.5 ! 2016-Aug-06.00 (TDB)         Residual RMS= .12878
+   EC= .8899023620805079   QR= .1399569499870678   TP= 2457620.3178281924
+   OM= 265.2511489158185   W=  322.1539135682322   IN= 22.24577564607024
+   A= 1.271207562957981    MA= 350.4979095453302   ADIST= 2.402458175928895
+   PER= 1.43329            N= .687668881           ANGMOM= .008847048
+   DAN= .15534             DDN= .88976             L= 229.5298156
+   B= -13.4310548          MOID= .020031           TP= 2016-Aug-19.8178281924
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604
+   H= 14.38                G= .150                 B-V= n.a.
+                           ALBEDO= .1066           STYP= B
+
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):
+   AMRAT=  0.
+   A1= 0.                  A2= -6.21132244305E-15  A3= 0.
+ Non-standard or simulated/proxy model:
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.
+
+ASTEROID comments: 
+1: soln ref.= JPL#1017, PHA  OCC=0       radar( 8 delay, 0 Dop.)
+2: source=ORB; Nongravitational accels. using nonstandard g(r) = (1 au/ r)^2
+*******************************************************************************
+
+  
+
+*******************************************************************************
+Ephemeris / API_USER Thu Oct 15 20:43:17 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 3200 Phaethon (1983 TB)         {source: JPL#1017}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2020-Dec-14 00:00:00.0000 UT 
+Stop  time      : A.D. 2032-Dec-14 00:00:00.0000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261015.p270111
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-15. PREDICTS-> 2027-JAN-10
+Reference frame : ICRF
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2457606.5 ! 2016-Aug-06.00 (TDB)         Residual RMS= .12878        
+   EC= .8899023620805079   QR= .1399569499870678   TP= 2457620.3178281924      
+   OM= 265.2511489158185   W=  322.1539135682322   IN= 22.24577564607024       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-1.234375668422655E-01  Y= 4.591102375209664E-01  Z= 1.267994274195382E-01
+  VX=-9.649268641269160E-03 VY=-2.586785424603718E-02 VZ=-1.441451200545627E-02
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604               
+   H= 14.38                G= .150                 B-V= n.a.                   
+                           ALBEDO= .1066           STYP= B                     
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):  
+   AMRAT=  0.                                                                  
+   A1= 0.                  A2= -6.21132244305E-15  A3= 0.                      
+ Non-standard or simulated/proxy model:                                        
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.       
+*******************************************************************************
+JDUT 
+   X     Y     Z
+*******************************************************************************
+$$SOE
+2459197.500000000 = A.D. 2020-Dec-14 00:00:00.0000 UTC 
+ X = 3.132177124071947E+07 Y =-2.926930177179001E+07 Z = 2.198770531090729E+06
+2459927.500000000 = A.D. 2022-Dec-14 00:00:00.0000 UTC 
+ X = 2.392431025963618E+08 Y = 1.856504833976570E+08 Z = 1.778536243011918E+08
+2460658.500000000 = A.D. 2024-Dec-14 00:00:00.0000 UTC 
+ X = 1.082760050231110E+08 Y = 2.064850895376133E+08 Z = 1.285740007806274E+08
+2461200.500000000 = A.D. 2026-Jun-09 00:00:00.0000 UTC 
+ X = 8.617596522663818E+07 Y = 1.933195859889452E+08 Z = 1.137096908092726E+08
+2461388.500000000 = A.D. 2026-Dec-14 00:00:00.0000 UTC 
+ X = 2.128761410571493E+08 Y = 9.160160026841910E+07 Z = 1.293907147232469E+08
+2462119.500000000 = A.D. 2028-Dec-14 00:00:00.0000 UT~ 
+ X = 2.033142441046807E+08 Y = 2.250012987382405E+08 Z = 1.775296251782021E+08
+2462849.500000000 = A.D. 2030-Dec-14 00:00:00.0000 UT~ 
+ X =-2.621415883961557E+07 Y = 3.775979609881780E+07 Z = 3.285581450043608E+06
+2463580.500000000 = A.D. 2032-Dec-14 00:00:00.0000 UT~ 
+ X = 2.402656340269271E+08 Y = 1.775646787556477E+08 Z = 1.751589521112354E+08
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

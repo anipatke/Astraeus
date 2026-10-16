@@ -1,0 +1,65 @@
+
+> astraeus-earth-moon-spike@0.1.0 build
+> vite build
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 168 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               0.41 kB │ gzip:     0.28 kB
+dist/assets/io-2k-CG7hitww.jpg              364.82 kB
+dist/assets/mars-2k-CmcQf1fB.jpg            429.76 kB
+dist/assets/sun-2k-BfaUCBxs.jpg             822.42 kB
+dist/assets/mercury-2k-lhhbYhEJ.jpg         872.55 kB
+dist/assets/venus-2k-B7XKoL-0.jpg           885.07 kB
+dist/assets/milky-way-left-BVH6yQ3I.jpg   1,751.81 kB
+dist/assets/milky-way-right-CiMp2gkm.jpg  1,951.62 kB
+dist/assets/index-iMwjkJc6.css               23.97 kB │ gzip:     5.24 kB
+dist/assets/index-BC7huHN8.js             3,010.24 kB │ gzip: 1,044.97 kB
+
+✓ built in 378ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+npm notice
+npm notice New major version of npm available! 11.13.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+{
+  "distDir": "/home/user/code/Astraeus/dist",
+  "localDataFilesChecked": 3,
+  "ok": true,
+  "checked": 10,
+  "sources": [
+    {
+      "file": "earth-2k.jpg",
+      "sha256": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
+      "bytes": 1461877
+    },
+    {
+      "file": "moon-orig-2k.jpg",
+      "sha256": "2764ba6535ea0481a062846ee033cc7a909dae05b31a8fd13f3e98f3a7fd92bd",
+      "bytes": 1053869
+    },
+    {
+      "file": "data/local/cams-iau-4.json",
+      "sha256": "d7e0876536697b882485a12c0cf09913b929f037177cf8842b22e4ed80e5b1f8",
+      "bytes": 1340833
+    },
+    {
+      "file": "data/local/cams-iau-7.json",
+      "sha256": "486f27dfb86747239286fadf59b47cae075bd315f01de42e63776cedfa99a37b",
+      "bytes": 1713718
+    },
+    {
+      "file": "data/local/yale-bsc-v65.json",
+      "sha256": "eef03d8196823afdaeeba906e20b538e246391d47df747367f7932bcc152385b",
+      "bytes": 256817
+    }
+  ],
+  "matches": []
+}

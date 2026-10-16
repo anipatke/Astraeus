@@ -1,0 +1,23 @@
+{
+  "url": "http://localhost:5450/app.html",
+  "viewports": [
+    "1280x800",
+    "390x844"
+  ],
+  "metricVisuals": true,
+  "infoProvenance": [
+    "earth",
+    "moon",
+    "columbia",
+    "eagle"
+  ],
+  "scaleReadoutsIdentical": true,
+  "events": 30,
+  "cameraModes": [
+    "overview",
+    "focus",
+    "follow"
+  ],
+  "labels": 2,
+  "errors": []
+}

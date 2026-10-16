@@ -2,20 +2,36 @@
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-spike02.mjs
 // Results are isolated under docs/evidence/regression-spike01-02/; committed Spike 02 evidence is untouched.
+//
+// Sizes (I-023): the whole scenario runs at 1280x800 (desktop) and again at 390x844 (phone), in one browser, the same assertions at both.
+// Every desktop assertion is unchanged and runs at the phone size with the same expected values, because each checks telemetry, time,
+// the event list or the clock rather than layout. The only difference is how a camera preset is chosen: the phone shell hides the
+// camera buttons (.object-camera-actions) and shows a native "Camera mode" select, so chooseCamera picks the option with the same label.
+//   desktop assertion                                             phone counterpart
+//   six phases: readouts present, identical under both scales ... same, at 390x844 (scale buttons clicked with the Developer panel
+//                                                                    closed, because the phone panel overlays them)
+//   camera presets leave UTC and spacecraft readouts unchanged .... same (select option instead of button)
+//   30 events in Developer mode, same list as the timeline, each
+//     jump lands on the event's UTC ................................ same
+//   four playback rates measure within 0.5x to 1.5x ................ same
+//   100x follow track: numeric, monotonic, continuous range ........ same
+//   four USNO phases within 1 percentage point ..................... same
+//   zero console and page errors ................................... same (one error list across both sizes)
+// Phone-only layout assertions are not added here; browser-shell.mjs and browser-spike03.mjs own phone layout.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/";
+const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.env.ASTRAEUS_EVIDENCE_DIR ?? "docs/evidence/regression-spike01-02";
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+let page;
 const errors = [];
-page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+const sizes = [["desktop", { width: 1280, height: 800 }], ["phone", { width: 390, height: 844 }]];
+const results = [];
 
 const click = (name) => page.getByRole("button", { name, exact: true }).click();
 const pause = async () => {
@@ -34,15 +50,44 @@ const seek = async (utc) => {
 const selectObject = async (id) => {
   await page.getByLabel("Select object").selectOption(id);
   const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
+  if (!(await close.count())) return;
+  // The phone's open Developer panel overlays the sheet's Close button, so the phone closes the sheet with Escape from the focused Close button (a documented alternative).
+  if (page.viewportSize().width < 600) { await close.focus(); await page.keyboard.press("Escape"); }
+  else await close.click();
+  await page.locator("#info-panel").waitFor({ state: "detached" });
+};
+// On the phone the open Developer panel is a fixed overlay above the scale buttons, so the panel is closed around the scale click
+// (the same user path: Developer mode off, choose the scale, Developer mode on). On desktop the button is clicked directly.
+const chooseScale = async (scale) => {
+  const compactPhone = page.viewportSize().width < 600;
+  const developer = page.getByRole("button", { name: "Developer mode" });
+  if (compactPhone) {
+    await developer.click();
+    await page.getByLabel("UTC date and time").waitFor({ state: "hidden" });
+  }
+  await page.getByRole("button", { name: scale, exact: true }).click();
+  if (compactPhone) {
+    await developer.click();
+    await page.getByLabel("UTC date and time").waitFor();
+  }
 };
 const chooseCamera = async (objectId, name) => {
   await selectObject(objectId);
-  await click(name);
+  const compact = page.locator(".object-camera-picker");
+  if (await compact.isVisible()) {
+    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);
+    assert.ok(value, `camera preset exists: ${name}`);
+    await compact.selectOption(value);
+  } else {
+    await click(name);
+  }
   await page.waitForTimeout(700);
 };
 
-try {
+async function run(label, viewport) {
+  page = await browser.newPage({ viewport });
+  page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
   await page.goto(url);
   await page.waitForSelector("canvas");
   await page.getByRole("button", { name: "Developer mode" }).click();
@@ -62,7 +107,7 @@ try {
   for (const scale of ["Readable", "True"]) {
     for (const phase of phases) {
       await pause();
-      await page.getByRole("button", { name: scale, exact: true }).click();
+      await chooseScale(scale);
       await seek(phase.utc);
       await chooseCamera(phase.object, phase.camera);
       const readouts = await readMission();
@@ -176,7 +221,7 @@ try {
 
   // Spike 01 USNO phase dates remain visible through the current developer instrumentation.
   await pause();
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale("True");
   await seek("2024-01-04 03:30:00");
   await chooseCamera("moon", "Focus Moon");
   const expectedIllumination = [50.1, 0.2, 50.1, 99.8];
@@ -196,10 +241,10 @@ try {
     usno.push({ utc: usnoDates[index], expectedPercent: expectedIllumination[index], illuminationPercent });
   }
 
-  assert.deepEqual(errors, [], "console and page errors are empty");
+  assert.deepEqual(errors, [], `${label}: console and page errors are empty`);
   const result = {
     url,
-    viewport: "1280x800",
+    viewport: `${viewport.width}x${viewport.height}`,
     scalePairs,
     cameraStates: cameraStates.map(({ preset, time }) => ({ preset, time })),
     eventJumps,
@@ -208,16 +253,23 @@ try {
     usno,
     errors,
   };
-  writeFileSync(`${out}/browser-spike02-results.json`, JSON.stringify(result, null, 2));
-  console.log(JSON.stringify({
+  writeFileSync(`${out}/browser-spike02-results${label === "desktop" ? "" : `-${label}`}.json`, JSON.stringify(result, null, 2));
+  results.push({
+    label,
     scalePairs: scalePairs.length,
     cameraPresets: cameraStates.length,
     eventJumps: eventJumps.length,
     rates,
     followSamples: track.length,
     usno,
-    errors,
-  }, null, 2));
+  });
+  await page.close();
+}
+
+try {
+  for (const [label, viewport] of sizes) await run(label, viewport);
+  assert.deepEqual(errors, [], "console and page errors are empty");
+  console.log(JSON.stringify({ results, errors }, null, 2));
 } finally {
   await browser.close();
 }

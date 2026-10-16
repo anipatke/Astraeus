@@ -1,0 +1,60 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > reads one shower from a workbook with the real file's quirks, dropping unbound orbits and keeping the 1904 dates 11ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > finds every row however the inflated text is cut into chunks 57ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > refuses a workbook whose header texts have changed 4ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > refuses a workbook whose columns are shifted 3ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > refuses a workbook whose quality columns are shifted 5ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > verifies the layout from the values 0ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > writes a file the app accepts, with its provenance header 3ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > converts the 1904 serial and day fraction to UTC milliseconds 0ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds the release T-051 recorded: 24,928 records, 6,229 unbound dropped, 18,699 bound orbits, all drawn
+MEMBERS {"members":24928,"unbound":6229,"badSemiMajorAxis":0,"incomplete":0,"dropped":6229,"pairsFlagged":99,"kept":18699} drawn=18699
+
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds both orbit sets: 18,699 orbits, 15,644 reliable (Q >= 15 deg and velocity error <= 10%), 3,055 cut, 99 double entries kept
+SETS {"all":18699,"reliable":15644,"cut":3055,"pairsFlagged":99,"pairsFlaggedReliable":78}
+
+ ✓ tests/showersMeasured.test.ts > keeps the settings-side row columns equal to the fetch tool's 1ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds the release T-051 recorded: 24,928 records, 6,229 unbound dropped, 18,699 bound orbits, all drawn 2ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds both orbit sets: 18,699 orbits, 15,644 reliable (Q >= 15 deg and velocity error <= 10%), 3,055 cut, 99 double entries kept 205ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > draws no invented member: every record id is a CAMS catalogue number, once, with e below 1 and a above 0 150ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > resolves a sample of 20 members to their CAMS records: id, sheet row and the orbit's own energy 4ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > resolves the sample against the source workbook 5795ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > puts a stated share of the dots at the comet's orbital phase and the rest evenly round their orbits
+CLUMP illustrative fraction=0.3 widthDeg=20 nearShare=0.3778 cometMeanAnomalyDeg=93.64
+
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a), all orbits: Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1)
+[all] DW2a published peak (solar longitude 140.1) = 2027-08-13T01:02:29.681Z; Earth's solar longitude there = 140.100
+[all] DW2a mean distance of the 100 nearest measured ellipses is smallest on 2027-08-13 (0.00028 AU), fitted minimum 2027-08-13T05:41:13.174Z, 0.19 days from the published peak
+[all] DW2a most ellipses within 0.01 AU of Earth (4709) on 2027-08-13; nearest single ellipse that day 0.000030 AU
+[all] DW2a daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 08-07 134.3 0.00160 432 | 08-08 135.3 0.00099 659 | 08-09 136.3 0.00084 972 | 08-10 137.2 0.00095 959 | 08-11 138.2 0.00064 1161 | 08-12 139.1 0.00056 1962 | 08-13 140.1 0.00028 4709 | 08-14 141.1 0.00040 3645 | 08-15 142.0 0.00055 1866 | 08-16 143.0 0.00091 1006 | 08-17 143.9 0.00149 571 | 08-18 144.9 0.00223 361 | 08-19 145.9 0.00275 240
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > puts a stated share of the dots at the comet's orbital phase and the rest evenly round their orbits 2ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a), all orbits: Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1) 605ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a), reliable orbits: Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1)
+[reliable] DW2a published peak (solar longitude 140.1) = 2027-08-13T01:02:29.681Z; Earth's solar longitude there = 140.100
+[reliable] DW2a mean distance of the 100 nearest measured ellipses is smallest on 2027-08-13 (0.00029 AU), fitted minimum 2027-08-13T05:50:59.354Z, 0.20 days from the published peak
+[reliable] DW2a most ellipses within 0.01 AU of Earth (3919) on 2027-08-13; nearest single ellipse that day 0.000030 AU
+[reliable] DW2a daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 08-07 134.3 0.00179 375 | 08-08 135.3 0.00113 556 | 08-09 136.3 0.00094 807 | 08-10 137.2 0.00111 775 | 08-11 138.2 0.00071 974 | 08-12 139.1 0.00065 1625 | 08-13 140.1 0.00029 3919 | 08-14 141.1 0.00045 3086 | 08-15 142.0 0.00060 1539 | 08-16 143.0 0.00105 792 | 08-17 143.9 0.00166 457 | 08-18 144.9 0.00246 292 | 08-19 145.9 0.00328 196
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a), reliable orbits: Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1) 475ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b), all orbits: the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9)
+[all] DW2b 7412 members within 0.02 AU of Earth at 2027-08-13T01:02:29.681Z; radiant RA 47.82 Dec 57.69 (mean direction), geocentric speed median 58.76 km/s; published RA 47.9 Dec 57.9; separation 0.21 deg
+
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b), reliable orbits: the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9)
+[reliable] DW2b 6202 members within 0.02 AU of Earth at 2027-08-13T01:02:29.681Z; radiant RA 47.80 Dec 57.68 (mean direction), geocentric speed median 58.75 km/s; published RA 47.9 Dec 57.9; separation 0.23 deg
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b), all orbits: the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9) 52ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b), reliable orbits: the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9) 43ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(c) and (d): the comet and the planets drawn are the catalogue's own bodies 10ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > fills every dot quickly enough to draw them all (an indication only; the frame rate on the owner's machine is the owner's to measure)
+FILL 18699 members: 14.1 ms per exact fill
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > fills every dot quickly enough to draw them all (an indication only; the frame rate on the owner's machine is the owner's to measure) 71ms
+
+ Test Files  2 passed (2)
+      Tests  21 passed (21)
+   Start at  08:12:42
+   Duration  8.12s (tests 91%, import 5%, transform 4%)
+

@@ -2,17 +2,19 @@ import validationFile from "../data/apollo11/generated/validation.json";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createEvents } from "../src/core/events";
-import { MoonTrajectory } from "../src/core/moonTrajectory";
+import { createWindows } from "../src/core/timeWindow";
 import { createProvenance } from "../src/core/provenance";
-import { createObjectMetrics } from "../src/app/metricReadouts";
+import { createSceneResolver } from "../src/app/sceneLayout";
+import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
 import { trackedAbsolute } from "../src/app/sceneLayout";
+import { placementAbout } from "./scenePlacement";
 import {
   apollo11Experience,
   apollo11KnownLimitations,
   apollo11Mission,
   POST_TLI_COAST_ID,
   type GeneratedValidation,
-} from "../src/mission/apollo11";
+} from "../src/experiences/apollo11/apollo11";
 import type { ExperienceConfig } from "../src/shell/experience";
 import { infoView, PROVENANCE_STATUS } from "../src/shell/infoModel";
 import { formatMetricNumber } from "../src/shell/metrics";
@@ -84,6 +86,56 @@ describe("provenance reachability", () => {
   });
 });
 
+describe("window information", () => {
+  const src = (name: string, sourceType: "observed" | "illustrative") => createProvenance({ sourceType, sources: [name], accuracy: "test", notes: "" });
+  const windowed: ExperienceConfig = {
+    objects: [],
+    cameraPresets: [],
+    events: [],
+    window: { startUtcMs: 0, endUtcMs: 100 },
+    rates: [1],
+    eventProvenance: src("event list", "observed"),
+    windows: createWindows([
+      {
+        id: "w", label: "Made-up period", startUtcMs: 10, endUtcMs: 90, peakUtcMs: 50,
+        rate: { unit: "things per hour", samples: [{ timeUtcMs: 10, value: 0 }, { timeUtcMs: 50, value: 20 }, { timeUtcMs: 90, value: 0 }] },
+        provenance: [
+          { startUtcMs: 10, endUtcMs: 40, provenance: src("first source", "observed") },
+          { startUtcMs: 40, endUtcMs: 90, provenance: src("second source", "illustrative") },
+        ],
+      },
+      { id: "bare", label: "Bare period", startUtcMs: 20, endUtcMs: 30 },
+    ]),
+  };
+  const at = (id: string, time?: number) => infoView(windowed, { kind: "window", id }, time);
+
+  it("shows label, start, end, peak and the current rate", () => {
+    const view = at("w", 30);
+    expect(view?.title).toBe("Made-up period");
+    expect(view?.facts).toEqual([
+      { label: "Starts", value: formatUtcTimestamp(10) },
+      { label: "Ends", value: formatUtcTimestamp(90) },
+      { label: "Peak", value: formatUtcTimestamp(50) },
+      { label: "Rate now", value: "10 things per hour" },
+    ]);
+    expect(at("w", 95)?.facts?.at(-1)?.value).toBe("Not available at this time");
+  });
+
+  it("changes provenance when the clock crosses a span boundary", () => {
+    expect(at("w", 39)?.provenance).toMatchObject({ status: "Observed", sources: ["first source"] });
+    expect(at("w", 40)?.provenance).toMatchObject({ status: "Illustrative", sources: ["second source"] });
+  });
+
+  it("falls back to the event provenance when no span applies, and omits rate and peak when absent", () => {
+    expect(at("w", 95)?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("w")?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("bare", 25)?.facts?.map((fact) => fact.label)).toEqual(["Starts", "Ends"]);
+    expect(at("bare", 25)?.provenance).toMatchObject({ sources: ["event list"] });
+    expect(at("missing", 25)).toBeNull();
+    expect(infoView({ ...windowed, windows: undefined }, { kind: "window", id: "w" })).toBeNull();
+  });
+});
+
 describe("Apollo known limitations come from the generated reconstruction data", () => {
   const segment = (vehicle: string, id: string) => validation.segments.find((s) => s.vehicle === vehicle && s.id === id)!;
 
@@ -145,8 +197,7 @@ describe("scale choice independence", () => {
   });
 
   it("leaves State and every info readout identical under True and Readable through the shell's choice", () => {
-    const moon = new MoonTrajectory(createOrbAstronomyAdapter());
-    const metricsFor = createObjectMetrics({ bodies: apollo11Mission.bodies, moon, earthId: "earth", moonId: "moon" });
+    const metricsFor = apolloMetrics(apollo11Mission.bodies, createSceneResolver(createOrbAstronomyAdapter()));
     const snapshot = () => objectIds.map((id) => metricsFor(id, eagleMid));
     const states = () => apollo11Mission.bodies.map((body) => {
       const state = body.trajectory.stateAt(eagleMid);
@@ -154,7 +205,7 @@ describe("scale choice independence", () => {
     });
     const readouts = SCALE_CHOICES.map((choice) => {
       const policy = scalePolicyFor(choice.id);
-      for (const body of apollo11Mission.bodies) trackedAbsolute(body.trajectory.stateAt(eagleMid), policy);
+      for (const body of apollo11Mission.bodies) trackedAbsolute(body.trajectory.stateAt(eagleMid), policy, placementAbout("earth"));
       return { metrics: snapshot(), states: states() };
     });
     expect(readouts[0].metrics.every((metrics) => metrics.length > 0)).toBe(true);

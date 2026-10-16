@@ -2,7 +2,7 @@
 id: I-013
 title: Mobile Developer panel is covered by shell controls
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: mobile-review-20261010}
@@ -18,6 +18,19 @@ history:
     actor: {role: executor, session: mobile-developer-repair-20261010}
     kind: repair_attempted
     note: Raised diagnostics above shell-top. Proof Needed passes for 390x844, 390x640, 768x1024 and 1280x800 with information closed/open; all eight hit-test grids are unobstructed, scrolling reaches the end and toggle-off restores controls. All four browser scripts pass with zero errors; fresh configured typecheck/build/test pass, 170 tests. Evidence under /tmp/astraeus-i013-20261010. Real-device feel and owner visual acceptance remain unverified. Executor evidence only; Issue remains in_progress.
+  - at: "2026-10-10T20:29:50Z"
+    actor:
+      role: owner
+      session: board-owner
+    kind: owner_decision
+    note: Resolved by the owner from the board.
+resolution:
+  disposition: accepted
+  actor:
+    role: owner
+    session: board-owner
+  at: "2026-10-10T20:29:50Z"
+  reason: Resolved by the owner from the board.
 ---
 
 # I-013: Mobile Developer panel is covered by shell controls

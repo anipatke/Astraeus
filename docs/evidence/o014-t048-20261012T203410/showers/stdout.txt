@@ -1,0 +1,140 @@
+{
+  "shower": "perseids",
+  "results": {
+    "desktop": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 26375,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 30425,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 32895,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 11085,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "start": {
+            "overview": {
+              "blue": 473,
+              "violet": 1982,
+              "left": 322,
+              "right": 151,
+              "bright": 97417
+            },
+            "near": {
+              "blue": 1202,
+              "violet": 1607,
+              "left": 566,
+              "right": 636,
+              "bright": 85778
+            }
+          },
+          "peak": {
+            "overview": {
+              "blue": 400,
+              "violet": 2007,
+              "left": 130,
+              "right": 270,
+              "bright": 99130
+            },
+            "near": {
+              "blue": 1466,
+              "violet": 1607,
+              "left": 701,
+              "right": 765,
+              "bright": 86994
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 87036,
+          "solarSystem": 128359
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          114272,
+          187638,
+          133895
+        ]
+      }
+    },
+    "phone": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 19027,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        },
+        "peak": {
+          "lit": 19058,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: Americ"
+        },
+        "end": {
+          "lit": 19419,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 10000 invented dust grains around the orbit of 109P/Swift-Tuttle, the source of the Perseids. One item stands for the whole stream; its focus point is the centroid of the members. Activity rate 6 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 48.0 ° Dec 58.1 ° Published: American"
+        }
+      },
+      "zoomedOutLit": 5867,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.9 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "start": {
+            "overview": {
+              "blue": 493,
+              "violet": 483,
+              "left": 335,
+              "right": 158,
+              "bright": 51401
+            },
+            "near": {
+              "blue": 415,
+              "violet": 483,
+              "left": 172,
+              "right": 243,
+              "bright": 36502
+            }
+          },
+          "peak": {
+            "overview": {
+              "blue": 404,
+              "violet": 674,
+              "left": 134,
+              "right": 270,
+              "bright": 53054
+            },
+            "near": {
+              "blue": 511,
+              "violet": 483,
+              "left": 213,
+              "right": 298,
+              "bright": 36693
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 36666,
+          "solarSystem": 56072
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          55727,
+          119447,
+          59102
+        ]
+      }
+    }
+  },
+  "errors": []
+}

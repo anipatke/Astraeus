@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone: a plain load shows the stream (95 stream-coloured pixels)
+    at run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:851:14)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:987:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

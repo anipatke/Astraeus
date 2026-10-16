@@ -1,0 +1,7 @@
+apollo-moon: site/apollo-moon.jpg 88231 bytes {"viewport":{"width":1440,"height":900},"url":"app.html?view=earth,0,70,130&scale=true-scale","timeUtc":"1969-07-20T20:17:39Z","panel":"touchdown"}
+apollo-moon-share: public/share/apollo-moon.jpg 88231 bytes {"copyOf":"site/apollo-moon.jpg"}
+apollo-provenance: site/apollo-provenance.jpg 83114 bytes {"viewport":{"width":1440,"height":900},"url":"app.html?scale=true-scale (Focus Moon, landing event info with provenance open)","timeUtc":"1969-07-20T20:17:39Z"}
+apollo-phone: site/apollo-phone.jpg 30766 bytes {"viewport":{"width":390,"height":844},"url":"app.html?view=moon,270,50,214&scale=true-scale","timeUtc":"1969-07-20T20:17:39Z"}
+perseids-gmn: site/perseids-gmn.jpg 71286 bytes {"viewport":{"width":1200,"height":675},"url":"app.html?experience=shower-perseids&view=sun,160,40,1800000&scale=true-scale&up=ecliptic","timeUtc":"2027-08-12T12:00:00Z"}
+perseids-year-gif: site/readme/perseids-year.gif 1582064 bytes {"viewport":{"width":1280,"height":720},"outputWidth":960,"frames":52,"url":"app.html?experience=shower-perseids&view=sun,160,40,1800000&scale=true-scale&up=ecliptic","window":{"startUtc":"2027-02-11T19:36:43.119Z","endUtc":"2028-02-12T01:45:52.882Z"}}
+errors: 0

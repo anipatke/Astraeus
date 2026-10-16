@@ -69,6 +69,22 @@ export class SimulationClock {
     this.#anchorMonotonicMs = this.#readMonotonic();
   }
 
+  /**
+   * Looping playback: while playing, when the clock has run past the end of `window` (or before its start, at a negative rate) it is moved
+   * the whole number of window lengths back inside, so the time keeps its phase and never rests outside. Returns whether it wrapped.
+   * Does nothing while paused, so a person who seeks or pauses outside the window is not moved.
+   */
+  wrapWithin(window: { readonly startUtcMs: number; readonly endUtcMs: number }): boolean {
+    if (!this.#playing) return false;
+    const span = window.endUtcMs - window.startUtcMs;
+    if (!(span > 0)) return false;
+    const now = this.now();
+    if (now >= window.startUtcMs && now <= window.endUtcMs) return false;
+    const folded = window.startUtcMs + ((((now - window.startUtcMs) % span) + span) % span);
+    this.seek(Math.trunc(folded));
+    return true;
+  }
+
   setRate(rate: number): void {
     if (!Number.isFinite(rate) || rate === 0) {
       throw new RangeError("playback rate must be a finite, non-zero number");

@@ -1,0 +1,17 @@
+{
+  "peakUtc": "2027-08-13T10:41:18Z",
+  "shots": [],
+  "shipped": {
+    "requests": [
+      {
+        "url": "http://localhost:5199/assets/gmn-iau-7-BmVg4vLV.json",
+        "status": 200
+      }
+    ],
+    "kept": 25588,
+    "lit": 9518,
+    "licence": "CC BY 4.0"
+  },
+  "errors": []
+}
+browser-showers-gmn: ok, zero console errors

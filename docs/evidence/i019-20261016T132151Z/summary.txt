@@ -1,0 +1,24 @@
+I-022 run; HEAD  + working tree; http://localhost:5409/app.html
+spike02 | exit=0 | 13:21:58-13:24:22 | console-error-lines=0 | node tools/validate/browser-spike02.mjs
+spike03 | exit=0 | 13:24:22-13:25:00 | console-error-lines=0 | node tools/validate/browser-spike03.mjs
+shell | exit=0 | 13:25:00-13:25:16 | console-error-lines=0 | env ASTRAEUS_SCREENSHOT=/home/user/code/Astraeus/docs/evidence/i019-20261016T132151Z/shell/start.png ASTRAEUS_INFO_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/i019-20261016T132151Z/shell/info ASTRAEUS_METRIC_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/i019-20261016T132151Z/shell/metric node tools/validate/browser-shell.mjs
+anchor-labels | exit=0 | 13:25:16-13:25:27 | console-error-lines=0 | node tools/validate/browser-anchor-labels.mjs /home/user/code/Astraeus/docs/evidence/i019-20261016T132151Z/anchor-labels
+synthetic | exit=0 | 13:25:27-13:25:39 | console-error-lines=0 | node tools/validate/browser-synthetic.mjs
+synthetic-ring | exit=0 | 13:25:39-13:26:14 | console-error-lines=0 | node tools/validate/browser-synthetic-ring.mjs
+synthetic-belt | exit=0 | 13:26:14-13:28:37 | console-error-lines=0 | node tools/validate/browser-synthetic-belt.mjs
+synthetic-listed | exit=0 | 13:28:37-13:29:02 | console-error-lines=0 | node tools/validate/browser-synthetic-listed.mjs
+synthetic-eccentric | exit=1 | 13:29:02-13:30:09 | console-error-lines=0 | node tools/validate/browser-synthetic-eccentric.mjs
+marker-existing | exit=0 | 13:30:09-13:31:25 | console-error-lines=0 | node tools/validate/browser-marker-existing.mjs
+sky | exit=1 | 13:31:25-13:35:49 | console-error-lines=0 | node tools/validate/browser-sky.mjs
+sky-map | exit=0 | 13:35:49-13:36:24 | console-error-lines=0 | node tools/validate/browser-sky-map.mjs
+sun | exit=1 | 13:36:24-13:37:41 | console-error-lines=0 | node tools/validate/browser-sun.mjs
+earth-moon | exit=0 | 13:37:41-13:38:01 | console-error-lines=0 | node tools/validate/browser-earth-moon.mjs
+jupiter-io | exit=0 | 13:38:01-13:38:31 | console-error-lines=0 | node tools/validate/browser-jupiter-io.mjs
+showers-perseids | exit=1 | 13:38:31-13:44:29 | console-error-lines=0 | node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=0 | 13:44:29-13:50:59 | console-error-lines=0 | node tools/validate/browser-showers.mjs geminids
+showers-gmn | exit=0 | 13:50:59-13:52:49 | console-error-lines=1 | node tools/validate/browser-showers-gmn.mjs
+view-link | exit=0 | 13:52:49-13:53:20 | console-error-lines=0 | node tools/validate/browser-view-link.mjs
+precision | exit=0 | 13:53:20-13:54:07 | console-error-lines=0 | node tools/validate/browser-precision.mjs
+lighting | exit=0 | 13:54:07-13:56:50 | console-error-lines=0 | node tools/validate/browser-lighting.mjs
+story-panels | exit=0 | 13:56:50-13:58:49 | console-error-lines=1 | env ASTRAEUS_OUT=/home/user/code/Astraeus/docs/evidence/i019-20261016T132151Z/story-panels-out node tools/validate/browser-story-panels.mjs
+ALLDONE

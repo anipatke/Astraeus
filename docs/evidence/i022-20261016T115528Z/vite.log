@@ -1,0 +1,21 @@
+
+  VITE v8.3.2  ready in 160 ms
+
+  ➜  Local:   http://localhost:5409/
+  ➜  Network: use --host to expose
+10:56:09 PM [vite] (client) page reload data/showers/perseids.json
+10:56:09 PM [vite] (client) page reload src/experiences/apollo11/apollo11Definition.tsx
+11:01:38 PM [vite] (client) page reload data/showers/perseids.json
+11:04:48 PM [vite] (client) dependencies optimized: @lizard-isana/orb/src/orb-planet.js, @lizard-isana/orb/src/orb-vsop87a-registry.js
+11:04:48 PM [vite] (client) optimized dependencies changed. reloading
+11:06:20 PM [vite] (client) page reload index.html
+11:07:25 PM [vite] (client) page reload src/experiences/apollo11/apollo11Definition.tsx
+11:07:43 PM [vite] (client) page reload data/stories/perseids/panels.json
+11:09:11 PM [vite] (client) page reload data/showers/perseids.json
+11:22:18 PM [vite] (client) page reload data/showers/perseids.json
+11:27:51 PM [vite] (client) page reload data/showers/perseids.json
+11:31:33 PM [vite] (client) page reload src/shell/timelineModel.ts
+11:31:33 PM [vite] (client) page reload src/shell/TimelineBar.tsx
+11:31:44 PM [vite] (client) hmr update /src/shell/style.css
+11:31:54 PM [vite] (client) hmr update /src/shell/style.css
+11:34:38 PM [vite] (client) hmr update /src/shell/style.css

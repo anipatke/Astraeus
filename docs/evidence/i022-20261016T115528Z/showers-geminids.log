@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone: the comet's whole orbit is drawn (79 violet pixels)
+    at checkWholeOrbit (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:491:10)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:973:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:988:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

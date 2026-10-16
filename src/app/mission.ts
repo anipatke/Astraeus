@@ -3,7 +3,7 @@ import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
-import type { OrbitPathSamples } from "./orbitPath";
+import type { PathSamples } from "./pathRules";
 
 /** A bounded trajectory the scene can draw. Nothing here names a mission. */
 export interface TrackedBody {
@@ -78,7 +78,7 @@ export function stateClampedToBounds(body: TrackedBody, timeUtcMs: number): Stat
 export function sampleTrackedPositions(
   trajectory: Trajectory,
   timesUtcMs: readonly number[],
-): Pick<OrbitPathSamples, "timesUtcMs" | "positionsKm"> {
+): PathSamples {
   const positionsKm = new Float64Array(timesUtcMs.length * 3);
   timesUtcMs.forEach((time, index) => positionsKm.set(trajectory.stateAt(time).positionKm, index * 3));
   return { timesUtcMs, positionsKm };

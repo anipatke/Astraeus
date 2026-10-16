@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Earth in the default close-up is about 240 px in radius, over even a 100 px threshold, so it stays a sphere
+
+'earth' !== ''
+
+    at file:///tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/base/tools/validate/browser-synthetic-eccentric.mjs:225:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'earth',
+  expected: '',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

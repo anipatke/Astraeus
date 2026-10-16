@@ -1,0 +1,9 @@
+anchor-labels exit 0
+precision exit 0
+shell exit 0
+showers exit 0
+spike02 exit 0
+spike03 exit 0
+synthetic-belt exit 0
+synthetic-ring exit 0
+synthetic exit 0

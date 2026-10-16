@@ -8,6 +8,9 @@
   --ui-panel: rgba(13, 13, 13, .94);
   --ui-accent: #fc6323;
   --ui-data: #b1a1df;
+  --perf-good: #6fcf8f;
+  --perf-warn: #f0b84a;
+  --perf-bad: #ff6b5e;
 }
 
 html,
@@ -25,20 +28,21 @@ body,
 .canvas-host { position: absolute; inset: 0; touch-action: none; }
 
 .hud {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: 10px;
+  /* Cards flow down two columns and take only the height of their content, so no card is stretched to its neighbour. */
+  column-count: 2;
+  column-gap: 10px;
   max-width: 100%;
   font-size: 13px;
 }
 
+.hud > * { break-inside: avoid; margin: 0 0 10px; }
 .developer-heading,
-.hud-section-clock { grid-column: 1 / -1; }
+.hud-section-clock { column-span: all; }
 .developer-heading h2 { margin: 0; font-size: 16px; line-height: 1.25; }
 .developer-heading p { margin: 3px 0 0; color: var(--ui-muted); font-size: 13px; }
 
 .hud-section {
+  display: block;
   min-width: 0;
   padding: 10px;
   border: 1px solid var(--ui-border);
@@ -56,6 +60,24 @@ body,
   text-transform: uppercase;
 }
 
+.hud-section-display { column-span: all; margin-top: 12px; }
+.hud .setting-groups { column-count: 2; column-gap: 24px; }
+.hud .setting-groups > .setting-group { break-inside: avoid; }
+/* Frame rate straight under the heading has no neighbour: it goes full width, readouts beside the graph. */
+.developer-heading + .hud-section-frame { column-span: all; }
+.developer-heading + .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
+.developer-heading + .hud-section-frame .frame-readouts { margin-top: 0; }
+.hud .frame-body > p { grid-column: 1 / -1; }
+.setting-group { margin: 0 0 12px; padding: 0; border: 0; min-width: 0; }
+.setting-group:last-child { margin-bottom: 0; }
+.setting-group > h4 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--ui-border); color: var(--ui-data); font-size: 12px; font-weight: 650; letter-spacing: .03em; }
+.hud .setting { display: grid; grid-template-columns: minmax(9.5em, 0.8fr) minmax(0, 1.4fr) 3.6em; align-items: center; gap: 4px 10px; margin: 0 0 6px; min-width: 0; }
+.hud .setting-label { min-width: 0; color: var(--ui-color); }
+.hud .setting input[type="range"] { width: 100%; min-width: 0; padding: 0; }
+.hud .setting output { color: var(--ui-muted); font-variant-numeric: tabular-nums; text-align: right; }
+.hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; margin: 0 0 6px; }
+.hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(9.5em, 0.8fr) minmax(0, 2.2fr); }
+.hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
 .hud button,
 .hud input,
@@ -107,9 +129,10 @@ body,
 .advanced-readouts { min-width: 0; }
 .hud .advanced-readouts .overlay { margin-top: 8px; }
 
-.hud .overlay {
+.hud .overlay,
+.hud .frame-readouts {
   display: grid;
-  grid-template-columns: minmax(130px, .36fr) minmax(0, 1fr);
+  grid-template-columns: minmax(9.5em, .36fr) minmax(0, 1fr);
   gap: 4px 10px;
   max-width: 100%;
   margin: 10px 0 0;
@@ -118,9 +141,12 @@ body,
   font-variant-numeric: tabular-nums;
 }
 
-.hud .overlay div { display: contents; }
-.hud .overlay dt { color: var(--ui-data); }
-.hud .overlay dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.hud .overlay div,
+.hud .frame-readouts div { display: contents; }
+.hud .overlay dt,
+.hud .frame-readouts dt { color: var(--ui-data); }
+.hud .overlay dd,
+.hud .frame-readouts dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 
 .anchor-labels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .anchor-label {
@@ -139,5 +165,31 @@ body,
   .hud { grid-template-columns: minmax(0, 1fr); }
   .developer-heading,
   .hud-section-clock { grid-column: 1; }
-  .hud .overlay { grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr); }
+  .hud .overlay,
+  .hud .frame-readouts { grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr); }
 }
+
+.hud .fps-graph { display: block; width: 100%; height: auto; margin-top: 10px; color: var(--ui-data); }
+.hud .tone-good { color: var(--perf-good); fill: var(--perf-good); }
+.hud .tone-warn { color: var(--perf-warn); fill: var(--perf-warn); }
+.hud .tone-bad { color: var(--perf-bad); fill: var(--perf-bad); }
+.hud .fps-graph line.tone-good, .hud .fps-graph line.tone-warn, .hud .fps-graph line.tone-bad { stroke: currentColor; }
+.hud .frame-readouts dd[class^="tone-"] { font-weight: 600; }
+.hud .fps-graph-key { display: flex; gap: 12px; margin: 4px 0 0; font-size: 11px; color: var(--ui-muted); }
+
+/* Developer panel on a phone: one column, label above control, labels never squeezed to a few letters. */
+@media (max-width: 700px) {
+  .hud { column-count: 1; }
+  .hud .setting-groups { column-count: 1; }
+  .developer-heading + .hud-section-frame .frame-body { display: block; }
+  .hud .setting { grid-template-columns: minmax(0, 1fr) 3.4em; }
+  .hud .setting-label { grid-column: 1 / -1; }
+  .hud .setting input[type="range"] { grid-column: 1; }
+  .hud .setting-buttons.has-label { grid-template-columns: minmax(0, 1fr); }
+  .hud .overlay, .hud .frame-readouts { grid-template-columns: minmax(8.5em, .5fr) minmax(0, 1fr); }
+}
+
+.hud .view-link { margin: 0 0 6px; }
+.hud .view-link-values { margin: 2px 0 6px; color: var(--ui-muted); font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hud .view-link-field { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; color: var(--ui-muted); font-size: 12px; }
+.hud .view-link-field input { width: 100%; min-width: 0; box-sizing: border-box; }

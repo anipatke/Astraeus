@@ -8,7 +8,8 @@ This file records state and selection only. `savepoint resume` computes the read
 state: task
 objective: none
 task: none
-release: G-003
+issue: none
+release: G-004
 ```
 
 Every Savepoint project must select a declared live Goal in router `release:`, and every live Objective must reference exactly one Goal in its `release:`. Apply AGENTS.md's Required Goal Context, lifecycle, verification, CLI, and worktree rules; do not duplicate them here. Archived V1 files and skills are not active V2 routing inputs.

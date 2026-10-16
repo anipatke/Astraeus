@@ -1,0 +1,135 @@
+{
+  "peakUtc": "2027-08-13T10:41:18Z",
+  "shots": [
+    {
+      "name": "cams-overview-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "cams-card-overview-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "cams-whole-orbit-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "cams-card-whole-orbit-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "cams-earth-crossing-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "cams-card-earth-crossing-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-overview-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-card-overview-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-whole-orbit-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-card-whole-orbit-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-earth-crossing-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-card-earth-crossing-peak.png",
+      "clip": {
+        "x": 0,
+        "y": 45,
+        "width": 1440,
+        "height": 810
+      },
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-all-overview-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-all-earth-crossing-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-reliable-overview-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    },
+    {
+      "name": "gmn-reliable-earth-crossing-peak.png",
+      "timeline": "2027-08-13T10:41:43.119Z"
+    }
+  ],
+  "counts": {
+    "gmnAll": 25588,
+    "gmnReliable": 23335,
+    "camsAll": 18699,
+    "gmnProvenance": {
+      "members": 32234,
+      "unbound": 6619,
+      "badSemiMajorAxis": 0,
+      "incomplete": 27,
+      "dropped": 6646,
+      "pairsFlagged": 0,
+      "rowsScanned": 214156,
+      "perMonth": {
+        "202507": 1896,
+        "202508": 30338
+      },
+      "kept": 25588
+    }
+  },
+  "gmn-all": {
+    "description": "Perseids stream Close Illustrative ⓘ : data source and known limitations 25588 measured meteoroid orbits of the Perseids, each drawn as one dot (Global Meteor Network trajectory summary, monthly files 202507, 202508). The orbits' shapes and tilts are measured; where each dot sits along its orbit is ",
+    "lit": 17441
+  },
+  "gmn-reliable": {
+    "description": "Perseids stream Close Illustrative ⓘ : data source and known limitations 23335 measured meteoroid orbits of the Perseids, each drawn as one dot (Global Meteor Network trajectory summary, monthly files 202507, 202508). The orbits' shapes and tilts are measured; where each dot sits along its orbit is ",
+    "lit": 16094
+  },
+  "switch": "GMN (default) -> CAMS reloads with ?source=cams and marks CAMS active",
+  "errors": []
+}
+browser-showers-gmn: ok, zero console errors

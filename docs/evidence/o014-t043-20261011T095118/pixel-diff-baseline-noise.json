@@ -1,0 +1,106 @@
+[
+ {
+  "dir": "spike03",
+  "f": "close-earth-1440x900.png",
+  "pixels": 1296000,
+  "differing": 65,
+  "differingOver8": 23,
+  "maxChannelDelta": 25
+ },
+ {
+  "dir": "spike03",
+  "f": "close-moon-1440x900.png",
+  "pixels": 1296000,
+  "differing": 111232,
+  "differingOver8": 7855,
+  "maxChannelDelta": 188
+ },
+ {
+  "dir": "spike03",
+  "f": "earth-moon-overview-1440x900.png",
+  "pixels": 1296000,
+  "differing": 377,
+  "differingOver8": 224,
+  "maxChannelDelta": 83
+ },
+ {
+  "dir": "spike03",
+  "f": "event-provenance-open-1440x900.png",
+  "pixels": 1296000,
+  "differing": 165,
+  "differingOver8": 19,
+  "maxChannelDelta": 11
+ },
+ {
+  "dir": "spike03",
+  "f": "laptop-1280x800.png",
+  "pixels": 1024000,
+  "differing": 16,
+  "differingOver8": 1,
+  "maxChannelDelta": 31
+ },
+ {
+  "dir": "spike03",
+  "f": "metric-visuals-1440x900.png",
+  "pixels": 1296000,
+  "differing": 53,
+  "differingOver8": 0,
+  "maxChannelDelta": 2
+ },
+ {
+  "dir": "spike03",
+  "f": "mobile-390x844.png",
+  "pixels": 329160,
+  "differing": 1,
+  "differingOver8": 1,
+  "maxChannelDelta": 17
+ },
+ {
+  "dir": "spike03",
+  "f": "mobile-developer-390x640.png",
+  "pixels": 249600,
+  "differing": 0,
+  "differingOver8": 0,
+  "maxChannelDelta": 0
+ },
+ {
+  "dir": "spike03",
+  "f": "mobile-developer-390x844.png",
+  "pixels": 329160,
+  "differing": 425,
+  "differingOver8": 393,
+  "maxChannelDelta": 220
+ },
+ {
+  "dir": "spike03",
+  "f": "mobile-info-sheet-390x844.png",
+  "pixels": 329160,
+  "differing": 3,
+  "differingOver8": 0,
+  "maxChannelDelta": 1
+ },
+ {
+  "dir": "spike03",
+  "f": "spacecraft-follow-1440x900.png",
+  "pixels": 1296000,
+  "differing": 2890,
+  "differingOver8": 2764,
+  "maxChannelDelta": 240
+ },
+ {
+  "dir": "spike03",
+  "f": "tablet-768x1024.png",
+  "pixels": 786432,
+  "differing": 3,
+  "differingOver8": 2,
+  "maxChannelDelta": 54
+ },
+ {
+  "dir": "spike03",
+  "f": "translunar-coast-1440x900.png",
+  "pixels": 1296000,
+  "differing": 894,
+  "differingOver8": 792,
+  "maxChannelDelta": 128
+ }
+]

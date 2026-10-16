@@ -1,0 +1,8 @@
+rerun in /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/snap
+spike02 | exit=1 | 12:31:00-12:31:40 | node tools/validate/browser-spike02.mjs
+synthetic-belt | exit=0 | 12:31:40-12:34:08 | node tools/validate/browser-synthetic-belt.mjs
+sky | exit=1 | 12:34:08-12:38:44 | node tools/validate/browser-sky.mjs
+lighting | exit=0 | 12:38:44-12:41:50 | node tools/validate/browser-lighting.mjs
+showers-perseids | exit=1 | 12:41:50-12:42:46 | node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=1 | 12:42:46-12:42:46 | node tools/validate/browser-showers.mjs geminids
+ALLDONE

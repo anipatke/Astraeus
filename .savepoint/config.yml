@@ -6,7 +6,7 @@ quality_gates:
   lint: null
   typecheck: "npm run typecheck"
   build: "npm run build"
-  test: "npm test"
+  test: "npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml"
   block_on_failure: true
   gate_timeout: 5m
 
