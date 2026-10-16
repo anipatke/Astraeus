@@ -1,21 +1,31 @@
 import { EARTH } from "../../core/bodies/earth";
-import type { TextureRef } from "../licence";
+import type { AssetLicence, TextureRef } from "../licence";
 import type { AtmosphereConfig, BodyMaterialConfig, BodyVisual } from "../visual";
-import earthTextureUrl from "../textures/earth-2k.jpg";
+import earthTextureUrl from "../textures/earth-bmng-july-4k.jpg";
 
 /** Donor material. */
 export const EARTH_MATERIAL: BodyMaterialConfig = Object.freeze({ color: "#e8e8e8", roughness: 0.82, metalness: 0.05 });
 /** Donor Earth atmosphere parameters. */
 export const EARTH_ATMOSPHERE: AtmosphereConfig = Object.freeze({ color: "#6eaaff", intensity: 0.4, power: 4.5, scale: 1.04 });
 
+/**
+ * NASA Earth Observatory, Blue Marble: Next Generation with Topography and Bathymetry, July 2004 (produced by Reto Stöckli), file
+ * world.topo.bathy.200407.3x5400x2700.jpg (5400x2700), resampled to 4096x2048. The page asks republishers to credit "NASA Earth
+ * Observatory"; NASA imagery is not copyrighted (NASA media usage guidelines).
+ */
+export const EARTH_TEXTURE_LICENCE: AssetLicence = Object.freeze({
+  source: "NASA Earth Observatory, Blue Marble: Next Generation with Topography and Bathymetry, July 2004 (Reto Stöckli)",
+  url: "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/",
+  licence: "public domain",
+  attribution: "NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli)",
+  accessed: "2026-10-16",
+});
+
 export const EARTH_TEXTURE: TextureRef = Object.freeze({
   url: earthTextureUrl,
   widthPx: 4096,
   heightPx: 2048,
-  localOnly: Object.freeze({
-    reason: "The donor records this as a NASA Blue Marble equirectangular map but not which product or URL, so its licence cannot be stated.",
-    publicReplacement: "material-colour" as const,
-  }),
+  licence: EARTH_TEXTURE_LICENCE,
 });
 
 export const EARTH_VISUAL: BodyVisual = Object.freeze({
