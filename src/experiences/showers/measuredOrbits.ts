@@ -98,6 +98,13 @@ export type MeasuredSource = "cams" | "gmn";
 export const shippedOrbitsPath = (story: string, iauCode: number, source: MeasuredSource): string => `data/stories/${story}/${source}-iau-${iauCode}.json`;
 const SHIPPED = import.meta.glob("../../../data/stories/*/*.json", { query: "?url", import: "default", eager: true }) as Record<string, string>;
 const shippedUrl = (story: string, iauCode: number, source: MeasuredSource): string | undefined => SHIPPED[`../../../${shippedOrbitsPath(story, iauCode, source)}`];
+/**
+ * The sources a build can actually read for a story's shower: a development build reads the local files (and falls back to the shipped copy), so every source is
+ * offered; a production build reads only shipped copies, so only a source with a shipped file is offered. A switch or `?source=` that would draw nothing is never offered.
+ */
+export function offeredSources(story: string, iauCode: number, candidates: readonly MeasuredSource[], production: boolean = import.meta.env.PROD): MeasuredSource[] {
+  return candidates.filter((source) => !production || shippedUrl(story, iauCode, source) !== undefined);
+}
 export const measuredOrbitsUrl = (iauCode: number, source: MeasuredSource = "cams"): string => `/data/local/${source}-iau-${iauCode}.json`;
 export const fetchOrbitsCommand = (iauCode: number, source: MeasuredSource = "cams", months: readonly string[] = []): string =>
   source === "gmn" ? `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode} --source gmn --months ${months.join(",")}` : `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode}`;

@@ -15,7 +15,7 @@ import type { Trajectory } from "../../core/trajectory";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
-import { fetchOrbitsCommand, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
+import { fetchOrbitsCommand, offeredSources, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
 import { citedSourceOf, type OrbitSource, type ShowerSettings, type ShowerSource } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
@@ -120,10 +120,14 @@ function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, sh
 }
 
 /** What the stream's item says when its data is not on this machine: nothing is drawn and no stand-in is invented. */
-function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>, source: OrbitSource): ExperienceObject {
+export function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>, source: OrbitSource, production: boolean = import.meta.env.PROD): ExperienceObject {
   const command = fetchOrbitsCommand(settings.stream.iauCode, source, settings.stream.sources.gmn?.months ?? []);
   const size = source === "gmn" ? `the ${settings.stream.sources.gmn?.months.length ?? 0} monthly files, about 100 MB each` : "about 322 MB";
-  const why = load.kind === "invalid"
+  const why = production
+    ? load.kind === "invalid"
+      ? `The measured orbit file this build ships for the ${settings.label} cannot be used (${load.problem}), so no stream is drawn.`
+      : `This build does not include measured orbits for the ${settings.label}, so no stream is drawn.`
+    : load.kind === "invalid"
     ? `The fetched file cannot be used: ${load.problem}. Run "${command}" again.`
     : `The measured orbits are not fetched on this machine, so no stream is drawn. Run "${command}" to fetch them (${size} downloaded, kept out of the repository and out of public builds).`;
   return {
@@ -475,7 +479,7 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
 }
 
 /** The live switches the Developer section lists: the orbit set (once loaded) and, for a shower that can read the GMN, the source. Undefined when there is none. */
-function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet, source: OrbitSource): ExperienceDefinition["alternates"] {
+function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet, source: OrbitSource, offered: readonly OrbitSource[]): ExperienceDefinition["alternates"] {
   const alternates = [
     ...(load.kind !== "loaded" ? [] : (["all", "reliable"] as const).map((option) => ({
       label: option === "all" ? `All orbits (${orbitSetCounts(load.orbits, settings.stream.quality.rule).all})` : `Reliable only (${orbitSetCounts(load.orbits, settings.stream.quality.rule).reliable})`,
@@ -483,7 +487,8 @@ function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSe
       value: option,
       active: option === set,
     }))),
-    ...(settings.stream.sources.gmn === undefined ? [] : (["cams", "gmn"] as const).map((option) => ({
+    // A source switch needs a choice: it is listed only when the build can read at least two of the shower's sources.
+    ...(settings.stream.sources.gmn === undefined || offered.length < 2 ? [] : (["cams", "gmn"] as const).filter((option) => offered.includes(option)).map((option) => ({
       label: option === "cams" ? "Orbits from CAMS" : "Orbits from GMN",
       param: "source",
       value: option,
@@ -497,7 +502,7 @@ function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSe
  * Turns shower settings and the shower's measured orbits into an experience definition; nothing here names a particular shower. When the
  * orbits are not on this machine the experience says so and draws no stream: there is no stand-in.
  */
-export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source): ExperienceDefinition {
+export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source, offered: readonly OrbitSource[] = offeredSources(settings.id, settings.stream.iauCode, settings.stream.sources.gmn === undefined ? ["cams"] : ["cams", "gmn"])): ExperienceDefinition {
   const composition = showerComposition(settings);
   const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set, source) : null;
   const window = createActivityWindow(settings);
@@ -538,7 +543,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
   return {
     experience,
     clock: { startUtcMs, rate: settings.timeline.rateSecondsPerSecond },
-    alternates: alternatesOf(settings, load, set, source),
+    alternates: alternatesOf(settings, load, set, source, offered),
     loop: settings.look.loop,
     viewUp: settings.look.viewUp,
     ...(settings.look.startView === undefined ? {} : { startView: settings.look.startView }),

@@ -240,6 +240,23 @@ Counts (fetched 2026-10-16): 214,156 data rows scanned; 32,234 PER records (1,89
 
 The GMN set sits closer to the published radiant and peak than CAMS in these figures, with a median Vgeo error of 0.3% of Vgeo against 0.6% for CAMS and a median Qc of 53 degrees against 32. The GMN months are one year (2025) and the busiest bin is 0.25 degree from the peak; the CAMS set spans 2011-2016. As for CAMS, only orbit geometry is used, so these are consistency checks against the published values and not density measurements; the dots' places along their orbits are illustrative. Limits specific to this source: a year of data from one network, hyperbolic records (20% of the PER rows) dropped, no zenith-attraction correction in the radiant, and the elements are taken as published without a separate check of their equinox beyond the node-against-solar-longitude test the fetch tool runs (within 1 degree for 95% of the rows).
 
+### Geminids from the Global Meteor Network (I-030)
+
+Source: the GMN monthly trajectory summaries `traj_summary_monthly_202412.txt` and `..._202512.txt` (Dec 2024 and Dec 2025; licence CC BY 4.0; the same two citations and column documentation as the Perseids above), selected by IAU number 4 (code GEM), read by `node tools/data/fetch-meteoroid-orbits.mjs 4 --source gmn --months 202412,202512 --ship geminids`, written to the git-ignored `data/local/gmn-iau-4.json` and, as the compact shipped copy, `data/stories/geminids/gmn-iau-4.json` (5.6 MB, 2.3 MB gzipped). The reliable set is the same rule as the Perseids (Qc at least 15 degrees, Vgeo sigma at most 10% of Vgeo). Published values: IAU MDC established showers, GEM (4), parameter set AdNo 8 (Jenniskens 2023): solar longitude 261.6, radiant RA 113.0 Dec +32.4, Vg 33.8 km/s, all J2000. The CAMS Geminid file stays a local option and has no facts recorded here. The facts come from `tests/showersMeasuredGeminids.test.ts`, the same J2000 helpers as the Perseid GMN suite, and the same peak instant rule (the Sun at solar longitude 261.6: 2026-12-13T23:31:44Z).
+
+Counts (fetched 2026-10-16): 207,384 data rows scanned; 51,156 GEM records (13,814 in Dec 2024, 37,342 in Dec 2025); no unbound (e >= 1) records and 41 incomplete dropped; **51,115 bound orbits drawn** in the all set, **46,828 reliable** (4,287 cut).
+
+| Fact | Published (IAU MDC) | GMN, all / reliable |
+|------|---------------------|---------------------|
+| Median Vgeo, km/s | 33.8 | 33.84 / 33.84 |
+| Busiest 0.5 deg solar-longitude bin | 261.6 | 261.5-262.0 (12,563 / 11,406 orbits; centre 261.75) |
+| Day of the smallest mean distance of the 100 nearest ellipses (fitted minimum, offset from the peak instant) | 2026-12-13T23:31Z (solar longitude 261.6) | 14 Dec 12:02Z, +0.52 d / 14 Dec 12:03Z, +0.52 d |
+| Ellipses within 0.01 AU of Earth at the peak day | n/a | 26,769 / 24,488 |
+| Radiant from members within 0.02 AU of Earth (RA, Dec) | 113.0, +32.4 | 113.21, +32.40 (0.18 deg off, 41,300 members) / 113.21, +32.40 (0.18 deg, 37,765) |
+| Median geocentric speed of those members, km/s | 33.8 | 33.92 / 33.92 |
+
+The tests allow 1 km/s for the speed, 1 degree for the busiest bin, 2 days for the minimum distance and 3 degrees for the radiant, as for the Perseids. The minimum falls half a day after the peak instant, inside the daily step of the table (the mean distance is 0.00006 AU on 13 Dec and 0.00004 AU on 14 Dec). The GMN months are two years (2024 and 2025, mostly 2025); the busiest bin is 0.15 degree from the peak. As for the Perseids, only orbit geometry is used, so these are consistency checks and not density measurements; the dots' places along their orbits are illustrative, and no clump is drawn. Limits: two Decembers from one network, no zenith-attraction correction in the radiant, and the elements are taken as published without a separate check of their equinox beyond the node-against-solar-longitude test the fetch tool runs.
+
 ## A body defined in a settings file: 3200 Phaethon (O-011 / T-055)
 
 ### What is validated

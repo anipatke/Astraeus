@@ -144,11 +144,15 @@ async function checkShipped() {
     assert.ok(lit > 150, `the stream is drawn from the shipped copy (${lit} stream-coloured pixels)`);
     assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "one stream group is mounted");
     results.shipped = { requests: fromShipped, kept, lit, licence: shipped.provenance.licence };
-    // CAMS can never ship: its stream is not drawn in the public build and the panel says so.
+    // CAMS can never ship (I-030): the public build offers only the sources it ships, so ?source=cams falls back to the shipped GMN stream and the Developer panel has no source switch.
     await load(page, "&sky=off&source=cams");
+    await page.getByRole("button", { name: "Pause playback" }).click();
     const cams = await streamPanel(page);
-    assert.ok(/not fetched/i.test(cams.description), "?source=cams in the public build: not fetched, nothing drawn");
-    assert.notEqual(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "no CAMS stream group in the public build");
+    assert.match(cams.description, new RegExp(`${kept} measured meteoroid orbits`), "?source=cams in the public build: the shipped GMN orbits are drawn instead of nothing");
+    assert.ok(cams.detail.includes("Global Meteor Network"), "?source=cams in the public build: the panel names the GMN source actually drawn");
+    assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "?source=cams in the public build: a stream group is drawn");
+    await page.getByRole("button", { name: "Developer mode" }).click();
+    assert.equal(await page.getByRole("button", { name: /^Orbits from (CAMS|GMN)$/ }).count(), 0, "no source switch is offered in the public build");
   } finally {
     await page.close();
   }

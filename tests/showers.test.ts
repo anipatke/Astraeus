@@ -8,6 +8,7 @@ import { createSceneResolver } from "../src/app/sceneLayout";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { SWIFT_TUTTLE_SAMPLING } from "../src/core/bodies";
 import {
+  absentStreamObject,
   buildShowerDefinition,
   createActivityWindow,
   parentOrbitIdOf,
@@ -19,7 +20,7 @@ import {
   streamLimitations,
   timelineBoundsOf,
 } from "../src/experiences/showers/showerDefinition";
-import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
+import { offeredSources, orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { buildElementsBody } from "../src/core/elementsBody";
@@ -254,7 +255,8 @@ describe("the orbit source (T-056)", () => {
   const perseids = parseShowerSettings(perseidsFile);
   it("defaults to the GMN (owner, 2026-10-16), keeps CAMS available, names the GMN months and licence in the settings, and offers the live source switch only where GMN is configured", () => {
     expect(perseids.stream.source).toBe("gmn");
-    expect(parseShowerSettings(geminidsFile).stream.source).toBe("cams");
+    expect(parseShowerSettings(geminidsFile).stream.source).toBe("gmn");
+    expect(parseShowerSettings(geminidsFile).stream.sources.gmn).toMatchObject({ months: ["202412", "202512"], licence: "CC BY 4.0" });
     expect(perseids.stream.sources.gmn).toMatchObject({ months: ["202507", "202508"], licence: "CC BY 4.0" });
     const switches = buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn").alternates?.filter((a) => a.param === "source");
     expect(switches?.map((a) => [a.value, a.active])).toEqual([["cams", false], ["gmn", true]]);
@@ -266,6 +268,36 @@ describe("the orbit source (T-056)", () => {
     const item = experienceWithGroups(definition).objects.find((o) => o.id === streamIdOf(perseids));
     expect(item?.description).toContain("node tools/data/fetch-meteoroid-orbits.mjs 7 --source gmn --months 202507,202508");
     expect(item?.provenance?.sources.join(" ")).toContain("Global Meteor Network");
+  });
+});
+
+describe("what a production build offers (I-030)", () => {
+  const perseids = parseShowerSettings(perseidsFile);
+  const geminids = parseShowerSettings(geminidsFile);
+  const sourceSwitch = (offered: readonly ("cams" | "gmn")[]) => buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn", offered).alternates?.filter((a) => a.param === "source");
+
+  it("ships the GMN orbits of both showers and no CAMS file, so a production build offers GMN only", () => {
+    for (const [story, iau] of [["perseids", 7], ["geminids", 4]] as const) {
+      expect(offeredSources(story, iau, ["cams", "gmn"], true)).toEqual(["gmn"]);
+      expect(offeredSources(story, iau, ["cams", "gmn"], false)).toEqual(["cams", "gmn"]);
+    }
+    expect(offeredSources("made-up", 999, ["cams", "gmn"], true)).toEqual([]);
+  });
+
+  it("lists the source switch only when two sources can be read", () => {
+    expect(sourceSwitch(["cams", "gmn"])?.map((a) => a.value)).toEqual(["cams", "gmn"]);
+    expect(sourceSwitch(["gmn"])).toBeUndefined();
+    expect(buildShowerDefinition(geminids, { kind: "absent" }, "all", "gmn", ["gmn"]).alternates).toBeUndefined();
+  });
+
+  it("says in plain words that a production build has no orbits, without a fetch command", () => {
+    for (const load of [{ kind: "absent" }, { kind: "invalid", problem: "wrong shower" }] as const) {
+      const text = absentStreamObject(geminids, load, "gmn", true).description;
+      expect(text).toContain("The Geminids stream is drawn from measured meteoroid orbits.");
+      expect(text).toMatch(load.kind === "absent" ? /This build does not include measured orbits for the Geminids, so no stream is drawn/ : /cannot be used \(wrong shower\), so no stream is drawn/);
+      expect(text).not.toMatch(/fetch-meteoroid-orbits|Run "/);
+    }
+    expect(absentStreamObject(geminids, { kind: "absent" }, "gmn", false).description).toMatch(/not fetched on this machine.*fetch-meteoroid-orbits\.mjs 4 --source gmn --months 202412,202512/s);
   });
 });
 
