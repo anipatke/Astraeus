@@ -1,0 +1,30 @@
+checker run 20261016T152607Z; HEAD 1022055 + uncommitted tree snapshot at /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/check-snap
+typecheck | exit=0 | 15:26:07-15:26:08 | npm run typecheck
+vitest | exit=0 | 15:26:08-15:26:37 | npx vitest run
+build | exit=0 | 15:26:37-15:26:38 | npm run build
+public-build | exit=0 | 15:26:38-15:26:39 | env ASTRAEUS_PUBLIC_BUILD=1 npm run build
+public-build-assets | exit=0 | 15:26:39-15:26:39 | node tools/validate/public-build-assets.mjs dist /home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/public-build-assets.json
+public-showers | exit=0 | 15:26:43-15:27:25 | env ASTRAEUS_URL=http://localhost:5452/app.html ASTRAEUS_EVIDENCE_DIR=/home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/public-showers node tools/validate/browser-public-showers.mjs
+spike02 | exit=0 | 15:27:31-15:29:40 | console-error-lines=0 | node tools/validate/browser-spike02.mjs
+spike03 | exit=0 | 15:29:40-15:30:15 | console-error-lines=0 | node tools/validate/browser-spike03.mjs
+shell | exit=0 | 15:30:15-15:30:29 | console-error-lines=0 | env ASTRAEUS_SCREENSHOT=/home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/shell/start.png ASTRAEUS_INFO_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/shell/info ASTRAEUS_METRIC_SCREENSHOTS=/home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/shell/metric node tools/validate/browser-shell.mjs
+anchor-labels | exit=0 | 15:30:29-15:30:40 | console-error-lines=0 | node tools/validate/browser-anchor-labels.mjs /home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/anchor-labels
+synthetic | exit=0 | 15:30:40-15:30:52 | console-error-lines=0 | node tools/validate/browser-synthetic.mjs
+synthetic-ring | exit=0 | 15:30:52-15:31:26 | console-error-lines=0 | node tools/validate/browser-synthetic-ring.mjs
+synthetic-belt | exit=0 | 15:31:26-15:33:32 | console-error-lines=0 | node tools/validate/browser-synthetic-belt.mjs
+synthetic-listed | exit=0 | 15:33:32-15:33:57 | console-error-lines=0 | node tools/validate/browser-synthetic-listed.mjs
+synthetic-eccentric | exit=0 | 15:33:57-15:35:40 | console-error-lines=0 | node tools/validate/browser-synthetic-eccentric.mjs
+marker-existing | exit=0 | 15:35:40-15:36:54 | console-error-lines=0 | node tools/validate/browser-marker-existing.mjs
+sky | exit=0 | 15:36:54-15:41:40 | console-error-lines=0 | node tools/validate/browser-sky.mjs
+sky-map | exit=0 | 15:41:40-15:42:13 | console-error-lines=0 | node tools/validate/browser-sky-map.mjs
+sun | exit=0 | 15:42:13-15:43:55 | console-error-lines=0 | node tools/validate/browser-sun.mjs
+earth-moon | exit=0 | 15:43:55-15:44:15 | console-error-lines=0 | node tools/validate/browser-earth-moon.mjs
+jupiter-io | exit=0 | 15:44:15-15:44:45 | console-error-lines=0 | node tools/validate/browser-jupiter-io.mjs
+showers-perseids | exit=0 | 15:44:45-15:50:23 | console-error-lines=0 | node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=0 | 15:50:23-15:56:47 | console-error-lines=0 | node tools/validate/browser-showers.mjs geminids
+showers-gmn | exit=0 | 15:56:47-15:58:32 | console-error-lines=1 | node tools/validate/browser-showers-gmn.mjs
+view-link | exit=0 | 15:58:32-15:59:03 | console-error-lines=0 | node tools/validate/browser-view-link.mjs
+precision | exit=0 | 15:59:03-15:59:48 | console-error-lines=0 | node tools/validate/browser-precision.mjs
+lighting | exit=0 | 15:59:48-16:02:28 | console-error-lines=0 | node tools/validate/browser-lighting.mjs
+story-panels | exit=0 | 16:02:28-16:04:24 | console-error-lines=1 | env ASTRAEUS_OUT=/home/user/code/Astraeus/docs/evidence/night-check-20261016T152607Z/story-panels-out node tools/validate/browser-story-panels.mjs
+ALLDONE

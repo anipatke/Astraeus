@@ -17,6 +17,9 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 const errors = [];
 const results = {};
 
+// Perseids now opens on its own camera (look.startView, O-015). The scenarios below were written for the engine default camera, so they ask for it by address.
+const ENGINE_DEFAULT_VIEW = "&view=sun,216,14.32,3007000";
+
 const open = async (query, viewport = { width: 1280, height: 800 }) => {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
@@ -110,7 +113,7 @@ try {
   await withGlow.waitForTimeout(1200);
   await shot(withGlow, "perseids-solar-system-overview-peak");
   await withGlow.close();
-  const ser = await open("experience=shower-perseids&sky=off&labels=sun:on"); // fresh, with the default halo
+  const ser = await open(`experience=shower-perseids&sky=off&labels=sun:on${ENGINE_DEFAULT_VIEW}`); // fresh, with the default halo; the camera the zoom series was written for, not the opening camera Perseids now carries (look.startView)
   await seekPeak(ser);
   await overview(ser);
   const box = await ser.getByTestId("earth-moon-canvas").boundingBox();

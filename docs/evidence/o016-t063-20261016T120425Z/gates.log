@@ -1,0 +1,14 @@
+> astraeus@0.1.0 typecheck
+> tsc --noEmit
+
+
+ Test Files  48 passed (48)
+      Tests  894 passed | 1 skipped (895)
+   Start at  23:06:22
+   Duration  53.82s (tests 68%, transform 19%, import 11%, setup 2%)
+
+0
+    }
+  ],
+  "matches": []
+}

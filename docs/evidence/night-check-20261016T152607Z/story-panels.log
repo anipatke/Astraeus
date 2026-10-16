@@ -1,0 +1,19 @@
+ok  timeline shows a marker per panel (7)
+ok  forward playback opens the first panel and holds playback (side panel at right)
+ok  playback resumes on its own after the pause (panel stays open)
+ok  a tap on Continue resumes playback early
+ok  scrubbing back and forth past the markers opens nothing
+ok  timeline markers open their panel, one at a time
+ok  scene marker on the named body reopens its panel
+ok  Escape closes the panel
+ok  every Apollo panel opens in order on playback (tli-cutoff > loi > powered-descent > touchdown > ascent-docking > tei > splashdown)
+ok  pause length 0 opens a panel without pausing
+ok  pause length setting is live (held 1945 ms for a 2 s setting)
+ok  auto-open off: playback crosses silently, markers still open panels
+ok  phone shows a bottom sheet with a handle (368 px tall)
+ok  swipe down dismisses the phone sheet
+ok  a short drag keeps the sheet open
+ok  phone sheets for two Apollo panels captured
+ok  Perseids panels open in order on playback (stream-shape > earth-crossing > swift-tuttle)
+ok  phone sheets for two Perseids panels captured
+ok  zero console errors

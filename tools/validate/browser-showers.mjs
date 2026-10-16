@@ -14,6 +14,11 @@
 // I-028 (new scenario, "plain load"): a load with no preset clicked and the sky on draws the stream (>50 stream-coloured pixels: the Geminid dots are 1.6 px aqua and read thin, 95 on the phone) and is not a Sun close-up (<30% lit).
 //   the comet "swift-tuttle" and "Focus comet" ................ the parent id (parentElements.id or parentBodyId) and the generic "Focus parent" preset
 //   the mounted bodies (seven) ................................ the built-in Sun-circling bodies, plus the parent when the settings define it
+// O-016 T-063 (a shower may now declare look.startView, the Perseids open on sun,100,40,250000): scenarios that measure on-screen geometry no longer rely on the opening camera.
+//   scenario (assertion unchanged) .......................... camera now set by
+//   ecliptic flat (major axis within 8 deg, flat ellipse) ..... `&view=` + ENGINE_DEFAULT_VIEW (sun,216,14.32,3007000, the camera the assertion was written for) in the URL, then Overview as before
+//   every other scenario (they start from a click on a preset) . the same explicit ENGINE_DEFAULT_VIEW on the page's URL, so a startView cannot change their opening framing
+//   NEW plain load opens at the shower's look.startView ....... the Developer view readout matches the settings file within 1.5 deg / 2% (only when the file declares one)
 //
 // T-038 scenario map (the T-047, T-049 and T-053 scenarios are all kept; each one whose subject changed names its replacement).
 //   NEW in T-038: the stream is the measured CAMS orbits, fetched to data/local/ by tools/data/fetch-meteoroid-orbits.mjs (git-ignored, never shipped); the
@@ -85,6 +90,8 @@ if (outDir) mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
 const results = {};
+/** The engine default camera (Sun, azimuth 216, elevation 14.32, Overview distance) that the geometry assertions were written for, independent of any look.startView. */
+const ENGINE_DEFAULT_VIEW = "&view=sun,216,14.32,3007000";
 // Every stream-pixel count the scenarios assert on, by shower, viewport and scenario, so a floor can be judged against what was actually measured.
 const litLog = (results.litCounts = {});
 const logLit = (where, n) => { litLog[`${shower}/${where}`] = n; return n; };
@@ -667,7 +674,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   const out = (results[label].eclipticFlat ??= {});
   const p = await openPage(page.viewportSize());
   try {
-    await p.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${query}`);
+    await p.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
     await p.waitForSelector("canvas");
     await p.getByRole("region", { name: "Timeline controls" }).waitFor();
     await p.getByRole("button", { name: "Pause playback" }).click();
@@ -841,6 +848,7 @@ async function run(label, viewport) {
   const streamId = `${shower}-stream`;
   try {
     // I-028: a plain load (no preset clicked, sky on) opens on the experience's overview: the stream is drawn and the Sun's disc does not cover the canvas.
+    let startViewRead;
     const plain = await openPage(viewport);
     try {
       await plain.goto(`${base}?experience=shower-${shower}&source=cams`);
@@ -852,10 +860,23 @@ async function run(label, viewport) {
       assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} stream-coloured pixels)`);
       assert.ok(plainLit < 0.3 * plainArea, `${label}: a plain load is not a close-up of the Sun (${plainLit} of ${plainArea} pixels are stream-coloured)`);
       if (outDir) await plain.screenshot({ path: `${outDir}/${label}-plain-load.png` });
+      // T-063: a shower that declares look.startView opens on it.
+      const declared = settingsFile.look?.startView;
+      if (declared !== undefined) {
+        await plain.getByRole("button", { name: "Developer mode" }).click();
+        const text = await plain.getByTestId("view-values").innerText();
+        const match = /View: ([^,]+),([\d.-]+),([\d.-]+),([\d.-]+)/.exec(text);
+        assert.ok(match, `${label}: the view readout reads (${text})`);
+        const [focus, az, el, dist] = [match[1], Number(match[2]), Number(match[3]), Number(match[4])];
+        const gap = Math.abs(((az - declared.azimuthDeg + 540) % 360) - 180);
+        startViewRead = { declared, read: { focus, az, el, dist } };
+        assert.equal(focus, declared.focus, `${label}: a plain load opens on the declared focus`);
+        assert.ok(gap < 1.5 && Math.abs(el - declared.elevationDeg) < 1.5 && Math.abs(dist - declared.distance) / declared.distance < 0.02, `${label}: a plain load opens at look.startView (read ${az}, ${el}, ${dist}; declared ${declared.azimuthDeg}, ${declared.elevationDeg}, ${declared.distance})`);
+      }
     } finally {
       await plain.close();
     }
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${ENGINE_DEFAULT_VIEW}`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -875,6 +896,7 @@ async function run(label, viewport) {
     const windowLabel = await windowButton.getAttribute("aria-label");
     const [startText, endText] = windowLabel.split(", ").slice(1).join(", ").split(" to ");
     results[label] = { windowLabel, startText, endText, readings: {} };
+    if (startViewRead !== undefined) results[label].startView = startViewRead;
 
     // Step to window start, peak and end; the stream is drawn and the rate readout follows the curve.
     const panel = page.locator("#info-panel");

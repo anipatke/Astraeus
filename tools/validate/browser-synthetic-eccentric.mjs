@@ -141,7 +141,8 @@ const markerRule = async (query, label) => {
     await page.getByLabel("Select object").selectOption("earth");
     await closeInfo(page);
     await pickPreset(page, "Focus Earth");
-    await page.waitForTimeout(2500);
+    // This experience opens at its overview (I-028, T-040: a large centre body), so Focus Earth eases in from the whole orbit: measured about 2.4 s to get under a 100 px sphere, more than the 2.5 s this used to wait.
+    await page.waitForTimeout(6000);
     const entry = { threshold: await page.locator("canvas").first().getAttribute("data-marker-px") };
     entry.earthClose = await swapped(page);
     await shot(page, `${label}-earth-close`);

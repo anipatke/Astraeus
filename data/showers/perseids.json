@@ -75,8 +75,12 @@
     "earthPathColor": "#7ab8ff",
     "parentPathColor": "#c79bff",
     "planetExaggeration": 400,
+    "startView": { "focus": "sun", "azimuthDeg": 100, "elevationDeg": 40, "distance": 250000 },
     "cameraMaxFocusDistance": 4000000,
     "cameraFar": 12000000
+  },
+  "story": {
+    "panels": "data/stories/perseids/panels.json"
   },
   "activity": {
     "startUtc": "2027-07-17T00:00:00Z",

@@ -1,0 +1,85 @@
+{
+  "passed": true,
+  "command": "node tools/validate/browser-story-panels.mjs",
+  "url": "http://localhost:5451/app.html",
+  "at": "2026-10-16T16:04:24.641Z",
+  "results": [
+    {
+      "name": "timeline shows a marker per panel",
+      "detail": "7"
+    },
+    {
+      "name": "forward playback opens the first panel and holds playback",
+      "detail": "side panel at right"
+    },
+    {
+      "name": "playback resumes on its own after the pause",
+      "detail": "panel stays open"
+    },
+    {
+      "name": "a tap on Continue resumes playback early",
+      "detail": ""
+    },
+    {
+      "name": "scrubbing back and forth past the markers opens nothing",
+      "detail": ""
+    },
+    {
+      "name": "timeline markers open their panel, one at a time",
+      "detail": ""
+    },
+    {
+      "name": "scene marker on the named body reopens its panel",
+      "detail": ""
+    },
+    {
+      "name": "Escape closes the panel",
+      "detail": ""
+    },
+    {
+      "name": "every Apollo panel opens in order on playback",
+      "detail": "tli-cutoff > loi > powered-descent > touchdown > ascent-docking > tei > splashdown"
+    },
+    {
+      "name": "pause length 0 opens a panel without pausing",
+      "detail": ""
+    },
+    {
+      "name": "pause length setting is live",
+      "detail": "held 1945 ms for a 2 s setting"
+    },
+    {
+      "name": "auto-open off: playback crosses silently, markers still open panels",
+      "detail": ""
+    },
+    {
+      "name": "phone shows a bottom sheet with a handle",
+      "detail": "368 px tall"
+    },
+    {
+      "name": "swipe down dismisses the phone sheet",
+      "detail": ""
+    },
+    {
+      "name": "a short drag keeps the sheet open",
+      "detail": ""
+    },
+    {
+      "name": "phone sheets for two Apollo panels captured",
+      "detail": ""
+    },
+    {
+      "name": "Perseids panels open in order on playback",
+      "detail": "stream-shape > earth-crossing > swift-tuttle"
+    },
+    {
+      "name": "phone sheets for two Perseids panels captured",
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

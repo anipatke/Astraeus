@@ -1,0 +1,39 @@
+{
+  "startedUtc": "2026-10-16T12:14:05.311Z",
+  "base": "http://localhost:5406",
+  "command": "/home/user/.nvm/versions/node/v24.16.0/bin/node /home/user/code/Astraeus/tools/validate/capture-site-pictures.mjs",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "pictures": [
+    {
+      "name": "perseids-gmn",
+      "path": "site/perseids-gmn.jpg",
+      "bytes": 86154,
+      "capturedUtc": "2026-10-16T12:14:13.177Z",
+      "viewport": {
+        "width": 1200,
+        "height": 675
+      },
+      "url": "app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic",
+      "timeUtc": "2027-08-12T12:00:00Z"
+    },
+    {
+      "name": "perseids-year-gif",
+      "path": "site/readme/perseids-year.gif",
+      "bytes": 1907208,
+      "capturedUtc": "2026-10-16T12:15:07.805Z",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "outputWidth": 960,
+      "frames": 40,
+      "url": "app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic",
+      "window": {
+        "startUtc": "2027-02-11T19:36:43.119Z",
+        "endUtc": "2028-02-12T01:45:52.882Z"
+      }
+    }
+  ],
+  "errors": [],
+  "finishedUtc": "2026-10-16T12:15:07.871Z"
+}

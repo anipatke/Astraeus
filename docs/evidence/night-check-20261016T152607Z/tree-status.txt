@@ -1,0 +1,52 @@
+ M .savepoint/issues/I-019-time-window-on-the-timeline-is-hard-to-read.md
+ M .savepoint/issues/I-022-load-the-planet-ephemeris-only-when-an-experience-needs-it.md
+ M .savepoint/objectives/O-015-tell-the-apollo-11-and-perseids-stories-in-panels/tasks/T-061-write-the-apollo-11-story-panels.md
+ M .savepoint/objectives/O-015-tell-the-apollo-11-and-perseids-stories-in-panels/tasks/T-062-write-the-perseids-story-panels.md
+ M .savepoint/objectives/O-016-make-the-public-site-launch-ready/tasks/T-063-re-shoot-the-site-pictures-from-the-public-build.md
+ M README.md
+ M data/showers/perseids.json
+ M data/stories/apollo11/panels.json
+ M index.html
+ M public/share/apollo-moon.jpg
+ M site/apollo-moon.jpg
+ M site/apollo-phone.jpg
+ M site/apollo-provenance.jpg
+ M src/core/astronomyAdapter.ts
+ M src/experiences/apollo11/apollo11Definition.tsx
+ M src/experiences/showers/showerDefinition.ts
+ M src/experiences/showers/showerSettings.ts
+ M src/main.tsx
+ M src/shell/TimelineBar.tsx
+ M src/shell/style.css
+ M src/shell/timelineModel.ts
+ M src/types/orb.d.ts
+ M tests/showers.test.ts
+ M tests/storyPanels.test.ts
+ M tests/timeline.test.ts
+ M tools/validate/browser-showers.mjs
+ M tools/validate/browser-story-panels.mjs
+ M tools/validate/browser-sun.mjs
+ M tools/validate/browser-synthetic-eccentric.mjs
+ M tools/validate/browser-synthetic.mjs
+ M tsconfig.json
+ M vite.config.ts
+?? .savepoint/issues/I-031-stacked-story-markers-on-one-object-hide-each-other.md
+?? data/stories/perseids/panels.json
+?? docs/evidence/fix-browser-20261016T151035Z/
+?? docs/evidence/fix-browser-20261016T152320Z-story-panels/
+?? docs/evidence/i019-20261016T124214Z-INVALID-stale-baseline-server/
+?? docs/evidence/i019-20261016T132151Z/
+?? docs/evidence/i022-20261016T115528Z/
+?? docs/evidence/night-check-20261016T152607Z/
+?? docs/evidence/o015-t061-20261016T120743Z/
+?? docs/evidence/o016-t063-20261016T120425Z/
+?? docs/evidence/o016-t063-20261016T123522Z-showers/
+?? docs/evidence/o016-t063-20261016T123619Z-showers/
+?? site/perseids-gmn.jpg
+?? site/readme/
+?? src/app/planetNeeds.ts
+?? src/core/planetModels.ts
+?? src/core/planetSeries.ts
+?? src/experiences/showers/showerEntry.ts
+?? tools/validate/capture-site-pictures.mjs
+?? vitest.setup.ts

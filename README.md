@@ -2,9 +2,9 @@
 
 Everything in space, where it is right now, drawn in the browser.
 
-![The Perseid meteor stream over a year, drawn from Global Meteor Network orbits](site/readme/perseids-year.gif)
+![The Perseid meteor stream over a year, drawn from Global Meteor Network orbits, seen obliquely from above the planets' plane](site/readme/perseids-year.gif)
 
-<sub>The Perseid stream over one year, one frame per week. Each dot is a measured meteoroid orbit. Orbits: [Global Meteor Network](https://globalmeteornetwork.org), CC BY 4.0. Stars: Yale Bright Star Catalogue.</sub>
+<sub>The Perseid stream over one year, one frame per week. Each dot is a measured meteoroid orbit. Orbits: [Global Meteor Network](https://globalmeteornetwork.org), CC BY 4.0. Stars: HYG database (astronexus), CC BY-SA 4.0.</sub>
 
 [![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6) ![Three.js](https://img.shields.io/badge/Three.js-0.169-black)
 
@@ -14,7 +14,7 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 
 | | |
 |---|---|
-| ![Apollo 11's Columbia and Eagle beside the Moon during powered descent](site/apollo-moon.jpg) | ![The Perseid stream fanning out from the Sun past Earth and Mercury](site/perseids-gmn.jpg) |
+| ![Apollo 11's free-return path from above, Earth and the Moon with the touchdown story panel open](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
 | **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. |
 | [Try it](https://astraeus.curiouscode.ai/app.html) (going live soon) | [Try it](https://astraeus.curiouscode.ai/app.html?experience=shower-perseids) (going live soon) |
 

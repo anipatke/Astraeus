@@ -1,0 +1,9 @@
+
+ RUN  v5.0.3 /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/check-snap
+
+
+ Test Files  48 passed (48)
+      Tests  896 passed | 1 skipped (897)
+   Start at  02:26:08
+   Duration  29.63s (tests 70%, transform 16%, import 12%, setup 2%)
+
