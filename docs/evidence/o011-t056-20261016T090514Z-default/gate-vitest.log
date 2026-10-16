@@ -1,0 +1,39 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ❯ tests/nameCheck.test.ts (5 tests | 1 failed) 15ms
+   ❯ name check (T-047 Done When 5) (5)
+     × finds no experience, mission, shower or dataset name, and no body name outside the allowlist 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/nameCheck.test.ts > name check (T-047 Done When 5) > finds no experience, mission, shower or dataset name, and no body name outside the allowlist
+AssertionError: expected [ [ 'src/app/App.tsx', …(1) ] ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   [
++     "src/app/App.tsx",
++     "body name \"sun\"",
++   ],
++ ]
+
+ ❯ tests/nameCheck.test.ts:59:53
+     57|
+     58|   it("finds no experience, mission, shower or dataset name, and no bod…
+     59|     expect(nameOffences(real, BODY_NAME_ALLOWLIST)).toEqual([]);
+       |                                                     ^
+     60|   });
+     61|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 42 passed (43)
+      Tests  1 failed | 811 passed | 1 skipped (813)
+   Start at  20:42:01
+   Duration  38.35s (tests 71%, import 15%, transform 14%)
+

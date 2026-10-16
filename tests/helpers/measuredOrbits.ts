@@ -1,18 +1,19 @@
 import { parseMeasuredOrbits, MEASURED_ROW_COLUMNS, type MeasuredOrbits } from "../../src/experiences/showers/measuredOrbits";
 
 // The git-ignored files tools/data/fetch-meteoroid-orbits.mjs writes; none on a machine that has not run it.
-const FETCHED = import.meta.glob("../../data/local/cams-iau-*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const pathOf = (iauCode: number): string => `../../data/local/cams-iau-${iauCode}.json`;
+const FETCHED = import.meta.glob("../../data/local/{cams,gmn}-iau-*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+type Source = "cams" | "gmn";
+const pathOf = (iauCode: number, source: Source): string => `../../data/local/${source}-iau-${iauCode}.json`;
 
-export const hasLocalOrbits = (iauCode: number): boolean => pathOf(iauCode) in FETCHED;
+export const hasLocalOrbits = (iauCode: number, source: Source = "cams"): boolean => pathOf(iauCode, source) in FETCHED;
 
-export const skipReasonFor = (iauCode: number): string =>
-  `skipped: data/local/cams-iau-${iauCode}.json is not fetched on this machine (run node tools/data/fetch-meteoroid-orbits.mjs ${iauCode})`;
+export const skipReasonFor = (iauCode: number, source: Source = "cams"): string =>
+  `skipped: data/local/${source}-iau-${iauCode}.json is not fetched on this machine (run ${source === "gmn" ? `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode} --source gmn --months <YYYYMM,...>` : `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode}`})`;
 
 /** The raw file as the tool wrote it. */
-export const readLocalFile = (iauCode: number): { provenance: Record<string, any>; rows: any[][] } => JSON.parse(FETCHED[pathOf(iauCode)]);
+export const readLocalFile = (iauCode: number, source: Source = "cams"): { provenance: Record<string, any>; rows: any[][] } => JSON.parse(FETCHED[pathOf(iauCode, source)]);
 
-export const readLocalOrbits = (iauCode: number): MeasuredOrbits => parseMeasuredOrbits(readLocalFile(iauCode), iauCode);
+export const readLocalOrbits = (iauCode: number, source: Source = "cams"): MeasuredOrbits => parseMeasuredOrbits(readLocalFile(iauCode, source), iauCode);
 
 /**
  * Made-up measured orbits for a made-up shower: invented rows in the real file's shape, never data of any real shower. A small seeded

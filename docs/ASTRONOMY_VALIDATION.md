@@ -223,6 +223,23 @@ Method: the measured ellipses themselves (not the dots), from the elements in th
 
 Limits: the check uses only orbit geometry, so it is a consistency check of the data against the published values and not a measurement of the stream's density; the dots' places along their orbits (illustrative) play no part in it.
 
+### Second source: Perseids from the Global Meteor Network (O-011 / T-056)
+
+Source: the GMN monthly trajectory summaries `traj_summary_monthly_202507.txt` and `..._202508.txt` (Jul and Aug 2025; licence CC BY 4.0; Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); column documentation https://globalmeteornetwork.org/data/media/GMN_orbit_data_columns.pdf), selected by IAU number 7 (code PER), read by `tools/data/fetch-meteoroid-orbits.mjs 7 --source gmn --months 202507,202508`, written to the git-ignored `data/local/gmn-iau-7.json` in the same column layout as the CAMS file. Column positions are found from the two header rows (name over unit) on every run. The reliable set is Qc (GMN's maximum convergence angle between stations) at least 15 degrees and the Vgeo sigma at most 10% of Vgeo: the CAMS rule's numbers on GMN's own columns. GMN has no double-entry flag. The facts below come from `tests/showersMeasured.test.ts` (the GMN suite) beside the CAMS suite, the same J2000 helpers and the same peak instant (2027-08-13T10:41:18Z).
+
+Counts (fetched 2026-10-16): 214,156 data rows scanned; 32,234 PER records (1,896 in Jul, 30,338 in Aug, the checker's Aug figure); 6,619 unbound (e >= 1) and 27 incomplete dropped; **25,588 bound orbits drawn** in the all set, **23,335 reliable** (2,253 cut). CAMS: 24,928 records, 6,229 unbound dropped, 18,699 drawn, 15,644 reliable (2010-2016).
+
+| Fact | Published (IAU MDC) | CAMS, all / reliable | GMN, all / reliable |
+|------|---------------------|----------------------|---------------------|
+| Median Vgeo, km/s | 58.8 | 58.59 / 58.59 | 58.63 / 58.64 |
+| Busiest 0.5 deg solar-longitude bin | 140.1 | 139.5-140.0 (2,431 / 2,049 orbits) | 140.0-140.5 (5,747 / 5,225 orbits) |
+| Day of the smallest mean distance of the 100 nearest ellipses (fitted minimum, offset from the peak instant) | 2027-08-13T10:41Z (solar longitude 140.1) | 13 Aug 14:38Z, +0.16 d / 13:51Z, +0.13 d | 13 Aug 08:25Z, -0.09 d / 09:21Z, -0.06 d |
+| Ellipses within 0.01 AU of Earth at the peak day | n/a | 5,004 / 4,239 | 6,886 / 6,279 |
+| Radiant from members within 0.02 AU of Earth (RA, Dec) | 47.9, +57.9 | 48.39, +57.78 (0.29 deg off, 7,769 members) / 48.36, +57.76 (0.28 deg, 6,491) | 47.85, +57.86 (0.04 deg off, 11,251 members) / 47.86, +57.87 (0.04 deg, 10,118) |
+| Median geocentric speed of those members, km/s | 58.8 | 58.76 / 58.76 | 58.75 / 58.77 |
+
+The GMN set sits closer to the published radiant and peak than CAMS in these figures, with a median Vgeo error of 0.3% of Vgeo against 0.6% for CAMS and a median Qc of 53 degrees against 32. The GMN months are one year (2025) and the busiest bin is 0.25 degree from the peak; the CAMS set spans 2011-2016. As for CAMS, only orbit geometry is used, so these are consistency checks against the published values and not density measurements; the dots' places along their orbits are illustrative. Limits specific to this source: a year of data from one network, hyperbolic records (20% of the PER rows) dropped, no zenith-attraction correction in the radiant, and the elements are taken as published without a separate check of their equinox beyond the node-against-solar-longitude test the fetch tool runs (within 1 degree for 95% of the rows).
+
 ## A body defined in a settings file: 3200 Phaethon (O-011 / T-055)
 
 ### What is validated

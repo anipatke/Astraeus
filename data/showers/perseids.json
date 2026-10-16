@@ -16,10 +16,27 @@
   },
   "stream": {
     "iauCode": 7,
-    "source": {
-      "name": "CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016), IAU shower 7; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29; fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs and never committed or shipped",
-      "url": "https://cams.seti.org/CAMS-v3-2010to2016.xlsx",
-      "accessed": "2026-10-13"
+    "source": "gmn",
+    "sources": {
+      "cams": {
+        "name": "CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016), IAU shower 7; Jenniskens et al. 2018, Planetary and Space Science 154, 21-29; fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs and never committed or shipped",
+        "url": "https://cams.seti.org/CAMS-v3-2010to2016.xlsx",
+        "accessed": "2026-10-13"
+      },
+      "gmn": {
+        "source": {
+          "name": "Global Meteor Network, monthly trajectory summary files (traj_summary_monthly_YYYYMM.txt), IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); fetched to this machine by tools/data/fetch-meteoroid-orbits.mjs --source gmn and kept in the git-ignored data/local/ for now",
+          "url": "https://globalmeteornetwork.org/data/",
+          "accessed": "2026-10-16"
+        },
+        "months": [
+          "202507",
+          "202508"
+        ],
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "ruleNote": "Qc is GMN's own maximum convergence angle between stations (column Qc, deg) and the Vgeo sigma is the uncertainty column beside Vgeo (km/s), so the reliable set is Qc at least the angle and sigma at most the fraction of Vgeo."
+      }
     },
     "seed": 20270813,
     "quality": {

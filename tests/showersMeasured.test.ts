@@ -31,7 +31,7 @@ it("keeps the settings-side row columns equal to the fetch tool's", () => {
 suite(title, () => {
   const file = present ? readLocalFile(IAU) : null!;
   const orbits = present ? readLocalOrbits(IAU) : null!;
-  const definition = present ? buildShowerDefinition(settings, { kind: "loaded", orbits }) : null!;
+  const definition = present ? buildShowerDefinition(settings, { kind: "loaded", orbits }, "all", "cams") : null!;
   const group: ListedOrbitGroup = present ? (groupsOf(definition)[0].group as ListedOrbitGroup) : null!;
   const rule = settings.stream.quality.rule;
   const rowsFor = (set: "all" | "reliable") => (set === "all" ? file.rows : file.rows.filter((r) => r[9] >= rule.minConvergenceAngleDeg && r[11] <= rule.maxVelocityErrorFraction * r[10]));
@@ -54,7 +54,7 @@ suite(title, () => {
     expect(counts).toMatchObject({ all: 18_699, reliable: 15_644, cut: 3_055, pairsFlagged: 99, pairsFlaggedReliable: 78 });
     expect(file.provenance.counts.pairsFlagged).toBe(99);
     expect(rowsFor("reliable")).toHaveLength(15_644);
-    const reliable = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable"))[0].group;
+    const reliable = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable", "cams"))[0].group;
     expect(reliable.count).toBe(15_644);
     console.info(`SETS ${JSON.stringify(counts)}`);
   });
@@ -208,4 +208,132 @@ suite(title, () => {
     console.info(`FILL ${group.count} members: ${ms.toFixed(1)} ms per exact fill`);
     expect(ms).toBeLessThan(100);
   });
+});
+
+// T-056: the same Perseid facts from the Global Meteor Network's measured orbits (Jul + Aug 2025 monthly files), beside the CAMS ones above.
+const gmnPresent = hasLocalOrbits(IAU, "gmn");
+const gmnSuite = gmnPresent ? describe : describe.skip;
+
+gmnSuite(`Perseids from the fetched GMN orbits${gmnPresent ? "" : ` (${skipReasonFor(IAU, "gmn")})`}`, () => {
+  const file = gmnPresent ? readLocalFile(IAU, "gmn") : null!;
+  const orbits = gmnPresent ? readLocalOrbits(IAU, "gmn") : null!;
+  const rule = settings.stream.quality.rule;
+  const rowsFor = (set: "all" | "reliable") => (set === "all" ? file.rows : file.rows.filter((r) => r[9] >= rule.minConvergenceAngleDeg && r[11] <= rule.maxVelocityErrorFraction * r[10]));
+  const peakPublished = timeOfSolarLongitude(adapter, toEqj, settings.radiant.peakSolarLongitudeDeg, Date.parse(settings.activity.startUtc), Date.parse(settings.activity.endUtc));
+  const medianOf = (values: number[]) => { const v = [...values].sort((a, b) => a - b); return v.length % 2 === 1 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; };
+  const gmnSettings = parseShowerSettings({ ...perseidsFile, stream: { ...perseidsFile.stream, source: "gmn" } });
+
+  it("holds the files the settings name, CC BY 4.0, with the two citations, hashes and the counts", () => {
+    const { provenance } = file;
+    expect(provenance.iauCode).toBe(7);
+    expect(provenance.iauLetters).toBe("PER");
+    expect(provenance.licence).toBe("CC BY 4.0");
+    expect(provenance.citations).toHaveLength(2);
+    expect(provenance.citations.join(" ")).toMatch(/506\(4\)/);
+    expect(provenance.citations.join(" ")).toMatch(/491\(2\)/);
+    expect(provenance.files.map((f: { month: string }) => f.month)).toEqual(settings.stream.sources.gmn!.months);
+    for (const f of provenance.files) { expect(f.sha256).toMatch(/^[0-9a-f]{64}$/); expect(f.bytes).toBeGreaterThan(1_000_000); }
+    expect(provenance.counts.perMonth["202508"]).toBe(30_338); // the checker's count of PER rows in the Aug 2025 file
+    expect(provenance.counts.members).toBe(provenance.counts.unbound + provenance.counts.incomplete + provenance.counts.badSemiMajorAxis + provenance.counts.kept);
+    expect(file.rows).toHaveLength(provenance.counts.kept);
+    console.info(`GMN COUNTS ${JSON.stringify(provenance.counts)}`);
+  });
+
+  it("is drawn from the GMN file by the builder, with the source, licence and counts in the panel", () => {
+    const definition = buildShowerDefinition(gmnSettings, { kind: "loaded", orbits }, "all", "gmn");
+    const group = groupsOf(definition)[0].group as ListedOrbitGroup;
+    expect(group.count).toBe(file.rows.length);
+    const reliable = groupsOf(buildShowerDefinition(gmnSettings, { kind: "loaded", orbits }, "reliable", "gmn"))[0].group;
+    const counts = orbitSetCounts(orbits, rule);
+    expect(reliable.count).toBe(rowsFor("reliable").length);
+    expect(reliable.count).toBe(counts.reliable);
+    console.info(`GMN SETS ${JSON.stringify(counts)}`);
+    const panel = streamLimitations(gmnSettings, { set: "all", counts, source: "gmn", provenance: orbits.provenance }).join(" ");
+    expect(panel).toContain("Global Meteor Network");
+    expect(panel).toContain("CC BY 4.0");
+    expect(panel).toContain(`${file.provenance.counts.kept} bound orbits kept`);
+    expect(panel).toContain("Qc");
+    expect(panel).not.toContain("double entries are kept");
+  });
+
+  it("does not change what CAMS says: the CAMS panel text carries no GMN sentence", () => {
+    const counts = orbitSetCounts(orbits, rule);
+    const panel = streamLimitations(settings, { set: "all", counts }).join(" ");
+    expect(panel).not.toContain("Global Meteor Network");
+    expect(panel).toContain("double entries are kept");
+  });
+
+  it("DW3(i): the median geocentric velocity is within 1 km/s of the MDC's 58.8", () => {
+    for (const set of ["all", "reliable"] as const) {
+      const median = medianOf(rowsFor(set).map((r) => r[10]));
+      console.info(`[${set}] GMN median Vgeo = ${median.toFixed(2)} km/s over ${rowsFor(set).length} orbits (MDC 58.8)`);
+      expect(Math.abs(median - 58.8)).toBeLessThan(1);
+    }
+  });
+
+  it("DW3(ii): the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 140.1 (J2000)", () => {
+    for (const set of ["all", "reliable"] as const) {
+      const bins = new Map<number, number>();
+      for (const r of rowsFor(set)) { const k = Math.floor(r[8] / 0.5); bins.set(k, (bins.get(k) ?? 0) + 1); }
+      const [bestBin, count] = [...bins.entries()].reduce((m, e) => (e[1] > m[1] ? e : m));
+      const centre = bestBin * 0.5 + 0.25;
+      const oneDegree = new Map<number, number>();
+      for (const r of rowsFor(set)) { const k = Math.floor(r[8]); oneDegree.set(k, (oneDegree.get(k) ?? 0) + 1); }
+      const [bestDeg, countDeg] = [...oneDegree.entries()].reduce((m, e) => (e[1] > m[1] ? e : m));
+      console.info(`[${set}] GMN busiest solar-longitude bin: 0.5 deg bin ${(bestBin * 0.5).toFixed(1)}-${(bestBin * 0.5 + 0.5).toFixed(1)} (${count} orbits, centre ${centre}); 1 deg bin ${bestDeg}-${bestDeg + 1} (${countDeg}); MDC 140.1`);
+      expect(Math.abs(centre - 140.1)).toBeLessThan(1);
+    }
+  });
+
+  for (const set of ["all", "reliable"] as const) it(`DW3(iii), ${set} orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak`, () => {
+    const members = rowsFor(set).map((row) => ellipseOf(row[3], row[4], row[5], row[6], row[7]));
+    const days: number[] = [];
+    for (let t = peakPublished - 6 * DAY_MS; t <= peakPublished + 6 * DAY_MS; t += DAY_MS) days.push(t);
+    const NEAREST = 100;
+    const rows = days.map((t) => {
+      const earth = earthEcliptic(adapter, toEqj, t).position;
+      const distances: number[] = [];
+      for (const member of members) {
+        const hit = nearestPoint(member, earth);
+        if (hit !== null) distances.push(hit.distanceKm / AU_KM);
+      }
+      distances.sort((x, y) => x - y);
+      const meanNearest = distances.slice(0, NEAREST).reduce((s, d) => s + d, 0) / NEAREST;
+      return { t, meanNearest, within001: distances.filter((d) => d < 0.01).length, nearest: distances[0], reaching: distances.length };
+    });
+    let best = 0;
+    rows.forEach((row, k) => { if (row.meanNearest < rows[best].meanNearest) best = k; });
+    const [y0, y1, y2] = [rows[best - 1].meanNearest, rows[best].meanNearest, rows[best + 1].meanNearest];
+    const offsetDays = (0.5 * (y0 - y2)) / (y0 - 2 * y1 + y2);
+    const minimumMs = rows[best].t + offsetDays * DAY_MS;
+    const densest = rows.reduce((m, row) => (row.within001 > m.within001 ? row : m), rows[0]);
+    const deltaDays = (minimumMs - peakPublished) / DAY_MS;
+    console.info(`[${set}] GMN DW3 mean distance of the ${NEAREST} nearest ellipses smallest on ${new Date(rows[best].t).toISOString().slice(0, 10)} (${rows[best].meanNearest.toFixed(5)} AU), fitted minimum ${new Date(minimumMs).toISOString()}, ${deltaDays.toFixed(2)} days from the published peak ${new Date(peakPublished).toISOString()}`);
+    console.info(`[${set}] GMN DW3 most ellipses within 0.01 AU of Earth (${densest.within001}) on ${new Date(densest.t).toISOString().slice(0, 10)}; nearest single ellipse ${densest.nearest.toFixed(6)} AU`);
+    console.info(`[${set}] GMN DW3 daily table (UTC date, solar longitude, mean of ${NEAREST} nearest AU, ellipses within 0.01 AU): ${rows.map((r) => `${new Date(r.t).toISOString().slice(5, 10)} ${solarLongitudeDeg(adapter, toEqj, r.t).toFixed(1)} ${r.meanNearest.toFixed(5)} ${r.within001}`).join(" | ")}`);
+    expect(Math.abs(deltaDays)).toBeLessThanOrEqual(2);
+  }, 120_000);
+
+  for (const set of ["all", "reliable"] as const) it(`DW3(iv), ${set} orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of RA 47.9, Dec +57.9`, () => {
+    const earth = earthEcliptic(adapter, toEqj, peakPublished);
+    const CROSSING_AU = 0.02;
+    const radiants: { x: number; y: number; z: number; speed: number }[] = [];
+    for (const row of rowsFor(set)) {
+      const orbit = ellipseOf(row[3], row[4], row[5], row[6], row[7]);
+      const hit = nearestPoint(orbit, earth.position);
+      if (hit === null || hit.distanceKm / AU_KM > CROSSING_AU) continue;
+      const vp = velocityOn(orbit, hit.nu);
+      const u = [vp[0] - earth.velocity[0], vp[1] - earth.velocity[1], vp[2] - earth.velocity[2]];
+      const from = apply(toEqj, [-u[0], -u[1], -u[2]]);
+      const norm = Math.hypot(from[0], from[1], from[2]);
+      radiants.push({ x: from[0] / norm, y: from[1] / norm, z: from[2] / norm, speed: Math.hypot(u[0], u[1], u[2]) });
+    }
+    const sum = radiants.reduce((s, r) => ({ x: s.x + r.x, y: s.y + r.y, z: s.z + r.z }), { x: 0, y: 0, z: 0 });
+    const found = raDecOf([sum.x, sum.y, sum.z]);
+    const medianSpeed = medianOf(radiants.map((r) => r.speed));
+    const off = separationDeg(found, { raDeg: settings.radiant.raDeg, decDeg: settings.radiant.decDeg });
+    console.info(`[${set}] GMN DW3 ${radiants.length} members within ${CROSSING_AU} AU of Earth at ${new Date(peakPublished).toISOString()}; radiant RA ${found.raDeg.toFixed(2)} Dec ${found.decDeg.toFixed(2)}, geocentric speed median ${medianSpeed.toFixed(2)} km/s; separation ${off.toFixed(2)} deg from RA ${settings.radiant.raDeg} Dec ${settings.radiant.decDeg}`);
+    expect(radiants.length).toBeGreaterThan(100);
+    expect(off).toBeLessThan(3);
+  }, 120_000);
 });
