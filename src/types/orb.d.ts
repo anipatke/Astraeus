@@ -1,18 +1,27 @@
-declare module "@lizard-isana/orb" {
-  interface OrbPlanetVector {
-    readonly x: number;
-    readonly y: number;
-    readonly z: number;
-    readonly coordinate_keywords: string;
-    readonly unit_keywords: string;
-  }
-  interface OrbPlanetOptions { readonly vsop87a?: "short" | "full"; }
+interface OrbPlanetVector {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+  readonly coordinate_keywords: string;
+  readonly unit_keywords: string;
+}
+interface OrbPlanetOptions { readonly vsop87a?: "short" | "full"; }
+
+// The library's source modules are imported one by one, not through its bundled entry, so the compact planet tables
+// (which the entry keeps alive) stay out of the main chunk (I-022).
+declare module "@lizard-isana/orb/src/orb-planet.js" {
   export class Mercury { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
   export class Venus { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
   export class Mars { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
   export class Jupiter { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+}
+
+declare module "@lizard-isana/orb/src/orb-vsop87a-registry.js" {
   /** Registers a planet's full VSOP87A coefficients, which a planet built with `{ vsop87a: "full" }` then uses. */
   export function registerVSOP87A(body: string, data: readonly unknown[]): readonly unknown[];
+}
+
+declare module "@lizard-isana/orb/src/orb-luna.js" {
   export class Luna {
     xyz(date: Date): {
       readonly x: number;

@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone: the path's major axis is horizontal within 8 deg (-23.4)
+    at checkEclipticFlat (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:694:14)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:977:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:988:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

@@ -1,0 +1,333 @@
+{
+ "index": {
+  "total": 629145,
+  "totalGz": 576783,
+  "sum": {
+   "other": {
+    "bytes": 242337,
+    "gzip": 210679
+   },
+   "image": {
+    "bytes": 386808,
+    "gzip": 366104
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/apollo-moon-C4jWQ2Pw.jpg",
+    "status": 200,
+    "bytes": 88231,
+    "gzip": 72054
+   },
+   {
+    "url": "/assets/perseids-gmn-D1TFc92I.jpg",
+    "status": 200,
+    "bytes": 86154,
+    "gzip": 83099
+   },
+   {
+    "url": "https://fonts.gstatic.com/s/newsreader/v26/cY9XfjOCX1hbuyalUrK439vogqCz_goCYw7oRYCJFYYzbA.woff2",
+    "status": 200,
+    "bytes": 64588,
+    "gzip": 64548
+   },
+   {
+    "url": "https://fonts.gstatic.com/s/newsreader/v26/cY9VfjOCX1hbuyalUrK49dLafXjalZCsZBt-BgbNJYQ.woff2",
+    "status": 200,
+    "bytes": 58212,
+    "gzip": 58093
+   }
+  ],
+  "errors": []
+ },
+ "apollo": {
+  "total": 4046212,
+  "totalGz": 2724408,
+  "sum": {
+   "other": {
+    "bytes": 567,
+    "gzip": 330
+   },
+   "js": {
+    "bytes": 1604818,
+    "gzip": 480494
+   },
+   "css": {
+    "bytes": 31184,
+    "gzip": 6516
+   },
+   "json": {
+    "bytes": 284317,
+    "gzip": 114777
+   },
+   "image": {
+    "bytes": 2125326,
+    "gzip": 2122291
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/app-B0jEPudJ.js",
+    "status": 200,
+    "bytes": 1185130,
+    "gzip": 342420
+   },
+   {
+    "url": "/assets/moon-lroc-2k-z9MmovVg.jpg",
+    "status": 200,
+    "bytes": 565978,
+    "gzip": 565494
+   },
+   {
+    "url": "/assets/apollo11Definition-CIz1V8n8.js",
+    "status": 200,
+    "bytes": 358232,
+    "gzip": 115543
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "earth-moon": {
+  "total": 3678856,
+  "totalGz": 2605470,
+  "sum": {
+   "other": {
+    "bytes": 567,
+    "gzip": 330
+   },
+   "css": {
+    "bytes": 31184,
+    "gzip": 6516
+   },
+   "js": {
+    "bytes": 1237462,
+    "gzip": 361556
+   },
+   "json": {
+    "bytes": 284317,
+    "gzip": 114777
+   },
+   "image": {
+    "bytes": 2125326,
+    "gzip": 2122291
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/app-B0jEPudJ.js",
+    "status": 200,
+    "bytes": 1185130,
+    "gzip": 342420
+   },
+   {
+    "url": "/assets/moon-lroc-2k-z9MmovVg.jpg",
+    "status": 200,
+    "bytes": 565978,
+    "gzip": 565494
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "perseids": {
+  "total": 10922529,
+  "totalGz": 7312963,
+  "sum": {
+   "other": {
+    "bytes": 567,
+    "gzip": 330
+   },
+   "css": {
+    "bytes": 31184,
+    "gzip": 6516
+   },
+   "js": {
+    "bytes": 2678122,
+    "gzip": 935203
+   },
+   "json": {
+    "bytes": 3144514,
+    "gzip": 1308186
+   },
+   "image": {
+    "bytes": 5068142,
+    "gzip": 5062728
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/gmn-iau-7-BmVg4vLV.json",
+    "status": 200,
+    "bytes": 2860197,
+    "gzip": 1193409
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/planetModels-FF7qo8NF.js",
+    "status": 200,
+    "bytes": 1391800,
+    "gzip": 553689
+   },
+   {
+    "url": "/assets/app-B0jEPudJ.js",
+    "status": 200,
+    "bytes": 1185130,
+    "gzip": 342420
+   },
+   {
+    "url": "/assets/venus-2k-B7XKoL-0.jpg",
+    "status": 200,
+    "bytes": 885075,
+    "gzip": 884939
+   },
+   {
+    "url": "/assets/mercury-2k-lhhbYhEJ.jpg",
+    "status": 200,
+    "bytes": 872555,
+    "gzip": 872376
+   },
+   {
+    "url": "/assets/sun-2k-BfaUCBxs.jpg",
+    "status": 200,
+    "bytes": 822427,
+    "gzip": 821282
+   },
+   {
+    "url": "/assets/jupiter-2k-CEiO5JSj.jpg",
+    "status": 200,
+    "bytes": 498976,
+    "gzip": 498131
+   },
+   {
+    "url": "/assets/mars-2k-CmcQf1fB.jpg",
+    "status": 200,
+    "bytes": 429761,
+    "gzip": 429203
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "geminids": {
+  "total": 13692439,
+  "totalGz": 8372150,
+  "sum": {
+   "other": {
+    "bytes": 567,
+    "gzip": 330
+   },
+   "css": {
+    "bytes": 31184,
+    "gzip": 6516
+   },
+   "js": {
+    "bytes": 2678122,
+    "gzip": 935203
+   },
+   "json": {
+    "bytes": 5914424,
+    "gzip": 2367373
+   },
+   "image": {
+    "bytes": 5068142,
+    "gzip": 5062728
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/gmn-iau-4-CvUB3_m7.json",
+    "status": 200,
+    "bytes": 5630107,
+    "gzip": 2252596
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/planetModels-FF7qo8NF.js",
+    "status": 200,
+    "bytes": 1391800,
+    "gzip": 553689
+   },
+   {
+    "url": "/assets/app-B0jEPudJ.js",
+    "status": 200,
+    "bytes": 1185130,
+    "gzip": 342420
+   },
+   {
+    "url": "/assets/venus-2k-B7XKoL-0.jpg",
+    "status": 200,
+    "bytes": 885075,
+    "gzip": 884939
+   },
+   {
+    "url": "/assets/mercury-2k-lhhbYhEJ.jpg",
+    "status": 200,
+    "bytes": 872555,
+    "gzip": 872376
+   },
+   {
+    "url": "/assets/sun-2k-BfaUCBxs.jpg",
+    "status": 200,
+    "bytes": 822427,
+    "gzip": 821282
+   },
+   {
+    "url": "/assets/jupiter-2k-CEiO5JSj.jpg",
+    "status": 200,
+    "bytes": 498976,
+    "gzip": 498131
+   },
+   {
+    "url": "/assets/mars-2k-CmcQf1fB.jpg",
+    "status": 200,
+    "bytes": 429761,
+    "gzip": 429203
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ }
+}

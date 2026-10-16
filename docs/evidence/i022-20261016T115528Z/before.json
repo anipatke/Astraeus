@@ -1,0 +1,309 @@
+{
+ "index": {
+  "total": 578493,
+  "totalGz": 525787,
+  "sum": {
+   "other": {
+    "bytes": 242218,
+    "gzip": 210634
+   },
+   "image": {
+    "bytes": 336275,
+    "gzip": 315153
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/apollo-moon-B923ax4h.jpg",
+    "status": 200,
+    "bytes": 81413,
+    "gzip": 66173
+   },
+   {
+    "url": "https://fonts.gstatic.com/s/newsreader/v26/cY9XfjOCX1hbuyalUrK439vogqCz_goCYw7oRYCJFYYzbA.woff2",
+    "status": 200,
+    "bytes": 64588,
+    "gzip": 64548
+   },
+   {
+    "url": "https://fonts.gstatic.com/s/newsreader/v26/cY9VfjOCX1hbuyalUrK49dLafXjalZCsZBt-BgbNJYQ.woff2",
+    "status": 200,
+    "bytes": 58212,
+    "gzip": 58093
+   }
+  ],
+  "errors": []
+ },
+ "apollo": {
+  "total": 5482383,
+  "totalGz": 3290326,
+  "sum": {
+   "other": {
+    "bytes": 407,
+    "gzip": 281
+   },
+   "css": {
+    "bytes": 30552,
+    "gzip": 6414
+   },
+   "js": {
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   "json": {
+    "bytes": 284317,
+    "gzip": 114777
+   },
+   "image": {
+    "bytes": 2125326,
+    "gzip": 2122291
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/app-BTgOCMHA.js",
+    "status": 200,
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/moon-lroc-2k-z9MmovVg.jpg",
+    "status": 200,
+    "bytes": 565978,
+    "gzip": 565494
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "earth-moon": {
+  "total": 5482383,
+  "totalGz": 3290326,
+  "sum": {
+   "other": {
+    "bytes": 407,
+    "gzip": 281
+   },
+   "css": {
+    "bytes": 30552,
+    "gzip": 6414
+   },
+   "js": {
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   "json": {
+    "bytes": 284317,
+    "gzip": 114777
+   },
+   "image": {
+    "bytes": 2125326,
+    "gzip": 2122291
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/app-BTgOCMHA.js",
+    "status": 200,
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/moon-lroc-2k-z9MmovVg.jpg",
+    "status": 200,
+    "bytes": 565978,
+    "gzip": 565494
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "perseids": {
+  "total": 11285396,
+  "totalGz": 7424172,
+  "sum": {
+   "other": {
+    "bytes": 407,
+    "gzip": 281
+   },
+   "css": {
+    "bytes": 30552,
+    "gzip": 6414
+   },
+   "js": {
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   "json": {
+    "bytes": 3144514,
+    "gzip": 1308186
+   },
+   "image": {
+    "bytes": 5068142,
+    "gzip": 5062728
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/app-BTgOCMHA.js",
+    "status": 200,
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   {
+    "url": "/assets/gmn-iau-7-BmVg4vLV.json",
+    "status": 200,
+    "bytes": 2860197,
+    "gzip": 1193409
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/venus-2k-B7XKoL-0.jpg",
+    "status": 200,
+    "bytes": 885075,
+    "gzip": 884939
+   },
+   {
+    "url": "/assets/mercury-2k-lhhbYhEJ.jpg",
+    "status": 200,
+    "bytes": 872555,
+    "gzip": 872376
+   },
+   {
+    "url": "/assets/sun-2k-BfaUCBxs.jpg",
+    "status": 200,
+    "bytes": 822427,
+    "gzip": 821282
+   },
+   {
+    "url": "/assets/jupiter-2k-CEiO5JSj.jpg",
+    "status": 200,
+    "bytes": 498976,
+    "gzip": 498131
+   },
+   {
+    "url": "/assets/mars-2k-CmcQf1fB.jpg",
+    "status": 200,
+    "bytes": 429761,
+    "gzip": 429203
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ },
+ "geminids": {
+  "total": 14055306,
+  "totalGz": 8483359,
+  "sum": {
+   "other": {
+    "bytes": 407,
+    "gzip": 281
+   },
+   "css": {
+    "bytes": 30552,
+    "gzip": 6414
+   },
+   "js": {
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   "json": {
+    "bytes": 5914424,
+    "gzip": 2367373
+   },
+   "image": {
+    "bytes": 5068142,
+    "gzip": 5062728
+   }
+  },
+  "big": [
+   {
+    "url": "/assets/gmn-iau-4-CvUB3_m7.json",
+    "status": 200,
+    "bytes": 5630107,
+    "gzip": 2252596
+   },
+   {
+    "url": "/assets/app-BTgOCMHA.js",
+    "status": 200,
+    "bytes": 3041781,
+    "gzip": 1046563
+   },
+   {
+    "url": "/assets/earth-bmng-july-4k-BJxMI6UV.jpg",
+    "status": 200,
+    "bytes": 1559348,
+    "gzip": 1556797
+   },
+   {
+    "url": "/assets/venus-2k-B7XKoL-0.jpg",
+    "status": 200,
+    "bytes": 885075,
+    "gzip": 884939
+   },
+   {
+    "url": "/assets/mercury-2k-lhhbYhEJ.jpg",
+    "status": 200,
+    "bytes": 872555,
+    "gzip": 872376
+   },
+   {
+    "url": "/assets/sun-2k-BfaUCBxs.jpg",
+    "status": 200,
+    "bytes": 822427,
+    "gzip": 821282
+   },
+   {
+    "url": "/assets/jupiter-2k-CEiO5JSj.jpg",
+    "status": 200,
+    "bytes": 498976,
+    "gzip": 498131
+   },
+   {
+    "url": "/assets/mars-2k-CmcQf1fB.jpg",
+    "status": 200,
+    "bytes": 429761,
+    "gzip": 429203
+   },
+   {
+    "url": "/assets/hyg-v42-naked-eye-DIEj4sz2.json",
+    "status": 200,
+    "bytes": 284317,
+    "gzip": 114777
+   }
+  ],
+  "errors": []
+ }
+}

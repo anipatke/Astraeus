@@ -1,0 +1,12 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Execution context was destroyed, most likely because of a navigation
+    at colourCounts (/home/user/code/Astraeus/tools/validate/browser-synthetic-belt.mjs:44:16)
+    at async checkSunCentred (/home/user/code/Astraeus/tools/validate/browser-synthetic-belt.mjs:237:22)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-synthetic-belt.mjs:277:5 {
+  name: 'Error'
+}
+
+Node.js v24.16.0

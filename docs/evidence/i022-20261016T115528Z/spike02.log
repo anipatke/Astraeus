@@ -1,0 +1,42 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#info-panel .info-panel-close')[22m
+[2m    - locator resolved to <button type="button" class="info-panel-close" aria-label="Close information">Close</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <section class="hud-section hud-section-clock" aria-labelledby="developer-clock-heading">…</section> from <aside id="developer-tools" class="developer-tools" aria-label="Developer diagnostics">…</aside> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <section class="hud-section hud-section-clock" aria-labelledby="developer-clock-heading">…</section> from <aside id="developer-tools" class="developer-tools" aria-label="Developer diagnostics">…</aside> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    31 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <section class="hud-section hud-section-clock" aria-labelledby="developer-clock-heading">…</section> from <aside id="developer-tools" class="developer-tools" aria-label="Developer diagnostics">…</aside> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m  - element was detached from the DOM, retrying[22m
+[2m    - waiting for" http://localhost:5409/app.html" navigation to finish...[22m
+[2m    - navigated to "http://localhost:5409/app.html"[22m
+
+    at selectObject (/home/user/code/Astraeus/tools/validate/browser-spike02.mjs:56:20)
+    at async chooseCamera (/home/user/code/Astraeus/tools/validate/browser-spike02.mjs:75:3)
+    at async run (/home/user/code/Astraeus/tools/validate/browser-spike02.mjs:112:7)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-spike02.mjs:270:42 {
+  name: 'TimeoutError'
+}
+
+Node.js v24.16.0

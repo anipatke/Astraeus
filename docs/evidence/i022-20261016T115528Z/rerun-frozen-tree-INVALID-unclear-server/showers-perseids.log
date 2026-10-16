@@ -1,0 +1,14 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.innerText: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#info-panel')[22m
+
+    at run (/tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/snap/tools/validate/browser-showers.mjs:967:59)
+    at async file:///tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/snap/tools/validate/browser-showers.mjs:987:3 {
+  name: 'TimeoutError'
+}
+
+Node.js v24.16.0
