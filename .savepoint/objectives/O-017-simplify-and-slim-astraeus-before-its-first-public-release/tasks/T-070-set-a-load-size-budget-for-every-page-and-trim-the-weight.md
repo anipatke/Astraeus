@@ -24,11 +24,12 @@ The assets page or README states each page's first-load size and its limit. The 
 2. Easy wins applied where they do not change what is drawn: picture re-compression or resizing within PROV-02 (licence records updated if the file changes), stream data files in a leaner format or compression, anything else the measurement shows; each with before and after bytes.
 3. A budget test (in `tools/validate/public-build-assets.mjs` or a new test beside it) with one limit per page, set from the post-trim measurement plus a stated headroom, failing the build when exceeded; a mutation probe shows it fails.
 4. Before/after pictures of the affected experiences match (Task 1's tool).
-5. Gates: typecheck, tests, both builds, validator with the budget, lite browser check, plus the public-showers script.
+5. Page heading (owner, 2026-10-17: "Update the page heading as part of this cleanup"): `app.html`'s `<title>` no longer says "Astraeus Earth–Moon spike". It reads "Astraeus" until an experience opens, then "<experience label> · Astraeus", taken from the experience definition's own label so the shell names no experience (ARCH-01); a test or browser assertion covers both.
+6. Gates: typecheck, tests, both builds, validator with the budget, lite browser check, plus the public-showers script.
 
 ## Context Files
 
-`vite.config.ts`, `tools/validate/public-build-assets.mjs`, `tests/publicBuild.test.ts`, `src/assets/textures/earth-bmng-july-4k.jpg`, `src/assets/licence.ts`, `data/stories/perseids/gmn-iau-7.json`, `src/experiences/showers/measuredOrbits.ts`, `docs/ASTRAEUS_SIMPLIFY_CANDIDATES.md`.
+`app.html`, `vite.config.ts`, `tools/validate/public-build-assets.mjs`, `tests/publicBuild.test.ts`, `src/assets/textures/earth-bmng-july-4k.jpg`, `src/assets/licence.ts`, `data/stories/perseids/gmn-iau-7.json`, `src/experiences/showers/measuredOrbits.ts`, `docs/ASTRAEUS_SIMPLIFY_CANDIDATES.md`.
 
 ## Design References
 
