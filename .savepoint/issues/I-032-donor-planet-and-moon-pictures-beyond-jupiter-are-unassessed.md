@@ -16,6 +16,10 @@ history:
     actor: {role: checker, session: o011-orchestrator-morning-20261017}
     kind: deferred
     note: 'Adding the bodies needs ephemeris providers for each (engine work) and belongs in a later Objective after the Spike 04 merge and launch; owner chose "Check them now, add later".'
+  - at: '2026-10-17T09:30:00Z'
+    actor: {role: checker, session: o011-orchestrator-morning-20261017}
+    kind: observed
+    note: 'Owner asked to trace the rest, the rings for all planets and the Mars moons. Traced by comparison with downloaded originals: Uranus and Neptune byte-identical to Solar System Scope; Charon byte-identical to the USGS 2017 mosaic preview; Pluto is NASA PIA11707; Ganymede is the USGS 1 km mosaic shifted 180 degrees; Ceres surface is the USGS/DLR Dawn mosaic but its colour and polar fill are untraced (do not ship). JPL image policy confirms the Cassini and Voyager maps. Rings checked against NASA NSSDC fact sheets: Saturn, Uranus, Neptune close; Jupiter about 20 percent too close in. Mars moons and other small moons have no picture; candidates listed. docs/DONOR_TEXTURE_INVENTORY.md and the assets page section Traced, not in the app yet, updated.'
 ---
 
 # I-032: Donor planet and moon pictures beyond Jupiter are unassessed and unused
