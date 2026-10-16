@@ -20,6 +20,14 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "geminids is janky at speeds more than 12 hours per second". At 12 h/s a 72 h refill happens every 6 s of real time; at the default one week per second, every 0.43 s. A blend error would show at any speed, so a speed threshold points to cause 2 (the main-thread fill of 51,115 orbits causing a hitch whose frequency grows with playback speed). Measure the fill frame time first.'
+  - at: '2026-10-17T10:05:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Reproduced (headless Chromium, software GL, 1440x900, dev server, default one week per second, 8 s of playback; probe docs/evidence/i034-frames-20261017/frames.mjs). Perseids: median frame 33 ms, max 67 ms, no long frames. Geminids: median 33 ms, but a 100-117 ms frame every 10-11 frames (18 in 8 s), which is every 0.4 s, matching one fill per 72 h of scene time. Cause 2 confirmed: the main-thread fill of 51,115 orbits in one frame. Absolute times are slower than a real GPU machine, but the pattern is what the owner sees. Configuration alone cannot fix it (a longer refill interval makes the hitch rarer but the straight-line blend worse). Proposed repair: compute the next fill in slices across the frames before it is needed (its time is known in advance), proven first on a made-up large group (ARCH-03).'
+  - at: '2026-10-17T10:10:00Z'
+    actor: {role: planner, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner chose "Fold into the cleanup": the repair is planned as T-073 under O-017 (spread the fill across frames), after T-067.'
 ---
 
 # I-034: Geminid dots jump during playback
