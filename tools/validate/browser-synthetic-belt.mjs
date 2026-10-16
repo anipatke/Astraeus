@@ -137,8 +137,10 @@ try {
         for (let i = 0; i < px.length; i += 4) {
           const [red, green, blue] = [px[i], px[i + 1], px[i + 2]];
           if (red + green + blue > 45) counts.lit += 1;
-          // The Sun marker reads (227, 222, 196) in the canvas: its #fff1b0 colour as the software renderer shows it.
-          if (red > 215 && red < 240 && green > 210 && green < 232 && blue > 185 && blue < 208) counts.sun += 1;
+          // T-038: the Sun is now an emissive sphere with a halo and its marker dot, so its pixels are bright warm white (it was a dot reading (227, 222, 196)
+          // in the canvas); the earlier colour window no longer matches by design, and the textured disc is orange, so the predicate is warm-bright. Same assertion (the Sun stands at the scene's zero), new predicate.
+          // Close in, the camera stops outside the Sun's sphere and the middle is its textured disc (orange), or the halo (white): any bright warm pixel counts.
+          if (red > 170 && green > 60 && red - blue > 30 && red + green + blue > 300) counts.sun += 1;
           else if (blue > 60 && blue - red > 25) counts.path += 1;
         }
         return counts;

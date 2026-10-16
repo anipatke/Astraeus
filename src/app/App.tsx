@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
+import type { GlowLook } from "./bodyDraw";
+import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { SimulationClock } from "../core/clock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import { catalogue } from "../assets/catalogue";
@@ -16,7 +18,7 @@ import { lightingFromSearch, sunLightFromSearch } from "./lighting";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
-import { markerSettingsFromSearch } from "./bodyDraw";
+import { baseGlowOf, GLOW_LIMITS, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -29,6 +31,24 @@ function skySettingsOf(definition: ExperienceDefinition) {
   const starBrightness = brightnessFromSearch(window.location.search, "stars") ?? settings.starBrightness;
   const milkyWayBrightness = brightnessFromSearch(window.location.search, "milkywaybrightness") ?? settings.milkyWayBrightness;
   return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(window.location.search) };
+}
+
+/** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
+export function hiddenLabelsFrom(search: string, objects: readonly { readonly id: string; readonly showLabel?: boolean }[]): Set<string> {
+  const hidden = new Set(objects.filter((object) => object.showLabel === false).map((object) => object.id));
+  for (const part of (new URLSearchParams(search).get("labels") ?? "").split(",")) {
+    const [id, state] = part.split(":");
+    if (id === undefined || id === "" || (state !== "on" && state !== "off")) continue;
+    if (state === "off") hidden.add(id);
+    else hidden.delete(id);
+  }
+  return hidden;
+}
+
+/** `?loop=on` or `?loop=off` overrides the experience's own looping setting. */
+export function loopFromSearch(search: string, fallback: boolean): boolean {
+  const value = new URLSearchParams(search).get("loop");
+  return value === "on" ? true : value === "off" ? false : fallback;
 }
 
 export function App({ definition }: { readonly definition: ExperienceDefinition }) {
@@ -54,6 +74,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       lighting: lightingFromSearch(window.location.search),
       sunLight: sunLightFromSearch(window.location.search),
       sky: skySettingsOf(definition),
+      loopWindow: definition.experience.window,
+      up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
     };
   }, [definition]);
   const experienceRuntime = useMemo(
@@ -81,14 +103,19 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   }, []);
   const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
+  const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => catalogue.get(id))), [runtime.bodies]);
   const controls = useRef<SceneControls>({
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
     showAnchorLabels: false,
+    loop: loopFromSearch(window.location.search, definition.loop === true),
+    up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
     showMilkyWay: runtime.sky.milkyWay,
     bodyMarker: markerSettingsFromSearch(window.location.search),
+    ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(window.location.search, glowBase) }),
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
+    hiddenLabels: hiddenLabelsFrom(window.location.search, experience.objects),
     labelObjects: experience.objects,
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
@@ -99,6 +126,11 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
+  const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
+  const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
+  const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
+  const [loopOn, setLoopOn] = useState(controls.current.loop === true);
+  const [upChoice, setUpChoice] = useState<ViewUp>(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial"));
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
@@ -119,7 +151,11 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   }, [suppliedPolicies]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setClockSnapshot(runtime.clock.snapshot()), 100);
+    const id = window.setInterval(() => {
+      // The readout wraps with the scene, so the shown time never rests past the end while looping.
+      if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
+      setClockSnapshot(runtime.clock.snapshot());
+    }, 100);
     return () => window.clearInterval(id);
   }, [runtime]);
 
@@ -169,8 +205,48 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               <input type="range" min={0} max={20} step={0.5} value={markerPx} aria-label="Body marker threshold" onChange={(event) => { const value = Number(event.target.value); controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
             </label>
           </div>
+          {glowShown !== null && (
+            <div className="row" role="group" aria-label="Sun glow">
+              <label>Sun glow size (px) <output data-testid="sun-glow-size-value">{glowShown.sizePx.toFixed(0)}</output>
+                <input type="range" min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx} aria-label="Sun glow size" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              </label>
+              <label>Sun glow reach (× disc) <output data-testid="sun-glow-scale-value">{glowShown.scale.toFixed(1)}</output>
+                <input type="range" min={GLOW_LIMITS.scale.min} max={GLOW_LIMITS.scale.max} step={0.1} value={glowShown.scale} aria-label="Sun glow reach" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              </label>
+              <label>Sun glow brightness <output data-testid="sun-glow-brightness-value">{glowShown.brightness.toFixed(2)}</output>
+                <input type="range" min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness} aria-label="Sun glow brightness" onChange={(event) => { const value = Number(event.target.value); controls.current.glowLook!.brightness = value; setGlowShown({ ...controls.current.glowLook! }); }} />
+              </label>
+            </div>
+          )}
+          {labelToggles.length > 0 && (
+            <div className="row scale-controls" role="group" aria-label="Object labels">
+              {labelToggles.map((object) => (
+                <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
+                  const hidden = controls.current.hiddenLabels ?? new Set<string>();
+                  if (hidden.has(object.id)) hidden.delete(object.id);
+                  else hidden.add(object.id);
+                  controls.current.hiddenLabels = hidden;
+                  setHiddenLabels(new Set(hidden));
+                }}>{`${object.label} label`}</button>
+              ))}
+            </div>
+          )}
+          <div className="row scale-controls" role="group" aria-label="Up direction">
+            <span>Up direction</span>
+            {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
+              <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
+            ))}
+          </div>
           <div className="row scale-controls" role="group" aria-label="Scene labels">
             {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
+            <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
+            {(definition.alternates ?? []).map((alternate) => (
+              <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set(alternate.param, alternate.value);
+                window.location.assign(url.toString());
+              }}>{alternate.label}</button>
+            ))}
             {runtime.sky.visible && <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>}
           </div>
           {runtime.sky.visible && (

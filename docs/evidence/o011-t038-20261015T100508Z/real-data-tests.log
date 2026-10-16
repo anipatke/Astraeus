@@ -1,0 +1,89 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > reads one shower from a workbook with the real file's quirks, dropping unbound orbits and keeping the 1904 dates 12ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > finds every row however the inflated text is cut into chunks 51ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > refuses a workbook whose header texts have changed 4ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > refuses a workbook whose columns are shifted 3ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > verifies the layout from the values 0ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > writes a file the app accepts, with its provenance header 2ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts > the fetch tool's workbook reader > converts the 1904 serial and day fraction to UTC milliseconds 0ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds the release T-051 recorded: 24,928 records, 6,229 unbound dropped, 18,699 bound orbits, all drawn
+MEMBERS {"members":24928,"unbound":6229,"badSemiMajorAxis":0,"incomplete":0,"dropped":6229,"kept":18699} drawn=18699
+
+ ✓ tests/showersMeasured.test.ts > keeps the settings-side row columns equal to the fetch tool's 1ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds the release T-051 recorded: 24,928 records, 6,229 unbound dropped, 18,699 bound orbits, all drawn 2ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > draws no invented member: every record id is a CAMS catalogue number, once, with e below 1 and a above 0 155ms
+ ✓ tests/showers.test.ts > shower settings contract > accepts a complete made-up settings object 1ms
+ ✓ tests/showers.test.ts > shower settings contract > accepts the Perseids file and reads the look from it 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing source 1ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing parent body 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing parent id 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for an unbound parent orbit 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a window that ends before it starts 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a peak outside the window 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a time without a zone 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a bad seed 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing IAU code 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a fractional IAU code 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing data source 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a clump share above one 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a clump of no width 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a clump with no status 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a cited clump without its citation 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a clump without its basis 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a radiant declination out of range 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a missing peak solar longitude 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a zero peak rate 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a stream colour that is not a colour 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a zero dot size 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for a camera far plane inside the reach 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for planets smaller than life 0ms
+ ✓ tests/showers.test.ts > shower settings contract > names the field for the retired stream spread 0ms
+ ✓ tests/showers.test.ts > shower settings contract > carries no stand-in spread or invented member count in the Perseids file 0ms
+ ✓ tests/showers.test.ts > measured orbit files > accepts a file for the named shower and converts the semi-major axis to km 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects another shower's file 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects other columns 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects no rows 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects a row of the wrong length 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects a non-finite value 0ms
+ ✓ tests/showers.test.ts > measured orbit files > rejects an empty record id 0ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > builds a Sun-centred experience of the Sun, Earth, the planets and the parent, with one stream item 2ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > takes the look from the settings, not from code 1ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > draws the parent's whole orbit deliberately by eccentric anomaly and not through the planet loop 1ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > states what is measured, what is a drawing choice and what is not shown 0ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > cites a cited clump with its source 0ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > uses the same samples for the rate readout and the window curve, peaking at the published rate 1ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > names an entry file by its file name 0ms
+ ✓ tests/showers.test.ts > the shared shower builder with a made-up shower > refuses a parent that does not circle the Sun 0ms
+ ✓ tests/showers.test.ts > a shower whose measured orbits are not on this machine > absent: says so, draws no stream and invents none 462ms
+ ✓ tests/showers.test.ts > a shower whose measured orbits are not on this machine > invalid: says so, draws no stream and invents none 467ms
+ ✓ tests/showers.test.ts > the parent's sampling is found from the catalogue body > matches the comet's own sampling to within a minute when given the comet's published size and shape 12ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > resolves a sample of 20 members to their CAMS records: id, sheet row and the orbit's own energy 4ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > resolves the sample against the source workbook 6365ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > puts a stated share of the dots at the comet's orbital phase and the rest evenly round their orbits
+CLUMP illustrative fraction=0.3 widthDeg=20 nearShare=0.3778 cometMeanAnomalyDeg=93.64
+
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a): Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1)
+DW2a published peak (solar longitude 140.1) = 2027-08-13T01:02:29.681Z; Earth's solar longitude there = 140.100
+DW2a mean distance of the 100 nearest measured ellipses is smallest on 2027-08-13 (0.00028 AU), fitted minimum 2027-08-13T05:41:13.174Z, 0.19 days from the published peak
+DW2a most ellipses within 0.01 AU of Earth (4709) on 2027-08-13; nearest single ellipse that day 0.000030 AU
+DW2a daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 08-07 134.3 0.00160 432 | 08-08 135.3 0.00099 659 | 08-09 136.3 0.00084 972 | 08-10 137.2 0.00095 959 | 08-11 138.2 0.00064 1161 | 08-12 139.1 0.00056 1962 | 08-13 140.1 0.00028 4709 | 08-14 141.1 0.00040 3645 | 08-15 142.0 0.00055 1866 | 08-16 143.0 0.00091 1006 | 08-17 143.9 0.00149 571 | 08-18 144.9 0.00223 361 | 08-19 145.9 0.00275 240
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > puts a stated share of the dots at the comet's orbital phase and the rest evenly round their orbits 2ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(a): Earth is nearest the measured stream orbits within 2 days of the published peak (solar longitude 140.1) 601ms
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b): the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9)
+DW2b 7412 members within 0.02 AU of Earth at 2027-08-13T01:02:29.681Z; radiant RA 47.82 Dec 57.69 (mean direction), geocentric speed median 58.76 km/s; published RA 47.9 Dec 57.9; separation 0.21 deg
+
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > fills every dot quickly enough to draw them all (an indication only; the frame rate on the owner's machine is the owner's to measure)
+FILL 18699 members: 15.0 ms per exact fill
+
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(b): the radiant from the orbits crossing Earth's at the peak is within 3 degrees of the published one (RA 47.9, Dec +57.9) 55ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > DW2(c) and (d): the comet and the planets drawn are the catalogue's own bodies 11ms
+ ✓ tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > fills every dot quickly enough to draw them all (an indication only; the frame rate on the owner's machine is the owner's to measure) 75ms
+
+ Test Files  3 passed (3)
+      Tests  62 passed (62)
+   Start at  21:30:50
+   Duration  8.03s (tests 84%, import 10%, transform 6%)
+

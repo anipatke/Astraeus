@@ -1,0 +1,5 @@
+synthetic-belt exit=0 start=2026-10-16T02:10:03Z end=2026-10-16T02:12:13Z
+synthetic-eccentric exit=0 start=2026-10-16T02:12:13Z end=2026-10-16T02:13:51Z
+showers exit=1 start=2026-10-16T02:13:51Z end=2026-10-16T02:20:33Z
+DONE
+showers-rerun exit=0 end=2026-10-16T02:27:38Z

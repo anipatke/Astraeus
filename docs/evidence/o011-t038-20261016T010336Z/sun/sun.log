@@ -1,0 +1,17 @@
+{
+  "results": {
+    "truePeakWithGlow": 964,
+    "truePeakNoGlow": 662,
+    "defaults": {
+      "size": "72",
+      "brightness": "1"
+    },
+    "afterSizeZero": 662,
+    "afterBigBright": 1905,
+    "closeOnSun": 348,
+    "earth-moonBodies": "earth,moon",
+    "jupiter-ioBodies": "jupiter,io",
+    "apolloBodies": "earth,moon"
+  },
+  "errors": []
+}

@@ -1,0 +1,29 @@
+{
+  "distDir": "/home/user/code/Astraeus/dist",
+  "localDataFilesChecked": 2,
+  "ok": true,
+  "checked": 9,
+  "sources": [
+    {
+      "file": "earth-2k.jpg",
+      "sha256": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
+      "bytes": 1461877
+    },
+    {
+      "file": "moon-orig-2k.jpg",
+      "sha256": "2764ba6535ea0481a062846ee033cc7a909dae05b31a8fd13f3e98f3a7fd92bd",
+      "bytes": 1053869
+    },
+    {
+      "file": "data/local/cams-iau-7.json",
+      "sha256": "3935313d16d40ebad4a39028db9ca1aa36d915a94d4dcdb28d84e8759d00f7e9",
+      "bytes": 1389548
+    },
+    {
+      "file": "data/local/yale-bsc-v65.json",
+      "sha256": "eef03d8196823afdaeeba906e20b538e246391d47df747367f7932bcc152385b",
+      "bytes": 256817
+    }
+  ],
+  "matches": []
+}

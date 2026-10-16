@@ -1,0 +1,21 @@
+showers exit=1 start=2026-10-15T10:39:01Z end=2026-10-15T10:41:30Z
+synthetic-listed exit=0 start=2026-10-15T10:41:30Z end=2026-10-15T10:41:53Z
+synthetic-eccentric exit=0 start=2026-10-15T10:41:53Z end=2026-10-15T10:43:23Z
+synthetic-belt exit=0 start=2026-10-15T10:43:23Z end=2026-10-15T10:45:35Z
+synthetic-ring exit=0 start=2026-10-15T10:45:35Z end=2026-10-15T10:46:12Z
+synthetic exit=0 start=2026-10-15T10:46:12Z end=2026-10-15T10:46:25Z
+earth-moon exit=0 start=2026-10-15T10:46:25Z end=2026-10-15T10:46:47Z
+jupiter-io exit=0 start=2026-10-15T10:46:47Z end=2026-10-15T10:47:18Z
+lighting exit=0 start=2026-10-15T10:47:18Z end=2026-10-15T10:50:07Z
+precision exit=0 start=2026-10-15T10:50:07Z end=2026-10-15T10:50:57Z
+shell exit=0 start=2026-10-15T10:50:57Z end=2026-10-15T10:51:11Z
+sky exit=0 start=2026-10-15T10:51:11Z end=2026-10-15T10:55:24Z
+spike02 exit=0 start=2026-10-15T10:55:24Z end=2026-10-15T10:57:41Z
+spike03 exit=0 start=2026-10-15T10:57:41Z end=2026-10-15T10:58:20Z
+marker-existing exit=0 start=2026-10-15T10:58:20Z end=2026-10-15T10:59:33Z
+DONE
+showers-rerun exit=1 end=2026-10-15T20:10:07Z
+showers-rerun2 exit=1 end=2026-10-15T20:14:27Z
+showers-rerun3 exit=1 end=2026-10-15T20:18:49Z
+showers-rerun4 exit=1 end=2026-10-15T20:23:16Z
+showers-rerun5 exit=0 end=2026-10-15T20:27:31Z

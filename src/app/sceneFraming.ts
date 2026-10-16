@@ -37,11 +37,12 @@ export interface SceneFrame {
   readonly bodies?: BodyCatalogue;
 }
 
-/** The drawn radius of a catalogued sphere in scaled units, or null for a marker, a tracked body or any other id. */
+/** The drawn radius of a catalogued sphere (or emissive marker-kind body) in scaled units, or null for a plain marker, a tracked body or any other id. */
 function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue): number | null {
   if (!source.has(focus)) return null;
   const asset = source.get(focus);
-  return asset.visual.kind === "sphere" ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id) : null;
+  // A marker-kind body that also draws a self-bright sphere (emissive) has that radius too: the camera must stay outside it.
+  return asset.visual.kind === "sphere" || asset.visual.emissive === true ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id) : null;
 }
 
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */

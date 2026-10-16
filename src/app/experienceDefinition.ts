@@ -160,6 +160,18 @@ export interface ExperienceDefinition {
   readonly developerSections?: readonly DeveloperSection[];
   /** Optional camera reach; omitted, the scene keeps its built-in limits. */
   readonly camera?: CameraReach;
+  /**
+   * Looping playback (default off): while playing, reaching the end of `experience.window` wraps to the start and plays on, so a group
+   * bounded by the window is never left past its end. Presentation of time only; the user can still seek, pause and switch it off.
+   */
+  readonly loop?: boolean;
+  /**
+   * Alternative versions of the same experience for comparison, shown as buttons in Developer > Display settings: choosing one reloads the page with
+   * `?param=value` (the experience is built again from the address). Absent: none.
+   */
+  readonly alternates?: readonly { readonly label: string; readonly param: string; readonly value: string; readonly active: boolean }[];
+  /** Which direction the camera treats as up (default "equatorial", celestial north; "ecliptic" orbits about the ecliptic pole so the planets' plane reads flat). */
+  readonly viewUp?: import("./viewUp").ViewUp;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
 }

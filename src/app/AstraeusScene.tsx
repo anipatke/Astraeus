@@ -1,3 +1,4 @@
+import { EQUATORIAL_UP, orbitAnglesFor, orbitBasis } from "./viewUp";
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group, PerspectiveCamera, PointLight } from "three";
@@ -9,7 +10,7 @@ import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue, rootBodyId, type BodyAsset } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
-import { drawnRadii, drawsAsMarker, projectedRadiusPx, type BodyMarkerSettings } from "./bodyDraw";
+import { drawnRadii, drawsAsMarker, projectedRadiusPx, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
 import {
   attachOrbitGestures,
   clampDistance,
@@ -53,6 +54,10 @@ import type { ExperienceObject } from "../shell/experience";
 const REBASE_THRESHOLD = 1;
 
 export interface SceneRuntime {
+  /** The render-frame up vector the camera orbits about (default celestial north; see `viewUp.ts`). */
+  readonly up?: RenderVector;
+  /** The window looping playback wraps within: the experience's own timeline window. */
+  readonly loopWindow?: { readonly startUtcMs: number; readonly endUtcMs: number };
   readonly clock: SimulationClock;
   /** The one resolver every position in the scene comes from. */
   readonly resolver: StateResolver;
@@ -91,9 +96,17 @@ export interface SceneControls {
   showMilkyWay: boolean;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */
   bodyMarker: BodyMarkerSettings;
+  /** Presentation only: the live halo settings of a body whose record has a glow (the Sun). */
+  glowLook?: GlowLook;
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
+  /** Looping playback is on (live; set from the experience, `?loop=` and Developer > Display settings). Needs `SceneRuntime.loopWindow`. */
+  loop?: boolean;
+  /** The render-frame up vector now in force (live; Developer > Display settings). Absent: the runtime's own. Switching it re-poses the camera in place. */
+  up?: RenderVector;
+  /** Ids of objects whose label is switched off (live). Their objects stay listed and selectable. */
+  hiddenLabels?: Set<string>;
   readonly labelObjects: readonly ExperienceObject[];
   selectedObjectId: string;
   /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
@@ -197,6 +210,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(16, runtime.sceneCenter));
   const spanScaled = useRef(6);
   const lastPolicyId = useRef(controls.policy.id);
+  const lastUp = useRef<RenderVector | null>(null);
   const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
   const readoutPair = useMemo(() => readoutPairOf(runtime.bodies), [runtime.bodies]);
   const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair]);
@@ -267,9 +281,11 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const root = rootRef.current;
     if (!root) return;
     const { clock, resolver, sceneCenter } = runtime;
+    const viewUp = controls.up ?? runtime.up ?? EQUATORIAL_UP;
     for (const id of runtime.bodies) if (!groupRefs.current.has(id) || !orientRefs.current.has(id)) return;
 
     const policy = controls.policy;
+    if (controls.loop === true && runtime.loopWindow !== undefined) clock.wrapWithin(runtime.loopWindow);
     const t = clock.now();
     const camState = orbit.current;
     for (const view of groupViews) view.sync(t, placement, policy);
@@ -337,16 +353,28 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         const from = placed.current.get(parent)!;
         const toParent = [from[0] - at[0], from[1] - at[1], from[2] - at[2]];
         const distance = Math.hypot(toParent[0], toParent[1], toParent[2]);
-        camState.targetElevation = Math.asin(toParent[1] / distance);
-        camState.targetAzimuth = Math.atan2(toParent[0], toParent[2]);
+        const { east, south } = orbitBasis(viewUp);
+        const along = (axis: RenderVector): number => toParent[0] * axis[0] + toParent[1] * axis[1] + toParent[2] * axis[2];
+        camState.targetElevation = Math.asin(along(viewUp) / distance);
+        camState.targetAzimuth = Math.atan2(along(east), along(south));
       }
     }
+    // A change of up direction keeps the camera where it is: the same offset from the target is re-expressed in the new orbit basis.
+    if (lastUp.current !== null && lastUp.current.some((v, k) => v !== viewUp[k])) {
+      const offset = [0, 1, 2].map((k) => camState.cameraAbsolute[k] - camState.targetAbsolute[k]);
+      const angles = orbitAnglesFor(offset as RenderVector, viewUp);
+      if (angles !== null) {
+        camState.elevation = camState.targetElevation = angles.elevation;
+        camState.azimuth = camState.targetAzimuth = angles.azimuth;
+      }
+    }
+    lastUp.current = viewUp;
     const focusBody = bodyIdFor(camState.focus) ?? camState.focus;
     const limits = focusLimits(focusBody, frame, policy, runtime.cameraReach);
     camState.distance = clampDistance(camState.distance, limits);
     camState.targetDistance = clampDistance(camState.targetDistance, limits);
 
-    resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD);
+    resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
     for (const asset of assets) {
       const id = asset.definition.id;
       const state = composed.states.get(id)!;
@@ -359,6 +387,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       focusRadius(focusBody, policy),
       origin,
       runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
+      viewUp,
     );
     // The marker rule: a sphere that would be under a few pixels across is drawn as a marker at the same place. Presentation only.
     const swapped: BodyId[] = [];
@@ -374,6 +403,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     }
     const swappedList = swapped.join(",");
     if (gl.domElement.dataset.markerBodies !== swappedList) gl.domElement.dataset.markerBodies = swappedList;
+    const upText = `${viewUp[0].toFixed(6)},${viewUp[1].toFixed(6)},${viewUp[2].toFixed(6)}`;
+    if (gl.domElement.dataset.cameraUp !== upText) gl.domElement.dataset.cameraUp = upText;
     const threshold = String(controls.bodyMarker.minSpherePx);
     if (gl.domElement.dataset.markerPx !== threshold) gl.domElement.dataset.markerPx = threshold;
     if (skyView !== null) {
@@ -403,7 +434,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       const view = trackedViews.find((candidate) => candidate.body.id === id);
       if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
       return view.absolute(t, policy, placement);
-    }, camera, size.width, size.height, origin, controls.selectedObjectId);
+    }, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
 
     if (singleSun) {
       // One point light at the Sun's scaled position, expressed from the floating origin like every other position.
@@ -456,7 +487,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         const light = asset.visual.light;
         return (
           <group key={id}>
-            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
+            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
             {light !== undefined && !singleSun && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />

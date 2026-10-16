@@ -1,0 +1,161 @@
+{
+  "results": {
+    "truePeakWithGlow": 961,
+    "truePeakNoGlow": 658,
+    "defaults": {
+      "size": "72",
+      "brightness": "1"
+    },
+    "afterSizeZero": 658,
+    "afterBigBright": 1905,
+    "series": [
+      {
+        "step": 0,
+        "bright": 1313,
+        "mean": 83.1,
+        "std": 85.4
+      },
+      {
+        "step": 8,
+        "bright": 520,
+        "mean": 42.2,
+        "std": 46
+      },
+      {
+        "step": 16,
+        "bright": 3298,
+        "mean": 114.2,
+        "std": 32
+      },
+      {
+        "step": 24,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 32,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 40,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 48,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 56,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 64,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 72,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 80,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 88,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 96,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 104,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 112,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 120,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 128,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 136,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 144,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 152,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      },
+      {
+        "step": 160,
+        "bright": 3298,
+        "mean": 107.4,
+        "std": 29.3
+      }
+    ],
+    "closest": {
+      "bright": 13919,
+      "mean": 114.5,
+      "std": 20.6
+    },
+    "labelsDefault": [
+      "earth",
+      "jupiter",
+      "swift-tuttle",
+      "perseids-stream"
+    ],
+    "labelsAfterToggle": [
+      "sun",
+      "earth",
+      "swift-tuttle",
+      "perseids-stream"
+    ],
+    "earth-moonBodies": "earth,moon",
+    "jupiter-ioBodies": "jupiter,io",
+    "apolloBodies": "earth,moon"
+  },
+  "errors": []
+}

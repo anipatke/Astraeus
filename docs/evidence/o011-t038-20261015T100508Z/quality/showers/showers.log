@@ -1,0 +1,509 @@
+{
+  "shower": "perseids",
+  "results": {
+    "desktop": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 9417,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        },
+        "peak": {
+          "lit": 9222,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        },
+        "end": {
+          "lit": 9402,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate — outside the activity window Perseids activity Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        }
+      },
+      "zoomedOutLit": 9911,
+      "members": 18699,
+      "windowPanel": "Perseids activity Close Illustrative ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 17.8 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "startWheels": 3,
+          "start": {
+            "overview": {
+              "blue": 105,
+              "violet": 588,
+              "left": 105,
+              "right": 0,
+              "bright": 55407
+            },
+            "near": {
+              "blue": 1229,
+              "violet": 188,
+              "left": 677,
+              "right": 552,
+              "bright": 82186
+            }
+          },
+          "peakWheels": 1,
+          "peak": {
+            "overview": {
+              "blue": 380,
+              "violet": 188,
+              "left": 379,
+              "right": 1,
+              "bright": 56478
+            },
+            "near": {
+              "blue": 1024,
+              "violet": 188,
+              "left": 468,
+              "right": 556,
+              "bright": 39662
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 43980,
+          "solarSystem": 80164
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          58031,
+          81660,
+          58958
+        ]
+      },
+      "planetOrbits": {
+        "mercury": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "venus": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "mars": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "jupiter": "Known limitations A turn's samples joined by straight segments. The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range. S",
+        "tanPixels": 2210
+      },
+      "bodies": {
+        "labelsSeenAtZoomStep": {
+          "sun": {
+            "step": 0,
+            "markerPixels": 156
+          },
+          "earth": {
+            "step": 0,
+            "markerPixels": 166
+          },
+          "swift-tuttle": {
+            "step": 0,
+            "markerPixels": 41
+          },
+          "jupiter": {
+            "step": 2,
+            "markerPixels": 29
+          },
+          "venus": {
+            "step": 4,
+            "markerPixels": 76
+          },
+          "mars": {
+            "step": 5,
+            "markerPixels": 55
+          },
+          "mercury": {
+            "step": 6,
+            "markerPixels": 61
+          }
+        },
+        "labelsNeverShown": [],
+        "cometMarkerPixels": 144,
+        "trueScaleMarkerBodies": [
+          "earth",
+          "mercury",
+          "venus",
+          "mars",
+          "jupiter"
+        ],
+        "solarSystemBodies": [
+          {
+            "step": 1,
+            "asBodies": [
+              "jupiter"
+            ]
+          },
+          {
+            "step": 2,
+            "asBodies": [
+              "jupiter"
+            ]
+          },
+          {
+            "step": 3,
+            "asBodies": [
+              "jupiter"
+            ]
+          }
+        ],
+        "solarSystemBodySet": [
+          "jupiter",
+          "earth",
+          "venus",
+          "mars",
+          "mercury"
+        ]
+      },
+      "wholeOrbit": {
+        "violet": {
+          "minX": 550,
+          "maxX": 1236,
+          "minY": 450,
+          "maxY": 737,
+          "count": 553,
+          "width": 1280,
+          "height": 800
+        }
+      },
+      "crossing": {
+        "peakInstant": "2027-08-13T00:00:00Z",
+        "solarLongitudeDeg": 140.053,
+        "rateAtMinus10dPeakPlus10d": [
+          10,
+          100,
+          10
+        ]
+      },
+      "year": {
+        "spanDays": 365.256,
+        "playbackRate": "604800",
+        "instants": {
+          "start": {
+            "lit": 4293,
+            "earthLabel": true,
+            "earthPathPixels": 102
+          },
+          "middle": {
+            "lit": 7807,
+            "earthLabel": true,
+            "earthPathPixels": 101
+          },
+          "end": {
+            "lit": 11636,
+            "earthLabel": true,
+            "earthPathPixels": 104
+          }
+        }
+      },
+      "loop": {
+        "times": [
+          "2028-02-10T11:44:15.519Z",
+          "2028-02-10T11:44:15.519Z",
+          "2028-02-11T08:04:56.798Z",
+          "2027-02-11T15:31:15.356Z",
+          "2027-02-12T05:39:59.516Z",
+          "2027-02-12T05:39:59.516Z",
+          "2027-02-13T07:44:24.475Z",
+          "2027-02-13T21:31:58.556Z",
+          "2027-02-14T10:15:01.916Z",
+          "2027-02-15T06:15:33.596Z",
+          "2027-02-15T19:37:55.675Z",
+          "2027-02-15T19:37:55.675Z",
+          "2027-02-16T16:13:44.156Z",
+          "2027-02-17T05:20:59.035Z",
+          "2027-02-18T01:05:23.035Z",
+          "2027-02-18T15:06:03.356Z",
+          "2027-02-18T15:06:03.356Z",
+          "2027-02-19T11:02:33.116Z",
+          "2027-02-20T00:51:07.675Z",
+          "2027-02-20T20:39:33.596Z",
+          "2027-02-21T10:10:59.996Z",
+          "2027-02-21T10:10:59.996Z",
+          "2027-02-22T05:54:23.516Z",
+          "2027-02-22T19:24:49.435Z",
+          "2027-02-22T19:24:49.435Z",
+          "2027-02-24T05:48:11.996Z",
+          "2027-02-24T05:48:11.996Z",
+          "2027-02-25T01:55:47.035Z",
+          "2027-02-25T15:13:06.716Z",
+          "2027-02-26T10:41:23.035Z"
+        ],
+        "litAfterWrap": 4931
+      },
+      "eclipticFlat": {
+        "default": {
+          "n": 884,
+          "angleDeg": 0.7242617177919604,
+          "width": 422,
+          "height": 109,
+          "canvasWidth": 1280
+        },
+        "&up=equatorial": {
+          "n": 698,
+          "angleDeg": 12.644766043083674,
+          "width": 410,
+          "height": 105,
+          "canvasWidth": 1280
+        }
+      },
+      "upToggle": {
+        "default": [
+          0,
+          0.917482,
+          0.397777
+        ],
+        "equatorial": [
+          0,
+          1,
+          0
+        ]
+      },
+      "fpsSoftwareGl": {
+        "members": 18699,
+        "fps": 35.8
+      }
+    },
+    "phone": {
+      "windowLabel": "Perseids activity, 2027-07-17T00:00:00Z to 2027-08-25T00:00:00Z",
+      "startText": "2027-07-17T00:00:00Z",
+      "endText": "2027-08-25T00:00:00Z",
+      "readings": {
+        "start": {
+          "lit": 6610,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate 0 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        },
+        "peak": {
+          "lit": 6146,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate 100 meteors per hour (ZHR) Perseids activity Published peak 100 meteors per hour (ZHR) Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        },
+        "end": {
+          "lit": 6784,
+          "panel": "Perseids stream Close Illustrative ⓘ : data source and known limitations 18699 measured meteoroid orbits of the Perseids, each drawn as one dot (CAMS Meteoroid Orbit Database v3.0 (CAMS combined, 2010-2016)). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots. Activity rate — outside the activity window Perseids activity Radiant RA 47.9 ° Dec 57.9 ° Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000 Right ascension / declination · J2000 · from Earth"
+        }
+      },
+      "zoomedOutLit": 6775,
+      "members": 18699,
+      "windowPanel": "Perseids activity Close Observed ⓘ : data source and known limitations Starts 2027-07-17T00:00:00Z Ends 2027-08-25T00:00:00Z Peak 2027-08-13T00:00:00Z Rate now 100 meteors per hour (ZHR)",
+      "sunEarth": {
+        "path": {
+          "startWheels": 3,
+          "start": {
+            "overview": {
+              "blue": 115,
+              "violet": 526,
+              "left": 115,
+              "right": 0,
+              "bright": 35290
+            },
+            "near": {
+              "blue": 490,
+              "violet": 118,
+              "left": 274,
+              "right": 216,
+              "bright": 43257
+            }
+          },
+          "peakWheels": 1,
+          "peak": {
+            "overview": {
+              "blue": 365,
+              "violet": 120,
+              "left": 365,
+              "right": 0,
+              "bright": 41091
+            },
+            "near": {
+              "blue": 377,
+              "violet": 120,
+              "left": 145,
+              "right": 232,
+              "bright": 20399
+            }
+          }
+        },
+        "brightPixels": {
+          "trueScale": 20422,
+          "solarSystem": 38241
+        },
+        "earthFactor": " In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true.",
+        "followBright": [
+          29301,
+          38513,
+          30532
+        ]
+      },
+      "planetOrbits": {
+        "mercury": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "venus": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "mars": "Known limitations A turn's samples joined by straight segments. Sources @lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ Accuracy",
+        "jupiter": "Known limitations A turn's samples joined by straight segments. The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range. S",
+        "tanPixels": 707
+      },
+      "bodies": {
+        "labelsSeenAtZoomStep": {
+          "sun": {
+            "step": 0,
+            "markerPixels": 156
+          },
+          "earth": {
+            "step": 0,
+            "markerPixels": 166
+          },
+          "swift-tuttle": {
+            "step": 0,
+            "markerPixels": 0
+          },
+          "jupiter": {
+            "step": 2,
+            "markerPixels": 31
+          },
+          "venus": {
+            "step": 4,
+            "markerPixels": 111
+          },
+          "mars": {
+            "step": 5,
+            "markerPixels": 80
+          },
+          "mercury": {
+            "step": 6,
+            "markerPixels": 58
+          }
+        },
+        "labelsNeverShown": [],
+        "cometMarkerPixels": 144,
+        "trueScaleMarkerBodies": [
+          "earth",
+          "mercury",
+          "venus",
+          "mars",
+          "jupiter"
+        ],
+        "solarSystemBodies": [
+          {
+            "step": 1,
+            "asBodies": [
+              "jupiter"
+            ]
+          },
+          {
+            "step": 2,
+            "asBodies": [
+              "jupiter"
+            ]
+          },
+          {
+            "step": 3,
+            "asBodies": [
+              "jupiter"
+            ]
+          }
+        ],
+        "solarSystemBodySet": [
+          "jupiter",
+          "earth",
+          "venus",
+          "mars",
+          "mercury"
+        ]
+      },
+      "wholeOrbit": {
+        "violet": {
+          "minX": 170,
+          "maxX": 312,
+          "minY": 475,
+          "maxY": 763,
+          "count": 489,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "crossing": {
+        "peakInstant": "2027-08-13T00:00:00Z",
+        "solarLongitudeDeg": 140.053,
+        "rateAtMinus10dPeakPlus10d": [
+          10,
+          100,
+          10
+        ]
+      },
+      "year": {
+        "spanDays": 365.256,
+        "playbackRate": "604800",
+        "instants": {
+          "start": {
+            "lit": 4423,
+            "earthLabel": true,
+            "earthPathPixels": 98
+          },
+          "middle": {
+            "lit": 5364,
+            "earthLabel": true,
+            "earthPathPixels": 98
+          },
+          "end": {
+            "lit": 6472,
+            "earthLabel": true,
+            "earthPathPixels": 108
+          }
+        }
+      },
+      "loop": {
+        "times": [
+          "2028-02-09T15:04:25.119Z",
+          "2028-02-10T11:42:14.559Z",
+          "2028-02-11T07:38:44.319Z",
+          "2028-02-11T07:38:44.319Z",
+          "2027-02-11T20:54:49.436Z",
+          "2027-02-12T17:14:30.236Z",
+          "2027-02-13T06:31:49.916Z",
+          "2027-02-13T06:31:49.916Z",
+          "2027-02-14T07:37:47.036Z",
+          "2027-02-14T20:54:06.236Z",
+          "2027-02-15T09:13:58.556Z",
+          "2027-02-15T22:54:29.276Z",
+          "2027-02-15T22:54:29.276Z",
+          "2027-02-16T18:13:41.276Z",
+          "2027-02-17T13:48:00.476Z",
+          "2027-02-18T02:51:13.436Z",
+          "2027-02-18T02:51:13.436Z",
+          "2027-02-18T21:46:13.916Z",
+          "2027-02-19T16:38:12.956Z",
+          "2027-02-20T05:33:22.076Z",
+          "2027-02-20T05:33:22.076Z",
+          "2027-02-21T00:57:36.476Z",
+          "2027-02-21T14:32:04.316Z",
+          "2027-02-22T09:02:53.276Z",
+          "2027-02-22T09:02:53.276Z",
+          "2027-02-23T04:40:13.916Z",
+          "2027-02-23T17:16:13.916Z",
+          "2027-02-23T17:16:13.916Z",
+          "2027-02-24T18:44:21.596Z",
+          "2027-02-25T07:11:17.276Z"
+        ],
+        "litAfterWrap": 4524
+      },
+      "eclipticFlat": {
+        "default": {
+          "n": 438,
+          "angleDeg": 3.017254842705147,
+          "width": 242,
+          "height": 63,
+          "canvasWidth": 390
+        }
+      }
+    },
+    "notFetched": {
+      "panel": "Perseids stream Close Observed ⓘ : data source and known limitations The Perseids stream is drawn from measured meteoroid orbits. The measured orbits are not fetched on this machine, so no stream is drawn. Run \"node tools/data/fetch-meteoroid-orbits.mjs 7\" to fetch them (about 322 MB downloaded, kept out of the repository and out of public builds). Activity rate — outside the activity window Perse"
+    },
+    "loopOff": {
+      "time": "2028-03-03T16:33:07.359Z",
+      "pastEnd": true,
+      "litAtEnd": 13578,
+      "lit": 7909
+    },
+    "spanActivity": {
+      "days": 39
+    },
+    "quality": {
+      "counts": {
+        "all": 18699,
+        "reliable": 15644
+      },
+      "all": "Orbit set shown: all orbits (18699 of 18699 bound orbits; the reliable set, convergence angle Q at least 15° and velocity error at most 10% of the geocentric velocity, has 15644 and cuts 3055). The cut is published: \"requiring a minimum convergence angle of 15 degrees between cameras, ensuring an estimated velocity error of no more than 10% of the nominal value\" (the 2025 HDBSCAN paper words it: \"a minimum convergence angle of 15° between camera detections to ensure reliable triangulation, ... a velocity error not exceeding 10% of the nominal value\"); both apply it to the CAMS v3.0 database; they also drop hyperbolic orbits, which the data file already does (Peña-Asensio and Sánchez-Lozano 2",
+      "reliable": "Orbit set shown: reliable orbits only (15644 of 18699 bound orbits; the reliable set, convergence angle Q at least 15° and velocity error at most 10% of the geocentric velocity, has 15644 and cuts 3055). The cut is published: \"requiring a minimum convergence angle of 15 degrees between cameras, ensuring an estimated velocity error of no more than 10% of the nominal value\" (the 2025 HDBSCAN paper words it: \"a minimum convergence angle of 15° between camera detections to ensure reliable triangulation, ... a velocity error not exceeding 10% of the nominal value\"); both apply it to the CAMS v3.0 database; they also drop hyperbolic orbits, which the data file already does (Peña-Asensio and Sánche"
+    }
+  },
+  "errors": []
+}

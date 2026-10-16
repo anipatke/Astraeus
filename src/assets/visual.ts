@@ -27,6 +27,16 @@ export interface BodyVisual {
   /** Presentation-only yaw about the body's pole, aligning the image to the body-fixed axes. */
   readonly textureYawRad?: number;
   readonly atmosphere?: AtmosphereConfig;
+  /**
+   * Draw a self-bright (unlit) sphere at the body's drawn radius as well, so a star reads as a body when it is close and as its marker
+   * and glow when it is not. Appearance only.
+   */
+  readonly emissive?: boolean;
+  /**
+   * A soft halo drawn round the body on top of everything else in the scene, so it reads at any zoom, even among a dense group of dots.
+   * `sizePx` is its least width on screen, `brightness` its strength (0 to 2) and `scale` (default 2.5) how many times the body's projected diameter it spans at least, so close up it frames the disc; the viewer can change all three live. A body with a halo draws no marker dot: the halo is its marker.
+   */
+  readonly glow?: { readonly sizePx: number; readonly brightness: number; readonly scale?: number };
   /** Marker kind: the screen size of the dot. */
   readonly marker?: { readonly sizePx: number };
   /** This body's own lights in its render pass. */

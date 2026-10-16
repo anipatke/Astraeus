@@ -2,37 +2,39 @@ import { bodyMetrics } from "../../app/bodyMetrics";
 import { catalogueItem } from "../../app/catalogueItem";
 import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../../app/experienceDefinition";
+import type { BodyId } from "../../core/body";
 import { catalogue, rootBodyId } from "../../assets/catalogue";
-import { sunEarthSystem } from "../../assets/compositions";
+import { createComposition, type SystemComposition } from "../../assets/compositions";
 import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createEvents } from "../../core/events";
-import { createOrbitGroup, type OrbitElements, type OrbitSpread } from "../../core/orbitGroup";
+import { createListedOrbitGroup } from "../../core/listedOrbitGroup";
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../core/timeWindow";
-import { createEarthSunTrajectory, createTwoBodyTrajectory, fullTurnSpanMs } from "../../core/sunCentredSources";
+import { createEarthSunTrajectory, fullTurnSpanMs, type EccentricSampling } from "../../core/sunCentredSources";
 import type { Trajectory } from "../../core/trajectory";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
-import type { ExperienceConfig } from "../../shell/experience";
+import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
+import { fetchOrbitsCommand, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
 import type { ShowerSettings, ShowerSource } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
 const HOUR_MS = 3_600_000;
-const STREAM_COLOR = "#ffb86b";
-/** Sun-centred scenes are about 2 AU across; one AU is about 23,500 Earth radii. */
-const CAMERA_REACH = { maxFocusDistance: 400_000, far: 1_000_000 };
-/** How much larger than life Earth is drawn under the solar-system scale; stated in Earth's info panel. */
-export const EARTH_EXAGGERATION = 400;
-const EARTH_PATH_COLOR = "#7ab8ff";
-const PARENT_PATH_COLOR = "#c79bff";
 const YEAR_MS = Math.round(365.256363 * DAY_MS);
-/** The parent's path is drawn for this long either side of the peak: the stretch of its orbit that lies in the inner solar system. */
-const PARENT_PATH_HALF_SPAN_MS = 180 * DAY_MS;
-/** Presentation only: the stream drifts slowly, so exact fills six simulated hours apart are enough. */
-const REFILL_AFTER_MS = 6 * HOUR_MS;
+/** Label priorities: the stream and the planets Earth meets first, then the Sun, the parent, the paths. */
+const LABEL_PRIORITY = { earth: 100, sun: 95, parent: 90, planet: 80, stream: 70, parentOrbit: 65, earthPath: 60, planetOrbit: 50 } as const;
 
 const sourceLine = (source: ShowerSource): string => `${source.name} (${source.url}, accessed ${source.accessed})`;
+
+/** The timeline's bounds: the activity window, or one year centred on the peak. Everything the timeline bounds (the stream, the clock, the loop) uses these. */
+export function timelineBoundsOf(settings: ShowerSettings): { readonly startUtcMs: number; readonly endUtcMs: number } {
+  const { startUtc, endUtc, peakUtc } = settings.activity;
+  if (settings.timeline.span === "activity") return { startUtcMs: Date.parse(startUtc), endUtcMs: Date.parse(endUtc) };
+  const peak = Date.parse(peakUtc);
+  const start = Math.round(peak - YEAR_MS / 2);
+  return { startUtcMs: start, endUtcMs: start + YEAR_MS };
+}
 
 /** The stream's id in the shell: also what the camera presets target. */
 export const streamIdOf = (settings: ShowerSettings): string => `${settings.id}-stream`;
@@ -44,77 +46,103 @@ export function showerEntryName(path: string): string {
   return file.endsWith(".json") ? file.slice(0, -".json".length) : file;
 }
 
-/** The true anomaly at which an orbit crosses the ecliptic or equatorial plane on the chosen node. */
-export function nodeTrueAnomalyDeg(argumentOfPeriapsisDeg: number, node: ShowerSettings["stream"]["encounterNode"]): number {
-  const raw = (node === "ascending" ? 0 : 180) - argumentOfPeriapsisDeg;
-  return ((((raw + 180) % 360) + 360) % 360) - 180;
+const percent = (fraction: number): string => `${Math.round(fraction * 100)}%`;
+
+/** The words the stream's panel must carry about what is measured, what is a drawing choice and what is not shown. */
+export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts): string {
+  const { rule } = settings.stream.quality;
+  const cut = `convergence angle Q at least ${rule.minConvergenceAngleDeg}° and velocity error at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of the geocentric velocity`;
+  const shown = set === "reliable" ? counts.reliable : counts.all;
+  return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shown} of ${counts.all} bound orbits; the reliable set, ${cut}, has ${counts.reliable} and cuts ${counts.cut}). The cut is published: ${rule.quote} (${rule.source.name}, ${rule.source.url}). ${counts.pairsFlagged} records flagged as double entries are kept in both sets (${counts.pairsFlaggedReliable} of them in the reliable set).`;
 }
 
-function streamBase(settings: ShowerSettings): { base: OrbitElements; spread: OrbitSpread } {
-  const { elements } = settings.orbit;
-  const { spread } = settings.stream;
+export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonly set: OrbitSet; readonly counts: OrbitSetCounts }): readonly string[] {
+  const { concentration } = settings.stream;
+  const status = concentration.status === "cited" ? `cited; basis: ${concentration.basis}` : `illustrative defaults: ${concentration.basis}`;
+  return [
+    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
+    "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
+    `The clump near the comet is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at the comet's phase, not a blob on the comet.`,
+    "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
+    "The semi-major axis of a measured orbit is poorly determined (the speed error dominates it), so the sizes of the orbits are less certain than their shape and tilt.",
+  ];
+}
+
+function streamObject(settings: ShowerSettings, description: string, orbitSet: { readonly set: OrbitSet; readonly counts: OrbitSetCounts }): ExperienceObject {
   return {
-    base: {
-      semiMajorAxisKm: elements.semiMajorAxisAu * AU_KM,
-      eccentricity: elements.eccentricity,
-      inclinationDeg: elements.inclinationDeg,
-      raanDeg: elements.raanDeg,
-      argumentOfPeriapsisDeg: elements.argumentOfPeriapsisDeg,
-      trueAnomalyDeg: nodeTrueAnomalyDeg(elements.argumentOfPeriapsisDeg, settings.stream.encounterNode),
-    },
-    spread: {
-      semiMajorAxisKm: spread.semiMajorAxisAu * AU_KM,
-      eccentricity: spread.eccentricity,
-      inclinationDeg: spread.inclinationDeg,
-      raanDeg: spread.raanDeg,
-      argumentOfPeriapsisDeg: spread.argumentOfPeriapsisDeg,
-      trueAnomalyDeg: spread.trueAnomalyDeg,
-    },
+    id: streamIdOf(settings),
+    label: `${settings.label} stream`,
+    color: settings.look.streamColor,
+    labelPriority: LABEL_PRIORITY.stream,
+    description,
+    knownLimitations: streamLimitations(settings, orbitSet),
   };
 }
 
-const MODELLED_LIMITATION = "Modelled spread, two-body, not observed.";
-
-function streamProvenance(settings: ShowerSettings): Provenance {
+function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, shown: number, set: OrbitSet): Provenance {
+  const { provenance } = orbits;
+  const { counts } = provenance;
   return createProvenance({
-    sourceType: "illustrative",
-    sources: [sourceLine(settings.orbit.source)],
-    accuracy: "The parent body's orbit is published; the stream is not. Its members are invented around that orbit.",
-    notes: `${MODELLED_LIMITATION} The spread of the members is chosen so that Earth passes through the stream across the activity window.`,
+    sourceType: "observed",
+    sources: [provenance.citation, sourceLine(settings.stream.source)],
+    accuracy: "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element.",
+    notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.`,
   });
 }
 
-/** The stream as one group, centred on the Sun, placed where the parent's orbit crosses Earth's path at the peak. */
-export function createStreamLayer(settings: ShowerSettings): GroupLayer {
-  const { startUtc, endUtc, peakUtc } = settings.activity;
-  const { base, spread } = streamBase(settings);
-  const group = createOrbitGroup({
+/** What the stream's item says when its data is not on this machine: nothing is drawn and no stand-in is invented. */
+function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>): ExperienceObject {
+  const why = load.kind === "invalid"
+    ? `The fetched file cannot be used: ${load.problem}. Run "${fetchOrbitsCommand(settings.stream.iauCode)}" again.`
+    : `The measured orbits are not fetched on this machine, so no stream is drawn. Run "${fetchOrbitsCommand(settings.stream.iauCode)}" to fetch them (about 322 MB downloaded, kept out of the repository and out of public builds).`;
+  return {
     id: streamIdOf(settings),
-    count: settings.stream.memberCount,
+    label: `${settings.label} stream`,
+    color: settings.look.streamColor,
+    labelPriority: LABEL_PRIORITY.stream,
+    description: `The ${settings.label} stream is drawn from measured meteoroid orbits. ${why}`,
+    provenance: createProvenance({
+      sourceType: "observed",
+      sources: [sourceLine(settings.stream.source)],
+      accuracy: "Nothing is drawn, so nothing is claimed.",
+      notes: why,
+    }),
+    knownLimitations: [why],
+  };
+}
+
+/**
+ * The stream as one group, centred on the Sun: one dot per measured orbit, on its own ellipse, with the dot's place along the orbit a
+ * stated drawing choice. A stated share is clumped near the parent's orbital phase, a model.
+ */
+export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default): GroupLayer {
+  const counts = orbitSetCounts(all, settings.stream.quality.rule);
+  const orbits = selectOrbits(all, set, settings.stream.quality.rule);
+  const { peakUtc } = settings.activity;
+  const { concentration } = settings.stream;
+  const adapter = createOrbAstronomyAdapter();
+  const parent = catalogue.get(settings.parentBodyId);
+  if (parent.source === undefined) throw new RangeError(`parentBodyId "${settings.parentBodyId}" has no state source`);
+  const group = createListedOrbitGroup({
+    id: streamIdOf(settings),
     center: "sun",
-    plane: settings.orbit.plane,
-    epochUtcMs: Date.parse(peakUtc),
-    base,
-    spread,
-    seed: settings.stream.seed,
-    bounds: { startUtcMs: Date.parse(startUtc), endUtcMs: Date.parse(endUtc) },
-    provenance: streamProvenance(settings),
+    plane: "ecliptic-j2000",
+    members: orbits.members,
+    phase: {
+      referenceUtcMs: Date.parse(peakUtc),
+      seed: settings.stream.seed,
+      concentration: { around: parent.source.create(adapter), fraction: concentration.fraction, widthDeg: concentration.widthDeg },
+    },
+    bounds: timelineBoundsOf(settings),
+    provenance: measuredProvenance(settings, all, orbits.members.length, set),
   }, createOrbTwoBodyAdapter());
+  const description = `${group.count} measured meteoroid orbits of the ${settings.label}, each drawn as one dot (${orbits.provenance.database}). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near ${settings.parentBody} is a model. One item stands for the whole stream; its focus point is the centroid of the dots.`;
   return {
     group,
-    color: STREAM_COLOR,
-    refillAfterMs: REFILL_AFTER_MS,
-    object: {
-      id: streamIdOf(settings),
-      label: `${settings.label} stream`,
-      color: STREAM_COLOR,
-      labelPriority: 70,
-      description: `${settings.stream.memberCount} invented dust grains around the orbit of ${settings.parentBody}, the source of the ${settings.label}. One item stands for the whole stream; its focus point is the centroid of the members.`,
-      knownLimitations: [
-        MODELLED_LIMITATION,
-        `Only the orbit of ${settings.parentBody} is published; the width and density of the stream are chosen for the picture.`,
-      ],
-    },
+    color: settings.look.streamColor,
+    pointSizePx: settings.look.pointSizePx,
+    refillAfterMs: settings.look.refillAfterHours * HOUR_MS,
+    object: streamObject(settings, description, { set, counts }),
   };
 }
 
@@ -193,7 +221,7 @@ function radiantMetricOf(settings: ShowerSettings): CoordinatesMetric {
       { label: "RA", value: settings.radiant.raDeg, unit: "°", digits: 1 },
       { label: "Dec", value: settings.radiant.decDeg, unit: "°", digits: 1 },
     ],
-    frame: "equinox not stated by source",
+    frame: settings.radiant.equinox,
     origin: "Earth",
     context: `Published: ${settings.radiant.source.name}`,
   };
@@ -204,15 +232,15 @@ export function createEarthPathLayer(settings: ShowerSettings): PathLayer {
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
   return {
     kind: "orbit",
-    color: EARTH_PATH_COLOR,
+    color: settings.look.earthPathColor,
     source: createEarthSunTrajectory(createOrbAstronomyAdapter()),
     span: { startUtcMs: peakUtcMs - Math.floor(YEAR_MS / 2), endUtcMs: peakUtcMs + Math.ceil(YEAR_MS / 2) },
     samples: 361,
     object: {
       id: "earth-path",
       label: "Earth's path",
-      color: EARTH_PATH_COLOR,
-      labelPriority: 60,
+      color: settings.look.earthPathColor,
+      labelPriority: LABEL_PRIORITY.earthPath,
       description: "Earth's path round the Sun over one year, drawn from the same Earth–Sun geometry that places Earth.",
       provenance: EARTH_EPHEMERIS.provenance,
       knownLimitations: ["A year's samples joined by straight segments."],
@@ -225,15 +253,16 @@ const PLANET_TURN_STEP_MS = 2 * DAY_MS;
 const PLANET_TURN_MAX_STEPS = 3_000;
 
 /**
- * The orbit of every catalogued body that circles the Sun and is not already in the scene, from its own catalogue state source and
- * drawn for one full turn from the peak. No body is named here: the planets are whatever the catalogue holds.
+ * The orbit of every catalogued body that circles the Sun, except Earth (which has its own path) and the parent (whose whole orbit is drawn
+ * deliberately, below), from its own catalogue state source and drawn for one full turn from the peak. No body is named here: the planets
+ * are whatever the catalogue holds.
  */
 export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer[] {
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
   const adapter = createOrbAstronomyAdapter();
   const root = rootBodyId();
   return catalogue.ids()
-    .filter((id) => catalogue.get(id).definition.parentId === root && !sunEarthSystem.bodies.includes(id))
+    .filter((id) => catalogue.get(id).definition.parentId === root && id !== "earth" && id !== settings.parentBodyId)
     .flatMap((id): PathLayer[] => {
       const { definition, source, visual } = catalogue.get(id);
       const trajectory = source!.create(adapter);
@@ -252,7 +281,7 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
           id: `${id}-orbit`,
           label: `${definition.label}'s orbit`,
           color: visual.material.color,
-          labelPriority: 50,
+          labelPriority: LABEL_PRIORITY.planetOrbit,
           description: `${definition.label}'s path round the Sun for one full turn from the peak, from the same position source that places ${definition.label} when it is drawn.`,
           provenance: definition.accuracy.position,
           knownLimitations: [
@@ -273,74 +302,172 @@ function turnSpanOrNull(trajectory: Trajectory, peakUtcMs: number): number | nul
   }
 }
 
-/** The parent body's orbit near the inner solar system: the published elements, set so the parent crosses Earth's path at the peak. */
+/** The id of the parent's whole-orbit path: also what the "Whole orbit" camera preset targets. */
+export const parentOrbitIdOf = (settings: ShowerSettings): string => `${settings.parentBodyId}-orbit`;
+
+const SAMPLING_STEPS = 2_000;
+const REFINE_ITERATIONS = 80;
+
+/**
+ * What a path of the parent's whole orbit needs to space its samples by eccentric anomaly: the published eccentricity and semi-major axis
+ * give the shape and the period (about the Sun's catalogue GM), and the instant of periapsis is where the catalogue body's own trajectory is
+ * nearest the Sun, found by a coarse sweep over one period about `aroundUtcMs` and then refined. Nothing here names a body.
+ */
+export function parentSamplingOf(settings: ShowerSettings, aroundUtcMs: number): EccentricSampling {
+  const gm = catalogue.get(rootBodyId()).definition.gmKm3S2;
+  if (gm === undefined) throw new RangeError("the catalogue's root body has no gravitational parameter");
+  const { semiMajorAxisAu, eccentricity } = settings.orbit.elements;
+  const periodMs = 2 * Math.PI * Math.sqrt((semiMajorAxisAu * AU_KM) ** 3 / gm) * 1000;
+  const parent = catalogue.get(settings.parentBodyId);
+  if (parent.source === undefined) throw new RangeError(`parentBodyId "${settings.parentBodyId}" has no state source`);
+  const trajectory = parent.source.create(createOrbAstronomyAdapter());
+  const radius = (t: number): number => Math.hypot(...trajectory.stateAt(Math.round(t), "sun").positionKm);
+  const step = periodMs / SAMPLING_STEPS;
+  const start = aroundUtcMs - periodMs / 2;
+  let best = start;
+  for (let k = 0; k <= SAMPLING_STEPS; k += 1) if (radius(start + k * step) < radius(best)) best = start + k * step;
+  let [lo, hi] = [best - step, best + step];
+  for (let k = 0; k < REFINE_ITERATIONS; k += 1) {
+    const [m1, m2] = [lo + (hi - lo) / 3, hi - (hi - lo) / 3];
+    if (radius(m1) < radius(m2)) hi = m2;
+    else lo = m1;
+  }
+  return Object.freeze({ eccentricity, periodMs, periapsisUtcMs: Math.round((lo + hi) / 2) });
+}
+
+/**
+ * The parent's whole orbit, one full turn from periapsis, from the catalogue body's own (Horizons-checked) trajectory and spaced by
+ * eccentric anomaly so the sharp end near the Sun is smooth.
+ */
 export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer {
   const peakUtcMs = Date.parse(settings.activity.peakUtc);
-  const id = `${settings.id}-parent-orbit`;
+  const { definition, source } = catalogue.get(settings.parentBodyId);
+  if (source === undefined) throw new RangeError(`parentBodyId "${settings.parentBodyId}" has no state source`);
+  const sampling = parentSamplingOf(settings, peakUtcMs);
   return {
     kind: "orbit",
-    color: PARENT_PATH_COLOR,
-    source: createTwoBodyTrajectory({ body: settings.parentBody, plane: settings.orbit.plane, epochUtcMs: peakUtcMs, elements: streamBase(settings).base }, createOrbTwoBodyAdapter()),
-    span: { startUtcMs: peakUtcMs - PARENT_PATH_HALF_SPAN_MS, endUtcMs: peakUtcMs + PARENT_PATH_HALF_SPAN_MS },
-    samples: 361,
+    color: settings.look.parentPathColor,
+    source: source.create(createOrbAstronomyAdapter()),
+    span: { startUtcMs: sampling.periapsisUtcMs, endUtcMs: sampling.periapsisUtcMs + Math.round(sampling.periodMs) },
+    sampling,
     object: {
-      id,
-      label: `${settings.parentBody} orbit`,
-      color: PARENT_PATH_COLOR,
-      labelPriority: 55,
-      description: `The part of the orbit of ${settings.parentBody}, the source of the ${settings.label}, that lies in the inner solar system. The stream follows this orbit.`,
-      provenance: createProvenance({
-        sourceType: "illustrative",
-        sources: [sourceLine(settings.orbit.source)],
-        accuracy: "The shape and tilt of the orbit are the published elements. Where the parent is along it is set so that it crosses Earth's path at the peak.",
-        notes: `${MODELLED_LIMITATION} Only about a year of the orbit is drawn, centred on the peak.`,
-      }),
-      knownLimitations: [MODELLED_LIMITATION, "Unperturbed two-body motion about the Sun; the full orbit reaches far beyond the part drawn."],
+      id: parentOrbitIdOf(settings),
+      label: `${definition.label} orbit`,
+      color: settings.look.parentPathColor,
+      labelPriority: LABEL_PRIORITY.parentOrbit,
+      description: `The whole orbit of ${settings.parentBody}, the source of the ${settings.label}, from the Sun out to the outer solar system and back. The stream follows orbits like this one.`,
+      provenance: definition.accuracy.position,
+      knownLimitations: [
+        "One full turn of unperturbed two-body motion about the Sun, starting at the nearest point to the Sun; the samples are spaced by eccentric anomaly and joined by straight segments.",
+        ...(definition.accuracy.orientationLimitations ?? []),
+      ],
     },
   };
 }
 
-/** Turns shower settings into an experience definition; nothing here names a particular shower. */
-export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefinition {
-  const layer = createStreamLayer(settings);
-  const window = createActivityWindow(settings);
-  const streamId = streamIdOf(settings);
-  const { startUtcMs, endUtcMs } = { startUtcMs: window.startUtcMs, endUtcMs: window.endUtcMs };
-  const radiant = radiantMetricOf(settings);
-  const experience: ExperienceConfig = {
-    objects: [
-      catalogueItem("sun", {
-        labelPriority: 95,
-        labelMaxDistance: CAMERA_REACH.far,
-        description: "The Sun, the centre of the scene. The stream and Earth's path circle it.",
-        knownLimitations: ["The Sun is drawn as a marker of fixed screen size, not to scale."],
-      }),
-      catalogueItem("earth", {
+/** Every body of the catalogue that circles the Sun, with the Sun: the planets, Earth and the parent, as the catalogue holds them. */
+export function showerComposition(settings: ShowerSettings): SystemComposition {
+  const root = rootBodyId();
+  const around = catalogue.ids().filter((id) => catalogue.get(id).definition.parentId === root);
+  if (!around.includes(settings.parentBodyId)) {
+    throw new RangeError(`parentBodyId "${settings.parentBodyId}" is not a catalogued body that circles the Sun (${around.join(", ")})`);
+  }
+  return createComposition(catalogue, { id: `${settings.id}-sun-system`, bodies: [root, ...around], defaultCenter: root });
+}
+
+/** The composition's planets: every drawn sphere except the Sun and the parent (a comet is a marker; its nucleus is under a pixel at any scale). */
+function planetIdsOf(composition: SystemComposition, settings: ShowerSettings): BodyId[] {
+  return composition.bodies.filter((id) => id !== rootBodyId() && id !== settings.parentBodyId && catalogue.get(id).visual.kind === "sphere");
+}
+
+/** The shell items of the composition's bodies: the Sun, Earth and the parent have their own words, every other body is whatever the catalogue holds. */
+function bodyObjects(settings: ShowerSettings, composition: SystemComposition): ExperienceObject[] {
+  const reach = settings.look.cameraFar;
+  return composition.bodies.map((id) => withLabelSetting(settings, bodyObject(settings, composition, id, reach)));
+}
+
+function withLabelSetting(settings: ShowerSettings, object: ExperienceObject): ExperienceObject {
+  const shown = settings.labels[object.id];
+  return shown === undefined ? object : { ...object, showLabel: shown };
+}
+
+function bodyObject(settings: ShowerSettings, _composition: SystemComposition, id: BodyId, reach: number): ExperienceObject {
+  {
+    const { definition } = catalogue.get(id);
+    if (id === rootBodyId()) {
+      return catalogueItem(id, {
+        labelPriority: LABEL_PRIORITY.sun,
+        labelMaxDistance: reach,
+        description: "The Sun, the centre of the scene. The stream and the planets' paths circle it.",
+        knownLimitations: ["The Sun is drawn as an emissive sphere at its true radius with a soft halo; the halo is a drawing aid sized on screen, not part of the Sun.", ...(catalogue.get(id).definition.accuracy.orientationLimitations ?? [])],
+      });
+    }
+    if (id === "earth") {
+      return catalogueItem(id, {
         color: "#9fd8ff",
-        labelPriority: 100,
-        labelMaxDistance: CAMERA_REACH.far,
+        labelPriority: LABEL_PRIORITY.earth,
+        labelMaxDistance: reach,
         description: `The planet that crosses the stream of the ${settings.label}.`,
         knownLimitations: [
           ...EARTH_EPHEMERIS.knownLimitations,
-          `In the Solar system scale Earth is drawn ${EARTH_EXAGGERATION} times larger than life so it can be seen; distances stay true.`,
+          `In the Solar system scale Earth is drawn ${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`,
         ],
-      }),
-    ],
+      });
+    }
+    if (id === settings.parentBodyId) {
+      return catalogueItem(id, {
+        labelPriority: LABEL_PRIORITY.parent,
+        labelMaxDistance: reach,
+        description: `${definition.label}, the parent of the ${settings.label}, at its position on the date shown. Its whole orbit is drawn.`,
+      });
+    }
+    return catalogueItem(id, {
+      labelPriority: LABEL_PRIORITY.planet,
+      labelMaxDistance: reach,
+      description: `${definition.label}, at its catalogued position about the Sun on the date shown.`,
+      knownLimitations: [
+        ...(definition.accuracy.orientationLimitations ?? []),
+        `In the Solar system scale ${definition.label} is drawn ${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`,
+      ],
+    });
+  }
+}
+
+/**
+ * Turns shower settings and the shower's measured orbits into an experience definition; nothing here names a particular shower. When the
+ * orbits are not on this machine the experience says so and draws no stream: there is no stand-in.
+ */
+export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default): ExperienceDefinition {
+  const composition = showerComposition(settings);
+  const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set) : null;
+  const window = createActivityWindow(settings);
+  const streamId = streamIdOf(settings);
+  const { startUtcMs, endUtcMs } = timelineBoundsOf(settings);
+  const radiant = radiantMetricOf(settings);
+  const parentOrbitId = parentOrbitIdOf(settings);
+  const experience: ExperienceConfig = {
+    objects: [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load)])],
     cameraPresets: [
       { id: "overview", label: "Overview", request: { kind: "overview" } },
       { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
       { id: "follow-earth", label: "Follow Earth", request: { kind: "follow", target: "earth" } },
-      { id: "focus-stream", label: "Focus stream", request: { kind: "focus", target: streamId } },
-      { id: "follow-stream", label: "Follow stream", request: { kind: "follow", target: streamId } },
+      { id: "focus-parent", label: "Focus comet", request: { kind: "focus", target: settings.parentBodyId } },
+      { id: "whole-orbit", label: "Whole orbit", request: { kind: "focus", target: parentOrbitId } },
+      ...(layer === null
+        ? []
+        : [
+            { id: "focus-stream", label: "Focus stream", request: { kind: "focus", target: streamId } } as const,
+            { id: "follow-stream", label: "Follow stream", request: { kind: "follow", target: streamId } } as const,
+          ]),
     ],
     events: createEvents([
-      { id: `${settings.id}-start`, label: `${settings.label} activity begins`, timeUtcMs: startUtcMs },
-      { id: `${settings.id}-peak`, label: `${settings.label} peak`, timeUtcMs: window.peakUtcMs ?? startUtcMs },
-      { id: `${settings.id}-end`, label: `${settings.label} activity ends`, timeUtcMs: endUtcMs },
+      { id: `${settings.id}-start`, label: `${settings.label} activity begins`, timeUtcMs: window.startUtcMs },
+      { id: `${settings.id}-peak`, label: `${settings.label} peak`, timeUtcMs: window.peakUtcMs ?? window.startUtcMs },
+      { id: `${settings.id}-end`, label: `${settings.label} activity ends`, timeUtcMs: window.endUtcMs },
     ]),
     windows: [window],
     window: { startUtcMs, endUtcMs },
-    rates: [3_600, 43_200, 86_400, 259_200],
+    rates: [...new Set([3_600, 43_200, 86_400, 259_200, 604_800, settings.timeline.rateSecondsPerSecond])].sort((a, b) => a - b),
     eventProvenance: createProvenance({
       sourceType: "observed",
       sources: [sourceLine(settings.activity.source)],
@@ -350,18 +477,26 @@ export function buildShowerDefinition(settings: ShowerSettings): ExperienceDefin
   };
   return {
     experience,
-    clock: { startUtcMs, rate: 86_400 },
+    clock: { startUtcMs, rate: settings.timeline.rateSecondsPerSecond },
+    alternates: load.kind !== "loaded" ? undefined : (["all", "reliable"] as const).map((option) => ({
+      label: option === "all" ? `All orbits (${orbitSetCounts(load.orbits, settings.stream.quality.rule).all})` : `Reliable only (${orbitSetCounts(load.orbits, settings.stream.quality.rule).reliable})`,
+      param: "orbits",
+      value: option,
+      active: option === set,
+    })),
+    loop: settings.look.loop,
+    viewUp: settings.look.viewUp,
     sceneLayers: ["points", "sun-centred"],
-    composition: sunEarthSystem,
-    sceneCenter: "sun",
+    composition,
+    sceneCenter: rootBodyId(),
     scaleChoices: ["true-scale", "solar-system"],
-    visualOverrides: { earth: { exaggeration: EARTH_EXAGGERATION } },
+    visualOverrides: Object.fromEntries(planetIdsOf(composition, settings).map((id) => [id, { exaggeration: settings.look.planetExaggeration }])),
     trackedBodies: [],
-    groups: [layer],
+    groups: layer === null ? [] : [layer],
     paths: [createEarthPathLayer(settings), ...createPlanetOrbitPathLayers(settings), createParentOrbitPathLayer(settings)],
-    camera: CAMERA_REACH,
+    camera: { maxFocusDistance: settings.look.cameraMaxFocusDistance, far: settings.look.cameraFar },
     createMetrics: ({ resolver }) => {
-      const base = bodyMetrics(resolver, sunEarthSystem.bodies, ["distance"]);
+      const base = bodyMetrics(resolver, composition.bodies, ["distance"]);
       return (objectId: string, timeUtcMs: number): readonly Metric[] =>
         objectId === streamId ? [rateMetricOf(settings, window, timeUtcMs), radiant] : base(objectId, timeUtcMs);
     },

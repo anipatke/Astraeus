@@ -11,21 +11,29 @@ interface BodyMeshProps {
   readonly textureUrl?: string;
   readonly material: BodyMaterialConfig;
   readonly layer: number;
+  /** Self-bright: drawn in its flat colour whatever the light. */
+  readonly unlit?: boolean;
   readonly children?: React.ReactNode;
 }
 
 export const BodyMesh = forwardRef<Mesh, BodyMeshProps>(function BodyMesh(
-  { radius, textureUrl, material, layer, children },
+  { radius, textureUrl, material, layer, unlit, children },
   ref,
 ) {
   return (
     <mesh ref={ref} layers={layer}>
       <sphereGeometry args={[radius, 64, 64]} />
-      {textureUrl === undefined ? <FlatMaterial material={material} /> : <TexturedMaterial url={textureUrl} material={material} />}
+      {unlit === true ? (textureUrl === undefined ? <meshBasicMaterial color={material.color} /> : <UnlitTexturedMaterial url={textureUrl} />) : textureUrl === undefined ? <FlatMaterial material={material} /> : <TexturedMaterial url={textureUrl} material={material} />}
       {children}
     </mesh>
   );
 });
+
+/** A self-bright textured surface: the map as it is, whatever the light. */
+function UnlitTexturedMaterial({ url }: { readonly url: string }) {
+  const texture = useBodyTexture(url);
+  return <meshBasicMaterial map={texture ?? undefined} color="#ffffff" />;
+}
 
 function FlatMaterial({ material }: { readonly material: BodyMaterialConfig }) {
   return <meshStandardMaterial color={material.color} roughness={material.roughness} metalness={material.metalness} />;

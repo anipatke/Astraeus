@@ -11,6 +11,11 @@ export interface ExperienceObject {
   readonly availability?: TimeBounds;
   /** Higher values win when projected labels would overlap. */
   readonly labelPriority?: number;
+  /**
+   * Whether the scene draws this object's label (default true). An object that sets it can be switched live in Developer > Display settings
+   * and by `?labels=<id>:on|off`. The object stays in the Object menu and stays selectable either way.
+   */
+  readonly showLabel?: boolean;
   /** Hide this label when its object is farther from the camera than this render distance. */
   readonly labelMaxDistance?: number;
   /** One or two plain sentences for the info panel. */

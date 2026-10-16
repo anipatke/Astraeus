@@ -13,6 +13,7 @@ import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { infoView } from "../src/shell/infoModel";
 import perseidsFile from "../data/showers/perseids.json";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import type { RateMetric } from "../src/shell/metrics";
 
@@ -138,7 +139,7 @@ describe("the synthetic window", () => {
 });
 
 describe("a shower built from a settings file", () => {
-  const shower = buildShowerDefinition(parseShowerSettings(perseidsFile));
+  const shower = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "loaded", orbits: madeUpOrbits(7, 50) });
 
   it("mounts through the shell with its own stream and none of Apollo's objects", () => {
     const markup = shellMarkup({ ...shower, experience: experienceWithGroups(shower) });

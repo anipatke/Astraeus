@@ -1,0 +1,34 @@
+
+> astraeus-earth-moon-spike@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+stdout | tests/listedOrbitGroup.test.ts > listed orbit group performance (T-052 Done When 4) > fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically
+listed 30,000 fill best 14.40 ms; orbit group 30,000 fill best 9.56 ms; best FrameStats duration 14.40 ms (budget 33.4)
+
+ ❯ tests/listedOrbitGroup.test.ts (20 tests | 1 failed) 1066ms
+   ❯ listed orbit group performance (T-052 Done When 4) (2)
+     × fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically 630ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/listedOrbitGroup.test.ts > listed orbit group performance (T-052 Done When 4) > fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically
+AssertionError: expected 14.402207999999973 to be less than 14.345080500000222
+ ❯ tests/listedOrbitGroup.test.ts:349:24
+    347|     expect(statsBest).toBeLessThan(FRAME_BUDGET_MS);
+    348|     expect(listedBest).toBeLessThan(FRAME_BUDGET_MS);
+    349|     expect(listedBest).toBeLessThan(1.5 * orbitBest);
+       |                        ^
+    350|   });
+    351|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 37 passed (38)
+      Tests  1 failed | 691 passed | 1 skipped (693)
+   Start at  21:05:13
+   Duration  28.43s (tests 68%, transform 17%, import 15%)
+

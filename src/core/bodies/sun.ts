@@ -22,6 +22,6 @@ export const SUN: CelestialBodyDefinition = Object.freeze({
       notes: "Stated EPV00 model validity is 1900–2100.",
     }),
     validUtc: Object.freeze({ startUtcMs: Date.UTC(1900, 0, 1), endUtcMs: Date.UTC(2100, 0, 1) }),
-    orientationLimitations: Object.freeze(["The Sun's orientation is not modelled."]),
+    orientationLimitations: Object.freeze(["The Sun's orientation is not modelled: the surface map is a visual stand-in at a fixed orientation, and the real solar rotation axis and longitude are not drawn."]),
   }),
 });

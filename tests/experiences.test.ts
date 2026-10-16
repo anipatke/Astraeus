@@ -26,7 +26,8 @@ import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definiti
 import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { earthMoonExplorer } from "../src/experiences/earth-moon/earthMoonExplorer";
-import { buildShowerDefinition, createEarthPathLayer, EARTH_EXAGGERATION } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "../src/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import { scaleChoicesFor } from "../src/shell/scaleModel";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
@@ -36,7 +37,8 @@ import perseidsFile from "../data/showers/perseids.json";
 const adapter = createOrbAstronomyAdapter();
 const resolver = createSceneResolver(adapter);
 const settings = parseShowerSettings(perseidsFile);
-const perseids = buildShowerDefinition(settings);
+const perseids = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 50) });
+const EARTH_EXAGGERATION = settings.look.planetExaggeration;
 const peak = Date.parse(settings.activity.peakUtc);
 const start = Date.parse(settings.activity.startUtc);
 
@@ -44,12 +46,12 @@ describe("every experience names a composition", () => {
   it.each([
     ["the Earth–Moon Explorer", earthMoonExplorer, earthMoonSystem],
     ["Apollo", apollo11Definition, earthMoonSystem],
-    ["Perseids", perseids, sunEarthSystem],
+    ["Perseids", perseids, showerComposition(settings)],
     ["the synthetic marker", syntheticDefinition, earthMoonSystem],
     ["the synthetic ring", syntheticRingDefinition, earthMoonSystem],
     ["the synthetic belt", syntheticBeltDefinition, sunEarthSystem],
   ] as const)("%s", (_name, definition, composition) => {
-    expect(compositionOf(definition)).toBe(composition);
+    expect(compositionOf(definition)).toEqual(composition);
   });
 
   it("leaves only the bodiless fixture without one, on purpose", () => {
@@ -129,13 +131,13 @@ describe("Apollo", () => {
   });
 });
 
-describe("Perseids in the Sun–Earth composition", () => {
-  it("mounts the Sun and Earth about the Sun, with no Moon anywhere", () => {
-    expect(compositionOf(perseids)).toBe(sunEarthSystem);
+describe("Perseids in the Sun-centred composition", () => {
+  it("mounts the Sun, Earth, the planets and the comet about the Sun, with no Moon anywhere", () => {
+    expect(compositionOf(perseids)).toEqual(showerComposition(settings));
     expect(sceneCenterOf(perseids)).toBe("sun");
-    expect(mountedBodiesOf(perseids)).toEqual(["sun", "earth"]);
+    expect(mountedBodiesOf(perseids)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
     const ids = experienceWithGroups(perseids).objects.map((object) => object.id);
-    expect(ids).toEqual(expect.arrayContaining(["sun", "earth", `${settings.id}-stream`, "earth-path", `${settings.id}-parent-orbit`]));
+    expect(ids).toEqual(expect.arrayContaining(["sun", "earth", "mars", "swift-tuttle", `${settings.id}-stream`, "earth-path", parentOrbitIdOf(settings)]));
     expect(ids).not.toContain("moon");
     expect(JSON.stringify(experienceWithGroups(perseids))).not.toMatch(/\bMoon\b/);
   });
@@ -143,11 +145,11 @@ describe("Perseids in the Sun–Earth composition", () => {
   it("declares Earth's path and the parent's orbit as orbit paths about the Sun", () => {
     const { paths, sun } = sunCentredOf(perseids);
     expect(sun).toBeUndefined();
-    // Earth's path, then one orbit per catalogued planet that circles the Sun and is not in the scene (T-049), then the parent's.
+    // Earth's path, then one orbit per catalogued planet (T-049), then the parent's whole orbit (T-038).
     expect(paths.map((path) => [path.object.id, path.kind])).toEqual([
       ["earth-path", "orbit"],
       ...["mercury", "venus", "mars", "jupiter"].map((id) => [`${id}-orbit`, "orbit"]),
-      [`${settings.id}-parent-orbit`, "orbit"],
+      [parentOrbitIdOf(settings), "orbit"],
     ]);
     expect(paths.every((path) => path.object.provenance !== undefined)).toBe(true);
   });
@@ -188,7 +190,7 @@ describe("Perseids in the Sun–Earth composition", () => {
   });
 
   it("leaves Geminids-style settings to the same builder", () => {
-    expect(buildShowerDefinition(settings).composition).toBe(sunEarthSystem);
+    expect(buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 50) }).composition).toEqual(showerComposition(settings));
   });
 });
 

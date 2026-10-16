@@ -1,42 +1,62 @@
 import { describe, expect, it } from "vitest";
-import { groupsOf } from "../src/app/experienceDefinition";
+import { experienceWithGroups, groupsOf, mountedBodiesOf } from "../src/app/experienceDefinition";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
+import { hiddenLabelsFrom, loopFromSearch } from "../src/app/App";
 import { catalogue } from "../src/assets/catalogue";
-import { sunEarthSystem } from "../src/assets/compositions";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
+import { SWIFT_TUTTLE_SAMPLING } from "../src/core/bodies";
 import {
   buildShowerDefinition,
   createActivityWindow,
-  nodeTrueAnomalyDeg,
+  parentOrbitIdOf,
+  parentSamplingOf,
+  showerComposition,
   showerEntryName,
   streamIdOf,
+  orbitSetSentence,
+  streamLimitations,
+  timelineBoundsOf,
 } from "../src/experiences/showers/showerDefinition";
+import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
 import perseidsFile from "../data/showers/perseids.json";
 import { parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
+import { madeUpOrbits } from "./helpers/measuredOrbits";
 
 const adapter = createOrbAstronomyAdapter();
 const runtimeAt = (timeUtcMs: number) => ({ clock: new SimulationClock(timeUtcMs), resolver: createSceneResolver(adapter), catalogue });
-const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
 
-// A made-up shower: none of these values belong to any real shower.
+// A made-up shower: none of these values belong to any real shower. Its parent is a catalogued body only because the settings must name one.
 const madeUp = {
   id: "test-drift",
   label: "Test drift",
-  parentBody: "Made-up body",
+  parentBody: "Mars (stand-in parent)",
+  parentBodyId: "mars",
   orbit: {
-    plane: "ecliptic-j2000",
-    elementsEpochUtc: "2030-01-01T00:00:00Z",
-    elements: { semiMajorAxisAu: 3.2, eccentricity: 0.7, inclinationDeg: 25, raanDeg: 100, argumentOfPeriapsisDeg: 60 },
+    elements: { semiMajorAxisAu: 1.523679, eccentricity: 0.0934 },
     source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" },
   },
   stream: {
-    encounterNode: "descending",
-    memberCount: 300,
+    iauCode: 999,
+    source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" },
     seed: 11,
-    spread: { semiMajorAxisAu: 0, eccentricity: 0.001, inclinationDeg: 1, raanDeg: 10, argumentOfPeriapsisDeg: 1, trueAnomalyDeg: 15 },
+    quality: {
+      default: "all",
+      rule: { minConvergenceAngleDeg: 15, maxVelocityErrorFraction: 0.1, quote: "Made-up rule for the builder test", source: { name: "Made up", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
+    },
+    concentration: { fraction: 0.25, widthDeg: 30, status: "illustrative", basis: "Made-up default for the builder test." },
+  },
+  look: {
+    streamColor: "#88ccff",
+    pointSizePx: 3,
+    refillAfterHours: 12,
+    earthPathColor: "#7ab8ff",
+    parentPathColor: "#c79bff",
+    planetExaggeration: 250,
+    cameraMaxFocusDistance: 3_000_000,
+    cameraFar: 9_000_000,
   },
   activity: {
     startUtc: "2030-03-01T00:00:00Z",
@@ -48,7 +68,7 @@ const madeUp = {
     fallOffPerDay: 0.2,
     source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" },
   },
-  radiant: { raDeg: 120, decDeg: -20, source: { name: "Made up", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
+  radiant: { raDeg: 120, decDeg: -20, equinox: "J2000", peakSolarLongitudeDeg: 350, source: { name: "Made up", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
 };
 
 const clone = (): Record<string, any> => structuredClone(madeUp);
@@ -63,50 +83,139 @@ describe("shower settings contract", () => {
     expect(parseShowerSettings(madeUp).id).toBe("test-drift");
   });
 
+  it("accepts the Perseids file and reads the look from it", () => {
+    const settings = parseShowerSettings(perseidsFile);
+    expect(settings.stream.iauCode).toBe(7);
+    expect(settings.parentBodyId).toBe("swift-tuttle");
+    expect(settings.look.planetExaggeration).toBe(400);
+  });
+
   it.each([
     ["a missing source", (s: Record<string, any>) => { delete s.activity.source; }, /activity\.source/],
     ["a missing parent body", (s: Record<string, any>) => { delete s.parentBody; }, /parentBody/],
-    ["a non-finite number", (s: Record<string, any>) => { s.orbit.elements.inclinationDeg = Number.NaN; }, /orbit\.elements\.inclinationDeg/],
-    ["an unbound orbit", (s: Record<string, any>) => { s.orbit.elements.eccentricity = 1.2; }, /orbit\.elements\.eccentricity/],
+    ["a missing parent id", (s: Record<string, any>) => { delete s.parentBodyId; }, /parentBodyId/],
+    ["an unbound parent orbit", (s: Record<string, any>) => { s.orbit.elements.eccentricity = 1.2; }, /orbit\.elements\.eccentricity/],
     ["a window that ends before it starts", (s: Record<string, any>) => { s.activity.endUtc = "2030-02-01T00:00:00Z"; }, /activity\.endUtc/],
     ["a peak outside the window", (s: Record<string, any>) => { s.activity.peakUtc = "2030-04-01T00:00:00Z"; }, /activity\.peakUtc/],
     ["a time without a zone", (s: Record<string, any>) => { s.activity.startUtc = "2030-03-01"; }, /activity\.startUtc/],
-    ["a negative spread", (s: Record<string, any>) => { s.stream.spread.raanDeg = -1; }, /stream\.spread\.raanDeg/],
     ["a bad seed", (s: Record<string, any>) => { s.stream.seed = 1.5; }, /stream\.seed/],
-    ["a zero member count", (s: Record<string, any>) => { s.stream.memberCount = 0; }, /stream\.memberCount/],
+    ["a missing IAU code", (s: Record<string, any>) => { delete s.stream.iauCode; }, /stream\.iauCode/],
+    ["a fractional IAU code", (s: Record<string, any>) => { s.stream.iauCode = 7.5; }, /stream\.iauCode/],
+    ["a missing data source", (s: Record<string, any>) => { delete s.stream.source; }, /stream\.source/],
+    ["a clump share above one", (s: Record<string, any>) => { s.stream.concentration.fraction = 1.5; }, /stream\.concentration\.fraction/],
+    ["a clump of no width", (s: Record<string, any>) => { s.stream.concentration.widthDeg = 0; }, /stream\.concentration\.widthDeg/],
+    ["a clump with no status", (s: Record<string, any>) => { s.stream.concentration.status = "guessed"; }, /stream\.concentration\.status/],
+    ["a cited clump without its citation", (s: Record<string, any>) => { s.stream.concentration.status = "cited"; }, /stream\.concentration\.source/],
+    ["a clump without its basis", (s: Record<string, any>) => { delete s.stream.concentration.basis; }, /stream\.concentration\.basis/],
     ["a radiant declination out of range", (s: Record<string, any>) => { s.radiant.decDeg = 95; }, /radiant\.decDeg/],
-    ["an unknown node", (s: Record<string, any>) => { s.stream.encounterNode = "middle"; }, /stream\.encounterNode/],
+    ["a missing peak solar longitude", (s: Record<string, any>) => { delete s.radiant.peakSolarLongitudeDeg; }, /radiant\.peakSolarLongitudeDeg/],
     ["a zero peak rate", (s: Record<string, any>) => { s.activity.peakRate = 0; }, /activity\.peakRate/],
+    ["a stream colour that is not a colour", (s: Record<string, any>) => { s.look.streamColor = "amber"; }, /look\.streamColor/],
+    ["a zero dot size", (s: Record<string, any>) => { s.look.pointSizePx = 0; }, /look\.pointSizePx/],
+    ["a camera far plane inside the reach", (s: Record<string, any>) => { s.look.cameraFar = 100; }, /look\.cameraFar/],
+    ["planets smaller than life", (s: Record<string, any>) => { s.look.planetExaggeration = 0.5; }, /look\.planetExaggeration/],
+    ["the retired stream spread", (s: Record<string, any>) => { s.stream = undefined; }, /stream/],
   ])("names the field for %s", (_what, change, field) => {
     expect(broken(change)).toThrow(ShowerSettingsError);
     expect(broken(change)).toThrow(field);
+  });
+
+  it("carries no stand-in spread or invented member count in the Perseids file", () => {
+    const stream = (perseidsFile as Record<string, any>).stream;
+    expect(stream.spread).toBeUndefined();
+    expect(stream.memberCount).toBeUndefined();
+    expect(JSON.stringify(perseidsFile)).not.toMatch(/spread/i);
+  });
+});
+
+describe("measured orbit files", () => {
+  const good = () => structuredClone({
+    provenance: { database: "d", citation: "c", source: "s", fetchedAt: "t", iauCode: 5, columns: ["recordId", "sheetRow", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "solarLongitudeDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS", "pairsFlag"] },
+    rows: [["1", 6, 1_000_000_000_000, 3, 0.7, 20, 30, 40, 50, 40, 59, 0.4, 0]],
+  });
+
+  it("accepts a file for the named shower and converts the semi-major axis to km", () => {
+    const orbits = parseMeasuredOrbits(good(), 5);
+    expect(orbits.members[0].recordId).toBe("1");
+    expect(orbits.members[0].elements.semiMajorAxisKm).toBeCloseTo(3 * 149_597_870.7, 3);
+  });
+
+  it.each([
+    ["another shower's file", (f: any) => { f.provenance.iauCode = 4; }, /IAU shower 4, not 5/],
+    ["other columns", (f: any) => { f.provenance.columns.reverse(); }, /columns/],
+    ["no rows", (f: any) => { f.rows = []; }, /no rows/],
+    ["a row of the wrong length", (f: any) => { f.rows[0].pop(); }, /row 0 must have 13 values/],
+    ["a non-finite value", (f: any) => { f.rows[0][4] = null; }, /not a finite number/],
+    ["an empty record id", (f: any) => { f.rows[0][0] = ""; }, /no record id/],
+  ])("rejects %s", (_what, change, message) => {
+    const file = good();
+    change(file);
+    expect(() => parseMeasuredOrbits(file, 5)).toThrow(message);
   });
 });
 
 describe("the shared shower builder with a made-up shower", () => {
   const settings = parseShowerSettings(madeUp);
-  const definition = buildShowerDefinition(settings);
+  const loaded: MeasuredLoad = { kind: "loaded", orbits: madeUpOrbits(999, 300) };
+  const definition = buildShowerDefinition(settings, loaded);
   const layer = groupsOf(definition)[0];
 
-  it("builds an Earth-visible, Sun-centred experience with one stream item", () => {
+  it("builds a Sun-centred experience of the Sun, Earth, the planets and the parent, with one stream item", () => {
     expect(definition.sceneLayers).toEqual(["points", "sun-centred"]);
-    expect(definition.composition).toBe(sunEarthSystem);
+    expect(definition.composition).toEqual(showerComposition(settings));
+    expect(mountedBodiesOf(definition)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
     expect(definition.sceneCenter).toBe("sun");
     expect(layer.group.center).toBe("sun");
     expect(layer.group.count).toBe(300);
     expect(layer.object.id).toBe(streamIdOf(settings));
-    expect(definition.experience.cameraPresets.map((p) => p.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-stream", "follow-stream"]);
-    expect(definition.camera?.maxFocusDistance).toBeGreaterThan(100_000);
+    expect(definition.experience.cameraPresets.map((p) => p.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-parent", "whole-orbit", "focus-stream", "follow-stream"]);
+    expect(definition.camera).toEqual({ maxFocusDistance: 3_000_000, far: 9_000_000 });
   });
 
-  it("states the stream is modelled and keeps published facts apart from modelled ones", () => {
+  it("takes the look from the settings, not from code", () => {
+    expect(layer.color).toBe("#88ccff");
+    expect(layer.pointSizePx).toBe(3);
+    expect(layer.refillAfterMs).toBe(12 * 3_600_000);
+    // The parent (here Mars, a stand-in) is not enlarged: it is the comet-like body the settings name.
+    expect(Object.keys(definition.visualOverrides ?? {}).sort()).toEqual(["earth", "jupiter", "mercury", "venus"]);
+    expect(Object.values(definition.visualOverrides ?? {}).every((override) => override.exaggeration === 250)).toBe(true);
+    const earth = experienceWithGroups(definition).objects.find((o) => o.id === "earth");
+    expect(earth?.knownLimitations?.join(" ")).toMatch(/250 times larger than life/);
+    expect(definition.paths?.find((p) => p.object.id === "earth-path")?.color).toBe("#7ab8ff");
+  });
+
+  it("draws the parent's whole orbit deliberately by eccentric anomaly and not through the planet loop", () => {
+    const parentPath = definition.paths!.find((path) => path.object.id === parentOrbitIdOf(settings))!;
+    expect(parentPath.sampling).toBeDefined();
+    expect(parentPath.sampling!.eccentricity).toBeCloseTo(0.0934, 6);
+    const span = parentPath.span as { startUtcMs: number; endUtcMs: number };
+    expect(span.endUtcMs - span.startUtcMs).toBeCloseTo(parentPath.sampling!.periodMs, -1);
+    const orbitIds = definition.paths!.map((p) => p.object.id).filter((id) => id.endsWith("-orbit"));
+    expect(orbitIds.sort()).toEqual(["jupiter-orbit", "mars-orbit", "mercury-orbit", "venus-orbit"]);
+    expect(orbitIds.filter((id) => id === "mars-orbit")).toHaveLength(1);
+  });
+
+  it("states what is measured, what is a drawing choice and what is not shown", () => {
     expect(layer.group.provenance.sourceType).toBe("illustrative");
-    expect(layer.object.knownLimitations?.join(" ")).toMatch(/modelled spread, two-body, not observed/i);
+    const text = streamLimitations(settings).join(" ");
+    expect(text).toMatch(/position of each dot along its orbit is illustrative/i);
+    expect(text).toMatch(/clump near the comet is a model/i);
+    expect(text).toMatch(/25% of the dots are placed within ±30°/);
+    expect(text).toMatch(/\(illustrative defaults: Made-up default for the builder test\.\)/);
+    expect(text).toMatch(/band at the comet's phase, not a blob on the comet/);
+    expect(text).toMatch(/Parts of the stream that miss Earth are not shown/);
+    expect(layer.object.knownLimitations).toEqual(streamLimitations(settings, { set: "all", counts: orbitSetCounts(loaded.orbits, settings.stream.quality.rule) }));
     const window = createActivityWindow(settings);
     const peak = Date.parse(settings.activity.peakUtc);
     expect(provenanceAt(window, peak)?.sourceType).toBe("observed");
     expect(provenanceAt(window, peak - 5 * DAY_MS)?.sourceType).toBe("illustrative");
     expect(provenanceAt(window, peak + 5 * DAY_MS)?.sourceType).toBe("illustrative");
+  });
+
+  it("cites a cited clump with its source", () => {
+    const cited = clone();
+    cited.stream.concentration = { fraction: 0.4, widthDeg: 15, status: "cited", basis: "Made-up paper, table 2", source: { name: "Made-up paper", url: "https://example.invalid/paper", accessed: "2030-01-01" } };
+    expect(streamLimitations(parseShowerSettings(cited)).join(" ")).toMatch(/cited; basis: Made-up paper, table 2/);
   });
 
   it("uses the same samples for the rate readout and the window curve, peaking at the published rate", () => {
@@ -118,67 +227,239 @@ describe("the shared shower builder with a made-up shower", () => {
     const metrics = definition.createMetrics(runtimeAt(peak))(streamIdOf(settings), peak + 2 * DAY_MS);
     const rate = metrics.find((m) => m.kind === "rate");
     expect(rate?.kind === "rate" ? rate.value : null).toBeCloseTo(rateAt(window!, peak + 2 * DAY_MS) ?? Number.NaN, 9);
-    expect(metrics.find((m) => m.kind === "coordinates")).toMatchObject({ system: "radec" });
-  });
-
-  it("puts the base true anomaly on the chosen node", () => {
-    expect(nodeTrueAnomalyDeg(60, "descending")).toBeCloseTo(120, 9);
-    expect(nodeTrueAnomalyDeg(60, "ascending")).toBeCloseTo(-60, 9);
-    expect(nodeTrueAnomalyDeg(200, "descending")).toBeCloseTo(-20, 9);
+    expect(metrics.find((m) => m.kind === "coordinates")).toMatchObject({ system: "radec", frame: "J2000" });
   });
 
   it("names an entry file by its file name", () => {
     expect(showerEntryName("../data/showers/perseids.json")).toBe("perseids");
     expect(showerEntryName("other.json")).toBe("other");
   });
+
+  it("refuses a parent that does not circle the Sun", () => {
+    const moonParent = clone();
+    moonParent.parentBodyId = "moon";
+    expect(() => buildShowerDefinition(parseShowerSettings(moonParent), loaded)).toThrow(/not a catalogued body that circles the Sun/);
+  });
 });
 
-describe("Perseids from its settings file", () => {
-  const settings = parseShowerSettings(perseidsFile);
-  const definition = buildShowerDefinition(settings);
-  const { group } = groupsOf(definition)[0];
-  const start = Date.parse(settings.activity.startUtc);
-  const peak = Date.parse(settings.activity.peakUtc);
-  const end = Date.parse(settings.activity.endUtc);
+describe("a shower whose measured orbits are not on this machine", () => {
+  const settings = parseShowerSettings(madeUp);
+  it.each([
+    ["absent", { kind: "absent" } as MeasuredLoad, /not fetched on this machine.*node tools\/data\/fetch-meteoroid-orbits\.mjs 999/s],
+    ["invalid", { kind: "invalid", problem: "measured orbit file holds no rows" } as MeasuredLoad, /cannot be used: measured orbit file holds no rows/],
+  ])("%s: says so, draws no stream and invents none", (_name, load, message) => {
+    const definition = buildShowerDefinition(settings, load);
+    expect(groupsOf(definition)).toEqual([]);
+    const item = experienceWithGroups(definition).objects.find((o) => o.id === streamIdOf(settings));
+    expect(item?.description).toMatch(message);
+    expect(item?.provenance?.notes).toMatch(message);
+    const ids = definition.experience.cameraPresets.map((p) => p.id);
+    expect(ids).not.toContain("focus-stream");
+    expect(ids).toContain("whole-orbit");
+  });
+});
 
-  it("cites every published fact and marks the stream modelled", () => {
-    for (const source of [settings.orbit.source, settings.activity.source, settings.radiant.source]) {
-      expect(source.url).toMatch(/^https:\/\//);
-      expect(source.accessed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    }
-    expect(group.provenance.sourceType).toBe("illustrative");
-    expect(group.provenance.notes).toMatch(/modelled spread, two-body, not observed/i);
-    expect(group.count).toBeGreaterThanOrEqual(10_000);
+describe("the parent's sampling is found from the catalogue body", () => {
+  it("matches the comet's own sampling to within a minute when given the comet's published size and shape", () => {
+    const settings = parseShowerSettings(perseidsFile);
+    const found = parentSamplingOf(settings, Date.parse(settings.activity.peakUtc));
+    expect(found.eccentricity).toBeCloseTo(SWIFT_TUTTLE_SAMPLING.eccentricity, 12);
+    expect(Math.abs(found.periodMs - SWIFT_TUTTLE_SAMPLING.periodMs)).toBeLessThan(60_000);
+    // Periapsis may be any past or future one: compare modulo the period.
+    const gap = ((found.periapsisUtcMs - SWIFT_TUTTLE_SAMPLING.periapsisUtcMs) % found.periodMs + found.periodMs) % found.periodMs;
+    expect(Math.min(gap, found.periodMs - gap)).toBeLessThan(2 * 60_000);
+  });
+});
+
+describe("looping playback", () => {
+  const settings = parseShowerSettings(madeUp);
+  const definition = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(999, 100) });
+  const { startUtcMs, endUtcMs } = definition.experience.window;
+  const clockAt = (timeUtcMs: number, rate: number, now: { ms: number }) => {
+    const clock = new SimulationClock(timeUtcMs, () => now.ms);
+    clock.setRate(rate);
+    clock.play();
+    return clock;
+  };
+
+  it("keeps the camera's up at celestial north unless the settings ask for the ecliptic", () => {
+    expect(buildShowerDefinition(parseShowerSettings(madeUp), { kind: "absent" }).viewUp).toBe("equatorial");
+    const up = clone();
+    up.look.viewUp = "ecliptic";
+    expect(buildShowerDefinition(parseShowerSettings(up), { kind: "absent" }).viewUp).toBe("ecliptic");
+    expect(broken((s) => { s.look.viewUp = "sideways"; })).toThrow(/look\.viewUp/);
+    expect(parseShowerSettings(perseidsFile).look.viewUp).toBe("ecliptic");
   });
 
-  it("keeps Earth inside or beside the stream through the whole activity window", () => {
+  it("is off for an experience that does not ask, and on when the shower settings turn it on", () => {
+    expect(buildShowerDefinition(parseShowerSettings(madeUp), { kind: "absent" }).loop).toBe(false);
+    const on = clone();
+    on.look.loop = true;
+    expect(buildShowerDefinition(parseShowerSettings(on), { kind: "absent" }).loop).toBe(true);
+    expect(broken((s) => { s.look.loop = "yes"; })).toThrow(/look\.loop/);
+    expect(loopFromSearch("?loop=on", false)).toBe(true);
+    expect(loopFromSearch("?loop=off", true)).toBe(false);
+    expect(loopFromSearch("", true)).toBe(true);
+  });
+
+  it("wraps past the end to the same phase inside the window, and stops mattering when paused", () => {
+    const now = { ms: 0 };
+    const clock = clockAt(endUtcMs - 1000, 1, now);
+    expect(clock.wrapWithin({ startUtcMs, endUtcMs })).toBe(false);
+    now.ms = 5000;
+    expect(clock.wrapWithin({ startUtcMs, endUtcMs })).toBe(true);
+    expect(clock.now()).toBe(startUtcMs + 4000);
+    now.ms += 10;
+    expect(clock.now()).toBeGreaterThanOrEqual(startUtcMs);
+    expect(clock.now()).toBeLessThanOrEqual(endUtcMs);
+    clock.pause();
+    clock.seek(endUtcMs + 99_000);
+    expect(clock.wrapWithin({ startUtcMs, endUtcMs })).toBe(false);
+    expect(clock.now()).toBe(endUtcMs + 99_000);
+  });
+
+  it("wraps backwards at a negative rate, and without wrapping the clock runs on past the end", () => {
+    const now = { ms: 0 };
+    const back = clockAt(startUtcMs + 1000, -1, now);
+    now.ms = 3000;
+    expect(back.wrapWithin({ startUtcMs, endUtcMs })).toBe(true);
+    expect(back.now()).toBe(endUtcMs - 2000);
+    const plain = clockAt(endUtcMs - 1000, 1, { ms: 0 });
+    const later = { ms: 5000 };
+    const free = clockAt(endUtcMs - 1000, 1, later);
+    expect(plain.now()).toBe(endUtcMs - 1000);
+    expect(free.now()).toBe(endUtcMs - 1000);
+    later.ms = 9000;
+    expect(free.now()).toBe(endUtcMs + 3000);
+  });
+
+  it("draws the stream at the first and last instants of the window, and nothing past the end (the cause of the disappearing stream)", () => {
+    const group = groupsOf(definition)[0].group;
     const out = new Float64Array(3 * group.count);
-    for (const t of [start, peak, end]) {
+    for (const t of [startUtcMs, endUtcMs]) {
       group.fillPositionsKm(t, out);
-      const earth = adapter.earthPositionFromSunKm(t);
-      let nearest = Number.POSITIVE_INFINITY;
-      for (let i = 0; i < group.count; i += 1) {
-        nearest = Math.min(nearest, Math.hypot(out[3 * i] - earth[0], out[3 * i + 1] - earth[1], out[3 * i + 2] - earth[2]));
-      }
-      expect(nearest / AU_KM).toBeLessThan(0.05);
+      expect(out.every(Number.isFinite)).toBe(true);
     }
+    expect(group.bounds).toEqual({ startUtcMs, endUtcMs });
+    expect(() => group.fillPositionsKm(endUtcMs + 1, out)).toThrow();
+  });
+});
+
+describe("the orbit sets", () => {
+  const settings = parseShowerSettings(madeUp);
+  const orbits = madeUpOrbits(999, 200);
+  const rule = settings.stream.quality.rule;
+  // madeUpOrbits: Q is 8 for every 4th member (cut); the velocity error is 9 km/s, over 10% of 59, for every 5th (cut); every 10th is a double entry.
+  const expectedCut = Array.from({ length: 200 }, (_, k) => k).filter((k) => k % 4 === 0 || k % 5 === 0).length;
+
+  it("counts both sets and the double entries, and selects the reliable one in file order", () => {
+    const counts = orbitSetCounts(orbits, rule);
+    expect(counts).toMatchObject({ all: 200, cut: expectedCut, reliable: 200 - expectedCut, pairsFlagged: 20 });
+    expect(counts.pairsFlaggedReliable).toBe(Array.from({ length: 200 }, (_, k) => k).filter((k) => k % 10 === 0 && k % 4 !== 0 && k % 5 !== 0).length);
+    const reliable = selectOrbits(orbits, "reliable", rule);
+    expect(reliable.members).toHaveLength(counts.reliable);
+    expect(reliable.members.every((m) => Number(m.recordId.split("-")[2]) % 4 !== 0 && Number(m.recordId.split("-")[2]) % 5 !== 0)).toBe(true);
+    expect(selectOrbits(orbits, "all", rule)).toBe(orbits);
   });
 
-  it("shows the published peak and a radiant readout in the info panel's data", () => {
+  it("keeps a record that sits exactly on the thresholds, and cuts one just outside", () => {
+    const edge = (q: number, sigma: number) => orbitSetCounts({ ...orbits, members: orbits.members.slice(0, 1), quality: [{ convergenceAngleDeg: q, velocityKmS: 50, velocityErrorKmS: sigma, pairsFlag: 0 }] }, rule).reliable;
+    expect(edge(15, 5)).toBe(1);
+    expect(edge(14.99, 5)).toBe(0);
+    expect(edge(15, 5.01)).toBe(0);
+  });
+
+  it("draws the chosen set, says which, with its count and the cited rule, and offers the other for comparison", () => {
+    const loaded: MeasuredLoad = { kind: "loaded", orbits };
+    const all = buildShowerDefinition(settings, loaded);
+    const reliable = buildShowerDefinition(settings, loaded, "reliable");
+    const counts = orbitSetCounts(orbits, rule);
+    expect(groupsOf(all)[0].group.count).toBe(200);
+    expect(groupsOf(reliable)[0].group.count).toBe(counts.reliable);
+    const text = (groupsOf(reliable)[0].object.knownLimitations ?? []).join(" ");
+    expect(text).toMatch(new RegExp(`Orbit set shown: reliable orbits only \\(${counts.reliable} of 200 bound orbits`));
+    expect(text).toMatch(/convergence angle Q at least 15° and velocity error at most 10% of the geocentric velocity/);
+    expect(text).toMatch(/The cut is published: Made-up rule for the builder test/);
+    expect(text).toMatch(/20 records flagged as double entries are kept in both sets/);
+    expect(orbitSetSentence(settings, "all", counts)).toMatch(/Orbit set shown: all orbits \(200 of 200/);
+    expect(groupsOf(reliable)[0].group.provenance.notes).toMatch(new RegExp(`${counts.reliable} orbits drawn \\(reliable set\\)`));
+    expect(all.alternates?.map((a) => [a.param, a.value, a.active])).toEqual([["orbits", "all", true], ["orbits", "reliable", false]]);
+    expect(reliable.alternates?.map((a) => a.active)).toEqual([false, true]);
+    expect(buildShowerDefinition(settings, { kind: "absent" }).alternates).toBeUndefined();
+  });
+
+  it.each([
+    ["a bad default set", (s: Record<string, any>) => { s.stream.quality.default = "some"; }, /stream\.quality\.default/],
+    ["a missing rule", (s: Record<string, any>) => { delete s.stream.quality.rule; }, /stream\.quality\.rule/],
+    ["a zero error fraction", (s: Record<string, any>) => { s.stream.quality.rule.maxVelocityErrorFraction = 0; }, /maxVelocityErrorFraction/],
+    ["an angle over 90", (s: Record<string, any>) => { s.stream.quality.rule.minConvergenceAngleDeg = 91; }, /minConvergenceAngleDeg/],
+    ["a rule with no quotation", (s: Record<string, any>) => { delete s.stream.quality.rule.quote; }, /stream\.quality\.rule\.quote/],
+  ])("names the field for %s", (_what, change, field) => {
+    expect(broken(change)).toThrow(field);
+  });
+});
+
+describe("the timeline span", () => {
+  const settings = parseShowerSettings(madeUp);
+  it("is the activity window unless the settings ask for a year", () => {
+    expect(settings.timeline.span).toBe("activity");
+    expect(timelineBoundsOf(settings)).toEqual({ startUtcMs: Date.parse(settings.activity.startUtc), endUtcMs: Date.parse(settings.activity.endUtc) });
+  });
+
+  it("is one year centred on the peak for a year, with the stream, the clock and the activity window all inside it", () => {
+    const yearly = clone();
+    yearly.timeline = { span: "year", rateSecondsPerSecond: 604_800 };
+    const parsed = parseShowerSettings(yearly);
+    const { startUtcMs, endUtcMs } = timelineBoundsOf(parsed);
+    expect((endUtcMs - startUtcMs) / DAY_MS).toBeCloseTo(365.256363, 3);
+    const peak = Date.parse(parsed.activity.peakUtc);
+    expect((peak - startUtcMs) / (endUtcMs - startUtcMs)).toBeCloseTo(0.5, 3);
+    const definition = buildShowerDefinition(parsed, { kind: "loaded", orbits: madeUpOrbits(999, 50) });
+    expect(definition.experience.window).toEqual({ startUtcMs, endUtcMs });
+    expect(definition.clock).toEqual({ startUtcMs, rate: 604_800 });
+    expect(definition.experience.rates).toContain(604_800);
+    const group = groupsOf(definition)[0].group;
+    expect(group.bounds).toEqual({ startUtcMs, endUtcMs });
+    const out = new Float64Array(3 * group.count);
+    for (const t of [startUtcMs, peak, endUtcMs]) { group.fillPositionsKm(t, out); expect(out.every(Number.isFinite)).toBe(true); }
     const window = definition.experience.windows![0];
-    expect(rateAt(window, peak)).toBe(settings.activity.peakRate);
-    expect(rateAt(window, start)).toBeLessThan(1);
-    const metrics = definition.createMetrics(runtimeAt(start))(streamIdOf(settings), peak);
-    const radiant = metrics.find((m) => m.kind === "coordinates");
-    expect(radiant?.kind === "coordinates" ? radiant.components?.map((c) => c.value) : null).toEqual([settings.radiant.raDeg, settings.radiant.decDeg]);
-    expect(radiant?.context).toMatch(/Published/);
+    expect(window.startUtcMs).toBe(Date.parse(parsed.activity.startUtc));
+    expect(window.endUtcMs).toBe(Date.parse(parsed.activity.endUtc));
+    expect(rateAt(window, startUtcMs + 5 * DAY_MS)).toBeNull();
+    expect(rateAt(window, peak)).toBeCloseTo(40, 6);
+    expect(definition.experience.events.map((e) => e.timeUtcMs)).toEqual([window.startUtcMs, peak, window.endUtcMs]);
+    expect(Date.parse(parsed.activity.startUtc)).toBeGreaterThan(startUtcMs);
+    expect(Date.parse(parsed.activity.endUtc)).toBeLessThan(endUtcMs);
   });
 
-  it("reads no Moon anywhere: Earth reports its distance from the Sun, the stream reports no distance", () => {
-    const metrics = definition.createMetrics(runtimeAt(start));
-    expect(metrics("earth", peak).map((m) => m.label)).toEqual(["Distance from Sun"]);
-    expect(metrics("sun", peak).map((m) => m.label)).toEqual(["Distance to Earth"]);
-    expect(metrics("moon", peak)).toEqual([]);
-    expect(metrics(streamIdOf(settings), peak).some((m) => /distance/i.test(m.label))).toBe(false);
+  it("names the field for a bad span or rate", () => {
+    expect(broken((s) => { s.timeline = { span: "decade" }; })).toThrow(/timeline\.span/);
+    expect(broken((s) => { s.timeline = { span: "year", rateSecondsPerSecond: 0 }; })).toThrow(/timeline\.rateSecondsPerSecond/);
+    expect(parseShowerSettings(perseidsFile).timeline).toEqual({ span: "year", rateSecondsPerSecond: 604_800 });
+  });
+});
+
+describe("object labels as settings", () => {
+  const settings = parseShowerSettings(madeUp);
+  it("show every label unless the settings file says otherwise, and keep the object listed and selectable", () => {
+    expect(settings.labels).toEqual({});
+    const off = clone();
+    off.labels = { sun: false, earth: true };
+    const parsed = parseShowerSettings(off);
+    const definition = buildShowerDefinition(parsed, { kind: "absent" });
+    const objects = definition.experience.objects;
+    expect(objects.find((o) => o.id === "sun")?.showLabel).toBe(false);
+    expect(objects.find((o) => o.id === "earth")?.showLabel).toBe(true);
+    expect(objects.find((o) => o.id === "mars")?.showLabel).toBeUndefined();
+    expect(objects.map((o) => o.id)).toContain("sun");
+    expect(perseidsFile.labels).toEqual({ sun: false });
+    expect(broken((s) => { s.labels = { sun: "no" }; })).toThrow(/labels\.sun/);
+  });
+
+  it("start from the objects' own settings and take ?labels= over them", () => {
+    const objects = [{ id: "sun", showLabel: false }, { id: "earth", showLabel: true }, { id: "mars" }];
+    expect([...hiddenLabelsFrom("", objects)]).toEqual(["sun"]);
+    expect([...hiddenLabelsFrom("?labels=sun:on,earth:off", objects)]).toEqual(["earth"]);
+    expect([...hiddenLabelsFrom("?labels=mars:off,bad,:on,earth:maybe", objects)].sort()).toEqual(["mars", "sun"]);
   });
 });

@@ -1,0 +1,13 @@
+
+> astraeus-earth-moon-spike@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+
+ Test Files  38 passed (38)
+      Tests  692 passed | 1 skipped (693)
+   Start at  21:08:26
+   Duration  28.40s (tests 68%, transform 16%, import 16%)
+

@@ -23,25 +23,26 @@ describe("texture rights (PROV-02)", () => {
       const texture = catalogue.get(id).visual.texture;
       if (texture !== undefined) textures.push([id, texture]);
     }
-    expect(textures.map(([id]) => id)).toEqual(["earth", "moon", "mercury", "venus", "mars", "io"]);
-    for (const [id, texture] of textures.slice(2, 5)) {
+    expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "io"]);
+    // The Sun's map is from the same Solar System Scope set, so it is licensed like the planets'.
+    for (const [id, texture] of [textures[0], ...textures.slice(3, 6)]) {
       expect(textureRightsProblem(texture), id).toBeNull();
       expect(texture.licence?.licence, id).toBe("CC BY 4.0");
       expect(texture.localOnly, id).toBeUndefined();
     }
     // Io's map is the USGS public-domain mosaic, so it is licensed rather than local-only.
-    const io = textures[5][1];
+    const io = textures[6][1];
     expect(textureRightsProblem(io)).toBeNull();
     expect(io.licence?.licence).toBe("public domain");
     expect(io.localOnly).toBeUndefined();
-    for (const [, texture] of textures.slice(0, 2)) {
+    for (const [, texture] of textures.slice(1, 3)) {
       expect(textureRightsProblem(texture)).toBeNull();
       expect(texture.localOnly?.reason.length).toBeGreaterThan(20);
     }
-    expect(textures[0][1].url).toContain("earth-2k");
-    expect(textures[0][1].localOnly?.publicReplacement).toBe("material-colour");
-    expect(textures[1][1].url).toContain("moon-orig-2k");
-    const moonReplacement = textures[1][1].localOnly?.publicReplacement;
+    expect(textures[1][1].url).toContain("earth-2k");
+    expect(textures[1][1].localOnly?.publicReplacement).toBe("material-colour");
+    expect(textures[2][1].url).toContain("moon-orig-2k");
+    const moonReplacement = textures[2][1].localOnly?.publicReplacement;
     expect(moonReplacement).not.toBe("material-colour");
     expect(typeof moonReplacement === "object" && moonReplacement.licence.licence).toBe("public domain");
   });

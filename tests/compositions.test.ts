@@ -32,6 +32,7 @@ import { TRACK_LAYER, TrackedBodyView } from "../src/app/TrackedBodyView";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
@@ -69,7 +70,7 @@ describe("experience definitions name their compositions", () => {
     ["Apollo", apollo11Definition, true],
     ["synthetic", syntheticDefinition, true],
     ["the ring", syntheticRingDefinition, true],
-    ["a shower", buildShowerDefinition(parseShowerSettings(perseidsFile)), false],
+    ["a shower", buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "loaded", orbits: madeUpOrbits(7, 50) }), false],
     ["bare", syntheticBareDefinition, false],
     ["the belt", syntheticBeltDefinition, false],
   ];
@@ -119,10 +120,11 @@ describe("Apollo's framing numbers come out of the body definitions exactly", ()
     expect(focusRadius("columbia", policy)).toBe(0);
   });
 
-  it("treats the Sun as a point, and the centre body of another scene as the whole-scene body", () => {
+  it("keeps the camera outside the Sun's drawn sphere (T-038: it is emissive with a true radius), and treats the centre body of another scene as the whole-scene body", () => {
     const frame = { centre: "sun", span: 23_455 };
-    expect(focusLimits("sun", frame, trueScale, {}).min).toBe(0.002);
-    expect(defaultDistance("sun", frame, trueScale)).toBe(0.3);
+    expect(focusLimits("sun", frame, trueScale, {}).min).toBeCloseTo((695_700 / catalogue.get("earth").definition.radiusKm) * 1.15, 9);
+    // The scene frames the Sun by its paths' reach (it is marker-kind), so this default is not what the camera uses for it.
+    expect(defaultDistance("sun", frame, trueScale)).toBe(Math.max(3.2, 23_455 * 2.4));
     expect(focusLimits("earth", frame, trueScale, {}).min).toBe(1.6);
     expect(defaultDistance("earth", frame, trueScale)).toBe(4);
     const moonCentred = { centre: "moon", span: 60 };

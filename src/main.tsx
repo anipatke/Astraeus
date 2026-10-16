@@ -9,7 +9,9 @@ import { syntheticBeltDefinition, syntheticRingDefinition } from "./synthetic/sy
 import { syntheticEccentricDefinition } from "./synthetic/syntheticEccentricDefinition";
 import { syntheticListedDefinition } from "./synthetic/syntheticListedDefinition";
 import { buildShowerDefinition, showerEntryName } from "./experiences/showers/showerDefinition";
-import { parseShowerSettings } from "./experiences/showers/showerSettings";
+import { loadMeasuredOrbits } from "./experiences/showers/measuredOrbits";
+import { parseShowerSettings, type ShowerSettings } from "./experiences/showers/showerSettings";
+import type { ExperienceDefinition } from "./app/experienceDefinition";
 import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
@@ -21,7 +23,18 @@ const SHOWER_FILES = import.meta.glob<unknown>("../data/showers/*.json", { eager
 const showerSettingsByName = new Map(Object.entries(SHOWER_FILES).map(([path, json]) => [`shower-${showerEntryName(path)}`, json]));
 const requested = new URLSearchParams(window.location.search).get("experience") ?? "";
 const showerSettings = showerSettingsByName.get(requested);
-const definition = showerSettings !== undefined
-  ? buildShowerDefinition(parseShowerSettings(showerSettings))
-  : Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested as keyof typeof DEFINITIONS] : apollo11Definition;
-createRoot(app).render(<StrictMode><App definition={definition} /></StrictMode>);
+// A shower's measured orbits are a locally fetched file (tools/data/fetch-meteoroid-orbits.mjs), so a shower is built once that has been looked for.
+async function chooseDefinition(): Promise<ExperienceDefinition> {
+  if (showerSettings !== undefined) {
+    const parsed = parseShowerSettings(showerSettings);
+    // ?span=activity|year overrides the settings file's timeline span, for comparison.
+    const span = new URLSearchParams(window.location.search).get("span");
+    const settings: ShowerSettings = span === "activity" || span === "year" ? { ...parsed, timeline: { ...parsed.timeline, span } } : parsed;
+    // ?orbits=all|reliable picks the orbit set; the settings file's own choice otherwise.
+    const orbits = new URLSearchParams(window.location.search).get("orbits");
+    const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
+    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode), set);
+  }
+  return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested as keyof typeof DEFINITIONS] : apollo11Definition;
+}
+void chooseDefinition().then((definition) => createRoot(app).render(<StrictMode><App definition={definition} /></StrictMode>));
