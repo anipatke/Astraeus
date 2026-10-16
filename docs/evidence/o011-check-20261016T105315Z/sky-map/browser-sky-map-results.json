@@ -1,0 +1,44 @@
+{
+  "base": "http://localhost:5450/app.html",
+  "views": {
+    "perseids-overview-eso": {
+      "requested": "eso",
+      "reported": "eso",
+      "file": "perseids-overview-eso.png",
+      "devicePixelRatio": 1,
+      "crop": null
+    },
+    "sagittarius-patch-eso": {
+      "requested": "eso",
+      "reported": "eso",
+      "file": "sagittarius-patch-eso.png",
+      "devicePixelRatio": 2,
+      "crop": {
+        "x": 190,
+        "y": 135,
+        "width": 900,
+        "height": 400
+      }
+    },
+    "perseids-overview-nasa": {
+      "requested": "nasa",
+      "reported": "nasa",
+      "file": "perseids-overview-nasa.png",
+      "devicePixelRatio": 1,
+      "crop": null
+    },
+    "sagittarius-patch-nasa": {
+      "requested": "nasa",
+      "reported": "nasa",
+      "file": "sagittarius-patch-nasa.png",
+      "devicePixelRatio": 2,
+      "crop": {
+        "x": 190,
+        "y": 135,
+        "width": 900,
+        "height": 400
+      }
+    }
+  },
+  "consoleErrors": []
+}

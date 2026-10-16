@@ -1,0 +1,128 @@
+{
+  "rows": [
+    {
+      "name": "earth-moon-moon-d3",
+      "litPixels": 83555,
+      "meanAbsDiff": 7.171862844832745,
+      "maxChannelDiff": 28,
+      "fractionOver8": 0.4496200107713482,
+      "meanBrightnessPerBody": 9.169187500006512,
+      "meanBrightnessSingleSun": 10.634928710937775,
+      "control": {
+        "sunLight": "1.4,0.08",
+        "meanAbsDiff": 0.0009002700810243073,
+        "maxChannelDiff": 1,
+        "fractionOver8": 0
+      }
+    },
+    {
+      "name": "earth-moon-moon-d10",
+      "litPixels": 223653,
+      "meanAbsDiff": 12.92204441702101,
+      "maxChannelDiff": 27,
+      "fractionOver8": 0.7701752268022338,
+      "meanBrightnessPerBody": 19.05609928385413,
+      "meanBrightnessSingleSun": 21.904879231766206,
+      "control": {
+        "sunLight": "1.4,0.08",
+        "meanAbsDiff": 0.009076673511678715,
+        "maxChannelDiff": 25,
+        "fractionOver8": 0.0003234971447860699
+      }
+    },
+    {
+      "name": "earth-moon-moon-d17",
+      "litPixels": 215122,
+      "meanAbsDiff": 12.43134128541014,
+      "maxChannelDiff": 28,
+      "fractionOver8": 0.7686289640297134,
+      "meanBrightnessPerBody": 17.094966471355864,
+      "meanBrightnessSingleSun": 19.811849934900295,
+      "control": {
+        "sunLight": "1.4,0.08",
+        "meanAbsDiff": 0.0012179725213516525,
+        "maxChannelDiff": 1,
+        "fractionOver8": 0
+      }
+    },
+    {
+      "name": "earth-moon-moon-d24",
+      "litPixels": 87219,
+      "meanAbsDiff": 6.811130602277027,
+      "maxChannelDiff": 28,
+      "fractionOver8": 0.44461642532017104,
+      "meanBrightnessPerBody": 9.326488606776495,
+      "meanBrightnessSingleSun": 10.830505533855414,
+      "control": {
+        "sunLight": "1.4,0.08",
+        "meanAbsDiff": 0.0006312816679126173,
+        "maxChannelDiff": 1,
+        "fractionOver8": 0
+      }
+    },
+    {
+      "name": "earth-moon-earth-d3",
+      "litPixels": 39135,
+      "meanAbsDiff": 0,
+      "maxChannelDiff": 0,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 6.2888056640621235,
+      "meanBrightnessSingleSun": 6.2888056640621235
+    },
+    {
+      "name": "earth-moon-earth-d17",
+      "litPixels": 38991,
+      "meanAbsDiff": 0.000025646944166602548,
+      "maxChannelDiff": 1,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 6.35889420572916,
+      "meanBrightnessSingleSun": 6.358893880208327
+    },
+    {
+      "name": "jupiter-io-io-d0.1",
+      "litPixels": 103717,
+      "meanAbsDiff": 0.000318173491327362,
+      "maxChannelDiff": 1,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 11.30237988281358,
+      "meanBrightnessSingleSun": 11.302362955730253
+    },
+    {
+      "name": "jupiter-io-io-d0.9",
+      "litPixels": 182739,
+      "meanAbsDiff": 0.00027361428047652665,
+      "maxChannelDiff": 1,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 16.648607747396024,
+      "meanBrightnessSingleSun": 16.64858593750019
+    },
+    {
+      "name": "jupiter-io-io-d5",
+      "litPixels": 46234,
+      "meanAbsDiff": 0,
+      "maxChannelDiff": 0,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 8.852639322916982,
+      "meanBrightnessSingleSun": 8.852639322916982
+    },
+    {
+      "name": "jupiter-io-jupiter-d0.1",
+      "litPixels": 44608,
+      "meanAbsDiff": 0.0039006456241032997,
+      "maxChannelDiff": 1,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 6.763544270832996,
+      "meanBrightnessSingleSun": 6.763475911457995
+    },
+    {
+      "name": "jupiter-io-jupiter-d0.9",
+      "litPixels": 44701,
+      "meanAbsDiff": 0.004474172837296704,
+      "maxChannelDiff": 1,
+      "fractionOver8": 0,
+      "meanBrightnessPerBody": 6.8008681640623,
+      "meanBrightnessSingleSun": 6.800794596353962
+    }
+  ],
+  "errors": []
+}
