@@ -91,17 +91,15 @@ export function earthEcliptic(adapter: AstronomyAdapter, toEqj: ArrayLike<number
   return { position, velocity: [0, 1, 2].map((k) => (after[k] - before[k]) / 7200) as [number, number, number] };
 }
 
-const PRECESSION_ARCSEC_PER_JULIAN_CENTURY = 5028.796195; // general precession in longitude (IAU 2006 / Capitaine et al. 2003), rounded
-const J2000_UTC_MS = Date.UTC(2000, 0, 1, 12);
-
 /**
- * The Sun's apparent ecliptic longitude of date, degrees: Earth's heliocentric longitude (J2000 ecliptic) plus 180 degrees, plus general precession
- * since J2000. Aberration (-20.5 arcsec) and nutation (under 20 arcsec) are not applied: together under 0.01 deg, about 15 minutes of Earth's motion.
+ * The Sun's geometric ecliptic longitude in the J2000.0 ecliptic and equinox, degrees: Earth's heliocentric longitude (J2000 ecliptic) plus 180 degrees.
+ * CONVENTION (I-027): the IAU MDC peak solar longitudes ("All records on J2000") and the CAMS solar longitudes are J2000.0 values, so they are compared
+ * with this J2000 longitude. Do NOT add general precession (about 1.397 deg per century, 0.37 deg in 2027): that gives the longitude of date, which is a
+ * different quantity and put the peak instants about 9 h early. Aberration (-20.5 arcsec) and nutation are not applied: under 0.01 deg, about 15 minutes.
  */
 export function solarLongitudeDeg(adapter: AstronomyAdapter, toEqj: ArrayLike<number>, timeUtcMs: number): number {
   const [x, y] = applyTransposed(toEqj, adapter.earthPositionFromSunKm(Math.round(timeUtcMs)));
-  const centuries = (timeUtcMs - J2000_UTC_MS) / (36_525 * 86_400_000);
-  const lambda = Math.atan2(y, x) / RAD + 180 + (PRECESSION_ARCSEC_PER_JULIAN_CENTURY * centuries) / 3600;
+  const lambda = Math.atan2(y, x) / RAD + 180;
   return ((lambda % 360) + 360) % 360;
 }
 

@@ -2,8 +2,7 @@
 id: T-039
 title: Add the Geminids with a settings file and no code
 objective: O-011
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-038, requires: clear}, {task: T-055, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o011-plan-2026-10-11}
@@ -88,6 +87,38 @@ Per-criterion: 1 met (facts and CAMS subset present, no member invented). 2 diff
 
 Limitations: the stream-near-Earth check, desktop and phone runs and the panel readouts were not reached. browser-showers.mjs hard-codes Perseid values (for example 140.1 deg) and may need parameterising; unverified because it never got that far. geminids.json is left in the tree and ?experience=shower-geminids errors until Phaethon is catalogued.
 
+### Second attempt, after T-055 (2026-10-16): PASS (configuration only)
+
+The first attempt's FINDING above stands as the record for that attempt. After T-055 (1734bd8, C-032 CLEAR) `data/showers/geminids.json` defines Phaethon with `parentElements`, and the diff against HEAD is that one file (`git diff --stat`: data/showers/geminids.json, 2 insertions, 2 deletions; nothing else outside .savepoint/ and docs/evidence/). No code, test or script edit.
+
+Peak instant (criterion fix): the earlier 2026-12-14T00:00:00Z had solar longitude 261.99 deg against the IAU MDC 261.6 deg (0.39 deg off, outside the strict 0.3 deg check). Now `peakUtc` = 2026-12-13T14:48:22Z. Method: the Astronomical Almanac low-precision solar longitude (n days from J2000.0; L = 280.460 + 0.9856474 n; g = 357.528 + 0.9856003 n; lambda = L + 1.915 sin g + 0.020 sin 2g), the same formula browser-showers.mjs and T-038 use for Perseids, solved by bisection for 261.6 deg between 2026-12-10 and 2026-12-18 (result 261.59999 deg at that second). The engine's Earth ephemeris was not used. Caveat: the formula is the mean equinox of date, which differs from J2000 by about 0.36 deg in 2026, so a pure J2000 longitude would put the peak about 8.7 h later (near Dec 14 00:00Z); the instant above follows T-038's convention, which is what the strict check measures. The window (Dec 4 to Dec 18 00:00Z) and ZHR 150 stay as the AMS states them, labelled AMS; the peak is inside the window. The radiant source text in the file records that the peak instant is computed, not published.
+
+Geminid facts and sources (all in geminids.json, accessed 2026-10-16): Phaethon elements from JPL SBDB (solution SB441-N16 of 2026-10-15, epoch JD 2461200.5 TDB; a 1.271464620766258 AU, e 0.8896722843984632); radiant RA 113.0, Dec +32.4 (J2000) and peak solar longitude 261.6 from the IAU MDC (streamestablisheddata2026.txt, Geminids GEM, IAU number 4, parameter set AdNo 8, Jenniskens 2023); window Dec 4-17, peak night Dec 13-14 and ZHR 150 from the AMS Meteor Shower Calendar 2026 (not IMO; IMO not consulted). CAMS IAU 4, fetched with the unchanged tool: 14905 records, 32 unbound dropped, 14873 bound and drawn ("all"), 12439 in the reliable set (the panel in the browser run states 14873 of 14873 and 12439, cuts 2434; 164 pairs flagged, 138 in the reliable set).
+
+Browser: strict `node tools/validate/browser-showers.mjs` (no ASTRAEUS_SOFT_PEAK), vite on 5199 (stopped afterwards), evidence directory docs/evidence/o011-t039-20261016T053602Z/. The run over every shower started 2026-10-16T05:36:02Z, passed Geminids (run.log; screenshots in geminids/) and was cut by my 580 s command timeout while Perseids ran; Perseids was then run alone to completion (run-perseids.log, screenshots in perseids/). Both: no assertion failure, `"errors": []`, desktop and phone. Geminids crossing: peak instant 2026-12-13T14:48:22Z, solar longitude 261.6, difference 0 deg. Perseids crossing difference -0.047 deg.
+
+Radiant/peak cross-check: the script's checks ran on IAU 4 without any code change (the radiant readout, the peak solar longitude check and the factual checks all read the settings file); they passed.
+
+Gates: `npx tsc --noEmit` clean; `npm run build` built; `npx vitest run` 41 files, 783 passed, 1 skipped on a clean run. Two other full runs each failed one test, tests/listedOrbitGroup.test.ts "fills 30,000 members inside the frame budget" (a timing test from T-052), once while the machine was busy; no test or code relates to this Task's change. Limitation: that flake is unexplained beyond load; I did not rerun it in isolation.
+
+### Attempt 2b, corrected peak (2026-10-16, after I-027): PASS (configuration only)
+
+Attempt 2's PASS stands as configuration only, with the peak corrected. The IAU MDC solar longitudes are J2000 ("All records on J2000"); the 2026-12-13T14:48:22Z above used the equinox-of-date formula and is 261.23 deg in J2000, so it was wrong. This supersedes the peak instant, method and caveat in the attempt 2 paragraph above; I-027 repaired the convention in tests/helpers/streamFacts.ts and tools/validate/browser-showers.mjs.
+
+Peak: `activity.peakUtc` = 2026-12-13T23:31:44Z. Method: `timeOfSolarLongitude` from tests/helpers/streamFacts.ts (bisection on the engine's Earth ephemeris, geometric J2000 ecliptic longitude, no general precession added) for 261.6 deg between 2026-12-10 and 2026-12-18, run from a scratch test file that I deleted afterwards (no code left behind). Result 2026-12-13T23:31:44.418Z; at the whole second 23:31:44Z the longitude is 261.59999 deg. This matches the repair builder's estimate. The source text in geminids.json states this method and the of-date wording is gone. Window and ZHR are unchanged AMS values (labelled AMS); the peak is inside the window.
+
+Browser, strict (no ASTRAEUS_SOFT_PEAK), vite on 5199 (stopped afterwards), new directory docs/evidence/o011-t039-20261016T062113Z/: Geminids `node tools/validate/browser-showers.mjs geminids`, started 2026-10-16T06:21:13Z, exit 0 (run-geminids.log, geminids/); crossing difference -0.007 deg at 2026-12-13T23:31:44Z. Perseids run separately, exit 0 (run-perseids.log, perseids/, finished 06:33Z); peak 2027-08-13T10:41:18Z, difference -0.006 deg.
+
+Gates: `npx tsc --noEmit` clean; `npm run build` built; `npx vitest run` 42 files, 786 passed, 1 skipped (the I-027 test file is among them).
+
+Diff: this Task changes only data/showers/geminids.json outside .savepoint/ and docs/evidence/ (2 insertions, 2 deletions against HEAD: peakUtc and the activity source text). The other working-tree changes (data/showers/perseids.json, docs/ASTRONOMY_VALIDATION.md, tests/helpers/streamFacts.ts, tools/validate/browser-showers.mjs, tests/solarLongitudeConvention.test.ts, the Horizons fixture, I-027) belong to I-027, not this Task.
+
+Radiant and peak-distance figures: not computed. tests/showersMeasured.test.ts (DW2) hard-codes Perseid values (solar longitude 140.1, RA 47.9, Dec 57.9, orbit file 7), so running it on IAU 4 needs a test edit, which this Task forbids. The shared helpers in tests/helpers/streamFacts.ts are generic. The browser script's own radiant and peak checks did run on the Geminids and passed.
+
+## Completion
+
+Task Check C-033 CLEAR, 2026-10-16T06:45Z. Owner validation not required. `status: done` was set by the O-011 orchestrator under the owner's delegation ("You may mark a task Done after a satisfactory check, except tasks that need my look"). Actor {role: owner-delegate, session: o011-orchestrator-check-20261013}.
+
 ## Drift Notes
 
 Record the PASS or FINDING here for T-040 and O-012.
@@ -101,3 +132,16 @@ Amended in planning: "configuration only" now means a settings file plus its mea
 ## Replan — 2026-10-16T03:42:02Z (T-039 FINDING)
 
 The FINDING above (parent 3200 Phaethon not catalogued) went to the owner. Owner decision (AskUserQuestion): "Let settings define a body (Recommended)". T-055 adds that generic capability and parameterises the browser shower script. T-039 now depends on T-055 and resumes after it, still writing only `data/showers/geminids.json`. The FINDING stays recorded as this spike's result for the first attempt, and the second attempt's PASS or FINDING is recorded separately.
+
+## Drift Notes, second attempt
+
+- Result: PASS (configuration only) after T-055; the first attempt's FINDING stands.
+- A time-window shower's peak must be computed from its published solar longitude with the formula the browser check uses; a calendar night (Dec 13-14) gives an instant up to 0.4 deg off. Possible Design note for the integration Task: peak instants are derived values and the settings file should say so (done here in the radiant source text).
+- The Astronomical Almanac formula is the equinox of date; the IAU MDC states radiants in J2000 and does not say which equinox its solar longitude uses. Unresolved; the convention is T-038's.
+- tests/listedOrbitGroup.test.ts frame-budget test is load sensitive (failed in 2 of 4 full runs here). Candidate Issue for the owner; I created none.
+- Browser script runtime: the all-shower run takes over 9 minutes for two showers, longer than a 10 minute command limit when three are added.
+
+## Drift Notes, attempt 2b
+
+- I-027: the IAU MDC solar longitude is J2000; comparing it with an equinox-of-date formula put attempt 2's peak about 9 h early (261.23 deg in J2000). Superseded: the Drift Notes above that call the equinox of date an unresolved convention are answered by I-027 (J2000 with J2000, no general precession).
+- The Geminid radiant/peak-distance cross-check (the DW2 style test) is not shower-generic: tests/showersMeasured.test.ts is Perseid-only. A generic version is a follow-up for the owner or O-012; I created nothing.

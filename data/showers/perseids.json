@@ -64,13 +64,13 @@
   "activity": {
     "startUtc": "2027-07-17T00:00:00Z",
     "endUtc": "2027-08-25T00:00:00Z",
-    "peakUtc": "2027-08-13T00:00:00Z",
+    "peakUtc": "2027-08-13T10:41:18Z",
     "peakPublishedNight": "Aug 12-13, 2027",
     "peakRate": 100,
     "rateUnit": "meteors per hour (ZHR)",
     "fallOffPerDay": 0.1,
     "source": {
-      "name": "American Meteor Society, Meteor Shower Calendar 2026/2027: Perseids active Jul 17 - Aug 24, peak night Aug 12-13, ZHR 100 (not the IMO figure)",
+      "name": "American Meteor Society, Meteor Shower Calendar 2026/2027: Perseids active Jul 17 - Aug 24, peak night Aug 12-13, ZHR 100 (not the IMO figure). The peak instant (I-027) is the moment the Sun's geometric longitude in the J2000.0 ecliptic and equinox is 140.1 deg, the IAU MDC peak solar longitude (\"All records on J2000\"; radiant.peakSolarLongitudeDeg), found by bisection on the engine ephemeris with no general precession added: 2027-08-13T10:41:18Z. The rate profile is the same peakRate and fallOffPerDay about that instant",
       "url": "https://www.amsmeteors.org/calendar/",
       "accessed": "2026-10-11"
     }

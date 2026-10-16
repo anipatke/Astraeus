@@ -102,13 +102,13 @@
   "activity": {
     "startUtc": "2026-12-04T00:00:00Z",
     "endUtc": "2026-12-18T00:00:00Z",
-    "peakUtc": "2026-12-14T00:00:00Z",
+    "peakUtc": "2026-12-13T23:31:44Z",
     "peakPublishedNight": "Dec 13-14, 2026",
     "peakRate": 150,
     "rateUnit": "meteors per hour (ZHR)",
     "fallOffPerDay": 0.1,
     "source": {
-      "name": "American Meteor Society, Meteor Shower Calendar 2026: Geminids active Dec 4-17, peak night Dec 13-14, ZHR 150, parent 3200 Phaethon (not the IMO figure; IMO site not consulted)",
+      "name": "American Meteor Society, Meteor Shower Calendar 2026: Geminids active Dec 4-17, peak night Dec 13-14, ZHR 150, parent 3200 Phaethon (not the IMO figure; IMO site not consulted). The peak instant (I-027) is the moment the Sun's geometric longitude in the J2000.0 ecliptic and equinox is 261.6 deg, the IAU MDC peak solar longitude (\"All records on J2000\"; radiant.peakSolarLongitudeDeg), found by bisection on the engine ephemeris with no general precession added: 2026-12-13T23:31:44Z. The rate profile is the same peakRate and fallOffPerDay about that instant",
       "url": "https://www.amsmeteors.org/calendar/",
       "accessed": "2026-10-16"
     }

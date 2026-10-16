@@ -38,7 +38,7 @@
 //     the comet and the planets are visible with labels ......... checkBodies: over a zoom sweep every body's label is shown, the planets and Earth draw as markers at
 //                                                                 true scale and Earth and at least two other planets draw as bodies under the solar-system scale
 //     the comet's whole orbit is drawn and the preset frames it .. checkWholeOrbit: the "Whole orbit" preset leaves the violet orbit spanning most of the canvas
-//     the crossing is at the peak ................................ checkCrossing: the instant the peak marker seeks to has solar longitude 140.1 (low-precision
+//     the crossing is at the peak ................................ checkCrossing: the instant the peak marker seeks to has solar longitude 140.1 (J2000; low-precision
 //                                                                 almanac formula, written here) within 0.3 deg, and the rate readout peaks there
 //     no data, no stream ........................................ checkNotFetched: with the orbit file blocked the stream is not drawn and its panel says "not fetched"
 //     loops at the end (owner 2026-10-15) ....................... checkLoop: playing past the end wraps the time back inside the window and dots are still drawn; checkLoopOff: ?loop=off runs past the end and the stream is gone
@@ -491,12 +491,16 @@ async function checkWholeOrbit(page, label, shot, canvas) {
   await shot("whole-orbit");
 }
 
-// The sun's apparent longitude by the Astronomical Almanac's low-precision formula (about 0.01 deg), written here so the check does not share the app's ephemeris.
+// The Sun's longitude in the J2000.0 ecliptic and equinox. CONVENTION (I-027): the IAU MDC peak solar longitudes ("All records on J2000") are J2000 values. The
+// Astronomical Almanac's low-precision formula (about 0.01 deg, written here so the check does not share the app's ephemeris) gives the longitude OF DATE, so general
+// precession since J2000 (5028.796195 arcsec per Julian century, IAU 2006 / Capitaine et al. 2003) is subtracted to compare J2000 with J2000.
 const solarLongitudeDeg = (timeUtcMs) => {
   const n = timeUtcMs / 86_400_000 + 2_440_587.5 - 2_451_545.0;
   const meanLongitude = 280.460 + 0.9856474 * n;
   const g = ((357.528 + 0.9856003 * n) * Math.PI) / 180;
-  return (((meanLongitude + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) % 360) + 360) % 360;
+  const ofDate = meanLongitude + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
+  const precessionDeg = (5028.796195 * (n / 36_525)) / 3600;
+  return (((ofDate - precessionDeg) % 360) + 360) % 360;
 };
 
 // The crossing is at the peak: the instant the peak marker seeks to is where the Sun's longitude is the published peak solar longitude (settings radiant.peakSolarLongitudeDeg), and the rate readout is highest there.
