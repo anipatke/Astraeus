@@ -1,0 +1,9 @@
+== typecheck
+
+exit 0
+== vitest
+ Test Files  49 passed (49)
+      Tests  906 passed | 1 skipped (907)
+== public build
+exit 0
+assets exit 0
