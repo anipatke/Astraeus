@@ -60,6 +60,13 @@ Built in a worktree-free lane without router writes. Evidence dir: docs/evidence
 - Gates: typecheck pass, vitest 894 passed, public build pass, public-build-assets.mjs no matches.
 - Extra read: src/app/viewLink.ts, src/app/experienceDefinition.ts, src/shell (selectors), apollo11Definition.tsx (startView lives there, not apollo11.ts).
 
+### 2026-10-16 (UTC 16:14) Capture script now builds and serves itself (Done When 1)
+- tools/validate/capture-site-pictures.mjs: by default runs `ASTRAEUS_PUBLIC_BUILD=1 npm run build` (normal dist), starts `node_modules/.bin/vite preview --port 5406 --strictPort`, waits until app.html answers, captures, and stops the server in `finally`, on exit and on SIGINT/SIGTERM. `ASTRAEUS_PORT` changes the port. `ASTRAEUS_URL=<base>` skips build+serve but exits 1 unless app.html does not load `/@vite/client` (the dev server's marker) and loads a built `/assets/*.js` script. It cannot tell a public build from a plain production build (no public-only marker exists while LOCAL_ONLY_TEXTURES is empty). Header usage updated; no README text described running it.
+- Run, no ASTRAEUS_URL, ASTRAEUS_OUT=docs/evidence/o016-t063-capture-20261016T161406Z/pictures, no share dir: exit 0, 0 console/page errors, five pictures written. Evidence: docs/evidence/o016-t063-capture-20261016T161406Z/capture.log, capture-log.json.
+- Refusal: dev server on 5416, `ASTRAEUS_URL=http://localhost:5416`: exit 1 with "is a dev server (app.html loads /@vite/client)", nothing captured. Evidence: docs/evidence/o016-t063-capture-20261016T161406Z/refusal.log, devserver.log (server stopped; 5406 and 5416 free afterwards).
+- Compared with site/*.jpg: apollo-moon and perseids-gmn pixel-identical (RMSE 0); apollo-provenance RMSE 0.0003 and apollo-phone 0.0023 (normalised), same framing, tiny render noise. See docs/evidence/o016-t063-capture-20261016T161406Z/compare-sheet.png. site/ and public/share untouched by this run.
+- Gates: typecheck pass; savepoint resume loads.
+
 ## Drift Notes
 
 None yet.

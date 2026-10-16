@@ -1,13 +1,16 @@
 // Re-shoots every picture on the pitch page, the assets page and the README from the PUBLIC build, at fixed times, views and viewports,
-// so the same tree gives the same pictures. It builds nothing and serves nothing: build and serve first, then run.
+// so the same tree gives the same pictures. By default it does everything itself: it runs `ASTRAEUS_PUBLIC_BUILD=1 npm run build`,
+// starts `vite preview` on a free port (5406 by default, --strictPort), waits until it answers, captures, and always stops the server.
 //
-//   ASTRAEUS_PUBLIC_BUILD=1 npm run build
-//   npx vite preview --port 5406 --strictPort &
-//   ASTRAEUS_URL=http://localhost:5406 ASTRAEUS_OUT=site ASTRAEUS_SHARE_DIR=public/share \
+//   ASTRAEUS_OUT=site ASTRAEUS_SHARE_DIR=public/share \
 //     PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js \
 //     node tools/validate/capture-site-pictures.mjs
 //
-// ASTRAEUS_URL        base of the public preview (default http://localhost:5406); the script opens <base>/app.html.
+// ASTRAEUS_URL        opt-out: base of an already-running preview (e.g. http://localhost:5406). The script then neither builds nor serves, and
+//                     refuses (exit 1) unless that site is a production build: app.html must not load /@vite/client (the dev server's
+//                     marker) and must load a built /assets/ script. It cannot tell a public build from a plain production build; build the
+//                     preview with ASTRAEUS_PUBLIC_BUILD=1 yourself.
+// ASTRAEUS_PORT       port for the preview the script starts (default 5406). Ignored when ASTRAEUS_URL is set.
 // ASTRAEUS_OUT        directory that receives apollo-moon.jpg, apollo-provenance.jpg, apollo-phone.jpg, perseids-gmn.jpg and readme/perseids-year.gif
 //                     (default site). Pass a scratch directory to keep the committed pictures untouched.
 // ASTRAEUS_SHARE_DIR  optional: also writes the og:image copy (apollo-moon.jpg) there (the site uses public/share).
@@ -15,18 +18,52 @@
 // ASTRAEUS_ONLY      comma list of picture groups to shoot: apollo, perseids (default both).
 // ASTRAEUS_FRAMES     GIF frame count (default 40).
 // Converters: ffmpeg (PNG to JPEG, frames to GIF). The capture log is printed, and written as JSON to ASTRAEUS_LOG when that is set. Exits non-zero on any console or page error.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
-const base = (process.env.ASTRAEUS_URL ?? "http://localhost:5406").replace(/\/$/, "").replace(/\/app\.html$/, "");
+const externalUrl = process.env.ASTRAEUS_URL;
+const port = Number(process.env.ASTRAEUS_PORT ?? 5406);
+const base = (externalUrl ?? `http://localhost:${port}`).replace(/\/$/, "").replace(/\/app\.html$/, "");
 const out = process.env.ASTRAEUS_OUT ?? "site";
 const shareDir = process.env.ASTRAEUS_SHARE_DIR;
 const frames = Number(process.env.ASTRAEUS_FRAMES ?? 40);
 const raw = process.env.ASTRAEUS_RAW_DIR ?? mkdtempSync(join(tmpdir(), "astraeus-pictures-"));
+
+function fail(message) { console.error(`capture-site-pictures: ${message}`); process.exit(1); }
+
+/** A production build's app.html loads hashed /assets/ scripts and never the dev server's /@vite/client. */
+async function requireProductionBuild(url) {
+  let html;
+  try { const response = await fetch(`${url}/app.html`); if (!response.ok) fail(`${url}/app.html answered ${response.status}.`); html = await response.text(); }
+  catch (error) { fail(`cannot reach ${url}/app.html (${error.message}).`); }
+  if (html.includes("/@vite/client")) fail(`${url} is a dev server (app.html loads /@vite/client), not a production build. Build with ASTRAEUS_PUBLIC_BUILD=1 npm run build and use vite preview, or unset ASTRAEUS_URL so this script builds and serves.`);
+  if (!/<script[^>]+src="[^"]*\/assets\/[^"]+\.js"/.test(html)) fail(`${url}/app.html loads no built /assets/ script, so it is not a production build.`);
+}
+
+let server;
+const stopServer = () => { if (server && server.exitCode === null) server.kill("SIGTERM"); };
+process.on("exit", stopServer);
+for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => process.exit(130));
+if (externalUrl !== undefined) {
+  await requireProductionBuild(base);
+} else {
+  console.log("building: ASTRAEUS_PUBLIC_BUILD=1 npm run build");
+  try { execFileSync("npm", ["run", "build"], { stdio: "inherit", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1" } }); }
+  catch { fail("the public build failed."); }
+  server = spawn(join("node_modules", ".bin", "vite"), ["preview", "--port", String(port), "--strictPort", "--host", "localhost"], { stdio: ["ignore", "inherit", "inherit"] });
+  let ready = false;
+  for (let k = 0; k < 60 && !ready && server.exitCode === null; k += 1) {
+    try { ready = (await fetch(`${base}/app.html`)).ok; } catch { /* not up yet */ }
+    if (!ready) await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  if (!ready) fail(`vite preview did not answer on ${base} (port busy or failed to start).`);
+  await requireProductionBuild(base);
+}
+
 mkdirSync(raw, { recursive: true });
 mkdirSync(join(out, "readme"), { recursive: true });
 if (shareDir !== undefined) mkdirSync(shareDir, { recursive: true });
@@ -186,6 +223,7 @@ try {
   }
 } finally {
   await browser.close();
+  stopServer();
   if (process.env.ASTRAEUS_RAW_DIR === undefined && existsSync(raw)) rmSync(raw, { recursive: true, force: true });
 }
 

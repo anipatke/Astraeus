@@ -1,0 +1,2 @@
+capture-site-pictures: http://localhost:5416 is a dev server (app.html loads /@vite/client), not a production build. Build with ASTRAEUS_PUBLIC_BUILD=1 npm run build and use vite preview, or unset ASTRAEUS_URL so this script builds and serves.
+exit 1
