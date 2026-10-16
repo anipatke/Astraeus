@@ -1,0 +1,9 @@
+I-028 repair run 20261016T071739Z; vite :5199
+sky | exit=0 | start=2026-10-16T07:17:39Z end=2026-10-16T07:21:49Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/sky node tools/validate/browser-sky.mjs
+earth-moon | exit=0 | start=2026-10-16T07:21:49Z end=2026-10-16T07:22:10Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/earth-moon node tools/validate/browser-earth-moon.mjs
+jupiter-io | exit=0 | start=2026-10-16T07:22:10Z end=2026-10-16T07:22:40Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/jupiter-io node tools/validate/browser-jupiter-io.mjs
+spike02 | exit=0 | start=2026-10-16T07:22:40Z end=2026-10-16T07:24:51Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/spike02 node tools/validate/browser-spike02.mjs
+synthetic-belt | exit=0 | start=2026-10-16T07:24:51Z end=2026-10-16T07:27:03Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/synthetic-belt node tools/validate/browser-synthetic-belt.mjs
+showers-perseids | exit=0 | start=2026-10-16T07:27:12Z end=2026-10-16T07:32:59Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/showers-perseids node tools/validate/browser-showers.mjs perseids
+showers-geminids | exit=1 | start=2026-10-16T07:32:59Z end=2026-10-16T07:35:43Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/showers-geminids node tools/validate/browser-showers.mjs geminids
+showers-geminids (rerun, plain-load floor 50) | exit=0 | start=2026-10-16T07:36:09Z end=2026-10-16T07:42:40Z | cmd: ASTRAEUS_EVIDENCE_DIR=docs/evidence/o011-i028-20261016T071739Z/showers-geminids node tools/validate/browser-showers.mjs geminids

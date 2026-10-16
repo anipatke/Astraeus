@@ -1,0 +1,164 @@
+{
+  "method": "see the header of tools/validate/browser-precision.mjs",
+  "viewport": "1280x800",
+  "scale": "True",
+  "frames": 60,
+  "clockUtc": "2030-01-01T13:00:00.000Z",
+  "focus": {
+    "earth-focus": {
+      "focus": "earth",
+      "preset": "Focus Earth",
+      "earthDistanceFromGpuOriginUnits": 0.24961330470279464,
+      "earthRadiusPx": 248.7816286789553,
+      "cameraDistanceToEarthUnits": 4.000000001580785,
+      "pathVertexIndex": 255,
+      "pathVertexOnScreen": false,
+      "still": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 1.8325685353286047e-7,
+          "pathVertex": 0.00009675295120046958
+        },
+        "rangePx": {
+          "earthCentre": 1.8325685353286047e-7,
+          "pathVertex": 0.00009675295120046958
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 7.631035714439349e-8,
+          "pathVertex": 0.000043485459173098207
+        }
+      },
+      "sweep": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 1.7053025658242404e-13,
+          "pathVertex": 60078.033820751
+        },
+        "rangePx": {
+          "earthCentre": 3.0611117876642906e-13,
+          "pathVertex": 60078.033820751
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 1.1368683772161603e-12,
+          "pathVertex": 21448.393481308492
+        }
+      }
+    },
+    "earth-focus-wide": {
+      "focus": "earth",
+      "preset": "Focus Earth",
+      "earthDistanceFromGpuOriginUnits": 0.24961330470279464,
+      "earthRadiusPx": 3.156623949310201,
+      "cameraDistanceToEarthUnits": 300.7545131680942,
+      "pathVertexIndex": 255,
+      "pathVertexOnScreen": false,
+      "still": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 0,
+          "pathVertex": 0
+        },
+        "rangePx": {
+          "earthCentre": 0,
+          "pathVertex": 0
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 1.2505552149377763e-12,
+          "pathVertex": 2.7284841053187847e-12
+        }
+      },
+      "sweep": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 1.7053025658242404e-13,
+          "pathVertex": 232.03876655175722
+        },
+        "rangePx": {
+          "earthCentre": 3.639754730461873e-13,
+          "pathVertex": 232.03876655175722
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 1.0231815394945443e-12,
+          "pathVertex": 0.06534980081619324
+        }
+      }
+    },
+    "sun-focus": {
+      "focus": "sun",
+      "preset": "Sun view",
+      "earthDistanceFromGpuOriginUnits": 23089.955377877075,
+      "earthRadiusPx": 0.002786779472130444,
+      "cameraDistanceToEarthUnits": 337578.07232384133,
+      "pathVertexIndex": 255,
+      "pathVertexOnScreen": true,
+      "still": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 1.5753091853485852e-10,
+          "pathVertex": 3.597377588556377e-9
+        },
+        "rangePx": {
+          "earthCentre": 1.5753091853485852e-10,
+          "pathVertex": 3.597377588556377e-9
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 2.3874235921539366e-11,
+          "pathVertex": 6.075424607843161e-10
+        }
+      },
+      "sweep": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 24.733197468418023,
+          "pathVertex": 24.875665527386854
+        },
+        "rangePx": {
+          "earthCentre": 24.733197468418023,
+          "pathVertex": 24.875665527386854
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 0.0005786443097122174,
+          "pathVertex": 0.0005641605927166893
+        }
+      }
+    },
+    "sun-focus-zoomed-out": {
+      "focus": "sun",
+      "preset": "Sun view",
+      "earthDistanceFromGpuOriginUnits": 23089.955377877075,
+      "earthRadiusPx": 0.0018021366636676187,
+      "cameraDistanceToEarthUnits": 413330.1796416484,
+      "pathVertexIndex": 255,
+      "pathVertexOnScreen": true,
+      "still": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 0,
+          "pathVertex": 0
+        },
+        "rangePx": {
+          "earthCentre": 0,
+          "pathVertex": 0
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 9.094947017729282e-13,
+          "pathVertex": 1.8189894035458565e-12
+        }
+      },
+      "sweep": {
+        "staticMaxDisplacementPx": {
+          "earthCentre": 10.616647187878241,
+          "pathVertex": 10.829789286614815
+        },
+        "rangePx": {
+          "earthCentre": 10.616647187878241,
+          "pathVertex": 10.829789286614815
+        },
+        "sweepCubicResidualMaxPx": {
+          "earthCentre": 0.0013360167293399172,
+          "pathVertex": 0.0013232507998282017
+        }
+      }
+    }
+  },
+  "float32GridAtOneAu": {
+    "auInEarthRadii": 23481.03491748653,
+    "spacingUnits": 0.001953125,
+    "spacingKm": 12.44337578125,
+    "pixelsAtSunFocus": 0.000005442928656504774
+  },
+  "errors": []
+}

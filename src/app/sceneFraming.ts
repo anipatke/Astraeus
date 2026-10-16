@@ -53,6 +53,17 @@ export function focusLimits(focus: BodyId, frame: SceneFrame, policy: ScalePolic
   return { min: radius * (focus === frame.centre ? CENTRE_MIN_FACTOR : BODY_MIN_FACTOR), max };
 }
 
+/** The camera's start distance, in scaled units, before any preset runs. */
+export const START_CAMERA_DISTANCE = 16;
+
+/**
+ * True when the start distance is closer than the focused body allows, so the first frame would be clamped up to a close-up of that body
+ * (a large centre body: I-028). Such an experience opens at its overview; any other keeps the start distance.
+ */
+export function startsInsideFocus(startDistance: number, focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): boolean {
+  return startDistance < focusLimits(focus, frame, policy, declared).min;
+}
+
 /** Default camera distance on focus: the centre body shows the whole scene, any other sphere fills the view, a point stays close. */
 export function defaultDistance(focus: BodyId, frame: SceneFrame, policy: ScalePolicy): number {
   const radius = sphereRadius(focus, policy, frame.bodies ?? catalogue);
