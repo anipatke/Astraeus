@@ -143,16 +143,21 @@ describe("panel view (T-059 Done When 4)", () => {
 });
 
 describe("the demo wiring (T-059 Done When 5)", () => {
-  it("gives the first demo story two sourced panels that sit on its own anchors and objects", async () => {
+  it("gives the first demo story seven sourced panels, in mission order, that sit on its own anchors and objects", async () => {
     const { apollo11Experience } = await import("../src/experiences/apollo11/apollo11");
     const panels = apollo11Experience.storyPanels?.panels ?? [];
-    expect(panels).toHaveLength(2);
+    expect(panels.map((panel) => panel.id)).toEqual(["tli-cutoff", "loi", "powered-descent", "touchdown", "ascent-docking", "tei", "splashdown"]);
     for (const panel of panels) {
       expect(panel.sources.length).toBeGreaterThan(0);
-      expect(apollo11Experience.objects.some((object) => object.id === panel.objectId)).toBe(true);
+      expect(panel.sources.some((line) => /Mission Report \(MSC-00171\), Table \d-[IVX]+, p\. \d-\d+/.test(line))).toBe(true);
+      expect(panel.badge).toBe("observed");
+      expect(panel.body.length).toBeGreaterThanOrEqual(1);
+      if (panel.objectId !== undefined) expect(apollo11Experience.objects.some((object) => object.id === panel.objectId)).toBe(true);
       expect(panel.timeUtcMs).toBeGreaterThanOrEqual(apollo11Experience.window.startUtcMs);
       expect(panel.timeUtcMs).toBeLessThanOrEqual(apollo11Experience.window.endUtcMs);
     }
-    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([-14542676800, -14182940100]);
+    expect(panels[0]!.timeUtcMs).toBe(-14542676800);
+    expect(panels[3]!.timeUtcMs).toBe(-14182940100);
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
   });
 });
