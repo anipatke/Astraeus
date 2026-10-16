@@ -2,10 +2,9 @@
 id: T-056
 title: Read measured meteor orbits from the Global Meteor Network as a second source
 objective: O-011
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-038, requires: clear}, {task: T-039, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-035, accepted_by: {role: owner, session: owner-chat-20261017}}
 planned_by: {role: planner, session: o011-orchestrator-check-20261013}
 lane: showers
 planned_reads: [tools/data/fetch-meteoroid-orbits.mjs, src/experiences/showers/measuredOrbits.ts, src/experiences/showers/showerSettings.ts, src/experiences/showers/showerDefinition.ts, data/showers/perseids.json, data/showers/geminids.json, tests/fetchMeteoroidOrbits.test.ts, tests/showersMeasured.test.ts, tests/helpers/streamFacts.ts, tools/validate/public-build-assets.mjs]

@@ -1,7 +1,7 @@
 ---
 id: O-012
 title: Record the Spike 04 findings
-status: in_progress
+status: done
 depends_on: [O-011]
 release: G-004
 ---

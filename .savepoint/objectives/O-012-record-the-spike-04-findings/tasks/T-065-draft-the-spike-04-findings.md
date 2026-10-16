@@ -2,10 +2,9 @@
 id: T-065
 title: Draft the Spike 04 findings
 objective: O-012
-status: in_progress
-stage: audit
+status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-044, accepted_by: {role: owner, session: owner-chat-20261017}}
 planned_by: {role: planner, session: o012-plan-20261016}
 ---
 

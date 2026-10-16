@@ -1,7 +1,7 @@
 ---
 id: O-011
 title: Run Perseids and a second shower as test fixtures
-status: in_progress
+status: done
 depends_on: [O-010, O-014]
 release: G-004
 lanes:

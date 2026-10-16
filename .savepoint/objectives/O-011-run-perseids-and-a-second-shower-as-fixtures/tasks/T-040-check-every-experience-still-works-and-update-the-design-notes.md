@@ -2,10 +2,9 @@
 id: T-040
 title: Check every experience still works and update the design notes
 objective: O-011
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-039, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-034, accepted_by: {role: owner, session: owner-chat-20261017}}
 planned_by: {role: planner, session: o011-plan-2026-10-11}
 planned_reads: [.savepoint/Design.md, docs/ASTRAEUS_SPIKE_04_PERSEIDS_REFERENCE.md, docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md, tools/validate/browser-spike02.mjs, tools/validate/browser-spike03.mjs, tools/validate/browser-shell.mjs, tools/validate/browser-anchor-labels.mjs, tools/validate/browser-synthetic.mjs, tools/validate/browser-synthetic-ring.mjs, tools/validate/browser-synthetic-belt.mjs, tools/validate/browser-synthetic-listed.mjs, tools/validate/browser-sky.mjs, tools/validate/browser-earth-moon.mjs, tools/validate/browser-jupiter-io.mjs, tools/validate/browser-showers.mjs, tools/validate/browser-precision.mjs, tools/validate/browser-lighting.mjs, tools/validate/public-build-assets.mjs]
 planned_writes: [.savepoint/Design.md]
