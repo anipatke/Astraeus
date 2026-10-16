@@ -2,8 +2,7 @@
 id: T-068
 title: Remove two experiment switches and hide the test experiences from the public site
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-066, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-plan-20261017}
@@ -92,3 +91,7 @@ Executed by the T-068 builder (not a Check). Evidence directories, all fresh, un
 ## Drift Notes
 
 Design.md lighting and sky paragraphs need reconciling (Task 7 / T-072): lighting is per-body only (no single-sun mode, no `?lighting=`/`?sunLight=`); the sky has one Milky Way picture (ESO panorama, CC BY 4.0, galactic frame, built on first need) with no `?skymap=`, no `sky.source`, no NASA/equatorial frame; the entry (`src/main.tsx`) mounts the `synthetic*` experiences only outside a public build (`__PUBLIC_BUILD__`), proved by `checkNoSyntheticExperiences` in `tools/validate/public-build-assets.mjs`. Also `docs/DONOR_PROVENANCE.md` and `docs/ASTRONOMY_VALIDATION.md` mention the removed switches.
+
+## Owner Completion — 2026-10-17
+
+Marked done by the orchestrator on the owner's direct instruction (owner, remote, 2026-10-17: "I'm remote you are authorised to mark it done and keep going"), after Quick Task Check C-049 CLEAR.
