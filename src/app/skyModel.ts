@@ -1,6 +1,6 @@
 // The sky as the app uses it: render-frame directions and buffers, the shell item that cites the sources, the settings check.
 import { createProvenance, type Provenance } from "../core/provenance";
-import { colourFromTemperature, galacticToEqj, DEFAULT_SKY_MAP, SKY_SOURCES, starAppearance, temperatureFromBV, eqjUnit, type PictureFrame, type SkyMapSource, type SkySettings, type StarRow } from "../assets/sky";
+import { colourFromTemperature, galacticToEqj, eqjUnit, SKY_SOURCES, starAppearance, temperatureFromBV, type SkySettings, type StarRow } from "../assets/sky";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 
@@ -49,7 +49,7 @@ export function skyObject(status: StarStatus): ExperienceObject {
   const provenance: Provenance = createProvenance({
     sourceType: "observed",
     sources: SKY_SOURCES,
-    accuracy: "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is either the ESO photographic panorama, placed by its galactic coordinates (agrees with the stars only to a few degrees), or, only when asked for and fetched locally, the NASA Deep Star Maps 2020 render in J2000 (registered exactly; its own faint stars are baked in and are drawn weaker so they do not double the catalogue stars).",
+    accuracy: "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is the ESO photographic panorama, placed by its galactic coordinates (agrees with the stars only to a few degrees).",
     notes: starLine,
   });
   return {
@@ -71,7 +71,7 @@ export function withSkyObject(config: ExperienceConfig, visible: boolean, status
 }
 
 /** The validated, complete settings. */
-export function resolveSkySettings(settings: SkySettings | undefined): { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly source: SkyMapSource } {
+export function resolveSkySettings(settings: SkySettings | undefined): { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean } {
   const check = (name: string, value: number): number => {
     if (!Number.isFinite(value) || value < 0 || value > 2) throw new RangeError(`sky.${name} must be between 0 and 2, got ${value}`);
     return value;
@@ -81,7 +81,6 @@ export function resolveSkySettings(settings: SkySettings | undefined): { readonl
     starBrightness: check("starBrightness", settings?.starBrightness ?? 1),
     milkyWayBrightness: check("milkyWayBrightness", settings?.milkyWayBrightness ?? 1),
     milkyWay: settings?.milkyWay ?? false,
-    source: settings?.source ?? DEFAULT_SKY_MAP,
   };
 }
 
@@ -92,24 +91,23 @@ export interface PictureMesh {
   readonly indices: Uint32Array;
 }
 
-/** What `buildPictureMesh` needs of one tile: its place in the grid and the frame the picture is registered in. */
+/** What `buildPictureMesh` needs of one tile: its place in the grid. */
 export interface TileSection {
   readonly column: number;
   readonly row: number;
   readonly columns: number;
   readonly rows: number;
-  readonly frame: PictureFrame;
 }
 
 /**
- * One tile of the picture sphere as a mesh. The picture (RA or galactic longitude at the centre increasing leftwards, latitude +90
+ * One tile of the picture sphere as a mesh. The picture (galactic longitude at the centre increasing leftwards, latitude +90
  * at the top) is cut into `section.columns` x `section.rows` tiles, column 0 at the left and row 0 at the top. `columns` and `rows`
  * count the whole sphere, so every tile is the same size; each vertex is placed in the render frame (through the galactic-to-J2000
- * rotation for a galactic picture, directly from RA and Dec for an equatorial one) and carries its own tile's 0..1 picture coordinates.
+ * rotation) and carries its own tile's 0..1 picture coordinates.
  * The legacy `{ index, count }` section is a strip of a galactic picture, left to right.
  */
 export function buildPictureMesh(columns = 128, rows = 64, section: TileSection | { readonly index: number; readonly count: number } = { index: 0, count: 1 }): PictureMesh {
-  const tile: TileSection = "count" in section ? { column: section.index, row: 0, columns: section.count, rows: 1, frame: "galactic" } : section;
+  const tile: TileSection = "count" in section ? { column: section.index, row: 0, columns: section.count, rows: 1 } : section;
   const across = columns / tile.columns;
   const down = rows / tile.rows;
   if (!Number.isInteger(across) || !Number.isInteger(down) || tile.column < 0 || tile.column >= tile.columns || tile.row < 0 || tile.row >= tile.rows) {
@@ -125,7 +123,7 @@ export function buildPictureMesh(columns = 128, rows = 64, section: TileSection 
       const u = (tile.column + localU) / tile.columns;
       const v = (tile.rows - tile.row - 1 + localV) / tile.rows;
       const k = j * (across + 1) + i;
-      positions.set(eqjToRenderVector(pictureDirection(tile.frame, u, v)), k * 3);
+      positions.set(eqjToRenderVector(pictureDirection(u, v)), k * 3);
       uvs.set([localU, localV], k * 2);
     }
   }
@@ -144,9 +142,7 @@ export function buildPictureMesh(columns = 128, rows = 64, section: TileSection 
   return { positions, uvs, indices };
 }
 
-/** The EQJ unit direction of a whole-picture coordinate (u from the left, v up, both 0..1) in a frame. */
-export function pictureDirection(frame: PictureFrame, u: number, v: number): [number, number, number] {
-  const longitude = (0.5 - u) * 360;
-  const latitude = (v - 0.5) * 180;
-  return frame === "galactic" ? galacticToEqj(longitude, latitude) : eqjUnit(longitude, latitude);
+/** The EQJ unit direction of a whole-picture coordinate (u from the left, v up, both 0..1) of the galactic picture. */
+export function pictureDirection(u: number, v: number): [number, number, number] {
+  return galacticToEqj((0.5 - u) * 360, (v - 0.5) * 180);
 }

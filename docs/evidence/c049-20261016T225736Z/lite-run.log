@@ -1,0 +1,29 @@
+lite browser check: 11 experiences (apollo11, earth-moon, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, shower-geminids, shower-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    3.7s {"litPixels":42627,"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     2.7s {"litPixels":18504,"object":"moon","panel":"tli-cutoff"}
+ok   earth-moon                 1440x900    3.2s {"litPixels":35692,"object":"moon"}
+ok   earth-moon                 390x844     2.7s {"litPixels":18394,"object":"moon"}
+ok   jupiter-io                 1440x900      4s {"litPixels":491142,"object":"io"}
+ok   jupiter-io                 390x844     2.6s {"litPixels":57358,"object":"io"}
+ok   synthetic                  1440x900    2.7s {"litPixels":73485,"object":"moon"}
+ok   synthetic                  390x844     3.2s {"litPixels":29892,"object":"moon"}
+ok   synthetic-bare             1440x900    2.5s {"litPixels":72381,"object":"sky"}
+ok   synthetic-bare             390x844     2.4s {"litPixels":28595,"object":"sky"}
+ok   synthetic-ring             1440x900      4s {"litPixels":97521,"object":"moon"}
+ok   synthetic-ring             390x844     2.7s {"litPixels":53962,"object":"moon"}
+ok   synthetic-belt             1440x900    2.7s {"litPixels":75599,"object":"dust-belt"}
+ok   synthetic-belt             390x844     3.8s {"litPixels":51837,"object":"dust-belt"}
+ok   synthetic-listed           1440x900    1.9s {"litPixels":62408,"object":"listed-orbits"}
+ok   synthetic-listed           390x844     3.6s {"litPixels":40026,"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900    3.1s {"litPixels":35766,"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     2.9s {"litPixels":19950,"object":"dust-belt"}
+ok   shower-geminids            1440x900    6.8s {"litPixels":55363,"object":"earth"}
+ok   shower-geminids            390x844     7.6s {"litPixels":30196,"object":"earth"}
+ok   shower-perseids            1440x900    5.1s {"litPixels":141326,"object":"earth","panel":"stream-shape"}
+ok   shower-perseids            390x844       5s {"litPixels":46722,"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900    1.9s {"title":"Astraeus"}
+ok   index-page                 390x844     1.7s {"title":"Astraeus"}
+ok   assets-page                1440x900    1.7s {"title":"Astraeus Assets"}
+ok   assets-page                390x844     1.7s {"title":"Astraeus Assets"}
+
+26/26 loads passed; results and screenshots in docs/evidence/c049-20261016T225736Z/lite

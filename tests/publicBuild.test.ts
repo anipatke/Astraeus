@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
@@ -85,5 +85,22 @@ describe("shipped HYG star asset (T-060)", () => {
   it("still rejects an unlicensed star catalogue: a copy of it in the build is found by the data check", () => {
     expect(proveLicenceHandling()).toContain("data/local/unlicensed-stars.json");
     expect(proveItFails().dataCopied.ok).toBe(false);
+  });
+});
+
+describe("made-up experiences stay out of the public build (T-068)", () => {
+  it("fails a build that holds a synthetic chunk or an entry key, and passes a clean one", () => {
+    const { clean, chunk, key } = proveSyntheticCheck();
+    expect(clean.ok).toBe(true);
+    expect(clean.modules.length).toBeGreaterThan(0);
+    expect(chunk.matches.map((match) => match.how)).toEqual(["file name"]);
+    expect(key.matches.map((match) => match.how)).toEqual(["entry key synthetic-ring"]);
+  });
+
+  it("lists the same entry keys main.tsx mounts in development", async () => {
+    const { readFileSync } = await (import(/* @vite-ignore */ `node:${"fs"}`) as Promise<any>);
+    const entry = readFileSync(new URL("../src/main.tsx", import.meta.url), "utf8") as string;
+    const mounted = [...entry.matchAll(/^\s+"?(synthetic[\w-]*)"?: async/gm)].map((match) => match[1]);
+    expect([...SYNTHETIC_KEYS].sort()).toEqual(mounted.sort());
   });
 });

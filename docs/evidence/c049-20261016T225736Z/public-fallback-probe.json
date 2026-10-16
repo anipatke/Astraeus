@@ -1,0 +1,20 @@
+{
+ "?experience=synthetic-ring": {
+  "title": "Astraeus Earth–Moon spike",
+  "heading": "Earth | Moon | Object | Earth | Moon | Columbia (CSM) | Eagle (LM) (Unavailable) | Sky | Info | Earth–Moon overview | Focus Earth | Scale | True",
+  "syntheticRequests": 1,
+  "errs": []
+ },
+ "?experience=synthetic": {
+  "title": "Astraeus Earth–Moon spike",
+  "heading": "Earth | Moon | Object | Earth | Moon | Columbia (CSM) | Eagle (LM) (Unavailable) | Sky | Info | Earth–Moon overview | Focus Earth | Scale | True",
+  "syntheticRequests": 1,
+  "errs": []
+ },
+ "default": {
+  "title": "Astraeus Earth–Moon spike",
+  "heading": "Earth | Moon | Object | Earth | Moon | Columbia (CSM) | Eagle (LM) (Unavailable) | Sky | Info | Earth–Moon overview | Focus Earth | Scale | True",
+  "syntheticRequests": 0,
+  "errs": []
+ }
+}

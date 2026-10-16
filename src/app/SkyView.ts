@@ -1,6 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Group, Mesh, Points, ShaderMaterial, NoColorSpace, TextureLoader, Vector3 } from "three";
 import type { Camera, PerspectiveCamera, Texture } from "three";
-import { ESO_PICTURE, SKY_MAP_SOURCES, DEFAULT_SKY_MAP, loadPictureSet, type PictureSet, type SkyMapSource, type StarRow } from "../assets/sky";
+import { ESO_PICTURE, type PictureSet, type StarRow } from "../assets/sky";
 import { buildPictureMesh, buildStarBuffers } from "./skyModel";
 
 // Both draws sit before everything else in the first pass (the layer-0 pass), ignore depth, and write none.
@@ -66,10 +66,8 @@ export interface SkyViewOptions {
   readonly milkyWay?: boolean;
   /** Legacy: the two ESO halves as ready textures (a test may pass empty ones). Overrides `picture`. */
   readonly pictures?: readonly Texture[];
-  /** The picture to draw, as a tile grid; defaults to the ESO panorama. `null` draws none until `setPicture` is called. */
+  /** The picture to draw, as a tile grid; defaults to the ESO panorama. `null` draws none until `requestPicture` is called. */
   readonly picture?: PictureSet | null;
-  /** The source `requestPicture` loads: `nasa` (local only, falls back to ESO) or `eso`. Defaults to `eso`. */
-  readonly source?: SkyMapSource;
 }
 
 /**
@@ -87,12 +85,8 @@ export class SkyView {
   #starCount = 0;
   #pictureOn: boolean;
   #brightness: number;
-  #gain = 1;
   #maxAnisotropy: number;
-  #pictureId: SkyMapSource | null = null;
-  readonly #source: SkyMapSource;
-  #requested = false;
-  #disposed = false;
+  #held = false;
 
   /** `options.picture` is the tile set; the scene passes the one it resolved, a test may pass `pictures` (empty textures). */
   constructor(options: SkyViewOptions) {
@@ -100,7 +94,6 @@ export class SkyView {
     this.#pictureOn = options.milkyWay ?? false;
     this.#brightness = milkyWayBrightness;
     this.#maxAnisotropy = maxAnisotropy;
-    this.#source = options.source ?? DEFAULT_SKY_MAP;
     if (options.pictures !== undefined) this.#build(ESO_PICTURE, options.pictures);
     else if (options.picture !== null) this.#build(options.picture ?? ESO_PICTURE);
     this.#starMaterial = new ShaderMaterial({
@@ -116,8 +109,7 @@ export class SkyView {
 
   /** Builds one mesh per tile of a picture, each with its own texture; replaces nothing (callers clear first). */
   #build(set: PictureSet, textures?: readonly Texture[]): void {
-    this.#pictureId = set.id;
-    this.#gain = set.gain;
+    this.#held = true;
     // The sphere has 64 cells per tile on a side (about 1.4 degrees at 4x2 tiles), so a straight-edged cell never strays measurably from the true projection.
     const columns = Math.max(128, set.columns * 64);
     const rows = Math.max(64, set.rows * 64);
@@ -135,12 +127,12 @@ export class SkyView {
       const material = new ShaderMaterial({
         vertexShader: PICTURE_VERTEX,
         fragmentShader: PICTURE_FRAGMENT,
-        uniforms: { uMap: { value: texture }, uGain: { value: PICTURE_GAIN * this.#gain * this.#brightness } },
+        uniforms: { uMap: { value: texture }, uGain: { value: PICTURE_GAIN * this.#brightness } },
         side: DoubleSide,
         depthTest: false,
         depthWrite: false,
       });
-      const data = buildPictureMesh(columns, rows, { column: tile.column, row: tile.row, columns: set.columns, rows: set.rows, frame: set.frame });
+      const data = buildPictureMesh(columns, rows, { column: tile.column, row: tile.row, columns: set.columns, rows: set.rows });
       const geometry = new BufferGeometry();
       geometry.setAttribute("position", new BufferAttribute(data.positions, 3));
       geometry.setAttribute("uv", new BufferAttribute(data.uvs, 2));
@@ -162,28 +154,12 @@ export class SkyView {
     this.#pictures.length = 0;
     this.#pictureMaterials.length = 0;
     this.#textures = [];
-    this.#pictureId = null;
+    this.#held = false;
   }
 
-  /** Replaces the picture with another tile set (a different source or size); the on/off state and the brightness carry over. */
-  setPicture(set: PictureSet): void {
-    this.#clear();
-    this.#build(set);
-  }
-
-  /**
-   * Loads the picture for this view's source the first time it is wanted (nothing is fetched or decoded while the picture stays off):
-   * `nasa` when its local tiles exist, otherwise the ESO panorama. A no-op once a picture is held or a load is under way.
-   */
-  requestPicture(load: (source: SkyMapSource) => Promise<PictureSet> = loadPictureSet): void {
-    if (this.#requested || this.#pictureId !== null) return;
-    this.#requested = true;
-    void load(this.#source).then((set) => { if (!this.#disposed) this.setPicture(set); });
-  }
-
-  /** The source of the picture now held (`nasa` or `eso`), or null when none. */
-  get pictureSource(): SkyMapSource | null {
-    return this.#pictureId;
+  /** Builds the ESO panorama the first time it is wanted (nothing is decoded while the picture stays off); a no-op once a picture is held. */
+  requestPicture(): void {
+    if (!this.#held) this.#build(ESO_PICTURE);
   }
 
   /** Sets the star strength in place (0 to 2); no rebuild. */
@@ -194,7 +170,7 @@ export class SkyView {
   /** Sets the picture strength in place (0 to 2); no rebuild. */
   setMilkyWayBrightness(value: number): void {
     this.#brightness = value;
-    for (const material of this.#pictureMaterials) material.uniforms.uGain.value = PICTURE_GAIN * this.#gain * value;
+    for (const material of this.#pictureMaterials) material.uniforms.uGain.value = PICTURE_GAIN * value;
   }
 
   get starBrightness(): number {
@@ -256,7 +232,6 @@ export class SkyView {
 
   dispose(): void {
     this.setStars([]);
-    this.#disposed = true;
     this.#clear();
     this.#starMaterial.dispose();
   }
@@ -289,10 +264,4 @@ export function brightnessFromSearch(search: string, key: "stars" | "milkywaybri
 /** `?sky=off` hides the sky for a comparison; anything else keeps the experience's own setting. */
 export function skyHiddenBySearch(search: string): boolean {
   return new URLSearchParams(search).get("sky") === "off";
-}
-
-/** `?skymap=nasa` or `?skymap=eso` overrides the picture source for a comparison; anything else is null (the experience's own setting). */
-export function skyMapFromSearch(search: string): SkyMapSource | null {
-  const value = new URLSearchParams(search).get("skymap");
-  return (SKY_MAP_SOURCES as readonly string[]).includes(value ?? "") ? (value as SkyMapSource) : null;
 }

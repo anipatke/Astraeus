@@ -43,3 +43,12 @@ export interface StarAssetResult {
 /** The committed star asset must declare a shippable licence and be present, byte for byte, in the build. */
 export function checkStarAsset(input: { readonly distDir: string; readonly rootDir?: string; readonly starPath?: string }): StarAssetResult;
 export function proveStarAssetHandling(): { readonly good: StarAssetResult; readonly empty: StarAssetResult; readonly badLicence: StarAssetResult };
+export const SYNTHETIC_KEYS: readonly string[];
+export interface SyntheticResult {
+  readonly ok: boolean;
+  readonly modules: readonly string[];
+  readonly matches: readonly { readonly path: string; readonly how: string }[];
+}
+/** A public build holds no made-up (synthetic) experience: no chunk named for one and no entry key. */
+export function checkNoSyntheticExperiences(input: { readonly distDir: string; readonly rootDir?: string }): SyntheticResult;
+export function proveSyntheticCheck(): { readonly clean: SyntheticResult; readonly chunk: SyntheticResult; readonly key: SyntheticResult };

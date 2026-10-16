@@ -1,6 +1,7 @@
 // Public-build output gate (design C.3). Hashes every file under dist/ and fails if any matches a local-only source texture,
 // byte for byte or embedded in a text asset as base64.
 //   ASTRAEUS_PUBLIC_BUILD=1 npm run build && node tools/validate/public-build-assets.mjs [distDir] [resultsFile]
+// It also fails a build that holds any made-up (synthetic) experience (T-068).
 // Local-only sources are the images a body record imports and declares `localOnly` (src/assets/bodies/*.ts), plus every file under the
 // git-ignored data/local/ (fetched data and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
 import { createHash } from "node:crypto";
@@ -151,6 +152,43 @@ export function proveStarAssetHandling() {
   }
 }
 
+/** The entry keys of the made-up (synthetic) experiences; a public build must not mount them (T-068). */
+export const SYNTHETIC_KEYS = ["synthetic", "synthetic-bare", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric"];
+
+/**
+ * The made-up experiences are test fixtures: a public build must contain none of them. Fails on a file whose name carries a synthetic module
+ * (each is its own chunk) and on a text asset that still holds an entry key or a synthetic source module's name. Returns { ok, matches }.
+ */
+export function checkNoSyntheticExperiences({ distDir, rootDir = root }) {
+  const modules = existsSync(join(rootDir, "src", "synthetic")) ? readdirSync(join(rootDir, "src", "synthetic")).map((name) => name.replace(/\.[^.]+$/, "")) : [];
+  const matches = [];
+  for (const path of walk(distDir)) {
+    const name = path.slice(distDir.length + 1);
+    if (modules.some((module) => name.includes(module)) || /(^|[\\/])synthetic/i.test(name)) matches.push({ path: name, how: "file name" });
+    else if (TEXT_EXTENSIONS.test(path)) {
+      const text = readFileSync(path, "latin1");
+      const key = SYNTHETIC_KEYS.find((candidate) => text.includes(`"${candidate}"`) || text.includes(`'${candidate}'`));
+      if (key !== undefined) matches.push({ path: name, how: `entry key ${key}` });
+    }
+  }
+  return { ok: matches.length === 0, modules, matches };
+}
+
+/** Proves the synthetic check can fail: a made-up build holding a synthetic chunk, and one holding only an entry key, fail; a clean one passes. */
+export function proveSyntheticCheck() {
+  const temp = mkdtempSync(join(tmpdir(), "astraeus-synthetic-"));
+  try {
+    const [clean, chunk, key] = ["clean", "chunk", "key"].map((name) => join(temp, name, "assets"));
+    for (const directory of [clean, chunk, key]) mkdirSync(directory, { recursive: true });
+    for (const directory of [clean, chunk, key]) writeFileSync(join(directory, "app-AbC.js"), 'const a = { "earth-moon": 1 };');
+    writeFileSync(join(chunk, "syntheticDefinition-AbC.js"), "export const x = 1;");
+    writeFileSync(join(key, "app-AbC.js"), 'const a = { "synthetic-ring": 1 };');
+    return { clean: checkNoSyntheticExperiences({ distDir: join(temp, "clean") }), chunk: checkNoSyntheticExperiences({ distDir: join(temp, "chunk") }), key: checkNoSyntheticExperiences({ distDir: join(temp, "key") }) };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
 /** Proves the check can fail: a fake unlicensed texture is found as a file and as base64, and a clean build passes. */
 export function proveItFails() {
   const temp = mkdtempSync(join(tmpdir(), "astraeus-public-build-"));
@@ -206,7 +244,10 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const missingPages = REQUIRED_PAGES.filter((page) => !existsSync(join(distDir, page)));
   const checked = checkPublicBuild({ distDir, sources });
   const starAsset = checkStarAsset({ distDir });
-  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, selfProof, ...checked, ok: selfProof && checked.ok && missingPages.length === 0 && starAsset.ok };
+  const synthetic = checkNoSyntheticExperiences({ distDir });
+  const syntheticProof = proveSyntheticCheck();
+  const syntheticSelfProof = syntheticProof.clean.ok && !syntheticProof.chunk.ok && !syntheticProof.key.ok;
+  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

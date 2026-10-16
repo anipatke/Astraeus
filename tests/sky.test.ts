@@ -258,9 +258,9 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
   });
 
   it("defaults to on at full brightness with the Milky Way picture off, and rejects a bad brightness", () => {
-    expect(resolveSkySettings(undefined)).toEqual({ visible: true, starBrightness: 1, milkyWayBrightness: 1, milkyWay: false, source: "eso" });
-    expect(resolveSkySettings({ visible: false, starBrightness: 0.4 })).toEqual({ visible: false, starBrightness: 0.4, milkyWayBrightness: 1, milkyWay: false, source: "eso" });
-    expect(resolveSkySettings({ milkyWay: true, milkyWayBrightness: 2 })).toEqual({ visible: true, starBrightness: 1, milkyWayBrightness: 2, milkyWay: true, source: "eso" });
+    expect(resolveSkySettings(undefined)).toEqual({ visible: true, starBrightness: 1, milkyWayBrightness: 1, milkyWay: false });
+    expect(resolveSkySettings({ visible: false, starBrightness: 0.4 })).toEqual({ visible: false, starBrightness: 0.4, milkyWayBrightness: 1, milkyWay: false });
+    expect(resolveSkySettings({ milkyWay: true, milkyWayBrightness: 2 })).toEqual({ visible: true, starBrightness: 1, milkyWayBrightness: 2, milkyWay: true });
     expect(resolveSkySettings({ starBrightness: 0 }).starBrightness).toBe(0);
     expect(() => resolveSkySettings({ starBrightness: -1 })).toThrow(/sky.starBrightness/);
     expect(() => resolveSkySettings({ starBrightness: 2.01 })).toThrow(/sky.starBrightness/);

@@ -17,7 +17,6 @@ import type { StoryMarkerSpec } from "./StoryMarkers";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
-import { lightingFromSearch, sunLightFromSearch } from "./lighting";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
@@ -78,8 +77,6 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       groups: groupsOf(definition),
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
-      lighting: lightingFromSearch(window.location.search),
-      sunLight: sunLightFromSearch(window.location.search),
       sky: skySettingsOf(definition),
       loopWindow: definition.experience.window,
       up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),

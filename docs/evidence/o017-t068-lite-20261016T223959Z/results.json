@@ -1,0 +1,386 @@
+{
+  "tier": "lite (I-033)",
+  "at": "2026-10-16T22:41:38.868Z",
+  "appUrl": "http://localhost:5471/app.html",
+  "experiences": [
+    "apollo11",
+    "earth-moon",
+    "jupiter-io",
+    "synthetic",
+    "synthetic-bare",
+    "synthetic-ring",
+    "synthetic-belt",
+    "synthetic-listed",
+    "synthetic-eccentric",
+    "shower-geminids",
+    "shower-perseids"
+  ],
+  "loads": 26,
+  "failed": 0,
+  "results": [
+    {
+      "label": "apollo11",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html",
+      "ok": true,
+      "seconds": 4,
+      "screenshot": "apollo11-desktop.png",
+      "detail": {
+        "litPixels": 43883,
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "apollo11",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html",
+      "ok": true,
+      "seconds": 3.2,
+      "screenshot": "apollo11-phone.png",
+      "detail": {
+        "litPixels": 18517,
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "earth-moon",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=earth-moon",
+      "ok": true,
+      "seconds": 3.2,
+      "screenshot": "earth-moon-desktop.png",
+      "detail": {
+        "litPixels": 35677,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "earth-moon",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=earth-moon",
+      "ok": true,
+      "seconds": 3,
+      "screenshot": "earth-moon-phone.png",
+      "detail": {
+        "litPixels": 18396,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "jupiter-io",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=jupiter-io",
+      "ok": true,
+      "seconds": 3.8,
+      "screenshot": "jupiter-io-desktop.png",
+      "detail": {
+        "litPixels": 484964,
+        "object": "io"
+      },
+      "failures": []
+    },
+    {
+      "label": "jupiter-io",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=jupiter-io",
+      "ok": true,
+      "seconds": 2.8,
+      "screenshot": "jupiter-io-phone.png",
+      "detail": {
+        "litPixels": 56065,
+        "object": "io"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic",
+      "ok": true,
+      "seconds": 2.7,
+      "screenshot": "synthetic-desktop.png",
+      "detail": {
+        "litPixels": 73613,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic",
+      "ok": true,
+      "seconds": 3.2,
+      "screenshot": "synthetic-phone.png",
+      "detail": {
+        "litPixels": 29878,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-bare",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic-bare",
+      "ok": true,
+      "seconds": 2.5,
+      "screenshot": "synthetic-bare-desktop.png",
+      "detail": {
+        "litPixels": 72372,
+        "object": "sky"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-bare",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic-bare",
+      "ok": true,
+      "seconds": 2.4,
+      "screenshot": "synthetic-bare-phone.png",
+      "detail": {
+        "litPixels": 28583,
+        "object": "sky"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-ring",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic-ring",
+      "ok": true,
+      "seconds": 4.1,
+      "screenshot": "synthetic-ring-desktop.png",
+      "detail": {
+        "litPixels": 97472,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-ring",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic-ring",
+      "ok": true,
+      "seconds": 3.6,
+      "screenshot": "synthetic-ring-phone.png",
+      "detail": {
+        "litPixels": 54114,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic-belt",
+      "ok": true,
+      "seconds": 2.9,
+      "screenshot": "synthetic-belt-desktop.png",
+      "detail": {
+        "litPixels": 75568,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic-belt",
+      "ok": true,
+      "seconds": 3.9,
+      "screenshot": "synthetic-belt-phone.png",
+      "detail": {
+        "litPixels": 51852,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-listed",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic-listed",
+      "ok": true,
+      "seconds": 2.4,
+      "screenshot": "synthetic-listed-desktop.png",
+      "detail": {
+        "litPixels": 62336,
+        "object": "listed-orbits"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-listed",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic-listed",
+      "ok": true,
+      "seconds": 3.7,
+      "screenshot": "synthetic-listed-phone.png",
+      "detail": {
+        "litPixels": 40039,
+        "object": "listed-orbits"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 3.3,
+      "screenshot": "synthetic-eccentric-desktop.png",
+      "detail": {
+        "litPixels": 35796,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 2.5,
+      "screenshot": "synthetic-eccentric-phone.png",
+      "detail": {
+        "litPixels": 19958,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-geminids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=shower-geminids",
+      "ok": true,
+      "seconds": 6.3,
+      "screenshot": "shower-geminids-desktop.png",
+      "detail": {
+        "litPixels": 55346,
+        "object": "earth"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-geminids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=shower-geminids",
+      "ok": true,
+      "seconds": 7.8,
+      "screenshot": "shower-geminids-phone.png",
+      "detail": {
+        "litPixels": 30201,
+        "object": "earth"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-perseids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/app.html?experience=shower-perseids",
+      "ok": true,
+      "seconds": 5.2,
+      "screenshot": "shower-perseids-desktop.png",
+      "detail": {
+        "litPixels": 141321,
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-perseids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/app.html?experience=shower-perseids",
+      "ok": true,
+      "seconds": 4.9,
+      "screenshot": "shower-perseids-phone.png",
+      "detail": {
+        "litPixels": 46651,
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/index.html",
+      "ok": true,
+      "seconds": 1.9,
+      "screenshot": "index-page-desktop.png",
+      "detail": {
+        "title": "Astraeus"
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/index.html",
+      "ok": true,
+      "seconds": 1.7,
+      "screenshot": "index-page-phone.png",
+      "detail": {
+        "title": "Astraeus"
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5471/assets.html",
+      "ok": true,
+      "seconds": 1.7,
+      "screenshot": "assets-page-desktop.png",
+      "detail": {
+        "title": "Astraeus Assets"
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5471/assets.html",
+      "ok": true,
+      "seconds": 1.7,
+      "screenshot": "assets-page-phone.png",
+      "detail": {
+        "title": "Astraeus Assets"
+      },
+      "failures": []
+    }
+  ]
+}

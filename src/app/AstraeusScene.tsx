@@ -1,7 +1,7 @@
 import { EQUATORIAL_UP, orbitAnglesFor, orbitBasis } from "./viewUp";
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group, PerspectiveCamera, PointLight } from "three";
+import type { DirectionalLight, Group, PerspectiveCamera } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -26,7 +26,7 @@ import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
 import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
 import { stateIfInBounds, type TrackedBody } from "./mission";
-import { bodyLightDirections, DEFAULT_LIGHTING, sunScaledPosition, type LightingModel, type SunLightStrength } from "./lighting";
+import { bodyLightDirections } from "./lighting";
 import type { RenderVector } from "./renderCoordinates";
 import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import { viewFromAngles, type StartView } from "./viewLink";
@@ -46,7 +46,7 @@ import {
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { PointsView } from "./PointsView";
-import { SkyView, skyMapFromSearch } from "./SkyView";
+import { SkyView } from "./SkyView";
 import { loadStarCatalogue } from "../assets/sky";
 import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
 import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
@@ -85,12 +85,8 @@ export interface SceneRuntime {
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
-  /** How the Sun lights the scene; absent means each body is lit by its own Sun direction. */
-  readonly lighting?: LightingModel;
-  /** Single Sun light only: its strength; absent takes the strongest of the lit bodies' own values. */
-  readonly sunLight?: SunLightStrength | null;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
-  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly source?: import("../assets/sky").SkyMapSource };
+  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
 }
 
 export interface SceneControls {
@@ -154,34 +150,24 @@ export function AstraeusScene(props: Props) {
       data-testid="earth-moon-canvas"
       data-scene-center={runtime.sceneCenter}
       data-bodies={runtime.bodies.join(",")}
-      data-lighting={runtime.lighting ?? DEFAULT_LIGHTING}
+      data-lighting="per-body"
       data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
     >
       <SceneContents {...props} layers={layers} />
-      <LayeredRender lightLayers={lightLayers} merged={runtime.lighting === "single-sun"} />
+      <LayeredRender lightLayers={lightLayers} />
     </Canvas>
   );
 }
 
 /** Takes over rendering so each lit body is lit only by its own Sun direction, one pass per body. */
-function LayeredRender({ lightLayers, merged }: { readonly lightLayers: readonly number[]; readonly merged: boolean }) {
+function LayeredRender({ lightLayers }: { readonly lightLayers: readonly number[] }) {
   useFrame(({ gl, scene, camera }) => {
     const previousAutoClear = gl.autoClear;
     const previousMask = camera.layers.mask;
     gl.autoClear = false;
     gl.clear();
-    if (merged) {
-      // One Sun light lights every body, so every body is drawn in one pass.
-      camera.layers.mask = lightLayers.reduce((mask, layer) => mask | (1 << layer), 1);
-      gl.render(scene, camera);
-      camera.layers.mask = 1 << TRACK_LAYER;
-      gl.render(scene, camera);
-      camera.layers.mask = previousMask;
-      gl.autoClear = previousAutoClear;
-      return;
-    }
     // Layer 0 (paths) is drawn with the first body's pass, then every later body's pass shares the depth buffer.
     lightLayers.forEach((layer, index) => {
       camera.layers.mask = (index === 0 ? 1 : 0) | (1 << layer);
@@ -210,8 +196,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupRefs = useRef(new Map<BodyId, Group>());
   const orientRefs = useRef(new Map<BodyId, Group>());
   const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
-  const sunLight = useRef<PointLight>(null);
-  const singleSun = runtime.lighting === "single-sun";
   const placed = useRef<ReadonlyMap<BodyId, RenderVector>>(new Map());
   const refFor = (map: Map<BodyId, Group>, id: BodyId) => (node: Group | null) => {
     if (node === null) map.delete(id);
@@ -239,7 +223,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => new PathView(compositionPathLayer(path, runtime.resolver), COMPOSITION_PATH_STYLE)), [runtime.composition, runtime.resolver]);
-  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, source: skyMapFromSearch(window.location.search) ?? runtime.sky.source }) : null), [runtime.sky, gl]);
+  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null }) : null), [runtime.sky, gl]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
@@ -258,7 +242,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       cancelled = true;
       delete gl.domElement.dataset.skyStars;
       delete gl.domElement.dataset.skyPicture;
-      delete gl.domElement.dataset.skyPictureSource;
       delete gl.domElement.dataset.skyStarBrightness;
       skyView.dispose();
     };
@@ -473,8 +456,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       if (gl.domElement.dataset.skyStarBrightness !== starGain) gl.domElement.dataset.skyStarBrightness = starGain;
       const picture = controls.showMilkyWay ? "on" : "off";
       if (gl.domElement.dataset.skyPicture !== picture) gl.domElement.dataset.skyPicture = picture;
-      const pictureSource = skyView.pictureSource ?? "none";
-      if (gl.domElement.dataset.skyPictureSource !== pictureSource) gl.domElement.dataset.skyPictureSource = pictureSource;
       // Developer mode reads the sky back so the invariance can be checked from outside (orientation in, screen position out).
       if (controls.frameStats !== null) gl.domElement.dataset.skyProbe = JSON.stringify(skyView.probe(camera));
     }
@@ -497,19 +478,13 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
     storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null);
 
-    if (singleSun) {
-      // One point light at the Sun's scaled position, expressed from the floating origin like every other position.
-      const at = origin.toLocal(sunScaledPosition(resolver, sceneCenter, policy, t));
-      sunLight.current?.position.set(at[0], at[1], at[2]);
-    } else {
-      // Each lit body is lit along its own physical Sun direction (before any readable compression).
-      const directions: Map<BodyId, RenderVector> = bodyLightDirections(assets.filter((asset) => lightRefs.current.has(asset.definition.id)).map((asset) => asset.definition.id), resolver, t);
-      for (const asset of assets) {
-        const light = lightRefs.current.get(asset.definition.id);
-        const toSun = directions.get(asset.definition.id);
-        if (light === undefined || toSun === undefined) continue;
-        light.position.set(toSun[0], toSun[1], toSun[2]);
-      }
+    // Each lit body is lit along its own physical Sun direction (before any readable compression).
+    const directions: Map<BodyId, RenderVector> = bodyLightDirections(assets.filter((asset) => lightRefs.current.has(asset.definition.id)).map((asset) => asset.definition.id), resolver, t);
+    for (const asset of assets) {
+      const light = lightRefs.current.get(asset.definition.id);
+      const toSun = directions.get(asset.definition.id);
+      if (light === undefined || toSun === undefined) continue;
+      light.position.set(toSun[0], toSun[1], toSun[2]);
     }
 
     if (readoutPair === null) {
@@ -532,16 +507,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     });
   });
 
-  const lit = assets.map((asset) => asset.visual.light).filter((light) => light !== undefined);
-  const sunStrength: SunLightStrength = runtime.sunLight ?? { ambient: Math.max(0, ...lit.map((light) => light.ambient)), directional: Math.max(0, ...lit.map((light) => light.directional)) };
   return (
     <group ref={rootRef}>
-      {singleSun && lit.length > 0 && (
-        <>
-          <ambientLight layers={0} intensity={sunStrength.ambient} />
-          <pointLight ref={sunLight} layers={0} decay={0} intensity={sunStrength.directional} />
-        </>
-      )}
       {assets.map((asset) => {
         const id = asset.definition.id;
         const layer = layers.get(id)!;
@@ -549,7 +516,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         return (
           <group key={id}>
             <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
-            {light !== undefined && !singleSun && (
+            {light !== undefined && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />
                 <directionalLight
