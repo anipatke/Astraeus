@@ -12,6 +12,10 @@ history:
     actor: {role: owner, session: owner-chat-o014-live-look-20261013}
     kind: observed
     note: 'Owner, accepting T-047/T-049/T-050 after the live look: "Jupiter has no texture". Recorded by the orchestrator on the owner''s direct words; not a condition on that acceptance.'
+  - at: '2026-10-16T12:00:00Z'
+    actor: {role: executor, session: i024-jupiter-texture-repair}
+    kind: repair_attempted
+    note: 'Added src/assets/textures/jupiter-2k.jpg (Solar System Scope 2k_jupiter.jpg, unchanged, 2048x1024); the textures page was re-read 2026-10-16 and still states "Distributed under Attribution 4.0 International license" (CC BY 4.0). src/assets/bodies/jupiter.ts now carries a TextureRef with an AssetLicence (credit "Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA imagery"), material colour kept as fallback. Jupiter orientation limitations (src/core/bodies/jupiter.ts) now say its bands rotate at different rates so any prime meridian is approximate and the orientation is a visual stand-in. Recorded in docs/DONOR_PROVENANCE.md. Updated tests/planets.test.ts and tests/textureLicence.test.ts for the textured Jupiter. Results: typecheck clean; vite build ok; full vitest 812 passed, 1 skipped (includes textureLicence and publicBuild); browser-jupiter-io.mjs and browser-earth-moon.mjs ran with zero errors against http://localhost:5199/app.html, evidence in docs/evidence/o011-i024-20261016T095602Z/ (desktop-focus-jupiter.png shows banded texture, desktop-overview-t0.png is Jupiter-Io overview). Unverified: owner look at texture alignment (Proof Needed 3); Io/Jupiter band alignment is by eye only.'
 ---
 
 # I-024: Jupiter has no texture

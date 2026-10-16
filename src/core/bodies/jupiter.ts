@@ -13,6 +13,10 @@ export const JUPITER_ROTATION: IauRotationElements = Object.freeze<IauRotationEl
   citation: IAU_REPORT,
 });
 
+/** Jupiter is gaseous and its cloud bands rotate at different rates, so no single prime meridian fits the whole map. */
+export const JUPITER_BAND_LIMITATION =
+  "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.";
+
 export const JUPITER: CelestialBodyDefinition = Object.freeze({
   id: "jupiter",
   label: "Jupiter",
@@ -34,6 +38,10 @@ export const JUPITER: CelestialBodyDefinition = Object.freeze({
     }),
     position: JUPITER_EPHEMERIS.provenance,
     validUtc: PLANET_VALIDATED_UTC,
-    orientationLimitations: Object.freeze([ROTATION_LIMITATION, `Constants: ${IAU_REPORT}.`]),
+    orientationLimitations: Object.freeze([
+      ROTATION_LIMITATION,
+      JUPITER_BAND_LIMITATION,
+      `Constants: ${IAU_REPORT}.`,
+    ]),
   }),
 });

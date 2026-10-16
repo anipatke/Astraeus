@@ -110,8 +110,12 @@ describe("planet visuals", () => {
     }
   });
 
-  it("draw Jupiter in its material colour with no texture, as a spheroid with independently mapped radii", () => {
-    expect(JUPITER_VISUAL.texture).toBeUndefined();
+  it("draw Jupiter as a spheroid with a CC BY 4.0 texture over its material colour, with independently mapped radii with independently mapped radii", () => {
+    const texture = JUPITER_VISUAL.texture!;
+    expect(texture.localOnly).toBeUndefined();
+    expect(texture.licence).toMatchObject({ licence: "CC BY 4.0", url: "https://www.solarsystemscope.com/textures/" });
+    expect(textureFiles).toContain("../src/assets/textures/jupiter-2k.jpg");
+    expect(JUPITER.accuracy.orientationLimitations.join(" ")).toMatch(/bands rotate at different rates/);
     expect(catalogue.get("jupiter").visual.material.color).toBe("#d4a97a");
     const radii = drawnRadii(JUPITER, trueScale);
     expect(radii.equatorial).toBeCloseTo(71492 / 6371, 9);
