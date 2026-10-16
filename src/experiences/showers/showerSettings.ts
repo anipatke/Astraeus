@@ -104,6 +104,12 @@ export interface ShowerSettings {
   /** Objects whose label the scene may hide: id (a catalogued body or the stream) to whether it is shown at the start. Anything not listed is always shown. */
   readonly labels: Readonly<Record<string, boolean>>;
   readonly look: ShowerLook;
+  /**
+   * Optional story panels (the shell's `parseStoryPanels` shape), as plain data. Either the repo-relative path of a panels file under
+   * `data/stories/<story>/panels.json`, read the way an experience reads its own panels file, or the panels object itself.
+   * The panels are checked against the built experience's events and objects when it is built.
+   */
+  readonly story?: { readonly panels: string | Readonly<Record<string, unknown>> };
   readonly activity: {
     readonly startUtc: string;
     readonly endUtc: string;
@@ -319,6 +325,22 @@ function concentration(raw: Raw): ShowerSettings["stream"]["concentration"] {
   return { fraction, widthDeg, status, basis: text(raw, "basis", path) };
 }
 
+/** The path a shower's `story.panels` may name: one panels file in a story's folder. */
+export const PANELS_PATH = /^data\/stories\/[a-z0-9]+(-[a-z0-9]+)*\/panels\.json$/;
+
+function story(input: unknown): ShowerSettings["story"] {
+  if (input === undefined) return undefined;
+  const raw = record(input, "story");
+  const panels = raw.panels;
+  if (typeof panels === "string") {
+    if (!PANELS_PATH.test(panels)) fail("story.panels", `must be a path like data/stories/<story>/panels.json or the panels object, got "${panels}"`);
+    return { panels };
+  }
+  const inline = record(panels, "story.panels");
+  if (!Array.isArray(inline.panels)) fail("story.panels.panels", "is required and must be a list of panels");
+  return { panels: inline };
+}
+
 /** Checks a settings object field by field and returns it typed. Every error names the field. */
 export function parseShowerSettings(input: unknown): ShowerSettings {
   const root = record(input, "settings");
@@ -369,6 +391,7 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
     labels: labels(root.labels),
     timeline: timeline(root.timeline),
     look: look(record(root.look, "look")),
+    ...(root.story === undefined ? {} : { story: story(root.story) }),
     activity: {
       startUtc,
       endUtc,

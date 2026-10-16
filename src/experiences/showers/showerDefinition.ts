@@ -16,7 +16,8 @@ import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
 import { fetchOrbitsCommand, offeredSources, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
-import { citedSourceOf, type OrbitSource, type ShowerSettings, type ShowerSource } from "./showerSettings";
+import { parseStoryPanels, StoryPanelError, type StoryPanelSet } from "../../shell/storyPanels";
+import { citedSourceOf, ShowerSettingsError, type OrbitSource, type ShowerSettings, type ShowerSource } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
@@ -39,14 +40,41 @@ export function showerCatalogue(settings: ShowerSettings): BodyCatalogue {
 /** One extended catalogue per settings object, so every part of one experience shares it. */
 const EXTENDED = new WeakMap<ShowerSettings, BodyCatalogue>();
 
+/** Every story panels file a shower's `story.panels` path may name, keyed by repo-relative path. */
+const PANEL_FILES = import.meta.glob<unknown>("../../../data/stories/*/panels.json", { eager: true, import: "default" });
+
+/**
+ * The shower's story panels, or undefined when its settings carry none. A path is read from the story folder; either way the panels are checked
+ * against this experience's events, objects and timeline, and a problem is raised with the settings field or the panel and field named.
+ */
+export function showerStoryPanels(settings: ShowerSettings, objectIds: readonly string[], events: readonly { readonly id: string; readonly timeUtcMs: number }[], window: { readonly startUtcMs: number; readonly endUtcMs: number }): StoryPanelSet | undefined {
+  if (settings.story === undefined) return undefined;
+  const given = settings.story.panels;
+  const raw = typeof given === "string" ? PANEL_FILES[`../../../${given}`] : given;
+  if (raw === undefined) throw new ShowerSettingsError(`shower settings story.panels names "${String(given)}", which is not a panels file in the project`);
+  try {
+    // Validated against the full default (year) timeline so a genuine data mistake still throws; a viewer who narrows the span just loses the panels outside what is visible.
+    const set = parseStoryPanels(raw, { events, objectIds, window: yearBoundsOf(settings) });
+    const panels = set.panels.filter((panel) => panel.timeUtcMs >= window.startUtcMs && panel.timeUtcMs <= window.endUtcMs);
+    return panels.length === set.panels.length ? set : { ...set, panels };
+  } catch (error) {
+    if (error instanceof StoryPanelError) throw new ShowerSettingsError(`shower settings story.panels: ${error.message}`);
+    throw error;
+  }
+}
+
 const sourceLine = (source: ShowerSource): string => `${source.name} (${source.url}, accessed ${source.accessed})`;
 
 /** The timeline's bounds: the activity window, or one year centred on the peak. Everything the timeline bounds (the stream, the clock, the loop) uses these. */
 export function timelineBoundsOf(settings: ShowerSettings): { readonly startUtcMs: number; readonly endUtcMs: number } {
-  const { startUtc, endUtc, peakUtc } = settings.activity;
+  const { startUtc, endUtc } = settings.activity;
   if (settings.timeline.span === "activity") return { startUtcMs: Date.parse(startUtc), endUtcMs: Date.parse(endUtc) };
-  const peak = Date.parse(peakUtc);
-  const start = Math.round(peak - YEAR_MS / 2);
+  return yearBoundsOf(settings);
+}
+
+/** One year centred on the peak: the shower's full default timeline. */
+function yearBoundsOf(settings: ShowerSettings): { readonly startUtcMs: number; readonly endUtcMs: number } {
+  const start = Math.round(Date.parse(settings.activity.peakUtc) - YEAR_MS / 2);
   return { startUtcMs: start, endUtcMs: start + YEAR_MS };
 }
 
@@ -54,11 +82,7 @@ export function timelineBoundsOf(settings: ShowerSettings): { readonly startUtcM
 export const streamIdOf = (settings: ShowerSettings): string => `${settings.id}-stream`;
 export const windowIdOf = (settings: ShowerSettings): string => `${settings.id}-activity`;
 
-/** The key an entry finds a settings file under: its file name without folder or extension. */
-export function showerEntryName(path: string): string {
-  const file = path.slice(path.lastIndexOf("/") + 1);
-  return file.endsWith(".json") ? file.slice(0, -".json".length) : file;
-}
+export { showerEntryName } from "./showerEntry";
 
 const percent = (fraction: number): string => `${Math.round(fraction * 100)}%`;
 
@@ -510,8 +534,16 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
   const { startUtcMs, endUtcMs } = timelineBoundsOf(settings);
   const radiant = radiantMetricOf(settings);
   const parentOrbitId = parentOrbitIdOf(settings);
+  const events = createEvents([
+    { id: `${settings.id}-start`, label: `${settings.label} activity begins`, timeUtcMs: window.startUtcMs },
+    { id: `${settings.id}-peak`, label: `${settings.label} peak`, timeUtcMs: window.peakUtcMs ?? window.startUtcMs },
+    { id: `${settings.id}-end`, label: `${settings.label} activity ends`, timeUtcMs: window.endUtcMs },
+  ]);
+  const objects = [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load, source)])];
+  // A panel may name any object the experience lists, or the stream when it is drawn.
+  const storyPanels = showerStoryPanels(settings, [...objects.map((object) => object.id), ...(layer === null ? [] : [streamId])], events, { startUtcMs, endUtcMs });
   const experience: ExperienceConfig = {
-    objects: [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load, source)])],
+    objects,
     cameraPresets: [
       { id: "overview", label: "Overview", request: { kind: "overview" } },
       { id: "focus-earth", label: "Focus Earth", request: { kind: "focus", target: "earth" } },
@@ -525,13 +557,10 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
             { id: "follow-stream", label: "Follow stream", request: { kind: "follow", target: streamId } } as const,
           ]),
     ],
-    events: createEvents([
-      { id: `${settings.id}-start`, label: `${settings.label} activity begins`, timeUtcMs: window.startUtcMs },
-      { id: `${settings.id}-peak`, label: `${settings.label} peak`, timeUtcMs: window.peakUtcMs ?? window.startUtcMs },
-      { id: `${settings.id}-end`, label: `${settings.label} activity ends`, timeUtcMs: window.endUtcMs },
-    ]),
+    events,
     windows: [window],
     window: { startUtcMs, endUtcMs },
+    ...(storyPanels === undefined ? {} : { storyPanels }),
     rates: [...new Set([3_600, 43_200, 86_400, 259_200, 604_800, settings.timeline.rateSecondsPerSecond])].sort((a, b) => a - b),
     eventProvenance: createProvenance({
       sourceType: "observed",

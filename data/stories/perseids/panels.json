@@ -1,0 +1,58 @@
+{
+  "pauseSeconds": 6,
+  "autoOpen": true,
+  "panels": [
+    {
+      "id": "stream-shape",
+      "at": {
+        "utc": "2027-03-01T00:00:00Z"
+      },
+      "object": "perseids-stream",
+      "title": "A wide ribbon of dust",
+      "badge": "illustrative",
+      "body": [
+        "The dots are about 25,600 Perseid orbits measured by the Global Meteor Network's cameras in July and August 2025. Together they trace a wide ribbon of dust along the orbit of comet Swift–Tuttle.",
+        "The orbits are measured. Where each dot sits along its orbit is not: those places are illustrative, chosen to show the ribbon's shape, so the pattern of dots along the ribbon says nothing about where the dust really is."
+      ],
+      "sources": [
+        "Global Meteor Network, monthly trajectory summaries, Jul and Aug 2025, IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
+        "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section (O-011 / T-056): 25,588 bound orbits drawn; the dots' places along their orbits are illustrative"
+      ]
+    },
+    {
+      "id": "earth-crossing",
+      "at": {
+        "event": "perseids-peak"
+      },
+      "object": "earth",
+      "title": "Earth crosses the stream",
+      "badge": "observed",
+      "body": [
+        "Once a year Earth passes through the ribbon. The Perseids are active from mid-July to late August and peak on the night of 12–13 August, at about 100 meteors an hour at best. They seem to come from a point in the constellation Perseus.",
+        "In the 2025 measured orbits, the stream passes closest to Earth about 2.2 hours before the official peak, and its radiant lies 0.04° from the IAU's."
+      ],
+      "sources": [
+        "IAU Meteor Data Center, Perseids (PER, 7): peak solar longitude 140.1°, radiant RA 47.9°, Dec +57.9° (J2000); ta3.sk (accessed 2026-10-13)",
+        "American Meteor Society calendar 2026/2027: active Jul 17 - Aug 24, peak Aug 12-13, ZHR 100 (accessed 2026-10-11)",
+        "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section: 0.09 d (2.2 h) before the peak; radiant 0.04° off"
+      ]
+    },
+    {
+      "id": "swift-tuttle",
+      "at": {
+        "utc": "2027-10-01T00:00:00Z"
+      },
+      "object": "swift-tuttle",
+      "title": "Comet Swift–Tuttle",
+      "badge": "observed",
+      "body": [
+        "The dust comes from comet Swift–Tuttle, whose nucleus is about 26 km across. It takes about 133 years to orbit the Sun, last passed closest to it in December 1992, and is next due in 2126.",
+        "At the far end of its orbit the comet is about 51 AU from the Sun, well beyond Neptune."
+      ],
+      "sources": [
+        "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution SB405-CPV-2: diameter 26 km (Lamy et al. 2004, Comets II); period 48,681.19 d (about 133.3 years); time of perihelion JD 2448968.4998 TDB (1992 Dec 11); aphelion 51.22 au; https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 (accessed 2026-10-15)",
+        "Next perihelion: the 1992 perihelion plus one period, JD about 2497650, early 2126 (a two-body figure, not a perturbed prediction)"
+      ]
+    }
+  ]
+}
