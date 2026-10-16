@@ -1,12 +1,348 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Astraeus Earth–Moon spike</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Astraeus</title>
+<link rel="canonical" href="https://astraeus.curiouscode.ai/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Astraeus">
+<meta property="og:description" content="Real space data you can fly through: Apollo 11 and the Perseid meteor stream, built from measured orbits.">
+<meta property="og:url" content="https://astraeus.curiouscode.ai/">
+<meta property="og:image" content="https://astraeus.curiouscode.ai/share/apollo-moon.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
+<style>
+/* Layout: engine first. Hero with the one question; the four layers as a ruled band beside a real settings file; an asset shelf of globes, sky and data sets; then the two demos as proof; numbers last. salt.md grammar on a night sky; one dark world on purpose. */
+:root {
+  --bg: #07070a;
+  --raised: #0d0d11;
+  --ink: #f5f5f7;
+  --body: rgba(245, 245, 247, 0.78);
+  --muted: rgba(245, 245, 247, 0.55);
+  --faint: rgba(245, 245, 247, 0.38);
+  --rule: rgba(255, 255, 255, 0.08);
+  --rule-strong: rgba(255, 255, 255, 0.16);
+  --wash: rgba(255, 255, 255, 0.024);
+  --spectrum: linear-gradient(100deg, #ffe7c2 0%, #f5f5f7 45%, #cfdcff 75%, #b9c6ff 100%);
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --container: 1180px;
+  --radius-tile: 18px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--body); font-family: var(--sans); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: var(--ink); text-decoration: none; }
+a:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
+.wrap { max-width: var(--container); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.spec { background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: var(--serif); font-style: italic; font-weight: 300; padding-right: 0.06em; }
+
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
+.brand svg { display: block; }
+.navlinks { display: flex; gap: 10px; align-items: center; }
+.pillink { font-family: var(--mono); font-size: 0.78rem; border: 1px solid var(--rule-strong); border-radius: 999px; padding: 5px 14px; }
+.pillink:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+/* Hero */
+.hero { position: relative; isolation: isolate; padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2.5rem, 5vw, 3.5rem); }
+.hero::before { content: ""; position: absolute; inset: -60px 0 auto; height: 620px; z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(158deg, transparent 30%, rgba(190, 200, 255, 0.045) 44%, rgba(255, 230, 200, 0.06) 50%, rgba(190, 200, 255, 0.04) 56%, transparent 70%),
+    radial-gradient(circle at 84% 18%, rgba(255, 214, 160, 0.10) 0, transparent 22%),
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(120, 130, 200, 0.07), transparent 70%); }
+.hero::after { content: ""; position: absolute; inset: -60px 0 auto; height: 620px; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, transparent 55%, var(--bg) 100%); }
+.sky { position: absolute; inset: -60px 0 auto; height: 620px; width: 100%; z-index: -2; pointer-events: none; display: block; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
+.hero-grid > * { min-width: 0; }
+.hero h1 { margin-top: 16px; font-size: clamp(2.4rem, 5.4vw, 4.4rem); line-height: 1.02; letter-spacing: -0.05em; max-width: 14ch; }
+.hero h1 .spec { font-size: 1.08em; letter-spacing: -0.03em; }
+.lead { margin-top: 20px; font-size: clamp(1.02rem, 1.35vw, 1.14rem); line-height: 1.6; color: var(--body); max-width: 46ch; }
+.cta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 999px; font-weight: 500; font-size: 0.93rem; border: 1px solid var(--rule-strong); color: var(--ink); background: var(--wash); }
+.btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+.btn.primary { background: var(--ink); color: #07070a; border-color: var(--ink); }
+.btn.primary:hover { background: #fff; }
+
+/* Ask-and-answer card: the engine's one question */
+.ask { border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); background: rgba(13, 13, 17, 0.82); backdrop-filter: blur(6px); overflow: hidden; }
+.ask-bar { display: flex; justify-content: space-between; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+.ask pre { margin: 0; padding: 16px; font-family: var(--mono); font-size: 0.8rem; line-height: 1.75; color: var(--muted); overflow-x: auto; }
+.ask .k { color: #c9b8ff; } .ask .s { color: #ffd59a; } .ask .n { color: #9fd8ff; } .ask .c { color: var(--faint); } .ask .g { color: #8fe0a8; }
+
+/* Layers band */
+.band { border-top: 1px solid var(--rule); padding-block: clamp(2.5rem, 6vw, 4rem); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-bottom: 26px; }
+.head h2 { font-size: clamp(1.7rem, 3.4vw, 2.6rem); line-height: 1.06; letter-spacing: -0.045em; max-width: 20ch; }
+.head p { max-width: 46ch; font-size: 0.98rem; color: var(--muted); }
+.layers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px dashed var(--rule-strong); }
+.layers li { padding: 20px 20px 0 0; min-width: 0; }
+.layers li + li { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
+.layers .n { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.1em; }
+.layers h3 { margin-top: 8px; font-size: 1.15rem; letter-spacing: -0.02em; }
+.layers p { margin-top: 8px; font-size: 0.92rem; color: var(--muted); line-height: 1.55; }
+.layers .tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-family: var(--mono); font-size: 0.68rem; color: var(--body); border: 1px solid var(--rule-strong); border-radius: 999px; padding: 2px 9px; }
+
+/* Asset shelf */
+.globes { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+.globe { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; text-align: center; }
+.ball { width: 100%; max-width: 104px; aspect-ratio: 1; border-radius: 50%; background-size: 200% 100%; background-position: 30% 50%; position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+.ball::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,0.18), transparent 40%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.55), transparent 62%); }
+.ball.sun { box-shadow: 0 0 40px 6px rgba(255, 170, 80, 0.35); }
+.ball.sun::after { background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(255, 200, 120, 0.25) 100%); }
+.ball.flat { background: radial-gradient(circle at 40% 35%, #e3bf93, #b98a5e 60%, #6d4c31); }
+.ball.pending { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 6px, transparent 6px 12px), #0d0d11; box-shadow: 0 0 0 1px dashed var(--rule-strong); border: 1px dashed var(--rule-strong); }
+.globe b { font-size: 0.88rem; color: var(--ink); font-weight: 500; }
+.globe span { font-family: var(--mono); font-size: 0.64rem; color: var(--faint); letter-spacing: 0.04em; }
+.shelf2 { margin-top: 26px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.tile { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); overflow: hidden; min-width: 0; display: flex; flex-direction: column; }
+.tile img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; background: #050507; }
+.tile-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.tile-body b { color: var(--ink); font-weight: 600; }
+.tile-body small { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+.tile-body p { font-size: 0.88rem; color: var(--muted); }
+.big { font-family: var(--serif); font-weight: 300; font-size: clamp(2.2rem, 4vw, 3rem); line-height: 1; letter-spacing: -0.05em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.data-tile { padding: 18px; justify-content: space-between; gap: 14px; }
+.more { margin-top: 18px; font-size: 0.92rem; }
+.more a { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
+.more a:hover { border-color: var(--ink); }
+
+/* Demos */
+.demos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.demo { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); background: var(--raised); overflow: hidden; min-width: 0; }
+.demo:hover { border-color: rgba(255, 255, 255, 0.32); }
+.shot { max-width: 100%; min-height: 180px; overflow: hidden; background: #050507; }
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.demo-body { padding: 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.demo-body .eyebrow { font-size: 0.66rem; }
+.demo-body h3 { font-size: 1.3rem; letter-spacing: -0.03em; }
+.demo-body p { font-size: 0.88rem; color: var(--muted); }
+.demo-body .uses { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 5px; }
+.go { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 999px; background: var(--ink); color: #07070a; font-weight: 500; font-size: 0.86rem; }
+.demo:hover .go { background: #fff; }
+
+/* Numbers */
+.proof { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.proof li { padding: 0 20px; border-left: 1px dashed var(--rule-strong); min-width: 0; }
+.proof li:first-child { border-left: 0; padding-left: 0; }
+.proof b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(2.2rem, 4.4vw, 3.4rem); line-height: 1; letter-spacing: -0.05em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.proof b small { font-size: 0.42em; letter-spacing: 0; color: var(--muted); margin-left: 4px; }
+.proof span { display: block; margin-top: 10px; font-size: 0.86rem; line-height: 1.45; color: var(--muted); max-width: 24ch; }
+
+footer { border-top: 1px solid var(--rule); padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--ink); }
+
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; }
+  .layers li + li { border-left: 0; padding-left: 0; }
+  .layers li:nth-child(even) { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
+  .globes { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 22px; }
+  .shelf2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .shelf2 .tile:first-child { grid-column: 1 / -1; }
+  .demos { grid-template-columns: minmax(0, 1fr); }
+  .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 1.75rem; }
+  .proof li:nth-child(3) { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 520px) {
+  .layers { grid-template-columns: minmax(0, 1fr); }
+  .layers li:nth-child(even) { border-left: 0; padding-left: 0; }
+  .shelf2 { grid-template-columns: minmax(0, 1fr); }
+  .demo { grid-template-columns: minmax(0, 1fr); }
+  .shot { aspect-ratio: 16 / 9; min-height: 0; }
+  .proof li { padding-inline: 14px 0; }
+  .navlinks .pillink:first-child { display: none; }
+}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><ellipse cx="11" cy="11" rx="10" ry="4.2" fill="none" stroke="rgba(245,245,247,0.45)" stroke-width="1" transform="rotate(-18 11 11)"/><circle cx="11" cy="11" r="3.2" fill="#ffd59a"/><circle cx="19.3" cy="8.2" r="1.4" fill="#9fd8ff"/></svg>
+      Astraeus
+    </span>
+    <span class="navlinks"><a class="pillink" href="#demos">Demos</a><a class="pillink" href="assets.html">Assets</a><a class="pillink" href="https://github.com/anipatke/Astraeus">GitHub</a></span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">An open-source engine for space stories · TypeScript · Three.js</span>
+        <h1>Everything in space, where it is <span class="spec">right now.</span></h1>
+        <p class="lead">Astraeus does the hard part of space on the web: time, orbits, reference frames and astronomical scale. Every body answers one question, where are you at this moment, and every answer says where it came from. You bring the story.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/anipatke/Astraeus">Read the code</a>
+          <a class="btn" href="#demos">See it running</a>
+        </div>
+      </div>
+      <div class="ask" aria-label="The engine's one question, and a real answer">
+        <div class="ask-bar"><span>the one question</span><span>MIT</span></div>
+<pre><span class="c">// Where was the Moon when Eagle landed?</span>
+moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span class="s">"1969-07-20T20:17:40Z"</span>), <span class="s">"earth"</span>)
+
+{
+  <span class="k">frame</span>:      <span class="s">"EQJ"</span>,      <span class="c">// J2000 equatorial</span>
+  <span class="k">center</span>:     <span class="s">"earth"</span>,
+  <span class="k">positionKm</span>: [<span class="n">-385_000</span>, <span class="n">-48_000</span>, <span class="n">-31_000</span>],
+  <span class="k">provenance</span>: {
+    <span class="k">sourceType</span>: <span class="s">"ephemeris"</span>,
+    <span class="k">sources</span>:    [<span class="s">"orb.js lunar series"</span>],
+  }
+}
+<span class="c">// JPL Horizons, same instant: −385,275 · −47,906 · −30,879 km</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="engine">
+    <div class="wrap">
+      <div class="head">
+        <h2>Four layers, <span class="spec">one door in.</span></h2>
+        <p>A planet, a spacecraft, a comet and twenty-five thousand meteoroids all enter the same way. Everything downstream draws them the same way.</p>
+      </div>
+      <ol class="layers">
+        <li><span class="n">01 · STATE</span><h3>Where and when</h3><p>Time scales, positions, velocities, orientation and frames, each with its source and accuracy.</p><div class="tags"><span class="tag">UTC·TT·TDB</span><span class="tag">J2000</span><span class="tag">provenance</span></div></li>
+        <li><span class="n">02 · SOURCES</span><h3>Plug in the data</h3><p>Planet theory, NASA mission samples, published orbits, measured meteor catalogues. Swap one without touching the rest.</p><div class="tags"><span class="tag">VSOP87</span><span class="tag">Kepler</span><span class="tag">catalogues</span></div></li>
+        <li><span class="n">03 · DRAWING</span><h3>Safe at any scale</h3><p>True or readable scale, a floating origin so 51 AU stays steady, paths, labels, light and a real star sky.</p><div class="tags"><span class="tag">floating origin</span><span class="tag">markers</span><span class="tag">sky</span></div></li>
+        <li><span class="n">04 · STORY</span><h3>Time you can play</h3><p>Timelines, events, focus and follow, and an info panel that shows what's measured and what's filled in.</p><div class="tags"><span class="tag">observed</span><span class="tag">modelled</span><span class="tag">illustrative</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="assets">
+    <div class="wrap">
+      <div class="head">
+        <h2>The shelf, <span class="spec">ready to use.</span></h2>
+        <p>Bodies, sky and data that ship with the engine's demos, each with its source and licence on record.</p>
+      </div>
+      <div class="globes" aria-label="Bodies">
+        <div class="globe"><div class="ball sun" style="background-image:url(site/t-sun-2k.jpg)"></div><b>Sun</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-mercury-2k.jpg)"></div><b>Mercury</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-venus-2k.jpg)"></div><b>Venus</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-earth-bmng.jpg)"></div><b>Earth</b><span>NASA Earth Observatory</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-moon-lroc.jpg)"></div><b>Moon</b><span>NASA SVS</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-mars-2k.jpg)"></div><b>Mars</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-jupiter-2k.jpg)"></div><b>Jupiter</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-io-2k.jpg)"></div><b>Io</b><span>public domain</span></div>
+      </div>
+      <div class="shelf2">
+        <a class="tile" href="assets.html"><img src="site/t-milky-way.jpg" alt="The ESO Milky Way panorama"><div class="tile-body"><small>SKY</small><b>Real stars and the Milky Way</b><p>8,404 naked-eye stars placed to 0.0001°, and ESO's panorama in the same frame.</p></div></a>
+        <a class="tile data-tile" href="assets.html"><div class="tile-body" style="padding:0"><small>MEASURED ORBITS</small><b>Global Meteor Network</b><p>Perseids from 2025, every meteor on its own ellipse. CC BY 4.0.</p></div><span class="big">25,588</span></a>
+        <a class="tile data-tile" href="assets.html"><div class="tile-body" style="padding:0"><small>ORBITS AND MISSIONS</small><b>NASA JPL and Apollo 11</b><p>A comet out to 51 AU, an asteroid from a settings file, and 30 timed Apollo events.</p></div><span class="big">30</span></a>
+      </div>
+      <p class="more"><a href="assets.html">Every asset, the science behind it, and the credits →</a></p>
+    </div>
+  </section>
+
+  <section class="band" id="demos">
+    <div class="wrap">
+      <div class="head">
+        <h2>Built with it.</h2>
+        <p>Two stories that couldn't be more different, on the same engine with no special cases. Open Developer mode in either to see what's underneath.</p>
+      </div>
+      <div class="demos">
+        <a class="demo" href="app.html">
+          <div class="shot"><img src="site/apollo-moon.jpg" alt="Apollo 11's Columbia and Eagle beside the Moon at true scale."></div>
+          <div class="demo-body">
+            <span class="eyebrow">July 1969</span>
+            <h3>Apollo 11</h3>
+            <p>Eight days to the Moon and back, rebuilt from NASA's mission report.</p>
+            <div class="uses"><span class="tag">mission data</span><span class="tag">events</span></div>
+            <span class="go">Open</span>
+          </div>
+        </a>
+        <a class="demo" href="app.html?experience=shower-perseids">
+          <div class="shot"><img src="site/perseids-gmn.jpg" alt="The Perseid meteor stream fanning out from the Sun, every dot a measured orbit."></div>
+          <div class="demo-body">
+            <span class="eyebrow">August 2027</span>
+            <h3>The Perseids</h3>
+            <p>Earth through comet Swift–Tuttle's trail. A whole shower from one settings file.</p>
+            <div class="uses"><span class="tag">25,588 orbits</span><span class="tag">settings</span></div>
+            <span class="go">Open</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <ul class="proof" aria-label="In numbers">
+        <li><b>1</b><span>question every body answers: where are you, now?</span></li>
+        <li><b>25,588</b><span>measured meteor orbits, drawn one by one</span></li>
+        <li><b>51<small>AU</small></b><span>out to a comet's far end, without losing precision</span></li>
+        <li><b>1</b><span>settings file was all a new shower needed</span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Ani Patke, with AI doing a lot of the typing. <a href="https://anipatke.com">anipatke.com</a> · MIT licence</span>
+    <span>Meteor orbits: Global Meteor Network, CC BY 4.0 · <a href="assets.html">Assets, science and credits →</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const canvas = document.getElementById("sky");
+  if (!canvas || !canvas.getContext) return;
+  const ctx = canvas.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let seed = 19690720;
+  const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const tints = ["#cfdcff", "#e6ecff", "#f5f5f7", "#f5f5f7", "#fff4e0", "#ffe2bd"];
+  let stars = [], w = 0, h = 0;
+  function build() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed = 19690720;
+    const count = Math.round((w * h) / 2600);
+    stars = Array.from({ length: count }, () => {
+      const m = Math.pow(rand(), 3.2);
+      let x = rand() * w, y = rand() * h;
+      if (rand() < 0.35) { const t = rand(); x = t * w; y = h * (0.05 + 0.7 * t) + (rand() - 0.5) * h * 0.18; }
+      return { x, y, r: 0.35 + m * 1.5, a: 0.18 + m * 0.75, c: tints[Math.floor(rand() * tints.length)], tw: rand() < 0.08 ? 0.6 + rand() * 1.4 : 0, ph: rand() * 6.28 };
+    });
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+      const a = s.tw ? s.a * (0.55 + 0.45 * Math.sin(t / 1000 * s.tw + s.ph)) : s.a;
+      ctx.globalAlpha = a; ctx.fillStyle = s.c;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+      if (s.r > 1.4) { ctx.globalAlpha = a * 0.18; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3.2, 0, 6.2832); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  let raf = 0;
+  function loop(t) { draw(t); raf = requestAnimationFrame(loop); }
+  function start() { build(); cancelAnimationFrame(raf); if (still) draw(0); else raf = requestAnimationFrame(loop); }
+  start();
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(start, 150); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) cancelAnimationFrame(raf); else if (!still) raf = requestAnimationFrame(loop); });
+})();
+</script>
+
+</body>
 </html>

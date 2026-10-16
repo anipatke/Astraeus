@@ -27,3 +27,7 @@ export function proveItFails(): {
   readonly dataEmbedded: PublicBuildResult;
   readonly dataPath: PublicBuildResult;
 };
+export const REQUIRED_PAGES: readonly string[];
+export const SHIPPABLE_LICENCES: readonly string[];
+/** Which files of a made-up data/local/ the validator would still check (CAMS, Yale, a non-shippable licence) and which it passes (a declared CC BY 4.0). */
+export function proveLicenceHandling(): readonly string[];

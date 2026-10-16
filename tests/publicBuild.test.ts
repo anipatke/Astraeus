@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { findLocalOnlySources, proveItFails } from "../tools/validate/public-build-assets.mjs";
+import { findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
+import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
 const basename = (url: string) => url.slice(url.lastIndexOf("/") + 1).split("?")[0];
 
@@ -46,3 +48,16 @@ describe("public build texture exclusion (design C.3)", () => {
     expect(result.dataPath.matches.map((match) => match.how)).toEqual(["path under data/local"]);
   });
 });
+
+describe("shippable measured orbits (T-056)", () => {
+  it("keeps the shippable-licence list equal in the loader, the fetch tool and the validator", () => {
+    expect([...TOOL_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
+    expect([...VALIDATOR_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
+    expect(SHIPPABLE_LICENCES.some((licence) => /cams|yale|nc|unknown/i.test(licence))).toBe(false);
+  });
+
+  it("checks every fetched file that declares no shippable licence (CAMS, Yale) and passes only a declared CC BY or CC0 file", () => {
+    expect(proveLicenceHandling()).toEqual(["data/local/cams-iau-7.json", "data/local/other-nc.json", "data/local/yale-bsc-v65.json"]);
+  });
+});
+

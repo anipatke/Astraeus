@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Astraeus Assets</title>
+<link rel="canonical" href="https://astraeus.curiouscode.ai/assets.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
+<style>
+/* Layout: a catalogue. Short intro, a status key, then one ruled section per kind of asset; pictures as a thumbnail grid, data as dense rows. Same night-sky identity as the pitch page. */
+:root {
+  --bg: #07070a;
+  --raised: #0d0d11;
+  --ink: #f5f5f7;
+  --body: rgba(245, 245, 247, 0.78);
+  --muted: rgba(245, 245, 247, 0.55);
+  --faint: rgba(245, 245, 247, 0.38);
+  --rule: rgba(255, 255, 255, 0.08);
+  --rule-strong: rgba(255, 255, 255, 0.16);
+  --ok: #8fe0a8;
+  --local: #ffb347;
+  --check: #c9b8ff;
+  --gap: rgba(245, 245, 247, 0.38);
+  --spectrum: linear-gradient(100deg, #ffe7c2 0%, #f5f5f7 45%, #cfdcff 75%, #b9c6ff 100%);
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; background: var(--bg); color: var(--body); font-family: var(--sans); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { max-width: 100%; }
+a { color: var(--ink); text-decoration: none; }
+a:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.spec { background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: var(--serif); font-style: italic; font-weight: 300; padding-right: 0.06em; }
+
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
+.back { font-family: var(--mono); font-size: 0.78rem; border: 1px solid var(--rule-strong); border-radius: 999px; padding: 5px 14px; color: var(--ink); }
+.back:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+.intro { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem); border-bottom: 1px solid var(--rule); }
+.intro h1 { margin-top: 14px; font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.04; letter-spacing: -0.05em; max-width: 16ch; }
+.intro p { margin-top: 18px; max-width: 60ch; font-size: 1.05rem; }
+.key { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.st { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.st i { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.st.ok { color: var(--ok); } .st.ok i { background: var(--ok); }
+.st.local { color: var(--local); } .st.local i { background: var(--local); }
+.st.check { color: var(--check); } .st.check i { background: var(--check); }
+.st.gap { color: var(--gap); } .st.gap i { background: transparent; border: 1px dashed var(--gap); }
+
+section { padding-block: clamp(2.25rem, 5vw, 3.5rem); border-bottom: 1px solid var(--rule); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; margin-bottom: 22px; }
+.head h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -0.04em; line-height: 1.1; }
+.head p { font-size: 0.92rem; color: var(--muted); max-width: 52ch; }
+
+/* Picture grid */
+.pics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.pic { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.pic img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; background: #050507; }
+.pic .ph { aspect-ratio: 2 / 1; max-width: 100%; display: grid; place-items: center; font-family: var(--mono); font-size: 0.72rem; color: var(--faint); border-bottom: 1px dashed var(--rule-strong); background: repeating-linear-gradient(135deg, transparent 0 10px, rgba(255,255,255,0.02) 10px 20px); }
+.pic-body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.pic-body h3 { font-size: 1.02rem; letter-spacing: -0.01em; }
+.pic-body p { font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+.pic-body .meta { margin-top: auto; padding-top: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-family: var(--mono); font-size: 0.7rem; color: var(--faint); }
+
+/* Data rows */
+.rows { border-top: 1px dashed var(--rule-strong); }
+.row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) minmax(0, 0.9fr) 8.5rem; gap: 6px 22px; padding: 16px 0; border-bottom: 1px dashed var(--rule-strong); align-items: start; }
+.row > * { min-width: 0; }
+.row h3 { font-size: 1rem; letter-spacing: -0.01em; }
+.row .sub { display: block; margin-top: 3px; font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+.row p { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+.row .lic { font-size: 0.86rem; color: var(--body); }
+.row .num { font-family: var(--serif); font-weight: 300; font-size: 1.5rem; line-height: 1; letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.row .num small { font-family: var(--sans); font-size: 0.78rem; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+
+.sky-feature { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; margin-bottom: 22px; }
+.sky-feature > * { min-width: 0; }
+.plate { position: relative; border: 1px solid var(--rule-strong); border-radius: 14px; overflow: hidden; background: #050507; }
+.plate img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
+.plate canvas { display: block; width: 100%; aspect-ratio: 2 / 1; }
+.plate .tag { position: absolute; left: 10px; top: 10px; font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; color: var(--ink); background: rgba(7, 7, 10, 0.72); border: 1px solid var(--rule-strong); padding: 3px 9px; border-radius: 999px; }
+.plate .cap { padding: 12px 14px; border-top: 1px solid var(--rule); font-size: 0.84rem; color: var(--muted); }
+
+.gaps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 760px; }
+.gaps li { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 14px; color: var(--body); font-size: 0.95rem; }
+
+footer { padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+@media (max-width: 960px) {
+  .pics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .row > p:not(.lic) { grid-column: 1 / -1; grid-row: 2; }
+  .sky-feature { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .pics { grid-template-columns: minmax(0, 1fr); }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .row > p:not(.lic) { grid-row: auto; }
+  .gaps li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><ellipse cx="11" cy="11" rx="10" ry="4.2" fill="none" stroke="rgba(245,245,247,0.45)" stroke-width="1" transform="rotate(-18 11 11)"/><circle cx="11" cy="11" r="3.2" fill="#ffd59a"/><circle cx="19.3" cy="8.2" r="1.4" fill="#9fd8ff"/></svg>
+      Astraeus
+    </span>
+    <a class="back" href="./">← Back</a>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <div class="wrap">
+      <span class="eyebrow">Assets · as of 16 October 2026</span>
+      <h1>Everything we draw, and <span class="spec">where it came from.</span></h1>
+      <p>Every picture, catalogue and orbit in the demos, with its source, its licence and whether it can go public. The engine itself carries none of this. Each story brings its own.</p>
+      <div class="key" aria-label="Status key">
+        <span class="st ok"><i></i>Public, licence clear</span>
+        <span class="st check"><i></i>Public, origin to confirm</span>
+        <span class="st local"><i></i>This machine only</span>
+        <span class="st gap"><i></i>Missing</span>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>The sky</h2>
+        <p>The real stars and the Milky Way, behind every scene, placed by their true directions in space.</p>
+      </div>
+      <div class="sky-feature">
+        <figure class="plate" style="margin:0">
+          <img src="site/t-milky-way.jpg" alt="The ESO Milky Way panorama, the whole sky in one strip with the galactic centre in the middle." loading="lazy">
+          <span class="tag">MILKY WAY · ESO/S. BRUNIER</span>
+          <div class="cap">Turned into the same sky frame as the stars. Off by default, with a switch and a brightness slider.</div>
+        </figure>
+        <figure class="plate" style="margin:0">
+          <canvas id="stars" aria-label="A sketch of the brightest stars along the ecliptic band" role="img"></canvas>
+          <span class="tag">STARS · YALE BRIGHT STAR CATALOGUE</span>
+          <div class="cap">8,404 stars to magnitude 6.5, the naked-eye sky. Placed to within 0.0001° and sized and tinted by brightness and colour.</div>
+        </figure>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>Bright stars</h3><span class="sub">Yale BSC 5th rev. · Hoffleit &amp; Warren 1991</span></div>
+          <p>J2000 positions, brightness and colour index. Fetched to this machine by a committed tool, never committed or shipped, because its terms aren't established as public domain.</p>
+          <div><span class="num">8,404<small>stars</small></span></div>
+          <span class="st local"><i></i>This machine only</span>
+        </div>
+        <div class="row">
+          <div><h3>Milky Way panorama</h3><span class="sub">ESO eso0932a · 6000×3000</span></div>
+          <p class="lic">CC BY 4.0, credit ESO/S. Brunier. Split into two halves at the galactic centre. Good to a few degrees, and soft beside the stars: a sharper one is on the wish list.</p>
+          <div><span class="num">3.7<small>MB</small></span></div>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>Surface pictures</h2>
+        <p>Maps wrapped around each body. Most are 2048×1024.</p>
+      </div>
+      <div class="pics">
+        <article class="pic"><img src="site/t-sun-2k.jpg" alt="Sun surface map" loading="lazy"><div class="pic-body"><h3>Sun</h3><p>Solar System Scope. Not turned to the Sun's real rotation.</p><div class="meta"><span>CC BY 4.0</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-mercury-2k.jpg" alt="Mercury surface map" loading="lazy"><div class="pic-body"><h3>Mercury</h3><p>Solar System Scope, from NASA imagery.</p><div class="meta"><span>CC BY 4.0</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-venus-2k.jpg" alt="Venus surface map" loading="lazy"><div class="pic-body"><h3>Venus</h3><p>Solar System Scope, the surface under the clouds.</p><div class="meta"><span>CC BY 4.0</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-earth-bmng.jpg" alt="Earth surface map" loading="lazy"><div class="pic-body"><h3>Earth</h3><p>NASA Blue Marble: Next Generation with topography and bathymetry, July 2004, 4096×2048.</p><div class="meta"><span>NASA</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-moon-lroc.jpg" alt="Moon surface map" loading="lazy"><div class="pic-body"><h3>Moon</h3><p>NASA CGI Moon Kit (SVS 4720), LROC colour map with polar fill, 2048×1024.</p><div class="meta"><span>NASA</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-mars-2k.jpg" alt="Mars surface map" loading="lazy"><div class="pic-body"><h3>Mars</h3><p>Solar System Scope, resized from the 8k map.</p><div class="meta"><span>CC BY 4.0</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-jupiter-2k.jpg" alt="Jupiter surface map" loading="lazy"><div class="pic-body"><h3>Jupiter</h3><p>Solar System Scope, 2048×1024.</p><div class="meta"><span>CC BY 4.0</span><span class="st ok"><i></i>Public</span></div></div></article>
+        <article class="pic"><img src="site/t-io-2k.jpg" alt="Io surface map" loading="lazy"><div class="pic-body"><h3>Io</h3><p>USGS Galileo and Voyager mosaic.</p><div class="meta"><span>Public domain</span><span class="st ok"><i></i>Public</span></div></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>Where things are</h2>
+        <p>The sources that place each body at any moment, and how far off they were when checked against NASA JPL.</p>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>Earth and Sun</h3><span class="sub">orb.js EPV00, fitted to JPL DE405</span></div>
+          <p>Earth's spin and tilt from the IAU 2006 and 2000B models.</p>
+          <p class="lic">Open-source library</p>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Moon</h3><span class="sub">orb.js lunar series (Meeus style)</span></div>
+          <p>Compared with JPL Horizons across 1969 to 2030.</p>
+          <p class="lic">Open-source library</p>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Mercury, Venus, Mars, Jupiter</h3><span class="sub">VSOP87A full series via orb.js</span></div>
+          <p>Checked against JPL Horizons (DE441) at six dates, 1969 to 2030. Rotation from the IAU 2015 report.</p>
+          <p class="lic">Published theory</p>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Io</h3><span class="sub">Mean orbit about Jupiter</span></div>
+          <p>A simple model, checked against JPL Horizons. Good for showing, not for navigating.</p>
+          <p class="lic">JPL published values</p>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Comet 109P/Swift–Tuttle</h3><span class="sub">NASA JPL Small-Body Database</span></div>
+          <p>Whole 133-year orbit, out to 51 AU. Within 1% of its distance from the Sun at eight dates.</p>
+          <div><span class="num">&lt;1<small>% off</small></span></div>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Asteroid 3200 Phaethon</h3><span class="sub">NASA JPL SBDB · lives in a settings file</span></div>
+          <p>Within 11,000 km at the 2026 Geminid peak, 2% off near the Sun six years earlier.</p>
+          <div><span class="num">&lt;5<small>% off</small></span></div>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+        <div class="row">
+          <div><h3>Apollo 11: Columbia and Eagle</h3><span class="sub">NASA Mission Report MSC-00171</span></div>
+          <p>Paths rebuilt between NASA's published anchor points, with 30 events timed to a tenth of a second.</p>
+          <div><span class="num">30<small>events</small></span></div>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>Meteor showers</h2>
+        <p>Measured orbits, one per real meteor, and the published facts each shower is checked against.</p>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>CAMS: Perseids</h3><span class="sub">CAMS v3, 2010–2016 · P. Jenniskens</span></div>
+          <p>Measured orbits from the CAMS camera network. Terms not yet confirmed, so CAMS is not the default source and stays on this machine until Dr. Jenniskens replies.</p>
+          <div><span class="num">18,699<small>orbits</small></span></div>
+          <span class="st local"><i></i>This machine only</span>
+        </div>
+        <div class="row">
+          <div><h3>CAMS: Geminids</h3><span class="sub">Same database, IAU shower 4</span></div>
+          <p>Same terms question as the Perseids.</p>
+          <div><span class="num">14,873<small>orbits</small></span></div>
+          <span class="st local"><i></i>This machine only</span>
+        </div>
+        <div class="row">
+          <div><h3>Global Meteor Network</h3><span class="sub">GMN trajectory summaries · Vida et al.</span></div>
+          <p class="lic">CC BY 4.0. About 30,000 Perseids a year. The default source for the Perseids, public with credit. 25,588 orbits drawn (July and August 2025).</p>
+          <div><span class="num">~30k<small>Perseids / Aug</small></span></div>
+          <span class="st ok"><i></i>Public, with credit</span>
+        </div>
+        <div class="row">
+          <div><h3>Shower facts</h3><span class="sub">IAU Meteor Data Center · AMS calendar</span></div>
+          <p>Peak solar longitude, radiant and speed from the IAU (J2000). Activity dates and peak rate from the American Meteor Society.</p>
+          <p class="lic">Published reference values</p>
+          <span class="st ok"><i></i>Public</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>The science</h2>
+        <p>The methods under the pictures, and how each one was checked.</p>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>Time</h3><span class="sub">UTC, TT, TDB, Julian dates</span></div>
+          <p>Every moment is converted once, in one place, so the Moon, the planets and the spacecraft all agree on what "now" means.</p>
+          <p class="lic">orb.js time scales</p>
+          <span class="st ok"><i></i>Tested</span>
+        </div>
+        <div class="row">
+          <div><h3>Frames</h3><span class="sub">IAU 2006 precession · IAU 2000B nutation</span></div>
+          <p>Positions are held in one fixed sky frame (J2000) and converted for drawing. "Up" can be celestial north, or flat to the planets' plane.</p>
+          <p class="lic">IAU standards</p>
+          <span class="st ok"><i></i>Tested</span>
+        </div>
+        <div class="row">
+          <div><h3>Orbits</h3><span class="sub">VSOP87A · two-body Kepler</span></div>
+          <p>Planets from a full published theory. Comets, asteroids and every meteor from classical orbital elements, solved per frame.</p>
+          <p class="lic">Bretagnon &amp; Francou 1988</p>
+          <span class="st ok"><i></i>Checked vs JPL</span>
+        </div>
+        <div class="row">
+          <div><h3>Precision at scale</h3><span class="sub">Floating origin</span></div>
+          <p>The scene is re-centred on whatever you look at, so a body 51 AU out still sits still on screen. Measured: under a hundredth of a pixel of drift.</p>
+          <div><span class="num">0.002<small>px</small></span></div>
+          <span class="st ok"><i></i>Measured</span>
+        </div>
+        <div class="row">
+          <div><h3>Shower peaks</h3><span class="sub">Solar longitude, J2000</span></div>
+          <p>The peak is the moment the Sun reaches the published longitude. Pinned against NASA's Earth positions to within 0.005°.</p>
+          <div><span class="num">0.3<small>° limit</small></span></div>
+          <span class="st ok"><i></i>Checked vs IAU</span>
+        </div>
+        <div class="row">
+          <div><h3>Reliable orbits</h3><span class="sub">Peña-Asensio &amp; Sánchez-Lozano 2024</span></div>
+          <p>A published quality cut: a wide enough viewing angle between cameras (15° or more) and a speed error of 10% or less. A switch between all and reliable.</p>
+          <div><span class="num">23,335<small>of 25,588</small></span></div>
+          <span class="st ok"><i></i>Recounted</span>
+        </div>
+        <div class="row">
+          <div><h3>Does the stream hit Earth on time?</h3><span class="sub">Independent checks on the measured orbits · Global Meteor Network, 2025</span></div>
+          <p>The Perseid orbits pass closest to Earth 2.2 hours before the official peak. The radiant they imply is 0.04° from the IAU's, and the median speed of the members crossing near Earth is 58.75 km/s against the IAU's 58.8.</p>
+          <div><span class="num">0.04<small>°</small></span></div>
+          <span class="st ok"><i></i>Checked vs IAU</span>
+        </div>
+        <div class="row">
+          <div><h3>What's filled in</h3><span class="sub">Observed · modelled · illustrative</span></div>
+          <p>Where each meteor sits along its orbit today wasn't measured, so the dots are spread evenly and labelled illustrative. The bunch near the comet is a labelled model.</p>
+          <p class="lic">Shown in every info panel</p>
+          <span class="st check"><i></i>Labelled</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <h2>Credits</h2>
+        <p>The credit lines each source asks for, word for word where they give one.</p>
+      </div>
+      <div class="rows">
+        <div class="row"><div><h3>Milky Way panorama</h3><span class="sub">CC BY 4.0</span></div><p class="lic">ESO/S. Brunier. eso0932a, eso.org/public/images/eso0932a. Changed: split in two and turned into the J2000 sky frame.</p><p></p><span class="st ok"><i></i>Required</span></div>
+        <div class="row"><div><h3>Sun, Mercury, Venus, Mars, Jupiter maps</h3><span class="sub">CC BY 4.0</span></div><p class="lic">Solar System Scope (solarsystemscope.com/textures), based on NASA imagery and elevation data.</p><p></p><span class="st ok"><i></i>Required</span></div>
+        <div class="row"><div><h3>Io map</h3><span class="sub">Public domain</span></div><p class="lic">USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
+        <div class="row"><div><h3>Earth map</h3><span class="sub">Public domain</span></div><p class="lic">NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096×2048.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
+        <div class="row"><div><h3>Moon map</h3><span class="sub">Public domain</span></div><p class="lic">NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
+        <div class="row"><div><h3>Global Meteor Network</h3><span class="sub">CC BY 4.0</span></div><p class="lic">Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).</p><p></p><span class="st ok"><i></i>Required</span></div>
+        <div class="row"><div><h3>CAMS</h3><span class="sub">Terms pending</span></div><p class="lic">CAMS Meteoroid Orbit Database v3, P. Jenniskens, SETI Institute. Jenniskens et al. 2018, Planetary and Space Science 154.</p><p></p><span class="st local"><i></i>Waiting</span></div>
+        <div class="row"><div><h3>IAU Meteor Data Center</h3><span class="sub">Citation asked</span></div><p class="lic">Jenniskens et al. 2020, Planetary and Space Science 182; Jopek &amp; Kaňuchová 2017, Planetary and Space Science 143.</p><p></p><span class="st ok"><i></i>Cite</span></div>
+        <div class="row"><div><h3>Bright stars</h3><span class="sub">Local only</span></div><p class="lic">Yale Bright Star Catalogue, 5th revised edition, Hoffleit &amp; Warren 1991, via CDS Strasbourg.</p><p></p><span class="st local"><i></i>Cite</span></div>
+        <div class="row"><div><h3>Orbits and positions</h3><span class="sub">Courtesy</span></div><p class="lic">NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon &amp; Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.</p><p></p><span class="st ok"><i></i>Cite</span></div>
+        <div class="row"><div><h3>Planetary Explorer</h3><span class="sub">Earlier project by Ani Patke</span></div><p class="lic">Some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com.</p><p></p><span class="st ok"><i></i>Own work</span></div>
+        <div class="row"><div><h3>Apollo 11</h3><span class="sub">Public domain</span></div><p class="lic">NASA Apollo 11 Mission Report, MSC-00171 / SP-238.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
+        <div class="row"><div><h3>Shower calendar</h3><span class="sub">Courtesy</span></div><p class="lic">American Meteor Society, Meteor Shower Calendar 2026/2027.</p><p></p><span class="st ok"><i></i>Cite</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:0">
+    <div class="wrap">
+      <div class="head"><h2>Wish list</h2><p>Gaps we know about.</p></div>
+      <ul class="gaps">
+        <li><span class="st gap"><i></i>Better</span>A sharper Milky Way that lines up with the stars better than a few degrees</li>
+        <li><span class="st local"><i></i>Waiting</span>CAMS terms, from Dr. Jenniskens</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Draft. Statuses as of 16 October 2026.</span>
+    <a href="./" style="color:var(--muted)">← Back to Astraeus</a>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // A sketch only: a few of the brightest stars along the zodiac, from their published J2000 positions (RA hours, Dec degrees, magnitude), to show what the catalogue holds.
+  const stars = [
+    ["Aldebaran", 4.599, 16.51, 0.86], ["Pollux", 7.755, 28.03, 1.14], ["Castor", 7.577, 31.89, 1.58], ["Regulus", 10.139, 11.97, 1.40],
+    ["Spica", 13.420, -11.16, 0.97], ["Antares", 16.490, -26.43, 1.06], ["Betelgeuse", 5.919, 7.41, 0.45], ["Rigel", 5.242, -8.20, 0.13],
+    ["Sirius", 6.752, -16.72, -1.46], ["Procyon", 7.655, 5.22, 0.34], ["Capella", 5.278, 46.00, 0.08], ["Bellatrix", 5.419, 6.35, 1.64],
+    ["Elnath", 5.438, 28.61, 1.65], ["Alnilam", 5.604, -1.20, 1.69], ["Alnitak", 5.679, -1.94, 1.77], ["Mintaka", 5.533, -0.30, 2.23],
+    ["Saiph", 5.796, -9.67, 2.06], ["Alhena", 6.629, 16.40, 1.93], ["Menkalinan", 5.992, 44.95, 1.90], ["Hamal", 2.120, 23.46, 2.00],
+    ["Alcyone", 3.791, 24.11, 2.87], ["Mirzam", 6.378, -17.96, 1.98], ["Adhara", 6.977, -28.97, 1.50], ["Wezen", 7.140, -26.39, 1.83],
+    ["Denebola", 11.818, 14.57, 2.13], ["Algieba", 10.333, 19.84, 2.08], ["Alphard", 9.460, -8.66, 1.98], ["Mirach", 1.162, 35.62, 2.05],
+    ["Algol", 3.136, 40.96, 2.12], ["Mirfak", 3.405, 49.86, 1.79]
+  ];
+  const c = document.getElementById("stars");
+  if (!c || !c.getContext) return;
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), w = c.clientWidth, h = c.clientHeight;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#050507"; g.fillRect(0, 0, w, h);
+    // RA 0h–13h, east to the left as on a sky chart; Dec -35 to +55.
+    const x = (ra) => w - ((ra - 0.6) / 13.4) * w, y = (dec) => h - ((dec + 35) / 90) * h;
+    g.strokeStyle = "rgba(255,255,255,0.06)"; g.lineWidth = 1;
+    for (let ra = 2; ra <= 12; ra += 2) { g.beginPath(); g.moveTo(x(ra), 0); g.lineTo(x(ra), h); g.stroke(); }
+    for (let d = -30; d <= 50; d += 20) { g.beginPath(); g.moveTo(0, y(d)); g.lineTo(w, y(d)); g.stroke(); }
+    g.font = "10px JetBrains Mono, monospace";
+    for (const [name, ra, dec, mag] of stars) {
+      const r = Math.max(0.8, 3.4 - mag * 0.9), px = x(ra), py = y(dec);
+      g.globalAlpha = 0.25; g.fillStyle = "#cfdcff"; g.beginPath(); g.arc(px, py, r * 2.6, 0, 6.2832); g.fill();
+      g.globalAlpha = 1; g.fillStyle = mag < 1 ? (name === "Antares" || name === "Betelgeuse" || name === "Aldebaran" ? "#ffd1a8" : "#f5f5f7") : "#e6ecff";
+      g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+      if (mag < 1.2) { g.globalAlpha = 0.5; g.fillStyle = "#f5f5f7"; g.fillText(name, px + r + 4, py + 3); }
+    }
+    g.globalAlpha = 1;
+  }
+  draw();
+  let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 150); });
+})();
+</script>
+</body>
+</html>

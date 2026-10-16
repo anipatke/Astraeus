@@ -1,0 +1,37 @@
+=== geminids ===
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone/year-middle: dots are drawn (95, floor 150)
+    at checkYear (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:731:12)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:975:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:988:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
+=== perseids ===
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: the peak instant 2027-08-18T15:10:34.800Z has solar longitude 145.08, within 0.3 deg of the published 140.1
+    at checkCrossing (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:524:15)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:974:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:987:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
+0 of 2 showers passed

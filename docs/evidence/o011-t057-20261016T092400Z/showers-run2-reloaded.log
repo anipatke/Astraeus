@@ -1,0 +1,44 @@
+=== geminids ===
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.screenshot: Protocol error (DOM.scrollIntoViewIfNeeded): Cannot find context with specified id
+Call log:
+[2m  - taking element screenshot[22m
+[2m  - waiting for fonts to load...[22m
+[2m  - fonts loaded[22m
+[2m  - attempting scroll into view action[22m
+[2m    - waiting for element to be stable[22m
+
+    at litPixels (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:101:60)
+    at checkLoopOff (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:623:28)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:990:3 {
+  name: 'Error'
+}
+
+Node.js v24.16.0
+=== perseids ===
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.screenshot: Protocol error (DOM.scrollIntoViewIfNeeded): Cannot find context with specified id
+Call log:
+[2m  - taking element screenshot[22m
+[2m  - waiting for fonts to load...[22m
+[2m  - fonts loaded[22m
+[2m  - attempting scroll into view action[22m
+[2m    - waiting for element to be stable[22m
+
+    at brightNear (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:326:60)
+    at markerBesideLabel (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:354:59)
+    at async checkBodies (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:393:104)
+    at async run (/home/user/code/Astraeus/tools/validate/browser-showers.mjs:972:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:988:3 {
+  name: 'Error'
+}
+
+Node.js v24.16.0
+0 of 2 showers passed
+exit 1
