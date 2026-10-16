@@ -1,6 +1,6 @@
 # Astraeus Spike 04 — Reusable Engine, Tested with Meteor Showers
 
-**Draft.** This note was written on 2026-10-16 while O-011 still awaits the owner's visual looks (the Perseids side-by-side beyond what C-031 records, and the final run sheet in T-040). It may need a touch-up after O-011 closes. Where the evidence is missing, the text says so and lists it under "Open questions" instead of stating it as fact.
+**Draft.** This note was written on 2026-10-16 while O-011 still awaits the owner's visual looks (the Perseids side-by-side beyond what C-031 records, and the final run sheet in T-040), and refreshed on 2026-10-17 against HEAD `cd40140` (the Refresh section of the T-065 Technical Evidence lists what changed). It may need a touch-up after O-011 closes. Where the evidence is missing, the text says so and lists it under "Open questions" instead of stating it as fact. Issues I-019, I-022 and I-030 are repaired but still open pending a Check or owner acceptance, and I-031 is open; this note says so wherever it relies on them.
 
 The Spike 04 brief (`docs/ASTRAEUS_SPIKE_04_BRIEF.md`) makes the findings, not the demo, the deliverable. It asks six questions. This note answers each one and links to the commit, test, Check record, evidence directory or audit row behind the answer. The Perseids experience is a test fixture. Judging whether it looks right is the owner's job.
 
@@ -8,9 +8,9 @@ The Spike 04 brief (`docs/ASTRAEUS_SPIKE_04_BRIEF.md`) makes the findings, not t
 
 1. **Reused:** the `State` / `Trajectory` contract, the clock, the shell, the camera, provenance, scale policies and the Apollo reconstruction all carried the new experiences unchanged.
 2. **Insufficient:** one `Trajectory` per object for populations, a single hard-wired Earth–Moon scene, instant-only events, a closed set of centres, and Earth-only scale policy.
-3. **Added or changed:** point groups, a plug-in boundary, time windows with rate and provenance spans, a body catalogue with a state resolver, a Sun-centred scene, orbit paths, a sky layer, and a body-from-settings record. All additive; `State`, `Trajectory`, `Provenance`, `TimelineEvent` and the scale-policy contract were not changed.
+3. **Added or changed:** point groups, a plug-in boundary, time windows with rate and provenance spans, a body catalogue with a state resolver, a Sun-centred scene, orbit paths, a sky layer, a body-from-settings record, and, after the Full Objective Check, story panels, lazy planet loading, a one-shape timeline window and view links. All additive; `State`, `Trajectory`, `Provenance`, `TimelineEvent` and the scale-policy contract were not changed as of C-026 (the later additions were not re-audited against that list).
 4. **Reuse evidence:** each capability has a made-up (non-meteor) configuration and contract tests, plus a name check that fails if generic code names an experience.
-5. **Limitations:** no ground observer view, no drawn radiant, two-body orbits only, headless browser evidence only, and local-only measured data.
+5. **Limitations:** no ground observer view, no drawn radiant, two-body orbits only, headless browser evidence only, CAMS and Yale data local only, and stacked story markers (I-031).
 6. **Second shower:** the Geminids ran from a settings file with zero code change, after one generic addition (a body defined from settings) that the first attempt found it needed.
 
 ## 1. Capabilities reused
@@ -58,7 +58,13 @@ All of these were chosen under rule 7 of the brief (why it belongs in Astraeus a
 | Comet, planets on their orbits, marker rule, eccentric sampling | Any body too small to see gets a marker. | `258ca6e`; C-030 |
 | Body from a settings record (`src/core/elementsBody.ts`) | Found necessary by the Geminids attempt. | `1734bd8`; C-032 |
 | Shared shower builder and settings schema | Adapter code, outside generic folders. | `5eb6fb7`; C-031 |
-| Second orbit source (GMN, CC BY 4.0) | Alternative to CAMS, which has no stated terms. | `baebee7` (T-056; no Check record, see Open questions) |
+| Second orbit source (GMN, CC BY 4.0), shipped with the public build, Perseids default | Alternative to CAMS, which has no stated terms. The owner chose GMN as the Perseids default and to ship it (T-056 Owner decisions). | `baebee7` (T-056); C-035 CLEAR. Geminid GMN orbits shipped in `3e1d130` (I-030, open pending a Check) |
+| Story panels: text that opens as playback reaches its moment, stored as story data | A panel is a time, an object and short text, so any experience can carry one. | `8f0bcec` (T-059, C-038); Apollo 11 panels `64d1e32` (T-061, C-040); Perseids panels `30e6201` (T-062, C-041). The owner's reading of the wording is still pending (`owner_validation`). I-031 (open): panels on the same object stack their scene markers and only the top one is clickable; each still opens from the timeline |
+| Planet ephemeris loaded only for an experience that mounts a planet | Apollo and the Earth–Moon Explorer need no planets. | `1eb8b05` (I-022, open pending a Check): main app chunk 3,041.8 kB to 1,185.1 kB, gzip 1,057 to 345.6 kB; first-load JS for Apollo 3.04 MB to 1.60 MB; numbers in `docs/evidence/i022-20261016T115528Z/` and the I-022 history. Owner timing on a real connection is unverified |
+| Timeline window drawn as one shape with a named caption | The window and its rate are the same thing; the label comes from the window data, not the shell. | `c19aacf` (I-019, open pending the owner's look); before and after screenshots in `docs/evidence/i019-20261016T132151Z/screenshots/`. The Perseids window is narrow on a phone at the year span (about 30 px, I-019 history) |
+| Camera view links and a tidied Developer panel | A view is camera, time and scale, not an experience feature. | `721d95a` (T-058, C-037); `tests/viewLink.test.ts`, `tools/validate/browser-view-link.mjs` |
+| Real stars on the public site from HYG v4.2 | Replaces the local-only Yale catalogue in public builds. | `cbc920d` (T-060, C-039) |
+| Earth and Moon pictures replaced by credited NASA maps | The donor never recorded where the old textures came from. | `a2f82e0` (I-029, open; no Check record) |
 
 Stop condition: the brief says to stop if Perseids would require bypassing contracts. It was triggered twice and recorded. The Earth-centred first build was rejected and replanned (`864b139`, I-025). The CAMS redistribution terms were silent, so T-051 returned REPLAN REQUIRED and the owner decided to keep the data local (C-027).
 
@@ -89,10 +95,12 @@ Accuracy checks against JPL Horizons are in `docs/ASTRONOMY_VALIDATION.md` and t
 - **Two-body orbits only.** The comet departs from Horizons by up to 0.15% of its distance, and Phaethon by up to 2.18% close to the Sun (C-030, C-032).
 - **Orbit semi-major axes are weak.** Measured members scatter between 12 and 49 AU against the comet's 26.1 AU. The display relies on `e`, `i`, `w`, Node and the 1 AU node crossing (stream data note §1).
 - **Dot places are illustrative.** The orbit of each dot is measured; where it sits on its orbit is a stated display rule, labelled as a model (C-029 row 3, T-052 phase rule).
-- **Data terms.** CAMS has no stated redistribution terms, so CAMS orbit data and the Yale Bright Star Catalogue stay local in `data/local/` and are not in a public build (stream data note §5, C-027, C-028). GMN is published under CC BY 4.0, but it is also fetched locally for now (T-056 Technical Evidence item 4). Only the ESO Milky Way picture (CC BY 4.0, credited "ESO/S. Brunier") is committed.
+- **Data terms.** CAMS has no stated redistribution terms, so CAMS orbit data and the Yale Bright Star Catalogue stay local in `data/local/` and are not in a public build (stream data note §5, C-027, C-028). Shipped in the public build: GMN orbits under CC BY 4.0, 25,588 Perseids (`data/stories/perseids/gmn-iau-7.json`, `baebee7`, C-035) and 51,115 Geminids (`data/stories/geminids/gmn-iau-4.json`, `3e1d130`, I-030); stars from HYG v4.2 under CC BY-SA 4.0, covering the star file only (`cbc920d`, C-039); the ESO Milky Way picture (CC BY 4.0, credited "ESO/S. Brunier"); and NASA maps for the Moon (SVS 4720) and Earth (Blue Marble Next Generation) (`a2f82e0`, I-029). The shipping loader only accepts files whose declared licence is CC BY 4.0 or CC0, and CAMS and Yale are refused (T-056 Owner decisions, tests named there).
+- **Stacked story markers.** Panels on one object overlap in the scene (I-031, open); the timeline markers still reach each panel.
 - **Headless evidence only.** The browser runs use software GL in headless Chromium. They show no console errors and the asserted geometry; they do not show physical-device feel. Frame rate was measured by the owner on their own machine (C-028 "Frame rate").
 - **Group fill cost at 10^4.** O-009 recorded that the fill time at 10^4 members misses the bar it set, with the cause in the library's `propagateKepler` (C-012 row SC3). T-052's later 30,000-member fill measured 5.6 to 5.8 ms (C-029 row 4). A wall-clock test of that fill flaked under load in several runs (C-030 obs. 3, C-033 obs. 5).
-- **Test and tooling gaps.** `tests/showersMeasured.test.ts` hard-codes Perseids figures, so its helpers do not run on the Geminids without an edit (C-033 obs. 3). The all-shower browser run takes over 9 minutes, so showers are run one at a time (T-040 DW2). The Geminid lit-pixel margin is thin (228 against a floor of 150, C-032 obs. 2).
+- **Test and tooling gaps.** `tests/showersMeasured.test.ts` hard-codes Perseids figures (C-033 obs. 3). The Geminid GMN facts now have their own file, `tests/showersMeasuredGeminids.test.ts` (`3e1d130`, I-030), which repeats the checks rather than discovering showers, so a third shower would need a third file. The all-shower browser run takes over 9 minutes, so showers are run one at a time (T-040 DW2). The Geminid lit-pixel margin is thin (228 against a floor of 150, C-032 obs. 2).
+- **Wall-clock test under load.** The 30,000-member fill test also failed once in the I-030 full run under machine load 24 to 35 and passes alone (I-030 history).
 - **Time-ranged provenance is built but is not yet a `published` type.** A `published` provenance type is an open candidate (T-040 drift table row for T-038).
 
 ## 6. Could a second shower run mostly from configuration?
@@ -106,32 +114,34 @@ Yes, with one qualification, and it is recorded as a finding as the brief requir
 
 ## Data provenance
 
-- **GMN** (Global Meteor Network): public, CC BY 4.0. Used as a second source for the Perseids (T-056; `docs/DONOR_PROVENANCE.md`; `docs/ASTRONOMY_VALIDATION.md` "Second source").
-- **CAMS** (Cameras for Allsky Meteor Surveillance): local only. The published terms ask only for a citation; permission is unresolved and a request email to the CAMS PI is drafted in the stream data note §5 and has not been recorded as sent.
-- **Yale Bright Star Catalogue:** local only (stream data note §3).
+- **GMN** (Global Meteor Network): public, CC BY 4.0. The default source for the Perseids, shipped with the public build (T-056, C-035, owner decisions recorded there), and the shipped source for the Geminids (I-030; `docs/DONOR_PROVENANCE.md`; `docs/ASTRONOMY_VALIDATION.md`).
+- **CAMS** (Cameras for Allsky Meteor Surveillance): local only, and the CAMS source switch is hidden in a public build, which falls back to the shipped GMN copy (`3e1d130`, I-030). The published terms ask only for a citation; permission is unresolved and a request email to the CAMS PI is drafted in the stream data note §5 and has not been recorded as sent.
+- **Yale Bright Star Catalogue:** local only (stream data note §3). Public builds use HYG v4.2 instead (`cbc920d`, C-039; HYG's archive has since moved to v4.4, the shipped file stays v4.2).
 - **Published facts:** 109P/Swift–Tuttle and 3200 Phaethon elements from JPL SBDB; peak, radiant and speed from the IAU Meteor Data Center file (stream data note §2). Activity window and ZHR come from the American Meteor Society calendar, since the IMO calendar could not be read.
 - **Dot places** are illustrative. Each dot follows a measured orbit, but where it is along that orbit is a display rule and is labelled as a model.
 
 ## Open questions
 
 1. **Owner looks on O-011** (final run sheet in T-040, DW5) are pending, so no claim here relies on them beyond the owner words in C-028 and C-031.
-2. **T-056 (GMN) has no Check record** in `.savepoint/checks/`; the claims about it rest on the builder's evidence in `docs/evidence/o011-t056-20261016T082514Z/`.
-3. **Later O-011 changes without a Check record in the evidence read:** the I-024 Jupiter texture, I-026 ESO default and I-029 NASA maps (`docs/evidence/o011-i024-20261016T095602Z/`, `o011-i026-eso-default-20261016T102732Z/`, `o011-i029-20261016T103813Z/`). Only the builder evidence was read.
+2. **T-056 (GMN)** now has a Check, C-035 CLEAR. The Geminid GMN shipping (`3e1d130`, I-030) is still open with no Check record; it rests on the builder's evidence in `docs/evidence/i030-20261016T110308Z/`. The same holds for I-019 and I-022, which are repaired but open.
+3. **Later O-011 changes without a Check record in the evidence read:** the I-024 Jupiter texture, I-026 ESO default and I-029 NASA maps (all three Issues still open) (`docs/evidence/o011-i024-20261016T095602Z/`, `o011-i026-eso-default-20261016T102732Z/`, `o011-i029-20261016T103813Z/`). Only the builder evidence was read.
 4. **T-037 (camera reach) and T-036 (window strip)** are cited from O-011 success conditions and the T-040 drift table, not from their own Check records. The commit range is `f29d0fa..b8c813c`; the exact commit has not been matched.
 5. **O-009 and the exception.** C-013 is NEEDS WORK because T-030 Done When 3 (a "before" frame-pacing figure) rests on an owner exception. The note does not claim a frame-pacing comparison.
 6. **No test establishes that a different engine configuration is "mostly configuration" beyond two showers.** The prediction in section 6 for a third shower is untested.
 7. **Is CAMS permission granted?** The email is drafted; no reply is recorded.
-8. **Whether the committed GMN subset should ship in the public build** and which source is the default is the owner's decision (T-056 Technical Evidence item 4).
+8. Closed: GMN ships and is the Perseids default, an owner decision recorded in T-056 ("Owner decisions").
+9. **Owner looks on the new pages and panels.** The wording of the Apollo and Perseids panels (T-061, T-062) and the HYG sky (T-060) require the owner's reading; Checks C-038 to C-041 do not cover it.
+10. **Is the stacked-marker gap (I-031) acceptable for the public site?** Unresolved.
 
 ## Recommendations for later spikes (not findings)
 
 - A ground-observer view: an observer centre and local horizon frame.
 - A generic direction-marker layer, if the radiant should be drawn (GAP-5).
-- Make `tests/showersMeasured.test.ts` discover showers the way the browser script does (C-033 obs. 3).
+- Make the measured-shower tests discover showers the way the browser script does, instead of one file per shower (C-033 obs. 3; `tests/showersMeasuredGeminids.test.ts`).
 - Decide whether `published` becomes a provenance type.
 
 ## Evidence index
 
 - Brief: `docs/ASTRAEUS_SPIKE_04_BRIEF.md`; audit: `docs/ASTRAEUS_SPIKE_04_GAP_AUDIT.md`; architecture: `docs/ASTRAEUS_SPIKE_04_ASSET_ARCHITECTURE.md`; data: `docs/ASTRAEUS_SPIKE_04_STREAM_AND_SKY_DATA.md`; reference spec: `docs/ASTRAEUS_SPIKE_04_PERSEIDS_REFERENCE.md`; validation: `docs/ASTRONOMY_VALIDATION.md`.
-- Checks: `.savepoint/checks/C-010-o-008-full-objective-check.md`, `C-011-o-008-full-objective-recheck.md`, `C-012-o-009-full-objective-check.md`, `C-013-o-009-full-objective-recheck.md`, `C-014-o-010-full-objective-check.md`, `C-026-o-014-full-objective-check.md`, `C-027-t-051-task-check.md`, `C-028-t-053-task-check.md`, `C-029-t-052-task-check.md`, `C-030-t-054-task-check.md`, `C-031-t-038-task-check.md`, `C-032-t-055-task-check.md`, `C-033-t-039-task-check.md`.
+- Checks: `.savepoint/checks/C-010-o-008-full-objective-check.md`, `C-011-o-008-full-objective-recheck.md`, `C-012-o-009-full-objective-check.md`, `C-013-o-009-full-objective-recheck.md`, `C-014-o-010-full-objective-check.md`, `C-026-o-014-full-objective-check.md`, `C-027-t-051-task-check.md`, `C-028-t-053-task-check.md`, `C-029-t-052-task-check.md`, `C-030-t-054-task-check.md`, `C-031-t-038-task-check.md`, `C-032-t-055-task-check.md`, `C-033-t-039-task-check.md`, `C-034-t-040-task-check.md`, `C-035-t-056-task-check.md`, `C-037-t-058-task-check.md`, `C-038-t-059-task-check.md`, `C-039-t-060-task-check.md`, `C-040-t-061-task-check.md`, `C-041-t-062-task-check.md`. Open Issues relied on: I-019, I-022, I-024, I-026, I-029, I-030 (repaired, awaiting a Check or acceptance) and I-031 (open).
 - Browser evidence: `docs/evidence/o011-integration-20261016T063816Z/` and the run directories named above, written to new directories so earlier spike evidence was not overwritten (`docs/evidence/regression-spike01-02/` is unchanged).

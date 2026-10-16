@@ -72,6 +72,26 @@ Read: brief, gap audit, stream and sky data note, asset architecture (first 60 l
 
 Limitations: documentation only, no gates run. Claims were taken from Check records, not re-verified.
 
+### Refresh 2026-10-17
+
+Refreshed `docs/ASTRAEUS_SPIKE_04.md` against HEAD `cd40140` (`git log 1022055..HEAD`, `.savepoint/checks/` to C-041, `.savepoint/issues/`). Documentation only; nothing committed, staged or router-edited. Changes:
+
+1. Banner: now says the note was refreshed against `cd40140` and that I-019, I-022, I-030 are repaired but open, I-031 open.
+2. Short answers 3 and 5: added the post-C-026 additions; added stacked markers (I-031) and CAMS and Yale local-only wording; noted the contract list was not re-audited after C-026.
+3. Section 3 table: T-056 row now cites C-035 CLEAR, the owner's ship-and-default decision, and `3e1d130` (Geminid GMN, I-030). New rows: story panels (T-059 C-038, T-061 C-040, T-062 C-041; I-031), lazy planet loading (`1eb8b05`, I-022; 3,041.8 to 1,185.1 kB main chunk, `docs/evidence/i022-20261016T115528Z/`), timeline window shape (`c19aacf`, I-019), view links and Developer panel (`721d95a`, T-058, C-037), HYG stars (`cbc920d`, T-060, C-039), NASA Earth and Moon maps (`a2f82e0`, I-029).
+4. Limitations: Data terms rewritten (GMN 25,588 Perseids and 51,115 Geminids, HYG v4.2 CC BY-SA 4.0 star file only, ESO, NASA maps; CAMS and Yale local); test gap updated (`tests/showersMeasuredGeminids.test.ts` exists, but as a second file, not discovery); added stacked markers (I-031) and the load-sensitive 30,000-member fill test (I-030 history).
+5. Data provenance: GMN default and shipped; CAMS switch hidden in public builds; Yale replaced by HYG in public builds.
+6. Open questions: 2 rewritten (T-056 has C-035; I-030, I-019, I-022 still no Check); 3 notes the Issues are still open; 8 closed (owner decision in T-056); added 9 (owner reading of panels and HYG sky) and 10 (I-031).
+7. Recommendations and evidence index: Geminids test file noted; C-034, C-035, C-037 to C-041 added; open Issues listed.
+8. Link check (node, 2026-10-17): 67 backticked repo paths and 30 commit hashes tested; missing []. No gates run.
+
+Not changed: "T-056 has no Check" appears nowhere now; the T-036/T-037 gap (open question 4) is unchanged because C-034 to C-041 do not cover them. Not verified by me: that panels (T-059) left `TimelineEvent` unchanged.
+
+Design.md gaps noticed (for the owner; not edited):
+- "Known open items" (about line 175) still describes the Spike 03 position (carried over from the first draft).
+- `published` provenance type candidate is not in Design.md.
+- Not checked whether Design.md describes story panels, the lazy planet loader (`src/core/planetSeries.ts`, `planetModels.ts`), the shipped data folder `data/stories/` with its licence allow-list, HYG stars, view links, or the one-shape timeline window; the first draft did not cover these and I did not grep Design.md for them.
+
 ## Drift Notes
 
 - Design.md "Known open items" paragraph (around line 175) still describes the Spike 03 position; it does not list the Spike 04 limitations (no ground view, local-only CAMS/Yale data, group-fill 10^4 miss from O-009). T-040 added a separate "Open after O-011" paragraph; the older paragraph is stale.
