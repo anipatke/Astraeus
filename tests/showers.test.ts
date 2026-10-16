@@ -651,7 +651,7 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
     expect(set.panels.map((p) => [p.id, p.badge, p.objectId])).toEqual([
       ["stream-shape", "illustrative", "perseids-stream"],
       ["earth-crossing", "observed", "earth"],
-      ["swift-tuttle", "observed", "swift-tuttle"],
+      ["swift-tuttle", "modelled", "swift-tuttle"],
     ]);
     expect(set.panels[1]!.timeUtcMs).toBe(Date.parse(perseidsFile.activity.peakUtc));
     for (const p of set.panels) expect(p.sources.length).toBeGreaterThan(0);

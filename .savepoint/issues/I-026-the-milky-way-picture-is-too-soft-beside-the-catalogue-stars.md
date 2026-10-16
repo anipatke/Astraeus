@@ -22,6 +22,10 @@ history:
     actor: {role: executor, session: i026-repair-2026-10-16}
     kind: repair_attempted
     note: 'Owner decision 2026-10-16: "use ESO, give credit". Default picture source set back to eso (ESO/S. Brunier, CC BY 4.0, credited in the Sky item''s Sources); the NASA tiles stay local-only, by ?skymap=nasa or sky.source. Tests that assert the default updated. Issue stays open; the better-texture question is the owner''s.'
+  - at: '2026-10-17T10:00:00Z'
+    actor: {role: owner, session: owner-chat-20261017}
+    kind: owner_decision
+    note: 'Owner, 2026-10-17: "milkyway needs a better photo still". Not accepted; stays open until a sharper Milky Way picture that lines up with the stars is found.'
 ---
 
 # I-026: The Milky Way picture is too soft beside the catalogue stars

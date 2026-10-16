@@ -2,7 +2,7 @@
 id: I-029
 title: Replace the Earth and Moon pictures with sourced NASA maps
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: owner-chat-o011-pitch-page-20261016}
@@ -22,6 +22,15 @@ history:
     kind: repair_attempted
     note: >-
       Replaced both maps. Moon: NASA SVS 4720 CGI Moon Kit, lroc_color_poles_2k.tif (2048x1024) from https://svs.gsfc.nasa.gov/4720, accessed 2026-10-16, credit "NASA's Scientific Visualization Studio" (page text: "Please give credit for this item to: NASA's Scientific Visualization Studio"), JPEG q90, src/assets/textures/moon-lroc-2k.jpg (565,978 B; old 1,053,869 B). Earth: NASA Earth Observatory Blue Marble Next Generation with Topography and Bathymetry, July 2004 (Reto Stockli), world.topo.bathy.200407.3x5400x2700.jpg, page https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/ (Visible Earth 73751 redirects there), accessed 2026-10-16, credit "NASA Earth Observatory (Blue Marble: Next Generation, Reto Stockli)", Lanczos to 4096x2048, JPEG q92, src/assets/textures/earth-bmng-july-4k.jpg (1,559,348 B; old 1,461,877 B). Old earth-2k.jpg and moon-orig-2k.jpg removed. AssetLicence records in src/assets/bodies/earth.ts and moon.ts (licence "public domain"; localOnly declarations removed); vite.config.ts LOCAL_ONLY_TEXTURES now []; public-build-assets.mjs guard changed to fail only when there are no sources at all (it refused to run with no local-only texture). Proof 1 (Moon, poles): the poles are smooth LDAM albedo fill, no pinched streaks; near side and maria register identically to the old map (moon-full-old-over-new.png, moon-poles-old-over-new.png). Proof 2/3: DONOR_PROVENANCE, README credits, assets.html and index.html updated; Earth and Moon thumbnails regenerated as site/t-earth-bmng.jpg and site/t-moon-lroc.jpg, old unsourced site/t-earth-2k.jpg and t-moon-orig-2k.jpg deleted. Proof 4 (orientation): flat-map comparison shows identical registration (earth-full-old-over-new.png; Africa/India/Asia in the same place); browser-earth-moon and browser-spike03 before and after in docs/evidence/o011-i029-20261016T103813Z/ (before-*, after-*, close-*/focus-* before-after pairs): zero errors, lit-pixel counts unchanged within noise. In-app Apollo 11 close Earth after-view at 1969-07-16T14:14Z shows West Africa and the Atlantic under Columbia (after-faces/). UNVERIFIED: India/Asia and the terminator were not compared in the app against the old texture side by side (the app's presets frame Earth too small, only the Africa close view was captured); the Earth look differs from the old map in snow cover (July vs the old map's apparent August-like state) and ocean tone is the same bathymetry style. Gates: npm run typecheck clean; npm run build ok; npx vitest run 45 files, 828 passed, 1 skipped; public build (ASTRAEUS_PUBLIC_BUILD=1, scratch outDir) and public-build-assets.mjs ok:true. nameCheck is not configured. Left open for the checker; owner to judge the look.
+  - at: '2026-10-17T10:00:00Z'
+    actor: {role: owner, session: owner-chat-20261017}
+    kind: owner_decision
+    note: 'Owner accepted the repair in chat ("accept the rest"), 2026-10-17. Recorded by the orchestrator on direct instruction; not a technical CLEAR.'
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: owner-chat-20261017}
+  at: '2026-10-17T10:00:00Z'
+  reason: Accepted by the owner in chat on 2026-10-17, recorded by the orchestrator on direct instruction.
 ---
 
 # I-029: Replace the Earth and Moon pictures with sourced NASA maps
