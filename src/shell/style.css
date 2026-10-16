@@ -275,18 +275,21 @@
 .timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
 .timeline-marker:hover::after,
 .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
-.timeline-windows { position: relative; height: 44px; margin: 0 8px; }
+/* I-019: one shape. The window's band is a thick baseline that sits on the slider line (the strip overlaps the track's upper half by --tl-half), the rate curve rises from it, and the peak's stem drops from the diamond to it. The caption names the shape above. */
+.timeline-windows { --tl-half: 11px; --tl-caption: 22px; --tl-base: 4px; position: relative; height: 76px; margin: 0 8px calc(-1 * var(--tl-half)); }
 .timeline-window-group { position: absolute; inset: 0; pointer-events: none; }
-.timeline-window { position: absolute; top: 0; bottom: 0; min-height: 0 !important; padding: 0 !important; overflow: hidden; border: 0 !important; border-bottom: 4px solid color-mix(in srgb, var(--ui-data, #b1a1df) 85%, transparent) !important; border-radius: 3px 3px 0 0 !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 12%, transparent) !important; text-align: left; pointer-events: auto; cursor: pointer; }
+.timeline-window { position: absolute; top: 0; bottom: 0; min-height: 0 !important; padding: 0 !important; overflow: hidden; border: 0 !important; border-bottom: var(--tl-base) solid var(--ui-data, #b1a1df) !important; border-left: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-right: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-radius: 0 !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 10%, transparent) !important; text-align: left; pointer-events: auto; cursor: pointer; }
 .timeline-window:hover,
-.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 28%, transparent) !important; }
-.timeline-window-label { position: absolute; top: 2px; left: 6px; max-width: calc(100% - 12px); overflow: hidden; color: var(--ui-color, #f0e6da); font-size: 11px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; opacity: .85; pointer-events: none; }
-.timeline-window-curve { position: absolute; inset: 6px 0 4px; width: 100%; height: calc(100% - 10px); overflow: visible; pointer-events: none; }
-.timeline-window-area { fill: color-mix(in srgb, var(--ui-data, #b1a1df) 45%, transparent); stroke: none; }
-.timeline-window-line { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 2; }
+.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 24%, transparent) !important; }
+.timeline-window-caption { position: absolute; top: 2px; max-width: 100%; color: var(--ui-muted, #c7bdb3); font-size: 12px; line-height: 16px; white-space: nowrap; pointer-events: none; }
+.timeline-window-caption strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
+.timeline-window-curve { position: absolute; inset: var(--tl-caption) 0 var(--tl-base); width: 100%; height: calc(100% - var(--tl-caption) - var(--tl-base)); overflow: visible; pointer-events: none; }
+.timeline-window-area { fill: color-mix(in srgb, var(--ui-data, #b1a1df) 50%, transparent); stroke: none; }
+.timeline-window-line { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 2.5; stroke-linejoin: round; }
 .timeline-window-peak { position: absolute; top: 0; bottom: 0; width: 28px; min-height: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; transform: translateX(-50%); pointer-events: auto; cursor: pointer; }
-.astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 196px; }
-.timeline-window-peak::after { position: absolute; bottom: calc(4px + (100% - 10px) * var(--peak, 100) / 100); left: 50%; width: 9px; height: 9px; margin: 0 0 -4px -4px; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
+.astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 214px; }
+.timeline-window-peak::before { position: absolute; bottom: var(--tl-base); left: 50%; height: calc((100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); border-left: 1px dashed var(--ui-accent, #fc6323); content: ""; }
+.timeline-window-peak::after { position: absolute; bottom: calc(var(--tl-base) + (100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); left: 50%; width: 10px; height: 10px; margin: 0 0 -5px -5px; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
 .timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
 .timeline-marker:hover .timeline-marker-label,
 .timeline-marker:focus .timeline-marker-label { display: block; }
@@ -410,8 +413,10 @@
   .timeline-bar .timeline-event-current { width: 100%; padding-right: 4px; padding-left: 4px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
-  .timeline-windows { height: 56px; }
-  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 344px; }
+  .timeline-windows { --tl-half: 22px; height: 88px; }
+  /* The peak figure is in the band's tooltip and the "Inside" line; on a phone the caption keeps to the name so it never runs off the edge. */
+  .timeline-window-caption span { display: none; }
+  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 358px; }
   .timeline-window-peak { width: 44px; }
   /* Below the object and scale bars, above the timeline: it scrolls inside that space and never covers either. */
   .developer-tools { top: 172px; right: 8px; left: 8px; width: auto; max-height: max(160px, calc(100dvh - 172px - 276px)); padding: 9px; }
@@ -430,7 +435,7 @@
   .timeline-time { flex: 1 1 20ch; width: auto; }
   .timeline-speed { margin-left: auto; }
   .timeline-event-list { margin-left: auto; }
-  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 228px; }
+  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 246px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
   .object-controls button,

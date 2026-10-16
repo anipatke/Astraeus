@@ -1,0 +1,18 @@
+
+  VITE v8.3.2  ready in 139 ms
+
+  ➜  Local:   http://localhost:5409/
+  ➜  Network: use --host to expose
+12:44:00 AM [vite] (client) [Unhandled rejection] ShowerSettingsError: shower settings story.panels: story panel stream-shape: at falls outside the timeline window
+ > showerStoryPanels src/experiences/showers/showerDefinition.ts:58:48
+    56 |      return parseStoryPanels(raw, { events, objectIds, window });
+    57 |    } catch (error) {
+    58 |      if (error instanceof StoryPanelError) throw new ShowerSettingsError(`shower settings story.panels: ${error.messag...
+       |                                                  ^
+    59 |      throw error;
+    60 |    }
+ > buildShowerDefinition src/experiences/showers/showerDefinition.ts:537:22
+ > chooseDefinition src/main.tsx:53:11
+ > start src/main.tsx:59:21
+
+Killed

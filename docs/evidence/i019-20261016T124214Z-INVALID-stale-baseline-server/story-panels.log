@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: a timeline marker per panel
+
+2 !== 7
+
+    at file:///tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/snap/tools/validate/browser-story-panels.mjs:56:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 7,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

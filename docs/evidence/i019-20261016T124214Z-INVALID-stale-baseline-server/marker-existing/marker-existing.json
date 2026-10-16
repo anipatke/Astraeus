@@ -1,0 +1,89 @@
+{
+  "apollo/rule-on": {
+    "True": {
+      "markerBodies": "",
+      "threshold": "3",
+      "bodies": "earth,moon"
+    },
+    "Readable": {
+      "markerBodies": "",
+      "threshold": "3",
+      "bodies": "earth,moon"
+    }
+  },
+  "apollo/rule-off": {
+    "True": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "earth,moon"
+    },
+    "Readable": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "earth,moon"
+    }
+  },
+  "earth-moon/rule-on": {
+    "True": {
+      "markerBodies": "moon",
+      "threshold": "3",
+      "bodies": "earth,moon"
+    },
+    "Readable": {
+      "markerBodies": "",
+      "threshold": "3",
+      "bodies": "earth,moon"
+    }
+  },
+  "earth-moon/rule-off": {
+    "True": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "earth,moon"
+    },
+    "Readable": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "earth,moon"
+    }
+  },
+  "jupiter-io/rule-on": {
+    "True": {
+      "markerBodies": "io",
+      "threshold": "3",
+      "bodies": "jupiter,io"
+    }
+  },
+  "jupiter-io/rule-off": {
+    "True": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "jupiter,io"
+    }
+  },
+  "perseids/rule-on": {
+    "True": {
+      "markerBodies": "earth,mercury,venus,mars,jupiter",
+      "threshold": "3",
+      "bodies": "sun,earth,mercury,venus,mars,jupiter,swift-tuttle"
+    },
+    "Solar system": {
+      "markerBodies": "earth,mercury,venus,mars,jupiter",
+      "threshold": "3",
+      "bodies": "sun,earth,mercury,venus,mars,jupiter,swift-tuttle"
+    }
+  },
+  "perseids/rule-off": {
+    "True": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "sun,earth,mercury,venus,mars,jupiter,swift-tuttle"
+    },
+    "Solar system": {
+      "markerBodies": "",
+      "threshold": "0",
+      "bodies": "sun,earth,mercury,venus,mars,jupiter,swift-tuttle"
+    }
+  },
+  "errors": []
+}

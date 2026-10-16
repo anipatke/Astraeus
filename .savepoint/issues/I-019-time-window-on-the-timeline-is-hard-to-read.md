@@ -13,6 +13,10 @@ history:
     actor: {role: owner, session: owner-chat-o010-look-20261011}
     kind: observed
     note: Owner's visual judgement on the made-up contact window after C-014 (CLEAR), recorded by the agent on the owner's direct instruction. The owner accepted T-035 with this as a follow-up; it does not reopen O-010.
+  - at: '2026-10-17T00:00:00Z'
+    actor: {role: executor, session: builder-i022-i019-20261017}
+    kind: repair_attempted
+    note: 'Window is now one shape: the band is a thick baseline sitting on the slider line, dashed start/end edges, a taller filled rate curve rising from it, and a dashed stem from the peak diamond down to the baseline; a caption above names it from the window data ("Perseids activity - peak 100 meteors per hour (ZHR)"; phone shows the name only). Label text comes from window.label and rate unit, nothing hardcoded in the shell. Apollo has no windows (browser-synthetic.mjs asserts none). Peak 44 px and band 88 px high on phone; story-panel markers (rings) stay above the baseline, distinct from the diamond. browser-synthetic.mjs updated (baseline sits on the slider line, caption, curve at least 40 px). Screenshots before/after, desktop and phone, synthetic/Perseids/Geminids: docs/evidence/i019-20261016T132151Z/screenshots/before and /after. Browser suite frozen tree evidence docs/evidence/i019-20261016T132151Z: synthetic, story-panels, spike02/03, shell, earth-moon, jupiter-io, precision, lighting pass with zero console errors; unrelated failures as noted in I-022. Unverified: owner judgement; the year-span Perseids/Geminids window is narrow on phone (about 30 px wide) because the span is a year (?span=activity widens it).'
 ---
 
 # I-019: A time window on the timeline is hard to read as one thing

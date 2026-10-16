@@ -156,6 +156,13 @@ export function windowPeakHeightPercent(window: TimelineWindow): number | null {
   return Math.max(0, Math.min(100, (at / top) * 100));
 }
 
+/** The window's own highest sampled rate with its unit, spoken the way the readout speaks it ("48 passes per hour"); null without a rate. */
+export function windowPeakRateText(window: TimelineWindow): string | null {
+  if (window.rate === undefined) return null;
+  const top = Math.max(0, ...window.rate.samples.map((sample) => sample.value));
+  return top === 0 ? null : formatWindowRate(top, window.rate.unit);
+}
+
 /** The time a click lands on inside a window, from how far along its band (0–1) the click was. */
 export function windowTimeAtFraction(window: TimelineWindow, fraction: number): number {
   const clamped = Math.max(0, Math.min(1, fraction));

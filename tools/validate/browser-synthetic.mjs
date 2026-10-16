@@ -29,10 +29,14 @@ async function checkWindow(label, size) {
   // I-019: band, curve and peak are one linked shape, together on one side of the slider.
   const box = (selector) => page.locator(selector).boundingBox();
   const [strip, slider, curve, peak, bandBox] = await Promise.all([box(".timeline-windows"), box("input[aria-label='Seek timeline']"), box(".timeline-window-curve"), box(".timeline-window-peak"), band.boundingBox()]);
-  assert.ok(strip.y + strip.height <= slider.y + 1, `${label}: window strip sits above the slider, not split by it`);
+  assert.ok(Math.abs(strip.y + strip.height - (slider.y + slider.height / 2)) <= 3, `${label}: the window's baseline sits on the slider line, not apart from it (strip bottom ${strip.y + strip.height}, slider middle ${slider.y + slider.height / 2})`);
+  const caption = (await page.locator(".timeline-window-caption").innerText()).replace(/\s+/g, " ");
+  assert.match(caption, /^Contact window( · peak 48 passes per hour)?$/, `${label}: the shape is named in plain words from the window's data`);
+  const captionBox = await page.locator(".timeline-window-caption").boundingBox();
+  assert.ok(captionBox.y + captionBox.height <= curve.y + 1, `${label}: the caption sits above the curve, not over it`);
   assert.ok(curve.y >= strip.y - 1 && curve.y + curve.height <= strip.y + strip.height + 1, `${label}: curve inside the strip`);
   assert.ok(peak.x + peak.width / 2 >= bandBox.x && peak.x + peak.width / 2 <= bandBox.x + bandBox.width, `${label}: peak sits inside the band`);
-  assert.ok(curve.height >= 30, `${label}: curve height ${curve.height} shows the rise and fall`);
+  assert.ok(curve.height >= 40, `${label}: curve height ${curve.height} shows the rise and fall`);
   const touchMin = size.width < 700 ? 44 : 28;
   assert.ok(bandBox.height >= touchMin && peak.width >= touchMin, `${label}: window targets at least ${touchMin}px (band h ${bandBox.height}, peak w ${peak.width})`);
   const next = page.getByRole("button", { name: /^Next/, exact: false }).first();

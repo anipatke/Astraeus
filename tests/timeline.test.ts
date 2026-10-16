@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { apollo11Experience } from "../src/experiences/apollo11/apollo11";
 import {
   eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
-  windowAreaPath, windowContextAt, windowCurvePath, windowPeakHeightPercent, windowPositionPercent, windowTimeAtFraction, DEFAULT_PLAYBACK_SPEEDS,
+  windowAreaPath, windowContextAt, windowCurvePath, windowPeakHeightPercent, windowPeakRateText, windowPositionPercent, windowTimeAtFraction, DEFAULT_PLAYBACK_SPEEDS,
 } from "../src/shell/timelineModel";
 import { createWindows } from "../src/core/timeWindow";
 import type { TimelineEvent } from "../src/core/events";
@@ -99,6 +99,11 @@ describe("timeline windows", () => {
     expect(windowPeakHeightPercent(windows[0])).toBe(100);
     expect(windowPeakHeightPercent({ ...windows[0], peakUtcMs: 28 })).toBe(25);
     expect(windowPeakHeightPercent(windows[1])).toBeNull();
+  });
+
+  it("names the window's highest rate in the readout's words, and has none without a rate (I-019 caption)", () => {
+    expect(windowPeakRateText(windows[0])).toBe("40 things per hour");
+    expect(windowPeakRateText(windows[1])).toBeNull();
   });
 
   it("turns a click along the band into a time inside the window", () => {

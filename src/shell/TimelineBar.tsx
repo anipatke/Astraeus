@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowPeakRateText, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 import type { StoryPanel } from "./storyPanels";
@@ -132,8 +132,14 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
               const area = windowAreaPath(window, experience.window);
               const curve = windowCurvePath(window, experience.window);
               const peakHeight = windowPeakHeightPercent(window);
+              const peakRate = windowPeakRateText(window);
               return (
                 <div key={window.id} className="timeline-window-group">
+                  {/* One plain caption for the whole shape: what it is (the window's own label) and what the curve measures (its rate, from the data). */}
+                  <span className="timeline-window-caption" style={{ left: `${startPercent}%` }}>
+                    <strong>{window.label}</strong>
+                    {peakRate !== null && <span> · peak {peakRate}</span>}
+                  </span>
                   {area !== null && curve !== null && (
                     <svg className="timeline-window-curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                       <path className="timeline-window-area" d={area} />
@@ -144,7 +150,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                     type="button"
                     className="timeline-window"
                     aria-label={`${window.label}, ${formatUtcTimestamp(window.startUtcMs)} to ${formatUtcTimestamp(window.endUtcMs)}`}
-                    title={`${window.label}: click to jump to that time and open its details`}
+                    title={`${window.label}${peakRate === null ? "" : ` (the curve is the rate, peak ${peakRate})`}: click to jump to that time and open its details`}
                     style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }}
                     onClick={(event) => {
                       const box = event.currentTarget.getBoundingClientRect();
@@ -152,9 +158,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                       onWindowSeek(window, windowTimeAtFraction(window, fraction));
                       onWindowInfo(window);
                     }}
-                  >
-                    <span className="timeline-window-label">{window.label}</span>
-                  </button>
+                  />
                   {window.peakUtcMs !== undefined && (
                     <button
                       type="button"
