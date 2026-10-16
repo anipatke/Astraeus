@@ -1,19 +1,16 @@
 import { parseMeasuredOrbits, MEASURED_ROW_COLUMNS, type MeasuredOrbits } from "../../src/experiences/showers/measuredOrbits";
 
-// The git-ignored files tools/data/fetch-meteoroid-orbits.mjs writes; none on a machine that has not run it.
-const FETCHED = import.meta.glob("../../data/local/{cams,gmn}-iau-*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-type Source = "cams" | "gmn";
-const pathOf = (iauCode: number, source: Source): string => `../../data/local/${source}-iau-${iauCode}.json`;
+// The committed copies a public build ships: data/stories/<story>/gmn-iau-<code>.json, in the compact column layout (SHIPPED_ROW_COLUMNS). Present on every machine.
+const SHIPPED = import.meta.glob("../../data/stories/*/gmn-iau-*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const shippedPath = (story: string, iauCode: number): string => `../../data/stories/${story}/gmn-iau-${iauCode}.json`;
 
-export const hasLocalOrbits = (iauCode: number, source: Source = "cams"): boolean => pathOf(iauCode, source) in FETCHED;
+/** Positions of the columns in a shipped row. */
+export const SHIPPED_COL = { id: 0, epochUtcMs: 1, a: 2, e: 3, i: 4, w: 5, node: 6, q: 7, vg: 8, vgSigma: 9 } as const;
 
-export const skipReasonFor = (iauCode: number, source: Source = "cams"): string =>
-  `skipped: data/local/${source}-iau-${iauCode}.json is not fetched on this machine (run ${source === "gmn" ? `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode} --source gmn --months <YYYYMM,...>` : `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode}`})`;
+/** The raw shipped file. */
+export const readShippedFile = (story: string, iauCode: number): { provenance: Record<string, any>; rows: any[][] } => JSON.parse(SHIPPED[shippedPath(story, iauCode)]);
 
-/** The raw file as the tool wrote it. */
-export const readLocalFile = (iauCode: number, source: Source = "cams"): { provenance: Record<string, any>; rows: any[][] } => JSON.parse(FETCHED[pathOf(iauCode, source)]);
-
-export const readLocalOrbits = (iauCode: number, source: Source = "cams"): MeasuredOrbits => parseMeasuredOrbits(readLocalFile(iauCode, source), iauCode);
+export const readShippedOrbits = (story: string, iauCode: number): MeasuredOrbits => parseMeasuredOrbits(readShippedFile(story, iauCode), iauCode);
 
 /**
  * Made-up measured orbits for a made-up shower: invented rows in the real file's shape, never data of any real shower. A small seeded
@@ -25,7 +22,7 @@ export function madeUpOrbits(iauCode: number, count: number): MeasuredOrbits {
   const rows = Array.from({ length: count }, (_, k) => {
     const a = 2 + 20 * random();
     const e = Math.min(0.97, Math.max(1 - 1.1 / a, 0.5) + 0.02 * random());
-    return [`made-up-${k}`, k + 6, Date.UTC(2020, 7, 1) + k * 3_600_000, a, e, 5 + 100 * random(), 360 * random(), 360 * random(), 140, k % 4 === 0 ? 8 : 40, 59, k % 5 === 0 ? 9 : 0.5, k % 10 === 0 ? 1 : 0];
+    return [`made-up-${k}`, k + 6, Date.UTC(2020, 7, 1) + k * 3_600_000, a, e, 5 + 100 * random(), 360 * random(), 360 * random(), 140, k % 4 === 0 ? 8 : 40, 59, k % 5 === 0 ? 9 : 0.5, 0];
   });
   return parseMeasuredOrbits({
     provenance: {

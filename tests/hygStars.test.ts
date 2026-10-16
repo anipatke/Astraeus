@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { DEFAULT_STAR_SOURCE, HYG_STAR_LICENCE, LOCAL_STAR_URL, STAR_SOURCES, eqjUnit, loadStarCatalogue, parseStarFile, starSourceFromSearch, type StarRow } from "../src/assets/sky";
+import { HYG_STAR_LICENCE, eqjUnit, loadStarCatalogue, parseStarFile, type StarRow } from "../src/assets/sky";
 import { textureRightsProblem } from "../src/assets/licence";
 import { ATTRIBUTION, HYG_LICENCE, HYG_URL, MAGNITUDE_LIMIT, parseHyg, splitCsvLine, starFile } from "../tools/data/fetch-hyg-stars.mjs";
 
@@ -9,9 +9,6 @@ const toUnit = (star: StarRow) => eqjUnit(star[0], star[1]);
 
 const hygText = Object.values(import.meta.glob("../src/assets/stars/hyg-v42-naked-eye.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>)[0];
 const hyg = parseStarFile(JSON.parse(hygText));
-const yaleGlob = import.meta.glob("../data/local/yale-bsc-v65.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const haveYale = Object.keys(yaleGlob).length === 1;
-const skipReason = "skipped: data/local/yale-bsc-v65.json is not fetched on this machine (run node tools/data/fetch-stars.mjs)";
 
 // Published J2000 positions (h m s, d m s), written out independently of the code; the same five as tests/sky.test.ts.
 const NAMED = [
@@ -92,75 +89,21 @@ describe("HYG fetch tool parsing", () => {
   });
 });
 
-describe("star source choice", () => {
-  it("defaults to HYG and takes ?stars=yale as the option", () => {
-    expect(DEFAULT_STAR_SOURCE).toBe("hyg");
-    expect([...STAR_SOURCES]).toEqual(["hyg", "yale"]);
-    expect(starSourceFromSearch("")).toBe("hyg");
-    expect(starSourceFromSearch("?stars=yale")).toBe("yale");
-    expect(starSourceFromSearch("?stars=hyg")).toBe("hyg");
-    expect(starSourceFromSearch("?stars=other")).toBe("hyg");
-  });
-
-  it("loads HYG by default, and falls back to HYG when the Yale file is absent", async () => {
+describe("star catalogue loading", () => {
+  it("loads the committed HYG file, once, with no address switch or local file", async () => {
     const requested: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       requested.push(url);
-      return url === LOCAL_STAR_URL ? new Response("<html></html>", { status: 404 }) : new Response(hygText, { status: 200 });
+      return new Response(hygText, { status: 200 });
     });
     try {
-      const fallback = await loadStarCatalogue("yale");
-      expect(requested[0]).toBe(LOCAL_STAR_URL);
-      expect(fallback?.source).toBe("hyg");
-      expect(fallback?.stars.length).toBe(hyg.stars.length);
-      expect((await loadStarCatalogue("hyg"))?.source).toBe("hyg");
+      const loaded = await loadStarCatalogue();
+      expect(loaded?.stars.length).toBe(hyg.stars.length);
+      expect(await loadStarCatalogue()).toBe(loaded);
+      expect(requested).toHaveLength(1);
+      expect(requested[0]).not.toContain("data/local");
     } finally {
       vi.unstubAllGlobals();
     }
-  });
-});
-
-// Yale and HYG list the same bright stars; the local Yale file carries no catalogue ids, so shared stars are paired by position
-// (each Yale star with its nearest HYG star within 30 arcsec). HYG's own ids are Yale's HR numbers, so a pairing off by a different
-// star would show as a large position or magnitude error.
-describe.skipIf(!haveYale)(`HYG against the Yale set, shared stars (J2000) ${haveYale ? "" : skipReason}`, () => {
-  const yale = (): readonly StarRow[] => parseStarFile(JSON.parse(Object.values(yaleGlob)[0])).stars;
-  const hygUnits = hyg.stars.map(toUnit);
-  const pairs = () => yale().flatMap((star) => {
-    const unit = toUnit(star);
-    let best = -1;
-    let bestAngle = Infinity;
-    hygUnits.forEach((other, i) => {
-      const angle = angleBetween(unit, other);
-      if (angle < bestAngle) { bestAngle = angle; best = i; }
-    });
-    return bestAngle < 30 * ARCSEC ? [{ yale: star, hyg: hyg.stars[best], arcsec: bestAngle / ARCSEC, dMag: Math.abs(star[2] - hyg.stars[best][2]) }] : [];
-  });
-  const percentile = (values: number[], p: number) => [...values].sort((a, b) => a - b)[Math.floor(values.length * p)];
-
-  it("finds a HYG counterpart within 30 arcsec for at least 98% of the Yale stars", () => {
-    expect(pairs().length / yale().length).toBeGreaterThanOrEqual(0.98);
-  });
-
-  it("agrees in position: median under 1.5 arcsec, 99th percentile under 6 arcsec, none over 20 arcsec", () => {
-    const sep = pairs().map((pair) => pair.arcsec);
-    expect(percentile(sep, 0.5)).toBeLessThan(1.5);
-    expect(percentile(sep, 0.99)).toBeLessThan(6);
-    expect(Math.max(...sep)).toBeLessThan(20);
-  });
-
-  it("agrees in magnitude: median under 0.03, 95th percentile under 0.15; variables and split binaries differ more, under 1.5 for pairs brighter than V 3", () => {
-    const all = pairs();
-    const dMag = all.map((pair) => pair.dMag);
-    expect(percentile(dMag, 0.5)).toBeLessThan(0.03);
-    expect(percentile(dMag, 0.95)).toBeLessThan(0.15);
-    expect(Math.max(...all.filter((pair) => pair.yale[2] < 3).map((pair) => pair.dMag))).toBeLessThan(1.5);
-  });
-
-  it("keeps the brightest sky: the same stars brighter than V 2 are in both (within 15 arcsec, one star may be a split pair)", () => {
-    const brightYale = yale().filter((star) => star[2] < 2);
-    const found = pairs().filter((pair) => pair.yale[2] < 2);
-    expect(found.length).toBeGreaterThanOrEqual(brightYale.length - 1);
-    for (const pair of found) expect(pair.arcsec).toBeLessThan(15);
   });
 });

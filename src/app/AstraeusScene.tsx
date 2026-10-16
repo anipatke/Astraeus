@@ -244,7 +244,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
 
-  // The stars load from the local file when it exists; without it the Milky Way is drawn alone.
+  // The stars load from the committed HYG file; without it the Milky Way is drawn alone.
   useEffect(() => {
     if (skyView === null) return undefined;
     let cancelled = false;

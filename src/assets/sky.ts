@@ -1,6 +1,5 @@
 // The sky behind every experience: directions at infinity in the EQJ (J2000 equatorial) frame. Frame layer only; it never
-// touches State (ARCH-02). The stars come from the committed HYG file (tools/data/fetch-hyg-stars.mjs, CC BY-SA 4.0), or, as a
-// local option, the Yale file fetched to git-ignored data/local/ (tools/data/fetch-stars.mjs); the Milky Way image is committed
+// touches State (ARCH-02). The stars come from the committed HYG file (tools/data/fetch-hyg-stars.mjs, CC BY-SA 4.0); the Milky Way image is committed
 // with its licence (PROV-02).
 import type { AssetLicence, TextureRef } from "./licence";
 import hygStarsUrl from "./stars/hyg-v42-naked-eye.json?url";
@@ -170,8 +169,6 @@ export interface StarCatalogue {
   readonly stars: readonly StarRow[];
   /** The file's own provenance header, if it has one. */
   readonly provenance?: Readonly<Record<string, unknown>>;
-  /** Which source the loader drew these from (set by `loadStarCatalogue`). */
-  readonly source?: StarSource;
 }
 
 /** Validates a parsed star file (`{ provenance?, stars: [[ra, dec, v, bv|null], ...] }`); throws naming the first bad row. */
@@ -189,21 +186,6 @@ export function parseStarFile(json: unknown): StarCatalogue {
   return { stars: file.stars as StarRow[], ...(provenance === undefined ? {} : { provenance }) };
 }
 
-/** The star files the app can draw: the committed HYG set (default, shippable) and the locally fetched Yale set (never shipped). */
-export const STAR_SOURCES = Object.freeze(["hyg", "yale"] as const);
-export type StarSource = (typeof STAR_SOURCES)[number];
-export const DEFAULT_STAR_SOURCE: StarSource = "hyg";
-
-/** `?stars=yale` or `?stars=hyg` picks the star file; anything else is the default. */
-export function starSourceFromSearch(search: string): StarSource {
-  const value = new URLSearchParams(search).get("stars") ?? "";
-  return (STAR_SOURCES as readonly string[]).includes(value) ? (value as StarSource) : DEFAULT_STAR_SOURCE;
-}
-
-/** Where `tools/data/fetch-stars.mjs` writes the Yale subset; the dev server serves it from the project root. */
-export const LOCAL_STAR_URL = "/data/local/yale-bsc-v65.json";
-export const FETCH_STARS_COMMAND = "node tools/data/fetch-stars.mjs";
-
 /** Rights for the committed HYG star file (PROV-02). The licence covers the star file only; the Astraeus code is MIT. */
 export const HYG_STAR_LICENCE: AssetLicence = Object.freeze({
   source: "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus",
@@ -213,7 +195,7 @@ export const HYG_STAR_LICENCE: AssetLicence = Object.freeze({
   accessed: "2026-10-16",
 });
 
-const starRequests = new Map<StarSource, Promise<StarCatalogue | null>>();
+let starRequest: Promise<StarCatalogue | null> | undefined;
 
 async function fetchStarFile(url: string): Promise<StarCatalogue | null> {
   try {
@@ -224,20 +206,10 @@ async function fetchStarFile(url: string): Promise<StarCatalogue | null> {
   }
 }
 
-/**
- * The star catalogue of the chosen source (default HYG, committed and served with the app). `yale` reads the locally fetched file,
- * never in a production build, and falls back to HYG when it is absent. The dev server answers an unknown path with the app's page,
- * so anything that is not a valid star file counts as absent. The result's `source` is the one actually drawn.
- */
-export function loadStarCatalogue(source: StarSource = starSourceFromSearch(typeof window === "undefined" ? "" : window.location.search)): Promise<StarCatalogue | null> {
-  const wanted: StarSource = source === "yale" && import.meta.env.PROD ? DEFAULT_STAR_SOURCE : source;
-  let request = starRequests.get(wanted);
-  if (request === undefined) {
-    request = fetchStarFile(wanted === "yale" ? LOCAL_STAR_URL : hygStarsUrl)
-      .then((catalogue) => (catalogue === null && wanted === "yale" ? loadStarCatalogue("hyg") : catalogue === null ? null : { ...catalogue, source: wanted }));
-    starRequests.set(wanted, request);
-  }
-  return request;
+/** The star catalogue: the committed HYG file served with the app. Absent (null) when it cannot be read or is not a valid star file. */
+export function loadStarCatalogue(): Promise<StarCatalogue | null> {
+  starRequest ??= fetchStarFile(hygStarsUrl);
+  return starRequest;
 }
 
 /** Temperature in kelvin from B-V (Ballesteros 2012). */
@@ -318,7 +290,6 @@ export async function loadPictureSet(source: SkyMapSource, fetcher: typeof fetch
 
 export const SKY_SOURCES: readonly string[] = Object.freeze([
   "HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the code is MIT.",
-  "Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Optional, with ?stars=yale; fetched to this machine only, never shipped.",
   "The Milky Way panorama, ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0.",
   "Deep Star Maps 2020, NASA/Goddard Space Flight Center Scientific Visualization Studio (https://svs.gsfc.nasa.gov/4851); Gaia DR2: ESA/Gaia/DPAC. Fetched to this machine only; drawn only when asked for with ?skymap=nasa or the sky.source setting (the default picture is the ESO panorama).",
 ]);

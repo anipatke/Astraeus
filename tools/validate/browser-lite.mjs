@@ -14,7 +14,7 @@
 // Deliberately does NOT cover (run the full set for those: every tools/validate/browser-*.mjs, for Full Objective Checks and before a release or merge):
 //   exact numbers and readouts (browser-shell, browser-precision), camera presets and labels (browser-anchor-labels, browser-earth-moon, browser-jupiter-io),
 //   lighting and the Sun (browser-lighting, browser-sun), the sky and its map (browser-sky, browser-sky-map), shower streams, sources and orbits
-//   (browser-showers, browser-showers-gmn, browser-public-showers), the made-up experiences' own behaviour (browser-synthetic*), story panel timing, auto-open
+//   (browser-showers, browser-public-showers), the made-up experiences' own behaviour (browser-synthetic*), story panel timing, auto-open
 //   and settings (browser-story-panels), view links (browser-view-link), and the spike scripts. A pass here is a smoke result, not a substitute for those.
 //
 // Run: start the app, then

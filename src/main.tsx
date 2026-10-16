@@ -27,10 +27,10 @@ const SHOWER_FILES = import.meta.glob<unknown>("../data/showers/*.json", { eager
 const showerSettingsByName = new Map(Object.entries(SHOWER_FILES).map(([path, json]) => [`shower-${showerEntryName(path)}`, json]));
 const requested = new URLSearchParams(window.location.search).get("experience") ?? "";
 const showerSettings = showerSettingsByName.get(requested);
-// A shower's measured orbits are a locally fetched file (tools/data/fetch-meteoroid-orbits.mjs), so a shower is built once that has been looked for.
+// A shower's measured orbits are the GMN file (a local fetch in development, the shipped copy in a build), so a shower is built once that has been looked for.
 async function chooseDefinition(): Promise<ExperienceDefinition> {
   if (showerSettings !== undefined) {
-    const [{ parseShowerSettings }, { buildShowerDefinition, showerComposition }, { loadMeasuredOrbits, offeredSources }] = await Promise.all([
+    const [{ parseShowerSettings }, { buildShowerDefinition, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
       import("./experiences/showers/showerSettings"),
       import("./experiences/showers/showerDefinition"),
       import("./experiences/showers/measuredOrbits"),
@@ -42,15 +42,9 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     // ?orbits=all|reliable picks the orbit set; the settings file's own choice otherwise.
     const orbits = new URLSearchParams(window.location.search).get("orbits");
     const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
-    // ?source=cams|gmn picks the catalogue the orbits are read from (gmn only for a shower whose settings name it); the settings file's own choice otherwise.
-    const requestedSource = new URLSearchParams(window.location.search).get("source");
-    // A production build reads only what it ships: a source it does not ship is neither offered nor honoured (the address falls back to the settings file's own, shipped, choice), so no choice draws an empty stream.
-    const offered = offeredSources(settings.id, settings.stream.iauCode, settings.stream.sources.gmn === undefined ? ["cams"] : ["cams", "gmn"]);
-    const wanted = requestedSource === "cams" || (requestedSource === "gmn" && settings.stream.sources.gmn !== undefined) ? requestedSource : settings.stream.source;
-    const source = offered.includes(wanted) ? wanted : offered.includes(settings.stream.source) ? settings.stream.source : (offered[0] ?? settings.stream.source);
     // Building a shower already reads planet positions (the planets' orbit paths), so the series load first when its composition has a planet.
     if (showerComposition(settings).bodies.some(isPlanetId)) await loadPlanetSeries();
-    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, source, settings.id), set, source, offered);
+    return buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, settings.id), set);
   }
   return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("./experiences/apollo11/apollo11Definition")).apollo11Definition;
 }

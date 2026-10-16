@@ -4,6 +4,9 @@
 
 The Spike 04 brief (`docs/ASTRAEUS_SPIKE_04_BRIEF.md`) makes the findings, not the demo, the deliverable. It asks six questions. This note answers each one and links to the commit, test, Check record, evidence directory or audit row behind the answer. The Perseids experience is a test fixture. Judging whether it looks right is the owner's job.
 
+**2026-10-17 (O-017, T-067):** CAMS and the Yale catalogue were removed from the code, tools, tests, pages and settings. This note keeps their history as it stood; GMN is now the only measured-orbit source and HYG the only star catalogue.
+
+
 ## Short answers
 
 1. **Reused:** the `State` / `Trajectory` contract, the clock, the shell, the camera, provenance, scale policies and the Apollo reconstruction all carried the new experiences unchanged.

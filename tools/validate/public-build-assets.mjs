@@ -2,7 +2,7 @@
 // byte for byte or embedded in a text asset as base64.
 //   ASTRAEUS_PUBLIC_BUILD=1 npm run build && node tools/validate/public-build-assets.mjs [distDir] [resultsFile]
 // Local-only sources are the images a body record imports and declares `localOnly` (src/assets/bodies/*.ts), plus every file under the
-// git-ignored data/local/ (fetched star catalogue and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
+// git-ignored data/local/ (fetched data and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -50,7 +50,7 @@ export function findLocalDataSources(rootDir = root) {
   return [...walk(directory)].filter((path) => !declaresShippableLicence(path)).map((path) => ({ file: `data/local/${path.slice(directory.length + 1)}`, path, text: true }));
 }
 
-/** Licences that allow a measured-orbit file to ship (the fetch tool and the loader keep the same list). A fetched file that declares one is a story's shippable data, copied under data/stories/; CAMS and the Yale catalogue declare none and stay checked. */
+/** Licences that allow a measured-orbit file to ship (the fetch tool and the loader keep the same list). A fetched file that declares one is a story's shippable data, copied under data/stories/; a fetched file that declares none, or another licence, stays checked. */
 export const SHIPPABLE_LICENCES = ["CC BY 4.0", "CC0 1.0"];
 function declaresShippableLicence(path) {
   if (!path.endsWith(".json")) return false;
@@ -86,14 +86,14 @@ export function checkPublicBuild({ distDir, sources }) {
   return { ok: matches.length === 0, checked, sources: wanted.map(({ file, hash, size }) => ({ file, sha256: hash, bytes: size })), matches };
 }
 
-/** Which files of a made-up data/local/ are still checked: CAMS, Yale and a non-shippable licence are; a declared CC BY 4.0 file is not. */
+/** Which files of a made-up data/local/ are still checked: a file with no licence, and one with a non-shippable licence, are; a declared CC BY 4.0 file is not. */
 export function proveLicenceHandling() {
   const project = mkdtempSync(join(tmpdir(), "astraeus-ship-"));
   try {
     const local = join(project, "data", "local");
     mkdirSync(local, { recursive: true });
-    writeFileSync(join(local, "cams-iau-7.json"), JSON.stringify({ provenance: { database: "CAMS" }, rows: [] }));
-    writeFileSync(join(local, "yale-bsc-v65.json"), JSON.stringify({ provenance: { source: "Yale" }, stars: [] }));
+    writeFileSync(join(local, "unlicensed-orbits.json"), JSON.stringify({ provenance: { database: "Made-up orbit catalogue with no licence" }, rows: [] }));
+    writeFileSync(join(local, "unlicensed-stars.json"), JSON.stringify({ provenance: { source: "Made-up star catalogue with no licence" }, stars: [] }));
     writeFileSync(join(local, "gmn-iau-7.json"), JSON.stringify({ provenance: { licence: "CC BY 4.0" }, rows: [] }));
     writeFileSync(join(local, "other-nc.json"), JSON.stringify({ provenance: { licence: "CC BY-NC 4.0" }, rows: [] }));
     return findLocalDataSources(project).map((source) => source.file).sort();
@@ -104,7 +104,7 @@ export function proveLicenceHandling() {
 
 /** The committed star asset the public build draws (HYG, CC BY-SA 4.0). */
 export const STAR_ASSET = "src/assets/stars/hyg-v42-naked-eye.json";
-/** The licences a star file may declare to ship. Yale declares none, so it never qualifies. */
+/** The licences a star file may declare to ship. A catalogue that declares none, or another licence, never qualifies. */
 export const STAR_LICENCES = ["CC BY-SA 4.0"];
 
 /**
@@ -199,15 +199,14 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const distDir = resolve(process.argv[2] ?? join(root, "dist"));
   const localData = findLocalDataSources();
   const sources = [...findLocalOnlySources(), ...localData];
-  // Every texture is licensed since I-029, so the local data files alone may be the sources; only an empty list proves nothing.
-  if (sources.length === 0) {
-    console.error("no local-only textures or local data files found; the validator would prove nothing");
-    process.exit(1);
-  }
+  // Every texture is licensed since I-029 and a clean checkout has no unlicensed data/local/ files, so the source list may be empty. The validator then still proves
+  // itself on made-up files (it must fail on a copied or embedded one and pass a clean build) and still fails any path under data/local/ in the build.
+  const proof = proveItFails();
+  const selfProof = proof.clean.ok && !proof.copied.ok && !proof.embedded.ok && proof.dataClean.ok && !proof.dataCopied.ok && !proof.dataEmbedded.ok && !proof.dataPath.ok;
   const missingPages = REQUIRED_PAGES.filter((page) => !existsSync(join(distDir, page)));
   const checked = checkPublicBuild({ distDir, sources });
   const starAsset = checkStarAsset({ distDir });
-  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, ...checked, ok: checked.ok && missingPages.length === 0 && starAsset.ok };
+  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, selfProof, ...checked, ok: selfProof && checked.ok && missingPages.length === 0 && starAsset.ok };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

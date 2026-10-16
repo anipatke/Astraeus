@@ -71,11 +71,11 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
     });
   }
 
-  it("shipped rows are not marked local-only, and the Yale and CAMS rows are", () => {
+  it("every credit row is marked as shipped, and the page lists no CAMS, Yale or local-only entry", () => {
     for (const claim of claims) expect(rows.get(claim.row)?.status, claim.row).toBe("ok");
-    expect(rows.get("Yale stars (option)")?.status).toBe("local");
-    expect(rows.get("Yale stars (option)")?.text).toContain("never shipped");
-    expect(rows.get("CAMS")?.status).toBe("local");
+    for (const row of rows.values()) expect(row.status, row.title).not.toBe("local");
+    expect([...rows.keys()].join(" ")).not.toMatch(/CAMS|Yale/);
+    expect(html).not.toMatch(/st local|This machine only|CAMS/);
   });
 
   it("states that CC BY-SA 4.0 covers the star file only, as the record's file header does", () => {

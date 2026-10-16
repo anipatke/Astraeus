@@ -1,8 +1,9 @@
 // I-030: both showers in the PUBLIC build (ASTRAEUS_PUBLIC_BUILD=1 npm run build, then `vite preview`), in headless Chromium (software GL).
 //   PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_URL=http://localhost:5405/app.html ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-public-showers.mjs
 // Per shower (every data/showers/<name>.json): the stream is drawn from the story's shipped copy (one stream group, the panel states the shipped file's orbit count
-// and the GMN credit), no data/local file is served, ?source=cams falls back to the shipped stream instead of drawing nothing, the Developer panel offers no
-// source switch (only one source ships), and with the shipped file blocked the stream's panel says in plain words that the build has no orbits (no fetch command).
+// and the GMN credit: licence, months, counts and both citations), no data/local file is served, the removed ?source=cams address is ignored (the shipped stream is still
+// drawn and no CAMS file is requested), the Developer panel offers no source switch (GMN is the only source), and with the shipped file blocked the stream's panel says
+// in plain words that the build has no orbits (no fetch command). The GMN credit and the shipped-copy checks of the removed browser-showers-gmn.mjs (checkShipped) live here (T-067).
 // Zero console errors. Screenshots go to <dir>/<shower>-*.png.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
@@ -46,10 +47,11 @@ for (const name of names) {
   const settings = JSON.parse(readFileSync(new URL(`${name}.json`, showersDir), "utf8"));
   const iau = settings.stream.iauCode;
   const kept = JSON.parse(readFileSync(new URL(`../../data/stories/${name}/gmn-iau-${iau}.json`, import.meta.url), "utf8")).provenance.counts.kept;
+  const months = settings.stream.sources.gmn.months.join(" and ");
   const shipped = new RegExp(`/gmn-iau-${iau}[^/]*\\.json$`);
   const r = (results[name] = { kept });
-  // 1. plain load and ?source=cams both draw the shipped GMN stream.
-  for (const [tag, query] of [["default", "&sky=off"], ["source-cams", "&sky=off&source=cams"]]) {
+  // 1. plain load, and the removed ?source=cams address, both draw the shipped GMN stream.
+  for (const [tag, query] of [["default", "&sky=off"], ["source-cams-ignored", "&sky=off&source=cams"]]) {
     const { page, requests } = await open(name, query);
     try {
       await page.getByRole("button", { name: "Pause playback" }).click();
@@ -61,10 +63,11 @@ for (const name of names) {
       await page.screenshot({ path: `${outDir}/${name}-${tag}.png` }); // the scene alone, before any panel is opened
       const panel = await streamPanel(page, name, settings.label);
       assert.match(panel.description, new RegExp(`${kept} measured meteoroid orbits`), `${name}/${tag}: the panel counts the shipped orbits`);
-      for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida"]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
+      for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida", "506(4)", "491(2)", `Read from ${months}`, `${kept} bound orbits kept`]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
+      assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(panel.detail), `${name}/${tag}: the panel cites no CAMS data source`);
       assert.ok(!/not fetched|does not include/.test(panel.description), `${name}/${tag}: no absence message`);
       await page.getByRole("button", { name: "Developer mode" }).click();
-      assert.equal(await page.getByRole("button", { name: /^Orbits from (CAMS|GMN)$/ }).count(), 0, `${name}/${tag}: no source switch is offered`);
+      assert.equal(await page.getByRole("button", { name: /^Orbits from/ }).count(), 0, `${name}/${tag}: no source switch is offered`);
       assert.ok(await page.getByRole("button", { name: /^(All orbits|Reliable only)/ }).count() >= 2, `${name}/${tag}: the orbit-set switch is still offered`);
       await page.screenshot({ path: `${outDir}/${name}-${tag}-panels.png` });
       r[tag] = { requests: fromShipped, description: panel.description.slice(0, 200) };

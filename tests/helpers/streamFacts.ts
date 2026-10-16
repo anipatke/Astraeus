@@ -93,7 +93,7 @@ export function earthEcliptic(adapter: AstronomyAdapter, toEqj: ArrayLike<number
 
 /**
  * The Sun's geometric ecliptic longitude in the J2000.0 ecliptic and equinox, degrees: Earth's heliocentric longitude (J2000 ecliptic) plus 180 degrees.
- * CONVENTION (I-027): the IAU MDC peak solar longitudes ("All records on J2000") and the CAMS solar longitudes are J2000.0 values, so they are compared
+ * CONVENTION (I-027): the IAU MDC peak solar longitudes ("All records on J2000") are J2000.0 values, so they are compared
  * with this J2000 longitude. Do NOT add general precession (about 1.397 deg per century, 0.37 deg in 2027): that gives the longitude of date, which is a
  * different quantity and put the peak instants about 9 h early. Aberration (-20.5 arcsec) and nutation are not applied: under 0.01 deg, about 15 minutes.
  */

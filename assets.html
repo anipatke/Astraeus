@@ -20,7 +20,6 @@
   --rule: rgba(255, 255, 255, 0.08);
   --rule-strong: rgba(255, 255, 255, 0.16);
   --ok: #8fe0a8;
-  --local: #ffb347;
   --check: #c9b8ff;
   --gap: rgba(245, 245, 247, 0.38);
   --spectrum: linear-gradient(100deg, #ffe7c2 0%, #f5f5f7 45%, #cfdcff 75%, #b9c6ff 100%);
@@ -53,7 +52,6 @@ h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
 .st { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .st i { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .st.ok { color: var(--ok); } .st.ok i { background: var(--ok); }
-.st.local { color: var(--local); } .st.local i { background: var(--local); }
 .st.check { color: var(--check); } .st.check i { background: var(--check); }
 .st.gap { color: var(--gap); } .st.gap i { background: transparent; border: 1px dashed var(--gap); }
 
@@ -131,7 +129,6 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       <div class="key" aria-label="Status key">
         <span class="st ok"><i></i>Public, licence clear</span>
         <span class="st check"><i></i>Public, origin to confirm</span>
-        <span class="st local"><i></i>This machine only</span>
         <span class="st gap"><i></i>Missing</span>
       </div>
     </div>
@@ -158,7 +155,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       <div class="rows">
         <div class="row">
           <div><h3>Bright stars</h3><span class="sub">HYG database v4.2 · CC BY-SA 4.0</span></div>
-          <p class="lic">J2000 positions, brightness and colour index, trimmed to magnitude 6.5 by a committed tool. Credit astronexus (astronexus.com). The CC BY-SA 4.0 licence covers this star file only; the code stays MIT. The Yale Bright Star Catalogue stays a local-only option and is never shipped.</p>
+          <p class="lic">J2000 positions, brightness and colour index, trimmed to magnitude 6.5 by a committed tool. Credit astronexus (astronexus.com). The CC BY-SA 4.0 licence covers this star file only; the code stays MIT.</p>
           <div><span class="num">0.28<small>MB</small></span></div>
           <span class="st ok"><i></i>Public, with credit</span>
         </div>
@@ -252,20 +249,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       </div>
       <div class="rows">
         <div class="row">
-          <div><h3>CAMS: Perseids</h3><span class="sub">CAMS v3, 2010–2016 · P. Jenniskens</span></div>
-          <p>Measured orbits from the CAMS camera network. Terms not yet confirmed, so CAMS is not the default source and stays on this machine until Dr. Jenniskens replies.</p>
-          <div><span class="num">18,699<small>orbits</small></span></div>
-          <span class="st local"><i></i>This machine only</span>
-        </div>
-        <div class="row">
-          <div><h3>CAMS: Geminids</h3><span class="sub">Same database, IAU shower 4</span></div>
-          <p>Same terms question as the Perseids.</p>
-          <div><span class="num">14,873<small>orbits</small></span></div>
-          <span class="st local"><i></i>This machine only</span>
-        </div>
-        <div class="row">
           <div><h3>Global Meteor Network</h3><span class="sub">GMN trajectory summaries · Vida et al.</span></div>
-          <p class="lic">CC BY 4.0. About 30,000 Perseids a year. The default source for the Perseids and the Geminids, public with credit. 25,588 Perseid orbits drawn (July and August 2025) and 51,115 Geminid orbits (December 2024 and 2025).</p>
+          <p class="lic">CC BY 4.0. About 30,000 Perseids a year. The source for the Perseids and the Geminids, public with credit. 25,588 Perseid orbits drawn (July and August 2025) and 51,115 Geminid orbits (December 2024 and 2025).</p>
           <div><span class="num">~30k<small>Perseids / Aug</small></span></div>
           <span class="st ok"><i></i>Public, with credit</span>
         </div>
@@ -357,10 +342,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <div class="row"><div><h3>Earth map</h3><span class="sub">Public domain</span></div><p class="lic">NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096×2048.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
         <div class="row"><div><h3>Moon map</h3><span class="sub">Public domain</span></div><p class="lic">NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
         <div class="row"><div><h3>Global Meteor Network</h3><span class="sub">CC BY 4.0</span></div><p class="lic">Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).</p><p></p><span class="st ok"><i></i>Required</span></div>
-        <div class="row"><div><h3>CAMS</h3><span class="sub">Terms pending</span></div><p class="lic">CAMS Meteoroid Orbit Database v3, P. Jenniskens, SETI Institute. Jenniskens et al. 2018, Planetary and Space Science 154.</p><p></p><span class="st local"><i></i>Waiting</span></div>
         <div class="row"><div><h3>IAU Meteor Data Center</h3><span class="sub">Citation asked</span></div><p class="lic">Jenniskens et al. 2020, Planetary and Space Science 182; Jopek &amp; Kaňuchová 2017, Planetary and Space Science 143.</p><p></p><span class="st ok"><i></i>Cite</span></div>
         <div class="row"><div><h3>Bright stars</h3><span class="sub">CC BY-SA 4.0</span></div><p class="lic">HYG database v4.2 (Hipparcos, Yale Bright Star and Gliese catalogues), astronexus, astronexus.com/projects/hyg. Changed: stars of magnitude 6.5 or brighter kept, right ascension converted from hours to degrees. The licence covers this star file only; the code stays MIT.</p><p></p><span class="st ok"><i></i>Required</span></div>
-        <div class="row"><div><h3>Yale stars (option)</h3><span class="sub">Local only</span></div><p class="lic">Yale Bright Star Catalogue, 5th revised edition, Hoffleit &amp; Warren 1991, via CDS Strasbourg. Fetched on request, never shipped.</p><p></p><span class="st local"><i></i>Cite</span></div>
         <div class="row"><div><h3>Orbits and positions</h3><span class="sub">Courtesy</span></div><p class="lic">NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon &amp; Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.</p><p></p><span class="st ok"><i></i>Cite</span></div>
         <div class="row"><div><h3>Planetary Explorer</h3><span class="sub">Earlier project by Ani Patke</span></div><p class="lic">Some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com. The story panel's look and behaviour (side panel, phone bottom sheet, marker dot, badge) follow its panel parts, rewritten for Astraeus.</p><p></p><span class="st ok"><i></i>Own work</span></div>
         <div class="row"><div><h3>Apollo 11</h3><span class="sub">Public domain</span></div><p class="lic">NASA Apollo 11 Mission Report, MSC-00171 / SP-238.</p><p></p><span class="st ok"><i></i>Courtesy</span></div>
@@ -396,7 +379,6 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <li><span class="st gap"><i></i>Missing</span>Uranus's five main moons (Miranda, Ariel, Umbriel, Titania, Oberon): Voyager 2 photographed only their southern halves</li>
         <li><span class="st gap"><i></i>Missing</span>The small moons of Jupiter, Saturn, Neptune and Pluto, such as Amalthea, Pan, Janus, Proteus, Nix and Hydra: no global maps exist for most, so they would be dots or simple shapes</li>
         <li><span class="st gap"><i></i>Better</span>A sharper Milky Way that lines up with the stars better than a few degrees</li>
-        <li><span class="st local"><i></i>Waiting</span>CAMS terms, from Dr. Jenniskens</li>
       </ul>
     </div>
   </section>

@@ -53,11 +53,11 @@ describe("shippable measured orbits (T-056)", () => {
   it("keeps the shippable-licence list equal in the loader, the fetch tool and the validator", () => {
     expect([...TOOL_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
     expect([...VALIDATOR_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
-    expect(SHIPPABLE_LICENCES.some((licence) => /cams|yale|nc|unknown/i.test(licence))).toBe(false);
+    expect(SHIPPABLE_LICENCES.some((licence) => /nc|unknown/i.test(licence))).toBe(false);
   });
 
-  it("checks every fetched file that declares no shippable licence (CAMS, Yale) and passes only a declared CC BY or CC0 file", () => {
-    expect(proveLicenceHandling()).toEqual(["data/local/cams-iau-7.json", "data/local/other-nc.json", "data/local/yale-bsc-v65.json"]);
+  it("checks every fetched file that declares no shippable licence (no licence, or a non-commercial one) and passes only a declared CC BY or CC0 file", () => {
+    expect(proveLicenceHandling()).toEqual(["data/local/other-nc.json", "data/local/unlicensed-orbits.json", "data/local/unlicensed-stars.json"]);
   });
 });
 
@@ -82,8 +82,8 @@ describe("shipped HYG star asset (T-060)", () => {
     expect(proof.badLicence.problems.join("; ")).toMatch(/no attribution/);
   });
 
-  it("still rejects Yale: a copy of the Yale file in the build is found by the data check", () => {
-    expect(proveLicenceHandling()).toContain("data/local/yale-bsc-v65.json");
+  it("still rejects an unlicensed star catalogue: a copy of it in the build is found by the data check", () => {
+    expect(proveLicenceHandling()).toContain("data/local/unlicensed-stars.json");
     expect(proveItFails().dataCopied.ok).toBe(false);
   });
 });

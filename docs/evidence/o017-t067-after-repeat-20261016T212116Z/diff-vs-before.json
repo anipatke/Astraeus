@@ -1,0 +1,45 @@
+{
+  "dirA": "/tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/bf",
+  "dirB": "docs/evidence/o017-t067-after-repeat-20261016T212116Z",
+  "files": 4,
+  "identical": 2,
+  "maxOver16Pct": 0.0009,
+  "rows": [
+    {
+      "name": "geminids-desktop.png",
+      "pixels": 1296000,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "geminids-phone.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "perseids-desktop.png",
+      "pixels": 1296000,
+      "differing": 30,
+      "differingPct": 0.0023,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "perseids-phone.png",
+      "pixels": 329160,
+      "differing": 12,
+      "differingPct": 0.0036,
+      "over16": 3,
+      "over16Pct": 0.0009,
+      "maxDelta": 52
+    }
+  ]
+}

@@ -15,9 +15,9 @@ import type { Trajectory } from "../../core/trajectory";
 import { createOrbTwoBodyAdapter } from "../../core/twoBodyAdapter";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import type { CoordinatesMetric, Metric, RateMetric } from "../../shell/metrics";
-import { fetchOrbitsCommand, offeredSources, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
+import { fetchOrbitsCommand, orbitSetCounts, selectOrbits, type MeasuredLoad, type MeasuredOrbitProvenance, type MeasuredOrbits, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
 import { parseStoryPanels, StoryPanelError, type StoryPanelSet } from "../../shell/storyPanels";
-import { citedSourceOf, ShowerSettingsError, type OrbitSource, type ShowerSettings, type ShowerSource } from "./showerSettings";
+import { citedSourceOf, ShowerSettingsError, type ShowerSettings, type ShowerSource } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
@@ -87,33 +87,26 @@ export { showerEntryName } from "./showerEntry";
 const percent = (fraction: number): string => `${Math.round(fraction * 100)}%`;
 
 /** The words the stream's panel must carry about what is measured, what is a drawing choice and what is not shown. */
-export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts, source: OrbitSource = "cams"): string {
+export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts): string {
   const { rule } = settings.stream.quality;
-  const gmn = source === "gmn" ? settings.stream.sources.gmn : undefined;
-  if (gmn !== undefined) {
-    const shownGmn = set === "reliable" ? counts.reliable : counts.all;
-    const cutGmn = `Qc (the maximum convergence angle between the stations that saw the meteor) at least ${rule.minConvergenceAngleDeg}° and the Vgeo sigma at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of Vgeo`;
-    return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shownGmn} of ${counts.all} bound orbits; the reliable set, ${cutGmn}, has ${counts.reliable} and cuts ${counts.cut}). The cut is the published rule: ${rule.quote} (${rule.source.name}, ${rule.source.url}), mapped to GMN's own columns: ${gmn.ruleNote} GMN has no double-entry flag.`;
-  }
-  const cut = `convergence angle Q at least ${rule.minConvergenceAngleDeg}° and velocity error at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of the geocentric velocity`;
+  const { gmn } = settings.stream.sources;
   const shown = set === "reliable" ? counts.reliable : counts.all;
-  return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shown} of ${counts.all} bound orbits; the reliable set, ${cut}, has ${counts.reliable} and cuts ${counts.cut}). The cut is published: ${rule.quote} (${rule.source.name}, ${rule.source.url}). ${counts.pairsFlagged} records flagged as double entries are kept in both sets (${counts.pairsFlaggedReliable} of them in the reliable set).`;
+  const cut = `Qc (the maximum convergence angle between the stations that saw the meteor) at least ${rule.minConvergenceAngleDeg}° and the Vgeo sigma at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of Vgeo`;
+  return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shown} of ${counts.all} bound orbits; the reliable set, ${cut}, has ${counts.reliable} and cuts ${counts.cut}). The cut is the published rule: ${rule.quote} (${rule.source.name}, ${rule.source.url}), mapped to GMN's own columns: ${gmn.ruleNote} GMN has no double-entry flag.`;
 }
 
-/** What the stream's panel says about the catalogue itself, when it is the GMN: the source, its licence and what was read. */
+/** What the stream's panel says about the catalogue itself: the source, its licence and what was read. */
 export function gmnSourceSentence(settings: ShowerSettings, provenance?: MeasuredOrbitProvenance): string {
   const gmn = settings.stream.sources.gmn;
-  if (gmn === undefined) return "";
   const read = provenance === undefined ? "" : ` Read from ${gmn.months.join(" and ")}: ${provenance.counts.members} records, ${provenance.counts.unbound} unbound orbits dropped, ${provenance.counts.kept} bound orbits kept.`;
   return `Source: ${gmn.source.name}. Licence ${gmn.licence} (${gmn.licenceUrl}), credit the Global Meteor Network.${read}`;
 }
 
-export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly source?: OrbitSource; readonly provenance?: MeasuredOrbitProvenance }): readonly string[] {
+export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly provenance?: MeasuredOrbitProvenance }): readonly string[] {
   const { concentration } = settings.stream;
   const status = concentration.status === "cited" ? `cited; basis: ${concentration.basis}` : `illustrative defaults: ${concentration.basis}`;
   return [
-    ...(orbitSet?.source === "gmn" ? [gmnSourceSentence(settings, orbitSet.provenance)] : []),
-    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts, orbitSet.source)]),
+    ...(orbitSet === undefined ? [] : [gmnSourceSentence(settings, orbitSet.provenance), orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
     `The clump near ${settings.parentBody} is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}.`,
     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
@@ -121,7 +114,7 @@ export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonl
   ];
 }
 
-function streamObject(settings: ShowerSettings, description: string, orbitSet: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly source?: OrbitSource; readonly provenance?: MeasuredOrbitProvenance }): ExperienceObject {
+function streamObject(settings: ShowerSettings, description: string, orbitSet: { readonly set: OrbitSet; readonly counts: OrbitSetCounts; readonly provenance?: MeasuredOrbitProvenance }): ExperienceObject {
   return {
     id: streamIdOf(settings),
     label: `${settings.label} stream`,
@@ -132,21 +125,22 @@ function streamObject(settings: ShowerSettings, description: string, orbitSet: {
   };
 }
 
-function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, shown: number, set: OrbitSet, source: OrbitSource): Provenance {
+function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, shown: number, set: OrbitSet): Provenance {
   const { provenance } = orbits;
   const { counts } = provenance;
   return createProvenance({
     sourceType: "observed",
-    sources: [...(provenance.citations ?? [provenance.citation]), sourceLine(citedSourceOf(settings, source))],
+    sources: [...(provenance.citations ?? [provenance.citation]), sourceLine(citedSourceOf(settings))],
     accuracy: "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element.",
     notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.${provenance.licence === undefined ? "" : ` Licence ${provenance.licence}.`}`,
   });
 }
 
 /** What the stream's item says when its data is not on this machine: nothing is drawn and no stand-in is invented. */
-export function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>, source: OrbitSource, production: boolean = import.meta.env.PROD): ExperienceObject {
-  const command = fetchOrbitsCommand(settings.stream.iauCode, source, settings.stream.sources.gmn?.months ?? []);
-  const size = source === "gmn" ? `the ${settings.stream.sources.gmn?.months.length ?? 0} monthly files, about 100 MB each` : "about 322 MB";
+export function absentStreamObject(settings: ShowerSettings, load: Exclude<MeasuredLoad, { kind: "loaded" }>, production: boolean = import.meta.env.PROD): ExperienceObject {
+  const { months } = settings.stream.sources.gmn;
+  const command = fetchOrbitsCommand(settings.stream.iauCode, months);
+  const size = `the ${months.length} monthly files, about 100 MB each`;
   const why = production
     ? load.kind === "invalid"
       ? `The measured orbit file this build ships for the ${settings.label} cannot be used (${load.problem}), so no stream is drawn.`
@@ -162,7 +156,7 @@ export function absentStreamObject(settings: ShowerSettings, load: Exclude<Measu
     description: `The ${settings.label} stream is drawn from measured meteoroid orbits. ${why}`,
     provenance: createProvenance({
       sourceType: "observed",
-      sources: [sourceLine(citedSourceOf(settings, source))],
+      sources: [sourceLine(citedSourceOf(settings))],
       accuracy: "Nothing is drawn, so nothing is claimed.",
       notes: why,
     }),
@@ -174,7 +168,7 @@ export function absentStreamObject(settings: ShowerSettings, load: Exclude<Measu
  * The stream as one group, centred on the Sun: one dot per measured orbit, on its own ellipse, with the dot's place along the orbit a
  * stated drawing choice. A stated share is clumped near the parent's orbital phase, a model.
  */
-export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source): GroupLayer {
+export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default): GroupLayer {
   const catalogue = showerCatalogue(settings);
   const counts = orbitSetCounts(all, settings.stream.quality.rule);
   const orbits = selectOrbits(all, set, settings.stream.quality.rule);
@@ -194,7 +188,7 @@ export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits,
       concentration: { around: parent.source.create(adapter), fraction: concentration.fraction, widthDeg: concentration.widthDeg },
     },
     bounds: timelineBoundsOf(settings),
-    provenance: measuredProvenance(settings, all, orbits.members.length, set, source),
+    provenance: measuredProvenance(settings, all, orbits.members.length, set),
   }, createOrbTwoBodyAdapter());
   const description = `${group.count} measured meteoroid orbits of the ${settings.label}, each drawn as one dot (${orbits.provenance.database}). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near ${settings.parentBody} is a model. One item stands for the whole stream; its focus point is the centroid of the dots.`;
   return {
@@ -202,7 +196,7 @@ export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits,
     color: settings.look.streamColor,
     pointSizePx: settings.look.pointSizePx,
     refillAfterMs: settings.look.refillAfterHours * HOUR_MS,
-    object: streamObject(settings, description, { set, counts, source, provenance: all.provenance }),
+    object: streamObject(settings, description, { set, counts, provenance: all.provenance }),
   };
 }
 
@@ -502,33 +496,25 @@ function bodyObject(settings: ShowerSettings, _composition: SystemComposition, i
   }
 }
 
-/** The live switches the Developer section lists: the orbit set (once loaded) and, for a shower that can read the GMN, the source. Undefined when there is none. */
-function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet, source: OrbitSource, offered: readonly OrbitSource[]): ExperienceDefinition["alternates"] {
-  const alternates = [
-    ...(load.kind !== "loaded" ? [] : (["all", "reliable"] as const).map((option) => ({
-      label: option === "all" ? `All orbits (${orbitSetCounts(load.orbits, settings.stream.quality.rule).all})` : `Reliable only (${orbitSetCounts(load.orbits, settings.stream.quality.rule).reliable})`,
-      param: "orbits",
-      value: option,
-      active: option === set,
-    }))),
-    // A source switch needs a choice: it is listed only when the build can read at least two of the shower's sources.
-    ...(settings.stream.sources.gmn === undefined || offered.length < 2 ? [] : (["cams", "gmn"] as const).filter((option) => offered.includes(option)).map((option) => ({
-      label: option === "cams" ? "Orbits from CAMS" : "Orbits from GMN",
-      param: "source",
-      value: option,
-      active: option === source,
-    }))),
-  ];
-  return alternates.length === 0 ? undefined : alternates;
+/** The live switch the Developer section lists: the orbit set (once loaded). Undefined when there is none. */
+function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet): ExperienceDefinition["alternates"] {
+  if (load.kind !== "loaded") return undefined;
+  const counts = orbitSetCounts(load.orbits, settings.stream.quality.rule);
+  return (["all", "reliable"] as const).map((option) => ({
+    label: option === "all" ? `All orbits (${counts.all})` : `Reliable only (${counts.reliable})`,
+    param: "orbits",
+    value: option,
+    active: option === set,
+  }));
 }
 
 /**
  * Turns shower settings and the shower's measured orbits into an experience definition; nothing here names a particular shower. When the
  * orbits are not on this machine the experience says so and draws no stream: there is no stand-in.
  */
-export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default, source: OrbitSource = settings.stream.source, offered: readonly OrbitSource[] = offeredSources(settings.id, settings.stream.iauCode, settings.stream.sources.gmn === undefined ? ["cams"] : ["cams", "gmn"])): ExperienceDefinition {
+export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default): ExperienceDefinition {
   const composition = showerComposition(settings);
-  const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set, source) : null;
+  const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set) : null;
   const window = createActivityWindow(settings);
   const streamId = streamIdOf(settings);
   const { startUtcMs, endUtcMs } = timelineBoundsOf(settings);
@@ -539,7 +525,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
     { id: `${settings.id}-peak`, label: `${settings.label} peak`, timeUtcMs: window.peakUtcMs ?? window.startUtcMs },
     { id: `${settings.id}-end`, label: `${settings.label} activity ends`, timeUtcMs: window.endUtcMs },
   ]);
-  const objects = [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load, source)])];
+  const objects = [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load)])];
   // A panel may name any object the experience lists, or the stream when it is drawn.
   const storyPanels = showerStoryPanels(settings, [...objects.map((object) => object.id), ...(layer === null ? [] : [streamId])], events, { startUtcMs, endUtcMs });
   const experience: ExperienceConfig = {
@@ -572,7 +558,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
   return {
     experience,
     clock: { startUtcMs, rate: settings.timeline.rateSecondsPerSecond },
-    alternates: alternatesOf(settings, load, set, source, offered),
+    alternates: alternatesOf(settings, load, set),
     loop: settings.look.loop,
     viewUp: settings.look.viewUp,
     ...(settings.look.startView === undefined ? {} : { startView: settings.look.startView }),

@@ -8,7 +8,7 @@ import { orbitSetCounts, parseMeasuredOrbits } from "../src/experiences/showers/
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import geminidsFile from "../data/showers/geminids.json";
 import shippedText from "../data/stories/geminids/gmn-iau-4.json?raw";
-import { hasLocalOrbits, readLocalFile, readLocalOrbits, skipReasonFor } from "./helpers/measuredOrbits";
+import { SHIPPED_COL as C, readShippedFile, readShippedOrbits } from "./helpers/measuredOrbits";
 import { AU_KM, apply, earthEcliptic, ellipseOf, nearestPoint, raDecOf, separationDeg, solarLongitudeDeg, timeOfSolarLongitude, velocityOn } from "./helpers/streamFacts";
 
 // I-030: the Geminid facts from the Global Meteor Network's measured orbits (Dec 2024 + Dec 2025 monthly files), the same checks as the Perseid GMN suite in showersMeasured.test.ts.
@@ -31,29 +31,28 @@ describe("the Geminid orbits shipped with the story (I-030)", () => {
     expect(provenance.iauLetters).toBe("GEM");
     expect(provenance.licence).toBe("CC BY 4.0");
     expect(provenance.citations).toHaveLength(2);
-    expect(provenance.files.map((f: { month: string }) => f.month)).toEqual(settings.stream.sources.gmn!.months);
+    expect(provenance.files.map((f: { month: string }) => f.month)).toEqual(settings.stream.sources.gmn.months);
     expect(shipped.rows).toHaveLength(provenance.counts.kept);
     expect(shipped.rows.length).toBeGreaterThan(40_000);
     const orbits = parseMeasuredOrbits(shipped, IAU);
     expect(orbits.members).toHaveLength(provenance.counts.kept);
-    const definition = buildShowerDefinition(settings, { kind: "loaded", orbits }, "all", "gmn");
+    const definition = buildShowerDefinition(settings, { kind: "loaded", orbits }, "all");
     expect((groupsOf(definition)[0].group as ListedOrbitGroup).count).toBe(provenance.counts.kept);
   });
 });
 
-const present = hasLocalOrbits(IAU, "gmn");
-const suite = present ? describe : describe.skip;
-suite(`Geminids from the fetched GMN orbits${present ? "" : ` (${skipReasonFor(IAU, "gmn")})`}`, () => {
-  const file = present ? readLocalFile(IAU, "gmn") : null!;
-  const orbits = present ? readLocalOrbits(IAU, "gmn") : null!;
-  const rowsFor = (set: "all" | "reliable") => (set === "all" ? file.rows : file.rows.filter((r) => r[9] >= rule.minConvergenceAngleDeg && r[11] <= rule.maxVelocityErrorFraction * r[10]));
+// The same committed copy, in the shipped (compact) layout: the C map names its columns.
+describe("Geminids from the shipped GMN orbits", () => {
+  const file = readShippedFile("geminids", IAU);
+  const orbits = readShippedOrbits("geminids", IAU);
+  const rowsFor = (set: "all" | "reliable") => (set === "all" ? file.rows : file.rows.filter((r) => r[C.q] >= rule.minConvergenceAngleDeg && r[C.vgSigma] <= rule.maxVelocityErrorFraction * r[C.vg]));
   const peakPublished = timeOfSolarLongitude(adapter, toEqj, settings.radiant.peakSolarLongitudeDeg, Date.parse(settings.activity.startUtc), Date.parse(settings.activity.endUtc));
 
   it("holds the files the settings name, CC BY 4.0, with hashes and the counts", () => {
     const { provenance } = file;
     expect(provenance.iauLetters).toBe("GEM");
     expect(provenance.licence).toBe("CC BY 4.0");
-    expect(provenance.files.map((f: { month: string }) => f.month)).toEqual(settings.stream.sources.gmn!.months);
+    expect(provenance.files.map((f: { month: string }) => f.month)).toEqual(settings.stream.sources.gmn.months);
     for (const f of provenance.files) { expect(f.sha256).toMatch(/^[0-9a-f]{64}$/); expect(f.bytes).toBeGreaterThan(1_000_000); }
     expect(provenance.counts.members).toBe(provenance.counts.unbound + provenance.counts.incomplete + provenance.counts.badSemiMajorAxis + provenance.counts.kept);
     expect(file.rows).toHaveLength(provenance.counts.kept);
@@ -61,26 +60,26 @@ suite(`Geminids from the fetched GMN orbits${present ? "" : ` (${skipReasonFor(I
   });
 
   it("is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's", () => {
-    const group = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "all", "gmn"))[0].group as ListedOrbitGroup;
+    const group = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "all"))[0].group as ListedOrbitGroup;
     expect(group.count).toBe(file.rows.length);
     const counts = orbitSetCounts(orbits, rule);
-    expect(groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable", "gmn"))[0].group.count).toBe(rowsFor("reliable").length);
+    expect(groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable"))[0].group.count).toBe(rowsFor("reliable").length);
     expect(counts.reliable).toBe(rowsFor("reliable").length);
     console.info(`GEM GMN SETS ${JSON.stringify(counts)}`);
-    const panel = streamLimitations(settings, { set: "all", counts, source: "gmn", provenance: orbits.provenance }).join(" ");
+    const panel = streamLimitations(settings, { set: "all", counts, provenance: orbits.provenance }).join(" ");
     expect(panel).toContain("Global Meteor Network");
     expect(panel).toContain("CC BY 4.0");
   });
 
   for (const set of ["all", "reliable"] as const) it(`${set} orbits: the median geocentric velocity is within 1 km/s of the MDC's ${MDC_VG}`, () => {
-    const median = medianOf(rowsFor(set).map((r) => r[10]));
+    const median = medianOf(rowsFor(set).map((r) => r[C.vg]));
     console.info(`[${set}] GEM GMN median Vgeo = ${median.toFixed(2)} km/s over ${rowsFor(set).length} orbits (MDC ${MDC_VG})`);
     expect(Math.abs(median - MDC_VG)).toBeLessThan(1);
   });
 
   for (const set of ["all", "reliable"] as const) it(`${set} orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 261.6 (J2000)`, () => {
     const bins = new Map<number, number>();
-    for (const r of rowsFor(set)) { const k = Math.floor(r[8] / 0.5); bins.set(k, (bins.get(k) ?? 0) + 1); }
+    for (const r of rowsFor(set)) { const k = Math.floor(solarLongitudeDeg(adapter, toEqj, r[C.epochUtcMs]) / 0.5); bins.set(k, (bins.get(k) ?? 0) + 1); }
     const [bestBin, count] = [...bins.entries()].reduce((m, e) => (e[1] > m[1] ? e : m));
     const centre = bestBin * 0.5 + 0.25;
     console.info(`[${set}] GEM GMN busiest 0.5 deg bin ${(bestBin * 0.5).toFixed(1)}-${(bestBin * 0.5 + 0.5).toFixed(1)} (${count} orbits, centre ${centre}); MDC 261.6`);
@@ -88,7 +87,7 @@ suite(`Geminids from the fetched GMN orbits${present ? "" : ` (${skipReasonFor(I
   });
 
   for (const set of ["all", "reliable"] as const) it(`${set} orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak`, () => {
-    const members = rowsFor(set).map((row) => ellipseOf(row[3], row[4], row[5], row[6], row[7]));
+    const members = rowsFor(set).map((row) => ellipseOf(row[C.a], row[C.e], row[C.i], row[C.w], row[C.node]));
     const days: number[] = [];
     for (let t = peakPublished - 6 * DAY_MS; t <= peakPublished + 6 * DAY_MS; t += DAY_MS) days.push(t);
     const NEAREST = 100;
@@ -120,7 +119,7 @@ suite(`Geminids from the fetched GMN orbits${present ? "" : ` (${skipReasonFor(I
     const CROSSING_AU = 0.02;
     const radiants: { x: number; y: number; z: number; speed: number }[] = [];
     for (const row of rowsFor(set)) {
-      const orbit = ellipseOf(row[3], row[4], row[5], row[6], row[7]);
+      const orbit = ellipseOf(row[C.a], row[C.e], row[C.i], row[C.w], row[C.node]);
       const hit = nearestPoint(orbit, earth.position);
       if (hit === null || hit.distanceKm / AU_KM > CROSSING_AU) continue;
       const vp = velocityOn(orbit, hit.nu);

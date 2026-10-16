@@ -16,7 +16,6 @@ import {
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyView, SKY_PROBE_DIRECTION, brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "../src/app/SkyView";
 import { buildPictureMesh, buildStarBuffers, resolveSkySettings, skyObject, starRenderDirection, withSkyObject } from "../src/app/skyModel";
-import { parseBsc, starFile } from "../tools/data/fetch-stars.mjs";
 
 const DEG = Math.PI / 180;
 /** Angle between two directions, accurate near zero (acos is not): atan2 of the cross and dot products. */
@@ -41,12 +40,7 @@ const NAMED: readonly { name: string; ra: [number, number, number]; dec: [number
 const hms = ([h, m, s]: number[]) => 15 * (h + m / 60 + s / 3600);
 const dms = ([d, m, s]: number[]) => Math.sign(d) * (Math.abs(d) + m / 60 + s / 3600);
 
-// The fetched catalogue is git-ignored, so the glob finds nothing on a machine that has not run the fetch tool.
-const fetched = import.meta.glob("../data/local/yale-bsc-v65.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const haveStars = Object.keys(fetched).length === 1;
-const realStars = (): readonly StarRow[] => parseStarFile(JSON.parse(Object.values(fetched)[0])).stars;
 const skySources = import.meta.glob(["../src/app/SkyView.ts", "../src/app/skyModel.ts", "../src/assets/sky.ts"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const skipReason = "skipped: data/local/yale-bsc-v65.json is not fetched on this machine (run node tools/data/fetch-stars.mjs)";
 
 describe("star directions (Done When 1)", () => {
   it("puts a made-up star's direction through the render-axis conversion, to 1e-9 rad", () => {
@@ -84,21 +78,6 @@ describe("star directions (Done When 1)", () => {
     expect(Math.max(...buffers.colours.subarray(0, 3))).toBeGreaterThan(Math.max(...buffers.colours.subarray(6, 9)));
   });
 
-  it.skipIf(!haveStars)(`finds the five named stars in the fetched catalogue within 2 arcsec of the published values ${haveStars ? "" : skipReason}`, () => {
-    const stars = realStars();
-    for (const named of NAMED) {
-      const target = eqjUnit(hms(named.ra), dms(named.dec));
-      const brightEnough = stars.filter((star) => angleBetween(eqjUnit(star[0], star[1]), target) < 2 * (DEG / 3600) * 1.5 && star[2] < 3.5);
-      expect(brightEnough.length, named.name).toBeGreaterThanOrEqual(1);
-    }
-  });
-
-  it.skipIf(!haveStars)(`has 8,404 stars of V 6.5 or brighter, Sirius the brightest ${haveStars ? "" : skipReason}`, () => {
-    const stars = realStars();
-    expect(stars).toHaveLength(8404);
-    expect(Math.max(...stars.map((star) => star[2]))).toBeLessThanOrEqual(6.5);
-    expect(stars.reduce((a, b) => (b[2] < a[2] ? b : a))[2]).toBeCloseTo(-1.46, 2);
-  });
 });
 
 describe("Milky Way alignment (Done When 2)", () => {
@@ -257,17 +236,17 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(MILKY_WAY_TILES.reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(6000); // the full original width
   });
 
-  it("cites both sources and says plainly which star file is drawn", () => {
+  it("cites its sources and says plainly which star file is drawn", () => {
     const absent = skyObject({ kind: "absent" });
-    expect(absent.provenance?.sources.join(" ")).toMatch(/Yale Bright Star Catalogue/);
+    expect(absent.provenance?.sources.join(" ")).not.toMatch(/Hoffleit|stars=yale/);
     expect(absent.provenance?.sources.join(" ")).toMatch(/ESO\/S\. Brunier/);
     expect(absent.provenance?.sources.join(" ")).toMatch(/HYG star database v4\.2.*CC BY-SA 4\.0/);
     expect(absent.provenance?.notes).toMatch(/could not be loaded/);
     expect(absent.provenance?.notes).toMatch(/Stars are not drawn/);
     expect(absent.provenance?.notes).not.toMatch(/only the Milky Way/);
     expect(skyObject({ kind: "loaded", count: 8404 }).provenance?.notes).toMatch(/8404 stars/);
-    expect(skyObject({ kind: "loaded", count: 8920, source: "hyg" }).provenance?.notes).toMatch(/8920 stars.*HYG catalogue/);
-    expect(skyObject({ kind: "loaded", count: 8404, source: "yale" }).provenance?.notes).toMatch(/locally fetched Yale/);
+    expect(skyObject({ kind: "loaded", count: 8920 }).provenance?.notes).toMatch(/8920 stars.*HYG star catalogue \(CC BY-SA 4\.0\)/);
+    expect(skyObject({ kind: "loaded", count: 8920 }).provenance?.notes).not.toMatch(/Yale|stars=/);
     expect(absent.knownLimitations?.join(" ")).toMatch(/precession/);
   });
 
@@ -371,40 +350,11 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
   });
 });
 
-describe("the star file and the fetch tool", () => {
+describe("the star file", () => {
   it("validates a star file and names the bad row", () => {
     expect(parseStarFile({ stars: [[1, 2, 3, null]] }).stars).toHaveLength(1);
     expect(() => parseStarFile({})).toThrow(/stars array/);
     expect(() => parseStarFile({ stars: [[1, 2, 3, null], [1, 99, 3, null]] })).toThrow(/star 1/);
     expect(() => parseStarFile({ stars: [[1, 2, "x", null]] })).toThrow(/star 0/);
-  });
-
-  it("parses fixed-width records at the ReadMe's byte ranges, applies the magnitude cut and skips records with no position", () => {
-    const record = (ra: string, dec: string, v: string, bv: string): string => {
-      const line = Array(196).fill(" ");
-      const put = (from: number, text: string) => [...text].forEach((ch, i) => { line[from - 1 + i] = ch; });
-      put(76, ra);
-      put(84, dec);
-      put(103, v);
-      put(110, bv);
-      return line.join("");
-    };
-    const text = [
-      record("064508.9", "-164258", "-1.46", " 0.00"), // Sirius-like: RA 06h45m08.9s, Dec -16d42m58s
-      record("183656.3", "+384701", " 0.03", " 0.00"),
-      record("010203.0", "+000000", " 6.90", " 0.80"), // fainter than 6.5: cut
-      record("        ", "       ", " 5.00", "     "), // no position: skipped
-      record("120000.0", "+100000", " 5.00", "     "), // no colour index: null
-    ].join("\n");
-    const parsed = parseBsc(text);
-    expect(parsed.records).toBe(5);
-    expect(parsed.skipped).toBe(1);
-    expect(parsed.stars).toHaveLength(3);
-    expect(parsed.stars[0]).toEqual([101.28708, -16.71611, -1.46, 0]);
-    expect(parsed.stars[1][1]).toBeCloseTo(38.78361, 5);
-    expect(parsed.stars[2]).toEqual([180, 10, 5, null]);
-    const file = starFile(parsed, "2026-10-13T00:00:00.000Z");
-    expect(file.provenance).toMatchObject({ count: 3, source: expect.stringContaining("cdsarc.cds.unistra.fr"), fetchedAt: "2026-10-13T00:00:00.000Z" });
-    expect(parseStarFile(file).stars).toHaveLength(3);
   });
 });

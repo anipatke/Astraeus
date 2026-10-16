@@ -92,11 +92,10 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Earth and Moon | `/app.html?experience=earth-moon` |
 | Jupiter and Io | `/app.html?experience=jupiter-io` |
 
-Optional steps, each local only and never committed:
+Data:
 
-- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file. `node tools/data/fetch-stars.mjs` fetches the Yale Bright Star Catalogue (8,404 stars) to this machine, and `?stars=yale` draws it instead. The Yale file is never shipped.
-- **CAMS orbits:** `node tools/data/fetch-meteoroid-orbits.mjs 7` fetches the CAMS Perseid orbits, and `4` fetches the Geminids. The CAMS terms are not confirmed, so these are not shipped, and a public build offers only the Global Meteor Network source.
-- **Perseids and Geminids work out of the box.** They default to the Global Meteor Network orbits (CC BY 4.0), and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching.
+- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file.
+- **Perseids and Geminids work out of the box.** They draw the Global Meteor Network orbits (CC BY 4.0), the only orbit source, and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching; `node tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a file from the monthly summaries.
 
 ## Develop
 
@@ -117,13 +116,12 @@ Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/AST
 
 Everything the demos draw, with its source, licence and whether it can go public. The same list, with pictures, is on the [assets page](https://astraeus.curiouscode.ai/assets.html).
 
-**The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain, local only and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
+**The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
 
 | Asset | Source | Licence | Status |
 |---|---|---|---|
 | Milky Way panorama | ESO eso0932a, ESO/S. Brunier | CC BY 4.0 | Public |
 | Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
-| Yale stars (8,404, option) | Yale Bright Star Catalogue, 5th rev., Hoffleit & Warren 1991 | Terms not established as public domain | This machine only |
 | Sun, Mercury, Venus, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
 | Io map | USGS Galileo and Voyager mosaic | Public domain | Public |
 | Earth map | NASA Earth Observatory, Blue Marble: Next Generation with topography and bathymetry, July 2004 (Reto Stöckli) | Public domain | Public |
@@ -133,7 +131,6 @@ Everything the demos draw, with its source, licence and whether it can go public
 | Comet 109P/Swift-Tuttle, asteroid 3200 Phaethon | NASA JPL Small-Body Database | Public | Public |
 | Apollo 11 paths and events | NASA Apollo 11 Mission Report, MSC-00171 / SP-238 | Public domain | Public |
 | Perseid orbits (25,588) and Geminid orbits (51,115) | Global Meteor Network trajectory summaries, Vida et al. | CC BY 4.0 | Public, with credit |
-| Perseid and Geminid orbits | CAMS v3, 2010 to 2016, P. Jenniskens | Terms pending | This machine only |
 | Shower facts | IAU Meteor Data Center; American Meteor Society calendar | Published reference values | Public |
 
 Credit lines, word for word:
@@ -144,10 +141,8 @@ Credit lines, word for word:
 - Earth map, public domain: NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096x2048.
 - Moon map, public domain: NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.
 - Global Meteor Network, CC BY 4.0: Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).
-- CAMS: CAMS Meteoroid Orbit Database v3, P. Jenniskens, SETI Institute. Jenniskens et al. 2018, Planetary and Space Science 154.
 - IAU Meteor Data Center: Jenniskens et al. 2020, Planetary and Space Science 182; Jopek & Kanuchova 2017, Planetary and Space Science 143.
 - Bright stars, CC BY-SA 4.0: HYG database v4.2 (Hipparcos, Yale Bright Star and Gliese catalogues), astronexus, astronexus.com/projects/hyg. Changed: stars of magnitude 6.5 or brighter kept, right ascension converted from hours to degrees. The CC BY-SA 4.0 licence covers this star file only; the code stays MIT.
-- Yale stars (local option, never shipped): Yale Bright Star Catalogue, 5th revised edition, Hoffleit & Warren 1991, via CDS Strasbourg.
 - Orbits and positions: NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon & Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.
 - Apollo 11, public domain: NASA Apollo 11 Mission Report, MSC-00171 / SP-238.
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.
