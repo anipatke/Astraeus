@@ -2,8 +2,7 @@
 id: T-067
 title: Remove the CAMS and Yale data paths
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-066, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-plan-20261017}

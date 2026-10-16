@@ -2,8 +2,7 @@
 id: T-066
 title: Find what to simplify and photograph every experience before changes
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true, accepted_check: C-047, scope: [C1, C2, C3, C4, C5, C7, C8], accepted_by: {role: owner, session: owner-chat-20261017}}
 planned_by: {role: planner, session: o017-plan-20261017}
