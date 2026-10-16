@@ -67,6 +67,98 @@ export function milkyWayUv(eqj: ArrayLike<number>): [u: number, v: number] {
   return [0.5 - l / 360, 0.5 + b / 180];
 }
 
+/** Equatorial J2000 equirectangular picture (NASA SVS): RA 0h at the centre, increasing leftwards; declination +90 at the top. */
+export function equatorialUv(eqj: ArrayLike<number>): [u: number, v: number] {
+  const length = Math.hypot(eqj[0], eqj[1], eqj[2]);
+  const raDeg = Math.atan2(eqj[1], eqj[0]) / RAD; // -180..180
+  const decDeg = Math.asin(Math.max(-1, Math.min(1, eqj[2] / length))) / RAD;
+  return [0.5 - raDeg / 360, 0.5 + decDeg / 180];
+}
+
+// ---------------------------------------------------------------- picture sources (tiled, any size)
+
+/** The frame a picture is registered in: `galactic` (the ESO panorama) or `equatorial-j2000` (the NASA map, exact, no rotation). */
+export type PictureFrame = "galactic" | "equatorial-j2000";
+export const PICTURE_FRAMES: readonly PictureFrame[] = Object.freeze(["galactic", "equatorial-j2000"]);
+/** The sources the `?skymap=` setting names; `nasa` is local-only and falls back to `eso` when it has not been fetched. */
+export const SKY_MAP_SOURCES = Object.freeze(["nasa", "eso"] as const);
+export type SkyMapSource = (typeof SKY_MAP_SOURCES)[number];
+/** The most a tile may measure on a side: phone GPUs commonly cap textures at 4096. */
+export const MAX_TILE_PX = 4096;
+
+export interface PictureTile {
+  readonly column: number;
+  readonly row: number;
+  readonly url: string;
+  readonly widthPx: number;
+  readonly heightPx: number;
+}
+
+/** A picture ready to draw: a grid of tiles (column 0 at the left, row 0 at the top) in one frame. */
+export interface PictureSet {
+  readonly id: SkyMapSource;
+  readonly name: string;
+  readonly frame: PictureFrame;
+  readonly columns: number;
+  readonly rows: number;
+  readonly tiles: readonly PictureTile[];
+  /** Strength relative to the baseline (the NASA map has the catalogue stars baked in, so it is drawn weaker). */
+  readonly gain: number;
+  readonly credit: string;
+  readonly licence: string;
+  readonly source: string;
+}
+
+/** Validates a tile manifest written by `tools/data/fetch-sky-map.mjs` (schema 1) and returns the picture it describes; throws naming the problem. */
+export function parseSkyManifest(json: unknown, baseUrl: string): PictureSet {
+  const m = json as Record<string, any> | null;
+  if (m === null || typeof m !== "object" || m.schema !== 1) throw new TypeError("sky manifest needs schema 1");
+  if (!PICTURE_FRAMES.includes(m.frame)) throw new RangeError(`sky manifest frame must be one of ${PICTURE_FRAMES.join(", ")}, got ${String(m.frame)}`);
+  for (const key of ["name", "source", "credit", "licence"]) if (typeof m[key] !== "string" || m[key] === "") throw new TypeError(`sky manifest needs a ${key}`);
+  const { columns, rows } = (m.grid ?? {}) as { columns?: number; rows?: number };
+  if (!Number.isInteger(columns) || !Number.isInteger(rows) || (columns as number) < 1 || (rows as number) < 1) throw new RangeError("sky manifest grid needs whole columns and rows");
+  const { widthPx, heightPx, tilePx } = m;
+  if (![widthPx, heightPx, tilePx].every((n) => Number.isInteger(n) && n > 0)) throw new RangeError("sky manifest needs whole widthPx, heightPx and tilePx");
+  if (tilePx > MAX_TILE_PX) throw new RangeError(`sky manifest tilePx ${tilePx} exceeds the ${MAX_TILE_PX} px texture limit`);
+  if (Math.ceil(widthPx / tilePx) !== columns || Math.ceil(heightPx / tilePx) !== rows) throw new RangeError("sky manifest grid does not match the picture and tile size");
+  if (widthPx !== 2 * heightPx) throw new RangeError("sky manifest picture must be equirectangular (width twice the height)");
+  if (!Array.isArray(m.tiles) || m.tiles.length !== (columns as number) * (rows as number)) throw new RangeError("sky manifest needs one tile per grid cell");
+  const seen = new Set<string>();
+  const tiles = m.tiles.map((tile: any, index: number): PictureTile => {
+    const ok = tile !== null && typeof tile === "object" && Number.isInteger(tile.column) && Number.isInteger(tile.row)
+      && tile.column >= 0 && tile.column < (columns as number) && tile.row >= 0 && tile.row < (rows as number) && typeof tile.file === "string" && /^[\w.-]+$/.test(tile.file);
+    if (!ok) throw new RangeError(`sky manifest tile ${index} needs an in-grid column and row and a plain file name`);
+    const key = `${tile.column},${tile.row}`;
+    if (seen.has(key)) throw new RangeError(`sky manifest lists tile ${key} twice`);
+    seen.add(key);
+    return {
+      column: tile.column,
+      row: tile.row,
+      url: baseUrl + tile.file,
+      widthPx: Math.min(tilePx, widthPx - tile.column * tilePx),
+      heightPx: Math.min(tilePx, heightPx - tile.row * tilePx),
+    };
+  });
+  const gain = m.gain === undefined ? 1 : m.gain;
+  if (!Number.isFinite(gain) || gain < 0 || gain > 2) throw new RangeError("sky manifest gain must be between 0 and 2");
+  return { id: "nasa", name: m.name, frame: m.frame, columns: columns as number, rows: rows as number, tiles, gain, credit: m.credit, licence: m.licence, source: m.source };
+}
+
+/** The picture-space position (0..1, v up) of an EQJ direction in a frame. */
+export function pictureUv(frame: PictureFrame, eqj: ArrayLike<number>): [u: number, v: number] {
+  return frame === "galactic" ? milkyWayUv(eqj) : equatorialUv(eqj);
+}
+
+/** The tile and pixel (from the tile's top-left corner) where an EQJ direction falls in a tiled picture, as continuous pixel coordinates. */
+export function pictureTexel(frame: PictureFrame, widthPx: number, heightPx: number, tilePx: number, eqj: ArrayLike<number>): { column: number; row: number; x: number; y: number } {
+  const [u, v] = pictureUv(frame, eqj);
+  const px = Math.min(widthPx - 1e-9, Math.max(0, u * widthPx));
+  const py = Math.min(heightPx - 1e-9, Math.max(0, (1 - v) * heightPx));
+  const column = Math.floor(px / tilePx);
+  const row = Math.floor(py / tilePx);
+  return { column, row, x: px - column * tilePx, y: py - row * tilePx };
+}
+
 // ---------------------------------------------------------------- stars
 
 /** One catalogue row: J2000 right ascension and declination (degrees), V magnitude, B-V colour index (null when unknown). */
@@ -151,9 +243,46 @@ export const MILKY_WAY_TILES: readonly TextureRef[] = Object.freeze([
   Object.freeze({ url: milkyWayRightUrl, widthPx: 3000, heightPx: 3000, licence: MILKY_WAY_LICENCE }),
 ]);
 
+/** The ESO panorama as a two-tile galactic picture: the fallback, and the only source that may be shipped. */
+export const ESO_PICTURE: PictureSet = Object.freeze({
+  id: "eso",
+  name: "ESO Milky Way panorama (eso0932a)",
+  frame: "galactic",
+  columns: 2,
+  rows: 1,
+  tiles: Object.freeze(MILKY_WAY_TILES.map((tile, column) => Object.freeze({ column, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }))),
+  gain: 1,
+  credit: "ESO/S. Brunier",
+  licence: "CC BY 4.0",
+  source: MILKY_WAY_LICENCE.url,
+});
+
+/** Where `tools/data/fetch-sky-map.mjs` writes the NASA tiles and manifest; local only, never read in a production build. */
+export const LOCAL_NASA_SKY_DIR = "/data/local/sky/nasa/";
+export const FETCH_SKY_MAP_COMMAND = "node tools/data/fetch-sky-map.mjs";
+
+/** Default source: the ESO panorama (owner decision 2026-10-16: "use ESO, give credit"). The NASA map is local-only, by `?skymap=nasa` or the setting. */
+export const DEFAULT_SKY_MAP: SkyMapSource = "eso";
+
+/**
+ * The picture for a source. `nasa` reads the local manifest and falls back to ESO when it is absent, invalid, a production build, or
+ * the dev server answered with its page; `eso` is always the committed panorama. The returned set's `id` is the source actually used.
+ */
+export async function loadPictureSet(source: SkyMapSource, fetcher: typeof fetch = fetch, production: boolean = import.meta.env.PROD): Promise<PictureSet> {
+  if (source === "eso" || production) return ESO_PICTURE;
+  try {
+    const response = await fetcher(`${LOCAL_NASA_SKY_DIR}manifest.json`);
+    if (!response.ok) return ESO_PICTURE;
+    return parseSkyManifest(JSON.parse(await response.text()), LOCAL_NASA_SKY_DIR);
+  } catch {
+    return ESO_PICTURE;
+  }
+}
+
 export const SKY_SOURCES: readonly string[] = Object.freeze([
   "Yale Bright Star Catalogue, 5th Revised Ed. (Preliminary Version), Hoffleit and Warren, ADC/NSSDC 1991 (https://cdsarc.cds.unistra.fr/ftp/V/50/). Fetched to this machine only.",
   "The Milky Way panorama, ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0.",
+  "Deep Star Maps 2020, NASA/Goddard Space Flight Center Scientific Visualization Studio (https://svs.gsfc.nasa.gov/4851); Gaia DR2: ESA/Gaia/DPAC. Fetched to this machine only; drawn only when asked for with ?skymap=nasa or the sky.source setting (the default picture is the ESO panorama).",
 ]);
 
 
@@ -168,5 +297,7 @@ export interface SkySettings {
   readonly milkyWayBrightness?: number;
   /** Whether the Milky Way picture is drawn behind the stars. Defaults to false (owner decision, 2026-10-15); the catalogue stars are drawn either way. */
   readonly milkyWay?: boolean;
+  /** Which picture: `nasa` (local only; falls back to `eso` when not fetched) or `eso`. Defaults to `eso`. `?skymap=` overrides it. */
+  readonly source?: SkyMapSource;
 }
 

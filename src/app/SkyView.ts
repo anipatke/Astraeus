@@ -1,6 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Group, Mesh, Points, ShaderMaterial, NoColorSpace, TextureLoader, Vector3 } from "three";
 import type { Camera, PerspectiveCamera, Texture } from "three";
-import { MILKY_WAY_TILES, type StarRow } from "../assets/sky";
+import { ESO_PICTURE, SKY_MAP_SOURCES, DEFAULT_SKY_MAP, loadPictureSet, type PictureSet, type SkyMapSource, type StarRow } from "../assets/sky";
 import { buildPictureMesh, buildStarBuffers } from "./skyModel";
 
 // Both draws sit before everything else in the first pass (the layer-0 pass), ignore depth, and write none.
@@ -64,7 +64,12 @@ export interface SkyViewOptions {
   readonly maxAnisotropy?: number;
   /** Whether the picture is drawn. Defaults to true. */
   readonly milkyWay?: boolean;
+  /** Legacy: the two ESO halves as ready textures (a test may pass empty ones). Overrides `picture`. */
   readonly pictures?: readonly Texture[];
+  /** The picture to draw, as a tile grid; defaults to the ESO panorama. `null` draws none until `setPicture` is called. */
+  readonly picture?: PictureSet | null;
+  /** The source `requestPicture` loads: `nasa` (local only, falls back to ESO) or `eso`. Defaults to `eso`. */
+  readonly source?: SkyMapSource;
 }
 
 /**
@@ -78,45 +83,26 @@ export class SkyView {
   readonly #pictures: Mesh[] = [];
   readonly #pictureMaterials: ShaderMaterial[] = [];
   readonly #starMaterial: ShaderMaterial;
-  readonly #textures: readonly Texture[];
+  #textures: Texture[] = [];
   #starCount = 0;
+  #pictureOn: boolean;
+  #brightness: number;
+  #gain = 1;
+  #maxAnisotropy: number;
+  #pictureId: SkyMapSource | null = null;
+  readonly #source: SkyMapSource;
+  #requested = false;
+  #disposed = false;
 
-  /** `options.pictures` are the Milky Way halves, left to right; the scene loads the committed files, a test may pass empty textures. */
+  /** `options.picture` is the tile set; the scene passes the one it resolved, a test may pass `pictures` (empty textures). */
   constructor(options: SkyViewOptions) {
     const { starBrightness, milkyWayBrightness, pixelRatio, maxAnisotropy = 1 } = options;
-    this.#textures = options.pictures ?? MILKY_WAY_TILES.map((tile) => new TextureLoader().load(tile.url));
-    const count = this.#textures.length;
-    const mesh = (index: number) => buildPictureMesh(128, 64, { index, count });
-    this.#textures.forEach((texture, index) => {
-      // Raw sRGB goes to the framebuffer as it is (no decode and re-encode per pixel); mipmaps and anisotropic filtering keep the
-      // picture from sparkling when it is drawn smaller than the file, and the magnified case is plain bilinear.
-      texture.colorSpace = NoColorSpace;
-      texture.generateMipmaps = true;
-      texture.minFilter = LinearMipmapLinearFilter;
-      texture.magFilter = LinearFilter;
-      texture.anisotropy = maxAnisotropy;
-      // Every triangle of the sphere is drawn once from inside, so both sides are drawn and no winding order matters.
-      const material = new ShaderMaterial({
-        vertexShader: PICTURE_VERTEX,
-        fragmentShader: PICTURE_FRAGMENT,
-        uniforms: { uMap: { value: texture }, uGain: { value: PICTURE_GAIN * milkyWayBrightness } },
-        side: DoubleSide,
-        depthTest: false,
-        depthWrite: false,
-      });
-      const data = mesh(index);
-      const geometry = new BufferGeometry();
-      geometry.setAttribute("position", new BufferAttribute(data.positions, 3));
-      geometry.setAttribute("uv", new BufferAttribute(data.uvs, 2));
-      geometry.setIndex(new BufferAttribute(data.indices, 1));
-      const picture = new Mesh(geometry, material);
-      picture.renderOrder = SKY_ORDER;
-      picture.frustumCulled = false;
-      picture.visible = options.milkyWay ?? false;
-      this.#pictures.push(picture);
-      this.#pictureMaterials.push(material);
-      this.group.add(picture);
-    });
+    this.#pictureOn = options.milkyWay ?? false;
+    this.#brightness = milkyWayBrightness;
+    this.#maxAnisotropy = maxAnisotropy;
+    this.#source = options.source ?? DEFAULT_SKY_MAP;
+    if (options.pictures !== undefined) this.#build(ESO_PICTURE, options.pictures);
+    else if (options.picture !== null) this.#build(options.picture ?? ESO_PICTURE);
     this.#starMaterial = new ShaderMaterial({
       vertexShader: STAR_VERTEX,
       fragmentShader: STAR_FRAGMENT,
@@ -128,6 +114,78 @@ export class SkyView {
     this.group.name = "sky";
   }
 
+  /** Builds one mesh per tile of a picture, each with its own texture; replaces nothing (callers clear first). */
+  #build(set: PictureSet, textures?: readonly Texture[]): void {
+    this.#pictureId = set.id;
+    this.#gain = set.gain;
+    // The sphere has 64 cells per tile on a side (about 1.4 degrees at 4x2 tiles), so a straight-edged cell never strays measurably from the true projection.
+    const columns = Math.max(128, set.columns * 64);
+    const rows = Math.max(64, set.rows * 64);
+    set.tiles.forEach((tile, index) => {
+      const texture = textures?.[index] ?? new TextureLoader().load(tile.url);
+      this.#textures.push(texture);
+      // Raw sRGB goes to the framebuffer as it is (no decode and re-encode per pixel); mipmaps and anisotropic filtering keep the
+      // picture from sparkling when it is drawn smaller than the file, and the magnified case is plain bilinear.
+      texture.colorSpace = NoColorSpace;
+      texture.generateMipmaps = true;
+      texture.minFilter = LinearMipmapLinearFilter;
+      texture.magFilter = LinearFilter;
+      texture.anisotropy = this.#maxAnisotropy;
+      // Every triangle of the sphere is drawn once from inside, so both sides are drawn and no winding order matters.
+      const material = new ShaderMaterial({
+        vertexShader: PICTURE_VERTEX,
+        fragmentShader: PICTURE_FRAGMENT,
+        uniforms: { uMap: { value: texture }, uGain: { value: PICTURE_GAIN * this.#gain * this.#brightness } },
+        side: DoubleSide,
+        depthTest: false,
+        depthWrite: false,
+      });
+      const data = buildPictureMesh(columns, rows, { column: tile.column, row: tile.row, columns: set.columns, rows: set.rows, frame: set.frame });
+      const geometry = new BufferGeometry();
+      geometry.setAttribute("position", new BufferAttribute(data.positions, 3));
+      geometry.setAttribute("uv", new BufferAttribute(data.uvs, 2));
+      geometry.setIndex(new BufferAttribute(data.indices, 1));
+      const picture = new Mesh(geometry, material);
+      picture.renderOrder = SKY_ORDER;
+      picture.frustumCulled = false;
+      picture.visible = this.#pictureOn;
+      this.#pictures.push(picture);
+      this.#pictureMaterials.push(material);
+      this.group.add(picture);
+    });
+  }
+
+  #clear(): void {
+    for (const picture of this.#pictures) { this.group.remove(picture); picture.geometry.dispose(); }
+    for (const material of this.#pictureMaterials) material.dispose();
+    for (const texture of this.#textures) texture.dispose();
+    this.#pictures.length = 0;
+    this.#pictureMaterials.length = 0;
+    this.#textures = [];
+    this.#pictureId = null;
+  }
+
+  /** Replaces the picture with another tile set (a different source or size); the on/off state and the brightness carry over. */
+  setPicture(set: PictureSet): void {
+    this.#clear();
+    this.#build(set);
+  }
+
+  /**
+   * Loads the picture for this view's source the first time it is wanted (nothing is fetched or decoded while the picture stays off):
+   * `nasa` when its local tiles exist, otherwise the ESO panorama. A no-op once a picture is held or a load is under way.
+   */
+  requestPicture(load: (source: SkyMapSource) => Promise<PictureSet> = loadPictureSet): void {
+    if (this.#requested || this.#pictureId !== null) return;
+    this.#requested = true;
+    void load(this.#source).then((set) => { if (!this.#disposed) this.setPicture(set); });
+  }
+
+  /** The source of the picture now held (`nasa` or `eso`), or null when none. */
+  get pictureSource(): SkyMapSource | null {
+    return this.#pictureId;
+  }
+
   /** Sets the star strength in place (0 to 2); no rebuild. */
   setStarBrightness(value: number): void {
     this.#starMaterial.uniforms.uGain.value = value;
@@ -135,7 +193,8 @@ export class SkyView {
 
   /** Sets the picture strength in place (0 to 2); no rebuild. */
   setMilkyWayBrightness(value: number): void {
-    for (const material of this.#pictureMaterials) material.uniforms.uGain.value = PICTURE_GAIN * value;
+    this.#brightness = value;
+    for (const material of this.#pictureMaterials) material.uniforms.uGain.value = PICTURE_GAIN * this.#gain * value;
   }
 
   get starBrightness(): number {
@@ -143,16 +202,17 @@ export class SkyView {
   }
 
   get milkyWayBrightness(): number {
-    return this.#pictureMaterials.length === 0 ? 0 : (this.#pictureMaterials[0].uniforms.uGain.value as number) / PICTURE_GAIN;
+    return this.#brightness;
   }
 
   /** Shows or hides the Milky Way picture; the catalogue stars are not affected. */
   setPictureVisible(visible: boolean): void {
+    this.#pictureOn = visible;
     for (const picture of this.#pictures) picture.visible = visible;
   }
 
   get pictureVisible(): boolean {
-    return this.#pictures.length > 0 && this.#pictures.every((picture) => picture.visible);
+    return this.#pictureOn && this.#pictures.length > 0;
   }
 
   /** Number of stars drawn; zero until a catalogue is set. */
@@ -196,10 +256,9 @@ export class SkyView {
 
   dispose(): void {
     this.setStars([]);
-    for (const picture of this.#pictures) picture.geometry.dispose();
-    for (const material of this.#pictureMaterials) material.dispose();
+    this.#disposed = true;
+    this.#clear();
     this.#starMaterial.dispose();
-    for (const texture of this.#textures) texture.dispose();
   }
 }
 
@@ -230,4 +289,10 @@ export function brightnessFromSearch(search: string, key: "stars" | "milkywaybri
 /** `?sky=off` hides the sky for a comparison; anything else keeps the experience's own setting. */
 export function skyHiddenBySearch(search: string): boolean {
   return new URLSearchParams(search).get("sky") === "off";
+}
+
+/** `?skymap=nasa` or `?skymap=eso` overrides the picture source for a comparison; anything else is null (the experience's own setting). */
+export function skyMapFromSearch(search: string): SkyMapSource | null {
+  const value = new URLSearchParams(search).get("skymap");
+  return (SKY_MAP_SOURCES as readonly string[]).includes(value ?? "") ? (value as SkyMapSource) : null;
 }
