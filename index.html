@@ -221,7 +221,7 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
         <li><span class="n">01 · STATE</span><h3>Where and when</h3><p>Time scales, positions, velocities, orientation and frames, each with its source and accuracy.</p><div class="tags"><span class="tag">UTC·TT·TDB</span><span class="tag">J2000</span><span class="tag">provenance</span></div></li>
         <li><span class="n">02 · SOURCES</span><h3>Plug in the data</h3><p>Planet theory, NASA mission samples, published orbits, measured meteor catalogues. Swap one without touching the rest.</p><div class="tags"><span class="tag">VSOP87</span><span class="tag">Kepler</span><span class="tag">catalogues</span></div></li>
         <li><span class="n">03 · DRAWING</span><h3>Safe at any scale</h3><p>True or readable scale, a floating origin so 51 AU stays steady, paths, labels, light and a real star sky.</p><div class="tags"><span class="tag">floating origin</span><span class="tag">markers</span><span class="tag">sky</span></div></li>
-        <li><span class="n">04 · STORY</span><h3>Time you can play</h3><p>Timelines, events, focus and follow, and an info panel that shows what's measured and what's filled in.</p><div class="tags"><span class="tag">observed</span><span class="tag">modelled</span><span class="tag">illustrative</span></div></li>
+        <li><span class="n">04 · STORY</span><h3>Time you can play</h3><p>Timelines, events, focus and follow, story panels that open as playback reaches their moment, and an info panel that shows what's measured and what's filled in.</p><div class="tags"><span class="tag">observed</span><span class="tag">modelled</span><span class="tag">illustrative</span></div></li>
       </ol>
     </div>
   </section>
@@ -243,7 +243,7 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
         <div class="globe"><div class="ball" style="background-image:url(site/t-io-2k.jpg)"></div><b>Io</b><span>public domain</span></div>
       </div>
       <div class="shelf2">
-        <a class="tile" href="assets.html"><img src="site/t-milky-way.jpg" alt="The ESO Milky Way panorama"><div class="tile-body"><small>SKY</small><b>Real stars and the Milky Way</b><p>8,404 naked-eye stars placed to 0.0001°, and ESO's panorama in the same frame.</p></div></a>
+        <a class="tile" href="assets.html"><img src="site/t-milky-way.jpg" alt="The ESO Milky Way panorama"><div class="tile-body"><small>SKY</small><b>Real stars and the Milky Way</b><p>8,920 naked-eye stars from the HYG catalogue, and ESO's panorama in the same frame.</p></div></a>
         <a class="tile data-tile" href="assets.html"><div class="tile-body" style="padding:0"><small>MEASURED ORBITS</small><b>Global Meteor Network</b><p>Perseids from 2025, every meteor on its own ellipse. CC BY 4.0.</p></div><span class="big">25,588</span></a>
         <a class="tile data-tile" href="assets.html"><div class="tile-body" style="padding:0"><small>ORBITS AND MISSIONS</small><b>NASA JPL and Apollo 11</b><p>A comet out to 51 AU, an asteroid from a settings file, and 30 timed Apollo events.</p></div><span class="big">30</span></a>
       </div>
@@ -255,26 +255,26 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
     <div class="wrap">
       <div class="head">
         <h2>Built with it.</h2>
-        <p>Two stories that couldn't be more different, on the same engine with no special cases. Open Developer mode in either to see what's underneath.</p>
+        <p>Two stories that couldn't be more different, on the same engine with no special cases. Open Developer mode in either to see what's underneath, or to copy a link to the exact view on screen.</p>
       </div>
       <div class="demos">
         <a class="demo" href="app.html">
-          <div class="shot"><img src="site/apollo-moon.jpg" alt="Apollo 11's path from Earth to the Moon and back, seen from above at true scale, with the touchdown story panel open."></div>
+          <div class="shot"><img src="site/apollo-moon.jpg" alt="Apollo 11's path from Earth to the Moon and back, seen from above at true scale, with the touchdown story panel open: an Observed badge, two short paragraphs and the NASA mission report as its source."></div>
           <div class="demo-body">
             <span class="eyebrow">July 1969</span>
             <h3>Apollo 11</h3>
-            <p>Eight days to the Moon and back, rebuilt from NASA's mission report.</p>
-            <div class="uses"><span class="tag">mission data</span><span class="tag">events</span></div>
+            <p>Eight days to the Moon and back, rebuilt from NASA's mission report. Seven story panels open as the clock reaches each step, from leaving Earth orbit to splashdown, each with its sources.</p>
+            <div class="uses"><span class="tag">mission data</span><span class="tag">events</span><span class="tag">7 story panels</span></div>
             <span class="go">Open</span>
           </div>
         </a>
         <a class="demo" href="app.html?experience=shower-perseids">
-          <div class="shot"><img src="site/perseids-gmn.jpg" alt="The Perseid meteor stream seen obliquely from above the planets' plane, a ribbon along comet Swift-Tuttle's orbit, every dot a measured orbit."></div>
+          <div class="shot"><img src="site/perseids-gmn.jpg" alt="The Perseid meteor stream seen obliquely from above the planets' plane, a ribbon along comet Swift-Tuttle's orbit, every dot one measured orbit with its place along that orbit filled in, over the real star sky."></div>
           <div class="demo-body">
             <span class="eyebrow">August 2027</span>
             <h3>The Perseids</h3>
-            <p>Earth through comet Swift–Tuttle's trail. A whole shower from one settings file.</p>
-            <div class="uses"><span class="tag">25,588 orbits</span><span class="tag">settings</span></div>
+            <p>Earth through comet Swift–Tuttle's trail. A whole shower from one settings file. Three story panels say what is measured here and what is filled in.</p>
+            <div class="uses"><span class="tag">25,588 orbits</span><span class="tag">settings</span><span class="tag">3 story panels</span></div>
             <span class="go">Open</span>
           </div>
         </a>
@@ -297,7 +297,7 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
 <footer>
   <div class="wrap">
     <span>Built by Ani Patke, with AI doing a lot of the typing. <a href="https://anipatke.com">anipatke.com</a> · MIT licence</span>
-    <span>Meteor orbits: Global Meteor Network, CC BY 4.0 · <a href="assets.html">Assets, science and credits →</a></span>
+    <span>Meteor orbits: Global Meteor Network, CC BY 4.0 · Stars: HYG database, CC BY-SA 4.0 · <a href="assets.html">Assets, science and credits →</a></span>
   </div>
 </footer>
 

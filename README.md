@@ -8,14 +8,14 @@ Everything in space, where it is right now, drawn in the browser.
 
 [![MIT licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE) ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6) ![Three.js](https://img.shields.io/badge/Three.js-0.169-black)
 
-Astraeus is a TypeScript and Three.js engine for telling stories with real astronomical data. Give it a time and it returns where each body is, with where that number came from. The engine draws it at true scale without jitter, and a story adds a timeline, events and an info panel on top.
+Astraeus is a TypeScript and Three.js engine for telling stories with real astronomical data. Give it a time and it returns where each body is, with where that number came from. The engine draws it at true scale without jitter, and a story adds a timeline, events, story panels and an info panel on top.
 
 ## One engine, two stories
 
 | | |
 |---|---|
 | ![Apollo 11's free-return path from above, Earth and the Moon with the touchdown story panel open](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
-| **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. |
+| **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. Seven story panels. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. Three story panels. |
 | [Try it](https://astraeus.curiouscode.ai/app.html) (going live soon) | [Try it](https://astraeus.curiouscode.ai/app.html?experience=shower-perseids) (going live soon) |
 
 <sub>Perseids image: orbits from the Global Meteor Network, CC BY 4.0.</sub>
@@ -29,6 +29,10 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 ![The info panel for Apollo 11's lunar landing, marked Observed, with its source, accuracy and notes](site/apollo-provenance.jpg)
 
 Every number in the info panel carries a label. **Observed** means someone measured it, like the time of the Apollo 11 landing from NASA's report. **Modelled** means it comes from a published method, like the planets from VSOP87. **Illustrative** means it fills a gap: where each meteor sits along its orbit today was never measured, so the dots are spread evenly and say so. The rule behind it: be reliable where the data exists, plausible where it doesn't, and explicit about the difference.
+
+## Story panels
+
+A story can list short panels in a JSON file: [Apollo 11 has seven](data/stories/apollo11/panels.json) and [the Perseids have three](data/stories/perseids/panels.json). Each panel is tied to a moment, an event or an anchor point in the data. It opens when playback reaches that moment and holds playback for a few seconds. It carries one of the three badges above and lists its sources. On a wide screen the panel sits on the right edge, and on a phone it is a bottom sheet. Its look and behaviour follow the panel parts of Planetary Explorer, rewritten for Astraeus.
 
 ## A shower is a settings file
 
@@ -64,7 +68,7 @@ flowchart LR
 
 - `src/core/` is the scientific core: time, state vectors, orientation, scale policies and trajectories, with no Three.js or React.
 - `src/app/` draws it: floating origin, camera, paths, sky and labels.
-- `src/shell/` holds the reusable timeline, event list and info panel.
+- `src/shell/` holds the reusable timeline, event list, story panels and info panel.
 - `src/experiences/` holds each story: Apollo 11, the Earth-Moon explorer, Jupiter and Io, and the showers.
 
 ## Run it locally
@@ -78,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Open the address Vite prints (usually `http://localhost:5173/`). The pitch page is `/`, and the app is `/app.html`.
+Open the address Vite prints (usually `http://localhost:5173/`). The pitch page is `/`, and the app is `/app.html`. In Developer mode, Display settings, "Copy view link" gives a link with `?view=` and the time, which opens the same camera view.
 
 | Experience | URL |
 |---|---|
@@ -128,7 +132,7 @@ Everything the demos draw, with its source, licence and whether it can go public
 | Planet positions | VSOP87A via orb.js, Bretagnon & Francou 1988 | Published theory | Public |
 | Comet 109P/Swift-Tuttle, asteroid 3200 Phaethon | NASA JPL Small-Body Database | Public | Public |
 | Apollo 11 paths and events | NASA Apollo 11 Mission Report, MSC-00171 / SP-238 | Public domain | Public |
-| Perseid orbits (25,588) | Global Meteor Network trajectory summaries, Vida et al. | CC BY 4.0 | Public, with credit |
+| Perseid orbits (25,588) and Geminid orbits (51,115) | Global Meteor Network trajectory summaries, Vida et al. | CC BY 4.0 | Public, with credit |
 | Perseid and Geminid orbits | CAMS v3, 2010 to 2016, P. Jenniskens | Terms pending | This machine only |
 | Shower facts | IAU Meteor Data Center; American Meteor Society calendar | Published reference values | Public |
 
@@ -147,7 +151,7 @@ Credit lines, word for word:
 - Orbits and positions: NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon & Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.
 - Apollo 11, public domain: NASA Apollo 11 Mission Report, MSC-00171 / SP-238.
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.
-- Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com.
+- Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com. The story panel's look and behaviour (side panel, phone bottom sheet, marker dot, badge) follow its panel parts, rewritten for Astraeus.
 
 Third-party library notices are in [`licenses/`](licenses/).
 
@@ -160,7 +164,8 @@ Astraeus is an experiment, built in spikes. Each spike tests one claim about the
 - Apollo 11, rebuilt from NASA's report, with 30 timed events.
 - A reusable shell: timeline, camera modes, scale toggle, info panel.
 - A group of measured orbits drawn as a stream, and showers from a settings file (Perseids and Geminids).
-- The Sun, planets and comets on their orbits, and a real-star sky.
+- The Sun, planets and comets on their orbits, and a real-star sky from the HYG catalogue.
+- Story panels in the Apollo 11 and Perseids demos, and shareable view links.
 
 **Next**
 - Put the demos live at astraeus.curiouscode.ai.
