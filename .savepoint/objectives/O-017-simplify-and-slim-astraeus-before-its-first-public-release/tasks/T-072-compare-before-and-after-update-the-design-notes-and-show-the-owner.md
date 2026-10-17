@@ -2,10 +2,9 @@
 id: T-072
 title: Compare before and after, update the design notes and show the owner
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-067, requires: clear}, {task: T-068, requires: clear}, {task: T-069, requires: clear}, {task: T-070, requires: clear}, {task: T-071, requires: clear}, {task: T-073, requires: clear}, {task: T-074, requires: clear}, {task: T-075, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-056, scope: [final contact sheet, numbers table, Design reconciliation], accepted_by: {role: owner, session: o017-orchestrator-check-20261017}}
 planned_by: {role: planner, session: o017-plan-20261017}
 ---
 
@@ -91,3 +90,7 @@ The home page first-load figure from the picture tool (750,590 B raw) differs fr
 ## Drift Notes
 
 None expected.
+
+## Owner Completion — 2026-10-17
+
+Owner looked at the final contact sheet and `docs/O017_RESULTS.md` (sent to the owner) and said "Done". Quick Task Check C-056 CLEAR.
