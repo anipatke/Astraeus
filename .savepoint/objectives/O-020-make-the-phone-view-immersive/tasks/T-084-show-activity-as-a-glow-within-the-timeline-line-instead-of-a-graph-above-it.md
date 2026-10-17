@@ -2,10 +2,9 @@
 id: T-084
 title: Show activity as a glow within the timeline line instead of a graph above it
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-080, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-063, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
 
@@ -72,3 +71,7 @@ Criterion 1: strip removed from TimelineBar.tsx/.css; gradient drives the track;
 2. `ui.windowPeakTimeMs` read `data-time-utc-ms` which no element carried; the peak mark now carries it.
 3. On a year-long timeline a shower's window is about 3 percent of the width, so the bright part is a narrow patch around the peak; the settings (curve, thickness, halo) tune it. Owner look pending.
 **Extra reads.** src/app/App.tsx, SettingControls.tsx, AstraeusShell.tsx (to place the settings and pass the look); tests/timeline.test.ts; tools/validate/driver-guard.mjs header; data/local copied from main (git-ignored GMN files the browser scripts need) into this lane's data/local.
+
+## Owner Completion — 2026-10-18
+
+Owner looked at the glow on the preview: "ah, youve done it on one. Looks good!", then chose "Mark it done" after being told the glow appears only on the two showers (the experiences with activity data). Quick Task Check C-063 CLEAR.
