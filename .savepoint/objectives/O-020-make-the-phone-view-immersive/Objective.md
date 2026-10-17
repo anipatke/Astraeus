@@ -54,6 +54,9 @@ Owner, 2026-10-17: "our UI should be mobile friendly using drawers and sliders t
 7. **Three-way scale: a small menu** (option B) for experiences with three scales (the showers); experiences with two keep a plain toggle.
 8. **Focus moves to the interface** (owner, 2026-10-17: "Can we focus on the mobile UI next?", "Well ui just generally") after O-017 went live; O-018 and O-019 continue after it.
 9. **Accessible names stay stable**: icon buttons keep their current accessible names (for example "Play playback", "Pause playback", "Info"), so screen readers and the browser checks keep finding them; visible text becomes icons with tooltips.
+10. **Apollo 11 at true scale only; scale explanation one tap away** (owner, 2026-10-17: "keep it one tap away, I dont like in the Readable view for Apollo it changes the planet size. I think for this story we remove that option is this is about scale"). Planned as T-085, after the shared driver (T-083).
+11. **Activity as a glow within the timeline line** (owner, 2026-10-17), replacing the purple graph, on the timeline only. Planned as T-084.
+12. **Correction recorded:** the showers offer two scales (True and Solar system), not three; the option-B menu (Decision 7) is built and tested in a harness and appears only for an experience with three or more scales.
 ## Boundaries
 
 **In scope:**
