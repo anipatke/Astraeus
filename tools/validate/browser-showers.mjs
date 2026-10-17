@@ -10,6 +10,11 @@
 //   the clump "30% ... ±20° ... 109P/Swift-Tuttle" ........... settings stream.concentration and parentBody
 //   fetch command "... 7" and orbit file gmn-iau-7 .......... settings stream.iauCode
 //   "Information about Perseids stream" ....................... settings label
+// O-017 T-071 (trim): the phone run checks the phone layout once, so it keeps the plain load, the peak (stream drawn, details, credits, member count, the clump and
+// not-shown statements) and the window details, and no longer repeats: start and end stream drawn and the rate rising to the peak (desktop asserts both), the zoomed-out sweep
+// (kept, desktop and phone), checkSunEarth, checkBodies, checkWholeOrbit, checkCrossing, checkYear, checkLoop and checkEclipticFlat (desktop only; they measure the same
+// scene geometry, not a layout). The zoomed-out and credits steps still run on both sizes. The full run (run-full.sh) runs Perseids in full and Geminids with ASTRAEUS_LIGHT=1
+// (both sizes light): Geminids' own settings figures, credits, counts, quality sets and span are asserted; the geometry scenarios are the same code and ran for Perseids.
 // O-017 T-067 (CAMS and Yale removed; GMN is the only orbit source): the stream is the committed GMN copy data/stories/<shower>/gmn-iau-<code>.json, so no URL pins a source any more
 // and the figures that were read from the local CAMS file (kept count, orbit sets, rows) are read from that copy. browser-showers-gmn.mjs is removed and each of its scenarios is mapped:
 //   its scenario ......................................................... now asserted by
@@ -69,6 +74,8 @@ const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const shower = process.argv[2] ?? process.env.ASTRAEUS_SHOWER;
+// ASTRAEUS_LIGHT=1: a second shower in the full run. Both sizes run only the settings-driven scenarios (plain load, peak, details, credits, counts, window), not the scene geometry the first shower already proved.
+const lightRun = process.env.ASTRAEUS_LIGHT === "1";
 const showersDir = new URL("../../data/showers/", import.meta.url);
 if (shower === undefined) {
   // Every discovered shower, one run each, in its own child process, log and evidence folder.
@@ -882,6 +889,7 @@ async function checkUpToggle(page, label) {
 }
 
 async function run(label, viewport) {
+  const phoneOnce = label === "phone" || lightRun;
   const page = await openPage(viewport);
   const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const streamId = `${shower}-stream`;
@@ -924,7 +932,8 @@ async function run(label, viewport) {
     assert.equal(await page.locator(`option[value="${streamId}"]`).count(), 1, `${label}: the stream is listed once`);
     assert.equal(await page.locator('option[value="columbia"]').count(), 0, `${label}: no Apollo objects`);
     assert.equal(await page.locator('option[value="moon"]').count(), 0, `${label}: no Moon item`);
-    await page.getByRole("button", { name: "Pause playback" }).click();
+    // A DOM click: on the phone a story panel can auto-open over the button while the page settles (it intercepted a pointer click once under load, T-071).
+    await page.evaluate(() => document.querySelector('button[aria-label="Pause playback"]')?.click());
 
     // The activity window and its peak are on the timeline.
     const windowButton = page.locator("button.timeline-window");
@@ -968,7 +977,7 @@ async function run(label, viewport) {
       ["start", () => seek(page, Number(start))],
       ["peak", async () => { await peakButton.click(); await page.waitForTimeout(500); }],
       ["end", () => seek(page, Number(end))],
-    ]) {
+    ].filter(([name]) => !phoneOnce || name === "peak")) {
       await move();
       // Jumping to the peak opens the window's details; frame the stream again, then read its own details.
       await focusStream();
@@ -994,8 +1003,10 @@ async function run(label, viewport) {
     await openDetails();
     // The readout rises to the peak and falls again.
     const rateOf = (name) => Number(results[label].readings[name].panel.match(/Activity rate\D*([\d.]+)/)?.[1]);
-    assert.ok(rateOf("peak") > rateOf("start"), `${label}: rate at the peak is above the start`);
-    assert.ok(rateOf("peak") > rateOf("end"), `${label}: rate at the peak is above the end`);
+    if (!phoneOnce) {
+      assert.ok(rateOf("peak") > rateOf("start"), `${label}: rate at the peak is above the start`);
+      assert.ok(rateOf("peak") > rateOf("end"), `${label}: rate at the peak is above the end`);
+    }
 
     // The radiant and the published/modelled split are visible in the stream's details.
     const text = await panel.innerText();
@@ -1031,6 +1042,7 @@ async function run(label, viewport) {
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
     await shot("window-details");
+    if (phoneOnce) return; // the phone layout is checked once, through the scenarios above; the rest repeat the desktop's geometry
     await checkSunEarth(page, label, shot, canvas);
     await checkBodies(page, label, shot, canvas);
     await checkWholeOrbit(page, label, shot, canvas);

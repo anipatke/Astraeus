@@ -1,0 +1,44 @@
+lite browser check: 11 experiences (apollo11, earth-moon, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, shower-geminids, shower-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    3.8s {"title":"Apollo 11 · Astraeus","litPixels":43968,"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     2.7s {"title":"Apollo 11 · Astraeus","litPixels":18568,"object":"moon","panel":"tli-cutoff"}
+ok   earth-moon                 1440x900    2.3s {"title":"Earth–Moon · Astraeus","litPixels":35701,"object":"moon"}
+ok   earth-moon                 390x844     3.7s {"title":"Earth–Moon · Astraeus","litPixels":18375,"object":"moon"}
+FAIL jupiter-io                 1440x900  158.3s {"title":"Astraeus"}
+       - canvas present: page.waitForSelector: Timeout 60000ms exceeded.
+       - page heading names the experience once it is open: unexpected page title "Astraeus"
+       - timeline/shell present: locator.waitFor: Timeout 60000ms exceeded.
+       - canvas draws: locator.screenshot: Timeout 30000ms exceeded.
+       - object information opens: locator.waitFor: Timeout 10000ms exceeded.
+       - pageerror: negative probe: broken experience
+FAIL jupiter-io                 390x844   158.3s {"title":"Astraeus"}
+       - canvas present: page.waitForSelector: Timeout 60000ms exceeded.
+       - page heading names the experience once it is open: unexpected page title "Astraeus"
+       - timeline/shell present: locator.waitFor: Timeout 60000ms exceeded.
+       - canvas draws: locator.screenshot: Timeout 30000ms exceeded.
+       - object information opens: locator.waitFor: Timeout 10000ms exceeded.
+       - pageerror: negative probe: broken experience
+ok   synthetic                  1440x900    3.5s {"title":"Astraeus","litPixels":73631,"object":"moon"}
+ok   synthetic                  390x844     3.1s {"title":"Astraeus","litPixels":29880,"object":"moon"}
+ok   synthetic-bare             1440x900    2.5s {"title":"Astraeus","litPixels":72366,"object":"sky"}
+ok   synthetic-bare             390x844     2.5s {"title":"Astraeus","litPixels":28607,"object":"sky"}
+ok   synthetic-ring             1440x900      4s {"title":"Astraeus","litPixels":97382,"object":"moon"}
+ok   synthetic-ring             390x844     3.5s {"title":"Astraeus","litPixels":54142,"object":"moon"}
+ok   synthetic-belt             1440x900    2.9s {"title":"Astraeus","litPixels":75557,"object":"dust-belt"}
+ok   synthetic-belt             390x844     3.6s {"title":"Astraeus","litPixels":51731,"object":"dust-belt"}
+ok   synthetic-listed           1440x900    1.9s {"title":"Astraeus","litPixels":62414,"object":"listed-orbits"}
+ok   synthetic-listed           390x844     3.7s {"title":"Astraeus","litPixels":40069,"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900    3.2s {"title":"Astraeus","litPixels":35798,"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     2.9s {"title":"Astraeus","litPixels":19910,"object":"dust-belt"}
+ok   shower-geminids            1440x900    6.2s {"title":"Geminids · Astraeus","litPixels":55385,"object":"earth"}
+ok   shower-geminids            390x844     6.9s {"title":"Geminids · Astraeus","litPixels":30557,"object":"earth"}
+ok   shower-perseids            1440x900    5.1s {"title":"Perseids · Astraeus","litPixels":141415,"object":"earth","panel":"stream-shape"}
+ok   shower-perseids            390x844     5.7s {"title":"Perseids · Astraeus","litPixels":46610,"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900    1.9s {"title":"Astraeus"}
+ok   index-page                 390x844     1.7s {"title":"Astraeus"}
+ok   assets-page                1440x900    1.8s {"title":"Astraeus Assets"}
+ok   assets-page                390x844     1.7s {"title":"Astraeus Assets"}
+
+24/26 loads passed; results and screenshots in docs/evidence/o017-t071-lite-probe-broken-20261017T005354Z
+FAILED:
+  jupiter-io desktop: canvas present: page.waitForSelector: Timeout 60000ms exceeded. | page heading names the experience once it is open: unexpected page title "Astraeus" | timeline/shell present: locator.waitFor: Timeout 60000ms exceeded. | canvas draws: locator.screenshot: Timeout 30000ms exceeded. | object information opens: locator.waitFor: Timeout 10000ms exceeded. | pageerror: negative probe: broken experience
+  jupiter-io phone: canvas present: page.waitForSelector: Timeout 60000ms exceeded. | page heading names the experience once it is open: unexpected page title "Astraeus" | timeline/shell present: locator.waitFor: Timeout 60000ms exceeded. | canvas draws: locator.screenshot: Timeout 30000ms exceeded. | object information opens: locator.waitFor: Timeout 10000ms exceeded. | pageerror: negative probe: broken experience

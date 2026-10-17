@@ -1,6 +1,6 @@
 # Astraeus Spike 04 — Gap Audit
 
-Task T-024 (O-008). Research only: no `src/` change, no dependency, no data fetched. The question is whether a meteor shower (Perseids as fixture) can be hosted by existing Astraeus contracts, and where it cannot, exactly why. Read against `docs/ASTRAEUS_SPIKE_04_BRIEF.md`.
+Task T-024 (O-008). Research only: no `src/` change, no dependency, no data fetched. The question is whether a meteor shower (Perseids as fixture) can be hosted by existing Astraeus contracts, and where it cannot, exactly why. Read against `docs/archive/ASTRAEUS_SPIKE_04_BRIEF.md`.
 
 Classes: **REUSED** (existing contract carries it unchanged), **GAP** (a generic Astraeus change is justified), **FIXTURE-ONLY** (belongs in the Perseids adapter/config, nothing generic).
 

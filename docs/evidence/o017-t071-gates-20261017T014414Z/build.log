@@ -1,0 +1,68 @@
+
+> astraeus@0.1.0 build
+> vite build
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 225 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/app.html                                             0.54 kB │ gzip:     0.31 kB
+dist/assets/panels-CCb6a5vK.json                          6.31 kB │ gzip:     1.88 kB
+dist/assets/t-milky-way-BpzDL6CS.jpg                      7.56 kB
+dist/assets/t-mars-2k-C1F1cZqq.jpg                       19.68 kB
+dist/assets/t-io-2k-BOLMOZ6N.jpg                         21.06 kB
+dist/assets/t-mercury-2k-YI6CwAf2.jpg                    21.77 kB
+dist/assets/t-jupiter-2k-H6qj4EOG.jpg                    21.81 kB
+dist/index.html                                          22.91 kB │ gzip:     7.45 kB
+dist/assets/t-moon-lroc-urh6biVR.jpg                     23.91 kB
+dist/assets/t-earth-bmng-Dj1tZINx.jpg                    26.40 kB
+dist/assets/t-venus-2k-CaKlBPYD.jpg                      30.54 kB
+dist/assets.html                                         32.32 kB │ gzip:    10.01 kB
+dist/assets/t-sun-2k-06TFWV66.jpg                        39.65 kB
+dist/assets/perseids-gmn-Dfo-du4O.jpg                    86.18 kB
+dist/assets/apollo-moon-BjbPYeAm.jpg                     88.52 kB
+dist/assets/hyg-v42-naked-eye-DIEj4sz2.json             284.31 kB │ gzip:   119.03 kB
+dist/assets/io-2k-CG7hitww.jpg                          364.82 kB
+dist/assets/mars-2k-CmcQf1fB.jpg                        429.76 kB
+dist/assets/jupiter-2k-CEiO5JSj.jpg                     498.97 kB
+dist/assets/moon-lroc-2k-z9MmovVg.jpg                   565.97 kB
+dist/assets/sun-2k-BfaUCBxs.jpg                         822.42 kB
+dist/assets/mercury-2k-lhhbYhEJ.jpg                     872.55 kB
+dist/assets/venus-2k-B7XKoL-0.jpg                       885.07 kB
+dist/assets/earth-bmng-july-4k-BJxMI6UV.jpg           1,559.34 kB
+dist/assets/milky-way-left-BVH6yQ3I.jpg               1,751.81 kB
+dist/assets/milky-way-right-CiMp2gkm.jpg              1,951.62 kB
+dist/assets/gmn-iau-7-BeRRPk6y.json                   2,596.95 kB │ gzip: 1,006.04 kB
+dist/assets/gmn-iau-4-Bsd20Dtd.json                   5,081.42 kB │ gzip: 1,863.25 kB
+dist/assets/app-CXUXbORv.css                             31.18 kB │ gzip:     6.53 kB
+dist/assets/ephemerisProvenance-DQhGtM1q.js               0.02 kB │ gzip:     0.04 kB
+dist/assets/catalogueItem-BkQGlvIo.js                     0.24 kB │ gzip:     0.19 kB
+dist/assets/earthMoonExplorer-D3n2Qmr4.js                 1.27 kB │ gzip:     0.70 kB
+dist/assets/jupiterIo-Dr_YNxHY.js                         1.50 kB │ gzip:     0.80 kB
+dist/assets/bodyMetrics-_1NKSdTf.js                       1.58 kB │ gzip:     0.81 kB
+dist/assets/syntheticEccentricDefinition-Bt1a4D43.js      1.67 kB │ gzip:     0.96 kB
+dist/assets/events-D-9KYqLg.js                            1.77 kB │ gzip:     0.78 kB
+dist/assets/scales-ACmYmfpM.js                            2.15 kB │ gzip:     0.97 kB
+dist/assets/orbitGroup-CzxKzfWx.js                        2.37 kB │ gzip:     1.22 kB
+dist/assets/syntheticDefinition-CCnQ31KO.js               3.56 kB │ gzip:     1.67 kB
+dist/assets/syntheticListedDefinition-O8LjGiRb.js         3.92 kB │ gzip:     1.83 kB
+dist/assets/sampledTrajectory-I5fQ90J8.js                 5.08 kB │ gzip:     2.26 kB
+dist/assets/listedOrbitGroup-Fkfbn92L.js                  5.19 kB │ gzip:     2.34 kB
+dist/assets/panels-DOAkjHYP.js                            5.28 kB │ gzip:     1.83 kB
+dist/assets/syntheticRingDefinition-rVFYFK3z.js           6.32 kB │ gzip:     2.18 kB
+dist/assets/showerSettings-FUAVbnsp.js                    7.68 kB │ gzip:     2.94 kB
+dist/assets/measuredOrbits-Dle1aJij.js                    8.66 kB │ gzip:     4.39 kB
+dist/assets/showerDefinition-DpM50r_K.js                 19.22 kB │ gzip:     7.60 kB
+dist/assets/elementsBody-CaKS4DNr.js                     45.44 kB │ gzip:    15.75 kB
+dist/assets/apollo11Definition-BVOW041X.js              358.25 kB │ gzip:   116.38 kB
+dist/assets/app-Ce76rCZ6.js                           1,180.25 kB │ gzip:   344.06 kB
+dist/assets/planetModels-CxtMegQK.js                  1,391.80 kB │ gzip:   560.52 kB
+
+✓ built in 430ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+build exit=0

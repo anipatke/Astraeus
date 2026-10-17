@@ -1,0 +1,22 @@
+ok  timeline shows a marker per panel (7)
+ok  forward playback opens the first panel and holds playback (side panel at right)
+ok  playback resumes on its own after the pause (panel stays open)
+ok  a tap on Continue resumes playback early
+ok  scrubbing back and forth past the markers opens nothing
+ok  timeline markers open their panel, one at a time
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ []
+- [
+-   'touchdown'
+- ]
+
+    at file:///home/user/code/Astraeus/tools/validate/browser-story-panels.mjs:121:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [],
+  expected: [Array],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

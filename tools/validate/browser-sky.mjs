@@ -1,7 +1,7 @@
 // Browser check for the sky behind every experience (T-053). Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-sky.mjs
 //
-// Scenarios, each run for Apollo (the default), the Earth-Moon Explorer and Perseids, at 1280x800 and 390x844:
+// Scenarios, each run for a sample (T-071): Apollo (the default) at 1280x800 and 390x844:
 //   stars are drawn ........................ the <canvas> element's data-sky-stars is the star count (8920 from the committed HYG file, the only star catalogue
 //                                            since O-017 T-067 removed Yale); more bright pixels than the same view with ?sky=off
 //   the sky is fixed under a centre change .. Developer mode reads back a probe direction (orientation in, screen position out). After each
@@ -28,8 +28,11 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 const errors = [];
 const results = { starSource: "hyg", starCount, runs: {} };
 
+// T-071 (trim): the sky is one component behind every experience, so a sample covers it. Apollo runs at both sizes (the phone once); the
+// Earth-Moon Explorer and the Perseids are not run (their sky is the same component, behind the shower scenes: browser-showers.mjs asserts the stream with ?sky=off and on). Every other experience's sky is seen in the before/after pictures and its canvas drawing in browser-lite.mjs.
 const EXPERIENCES = [["apollo", ""], ["earth-moon", "experience=earth-moon"], ["perseids", "experience=shower-perseids"]];
 const SIZES = [["desktop", { width: 1280, height: 800 }], ["mobile", { width: 390, height: 844 }]];
+const SAMPLED = new Set(["apollo-desktop", "apollo-mobile"]);
 // Must equal SKY_PROBE_DIRECTION in src/app/SkyView.ts (render frame).
 const PROBE = (() => { const v = [0.62, 0.35, -0.7]; const n = Math.hypot(...v); return v.map((x) => x / n); })();
 const FOV_DEG = 45;
@@ -112,6 +115,7 @@ try {
   for (const [name, query] of EXPERIENCES) {
     for (const [sizeName, viewport] of SIZES) {
       const label = `${name}-${sizeName}`;
+      if (!SAMPLED.has(label)) continue;
       const out = (results.runs[label] = {});
       // The same view without the sky, for the star pixels and the frame-rate comparison.
       const off = await open(viewport, [query, "sky=off"].filter(Boolean).join("&"));

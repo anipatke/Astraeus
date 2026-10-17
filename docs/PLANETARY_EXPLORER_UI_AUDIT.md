@@ -1,6 +1,6 @@
 # Planetary Explorer UI extraction audit — Spike 03
 
-Audited 2026-10-07 for T-016 / O-005. Donor: `/home/user/code/planetary-explorer`, read only. This is a source audit, not browser or visual validation. The canonical scope is `docs/ASTRAEUS_SPIKE_03_BRIEF.md`, narrowed by O-005. Historical donor `docs/astraeus-extraction-audit.md` supplies context; current implementation governs decisions. `docs/design.md` redirects to `.savepoint/visual-identity.md`, which was also read.
+Audited 2026-10-07 for T-016 / O-005. Donor: `/home/user/code/planetary-explorer`, read only. This is a source audit, not browser or visual validation. The canonical scope is `docs/archive/ASTRAEUS_SPIKE_03_BRIEF.md`, narrowed by O-005. Historical donor `docs/astraeus-extraction-audit.md` supplies context; current implementation governs decisions. `docs/design.md` redirects to `.savepoint/visual-identity.md`, which was also read.
 
 KEEP means preserve a pattern; ADAPT means change its interface or behaviour; APP-SPECIFIC means leave the donor product feature there; REJECT means intentionally exclude the approach. None implies verbatim copying or cleared redistribution rights. Paths in the classification table are donor-relative; destinations are Astraeus-relative. A destination of “none” explicitly excludes extraction.
 
