@@ -20,6 +20,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "ACTUALLY planetary explorer had a cool trailing fading orbit effect". Donor (owner''s own project) OrbitalTrail.tsx: faint full ring, opacity 0.18; OrbitalTrailArc.tsx: trailing arc behind the moon over 1/5 of the orbit, 16 segments, quadratic fade 0.65 to 0, brighter when zoomed out. Builder asked to reproduce it for composition paths on the real path, combined with the end fade, every number a setting with the donor values as defaults.'
+  - at: '2026-10-18T01:00:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner: "can we bring in as fully toggable and configurable". Each layer (base ring, end fade, trailing arc, zoom brighten) switchable on and off, and every number a live control in the settings panel, defaulting to the path data and resettable; generic for every composition path.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
