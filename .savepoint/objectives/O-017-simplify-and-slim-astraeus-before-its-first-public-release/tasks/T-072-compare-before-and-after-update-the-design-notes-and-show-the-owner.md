@@ -3,7 +3,7 @@ id: T-072
 title: Compare before and after, update the design notes and show the owner
 objective: O-017
 status: planned
-depends_on: [{task: T-067, requires: clear}, {task: T-068, requires: clear}, {task: T-069, requires: clear}, {task: T-070, requires: clear}, {task: T-071, requires: clear}, {task: T-073, requires: clear}, {task: T-074, requires: clear}]
+depends_on: [{task: T-067, requires: clear}, {task: T-068, requires: clear}, {task: T-069, requires: clear}, {task: T-070, requires: clear}, {task: T-071, requires: clear}, {task: T-073, requires: clear}, {task: T-074, requires: clear}, {task: T-075, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o017-plan-20261017}
 ---
