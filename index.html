@@ -7,7 +7,7 @@
 <link rel="canonical" href="https://astraeus.curiouscode.ai/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Astraeus">
-<meta property="og:description" content="Real space data you can fly through: Apollo 11 and the Perseid meteor stream, built from measured orbits.">
+<meta property="og:description" content="Real space data you can fly through, in five demos on one engine: Apollo 11, the Perseids, the Geminids, Earth and the Moon, and Jupiter and Io.">
 <meta property="og:url" content="https://astraeus.curiouscode.ai/">
 <meta property="og:image" content="https://astraeus.curiouscode.ai/share/apollo-moon.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
 <style>
-/* Layout: engine first. Hero with the one question; the four layers as a ruled band beside a real settings file; an asset shelf of globes, sky and data sets; then the two demos as proof; numbers last. salt.md grammar on a night sky; one dark world on purpose. */
+/* Layout: engine first. Hero with the one question; the four layers as a ruled band beside a real settings file; an asset shelf of globes, sky and data sets; then the five demos as proof; numbers last. salt.md grammar on a night sky; one dark world on purpose. */
 :root {
   --bg: #07070a;
   --raised: #0d0d11;
@@ -119,6 +119,7 @@ h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
 /* Demos */
 .demos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .demo { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); background: var(--raised); overflow: hidden; min-width: 0; }
+.demo:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .demo:hover { border-color: rgba(255, 255, 255, 0.32); }
 .shot { max-width: 100%; min-height: 180px; overflow: hidden; background: #050507; }
 .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -255,7 +256,7 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
     <div class="wrap">
       <div class="head">
         <h2>Built with it.</h2>
-        <p>Two stories that couldn't be more different, on the same engine with no special cases. Open Developer mode in either to see what's underneath, or to copy a link to the exact view on screen.</p>
+        <p>Five experiences, from a Moon landing to two meteor showers to a pair of worlds, on the same engine with no special cases. Open Developer mode in any of them to see what's underneath, or to copy a link to the exact view on screen.</p>
       </div>
       <div class="demos">
         <a class="demo" href="app.html">
@@ -275,6 +276,36 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
             <h3>The Perseids</h3>
             <p>Earth through comet Swift–Tuttle's trail. A whole shower from one settings file. Three story panels say what is measured here and what is filled in.</p>
             <div class="uses"><span class="tag">25,588 orbits</span><span class="tag">settings</span><span class="tag">3 story panels</span></div>
+            <span class="go">Open</span>
+          </div>
+        </a>
+        <a class="demo" href="app.html?experience=shower-geminids">
+          <div class="shot"><img src="site/geminids-gmn.jpg" alt="The Geminid meteor stream seen obliquely from above the planets' plane, a dense ribbon of dots along the orbit of asteroid 3200 Phaethon and crossing Earth's path, over the real star sky, with the timeline showing the shower's peak."></div>
+          <div class="demo-body">
+            <span class="eyebrow">December 2026</span>
+            <h3>The Geminids</h3>
+            <p>Earth through the trail of asteroid 3200 Phaethon. The same settings file format as the Perseids, with 51,115 measured orbits from the Global Meteor Network, and the shower's published peak on the timeline.</p>
+            <div class="uses"><span class="tag">51,115 orbits</span><span class="tag">settings</span><span class="tag">asteroid parent</span></div>
+            <span class="go">Open</span>
+          </div>
+        </a>
+        <a class="demo" href="app.html?experience=earth-moon">
+          <div class="shot"><img src="site/earth-moon.jpg" alt="Earth close up on the real NASA map, Africa and Europe in daylight, over the real star sky."></div>
+          <div class="demo-body">
+            <span class="eyebrow">January to March 2025</span>
+            <h3>Earth and Moon</h3>
+            <p>Earth and the Moon on their real motion, drawn from the engine's catalogue alone: NASA's maps for both, the Moon's phase as it goes round, and a timeline that plays up to a day per second.</p>
+            <div class="uses"><span class="tag">catalogue only</span><span class="tag">NASA maps</span><span class="tag">true scale</span></div>
+            <span class="go">Open</span>
+          </div>
+        </a>
+        <a class="demo" href="app.html?experience=jupiter-io">
+          <div class="shot"><img src="site/jupiter-io.jpg" alt="Jupiter and its banded clouds, half in daylight, with Io as a small yellow dot on its orbit at the edge of the picture, over the real star sky."></div>
+          <div class="demo-body">
+            <span class="eyebrow">January 2000</span>
+            <h3>Jupiter and Io</h3>
+            <p>Io circling Jupiter, a centre that is neither Earth nor the Sun. Io goes round in about 42 hours. Its orbit comes from published mean elements, an approximate demonstration, and Io's info panel says so.</p>
+            <div class="uses"><span class="tag">catalogue only</span><span class="tag">true scale</span><span class="tag">moon of another planet</span></div>
             <span class="go">Open</span>
           </div>
         </a>

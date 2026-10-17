@@ -181,13 +181,27 @@ const siteChecks = async (page, check, detail) => {
   detail.title = await page.title().catch(() => "");
 };
 
+/** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
+const FIVE_ADDRESSES = ["app.html", "app.html?experience=shower-perseids", "app.html?experience=shower-geminids", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
+const indexChecks = async (page, check, detail) => {
+  await siteChecks(page, check, detail);
+  await check("home page links all five experience addresses", async () => {
+    const hrefs = await page.locator("a.demo").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    const missing = FIVE_ADDRESSES.filter((address) => !hrefs.includes(address));
+    if (missing.length > 0) throw new Error(`the home page does not link ${missing.join(", ")}`);
+    const broken = await page.locator("a.demo img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
+    if (broken.length > 0) throw new Error(`card pictures did not load: ${broken.join(", ")}`);
+    detail.demoLinks = hrefs;
+  });
+};
+
 try {
   console.log(`lite browser check: ${experiences.length} experiences (${experiences.map((e) => e.id).join(", ")}) + 2 site pages, ${VIEWPORTS.length} sizes`);
   for (const experience of experiences) {
     for (const size of VIEWPORTS) await load(experience.id, `${appUrl}${experience.query}`, size, experienceChecks(experience));
   }
   for (const page of ["index.html", "assets.html"]) {
-    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, siteChecks);
+    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : siteChecks);
   }
 } finally {
   await browser.close();
