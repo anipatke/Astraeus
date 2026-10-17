@@ -25,6 +25,7 @@
 // ASTRAEUS_URL (default http://localhost:5199/app.html) is the app page; the site pages are read from the same directory.
 // ASTRAEUS_EVIDENCE_DIR is required and must be new or empty, so evidence never overwrites an earlier run. Exit code is non-zero if any load fails.
 import { mkdirSync, readdirSync, readFileSync, existsSync, writeFileSync } from "node:fs";
+import * as ui from "./driver.mjs";
 
 const root = new URL("../../", import.meta.url);
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
@@ -132,10 +133,9 @@ function experienceChecks(experience) {
       const made = experience.id.startsWith("synthetic");
       if (made ? title !== "Astraeus" : !/^.+ \u00b7 Astraeus$/.test(title)) throw new Error(`unexpected page title "${title}"`);
     });
-    await check("timeline/shell present", () => page.getByRole("region", { name: "Timeline controls" }).waitFor({ timeout: 60000 }));
+    await check("timeline/shell present", () => ui.waitForShell(page, { timeout: 60000 }));
     // Hold playback still so the scene and any auto-opening panel settle; a story panel's own hold may already have paused it.
-    const pause = page.getByRole("button", { name: "Pause playback" });
-    if (await pause.count()) await pause.click({ timeout: 5000 }).catch(() => undefined);
+    await ui.ensurePausedQuietly(page);
     await page.waitForTimeout(1500);
     await check("canvas draws", async () => {
       const lit = await litPixels(page);
@@ -143,29 +143,24 @@ function experienceChecks(experience) {
       if (lit < 200) throw new Error(`only ${lit} lit pixels`);
     });
     await check("object information opens", async () => {
-      const select = page.getByLabel("Select object");
-      await select.waitFor({ timeout: 10000 });
-      const choice = await select.evaluate((element) => [...element.options].filter((option) => !option.disabled).map((option) => ({ value: option.value, text: option.textContent.trim() })));
+      await ui.waitForBodyPicker(page, { timeout: 10000 });
+      const choice = await ui.pickableBodies(page);
       if (choice.length === 0) throw new Error("the object list has no enabled object");
       const wanted = choice[choice.length > 1 ? 1 : 0];
-      await select.selectOption(wanted.value);
-      const panel = page.locator("#info-panel");
-      if ((await panel.count()) === 0) await page.getByRole("button", { name: /^Information about / }).first().click({ timeout: 10000 });
+      await ui.pickBody(page, wanted.value);
+      const panel = ui.infoPanel(page);
+      await ui.openInfo(page, /^Information about /, { timeout: 10000 });
       await panel.waitFor({ timeout: 10000 });
       if ((await panel.innerText()).trim() === "") throw new Error("the information panel is empty");
       detail.object = wanted.value;
-      const close = page.locator("#info-panel .info-panel-close");
-      if (await close.count()) await close.click({ timeout: 5000 }).catch(() => undefined);
+      await ui.closeInfoQuietly(page);
     });
     if (experience.panelStory !== undefined) {
       await check("story panel opens from its timeline marker", async () => {
-        const markers = page.locator(".timeline-panel-marker");
-        const count = await markers.count();
-        if (count === 0) throw new Error("no timeline panel markers");
-        const marker = markers.first();
-        const id = await marker.getAttribute("data-panel-id");
-        await marker.click({ force: true });
-        await page.locator(`.story-panel[data-panel-id="${id}"]`).waitFor({ timeout: 10000 });
+        if ((await ui.storyMarkers(page).count()) === 0) throw new Error("no timeline panel markers");
+        const id = await ui.firstStoryMarkerId(page);
+        await ui.openStoryPanel(page, id, { force: true });
+        await ui.storyPanel(page, id).waitFor({ timeout: 10000 });
         detail.panel = id;
       });
     }
@@ -186,10 +181,10 @@ const FIVE_ADDRESSES = ["app.html", "app.html?experience=shower-perseids", "app.
 const indexChecks = async (page, check, detail) => {
   await siteChecks(page, check, detail);
   await check("home page links all five experience addresses", async () => {
-    const hrefs = await page.locator("a.demo").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    const hrefs = await ui.homeDemoLinks(page);
     const missing = FIVE_ADDRESSES.filter((address) => !hrefs.includes(address));
     if (missing.length > 0) throw new Error(`the home page does not link ${missing.join(", ")}`);
-    const broken = await page.locator("a.demo img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
+    const broken = await ui.homeBrokenPictures(page);
     if (broken.length > 0) throw new Error(`card pictures did not load: ${broken.join(", ")}`);
     detail.demoLinks = hrefs;
   });

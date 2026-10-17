@@ -11,7 +11,8 @@
 //   playback runs with zero console errors; Apollo stays the default experience
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
-import { chooseScale, currentScale } from "./shellScale.mjs";
+import { chooseScale, currentScale } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -24,21 +25,12 @@ let prefix = "";
 const errors = [];
 const results = {};
 const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${prefix}${name}.png` }); };
-const choosePreset = async (name) => {
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);
-    assert.ok(value, `camera preset exists: ${name}`);
-    await compact.selectOption(value);
-  } else {
-    await page.getByRole("button", { name, exact: true }).click();
-  }
-};
+const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
 // Pixels on the canvas close to the group's dot colour (#9de3a8), with the text labels hidden: relative evidence that dots are drawn.
 const dotPixels = async () => {
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+  await ui.hideSceneLabels(page);
   const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+  await ui.showSceneLabels(page);
   return page.evaluate(async (data) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -62,21 +54,20 @@ async function run(label, viewport) {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
   await page.goto(`${base}?experience=synthetic-listed`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+  await ui.waitForShell(page);
   const canvas = page.getByTestId("earth-moon-canvas");
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
-  assert.equal(await page.locator('option[value="listed-orbits"]').count(), 1);
-  assert.equal(await page.locator('option[value="columbia"]').count(), 0);
-  await page.getByRole("button", { name: "Pause playback" }).click();
+  assert.equal(await ui.bodyOptionCount(page, "listed-orbits"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  await ui.pausePlayback(page);
 
-  const panel = page.locator("#info-panel");
-  await page.getByLabel("Select object").selectOption("listed-orbits");
+  const panel = ui.infoPanel(page);
+  await ui.pickBody(page, "listed-orbits");
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-id"), "listed-orbits");
-  const badge = panel.locator(".provenance-badge");
-  assert.match(await badge.innerText(), /^Illustrative ⓘ/);
-  await badge.click();
-  const detail = await panel.locator(".provenance-detail").innerText();
+    assert.match(await ui.provenanceBadgeText(page), /^Illustrative ⓘ/);
+  await ui.openProvenance(page);
+  const detail = await ui.provenanceDetailRaw(page);
   assert.match(detail, /Made up/);
   assert.match(detail, /two-body/i);
   assert.match(detail, /position along each orbit.*illustrative/is);
@@ -85,17 +76,17 @@ async function run(label, viewport) {
   assert.match(infoText, /position along each orbit is illustrative/i);
   assert.match(infoText, /clump|near the made-up parent/i);
   assert.match(infoText, /not shown/i);
-  assert.doesNotMatch(await page.locator("body").innerText(), /meteor|shower|perseid|geminid|apollo|columbia/i, "name check");
+  assert.doesNotMatch(await ui.pageText(page), /meteor|shower|perseid|geminid|apollo|columbia/i, "name check");
 
-  await choosePreset("Overview");
+  await choosePreset("overview");
   await page.waitForTimeout(1200);
   await shot("listed-true-overview");
-  await choosePreset("Focus listed orbits");
+  await choosePreset("focus-listed");
   await page.waitForTimeout(1500);
   await shot("listed-true-focus");
   results[label].dotPixelsTrueFocus = await dotPixels();
   assert.ok(results[label].dotPixelsTrueFocus > 20, "dots are drawn in True scale");
-  await choosePreset("Follow listed orbits");
+  await choosePreset("follow-listed");
   await page.waitForTimeout(1200);
   await shot("listed-true-follow");
 
@@ -105,7 +96,7 @@ async function run(label, viewport) {
   await page.waitForTimeout(800);
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is identical under True and Readable");
-  await choosePreset("Focus listed orbits");
+  await choosePreset("focus-listed");
   await page.waitForTimeout(1500);
   await shot("listed-readable-focus");
   results[label].dotPixelsReadableFocus = await dotPixels();
@@ -113,16 +104,16 @@ async function run(label, viewport) {
   await chooseScale(page, "True");
   await page.waitForTimeout(600);
 
-  await page.getByRole("button", { name: "Play playback" }).click();
+  await ui.playPlayback(page);
   await page.waitForTimeout(2500);
   await shot("listed-playing");
-  await page.getByRole("button", { name: "Pause playback" }).click();
+  await ui.pausePlayback(page);
 
   await page.goto(base);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "0");
-  assert.equal(await page.locator('option[value="columbia"]').count(), 1);
-  assert.equal(await page.locator('option[value="listed-orbits"]').count(), 0);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "listed-orbits"), 0);
   await page.close();
 }
 

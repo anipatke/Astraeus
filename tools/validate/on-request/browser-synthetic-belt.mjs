@@ -2,7 +2,8 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-synthetic-belt.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
-import { chooseScale } from "../shellScale.mjs";
+import { chooseScale } from "../driver.mjs";
+import * as ui from "../driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -40,9 +41,9 @@ const compositionCounts = {};
 // the made-up far path (purple), belt dots (amber). Counted from a canvas screenshot, so they are relative evidence.
 const colourCounts = async (target) => {
   // Hide the text labels while counting so only drawn geometry is measured.
-  await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+  await ui.hideSceneLabels(target);
   const png = (await target.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+  await ui.showSceneLabels(target);
   return target.evaluate(async (data) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -67,17 +68,17 @@ const colourCounts = async (target) => {
 try {
   await page.goto(`${base}?experience=synthetic-belt`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+  await ui.waitForShell(page);
   const canvas = page.getByTestId("earth-moon-canvas");
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await canvas.getAttribute("data-bodies"), "sun,earth");
-  assert.equal(await page.locator('option[value="dust-belt"]').count(), 1);
-  await page.getByRole("button", { name: "Pause playback" }).click();
-  await page.getByLabel("Select object").selectOption("dust-belt");
+  assert.equal(await ui.bodyOptionCount(page, "dust-belt"), 1);
+  await ui.pausePlayback(page);
+  await ui.pickBody(page, "dust-belt");
 
   for (const scale of ["True", "Readable"]) {
     await chooseScale(page, scale);
-    await page.getByRole("button", { name: "Focus belt", exact: true }).click();
+    await ui.chooseCamera(page, "focus-belt");
     await page.waitForTimeout(1500);
     lit[`${scale}-focus`] = await litPixels();
     await shot(`belt-${scale.toLowerCase()}-focus`);
@@ -94,7 +95,7 @@ try {
     await page.waitForTimeout(800);
     await shot(`belt-${scale.toLowerCase()}-zoomed-in`);
   }
-  await page.getByRole("button", { name: "Play playback" }).click();
+  await ui.playPlayback(page);
   await page.waitForTimeout(800);
 
   // T-044: the belt mounts the Sun and Earth about the Sun, with the Sun at the scene's zero. Each prior scenario above and in
@@ -105,24 +106,14 @@ try {
     assert.equal(await targetCanvas.getAttribute("data-scene-center"), "sun", `${label}: the scene is centred on the Sun`);
     assert.equal(await targetCanvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted, in that order`);
     assert.equal(await targetCanvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted and no Moon`);
-    const pause = target.getByRole("button", { name: "Pause playback", exact: true });
-    if (await pause.count()) await pause.click();
-    const closeInfo = async () => { const c = target.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
-    const pickPreset = async (name) => {
-      const compact = target.locator(".object-camera-picker");
-      if (await compact.isVisible()) {
-        const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);
-        assert.ok(value, `${label}: preset ${name} exists`);
-        await compact.selectOption(value);
-      } else {
-        await target.getByRole("button", { name, exact: true }).click();
-      }
-    };
+    await ui.ensurePaused(target);
+    const closeInfo = () => ui.closeInfo(target);
+    const pickPreset = (presetId) => ui.chooseCamera(target, presetId);
     // Counts of pixels within `radius` px of the canvas centre: the camera orbits the focused body, so what sits at the centre is that body.
     const nearCentre = async (radius) => {
-      await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+      await ui.hideSceneLabels(target);
       const png = (await targetCanvas.screenshot()).toString("base64");
-      await target.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+      await ui.showSceneLabels(target);
       return target.evaluate(async ([data, r]) => {
         const image = new Image();
         image.src = `data:image/png;base64,${data}`;
@@ -148,10 +139,7 @@ try {
       }, [png, radius]);
     };
     const seekTo = async (utc) => {
-      await target.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      }, utc);
+      await ui.seekTo(target, utc);
       await target.waitForTimeout(400);
     };
     for (const scale of ["True", "Readable"]) {
@@ -159,9 +147,9 @@ try {
       for (const [when, utc] of [["start", Date.UTC(2030, 0, 1, 1, 0, 0)], ["twelve hours on", Date.UTC(2030, 0, 1, 13, 0, 0)]]) {
         await seekTo(utc);
         // The Sun is the scene's zero: focusing it puts its marker on the axis the camera orbits.
-        await target.getByLabel("Select object").selectOption("sun");
+        await ui.pickBody(target, "sun");
         await closeInfo();
-        await pickPreset("Sun view");
+        await pickPreset("sun-view");
         await target.waitForTimeout(1800);
         // Zoom right in on the focused Sun so the belt's dots thin out around it and the marker stands alone at the centre.
         const sunBox = await targetCanvas.boundingBox();
@@ -172,9 +160,9 @@ try {
         compositionCounts[`${label}-${scale}-${when}-sun`] = sun;
         assert.ok(sun.sun > 20, `${label}/${scale}/${when}: the Sun marker sits at the scene's zero (${sun.sun})`);
         // Earth is a drawn body: focused, it fills the view; pulled back, the path line passes through it.
-        await target.getByLabel("Select object").selectOption("earth");
+        await ui.pickBody(target, "earth");
         await closeInfo();
-        await pickPreset("Focus Earth");
+        await pickPreset("focus-earth");
         await target.waitForTimeout(1800);
         const near = await nearCentre(8);
         compositionCounts[`${label}-${scale}-${when}-earth-near`] = near;
@@ -197,7 +185,7 @@ try {
   try {
     await phoneComposition.goto(`${base}?experience=synthetic-belt`);
     await phoneComposition.waitForSelector("canvas");
-    await phoneComposition.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(phoneComposition);
     await composition(phoneComposition, "phone-composition");
   } finally {
     await phoneComposition.close();
@@ -208,32 +196,19 @@ try {
     const targetCanvas = target.getByTestId("earth-moon-canvas");
     assert.equal(await targetCanvas.getAttribute("data-sun-centred"), "3", `${label}: Sun and two paths are mounted`);
     for (const id of ["sun", "earth-path", "far-marker-path"]) {
-      assert.equal(await target.locator(`option[value="${id}"]`).count(), 1, `${label}: ${id} is listed once`);
+      assert.equal(await ui.bodyOptionCount(target, id), 1, `${label}: ${id} is listed once`);
     }
-    const pause = target.getByRole("button", { name: "Pause playback", exact: true });
-    if (await pause.count()) await pause.click();
+    await ui.ensurePaused(target);
     // The belt only exists for its first day; go back to the start of the window (the earlier scenario played past it).
-    await target.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    }, Date.UTC(2030, 0, 1, 1, 0, 0));
+    await ui.seekTo(target, Date.UTC(2030, 0, 1, 1, 0, 0));
     await target.waitForTimeout(400);
-    const closeInfo = async () => { const c = target.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
-    const pickPreset = async (name) => {
-      const compact = target.locator(".object-camera-picker");
-      if (await compact.isVisible()) {
-        const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);
-        assert.ok(value, `${label}: preset ${name} exists`);
-        await compact.selectOption(value);
-      } else {
-        await target.getByRole("button", { name, exact: true }).click();
-      }
-    };
+    const closeInfo = () => ui.closeInfo(target);
+    const pickPreset = (presetId) => ui.chooseCamera(target, presetId);
     for (const scale of ["True", "Readable"]) {
       await chooseScale(target, scale);
-      await target.getByLabel("Select object").selectOption("sun");
+      await ui.pickBody(target, "sun");
       await closeInfo();
-      await pickPreset("Sun view");
+      await pickPreset("sun-view");
       await target.waitForTimeout(1800);
       const counts = await colourCounts(target);
       sunCentred[`${label}-${scale}`] = counts;
@@ -242,7 +217,7 @@ try {
       assert.ok(counts.farPath > 40, `${label}/${scale}: the made-up path is drawn (${counts.farPath})`);
       assert.ok(counts.sun > 5, `${label}/${scale}: the Sun marker is drawn (${counts.sun})`);
       assert.ok(counts.belt > 100, `${label}/${scale}: the belt sits in the same view (${counts.belt})`);
-      assert.equal(await target.locator('.scene-object-label[data-label-id="sun"]').evaluate((el) => !el.hidden), true, `${label}/${scale}: the Sun is labelled`);
+      assert.equal((await ui.shownSceneLabelIds(target)).includes("sun"), true, `${label}/${scale}: the Sun is labelled`);
       // Each is selectable and its info says what it is and where it comes from.
       const expectations = [
         ["sun", /^Ephemeris/, /not the Sun's real size/],
@@ -250,19 +225,19 @@ try {
         ["far-marker-path", /^Illustrative/, /invented object/],
       ];
       for (const [id, badge, text] of expectations) {
-        await target.getByLabel("Select object").selectOption("earth");
-        await target.getByLabel("Select object").selectOption(id);
-        const info = target.locator("#info-panel");
+        await ui.pickBody(target, "earth");
+        await ui.pickBody(target, id);
+        const info = ui.infoPanel(target);
         await info.waitFor();
         assert.equal(await info.getAttribute("data-info-id"), id, `${label}/${scale}: ${id} opens its info`);
-        assert.match(await info.locator(".provenance-badge").innerText(), badge, `${label}/${scale}: ${id} provenance badge`);
+        assert.match(await ui.provenanceBadgeText(target), badge, `${label}/${scale}: ${id} provenance badge`);
         assert.match(await info.innerText(), text, `${label}/${scale}: ${id} description`);
         await closeInfo();
       }
     }
     // Earth's path and the belt each focus; the Sun-centred view zooms out and in without errors.
     await chooseScale(target, "True");
-    await target.getByLabel("Select object").selectOption("earth-path");
+    await ui.pickBody(target, "earth-path");
     await closeInfo();
     await target.waitForTimeout(300);
   };
@@ -274,7 +249,7 @@ try {
   try {
     await phone.goto(`${base}?experience=synthetic-belt`);
     await phone.waitForSelector("canvas");
-    await phone.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(phone);
     await checkSunCentred(phone, "phone");
   } finally {
     await phone.close();
@@ -284,7 +259,7 @@ try {
   await page.goto(base);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-sun-centred"), "0", "Apollo draws no Sun or paths");
-  assert.equal(await page.locator('option[value="sun"]').count(), 0, "Apollo lists no Sun");
+  assert.equal(await ui.bodyOptionCount(page, "sun"), 0, "Apollo lists no Sun");
   await page.goto(`${base}?experience=synthetic-ring`);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-sun-centred"), "0", "the ring draws no Sun or paths");

@@ -12,7 +12,8 @@
 // Both are in pixels. The GPU's own Float32 matrix arithmetic is not included (a headless software renderer is the only GPU here).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale } from "../shellScale.mjs";
+import { chooseScale } from "../driver.mjs";
+import * as ui from "../driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -153,25 +154,22 @@ const result = { method: "see the header of tools/validate/browser-precision.mjs
 try {
   await page.goto(`${base}?experience=synthetic-belt`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+  await ui.waitForShell(page);
   const canvas = page.getByTestId("earth-moon-canvas");
   assert.equal(await canvas.getAttribute("data-scene-center"), "sun", "the belt is a Sun-centred scene");
-  await page.getByRole("button", { name: "Pause playback", exact: true }).click();
+  await ui.pausePlayback(page);
   const clock = Date.UTC(2030, 0, 1, 13, 0, 0);
   result.clockUtc = new Date(clock).toISOString();
-  await page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }, clock);
+  await ui.seekTo(page, clock);
   await chooseScale(page, "True");
-  const closeInfo = async () => { const c = page.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
+  const closeInfo = () => ui.closeInfo(page);
   const box = await canvas.boundingBox();
   const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 
   const measure = async (label, selectId, preset, zoom) => {
-    await page.getByLabel("Select object").selectOption(selectId);
+    await ui.pickBody(page, selectId);
     await closeInfo();
-    await page.getByRole("button", { name: preset, exact: true }).click();
+    await ui.chooseCamera(page, preset);
     await page.waitForTimeout(2000);
     if (zoom !== 0) {
       await page.mouse.move(centre.x, centre.y);
@@ -213,11 +211,11 @@ try {
       sweep: summarise(swept),
     };
   };
-  await measure("earth-focus", "earth", "Focus Earth", 0);
+  await measure("earth-focus", "earth", "focus-earth", 0);
   // Pulled back until the nearest path vertex is on screen beside Earth.
-  await measure("earth-focus-wide", "earth", "Focus Earth", 6);
-  await measure("sun-focus", "sun", "Sun view", 0);
-  await measure("sun-focus-zoomed-out", "sun", "Sun view", 3);
+  await measure("earth-focus-wide", "earth", "focus-earth", 6);
+  await measure("sun-focus", "sun", "sun-view", 0);
+  await measure("sun-focus-zoomed-out", "sun", "sun-view", 3);
 
   // The floating origin holds a focused body at the GPU origin, so a focused Earth cannot jitter from Float32 placement; with the Sun
   // focused Earth sits a full astronomical unit from the origin and the Float32 grid there is the figure that matters.

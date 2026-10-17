@@ -8,7 +8,8 @@
 // Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots and eccentric.json; use a new directory).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale } from "../shellScale.mjs";
+import { chooseScale } from "../driver.mjs";
+import * as ui from "../driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -45,22 +46,13 @@ const open = async (query, viewport) => {
   await page.addInitScript(hook);
   await page.goto(`${base}?experience=synthetic-eccentric&sky=off${query}`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  await page.getByRole("button", { name: "Pause playback", exact: true }).click();
+  await ui.waitForShell(page);
+  await ui.pausePlayback(page);
   return page;
 };
 const shot = async (page, name) => { if (outDir) await page.screenshot({ path: `${outDir}/${name}.png` }); };
-const closeInfo = async (page) => { const c = page.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
-const pickPreset = async (page, name) => {
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);
-    assert.ok(value, `preset ${name} exists`);
-    await compact.selectOption(value);
-  } else {
-    await page.getByRole("button", { name, exact: true }).click();
-  }
-};
+const closeInfo = (page) => ui.closeInfo(page);
+const pickPreset = (page, presetId) => ui.chooseCamera(page, presetId);
 // The scene writes its state onto the <canvas> element itself.
 const swapped = async (page) => page.locator("canvas").first().getAttribute("data-marker-bodies");
 const wheel = async (page, clicks, delta) => {
@@ -83,9 +75,9 @@ const earthMarkerProbe = async (page) => {
     return found;
   }, EARTH_MARKER);
   if (at === null) return { drawn: false, bright: 0 };
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+  await ui.hideSceneLabels(page);
   const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+  await ui.showSceneLabels(page);
   const bright = await page.evaluate(async ([data, x, y]) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -106,9 +98,9 @@ const earthMarkerProbe = async (page) => {
 };
 // Bounding box, in canvas px, and count of the eccentric orbit's pink pixels.
 const pinkExtent = async (page) => {
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = "hidden"; });
+  await ui.hideSceneLabels(page);
   const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await page.evaluate(() => { for (const el of document.querySelectorAll(".scene-labels")) el.style.visibility = ""; });
+  await ui.showSceneLabels(page);
   return page.evaluate(async (data) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -139,9 +131,9 @@ const markerRule = async (query, label) => {
     assert.equal(await canvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted`);
     assert.equal(await canvas.getAttribute("data-sun-centred"), "3", `${label}: the Sun and two paths`);
     await chooseScale(page, "True");
-    await page.getByLabel("Select object").selectOption("earth");
+    await ui.pickBody(page, "earth");
     await closeInfo(page);
-    await pickPreset(page, "Focus Earth");
+    await pickPreset(page, "focus-earth");
     // This experience opens at its overview (I-028, T-040: a large centre body), so Focus Earth eases in from the whole orbit: measured about 2.4 s to get under a 100 px sphere, more than the 2.5 s this used to wait.
     await page.waitForTimeout(6000);
     const entry = { threshold: await page.locator("canvas").first().getAttribute("data-marker-px") };
@@ -153,9 +145,9 @@ const markerRule = async (query, label) => {
     // Pulled back, Earth is at the centre of the view and alone: its marker, if drawn, is the near-white dot there.
     entry.earthPulledBackProbe = await earthMarkerProbe(page);
     await shot(page, `${label}-earth-pulled-back`);
-    await page.getByLabel("Select object").selectOption("sun");
+    await ui.pickBody(page, "sun");
     await closeInfo(page);
-    await pickPreset(page, "Sun view");
+    await pickPreset(page, "sun-view");
     await page.waitForTimeout(2500);
     entry.sunViewTrue = await swapped(page);
     await shot(page, `${label}-sun-view-true`);
@@ -180,9 +172,9 @@ const markerRule = async (query, label) => {
     // true-scale Earth is then a marker and the enlarged one (8 px in radius) is still a sphere. Same camera, same distance, same rule.
     const nearSun = async (scale) => {
       await chooseScale(page, scale);
-      await page.getByLabel("Select object").selectOption("sun");
+      await ui.pickBody(page, "sun");
       await closeInfo(page);
-      await pickPreset(page, "Sun view");
+      await pickPreset(page, "sun-view");
       await page.waitForTimeout(2000);
       await wheel(page, 80, -600);
       await page.waitForTimeout(2000);
@@ -236,9 +228,9 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
   const page = await open("", viewport);
   try {
     await chooseScale(page, "True");
-    await page.getByLabel("Select object").selectOption("eccentric-path");
+    await ui.pickBody(page, "eccentric-path");
     await closeInfo(page);
-    await pickPreset(page, "Focus long orbit");
+    await pickPreset(page, "focus-eccentric");
     await page.waitForTimeout(4000);
     const extent = await pinkExtent(page);
     await shot(page, `${label}-long-orbit-framed`);
@@ -263,9 +255,9 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
   const page = await open("", { width: 1280, height: 800 });
   try {
     await chooseScale(page, "True");
-    await page.getByLabel("Select object").selectOption("sun");
+    await ui.pickBody(page, "sun");
     await closeInfo(page);
-    await pickPreset(page, "Sun view");
+    await pickPreset(page, "sun-view");
     await page.waitForTimeout(2000);
     const install = () => page.evaluate((colour) => {
       const { scene } = window.__probe;

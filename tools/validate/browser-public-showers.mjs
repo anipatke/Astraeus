@@ -7,6 +7,7 @@
 // Zero console errors. Screenshots go to <dir>/<shower>-*.png.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -29,17 +30,17 @@ async function open(name, query, route) {
   if (route) await route(page);
   await page.goto(`${base}?experience=shower-${name}${query}`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+  await ui.waitForShell(page);
   await page.waitForTimeout(3000);
   return { page, requests };
 }
 
 async function streamPanel(page, name, label) {
-  await page.getByLabel("Select object").selectOption(`${name}-stream`);
-  if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: new RegExp(`^Information about ${label} stream$`) }).click();
-  const description = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
-  await page.locator("#info-panel .provenance-badge").click();
-  const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+  await ui.pickBody(page, `${name}-stream`);
+  await ui.openInfo(page, `${label} stream`);
+  const description = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
+  await ui.openProvenance(page);
+  const detail = (await ui.provenanceDetail(page).innerText()).replace(/\s+/g, " ");
   return { description, detail };
 }
 
@@ -54,7 +55,7 @@ for (const name of names) {
   for (const [tag, query] of [["default", "&sky=off"], ["source-cams-ignored", "&sky=off&source=cams"]]) {
     const { page, requests } = await open(name, query);
     try {
-      await page.getByRole("button", { name: "Pause playback" }).click();
+      await ui.pausePlayback(page);
       const fromShipped = requests.filter((q) => shipped.test(new URL(q.url).pathname));
       assert.ok(fromShipped.length >= 1 && fromShipped.every((q) => q.status === 200), `${name}/${tag}: loaded from the shipped copy`);
       assert.ok(!requests.some((q) => q.url.includes("/data/local/") && q.status === 200), `${name}/${tag}: no data/local file is served`);
@@ -66,9 +67,9 @@ for (const name of names) {
       for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida", "506(4)", "491(2)", `Read from ${months}`, `${kept} bound orbits kept`]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
       assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(panel.detail), `${name}/${tag}: the panel cites no CAMS data source`);
       assert.ok(!/not fetched|does not include/.test(panel.description), `${name}/${tag}: no absence message`);
-      await page.getByRole("button", { name: "Developer mode" }).click();
-      assert.equal(await page.getByRole("button", { name: /^Orbits from/ }).count(), 0, `${name}/${tag}: no source switch is offered`);
-      assert.ok(await page.getByRole("button", { name: /^(All orbits|Reliable only)/ }).count() >= 2, `${name}/${tag}: the orbit-set switch is still offered`);
+      await ui.toggleDeveloper(page);
+      assert.equal(await ui.orbitSourceButtons(page).count(), 0, `${name}/${tag}: no source switch is offered`);
+      assert.ok(await ui.orbitSetButtons(page).count() >= 2, `${name}/${tag}: the orbit-set switch is still offered`);
       await page.screenshot({ path: `${outDir}/${name}-${tag}-panels.png` });
       r[tag] = { requests: fromShipped, description: panel.description.slice(0, 200) };
     } finally {

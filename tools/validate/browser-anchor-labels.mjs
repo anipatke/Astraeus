@@ -16,6 +16,7 @@
 //   zero console and page errors ....................... same
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -27,35 +28,18 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 let page;
 const errors = [];
 
-const click = (name) => page.getByRole("button", { name, exact: true }).click();
 const seek = async (utc) => {
-  await page.getByLabel("UTC date and time").fill(utc);
-  await click("Seek (UTC)");
+  await ui.seekToUtcText(page, utc);
   await page.waitForTimeout(200);
 };
 const closeInfo = async () => {
-  const close = page.locator("#info-panel .info-panel-close");
-  if (!(await close.count())) return;
+  if (!(await ui.infoOpen(page))) return;
   // The phone's open Developer panel overlays the sheet's Close button, so the phone closes the sheet with Escape from the focused Close button (a documented alternative).
-  if (page.viewportSize().width < 600) { await close.focus(); await page.keyboard.press("Escape"); }
-  else await close.click();
-  await page.locator("#info-panel").waitFor({ state: "detached" });
+  await ui.closeInfoForViewport(page);
+  await ui.waitForInfoClosed(page);
 };
-const visibleAnchorCount = async () => {
-  const layer = page.locator(".anchor-labels");
-  if (await layer.getAttribute("hidden") !== null) return 0;
-  return layer.locator(".anchor-label:not([hidden])").count();
-};
-const choosePreset = async (name) => {
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);
-    assert.ok(value, `camera preset exists: ${name}`);
-    await compact.selectOption(value);
-  } else {
-    await click(name);
-  }
-};
+const visibleAnchorCount = () => ui.visibleAnchorLabelCount(page);
+const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
 
 async function run(label, viewport) {
   const suffix = label === "desktop" ? "" : `-${label}`;
@@ -64,42 +48,39 @@ async function run(label, viewport) {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
   await page.goto(url);
   await page.waitForSelector("canvas");
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  await page.getByLabel("UTC date and time").waitFor();
-  const pause = page.getByRole("button", { name: "Pause playback", exact: true });
-  if (await pause.count()) await pause.click();
+  await ui.toggleDeveloper(page);
+  await ui.waitForUtcField(page);
+  await ui.ensurePaused(page);
   await seek("1969-07-22 20:30:00");
-  await choosePreset("Earth–Moon overview");
+  await choosePreset("overview");
   await page.waitForTimeout(1_500);
 
-  const layer = page.locator(".anchor-labels");
-  const button = page.getByRole("button", { name: "Anchor labels", exact: true });
-  const hiddenInitially = await layer.getAttribute("hidden") !== null;
+  const hiddenInitially = await ui.anchorLayerHidden(page);
   const countWhenOff = await visibleAnchorCount();
   assert.equal(hiddenInitially, true, "anchor-label layer starts hidden");
   assert.equal(countWhenOff, 0, "anchor labels are not visible when the toggle is off");
 
-  await button.click();
-  await page.waitForFunction(() => document.querySelector(".anchor-labels")?.hasAttribute("hidden") === false);
-  const pressedOn = await button.getAttribute("aria-pressed");
+  await ui.pressToggle(page, "anchor-labels");
+  await ui.waitForAnchorLayer(page, false);
+  const pressedOn = String(await ui.toggleOn(page, "anchor-labels"));
   const countWhenOn = await visibleAnchorCount();
   assert.equal(pressedOn, "true", "anchor-label toggle reports on");
-  assert.equal(await layer.locator(".anchor-label").count(), 40, "all labelled source anchors are created when enabled");
+  assert.equal(await ui.anchorLabelCount(page), 40, "all labelled source anchors are created when enabled");
   if (label === "desktop") assert.equal(countWhenOn, 40, "all 40 anchor labels are on screen in the desktop overview");
   else assert.ok(countWhenOn > 0 && countWhenOn <= 40, "the anchor labels inside the phone view are shown (the rest are off screen)");
   const overviewScreenshot = `${out}/labels-on-overview${suffix}.png`;
   await page.screenshot({ path: overviewScreenshot });
 
-  await page.getByLabel("Select object").selectOption("columbia");
+  await ui.pickBody(page, "columbia");
   await closeInfo();
-  await choosePreset("Follow Columbia (CSM)");
+  await choosePreset("follow-columbia");
   await page.waitForTimeout(1_500);
   const followScreenshot = `${out}/labels-on-follow${suffix}.png`;
   await page.screenshot({ path: followScreenshot });
 
-  await button.click();
-  await page.waitForFunction(() => document.querySelector(".anchor-labels")?.hasAttribute("hidden") === true);
-  const pressedOff = await button.getAttribute("aria-pressed");
+  await ui.pressToggle(page, "anchor-labels");
+  await ui.waitForAnchorLayer(page, true);
+  const pressedOff = String(await ui.toggleOn(page, "anchor-labels"));
   assert.equal(pressedOff, "false", "anchor-label toggle reports off after the second click");
   assert.equal(await visibleAnchorCount(), 0, "anchor labels hide again when toggled off");
   assert.deepEqual(errors, [], "console and page errors are empty");
@@ -112,7 +93,7 @@ async function run(label, viewport) {
     pressedOn,
     countWhenOn,
     pressedOff,
-    hiddenAfterToggle: await layer.getAttribute("hidden") !== null,
+    hiddenAfterToggle: await ui.anchorLayerHidden(page),
     screenshots: [overviewScreenshot, followScreenshot],
     errors,
   };

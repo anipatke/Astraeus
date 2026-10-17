@@ -4,6 +4,29 @@ Owner direction, 2026-10-17: "One 10sec visual inspection beats 40mins of auto b
 
 Environment for every command: `PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js`.
 
+## The interface driver (`tools/validate/driver.mjs`)
+
+Owner direction, 2026-10-17, after one top-bar change touched 17 scripts: scripts do not know what the interface looks like. Every browser script drives the app through `driver.mjs` (`import * as ui from "./driver.mjs"`), which has one function per user action and per readout. When a button's label, icon or place changes, the driver is the only file edited.
+
+| Area | Functions (all take `page` first) |
+|------|------|
+| Shell, time | `waitForShell`, `timelineText`, `pageText`, `pressKey`, `seekRange`, `seekTo`, `seekToFraction`, `seekToUtcText`, `setUtc`, `clockText`, `clockIso`, `clockMs`, `waitForClock` |
+| Playback | `pausePlayback`, `ensurePaused`, `playPlayback`, `ensurePlaying`, `continuePlayback`, `isPlaying`, `waitUntilPlaying`, `setSpeed`, `speed` |
+| Events, windows | `nextEvent`, `previousEvent`, `hasNextEvent`, `toggleEventList`, `openEventList`, `closeEventList`, `eventRows`, `pickEventRow`, `eventContextText`, `windowParts`, `goToWindowPeak`, `goToNamedWindowPeak`, `pressWindowBand`, `pressWindowBandAt` |
+| Bodies, information | `pickBody`, `pickedBody`, `bodyOptions`, `bodyOptionCount`, `bodyOptionInfo`, `waitForBodyAvailability`, `openInfo`, `closeInfo`, `infoPanel`, `infoText`, `openProvenance`, `provenanceDetailText`, `pressRelatedObject`, `selectOrbit` |
+| Camera | `chooseCamera(page, presetId)` (for example `"overview"`, `"focus-columbia"`, `"follow-moon"`, `"whole-orbit"`), `pickBodyWithCamera`, `cameraOffered`, `cameraActive` |
+| Drawer | `toggleDeveloper`, `openDeveloper`, `closeDeveloper`, `developerOpen`, `pressToggle(id)`, `toggleOn(id)`, `setSlider(id)`, `dragSlider(id)`, `sliderReadout(id)`, `missionPanel`, `metric`, `copyViewLink`, `frameRate` |
+| Story panels | `storyPanel`, `storyMarkers`, `openStoryPanel`, `closeStoryPanel`, `pressSceneStoryMarker`, `openStoryPanelIds` |
+| Scale | `chooseScale`, `currentScale`, `scaleOptions`, `offersScale`, `scaleMenu` (the isolated menu harness) |
+
+Elements are found by accessible name or role, by a stable `data-*` attribute (`data-camera-preset`, `data-related-object`, `data-scale-current`) or `data-testid`; the few controls with none of those (the Events summary, the information panel, a few readout containers) are named once, in the `HOOK` table at the top of the driver. Camera, toggle and slider arguments are logical ids, not labels, so a renamed label changes one table.
+
+**The guard** (`tools/validate/driver-guard.mjs`, run in the unit tests by `tests/browserDriverGuard.test.ts`, and as `node tools/validate/driver-guard.mjs`) fails when a script outside the driver calls `getByRole`, `getByText`, `getByLabel` (or the other `getBy*` finders except `getByTestId`), calls `click`, `fill`, `selectOption`, `press`, `focus`, `check`, `hover` or `tap` on anything, uses `keyboard.`, or calls `locator`, `querySelector`, `querySelectorAll` or `waitForSelector` with any selector other than the exceptions. **Exceptions, stated in the rule:** the scene canvas (`canvas`, `getByTestId(...)`), data-attribute readouts (a selector that begins `[data-`), and `new Array(n).fill(0)`. `mouse.move/down/up/wheel` on the canvas is not flagged (scene drags and zoom). `OPT_OUT` in the guard lists scripts exempt from the rule with a reason; it is empty.
+
+**Adding a script, or moving one onto the driver.** Replace each flagged line with the driver function that does the thing; when none exists, add one to `driver.mjs` (one function, named for the user action) and use it. A script merged from another branch is brought in line the same way before it runs in the full run (for example `browser-orbit-look.mjs` from I-035: orbit-look toggles become `pressToggle`/`setSlider` entries in the driver's `TOGGLES` and `SLIDERS` tables).
+
+**Scenario map for the move (T-083, TEST-03).** Every pass/fail scenario is unchanged. Three equivalent substitutions: (1) the scripts' "compact camera picker" branch (`.object-camera-picker`, a native select on phones) is gone from the app since T-079 (no such element exists in `src`), so the branch could never run; the button branch, which the scripts always took, is the driver's `chooseCamera`, and callers pass the preset id the button carries in `data-camera-preset` instead of its label. Evidence JSON that echoed the label (`browser-spike02`, `browser-spike03` camera lists) now echoes the id. (2) `browser-sky`'s "Camera mode" native-select branch was likewise unreachable and is gone; its button requests (`/^Overview$/`, `/^Focus /`, `/^Follow /`, the Scale toggle) are the driver's `pressFirstControlNow("overview" | "focus" | "follow" | "scale")`, so Apollo, whose overview preset is labelled "Earth–Moon overview", now also presses its overview (one more probe than before). `on-request/browser-marker-existing` likewise presses Apollo's overview. (3) `browser-synthetic` clicks the window band at a point computed from the band's box measured at click time, not from the box measured earlier in the run (the layout does not move in between). `tools/validate/shellScale.mjs` is folded into the driver.
+
 ## The three tiers
 
 | Tier | When | Command | Time |

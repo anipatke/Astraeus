@@ -7,7 +7,8 @@
 //   zero console errors
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
-import { chooseScale } from "../shellScale.mjs";
+import { chooseScale } from "../driver.mjs";
+import * as ui from "../driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -27,19 +28,16 @@ const open = async (query, viewport = { width: 1280, height: 800 }) => {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
   await page.goto(`${base}?${query}`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  await page.getByRole("button", { name: "Pause playback" }).click();
+  await ui.waitForShell(page);
+  await ui.pausePlayback(page);
   return page;
 };
 const shot = async (page, name) => { if (outDir) await page.screenshot({ path: `${outDir}/${name}.png` }); };
-const seekPeak = async (page) => { await page.locator("button.timeline-window-peak").click({ force: true }); await page.waitForTimeout(600); const close = page.locator("#info-panel .info-panel-close"); if (await close.count()) await close.click(); };
+const seekPeak = async (page) => { await ui.goToWindowPeak(page, { force: true }); await page.waitForTimeout(600); await ui.closeInfo(page); };
 const overview = async (page) => {
-  await page.getByLabel("Select object").selectOption("sun");
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) await compact.selectOption(await compact.evaluate((s) => [...s.options].find((o) => o.textContent.trim() === "Overview")?.value));
-  else await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await ui.pickBody(page, "sun");
+  await ui.closeInfo(page);
+  await ui.chooseCamera(page, "overview");
   await page.waitForTimeout(1500);
 };
 
@@ -86,23 +84,20 @@ try {
   assert.ok(results.truePeakWithGlow > results.truePeakNoGlow + 150, `the halo reads over the dots (${results.truePeakWithGlow} warm-white pixels against ${results.truePeakNoGlow} without)`);
 
   // Live sliders.
-  await withGlow.getByRole("button", { name: "Developer mode" }).click();
-  const size = withGlow.getByRole("slider", { name: "Sun glow size" });
-  const bright = withGlow.getByRole("slider", { name: "Sun glow brightness" });
-  results.defaults = { size: await size.inputValue(), brightness: await bright.inputValue() };
+  await ui.toggleDeveloper(withGlow);
+  results.defaults = { size: await ui.sliderValue(withGlow, "sun-glow-size"), brightness: await ui.sliderValue(withGlow, "sun-glow-brightness") };
   assert.deepEqual(results.defaults, { size: "72", brightness: "1" }, "the defaults are the record's");
-  assert.equal(await withGlow.getByRole("slider", { name: "Sun glow reach" }).inputValue(), "2.5", "the halo reach defaults to 2.5 disc diameters");
-  const setRange = (locator, value) => locator.evaluate((input, v) => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(v)); input.dispatchEvent(new Event("input", { bubbles: true })); }, value);
-  const closeDeveloper = async () => { await withGlow.getByRole("button", { name: "Developer mode" }).click(); await withGlow.waitForTimeout(600); };
-  await setRange(size, 0);
+  assert.equal(await ui.sliderValue(withGlow, "sun-glow-reach"), "2.5", "the halo reach defaults to 2.5 disc diameters");
+  const closeDeveloper = async () => { await ui.toggleDeveloper(withGlow); await withGlow.waitForTimeout(600); };
+  await ui.dragSlider(withGlow, "sun-glow-size", 0);
   await withGlow.waitForTimeout(400);
-  assert.equal(await withGlow.getByTestId("sun-glow-size-value").innerText(), "0", "the size readout follows the slider");
+  assert.equal(await ui.sliderReadout(withGlow, "sun-glow-size"), "0", "the size readout follows the slider");
   await closeDeveloper(); // the panel covers the Sun while it is open
   results.afterSizeZero = await sunPixels(withGlow);
   assert.ok(results.afterSizeZero < results.truePeakWithGlow - 100, `size 0 removes the halo (${results.afterSizeZero})`);
-  await withGlow.getByRole("button", { name: "Developer mode" }).click();
-  await setRange(size, 160);
-  await setRange(bright, 2);
+  await ui.toggleDeveloper(withGlow);
+  await ui.dragSlider(withGlow, "sun-glow-size", 160);
+  await ui.dragSlider(withGlow, "sun-glow-brightness", 2);
   await withGlow.waitForTimeout(400);
   await closeDeveloper();
   await shot(withGlow, "perseids-glow-160-bright-2");
@@ -167,8 +162,8 @@ try {
 
   // The address sets the start.
   const url = await open("experience=shower-perseids&sky=off&labels=sun:on&sunglow=120&sunbrightness=0.5");
-  await url.getByRole("button", { name: "Developer mode" }).click();
-  assert.deepEqual({ size: await url.getByRole("slider", { name: "Sun glow size" }).inputValue(), brightness: await url.getByRole("slider", { name: "Sun glow brightness" }).inputValue() }, { size: "120", brightness: "0.5" }, "?sunglow and ?sunbrightness set the start");
+  await ui.toggleDeveloper(url);
+  assert.deepEqual({ size: await ui.sliderValue(url, "sun-glow-size"), brightness: await ui.sliderValue(url, "sun-glow-brightness") }, { size: "120", brightness: "0.5" }, "?sunglow and ?sunbrightness set the start");
   await url.close();
 
   // The Sun's label is a setting (the shower settings file turns it off): hidden by default, still selectable, and a live toggle brings it back.
@@ -177,13 +172,12 @@ try {
   const shownIds = () => lab.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => el.dataset.labelId));
   results.labelsDefault = await shownIds();
   assert.ok(!results.labelsDefault.includes("sun"), "the Sun's label is off by default in Perseids");
-  assert.equal(await lab.locator('option[value="sun"]').count(), 1, "the Sun is still in the Object menu");
-  assert.equal(await lab.getByLabel("Select object").inputValue(), "sun", "the Sun is selectable (it is the selected object)");
-  await lab.getByRole("button", { name: "Developer mode" }).click();
-  const toggle = lab.getByRole("button", { name: "Sun label" });
-  assert.equal(await toggle.getAttribute("aria-pressed"), "false", "the toggle shows the label off");
-  await toggle.click();
-  await lab.getByRole("button", { name: "Developer mode" }).click();
+  assert.equal(await ui.bodyOptionCount(lab, "sun"), 1, "the Sun is still in the Object menu");
+  assert.equal(await ui.pickedBody(lab), "sun", "the Sun is selectable (it is the selected object)");
+  await ui.toggleDeveloper(lab);
+  assert.equal(await ui.toggleOn(lab, "sun-label"), false, "the toggle shows the label off");
+  await ui.pressToggle(lab, "sun-label");
+  await ui.toggleDeveloper(lab);
   await lab.waitForTimeout(800);
   results.labelsAfterToggle = await shownIds();
   assert.ok(results.labelsAfterToggle.includes("sun"), "the toggle brings the Sun's label back");
@@ -199,8 +193,8 @@ try {
     const bodies = await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies");
     results[`${name}Bodies`] = bodies;
     assert.ok(!bodies.split(",").includes("sun"), `${name}: no Sun body is mounted (${bodies})`);
-    await page.getByRole("button", { name: "Developer mode" }).click();
-    assert.equal(await page.getByRole("slider", { name: "Sun glow size" }).count(), 0, `${name}: no halo control`);
+    await ui.toggleDeveloper(page);
+    assert.equal(await ui.sliderCount(page, "sun-glow-size"), 0, `${name}: no halo control`);
     assert.equal(await page.locator('[data-label-id="sun"]').count(), 0, `${name}: no Sun label`);
     await page.close();
   }

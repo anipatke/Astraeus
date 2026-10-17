@@ -5,7 +5,8 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-marker-existing.mjs
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale, offersScale } from "../shellScale.mjs";
+import { chooseScale, offersScale } from "../driver.mjs";
+import * as ui from "../driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -25,17 +26,16 @@ try {
       try {
         await page.goto(`${base}?${[query, extra, "sky=off"].filter(Boolean).join("&")}`);
         await page.waitForSelector("canvas");
-        await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-        await page.getByRole("button", { name: "Pause playback", exact: true }).click();
+        await ui.waitForShell(page);
+        await ui.pausePlayback(page);
         // The default view when the experience offers no Overview preset (Apollo's presets are its own).
-        const overview = page.getByRole("button", { name: "Overview", exact: true });
-        if (await overview.count()) await overview.click();
+        if (await ui.cameraOffered(page, "overview")) await ui.chooseCamera(page, "overview");
         await page.waitForTimeout(2500);
         const scales = {};
         for (const scale of ["True", "Readable", "Solar system"]) {
           if (!(await offersScale(page, scale))) continue;
           await chooseScale(page, scale);
-          if (await overview.count()) await overview.click();
+          if (await ui.cameraOffered(page, "overview")) await ui.chooseCamera(page, "overview");
           await page.waitForTimeout(2500);
           scales[scale] = {
             markerBodies: await page.locator("canvas").first().getAttribute("data-marker-bodies"),

@@ -2,6 +2,7 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -18,66 +19,57 @@ async function checkWindow(label, size) {
   await page.setViewportSize(size);
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
-  await page.getByRole("button", { name: "Pause playback" }).click();
-  const band = page.locator(".timeline-window");
+  await ui.pausePlayback(page);
+  const win = ui.windowParts(page);
+  const band = win.band;
   assert.equal(await band.count(), 1, `${label}: one window band`);
   assert.ok((await band.boundingBox()).width > 0, `${label}: band has width`);
-  assert.equal(await page.locator(".timeline-window-line").count(), 1, `${label}: rate curve line`);
-  assert.equal(await page.locator(".timeline-window-area").count(), 1, `${label}: rate curve filled area`);
-  assert.equal(await page.locator(".timeline-window-peak").count(), 1, `${label}: peak marker`);
-  assert.equal(await page.locator(".timeline-window-current").count(), 0, `${label}: no Inside line before the window`);
+  assert.equal(await win.line.count(), 1, `${label}: rate curve line`);
+  assert.equal(await win.area.count(), 1, `${label}: rate curve filled area`);
+  assert.equal(await win.peak.count(), 1, `${label}: peak marker`);
+  assert.equal(await win.inside.count(), 0, `${label}: no Inside line before the window`);
   // I-019: band, curve and peak are one linked shape, together on one side of the slider.
-  const box = (selector) => page.locator(selector).boundingBox();
-  const [strip, slider, curve, peak, bandBox] = await Promise.all([box(".timeline-windows"), box("input[aria-label='Seek timeline']"), box(".timeline-window-curve"), box(".timeline-window-peak"), band.boundingBox()]);
+  const [strip, slider, curve, peak, bandBox] = await Promise.all([win.strip.boundingBox(), win.slider.boundingBox(), win.curve.boundingBox(), win.peak.boundingBox(), band.boundingBox()]);
   assert.ok(Math.abs(strip.y + strip.height - (slider.y + slider.height / 2)) <= 3, `${label}: the window's baseline sits on the slider line, not apart from it (strip bottom ${strip.y + strip.height}, slider middle ${slider.y + slider.height / 2})`);
-  const caption = (await page.locator(".timeline-window-caption").innerText()).replace(/\s+/g, " ");
+  const caption = (await win.caption.innerText()).replace(/\s+/g, " ");
   assert.match(caption, /^Contact window( · peak 48 passes per hour)?$/, `${label}: the shape is named in plain words from the window's data`);
-  const captionBox = await page.locator(".timeline-window-caption").boundingBox();
+  const captionBox = await win.caption.boundingBox();
   assert.ok(captionBox.y + captionBox.height <= curve.y + 1, `${label}: the caption sits above the curve, not over it`);
   assert.ok(curve.y >= strip.y - 1 && curve.y + curve.height <= strip.y + strip.height + 1, `${label}: curve inside the strip`);
   assert.ok(peak.x + peak.width / 2 >= bandBox.x && peak.x + peak.width / 2 <= bandBox.x + bandBox.width, `${label}: peak sits inside the band`);
   assert.ok(curve.height >= 40, `${label}: curve height ${curve.height} shows the rise and fall`);
   const touchMin = size.width < 700 ? 44 : 28;
   assert.ok(bandBox.height >= touchMin && peak.width >= touchMin, `${label}: window targets at least ${touchMin}px (band h ${bandBox.height}, peak w ${peak.width})`);
-  const next = page.getByRole("button", { name: /^Next/, exact: false }).first();
   const steps = [];
-  for (let i = 0; i < 6 && !(await next.isDisabled()); i += 1) {
-    steps.push(await next.getAttribute("aria-label"));
-    await next.click();
+  for (let i = 0; i < 6 && (await ui.hasNextEvent(page)); i += 1) {
+    steps.push(await ui.nextEventLabel(page));
+    await ui.nextEvent(page);
     await page.waitForTimeout(150);
-    const time = await page.locator(".timeline-time").innerText();
+    const time = await ui.clockText(page);
     steps.push(time);
   }
   assert.ok(steps.some((step) => /opens/i.test(step)), `${label}: a stop at the window start`);
   assert.ok(steps.some((step) => /peaks/i.test(step)), `${label}: a stop at the peak`);
   assert.ok(steps.some((step) => /closes/i.test(step)), `${label}: a stop at the window end`);
   // Peak: Inside line and the first source wording.
-  await page.getByRole("button", { name: "Go to peak of Contact window" }).click();
+  await ui.goToNamedWindowPeak(page, "Contact window");
   await page.waitForTimeout(200);
   // T-080: the "Inside" line lives behind the Events button; open it to read, then close it.
-  await page.locator(".timeline-event-list summary").click();
-  const inside = await page.locator(".timeline-window-current").innerText();
-  await page.locator(".timeline-event-list summary").click();
+  await ui.toggleEventList(page);
+  const inside = await win.inside.innerText();
+  await ui.toggleEventList(page);
   assert.match(inside, /Inside:\s*Contact window/);
   assert.match(inside, /48 passes per hour/);
   // Source wording changes across the midpoint.
   const sourceText = async () => {
-    if ((await page.locator("#info-panel").count()) === 0) {
-      await page.getByRole("button", { name: "Information about Contact window" }).click();
-      await page.waitForSelector("#info-panel");
+    if ((await ui.infoPanel(page).count()) === 0) {
+      await ui.openNamedWindowInfo(page, "Contact window");
+      await ui.waitForInfo(page);
     }
     // The detail is collapsed behind the badge, so read its text rather than what is visible.
-    return page.locator("#info-panel .provenance-detail").textContent();
+    return ui.provenanceDetailContent(page);
   };
-  await page.locator("input[aria-label='Seek timeline']").focus();
-  const seekTo = async (fraction) => page.evaluate((f) => {
-    const input = document.querySelector("input[aria-label='Seek timeline']");
-    const min = Number(input.min), max = Number(input.max);
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
-    setter.call(input, String(min + (max - min) * f));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  }, fraction);
+  const seekTo = (fraction) => ui.seekToFraction(page, fraction);
   // Window runs 30–210 of 480 minutes; the peak and source change are at 135.
   await seekTo(75 / 480);
   await page.waitForTimeout(200);
@@ -89,21 +81,20 @@ async function checkWindow(label, size) {
   assert.match(late, /made-up fall/i, `${label}: second-half wording`);
   assert.doesNotMatch(early + late, /measured/i, `${label}: nothing labelled measured`);
   // Rate readout on the object, and unavailable outside the window.
-  await page.getByLabel("Select object").selectOption("survey-marker");
+  await ui.pickBody(page, "survey-marker");
   await page.waitForTimeout(200);
-  assert.match(await page.locator("#info-panel").innerText(), /Contact rate/);
-  assert.match(await page.locator("#info-panel").innerText(), /passes per hour/);
+  assert.match(await ui.infoPanel(page).innerText(), /Contact rate/);
+  assert.match(await ui.infoPanel(page).innerText(), /passes per hour/);
   await seekTo(0);
   await page.waitForTimeout(200);
-  assert.match(await page.locator("#info-panel").innerText(), /outside the contact window/);
+  assert.match(await ui.infoPanel(page).innerText(), /outside the contact window/);
   // A click along the band seeks to that point (not the start) and opens the window details.
-  await page.mouse.click(bandBox.x + bandBox.width * 0.25, bandBox.y + bandBox.height * 0.4);
+  await ui.pressWindowBandAt(page, 0.25, 0.4);
   await page.waitForTimeout(200);
-  const clicked = Date.parse(await page.locator(".timeline-time").getAttribute("datetime"));
-  const lo = Number(await page.locator("input[aria-label='Seek timeline']").getAttribute("min"));
-  const hi = Number(await page.locator("input[aria-label='Seek timeline']").getAttribute("max"));
+  const clicked = Date.parse(await ui.clockIso(page));
+  const { min: lo, max: hi } = await ui.seekRange(page);
   assert.ok(Math.abs((clicked - lo) / (hi - lo) - (30 + 180 * 0.25) / 480) < 0.02, `${label}: band click seeks to the clicked point`);
-  await page.waitForSelector("#info-panel");
+  await ui.waitForInfo(page);
   if (outDir) {
     mkdirSync(outDir, { recursive: true });
     await page.screenshot({ path: `${outDir}/synthetic-window-${label}.png` });
@@ -116,16 +107,16 @@ try {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  assert.equal(await page.locator('option[value="survey-marker"]').count(), 1);
-  assert.equal(await page.locator('option[value="columbia"]').count(), 0);
-  await page.getByRole("button", { name: "Pause playback" }).click();
-  await page.locator(".timeline-event-list summary").click();
-  assert.equal(await page.locator(".timeline-event-list li button").count(), 2);
-  assert.ok((await page.locator(".timeline-event-list").innerText()).includes("Marker starts its loop"));
-  await page.getByLabel("Select object").selectOption("survey-marker");
-  await page.getByRole("button", { name: "Focus marker", exact: true }).click();
-  await page.getByRole("button", { name: "Follow marker", exact: true }).click();
+  await ui.waitForShell(page);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  await ui.pausePlayback(page);
+  await ui.toggleEventList(page);
+  assert.equal(await ui.eventRowCount(page), 2);
+  assert.ok((await ui.eventListText(page)).includes("Marker starts its loop"));
+  await ui.pickBody(page, "survey-marker");
+  await ui.chooseCamera(page, "focus-marker");
+  await ui.chooseCamera(page, "follow-marker");
   await page.waitForTimeout(1500);
   if (outDir) {
     mkdirSync(outDir, { recursive: true });
@@ -135,9 +126,9 @@ try {
   await page.goto(`${base}?experience=synthetic-bare`);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "");
-  assert.equal(await page.locator('option[value="survey-marker"]').count(), 1);
-  await page.getByLabel("Select object").selectOption("survey-marker");
-  await page.getByRole("button", { name: "Follow marker", exact: true }).click();
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 1);
+  await ui.pickBody(page, "survey-marker");
+  await ui.chooseCamera(page, "follow-marker");
   await page.waitForTimeout(1500);
   if (outDir) await page.screenshot({ path: `${outDir}/synthetic-bare.png` });
   await page.goto(`${base}?experience=synthetic`);
@@ -146,13 +137,13 @@ try {
   // Apollo stays the default.
   await page.goto(base);
   await page.waitForSelector("canvas");
-  assert.equal(await page.locator('option[value="columbia"]').count(), 1);
-  assert.equal(await page.locator('option[value="survey-marker"]').count(), 0);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
   // Apollo has no windows, so no window strip is drawn and the timeline is as before.
-  assert.equal(await page.locator(".timeline-windows").count(), 0, "Apollo: no window strip");
-  assert.equal(await page.locator(".timeline-window").count(), 0, "Apollo: no window band");
-  assert.ok((await page.locator(".timeline-scrubber").boundingBox()).height < 50, "Apollo: scrubber height unchanged");
+  assert.equal(await ui.windowParts(page).strip.count(), 0, "Apollo: no window strip");
+  assert.equal(await ui.windowParts(page).band.count(), 0, "Apollo: no window band");
+  assert.ok((await ui.windowParts(page).scrubber.boundingBox()).height < 50, "Apollo: scrubber height unchanged");
 } finally {
   await browser.close();
 }

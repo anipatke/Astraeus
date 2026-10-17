@@ -1,7 +1,8 @@
 // Focused UI smoke for the reusable shell. Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-shell.mjs
 import assert from "node:assert/strict";
-import { chooseScale, currentScale } from "./shellScale.mjs";
+import { chooseScale, currentScale } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -15,71 +16,59 @@ page.on("console", (message) => { if (message.type() === "error") errors.push(`c
 try {
   await page.goto(url);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  assert.equal(await page.getByRole("button", { name: "Developer mode" }).getAttribute("aria-pressed"), "false");
-  assert.equal(await page.locator(".developer-tools").isVisible(), false);
-  assert.equal(await page.locator(".mission").count(), 0);
+  await ui.waitForShell(page);
+  assert.equal(await (await ui.developerOpen(page) ? "true" : "false"), "false");
+  assert.equal(await ui.developerPanel(page).isVisible(), false);
+  assert.equal(await ui.missionPanel(page).count(), 0);
   if (process.env.ASTRAEUS_SCREENSHOT) {
     await page.waitForTimeout(2000);
     await page.screenshot({ path: process.env.ASTRAEUS_SCREENSHOT });
   }
 
-  await page.getByRole("button", { name: "Pause playback" }).click();
-  await page.locator(".timeline-event-list summary").click();
-  const eventRows = page.locator(".timeline-event-list li button");
-  assert.equal(await eventRows.count(), 30);
-  const firstLabel = (await eventRows.nth(0).locator("span").textContent()).trim();
-  const secondLabel = (await eventRows.nth(1).locator("span").textContent()).trim();
-  const firstMarker = page.locator(".timeline-marker").first();
-  await firstMarker.focus();
-  assert.equal(await firstMarker.locator(".timeline-marker-label").isVisible(), true);
-  await eventRows.nth(0).click();
-  assert.ok((await page.locator(".timeline-event-context").innerText()).includes(firstLabel));
-  await page.getByRole("button", { name: "Next event" }).click();
-  assert.ok((await page.locator(".timeline-event-context").innerText()).includes(secondLabel));
-  await page.locator(".timeline-event-list summary").click();
+  await ui.pausePlayback(page);
+  await ui.toggleEventList(page);
+  assert.equal(await ui.eventRowCount(page), 30);
+  const firstLabel = await ui.eventRowLabel(page, 0);
+  const secondLabel = await ui.eventRowLabel(page, 1);
+  await ui.focusFirstTimelineMarker(page);
+  assert.equal(await ui.firstTimelineMarkerLabelVisible(page), true);
+  await ui.pickEventRow(page, 0);
+  assert.ok((await ui.eventContextText(page)).includes(firstLabel));
+  await ui.nextEvent(page);
+  assert.ok((await ui.eventContextText(page)).includes(secondLabel));
+  await ui.toggleEventList(page);
 
-  const objectPicker = page.getByLabel("Select object");
-  const columbiaOption = page.locator('option[value="columbia"]');
-  const trajectoryStart = Number(await columbiaOption.getAttribute("data-available-from"));
-  const trajectoryEnd = Number(await columbiaOption.getAttribute("data-available-to"));
-  const seekTo = async (timeUtcMs) => page.locator('input[aria-label="Seek timeline"]').evaluate((element, value) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(element, String(value));
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-  }, timeUtcMs);
-  const timelineStart = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));
+  const { from: trajectoryStart, to: trajectoryEnd } = await ui.bodyOptionInfo(page, "columbia");
+  const seekTo = (timeUtcMs) => ui.seekTo(page, timeUtcMs);
+  const timelineStart = (await ui.seekRange(page)).min;
   await seekTo(timelineStart);
-  await page.waitForFunction(() => document.querySelector('option[value="columbia"]').disabled);
-  assert.equal(await columbiaOption.evaluate((option) => option.disabled), true);
-  assert.match(await columbiaOption.textContent(), /Unavailable/);
+  await ui.waitForBodyAvailability(page, "columbia", false);
+  const columbiaAtStart = await ui.bodyOptionInfo(page, "columbia");
+  assert.equal(columbiaAtStart.disabled, true);
+  assert.match(columbiaAtStart.text, /Unavailable/);
   const trajectoryMidpoint = Math.round((trajectoryStart + trajectoryEnd) / 2);
   await seekTo(trajectoryMidpoint);
-  await page.waitForFunction(() => !document.querySelector('option[value="columbia"]').disabled);
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  await page.locator(".mission").waitFor();
-  const missionReadoutBeforeCamera = await page.locator(".mission").innerText();
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.waitForBodyAvailability(page, "columbia", true);
+  await ui.toggleDeveloper(page);
+  await ui.waitForMission(page);
+  const missionReadoutBeforeCamera = await ui.missionPanel(page).innerText();
+  await ui.toggleDeveloper(page);
 
-  await page.getByRole("button", { name: "Focus Earth", exact: true }).click();
-  await objectPicker.selectOption("moon");
-  await page.getByRole("button", { name: "Focus Moon", exact: true }).click();
-  await page.getByRole("button", { name: "Earth–Moon overview", exact: true }).click();
-  await objectPicker.selectOption("columbia");
-  await page.getByRole("button", { name: "Focus Columbia (CSM)", exact: true }).click();
+  await ui.chooseCamera(page, "focus-earth");
+  await ui.pickBody(page, "moon");
+  await ui.chooseCamera(page, "focus-moon");
+  await ui.chooseCamera(page, "overview");
+  await ui.pickBody(page, "columbia");
+  await ui.chooseCamera(page, "focus-columbia");
   await page.waitForTimeout(1500);
-  assert.equal(await page.locator('[data-label-id="columbia"]').isVisible(), true);
-  await page.getByRole("button", { name: "Follow Columbia (CSM)", exact: true }).click();
-  assert.equal(await page.getByRole("button", { name: "Follow Columbia (CSM)", exact: true }).getAttribute("aria-pressed"), "true");
+  assert.equal(await ui.sceneLabelVisible(page, "columbia"), true);
+  await ui.chooseCamera(page, "follow-columbia");
+  assert.equal(await ui.cameraActive(page, "follow-columbia"), true);
   await page.waitForTimeout(450);
-  await page.getByRole("button", { name: "Earth–Moon overview", exact: true }).click();
+  await ui.chooseCamera(page, "overview");
   await page.waitForTimeout(1500);
-  assert.equal(await page.locator('[data-label-id="columbia"]').isVisible(), false);
-  const visibleLabels = await page.locator(".scene-object-label:visible").evaluateAll((elements) =>
-    elements.map((element) => {
-      const { left, top, right, bottom } = element.getBoundingClientRect();
-      return { left, top, right, bottom };
-    }),
-  );
+  assert.equal(await ui.sceneLabelVisible(page, "columbia"), false);
+  const visibleLabels = await ui.visibleSceneLabelBoxes(page);
   assert.ok(visibleLabels.length > 0);
   for (let i = 0; i < visibleLabels.length; i += 1) {
     for (let j = i + 1; j < visibleLabels.length; j += 1) {
@@ -89,82 +78,77 @@ try {
     }
   }
 
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  const missionReadoutAfterCamera = await page.locator(".mission").innerText();
+  await ui.toggleDeveloper(page);
+  const missionReadoutAfterCamera = await ui.missionPanel(page).innerText();
   assert.equal(missionReadoutAfterCamera, missionReadoutBeforeCamera, "range and speed readouts should remain fixed while camera modes change");
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.toggleDeveloper(page);
 
-  const eagleOption = page.locator('option[value="eagle"]');
-  const eagleStart = Number(await eagleOption.getAttribute("data-available-from"));
-  const eagleEnd = Number(await eagleOption.getAttribute("data-available-to"));
+  const { from: eagleStart, to: eagleEnd } = await ui.bodyOptionInfo(page, "eagle");
   await seekTo(Math.round((eagleStart + eagleEnd) / 2));
-  await page.waitForFunction(() => !document.querySelector('option[value="eagle"]').disabled);
-  await objectPicker.selectOption("eagle");
-  await page.getByRole("button", { name: "Focus Eagle (LM)", exact: true }).click();
+  await ui.waitForBodyAvailability(page, "eagle", true);
+  await ui.pickBody(page, "eagle");
+  await ui.chooseCamera(page, "focus-eagle");
   await page.waitForTimeout(1500);
-  assert.equal(await page.locator('[data-label-id="eagle"]').isVisible(), true);
-  await page.getByRole("button", { name: "Follow Eagle (LM)", exact: true }).click();
-  assert.equal(await page.getByRole("button", { name: "Follow Eagle (LM)", exact: true }).getAttribute("aria-pressed"), "true");
-  await page.getByRole("button", { name: "Earth–Moon overview", exact: true }).click();
+  assert.equal(await ui.sceneLabelVisible(page, "eagle"), true);
+  await ui.chooseCamera(page, "follow-eagle");
+  assert.equal(await ui.cameraActive(page, "follow-eagle"), true);
+  await ui.chooseCamera(page, "overview");
   await page.waitForTimeout(1500);
-  assert.equal(await page.locator('[data-label-id="eagle"]').isVisible(), false);
+  assert.equal(await ui.sceneLabelVisible(page, "eagle"), false);
 
   // Info panel, provenance and scale choice on request (T-019), with both vehicles in bounds.
   const infoShot = process.env.ASTRAEUS_INFO_SCREENSHOTS;
-  const panel = page.locator("#info-panel");
+  const panel = ui.infoPanel(page);
   const expectedStatus = { earth: "Ephemeris", moon: "Ephemeris", columbia: "Reconstructed", eagle: "Reconstructed" };
   const provenanceText = {};
   for (const [id, status] of Object.entries(expectedStatus)) {
-    await objectPicker.selectOption(id);
+    await ui.pickBody(page, id);
     await panel.waitFor();
     assert.equal(await panel.getAttribute("data-info-id"), id);
-    assert.ok(await panel.locator(".metric").count() > 0, `${id} info shows Metric Visuals`);
-    const badge = panel.locator(".provenance-badge");
+    assert.ok(await ui.infoMetricCount(page) > 0, `${id} info shows Metric Visuals`);
+    const badge = ui.provenanceBadge(page);
     assert.match(await badge.innerText(), new RegExp(`^${status} ⓘ`));
-    await badge.click();
+    await ui.openProvenance(page);
     assert.equal(await badge.getAttribute("aria-expanded"), "true");
-    provenanceText[id] = await panel.locator(".provenance-detail").innerText();
+    provenanceText[id] = await ui.provenanceDetailRaw(page);
     for (const heading of ["Known limitations", "Sources", "Accuracy"]) assert.ok(provenanceText[id].includes(heading), `${id} provenance shows ${heading}`);
     if (infoShot) await page.screenshot({ path: `${infoShot}/provenance-${id}-1280x800.png` });
   }
   for (const phrase of ["Smoothed joins", "Burn cutoffs", "translunar injection"]) assert.ok(provenanceText.columbia.includes(phrase), phrase);
   for (const phrase of ["Landing site", "Smoothed joins", "Burn cutoffs"]) assert.ok(provenanceText.eagle.includes(phrase), phrase);
   assert.match(provenanceText.moon, /no libration/);
-  await panel.getByRole("button", { name: "Close information" }).focus();
-  await page.keyboard.press("Escape");
+  await ui.closeInfoByKeyboard(page);
   assert.equal(await panel.count(), 0, "Escape closes the info panel");
 
   // T-080: "Just happened / Up next" now live behind the Events button, so open it first and close it again afterwards.
-  await page.locator(".timeline-event-list summary").click();
-  await page.locator(".timeline-event-current").click();
-  await page.locator(".timeline-event-list summary").click();
+  await ui.toggleEventList(page);
+  await ui.openCurrentEventInfo(page);
+  await ui.toggleEventList(page);
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-kind"), "event");
-  assert.match(await panel.locator(".provenance-badge").innerText(), /^Observed ⓘ/);
+  assert.match(await ui.provenanceBadgeText(page), /^Observed ⓘ/);
   if (infoShot) await page.screenshot({ path: `${infoShot}/event-info-1280x800.png` });
 
-  await objectPicker.selectOption("columbia");
+  await ui.pickBody(page, "columbia");
   await panel.waitFor();
-  const metricsUnderTrue = await panel.locator(".info-panel-metrics").innerText();
+  const metricsUnderTrue = await ui.infoMetricsText(page);
   // T-079: Scale is one toggle (two scales); the choice shows in its data-scale and its name.
   await chooseScale(page, "Readable");
   assert.equal(await currentScale(page), "readable-scale");
-  assert.equal(await page.locator(".scale-toggle").getAttribute("aria-label"), "Scale: Readable. Switch to True");
+  assert.equal(await ui.scaleToggleName(page), "Scale: Readable. Switch to True");
   await page.waitForTimeout(400);
-  assert.equal(await panel.locator(".info-panel-metrics").innerText(), metricsUnderTrue, "readouts are identical under True and Readable");
+  assert.equal(await ui.infoMetricsText(page), metricsUnderTrue, "readouts are identical under True and Readable");
   // T-079: the explanation moved from a panel opened by an info button into the toggle's tooltip (and each menu item's).
-  assert.match(await page.locator(".scale-toggle").getAttribute("title"), /closer[\s\S]*true size[\s\S]*drawn on top/);
+  assert.match(await ui.scaleToggleTitle(page), /closer[\s\S]*true size[\s\S]*drawn on top/);
   if (infoShot) await page.screenshot({ path: `${infoShot}/scale-readable-1280x800.png` });
   await chooseScale(page, "True");
-  await panel.getByRole("button", { name: "Close information" }).click();
+  await ui.closeInfoByPanelButton(page);
 
-  await objectPicker.selectOption("columbia");
-  await page.getByRole("button", { name: "Follow Columbia (CSM)", exact: true }).click();
-  const timelineEnd = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("max"));
+  await ui.pickBody(page, "columbia");
+  await ui.chooseCamera(page, "follow-columbia");
+  const timelineEnd = (await ui.seekRange(page)).max;
   await seekTo(timelineEnd);
-  await page.waitForFunction(() => document.querySelector('select[aria-label="Select object"]').value === "earth"
-    && document.querySelector('option[value="columbia"]').disabled
-    && document.querySelector('[data-camera-preset="overview"]').getAttribute("aria-pressed") === "true");
+  await ui.waitForFallbackToOverview(page, "columbia");
 
   const canvas = page.locator("canvas");
   const canvasBounds = await canvas.boundingBox();
@@ -177,53 +161,51 @@ try {
   await page.mouse.up();
   await page.mouse.wheel(0, -120);
 
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  await page.locator(".developer-tools").waitFor();
-  assert.equal(await page.locator(".mission").count(), 1);
-  assert.equal(await page.getByRole("button", { name: "Mission window", exact: true }).isVisible(), true);
-  assert.equal(await page.getByLabel("UTC date and time").isVisible(), true);
-  assert.equal(await page.getByRole("button", { name: "Anchor labels", exact: true }).isVisible(), true);
-  await page.locator(".scientific-instruments .metric").first().waitFor();
-  assert.equal(await page.locator(".scientific-instruments .metric").count(), 4);
+  await ui.toggleDeveloper(page);
+  await ui.developerPanel(page).waitFor();
+  assert.equal(await ui.missionPanel(page).count(), 1);
+  assert.equal(await ui.toggleVisible(page, "mission-window"), true);
+  assert.equal(await ui.utcFieldVisible(page), true);
+  assert.equal(await ui.toggleVisible(page, "anchor-labels"), true);
+  await ui.instrumentMetrics(page).first().waitFor();
+  assert.equal(await ui.instrumentMetrics(page).count(), 4);
   // Metric Visuals: a shape only where a real reference exists, and the same text without it.
   assert.equal(await page.locator('[data-metric="earth-moon-distance"] svg').count(), 0, "Earth–Moon distance has no reference, so it stays numeric-only");
   assert.equal(await page.locator('[data-metric="lunar-illumination"] svg[role="img"]').count(), 1);
   await seekTo(Math.round((eagleStart + eagleEnd) / 2)); // both vehicles in bounds
-  await page.locator(".mission .metric-speed").nth(1).waitFor();
-  const speedArc = page.locator('.mission .metric-speed svg[role="img"]').first();
-  const rangeBar = page.locator('.mission .metric-distance svg[role="img"]').first();
+  await ui.missionMetrics(page, "speed").nth(1).waitFor();
+  const speedArc = ui.missionMetricSvg(page, "speed").first();
+  const rangeBar = ui.missionMetricSvg(page, "distance").first();
   assert.match(await speedArc.getAttribute("aria-label"), /km\/s.*peak at NASA source anchors/);
   assert.match(await rangeBar.getAttribute("aria-label"), /Moon now [\d,]+ km/);
   for (const kind of ["relative-distance", "altitude", "uncertainty", "coordinates"]) {
-    assert.equal(await page.locator(`.mission .metric-${kind}`).count(), 2, `each in-bounds vehicle shows a ${kind} metric`);
+    assert.equal(await ui.missionMetrics(page, kind).count(), 2, `each in-bounds vehicle shows a ${kind} metric`);
   }
   assert.match(await page.locator('[data-metric="eagle-altitude"]').innerText(), /(above|below) Moon mean radius/);
   assert.match(await page.locator('[data-metric="journey-progress"]').innerText(), /lift-off → splashdown/);
   assert.equal(await page.locator('[data-metric="moon-position"] .metric-reading').count(), 3);
-  assert.equal(await page.locator('.mission [data-metric$="-position"] svg.metric-radar').count(), 2, "each vehicle position shows the radar view");
+  assert.equal(await ui.missionRadars(page).count(), 2, "each vehicle position shows the radar view");
   assert.match(await page.locator('[data-metric="columbia-position"] svg.metric-radar').getAttribute("aria-label"), /round: top view x–y · tick: z · rim ±[\d,]+ km · lavender: Moon/);
   const metricShot = process.env.ASTRAEUS_METRIC_SCREENSHOTS;
   if (metricShot) {
-    await page.locator('.hud-section:has(#developer-telemetry-heading)').screenshot({ path: `${metricShot}/metric-visuals-telemetry-1280x800.png` });
-    await page.locator('.hud-section:has(#developer-scene-heading)').screenshot({ path: `${metricShot}/metric-visuals-scene-1280x800.png` });
-    await page.locator(".hud-section-clock").screenshot({ path: `${metricShot}/metric-visuals-journey-1280x800.png` });
+    await ui.drawerSection(page, "telemetry").screenshot({ path: `${metricShot}/metric-visuals-telemetry-1280x800.png` });
+    await ui.drawerSection(page, "scene").screenshot({ path: `${metricShot}/metric-visuals-scene-1280x800.png` });
+    await ui.drawerSection(page, "journey").screenshot({ path: `${metricShot}/metric-visuals-journey-1280x800.png` });
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);
-  const overflow = await page.evaluate(() => [...document.querySelectorAll(".metric")]
-    .filter((metric) => metric.getBoundingClientRect().right > window.innerWidth + 0.5 || metric.scrollWidth > metric.clientWidth + 1)
-    .map((metric) => metric.getAttribute("data-metric")));
+  const overflow = await ui.overflowingMetrics(page);
   assert.deepEqual(overflow, [], "metric visuals should fit mobile portrait without overflow");
   if (metricShot) {
-    await page.locator(".developer-tools").evaluate((panel) => { panel.scrollTop = panel.querySelector("#developer-telemetry-heading").offsetTop - 8; });
+    await ui.scrollDrawerToTelemetry(page);
     await page.screenshot({ path: `${metricShot}/metric-visuals-390x844.png` });
   }
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.locator(".advanced-readouts summary").click();
-  await page.locator("dl.overlay").waitFor();
-  assert.equal(await page.locator("dl.overlay").count(), 1);
+  await ui.openAdvancedReadouts(page);
+  await ui.advancedReadouts(page).list.waitFor();
+  assert.equal(await ui.advancedReadouts(page).list.count(), 1);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ url, viewports: ["1280x800", "390x844"], metricVisuals: true, infoProvenance: Object.keys(provenanceText), scaleReadoutsIdentical: true, events: await eventRows.count(), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length, errors }, null, 2));
+  console.log(JSON.stringify({ url, viewports: ["1280x800", "390x844"], metricVisuals: true, infoProvenance: Object.keys(provenanceText), scaleReadoutsIdentical: true, events: await ui.eventRowCount(page), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length, errors }, null, 2));
 } finally {
   await browser.close();
 }

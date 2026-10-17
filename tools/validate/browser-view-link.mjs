@@ -1,6 +1,7 @@
 // Browser check for "Copy view link" (T-058): drag the camera, copy the link, open it in a fresh page and compare the views.
 // PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=<app.html url> node tools/validate/browser-view-link.mjs
 import assert from "node:assert/strict";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -15,12 +16,12 @@ const open = async (query, context) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto(`${base}${query}`);
   await page.waitForTimeout(3000);
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.toggleDeveloper(page);
   await page.waitForTimeout(800);
   return page;
 };
 const readView = async (page) => {
-  const text = await page.getByTestId("view-values").innerText();
+  const text = await ui.viewValuesText(page);
   const match = /View: ([^,]+),([\d.-]+),([\d.-]+),([\d.-]+)/.exec(text);
   assert.ok(match, `view text: ${text}`);
   return { focus: match[1], az: Number(match[2]), el: Number(match[3]), dist: Number(match[4]) };
@@ -37,9 +38,9 @@ for (const [name, query] of [["perseids", "?experience=shower-perseids"], ["defa
   await page.mouse.up();
   await page.mouse.wheel(0, 300);
   await page.waitForTimeout(800);
-  await page.getByRole("button", { name: "Copy view link" }).click();
+  await ui.copyViewLink(page);
   await page.waitForTimeout(500);
-  const link = await page.getByTestId("view-link").inputValue();
+  const link = await ui.viewLinkValue(page);
   assert.match(link, /[?&]view=[^&]+,[\d.]+,[-\d.]+,[\d.]+/, `${name}: link carries the view`);
   assert.match(link, /[?&]t=\d{4}-\d\d-\d\dT[\d:.]+Z/, `${name}: link carries the time`);
   assert.match(link, /[?&]scale=/, `${name}: link carries the scale`);
@@ -65,10 +66,10 @@ for (const [name, query] of [["perseids", "?experience=shower-perseids"], ["defa
   const context = await browser.newContext();
   const page = await open("", context);
   await page.evaluate(() => { Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true }); });
-  await page.getByRole("button", { name: "Copy view link" }).click();
+  await ui.copyViewLink(page);
   await page.waitForTimeout(300);
-  assert.ok((await page.getByTestId("view-link").inputValue()).includes("view="), "the fallback field shows the link");
-  assert.match(await page.locator(".view-link-field span").innerText(), /Clipboard unavailable/);
+  assert.ok((await ui.viewLinkValue(page)).includes("view="), "the fallback field shows the link");
+  assert.match(await ui.viewLinkNote(page), /Clipboard unavailable/);
   results.fallback = "field shown";
 }
 

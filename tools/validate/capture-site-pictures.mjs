@@ -22,6 +22,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -95,25 +96,19 @@ async function open(viewport, query, { css }) {
   page.on("console", (message) => { if (message.type() === "error") log.errors.push(`console: ${message.text()}`); });
   await page.goto(`${base}/app.html?${query}`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  const pause = page.getByRole("button", { name: "Pause playback", exact: true });
-  if (await pause.count()) await pause.click();
+  await ui.waitForShell(page);
+  await ui.ensurePaused(page);
   await page.addStyleTag({ content: css });
   return page;
 }
-const seek = (page, isoUtc) => page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-}, typeof isoUtc === "number" ? isoUtc : Date.parse(isoUtc));
+const seek = (page, isoUtc) => ui.seekTo(page, typeof isoUtc === "number" ? isoUtc : Date.parse(isoUtc));
 async function settle(page, ms = 3500) {
   await page.waitForTimeout(ms);
-  if (await page.getByRole("button", { name: "Pause playback", exact: true }).count()) await page.getByRole("button", { name: "Pause playback", exact: true }).click();
+  await ui.ensurePaused(page);
 }
 const closePanels = async (page) => {
-  const close = page.getByRole("button", { name: "Close story panel" });
-  if (await close.count()) await close.click();
-  const info = page.locator("#info-panel .info-panel-close");
-  if (await info.count()) await info.click();
+  await ui.closeStoryPanelIfPresent(page);
+  await ui.closeInfo(page);
 };
 
 function toJpeg(name, png, dest, extra = []) {
@@ -133,8 +128,8 @@ try {
     const page = await open(viewport, query, { css: HIDE_DEVELOPER });
     await seek(page, APOLLO_TOUCHDOWN_UTC);
     await closePanels(page);
-    await page.locator(`.timeline-panel-marker[data-panel-id="${APOLLO_PANEL_ID}"]`).click();
-    await page.locator(`.story-panel[data-panel-id="${APOLLO_PANEL_ID}"]`).waitFor();
+    await ui.openStoryPanel(page, APOLLO_PANEL_ID);
+    await ui.storyPanel(page, APOLLO_PANEL_ID).waitFor();
     await page.mouse.move(720, 300); // off the marker, so its tooltip does not show
     await page.evaluate(() => document.activeElement?.blur());
     await settle(page);
@@ -153,14 +148,14 @@ try {
     const page = await open(viewport, "scale=true-scale", { css: HIDE_DEVELOPER });
     await seek(page, APOLLO_TOUCHDOWN_UTC);
     await closePanels(page);
-    await page.getByLabel("Select object").selectOption("moon");
+    await ui.pickBody(page, "moon");
     await closePanels(page);
-    await page.getByRole("button", { name: "Focus Moon", exact: true }).click();
+    await ui.chooseCamera(page, "focus-moon");
     await settle(page, 4000);
     // The landing's info panel: the (i) beside "Just happened".
-    await page.getByRole("button", { name: /^Information about .*Lunar landing/ }).first().click();
-    await page.locator("#info-panel").waitFor();
-    await page.locator("#info-panel .provenance-badge").first().click(); // opens the source, accuracy and notes
+    await ui.pressInformationButton(page, /^Information about .*Lunar landing/);
+    await ui.infoPanel(page).waitFor();
+    await ui.openProvenance(page); // opens the source, accuracy and notes
     await settle(page, 1500);
     const png = join(raw, "apollo-provenance.png");
     await page.screenshot({ path: png });
@@ -206,7 +201,7 @@ try {
     const viewport = { width: 1280, height: 720 };
     const page = await open(viewport, perseidsQuery, { css: HIDE_CHROME });
     await settle(page, 3000);
-    const range = await page.locator('input[aria-label="Seek timeline"]').evaluate((input) => ({ min: Number(input.min), max: Number(input.max) }));
+    const range = await ui.seekRange(page);
     const dir = join(raw, "gif");
     mkdirSync(dir, { recursive: true });
     for (let k = 0; k < frames; k += 1) {

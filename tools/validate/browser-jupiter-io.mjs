@@ -7,7 +7,8 @@
 // the default, and there are no console errors. The look (flattening, lit side, Io's night side) is judged by the owner from the screenshots.
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
-import { scaleOptions } from "./shellScale.mjs";
+import { scaleOptions } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -36,25 +37,12 @@ const litPixels = async (page) => {
 };
 
 const seek = async (page, timeUtcMs) => {
-  await page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }, timeUtcMs);
+  await ui.seekTo(page, timeUtcMs);
   await page.waitForTimeout(500);
 };
 
-const preset = async (page, objectId, name) => {
-  await page.getByLabel("Select object").selectOption(objectId);
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, label) => [...select.options].find((o) => o.textContent.trim() === label)?.value ?? null, name);
-    assert.ok(value, `preset exists: ${name}`);
-    await compact.selectOption(value);
-  } else {
-    await page.getByRole("button", { name, exact: true }).click();
-  }
+const preset = async (page, objectId, presetId) => {
+  await ui.pickBodyWithCamera(page, objectId, presetId);
   await page.waitForTimeout(1500);
 };
 
@@ -65,10 +53,10 @@ const labelCentre = (page, id) => page.locator(`[data-label-id="${id}"]`).evalua
 });
 
 const openPanel = async (page, objectId, label) => {
-  await page.getByLabel("Select object").selectOption(objectId);
-  if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: new RegExp(`^Information about ${label}$`) }).click();
-  await page.locator("#info-panel").waitFor();
-  return (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+  await ui.pickBody(page, objectId);
+  await ui.openInfo(page, label);
+  await ui.infoPanel(page).waitFor();
+  return (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
 };
 
 async function run(name, viewport) {
@@ -81,24 +69,24 @@ async function run(name, viewport) {
   try {
     await page.goto(`${base}?experience=jupiter-io`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(page);
     const canvas = page.getByTestId("earth-moon-canvas");
     assert.equal(await canvas.getAttribute("data-bodies"), "jupiter,io", `${name}: Jupiter and Io are the mounted bodies`);
     assert.equal(await canvas.getAttribute("data-scene-center"), "jupiter", `${name}: Jupiter is the scene centre`);
     assert.equal(await canvas.getAttribute("data-lighting"), "per-body", `${name}: each body is lit by its own Sun direction`);
     assert.equal(await canvas.getAttribute("data-composition-paths"), "1", `${name}: Io's loop is drawn`);
-    await page.getByRole("button", { name: "Pause playback" }).click();
-    const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
+    await ui.pausePlayback(page);
+    const options = await ui.bodyOptions(page);
     // T-053: the sky is every experience's last item ("sky"); the two bodies are unchanged.
     assert.deepEqual(options, ["jupiter", "io", "sky"], `${name}: the object list is Jupiter, Io and the sky`);
-    const body = await page.locator("body").innerText();
+    const body = await ui.pageText(page);
     assert.doesNotMatch(body, /apollo|columbia|mission|perseid/i, `${name}: no other experience's content`);
     const scales = await scaleOptions(page);
     assert.deepEqual(scales, ["true-scale"], `${name}: true scale only (the other scales would bury or enlarge Io)`);
 
-    const start = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));
+    const start = (await ui.seekRange(page)).min;
     await seek(page, start);
-    await preset(page, "jupiter", "Overview");
+    await preset(page, "jupiter", "overview");
     notes.overviewLit = await litPixels(page);
     assert.ok(notes.overviewLit > 800, `${name}: Jupiter is drawn in the overview (${notes.overviewLit})`);
     for (const id of ["jupiter", "io"]) {
@@ -111,13 +99,13 @@ async function run(name, viewport) {
     const panel0 = await openPanel(page, "io", "Io");
     assert.match(panel0, /Distance from Jupiter/, `${name}: Io's distance from Jupiter is shown`);
     assert.match(panel0, /Io position/, `${name}: Io's position is shown`);
-    await page.locator("#info-panel .info-panel-close").click();
+    await ui.closeInfoStrict(page);
     await seek(page, start + 6 * 3_600_000);
-    await preset(page, "jupiter", "Overview");
+    await preset(page, "jupiter", "overview");
     const ioAt1 = await labelCentre(page, "io");
     const panel1 = await openPanel(page, "io", "Io");
     assert.notEqual(panel0, panel1, `${name}: Io's readings change in six hours`);
-    await page.locator("#info-panel .info-panel-close").click();
+    await ui.closeInfoStrict(page);
     notes.ioLabel = { t0: ioAt0, sixHours: ioAt1 };
     assert.ok(ioAt0 && ioAt1 && Math.hypot(ioAt1[0] - ioAt0[0], ioAt1[1] - ioAt0[1]) > 10, `${name}: Io moves on screen (${JSON.stringify(notes.ioLabel)})`);
     await shot("overview-t6h");
@@ -125,8 +113,8 @@ async function run(name, viewport) {
     // The four presets each frame something drawn.
     await seek(page, start + 3_600_000);
     notes.lit = {};
-    for (const [objectId, presetName, key] of [["jupiter", "Overview", "overview"], ["jupiter", "Focus Jupiter", "focus-jupiter"], ["io", "Focus Io", "focus-io"], ["io", "Follow Io", "follow-io"]]) {
-      await preset(page, objectId, presetName);
+    for (const [objectId, key] of [["jupiter", "overview"], ["jupiter", "focus-jupiter"], ["io", "focus-io"], ["io", "follow-io"]]) {
+      await preset(page, objectId, key);
       notes.lit[key] = await litPixels(page);
       assert.ok(notes.lit[key] > 300, `${name}/${key}: something is drawn (${notes.lit[key]})`);
       await shot(key);
@@ -137,15 +125,15 @@ async function run(name, viewport) {
 
     // Accuracy records: Jupiter's missing texture, Io's Horizons figure and class.
     const jupiterPanel = await openPanel(page, "jupiter", "Jupiter");
-    await page.locator("#info-panel .provenance-badge").click();
-    const jupiterDetail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+    await ui.openProvenance(page);
+    const jupiterDetail = (await ui.provenanceDetail(page).innerText()).replace(/\s+/g, " ");
     assert.match(jupiterDetail, /flat in one colour/i, `${name}: Jupiter's missing texture is stated`);
     notes.jupiterPanel = jupiterPanel.slice(0, 300);
     await shot("jupiter-info");
-    await page.locator("#info-panel .info-panel-close").click();
+    await ui.closeInfoStrict(page);
     await openPanel(page, "io", "Io");
-    await page.locator("#info-panel .provenance-badge").click();
-    const ioDetail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+    await ui.openProvenance(page);
+    const ioDetail = (await ui.provenanceDetail(page).innerText()).replace(/\s+/g, " ");
     assert.match(ioDetail, /approximate demonstration/i, `${name}: Io's class is stated`);
     assert.match(ioDetail, /9,388 km/, `${name}: Io's Horizons figure is stated`);
     assert.match(ioDetail, /not intended for ephemeris computation/i, `${name}: the source's own warning is stated`);

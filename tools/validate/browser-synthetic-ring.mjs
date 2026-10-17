@@ -14,7 +14,8 @@
 // Phone layout is owned by browser-shell.mjs and browser-spike03.mjs and is not re-asserted here.
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
-import { chooseScale, currentScale } from "./shellScale.mjs";
+import { chooseScale, currentScale } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -34,16 +35,7 @@ const readCounter = async (counter, groupId) => ({
   fills: groupId === null ? null : Number(await counter.locator(`[data-fill-count="${groupId}"]`).innerText()),
 });
 const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${prefix}${name}.png` }); };
-const choosePreset = async (name) => {
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);
-    assert.ok(value, `camera preset exists: ${name}`);
-    await compact.selectOption(value);
-  } else {
-    await page.getByRole("button", { name, exact: true }).click();
-  }
-};
+const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
 
 async function run(label, viewport) {
   prefix = label === "desktop" ? "" : `${label}-`;
@@ -54,35 +46,34 @@ async function run(label, viewport) {
   counterReadings[label] = {};
   await page.goto(`${base}?experience=synthetic-ring`);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+  await ui.waitForShell(page);
   const canvas = page.getByTestId("earth-moon-canvas");
   // The points layer is mounted and the group is listed once.
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
-  assert.equal(await page.locator('option[value="debris-ring"]').count(), 1);
-  assert.equal(await page.locator('option[value="columbia"]').count(), 0);
-  await page.getByRole("button", { name: "Pause playback" }).click();
+  assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  await ui.pausePlayback(page);
 
   // Select the group: its information panel states that it is made up.
-  const panel = page.locator("#info-panel");
-  await page.getByLabel("Select object").selectOption("debris-ring");
+  const panel = ui.infoPanel(page);
+  await ui.pickBody(page, "debris-ring");
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-id"), "debris-ring");
-  const badge = panel.locator(".provenance-badge");
-  assert.match(await badge.innerText(), /^Illustrative ⓘ/);
-  await badge.click();
-  const detail = await panel.locator(".provenance-detail").innerText();
+    assert.match(await ui.provenanceBadgeText(page), /^Illustrative ⓘ/);
+  await ui.openProvenance(page);
+  const detail = await ui.provenanceDetailRaw(page);
   assert.match(detail, /Made up/);
   assert.match(detail, /two-body/i);
   const infoUnderTrue = await panel.innerText();
 
   // Focus and follow work at true scale; capture the ring.
-  await choosePreset("Overview");
+  await choosePreset("overview");
   await page.waitForTimeout(1000);
   await shot("ring-true-overview");
-  await choosePreset("Focus ring");
+  await choosePreset("focus-ring");
   await page.waitForTimeout(1200);
   await shot("ring-true-focus");
-  await choosePreset("Follow ring");
+  await choosePreset("follow-ring");
   await page.waitForTimeout(1200);
   await shot("ring-true-follow");
 
@@ -92,10 +83,10 @@ async function run(label, viewport) {
   await page.waitForTimeout(800);
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is identical under True and Readable");
-  await choosePreset("Overview");
+  await choosePreset("overview");
   await page.waitForTimeout(1000);
   await shot("ring-readable-overview");
-  await choosePreset("Focus ring");
+  await choosePreset("focus-ring");
   await page.waitForTimeout(1200);
   await shot("ring-readable-focus");
   await chooseScale(page, "True");
@@ -103,7 +94,7 @@ async function run(label, viewport) {
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is unchanged after switching back");
 
   // Playback moves the clock without errors, and Apollo stays the default experience.
-  await page.getByRole("button", { name: "Play playback" }).click();
+  await ui.playPlayback(page);
   await page.waitForTimeout(500);
   // Frame pacing while the ring plays at the default rate. Software rendering, so relative evidence only: no assertion.
   pacing = await page.evaluate(() => new Promise((resolve) => {
@@ -118,32 +109,31 @@ async function run(label, viewport) {
     requestAnimationFrame(tick);
   }));
   // Frame-rate counter (T-031): absent with Developer mode off, plausible values with it on.
-  const devButton = page.getByRole("button", { name: "Developer mode" });
   const counter = page.getByTestId("frame-rate");
   assert.equal(await counter.count(), 0, "no counter with Developer mode off");
-  await devButton.click();
+  await ui.toggleDeveloper(page);
   await counter.locator("[data-frame-fps]").waitFor({ timeout: 10000 });
   counterReadings[label].ring = await readCounter(counter, "debris-ring");
   assert.ok(counterReadings[label].ring.fps > 0, "ring fps is positive");
   assert.ok(counterReadings[label].ring.fills >= 1, "ring fill count is at least 1");
   assert.match(await counter.innerText(), /this browser and machine/);
   await counter.getByTestId("fps-graph").waitFor({ timeout: 10000 });
-  await counter.locator(".fps-graph line.tone-good, .fps-graph line.tone-warn, .fps-graph line.tone-bad").first().waitFor({ state: "attached", timeout: 10000 });
+  await ui.waitForFrameGraphLine(page, { state: "attached", timeout: 10000 });
   assert.match(await counter.getByTestId("fps-graph").textContent(), /frames per second[\s\S]*s ago[\s\S]*now \(/, "graph is labelled");
   await shot("ring-counter-on");
-  await devButton.click();
+  await ui.toggleDeveloper(page);
   assert.equal(await counter.count(), 0, "counter gone when Developer mode is turned off");
 
   await page.goto(base);
   await page.waitForSelector("canvas");
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.toggleDeveloper(page);
   await page.getByTestId("frame-rate").locator("[data-frame-fps]").waitFor({ timeout: 10000 });
   counterReadings[label].apollo = await readCounter(page.getByTestId("frame-rate"), null);
   assert.ok(counterReadings[label].apollo.fps > 0, "Apollo fps is positive");
   await shot("apollo-counter-on");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "0");
-  assert.equal(await page.locator('option[value="columbia"]').count(), 1);
-  assert.equal(await page.locator('option[value="debris-ring"]').count(), 0);
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 0);
   const sorted = [...pacing].sort((x, y) => x - y);
   const pick = (q) => Number((sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0).toFixed(1));
   pacingBySize[label] = { frames: pacing.length, median: pick(0.5), p95: pick(0.95), max: pick(1), over33ms: pacing.filter((d) => d > 33.4).length };

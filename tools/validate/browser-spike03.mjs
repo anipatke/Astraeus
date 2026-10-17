@@ -4,7 +4,8 @@
 // Screenshots and machine-readable checks are written under docs/evidence/spike03/.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale, currentScale } from "./shellScale.mjs";
+import { chooseScale, currentScale } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -23,37 +24,20 @@ const setViewport = async (width, height) => {
   await page.setViewportSize({ width, height });
   await page.waitForTimeout(250);
 };
-const pause = async () => {
-  const button = page.getByRole("button", { name: "Pause playback", exact: true });
-  if (await button.count()) await button.click();
-};
+const pause = () => ui.ensurePaused(page);
 const seek = async (isoUtc) => {
   const timeUtcMs = Date.parse(isoUtc);
   assert.ok(Number.isFinite(timeUtcMs), `valid UTC time: ${isoUtc}`);
-  await page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }, timeUtcMs);
+  await ui.seekTo(page, timeUtcMs);
   await page.waitForTimeout(250);
 };
 const closeInfo = async () => {
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
+  await ui.closeInfo(page);
 };
-const camera = async (objectId, presetName) => {
-  await page.getByLabel("Select object").selectOption(objectId);
+const camera = async (objectId, presetId) => {
+  await ui.pickBody(page, objectId);
   await closeInfo();
-  const compactCameraPicker = page.locator(".object-camera-picker");
-  if (await compactCameraPicker.isVisible()) {
-    const optionValue = await compactCameraPicker.evaluate((select, label) => {
-      const option = [...select.options].find((candidate) => candidate.textContent.trim() === label);
-      return option?.value ?? null;
-    }, presetName);
-    assert.ok(optionValue, `camera preset option exists: ${presetName}`);
-    await compactCameraPicker.selectOption(optionValue);
-  } else {
-    await page.getByRole("button", { name: presetName, exact: true }).click();
-  }
+  await ui.chooseCamera(page, presetId);
   await page.waitForTimeout(1250);
 };
 const capture = async (name) => {
@@ -67,15 +51,7 @@ const capture = async (name) => {
   await page.screenshot({ path });
   screenshots.push({ name, path, viewport: page.viewportSize() });
 };
-const visibleBounds = async () => page.evaluate(() => {
-  const selectors = [".shell-toolbar", ".developer-mode-toggle", ".timeline-bar", "#info-panel"];
-  return selectors.flatMap((selector) => {
-    const element = document.querySelector(selector);
-    if (!element || getComputedStyle(element).display === "none" || getComputedStyle(element).visibility === "hidden") return [];
-    const rect = element.getBoundingClientRect();
-    return [{ selector, left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }];
-  });
-});
+const visibleBounds = () => ui.shellBounds(page);
 const assertFitsViewport = async (label, { sheetAboveTimeline = false } = {}) => {
   const { width, height } = page.viewportSize();
   const bounds = await visibleBounds();
@@ -100,25 +76,7 @@ const assertFitsViewport = async (label, { sheetAboveTimeline = false } = {}) =>
   return bounds;
 };
 const assertTouchTargets = async (label) => {
-  const targets = await page.evaluate(() => {
-    const selectors = [
-      ".object-controls button",
-      ".object-controls select",
-      ".scale-control button",
-      ".info-panel button",
-      ".timeline-transport button",
-      ".timeline-speed select",
-      ".timeline-event-list summary",
-      '.timeline-track input[type="range"]',
-    ];
-    return selectors.flatMap((selector) => [...document.querySelectorAll(selector)]
-      .filter((element) => {
-        const style = getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-      })
-      .map((element) => ({ selector, label: element.getAttribute("aria-label") ?? element.textContent.trim(), height: element.getBoundingClientRect().height })));
-  });
+  const targets = await ui.primaryControlTargets(page);
   assert.ok(targets.length > 10, `${label}: primary controls are present`);
   for (const target of targets) assert.ok(target.height >= 43, `${label}: ${target.selector} ${target.label} is at least 44px high`);
   return targets;
@@ -127,108 +85,106 @@ const assertTouchTargets = async (label) => {
 try {
   await page.goto(url);
   await page.waitForSelector("canvas");
-  await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-  assert.equal(await page.getByRole("button", { name: "Developer mode" }).getAttribute("aria-pressed"), "false");
+  await ui.waitForShell(page);
+  assert.equal(await (await ui.developerOpen(page) ? "true" : "false"), "false");
   await pause();
 
   await setViewport(1440, 900);
   await seek("1969-07-17T00:00:00Z");
-  await camera("earth", "Earth–Moon overview");
+  await camera("earth", "overview");
   await capture("earth-moon-overview-1440x900");
 
   await seek("1969-07-18T12:00:00Z");
-  await camera("columbia", "Focus Columbia (CSM)");
+  await camera("columbia", "focus-columbia");
   await capture("translunar-coast-1440x900");
 
   await seek("1969-07-17T00:00:00Z");
-  await camera("earth", "Focus Earth");
+  await camera("earth", "focus-earth");
   await capture("close-earth-1440x900");
 
   await seek("1969-07-20T20:17:00Z");
-  await camera("moon", "Focus Moon");
+  await camera("moon", "focus-moon");
   await capture("close-moon-1440x900");
 
   await seek("1969-07-18T12:00:00Z");
-  await camera("columbia", "Follow Columbia (CSM)");
+  await camera("columbia", "follow-columbia");
   await capture("spacecraft-follow-1440x900");
 
   // The live Metric Visuals must describe the same scientific State under both display scales.
-  await page.getByLabel("Select object").selectOption("columbia");
-  const panel = page.locator("#info-panel");
+  await ui.pickBody(page, "columbia");
+  const panel = ui.infoPanel(page);
   await panel.waitFor();
-  assert.ok(await panel.locator(".metric").count() > 0, "Columbia information includes Metric Visuals");
+  assert.ok(await ui.infoMetricCount(page) > 0, "Columbia information includes Metric Visuals");
   await chooseScale(page, "True");
   await page.waitForTimeout(250);
-  const metricsUnderTrue = await panel.locator(".info-panel-metrics").innerText();
+  const metricsUnderTrue = await ui.infoMetricsText(page);
   await chooseScale(page, "Readable");
   await page.waitForTimeout(250);
-  const metricsUnderReadable = await panel.locator(".info-panel-metrics").innerText();
+  const metricsUnderReadable = await ui.infoMetricsText(page);
   assert.equal(metricsUnderReadable, metricsUnderTrue, "Metric Visual readouts are identical under True and Readable scales");
   await capture("metric-visuals-1440x900");
 
   // Event details and provenance are discoverable together without opening developer diagnostics.
   await closeInfo();
   await seek("1969-07-20T20:17:00Z");
-  const eventSummary = page.locator(".timeline-event-list summary");
-  await eventSummary.click();
-  const eventRows = page.locator(".timeline-event-list li button");
-  const eventLabels = await eventRows.allTextContents();
+  await ui.toggleEventList(page);
+  const eventLabels = await ui.eventRowTexts(page);
   const landingIndex = eventLabels.findIndex((label) => /land/i.test(label));
-  await eventRows.nth(landingIndex >= 0 ? landingIndex : Math.floor(eventLabels.length / 2)).click();
+  await ui.pickEventRow(page, landingIndex >= 0 ? landingIndex : Math.floor(eventLabels.length / 2));
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-kind"), "event");
-  await eventSummary.click();
-  const provenance = panel.locator(".provenance-badge");
-  await provenance.click();
+  await ui.toggleEventList(page);
+  const provenance = ui.provenanceBadge(page);
+  await ui.openProvenance(page);
   assert.equal(await provenance.getAttribute("aria-expanded"), "true");
-  assert.ok(await panel.locator(".provenance-detail").isVisible());
+  assert.ok(await ui.provenanceDetailVisible(page));
   await capture("event-provenance-open-1440x900");
 
   // Camera presentation changes preserve time and the app's physical mission readouts.
   await closeInfo();
   await seek("1969-07-20T20:17:00Z");
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  const mission = page.locator(".mission");
+  await ui.toggleDeveloper(page);
+  const mission = ui.missionPanel(page);
   await mission.waitFor();
-  const timeBeforeCameraChanges = await page.locator(".timeline-time").innerText();
+  const timeBeforeCameraChanges = await ui.clockText(page);
   const beforeCameraChanges = await mission.innerText();
   const readoutsAcrossCameras = [];
   for (const [objectId, presetName] of [
-    ["earth", "Focus Earth"],
-    ["moon", "Focus Moon"],
-    ["columbia", "Follow Columbia (CSM)"],
-    ["eagle", "Follow Eagle (LM)"],
-    ["earth", "Earth–Moon overview"],
+    ["earth", "focus-earth"],
+    ["moon", "focus-moon"],
+    ["columbia", "follow-columbia"],
+    ["eagle", "follow-eagle"],
+    ["earth", "overview"],
   ]) {
     await camera(objectId, presetName);
-    readoutsAcrossCameras.push({ presetName, time: await page.locator(".timeline-time").innerText(), readout: await mission.innerText() });
+    readoutsAcrossCameras.push({ presetName, time: await ui.clockText(page), readout: await mission.innerText() });
   }
   for (const item of readoutsAcrossCameras) {
     assert.equal(item.time, timeBeforeCameraChanges, `${item.presetName} leaves the simulation time unchanged`);
     assert.equal(item.readout, beforeCameraChanges, `${item.presetName} leaves scientific readouts unchanged`);
   }
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.toggleDeveloper(page);
 
   // Laptop, tablet and mobile screenshots show the same shell at the target sizes.
   await setViewport(1280, 800);
-  await camera("earth", "Earth–Moon overview");
+  await camera("earth", "overview");
   await capture("laptop-1280x800");
   await assertFitsViewport("laptop 1280x800");
 
   await setViewport(768, 1024);
-  await camera("earth", "Earth–Moon overview");
+  await camera("earth", "overview");
   await capture("tablet-768x1024");
   await assertFitsViewport("tablet 768x1024");
   const tabletTargets = await assertTouchTargets("tablet 768x1024");
 
   await setViewport(390, 844);
-  await camera("earth", "Earth–Moon overview");
+  await camera("earth", "overview");
   await capture("mobile-390x844");
   await assertFitsViewport("mobile 390x844");
   const mobileTargets = await assertTouchTargets("mobile 390x844");
 
   await seek("1969-07-18T12:00:00Z");
-  await page.getByLabel("Select object").selectOption("columbia");
+  await ui.pickBody(page, "columbia");
   await panel.waitFor();
   await assertFitsViewport("mobile info sheet 390x844", { sheetAboveTimeline: true });
   await assertTouchTargets("mobile info sheet 390x844");
@@ -240,9 +196,9 @@ try {
     await setViewport(width, height);
     for (const infoOpen of [false, true]) {
       await closeInfo();
-      if (infoOpen) await page.locator(".object-info-toggle").click();
-      await page.getByRole("button", { name: "Developer mode" }).click();
-      const diagnostics = page.locator(".developer-tools");
+      if (infoOpen) await ui.toggleInfo(page);
+      await ui.toggleDeveloper(page);
+      const diagnostics = ui.developerPanel(page);
       const coverage = await diagnostics.evaluate((element) => {
         const rect = element.getBoundingClientRect();
         const covered = [];
@@ -262,20 +218,20 @@ try {
       assert.ok(coverage.scrolledToEnd, "diagnostics scrolls to its final section");
       developerPanels.push({ width, height, infoOpen, ...coverage });
       if (width === 390 && infoOpen) await capture(`mobile-developer-${width}x${height}`);
-      await page.getByRole("button", { name: "Developer mode" }).click();
+      await ui.toggleDeveloper(page);
       assert.equal(await diagnostics.isVisible(), false);
       if (infoOpen) await closeInfo();
-      await page.locator(".object-info-toggle").click();
+      await ui.toggleInfo(page);
       await panel.waitFor();
       await closeInfo();
     }
   }
   await setViewport(390, 844);
-  await page.locator(".object-info-toggle").click();
+  await ui.toggleInfo(page);
 
   // Keyboard focus remains visible for the primary controls.
-  await page.locator(".object-info-toggle").focus();
-  await page.keyboard.press("Tab");
+  await ui.focusInfoToggle(page);
+  await ui.pressKey(page, "Tab");
   const focusStyle = await page.evaluate(() => {
     const active = document.activeElement;
     const style = active ? getComputedStyle(active) : null;

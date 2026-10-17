@@ -20,7 +20,8 @@
 // Phone-only layout assertions are not added here; browser-shell.mjs and browser-spike03.mjs own phone layout.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale as chooseScaleByLabel } from "./shellScale.mjs";
+import { chooseScale as chooseScaleByLabel } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -34,54 +35,38 @@ const errors = [];
 const sizes = [["desktop", { width: 1280, height: 800 }], ["phone", { width: 390, height: 844 }]];
 const results = [];
 
-const click = (name) => page.getByRole("button", { name, exact: true }).click();
-const pause = async () => {
-  const button = page.getByRole("button", { name: "Pause playback", exact: true });
-  if (await button.count()) await button.click();
-};
-const readTime = async () => page.locator(".timeline-time").getAttribute("datetime");
-const readMission = async () => (await page.locator(".mission .readout").allTextContents())
+const pause = () => ui.ensurePaused(page);
+const readTime = async () => ui.clockIso(page);
+const readMission = async () => (await ui.missionReadouts(page))
   .map((value) => value.replace(/\s+/g, " ").trim());
 const seek = async (utc) => {
-  const input = page.getByLabel("UTC date and time");
-  await input.fill(utc);
-  await click("Seek (UTC)");
+  await ui.seekToUtcText(page, utc);
   await page.waitForTimeout(150);
 };
 const selectObject = async (id) => {
-  await page.getByLabel("Select object").selectOption(id);
-  const close = page.locator("#info-panel .info-panel-close");
-  if (!(await close.count())) return;
+  await ui.pickBody(page, id);
+  if (!(await ui.infoOpen(page))) return;
   // The phone's open Developer panel overlays the sheet's Close button, so the phone closes the sheet with Escape from the focused Close button (a documented alternative).
-  if (page.viewportSize().width < 600) { await close.focus(); await page.keyboard.press("Escape"); }
-  else await close.click();
-  await page.locator("#info-panel").waitFor({ state: "detached" });
+  await ui.closeInfoForViewport(page);
+  await ui.waitForInfoClosed(page);
 };
 // On the phone the open Developer panel is a fixed overlay above the scale buttons, so the panel is closed around the scale click
 // (the same user path: Developer mode off, choose the scale, Developer mode on). On desktop the button is clicked directly.
 const chooseScale = async (scale) => {
   const compactPhone = page.viewportSize().width < 600;
-  const developer = page.getByRole("button", { name: "Developer mode" });
   if (compactPhone) {
-    await developer.click();
-    await page.getByLabel("UTC date and time").waitFor({ state: "hidden" });
+    await ui.toggleDeveloper(page);
+    await ui.waitForUtcField(page, { state: "hidden" });
   }
   await chooseScaleByLabel(page, scale);
   if (compactPhone) {
-    await developer.click();
-    await page.getByLabel("UTC date and time").waitFor();
+    await ui.toggleDeveloper(page);
+    await ui.waitForUtcField(page);
   }
 };
-const chooseCamera = async (objectId, name) => {
+const chooseCamera = async (objectId, presetId) => {
   await selectObject(objectId);
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select, label) => [...select.options].find((option) => option.textContent.trim() === label)?.value ?? null, name);
-    assert.ok(value, `camera preset exists: ${name}`);
-    await compact.selectOption(value);
-  } else {
-    await click(name);
-  }
+  await ui.chooseCamera(page, presetId);
   await page.waitForTimeout(700);
 };
 
@@ -91,18 +76,18 @@ async function run(label, viewport) {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
   await page.goto(url);
   await page.waitForSelector("canvas");
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  await page.getByLabel("UTC date and time").waitFor();
+  await ui.toggleDeveloper(page);
+  await ui.waitForUtcField(page);
   await pause();
 
   // Six mission phases at both scales: scientific telemetry must be identical.
   const phases = [
-    { id: "earth-orbit", utc: "1969-07-16 14:30:00", object: "columbia", camera: "Follow Columbia (CSM)" },
-    { id: "translunar", utc: "1969-07-18 12:00:00", object: "columbia", camera: "Follow Columbia (CSM)" },
-    { id: "lunar-orbit-columbia", utc: "1969-07-21 06:00:00", object: "columbia", camera: "Follow Columbia (CSM)" },
-    { id: "lunar-surface-eagle", utc: "1969-07-21 06:00:00", object: "eagle", camera: "Follow Eagle (LM)" },
-    { id: "return", utc: "1969-07-23 12:00:00", object: "columbia", camera: "Follow Columbia (CSM)" },
-    { id: "entry", utc: "1969-07-24 16:30:00", object: "columbia", camera: "Follow Columbia (CSM)" },
+    { id: "earth-orbit", utc: "1969-07-16 14:30:00", object: "columbia", camera: "follow-columbia" },
+    { id: "translunar", utc: "1969-07-18 12:00:00", object: "columbia", camera: "follow-columbia" },
+    { id: "lunar-orbit-columbia", utc: "1969-07-21 06:00:00", object: "columbia", camera: "follow-columbia" },
+    { id: "lunar-surface-eagle", utc: "1969-07-21 06:00:00", object: "eagle", camera: "follow-eagle" },
+    { id: "return", utc: "1969-07-23 12:00:00", object: "columbia", camera: "follow-columbia" },
+    { id: "entry", utc: "1969-07-24 16:30:00", object: "columbia", camera: "follow-columbia" },
   ];
   const scaleRuns = [];
   for (const scale of ["Readable", "True"]) {
@@ -132,12 +117,12 @@ async function run(label, viewport) {
   const readoutsBeforeCameras = await readMission();
   const cameraStates = [];
   for (const [object, preset] of [
-    ["earth", "Focus Earth"],
-    ["moon", "Focus Moon"],
-    ["columbia", "Focus Columbia (CSM)"],
-    ["eagle", "Focus Eagle (LM)"],
-    ["columbia", "Follow Columbia (CSM)"],
-    ["earth", "Earth–Moon overview"],
+    ["earth", "focus-earth"],
+    ["moon", "focus-moon"],
+    ["columbia", "focus-columbia"],
+    ["eagle", "focus-eagle"],
+    ["columbia", "follow-columbia"],
+    ["earth", "overview"],
   ]) {
     await chooseCamera(object, preset);
     const state = { preset, time: await readTime(), readouts: await readMission() };
@@ -148,42 +133,34 @@ async function run(label, viewport) {
 
   // Each developer event selector entry seeks to that event's timeline timestamp.
   await pause();
-  const timelineEvents = await page.locator(".timeline-event-list li button").evaluateAll((buttons) => buttons.map((button) => ({
-    label: button.querySelector("span")?.textContent?.trim() ?? "",
-    utc: button.querySelector("time")?.getAttribute("datetime") ?? "",
-  })));
-  const eventPicker = page.getByLabel("Mission event");
-  const eventOptions = await eventPicker.locator("option").evaluateAll((options) => options.map((option) => ({
-    value: option.value,
-    label: option.textContent?.trim() ?? "",
-  })));
+  const timelineEvents = await ui.eventRows(page);
+  const eventOptions = await ui.missionEventOptions(page);
   assert.equal(eventOptions.length, 30, "all 30 mission events are available in Developer mode");
   assert.equal(timelineEvents.length, eventOptions.length, "timeline and developer event lists have the same size");
   const eventJumps = [];
   for (const option of eventOptions) {
     const timelineEvent = timelineEvents.find((event) => event.label === option.label);
     assert.ok(timelineEvent, `timeline event label matches Developer mode: ${option.label}`);
-    await eventPicker.selectOption(option.value);
-    await click("Jump to event");
+    await ui.pickMissionEvent(page, option.value);
+    await ui.jumpToMissionEvent(page);
     // The shell clock readout is refreshed by App's 100 ms snapshot poll.
     // Under a loaded machine (the full run's parallel lanes) the poll can lag; wait for the readout to reach the event, then assert as before.
     const expected = timelineEvent.utc;
-    await page.waitForFunction((target) => Date.parse(document.querySelector(".timeline-time")?.getAttribute("datetime") ?? "") === Date.parse(target), expected, { timeout: 5000 }).catch(() => {});
+    await ui.waitForClock(page, expected, 5000).catch(() => {});
     const actual = await readTime();
     assert.equal(Date.parse(actual), Date.parse(expected), `event lands at ${option.label}`);
     eventJumps.push({ label: option.label, expected, actual });
   }
 
   // Check the four supported playback rates against elapsed simulation time.
-  const playback = page.getByLabel("Playback speed");
   const rates = [];
   for (const rate of [1, 100, 1_000, 10_000]) {
     await pause();
     await seek("1969-07-17 00:00:00");
-    await playback.selectOption(String(rate));
-    assert.equal(Number(await playback.inputValue()), rate, `${rate}× can be selected`);
+    await ui.setSpeed(page, rate);
+    assert.equal(Number(await ui.speed(page)), rate, `${rate}× can be selected`);
     const simulationStart = Date.parse(await readTime());
-    await click("Play playback");
+    await ui.playPlayback(page);
     const wallStart = Date.now();
     await page.waitForTimeout(4_000);
     await pause();
@@ -198,9 +175,9 @@ async function run(label, viewport) {
   // Follow through lunar orbit at 100× and sample consecutive physical range/speed values.
   await pause();
   await seek("1969-07-20 17:00:00");
-  await chooseCamera("columbia", "Follow Columbia (CSM)");
-  await playback.selectOption("100");
-  await click("Play playback");
+  await chooseCamera("columbia", "follow-columbia");
+  await ui.setSpeed(page, 100);
+  await ui.playPlayback(page);
   const track = [];
   const rangeReadout = page.locator('[data-metric="columbia-range"] .metric-value');
   const speedReadout = page.locator('[data-metric="columbia-speed"] .metric-value');
@@ -228,7 +205,7 @@ async function run(label, viewport) {
   await pause();
   await chooseScale("True");
   await seek("2024-01-04 03:30:00");
-  await chooseCamera("moon", "Focus Moon");
+  await chooseCamera("moon", "focus-moon");
   const expectedIllumination = [50.1, 0.2, 50.1, 99.8];
   const usnoDates = [
     "2024-01-04 03:30:00",

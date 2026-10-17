@@ -20,6 +20,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
+import * as ui from "./driver.mjs";
 
 // ---- The one list of pictures (change these, not the code below) ----
 export const SIZES = { desktop: { width: 1440, height: 900 }, phone: { width: 390, height: 844 } };
@@ -85,10 +86,7 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 manifest.chromium = browser.version();
 
 const HIDE_DEVELOPER = ".developer-mode-toggle, .developer-tools { display: none !important }";
-const seek = (page, timeMs) => page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-}, timeMs);
+const seek = (page, timeMs) => ui.seekTo(page, timeMs);
 
 try {
   for (const view of VIEWS.filter((v) => only === undefined || only.includes(v.id))) {
@@ -105,18 +103,18 @@ try {
       let timeUtc = null;
       if (!view.site) {
         await page.waitForSelector("canvas");
-        await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+        await ui.waitForShell(page);
         // A DOM click, not a pointer click: the heaviest scenes draw so slowly in software GL that the button never counts as "stable".
-        const pauseNow = () => page.evaluate(() => { const b = document.querySelector('button[aria-label="Pause playback"]'); if (b) b.click(); });
+        const pauseNow = () => ui.pausePlaybackNow(page);
         await pauseNow();
         await seek(page, Date.parse(view.t));
         await page.addStyleTag({ content: HIDE_DEVELOPER });
-        await page.evaluate(() => { for (const b of document.querySelectorAll('button[aria-label="Close story panel"], #info-panel .info-panel-close')) b.click(); });
+        await ui.closeAllPanelsNow(page);
         await page.mouse.move(viewport.width - 5, viewport.height / 2);
         await page.evaluate(() => document.activeElement?.blur());
         await page.waitForTimeout(SETTLE_MS);
         await pauseNow();
-        timeUtc = await page.locator('input[aria-label="Seek timeline"]').evaluate((input) => new Date(Number(input.value)).toISOString());
+        timeUtc = await ui.seekPositionIso(page);
       } else {
         await page.waitForLoadState("networkidle");
         await page.waitForTimeout(1000);

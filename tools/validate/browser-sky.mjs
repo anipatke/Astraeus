@@ -16,6 +16,7 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -47,7 +48,7 @@ const open = async (viewport, query, deviceScaleFactor = 1) => {
   if (!query.includes("sky=off")) await page.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStars !== undefined, null, { timeout: 20000 });
   await page.waitForTimeout(2500);
   // A story panel (Apollo opens one at its first anchor) covers part of the canvas and would change the pixel counts below; close it so the sky is measured alone.
-  await page.locator(".story-panel-close").click({ timeout: 1500 }).catch(() => {});
+  await ui.closeStoryPanelIfOpen(page);
   await page.waitForTimeout(400);
   if (!query.includes("sky=off")) await page.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStars !== "0", null, { timeout: 15000 });
   return page;
@@ -121,7 +122,7 @@ try {
       const off = await open(viewport, [query, "sky=off"].filter(Boolean).join("&"));
       assert.equal(await off.locator("canvas").getAttribute("data-sky-stars"), null, `${label}: ?sky=off draws no sky`);
       const offPixels = await brightPixels(off);
-      await off.getByRole("button", { name: "Developer mode" }).click();
+      await ui.toggleDeveloper(off);
       out.fpsWithoutSky = await fpsOf(off);
       await off.close();
 
@@ -146,22 +147,21 @@ try {
       assert.ok(noPicturePixels.lit < onPixels.lit, `${label}: the picture lights pixels the stars alone do not (${noPicturePixels.lit} vs ${onPixels.lit})`);
       assert.ok(noPicturePixels.lit < offPixels.lit + 0.02 * onPixels.total, `${label}: with the picture off the canvas is nearly the bare scene plus stars (${noPicturePixels.lit} vs ${offPixels.lit})`);
       if (outDir) await noPicture.screenshot({ path: join(outDir, `${label}-picture-off.png`) });
-      await noPicture.getByRole("button", { name: "Developer mode" }).click();
+      await ui.toggleDeveloper(noPicture);
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-picture"), "off", `${label}: the picture is off by default`);
       out.fpsPictureOff = await fpsOf(noPicture);
-      const toggle = noPicture.getByRole("button", { name: "Milky Way picture" });
-      assert.equal(await toggle.getAttribute("aria-pressed"), "false", `${label}: the button shows the picture off`);
-      await toggle.evaluate((element) => element.click());
+
+      assert.equal(String(await ui.toggleOn(noPicture, "milky-way-picture")), "false", `${label}: the button shows the picture off`);
+      await ui.pressToggleNow(noPicture, "milky-way-picture");
       await noPicture.waitForFunction(() => document.querySelector("canvas")?.dataset.skyPicture === "on", null, { timeout: 5000 });
       // The brightness sliders change the star uniform in place: the canvas attribute follows the slider, with no rebuild.
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-star-brightness"), "1", `${label}: star brightness starts at 1`);
-      const starSlider = noPicture.getByRole("slider", { name: "Star brightness" });
-      await starSlider.fill("1.5");
+      await ui.setSlider(noPicture, "star-brightness", "1.5");
       await noPicture.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStarBrightness === "1.5", null, { timeout: 5000 });
-      assert.equal(await noPicture.getByTestId("star-brightness-value").innerText(), "1.50", `${label}: the slider shows its value`);
+      assert.equal(await ui.sliderReadout(noPicture, "star-brightness"), "1.50", `${label}: the slider shows its value`);
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-stars"), stars, `${label}: moving the slider keeps every star (no rebuild)`);
-      await noPicture.getByRole("slider", { name: "Milky Way brightness" }).fill("0.5");
-      assert.equal(await noPicture.getByTestId("milky-way-brightness-value").innerText(), "0.50", `${label}: the Milky Way slider shows its value`);
+      await ui.setSlider(noPicture, "milky-way-brightness", "0.5");
+      assert.equal(await ui.sliderReadout(noPicture, "milky-way-brightness"), "0.50", `${label}: the Milky Way slider shows its value`);
       await noPicture.close();
       const urlGain = await open(viewport, [query, "stars=1.4"].filter(Boolean).join("&"));
       assert.equal(await urlGain.locator("canvas").getAttribute("data-sky-star-brightness"), "1.4", `${label}: ?stars=1.4 sets the star brightness`);
@@ -171,36 +171,26 @@ try {
       await forcedOn.close();
 
       // The panel's Sky item.
-      await page.getByLabel("Select object").selectOption("sky");
-      if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: /^Info/ }).click();
-      await page.locator("#info-panel").waitFor();
-      await page.locator("#info-panel .provenance-badge").click();
-      const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+      await ui.pickBody(page, "sky");
+      await ui.openInfo(page);
+      await ui.infoPanel(page).waitFor();
+      await ui.openProvenance(page);
+      const detail = (await ui.provenanceDetail(page).innerText()).replace(/\s+/g, " ");
       assert.match(detail, /HYG star database v4\.2.*CC BY-SA 4\.0/, `${label}: the Sky item cites the HYG star catalogue and its licence`);
       assert.match(detail, /ESO\/S\. Brunier/, `${label}: the Sky item cites the Milky Way image`);
       assert.match(detail, new RegExp(`${starCount} stars`), `${label}: the panel counts the stars`);
       out.panel = detail.slice(0, 400);
-      await page.locator("#info-panel .info-panel-close").click();
-      await page.getByLabel("Select object").selectOption({ index: 0 });
+      await ui.closeInfoStrict(page);
+      await ui.pickBody(page, { index: 0 });
 
       // Fixed under a centre change; turns with the camera.
-      await page.getByRole("button", { name: "Developer mode" }).click();
+      await ui.toggleDeveloper(page);
       out.fpsWithSky = await fpsOf(page);
       const probes = [await checkProbe(page, label, "start")];
       // The scale is one toggle button now (T-079): "Scale: Readable. Switch to True" and back, standing in for the old Readable and True buttons.
-      for (const request of [/^Scale: /, /^Overview$/, /^Focus /, /^Follow /, /^Scale: /]) {
-        const button = page.getByRole("button", { name: request }).first();
-        if ((await button.count()) === 0 || !(await button.isEnabled())) continue;
-        await button.evaluate((element) => element.click()); // the developer panel covers some controls on a phone
-        probes.push(await checkProbe(page, label, String(request)));
-      }
-      // A phone shows the camera modes as a native select instead of buttons.
-      const picker = page.getByLabel("Camera mode");
-      if (probes.length < 3 && (await picker.count()) > 0) {
-        for (const value of await picker.locator("option:not([disabled])").evaluateAll((options) => options.map((option) => option.value))) {
-          await picker.selectOption(value);
-          probes.push(await checkProbe(page, label, `camera mode ${value}`));
-        }
+      for (const request of ["scale", "overview", "focus", "follow", "scale"]) {
+        if (!(await ui.pressFirstControlNow(page, request))) continue; // pressed from inside the page: the developer panel covers some controls on a phone
+        probes.push(await checkProbe(page, label, request));
       }
       out.probeChecks = probes.length;
       assert.ok(probes.length >= 3, `${label}: at least the start and two requests were checked`);

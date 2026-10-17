@@ -69,7 +69,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
-import { chooseScale, scaleOptions, selectOrbit } from "./shellScale.mjs";
+import { chooseScale, scaleOptions, selectOrbit } from "./driver.mjs";
+import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -184,10 +185,7 @@ const pathPixels = async (page) => {
 };
 
 const seek = async (page, timeUtcMs) => {
-  await page.locator('input[aria-label="Seek timeline"]').evaluate((input, time) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }, timeUtcMs);
+  await ui.seekTo(page, timeUtcMs);
   await page.waitForTimeout(500);
 };
 
@@ -218,18 +216,18 @@ async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
   const out = (results[label].planetOrbits = {});
   for (const id of ["mercury", "venus", "mars", "jupiter"]) {
     await selectOrbit(page, id, `${id}-orbit`);
-    if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: new RegExp(`^Information about .+ orbit$`) }).click();
-    await page.locator("#info-panel").waitFor();
-    const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+    await ui.openInfo(page, /^Information about .+ orbit$/);
+    await ui.infoPanel(page).waitFor();
+    const text = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
     assert.match(text, /orbit/i, `${label}: ${id}'s orbit panel opens`);
-    await page.locator("#info-panel .provenance-badge").click();
-    const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+    await ui.openProvenance(page);
+    const detail = (await ui.provenanceDetailText(page));
     assert.match(detail, /Horizons/, `${label}: ${id}'s orbit carries the planet's position provenance`);
     if (id === "jupiter") assert.match(detail, /reaches past 2030/, `${label}: Jupiter's orbit states that it passes the compared range`);
     out[id] = detail.slice(0, 200);
     await closeInfo();
   }
-  await choose("sun", "Overview");
+  await choose("sun", "overview");
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 900);
@@ -246,47 +244,39 @@ async function checkSunEarth(page, label, shot, canvas) {
   assert.equal(await canvas.getAttribute("data-bodies"), mountedBodies.join(","), `${label}: the mounted bodies are the Sun, Earth, the four planets and the parent (and no other shower's parent)`);
   if (parent !== "swift-tuttle") assert.ok(!(await canvas.getAttribute("data-bodies")).split(",").includes("swift-tuttle"), `${label}: another shower's parent (the catalogued comet) is not mounted in this shower`);
   assert.equal(await canvas.getAttribute("data-sun-centred"), "6", `${label}: Earth's path, four planet orbits and the comet's whole orbit are declared`);
-  const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
+  const options = await ui.bodyOptions(page);
   // T-079 (O-020 Decision 4): the Object list holds the bodies and the stream; the six orbit lines are no longer listed.
   for (const id of [...mountedBodies, `${shower}-stream`]) assert.ok(options.includes(id), `${label}: ${id} is listed`);
   for (const id of ["earth-path", "mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", `${parent}-orbit`]) assert.ok(!options.includes(id), `${label}: ${id} is not in the Object list`);
   // Each orbit line stays reachable from its body: a related button selects it and opens nothing else; its info (source, limits) opens with Info.
   for (const [body, orbit] of [["earth", "earth-path"], ["mars", "mars-orbit"], [parent, `${parent}-orbit`]]) {
-    await page.getByLabel("Select object").selectOption(body);
-    const related = page.locator(`[data-related-object="${orbit}"]`);
-    assert.equal(await related.count(), 1, `${label}: ${body} offers a button for ${orbit}`);
-    await related.click();
-    assert.equal(await page.getByLabel("Select object").inputValue(), orbit, `${label}: ${orbit} is selected from its body`);
-    assert.equal(await page.locator(`#info-panel[data-info-id="${orbit}"]`).count(), 1, `${label}: ${orbit}'s info (source, limits) opens from its body`);
+    await ui.pickBody(page, body);
+    assert.equal(await ui.relatedObject(page, orbit).count(), 1, `${label}: ${body} offers a button for ${orbit}`);
+    await ui.pressRelatedObject(page, orbit);
+    assert.equal(await ui.pickedBody(page), orbit, `${label}: ${orbit} is selected from its body`);
+    assert.equal(await ui.infoPanelFor(page, orbit).count(), 1, `${label}: ${orbit}'s info (source, limits) opens from its body`);
   }
-  await page.getByLabel("Select object").selectOption(mountedBodies[0]);
+  await ui.pickBody(page, mountedBodies[0]);
   assert.ok(!options.includes("moon"), `${label}: no Moon item`);
   const scales = await scaleOptions(page);
   assert.deepEqual(scales, ["true-scale", "solar-system"], `${label}: true and solar-system scale`);
 
   // The Sun at the origin: with the Sun focused the camera is centred on it, so its marker is at the middle of the canvas.
-  const closeInfo = async () => { const close = page.locator("#info-panel .info-panel-close"); if (await close.count()) await close.click(); };
-  const choose = async (objectId, name) => {
-    await page.getByLabel("Select object").selectOption(objectId);
+  const closeInfo = () => ui.closeInfo(page);
+  const choose = async (objectId, presetId) => {
+    await ui.pickBody(page, objectId);
     await closeInfo();
-    const compact = page.locator(".object-camera-picker");
-    if (await compact.isVisible()) {
-      const value = await compact.evaluate((select, text) => [...select.options].find((o) => o.textContent.trim() === text)?.value ?? null, name);
-      assert.ok(value, `${label}: preset exists: ${name}`);
-      await compact.selectOption(value);
-    } else {
-      await page.getByRole("button", { name, exact: true }).click();
-    }
+    await ui.chooseCamera(page, presetId);
     await page.waitForTimeout(1500);
   };
-  const start = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));
-  const peak = Number(await page.locator("button.timeline-window-peak").evaluate((button) => button.dataset.timeUtcMs ?? 0)) || null;
+  const start = (await ui.seekRange(page)).min;
+  const peak = await ui.windowPeakTimeMs(page);
   out.path = {};
   await checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo);
   // Earth on its path at the start and at the peak: overview shows the blue path; following Earth keeps the line passing both sides of it.
-  for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await page.locator("button.timeline-window-peak").click(); await page.waitForTimeout(500); await closeInfo(); }]]) {
+  for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); await closeInfo(); }]]) {
     await move();
-    await choose("sun", "Overview");
+    await choose("sun", "overview");
     // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
     // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
     const whole = await pathPixels(page);
@@ -304,7 +294,7 @@ async function checkSunEarth(page, label, shot, canvas) {
     out.path[`${name}Wheels`] = wheels;
     assert.ok(overview.blue > 100, `${label}/${name}: Earth's path is drawn once the camera is brought in (${overview.blue} after ${wheels} wheel steps)`);
     await shot(`sun-overview-${name}`);
-    await choose("earth", "Focus Earth");
+    await choose("earth", "focus-earth");
     // Frame Earth with the path in view: pull back a little from the close framing.
     const box = await canvas.boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -321,7 +311,7 @@ async function checkSunEarth(page, label, shot, canvas) {
   }
 
   // Solar-system scale: Earth becomes visible, and its info panel states the factor.
-  await choose("earth", "Focus Earth");
+  await choose("earth", "focus-earth");
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   for (let i = 0; i < 6; i += 1) await page.mouse.wheel(0, 600);
@@ -333,18 +323,18 @@ async function checkSunEarth(page, label, shot, canvas) {
   out.brightPixels = { trueScale: trueCount, solarSystem: solarCount };
   assert.ok(solarCount > trueCount + 150, `${label}: Earth is visible in the solar-system scale (${trueCount} -> ${solarCount})`);
   await shot("earth-solar-system");
-  await page.getByRole("button", { name: /^Information about Earth$/ }).click();
-  const earthPanel = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+  await ui.openInfo(page, "Earth");
+  const earthPanel = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
   assert.match(earthPanel, /Earth/, `${label}: Earth's info panel opens`);
-  await page.locator("#info-panel .provenance-badge").click();
-  const earthDetail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+  await ui.openProvenance(page);
+  const earthDetail = (await ui.provenanceDetailText(page));
   assert.match(earthDetail, /400 times larger than life/, `${label}: Earth's factor is stated`);
   out.earthFactor = earthDetail.match(/[^.]*400 times larger[^.]*\./)?.[0] ?? null;
   await closeInfo();
 
   // Follow Earth through the activity window under the solar-system scale.
-  await choose("earth", "Follow Earth");
-  const end = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("max"));
+  await choose("earth", "follow-earth");
+  const end = (await ui.seekRange(page)).max;
   const sizes = [];
   for (const time of [start, start + (end - start) / 2, end]) {
     await seek(page, time);
@@ -401,14 +391,10 @@ async function checkBodies(page, label, shot, canvas) {
   // The settings file turns the Sun's label off (owner: "we can probably turn off the sun label"): it must never be shown here, yet the Sun stays in the Object menu.
   const sunLabelOff = settingsFile.labels?.sun === false;
   const bodies = ["sun", "earth", "mercury", "venus", "mars", "jupiter", parent].filter((id) => !(sunLabelOff && id === "sun"));
-  const closeInfo = async () => { const close = page.locator("#info-panel .info-panel-close"); if (await close.count()) await close.click(); };
-  await page.getByLabel("Select object").selectOption("sun");
+  const closeInfo = () => ui.closeInfo(page);
+  await ui.pickBody(page, "sun");
   await closeInfo();
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Overview")?.value ?? null);
-    await compact.selectOption(value);
-  } else await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await ui.chooseCamera(page, "overview");
   await page.waitForTimeout(1200);
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -438,7 +424,7 @@ async function checkBodies(page, label, shot, canvas) {
   out.labelsSeenAtZoomStep = Object.fromEntries(seen);
   if (sunLabelOff) {
     assert.ok(!(await shownLabels(page)).includes("sun"), `${label}: the Sun's label is off by the settings`);
-    assert.equal(await page.locator('option[value="sun"]').count(), 1, `${label}: the Sun is still in the Object menu`);
+    assert.equal(await ui.bodyOptionCount(page, "sun"), 1, `${label}: the Sun is still in the Object menu`);
   }
   // On a 390 px screen the inner planets' labels (equal priority, all near the Sun in the flat ecliptic view) can lose the overlap contest at every zoom of the sweep:
   // the desktop must show all seven; the phone must show Sun, Earth, the comet and at least two planets, and the missing ones are recorded.
@@ -450,13 +436,9 @@ async function checkBodies(page, label, shot, canvas) {
   }
   // The comet's marker is checked in its own framing below (at the whole-system Overview it can sit under the controls on a small screen).
   for (const id of bodies.filter((body) => body !== parent && seen.has(body))) assert.ok(seen.get(id).markerPixels > 3, `${label}: ${id} has a bright marker beside its label (${seen.get(id).markerPixels})`);
-  await page.getByLabel("Select object").selectOption(parent);
+  await ui.pickBody(page, parent);
   await closeInfo();
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Focus parent")?.value ?? null);
-    assert.ok(value, `${label}: the Focus parent preset exists`);
-    await compact.selectOption(value);
-  } else await page.getByRole("button", { name: "Focus parent", exact: true }).click();
+  await ui.chooseCamera(page, "focus-parent");
   await page.waitForTimeout(2000);
   assert.ok((await shownLabels(page)).includes(parent), `${label}: the parent's label is shown when it is focused`);
   out.cometMarkerPixels = await markerBesideLabel(page, parent);
@@ -467,12 +449,9 @@ async function checkBodies(page, label, shot, canvas) {
   out.trueScaleMarkerBodies = [...trueMarkers].filter(Boolean);
 
   // Solar-system scale: the planets are enlarged, so at some zoom a planet is a body, not a marker. From the whole-system Overview, zoom in.
-  await page.getByLabel("Select object").selectOption("sun");
+  await ui.pickBody(page, "sun");
   await closeInfo();
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Overview")?.value ?? null);
-    await compact.selectOption(value);
-  } else await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await ui.chooseCamera(page, "overview");
   await chooseScale(page, "Solar system");
   await page.waitForTimeout(1500);
   const box2 = await canvas.boundingBox();
@@ -498,14 +477,8 @@ async function checkBodies(page, label, shot, canvas) {
 async function checkWholeOrbit(page, label, shot, canvas) {
   const out = (results[label].wholeOrbit = {});
   await selectOrbit(page, parent, `${parent}-orbit`);
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Whole orbit")?.value ?? null);
-    assert.ok(value, `${label}: the Whole orbit preset exists`);
-    await compact.selectOption(value);
-  } else await page.getByRole("button", { name: "Whole orbit", exact: true }).click();
+  await ui.closeInfo(page);
+  await ui.chooseCamera(page, "whole-orbit");
   await page.waitForTimeout(2500);
   const png = (await canvas.screenshot()).toString("base64");
   const extent = await page.evaluate(async (data) => {
@@ -547,9 +520,9 @@ const solarLongitudeDeg = (timeUtcMs) => {
 // The crossing is at the peak: the instant the peak marker seeks to is where the Sun's longitude is the published peak solar longitude (settings radiant.peakSolarLongitudeDeg), and the rate readout is highest there.
 async function checkCrossing(page, label) {
   const out = (results[label].crossing = {});
-  await page.locator("button.timeline-window-peak").click();
+  await ui.goToWindowPeak(page);
   await page.waitForTimeout(600);
-  const text = await page.getByRole("region", { name: "Timeline controls" }).innerText();
+  const text = await ui.timelineText(page);
   const instant = text.match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/)?.[0];
   assert.ok(instant, `${label}: the timeline shows the instant of the peak`);
   const longitude = solarLongitudeDeg(Date.parse(instant));
@@ -563,17 +536,16 @@ async function checkCrossing(page, label) {
   else assert.ok(Math.abs(longitude - published) < 0.3, `${label}: the peak instant ${instant} has solar longitude ${longitude.toFixed(2)}, within 0.3 deg of the published ${published}`);
   const rates = [];
   // T-080 moved the "Inside: ... N meteors per hour" readout into the Events popover; open it to read the rate. The window caption now also says "peak N meteors per hour" (a constant), so the match is the "Inside:" line, the live rate (it stays open across the seeks, closed again below).
-  const eventsDetails = page.locator("details.timeline-event-list");
-  if (!(await eventsDetails.evaluate((element) => element.open))) await eventsDetails.locator("summary").click();
+  await ui.openEventList(page);
   // Ten days either side of the peak when the window has them, else one day short of the nearer window edge (a short window, such as a December shower's, ends a few days after its peak).
   const edgeDays = Math.floor(Math.min(Date.parse(settingsFile.activity.peakUtc) - Date.parse(settingsFile.activity.startUtc), Date.parse(settingsFile.activity.endUtc) - Date.parse(settingsFile.activity.peakUtc)) / 86_400_000);
   const offsetDays = Math.min(10, edgeDays - 1);
   out.rateOffsetDays = offsetDays;
-  for (const days of [-offsetDays, 0, offsetDays]) { await seek(page, Date.parse(instant) + days * 86_400_000); rates.push(Number((await page.getByRole("region", { name: "Timeline controls" }).innerText()).match(/Inside:[^\n]*?([\d.,]+) meteors per hour/)?.[1]?.replace(/,/g, ""))); }
+  for (const days of [-offsetDays, 0, offsetDays]) { await seek(page, Date.parse(instant) + days * 86_400_000); rates.push(Number((await ui.timelineText(page)).match(/Inside:[^\n]*?([\d.,]+) meteors per hour/)?.[1]?.replace(/,/g, ""))); }
   out.rateAtMinus10dPeakPlus10d = rates;
   assert.ok(rates[1] > rates[0] && rates[1] > rates[2], `${label}: the rate readout is highest at the peak (${rates})`);
-  if (await eventsDetails.evaluate((element) => element.open)) await eventsDetails.locator("summary").click();
-  await page.locator("button.timeline-window-peak").click();
+  await ui.closeEventList(page);
+  await ui.goToWindowPeak(page);
   await page.waitForTimeout(400);
 }
 
@@ -588,13 +560,13 @@ async function checkNotFetched() {
     await page.route((url) => url.pathname.startsWith("/data/stories/") && url.pathname.endsWith(".json") && url.search === "", app);
     await page.goto(`${base}?experience=shower-${shower}&sky=off`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(page);
     const canvas = page.getByTestId("earth-moon-canvas");
     assert.equal(await canvas.getAttribute("data-point-groups"), "0", "not fetched: no stream group is drawn");
-    assert.equal(await page.locator(`option[value="${shower}-stream"]`).count(), 1, "not fetched: the stream is still listed, to say so");
-    await page.getByLabel("Select object").selectOption(`${shower}-stream`);
-    if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: streamButtonName }).click();
-    const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+    assert.equal(await ui.bodyOptionCount(page, `${shower}-stream`), 1, "not fetched: the stream is still listed, to say so");
+    await ui.pickBody(page, `${shower}-stream`);
+    await ui.openInfo(page, streamButtonName);
+    const text = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
     assert.match(text, /not fetched on this machine/i, "not fetched: the panel says so");
     assert.match(text, new RegExp(`node tools/data/fetch-meteoroid-orbits\\.mjs ${settingsFile.stream.iauCode} --months ${gmnSettings.months.join(",")}`), "not fetched: the panel gives the GMN fetch command");
     assert.ok(!text.includes("--source"), "not fetched: the command has no removed --source flag");
@@ -609,10 +581,9 @@ async function checkNotFetched() {
 
 // The frame rate with every member drawn, from the Developer counter (software GL here: an indication, not the owner's machine).
 async function checkFrameRate(page, label) {
-  await page.getByLabel("Select object").selectOption(`${shower}-stream`);
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.pickBody(page, `${shower}-stream`);
+  await ui.closeInfo(page);
+  await ui.toggleDeveloper(page);
   await page.locator("[data-frame-fps]").waitFor({ timeout: 10000 });
   await page.waitForTimeout(4000);
   const fps = Number(await page.locator("[data-frame-fps]").innerText());
@@ -622,14 +593,9 @@ async function checkFrameRate(page, label) {
 
 // Frames the stream with its Focus preset, so the amber pixels are its dots.
 async function frameStream(page) {
-  await page.getByLabel("Select object").selectOption(`${shower}-stream`);
-  const close = page.locator("#info-panel .info-panel-close");
-  if (await close.count()) await close.click();
-  const compact = page.locator(".object-camera-picker");
-  if (await compact.isVisible()) {
-    const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Focus stream")?.value ?? null);
-    await compact.selectOption(value);
-  } else await page.getByRole("button", { name: "Focus stream", exact: true }).click();
+  await ui.pickBody(page, `${shower}-stream`);
+  await ui.closeInfo(page);
+  await ui.chooseCamera(page, "focus-stream");
   await page.waitForTimeout(1500);
 }
 
@@ -637,17 +603,17 @@ async function frameStream(page) {
 // and the stream is still drawn; with ?loop=off the time runs past the end and the stream is gone (the cause).
 async function checkLoop(page, label, canvas) {
   const out = (results[label].loop = {});
-  const timeOf = async () => Date.parse((await page.getByRole("region", { name: "Timeline controls" }).innerText()).match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/)?.[0]);
-  const min = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));
-  const max = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("max"));
+  const timeOf = async () => Date.parse((await ui.timelineText(page)).match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/)?.[0]);
+  const min = (await ui.seekRange(page)).min;
+  const max = (await ui.seekRange(page)).max;
   await frameStream(page);
   await seek(page, max - 2 * 86_400_000);
-  if (await page.getByRole("button", { name: "Play playback", exact: true }).count()) await page.getByRole("button", { name: "Play playback", exact: true }).click();
+  await ui.ensurePlaying(page);
   const seen = [];
   for (let i = 0; i < 30; i += 1) { await page.waitForTimeout(60); seen.push(await timeOf()); }
   // A story panel (the Perseids' "earth-crossing") auto-opens while playback runs across its event and covers the controls; close it before pausing (pre-existing since the story panels, found in T-067).
-  await page.locator(".story-panel-close").click({ timeout: 1500 }).catch(() => {});
-  await page.getByRole("button", { name: "Pause playback" }).click();
+  await ui.closeStoryPanelIfOpen(page);
+  await ui.pausePlayback(page);
   out.times = seen.map((t) => new Date(t).toISOString());
   const wrapped = seen.findIndex((t, k) => k > 0 && t < seen[k - 1]);
   assert.ok(wrapped > 0, `${label}: the time wraps back after the end (${out.times.join(" ")})`);
@@ -664,15 +630,15 @@ async function checkLoopOff() {
   try {
     await page.goto(`${base}?experience=shower-${shower}&sky=off&loop=off`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-    await page.getByRole("button", { name: "Pause playback" }).click();
-    const max = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("max"));
+    await ui.waitForShell(page);
+    await ui.pausePlayback(page);
+    const max = (await ui.seekRange(page)).max;
     await seek(page, max - 1000);
     await frameStream(page);
     const litAtEnd = await litPixels(page);
-    await page.getByRole("button", { name: "Play playback", exact: true }).click();
+    await ui.playPlayback(page);
     await page.waitForTimeout(3000);
-    const text = await page.getByRole("region", { name: "Timeline controls" }).innerText();
+    const text = await ui.timelineText(page);
     const t = Date.parse(text.match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/)?.[0]);
     results.loopOff = { time: new Date(t).toISOString(), pastEnd: t > max, litAtEnd, lit: await litPixels(page) };
     assert.ok(t > max, "loop off: the time runs past the end of the window");
@@ -718,16 +684,11 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   try {
     await p.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
     await p.waitForSelector("canvas");
-    await p.getByRole("region", { name: "Timeline controls" }).waitFor();
-    await p.getByRole("button", { name: "Pause playback" }).click();
-    await p.getByLabel("Select object").selectOption("sun");
-    const closeInfo = p.locator("#info-panel .info-panel-close");
-    if (await closeInfo.count()) await closeInfo.click();
-    const compact = p.locator(".object-camera-picker");
-    if (await compact.isVisible()) {
-      const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Overview")?.value ?? null);
-      await compact.selectOption(value);
-    } else await p.getByRole("button", { name: "Overview", exact: true }).click();
+    await ui.waitForShell(p);
+    await ui.pausePlayback(p);
+    await ui.pickBody(p, "sun");
+    await ui.closeInfo(p);
+    await ui.chooseCamera(p, "overview");
     await p.waitForTimeout(1500);
     const box = await p.getByTestId("earth-moon-canvas").boundingBox();
     await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -756,16 +717,15 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
 // dots and Earth are drawn. ?span=activity gives the activity window alone.
 async function checkYear(page, label, canvas) {
   const out = (results[label].year = {});
-  const slider = page.locator('input[aria-label="Seek timeline"]');
-  const [min, max] = [Number(await slider.getAttribute("min")), Number(await slider.getAttribute("max"))];
+  const { min, max } = await ui.seekRange(page);
   const days = (max - min) / 86_400_000;
   out.spanDays = Number(days.toFixed(3));
   assert.ok(Math.abs(days - 365.25) < 1, `${label}: the timeline spans about a year (${days.toFixed(2)} days)`);
   const peak = Date.parse(settingsFile.activity.peakUtc);
   assert.ok(Math.abs((peak - min) / (max - min) - 0.5) < 0.005, `${label}: the peak is mid-timeline`);
-  assert.equal(await page.locator("button.timeline-window").count(), 1, `${label}: the activity window is still marked`);
-  assert.equal(await page.locator("button.timeline-window-peak").count(), 1, `${label}: the peak is still marked`);
-  out.playbackRate = await page.getByLabel("Playback speed").inputValue();
+  assert.equal(await ui.windowBand(page).count(), 1, `${label}: the activity window is still marked`);
+  assert.equal(await ui.windowPeak(page).count(), 1, `${label}: the peak is still marked`);
+  out.playbackRate = await ui.speed(page);
   assert.equal(out.playbackRate, String(settingsFile.timeline.rateSecondsPerSecond), `${label}: the default playback rate is the settings file's (${settingsFile.timeline.rateSecondsPerSecond} s per s, a week per second)`);
   await frameStream(page);
   out.instants = {};
@@ -784,11 +744,10 @@ async function checkYear(page, label, canvas) {
     out.instants[name] = { lit, earthLabel: labels.includes("earth"), earthPathPixels: earthPath };
     assert.ok(labels.includes("earth") || earthPath > 100, `${label}/year-${name}: Earth is drawn (label ${labels.includes("earth")}, path pixels ${earthPath})`);
     if (name === "start") {
-      if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: streamButtonName }).click();
-      const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+      await ui.openInfo(page, streamButtonName);
+      const text = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
       assert.match(text, /outside the activity window/i, `${label}: away from the activity window the rate says so`);
-      const close = page.locator("#info-panel .info-panel-close");
-      if (await close.count()) await close.click();
+      await ui.closeInfo(page);
     }
   }
 }
@@ -798,9 +757,9 @@ async function checkSpanActivity() {
   try {
     await page.goto(`${base}?experience=shower-${shower}&sky=off&span=activity`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-    const slider = page.locator('input[aria-label="Seek timeline"]');
-    const days = (Number(await slider.getAttribute("max")) - Number(await slider.getAttribute("min"))) / 86_400_000;
+    await ui.waitForShell(page);
+    const spanRange = await ui.seekRange(page);
+    const days = (spanRange.max - spanRange.min) / 86_400_000;
     results.spanActivity = { days: Number(days.toFixed(3)) };
     assert.ok(Math.abs(days - (Date.parse(settingsFile.activity.endUtc) - Date.parse(settingsFile.activity.startUtc)) / 86_400_000) < 0.01, `?span=activity: the timeline is the activity window (${days} days)`);
   } finally {
@@ -825,14 +784,14 @@ async function checkQuality() {
     for (const set of ["all", "reliable"]) {
       await page.goto(`${base}?experience=shower-${shower}&sky=off&orbits=${set}`);
       await page.waitForSelector("canvas");
-      await page.getByRole("region", { name: "Timeline controls" }).waitFor();
-      await page.getByRole("button", { name: "Pause playback" }).click();
-      await page.getByLabel("Select object").selectOption(`${shower}-stream`);
-      if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: streamButtonName }).click();
-      const description = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
+      await ui.waitForShell(page);
+      await ui.pausePlayback(page);
+      await ui.pickBody(page, `${shower}-stream`);
+      await ui.openInfo(page, streamButtonName);
+      const description = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
       assert.match(description, new RegExp(`${counts[set]} measured meteoroid orbits`), `orbits=${set}: the stream describes ${counts[set]} orbits`);
-      await page.locator("#info-panel .provenance-badge").click();
-      const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
+      await ui.openProvenance(page);
+      const detail = (await ui.provenanceDetailText(page));
       const sentence = detail.match(/Orbit set shown:[^]*?GMN has no double-entry flag\./)?.[0] ?? "";
       out[set] = sentence.slice(0, 700);
       assert.match(sentence, new RegExp(`Orbit set shown: ${set === "all" ? "all orbits" : "reliable orbits only"} \\(${counts[set]} of ${counts.all} bound orbits`), `orbits=${set}: the panel says which set and its count`);
@@ -849,13 +808,12 @@ async function checkQuality() {
     // The live switch: Developer > Display settings, choosing the other set reloads with it.
     await page.goto(`${base}?experience=shower-${shower}&sky=off`);
     await page.waitForSelector("canvas");
-    await page.getByRole("button", { name: "Developer mode" }).click();
-    const reliableButton = page.getByRole("button", { name: `Reliable only (${counts.reliable})` });
-    assert.equal(await page.getByRole("button", { name: `All orbits (${counts.all})` }).getAttribute("aria-pressed"), "true", "the default set is all orbits");
-    await Promise.all([page.waitForURL(/orbits=reliable/), reliableButton.click()]);
+    await ui.toggleDeveloper(page);
+    assert.equal(await ui.orbitSetPressed(page, "all"), true, "the default set is all orbits");
+    await ui.pressOrbitSetAndWait(page, "reliable", /orbits=reliable/);
     await page.waitForSelector("canvas");
-    await page.getByRole("button", { name: "Developer mode" }).click();
-    assert.equal(await page.getByRole("button", { name: `Reliable only (${counts.reliable})` }).getAttribute("aria-pressed"), "true", "after the switch the reliable set is active");
+    await ui.toggleDeveloper(page);
+    assert.equal(await ui.orbitSetPressed(page, "reliable"), true, "after the switch the reliable set is active");
   } finally {
     await page.close();
   }
@@ -870,11 +828,11 @@ async function checkRemovedSwitches() {
   try {
     await page.goto(`${base}?experience=shower-${shower}&source=cams&stars=yale&sky=off`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(page);
     await page.waitForTimeout(2500);
     assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "removed ?source=cams: the GMN stream is still drawn");
-    await page.getByRole("button", { name: "Developer mode" }).click();
-    assert.equal(await page.getByRole("button", { name: /^Orbits from/ }).count(), 0, "no source switch is offered");
+    await ui.toggleDeveloper(page);
+    assert.equal(await ui.orbitSourceButtons(page).count(), 0, "no source switch is offered");
     assert.ok(!requests.some((url) => /cams-iau|yale-bsc/.test(url)), `no CAMS or Yale file is requested (${requests.filter((url) => /cams-iau|yale-bsc/.test(url)).join(" ")})`);
     results.removedSwitches = "?source=cams&stars=yale ignored; no source switch; no CAMS or Yale request";
   } finally {
@@ -888,21 +846,20 @@ async function checkUpToggle(page, label) {
   const out = (results[label].upToggle = {});
   const canvasElement = page.locator("canvas").first();
   const up = async () => (await canvasElement.getAttribute("data-camera-up")).split(",").map(Number);
-  await page.getByRole("button", { name: "Developer mode" }).click();
-  const [ecliptic, equatorial] = [page.getByRole("button", { name: "Planets' plane (ecliptic)" }), page.getByRole("button", { name: "Earth's pole (equatorial)" })];
-  assert.equal(await ecliptic.getAttribute("aria-pressed"), "true", `${label}: the default up direction is the settings file's (ecliptic)`);
+  await ui.toggleDeveloper(page);
+  assert.equal(await ui.toggleOn(page, "ecliptic"), true, `${label}: the default up direction is the settings file's (ecliptic)`);
   out.default = await up();
   assert.ok(Math.abs(out.default[0]) < 1e-5 && Math.abs(out.default[1] - 0.917482) < 1e-5 && Math.abs(out.default[2] - 0.397777) < 1e-5, `${label}: the camera's up is ecliptic north (${out.default})`);
   await page.evaluate(() => { window.__noReload = true; });
-  await equatorial.click();
+  await ui.pressToggle(page, "equatorial");
   await page.waitForTimeout(500);
   out.equatorial = await up();
   assert.deepEqual(out.equatorial.map((v) => Math.round(v * 1e5) / 1e5), [0, 1, 0], `${label}: switching to Earth's pole turns the camera's up to celestial north (${out.equatorial})`);
   assert.equal(await page.evaluate(() => window.__noReload === true), true, `${label}: switching did not reload the page`);
-  await ecliptic.click();
+  await ui.pressToggle(page, "ecliptic");
   await page.waitForTimeout(500);
   assert.deepEqual((await up()).map((v) => Math.round(v * 1e5) / 1e5), out.default.map((v) => Math.round(v * 1e5) / 1e5), `${label}: switching back restores the ecliptic up`);
-  await page.getByRole("button", { name: "Developer mode" }).click();
+  await ui.toggleDeveloper(page);
 }
 
 async function run(label, viewport) {
@@ -917,7 +874,7 @@ async function run(label, viewport) {
     try {
       await plain.goto(`${base}?experience=shower-${shower}`);
       await plain.waitForSelector("canvas");
-      await plain.getByRole("region", { name: "Timeline controls" }).waitFor();
+      await ui.waitForShell(plain);
       await plain.waitForTimeout(2500);
       const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
       const plainArea = viewport.width * viewport.height;
@@ -927,7 +884,7 @@ async function run(label, viewport) {
       // T-063: a shower that declares look.startView opens on it.
       const declared = settingsFile.look?.startView;
       if (declared !== undefined) {
-        await plain.getByRole("button", { name: "Developer mode" }).click();
+        await ui.toggleDeveloper(plain);
         const text = await plain.getByTestId("view-values").innerText();
         const match = /View: ([^,]+),([\d.-]+),([\d.-]+),([\d.-]+)/.exec(text);
         assert.ok(match, `${label}: the view readout reads (${text})`);
@@ -942,47 +899,38 @@ async function run(label, viewport) {
     }
     await page.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}`);
     await page.waitForSelector("canvas");
-    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await ui.waitForShell(page);
     const canvas = page.getByTestId("earth-moon-canvas");
     assert.ok(haveOrbits, `${label}: the measured orbits are fetched (node tools/data/fetch-meteoroid-orbits.mjs ${settingsFile.stream.iauCode}); the not-fetched case is checked separately`);
     assert.equal(await canvas.getAttribute("data-point-groups"), "1", `${label}: one stream group is mounted`);
-    assert.equal(await page.locator(`option[value="${streamId}"]`).count(), 1, `${label}: the stream is listed once`);
-    assert.equal(await page.locator('option[value="columbia"]').count(), 0, `${label}: no Apollo objects`);
-    assert.equal(await page.locator('option[value="moon"]').count(), 0, `${label}: no Moon item`);
+    assert.equal(await ui.bodyOptionCount(page, streamId), 1, `${label}: the stream is listed once`);
+    assert.equal(await ui.bodyOptionCount(page, "columbia"), 0, `${label}: no Apollo objects`);
+    assert.equal(await ui.bodyOptionCount(page, "moon"), 0, `${label}: no Moon item`);
     // A DOM click: on the phone a story panel can auto-open over the button while the page settles (it intercepted a pointer click once under load, T-071).
-    await page.evaluate(() => document.querySelector('button[aria-label="Pause playback"]')?.click());
+    await ui.pausePlaybackNow(page);
 
     // The activity window and its peak are on the timeline.
-    const windowButton = page.locator("button.timeline-window");
-    assert.equal(await windowButton.count(), 1, `${label}: one activity window`);
-    const peakButton = page.locator("button.timeline-window-peak");
-    assert.equal(await peakButton.count(), 1, `${label}: the peak is marked`);
-    assert.ok(await page.locator(".timeline-window-curve path").count() >= 2, `${label}: the rate curve is drawn`);
-    const windowLabel = await windowButton.getAttribute("aria-label");
+    assert.equal(await ui.windowBand(page).count(), 1, `${label}: one activity window`);
+    assert.equal(await ui.windowPeak(page).count(), 1, `${label}: the peak is marked`);
+    assert.ok(await ui.windowParts(page).curvePaths.count() >= 2, `${label}: the rate curve is drawn`);
+    const windowLabel = await ui.windowBand(page).getAttribute("aria-label");
     const [startText, endText] = windowLabel.split(", ").slice(1).join(", ").split(" to ");
     results[label] = { windowLabel, startText, endText, readings: {} };
     if (startViewRead !== undefined) results[label].startView = startViewRead;
 
     // Step to window start, peak and end; the stream is drawn and the rate readout follows the curve.
-    const panel = page.locator("#info-panel");
+    const panel = ui.infoPanel(page);
     // Select the stream, frame it with the Focus stream preset, then open its details with Info.
     const focusStream = async () => {
-      await page.getByLabel("Select object").selectOption("earth");
-      await page.getByLabel("Select object").selectOption(streamId);
-      const close = page.locator("#info-panel .info-panel-close");
-      if (await close.count()) await close.click();
-      const compactPicker = page.locator(".object-camera-picker");
-      if (await compactPicker.isVisible()) {
-        const value = await compactPicker.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Focus stream")?.value ?? null);
-        assert.ok(value, `${label}: Focus stream preset exists`);
-        await compactPicker.selectOption(value);
-      } else {
-        await page.getByRole("button", { name: "Focus stream", exact: true }).click();
-      }
+      await ui.pickBody(page, "earth");
+      await ui.pickBody(page, streamId);
+      await ui.closeInfo(page);
+      assert.ok(await ui.cameraOffered(page, "focus-stream"), `${label}: Focus stream preset exists`);
+      await ui.chooseCamera(page, "focus-stream");
       await page.waitForTimeout(1500);
     };
     const openDetails = async () => {
-      if (!(await panel.count())) await page.getByRole("button", { name: streamButtonName }).click();
+      await ui.openInfo(page, streamButtonName);
       await panel.waitFor();
       assert.equal(await panel.getAttribute("data-info-id"), streamId, `${label}: the stream's details are shown`);
     };
@@ -992,7 +940,7 @@ async function run(label, viewport) {
     const end = String(Date.parse(settingsFile.activity.endUtc));
     for (const [name, move] of [
       ["start", () => seek(page, Number(start))],
-      ["peak", async () => { await peakButton.click(); await page.waitForTimeout(500); }],
+      ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); }],
       ["end", () => seek(page, Number(end))],
     ].filter(([name]) => !phoneOnce || name === "peak")) {
       await move();
@@ -1032,10 +980,9 @@ async function run(label, viewport) {
     assert.match(text, new RegExp(`Dec \\+?${settingsFile.radiant.decDeg.toFixed(1)}`), `${label}: radiant declination (${settingsFile.radiant.decDeg})`);
     assert.match(text, /J2000/, `${label}: the radiant frame is stated`);
     assert.ok(text.includes(settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()), `${label}: the radiant cites its source (${settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()})`);
-    const badge = panel.locator(".provenance-badge");
-    assert.match(await badge.innerText(), /^Illustrative/, `${label}: the stream is marked illustrative`);
-    await badge.click();
-    const detail = await panel.locator(".provenance-detail").innerText();
+    assert.match(await ui.provenanceBadgeText(page), /^Illustrative/, `${label}: the stream is marked illustrative`);
+    await ui.openProvenance(page);
+    const detail = await ui.provenanceDetailRaw(page);
     for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", `Read from ${gmnSettings.months.join(" and ")}`, `${fetched.counts.kept} bound orbits kept`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
     // The published rule's quote (a citation of the 2025 papers) still says the papers applied it "to the CAMS v3.0 database"; that is their wording, not a data source here.
     assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(detail), `${label}: the panel cites no CAMS data source`);
@@ -1053,9 +1000,9 @@ async function run(label, viewport) {
     await shot("stream-details");
 
     // The window's own details name the published night and the modelled shape.
-    await windowButton.click({ force: true }); // the peak marker sits on the window's centre now that the timeline is a year; it opens the same window details
+    await ui.pressWindowBand(page, { force: true }); // the peak marker sits on the window's centre now that the timeline is a year; it opens the same window details
     await page.waitForTimeout(400);
-    const windowPanel = await page.locator("#info-panel").innerText();
+    const windowPanel = await ui.infoPanel(page).innerText();
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
     await shot("window-details");
@@ -1087,10 +1034,10 @@ try {
   const page = await openPage({ width: 1280, height: 800 });
   await page.goto(base);
   await page.waitForSelector("canvas");
-  assert.equal(await page.locator('option[value="columbia"]').count(), 1, "Apollo is still the default");
+  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, "Apollo is still the default");
   await page.goto(`${base}?experience=synthetic-ring`);
   await page.waitForSelector("canvas");
-  assert.equal(await page.locator('option[value="debris-ring"]').count(), 1, "synthetic-ring still mounts");
+  assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1, "synthetic-ring still mounts");
   await page.close();
 } finally {
   await browser.close();
