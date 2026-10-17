@@ -47,7 +47,11 @@ ARCH-02 (frame layer only; State and the clock untouched), ARCH-03, TEST-01, TES
 
 ## Boundaries
 
-No change to orbit data, the refill interval or the blend method; no worker threads unless slicing is shown not to be enough (then stop and report).
+No change to orbit data or the refill interval. Owner decision 2026-10-17 (after the slicing build was measured): "It will need to run on phones and laptops, we should optimise for that." The blend may move to the graphics card (both fills uploaded once as attributes, the straight-line mix done in the vertex shader, uniform blend factor), so per-frame CPU work and buffer uploads no longer scale with member count; positions at every stopped moment stay identical to today's within float precision. No worker threads unless the GPU blend plus slicing is shown not to be enough (then stop and report).
+
+## Owner Decision — 2026-10-17: optimise for phones and laptops
+
+Measured after the slicing build (C-053 draft evidence, headless, software rendering, 12 s at one week per second): Perseids long frames gone (over 60 ms: 7 to 0); Geminids frames over 90 ms 28 to 0-2, but 8-11 frames over 60 ms remain with `look.refillSliceMs: 12`. Proof for the GPU blend adds a phone-like run: 390x844 viewport with Chromium CPU throttling (4x), both showers, before and after.
 
 ## Technical Verification
 

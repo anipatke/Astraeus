@@ -104,6 +104,7 @@
     "streamColor": "#7fe3c4",
     "pointSizePx": 1.6,
     "refillAfterHours": 72,
+    "refillSliceMs": 12,
     "earthPathColor": "#7ab8ff",
     "parentPathColor": "#c79bff",
     "planetExaggeration": 400,
