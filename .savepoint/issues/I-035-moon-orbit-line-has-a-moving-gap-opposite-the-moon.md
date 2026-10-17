@@ -24,6 +24,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "can we bring in as fully toggable and configurable". Each layer (base ring, end fade, trailing arc, zoom brighten) switchable on and off, and every number a live control in the settings panel, defaulting to the path data and resettable; generic for every composition path.'
+  - at: '2026-10-18T01:40:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner looked at the lane build 393e900 on the local preview (faint ring with faded ends, trailing arc, zoom brighten, Developer > Display settings > Orbit lines controls, Io without end fade): "like it all". To be checked and resolved after merging with T-079/T-080.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
