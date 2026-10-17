@@ -2,8 +2,7 @@
 id: T-078
 title: Gather each moon's real orbit and measure it against JPL Horizons
 objective: O-019
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -81,3 +80,7 @@ New `src/core/satelliteMeanElements.ts`; `src/core/twoBodyAdapter.ts` parameter 
 - `.savepoint/Design.md` (Providers/State): a generic mean-element provider `src/core/satelliteMeanElements.ts` now exists over the two-body provider; Io's constants in `src/core/bodies/io.ts` duplicate `data/orbits/io.json` (ARCH-05: the later body Task should make Io read the record and share `trueAnomalyFromMean`, currently imported from `io.ts`). The "tidal-lock wrapper" candidate: the IAU rotation rates of the synchronous rotators equal their mean motions (used here).
 - Finding for the owner: Saturn's seven moons need a different source or a resolved reading of the JPL table before any is placed in a scene; this affects every later O-019 Task that places a Saturn moon.
 - The Objective and the router were not changed beyond Objective `status: in_progress`.
+
+## Owner Completion — 2026-10-17
+
+Marked done by the orchestrator on the owner's direct instruction ("Authorise you to mark 77 78 done and close o17"), after Quick Task Check C-059 CLEAR.

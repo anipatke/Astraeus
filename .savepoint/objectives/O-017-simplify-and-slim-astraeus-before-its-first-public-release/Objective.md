@@ -1,7 +1,7 @@
 ---
 id: O-017
 title: Simplify and slim Astraeus before its first public release
-status: in_progress
+status: done
 depends_on: [O-011, O-012]
 release: G-005
 ---
@@ -65,3 +65,7 @@ Tasks 2, 3 and 5 can run side by side; task 4 waits for the owner's pick from ta
 
 **Out of scope:**
 - New features; phone frame-rate or start-up work; a better Milky Way photo (I-026); stacked story markers (I-031); adding donor planets or moons (I-032); the deploy itself.
+
+## Closure — 2026-10-17
+
+Closed by the orchestrator on the owner's direct instruction ("Authorise you to mark 77 78 done and close o17"). Full Objective Check C-057 CLEAR; merged to main as PR #3 (7377a87) and live at astraeus.anipatke.com; owner's real-phone look on the live site: "Performance looks good".

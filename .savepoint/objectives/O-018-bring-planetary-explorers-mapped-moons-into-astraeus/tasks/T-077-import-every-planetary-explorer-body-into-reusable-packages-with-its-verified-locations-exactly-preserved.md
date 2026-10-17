@@ -2,8 +2,7 @@
 id: T-077
 title: Import every Planetary Explorer body into reusable packages with its verified locations exactly preserved
 objective: O-018
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -90,3 +89,7 @@ New: `data/bodies/` (24 packages, catalogue.json, README.md), `tools/import/plan
 - `.savepoint/Design.md`: record the `data/bodies/<body>/` package format and the importer under story/asset data (ARCH-01); the packages are not engine code.
 - The importer needs Node 22.18+ or 24 (type stripping), while `package.json` engines says `>=22.12`; consider raising it.
 - Later Tasks that draw features should read `map.json` `coordinates`, not assume -180..180 or east-positive for every body.
+
+## Owner Completion — 2026-10-17
+
+Marked done by the orchestrator on the owner's direct instruction ("Authorise you to mark 77 78 done and close o17"), after Quick Task Check C-058 CLEAR.
