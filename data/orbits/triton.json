@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "id": "triton",
+  "label": "Triton",
+  "naifId": 801,
+  "parent": "neptune",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "NEP097",
+    "tableId": 439,
+    "referenceNumber": 24,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 439, Triton)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "Laplace",
+    "poleRaDeg": 299.8,
+    "poleDecDeg": 43.1,
+    "tiltToPlanetEquatorDeg": 0.4,
+    "note": "Laplace plane pole as JPL tabulates it."
+  },
+  "elements": {
+    "semiMajorAxisKm": 354800.0,
+    "eccentricity": 0.0,
+    "argumentOfPeriapsisDeg": 0.0,
+    "meanAnomalyDeg": 63.0,
+    "inclinationDeg": 157.3,
+    "nodeDeg": 178.1,
+    "periodDays": 5.876994,
+    "apsisPeriodYears": 0.0,
+    "nodePeriodYears": 340.379
+  },
+  "parentBody": {
+    "id": "neptune",
+    "gmKm3S2": 6835099.97,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/neptune-phys.txt: GM (km^3/s^2) = 6835099.97 (Horizons physical data for Neptune 899)"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 1428.49546,
+    "meanRadiusKm": 1352.6,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "801",
+    "centre": "500@899",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/triton-six.txt and triton-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 299.36,
+      "perCentury": 0.0
+    },
+    "poleDecDeg": {
+      "constant": 41.17,
+      "perCentury": 0.0
+    },
+    "primeMeridianDeg": {
+      "constant": 296.53,
+      "perDay": -61.2572637
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY801_POLE_RA, BODY801_POLE_DEC, BODY801_PM, BODY801_NUT_PREC_RA/DEC/PM, BODY8_NUT_PREC_ANGLES",
+    "periodicTerms": {
+      "anglesParentBody": "neptune",
+      "coefficientsRaDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -32.35,
+        0.0,
+        -6.28,
+        -2.08,
+        -0.74,
+        -0.28,
+        -0.11,
+        -0.07,
+        -0.02,
+        -0.01
+      ],
+      "coefficientsDecDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        22.55,
+        0.0,
+        2.1,
+        0.55,
+        0.16,
+        0.05,
+        0.02,
+        0.01,
+        0.0,
+        0.0
+      ],
+      "coefficientsPrimeMeridianDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        22.25,
+        0.0,
+        6.73,
+        2.05,
+        0.74,
+        0.28,
+        0.11,
+        0.05,
+        0.02,
+        0.01
+      ],
+      "note": "Coefficient k multiplies sin or cos of the k-th nutation-precession angle (RA and W: sin; Dec: cos) of the parent system; angles are in nutationPrecessionAngles as [constant, perCentury] pairs. Not used by the offline test.",
+      "nutationPrecessionAngles": [
+        [
+          357.85,
+          52.316
+        ],
+        [
+          323.92,
+          62606.6
+        ],
+        [
+          220.51,
+          55064.2
+        ],
+        [
+          354.27,
+          46564.5
+        ],
+        [
+          75.31,
+          26109.4
+        ],
+        [
+          35.36,
+          14325.4
+        ],
+        [
+          142.61,
+          2824.6
+        ],
+        [
+          177.85,
+          52.316
+        ],
+        [
+          647.84,
+          125213.2
+        ],
+        [
+          355.7,
+          104.632
+        ],
+        [
+          533.55,
+          156.948
+        ],
+        [
+          711.4,
+          209.264
+        ],
+        [
+          889.25,
+          261.58
+        ],
+        [
+          1067.1,
+          313.896
+        ],
+        [
+          1244.95,
+          366.212
+        ],
+        [
+          1422.8,
+          418.528
+        ],
+        [
+          1600.65,
+          470.844
+        ]
+      ]
+    },
+    "note": "Triton rotates synchronously; the report gives its model with the Neptune system nutation-precession angles."
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 33573,
+    "maxErrorAt": "2030-Jun-01 00:00:00.0000",
+    "errorAtEpochKm": 25062,
+    "bodyDiameterKm": 2705.2,
+    "maxErrorDiameters": 12.41,
+    "semiMajorAxisKm": 354800.0,
+    "maxErrorFractionOfSemiMajorAxis": 0.09462,
+    "class": "approximate demonstration",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "Retrograde (inclination 157.3 degrees to the Laplace plane) with a node that precesses once in 340 years: one fixed ellipse cannot follow it.",
+      "The tabulated angles are given to 0.1 degree and e is 0.000, so the phase is an argument of latitude; a 4 degree phase shift at the epoch (25 thousand km) explains most of the error there, and the rate error (table P 5.876994 d against the IAU rate period 5.876854 d) adds the drift to 33.6 thousand km by 2030. The cause of the 4 degree phase offset was not found.",
+      "Horizons uses nep098_merged; the table is derived from NEP097."
+    ]
+  }
+}

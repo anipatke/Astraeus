@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "id": "pluto",
+  "label": "Pluto",
+  "naifId": 999,
+  "parent": "sun",
+  "kind": "dwarf-planet",
+  "source": {
+    "title": "JPL Small-Body Database, 134340 Pluto, orbit solution (producer R.S. Park, DE441)",
+    "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=134340&full-prec=1&phys-par=1",
+    "accessed": "2026-10-17",
+    "ephemeris": "SBDB osculating elements",
+    "licenceNote": "NASA/JPL numbers published without a licence statement; cited as facts with their source.",
+    "rawResponse": "docs/evidence/o019-t078-sbdb-20261017T035428Z/pluto-sbdb.json"
+  },
+  "epoch": {
+    "tdb": "2457588.5 (2016-07-31)",
+    "jdTdb": 2457588.5,
+    "ttMinusUtcSeconds": 68.184
+  },
+  "plane": {
+    "frame": "ecliptic-j2000",
+    "note": "Heliocentric, mean ecliptic and equinox of J2000, as SBDB states."
+  },
+  "elements": {
+    "semiMajorAxisKm": 5922374659.953067,
+    "semiMajorAxisAu": 39.58862938517124,
+    "eccentricity": 0.2518378778576892,
+    "argumentOfPeriapsisDeg": 113.7090015158565,
+    "meanAnomalyDeg": 38.68366347318184,
+    "inclinationDeg": 17.14771140999114,
+    "nodeDeg": 110.2923840543057,
+    "periodDays": 90981.71647718345,
+    "apsisPeriodYears": null,
+    "nodePeriodYears": null,
+    "auKm": 149597870.7
+  },
+  "parentBody": {
+    "id": "sun",
+    "gmKm3S2": 132712440018,
+    "source": "The catalogue's solar GM (src/core/bodies/sun.ts), the JPL value"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 869.326,
+    "meanRadiusKm": 1188.3,
+    "source": "JPL Horizons physical data for Pluto 999 (vol. mean radius 1188.3 +- 1.6 km, GM planet 869.326), raw docs/evidence/o019-t078-horizons-20261017T035154Z/pluto-phys.txt"
+  },
+  "horizons": {
+    "command": "999",
+    "centre": "500@10",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/pluto-sun.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 132.993,
+      "perCentury": 0.0
+    },
+    "poleDecDeg": {
+      "constant": -6.163,
+      "perCentury": 0.0
+    },
+    "primeMeridianDeg": {
+      "constant": 302.695,
+      "perDay": 56.3625225
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY999_POLE_RA, BODY999_POLE_DEC, BODY999_PM"
+  },
+  "model": {
+    "periodRule": "table",
+    "semiMajorAxis": "table",
+    "note": "Osculating heliocentric elements at the epoch, propagated about the Sun's GM; the SBDB semi-major axis is kept."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, Sun-centred, ICRF treated as EQJ, geometric, UTC",
+    "dates": "66 dates: every 1 January from 1970 to 2030, plus 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01 and 2030-06-01",
+    "sampleCount": 66,
+    "maxErrorKm": 15475866,
+    "maxErrorAt": "1971-Jan-01 00:00:00.0000",
+    "errorAtEpochKm": 5613281,
+    "bodyDiameterKm": 2376.6,
+    "maxErrorDiameters": 6511.77,
+    "semiMajorAxisKm": 5922374659.953067,
+    "maxErrorFractionOfSemiMajorAxis": 0.00261,
+    "class": "approximate demonstration",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "Osculating elements at one epoch (2016-07-31) about the Sun's GM: no perturbation by Neptune or the other planets, which Horizons includes (Pluto is in 3:2 resonance with Neptune). The error is smallest near the epoch and grows both ways: see the table in docs/MOON_ORBITS.md.",
+      "Pluto's body centre is compared; the heliocentric two-body orbit describes the Pluto-Charon barycentre, which differs from the body centre by about 2,100 km."
+    ]
+  }
+}
