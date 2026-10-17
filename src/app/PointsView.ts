@@ -2,6 +2,8 @@ import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial, Vector3
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
+import { fillKeplerRangeKm } from "../core/keplerElements";
+import { KeplerPoints } from "./KeplerPoints";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -15,6 +17,12 @@ const DEFAULT_POINT_SIZE_PX = 2.5;
  * About 8 ms leaves most of a 30 fps frame for drawing; 0 turns the look-ahead off and every fill happens in one frame.
  */
 export const DEFAULT_REFILL_SLICE_MS = 8;
+/**
+ * While the graphics chip places the dots, fills only feed the centroid and extent (the camera's focus and framing), which move slowly:
+ * a week apart, linear steps between exact fills move the focus by under 2e-4 of the extent (about a twentieth of a pixel at the framing
+ * distance; the shipped 51,115-member set 3e-5 of it, T-075 figures).
+ */
+export const KEPLER_CENTROID_SPAN_MS = 7 * 24 * 3_600_000;
 /** Members computed between two looks at the clock while a fill is spread over frames; groups at or below it fill whole. */
 export const SLICE_CHUNK_MEMBERS = 1024;
 
@@ -65,7 +73,11 @@ interface PendingFill {
 }
 
 /**
- * Dots for one group. Positions come from batch fills into reused buffers, are expressed from the
+ * Dots for one group. A large group of two-body orbits under a policy that only scales (`linearUnitsPerKm`) is positioned by the vertex
+ * shader straight from each member's ellipse every frame (`KeplerPoints`); the fills described next then serve only the centroid and
+ * extent. Any other group or policy draws as follows.
+ *
+ *  Positions come from batch fills into reused buffers, are expressed from the
  * scene centre, and then go through ScalePolicy -> render axes -> floating origin
  * like every other body. Two exact fills are held, one at or before the clock time and one at or
  * after it, `refillAfterMs` apart; each frame draws a straight-line blend of them, so the dots glide
@@ -86,6 +98,12 @@ export class PointsView {
   readonly #from: BufferAttribute;
   readonly #to: BufferAttribute;
   readonly #material: PointsMaterial;
+  readonly #kepler: KeplerPoints | null;
+  #gpu = false;
+  #policyId = "";
+  #unitsPerKm = 0;
+  /** The group's centre measured from the scene centre in scaled render units; zero when they are the same body. */
+  #centreShift: RenderVector = [0, 0, 0];
   readonly #uniforms = { uBlend: { value: 0 }, uOffset: { value: new Vector3() } };
   readonly #offset = new Float32Array(3);
   #anchor: RenderVector = [0, 0, 0];
@@ -144,6 +162,28 @@ export class PointsView {
     this.#points.layers.set(TRACK_LAYER);
     this.#points.visible = false;
     this.group.add(this.#points);
+    const elements = count > SLICE_CHUNK_MEMBERS ? layer.group.keplerElements?.() : undefined;
+    this.#kepler = elements === undefined ? null : new KeplerPoints(elements, layer.color, layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX);
+    if (this.#kepler !== null) this.group.add(this.#kepler.points);
+  }
+
+  /** Whether the graphics chip places the dots at the last `sync`, rather than the blend of exact fills. */
+  get placedByShader(): boolean {
+    return this.#gpu;
+  }
+
+  /** How many times the shader's phase epoch has been moved; 0 when the dots are not placed by the shader. */
+  get rebases(): number {
+    return this.#kepler?.rebaseCount ?? 0;
+  }
+
+  /** The key fills are mapped for: the policy, and whether member positions are mapped at all (the shader does that itself). */
+  #mapKey(policy: ScalePolicy): string {
+    return this.#gpu ? `${policy.id}:centroid` : policy.id;
+  }
+
+  get #span(): number {
+    return this.#gpu ? Math.max(this.#spanMs, KEPLER_CENTROID_SPAN_MS) : this.#spanMs;
   }
 
   get id(): string {
@@ -178,18 +218,33 @@ export class PointsView {
       if (!this.#filled && this.#holdKm === null) this.#holdCentre(placement, bounds?.startUtcMs ?? timeUtcMs, policy);
       return;
     }
+    const gpu = this.#kepler !== null && policy.linearUnitsPerKm !== undefined;
+    if (gpu !== this.#gpu) {
+      // The two ways of drawing keep different things in their fills, so start afresh.
+      this.#gpu = gpu;
+      this.#filled = false;
+      this.#pending = null;
+      this.#mappedFor = "";
+    }
+    this.#policyId = policy.id;
+    if (gpu) {
+      this.#unitsPerKm = policy.linearUnitsPerKm!;
+      const shift = centreOffsetKm(this.layer, placement, timeUtcMs);
+      this.#centreShift = eqjToRenderVector([shift[0] * this.#unitsPerKm, shift[1] * this.#unitsPerKm, shift[2] * this.#unitsPerKm]);
+    }
+    const key = this.#mapKey(policy);
     const moved = timeUtcMs - this.#lastTimeUtcMs;
     const direction = moved > 0 ? 1 : moved < 0 ? -1 : this.#direction;
-    if (this.#pending !== null && (direction !== this.#pending.direction || policy.id !== this.#pending.policyId)) this.#pending = null;
+    if (this.#pending !== null && (direction !== this.#pending.direction || key !== this.#pending.policyId)) this.#pending = null;
     this.#lastTimeUtcMs = timeUtcMs;
     this.#direction = direction;
     const fillsBefore = this.fillCount;
     this.#advance(timeUtcMs, placement, policy);
     const wholeFill = this.fillCount !== fillsBefore;
-    if (this.#mappedFor !== policy.id) {
+    if (this.#mappedFor !== key) {
       this.#remap(this.#before, policy);
       this.#remap(this.#after, policy);
-      this.#mappedFor = policy.id;
+      this.#mappedFor = key;
     }
     const a = this.#before;
     const b = this.#after;
@@ -206,8 +261,13 @@ export class PointsView {
    * changed (a fill, a slide, a scale change); every other frame only the blend factor and offset change.
    */
   place(origin: FloatingOrigin): void {
-    this.#points.visible = this.#drawn;
+    this.#points.visible = this.#drawn && !this.#gpu;
+    if (this.#kepler !== null) this.#kepler.points.visible = this.#drawn && this.#gpu;
     if (!this.#drawn) return;
+    if (this.#gpu) {
+      this.#placeByShader(origin);
+      return;
+    }
     if (this.#uploadedBefore !== this.#before || this.#uploadedBeforeVersion !== this.#before.version
       || this.#uploadedAfter !== this.#after || this.#uploadedAfterVersion !== this.#after.version) this.#upload();
     const [ox, oy, oz] = origin.scaledCameraOrigin;
@@ -218,7 +278,15 @@ export class PointsView {
     this.#uniforms.uBlend.value = this.#blend;
     this.#uniforms.uOffset.value.set(this.#offset[0], this.#offset[1], this.#offset[2]);
     // Mapped positions are not consistent with body radii in ReadableScale, so only TrueScale occludes.
-    this.#material.depthTest = this.#mappedFor === "true-scale";
+    this.#material.depthTest = this.#policyId === "true-scale";
+  }
+
+  /** Hands the shader this frame's clock, scale and offset from the floating origin; the per-member numbers were uploaded once. */
+  #placeByShader(origin: FloatingOrigin): void {
+    const [ox, oy, oz] = origin.scaledCameraOrigin;
+    const [sx, sy, sz] = this.#centreShift;
+    this.#kepler!.update(this.#lastTimeUtcMs, this.#direction, this.#unitsPerKm, [sx - ox, sy - oy, sz - oz]);
+    this.#kepler!.material.depthTest = this.#policyId === "true-scale";
   }
 
   /** The numbers the shader mixes as last placed; tests prove them against the exact blend. */
@@ -261,6 +329,7 @@ export class PointsView {
 
   /** Local (floating-origin) position of member `index` as last placed. */
   memberLocalPosition(index: number): [number, number, number] {
+    if (this.#gpu) return this.#kepler!.localPosition(index);
     const { from, to, factor, offset } = this.blendInputs;
     const f = Math.fround;
     return [0, 1, 2].map((k) => {
@@ -275,7 +344,7 @@ export class PointsView {
    */
   #advance(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const bounds = this.layer.group.bounds;
-    const span = this.#spanMs;
+    const span = this.#span;
     const a = this.#before;
     const b = this.#after;
     if (this.#filled && timeUtcMs >= a.timeUtcMs && timeUtcMs <= b.timeUtcMs) return;
@@ -321,7 +390,7 @@ export class PointsView {
     const pending = this.#pending;
     this.#pending = null;
     if (pending === null || pending.phase !== 2 || pending.direction !== direction) return null;
-    if (pending.timeUtcMs !== timeUtcMs || pending.policyId !== policy.id) return null;
+    if (pending.timeUtcMs !== timeUtcMs || pending.policyId !== this.#mapKey(policy)) return null;
     this.fillCount += 1;
     pending.target.version = ++this.#versions;
     return pending.target;
@@ -330,7 +399,15 @@ export class PointsView {
   /** Whether this group can be filled a range at a time, and is big enough for that to matter. */
   get #canSlice(): boolean {
     const { group } = this.layer;
-    return this.#sliceMs > 0 && group.fillPositionsRangeKm !== undefined && group.count > SLICE_CHUNK_MEMBERS;
+    return this.#sliceMs > 0 && (this.#gpu || group.fillPositionsRangeKm !== undefined) && group.count > SLICE_CHUNK_MEMBERS;
+  }
+
+  /** Members `from` up to `to` of the group at a time, in km: from the elements when the shader draws (a cheaper path), else the group's own fill. */
+  #fillRange(timeUtcMs: number, km: Float64Array, from: number, to: number): void {
+    const { group } = this.layer;
+    if (this.#gpu) fillKeplerRangeKm(this.#kepler!.elements, timeUtcMs, km, from, to);
+    else if (from === 0 && to === group.count) group.fillPositionsKm(timeUtcMs, km);
+    else group.fillPositionsRangeKm!(timeUtcMs, km, from, to);
   }
 
   /** Starts, or carries on, the next fill within this frame's time budget. */
@@ -341,8 +418,8 @@ export class PointsView {
       const forward = this.#direction > 0;
       const edge = forward ? this.#after.timeUtcMs : this.#before.timeUtcMs;
       const time = forward
-        ? Math.min(edge + this.#spanMs, bounds?.endUtcMs ?? Infinity)
-        : Math.max(edge - this.#spanMs, bounds?.startUtcMs ?? -Infinity);
+        ? Math.min(edge + this.#span, bounds?.endUtcMs ?? Infinity)
+        : Math.max(edge - this.#span, bounds?.startUtcMs ?? -Infinity);
       if (time === edge) return;
       const spare = (this.#spare ??= this.#emptyFill());
       const offset = centreOffsetKm(this.layer, placement, time);
@@ -350,7 +427,7 @@ export class PointsView {
         target: spare,
         timeUtcMs: time,
         direction: this.#direction,
-        policyId: policy.id,
+        policyId: this.#mapKey(policy),
         offset: [offset[0], offset[1], offset[2]],
         phase: 0,
         cursor: 0,
@@ -374,7 +451,7 @@ export class PointsView {
     const from = pending.cursor;
     const to = Math.min(from + SLICE_CHUNK_MEMBERS, group.count);
     if (pending.phase === 0) {
-      group.fillPositionsRangeKm!(pending.timeUtcMs, km, from, to);
+      this.#fillRange(pending.timeUtcMs, km, from, to);
       const [ox, oy, oz] = pending.offset;
       let [cx, cy, cz] = pending.sum;
       for (let i = 3 * from; i < 3 * to; i += 3) {
@@ -405,7 +482,7 @@ export class PointsView {
     if (to === group.count) {
       target.extentKm = pending.widest;
       target.centroid = eqjToRenderVector(policy.mapPosition(target.centroidKm));
-      target.mappedFor = policy.id;
+      target.mappedFor = this.#mapKey(policy);
       pending.phase = 2;
     }
   }
@@ -427,7 +504,7 @@ export class PointsView {
   #fill(target: Fill, timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const { group } = this.layer;
     const km = target.km;
-    group.fillPositionsKm(timeUtcMs, km);
+    this.#fillRange(timeUtcMs, km, 0, group.count);
     this.fillCount += 1;
     target.timeUtcMs = timeUtcMs;
     const offset = centreOffsetKm(this.layer, placement, timeUtcMs);
@@ -455,15 +532,17 @@ export class PointsView {
   }
 
   #remap(fill: Fill, policy: ScalePolicy): void {
-    if (fill.mappedFor === policy.id) return;
+    const key = this.#mapKey(policy);
+    if (fill.mappedFor === key) return;
     this.#mapRange(fill, policy, 0, this.layer.group.count);
     fill.centroid = eqjToRenderVector(policy.mapPosition(fill.centroidKm));
-    fill.mappedFor = policy.id;
+    fill.mappedFor = key;
     fill.version = ++this.#versions;
   }
 
   /** Maps members `from` up to `to` of a fill's km positions through the policy into its scaled positions. */
   #mapRange(fill: Fill, policy: ScalePolicy, from: number, to: number): void {
+    if (this.#gpu) return; // the shader maps member positions itself
     const { km, scaled } = fill;
     const member = new Float64Array(3);
     for (let i = 3 * from; i < 3 * to; i += 3) {

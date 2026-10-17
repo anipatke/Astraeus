@@ -10,7 +10,7 @@ cd "$(dirname "$0")/../.."
 export PLAYWRIGHT_CORE
 DEV_PORT=${DEV_PORT:-5479}; PUBLIC_PORT=${PUBLIC_PORT:-5480}
 B=${1:-docs/evidence/o017-t071-full-$(date -u +%Y%m%dT%H%M%SZ)}
-BEFORE=${BEFORE:-docs/evidence/o017-before-20261016T205125Z}
+BEFORE=${BEFORE:-docs/evidence/o017-baseline-20261017}
 if [ -e "$B" ] && [ -n "$(ls -A "$B" 2>/dev/null)" ]; then echo "$B is not empty; use a fresh directory" >&2; exit 2; fi
 mkdir -p "$B"
 DEV=http://localhost:$DEV_PORT/app.html

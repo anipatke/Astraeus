@@ -2,10 +2,9 @@
 id: T-073
 title: Spread the shower dot recalculation across frames so the Geminids glide
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-067, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-053, scope: [showers glide on laptops; phone-class improvement measured; real-phone look still owed], accepted_by: {role: owner, session: o017-orchestrator-check-20261017}}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
 
@@ -134,3 +133,7 @@ Design "Shower builder" and the points layer gain: the optional `fillPositionsRa
 - Lite: `PLAYWRIGHT_CORE=... ASTRAEUS_URL=http://localhost:5484/app.html ASTRAEUS_EVIDENCE_DIR=docs/evidence/o017-t073-gpu-lite-20261017T023324Z node tools/validate/browser-lite.mjs`: 26/26 loads passed, zero console errors (both showers, synthetic ring/belt/listed/eccentric, Apollo, pages).
 - Pictures: `node tools/validate/capture-experience-pictures.mjs --out docs/evidence/o017-t073-gpu-after-20261017T023324Z --port 5484`, then diff against `docs/evidence/o017-before-20261016T205125Z`: first run maxOver16Pct 0.0473 (apollo11-moon-desktop, 613 px; Apollo does not use the changed path beyond its small group, and the earlier T-070 set had none there), over tolerance. Rerun alone, `docs/evidence/o017-t073-gpu-after2-20261017T023324Z`: maxOver16Pct 0.0189, 7 identical, within 0.024%; geminids-desktop 0.0002%, perseids-desktop 0.0011%, perseids-phone 0.0018%.
 - Dev server on 5484 stopped (the picture script owned it at the end); no frame probes run (PENDING for the orchestrator). `browser-showers.mjs` and `browser-public-showers.mjs` not run here (O-017 Decision 8: lite and pictures only).
+
+## Owner Completion — 2026-10-17
+
+Owner: "cant reach, but thats OK i think previous version ran ok and this should be better" (after the laptop look at the T-073 build: "thats way smoother"). Accepted with C-053; a real-phone look at the T-075 build is still owed once it is on a preview link or live.

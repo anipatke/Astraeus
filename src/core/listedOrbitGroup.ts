@@ -1,4 +1,5 @@
 import type { CenterId } from "./body";
+import { gravitationalParameterOf, keplerElementsFromStates, type KeplerElements } from "./keplerElements";
 import { memberStatesOf, propagatedPositionOf, seededRandom, type ElementPlane } from "./orbitGroup";
 import {
   assertFillBuffer,
@@ -167,16 +168,6 @@ export function meanAnomalyFromStateRad(r: ArrayLike<number>, v: ArrayLike<numbe
   return ((m % TWO_PI) + TWO_PI) % TWO_PI;
 }
 
-/** The centre's gravitational parameter as the adapter applies it: a circular orbit has v² r = μ. */
-function muOf(adapter: TwoBodyAdapter, center: CenterId): number {
-  const r = 1e6;
-  const { velocity } = adapter.elementsToState(
-    { semiMajorAxisKm: r, eccentricity: 0, inclinationRad: 0, raanRad: 0, argumentOfPeriapsisRad: 0, trueAnomalyRad: 0 },
-    center,
-  );
-  return dot(velocity, velocity) * r;
-}
-
 function referenceMeanAnomalyRad(around: Trajectory, center: CenterId, timeUtcMs: number, adapter: TwoBodyAdapter): number {
   const now: State = around.stateAt(timeUtcMs, center);
   let velocity = now.velocityKmS;
@@ -185,7 +176,7 @@ function referenceMeanAnomalyRad(around: Trajectory, center: CenterId, timeUtcMs
     const after = around.stateAt(timeUtcMs + VELOCITY_STEP_MS, center).positionKm;
     velocity = Float64Array.from([0, 1, 2].map((k) => (after[k] - before[k]) / (2 * VELOCITY_STEP_MS / 1000)));
   }
-  return meanAnomalyFromStateRad(now.positionKm, velocity, muOf(adapter, center));
+  return meanAnomalyFromStateRad(now.positionKm, velocity, gravitationalParameterOf(adapter, center));
 }
 
 /**
@@ -254,6 +245,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
     notes: `${input.provenance.notes} ${PHASE_NOTE}${concentration === undefined ? "" : ` ${CONCENTRATION_NOTE}`}`.trim(),
   });
 
+  let kepler: KeplerElements | null = null;
   const group: ListedOrbitGroup & { fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void } = {
     id: input.id,
     count,
@@ -271,6 +263,10 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
       assertMemberRange(count, start, end);
       const dtSeconds = (timeUtcMs - referenceUtcMs) / 1000;
       for (let member = start; member < end; member++) adapter.propagateMemberInto(states, member, dtSeconds, center, out);
+    },
+    keplerElements(): KeplerElements {
+      kepler ??= keplerElementsFromStates(states, count, gravitationalParameterOf(adapter, center), referenceUtcMs);
+      return kepler;
     },
     stateAt(index: number, timeUtcMs: number) {
       assertMemberIndex(count, index);

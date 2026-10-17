@@ -1,0 +1,251 @@
+{
+  "startedUtc": "2026-10-17T03:24:17.767Z",
+  "command": "/home/user/.nvm/versions/node/v24.16.0/bin/node /home/user/code/Astraeus/tools/validate/capture-experience-pictures.mjs --out docs/evidence/o017-t075-after-20261017T032416Z --port 5487",
+  "base": "http://localhost:5487",
+  "node": "v24.16.0",
+  "pictures": [
+    {
+      "id": "apollo11-overview",
+      "size": "desktop",
+      "file": "apollo11-overview-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?view=earth,0,70,130&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "apollo11-overview",
+      "size": "phone",
+      "file": "apollo11-overview-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?view=moon,270,50,214&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "apollo11-moon",
+      "size": "desktop",
+      "file": "apollo11-moon-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?view=moon,0,30,6&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "apollo11-moon",
+      "size": "phone",
+      "file": "apollo11-moon-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?view=moon,0,30,6&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "earth-moon-wide",
+      "size": "desktop",
+      "file": "earth-moon-wide-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+      "pinnedTimeUtc": "2025-01-10T00:00:00Z",
+      "timelineReadsUtc": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "earth-moon-wide",
+      "size": "phone",
+      "file": "earth-moon-wide-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+      "pinnedTimeUtc": "2025-01-10T00:00:00Z",
+      "timelineReadsUtc": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "earth-moon-close",
+      "size": "desktop",
+      "file": "earth-moon-close-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+      "pinnedTimeUtc": "2025-01-10T00:00:00Z",
+      "timelineReadsUtc": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "earth-moon-close",
+      "size": "phone",
+      "file": "earth-moon-close-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+      "pinnedTimeUtc": "2025-01-10T00:00:00Z",
+      "timelineReadsUtc": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-wide",
+      "size": "desktop",
+      "file": "jupiter-io-wide-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-wide",
+      "size": "phone",
+      "file": "jupiter-io-wide-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-close",
+      "size": "desktop",
+      "file": "jupiter-io-close-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-close",
+      "size": "phone",
+      "file": "jupiter-io-close-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "perseids",
+      "size": "desktop",
+      "file": "perseids-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+      "pinnedTimeUtc": "2027-08-12T12:00:00Z",
+      "timelineReadsUtc": "2027-08-12T11:59:43.119Z"
+    },
+    {
+      "id": "perseids",
+      "size": "phone",
+      "file": "perseids-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+      "pinnedTimeUtc": "2027-08-12T12:00:00Z",
+      "timelineReadsUtc": "2027-08-12T11:59:43.119Z"
+    },
+    {
+      "id": "geminids",
+      "size": "desktop",
+      "file": "geminids-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+      "pinnedTimeUtc": "2026-12-13T23:31:44Z",
+      "timelineReadsUtc": "2026-12-13T23:32:09.119Z"
+    },
+    {
+      "id": "geminids",
+      "size": "phone",
+      "file": "geminids-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+      "pinnedTimeUtc": "2026-12-13T23:31:44Z",
+      "timelineReadsUtc": "2026-12-13T23:32:09.119Z"
+    },
+    {
+      "id": "site-index",
+      "size": "desktop",
+      "file": "site-index-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/index.html",
+      "pinnedTimeUtc": null,
+      "timelineReadsUtc": null
+    },
+    {
+      "id": "site-index",
+      "size": "phone",
+      "file": "site-index-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/index.html",
+      "pinnedTimeUtc": null,
+      "timelineReadsUtc": null
+    },
+    {
+      "id": "site-assets",
+      "size": "desktop",
+      "file": "site-assets-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5487/assets.html",
+      "pinnedTimeUtc": null,
+      "timelineReadsUtc": null
+    },
+    {
+      "id": "site-assets",
+      "size": "phone",
+      "file": "site-assets-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5487/assets.html",
+      "pinnedTimeUtc": null,
+      "timelineReadsUtc": null
+    }
+  ],
+  "errors": [],
+  "chromium": "147.0.7727.15",
+  "finishedUtc": "2026-10-17T03:25:46.461Z"
+}

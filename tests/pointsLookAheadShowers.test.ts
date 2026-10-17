@@ -3,7 +3,7 @@ import { groupsOf } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale, type ScalePolicy } from "../src/core/scalePolicy";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
@@ -16,6 +16,8 @@ import { placementAbout } from "./scenePlacement";
 
 const HOUR = 3_600_000;
 const placement = placementAbout("sun", createOrbAstronomyAdapter());
+// T-075: a policy that does not say it only scales keeps the fills-plus-blend path these tests are about (the shader path is in pointsKepler.test.ts).
+const mappedPolicy: ScalePolicy = { id: "true-scale", mapPosition: (p) => trueScale.mapPosition(p), mapRadius: (r) => trueScale.mapRadius(r) };
 
 describe.each([
   { name: "Perseids", story: "perseids", iau: 7, file: perseidsFile },
@@ -34,7 +36,7 @@ describe.each([
     expect(look.layer.refillSliceMs).toBe(story === "geminids" ? 12 : undefined); // the Geminids file sets its own slice; the Perseids take the default
     const origin = new FloatingOrigin();
     const check = (t: number): void => {
-      for (const view of [look, plain]) { view.sync(t, placement, trueScale); view.place(origin); }
+      for (const view of [look, plain]) { view.sync(t, placement, mappedPolicy); view.place(origin); }
       expect(look.absolute()).toEqual(plain.absolute());
       for (let i = 0; i < group.count; i += 997) expect(look.memberLocalPosition(i)).toEqual(plain.memberLocalPosition(i));
     };

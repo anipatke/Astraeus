@@ -1,4 +1,5 @@
 import type { CenterId } from "./body";
+import { gravitationalParameterOf, keplerElementsFromStates, type KeplerElements } from "./keplerElements";
 import { createProvenance, type Provenance } from "./provenance";
 import {
   assertFillBuffer,
@@ -167,6 +168,7 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
   };
   const fillPositionsKm = (timeUtcMs: number, out: Float64Array): void => fillPositionsRangeKm(timeUtcMs, out, 0, count);
 
+  let kepler: KeplerElements | null = null;
   const group: PointGroup = {
     id: input.id,
     count,
@@ -176,6 +178,10 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
     provenance,
     fillPositionsKm,
     fillPositionsRangeKm,
+    keplerElements(): KeplerElements {
+      kepler ??= keplerElementsFromStates(states, count, gravitationalParameterOf(adapter, center), epochUtcMs);
+      return kepler;
+    },
     stateAt(index: number, timeUtcMs: number) {
       assertMemberIndex(count, index);
       assertUtcUnixMs(timeUtcMs);
