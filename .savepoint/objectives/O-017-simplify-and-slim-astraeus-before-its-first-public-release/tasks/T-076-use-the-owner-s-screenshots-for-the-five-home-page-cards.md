@@ -4,7 +4,7 @@ title: Use the owner's screenshots for the five home page cards
 objective: O-017
 status: done
 depends_on: [{task: T-074, requires: clear}]
-owner_validation: {required: true, scope: [owner's screenshots on the five home page cards], accepted_by: {role: owner, session: o017-orchestrator-check-20261017}}
+owner_validation: {required: true}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
 
