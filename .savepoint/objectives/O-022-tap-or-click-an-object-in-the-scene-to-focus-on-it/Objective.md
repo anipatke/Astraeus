@@ -10,7 +10,7 @@ release: G-005
 
 ## Outcome
 
-Tapping (phone) or clicking (laptop) a planet, moon, spacecraft or comet in the scene, or its label, focuses the camera on it, the same as choosing it in the top bar's object picker.
+Tapping (phone) or clicking (laptop) a planet, a moon or the Sun in the scene, or its label, focuses the camera on it, the same as choosing it in the top bar's object picker.
 
 ## Why
 
@@ -24,11 +24,14 @@ Owner, 2026-10-18: "at the moment you can only focus on objects through the top 
 4. Generic engine and shell behaviour from the experience's listed objects, no experience names (ARCH-01); works in every demo, at every scale.
 5. Browser checks through the shared driver (T-083) prove tap-to-focus, drag-not-select, and label taps, desktop and phone; full run passes; owner look.
 
+## Confirmed Decisions (owner, 2026-10-18)
+
+1. **Focus only** ("tap to focus only"): a tap or click focuses the camera; it does not open the information sheet.
+2. **Planets, moons and the Sun only** ("lets make it planets moons sun only"): spacecraft (Columbia, Eagle), comets, asteroids, meteor streams and catalogue points are not tap targets.
+
 ## Open Questions (to settle when this Objective is planned)
 
-- Does a tap only focus, or also open the object's information sheet?
-- What can be tapped in the showers (the comet, Earth, the planets; not single meteor dots)?
-- Hover feedback on laptops (cursor, highlight)?
+- Hover feedback on laptops (pointer cursor, label brightening) — explained to the owner 2026-10-18, answer pending.
 
 ## Architectural Considerations
 
@@ -38,4 +41,4 @@ Picking belongs to the presentation layer (ARCH-02) and reuses the existing came
 
 **In scope:** tap and click to focus bodies and labels; tap-versus-drag; hit tolerance; checks.
 
-**Out of scope:** multi-select, tapping single meteor or catalogue points, and tapping story markers (already covered by O-015).
+**Out of scope:** opening the information sheet on tap; spacecraft, comets and asteroids as targets; multi-select, tapping single meteor or catalogue points, and tapping story markers (already covered by O-015).
