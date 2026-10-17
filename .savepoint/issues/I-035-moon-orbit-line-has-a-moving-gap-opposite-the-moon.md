@@ -16,6 +16,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'First repair in lane i035-orbit-gap (bc11d78: window 1.1 periods) measured the gap at 3,215-7,952 km for the Moon and 0 km for Io, and closed it, but the top-down picture shows the ends as a short double line. Shown to the owner side by side; owner chose "Fade the line out at both ends" over keeping the overlap or drawing a closed osculating ellipse. Builder asked to replace the overlap with a per-path end fade.'
+  - at: '2026-10-18T00:55:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner: "ACTUALLY planetary explorer had a cool trailing fading orbit effect". Donor (owner''s own project) OrbitalTrail.tsx: faint full ring, opacity 0.18; OrbitalTrailArc.tsx: trailing arc behind the moon over 1/5 of the orbit, 16 segments, quadratic fade 0.65 to 0, brighter when zoomed out. Builder asked to reproduce it for composition paths on the real path, combined with the end fade, every number a setting with the donor values as defaults.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
