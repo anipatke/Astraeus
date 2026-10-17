@@ -2,10 +2,9 @@
 id: T-085
 title: Keep Apollo 11 at true scale only and keep the scale explanation one tap away
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-083, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-064, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
 
@@ -92,3 +91,7 @@ Drift Notes
 - `browser-orbit-look.mjs` passes `scale=readable` (not a valid id), so "desktop-readable" actually renders True; not fixed here (outside Boundaries), worth an Issue.
 - The Design.md scale/shell notes (held button for one scale) should now read "no control for one scale; ⓘ explanation beside a choice"; not edited in this lane (Design reconciliation belongs to the integration Task / Objective Check).
 - Lane note: no router, Task, Check or Issue records were created.
+
+## Owner Completion — 2026-10-18
+
+Owner looked at Apollo 11 (no scale button) and the Earth–Moon ⓘ on the preview: "apollo and info button both good, mark done". Quick Task Check C-064 CLEAR.
