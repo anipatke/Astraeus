@@ -12,6 +12,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "in the moons orbit directly on the other side of the moon there is a break in the orbit line that moves with the moon". Also visible in the owner''s Earth and Moon card screenshot (the line near Earth is broken).'
+  - at: '2026-10-18T00:40:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'First repair in lane i035-orbit-gap (bc11d78: window 1.1 periods) measured the gap at 3,215-7,952 km for the Moon and 0 km for Io, and closed it, but the top-down picture shows the ends as a short double line. Shown to the owner side by side; owner chose "Fade the line out at both ends" over keeping the overlap or drawing a closed osculating ellipse. Builder asked to replace the overlap with a per-path end fade.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
