@@ -2,8 +2,7 @@
 id: T-079
 title: Slim the top bar into one compact row of icons
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -113,3 +112,7 @@ The orchestrator's full run on the merged T-079 + T-080 tree (`docs/evidence/c06
 Gates: tsc clean, vitest 939 passed, build ok. Full browser run: see the T-080 repair note.
 
 Full browser run after the repairs (`bash tools/validate/run-full.sh`, 2026-10-17): `docs/evidence/o020-repair-full2-053144/summary.txt`, every step exit 0, zero error lines. Picture difference figures (differ from the baseline by design): {"files":20,"identical":2,"maxOver16Pct":13.0982}. A first full run (`o020-repair-full-053144`) failed only `showers-perseids` at `checkLoopOff` ("Select object" stream option not enabled) while the machine was loaded by other builders (325 s versus 161 s); the same script passed solo right after (`o020-repair-showers-053144-e`) and in the second full run, so it is recorded as a load flake, not a regression (not fixed; not reproduced).
+
+## Owner Completion — 2026-10-18
+
+Marked done on the owner's standing instruction for O-020 ("Yes, for all clear interface steps"), after Quick Task Check C-060 CLEAR.

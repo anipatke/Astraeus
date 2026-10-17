@@ -2,8 +2,7 @@
 id: T-080
 title: Fit the timeline on one line on larger screens and two on phones
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -107,3 +106,7 @@ The orchestrator's full run on the merged tree (`docs/evidence/c060-20261017T052
 Other repairs (T-079 controls, spike02 timing) are in T-079's "Repair after merge". Files changed: `tools/validate/browser-showers.mjs`, `browser-sky.mjs`, `browser-spike02.mjs`. Gates: tsc clean, vitest 939 passed, build ok. The full-run summary is appended below once it finishes.
 
 Full browser run after the repairs (`bash tools/validate/run-full.sh`, 2026-10-17): `docs/evidence/o020-repair-full2-053144/summary.txt`, every step exit 0, zero error lines. Picture difference figures (differ from the baseline by design): {"files":20,"identical":2,"maxOver16Pct":13.0982}. A first full run (`o020-repair-full-053144`) failed only `showers-perseids` at `checkLoopOff` ("Select object" stream option not enabled) while the machine was loaded by other builders (325 s versus 161 s); the same script passed solo right after (`o020-repair-showers-053144-e`) and in the second full run, so it is recorded as a load flake, not a regression (not fixed; not reproduced).
+
+## Owner Completion — 2026-10-18
+
+Marked done on the owner's standing instruction for O-020 ("Yes, for all clear interface steps"), after Quick Task Check C-061 CLEAR.
