@@ -67,7 +67,7 @@
 .timeline-track { position: relative; display: flex; align-items: center; height: 22px; }
 .timeline-track input[type="range"] { position: relative; z-index: 1; width: 100%; height: 22px; margin: 0; accent-color: var(--ui-accent, #fc6323); background: transparent; cursor: pointer; }
 .timeline-markers { position: absolute; z-index: 2; inset: 0 8px; pointer-events: none; }
-.timeline-marker { position: absolute; top: 1px; width: 18px; min-height: 20px !important; height: 20px; padding: 0 !important; border: 0 !important; border-radius: 3px !important; background: transparent !important; opacity: .9; transform: translateX(-50%); pointer-events: auto; }
+.timeline-marker { position: absolute; top: calc(50% - 10px); width: 18px; min-height: 20px !important; height: 20px; padding: 0 !important; border: 0 !important; border-radius: 3px !important; background: transparent !important; opacity: .9; transform: translateX(-50%); pointer-events: auto; }
 .timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
 .timeline-marker:hover::after,
 .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
@@ -81,18 +81,18 @@
 .timeline-glow-played { position: absolute; inset: 0; clip-path: inset(-24px var(--glow-played-edge, 100%) -24px -24px); }
 .timeline-glow-line { background: var(--glow-played); }
 /* The peak mark rides above the line (diamond and a short stem), so an event or story-panel mark that falls on the peak stays pressable at the line itself. */
-.timeline-marker.timeline-window-peak { top: -7px; width: 16px; min-height: 12px !important; height: 12px; }
+.timeline-marker.timeline-window-peak { top: calc(50% - 18px); width: 16px; min-height: 12px !important; height: 12px; }
 .timeline-window-peak::before { position: absolute; top: 7px; left: 50%; height: 9px; border-left: 1px solid var(--ui-accent, #fc6323); content: ""; }
 .timeline-window-peak::after { width: 9px !important; height: 9px !important; margin-top: 1.5px !important; border-radius: 1px !important; background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 0 2px rgba(13, 13, 13, .8); transform: rotate(45deg); }
-.timeline-track-glow .timeline-marker::after { background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 1px rgba(13, 13, 13, .6); }
-.timeline-track-glow .timeline-marker:hover::after,
-.timeline-track-glow .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
-.timeline-track-glow input[type="range"] { -webkit-appearance: none; appearance: none; }
-.timeline-track-glow input[type="range"]::-webkit-slider-runnable-track { height: 22px; background: transparent; border: 0; }
-.timeline-track-glow input[type="range"]::-moz-range-track { height: 22px; background: transparent; border: 0; }
-.timeline-track-glow input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
-.timeline-track-glow input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 16px; height: 16px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
-.timeline-track-glow input[type="range"]:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; border-radius: 8px; }
+.timeline-track .timeline-marker::after { background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 1px rgba(13, 13, 13, .6); }
+.timeline-track .timeline-marker:hover::after,
+.timeline-track .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
+.timeline-track input[type="range"] { -webkit-appearance: none; appearance: none; }
+.timeline-track input[type="range"]::-webkit-slider-runnable-track { height: 22px; background: transparent; border: 0; }
+.timeline-track input[type="range"]::-moz-range-track { height: 22px; background: transparent; border: 0; }
+.timeline-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
+.timeline-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 16px; height: 16px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
+.timeline-track input[type="range"]:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; border-radius: 8px; }
 .timeline-bar .timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
 .timeline-bar .timeline-marker:hover .timeline-marker-label,
 .timeline-bar .timeline-marker:focus .timeline-marker-label { display: block; }
