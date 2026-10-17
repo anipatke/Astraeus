@@ -1,6 +1,6 @@
 ---
 id: I-034
-title: Geminid dots jump during playback
+title: Shower dots jump during playback (Geminids most, Perseids slightly)
 type: defect
 status: open
 source:
@@ -28,6 +28,10 @@ history:
     actor: {role: planner, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner chose "Fold into the cleanup": the repair is planned as T-073 under O-017 (spread the fill across frames), after T-067.'
+  - at: '2026-10-17T14:20:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner: "I have only just noticed a slight stutter on the fastest setting for Perseids, its not as noticable as the other one but its there". The Perseids fastest rate is 604,800 s/s (one week per second, also the default), so this is the same fill hitch at half the member count (25,588). The first probe showed Perseids frames up to 67 ms against a 33 ms median, under the 3x-median flag used then, so the probe threshold hid it. T-073 slices any range-fill group over 1,024 members, so it covers both showers; its timing proof must flag any frame over 1.5x the median for both showers.'
 ---
 
 # I-034: Geminid dots jump during playback
