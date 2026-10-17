@@ -21,6 +21,7 @@ export function createEarthPathLayer(settings: ShowerSettings): PathLayer {
     samples: 361,
     object: {
       id: "earth-path",
+      partOf: "earth",
       label: "Earth's path",
       color: settings.look.earthPathColor,
       labelPriority: LABEL_PRIORITY.earthPath,
@@ -63,6 +64,7 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
         samples: 361,
         object: {
           id: `${id}-orbit`,
+          partOf: id,
           label: `${definition.label}'s orbit`,
           color: visual.material.color,
           labelPriority: LABEL_PRIORITY.planetOrbit,
@@ -138,6 +140,7 @@ export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer 
     sampling,
     object: {
       id: parentOrbitIdOf(settings),
+      partOf: settings.parentBodyId,
       label: `${definition.label} orbit`,
       color: settings.look.parentPathColor,
       labelPriority: LABEL_PRIORITY.parentOrbit,

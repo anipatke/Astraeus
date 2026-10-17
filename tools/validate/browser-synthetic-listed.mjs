@@ -11,6 +11,7 @@
 //   playback runs with zero console errors; Apollo stays the default experience
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import { chooseScale, currentScale } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -99,9 +100,8 @@ async function run(label, viewport) {
   await shot("listed-true-follow");
 
   const infoUnderTrue = await panel.innerText();
-  const readable = page.getByRole("button", { name: "Readable", exact: true });
-  await readable.click();
-  assert.equal(await readable.getAttribute("aria-pressed"), "true");
+  await chooseScale(page, "Readable");
+  assert.equal(await currentScale(page), "readable-scale");
   await page.waitForTimeout(800);
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is identical under True and Readable");
@@ -110,7 +110,7 @@ async function run(label, viewport) {
   await shot("listed-readable-focus");
   results[label].dotPixelsReadableFocus = await dotPixels();
   assert.ok(results[label].dotPixelsReadableFocus > 20, "dots are drawn in Readable scale");
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   await page.waitForTimeout(600);
 
   await page.getByRole("button", { name: "Play playback" }).click();

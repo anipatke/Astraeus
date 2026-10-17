@@ -5,6 +5,7 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-marker-existing.mjs
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { chooseScale, offersScale } from "../shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -32,9 +33,8 @@ try {
         await page.waitForTimeout(2500);
         const scales = {};
         for (const scale of ["True", "Readable", "Solar system"]) {
-          const button = page.getByRole("button", { name: scale, exact: true });
-          if ((await button.count()) === 0) continue;
-          await button.click();
+          if (!(await offersScale(page, scale))) continue;
+          await chooseScale(page, scale);
           if (await overview.count()) await overview.click();
           await page.waitForTimeout(2500);
           scales[scale] = {

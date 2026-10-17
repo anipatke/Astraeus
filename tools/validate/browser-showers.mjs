@@ -69,6 +69,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
+import { chooseScale, scaleOptions, selectOrbit } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -216,7 +217,7 @@ const planetOrbitPixels = async (page) => {
 async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
   const out = (results[label].planetOrbits = {});
   for (const id of ["mercury", "venus", "mars", "jupiter"]) {
-    await page.getByLabel("Select object").selectOption(`${id}-orbit`);
+    await selectOrbit(page, id, `${id}-orbit`);
     if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: new RegExp(`^Information about .+ orbit$`) }).click();
     await page.locator("#info-panel").waitFor();
     const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
@@ -246,9 +247,21 @@ async function checkSunEarth(page, label, shot, canvas) {
   if (parent !== "swift-tuttle") assert.ok(!(await canvas.getAttribute("data-bodies")).split(",").includes("swift-tuttle"), `${label}: another shower's parent (the catalogued comet) is not mounted in this shower`);
   assert.equal(await canvas.getAttribute("data-sun-centred"), "6", `${label}: Earth's path, four planet orbits and the comet's whole orbit are declared`);
   const options = await page.getByLabel("Select object").evaluate((select) => [...select.options].map((o) => o.value));
-  for (const id of [...mountedBodies, "earth-path", "mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", `${parent}-orbit`, `${shower}-stream`]) assert.ok(options.includes(id), `${label}: ${id} is listed`);
+  // T-079 (O-020 Decision 4): the Object list holds the bodies and the stream; the six orbit lines are no longer listed.
+  for (const id of [...mountedBodies, `${shower}-stream`]) assert.ok(options.includes(id), `${label}: ${id} is listed`);
+  for (const id of ["earth-path", "mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", `${parent}-orbit`]) assert.ok(!options.includes(id), `${label}: ${id} is not in the Object list`);
+  // Each orbit line stays reachable from its body: a related button selects it and opens nothing else; its info (source, limits) opens with Info.
+  for (const [body, orbit] of [["earth", "earth-path"], ["mars", "mars-orbit"], [parent, `${parent}-orbit`]]) {
+    await page.getByLabel("Select object").selectOption(body);
+    const related = page.locator(`[data-related-object="${orbit}"]`);
+    assert.equal(await related.count(), 1, `${label}: ${body} offers a button for ${orbit}`);
+    await related.click();
+    assert.equal(await page.getByLabel("Select object").inputValue(), orbit, `${label}: ${orbit} is selected from its body`);
+    assert.equal(await page.locator(`#info-panel[data-info-id="${orbit}"]`).count(), 1, `${label}: ${orbit}'s info (source, limits) opens from its body`);
+  }
+  await page.getByLabel("Select object").selectOption(mountedBodies[0]);
   assert.ok(!options.includes("moon"), `${label}: no Moon item`);
-  const scales = await page.locator(".scale-choices button[data-scale]").evaluateAll((buttons) => buttons.map((b) => b.dataset.scale));
+  const scales = await scaleOptions(page);
   assert.deepEqual(scales, ["true-scale", "solar-system"], `${label}: true and solar-system scale`);
 
   // The Sun at the origin: with the Sun focused the camera is centred on it, so its marker is at the middle of the canvas.
@@ -314,7 +327,7 @@ async function checkSunEarth(page, label, shot, canvas) {
   for (let i = 0; i < 6; i += 1) await page.mouse.wheel(0, 600);
   await page.waitForTimeout(800);
   const trueCount = (await pathPixels(page)).bright;
-  await page.getByRole("button", { name: "Solar system", exact: true }).click();
+  await chooseScale(page, "Solar system");
   await page.waitForTimeout(1200);
   const solarCount = (await pathPixels(page)).bright;
   out.brightPixels = { trueScale: trueCount, solarSystem: solarCount };
@@ -402,7 +415,7 @@ async function checkBodies(page, label, shot, canvas) {
   const seen = new Map();
   const markerSets = [];
   // The scenario is stated at true scale, so choose it (an earlier check leaves the solar-system scale on; with a close Overview an enlarged giant planet is a body, not a marker).
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   // T-055: a shower whose parent orbits inside Jupiter's (no wide-ranging comet) frames a smaller Overview that can leave the outer planets off screen: start the sweep from
   // farther out (the camera is held at its settings' reach), so every body is in view at the start whatever the parent.
@@ -460,7 +473,7 @@ async function checkBodies(page, label, shot, canvas) {
     const value = await compact.evaluate((select) => [...select.options].find((o) => o.textContent.trim() === "Overview")?.value ?? null);
     await compact.selectOption(value);
   } else await page.getByRole("button", { name: "Overview", exact: true }).click();
-  await page.getByRole("button", { name: "Solar system", exact: true }).click();
+  await chooseScale(page, "Solar system");
   await page.waitForTimeout(1500);
   const box2 = await canvas.boundingBox();
   await page.mouse.move(box2.x + box2.width / 2, box2.y + box2.height / 2);
@@ -477,14 +490,14 @@ async function checkBodies(page, label, shot, canvas) {
   out.solarSystemBodySet = [...asBodyAtSomeZoom];
   assert.ok(asBodyAtSomeZoom.has("earth") && asBodyAtSomeZoom.size >= 3, `${label}: under the solar-system scale Earth and other planets draw as bodies at some zoom (${[...asBodyAtSomeZoom]})`);
   await shot("bodies-solar-system");
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   await page.waitForTimeout(800);
 }
 
 // The comet's whole orbit is drawn and the "Whole orbit" preset frames it: the violet line spans most of the canvas in both directions.
 async function checkWholeOrbit(page, label, shot, canvas) {
   const out = (results[label].wholeOrbit = {});
-  await page.getByLabel("Select object").selectOption(`${parent}-orbit`);
+  await selectOrbit(page, parent, `${parent}-orbit`);
   const close = page.locator("#info-panel .info-panel-close");
   if (await close.count()) await close.click();
   const compact = page.locator(".object-camera-picker");

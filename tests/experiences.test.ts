@@ -142,6 +142,17 @@ describe("Perseids in the Sun-centred composition", () => {
     expect(JSON.stringify(experienceWithGroups(perseids))).not.toMatch(/\bMoon\b/);
   });
 
+  it("leaves every orbit line out of the Object list but offers each from its body", () => {
+    const objects = experienceWithGroups(perseids).objects;
+    const orbits = objects.filter((object) => object.id.endsWith("-orbit") || object.id === "earth-path");
+    expect(orbits.length).toBeGreaterThanOrEqual(5);
+    for (const orbit of orbits) {
+      expect(orbit.listed).toBe(false);
+      expect(objects.find((object) => object.id === orbit.partOf)?.listed).not.toBe(false);
+    }
+    expect(objects.filter((object) => object.listed !== false).map((object) => object.id)).toEqual(expect.arrayContaining(["sun", "earth", "swift-tuttle", `${settings.id}-stream`]));
+  });
+
   it("declares Earth's path and the parent's orbit as orbit paths about the Sun", () => {
     const { paths, sun } = sunCentredOf(perseids);
     expect(sun).toBeUndefined();

@@ -19,6 +19,13 @@ export interface ExperienceObject {
   readonly showLabel?: boolean;
   /** Hide this label when its object is farther from the camera than this render distance. */
   readonly labelMaxDistance?: number;
+  /**
+   * Whether the Object list offers this object (default true). An unlisted object is still drawn and still selectable: the object it is
+   * `partOf` offers it as a related button, and the list shows it while it is the selected one.
+   */
+  readonly listed?: boolean;
+  /** The id of the listed object this one belongs to (an orbit line to its body). A path object that names one is left out of the Object list; that object's top bar offers a button for it. */
+  readonly partOf?: string;
   /** One or two plain sentences for the info panel. */
   readonly description?: string;
   /** Where this object's data comes from. Anything reconstructed or illustrative must carry one. */

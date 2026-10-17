@@ -8,6 +8,7 @@
 // Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots and eccentric.json; use a new directory).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { chooseScale } from "../shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -137,7 +138,7 @@ const markerRule = async (query, label) => {
     const canvas = page.getByTestId("earth-moon-canvas");
     assert.equal(await canvas.getAttribute("data-bodies"), "sun,earth", `${label}: the Sun and Earth are mounted`);
     assert.equal(await canvas.getAttribute("data-sun-centred"), "3", `${label}: the Sun and two paths`);
-    await page.getByRole("button", { name: "True", exact: true }).click();
+    await chooseScale(page, "True");
     await page.getByLabel("Select object").selectOption("earth");
     await closeInfo(page);
     await pickPreset(page, "Focus Earth");
@@ -178,7 +179,7 @@ const markerRule = async (query, label) => {
     // Solar-system scale: Earth is enlarged 200 times. With the camera right beside the Sun, Earth is 1 AU (23,500 Earth radii) away:
     // true-scale Earth is then a marker and the enlarged one (8 px in radius) is still a sphere. Same camera, same distance, same rule.
     const nearSun = async (scale) => {
-      await page.getByRole("button", { name: scale, exact: true }).click();
+      await chooseScale(page, scale);
       await page.getByLabel("Select object").selectOption("sun");
       await closeInfo(page);
       await pickPreset(page, "Sun view");
@@ -234,7 +235,7 @@ const markerRule = async (query, label) => {
 for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["phone", { width: 390, height: 844 }]]) {
   const page = await open("", viewport);
   try {
-    await page.getByRole("button", { name: "True", exact: true }).click();
+    await chooseScale(page, "True");
     await page.getByLabel("Select object").selectOption("eccentric-path");
     await closeInfo(page);
     await pickPreset(page, "Focus long orbit");
@@ -261,7 +262,7 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
 {
   const page = await open("", { width: 1280, height: 800 });
   try {
-    await page.getByRole("button", { name: "True", exact: true }).click();
+    await chooseScale(page, "True");
     await page.getByLabel("Select object").selectOption("sun");
     await closeInfo(page);
     await pickPreset(page, "Sun view");

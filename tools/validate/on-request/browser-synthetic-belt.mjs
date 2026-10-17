@@ -2,6 +2,7 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-synthetic-belt.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import { chooseScale } from "../shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -75,7 +76,7 @@ try {
   await page.getByLabel("Select object").selectOption("dust-belt");
 
   for (const scale of ["True", "Readable"]) {
-    await page.getByRole("button", { name: scale, exact: true }).click();
+    await chooseScale(page, scale);
     await page.getByRole("button", { name: "Focus belt", exact: true }).click();
     await page.waitForTimeout(1500);
     lit[`${scale}-focus`] = await litPixels();
@@ -154,7 +155,7 @@ try {
       await target.waitForTimeout(400);
     };
     for (const scale of ["True", "Readable"]) {
-      await target.getByRole("button", { name: scale, exact: true }).click();
+      await chooseScale(target, scale);
       for (const [when, utc] of [["start", Date.UTC(2030, 0, 1, 1, 0, 0)], ["twelve hours on", Date.UTC(2030, 0, 1, 13, 0, 0)]]) {
         await seekTo(utc);
         // The Sun is the scene's zero: focusing it puts its marker on the axis the camera orbits.
@@ -229,7 +230,7 @@ try {
       }
     };
     for (const scale of ["True", "Readable"]) {
-      await target.getByRole("button", { name: scale, exact: true }).click();
+      await chooseScale(target, scale);
       await target.getByLabel("Select object").selectOption("sun");
       await closeInfo();
       await pickPreset("Sun view");
@@ -260,7 +261,7 @@ try {
       }
     }
     // Earth's path and the belt each focus; the Sun-centred view zooms out and in without errors.
-    await target.getByRole("button", { name: "True", exact: true }).click();
+    await chooseScale(target, "True");
     await target.getByLabel("Select object").selectOption("earth-path");
     await closeInfo();
     await target.waitForTimeout(300);

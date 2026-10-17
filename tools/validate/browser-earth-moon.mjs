@@ -2,6 +2,7 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-earth-moon.mjs
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import { scaleOptions } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -80,7 +81,7 @@ async function run(label, viewport) {
     assert.equal(await page.getByRole("button", { name: "Developer mode" }).count(), 1, `${label}: the shell is the usual one`);
 
     // Scale: True and Readable, as for Apollo.
-    const scaleLabels = await page.locator(".scale-choices button[data-scale]").evaluateAll((buttons) => buttons.map((b) => b.dataset.scale));
+    const scaleLabels = await scaleOptions(page);
     assert.deepEqual(scaleLabels, ["true-scale", "readable-scale"], `${label}: the usual two scales`);
 
     // Time moves things: the Moon's distance and phase change over half a month.

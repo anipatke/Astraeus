@@ -9,8 +9,7 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
-import { ObjectControls } from "./ObjectControls";
-import { ScaleControl } from "./ScaleControl";
+import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAvailable } from "./objectModel";
 import "./style.css";
@@ -174,34 +173,25 @@ export function AstraeusShell({
     <main className="astraeus-shell">
       <div className="shell-canvas">{children}</div>
       <div className="shell-top">
-        <div className="shell-toolbar">
-          <ObjectControls
-            experience={experience}
-            timeUtcMs={snapshot.timeUtcMs}
-            selectedObjectId={selectedObjectId}
-            activePresetId={activePresetId}
-            onSelectObject={selectObject}
-            onCameraPreset={activatePreset}
-            infoOpen={info?.kind === "object"}
-            onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
-          />
-          <ScaleControl scaleId={scaleId} onScaleChange={onScaleChange} choices={scaleChoices} />
-        </div>
+        <TopBar
+          experience={experience}
+          timeUtcMs={snapshot.timeUtcMs}
+          selectedObjectId={selectedObjectId}
+          activePresetId={activePresetId}
+          onSelectObject={selectObject}
+          onCameraPreset={activatePreset}
+          infoOpen={info?.kind === "object"}
+          onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
+          scaleId={scaleId}
+          onScaleChange={onScaleChange}
+          scaleChoices={scaleChoices}
+        />
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>
       {story.openPanel !== null && (
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
       )}
-      <button
-        className="developer-mode-toggle"
-        type="button"
-        aria-pressed={developerMode}
-        aria-expanded={developerMode}
-        aria-controls="developer-tools"
-        onClick={() => onDeveloperModeChange(!developerMode)}
-      >
-        Developer mode
-      </button>
+      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} />
       <aside className="developer-tools" id="developer-tools" aria-label="Developer diagnostics" hidden={!developerMode}>
         {developerMode ? developerTools : null}
       </aside>
