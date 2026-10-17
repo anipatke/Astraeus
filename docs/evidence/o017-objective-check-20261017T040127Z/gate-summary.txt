@@ -1,0 +1,7 @@
+npx tsc exit=0 1s
+npx vitest exit=0 37s
+npm run exit=0 1s
+public-build exit=0
+public-build-assets exit=0
+run-full exit=1
+ALLDONE

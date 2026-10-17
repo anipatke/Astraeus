@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: the time wraps back after the end (2027-02-11T23:01:02.156Z 2027-02-11T23:01:02.156Z 2027-02-11T23:01:02.156Z 2027-02-12T23:49:51.116Z 2027-02-12T23:49:51.116Z 2027-02-14T03:24:59.276Z 2027-02-14T23:51:43.436Z 2027-02-15T20:24:30.476Z 2027-02-15T20:24:30.476Z 2027-02-17T04:57:00.236Z 2027-02-18T09:36:39.116Z 2027-02-18T18:36:56.395Z 2027-02-18T18:36:56.395Z 2027-02-20T02:30:07.436Z 2027-02-21T14:00:01.676Z 2027-02-22T09:09:08.876Z 2027-02-22T19:19:59.756Z 2027-02-23T17:48:41.995Z 2027-02-24T12:32:37.195Z 2027-02-25T20:10:41.036Z 2027-02-26T10:41:35.756Z 2027-02-27T19:42:18.956Z 2027-02-28T18:21:05.995Z 2027-02-28T18:21:05.995Z 2027-03-01T17:58:20.876Z 2027-03-01T17:58:20.876Z 2027-03-01T17:58:20.876Z 2027-03-01T17:58:20.876Z 2027-03-01T17:58:20.876Z 2027-03-01T17:58:20.876Z)
+    at checkLoop (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:636:10)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:1051:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:1062:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
