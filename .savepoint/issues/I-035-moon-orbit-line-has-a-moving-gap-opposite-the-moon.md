@@ -36,6 +36,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner on 0e94678 (Io smooth arc): "no it just looks like its shooting laser beams. But only at the start then it stabilises?" Likely stale ring-window samples after the load/seek clock jump, joined to the live head as long chords until the next rebuild. Builder asked to sample the arc per frame from the body''s own trajectory and rebuild the ring immediately when the clock leaves or jumps within its window, with tests and a browser check for chords after load and seek.'
+  - at: '2026-10-18T03:20:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner on 1d8c8a7: "NO, now it looks like a dashed line following it around. Why cant we just copy the same thing we did in the other one". Likely two coincident 1-px lines (ring and arc) interleaving. Builder told to port Planetary Explorer''s OrbitalTrailArc technique directly (16 ribbon segments, donor opacity 0.65 t^2, depthWrite off, double-sided), bent onto the real path, with the ring hidden under the arc.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
