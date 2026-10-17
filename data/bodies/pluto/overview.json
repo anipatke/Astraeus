@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "pluto",
+  "name": "Pluto",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "pluto",
+    "discovery": "Discovered in 1930 by American astronomer Clyde Tombaugh",
+    "diameterKm": 2377,
+    "facts": [
+      "Pluto is a dwarf planet in the distant Kuiper Belt.",
+      "Its bright heart-shaped region contains nitrogen-ice plains.",
+      "Pluto has a thin atmosphere that expands and shrinks along its orbit.",
+      "New Horizons made the first close flyby in 2015."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Pluto Facts",
+        "url": "https://science.nasa.gov/dwarf-planets/pluto/facts/"
+      }
+    ]
+  }
+}

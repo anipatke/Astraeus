@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "callisto",
+  "name": "Callisto",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#9090A0",
+      "isFilterable": true
+    },
+    {
+      "key": "basins",
+      "label": "Ring Features",
+      "color": "#7080A0",
+      "isFilterable": true
+    },
+    {
+      "key": "catenae",
+      "label": "Catenae",
+      "color": "#A8A0B8",
+      "isFilterable": true
+    },
+    {
+      "key": "faculae",
+      "label": "Faculae",
+      "color": "#D0D6E0",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#B8C4D0",
+      "alwaysVisible": true
+    }
+  ]
+}

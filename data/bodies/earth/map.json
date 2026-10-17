@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "earth",
+  "name": "Earth",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/earth-2k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1461877,
+      "sha256": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
+      "donorReadme": null
+    }
+  ],
+  "source": {
+    "recordedBy": "astraeus tools/import/planetary-explorer-map-sources.json",
+    "recordedIn": "docs/DONOR_PROVENANCE.md, section 'Texture assets (Earth and Moon replaced by sourced NASA maps, I-029)'",
+    "donorFileSourced": false,
+    "description": "NASA Earth Observatory, Blue Marble: Next Generation with Topography and Bathymetry, July 2004 (Reto Stockli); the donor's earth-2k.jpg is unrecorded (donor commit e65e305 notes 'NASA Blue Marble'); the map Astraeus ships is src/assets/textures/earth-bmng-july-4k.jpg",
+    "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/",
+    "licence": "Public domain (NASA media usage guidelines)",
+    "credit": "NASA Earth Observatory (Blue Marble: Next Generation, Reto Stockli)",
+    "registration": "Greenwich meridian at the image centre (docs/DONOR_PROVENANCE.md)"
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -119.6,
+      "max": 162.3
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": null
+  }
+}

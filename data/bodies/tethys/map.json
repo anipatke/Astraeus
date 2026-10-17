@@ -1,0 +1,60 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "tethys",
+  "name": "Tethys",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/tethys-4k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 2567473,
+      "sha256": "6b5dc1434b704b272a90ed04db820538ffca8edb0ee20c68932cc49a01d60dc1",
+      "donorReadme": [
+        "- `tethys-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Tethys - 2014 (PIA18439)",
+        "  - Source page: https://science.nasa.gov/photojournal/color-maps-of-tethys-2014/",
+        "  - Catalog page: https://photojournal.jpl.nasa.gov/catalog/PIA18439",
+        "  - Purpose: replace the previous non-2:1 Tethys texture with a web-ready simple-cylindrical Cassini global color map",
+        "  - Processing: resized locally from the `13467x6734` high-resolution JPEG to a true `4096x2048` JPEG",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -159.38,
+      "max": 173.9
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": -1,
+      "offsetDeg": 180
+    },
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Tethys release uses the NASA/JPL PIA18439 Cassini global color map resized to `4K`. Source coordinate labels in `data/tethys-features.json` retain IAU positive-west values; because this texture is registered 180 degrees from the Mimas frame, numeric marker longitudes use `markerLongitude = 180 - westLongitude`, normalized to `[-180, 180]`."
+  }
+}

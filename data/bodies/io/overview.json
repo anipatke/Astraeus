@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "io",
+  "name": "Io",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "io",
+    "discovery": "Discovered in 1610 by Italian astronomer Galileo Galilei",
+    "diameterKm": 3642.98,
+    "facts": [
+      "Io is the most volcanically active world in the solar system.",
+      "Jupiter's gravity stretches and heats Io's interior.",
+      "Its colorful surface is coated with sulfur compounds.",
+      "Io keeps the same face turned toward Jupiter."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Io Facts",
+        "url": "https://science.nasa.gov/jupiter/jupiter-moons/io/facts/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

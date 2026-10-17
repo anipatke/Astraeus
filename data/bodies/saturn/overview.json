@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "saturn",
+  "name": "Saturn",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "saturn",
+    "discovery": "Known since antiquity",
+    "diameterKm": 116460,
+    "facts": [
+      "Saturn's rings are made of countless pieces of ice and rock.",
+      "It is the second-largest planet in the solar system.",
+      "Saturn is less dense than liquid water.",
+      "A day on Saturn lasts about 10.7 hours."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Saturn Facts",
+        "url": "https://science.nasa.gov/saturn/facts/"
+      }
+    ]
+  }
+}

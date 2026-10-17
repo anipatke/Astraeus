@@ -1,0 +1,25 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "ceres",
+  "name": "Ceres",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#B0C4DE",
+      "isFilterable": true
+    },
+    {
+      "key": "mountains",
+      "label": "Mountains",
+      "color": "#D3D3D3",
+      "isFilterable": true
+    }
+  ]
+}

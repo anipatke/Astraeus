@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "iapetus",
+  "name": "Iapetus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "iapetus",
+    "discovery": "Discovered in 1671 by Italian-French astronomer Giovanni Domenico Cassini",
+    "diameterKm": 1468.6,
+    "facts": [
+      "Iapetus has one bright side and one much darker side.",
+      "A tall ridge runs along much of its equator.",
+      "Its low density shows that it is made mostly of ice.",
+      "Iapetus orbits much farther from Saturn than the other large icy moons."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Iapetus",
+        "url": "https://science.nasa.gov/saturn/moons/iapetus/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

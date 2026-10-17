@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "europa",
+  "name": "Europa",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "linea",
+      "label": "Linea",
+      "color": "#A0B8D0",
+      "isFilterable": true
+    },
+    {
+      "key": "chaos",
+      "label": "Chaos",
+      "color": "#C87848",
+      "isFilterable": true
+    },
+    {
+      "key": "maculae",
+      "label": "Maculae",
+      "color": "#B66A48",
+      "isFilterable": true
+    },
+    {
+      "key": "impact",
+      "label": "Impacts",
+      "color": "#E0D6C8",
+      "isFilterable": true
+    },
+    {
+      "key": "regions",
+      "label": "Regions",
+      "color": "#8FA88A",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#D0E0F0",
+      "alwaysVisible": true
+    }
+  ]
+}

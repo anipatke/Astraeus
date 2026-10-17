@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "mars",
+  "name": "Mars",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "mars",
+    "discovery": "Known since antiquity",
+    "diameterKm": 6779,
+    "facts": [
+      "Iron minerals in the soil give Mars its rusty color.",
+      "Olympus Mons is the largest known volcano in the solar system.",
+      "Mars has two small moons, Phobos and Deimos.",
+      "A day on Mars lasts about 24 hours and 37 minutes."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Mars Facts",
+        "url": "https://science.nasa.gov/mars/facts/"
+      }
+    ]
+  }
+}

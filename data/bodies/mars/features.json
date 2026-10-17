@@ -1,0 +1,712 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "mars",
+  "name": "Mars",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 32,
+  "features": [
+    {
+      "id": "olympus-mons",
+      "name": "Olympus Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 18.65,
+      "longitude": -133.8,
+      "description": "The tallest known volcano in the Solar System, rising about 22 km above the surrounding plains and spanning roughly 600 km across. Its broad shield shape formed from countless low-viscosity lava flows over a very long period of Martian geological history.",
+      "tags": [
+        "volcano",
+        "shield volcano",
+        "largest",
+        "tharsis"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "If Olympus Mons stood on Earth, its summit would rise far above the altitude where most passenger aircraft cruise."
+        }
+      ]
+    },
+    {
+      "id": "arsia-mons",
+      "name": "Arsia Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": -8.35,
+      "longitude": -120.09,
+      "description": "The southernmost of the three Tharsis Montes volcanoes, known for its huge caldera and long apron of lava flows. Clouds often form over Arsia Mons during the Martian morning, making it one of the most visually dynamic volcanoes on the planet.",
+      "tags": [
+        "volcano",
+        "tharsis montes",
+        "caldera",
+        "clouds"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Arsia Mons regularly grows a giant elongated cloud at dawn, one of the most distinctive recurring weather features on Mars."
+        }
+      ]
+    },
+    {
+      "id": "pavonis-mons",
+      "name": "Pavonis Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 0.8,
+      "longitude": -112.8,
+      "description": "The central volcano of the Tharsis Montes chain, rising nearly 14 km above the surrounding terrain. Its slopes preserve lava-flow textures and skylight pits that hint at lava tubes beneath the surface.",
+      "tags": [
+        "volcano",
+        "tharsis montes",
+        "lava tubes",
+        "equatorial"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Possible lava-tube skylights around Pavonis Mons make it a favorite candidate in discussions about future human shelters on Mars."
+        }
+      ]
+    },
+    {
+      "id": "ascraeus-mons",
+      "name": "Ascraeus Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 11.92,
+      "longitude": -104,
+      "description": "The northernmost of the Tharsis Montes volcanoes, with a summit caldera complex and extensive lava plains around its flanks. Like the other giant shield volcanoes, it records a long volcanic history on a planet without active plate tectonics.",
+      "tags": [
+        "volcano",
+        "tharsis montes",
+        "shield volcano",
+        "caldera"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Because Mars lacks moving tectonic plates, giant volcanoes like Ascraeus Mons could keep stacking eruptions in one place for immense spans of time."
+        }
+      ]
+    },
+    {
+      "id": "elysium-mons",
+      "name": "Elysium Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 24.9,
+      "longitude": 146.9,
+      "description": "The largest volcano in the Elysium region and one of the youngest major volcanic provinces on Mars. Its smoother flanks and surrounding lava plains suggest volcanic activity persisted here later than in many other parts of the planet.",
+      "tags": [
+        "volcano",
+        "elysium",
+        "young volcanism",
+        "lava plains"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Elysium Mons belongs to a volcanic province that may have remained active much later than the classic Tharsis giants."
+        }
+      ]
+    },
+    {
+      "id": "valles-marineris",
+      "name": "Valles Marineris",
+      "featureType": "canyon-system",
+      "category": "canyons",
+      "latitude": -14,
+      "longitude": -59,
+      "description": "A colossal canyon system stretching over 4,000 km across Mars, up to 200 km wide and 7 km deep in places. It likely formed from crustal stretching associated with the rise of the Tharsis region, then widened through landslides and erosion.",
+      "tags": [
+        "canyon",
+        "largest canyon",
+        "tharsis",
+        "tectonics"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Valles Marineris is so vast that if laid across Earth it would stretch roughly coast to coast across the United States."
+        }
+      ]
+    },
+    {
+      "id": "noctis-labyrinthus",
+      "name": "Noctis Labyrinthus",
+      "featureType": "fractured-terrain",
+      "category": "canyons",
+      "latitude": -7,
+      "longitude": -102,
+      "description": "A maze of steep-walled valleys and collapsed blocks at the western end of Valles Marineris. The region looks like a broken crustal puzzle, preserving evidence of extension and collapse as Tharsis rose nearby.",
+      "tags": [
+        "canyon",
+        "labyrinth",
+        "fractures",
+        "tharsis"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Its name means 'Labyrinth of the Night,' which is fitting because the terrain looks like giant stone corridors shattered into a maze."
+        }
+      ]
+    },
+    {
+      "id": "candor-chasma",
+      "name": "Candor Chasma",
+      "featureType": "chasma",
+      "category": "canyons",
+      "latitude": -6,
+      "longitude": -70,
+      "description": "One of the major troughs within Valles Marineris, famous for layered deposits that may record ancient lakes, ash falls, or long-term sedimentation. Its exposed strata make it one of the best places to study the environmental history of Mars.",
+      "tags": [
+        "canyon",
+        "layered deposits",
+        "sediment",
+        "valles marineris"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Candor Chasma's stacked layers are so striking that scientists still debate whether they formed from water, volcanic ash, or both."
+        }
+      ]
+    },
+    {
+      "id": "hebes-chasma",
+      "name": "Hebes Chasma",
+      "featureType": "isolated-chasma",
+      "category": "canyons",
+      "latitude": -1.2,
+      "longitude": -76,
+      "description": "An enclosed canyon north of the main Valles Marineris troughs, containing a massive central mound of layered material. Its unusual enclosed form and dramatic stratigraphy have made it a long-standing target for geological interpretation.",
+      "tags": [
+        "canyon",
+        "layered mound",
+        "geology",
+        "valles marineris"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Hebes Chasma is unusual because it is largely enclosed, like a giant boxed-in canyon with a layered mountain rising from inside it."
+        }
+      ]
+    },
+    {
+      "id": "hellas-planitia",
+      "name": "Hellas Planitia",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": -42.4,
+      "longitude": 70.5,
+      "description": "A giant impact basin over 2,000 km across and one of the deepest topographic depressions on Mars. Its low elevation allows the atmosphere here to become denser than average, and seasonal frosts and dust activity often gather within the basin.",
+      "tags": [
+        "basin",
+        "impact",
+        "deep",
+        "weather"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Air pressure in Hellas Planitia can be significantly higher than average for Mars simply because the basin floor sits so deep."
+        }
+      ]
+    },
+    {
+      "id": "isidis-planitia",
+      "name": "Isidis Planitia",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": 12.9,
+      "longitude": 87,
+      "description": "A broad impact basin on the boundary between the ancient highlands and younger northern plains. Its geological setting helps scientists study the transition between very different eras of Martian crustal history.",
+      "tags": [
+        "basin",
+        "impact",
+        "highlands boundary",
+        "ancient crust"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Isidis Planitia sits right on one of Mars' biggest geologic boundaries, where the battered old south meets the smoother north."
+        }
+      ]
+    },
+    {
+      "id": "utopia-planitia",
+      "name": "Utopia Planitia",
+      "featureType": "plain-basin",
+      "category": "basins",
+      "latitude": 46.7,
+      "longitude": 118,
+      "description": "The largest recognized impact basin on Mars, now buried beneath the northern plains. Radar and geomorphology suggest this region may preserve water-ice-rich ground and sedimentary records from the planet's climatic past.",
+      "tags": [
+        "basin",
+        "northern plains",
+        "ice-rich ground",
+        "impact"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Utopia Planitia hosted China's Zhurong rover, making it part of the first successful Chinese surface mission to Mars."
+        }
+      ]
+    },
+    {
+      "id": "jezero-crater",
+      "name": "Jezero Crater",
+      "featureType": "crater-delta",
+      "category": "basins",
+      "latitude": 18.38,
+      "longitude": 77.58,
+      "description": "An ancient crater once occupied by a lake, with a beautifully preserved river delta feeding into its western side. Jezero was selected for the Perseverance rover because it offers one of the best places on Mars to search for signs of ancient microbial life.",
+      "tags": [
+        "basin",
+        "delta",
+        "ancient lake",
+        "perseverance"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Jezero means 'lake' in several Slavic languages, a fitting name for a crater that once held one."
+        }
+      ]
+    },
+    {
+      "id": "gale-crater",
+      "name": "Gale Crater",
+      "featureType": "crater-mound",
+      "category": "basins",
+      "latitude": -5.4,
+      "longitude": 137.8,
+      "description": "A 154 km wide crater containing Mount Sharp, a towering layered mound that preserves a long environmental record. Curiosity landed here in 2012 and has spent years climbing the mound to read Mars' climate history layer by layer.",
+      "tags": [
+        "basin",
+        "mount sharp",
+        "curiosity",
+        "stratigraphy"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Curiosity's landing ellipse inside Gale was so complex that NASA used a guided entry system and sky crane to pull it off."
+        }
+      ]
+    },
+    {
+      "id": "viking-1",
+      "name": "Viking 1 Landing Site",
+      "featureType": "landing-site",
+      "category": "landers",
+      "latitude": 22.48,
+      "longitude": -49.97,
+      "description": "The site where Viking 1 became the first successful spacecraft to land and operate on Mars in 1976. It returned panoramic images, weather measurements, and the first in situ biological experiments performed on Martian soil.",
+      "tags": [
+        "lander",
+        "viking 1",
+        "1976",
+        "first successful landing"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Viking 1 kept operating for years after landing, dramatically outliving its original planned mission."
+        }
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "name": "Mars Pathfinder",
+      "featureType": "landing-site",
+      "category": "landers",
+      "latitude": 19.13,
+      "longitude": 33.22,
+      "description": "Mars Pathfinder landed in Ares Vallis in 1997 and deployed Sojourner, the first rover to operate on another planet. The mission demonstrated lower-cost surface exploration and reignited global enthusiasm for Mars exploration.",
+      "tags": [
+        "lander",
+        "pathfinder",
+        "sojourner",
+        "1997"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Sojourner was only microwave-oven sized, but it proved that rovers could work on Mars and changed mission design for decades."
+        }
+      ]
+    },
+    {
+      "id": "spirit",
+      "name": "Spirit at Gusev Crater",
+      "featureType": "rover-site",
+      "category": "landers",
+      "latitude": -14.57,
+      "longitude": 175.48,
+      "description": "Spirit landed in Gusev Crater in 2004 to explore what was once thought to be an ancient lake basin. The rover instead found volcanic rocks at first, then later uncovered strong evidence of past hydrothermal activity in the Columbia Hills.",
+      "tags": [
+        "rover",
+        "spirit",
+        "gusev crater",
+        "hydrothermal"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Spirit eventually got stuck in soft soil and became a stationary science platform before Mars winter finally silenced it."
+        }
+      ]
+    },
+    {
+      "id": "opportunity",
+      "name": "Opportunity at Meridiani Planum",
+      "featureType": "rover-site",
+      "category": "landers",
+      "latitude": -1.95,
+      "longitude": 354.47,
+      "description": "Opportunity landed in 2004 and operated for nearly 15 years, far beyond its original mission. It found convincing evidence that liquid water once altered rocks and soils across Meridiani Planum.",
+      "tags": [
+        "rover",
+        "opportunity",
+        "meridiani planum",
+        "water evidence"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Opportunity drove a marathon's distance on Mars, far beyond what its designers expected from a 90-sol mission."
+        }
+      ]
+    },
+    {
+      "id": "curiosity",
+      "name": "Curiosity at Bradbury Landing",
+      "featureType": "rover-site",
+      "category": "landers",
+      "latitude": -4.59,
+      "longitude": 137.44,
+      "description": "Curiosity touched down inside Gale Crater in 2012 using the dramatic sky crane system. Its mission established that ancient Mars once hosted habitable environments with persistent liquid water and the chemical ingredients needed for life.",
+      "tags": [
+        "rover",
+        "curiosity",
+        "gale crater",
+        "habitability"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Curiosity carries a laser instrument that can zap distant rocks and read their chemistry from the resulting plasma flash."
+        }
+      ]
+    },
+    {
+      "id": "perseverance",
+      "name": "Perseverance at Jezero Crater",
+      "featureType": "rover-site",
+      "category": "landers",
+      "latitude": 18.44,
+      "longitude": 77.45,
+      "description": "Perseverance landed in Jezero Crater in 2021 to cache rock samples for a future return to Earth. It is exploring an ancient delta environment while testing new technologies, including the Ingenuity helicopter demonstration.",
+      "tags": [
+        "rover",
+        "perseverance",
+        "sample caching",
+        "ingenuity"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Perseverance brought Ingenuity, the tiny helicopter that achieved the first powered flights on another world."
+        }
+      ]
+    },
+    {
+      "id": "planum-boreum",
+      "name": "Planum Boreum",
+      "featureType": "polar-cap",
+      "category": "poles",
+      "latitude": 85,
+      "longitude": 0,
+      "description": "The broad layered northern polar cap of Mars, built from water ice and dust deposited over many climate cycles. Its internal layers are a frozen archive of changes in Martian tilt, atmosphere, and seasonal transport.",
+      "tags": [
+        "pole",
+        "north polar cap",
+        "water ice",
+        "climate record"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The layered ice and dust here act a bit like tree rings, preserving a long climate history of the planet."
+        }
+      ]
+    },
+    {
+      "id": "planum-australe",
+      "name": "Planum Australe",
+      "featureType": "polar-cap",
+      "category": "poles",
+      "latitude": -85,
+      "longitude": 0,
+      "description": "The southern polar region of Mars, marked by layered deposits and a seasonal blanket of carbon dioxide frost. It preserves evidence of long-term climate cycling and contains some of the planet's most extreme seasonal changes.",
+      "tags": [
+        "pole",
+        "south polar cap",
+        "carbon dioxide frost",
+        "climate"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Each winter, dry-ice frost spreads across the south polar region and then partly sublimates away when sunlight returns."
+        }
+      ]
+    },
+    {
+      "id": "alba-mons",
+      "name": "Alba Mons",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 40.5,
+      "longitude": -109.9,
+      "description": "A vast low-relief volcano north of the main Tharsis giants, with lava flows and fractures spread across an enormous footprint. Alba Mons is less dramatic in height than Olympus Mons, but its sheer width makes it one of the broadest volcanic constructs on Mars.",
+      "tags": [
+        "volcano",
+        "tharsis",
+        "broad shield",
+        "lava flows"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Alba Mons is so broad and gently sloped that it would feel more like crossing a raised continent than climbing a steep mountain."
+        }
+      ]
+    },
+    {
+      "id": "hecates-tholus",
+      "name": "Hecates Tholus",
+      "featureType": "volcano",
+      "category": "volcanoes",
+      "latitude": 32.1,
+      "longitude": 150.2,
+      "description": "A large volcanic mountain in the Elysium region marked by summit collapse features and flanks cut by channels and valleys. It helps show that Martian volcanism was not limited to the most famous giant shields.",
+      "tags": [
+        "volcano",
+        "elysium",
+        "tholus",
+        "summit collapse"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Unlike the immense shield volcanoes, Hecates Tholus preserves signs of both volcanic construction and later erosion on its slopes."
+        }
+      ]
+    },
+    {
+      "id": "ius-chasma",
+      "name": "Ius Chasma",
+      "featureType": "chasma",
+      "category": "canyons",
+      "latitude": -8,
+      "longitude": -85,
+      "description": "A major western trough of Valles Marineris with steep walls, landslides, and long fault-bounded floors. It helps define the immense scale of the canyon system before the terrain opens eastward into the central chasmata.",
+      "tags": [
+        "canyon",
+        "valles marineris",
+        "landslides",
+        "tectonics"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Ius Chasma is one of the places where Valles Marineris starts to feel less like a single canyon and more like an entire broken world of parallel trenches."
+        }
+      ]
+    },
+    {
+      "id": "melas-chasma",
+      "name": "Melas Chasma",
+      "featureType": "chasma",
+      "category": "canyons",
+      "latitude": -11,
+      "longitude": -72,
+      "description": "A deep central section of Valles Marineris famous for dark floor materials and thick layered deposits. Its rocks record a complicated mix of collapse, sedimentation, and possible water-related activity within the canyon system.",
+      "tags": [
+        "canyon",
+        "valles marineris",
+        "layered deposits",
+        "dark floor"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Melas Chasma contains some of the deepest exposed terrain on Mars, making it a natural place to read buried chapters of Martian history."
+        }
+      ]
+    },
+    {
+      "id": "argyre-planitia",
+      "name": "Argyre Planitia",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": -49.7,
+      "longitude": -42.8,
+      "description": "A giant impact basin in the southern highlands, smaller than Hellas but still one of the great circular scars on Mars. Its basin floor, surrounding channels, and layered history make it an important marker of ancient impacts and later climate activity.",
+      "tags": [
+        "basin",
+        "impact",
+        "southern highlands",
+        "ancient climate"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Argyre is one of the easiest giant basins to recognize on a Mars globe because it appears as a huge round depression ringed by rugged terrain."
+        }
+      ]
+    },
+    {
+      "id": "gusev-crater",
+      "name": "Gusev Crater",
+      "featureType": "impact-crater",
+      "category": "basins",
+      "latitude": -14.6,
+      "longitude": 175.4,
+      "description": "A large crater once considered a strong candidate for an ancient lake basin, later explored by the Spirit rover. Gusev remains important because its floor and nearby Columbia Hills preserve evidence of volcanic resurfacing and hydrothermal alteration.",
+      "tags": [
+        "basin",
+        "crater",
+        "spirit",
+        "hydrothermal"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Spirit landed in Gusev expecting lake sediments, then rewrote the story by uncovering a more volcanic and hydrothermal past."
+        }
+      ]
+    },
+    {
+      "id": "chasma-boreale",
+      "name": "Chasma Boreale",
+      "featureType": "polar-canyon",
+      "category": "poles",
+      "latitude": 83,
+      "longitude": -30,
+      "description": "A huge canyon slicing into the north polar cap, exposing layered ice and dust that record repeated climate swings. It is one of the most striking named landforms in the martian north and gives the polar region a dramatic sculpted edge.",
+      "tags": [
+        "pole",
+        "north polar cap",
+        "canyon",
+        "layered ice"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Chasma Boreale looks like a giant bite taken out of the north polar cap, revealing the layered interior of the ice."
+        }
+      ]
+    },
+    {
+      "id": "australe-scopuli",
+      "name": "Australe Scopuli",
+      "featureType": "polar-scarp",
+      "category": "poles",
+      "latitude": -80,
+      "longitude": 45,
+      "description": "A dramatic scarp zone around the south polar layered deposits, where cliffs and troughs mark the edge of the polar ice-rich terrain. It helps give the southern polar region a more legible structure than the cap name alone.",
+      "tags": [
+        "pole",
+        "south polar cap",
+        "scarp",
+        "layered deposits"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The steep margins of Australe Scopuli help scientists trace how the south polar layered deposits have been built up and carved back over time."
+        }
+      ]
+    },
+    {
+      "id": "phobos",
+      "name": "Phobos",
+      "featureType": "moon",
+      "category": "moons",
+      "ringRadius": 1.38,
+      "ringAngle": 0.62,
+      "moonRadius": 0.0164,
+      "description": "Phobos is the larger and innermost of Mars' two moons, an irregular, dark body only about 27 km across at its widest. It races around Mars in roughly 7 hours and 39 minutes, so from the Martian surface it would rise in the west and set in the east more than once per sol. Its orbit is slowly decaying, and in tens of millions of years Phobos may either break into a ring or crash into Mars.",
+      "tags": [
+        "moon",
+        "inner moon",
+        "fast orbit",
+        "stickney crater"
+      ],
+      "details": [
+        {
+          "label": "Orbit",
+          "value": "About 9,376 km from Mars' centre"
+        },
+        {
+          "label": "Approximate size",
+          "value": "About 27 x 22 x 18 km"
+        },
+        {
+          "label": "Orbital period",
+          "value": "About 7 hours 39 minutes"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Phobos is so close to Mars that it moves across the sky faster than the planet rotates beneath it."
+        }
+      ]
+    },
+    {
+      "id": "deimos",
+      "name": "Deimos",
+      "featureType": "moon",
+      "category": "moons",
+      "ringRadius": 2.35,
+      "ringAngle": 3.78,
+      "moonRadius": 0.0091,
+      "description": "Deimos is the smaller and outer moon of Mars, a lumpy, dust-covered world roughly 15 km across at its widest. It orbits much farther out than Phobos, taking about 30 hours to circle Mars, and its smoother appearance comes from loose regolith that softens many crater rims. Deimos is tiny, but it gives Mars a second companion and a useful contrast to the doomed, fast-moving Phobos.",
+      "tags": [
+        "moon",
+        "outer moon",
+        "small body",
+        "regolith"
+      ],
+      "details": [
+        {
+          "label": "Orbit",
+          "value": "About 23,463 km from Mars' centre"
+        },
+        {
+          "label": "Approximate size",
+          "value": "About 15 x 12 x 11 km"
+        },
+        {
+          "label": "Orbital period",
+          "value": "About 30 hours 18 minutes"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "From Mars, Deimos would look more like a bright moving star than a large moon."
+        }
+      ]
+    }
+  ]
+}

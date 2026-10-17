@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "jupiter",
+  "name": "Jupiter",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "bands",
+      "label": "Bands",
+      "color": "#C8A97A",
+      "isFilterable": true
+    },
+    {
+      "key": "storms",
+      "label": "Storms",
+      "color": "#E8724A",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#9BB8D4",
+      "isFilterable": true
+    },
+    {
+      "key": "rings",
+      "label": "Rings",
+      "color": "#C4B49A",
+      "isFilterable": true
+    },
+    {
+      "key": "inner-moons",
+      "label": "Inner Moons",
+      "color": "#D9B46C",
+      "isFilterable": true
+    }
+  ]
+}

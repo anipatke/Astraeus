@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "uranus",
+  "name": "Uranus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "bands",
+      "label": "Bands",
+      "color": "#8dd6dc",
+      "isFilterable": true
+    },
+    {
+      "key": "storms",
+      "label": "Storms",
+      "color": "#b9f1ff",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#d9fbff",
+      "alwaysVisible": true
+    },
+    {
+      "key": "rings",
+      "label": "Rings",
+      "color": "#8fa6b3",
+      "isFilterable": true
+    },
+    {
+      "key": "moons",
+      "label": "Moons",
+      "color": "#d9d4c7",
+      "isFilterable": true
+    },
+    {
+      "key": "seasons",
+      "label": "Seasons",
+      "color": "#9ab8c6",
+      "isFilterable": true
+    }
+  ]
+}

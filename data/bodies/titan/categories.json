@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "titan",
+  "name": "Titan",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "lakes",
+      "label": "Lakes",
+      "color": "#4d6a7f",
+      "isFilterable": true
+    },
+    {
+      "key": "dunes",
+      "label": "Dunes",
+      "color": "#9a7348",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#c6a16d",
+      "isFilterable": true
+    },
+    {
+      "key": "terrain",
+      "label": "Terrain",
+      "color": "#d6d0b8",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#d8b882",
+      "alwaysVisible": true
+    }
+  ]
+}

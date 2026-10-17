@@ -1,0 +1,354 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "tethys",
+  "name": "Tethys",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 12,
+  "features": [
+    {
+      "id": "ithaca-chasma",
+      "name": "Ithaca Chasma",
+      "featureType": "canyon system",
+      "category": "chasma",
+      "latitude": -14,
+      "longitude": 173.9,
+      "description": "Ithaca Chasma is the great tectonic scar of Tethys: a trough system more than a thousand kilometres long that arcs across much of the icy moon. It may record a time when Tethys's interior froze, expanded, and split the outer shell like brittle rock.",
+      "tags": [
+        "chasma",
+        "global trench",
+        "tectonics",
+        "icy crust"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 1,219 km in IAU mapping"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "14.00 S, 6.10 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "On a moon only about 1,062 km across, Ithaca Chasma is a truly global-scale fracture."
+        }
+      ]
+    },
+    {
+      "id": "ogygia-chasma",
+      "name": "Ogygia Chasma",
+      "featureType": "canyon system",
+      "category": "chasma",
+      "latitude": 56,
+      "longitude": 84.8,
+      "description": "Ogygia Chasma is a shorter northern fracture that adds a second tectonic note to Tethys's battered surface. Its presence shows that the moon's crust did not simply break once around Ithaca Chasma; smaller fault systems also cut through the old ice.",
+      "tags": [
+        "chasma",
+        "northern terrain",
+        "fractures"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 120 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "56.00 N, 95.20 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Ogygia, the island home of Calypso in the Odyssey"
+        }
+      ]
+    },
+    {
+      "id": "odysseus",
+      "name": "Odysseus",
+      "featureType": "impact basin",
+      "category": "craters",
+      "latitude": 32.82,
+      "longitude": 51.11,
+      "description": "Odysseus is one of the largest impact basins on any mid-sized icy moon. Its rim spans nearly two-fifths of Tethys's diameter, yet the basin has a softened, relaxed floor rather than the sharp relief expected from a fresh crater.",
+      "tags": [
+        "impact",
+        "basin",
+        "relaxed crater",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "445 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "32.82 N, 128.89 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "An impact much larger than the Odysseus event might have shattered Tethys outright."
+        }
+      ]
+    },
+    {
+      "id": "scheria-montes",
+      "name": "Scheria Montes",
+      "featureType": "mountain complex",
+      "category": "montes",
+      "latitude": 30,
+      "longitude": 49,
+      "description": "Scheria Montes rises inside the Odysseus basin, marking the rugged uplift left by the giant impact. This mountainous patch helps make Odysseus more than a simple circular stain: it preserves the rebound and collapse of Tethys's icy crust.",
+      "tags": [
+        "montes",
+        "odysseus",
+        "impact uplift"
+      ],
+      "details": [
+        {
+          "label": "Mapped diameter",
+          "value": "About 185 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "30.00 N, 131.00 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Scheria, island of the Phaeacians visited by Odysseus"
+        }
+      ]
+    },
+    {
+      "id": "penelope",
+      "name": "Penelope",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -10.83,
+      "longitude": -69.22,
+      "description": "Penelope is the other major crater in the classic Cassini view of Tethys with Odysseus. Its broad rim and battered floor give a strong comparison point for reading impact ages across the anti-Saturn side of the moon.",
+      "tags": [
+        "crater",
+        "anti-saturn side",
+        "impact basin"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "207.5 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "10.83 S, 249.22 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Faithful wife of Odysseus"
+        }
+      ]
+    },
+    {
+      "id": "melanthius",
+      "name": "Melanthius",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -58.5,
+      "longitude": -12.61,
+      "description": "Melanthius is a huge southern impact crater set in heavily cratered old terrain. Its subdued outline is a reminder that Tethys's water-ice crust can slowly relax large scars over geologic time.",
+      "tags": [
+        "crater",
+        "southern hemisphere",
+        "ancient terrain"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "250 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "58.50 S, 192.61 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tethys is so ice-rich that big impact structures can sag and soften even in the deep cold."
+        }
+      ]
+    },
+    {
+      "id": "antinous",
+      "name": "Antinous",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -59.89,
+      "longitude": -106.15,
+      "description": "Antinous anchors another large southern crater field. Together with Melanthius and Telemus, it helps show how saturated the old terrain is: new impacts have repeatedly overlapped older scars.",
+      "tags": [
+        "crater",
+        "southern hemisphere",
+        "crater saturation"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "138 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "59.89 S, 286.15 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Chief of Penelope's suitors in the Odyssey"
+        }
+      ]
+    },
+    {
+      "id": "telemachus",
+      "name": "Telemachus",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 54,
+      "longitude": -159.38,
+      "description": "Telemachus is a high-northern crater named for the son of Odysseus. It gives the fact sheet a useful polar-region anchor, away from the better-known Odysseus and Ithaca landmarks.",
+      "tags": [
+        "crater",
+        "northern hemisphere",
+        "odyssey"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "92 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "54.00 N, 339.38 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tethys's named features draw heavily from people and places in Homer's Odyssey."
+        }
+      ]
+    },
+    {
+      "id": "eurycleia",
+      "name": "Eurycleia",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 52.54,
+      "longitude": -66.5,
+      "description": "Eurycleia sits in the northern cratered terrain, where smaller named craters help visitors read the surface beyond the giant basins. Its compact form contrasts with the broad relaxed floors of Odysseus and Penelope.",
+      "tags": [
+        "crater",
+        "northern hemisphere",
+        "old ice"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "31 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "52.54 N, 246.50 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "The faithful nurse of Odysseus"
+        }
+      ]
+    },
+    {
+      "id": "polyphemus",
+      "name": "Polyphemus",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -3.48,
+      "longitude": -102.98,
+      "description": "Polyphemus is a mid-sized crater near Tethys's equatorial terrain. Its Odyssey name points back to the moon's naming theme, while its placement helps fill the map between the anti-Saturn crater basins and the tectonic chasmata.",
+      "tags": [
+        "crater",
+        "equatorial terrain",
+        "odyssey"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "73 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "3.48 S, 282.98 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "The Cyclops encountered by Odysseus"
+        }
+      ]
+    },
+    {
+      "id": "e-ring-coated-leading-hemisphere",
+      "name": "E-ring Coated Leading Hemisphere",
+      "featureType": "icy terrain",
+      "category": "terrain",
+      "latitude": 0,
+      "longitude": 90,
+      "description": "The leading side of Tethys is dusted by bright icy particles from Saturn's E ring, which is fed by material erupting from Enceladus. NASA's Cassini color maps show this hemisphere as lighter than the radiation-altered trailing side.",
+      "tags": [
+        "terrain",
+        "leading hemisphere",
+        "e ring",
+        "enceladus"
+      ],
+      "details": [
+        {
+          "label": "Texture cue",
+          "value": "Brighter leading hemisphere"
+        },
+        {
+          "label": "Source",
+          "value": "Cassini global color map, PIA18439"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Neighboring Enceladus is literally painting Tethys with fresh icy dust."
+        }
+      ]
+    },
+    {
+      "id": "equatorial-pac-man-band",
+      "name": "Equatorial Pac-Man Band",
+      "featureType": "color and thermal anomaly",
+      "category": "terrain",
+      "latitude": 0,
+      "longitude": 90,
+      "description": "Tethys has a bright equatorial band on its leading hemisphere, first noticed by Voyager and clarified by Cassini. The pattern is linked to high-energy electrons trapped in Saturn's magnetic field changing surface ice on a microscopic scale.",
+      "tags": [
+        "terrain",
+        "equator",
+        "thermal anomaly",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Texture cue",
+          "value": "Bright equatorial band on the leading side"
+        },
+        {
+          "label": "Source",
+          "value": "Cassini global color map, PIA18439"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Similar thermal patterns on Tethys and Mimas earned the nickname Pac-Man features."
+        }
+      ]
+    }
+  ]
+}

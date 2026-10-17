@@ -1,0 +1,214 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "ceres",
+  "name": "Ceres",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 8,
+  "features": [
+    {
+      "id": "occator-crater",
+      "name": "Occator Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 19.8,
+      "longitude": 59.3,
+      "description": "Occator Crater contains the brightest spots on Ceres. These spots are highly reflective deposits of sodium carbonate salts, left behind when briny water from a deep subsurface reservoir erupted and evaporated in the vacuum of space.",
+      "tags": [
+        "bright spots",
+        "salt",
+        "impact"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "92 km"
+        },
+        {
+          "label": "Depth",
+          "value": "3 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The bright spots are known as Cerealia Facula and Vinalia Faculae."
+        }
+      ]
+    },
+    {
+      "id": "ahuna-mons",
+      "name": "Ahuna Mons",
+      "featureType": "cryovolcano",
+      "category": "mountains",
+      "latitude": -10.4,
+      "longitude": 136.2,
+      "description": "Ahuna Mons is a massive, isolated cryovolcano (ice volcano) that rises sharply from the surrounding terrain. Unlike Earth volcanoes that spew molten rock, Ahuna Mons likely erupted a briny mixture of water ice and salts.",
+      "tags": [
+        "cryovolcano",
+        "mountain",
+        "ice"
+      ],
+      "details": [
+        {
+          "label": "Height",
+          "value": "4 km (13,000 ft)"
+        },
+        {
+          "label": "Width",
+          "value": "17 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "It is the largest known cryovolcano in the inner solar system."
+        }
+      ]
+    },
+    {
+      "id": "kerwan-crater",
+      "name": "Kerwan Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -10.7,
+      "longitude": 304,
+      "description": "Kerwan is the largest confirmed impact crater on Ceres. It is exceptionally shallow for its size, suggesting that the ice-rich crust of Ceres has relaxed and flattened over billions of years.",
+      "tags": [
+        "basin",
+        "impact",
+        "shallow"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "280 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Kerwan is so smooth and shallow that it lacks a distinct central peak, typical for craters of this size."
+        }
+      ]
+    },
+    {
+      "id": "dantu-crater",
+      "name": "Dantu Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 24.3,
+      "longitude": 318.3,
+      "description": "Dantu is a large, prominent impact crater in the northern hemisphere with a complex central ridge structure. Its interior shows evidence of multiple geological processes including impacts and possible fluid activity.",
+      "tags": [
+        "crater",
+        "central peak",
+        "north"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "126 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Named after the Ghanaian god associated with the planting of corn."
+        }
+      ]
+    },
+    {
+      "id": "ezinu-crater",
+      "name": "Ezinu Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 43.2,
+      "longitude": 15.7,
+      "description": "Ezinu is a large crater in the northern mid-latitudes, notable for its well-preserved rim and the complex terrain of the surrounding region. It sits within the Ezinu quadrangle, one of the most geologically active regions of Ceres.",
+      "tags": [
+        "crater",
+        "north",
+        "rim"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "100 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Named after the Sumerian goddess of grain."
+        }
+      ]
+    },
+    {
+      "id": "haulani-crater",
+      "name": "Haulani Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 5.8,
+      "longitude": 190.7,
+      "description": "Haulani is a relatively young crater exhibiting striking bright ejecta rays and a polygonal shape. The bright material is thought to be freshly exposed ice and salts that haven't yet been darkened by space weathering.",
+      "tags": [
+        "young",
+        "bright",
+        "rays"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "34 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Its sharp, straight edges (polygonal shape) indicate it was formed in a crust riddled with pre-existing faults."
+        }
+      ]
+    },
+    {
+      "id": "yalode-crater",
+      "name": "Yalode Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -42,
+      "longitude": 112,
+      "description": "Yalode is the second-largest confirmed crater on Ceres. It features a complex central ridge and is located near another large crater, Urvara, dominating the southern hemisphere's topography.",
+      "tags": [
+        "basin",
+        "impact",
+        "south"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "260 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Fractures crossing Yalode's floor suggest tectonic activity occurred after the impact."
+        }
+      ]
+    },
+    {
+      "id": "urvara-crater",
+      "name": "Urvara Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -45.9,
+      "longitude": 68.6,
+      "description": "Urvara is a prominent crater with a central peak and sharp terraces. Together with Yalode, it is one of the most prominent features in Ceres' southern hemisphere.",
+      "tags": [
+        "crater",
+        "central peak",
+        "south"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "170 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Urvara has a prominent central ridge that rises over 3 km from the crater floor."
+        }
+      ]
+    }
+  ]
+}

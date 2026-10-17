@@ -1,0 +1,552 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "neptune",
+  "name": "Neptune",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 19,
+  "features": [
+    {
+      "id": "great-dark-spot",
+      "name": "Great Dark Spot",
+      "featureType": "storm system",
+      "category": "storms",
+      "latitude": -22,
+      "longitude": 310,
+      "description": "The Great Dark Spot was a giant anticyclonic storm photographed by Voyager 2 in 1989, comparable in size to Earth. Unlike Jupiter's Great Red Spot, Neptune's dark spots appear and vanish over timescales of just a few years, showing that the planet's atmosphere is much more transient and mobile.",
+      "tags": [
+        "storm",
+        "dark spot",
+        "voyager 2",
+        "anticyclone"
+      ],
+      "details": [
+        {
+          "label": "Observed",
+          "value": "Voyager 2, 1989"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "By the time Hubble looked again in 1994, the original Great Dark Spot had already disappeared."
+        }
+      ]
+    },
+    {
+      "id": "dark-spot-jr",
+      "name": "Dark Spot Jr.",
+      "featureType": "storm system",
+      "category": "storms",
+      "latitude": -34,
+      "longitude": 65,
+      "description": "After Voyager's Great Dark Spot vanished, Hubble discovered a new generation of dark storms forming at different latitudes. These shifting systems show that Neptune's atmosphere can reorganize rapidly, with vortices migrating and dissipating on surprisingly short timescales.",
+      "tags": [
+        "storm",
+        "hubble",
+        "dark vortex",
+        "transient"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Neptune's dark vortices have been seen drifting toward the equator, where some appear to break apart and disappear."
+        }
+      ]
+    },
+    {
+      "id": "scooter",
+      "name": "The Scooter",
+      "featureType": "high-speed cloud system",
+      "category": "storms",
+      "latitude": -42,
+      "longitude": 135,
+      "description": "The Scooter is a bright, fast-moving methane-ice cloud system that raced around Neptune much faster than the Great Dark Spot during the Voyager 2 flyby. It revealed the extreme wind shear in Neptune's atmosphere, where some cloud systems outrun others embedded deeper below.",
+      "tags": [
+        "cloud",
+        "winds",
+        "voyager 2",
+        "methane ice"
+      ],
+      "details": [
+        {
+          "label": "Wind context",
+          "value": "Linked to some of the fastest measured winds in the Solar System"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Voyager images showed the Scooter lapping the planet faster than the larger dark storm beside it."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-vortex",
+      "name": "South Polar Vortex",
+      "featureType": "polar vortex",
+      "category": "storms",
+      "latitude": -84,
+      "longitude": 0,
+      "description": "Neptune's south pole hosts a warm polar vortex with a compact eye-like structure surrounded by bright methane clouds. Infrared observations show warmer air descending there, making it one of the most distinctive polar weather systems in the outer Solar System.",
+      "tags": [
+        "polar",
+        "vortex",
+        "southern",
+        "infrared"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The south polar vortex has often been compared to a giant hurricane, even though Neptune has no solid surface beneath it."
+        }
+      ]
+    },
+    {
+      "id": "equatorial-methane-band",
+      "name": "Equatorial Methane Haze",
+      "featureType": "atmospheric band",
+      "category": "bands",
+      "latitude": 0,
+      "longitude": 250,
+      "description": "Neptune's equatorial region is wrapped in a bright methane-ice haze where sunlight scatters off high-altitude clouds. This pale band helps distinguish vertical structure in an atmosphere otherwise dominated by deep blue methane absorption.",
+      "tags": [
+        "band",
+        "equatorial",
+        "methane",
+        "haze"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Neptune's blue colour comes largely from methane absorbing red light, leaving the shorter blue wavelengths to dominate."
+        }
+      ]
+    },
+    {
+      "id": "mid-latitude-bands",
+      "name": "Mid-Latitude Bands",
+      "featureType": "atmospheric bands",
+      "category": "bands",
+      "latitude": 28,
+      "longitude": 180,
+      "description": "Subtle bright and dark bands wrap Neptune's mid-latitudes, tracing powerful east-west jet streams. They are fainter than Jupiter's belts but still reveal a deeply organized atmosphere beneath the planet's calmer telescopic appearance.",
+      "tags": [
+        "bands",
+        "jet stream",
+        "mid-latitude",
+        "winds"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Some of Neptune's jet streams reach supersonic speeds relative to the planet's internal sound speed estimates."
+        }
+      ]
+    },
+    {
+      "id": "north-polar-region",
+      "name": "North Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": 78,
+      "longitude": 45,
+      "description": "The north polar region appears less dramatically structured than the south in many observations, but it still shows seasonal haze, polar circulation, and changes tied to Neptune's long year. Because each season lasts decades, the poles evolve slowly from our perspective.",
+      "tags": [
+        "polar",
+        "north",
+        "seasonal",
+        "haze"
+      ],
+      "details": [
+        {
+          "label": "Year length",
+          "value": "About 165 Earth years"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "A single Neptunian season lasts more than 40 Earth years."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-region",
+      "name": "South Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": -72,
+      "longitude": 210,
+      "description": "Neptune's south polar region is marked by bright methane clouds and a warm central vortex, making it the most visually distinctive pole on the planet. It became a major target for infrared telescopes trying to understand how Neptune transports heat from its interior.",
+      "tags": [
+        "polar",
+        "south",
+        "methane clouds",
+        "heat flow"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Neptune radiates more than twice as much energy as it receives from the Sun, helping power its active weather."
+        }
+      ]
+    },
+    {
+      "id": "triton-system-context",
+      "name": "Triton and the Neptune System",
+      "featureType": "system context",
+      "category": "system",
+      "latitude": 18,
+      "longitude": 30,
+      "description": "Neptune's broader system is dominated by Triton, a captured Kuiper Belt object that orbits backward relative to Neptune's rotation. That unusual moon, along with Neptune's faint rings and remote location, makes the planet feel more like the threshold of the Kuiper Belt than just another giant planet.",
+      "tags": [
+        "triton",
+        "system",
+        "captured moon",
+        "outer solar system"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Triton's retrograde orbit strongly suggests it was captured rather than formed alongside Neptune."
+        }
+      ]
+    },
+    {
+      "id": "galle-ring",
+      "name": "Galle Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.297,
+      "ringAngle": 0.5,
+      "description": "The Galle ring is the innermost of Neptune's rings, appearing as a broad but extremely faint band of dark reddish material. Named for Johann Galle, who first observed Neptune mathematically before it was seen visually.",
+      "tags": [
+        "ring",
+        "inner",
+        "faint",
+        "broad"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "40,900 – 42,900 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Galle ring is so faint it was one of the last Uranian rings to be confirmed by Voyager 2."
+        }
+      ]
+    },
+    {
+      "id": "le-verrier-ring",
+      "name": "Le Verrier Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.917,
+      "ringAngle": 1.8,
+      "description": "The Le Verrier ring is a narrow, relatively bright ring named for Urbain Le Verrier, whose mathematical predictions led to Neptune's discovery. It is one of the more conspicuous components of Neptune's faint ring system.",
+      "tags": [
+        "ring",
+        "narrow",
+        "bright",
+        "Le Verrier"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "~53,200 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Le Verrier and Galle corresponded about Neptune's position before it was observed, making this ring's namesake part of a famous astronomical rivalry."
+        }
+      ]
+    },
+    {
+      "id": "lassell-ring",
+      "name": "Lassell Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.03,
+      "ringAngle": 3.2,
+      "description": "The Lassell ring is an extremely faint, broad sheet of material extending outward from the Le Verrier ring. Named for William Lassell, who discovered Triton just weeks after Neptune itself was found.",
+      "tags": [
+        "ring",
+        "faint",
+        "broad",
+        "dusty"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "53,200 – 57,200 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Lassell ring is so faint and diffuse it may be largely sustained by dust from meteoroid impacts on smaller moons."
+        }
+      ]
+    },
+    {
+      "id": "adams-ring",
+      "name": "Adams Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.505,
+      "ringAngle": 5.1,
+      "description": "The Adams ring is Neptune's most famous ring, known for containing the remarkable 'ring arcs' — clumps of material named Fraternité, Égalité, Liberté, and Courage that orbit together. These arcs are held in place by the moon Galatea through gravitational interactions.",
+      "tags": [
+        "ring",
+        "arcs",
+        "prominent",
+        "Adams",
+        "Fraternité",
+        "Égalité",
+        "Liberté"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "~63,932 km from center"
+        },
+        {
+          "label": "Arcs",
+          "value": "Fraternité, Égalité, Liberté, Courage"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Adams ring arcs are unique in the Solar System — nowhere else do ring particles clump so dramatically into stable, named segments."
+        }
+      ]
+    },
+    {
+      "id": "naiad",
+      "name": "Naiad",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.56,
+      "ringAngle": 0.45,
+      "moonRadius": 0.004,
+      "description": "Naiad is Neptune's innermost known moon, a small dark body discovered in Voyager 2 images in 1989. It circles so close to Neptune that one orbit takes only about seven hours, and its path is locked in a remarkable dance with nearby Thalassa that keeps the two tiny moons from close encounters.",
+      "tags": [
+        "inner moon",
+        "Voyager 2",
+        "Naiad",
+        "orbital resonance",
+        "small body"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 48,200 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "2.56 units from Neptune's centre, outside the Galle ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 66 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Naiad and Thalassa avoid each other through a repeating orbital pattern sometimes described as a tiny cosmic dance."
+        }
+      ]
+    },
+    {
+      "id": "thalassa",
+      "name": "Thalassa",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.66,
+      "ringAngle": 1.48,
+      "moonRadius": 0.004,
+      "description": "Thalassa is one of Neptune's innermost small moons, orbiting just beyond Naiad in the dense inner system found by Voyager 2. It is irregular, dark, and probably built from icy rubble, and its resonant relationship with Naiad is one of the most elegant orbital patterns known around Neptune.",
+      "tags": [
+        "inner moon",
+        "Voyager 2",
+        "Thalassa",
+        "resonance",
+        "irregular moon"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 50,100 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "2.66 units from Neptune's centre, outside the Galle ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 82 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Thalassa repeatedly passes over and under Naiad's tilted path instead of meeting it head-on."
+        }
+      ]
+    },
+    {
+      "id": "despina",
+      "name": "Despina",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.84,
+      "ringAngle": 2.42,
+      "moonRadius": 0.005,
+      "description": "Despina is a small inner moon orbiting close to Neptune's faint ring system. Its gravity is linked to the narrow Le Verrier ring, making it part of the machinery that keeps Neptune's dim rings structured instead of fading into a smooth dusty sheet.",
+      "tags": [
+        "inner moon",
+        "Despina",
+        "Le Verrier ring",
+        "ring system",
+        "Voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 52,500 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "2.84 units from Neptune's centre, just inside the Le Verrier ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 150 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Despina orbits in the same compact region as Neptune's main rings, helping turn the moon system and ring system into one connected structure."
+        }
+      ]
+    },
+    {
+      "id": "galatea",
+      "name": "Galatea",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.42,
+      "ringAngle": 3.38,
+      "moonRadius": 0.007,
+      "description": "Galatea is a small inner moon best known for its relationship with Neptune's Adams ring. Its gravity helps confine the famous ring arcs, where dusty material bunches into named clumps instead of spreading evenly around the planet.",
+      "tags": [
+        "inner moon",
+        "Galatea",
+        "Adams ring",
+        "ring arcs",
+        "shepherd moon"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 62,000 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.42 units from Neptune's centre, just inside the Adams ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 176 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Galatea is the moon that helps make Neptune's Adams ring arcs one of the strangest ring features in the Solar System."
+        }
+      ]
+    },
+    {
+      "id": "larissa",
+      "name": "Larissa",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.82,
+      "ringAngle": 4.55,
+      "moonRadius": 0.009,
+      "description": "Larissa is an irregular inner moon that was first noticed from Earth in 1981 when it briefly blocked a background star, then confirmed by Voyager 2 in 1989. It orbits beyond Galatea and is large enough to be a distinct lumpy world, but still far too small for gravity to pull it round.",
+      "tags": [
+        "inner moon",
+        "Larissa",
+        "stellar occultation",
+        "Voyager 2",
+        "irregular moon"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 73,500 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.82 units from Neptune's centre, outside the Adams ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 194 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Larissa was suspected before Voyager arrived because it made a star blink out during an occultation."
+        }
+      ]
+    },
+    {
+      "id": "proteus",
+      "name": "Proteus",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 4.75,
+      "ringAngle": 5.55,
+      "moonRadius": 0.016,
+      "description": "Proteus is the largest of Neptune's inner moons and one of the darkest objects Voyager 2 photographed there. At roughly 420 kilometres across, it is close to the size where gravity could start pulling a body into a rounded shape, yet Proteus remains heavily cratered and irregular.",
+      "tags": [
+        "inner moon",
+        "Proteus",
+        "Voyager 2",
+        "large inner moon",
+        "irregular body"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 117,600 km from Neptune's centre"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "4.75 units from Neptune's centre, outside the Adams ring"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 420 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Proteus is about as large as an icy moon can get before self-gravity starts making it much rounder."
+        }
+      ]
+    }
+  ]
+}

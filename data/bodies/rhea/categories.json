@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "rhea",
+  "name": "Rhea",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#c7c8ce",
+      "isFilterable": true
+    },
+    {
+      "key": "chasmata",
+      "label": "Chasmata",
+      "color": "#8fb7d3",
+      "isFilterable": true
+    },
+    {
+      "key": "catenae",
+      "label": "Catenae",
+      "color": "#d7b56d",
+      "isFilterable": true
+    },
+    {
+      "key": "fossae",
+      "label": "Fossae",
+      "color": "#b58fd3",
+      "isFilterable": true
+    },
+    {
+      "key": "terrain",
+      "label": "Terrain",
+      "color": "#e4e7ec",
+      "isFilterable": true
+    }
+  ]
+}

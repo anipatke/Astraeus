@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "ganymede",
+  "name": "Ganymede",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "ganymede",
+    "discovery": "Discovered in 1610 by Italian astronomer Galileo Galilei",
+    "diameterKm": 5262.4,
+    "facts": [
+      "Ganymede is the largest moon in the solar system.",
+      "It is the only moon known to make its own magnetic field.",
+      "Scientists think a salty ocean is hidden beneath its icy crust.",
+      "Ganymede is wider than the planet Mercury."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Ganymede Facts",
+        "url": "https://science.nasa.gov/jupiter/jupiter-moons/ganymede/facts/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

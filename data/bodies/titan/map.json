@@ -1,0 +1,61 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "titan",
+  "name": "Titan",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/titan-4k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1477417,
+      "sha256": "5e07703e5116fa3796c8261143e4952311c13d4fc868e2933117e94c22c03bb1",
+      "donorReadme": [
+        "- `titan-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute Titan Global Map - June 2015 (PIA19658)",
+        "  - Source page: https://science.nasa.gov/photojournal/titan-global-map-june-2015/",
+        "  - Purpose: Cassini ISS global albedo map for the explorable Titan moon pack",
+        "  - Projection: equidistant/simple cylindrical global map, source longitudes labeled `360 W` at the left edge and `0 W` at the right edge",
+        "  - Processing: cropped locally from the checked-in `4374x2430` labeled source image to remove title, axis labels, and margins, then resized to a true `4096x2048` JPEG sphere texture",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 16,
+      "max": 339.7
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": 1,
+      "offsetDeg": 0
+    },
+    "textureRecentringDeg": 0,
+    "conventionNote": "donor: stores source west longitudes directly, without the 180 - west remap",
+    "donorReadmeNote": "- The current Titan release uses the NASA/JPL PIA19658 Cassini ISS global albedo map cropped to a true `4K` 2:1 texture. The texture itself is labeled in IAU planetographic, positive-west, 0-360 longitude, with `360 W` at the left edge and `0 W` at the right edge; `data/titan-features.json` therefore stores source west longitudes directly, without the `180 - westLongitude` remap used by some other Saturn moon textures. Broad lake-district entries are visual storytelling anchors rather than IAU feature centers."
+  }
+}

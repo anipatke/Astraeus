@@ -1,0 +1,70 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "mercury",
+  "name": "Mercury",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/mercury-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 872555,
+      "sha256": "5a5c80607f643496bac9a631e71957def35ed788895f18b678ac849c2b38e48a",
+      "donorReadme": [
+        "- `mercury-2k.jpg`",
+        "  - Source: Solar System Scope Mercury texture",
+        "  - Source page: https://www.solarsystemscope.com/textures/",
+        "  - Download endpoint used: `https://www.solarsystemscope.com/textures/download/2k_mercury.jpg`",
+        "  - License: CC BY 4.0 per the Solar System Scope textures page"
+      ]
+    },
+    {
+      "src": "/textures/mercury-8k.jpg",
+      "minViewportWidth": 768,
+      "width": 8192,
+      "height": 4096,
+      "bytes": 15035740,
+      "sha256": "5c8bd885ae3571c6ba2cd34b3446b9c6d767e314bf0ee8c1d5c147cadd388fc3",
+      "donorReadme": [
+        "- `mercury-8k.jpg`",
+        "  - Source: Solar System Scope Mercury texture",
+        "  - Source page: https://www.solarsystemscope.com/textures/",
+        "  - Download endpoint used: `https://www.solarsystemscope.com/textures/download/8k_mercury.jpg`",
+        "  - License: CC BY 4.0 per the Solar System Scope textures page"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": "CC BY 4.0 per the Solar System Scope textures page",
+    "creditsMd": [
+      {
+        "group": "Solar System Scope",
+        "licence": "CC BY 4.0"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -163.5,
+      "max": 162
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Mercury release plan will follow the same `2K` mobile and `8K` desktop split unless later tuning suggests otherwise."
+  }
+}

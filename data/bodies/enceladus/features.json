@@ -1,0 +1,485 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "enceladus",
+  "name": "Enceladus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 16,
+  "features": [
+    {
+      "id": "damascus-sulcus",
+      "name": "Damascus Sulcus",
+      "featureType": "tiger stripe",
+      "category": "tiger-stripes",
+      "latitude": -76.9,
+      "longitude": -105.87,
+      "description": "Damascus Sulcus is one of the four great tiger stripes cut across Enceladus's south polar terrain. The fracture is part of the warm vent system that sprays water vapor, ice grains, salts, and organic-rich material from the moon's buried ocean into space.",
+      "tags": [
+        "fracture",
+        "plume",
+        "south pole",
+        "thermal",
+        "ocean"
+      ],
+      "details": [
+        {
+          "label": "Role",
+          "value": "Primary south polar vent fissure"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 76.90 deg S, 285.87 deg W"
+        },
+        {
+          "label": "Map cue",
+          "value": "One of the nearly parallel dark-blue fractures crossing the south pole"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cassini flew through plume material from the tiger stripes and directly sampled grains linked to Enceladus's ocean."
+        }
+      ]
+    },
+    {
+      "id": "baghdad-sulcus",
+      "name": "Baghdad Sulcus",
+      "featureType": "tiger stripe",
+      "category": "tiger-stripes",
+      "latitude": -86.9,
+      "longitude": -50.54,
+      "description": "Baghdad Sulcus is one of Enceladus's most important active fractures. Saturn's gravity flexes the moon during each orbit, stressing the icy shell and helping this long canyon leak heat and ocean-derived particles from below.",
+      "tags": [
+        "fracture",
+        "active",
+        "tidal heating",
+        "south pole",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Heat source",
+          "value": "Tidal flexing from Saturn's gravity"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 86.90 deg S, 230.54 deg W"
+        },
+        {
+          "label": "Map cue",
+          "value": "Near-polar tiger stripe anchor deep in the south polar terrain"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Plume output changes over Enceladus's orbit as the fissures are squeezed and relaxed."
+        }
+      ]
+    },
+    {
+      "id": "cairo-sulcus",
+      "name": "Cairo Sulcus",
+      "featureType": "tiger stripe",
+      "category": "tiger-stripes",
+      "latitude": -80.37,
+      "longitude": 25.52,
+      "description": "Cairo Sulcus is another of the named tiger stripes that slice through the young south polar cap. Its sharp walls and blue-toned fresh ice mark a place where Enceladus's crust has been pulled open instead of left to collect ancient craters.",
+      "tags": [
+        "fracture",
+        "young terrain",
+        "south pole",
+        "fresh ice"
+      ],
+      "details": [
+        {
+          "label": "Terrain age",
+          "value": "Geologically young compared with Enceladus's older cratered regions"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 80.37 deg S, 154.48 deg W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The south polar terrain is so geologically young that it lacks the heavy cratering seen across most of Enceladus."
+        }
+      ]
+    },
+    {
+      "id": "alexandria-sulcus",
+      "name": "Alexandria Sulcus",
+      "featureType": "tiger stripe",
+      "category": "tiger-stripes",
+      "latitude": -79.41,
+      "longitude": 42.44,
+      "description": "Alexandria Sulcus completes the set of four prominent tiger stripes named by the IAU. Together with Damascus, Baghdad, and Cairo, it forms the distinctive south polar fracture belt that makes Enceladus one of the most active icy worlds known.",
+      "tags": [
+        "fracture",
+        "tiger stripe",
+        "south pole",
+        "iau"
+      ],
+      "details": [
+        {
+          "label": "Feature family",
+          "value": "One of the four major named tiger stripe sulci"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 79.41 deg S, 137.56 deg W"
+        },
+        {
+          "label": "Map cue",
+          "value": "Parallel south polar fracture near the other tiger stripes"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The four tiger stripes were named for places from The Arabian Nights, matching Enceladus's naming theme."
+        }
+      ]
+    },
+    {
+      "id": "plume-curtain",
+      "name": "South Polar Plume Curtain",
+      "featureType": "geyser field",
+      "category": "geysers",
+      "latitude": -84,
+      "longitude": -52,
+      "description": "A curtain of icy jets rises from vents along the tiger stripes, feeding Saturn's broad E ring with fresh particles. The plume is the reason Enceladus is such a powerful astrobiology target: it lets spacecraft sample ocean material without drilling through the ice.",
+      "tags": [
+        "geysers",
+        "plumes",
+        "e ring",
+        "ocean",
+        "astrobiology"
+      ],
+      "details": [
+        {
+          "label": "Plume height",
+          "value": "Hundreds of kilometres above the surface"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Enceladus is one of the few worlds where a spacecraft has sampled ocean material without landing."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-terrain",
+      "name": "South Polar Terrain",
+      "featureType": "active terrain",
+      "category": "geysers",
+      "latitude": -74,
+      "longitude": -55,
+      "description": "The south polar terrain is Enceladus's active engine room. It is warmer, smoother, and less cratered than the surrounding icy shell, with ridges and fractures arranged around the plume-bearing tiger stripes.",
+      "tags": [
+        "south pole",
+        "active terrain",
+        "heat flow",
+        "fractures"
+      ],
+      "details": [
+        {
+          "label": "Science value",
+          "value": "Connects surface fractures, internal heat, and the subsurface ocean"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright polar cap surrounding the tiger stripe fracture belt"
+        }
+      ]
+    },
+    {
+      "id": "sarandib-planitia",
+      "name": "Sarandib Planitia",
+      "featureType": "plain",
+      "category": "plains",
+      "latitude": 8,
+      "longitude": 190,
+      "description": "Sarandib Planitia is a broad, smoother plain that contrasts with Enceladus's older battered terrains. Its relatively clean surface points to resurfacing by tectonics, frost deposition, or warm ice movement long after the moon first formed.",
+      "tags": [
+        "plains",
+        "smooth",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Surface character",
+          "value": "Smoother and less cratered than ancient terrain"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "On Enceladus, smooth plains likely record episodes when warm ice welled up and spread across the surface before freezing solid again."
+        }
+      ]
+    },
+    {
+      "id": "diyar-planitia",
+      "name": "Diyar Planitia",
+      "featureType": "plain",
+      "category": "plains",
+      "latitude": -25,
+      "longitude": 40,
+      "description": "Diyar Planitia is a bright icy plain marked by fractures and relatively few impact scars. It helps tell the larger Enceladus story: this moon has repeatedly refreshed parts of its shell instead of preserving one uniformly ancient surface.",
+      "tags": [
+        "plains",
+        "ice",
+        "young terrain",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Enceladus reflects nearly all sunlight that reaches it, making it one of the brightest natural objects in the Solar System."
+        }
+      ]
+    },
+    {
+      "id": "samarkand-sulci",
+      "name": "Samarkand Sulci",
+      "featureType": "fracture system",
+      "category": "tectonics",
+      "latitude": 30,
+      "longitude": -147.5,
+      "description": "Samarkand Sulci is a long fracture system that runs far from the south polar geyser zone. It shows that Enceladus's icy shell has been globally stressed, cracked, and renewed, not merely disturbed at the active pole.",
+      "tags": [
+        "sulci",
+        "fractures",
+        "tectonics",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "About 360 km"
+        },
+        {
+          "label": "IAU coordinate anchor",
+          "value": "30.00 deg N, 327.50 deg W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Samarkand Sulci spans a huge fraction of a moon only about 504 kilometres across."
+        }
+      ]
+    },
+    {
+      "id": "harran-sulci",
+      "name": "Harran Sulci",
+      "featureType": "grooved terrain",
+      "category": "tectonics",
+      "latitude": 26.7,
+      "longitude": -57.6,
+      "description": "Harran Sulci is a broad region of grooved terrain that bounds Diyar Planitia to the north and east. Voyager images showed it as sinuous mountainous ridges, while Cassini later revealed a more complex ridge belt with scarps and cross-cutting fractures.",
+      "tags": [
+        "sulci",
+        "grooved terrain",
+        "ridge belt",
+        "diyar planitia"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "About 276 km"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 26.70 deg N, 237.60 deg W"
+        },
+        {
+          "label": "Terrain role",
+          "value": "Forms a tectonic boundary around Diyar Planitia"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Researchers have compared the ridge belt texture to fold belts, a sign that Enceladus's icy crust has been compressed and warped."
+        }
+      ]
+    },
+    {
+      "id": "labtayt-sulci",
+      "name": "Labtayt Sulci",
+      "featureType": "fracture system",
+      "category": "tectonics",
+      "latitude": -28,
+      "longitude": -104,
+      "description": "Labtayt Sulci is a system of deep fractures seen in detail by Cassini during its February 2005 Enceladus flyby. It cuts across the boundary of the south polar terrain, where stresses in the ice appear to have forced the crust open.",
+      "tags": [
+        "sulci",
+        "fractures",
+        "south polar boundary",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "About 162 km long, 4 km wide, and 1 km deep"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 28.00 deg S, 284.00 deg W"
+        },
+        {
+          "label": "Science value",
+          "value": "Shows how the south polar terrain connects to older tectonic structures outside the active tiger stripes"
+        }
+      ]
+    },
+    {
+      "id": "bassorah-fossa",
+      "name": "Bassorah Fossa",
+      "featureType": "fossa",
+      "category": "fossa",
+      "latitude": 45.4,
+      "longitude": 173.7,
+      "description": "Bassorah Fossa is a long, narrow tectonic depression in Enceladus's northern terrain. It adds another piece to the moon's global stress pattern, showing that faulting and extension are not limited to the active south pole.",
+      "tags": [
+        "fossa",
+        "tectonic depression",
+        "fault",
+        "northern terrain"
+      ],
+      "details": [
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 45.40 deg N, 6.30 deg W"
+        },
+        {
+          "label": "Feature type",
+          "value": "Fossa: a long, narrow depression or trough"
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for Bassorah, a location from The Arabian Nights"
+        }
+      ]
+    },
+    {
+      "id": "daryabar-fossa",
+      "name": "Daryabar Fossa",
+      "featureType": "fossa",
+      "category": "fossa",
+      "latitude": 9.7,
+      "longitude": -179.1,
+      "description": "Daryabar Fossa is an east-west trending trough first seen by Voyager 2 and later sampled in higher resolution by Cassini. Its relationship with Isbanir Fossa suggests linked faulting, offset troughs, and possible spreading-style deformation.",
+      "tags": [
+        "fossa",
+        "trough",
+        "strike-slip",
+        "voyager",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "About 201 km"
+        },
+        {
+          "label": "Approximate shape",
+          "value": "About 400 m deep and 4 km wide"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 9.70 deg N, 359.10 deg W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Daryabar means Seaside in Persian, matching its Arabian Nights naming source."
+        }
+      ]
+    },
+    {
+      "id": "isbanir-fossa",
+      "name": "Isbanir Fossa",
+      "featureType": "fossa",
+      "category": "fossa",
+      "latitude": 12.6,
+      "longitude": -174,
+      "description": "Isbanir Fossa is a north-south trending scarp that cuts across nearby troughs such as Daryabar Fossa. Topographic studies describe it as a west-dipping scarp, and the offsets around it make it a candidate strike-slip or transform-style fault.",
+      "tags": [
+        "fossa",
+        "scarp",
+        "strike-slip",
+        "fault",
+        "voyager"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "About 132 km"
+        },
+        {
+          "label": "Relief",
+          "value": "About 300 m tall"
+        },
+        {
+          "label": "Coordinate anchor",
+          "value": "Converted from 12.60 deg N, 354.00 deg W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for the home of Fakir Taj in The Arabian Nights"
+        }
+      ]
+    },
+    {
+      "id": "dunyazad",
+      "name": "Dunyazad",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 49,
+      "longitude": -20.5,
+      "description": "Dunyazad is a named crater in Enceladus's northern terrains. Craters like this are useful contrast points against the youthful south pole because they preserve the older impact history that active regions have erased.",
+      "tags": [
+        "crater",
+        "northern hemisphere",
+        "older terrain",
+        "iau"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 30.8 km"
+        },
+        {
+          "label": "IAU coordinate anchor",
+          "value": "41.51 deg N, 202.04 deg W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Sister of Shahrazad in The Arabian Nights"
+        }
+      ]
+    },
+    {
+      "id": "morgiana",
+      "name": "Morgiana",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 34,
+      "longitude": -16,
+      "description": "Morgiana is a smaller crater near Dunyazad in the older northern hemisphere. Its preserved rim helps visitors read Enceladus as a world of contrasts: ancient crater fields in some regions and fresh, active ice at the south pole.",
+      "tags": [
+        "crater",
+        "older terrain",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 15.4 km"
+        },
+        {
+          "label": "IAU coordinate anchor",
+          "value": "31.75 deg N, 196.17 deg W"
+        },
+        {
+          "label": "Name origin",
+          "value": "The clever slave girl from Ali Baba and the Forty Thieves"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "saturn",
+  "name": "Saturn",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "rings",
+      "label": "Rings",
+      "color": "#C4A87A",
+      "isFilterable": true
+    },
+    {
+      "key": "inner-moons",
+      "label": "Inner Moons",
+      "color": "#D8C7A2",
+      "isFilterable": true
+    },
+    {
+      "key": "atmosphere",
+      "label": "Atmosphere",
+      "color": "#D4B890",
+      "isFilterable": true
+    }
+  ]
+}

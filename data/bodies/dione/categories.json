@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "dione",
+  "name": "Dione",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#d0d2d8",
+      "isFilterable": true
+    },
+    {
+      "key": "chasmata",
+      "label": "Chasmata",
+      "color": "#8fa4b8",
+      "isFilterable": true
+    },
+    {
+      "key": "dorsa",
+      "label": "Dorsa",
+      "color": "#b0b8a0",
+      "isFilterable": true
+    },
+    {
+      "key": "fossa",
+      "label": "Fossa",
+      "color": "#9fa8b5",
+      "isFilterable": true
+    },
+    {
+      "key": "linea",
+      "label": "Linea",
+      "color": "#a0adb9",
+      "isFilterable": true
+    }
+  ]
+}

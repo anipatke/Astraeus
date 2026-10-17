@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "charon",
+  "name": "Charon",
+  "parent": "pluto",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "charon",
+    "discovery": "Discovered in 1978 by American astronomers James Christy and Robert Harrington",
+    "diameterKm": 1212,
+    "facts": [
+      "Charon is the largest of Pluto's five known moons.",
+      "It is about half as wide as Pluto.",
+      "Pluto and Charon always show the same faces to each other.",
+      "A vast reddish polar region is informally called Mordor Macula."
+    ],
+    "sources": [
+      {
+        "label": "NASA: Charon at 40",
+        "url": "https://www.nasa.gov/missions/charon-at-40-four-decades-of-discovery-on-plutos-largest-moon/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

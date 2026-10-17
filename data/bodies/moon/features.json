@@ -1,0 +1,647 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "moon",
+  "name": "Moon",
+  "parent": "earth",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 30,
+  "features": [
+    {
+      "id": "apollo-11",
+      "name": "Apollo 11 — Tranquility Base",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": 0.67,
+      "longitude": 23.47,
+      "description": "First crewed lunar landing, July 20, 1969. Neil Armstrong and Buzz Aldrin touched down in Mare Tranquillitatis while Michael Collins orbited above. Armstrong's first step made him the first human to walk on another world.",
+      "tags": [
+        "apollo",
+        "first landing",
+        "1969",
+        "neil armstrong"
+      ]
+    },
+    {
+      "id": "apollo-12",
+      "name": "Apollo 12 — Ocean of Storms",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": -3.01,
+      "longitude": -23.42,
+      "description": "Second crewed lunar landing, November 1969. Pete Conrad and Alan Bean landed within 180 metres of the uncrewed Surveyor 3 probe, demonstrating precision navigation. The crew deployed the first ALSEP scientific station.",
+      "tags": [
+        "apollo",
+        "1969",
+        "pete conrad",
+        "surveyor 3"
+      ]
+    },
+    {
+      "id": "apollo-14",
+      "name": "Apollo 14 — Fra Mauro",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": -3.64,
+      "longitude": -17.47,
+      "description": "Third crewed lunar landing, February 1971. Alan Shepard and Edgar Mitchell explored the Fra Mauro highlands, the site originally targeted by Apollo 13. Shepard famously hit two golf balls across the lunar surface.",
+      "tags": [
+        "apollo",
+        "1971",
+        "alan shepard",
+        "fra mauro"
+      ]
+    },
+    {
+      "id": "apollo-15",
+      "name": "Apollo 15 — Hadley Rille",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": 26.13,
+      "longitude": 3.63,
+      "description": "Fourth crewed lunar landing, July–August 1971. David Scott and James Irwin explored the spectacular Hadley Rille canyon and the Apennine Mountains. The first mission to use the Lunar Roving Vehicle, covering 28 km of terrain.",
+      "tags": [
+        "apollo",
+        "1971",
+        "lunar rover",
+        "hadley rille"
+      ]
+    },
+    {
+      "id": "apollo-16",
+      "name": "Apollo 16 — Descartes Highlands",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": -8.97,
+      "longitude": 15.5,
+      "description": "Fifth crewed lunar landing, April 1972. John Young and Charles Duke became the first to land in the lunar highlands. The mission returned 95 kg of samples, overturning theories that the highlands were volcanic in origin.",
+      "tags": [
+        "apollo",
+        "1972",
+        "highlands",
+        "john young"
+      ]
+    },
+    {
+      "id": "apollo-17",
+      "name": "Apollo 17 — Taurus-Littrow",
+      "featureType": "landing-site",
+      "category": "apollo",
+      "latitude": 20.19,
+      "longitude": 30.77,
+      "description": "The last crewed lunar landing to date, December 1972. Gene Cernan and Harrison Schmitt — the only professional geologist to walk on the Moon — explored the Taurus-Littrow valley, returning 110 kg of samples.",
+      "tags": [
+        "apollo",
+        "1972",
+        "last landing",
+        "harrison schmitt"
+      ]
+    },
+    {
+      "id": "tycho",
+      "name": "Tycho",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -43.31,
+      "longitude": -11.36,
+      "description": "One of the most prominent impact craters on the Moon, 85 km wide with terraced walls and a striking central peak complex. Its bright ray system extends thousands of kilometres across the southern hemisphere. Formed roughly 108 million years ago.",
+      "tags": [
+        "crater",
+        "ray system",
+        "southern highlands"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after the Danish astronomer Tycho Brahe."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tycho is so young and bright that its ray system is visible even without magnification from Earth."
+        }
+      ]
+    },
+    {
+      "id": "copernicus",
+      "name": "Copernicus",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 9.62,
+      "longitude": -20.08,
+      "description": "Often called the 'Monarch of the Moon,' this striking 93 km wide crater features terraced walls, a central peak group, and a prominent ray system. Formed approximately 800 million years ago, it sits on the boundary of Oceanus Procellarum.",
+      "tags": [
+        "crater",
+        "ray system",
+        "near side"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named for Nicolaus Copernicus, whose heliocentric model reshaped astronomy."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Its dramatic terraces and central peaks make Copernicus one of the most textbook examples of a complex impact crater."
+        }
+      ]
+    },
+    {
+      "id": "kepler",
+      "name": "Kepler",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 8.12,
+      "longitude": -38.01,
+      "description": "A visually striking 32 km wide crater in Oceanus Procellarum with prominent bright rays extending across the surrounding mare. Its fresh appearance reflects its relative youth at around 1.1 billion years old.",
+      "tags": [
+        "crater",
+        "ray system",
+        "oceanus procellarum"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Johannes Kepler, the mathematician who described planetary motion."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Kepler's small size and bright ejecta make it look almost like a splash of paint on the mare around it."
+        }
+      ]
+    },
+    {
+      "id": "aristarchus",
+      "name": "Aristarchus",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 23.73,
+      "longitude": -47.4,
+      "description": "One of the brightest features on the lunar near side at only 40 km wide. Located on the Aristarchus Plateau, a region of unusual coloring suggesting past volcanic activity. The plateau hosts Vallis Schröteri, the Moon's largest sinuous rille.",
+      "tags": [
+        "crater",
+        "bright spot",
+        "volcanic plateau"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named for Aristarchus of Samos, an ancient Greek thinker who proposed an early Sun-centered cosmos."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Aristarchus is so reflective that it can look almost luminous near full Moon."
+        }
+      ]
+    },
+    {
+      "id": "plato",
+      "name": "Plato",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 51.62,
+      "longitude": -9.38,
+      "description": "A distinctive 109 km wide walled plain with a very flat, dark basaltic lava floor that contrasts sharply with the surrounding bright highlands. Sits on the northern rim of Mare Imbrium, making it one of the most recognisable features near the poles.",
+      "tags": [
+        "crater",
+        "dark floor",
+        "northern highlands"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Plato, the Greek philosopher whose academy helped shape Western thought."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Observers often challenge themselves to spot tiny craterlets on Plato's dark floor as a test of telescope quality and seeing."
+        }
+      ]
+    },
+    {
+      "id": "clavius",
+      "name": "Clavius",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -58.41,
+      "longitude": -14.35,
+      "description": "One of the largest craters on the lunar near side at 225 km wide, located in the southern highlands. A curved chain of progressively smaller craters arcs across its interior floor. Featured prominently in Stanley Kubrick's 2001: A Space Odyssey.",
+      "tags": [
+        "crater",
+        "southern highlands",
+        "large",
+        "2001"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named for Christoph Clavius, a Jesuit astronomer and mathematician involved in Gregorian calendar reform."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Clavius became pop-culture famous long before Artemis because it appeared in 2001: A Space Odyssey."
+        }
+      ]
+    },
+    {
+      "id": "theophilus",
+      "name": "Theophilus",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -11.48,
+      "longitude": 26.27,
+      "description": "A well-preserved 100 km wide impact crater with steep terraced walls and a prominent central mountain group rising 1.4 km above the floor. It overlaps the older Cyrillus crater to its south and sits on the western shore of Mare Nectaris.",
+      "tags": [
+        "crater",
+        "central peak",
+        "mare nectaris"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Theophilus of Alexandria, an early historical patriarch and scholar."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Because it overlaps the older Cyrillus crater, Theophilus is a neat visual example of relative crater dating."
+        }
+      ]
+    },
+    {
+      "id": "schrodinger",
+      "name": "Schrödinger",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -74.9,
+      "longitude": 132.53,
+      "description": "One of the best-preserved large impact basins at 312 km wide, located near the south pole on the far side. Its floor contains volcanic domes and a mare deposit, making it geologically diverse. A high-priority target for future robotic and crewed exploration.",
+      "tags": [
+        "crater",
+        "far side",
+        "south pole",
+        "volcanic"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named for Erwin Schrödinger, the physicist known for wave mechanics and the famous cat thought experiment."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Schrödinger is prized by mission planners because it combines impact, volcanic, and polar geology in one basin."
+        }
+      ]
+    },
+    {
+      "id": "south-pole-aitken-basin",
+      "name": "South Pole-Aitken Basin",
+      "featureType": "impact-basin",
+      "category": "craters",
+      "latitude": -53,
+      "longitude": 191,
+      "description": "The largest and oldest recognized impact basin on the Moon, stretching roughly 2,500 km across the far southern hemisphere. Its immense scale makes it one of the Solar System's great impact scars and a prime window into deep lunar crust and mantle materials.",
+      "tags": [
+        "basin",
+        "far side",
+        "giant impact",
+        "ancient"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named for the two major landmarks its rim spans: the lunar South Pole and Aitken crater."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "South Pole-Aitken is so huge that it behaves more like a geologic province than a single crater, and samples from it may preserve material excavated from deep inside the Moon."
+        }
+      ]
+    },
+    {
+      "id": "tsiolkovskiy",
+      "name": "Tsiolkovskiy",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -20.4,
+      "longitude": 128.9,
+      "description": "A spectacular far-side crater with a dark basaltic floor, terraced walls, and a prominent central peak. It is one of the far side's most visually striking landmarks because it combines the appearance of a classic impact crater with mare-like interior flooding.",
+      "tags": [
+        "crater",
+        "far side",
+        "dark floor",
+        "central peak"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Konstantin Tsiolkovskiy, a pioneer of astronautics."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tsiolkovskiy looks unusual because its floor was flooded by basalt after the impact, giving it a dark interior more typical of the near-side maria."
+        }
+      ]
+    },
+    {
+      "id": "mare-tranquillitatis",
+      "name": "Mare Tranquillitatis",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 8.5,
+      "longitude": 31.4,
+      "description": "The Sea of Tranquility, a large dark basaltic plain on the near side and one of the most recognisable features of the Moon. Its smooth surface formed from volcanic lava flows 3.5 to 3.9 billion years ago. Site of the Apollo 11 landing in 1969.",
+      "tags": [
+        "mare",
+        "lava plain",
+        "apollo 11",
+        "near side"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Its Latin name means 'Sea of Tranquility,' part of the Moon's poetic naming tradition for dark basalt plains."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Apollo 11's landing site, Tranquility Base, sits in the southwestern part of this mare."
+        }
+      ]
+    },
+    {
+      "id": "mare-imbrium",
+      "name": "Mare Imbrium",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 32.8,
+      "longitude": -15.6,
+      "description": "The Sea of Showers, one of the largest impact basins on the Moon at approximately 1,250 km wide. The basin formed from a catastrophic asteroid impact and was later flooded by lava. Its circular outline is visible to the naked eye from Earth.",
+      "tags": [
+        "mare",
+        "impact basin",
+        "lava plain",
+        "near side"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Imbrium is Latin for 'showers' or 'rainstorms,' reflecting the old tradition of weather-themed mare names."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The gigantic Imbrium impact helped sculpt mountain ranges around its rim, including the Apennines visited by Apollo 15."
+        }
+      ]
+    },
+    {
+      "id": "oceanus-procellarum",
+      "name": "Oceanus Procellarum",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 18.4,
+      "longitude": -57.4,
+      "description": "The Ocean of Storms, the largest volcanic plain on the Moon at approximately 2,500 km across — the only feature grand enough to be called an 'oceanus.' Site of the Apollo 12 and Luna 9 landings, and notable for an unusual rectangular border structure suggesting ancient tectonic rifting.",
+      "tags": [
+        "mare",
+        "largest plain",
+        "apollo 12",
+        "luna 9"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Its Latin name means 'Ocean of Storms,' a dramatic title chosen for the Moon's largest dark plain."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Despite the name, it is not an ocean at all but an immense field of ancient basaltic lava."
+        }
+      ]
+    },
+    {
+      "id": "mare-serenitatis",
+      "name": "Mare Serenitatis",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 28,
+      "longitude": 17.5,
+      "description": "The Sea of Serenity, a circular lava plain approximately 700 km wide. Apollo 17 landed on its southeastern edge at Taurus-Littrow in 1972. The basalts here date from 3.5 to 3.8 billion years ago.",
+      "tags": [
+        "mare",
+        "lava plain",
+        "apollo 17",
+        "near side"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Serenitatis means 'of Serenity,' continuing the mare tradition of evocative emotional names."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Apollo 17 explored its edge, making this mare part of the final human expedition to the Moon."
+        }
+      ]
+    },
+    {
+      "id": "mare-crisium",
+      "name": "Mare Crisium",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 17,
+      "longitude": 59.1,
+      "description": "The Sea of Crises, a distinct oval-shaped mare near the eastern limb of the near side. About 556 km wide, it is one of the most easily recognised features from Earth. The Soviet Luna 24 mission returned samples from here in 1976.",
+      "tags": [
+        "mare",
+        "eastern limb",
+        "luna 24"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Crisium means 'of Crises,' another poetic Latin mare name chosen by early lunar cartographers."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Because it sits near the lunar limb, Mare Crisium often looks like a separate dark island on the Moon's eastern edge."
+        }
+      ]
+    },
+    {
+      "id": "mare-orientale",
+      "name": "Mare Orientale",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": -19.4,
+      "longitude": -92.8,
+      "description": "The Eastern Sea, one of the youngest and best-preserved large impact basins on the Moon. Visible only as a foreshortened ellipse from Earth, its dramatic three-ring bull's-eye structure is stunning from orbit. The innermost ring is about 320 km wide.",
+      "tags": [
+        "mare",
+        "impact basin",
+        "limb",
+        "multi-ring"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Orientale means 'eastern,' even though modern maps place it on the Moon's western limb due to historical naming conventions."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Its ringed structure is so clean that scientists often use Orientale as the prototype for multi-ring impact basins."
+        }
+      ]
+    },
+    {
+      "id": "mare-moscoviense",
+      "name": "Mare Moscoviense",
+      "featureType": "mare",
+      "category": "maria",
+      "latitude": 27.3,
+      "longitude": 147.9,
+      "description": "One of the rare maria on the lunar far side, Mare Moscoviense is a dark basalt plain filling part of a large far-side impact basin. It helps show how different the far side is from the familiar near side, where basaltic maria are much more common.",
+      "tags": [
+        "mare",
+        "far side",
+        "basalt plain",
+        "rare"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Its name means 'Sea of Moscow,' reflecting a historical naming tradition for lunar maria."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The far side has far fewer maria than the near side, which is why Mare Moscoviense stands out so strongly on global maps."
+        }
+      ]
+    },
+    {
+      "id": "north-pole",
+      "name": "Lunar North Pole",
+      "featureType": "pole",
+      "category": "poles",
+      "latitude": 90,
+      "longitude": 0,
+      "description": "The lunar north pole sits in a region where some crater rims receive near-permanent sunlight — ideal for solar power — while crater interiors remain in permanent shadow. Orbital data suggests water ice may be trapped in these permanently shadowed craters.",
+      "tags": [
+        "pole",
+        "water ice",
+        "permanently shadowed",
+        "north"
+      ]
+    },
+    {
+      "id": "south-pole",
+      "name": "Lunar South Pole",
+      "featureType": "pole",
+      "category": "poles",
+      "latitude": -90,
+      "longitude": 0,
+      "description": "The most scientifically compelling region of the Moon and target of the NASA Artemis programme. The south pole has the largest permanently shadowed areas on the Moon, where water ice is confirmed in multiple craters. Future crewed missions aim to establish a long-term presence here.",
+      "tags": [
+        "pole",
+        "water ice",
+        "artemis",
+        "south"
+      ]
+    },
+    {
+      "id": "shackleton-crater",
+      "name": "Shackleton Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -89.67,
+      "longitude": 0,
+      "description": "A 21 km wide crater sitting almost exactly at the lunar south pole. Its rim receives near-continuous sunlight while its interior is permanently shadowed and reaches –173°C. Water ice has been confirmed in its interior by the LCROSS and LRO missions.",
+      "tags": [
+        "crater",
+        "south pole",
+        "water ice",
+        "permanently shadowed"
+      ]
+    },
+    {
+      "id": "haworth-crater",
+      "name": "Haworth Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -87.47,
+      "longitude": -5.3,
+      "description": "A permanently shadowed crater approximately 51 km wide near the lunar south pole. Significant concentrations of water ice have been detected in its interior. Among the candidate landing zones considered for the Artemis lunar base.",
+      "tags": [
+        "crater",
+        "south pole",
+        "water ice",
+        "artemis"
+      ]
+    },
+    {
+      "id": "nobile-crater",
+      "name": "Nobile Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -85.16,
+      "longitude": 53.5,
+      "description": "A 73 km wide crater in the south polar region with large permanently shadowed areas confirmed to contain water ice. Selected as a primary target for NASA's VIPER rover mission, which aimed to map the distribution and concentration of water ice across the crater floor.",
+      "tags": [
+        "crater",
+        "south pole",
+        "water ice",
+        "viper rover"
+      ]
+    },
+    {
+      "id": "cabeus-crater",
+      "name": "Cabeus Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -84.9,
+      "longitude": -35.5,
+      "description": "A permanently shadowed south-pole crater made famous when NASA's LCROSS impact experiment confirmed water ice and volatiles in its dark interior. Cabeus is one of the strongest pieces of evidence that the Moon's polar cold traps preserve useful resources.",
+      "tags": [
+        "crater",
+        "south pole",
+        "water ice",
+        "lcross"
+      ],
+      "details": [
+        {
+          "label": "Mission Link",
+          "value": "LCROSS impacted Cabeus in 2009 and detected water in the ejecta plume."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cabeus helped transform lunar polar ice from a strong suspicion into a confirmed exploration resource."
+        }
+      ]
+    },
+    {
+      "id": "de-gerlache-crater",
+      "name": "de Gerlache Crater",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -88.5,
+      "longitude": 68.7,
+      "description": "A south-pole crater near several high-interest Artemis planning zones, with nearby sunlit ridges and permanently shadowed terrain in close proximity. That contrast makes the de Gerlache region especially attractive for future surface operations and resource prospecting.",
+      "tags": [
+        "crater",
+        "south pole",
+        "artemis",
+        "exploration target"
+      ],
+      "details": [
+        {
+          "label": "Exploration Value",
+          "value": "Close pairing of sunlight access and cold-trap terrain"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The de Gerlache area is often discussed because it offers the rare combination of long-duration sunlight nearby and access to permanently shadowed ice-bearing terrain."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,658 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "saturn",
+  "name": "Saturn",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 20,
+  "features": [
+    {
+      "id": "cassini-division",
+      "name": "Cassini Division",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.981,
+      "ringAngle": 0.5,
+      "description": "The most famous gap in Saturn's rings, the Cassini Division is a 4,800-kilometre-wide region that appears nearly empty from Earth. It was discovered by Giovanni Cassini in 1675 and is carved by a 2:1 orbital resonance with the moon Mimas.",
+      "tags": [
+        "gap",
+        "resonance",
+        "Mimas",
+        "Cassini"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~4,800 km"
+        },
+        {
+          "label": "Cause",
+          "value": "2:1 orbital resonance with Mimas"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Though called a 'gap', the Cassini Division actually contains faint ringlets — it's not truly empty. The Huygens Gap is its darkest core."
+        }
+      ]
+    },
+    {
+      "id": "huygens-gap",
+      "name": "Huygens Gap",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.93,
+      "ringAngle": 1.8,
+      "description": "The deepest and widest gap within the Cassini Division, the Huygens Gap marks the inner boundary of the division. It is named after the Dutch astronomer Christiaan Huygens, who first correctly described Saturn's ring system in 1659.",
+      "tags": [
+        "gap",
+        "Cassini Division",
+        "Huygens"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~285–440 km"
+        },
+        {
+          "label": "Named after",
+          "value": "Christiaan Huygens (1629–1695)"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "A faint, narrow ringlet — the Huygens Ringlet — sits right at the centre of this gap, kept in place by a subtle gravitational shepherd effect."
+        }
+      ]
+    },
+    {
+      "id": "encke-gap",
+      "name": "Encke Gap",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.324,
+      "ringAngle": 3.2,
+      "description": "A 325-kilometre-wide gap in the outer A ring, the Encke Gap is kept open by the tiny moon Pan, which orbits within it. Pan's gravity scatters ring particles outward, creating the gap and sculpting distinctive edge waves.",
+      "tags": [
+        "gap",
+        "Pan",
+        "shepherd moon",
+        "A ring"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~325 km"
+        },
+        {
+          "label": "Shepherd",
+          "value": "Moon Pan (28 km diameter)"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pan has a distinctive equatorial ridge that makes it look like a flying saucer — material from the ring has accumulated along its equator over billions of years."
+        }
+      ]
+    },
+    {
+      "id": "keeler-gap",
+      "name": "Keeler Gap",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.402,
+      "ringAngle": 5.1,
+      "description": "A narrow 35-kilometre gap near the outer edge of the A ring, kept open by the moonlet Daphnis. Daphnis raises spectacular wave patterns along the gap edges that ripple for thousands of kilometres.",
+      "tags": [
+        "gap",
+        "Daphnis",
+        "shepherd moon",
+        "A ring",
+        "waves"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~35 km"
+        },
+        {
+          "label": "Shepherd",
+          "value": "Moonlet Daphnis (8 km diameter)"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The waves Daphnis raises along the gap edge cast shadows visible from Cassini — the undulations can reach 500 metres in height while only 35 km wide."
+        }
+      ]
+    },
+    {
+      "id": "colombo-gap",
+      "name": "Colombo Gap",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 1.937,
+      "ringAngle": 2.4,
+      "description": "A gap in the inner C ring associated with a 1:0.5 resonance with Titan. Within the gap sits the Colombo Ringlet, an eccentric ringlet that does not follow a circular orbit — its centre is offset from Saturn itself.",
+      "tags": [
+        "gap",
+        "C ring",
+        "Titan",
+        "resonance",
+        "ringlet"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~150 km"
+        },
+        {
+          "label": "Cause",
+          "value": "Resonance with Titan"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Colombo Ringlet is one of Saturn's known eccentric ringlets — its non-circular orbit is thought to be forced by Titan's distant gravitational pull."
+        }
+      ]
+    },
+    {
+      "id": "maxwell-gap",
+      "name": "Maxwell Gap",
+      "featureType": "ring gap",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.179,
+      "ringAngle": 4.3,
+      "description": "A prominent 270-kilometre gap in the outer C ring, named after James Clerk Maxwell who mathematically proved in 1859 that Saturn's rings could not be solid. The gap contains the Maxwell Ringlet, another eccentric ringlet.",
+      "tags": [
+        "gap",
+        "C ring",
+        "Maxwell",
+        "ringlet"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~270 km"
+        },
+        {
+          "label": "Named after",
+          "value": "James Clerk Maxwell (1831–1879)"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Maxwell proved mathematically in 1859 — before spacecraft — that if Saturn's rings were solid, they would be torn apart by tidal forces. He predicted they must be made of countless separate particles."
+        }
+      ]
+    },
+    {
+      "id": "b-ring",
+      "name": "B Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.607,
+      "ringAngle": 0.9,
+      "description": "The brightest and most massive of Saturn's rings, the B Ring contains most of the system's water ice. It is so densely packed that it is nearly opaque, reflecting sunlight brilliantly. Its inner structure includes mysterious spoke features — radial dark markings that rotate with Saturn's magnetic field.",
+      "tags": [
+        "B ring",
+        "brightest",
+        "opaque",
+        "spokes",
+        "water ice"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~25,500 km"
+        },
+        {
+          "label": "Composition",
+          "value": "Primarily water ice (>90%), with traces of silicates"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The mysterious 'spokes' — dark radial streaks that rotate with Saturn's magnetosphere rather than the ring — puzzled scientists until Cassini revealed they are charged dust grains levitated by electrostatic forces."
+        }
+      ]
+    },
+    {
+      "id": "a-ring",
+      "name": "A Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.221,
+      "ringAngle": 2.7,
+      "description": "The outermost of the main rings visible from Earth, the A Ring is slightly less bright than the B Ring. Its outer edge is kept sharp by a 7:6 orbital resonance with the moon Janus. The ring contains the Encke and Keeler gaps and is home to propeller-shaped disturbances caused by moonlets.",
+      "tags": [
+        "A ring",
+        "Janus",
+        "propellers",
+        "moonlets"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~14,600 km"
+        },
+        {
+          "label": "Outer edge",
+          "value": "Shepherded by Janus resonance"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cassini discovered hundreds of 'propellers' — two-tailed disturbances created by moonlets too small to clear a full gap but large enough to leave a gravitational wake."
+        }
+      ]
+    },
+    {
+      "id": "f-ring",
+      "name": "F Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.487,
+      "ringAngle": 4.8,
+      "description": "A narrow, braided, and constantly changing ring just beyond the A Ring, the F Ring is shepherded by the moons Prometheus and Pandora. Prometheus periodically dips into the ring, pulling out streamers and creating channels that give the ring its complex, kinked appearance.",
+      "tags": [
+        "F ring",
+        "Prometheus",
+        "Pandora",
+        "braided",
+        "shepherd moons"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~30–500 km (variable)"
+        },
+        {
+          "label": "Shepherds",
+          "value": "Prometheus (inner) and Pandora (outer)"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Every 14.7 hours, Prometheus passes close to the F Ring and steals material from it, creating dark channels and bright clumps that can be seen forming and evolving over days."
+        }
+      ]
+    },
+    {
+      "id": "c-ring",
+      "name": "C Ring (Crepe Ring)",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.071,
+      "ringAngle": 1.5,
+      "description": "The innermost of the three main rings, the C Ring is so thin and translucent it was originally called the 'Crepe Ring'. It is barely visible from Earth but shows fascinating ringlets and waves driven by resonances with Saturn's moons.",
+      "tags": [
+        "C ring",
+        "Crepe Ring",
+        "translucent"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "~17,500 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The C Ring is so transparent that stars can be seen through it from Earth — early observers called it the 'Crepe Ring' because of its gauzy, fabric-like appearance."
+        }
+      ]
+    },
+    {
+      "id": "d-ring",
+      "name": "D Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 1.759,
+      "ringAngle": 3.6,
+      "description": "The innermost known ring of Saturn, the D Ring is extremely faint and was only confirmed by Voyager 1 in 1980. It lies just above Saturn's cloud tops and is too faint to see from Earth.",
+      "tags": [
+        "D ring",
+        "innermost",
+        "faint",
+        "Voyager"
+      ],
+      "details": [
+        {
+          "label": "Inner edge",
+          "value": "~66,900 km from Saturn centre"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cassini detected changes in the D Ring's structure between the Voyager 1 flyby (1980) and its own arrival (2004) — the ring had shifted and developed a 30-km-scale corrugation, possibly from a comet impact."
+        }
+      ]
+    },
+    {
+      "id": "north-polar-hexagon",
+      "name": "North Polar Hexagon",
+      "featureType": "atmospheric feature",
+      "category": "atmosphere",
+      "latitude": 78,
+      "longitude": 0,
+      "description": "One of the most striking geometric weather patterns in the solar system — a persistent hexagonal jet stream surrounding Saturn's north pole. Each side of the hexagon is about 14,500 km long, wider than Earth's diameter.",
+      "tags": [
+        "hexagon",
+        "north pole",
+        "jet stream",
+        "Cassini"
+      ],
+      "details": [
+        {
+          "label": "Side length",
+          "value": "~14,500 km (wider than Earth)"
+        },
+        {
+          "label": "Wind speed",
+          "value": "~300 km/h along jet stream"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The hexagon has persisted since at least Voyager's visit in 1981 and rotates with Saturn's interior — not its upper atmosphere. The shape is likely maintained by a standing wave in the deep jet stream."
+        }
+      ]
+    },
+    {
+      "id": "great-white-spot",
+      "name": "Great White Spot",
+      "featureType": "storm",
+      "category": "atmosphere",
+      "latitude": 35,
+      "longitude": 180,
+      "description": "Saturn periodically erupts with enormous white storms — the Great White Spots — that can encircle the entire planet. These giant thunderstorm outbreaks occur roughly every Saturnian year (29.5 Earth years), typically at northern summer.",
+      "tags": [
+        "storm",
+        "Great White Spot",
+        "thunderstorm",
+        "seasonal"
+      ],
+      "details": [
+        {
+          "label": "Recurrence",
+          "value": "~Every 29.5 Earth years"
+        },
+        {
+          "label": "Scale",
+          "value": "Can encircle Saturn's full circumference"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The 2010–2011 Great White Spot was the largest in recorded history, eventually wrapping completely around Saturn. Cassini detected lightning strikes 10,000 times more powerful than Earth's."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-vortex",
+      "name": "South Polar Vortex",
+      "featureType": "atmospheric feature",
+      "category": "atmosphere",
+      "latitude": -82,
+      "longitude": 90,
+      "description": "A permanent hurricane-like vortex at Saturn's south pole with a distinct eye and surrounding eyewall. Unlike Earth hurricanes, it doesn't drift — it stays fixed at the pole. An analogous vortex exists at the north pole, where it sits inside the hexagonal jet stream.",
+      "tags": [
+        "vortex",
+        "south pole",
+        "hurricane",
+        "eye"
+      ],
+      "details": [
+        {
+          "label": "Eye diameter",
+          "value": "~8,000 km (~2/3 of Earth's diameter)"
+        },
+        {
+          "label": "Wind speed",
+          "value": "Up to 550 km/h"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Unlike a tropical hurricane which is driven by warm ocean evaporation, Saturn's polar vortex is a permanent deep-atmosphere feature with no equivalent ocean beneath it."
+        }
+      ]
+    },
+    {
+      "id": "pan",
+      "name": "Pan",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.324,
+      "ringAngle": 3.2,
+      "moonRadius": 0.003,
+      "description": "Pan is the tiny moon that keeps Saturn's Encke Gap open. It orbits inside the A Ring and nudges nearby ring particles aside, leaving a clean lane through the ice while collecting loose material around its equator.",
+      "tags": [
+        "inner moon",
+        "shepherd moon",
+        "Encke Gap",
+        "A ring",
+        "Pan"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Middle of the Encke Gap"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.324 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 28 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pan's equatorial ridge makes it look like a tiny flying saucer, probably built from ring material gathered along its orbit."
+        }
+      ]
+    },
+    {
+      "id": "daphnis",
+      "name": "Daphnis",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.402,
+      "ringAngle": 5.1,
+      "moonRadius": 0.002,
+      "description": "Daphnis is a small moonlet embedded in the Keeler Gap near the outer edge of the A Ring. Its slightly tilted orbit pulls on the gap edges and raises rippling waves that Cassini saw casting shadows across the rings.",
+      "tags": [
+        "inner moon",
+        "moonlet",
+        "Keeler Gap",
+        "A ring",
+        "waves"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Inside the Keeler Gap"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.402 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 8 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Daphnis is nicknamed the wave maker because its gravity corrugates both edges of the narrow Keeler Gap."
+        }
+      ]
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.468,
+      "ringAngle": 4.45,
+      "moonRadius": 0.004,
+      "description": "Prometheus is the inner shepherd of Saturn's restless F Ring. As it sweeps around Saturn, it repeatedly tugs streamers of icy particles out of the ring and leaves dark channels that change from orbit to orbit.",
+      "tags": [
+        "inner moon",
+        "shepherd moon",
+        "F ring",
+        "Prometheus",
+        "streamers"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Inner edge of the F Ring"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.468 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate dimensions",
+          "value": "Roughly 136 x 79 x 59 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Prometheus acts like a sculptor, pulling temporary braids, clumps, and channels through the F Ring every close pass."
+        }
+      ]
+    },
+    {
+      "id": "pandora",
+      "name": "Pandora",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.526,
+      "ringAngle": 0.55,
+      "moonRadius": 0.004,
+      "description": "Pandora travels just outside the F Ring and helps define the ring's outer boundary. Together with Prometheus, it gives the F Ring its famously braided and kinked structure, although the two moons do not shepherd it in a simple steady way.",
+      "tags": [
+        "inner moon",
+        "shepherd moon",
+        "F ring",
+        "Pandora",
+        "outer edge"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Just outside the F Ring"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.526 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate dimensions",
+          "value": "Roughly 104 x 81 x 64 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pandora's gravity is part of the reason the F Ring never looks perfectly smooth; it helps keep the ring narrow but dynamically messy."
+        }
+      ]
+    },
+    {
+      "id": "epimetheus",
+      "name": "Epimetheus",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.768,
+      "ringAngle": 1.35,
+      "moonRadius": 0.005,
+      "description": "Epimetheus is one half of Saturn's remarkable co-orbital moon pair. It shares nearly the same path as Janus, and every few years the two moons gravitationally trade orbital positions instead of colliding.",
+      "tags": [
+        "inner moon",
+        "co-orbital",
+        "Janus",
+        "Epimetheus",
+        "ring system"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Beyond the F Ring, inside Mimas's orbit"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.768 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 116 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Epimetheus and Janus perform a rare orbital swap about every four years, passing close enough to exchange momentum but not enough to merge."
+        }
+      ]
+    },
+    {
+      "id": "janus",
+      "name": "Janus",
+      "featureType": "inner moon",
+      "category": "inner-moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.768,
+      "ringAngle": 4.05,
+      "moonRadius": 0.007,
+      "description": "Janus is the larger partner in Saturn's co-orbital pair with Epimetheus. Its gravity helps maintain the sharp outer edge of the A Ring through orbital resonance while it shares a swapping orbit farther outside the F Ring.",
+      "tags": [
+        "inner moon",
+        "co-orbital",
+        "A ring resonance",
+        "Janus",
+        "Epimetheus"
+      ],
+      "details": [
+        {
+          "label": "Ring position",
+          "value": "Beyond the F Ring, inside Mimas's orbit"
+        },
+        {
+          "label": "Scene orbit",
+          "value": "3.768 units from Saturn's centre"
+        },
+        {
+          "label": "Approximate diameter",
+          "value": "About 179 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Janus helps hold the A Ring's outer edge in place through a 7:6 resonance, linking a small moon to one of Saturn's biggest ring boundaries."
+        }
+      ]
+    }
+  ]
+}

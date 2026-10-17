@@ -1,0 +1,362 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "triton",
+  "name": "Triton",
+  "parent": "neptune",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 12,
+  "features": [
+    {
+      "id": "south-polar-nitrogen-cap",
+      "name": "South Polar Nitrogen Cap",
+      "featureType": "polar frost terrain",
+      "category": "poles",
+      "latitude": -72,
+      "longitude": 25,
+      "description": "Triton's south polar cap is a bright sheet of frozen nitrogen and methane seen by Voyager 2 during southern summer. Seasonal sunlight can warm the frost just enough to mobilize nitrogen, feeding Triton's thin atmosphere and helping drive the geyser-like plumes that made this moon famous.",
+      "tags": [
+        "south pole",
+        "nitrogen frost",
+        "methane frost",
+        "voyager 2",
+        "seasonal"
+      ],
+      "details": [
+        {
+          "label": "Temperature",
+          "value": "Voyager 2 measured about -235 C near Triton"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright southern cap and streaked polar terrain on the Voyager hemisphere"
+        },
+        {
+          "label": "Source note",
+          "value": "NASA describes Triton as one of the coldest objects Voyager visited, with nitrogen frost covering much of the surface."
+        }
+      ]
+    },
+    {
+      "id": "hili-plume-field",
+      "name": "Hili Plume Field",
+      "featureType": "nitrogen plume field",
+      "category": "cryovolcanism",
+      "latitude": -57,
+      "longitude": 15,
+      "description": "Voyager 2 saw dark plume deposits crossing Triton's southern polar terrain, evidence that sunlight can trigger nitrogen geysers through translucent frost. The plumes were only a few active jets in a much broader seasonal system, but they proved Triton was not a dead iceball at the edge of the Solar System.",
+      "tags": [
+        "geyser",
+        "plume",
+        "nitrogen",
+        "dark streak",
+        "voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Science value",
+          "value": "One of the clearest signs of present-day geologic activity on Triton"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dark wind-blown streaks over the southern cap"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Representative plume-field anchor placed on the visible southern streak terrain"
+        }
+      ]
+    },
+    {
+      "id": "mahilani-plume-field",
+      "name": "Mahilani Plume Field",
+      "featureType": "nitrogen plume field",
+      "category": "cryovolcanism",
+      "latitude": -52,
+      "longitude": 45,
+      "description": "Mahilani marks the second classic plume region associated with Voyager's Triton encounter. Its dark fallout streaks are thought to be carried by Triton's tenuous winds, turning small jets into long surface signatures that reveal both active geology and atmospheric motion.",
+      "tags": [
+        "geyser",
+        "plume",
+        "wind streak",
+        "nitrogen",
+        "atmosphere"
+      ],
+      "details": [
+        {
+          "label": "Process",
+          "value": "Solar heating through nitrogen frost can pressurize gas below the surface"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dark linear deposits in southern polar terrain"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Representative anchor on the Voyager-mapped plume-streak zone"
+        }
+      ]
+    },
+    {
+      "id": "tuonela-planitia",
+      "name": "Tuonela Planitia",
+      "featureType": "walled plain",
+      "category": "plains",
+      "latitude": 34,
+      "longitude": 14.5,
+      "description": "Tuonela Planitia is an elongated northern plain interpreted as a cryolava lake or resurfaced basin. It cuts across Triton's strange cantaloupe terrain, giving the map a strong contrast between cellular older-looking texture and smoother icy plains that may have flowed or ponded.",
+      "tags": [
+        "planitia",
+        "cryolava",
+        "walled plain",
+        "Monad Regio",
+        "Voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Control coordinate",
+          "value": "34.0 N, 14.5 E"
+        },
+        {
+          "label": "Approximate size",
+          "value": "About 400 by 150 km in published descriptions"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern smooth/walled plain set among pitted cantaloupe terrain"
+        }
+      ]
+    },
+    {
+      "id": "ruach-planitia",
+      "name": "Ruach Planitia",
+      "featureType": "walled plain",
+      "category": "plains",
+      "latitude": 22,
+      "longitude": 22,
+      "description": "Ruach Planitia is one of Triton's prominent smooth plains, a place where icy material appears to have resurfaced older terrain. Plains like Ruach make Triton look geologically young: impact craters are scarce, and the surface has been repeatedly modified by icy volcanism, collapse, and frost transport.",
+      "tags": [
+        "planitia",
+        "smooth plain",
+        "cryovolcanism",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Smooth northern plain near Tuonela Planitia and the cantaloupe terrain"
+        },
+        {
+          "label": "Interpretation",
+          "value": "A possible cryovolcanic or volatile-rich resurfacing province"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Educational anchor aligned to the visible northern plains cluster"
+        }
+      ]
+    },
+    {
+      "id": "set-catena",
+      "name": "Set Catena",
+      "featureType": "pit chain",
+      "category": "cryovolcanism",
+      "latitude": 22,
+      "longitude": 33.5,
+      "description": "Set Catena is a chain of regularly spaced pits cutting through Triton's northern terrain. Pit chains can form when the crust collapses over voids or fractures, so this feature is a useful stop for reading how Triton's icy shell stretched, broke, and possibly vented volatile-rich material.",
+      "tags": [
+        "catena",
+        "pit chain",
+        "collapse",
+        "fracture",
+        "cantaloupe terrain"
+      ],
+      "details": [
+        {
+          "label": "Control coordinate",
+          "value": "About 22 N, 33.5 E"
+        },
+        {
+          "label": "Typical pit spacing",
+          "value": "Published summaries describe spacing near 20 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Linear pit chain in the mapped northern hemisphere"
+        }
+      ]
+    },
+    {
+      "id": "bubembe-regio",
+      "name": "Bubembe Regio",
+      "featureType": "regio",
+      "category": "cantaloupe",
+      "latitude": 18,
+      "longitude": 335,
+      "description": "Bubembe Regio is part of Triton's named northern terrain province. Its cellular, dimpled texture belongs to the famous 'cantaloupe terrain' seen nowhere else in the Solar System, probably shaped by icy diapirs, collapse, or repeated deformation of a nitrogen-rich crust.",
+      "tags": [
+        "regio",
+        "cantaloupe terrain",
+        "cellular terrain",
+        "Voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Control coordinate",
+          "value": "18.0 N, 335.0 E"
+        },
+        {
+          "label": "Feature type",
+          "value": "Regio: a broad named region with distinct appearance"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dimpled northern province west of the main mapped plains cluster"
+        }
+      ]
+    },
+    {
+      "id": "monad-regio",
+      "name": "Monad Regio",
+      "featureType": "regio",
+      "category": "cantaloupe",
+      "latitude": 28,
+      "longitude": 20,
+      "description": "Monad Regio contains some of the most recognizable cantaloupe terrain on Triton. Rounded cells and pitted boundaries make the crust look kneaded rather than cratered, hinting that Triton's interior and volatile cycle have repeatedly renewed its icy surface.",
+      "tags": [
+        "regio",
+        "cantaloupe terrain",
+        "pits",
+        "diapirs",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Northern dimpled terrain surrounding Tuonela and Ruach Planitiae"
+        },
+        {
+          "label": "Science value",
+          "value": "A key terrain for testing how icy shells deform on captured Kuiper Belt objects"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Representative regional anchor on the Voyager global map"
+        }
+      ]
+    },
+    {
+      "id": "cipango-planum",
+      "name": "Cipango Planum",
+      "featureType": "planum",
+      "category": "plains",
+      "latitude": 12,
+      "longitude": 35,
+      "description": "Cipango Planum is a broad, relatively smooth plain in the mapped hemisphere. It helps connect the story of Triton's surface: some areas are heavily textured and cellular, while nearby plains look resurfaced by soft, volatile-rich ice that behaved more like lava than rock.",
+      "tags": [
+        "planum",
+        "smooth terrain",
+        "cryolava",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Low northern to equatorial smooth terrain near the Set Catena area"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Representative plain anchor placed within the mapped Cipango province"
+        }
+      ]
+    },
+    {
+      "id": "leviathan-patera",
+      "name": "Leviathan Patera",
+      "featureType": "patera",
+      "category": "cryovolcanism",
+      "latitude": 35,
+      "longitude": 50,
+      "description": "Leviathan Patera is one of Triton's named volcanic-looking depressions. Features like this are not basaltic volcanoes; on Triton, eruptions and collapses would involve nitrogen, water ice, ammonia-bearing slurries, or other cryogenic materials in a world colder than any active volcanic body on Earth.",
+      "tags": [
+        "patera",
+        "cryovolcano",
+        "collapse",
+        "icy lava",
+        "volatile ice"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Patera: an irregular crater or volcanic depression"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern mapped terrain near pit chains and smooth plains"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "Representative anchor for the named cryovolcanic province"
+        }
+      ]
+    },
+    {
+      "id": "north-polar-seasonal-region",
+      "name": "North Polar Seasonal Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": 78,
+      "longitude": 200,
+      "description": "Triton's north pole was poorly lit for Voyager 2, but it matters because Triton's extreme axial geometry lets each pole take long turns facing the Sun. That seasonal forcing moves nitrogen frost between hemispheres and may change the atmosphere over decades.",
+      "tags": [
+        "north pole",
+        "seasonal",
+        "nitrogen cycle",
+        "synchronous rotation"
+      ],
+      "details": [
+        {
+          "label": "Seasonal context",
+          "value": "Both poles take turns facing the Sun because of Triton's unusual orbit and orientation"
+        },
+        {
+          "label": "Map cue",
+          "value": "High-latitude reference point, not a sharply imaged named feature"
+        }
+      ]
+    },
+    {
+      "id": "retrograde-captured-orbit",
+      "name": "Retrograde Captured Orbit",
+      "featureType": "orbital science",
+      "category": "orbit",
+      "latitude": 0,
+      "longitude": 180,
+      "description": "Triton is the only large moon in the Solar System with a retrograde orbit: it travels around Neptune opposite the planet's rotation. That dynamical oddity is the strongest clue that Triton began as a Kuiper Belt object and was captured by Neptune rather than forming in place.",
+      "tags": [
+        "retrograde",
+        "captured moon",
+        "Kuiper Belt",
+        "Neptune",
+        "orbit"
+      ],
+      "details": [
+        {
+          "label": "Real orbit",
+          "value": "About 354,800 km from Neptune's center"
+        },
+        {
+          "label": "Inclination",
+          "value": "About 157 degrees to Neptune's equator, making the orbit retrograde"
+        },
+        {
+          "label": "Scene note",
+          "value": "Shown as a tilted outer companion path around Neptune"
+        }
+      ]
+    }
+  ]
+}

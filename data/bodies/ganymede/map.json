@@ -1,0 +1,72 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "ganymede",
+  "name": "Ganymede",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/ganymede-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 417754,
+      "sha256": "ef92f57c9ff9701b7808c8344cf66b53356855067bb021af06828dff6b0cdd47",
+      "donorReadme": [
+        "- `ganymede-2k.jpg`",
+        "  - Source: local derivative of the checked-in USGS/NASA Ganymede Voyager-Galileo global mosaic source",
+        "  - Purpose: mobile-class simple-cylindrical Ganymede texture",
+        "  - Processing: resized from the previous oversized `11520x5760` local file to `2048x1024` JPEG"
+      ]
+    },
+    {
+      "src": "/textures/ganymede-4k.jpg",
+      "minViewportWidth": 768,
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1596979,
+      "sha256": "06bd246bafb9e031138c67b0860150ed08c86405071a0543aba61be68e789ab6",
+      "donorReadme": [
+        "- `ganymede-4k.jpg`",
+        "  - Source: local derivative of the checked-in USGS/NASA Ganymede Voyager-Galileo global mosaic source",
+        "  - Purpose: desktop-class simple-cylindrical Ganymede texture",
+        "  - Processing: resized from the previous oversized `11520x5760` local file to `4096x2048` JPEG"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "USGS / NASA",
+        "licence": "Public Domain"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -166.5,
+      "max": 180
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": -1,
+      "offsetDeg": 0
+    },
+    "textureRecentringDeg": 180,
+    "recentringEvidence": "docs/DONOR_TEXTURE_INVENTORY.md section C: donor texture matches the USGS mosaic after a 180 degree longitude shift (NCC 0.72, 0.05 unshifted)",
+    "donorReadmeNote": "- The current Ganymede release uses true `2K` and `4K` derivatives from the checked-in USGS/NASA simple-cylindrical mosaic. Source feature coordinates in the USGS Gazetteer use Ganymede's IAU planetographic, positive-west, 0-360 system. Numeric marker longitudes in `data/ganymede-features.json` use the app's east-positive convention: `markerLongitude = -westLongitude`, normalized to `[-180, 180]`. Visual control checks: Tros is about `11 N, 27 W`; Osiris is about `38 S, 166.5 W`. Polar-cap entries are representative educational anchors rather than IAU feature centers."
+  }
+}

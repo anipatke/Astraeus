@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "rhea",
+  "name": "Rhea",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "rhea",
+    "discovery": "Discovered in 1672 by Italian-French astronomer Giovanni Domenico Cassini",
+    "diameterKm": 1527,
+    "facts": [
+      "Rhea is Saturn's second-largest moon.",
+      "Its icy surface is covered with impact craters.",
+      "Bright wispy lines are cliffs created by crust movement.",
+      "Rhea has a very thin atmosphere of oxygen and carbon dioxide."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Rhea",
+        "url": "https://science.nasa.gov/saturn/moons/rhea/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

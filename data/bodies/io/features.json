@@ -1,0 +1,334 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "io",
+  "name": "Io",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 12,
+  "features": [
+    {
+      "id": "pele",
+      "name": "Pele",
+      "featureType": "eruptive center",
+      "category": "volcanoes",
+      "latitude": -18.7,
+      "longitude": 104.5,
+      "description": "Pele is one of Io's signature active volcanoes, famous for the enormous red-orange deposit surrounding its vent. Its umbrella-shaped sulphur dioxide plume can rise hundreds of kilometres above the surface, while fresh sulphur-rich fallout continually repaints the surrounding plains.",
+      "tags": [
+        "volcano",
+        "plume",
+        "sulphur",
+        "active"
+      ],
+      "details": [
+        {
+          "label": "Plume height",
+          "value": "Up to about 300 km"
+        },
+        {
+          "label": "Visual cue",
+          "value": "Large red-orange ring deposit near the anti-Jovian hemisphere"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pele's red deposits are made from unstable sulphur compounds, so the colour fades unless new eruptions keep refreshing it."
+        }
+      ]
+    },
+    {
+      "id": "loki-patera",
+      "name": "Loki Patera",
+      "featureType": "patera",
+      "category": "paterae",
+      "latitude": 12.6,
+      "longitude": 51.2,
+      "description": "Loki Patera is Io's most powerful volcanic feature by heat output: a huge, dark, horseshoe-shaped lava lake more than 200 km across. Its surface appears to overturn in waves as a cooling crust founders and exposes fresh molten rock beneath.",
+      "tags": [
+        "patera",
+        "lava lake",
+        "heat",
+        "active"
+      ],
+      "details": [
+        {
+          "label": "Size",
+          "value": "Roughly 200 km across"
+        },
+        {
+          "label": "Activity pattern",
+          "value": "Large brightenings have been observed on roughly year-scale cycles"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "At peak activity, Loki can dominate Io's infrared brightness, making it observable from large Earth-based telescopes."
+        }
+      ]
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "featureType": "eruptive center",
+      "category": "volcanoes",
+      "latitude": -2.7,
+      "longitude": 206.3,
+      "description": "Prometheus is one of Io's most reliable plume sources, active in Voyager, Galileo, and later observations. Lava flows interact with sulphur dioxide frost, driving a bright plume that lays down a pale circular deposit around the vent region.",
+      "tags": [
+        "volcano",
+        "persistent",
+        "plume",
+        "lava flow"
+      ],
+      "details": [
+        {
+          "label": "Plume height",
+          "value": "About 75-100 km"
+        },
+        {
+          "label": "Visual cue",
+          "value": "Bright plume deposit around a dark lava flow field"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Prometheus has been active for decades, making it one of the Solar System's longest-monitored active eruptions."
+        }
+      ]
+    },
+    {
+      "id": "tvashtar",
+      "name": "Tvashtar Paterae",
+      "featureType": "paterae complex",
+      "category": "paterae",
+      "latitude": 62.5,
+      "longitude": 237.2,
+      "description": "Tvashtar Paterae sits in Io's high northern latitudes and is known for some of the most dramatic volcanic images ever returned. Galileo saw a glowing curtain of lava here, and New Horizons later caught a towering plume backlit by the Sun.",
+      "tags": [
+        "patera",
+        "lava curtain",
+        "plume",
+        "north polar"
+      ],
+      "details": [
+        {
+          "label": "Lava curtain",
+          "value": "More than 25 km long in Galileo observations"
+        },
+        {
+          "label": "Plume height",
+          "value": "About 330 km in New Horizons imagery"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tvashtar's backlit plume looked like a blue-white fountain arcing above Io's limb during the 2007 New Horizons flyby."
+        }
+      ]
+    },
+    {
+      "id": "ra-patera",
+      "name": "Ra Patera",
+      "featureType": "patera",
+      "category": "paterae",
+      "latitude": -8,
+      "longitude": 34.7,
+      "description": "Ra Patera is surrounded by sweeping, multi-coloured lava and sulphur flows that radiate outward from the caldera. Changes between Voyager and Galileo images made it a textbook example of how quickly Io's surface can be resurfaced.",
+      "tags": [
+        "patera",
+        "sulphur flows",
+        "colourful",
+        "caldera"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Radiating yellow, orange, and brown flow patterns"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The colours around Ra Patera trace different sulphur compounds and temperatures, turning the landscape into a volcanic chemistry map."
+        }
+      ]
+    },
+    {
+      "id": "emakong-patera",
+      "name": "Emakong Patera",
+      "featureType": "patera",
+      "category": "paterae",
+      "latitude": -2.8,
+      "longitude": 241,
+      "description": "Emakong Patera is bordered by long, bright deposits that contrast strongly with Io's darker volcanic terrain. The light-toned material is interpreted as sulphur dioxide frost or sulphur-rich flows, showing that Io's eruptions are not all the same composition.",
+      "tags": [
+        "patera",
+        "sulphur dioxide",
+        "bright",
+        "flows"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Bright white-yellow flow deposits west of the vent region"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Io's surface chemistry is constantly recycled: volcanic gases freeze out, are altered by radiation, then are buried or blasted away by later eruptions."
+        }
+      ]
+    },
+    {
+      "id": "amirani",
+      "name": "Amirani",
+      "featureType": "eruptive center",
+      "category": "volcanoes",
+      "latitude": 22.9,
+      "longitude": 244,
+      "description": "Amirani hosts one of the largest active lava flow fields known anywhere, stretching for hundreds of kilometres across Io. Galileo images showed new lava breakouts appearing along the margins, documenting resurfacing almost in real time.",
+      "tags": [
+        "volcano",
+        "lava flow",
+        "largest",
+        "active"
+      ],
+      "details": [
+        {
+          "label": "Flow field",
+          "value": "Hundreds of kilometres long"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Io is resurfaced so rapidly that impact craters, common on most solid worlds, are essentially absent."
+        }
+      ]
+    },
+    {
+      "id": "hi-iaka",
+      "name": "Hi'iaka Patera",
+      "featureType": "patera",
+      "category": "lava-fields",
+      "latitude": -1.2,
+      "longitude": 280.5,
+      "description": "Hi'iaka Patera is a dark volcanic center set against bright sulphur dioxide plains. The sharp contrast between dark silicate lava and pale frost makes this region a useful guide to Io's repeated cycle of eruption, fallout, and resurfacing.",
+      "tags": [
+        "patera",
+        "lava field",
+        "contrast",
+        "sulphur dioxide"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Dark lava patches on brighter yellow-white plains"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Dark flows on Io are usually fresh, hot silicate lava; bright areas are often frost or sulphur-rich deposits laid down by plumes."
+        }
+      ]
+    },
+    {
+      "id": "pillan-patera",
+      "name": "Pillan Patera",
+      "featureType": "patera",
+      "category": "paterae",
+      "latitude": -12.3,
+      "longitude": 116.8,
+      "description": "Pillan Patera produced one of the largest eruptions directly witnessed by spacecraft. In 1997, Galileo observed a new dark pyroclastic deposit spreading across the surface, evidence of a powerful eruption that dramatically altered Io over months.",
+      "tags": [
+        "patera",
+        "eruption",
+        "pyroclastic",
+        "galileo"
+      ],
+      "details": [
+        {
+          "label": "Eruption highlight",
+          "value": "Major 1997 outburst seen by Galileo"
+        },
+        {
+          "label": "Visual cue",
+          "value": "Dark deposit near Pele's red ring region"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pillan's eruption changed the visible surface so much that it became a natural before-and-after experiment for planetary volcanology."
+        }
+      ]
+    },
+    {
+      "id": "dazhbog-patera",
+      "name": "Dazhbog Patera",
+      "featureType": "patera",
+      "category": "paterae",
+      "latitude": 55.1,
+      "longitude": 58.5,
+      "description": "Dazhbog Patera is a high-latitude volcanic depression in Io's northern hemisphere. It helps show that Io's heat flow is global: major volcanic centers are not confined to the equator, but appear across many latitudes.",
+      "tags": [
+        "patera",
+        "northern",
+        "volcanic depression",
+        "heat flow"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Northern dark volcanic center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Io's volcanoes are powered by tidal flexing from Jupiter and orbital resonance with Europa and Ganymede, not by leftover formation heat alone."
+        }
+      ]
+    },
+    {
+      "id": "masubi-fluctus",
+      "name": "Masubi Fluctus",
+      "featureType": "fluctus",
+      "category": "lava-fields",
+      "latitude": -49.6,
+      "longitude": 303.8,
+      "description": "Masubi Fluctus is a long lava-flow complex associated with repeated plume activity. Its flows and deposits trace how eruptions can migrate across Io's surface, burying older terrain under fresh volcanic material.",
+      "tags": [
+        "fluctus",
+        "lava flow",
+        "plume",
+        "southern"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Fluctus: a named flow field"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Masubi's changing plume location suggests lava can travel far from its source before interacting with surface frost and launching gas into space."
+        }
+      ]
+    },
+    {
+      "id": "zamama",
+      "name": "Zamama",
+      "featureType": "eruptive center",
+      "category": "volcanoes",
+      "latitude": 18,
+      "longitude": 185,
+      "description": "Zamama is an active volcanic center marked by a dark flow field and plume deposits. It represents Io's smaller but persistent volcanic systems: less famous than Loki or Pele, yet part of the dense network that keeps the whole moon geologically young.",
+      "tags": [
+        "volcano",
+        "lava flow",
+        "plume",
+        "active"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Dark flow field with nearby pale plume deposits"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Hundreds of volcanic centers are known or suspected on Io, making it the most volcanically active world in the Solar System."
+        }
+      ]
+    }
+  ]
+}

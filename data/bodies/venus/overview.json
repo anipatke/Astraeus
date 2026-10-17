@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "venus",
+  "name": "Venus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "venus",
+    "discovery": "Known since antiquity",
+    "diameterKm": 12104,
+    "facts": [
+      "Venus is the hottest planet in the solar system.",
+      "Its thick atmosphere is mostly carbon dioxide.",
+      "Venus spins in the opposite direction from most planets.",
+      "A Venus day is longer than a Venus year."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Venus Facts",
+        "url": "https://science.nasa.gov/venus/venus-facts/"
+      }
+    ]
+  }
+}

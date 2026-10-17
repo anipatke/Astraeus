@@ -1,0 +1,243 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "catalogue",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "bodyCount": 24,
+  "featureCount": 403,
+  "bodies": [
+    {
+      "body": "earth",
+      "name": "Earth",
+      "parent": null,
+      "featureCount": 20,
+      "categoryCount": 3,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "moon",
+      "name": "Moon",
+      "parent": "earth",
+      "featureCount": 30,
+      "categoryCount": 4,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "mars",
+      "name": "Mars",
+      "parent": null,
+      "featureCount": 32,
+      "categoryCount": 6,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": [
+        "phobos: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "deimos: no latitude/longitude (ring-plane feature, ringRadius set)"
+      ]
+    },
+    {
+      "body": "mercury",
+      "name": "Mercury",
+      "parent": null,
+      "featureCount": 16,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "venus",
+      "name": "Venus",
+      "parent": null,
+      "featureCount": 19,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "jupiter",
+      "name": "Jupiter",
+      "parent": null,
+      "featureCount": 15,
+      "categoryCount": 5,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": [
+        "main-ring: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "halo-ring: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "gossamer-rings: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "adrastea: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "amalthea: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "thebe: no latitude/longitude (ring-plane feature, ringRadius set)"
+      ]
+    },
+    {
+      "body": "saturn",
+      "name": "Saturn",
+      "parent": null,
+      "featureCount": 20,
+      "categoryCount": 3,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "neptune",
+      "name": "Neptune",
+      "parent": null,
+      "featureCount": 19,
+      "categoryCount": 6,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "triton",
+      "name": "Triton",
+      "parent": "neptune",
+      "featureCount": 12,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "uranus",
+      "name": "Uranus",
+      "parent": null,
+      "featureCount": 19,
+      "categoryCount": 6,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "pluto",
+      "name": "Pluto",
+      "parent": null,
+      "featureCount": 16,
+      "categoryCount": 6,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": [
+        "styx: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "nix: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "kerberos: no latitude/longitude (ring-plane feature, ringRadius set)",
+        "hydra: no latitude/longitude (ring-plane feature, ringRadius set)"
+      ]
+    },
+    {
+      "body": "charon",
+      "name": "Charon",
+      "parent": "pluto",
+      "featureCount": 12,
+      "categoryCount": 5,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "ceres",
+      "name": "Ceres",
+      "parent": null,
+      "featureCount": 8,
+      "categoryCount": 2,
+      "mapSource": "astraeus tools/import/planetary-explorer-map-sources.json",
+      "donorOddities": []
+    },
+    {
+      "body": "io",
+      "name": "Io",
+      "parent": "jupiter",
+      "featureCount": 12,
+      "categoryCount": 3,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "europa",
+      "name": "Europa",
+      "parent": "jupiter",
+      "featureCount": 19,
+      "categoryCount": 6,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "ganymede",
+      "name": "Ganymede",
+      "parent": "jupiter",
+      "featureCount": 25,
+      "categoryCount": 7,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "callisto",
+      "name": "Callisto",
+      "parent": "jupiter",
+      "featureCount": 22,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "titan",
+      "name": "Titan",
+      "parent": "saturn",
+      "featureCount": 11,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "enceladus",
+      "name": "Enceladus",
+      "parent": "saturn",
+      "featureCount": 16,
+      "categoryCount": 6,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "mimas",
+      "name": "Mimas",
+      "parent": "saturn",
+      "featureCount": 8,
+      "categoryCount": 4,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "tethys",
+      "name": "Tethys",
+      "parent": "saturn",
+      "featureCount": 12,
+      "categoryCount": 4,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "dione",
+      "name": "Dione",
+      "parent": "saturn",
+      "featureCount": 15,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "rhea",
+      "name": "Rhea",
+      "parent": "saturn",
+      "featureCount": 13,
+      "categoryCount": 5,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    },
+    {
+      "body": "iapetus",
+      "name": "Iapetus",
+      "parent": "saturn",
+      "featureCount": 12,
+      "categoryCount": 4,
+      "mapSource": "donor public/textures/README.md",
+      "donorOddities": []
+    }
+  ]
+}

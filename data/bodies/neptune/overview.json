@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "neptune",
+  "name": "Neptune",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "neptune",
+    "discovery": "Discovered in 1846 by Johann Gottfried Galle using predictions by Urbain Le Verrier",
+    "diameterKm": 49244,
+    "facts": [
+      "Neptune is the farthest major planet from the Sun.",
+      "Its winds are the fastest measured in the solar system.",
+      "Methane in its atmosphere helps give Neptune its blue color.",
+      "Neptune has faint rings and a large moon named Triton."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Neptune Facts",
+        "url": "https://science.nasa.gov/neptune/neptune-facts/"
+      }
+    ]
+  }
+}

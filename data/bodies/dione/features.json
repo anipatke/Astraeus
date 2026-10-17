@@ -1,0 +1,415 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "dione",
+  "name": "Dione",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 15,
+  "features": [
+    {
+      "id": "dido",
+      "name": "Dido",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -23.97,
+      "longitude": 161.18,
+      "description": "Dido is one of Dione's largest and most prominent craters, a well-preserved impact basin with a distinct rim and interior structure on the sub-Saturn hemisphere. It is a key reference point for mapping the moon's ancient surface.",
+      "tags": [
+        "crater",
+        "impact",
+        "large crater",
+        "sub-Saturn"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~180 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 23.97°S, 18.82°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Dido is named after the legendary founder and first queen of Carthage — one of many Trojans and Romans lending their names to Dione's craters."
+        }
+      ]
+    },
+    {
+      "id": "romulus",
+      "name": "Romulus",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -8.15,
+      "longitude": 153.15,
+      "description": "Romulus is a notable crater on Dione's sub-Saturn hemisphere, paired in name with the nearby Remus — the twin founders of Rome. Both craters sit in ancient terrain that predates Dione's later tectonic activity.",
+      "tags": [
+        "crater",
+        "impact",
+        "sub-Saturn"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 8.15°S, 26.85°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Romulus and Remus appear as a natural pair on Dione just as they do in Roman mythology — the twin brothers who founded Rome."
+        }
+      ]
+    },
+    {
+      "id": "remus",
+      "name": "Remus",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -13.58,
+      "longitude": 148.1,
+      "description": "Remus sits near its mythological twin Romulus on the sub-Saturn hemisphere, both craters preserving sharp rims that testify to the stability of icy crusts in the outer solar system across billions of years.",
+      "tags": [
+        "crater",
+        "impact",
+        "sub-Saturn"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 13.58°S, 31.90°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "On Earth, ice is soft and short-lived — but in the deep cold of the Saturn system, Dione's ice is as rigid as rock, keeping crater walls like Remus sharp for billions of years."
+        }
+      ]
+    },
+    {
+      "id": "creusa",
+      "name": "Creusa",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 49.19,
+      "longitude": 103.68,
+      "description": "Creusa is a well-defined northern crater named after the wife of Aeneas in Virgil's Aeneid. Its position in Dione's high northern terrain makes it a useful contrast with the lower-latitude Aeneas and Romulus crater fields.",
+      "tags": [
+        "crater",
+        "impact",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 49.19°N, 76.32°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Creusa is named after the Trojan princess who vanishes in the fall of Troy — her crater on Dione sits in the same hemisphere as Aeneas, just as she was forever linked to him in myth."
+        }
+      ]
+    },
+    {
+      "id": "aeneas",
+      "name": "Aeneas",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 25.89,
+      "longitude": 133.73,
+      "description": "Aeneas is a large impact crater with a well-defined rim and central structure, one of the most prominent features on Dione's leading hemisphere. It is a key benchmark for comparing the ages of Dione's bright fractured terrain and its older battered plains.",
+      "tags": [
+        "crater",
+        "impact",
+        "leading hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~155 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 25.89°N, 46.27°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Crater counts on Dione show its smooth and fractured regions are geologically young compared to the densely pockmarked terrain where Aeneas sits."
+        }
+      ]
+    },
+    {
+      "id": "evander",
+      "name": "Evander",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -57,
+      "longitude": 35,
+      "description": "Evander is a large, heavily modified impact basin in Dione's ancient cratered terrain near the anti-Saturn hemisphere. Its broad, degraded form and ejecta blanket record an early period of intense bombardment before any tectonic reshaping of the surface.",
+      "tags": [
+        "crater",
+        "impact",
+        "anti-Saturn",
+        "ancient terrain"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 57.00°S, 145.00°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Dione is dense enough — about 1.48 g/cm³ — that scientists suspect it once harbored a subsurface ocean beneath its icy shell, despite its quiet appearance today."
+        }
+      ]
+    },
+    {
+      "id": "erulus",
+      "name": "Erulus",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -35,
+      "longitude": 75.24,
+      "description": "Erulus is a crater sitting close to Evander in Dione's ancient anti-Saturn terrain. Its well-defined walls stand as a record of the intense impact history shared by all of Saturn's inner moons.",
+      "tags": [
+        "crater",
+        "impact",
+        "anti-Saturn"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 35.00°S, 104.76°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "In Virgil's Aeneid, Erulus was a king with three lives and three sets of arms — an apt namesake for a crater whose walls have endured billions of years of bombardment."
+        }
+      ]
+    },
+    {
+      "id": "amata",
+      "name": "Amata",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 5.17,
+      "longitude": -99.81,
+      "description": "Amata is a named crater on Dione's trailing hemisphere. The name is now assigned to a smaller, well-defined crater rather than the older broad basin identification, making it a useful reminder that planetary names can move as imaging improves.",
+      "tags": [
+        "crater",
+        "impact",
+        "trailing hemisphere",
+        "nomenclature"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~76 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 5.17°N, 279.81°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Amata is named for the mother of Lavinia, wife of Aeneas; the Gazetteer notes that the name was moved in 2008 to a smaller, better-defined crater."
+        }
+      ]
+    },
+    {
+      "id": "eurotas-chasmata",
+      "name": "Eurotas Chasmata",
+      "featureType": "chasmata",
+      "category": "chasmata",
+      "latitude": 18,
+      "longitude": -90,
+      "description": "Eurotas Chasmata is a broad system of troughs and valleys cut into Dione's icy surface by extensional tectonics. These deep gashes expose layered ice and record a period of intense tectonic upheaval on the trailing hemisphere.",
+      "tags": [
+        "chasmata",
+        "tectonic",
+        "valley",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Extensional trough system"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 18.00°N, 270.00°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Chasmata on icy moons like Dione form when the crust is pulled apart from below — the same process that creates rift valleys on Earth, but in water ice instead of rock."
+        }
+      ]
+    },
+    {
+      "id": "padua-chasmata",
+      "name": "Padua Chasmata",
+      "featureType": "chasmata",
+      "category": "chasmata",
+      "latitude": 17.7,
+      "longitude": -67.17,
+      "description": "Padua Chasmata is part of the bright wispy network on Dione's trailing hemisphere, now understood as a system of ice cliffs and fractures rather than diffuse frost stains. These scarps expose fresh clean ice against darker surroundings, rising hundreds of metres above the fractured plains.",
+      "tags": [
+        "chasmata",
+        "wispy terrain",
+        "ice cliffs",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Terrain type",
+          "value": "Bright tectonic scarps"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 17.70°N, 247.17°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Voyager images made Dione's wisps look like painted streaks, but Cassini revealed they are towering fractured cliffs of ice."
+        }
+      ]
+    },
+    {
+      "id": "palatine-chasmata",
+      "name": "Palatine Chasmata",
+      "featureType": "chasmata",
+      "category": "chasmata",
+      "latitude": -48,
+      "longitude": -136,
+      "description": "Palatine Chasmata traces one of Dione's major tectonic fault systems across the trailing hemisphere. It records an episode when the icy crust was pulled apart — perhaps driven by internal expansion or the gravitational push and pull of Saturn's tidal forces.",
+      "tags": [
+        "chasmata",
+        "tectonics",
+        "bright cliffs",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 48.00°S, 316.00°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The brightness of Dione's chasmata comes from exposed fresh ice, which is far more reflective than the older radiation-darkened terrain surrounding it."
+        }
+      ]
+    },
+    {
+      "id": "janiculum-dorsa",
+      "name": "Janiculum Dorsa",
+      "featureType": "dorsum",
+      "category": "dorsa",
+      "latitude": 24.6,
+      "longitude": 35.9,
+      "description": "Janiculum Dorsa is a long sinuous ridge running across Dione's leading hemisphere, formed by compressional forces that buckled and folded the icy crust. Ridges like this are rare on Dione and stand in contrast to the extensional fractures that dominate the trailing side.",
+      "tags": [
+        "dorsa",
+        "ridge",
+        "compression",
+        "leading hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Compressional ridge"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 24.60°N, 144.10°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "While the trailing hemisphere of Dione was being pulled apart by extension, the leading side experienced compression — Janiculum Dorsa is a physical record of that tectonic imbalance."
+        }
+      ]
+    },
+    {
+      "id": "carthage-fossae",
+      "name": "Carthage Fossae",
+      "featureType": "fossa",
+      "category": "fossa",
+      "latitude": 11.93,
+      "longitude": -156.75,
+      "description": "Carthage Fossae is a system of long, narrow troughs etched into Dione's surface by tectonic extension. These linear depressions cut through older terrain and are part of the broader network of fractures that reshaped the trailing hemisphere.",
+      "tags": [
+        "fossa",
+        "tectonic",
+        "trough",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Linear tectonic trough"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 11.93°N, 336.75°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The fossae of Dione are thought to have formed when internal heating caused the moon's icy shell to expand, splitting the surface in long parallel cracks."
+        }
+      ]
+    },
+    {
+      "id": "fidena-fossae",
+      "name": "Fidena Fossae",
+      "featureType": "fossa",
+      "category": "fossa",
+      "latitude": 0.66,
+      "longitude": 84,
+      "description": "Fidena Fossae is a set of elongated troughs cutting through the trailing hemisphere, part of the same tectonic episode that produced Dione's famous wispy terrain. The fossae represent places where the crust fractured cleanly rather than developing the towering scarps seen elsewhere.",
+      "tags": [
+        "fossa",
+        "tectonic",
+        "trough",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Linear tectonic trough"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 0.66°N, 96.00°W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Fossae and chasmata on Dione formed in the same tectonic event but took different forms — fossae opened as clean troughs while chasmata produced tall, bright ice cliffs."
+        }
+      ]
+    },
+    {
+      "id": "wispy-trailing-terrain",
+      "name": "Wispy Trailing Terrain",
+      "featureType": "tectonic terrain",
+      "category": "linea",
+      "latitude": -20,
+      "longitude": -60,
+      "description": "The trailing hemisphere of Dione is crisscrossed by bright wisps that mark a whole network of tectonic fractures and ice cliffs. This terrain is younger than most of the moon's cratered surface and records a past episode of internal activity that cracked and reshaped the outer crust.",
+      "tags": [
+        "wisps",
+        "trailing hemisphere",
+        "tectonics"
+      ],
+      "details": [
+        {
+          "label": "Coordinate note",
+          "value": "Visual storytelling anchor for the broad trailing wispy terrain, not an exact IAU Gazetteer feature center."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Dione's wispy terrain was one of the Saturn system's biggest visual mysteries until Cassini finally resolved it at high resolution and revealed sheer ice scarps instead of frost."
+        }
+      ]
+    }
+  ]
+}

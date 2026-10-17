@@ -1,0 +1,402 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "mercury",
+  "name": "Mercury",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 16,
+  "features": [
+    {
+      "id": "caloris-planitia",
+      "name": "Caloris Planitia",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": 30,
+      "longitude": 162,
+      "description": "One of the largest impact basins in the Solar System, stretching about 1,550 km across. Caloris formed when a massive impact shattered Mercury's crust and was later partly resurfaced by smooth volcanic plains.",
+      "tags": [
+        "basin",
+        "impact",
+        "volcanic plains",
+        "major landmark"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Caloris is Latin for 'heat,' reflecting the basin's location near Mercury's hot equatorial region."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The shock from the Caloris impact likely converged on the opposite side of Mercury and helped create the planet's strange chaotic terrain."
+        }
+      ]
+    },
+    {
+      "id": "tolstoj",
+      "name": "Tolstoj",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": -16.3,
+      "longitude": -163.5,
+      "description": "An ancient multi-ring impact basin roughly 390 km across, preserving some of Mercury's oldest visible crust. Its worn appearance makes it a key marker for the planet's early bombardment history.",
+      "tags": [
+        "basin",
+        "ancient crust",
+        "multi-ring",
+        "old terrain"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Leo Tolstoy, the Russian novelist."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tolstoj is so old that geologists use it to help define one of Mercury's earliest major geologic time periods."
+        }
+      ]
+    },
+    {
+      "id": "rembrandt",
+      "name": "Rembrandt",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": -33,
+      "longitude": 87,
+      "description": "A spectacular 715 km wide impact basin with fractured floor material, smooth plains, and a broad ring structure. It is one of the younger large basins on Mercury and records both impact and volcanic resurfacing.",
+      "tags": [
+        "basin",
+        "fractured floor",
+        "volcanic plains",
+        "young basin"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after the Dutch painter Rembrandt van Rijn."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Rembrandt was one of the standout discoveries of the MESSENGER mission because it had been hidden from Mariner 10's view."
+        }
+      ]
+    },
+    {
+      "id": "beethoven",
+      "name": "Beethoven",
+      "featureType": "impact-basin",
+      "category": "basins",
+      "latitude": -20,
+      "longitude": 124,
+      "description": "A large, old impact basin about 640 km across with subdued rings and widespread smooth plains. It shows how later volcanism and impacts modified Mercury's giant early basins.",
+      "tags": [
+        "basin",
+        "impact",
+        "smooth plains",
+        "classic basin"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Ludwig van Beethoven, the German composer."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Beethoven was one of the major named basins already visible in the Mariner 10 era, long before Mercury was globally mapped."
+        }
+      ]
+    },
+    {
+      "id": "kuiper",
+      "name": "Kuiper",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -11.3,
+      "longitude": -31.5,
+      "description": "A relatively young bright-rayed crater that stands out sharply against Mercury's darker surrounding terrain. Its freshness makes it a useful comparison point for younger impact processes on the planet.",
+      "tags": [
+        "crater",
+        "young",
+        "ray system",
+        "fresh ejecta"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Gerard Kuiper, a pioneering planetary scientist."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Kuiper is one of the easiest Mercurian craters to spot in global imagery because its bright rays look so fresh."
+        }
+      ]
+    },
+    {
+      "id": "raphael",
+      "name": "Raphael",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -20,
+      "longitude": 19,
+      "description": "One of Mercury's largest named craters, Raphael is a huge multi-ring impact structure whose broad floor and broken rim preserve the scale of the collisions that shaped the planet's older crust. It belongs with Shakespeare among the giant crater landmarks that make Mercury feel battered on a planetary scale.",
+      "tags": [
+        "crater",
+        "giant crater",
+        "multi-ring",
+        "major landmark"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Raphael, the Italian Renaissance painter."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Raphael is large enough that, in regional views, it reads less like a single crater and more like a major terrain province cut into Mercury's ancient surface."
+        }
+      ]
+    },
+    {
+      "id": "debussy",
+      "name": "Debussy",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -33.9,
+      "longitude": 12.5,
+      "description": "A striking bright-rayed crater in Mercury's southern hemisphere, Debussy stands out because its fresh ejecta streaks slash across much older terrain. It is one of the easiest impact features to pick out in the explorer when scanning east and south of Kuiper.",
+      "tags": [
+        "crater",
+        "bright rays",
+        "fresh ejecta",
+        "visually prominent"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Claude Debussy, the French composer."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Debussy's extensive ray system makes it look geologically young compared with the darker, more muted crater fields around it."
+        }
+      ]
+    },
+    {
+      "id": "hiroshige",
+      "name": "Hiroshige",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -12.7,
+      "longitude": 26.5,
+      "description": "Hiroshige is a broad impact crater northeast of Debussy that reads clearly in regional views because of its size and preserved rim. It helps anchor the dense southern cratered terrain with another obvious named landmark near the Debussy-Kuiper region.",
+      "tags": [
+        "crater",
+        "regional landmark",
+        "southern terrain",
+        "prominent rim"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Utagawa Hiroshige, the Japanese artist."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Crater naming on Mercury turns regional exploration into a survey of major artists and composers, and Hiroshige is one of the names that stands out once you start using coordinates to hunt features."
+        }
+      ]
+    },
+    {
+      "id": "shakespeare",
+      "name": "Shakespeare",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 48,
+      "longitude": 152,
+      "description": "A large crater with a broad floor and pronounced rim, named under Mercury's convention of honoring artists, authors, and composers. It is part of the heavily cratered landscape that dominates much of the planet.",
+      "tags": [
+        "crater",
+        "high latitude",
+        "classic terrain",
+        "literary namesake"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after William Shakespeare."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Mercury's crater naming theme means the map reads like a global roll call of major artists and writers."
+        }
+      ]
+    },
+    {
+      "id": "matisse",
+      "name": "Matisse",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -25,
+      "longitude": -76,
+      "description": "A well-preserved crater with central peaks and textured ejecta, representing the medium-size impact structures that pepper Mercury's ancient crust. Features like Matisse help compare Mercurian crater morphology with the Moon.",
+      "tags": [
+        "crater",
+        "central peaks",
+        "ejecta",
+        "comparison target"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Henri Matisse, the French artist."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Because Mercury and the Moon are both airless worlds, craters like Matisse are useful for direct cross-planet comparison."
+        }
+      ]
+    },
+    {
+      "id": "discovery-rupes",
+      "name": "Discovery Rupes",
+      "featureType": "lobate-scarp",
+      "category": "scarps",
+      "latitude": 56,
+      "longitude": 38,
+      "description": "One of Mercury's giant lobate scarps, a cliff-like thrust fault created as the planet cooled and contracted. These scarps are among the clearest signs that Mercury shrank as its interior lost heat.",
+      "tags": [
+        "scarp",
+        "contraction",
+        "thrust fault",
+        "global shrinkage"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after HMS Discovery, continuing Mercury's rupes convention of honoring ships of exploration."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Mercury's scarps show that the whole planet actually got smaller over time as it cooled."
+        }
+      ]
+    },
+    {
+      "id": "hero-rupes",
+      "name": "Hero Rupes",
+      "featureType": "lobate-scarp",
+      "category": "scarps",
+      "latitude": -12,
+      "longitude": 146,
+      "description": "A long cliff-like scarp that cuts across older terrain, recording tectonic compression as Mercury's crust adjusted to planetary cooling. Features like Hero Rupes reveal that Mercury remained tectonically active after its heaviest bombardment era.",
+      "tags": [
+        "scarp",
+        "tectonics",
+        "cooling planet",
+        "fault escarpment"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after HMS Hero, following Mercury's ship-naming rule for rupes features."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Some Mercurian scarps are hundreds of kilometers long, making them enormous cliffs on a planet only slightly larger than Earth's Moon."
+        }
+      ]
+    },
+    {
+      "id": "pantheon-fossae",
+      "name": "Pantheon Fossae",
+      "featureType": "radial-trough-system",
+      "category": "volcanic",
+      "latitude": 34,
+      "longitude": 160,
+      "description": "A striking web of radial troughs near the center of Caloris Basin, often compared to spokes spreading from a wheel hub. The feature likely formed as the basin floor was uplifted, fractured, and modified by volcanism and tectonics.",
+      "tags": [
+        "volcanic",
+        "troughs",
+        "caloris",
+        "fractures"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Pantheon is named after the famous domed temple in Rome."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pantheon Fossae is sometimes nicknamed 'the Spider' because its radial fractures look like legs spreading out across Caloris."
+        }
+      ]
+    },
+    {
+      "id": "northern-smooth-plains",
+      "name": "Northern Smooth Plains",
+      "featureType": "volcanic-plains",
+      "category": "volcanic",
+      "latitude": 72,
+      "longitude": 90,
+      "description": "A vast expanse of relatively smooth terrain interpreted as ancient flood volcanism. These plains indicate Mercury experienced major episodes of lava flooding, not just impact cratering.",
+      "tags": [
+        "volcanic",
+        "smooth plains",
+        "northern hemisphere",
+        "lava flooding"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The northern smooth plains were one of the strongest pieces of evidence that Mercury had major volcanic resurfacing, not only impact-driven geology."
+        }
+      ]
+    },
+    {
+      "id": "north-pole",
+      "name": "Mercury North Pole",
+      "featureType": "pole",
+      "category": "poles",
+      "latitude": 90,
+      "longitude": 0,
+      "description": "Mercury's north polar region contains permanently shadowed crater floors that never see direct sunlight. Radar and spacecraft data show these cold traps likely preserve water ice despite Mercury's intense proximity to the Sun.",
+      "tags": [
+        "pole",
+        "water ice",
+        "cold traps",
+        "north"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Even on the innermost planet, some crater floors are cold enough to hide water ice for long periods."
+        }
+      ]
+    },
+    {
+      "id": "south-pole",
+      "name": "Mercury South Pole",
+      "featureType": "pole",
+      "category": "poles",
+      "latitude": -90,
+      "longitude": 0,
+      "description": "The south polar region also hosts permanently shadowed craters that are strong candidates for water-ice deposits. These polar cold traps are among Mercury's most surprising discoveries.",
+      "tags": [
+        "pole",
+        "water ice",
+        "cold traps",
+        "south"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Mercury's poles are a reminder that temperature on an airless world can depend more on sunlight geometry than distance from the Sun."
+        }
+      ]
+    }
+  ]
+}

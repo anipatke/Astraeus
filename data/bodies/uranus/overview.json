@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "uranus",
+  "name": "Uranus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "uranus",
+    "discovery": "Discovered in 1781 by British astronomer William Herschel",
+    "diameterKm": 50724,
+    "facts": [
+      "Uranus rotates on its side compared with most planets.",
+      "It is an ice giant with a small rocky core.",
+      "Methane in its atmosphere gives Uranus a blue-green color.",
+      "Each season lasts about 21 Earth years."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Uranus Facts",
+        "url": "https://science.nasa.gov/uranus/facts/"
+      }
+    ]
+  }
+}

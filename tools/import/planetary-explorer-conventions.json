@@ -1,0 +1,89 @@
+{
+  "_note": "Numbers transcribed from the donor public/textures/README.md Notes (the verbatim bullet is copied into each package as donorReadmeNote) and docs/DONOR_TEXTURE_INVENTORY.md section C. markerLongitudeFromSource says how the donor derived the stored feature longitude from the source longitude: marker = scale * source + offsetDeg, then normalised by the donor. null means the donor does not state a formula. The importer never applies it: stored longitudes are carried over unchanged.",
+  "bodies": {
+    "mimas": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 0
+      }
+    },
+    "enceladus": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": null,
+      "note": "donor: visually calibrated against the rendered texture; raw positive-west values must be converted before use"
+    },
+    "tethys": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 180
+      }
+    },
+    "dione": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 180
+      }
+    },
+    "rhea": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 180
+      }
+    },
+    "iapetus": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 180
+      }
+    },
+    "titan": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": 1,
+        "offsetDeg": 0
+      },
+      "note": "donor: stores source west longitudes directly, without the 180 - west remap"
+    },
+    "ganymede": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": -1,
+        "offsetDeg": 0
+      },
+      "textureRecentringDeg": 180,
+      "recentringEvidence": "docs/DONOR_TEXTURE_INVENTORY.md section C: donor texture matches the USGS mosaic after a 180 degree longitude shift (NCC 0.72, 0.05 unshifted)"
+    },
+    "callisto": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": null,
+      "note": "donor: remapped into east-positive displayed globe coordinates; formula not stated"
+    },
+    "europa": {
+      "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+      "markerLongitudeFromSource": null,
+      "note": "donor: the texture is positive-west 0-360 and matches the convention of europa-features.json; formula not stated"
+    },
+    "io": {
+      "sourceLongitude": "planetocentric latitude, positive-west -180 to 180",
+      "markerLongitudeFromSource": null,
+      "note": "donor: raster is equivalent to east-positive -180 to +180 left to right; existing east-positive feature coordinates retained"
+    },
+    "triton": {
+      "sourceLongitude": "east-positive, 0-360",
+      "markerLongitudeFromSource": {
+        "scale": 1,
+        "offsetDeg": 0
+      }
+    },
+    "ceres": {
+      "markerLongitudeFromSource": null,
+      "textureRecentringDeg": 180,
+      "recentringEvidence": "docs/DONOR_TEXTURE_INVENTORY.md section C: donor texture matches the USGS/DLR mosaic after a 180 degree shift (NCC 0.96)"
+    }
+  }
+}

@@ -1,0 +1,509 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "europa",
+  "name": "Europa",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 19,
+  "features": [
+    {
+      "id": "conamara-chaos",
+      "name": "Conamara Chaos",
+      "featureType": "chaos terrain",
+      "category": "chaos",
+      "latitude": 9,
+      "longitude": 274,
+      "description": "Conamara Chaos is Europa's showcase example of disrupted ice. Blocks of older crust appear to have broken apart, rotated, drifted, and refrozen in a darker matrix, giving scientists a rare look at how warm ice or shallow liquid water can remodel the surface.",
+      "tags": [
+        "chaos",
+        "ice rafts",
+        "subsurface ocean",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Approximate extent",
+          "value": "About 800 by 400 km"
+        },
+        {
+          "label": "Science value",
+          "value": "A key analogue for possible exchange between Europa's surface and ocean-bearing interior"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright rafts embedded in darker, mottled terrain near low northern latitudes"
+        }
+      ]
+    },
+    {
+      "id": "murias-chaos",
+      "name": "Murias Chaos",
+      "featureType": "chaos terrain",
+      "category": "chaos",
+      "latitude": 22.4,
+      "longitude": 83.8,
+      "description": "Murias Chaos, nicknamed the Mitten, is an elevated chaos terrain on Europa's leading hemisphere. Unlike the classic broken-raft look of Conamara Chaos, Murias is often interpreted as the surface expression of a large warm-ice diapir that rose through the shell, breached the surface, and spread material outward.",
+      "tags": [
+        "chaos",
+        "diapir",
+        "cryovolcanism",
+        "leading hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "About 116 by 77 km"
+        },
+        {
+          "label": "Nickname",
+          "value": "The Mitten, named for its distinctive outline"
+        },
+        {
+          "label": "Science value",
+          "value": "A rare example used to test whether some chaos terrain forms by diapiric uplift and cryovolcanic extrusion"
+        }
+      ]
+    },
+    {
+      "id": "thera-macula",
+      "name": "Thera Macula",
+      "featureType": "macula",
+      "category": "maculae",
+      "latitude": -47,
+      "longitude": 181,
+      "description": "Thera Macula is a dark, irregular patch in Europa's southern hemisphere. It is commonly interpreted as young chaos terrain where warm material rose through the ice shell, thinning or breaking the surface and leaving behind a chemically distinct deposit.",
+      "tags": [
+        "macula",
+        "chaos",
+        "upwelling",
+        "young terrain"
+      ],
+      "details": [
+        {
+          "label": "Why it matters",
+          "value": "Often discussed as a candidate place where ocean-derived material may have reached shallow depths"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dark southern feature close to Thrace Macula and Cyclades Macula"
+        }
+      ]
+    },
+    {
+      "id": "thrace-macula",
+      "name": "Thrace Macula",
+      "featureType": "macula",
+      "category": "maculae",
+      "latitude": -46,
+      "longitude": 172,
+      "description": "Thrace Macula is one of the dark reddish spots that interrupt Europa's bright icy plains. Its colour and texture point to contaminated ice, salts, or hydrated materials concentrated where the crust has been disturbed.",
+      "tags": [
+        "macula",
+        "dark terrain",
+        "salts",
+        "southern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Macula: a dark spot or patch on an icy world"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dark patch paired with nearby Thera Macula in the southern hemisphere"
+        }
+      ]
+    },
+    {
+      "id": "cyclades-macula",
+      "name": "Cyclades Macula",
+      "featureType": "macula",
+      "category": "maculae",
+      "latitude": -62.5,
+      "longitude": 191.3,
+      "description": "Cyclades Macula is a named dark patch in Europa's high southern latitudes. It helps show that Europa's surface chemistry and thermal history vary strongly from place to place rather than forming a uniform ice shell.",
+      "tags": [
+        "macula",
+        "dark terrain",
+        "southern",
+        "irradiated ice"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 107 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "IAU Gazetteer center latitude and west longitude"
+        }
+      ]
+    },
+    {
+      "id": "castalia-macula",
+      "name": "Castalia Macula",
+      "featureType": "macula",
+      "category": "maculae",
+      "latitude": -15,
+      "longitude": 225,
+      "description": "Castalia Macula is a broad, dark, young-looking depression on Europa. Studies of this region connect its mottled texture to local resurfacing, collapse, and the movement of warm or briny material within the ice shell.",
+      "tags": [
+        "macula",
+        "depression",
+        "resurfacing",
+        "brines"
+      ],
+      "details": [
+        {
+          "label": "Nickname",
+          "value": "Often described as one of Europa's dark spots"
+        },
+        {
+          "label": "Science value",
+          "value": "Useful for comparing collapse-style terrain with blocky chaos terrain"
+        }
+      ]
+    },
+    {
+      "id": "agave-linea",
+      "name": "Agave Linea",
+      "featureType": "linea",
+      "category": "linea",
+      "latitude": -4,
+      "longitude": 220,
+      "description": "Agave Linea is a long ridge-and-trough belt formed as Europa's brittle ice cracked under Jupiter-driven tidal stress. Dark material along the fracture likely includes salts or non-ice contaminants brought upward and altered by radiation.",
+      "tags": [
+        "linea",
+        "fracture",
+        "tidal stress",
+        "salts"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Linea: an elongated bright or dark marking, ridge, or fracture system"
+        },
+        {
+          "label": "What it records",
+          "value": "Repeated opening, shear, and refreezing in Europa's mobile ice shell"
+        }
+      ]
+    },
+    {
+      "id": "argo-linea",
+      "name": "Argo Linea",
+      "featureType": "linea",
+      "category": "linea",
+      "latitude": 20,
+      "longitude": 340,
+      "description": "Argo Linea is one of Europa's long, dark lineaments. Its scale and continuity make it a useful guide to the global stress fields that have fractured Europa's surface through time.",
+      "tags": [
+        "linea",
+        "double ridge",
+        "tectonics",
+        "global stress"
+      ],
+      "details": [
+        {
+          "label": "Visual cue",
+          "value": "Long dark band crossing brighter icy plains"
+        },
+        {
+          "label": "Earth analogue",
+          "value": "Some Europan double ridges are compared with refrozen cracks and meltwater features in terrestrial ice sheets"
+        }
+      ]
+    },
+    {
+      "id": "belus-linea",
+      "name": "Belus Linea",
+      "featureType": "linea",
+      "category": "linea",
+      "latitude": -15,
+      "longitude": 185,
+      "description": "Belus Linea is a dark triple-band feature imaged by Galileo. Bands like this are among Europa's most distinctive landforms: paired margins and a central bright stripe suggest repeated cracking, widening, and infilling by material from below.",
+      "tags": [
+        "linea",
+        "triple band",
+        "galileo",
+        "fracture"
+      ],
+      "details": [
+        {
+          "label": "Formation clue",
+          "value": "Diffuse dark margins may record erupted or intruded debris along the crack"
+        },
+        {
+          "label": "Map cue",
+          "value": "Dark banding near the anti-Jovian hemisphere"
+        }
+      ]
+    },
+    {
+      "id": "cadmus-linea",
+      "name": "Cadmus Linea",
+      "featureType": "linea",
+      "category": "linea",
+      "latitude": 6,
+      "longitude": 160,
+      "description": "Cadmus Linea is part of Europa's dense network of named ridges and bands. Its position among crossing lineae shows how Europa's surface preserves multiple generations of stress, extension, and resurfacing.",
+      "tags": [
+        "linea",
+        "ridge",
+        "crosscutting",
+        "tectonics"
+      ],
+      "details": [
+        {
+          "label": "Reading the surface",
+          "value": "Where lineae cross, the younger feature usually cuts across or disrupts the older one"
+        },
+        {
+          "label": "Map cue",
+          "value": "Low-latitude banding amid brighter icy plains"
+        }
+      ]
+    },
+    {
+      "id": "rhadamanthys-linea",
+      "name": "Rhadamanthys Linea",
+      "featureType": "linea",
+      "category": "linea",
+      "latitude": -5,
+      "longitude": 250,
+      "description": "Rhadamanthys Linea is a prominent named fracture system on Europa. It belongs to the world-spanning pattern of ridges and bands that reveal an ice shell continually stressed by orbital resonance with Io and Ganymede.",
+      "tags": [
+        "linea",
+        "resonance",
+        "ridge",
+        "tidal flexing"
+      ],
+      "details": [
+        {
+          "label": "Orbital link",
+          "value": "Europa's 2:1 resonance with Io keeps its orbit slightly eccentric, sustaining tidal flexing"
+        },
+        {
+          "label": "Map cue",
+          "value": "Elongated ridge system west of the central anti-Jovian terrain"
+        }
+      ]
+    },
+    {
+      "id": "tyre",
+      "name": "Tyre",
+      "featureType": "multi-ring structure",
+      "category": "impact",
+      "latitude": 31.5,
+      "longitude": 147,
+      "description": "Tyre is a large multi-ring impact structure and one of Europa's clearest examples of a major impact into an icy shell. Its concentric rings are interpreted as the crust's response to impact energy moving through ice over a warmer, weaker layer.",
+      "tags": [
+        "impact",
+        "multi-ring",
+        "ice shell",
+        "ocean"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 140 km"
+        },
+        {
+          "label": "Why craters are rare",
+          "value": "Europa's young surface has been repeatedly resurfaced by tectonic and icy processes"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright circular ring structure in the northern hemisphere"
+        }
+      ]
+    },
+    {
+      "id": "pwyll",
+      "name": "Pwyll",
+      "featureType": "crater",
+      "category": "impact",
+      "latitude": -25,
+      "longitude": 271,
+      "description": "Pwyll is Europa's freshest and most visually striking crater. Bright rays of excavated ice stretch far from the impact site, crossing older ridges and plains and making the crater easy to identify on global maps.",
+      "tags": [
+        "crater",
+        "impact rays",
+        "fresh ice",
+        "young surface"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 26 km"
+        },
+        {
+          "label": "Visual cue",
+          "value": "Bright ray system radiating across darker lineated terrain"
+        },
+        {
+          "label": "Science value",
+          "value": "Fresh ejecta exposes cleaner ice from below Europa's radiation-darkened surface"
+        }
+      ]
+    },
+    {
+      "id": "cilix",
+      "name": "Cilix",
+      "featureType": "crater",
+      "category": "impact",
+      "latitude": 2.6,
+      "longitude": 181.9,
+      "description": "Cilix is a small, well-preserved impact crater near Europa's equator. It is especially important for mapping because the longitude of its center defines Europa's longitude system, anchoring the 0-360 degree west-longitude convention used by the global texture.",
+      "tags": [
+        "crater",
+        "impact",
+        "longitude reference",
+        "galileo"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 15 km in the IAU Gazetteer; NASA topography products describe the impact structure as about 20 km across"
+        },
+        {
+          "label": "Mapping role",
+          "value": "Defines 182 degrees west longitude on Europa"
+        },
+        {
+          "label": "Topography",
+          "value": "Galileo stereo imaging shows raised rims, wall slumping, and a central massif on the crater floor"
+        }
+      ]
+    },
+    {
+      "id": "manannan",
+      "name": "Manannan",
+      "featureType": "crater",
+      "category": "impact",
+      "latitude": 3,
+      "longitude": 240,
+      "description": "Manannan is a young impact crater whose ejecta and disturbed surroundings provide a window into Europa's near-surface structure. Like Pwyll, it is valuable because fresh impacts excavate material before radiation can fully alter it.",
+      "tags": [
+        "crater",
+        "ejecta",
+        "fresh ice",
+        "near-surface"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Simple impact crater with surrounding ejecta"
+        },
+        {
+          "label": "Science value",
+          "value": "Fresh impact material helps constrain the composition and strength of Europa's upper ice shell"
+        }
+      ]
+    },
+    {
+      "id": "tara-regio",
+      "name": "Tara Regio",
+      "featureType": "regio",
+      "category": "regions",
+      "latitude": -5,
+      "longitude": 75,
+      "description": "Tara Regio is a geologically complex region that includes reddish, disrupted terrain and lineaments. Spectral studies have linked parts of this area with salts or altered ocean-derived materials concentrated on the trailing hemisphere.",
+      "tags": [
+        "regio",
+        "salts",
+        "trailing hemisphere",
+        "surface chemistry"
+      ],
+      "details": [
+        {
+          "label": "Feature type",
+          "value": "Regio: a broad named region with distinct appearance"
+        },
+        {
+          "label": "Science value",
+          "value": "Candidate area for studying non-ice materials on Europa's surface"
+        }
+      ]
+    },
+    {
+      "id": "powys-regio",
+      "name": "Powys Regio",
+      "featureType": "regio",
+      "category": "regions",
+      "latitude": -35,
+      "longitude": 125,
+      "description": "Powys Regio marks a broad province of mottled and lineated terrain. Large regions like this help connect local landforms to Europa-wide resurfacing patterns and to the changing stress field of the rotating ice shell.",
+      "tags": [
+        "regio",
+        "mottled terrain",
+        "lineated plains",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Broad southern terrain province cut by many lineae"
+        },
+        {
+          "label": "Interpretation",
+          "value": "A regional record of older plains being overprinted by younger fractures and bands"
+        }
+      ]
+    },
+    {
+      "id": "north-pole-europa",
+      "name": "North Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": 80,
+      "longitude": 0,
+      "description": "Europa's north polar terrain receives intense bombardment from particles trapped in Jupiter's magnetosphere. Radiation changes surface ice chemistry, creating oxidants and reddish contaminants that may eventually be cycled downward.",
+      "tags": [
+        "polar",
+        "radiation",
+        "oxidants",
+        "jupiter magnetosphere"
+      ],
+      "details": [
+        {
+          "label": "Environment",
+          "value": "Strong radiation processing from Jupiter's magnetosphere"
+        },
+        {
+          "label": "Astrobiology link",
+          "value": "Surface oxidants could become chemical energy sources if transported into the ocean"
+        }
+      ]
+    },
+    {
+      "id": "south-pole-europa",
+      "name": "South Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": -80,
+      "longitude": 180,
+      "description": "Europa's south polar region is important because possible water-vapour plumes have been reported there in Hubble observations. If active plumes exist, they could offer a way to sample ocean-related material without landing.",
+      "tags": [
+        "polar",
+        "plumes",
+        "water vapour",
+        "hubble"
+      ],
+      "details": [
+        {
+          "label": "Observation note",
+          "value": "Plume detections remain challenging and have not been continuously confirmed"
+        },
+        {
+          "label": "Mission value",
+          "value": "A plume fly-through could sample material sourced from Europa's ice shell or ocean"
+        }
+      ]
+    }
+  ]
+}

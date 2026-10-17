@@ -1,0 +1,60 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "mimas",
+  "name": "Mimas",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/mimas-4k.jpg",
+      "width": 5760,
+      "height": 2880,
+      "bytes": 1605648,
+      "sha256": "f2d62eaa50c7864e303a13434738a7bc6db0e133f1f4b163c2506979800c1116",
+      "donorReadme": [
+        "- `mimas-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute Mimas Global Map - June 2017 (PIA17214)",
+        "  - Source page: https://www.jpl.nasa.gov/images/pia17214-mimas-global-map-june-2017/",
+        "  - Download endpoint used: `https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA17214.jpg`",
+        "  - Purpose: replace the previous annotated map image with the clean unlabeled simple-cylindrical global map",
+        "  - Projection: equidistant/simple cylindrical, `5760x2880`, 16 pixels per degree",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -114,
+      "max": 163.96
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": -1,
+      "offsetDeg": 0
+    },
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Mimas release uses the NASA/JPL/Cassini Imaging Team unlabeled global map at full `5760x2880` resolution. Source coordinate labels in `data/mimas-features.json` retain IAU positive-west values, while numeric marker longitudes use the app's east-positive convention: `markerLongitude = -westLongitude`, normalized to `[-180, 180]`."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "ceres",
+  "name": "Ceres",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "ceres",
+    "discovery": "Discovered in 1801 by Italian astronomer Giuseppe Piazzi",
+    "diameterKm": 952,
+    "facts": [
+      "Ceres is the largest object in the asteroid belt.",
+      "It is the only dwarf planet in the inner solar system.",
+      "Bright deposits in Occator Crater contain salts.",
+      "NASA's Dawn spacecraft entered orbit around Ceres in 2015."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Ceres Facts",
+        "url": "https://science.nasa.gov/dwarf-planets/ceres/facts/"
+      }
+    ]
+  }
+}
