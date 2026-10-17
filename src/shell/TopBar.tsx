@@ -41,7 +41,7 @@ export function TopBar({ scaleId, onScaleChange, scaleChoices, ...objectControls
 export function DeveloperToggle({ developerMode, onDeveloperModeChange }: DeveloperProps) {
   return (
     <button
-      className="developer-mode-toggle"
+      className="developer-mode-toggle ui-icon ui-pill"
       type="button"
       aria-label="Developer mode"
       title="Developer mode"

@@ -18,10 +18,16 @@ const HOOK = {
   infoPanel: "#info-panel",
   infoClose: "#info-panel .info-panel-close",
   provenanceBadge: ".provenance-badge",
-  provenanceDetail: ".provenance-detail",
+  provenanceDetail: ".provenance",
+  sourcesSection: ".sources-section",
+  controlsPill: "button.controls-pill",
+  controlsDrawer: ".controls-drawer",
+  timelineHandle: "button.drawer-handle-top",
+  timelineDrawer: ".timeline-drawer",
+  controlsHandle: "button.drawer-handle-bottom",
   eventsDetails: "details.timeline-event-list",
   eventsSummary: "details.timeline-event-list summary",
-  eventRows: ".timeline-event-list li button",
+  eventRows: ".timeline-expanded li button",
   eventContext: ".timeline-event-context",
   currentEventButton: ".timeline-event-current",
   timeLabel: ".timeline-time",
@@ -38,6 +44,45 @@ const HOOK = {
 };
 
 const squash = (text) => text.replace(/\s+/g, " ");
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Phone drawers (T-081): on a phone the top controls and the timeline's speed slider and events sit in drawers. The functions below that press a
+// control inside one call `reveal` first, which opens the drawer that holds it; on a larger screen there are no drawers and `reveal` does nothing.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** Whether the page is in the phone layout (it has the controls pill). */
+export const isPhoneLayout = async (page) => (await page.locator(HOOK.controlsPill).count()) > 0;
+/** Opens the top drawer when the layout has one and it is closed. */
+export async function openControlsDrawer(page) {
+  const pill = page.locator(HOOK.controlsPill);
+  if ((await pill.count()) > 0 && (await pill.getAttribute("aria-expanded")) !== "true") { await pill.click(); await page.locator(`${HOOK.controlsDrawer}[data-open="true"]`).waitFor(); }
+}
+/** Closes the top drawer by its handle when it is open. */
+export async function closeControlsDrawer(page) {
+  const pill = page.locator(HOOK.controlsPill);
+  if ((await pill.count()) > 0 && (await pill.getAttribute("aria-expanded")) === "true") { await page.locator(HOOK.controlsHandle).click(); await page.locator(`${HOOK.controlsDrawer}[data-open="false"]`).waitFor({ state: "attached" }); }
+}
+/** Opens the timeline drawer when the layout has one and it is closed. */
+export async function openTimelineDrawer(page) {
+  const handle = page.locator(HOOK.timelineHandle);
+  if ((await handle.count()) > 0 && (await handle.getAttribute("aria-expanded")) !== "true") { await handle.click(); await page.locator(`${HOOK.timelineDrawer}[data-open="true"]`).waitFor(); }
+}
+/** Closes the timeline drawer by its handle when it is open. */
+export async function closeTimelineDrawer(page) {
+  const handle = page.locator(HOOK.timelineHandle);
+  if ((await handle.count()) > 0 && (await handle.getAttribute("aria-expanded")) === "true") { await handle.click(); await page.locator(`${HOOK.timelineDrawer}[data-open="false"]`).waitFor({ state: "attached" }); }
+}
+/** Waits until no drawer or sheet is still sliding (a control that is about to be hidden still counts as showing while it moves). */
+const drawersSettled = (page) => page.waitForFunction((hooks) => [...document.querySelectorAll(hooks)].every((element) => element.getAnimations().every((animation) => animation.playState !== "running")), `${HOOK.controlsDrawer}, ${HOOK.timelineDrawer}, #info-panel, ${HOOK.storyPanel}`);
+/** Makes the control a locator names reachable: opens the top drawer, then the timeline drawer, until it shows. Returns the locator. */
+async function reveal(page, locator) {
+  if (await isPhoneLayout(page)) await drawersSettled(page);
+  if (!(await isPhoneLayout(page)) || (await locator.first().isVisible())) return locator;
+  await openControlsDrawer(page);
+  if (await locator.first().isVisible()) return locator;
+  await openTimelineDrawer(page);
+  return locator;
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // The shell as a whole
@@ -158,12 +203,17 @@ export const hasNextEvent = async (page) => !(await nextButton(page).isDisabled(
 export const nextEventLabel = (page) => nextButton(page).getAttribute("aria-label");
 
 /** Opens or closes the Events list. */
-export const toggleEventList = (page) => page.locator(HOOK.eventsSummary).click();
-export const eventListOpen = (page) => page.locator(HOOK.eventsDetails).evaluate((element) => element.open);
+export async function toggleEventList(page) {
+  if (await isPhoneLayout(page)) await page.locator(HOOK.timelineHandle).click();
+  else await page.locator(HOOK.eventsSummary).click();
+}
+export const eventListOpen = async (page) => ((await isPhoneLayout(page))
+  ? (await page.locator(HOOK.timelineHandle).getAttribute("aria-expanded")) === "true"
+  : page.locator(HOOK.eventsDetails).evaluate((element) => element.open));
 export async function openEventList(page) { if (!(await eventListOpen(page))) await toggleEventList(page); }
 export async function closeEventList(page) { if (await eventListOpen(page)) await toggleEventList(page); }
 /** Text of the Events list (the list itself, open or not). */
-export const eventListText = (page) => page.locator(HOOK.eventsDetails).innerText();
+export const eventListText = async (page) => ((await isPhoneLayout(page)) ? page.locator(HOOK.timelineDrawer) : page.locator(HOOK.eventsDetails)).innerText();
 /** The Events list's rows as `{label, utc}` (the list needs to be rendered, open or not). */
 export const eventRows = (page) => page.locator(HOOK.eventRows).evaluateAll((buttons) => buttons.map((button) => ({
   label: button.querySelector("span")?.textContent?.trim() ?? "",
@@ -173,7 +223,7 @@ export const eventRows = (page) => page.locator(HOOK.eventRows).evaluateAll((but
 export const eventRowTexts = (page) => page.locator(HOOK.eventRows).allTextContents();
 export const eventRowCount = (page) => page.locator(HOOK.eventRows).count();
 /** Clicks the n-th row of the (open) Events list: seeks to it and opens its information. */
-export const pickEventRow = (page, index) => page.locator(HOOK.eventRows).nth(index).click();
+export const pickEventRow = async (page, index) => (await reveal(page, page.locator(HOOK.eventRows))).nth(index).click();
 /** The label text of the n-th Events row. */
 export const eventRowLabel = async (page, index) => (await page.locator(HOOK.eventRows).nth(index).locator("span").textContent()).trim();
 /** The "Just happened / Up next / Inside" text. */
@@ -181,7 +231,7 @@ export const eventContextText = (page) => page.locator(HOOK.eventContext).innerT
 /** The "Inside: window" line (needs the Events list open). */
 export const insideText = (page) => page.locator(".timeline-window-current").innerText();
 /** Presses the "Just happened" line, which opens that event's information. */
-export const openCurrentEventInfo = (page) => page.locator(HOOK.currentEventButton).click();
+export const openCurrentEventInfo = async (page) => (await reveal(page, page.locator(HOOK.currentEventButton))).click();
 /** Chooses an event in the developer panel's "Mission event" list by value. */
 export const missionEventOptions = (page) => page.getByLabel("Mission event").locator("option").evaluateAll((options) => options.map((option) => ({
   value: option.value,
@@ -224,17 +274,18 @@ export const goToWindowPeak = (page, options) => page.locator(HOOK.windowPeak).c
 /** Presses a named window's own peak button ("Go to peak of <label>"). */
 export const goToNamedWindowPeak = (page, label) => page.getByRole("button", { name: `Go to peak of ${label}` }).click();
 /** Opens a window's information from its button in the Events list. */
-export const openNamedWindowInfo = (page, label) => page.getByRole("button", { name: `Information about ${label}` }).click();
+export const openNamedWindowInfo = async (page, label) => (await reveal(page, page.getByRole("button", { name: `Information about ${label}` }))).click();
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Bodies, information, camera
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 const bodyPicker = (page) => page.getByLabel("Select object");
+const revealedBodyPicker = async (page) => reveal(page, bodyPicker(page));
 
 /** Picks a body (or other object) in the Object list by its id. */
-export const pickBody = (page, id) => bodyPicker(page).selectOption(id);
+export const pickBody = async (page, id) => (await revealedBodyPicker(page)).selectOption(id);
 /** Picks the first entry of the Object list. */
-export const pickFirstBody = (page) => bodyPicker(page).selectOption({ index: 0 });
+export const pickFirstBody = async (page) => (await revealedBodyPicker(page)).selectOption({ index: 0 });
 /** The id of the picked object. */
 export const pickedBody = (page) => bodyPicker(page).inputValue();
 /** The ids the Object list holds, in order. */
@@ -250,7 +301,8 @@ export const waitForBodyAvailability = (page, id, available) => page.waitForFunc
 }, [id, available]);
 export async function bodyAvailable(page, id) { return bodyPicker(page).evaluate((select, body) => { const option = [...select.options].find((o) => o.value === body); return option !== undefined && !option.disabled; }, id); }
 /** Waits for the Object list to be on the page. */
-export const waitForBodyPicker = (page, options) => bodyPicker(page).waitFor(options);
+/** Waits for the Object list to be on the page (on a phone it sits in the closed top drawer, so attached, not necessarily showing). */
+export const waitForBodyPicker = (page, options) => bodyPicker(page).waitFor({ state: "attached", ...options });
 /** The Object list's entries that can be picked now: `{value, text}` each. */
 export const pickableBodies = (page) => bodyPicker(page).evaluate((element) => [...element.options].filter((option) => !option.disabled).map((option) => ({ value: option.value, text: option.textContent.trim() })));
 /** What the Object list says about one entry: the span it is available over (UTC ms), whether it is disabled, its text. */
@@ -280,16 +332,16 @@ export const infoText = async (page) => squash(await page.locator(HOOK.infoPanel
 export const infoMetricsText = (page) => page.locator(`${HOOK.infoPanel} .info-panel-metrics`).innerText();
 export const infoMetricCount = (page) => page.locator(`${HOOK.infoPanel} .metric`).count();
 /** Presses the info toggle beside the Object list. */
-export const toggleInfo = (page) => page.locator(HOOK.infoToggle).click();
+export const toggleInfo = async (page) => (await reveal(page, page.locator(HOOK.infoToggle))).click();
 export const focusInfoToggle = (page) => page.locator(HOOK.infoToggle).focus();
 /** Opens the information for what is picked, unless it is already open. `label` is the object's name as the button announces it (a string or RegExp). */
 export async function openInfo(page, label, options) {
   if (await infoOpen(page)) return;
   const name = label === undefined ? /^Info/ : label instanceof RegExp ? label : new RegExp(`^Information about ${label}$`);
-  await page.getByRole("button", { name }).first().click(options);
+  await (await reveal(page, page.getByRole("button", { name }))).first().click(options);
 }
 /** Opens the information through the first "Information about ..." button (for example a timeline event's). */
-export const pressInformationButton = (page, name) => page.getByRole("button", { name }).first().click();
+export const pressInformationButton = async (page, name) => (await reveal(page, page.getByRole("button", { name }))).first().click();
 /** Closes the information panel when it is open. */
 export async function closeInfo(page) { if (await infoOpen(page)) await page.locator(HOOK.infoClose).click(); }
 /** Closes it when open, giving up quietly after 5 s. */
@@ -307,7 +359,17 @@ export const closeInfoByPanelButton = (page) => infoPanel(page).getByRole("butto
 /** The provenance badge (a locator, for reading), pressing it, and the detail it opens. */
 export const provenanceBadge = (page) => page.locator(`${HOOK.infoPanel} ${HOOK.provenanceBadge}`);
 export const provenanceBadgeText = (page) => provenanceBadge(page).innerText();
-export const openProvenance = (page) => provenanceBadge(page).first().click();
+export async function openProvenance(page) {
+  await provenanceBadge(page).first().click();
+  await openSources(page);
+}
+/** The Sources section of the open information panel (a locator), whether it is open, opening and closing it (O-020 Decision 4: closed by default). */
+export const sourcesSection = (page) => page.locator(`${HOOK.infoPanel} ${HOOK.sourcesSection}`);
+export const sourcesOpen = (page) => sourcesSection(page).evaluate((element) => element.open);
+export async function openSources(page) { if (!(await sourcesOpen(page))) await sourcesSection(page).locator("summary").click(); }
+export async function closeSources(page) { if (await sourcesOpen(page)) await sourcesSection(page).locator("summary").click(); }
+/** The Sources lines in the information panel, read whether the section is open or closed. */
+export const sourceLines = (page) => sourcesSection(page).locator("li").allTextContents();
 export const provenanceDetail = (page) => page.locator(`${HOOK.infoPanel} ${HOOK.provenanceDetail}`);
 export const provenanceDetailText = async (page) => squash(await provenanceDetail(page).innerText());
 export const provenanceDetailRaw = (page) => provenanceDetail(page).innerText();
@@ -315,7 +377,7 @@ export const provenanceDetailContent = (page) => provenanceDetail(page).textCont
 export const provenanceDetailVisible = (page) => provenanceDetail(page).isVisible();
 
 /** Presses the button on a body that selects its related object (for example an orbit line). */
-export const pressRelatedObject = (page, id) => page.locator(`[data-related-object="${id}"]`).click();
+export const pressRelatedObject = async (page, id) => (await reveal(page, page.locator(`[data-related-object="${id}"]`))).click();
 export const relatedObject = (page, id) => page.locator(`[data-related-object="${id}"]`);
 /** Picks a body, then selects an orbit line the Object list no longer holds through the body's related button. */
 export async function selectOrbit(page, bodyId, orbitId) {
@@ -324,7 +386,7 @@ export async function selectOrbit(page, bodyId, orbitId) {
 }
 
 /** Chooses a camera by its preset id (for example "overview", "focus-columbia", "follow-moon", "whole-orbit"). */
-export const chooseCamera = (page, presetId) => page.locator(`[data-camera-preset="${presetId}"]`).click();
+export const chooseCamera = async (page, presetId) => (await reveal(page, page.locator(`[data-camera-preset="${presetId}"]`))).click();
 /** Whether a camera preset is offered. */
 export const cameraOffered = async (page, presetId) => (await page.locator(`[data-camera-preset="${presetId}"]`).count()) > 0;
 /** Whether a camera preset is the one in force. */
@@ -491,8 +553,11 @@ export const openStoryPanelIds = (page) => page.locator(HOOK.storyPanel).evaluat
 export const storyPanelBadge = (page) => page.locator(`${HOOK.storyPanel} .story-badge`).getAttribute("data-badge");
 /** Whether the scene's story marker is pressed (its panel open). */
 export const sceneStoryMarkerPressed = async (page, id) => (await page.locator(`.story-marker[data-panel-id="${id}"]`).getAttribute("aria-pressed")) === "true";
-export const storyPanelSources = (page) => page.locator(`${HOOK.storyPanel} .story-panel-sources li`).count();
-export const storyPanelHandleVisible = (page) => page.locator(`${HOOK.storyPanel} .story-panel-handle`).isVisible();
+export const storyPanelSources = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} li`).count();
+/** The story panel's Sources section: whether it is open, and opening it with one tap. */
+export const storySourcesOpen = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection}`).evaluate((element) => element.open);
+export const openStorySources = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).click();
+export const storyPanelHandleVisible = (page) => page.locator(`${HOOK.storyPanel} .sheet-handle`).isVisible();
 export const storyPanelBox = (page) => page.locator(HOOK.storyPanel).boundingBox();
 export const storyPanelBadgeElement = (page) => page.locator(`${HOOK.storyPanel} .story-badge`);
 /** The timeline's story-panel markers (a locator, for counts and attributes). */
@@ -542,6 +607,7 @@ export async function chooseScale(page, label) {
   }
   const control = scaleControl(page);
   const trigger = scaleTrigger(page);
+  await reveal(page, trigger);
   if ((await trigger.getAttribute("data-scale-label")) === label) return;
   if ((await trigger.getAttribute("aria-haspopup")) === "menu") {
     await trigger.click();
@@ -560,12 +626,12 @@ export const scaleToggleTitle = (page) => scaleControl(page).locator(".scale-tog
 const scaleInfo = (page) => scaleControl(page).locator("button.scale-info");
 export const hasScaleExplanation = async (page) => (await scaleInfo(page).count()) > 0;
 export const scaleInfoName = (page) => scaleInfo(page).getAttribute("aria-label");
-export const scaleInfoBox = (page) => scaleInfo(page).boundingBox();
+export const scaleInfoBox = async (page) => (await reveal(page, scaleInfo(page))).boundingBox();
 export const scaleInfoOpen = async (page) => (await scaleInfo(page).getAttribute("aria-expanded")) === "true";
 /** Presses the ⓘ once (opens the explanation, or closes it when open). */
-export const pressScaleInfo = (page) => scaleInfo(page).click();
+export const pressScaleInfo = async (page) => (await reveal(page, scaleInfo(page))).click();
 /** Presses the ⓘ from inside the page (for a phone, where the developer panel can cover it). */
-export const pressScaleInfoNow = (page) => scaleInfo(page).evaluate((element) => element.click());
+export const pressScaleInfoNow = async (page) => (await reveal(page, scaleInfo(page))).evaluate((element) => element.click());
 /** The explanation's text when it is showing, else null. */
 export async function scaleExplanationText(page) {
   const panel = scaleControl(page).locator(".scale-explanation-panel");
@@ -648,3 +714,141 @@ export const primaryControlTargets = (page) => page.evaluate(() => {
 export const homeDemoLinks = (page) => page.locator("a.demo").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
 /** The sources of card pictures that did not load. */
 export const homeBrokenPictures = (page) => page.locator("a.demo img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The phone layout and the shared control look (T-081, O-020)
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** Whether each phone drawer is open: `{controls, timeline}`; both false on a larger screen. */
+export async function drawerStates(page) {
+  const open = async (hook) => (await page.locator(hook).count()) > 0 && (await page.locator(hook).getAttribute("aria-expanded")) === "true";
+  return { controls: await open(HOOK.controlsPill), timeline: await open(HOOK.timelineHandle) };
+}
+/** The name on the pill (the picked object's name), or null on a larger screen. */
+export async function controlsPillName(page) {
+  const pill = page.locator(HOOK.controlsPill);
+  return (await pill.count()) > 0 ? (await pill.innerText()).trim() : null;
+}
+/** Boxes of the parts of the phone layout, for reading: pill, top drawer, timeline bar, timeline handle, play button. */
+export const phoneBoxes = async (page) => { await drawersSettled(page); return page.evaluate(({ pill, drawer, handle, controlsHandle }) => {
+  const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
+  return { pill: box(pill), drawer: box(drawer), bar: box(".timeline-bar"), handle: box(handle), controlsHandle: box(controlsHandle), play: box(".timeline-play"), cog: box(".developer-mode-toggle"), sheet: box("#info-panel"), story: box(".story-panel") };
+}, { pill: HOOK.controlsPill, drawer: HOOK.controlsDrawer, handle: HOOK.timelineHandle, controlsHandle: HOOK.controlsHandle }); };
+
+/** Presses the pill and the handles (a tap). */
+export const tapPill = (page) => page.locator(HOOK.controlsPill).click();
+export const tapControlsHandle = (page) => page.locator(HOOK.controlsHandle).click();
+export const tapTimelineHandle = (page) => page.locator(HOOK.timelineHandle).click();
+/** Waits until a drawer has finished moving to the open or closed state. */
+export const waitForDrawer = (page, which, open) => page.waitForFunction(([hook, wanted]) => {
+  const element = document.querySelector(hook);
+  return element !== null && element.getAttribute("data-open") === String(wanted) && element.getAnimations().every((a) => a.playState !== "running");
+}, [which === "controls" ? HOOK.controlsDrawer : HOOK.timelineDrawer, open]);
+
+/** One finger drag with real touch events (so the page sees what a phone would send): from a point to a point in steps. */
+async function touchDrag(page, from, to, steps = 8) {
+  const client = await page.context().newCDPSession(page);
+  const point = (p) => [{ x: p.x, y: p.y, id: 1 }];
+  await client.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(from) });
+  for (let i = 1; i <= steps; i += 1) {
+    await client.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point({ x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps }) });
+  }
+  await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await client.detach();
+}
+const centreOf = async (locator) => { const box = await locator.boundingBox(); return { x: box.x + box.width / 2, y: box.y + box.height / 2 }; };
+/** Swipes from a drawer's handle (or the pill) by `dy` pixels (negative: up). */
+async function swipeFrom(page, locator, dy) {
+  const from = await centreOf(locator);
+  await touchDrag(page, from, { x: from.x, y: from.y + dy });
+}
+export const swipePillDown = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.controlsPill), dy);
+export const swipeControlsHandleUp = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.controlsHandle), -dy);
+export const swipeTimelineHandleUp = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.timelineHandle), -dy);
+export const swipeTimelineHandleDown = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.timelineHandle), dy);
+/** A drag on the scene itself, in every direction a drawer swipe could be mistaken for (a touch drag on the canvas, away from every control). */
+export async function dragOnScene(page) {
+  const box = await page.getByTestId("earth-moon-canvas").boundingBox();
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  for (const [dx, dy] of [[0, 160], [0, -160], [120, 0]]) await touchDrag(page, { x, y }, { x: x + dx, y: y + dy });
+}
+/** A touch swipe down on the open information sheet, from its top edge (it dismisses the sheet). */
+export async function swipeInfoSheetDown(page, dy = 160) {
+  const box = await page.locator(HOOK.infoPanel).boundingBox();
+  await touchDrag(page, { x: box.x + box.width / 2, y: box.y + 14 }, { x: box.x + box.width / 2, y: box.y + 14 + dy });
+}
+/** Whether the page scrolls sideways. */
+export const scrollsSideways = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1 || document.body.scrollWidth > window.innerWidth + 1);
+/** The story panel is open and its box does not overlap the timeline's Play button. */
+export const storyPanelClearOfPlay = async (page) => { const { story, play } = await phoneBoxes(page); return story !== null && play !== null && story.bottom <= play.top + 0.5; };
+/** The viewer's own time and the playing state, to prove a drawer swipe leaves them alone. */
+export const clockAndPlaying = async (page) => ({ time: await clockIso(page), playing: await isPlaying(page) });
+/** The open information panel's Sources section is closed (the default). */
+export const infoSourcesClosed = async (page) => !(await sourcesOpen(page));
+/** The speed slider in the timeline drawer: position and the playback speed the select holds. */
+export const speedSliderValue = (page) => page.getByLabel("Speed slider").inputValue();
+export const setSpeedSlider = async (page, index) => {
+  await openTimelineDrawer(page);
+  await page.getByLabel("Speed slider").evaluate((input, v) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(v));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }, index);
+};
+
+/**
+ * Every control showing that takes its look from the shared stylesheet (`controls.css`), with the computed values that make up that look and its box.
+ * Left out on purpose: the developer panel (its own tool), the timeline's and the scene's event markers (marks on a track, not controls), and
+ * anything not showing. `kind` is dropdown, icon, row, bare or button; `variant` names the deliberate differences (ghost, accent, pill, selected).
+ */
+export const controlStyles = async (page) => {
+  await drawersSettled(page);
+  // A control under the pointer shows its hover state; read the resting look.
+  await page.mouse.move(0, page.viewportSize().height / 2);
+  return page.evaluate(() => {
+  const selector = ".astraeus-shell button, .astraeus-shell select, .astraeus-shell summary.ui-button";
+  const shown = (element) => {
+    if (element.closest(".developer-tools, .timeline-markers, .story-markers, .scene-labels, .anchor-labels") !== null) return false;
+    if (!element.checkVisibility({ checkVisibilityCSS: true })) return false;
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.left < window.innerWidth && rect.top < window.innerHeight;
+  };
+  return [...document.querySelectorAll(selector)].filter(shown).map((element) => {
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    const has = (name) => element.classList.contains(name);
+    const kind = element.tagName === "SELECT" ? "dropdown" : has("ui-bare") ? "bare" : has("ui-row") ? "row" : has("ui-icon") ? "icon" : "button";
+    const selected = element.matches('[aria-pressed="true"], [aria-expanded="true"], [aria-checked="true"], [aria-current]');
+    const variant = [has("ui-ghost") && "ghost", has("ui-accent") && "accent", has("ui-pill") && "pill", selected && "selected", element.disabled === true && "disabled"].filter(Boolean).join("+");
+    return {
+      name: element.getAttribute("aria-label") ?? (element.textContent ?? "").trim().slice(0, 30),
+      kind,
+      variant,
+      rect: { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height },
+      look: {
+        minHeight: style.minHeight,
+        ...(kind === "row" || kind === "bare" ? {} : { height: style.height }),
+        fontFamily: style.fontFamily,
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        color: style.color,
+        backgroundColor: style.backgroundColor,
+        borderTopWidth: style.borderTopWidth,
+        borderTopColor: style.borderTopColor,
+        borderTopStyle: style.borderTopStyle,
+        borderRadius: style.borderTopLeftRadius,
+        arrow: element.tagName === "SELECT" ? style.backgroundImage : "",
+        paddingRight: element.tagName === "SELECT" ? style.paddingRight : "",
+      },
+    };
+  });
+}); };
+/** The transition the top drawer carries (for example "0.24s", or "0s" under reduced motion or with the animation setting at 0). */
+export const drawerTransition = (page) => page.locator(HOOK.controlsDrawer).evaluate((element) => getComputedStyle(element).transitionDuration.split(",")[0].trim());
+/** Whether the object list, the speed slider and the opened sources are showing (a drawer or a Sources section may hide them). */
+export const objectListShown = (page) => bodyPicker(page).isVisible();
+export const speedSliderShown = (page) => page.getByLabel("Speed slider").isVisible();
+export const infoSourceLinesShown = (page) => sourcesSection(page).locator("li").first().isVisible();
+/** The phone layout's live settings in the developer panel (Display settings > Phone layout), by the name each slider carries. */
+export const PHONE_LAYOUT_SLIDERS = ["Phone drawer animation", "Phone top drawer height", "Phone timeline drawer height", "Phone sheet height", "Phone swipe distance"];
+export const phoneSettingShown = (page, name) => page.getByRole("slider", { name }).isVisible();
+export const setPhoneSetting = (page, name, value) => page.getByRole("slider", { name }).fill(String(value));

@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { ProvenanceView } from "./infoModel";
+import { Sources } from "./Sources";
 
 /** A compact status button such as "Reconstructed ⓘ" that discloses source, accuracy, notes and limitations. */
 export function ProvenanceBadge({ provenance }: { readonly provenance: ProvenanceView }) {
@@ -9,7 +10,7 @@ export function ProvenanceBadge({ provenance }: { readonly provenance: Provenanc
     <div className="provenance">
       <button
         type="button"
-        className="provenance-badge"
+        className="provenance-badge ui-pill"
         data-source-type={provenance.sourceType}
         aria-expanded={open}
         aria-controls={detailId}
@@ -25,12 +26,11 @@ export function ProvenanceBadge({ provenance }: { readonly provenance: Provenanc
             <dd><ul>{provenance.knownLimitations.map((limitation) => <li key={limitation}>{limitation}</li>)}</ul></dd>
           </>
         )}
-        <dt>Sources</dt>
-        <dd><ul>{provenance.sources.map((source) => <li key={source}>{source}</li>)}</ul></dd>
         <dt>Accuracy</dt>
         <dd>{provenance.accuracy}</dd>
         {provenance.notes.length > 0 && <><dt>Notes</dt><dd>{provenance.notes}</dd></>}
       </dl>
+      <Sources sources={provenance.sources} />
     </div>
   );
 }

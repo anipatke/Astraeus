@@ -14,6 +14,7 @@ import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSe
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
+import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
@@ -144,6 +145,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
+  const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
   const hasActivity = (experience.windows ?? []).some((window) => window.rate !== undefined);
   const [anchorLabels, setAnchorLabels] = useState(false);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
@@ -289,6 +291,21 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
                 onChange={setStoryPauseSeconds} />
             </SettingGroup>
           )}
+          <SettingGroup id="phone-layout" title="Phone layout">
+            {([
+              ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
+              ["controlsDrawerMaxPercent", "Top drawer height (% of screen)", "Phone top drawer height", "phone-controls-height-value"],
+              ["timelineDrawerMaxPercent", "Timeline drawer height (% of screen)", "Phone timeline drawer height", "phone-timeline-height-value"],
+              ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
+              ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
+            ] as const).map(([key, label, ariaLabel, testId]) => (
+              <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
+                onChange={(value) => setPhoneLayout({ ...phoneLayout, [key]: value })} />
+            ))}
+            <SettingButtons>
+              <button onClick={() => setPhoneLayout(DEFAULT_PHONE_LAYOUT)}>Reset phone layout</button>
+            </SettingButtons>
+          </SettingGroup>
           {hasActivity && (
             <SettingGroup id="timeline-glow" title="Timeline glow">
               <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
@@ -420,6 +437,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
       timelineGlow={timelineGlow}
+      phoneLayout={phoneLayout}
       onSetPlaying={setPlaying}
       panelRequest={panelRequest}
       onOpenPanelChange={markOpenPanel}

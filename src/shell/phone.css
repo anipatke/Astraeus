@@ -1,0 +1,188 @@
+/*
+ * The phone layout (T-081, O-020): the scene fills the screen; a name pill and the cog sit at the top, the two-line timeline at the bottom.
+ * The pill opens the top drawer (the full controls); the timeline's handle opens its drawer (speed slider, events). Information and story
+ * panels are bottom sheets. The shell sets data-phone from phoneLayout.ts (a narrow screen, or a short touch screen turned sideways), so the
+ * breakpoint is written once. The numbers (--drawer-ms, --*-max) are live settings. How a control looks is controls.css's job, not this file's.
+ */
+.astraeus-shell[data-phone="true"] {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --drawer-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --panel-bg: rgba(13, 13, 13, .94);
+}
+
+/* ---- Top: the pill and the cog ---- */
+[data-phone="true"] .controls-pill {
+  position: absolute;
+  z-index: 5;
+  top: calc(8px + var(--safe-top));
+  left: calc(8px + var(--safe-left));
+  max-width: calc(100% - 72px - var(--safe-left) - var(--safe-right));
+  gap: 8px;
+  /* A vertical swipe on the pill is ours (it opens the drawer), not a page pan. */
+  touch-action: none;
+}
+[data-phone="true"] .controls-pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-phone="true"] .controls-pill[aria-expanded="true"] { visibility: hidden; }
+[data-phone="true"] .developer-mode-toggle { z-index: 9; top: calc(8px + var(--safe-top)); right: calc(8px + var(--safe-right)); }
+
+/* ---- The drawers ---- */
+.drawer-handle { position: absolute; left: 50%; display: flex; width: 140px; height: 44px; transform: translateX(-50%); touch-action: none; }
+.drawer-handle span { display: block; width: 36px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--ui-color, #f0e6da) 28%, transparent); }
+.drawer-handle:hover span { background: color-mix(in srgb, var(--ui-color, #f0e6da) 50%, transparent); }
+/* The hit area (44 px) reaches past the panel's edge so a thumb finds it; the grip is drawn inside the panel. */
+.drawer-handle-top { top: -20px; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+.drawer-handle-bottom { bottom: -20px; align-items: flex-start; justify-content: center; padding-top: 12px; }
+
+[data-phone="true"] .controls-drawer {
+  position: absolute;
+  z-index: 7;
+  top: 0;
+  right: 0;
+  left: 0;
+  box-sizing: border-box;
+  max-height: var(--controls-drawer-max, 60dvh);
+  overflow: visible;
+  padding: calc(8px + var(--safe-top)) calc(12px + var(--safe-right)) 28px calc(12px + var(--safe-left));
+  border-bottom: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
+  border-radius: 0 0 20px 20px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform var(--drawer-ms, 240ms) var(--drawer-ease), visibility 0s linear var(--drawer-ms, 240ms);
+}
+[data-phone="true"] .controls-drawer[data-open="true"] {
+  transform: none;
+  visibility: visible;
+  transition: transform var(--drawer-ms, 240ms) var(--drawer-ease), visibility 0s;
+}
+[data-phone="true"] .controls-drawer .shell-toolbar { max-width: none; }
+[data-phone="true"] .controls-drawer .top-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+[data-phone="true"] .controls-drawer .object-camera-actions { display: contents; }
+[data-phone="true"] .controls-drawer .top-bar-divider { display: none; }
+/* The object list takes the first row, leaving room for the cog at the right. */
+[data-phone="true"] .controls-drawer .object-picker { grid-column: 1 / -1; width: calc(100% - 52px); max-width: none; }
+/* Each button: icon over a short word. */
+[data-phone="true"] .controls-drawer .top-bar-button { width: auto; flex-direction: column; gap: 2px; padding: 0 4px; }
+[data-phone="true"] .controls-drawer .top-bar-button-text { display: block; max-width: 100%; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+[data-phone="true"] .controls-drawer .scale-toggle { padding: 0 4px; }
+[data-phone="true"] .controls-drawer .scale-toggle > span { font-size: 11px; }
+[data-phone="true"] .controls-drawer .scale-menu,
+[data-phone="true"] .controls-drawer .scale-explanation-panel { top: calc(100% + 6px); right: auto; left: 0; width: min(320px, calc(100vw - 32px)); }
+[data-phone="true"] .controls-drawer .top-bar { position: relative; }
+[data-phone="true"] .controls-drawer .scale-control { position: static; }
+
+/* ---- Bottom: the two-line timeline and its drawer ---- */
+[data-phone="true"] .timeline-bar {
+  right: calc(8px + var(--safe-right));
+  bottom: calc(8px + var(--safe-bottom));
+  left: calc(8px + var(--safe-left));
+  padding: 24px 10px 8px;
+  border-radius: 18px;
+}
+[data-phone="true"] .timeline-bar[data-drawer-open="true"] { z-index: 6; background: var(--panel-bg); }
+[data-phone="true"] .timeline-main-row { gap: 4px; }
+[data-phone="true"] .timeline-time { flex-basis: auto; width: auto; }
+[data-phone="true"] .timeline-time-full { display: none; }
+[data-phone="true"] .timeline-time-short { display: inline; }
+[data-phone="true"] .timeline-bar .timeline-speed select { width: 96px; }
+[data-phone="true"] .timeline-scrubber { flex-basis: 100%; }
+
+.timeline-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--drawer-ms, 240ms) var(--drawer-ease), visibility 0s linear var(--drawer-ms, 240ms);
+}
+.timeline-drawer[data-open="true"] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows var(--drawer-ms, 240ms) var(--drawer-ease), visibility 0s;
+}
+.timeline-drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  max-height: calc(var(--timeline-drawer-max, 55dvh) - 130px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.timeline-drawer[data-open="true"] .timeline-drawer-body { padding-top: 10px; }
+.timeline-speed-slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0 10px; color: var(--ui-muted, #c7bdb3); font-size: 13px; }
+.timeline-speed-slider input { grid-column: 1 / -1; grid-row: 2; width: 100%; min-height: 44px; margin: 0; accent-color: var(--ui-accent, #fc6323); }
+.timeline-speed-slider output { color: var(--ui-color, #f0e6da); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; }
+/* Inside the drawer the events list is plain content, not a pop-up. */
+.timeline-drawer .timeline-expanded { position: static; width: auto; max-height: none; overflow: visible; padding: 0; border: 0; background: none; box-shadow: none; }
+
+/* An event row is two short lines (the time, then its name) so the name is not cut off. */
+.timeline-drawer .timeline-expanded li button { flex-direction: column; align-items: flex-start; gap: 0; padding-top: 4px; padding-bottom: 4px; }
+.timeline-drawer .timeline-expanded li span { max-width: 100%; white-space: normal; }
+
+/* ---- Sheets: information and story panels ---- */
+[data-phone="true"] .sheet-handle { display: block; flex: 0 0 auto; align-self: center; width: 40px; height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ui-accent, #fc6323) 45%, transparent); }
+[data-phone="true"] .info-panel,
+[data-phone="true"] .story-panel {
+  position: fixed;
+  right: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-width: 1px 0 0;
+  animation: story-sheet-in var(--drawer-ms, 240ms) var(--drawer-ease);
+}
+/* Information: a sheet from the bottom edge, over the timeline (the mock-up's third phone). */
+[data-phone="true"] .info-panel {
+  z-index: 8;
+  bottom: 0;
+  max-height: var(--sheet-max, 60dvh);
+  padding: 6px calc(20px + var(--safe-right)) calc(24px + var(--safe-bottom)) calc(20px + var(--safe-left));
+  border-radius: 22px 22px 0 0;
+  background: #0e0e13;
+}
+[data-phone="true"] .info-panel-header h2 { margin: 0; font-size: 22px; }
+/* A story panel rides above the timeline bar, so the Play button is never covered (C-053 Observation 2). */
+[data-phone="true"] .story-panel {
+  z-index: 4;
+  top: auto;
+  bottom: calc(var(--timeline-space, 150px) + 8px);
+  right: calc(8px + var(--safe-right));
+  left: calc(8px + var(--safe-left));
+  max-height: min(var(--sheet-max, 60dvh), calc(100dvh - var(--timeline-space, 150px) - 8px - 64px - var(--safe-top)));
+  padding: 6px 14px 14px;
+  border-width: 1px;
+  border-radius: 16px;
+}
+
+/* ---- The Developer panel below the pill, above the timeline ---- */
+[data-phone="true"] .developer-tools {
+  top: calc(60px + var(--safe-top));
+  right: calc(8px + var(--safe-right));
+  left: calc(8px + var(--safe-left));
+  width: auto;
+  max-height: max(160px, calc(100dvh - 60px - var(--safe-top) - var(--timeline-space, 150px) - 16px));
+  padding: 9px;
+}
+[data-phone="true"] .shell-top { top: 8px; left: 8px; width: calc(100vw - 16px); max-width: calc(100vw - 16px); max-height: none; }
+[data-phone="true"] .astraeus-label { font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .controls-drawer,
+  .timeline-drawer,
+  .info-panel,
+  .story-panel { transition: none !important; animation: none !important; }
+}

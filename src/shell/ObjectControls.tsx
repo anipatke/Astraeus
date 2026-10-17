@@ -1,6 +1,6 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { findCameraPreset, isObjectAvailable, listedObjects, relatedObjects } from "./objectModel";
-import { FocusIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
+import { ButtonText, FocusIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -34,11 +34,14 @@ export function ObjectControls({
   const presetIcon = (preset: ExperienceCameraPreset) =>
     preset.request.kind === "overview" ? <OverviewIcon /> : preset.request.kind === "follow" ? <FollowIcon /> : <FocusIcon />;
 
+  const presetText = (preset: ExperienceCameraPreset) => (preset.request.kind === "overview" ? "Overview" : preset.request.kind === "follow" ? "Follow" : "Focus");
+
   const renderPreset = (preset: ExperienceCameraPreset | undefined) => preset && (
     <button
       key={preset.id}
       type="button"
-      className="top-bar-button"
+      className="top-bar-button ui-icon"
+      data-closes-drawer=""
       aria-label={preset.label}
       title={preset.label}
       aria-pressed={activePresetId === preset.id}
@@ -47,6 +50,7 @@ export function ObjectControls({
       disabled={preset.request.kind !== "overview" && !selectedAvailable}
     >
       {presetIcon(preset)}
+      <ButtonText>{presetText(preset)}</ButtonText>
     </button>
   );
 
@@ -54,6 +58,7 @@ export function ObjectControls({
     <section className="object-controls" aria-label="Object and camera controls">
       <select
         className="object-picker"
+        data-closes-drawer=""
         aria-label="Select object"
         value={selectedObjectId}
         onChange={(event) => onSelectObject(event.target.value)}
@@ -76,7 +81,8 @@ export function ObjectControls({
       </select>
       <button
         type="button"
-        className="top-bar-button object-info-toggle"
+        className="top-bar-button ui-icon object-info-toggle"
+        data-closes-drawer=""
         aria-label={selected === undefined ? "Information" : `Information about ${selected.label}`}
         title={selected === undefined ? "Information" : `Information about ${selected.label}`}
         aria-expanded={infoOpen}
@@ -85,6 +91,7 @@ export function ObjectControls({
         onClick={onToggleInfo}
       >
         <InfoIcon />
+        <ButtonText>Info</ButtonText>
       </button>
       <div className="object-camera-actions">
         {renderPreset(focus)}
@@ -94,7 +101,7 @@ export function ObjectControls({
           <button
             key={object.id}
             type="button"
-            className="top-bar-button object-related"
+            className="top-bar-button ui-icon object-related"
             aria-label={object.label}
             title={object.label}
             data-related-object={object.id}
@@ -102,6 +109,7 @@ export function ObjectControls({
             onClick={() => onSelectObject(object.id)}
           >
             <OrbitIcon />
+            <ButtonText>{object.label}</ButtonText>
           </button>
         ))}
       </div>

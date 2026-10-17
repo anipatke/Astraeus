@@ -53,8 +53,6 @@
 .info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
 
 .provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.astraeus-shell .provenance-badge { min-height: 30px; padding: 3px 9px; border-color: rgba(177, 161, 223, .6); border-radius: 999px; color: var(--ui-data, #b1a1df); font-size: 13px; }
-.provenance-badge[aria-expanded="true"] { border-color: var(--ui-data, #b1a1df); }
 .provenance-detail { margin: 0; font-size: 13px; }
 .provenance-detail dt { margin-top: 6px; color: var(--ui-color, #f0e6da); font-weight: 600; }
 .provenance-detail dd { margin: 2px 0 0; color: var(--ui-muted, #c7bdb3); overflow-wrap: anywhere; }
@@ -85,27 +83,9 @@
 .astraeus-label[hidden] { display: none !important; }
 .scene-object-label { z-index: 1; }
 
-.astraeus-shell button,
-.astraeus-shell select,
 .astraeus-shell input { color: inherit; font: inherit; }
-
-.astraeus-shell button,
-.astraeus-shell select {
-  min-height: 36px;
-  padding: 6px 10px;
-  border: 1px solid #45413d;
-  border-radius: 7px;
-  background: rgba(13, 13, 13, .92);
-  cursor: pointer;
-}
-
-.astraeus-shell button:hover:not(:disabled),
-.astraeus-shell select:hover { border-color: #888078; }
-.astraeus-shell button:focus-visible,
-.astraeus-shell select:focus-visible,
-.astraeus-shell input:focus-visible,
 .developer-tools summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
-.astraeus-shell button:disabled { opacity: .45; cursor: not-allowed; }
+.astraeus-shell input:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 
 .developer-tools {
   position: absolute;
@@ -203,39 +183,12 @@
 .astraeus-shell *::-webkit-scrollbar-thumb { border: 2px solid #181716; border-radius: 8px; background: #66584a; }
 .astraeus-shell *::-webkit-scrollbar-thumb:hover { background: #90745d; }
 
-@media (max-width: 700px) {
-  .shell-top { top: 8px; left: 8px; gap: 6px; width: calc(100vw - 16px); max-width: calc(100vw - 16px); --shell-timeline-space: 266px; }
-  .info-panel {
-    position: fixed;
-    z-index: 8;
-    right: 8px;
-    bottom: calc(var(--shell-timeline-space, 266px) - 12px + env(safe-area-inset-bottom, 0px));
-    left: 8px;
-    width: auto;
-    max-height: min(32dvh, max(96px, calc(100dvh - var(--shell-timeline-space, 266px) - 172px)));
-    padding: 10px;
-    border-radius: 12px;
-  }
-  .info-panel button,
-  .astraeus-shell .provenance-badge { min-height: 44px; }
-  .astraeus-label { font-size: 12px; }
-  /* Below the object and scale bars, above the timeline: it scrolls inside that space and never covers either. */
-  .developer-tools { top: 172px; right: 8px; left: 8px; width: auto; max-height: max(160px, calc(100dvh - 172px - 276px)); padding: 9px; }
-}
-
-@media (max-width: 700px) and (max-height: 680px) {
-  .shell-top:has(.info-panel) .info-panel { max-height: max(64px, calc(100dvh - var(--shell-timeline-space, 266px) - 72px)); }
-}
-
 @media (min-width: 701px) and (max-width: 900px) {
   .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
-  .info-panel button,
-  .astraeus-shell .provenance-badge { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .developer-tools,
-  .astraeus-shell button { scroll-behavior: auto; transition: none !important; }
+  .developer-tools { scroll-behavior: auto; transition: none !important; }
 }
 
 /* Story panels: a side panel beside the scene on a wide screen, a bottom sheet on a phone. Look after Planetary Explorer's SidePanel and BottomSheet. */
@@ -259,17 +212,20 @@
   backdrop-filter: blur(12px);
   animation: story-panel-in 300ms ease-out;
 }
-.story-panel-handle { display: none; }
+.sheet-handle { display: none; }
 .story-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .story-panel h2 { margin: 0; font-size: 17px; line-height: 1.3; }
 .story-panel-body p { margin: 0 0 8px; color: var(--ui-color, #f0e6da); }
 .story-panel-body p:last-child { margin-bottom: 0; }
-.story-panel-sources { padding-top: 8px; border-top: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); }
-.story-panel-sources h3 { margin: 0 0 4px; color: var(--ui-muted, #c7bdb3); font-size: 12px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
-.story-panel-sources ul { margin: 0; padding-left: 16px; color: var(--ui-muted, #c7bdb3); font-size: 12px; }
-.story-panel-sources li + li { margin-top: 3px; }
-.story-panel-close { min-width: 36px; min-height: 36px; padding: 0 !important; font-size: 20px !important; line-height: 1; }
-.story-panel-continue { align-self: flex-start; border-color: var(--ui-accent, #fc6323) !important; color: var(--ui-accent, #fc6323); }
+/* Sources: a collapsible section, closed until tapped, in the information and story panels. */
+.sources-section { align-self: stretch; border-top: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); }
+.sources-section summary { margin-top: 2px; }
+.sources-count { color: var(--ui-subtle, #a99e94); font-weight: 400; }
+.sources-section[open] summary svg { transform: rotate(180deg); }
+.sources-section ul { margin: 0 0 8px; padding-left: 18px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.sources-section li + li { margin-top: 3px; }
+.story-panel-close { font-size: 20px; line-height: 1; }
+.story-panel-continue { align-self: flex-start; }
 
 /* The badge: monospace caps pill, tinted by how far to trust the facts. */
 .story-badge {
@@ -312,32 +268,11 @@
 
 /* On a wide screen the diagnostics step left of an open story panel instead of covering it. */
 @media (min-width: 701px) {
-  .astraeus-shell:has(.story-panel) .developer-tools { right: 364px; width: min(860px, calc(100vw - 388px)); }
+  .astraeus-shell:not([data-phone="true"]):has(.story-panel) .developer-tools { right: 364px; width: min(860px, calc(100vw - 388px)); }
 }
 
 @keyframes story-panel-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 @keyframes story-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
-
-@media (max-width: 700px) {
-  .story-panel {
-    z-index: 9;
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: auto;
-    max-height: 50dvh;
-    padding: 6px 14px calc(14px + env(safe-area-inset-bottom, 0px));
-    border-right: 0;
-    border-bottom: 0;
-    border-left: 0;
-    border-radius: 16px 16px 0 0;
-    animation: story-sheet-in 300ms cubic-bezier(0.32, 0.72, 0, 1);
-  }
-  .story-panel-handle { display: block; flex: 0 0 auto; align-self: center; width: 40px; height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ui-accent, #fc6323) 45%, transparent); }
-  .story-panel-close,
-  .story-panel-continue { min-height: 44px; min-width: 44px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .story-panel { animation: none; }
