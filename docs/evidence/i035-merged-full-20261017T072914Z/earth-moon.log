@@ -1,0 +1,25 @@
+{
+  "results": {
+    "desktop": {
+      "moonStart": "Moon Close Ephemeris ⓘ : data source and known limitations Earth's natural satellite, one month round its orbit. The part of its face that is lit changes with its phase. Distance from Earth 381,735 km centre to centre · EQJ Geometric Moon illumination 1.5 % fraction of the disc lit, seen from Earth's centre Moon position x 152,120 km y -307,795 km z -166,863 km Cartesian XYZ · EQJ · from Earth cen",
+      "moonLater": "Moon Close Ephemeris ⓘ : data source and known limitations Earth's natural satellite, one month round its orbit. The part of its face that is lit changes with its phase. Distance from Earth 385,773 km centre to centre · EQJ Geometric Moon illumination 98.6 % fraction of the disc lit, seen from Earth's centre Moon position x -235,938 km y 268,412 km z 145,289 km Cartesian XYZ · EQJ · from Earth cen",
+      "lit": {
+        "overview": 22508,
+        "focus-earth": 22505,
+        "focus-moon": 221852,
+        "follow-moon": 221849
+      }
+    },
+    "phone": {
+      "moonStart": "Moon Close Ephemeris ⓘ : data source and known limitations Earth's natural satellite, one month round its orbit. The part of its face that is lit changes with its phase. Distance from Earth 381,735 km centre to centre · EQJ Geometric Moon illumination 1.5 % fraction of the disc lit, seen from Earth's centre Moon position x 152,120 km y -307,795 km z -166,863 km Cartesian XYZ · EQJ · from Earth cen",
+      "moonLater": "Moon Close Ephemeris ⓘ : data source and known limitations Earth's natural satellite, one month round its orbit. The part of its face that is lit changes with its phase. Distance from Earth 385,773 km centre to centre · EQJ Geometric Moon illumination 98.6 % fraction of the disc lit, seen from Earth's centre Moon position x -235,938 km y 268,412 km z 145,289 km Cartesian XYZ · EQJ · from Earth cen",
+      "lit": {
+        "overview": 13733,
+        "focus-earth": 13725,
+        "focus-moon": 29578,
+        "follow-moon": 29558
+      }
+    }
+  },
+  "errors": []
+}

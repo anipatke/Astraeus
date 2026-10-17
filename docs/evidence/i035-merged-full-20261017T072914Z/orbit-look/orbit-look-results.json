@@ -1,0 +1,95 @@
+{
+  "results": {
+    "desktop-true": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 46086584,
+          "off": 50265212,
+          "back": 50256405
+        },
+        "Fade ring ends": {
+          "on": 46086584,
+          "off": 50330358,
+          "back": 50262670
+        },
+        "Trailing arc": {
+          "on": 46086584,
+          "off": 50318256,
+          "back": 50284527
+        },
+        "Brighten when zoomed out": {
+          "on": 46086584,
+          "off": 50425921,
+          "back": 50284370
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 46086584,
+        "litAfter": 50448972
+      }
+    },
+    "desktop-readable": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 50213297,
+          "off": 50241126,
+          "back": 50250114
+        },
+        "Fade ring ends": {
+          "on": 50213297,
+          "off": 50320361,
+          "back": 50262551
+        },
+        "Trailing arc": {
+          "on": 50213297,
+          "off": 50336282,
+          "back": 50257481
+        },
+        "Brighten when zoomed out": {
+          "on": 50213297,
+          "off": 50407842,
+          "back": 50268387
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 50213297,
+        "litAfter": 50463035
+      }
+    },
+    "phone": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 16607451,
+          "off": 17231373,
+          "back": 17186949
+        },
+        "Fade ring ends": {
+          "on": 16607451,
+          "off": 17281599,
+          "back": 17177148
+        },
+        "Trailing arc": {
+          "on": 16607451,
+          "off": 17218764,
+          "back": 17177795
+        },
+        "Brighten when zoomed out": {
+          "on": 16607451,
+          "off": 17317581,
+          "back": 17172184
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 16607451,
+        "litAfter": 17652642
+      }
+    }
+  },
+  "errors": []
+}

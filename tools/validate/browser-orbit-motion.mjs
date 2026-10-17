@@ -2,6 +2,7 @@
 // the arc head's distance from the body's drawn position (`data-orbit-head-gap`, a share of the orbit's size; 1 px is under 0.002 of a 600 px orbit)
 // must stay tiny, with zero console errors. PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html node tools/validate/browser-orbit-motion.mjs
 import assert from "node:assert/strict";
+import { seekToFraction, setFastestSpeed, ensurePlaying } from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -15,6 +16,8 @@ for (const experience of ["jupiter-io", "earth-moon"]) {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${experience} console: ${message.text()}`); });
   await page.goto(`${base}?experience=${experience}&view=${experience === "jupiter-io" ? "jupiter" : "earth"},0,89,330&scale=true-scale`);
   await page.waitForSelector("canvas");
+  // Under load the first readings can take longer than the first watch; wait for them to be published.
+  await page.waitForFunction(() => Number.isFinite(Number(document.querySelector("canvas")?.dataset.orbitHeadGap)), undefined, { timeout: 30000 });
   // Watches the published readings every frame for `ms`: the head's gap from the body and the longest arc segment, both shares of the orbit's size.
   const watch = (ms) => page.evaluate((duration) => new Promise((resolve) => {
     const canvas = document.querySelector("canvas");
@@ -28,11 +31,7 @@ for (const experience of ["jupiter-io", "earth-moon"]) {
     };
     requestAnimationFrame(tick);
   }), ms);
-  const seek = (fraction) => page.locator('input[aria-label="Seek timeline"]').evaluate((input, f) => {
-    const target = Number(input.min) + f * (Number(input.max) - Number(input.min));
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(Math.round(target)));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }, fraction);
+  const seek = (fraction) => seekToFraction(page, fraction);
   const check = (name, stats) => {
     out[experience][name] = stats;
     assert.ok(stats.readings > 5, `${experience} ${name}: readings published`);
@@ -47,10 +46,8 @@ for (const experience of ["jupiter-io", "earth-moon"]) {
   check("after-seek", await watch(1000));
   await seek(0.2);
   check("after-second-seek", await watch(1000));
-  const rate = page.getByLabel("Playback speed");
-  const last = await rate.evaluate((select) => select.options[select.options.length - 1].value);
-  await rate.selectOption(last);
-  await page.getByRole("button", { name: "Play" }).click();
+  const last = await setFastestSpeed(page);
+  await ensurePlaying(page);
   check("fast-playback", await watch(4000));
   await seek(0.4);
   check("seek-mid-play", await watch(1500));

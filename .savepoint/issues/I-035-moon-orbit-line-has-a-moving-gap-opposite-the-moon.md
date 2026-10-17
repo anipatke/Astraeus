@@ -56,6 +56,10 @@ history:
     actor: {role: executor, session: i035-lane}
     kind: repair_attempted
     note: 'Lane i035-orbit-gap. Owner: the arc looked like a dashed line (two 1 px lines tracing one curve). The arc is now Planetary Explorer''s construction: 16 flat ribbon segments (camera-facing, transparent, no depth write, both sides) at 0.65 t squared with the same zoom boost, points from the body''s own path each frame; the ring is cleared along the arc''s span so they never overlap. New settings arcSegments (16) and arcWidth (0.004 of orbit size). Checks: docs/evidence/i035-orbit-motion-20261017T0634, lite 26/26 docs/evidence/i035-lite-20261017T0634. Not verified: owner visual judgement.'
+  - at: '2026-10-17T18:35:00Z'
+    actor: {role: executor, session: i035-merge}
+    kind: repair_attempted
+    note: 'Merge of the i035 lane (ce76d26) finished on the shared browser driver. browser-orbit-look.mjs and browser-orbit-motion.mjs now use tools/validate/driver.mjs: orbit-line toggles (orbit-ring, orbit-ring-fade, orbit-arc, orbit-zoom-brighten) and sliders (orbit-ring-opacity, end-fade, arc-length, arc-opacity, fade-power, arc-segments, arc-width, zoom-boost-ring, zoom-boost-arc) added to TOGGLES/SLIDERS; new driver functions waitForOrbitLines, resetOrbitLines, setFastestSpeed. Every scenario kept. Two small mappings: the old motion script clicked a button named Play (a substring match that also matches Pause playback), now ensurePlaying; the look script reads the slider through its test id (innerText) instead of textContent. Both scripts added to run-full.sh and docs/BROWSER_CHECKS.md. Driver guard passes.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon

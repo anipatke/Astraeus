@@ -39,7 +39,7 @@ The full run also takes the pictures from the public build, compares them with t
 
 ## In the full run
 
-`browser-lite`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `capture-experience-pictures` + `diff-screenshots` + `contact-sheet`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
+`browser-lite`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `capture-experience-pictures` + `diff-screenshots` + `contact-sheet`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the picture), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
 
 ## Trimmed in place
 

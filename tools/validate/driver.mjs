@@ -131,6 +131,13 @@ export const pausePlaybackNow = (page) => page.evaluate(() => document.querySele
 
 /** Chooses a playback rate (for example 100 or "100"). */
 export const setSpeed = (page, rate) => page.getByLabel("Playback speed").selectOption(String(rate));
+/** Chooses the fastest playback rate the picker offers; returns its value. */
+export async function setFastestSpeed(page) {
+  const picker = page.getByLabel("Playback speed");
+  const last = await picker.evaluate((select) => select.options[select.options.length - 1].value);
+  await picker.selectOption(last);
+  return last;
+}
 /** The playback rate in force, as the picker holds it. */
 export const speed = (page) => page.getByLabel("Playback speed").inputValue();
 
@@ -392,6 +399,10 @@ const TOGGLES = {
   "mission-window": "Mission window",
   ecliptic: "Planets' plane (ecliptic)",
   equatorial: "Earth's pole (equatorial)",
+  "orbit-ring": "Orbit ring",
+  "orbit-ring-fade": "Fade ring ends",
+  "orbit-arc": "Trailing arc",
+  "orbit-zoom-brighten": "Brighten when zoomed out",
 };
 const toggle = (page, id) => { assert.ok(TOGGLES[id], `driver: unknown toggle ${id}`); return page.getByRole("button", { name: TOGGLES[id], exact: true }); };
 export const pressToggle = (page, id) => toggle(page, id).click();
@@ -408,6 +419,15 @@ const SLIDERS = {
   "star-brightness": ["Star brightness", "star-brightness-value"],
   "milky-way-brightness": ["Milky Way brightness", "milky-way-brightness-value"],
   "story-panel-pause": ["Story panel pause", "story-pause-value"],
+  "orbit-ring-opacity": ["Ring opacity", "orbit-base-opacity-value"],
+  "orbit-end-fade": ["End fade", "orbit-end-fade-value"],
+  "orbit-arc-length": ["Arc length", "orbit-arc-fraction-value"],
+  "orbit-arc-opacity": ["Arc opacity", "orbit-arc-peak-value"],
+  "orbit-fade-power": ["Fade curve", "orbit-arc-exponent-value"],
+  "orbit-arc-segments": ["Arc segments", "orbit-arc-segments-value"],
+  "orbit-arc-width": ["Arc width", "orbit-arc-width-value"],
+  "orbit-zoom-boost-ring": ["Zoom boost (ring)", "orbit-zoom-boost-base-value"],
+  "orbit-zoom-boost-arc": ["Zoom boost (arc)", "orbit-zoom-boost-arc-value"],
 };
 const slider = (page, id) => { assert.ok(SLIDERS[id], `driver: unknown slider ${id}`); return page.getByRole("slider", { name: SLIDERS[id][0] }); };
 export const setSlider = (page, id, value) => slider(page, id).fill(String(value));
@@ -419,6 +439,11 @@ export const dragSlider = (page, id, value) => slider(page, id).evaluate((elemen
 export const sliderValue = (page, id) => slider(page, id).inputValue();
 export const sliderCount = (page, id) => slider(page, id).count();
 export const sliderReadout = (page, id) => page.getByTestId(SLIDERS[id][1]).innerText();
+
+/** Waits for the developer drawer's "Orbit lines" settings group to show. */
+export const waitForOrbitLines = (page, options) => page.getByRole("group", { name: "Orbit lines" }).waitFor(options);
+/** Presses "Reset orbit lines" in the drawer. */
+export const resetOrbitLines = (page) => page.getByRole("button", { name: "Reset orbit lines" }).click();
 
 /** Presses the first enabled control of a kind from inside the page ("scale", "overview", "focus", "follow"); false when there is none. */
 export async function pressFirstControlNow(page, kind) {

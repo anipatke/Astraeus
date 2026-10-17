@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: earth-moon load-first-second: readings published
+    at check (file:///home/user/code/Astraeus/tools/validate/browser-orbit-motion.mjs:35:12)
+    at file:///home/user/code/Astraeus/tools/validate/browser-orbit-motion.mjs:41:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
