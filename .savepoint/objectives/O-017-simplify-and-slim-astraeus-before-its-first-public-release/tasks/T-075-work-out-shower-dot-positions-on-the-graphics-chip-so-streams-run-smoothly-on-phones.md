@@ -3,7 +3,7 @@ id: T-075
 title: Work out shower dot positions on the graphics chip so streams run smoothly on phones
 objective: O-017
 status: planned
-depends_on: [{task: T-073, requires: clear}]
+depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
@@ -26,6 +26,10 @@ On a phone and a laptop, open the Geminids and the Perseids and press Play: the 
 4. Measured with the C-053 probe (`docs/evidence/c053-20261017T022500Z/frames.mjs`): desktop and phone-like runs (390x844 at 2x and 4x CPU throttle), both showers, before and after, with frames over 60 and 90 ms counted. Target: no periodic long frames for either shower at 2x and 4x; any remaining cost stated with its cause.
 5. Gates: typecheck, tests, both builds, validator with budget, lite browser check, before/after pictures within tolerance (O-017 Decision 8), plus `tools/validate/run-full.sh` once before handoff since the drawing path changes.
 6. Owner validation: the owner sees both showers glide on a phone and a laptop.
+
+## Dependency Note — 2026-10-17
+
+Planned with `depends_on: T-073 requires clear`. T-073's code is committed and its Quick Check C-053 is CLEAR; only its owner look remains, which the owner (remote) will do together with this Task's look on a phone and a laptop. The dependency was removed so this Task builds on the committed T-073 code now; it changes nothing T-073 delivered.
 
 ## Context Files
 
