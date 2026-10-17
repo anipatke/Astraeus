@@ -16,7 +16,7 @@ import {
   type PathLayer,
 } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { arcSegmentAlpha, inertialTrailKm, insideArcSpan, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
+import { arcSegmentAlpha, inertialTrailKm, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -156,9 +156,9 @@ export class PathView {
     const n = times.length;
     const arcMs = look.arcFraction * span.windowMs;
     for (let i = 0; i < n; i += 1) {
-      // The ring is left clear along the arc's span (the arc covers it), so the two never interleave.
-      const clear = look.arcOn && insideArcSpan(timeUtcMs, times[i], arcMs);
-      const alpha = clear ? 0 : look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
+      // The ring runs under the arc, as Planetary Explorer's OrbitalTrail does under its OrbitalTrailArc: seen edge-on the flat arc thins
+      // away and the ring's one-pixel line still carries the orbit.
+      const alpha = look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
       this.#ringColours.setW(i, alpha);
     }
     this.#ringColours.needsUpdate = true;
@@ -181,10 +181,12 @@ export class PathView {
   }
 
   /**
-   * Each centre-line point gets a left and a right vertex, half the width either side across the line as the camera sees it (the ribbon
-   * faces the camera, so it never goes edge-on from the side). Positions are scaled absolute; `place` subtracts the floating origin.
+   * Each centre-line point gets an inner and an outer vertex, half the width either side along the line from the orbit's centre: a flat
+   * ribbon in the orbit's plane, as Planetary Explorer's ring slices are (`innerR = R - hw`, `outerR = R + hw`). It never turns to face the
+   * camera, so it cannot flip or flicker; seen edge-on it thins away, as the donor's does. Positions are scaled absolute; `place` subtracts
+   * the floating origin.
    */
-  #buildRibbon(camera: ArrayLike<number>): void {
+  #buildRibbon(): void {
     const c = this.#arcScaled;
     const out = this.#ribbonScaled;
     const look = this.#look;
@@ -192,23 +194,16 @@ export class PathView {
     const points = this.#arcPoints;
     const segments = this.#arcBase.length;
     const halfWidth = look.arcWidth * this.#extentScaled;
+    const [cx, cy, cz] = this.#centre;
     const side = new Float64Array(3 * points);
     for (let k = 0; k < points; k += 1) {
-      const a = Math.max(0, k - 1);
-      const b = Math.min(points - 1, k + 1);
-      const tx = c[3 * b] - c[3 * a];
-      const ty = c[3 * b + 1] - c[3 * a + 1];
-      const tz = c[3 * b + 2] - c[3 * a + 2];
-      const vx = c[3 * k] - camera[0];
-      const vy = c[3 * k + 1] - camera[1];
-      const vz = c[3 * k + 2] - camera[2];
-      const sx = ty * vz - tz * vy;
-      const sy = tz * vx - tx * vz;
-      const sz = tx * vy - ty * vx;
-      const length = Math.hypot(sx, sy, sz) || 1;
-      side[3 * k] = (sx / length) * halfWidth;
-      side[3 * k + 1] = (sy / length) * halfWidth;
-      side[3 * k + 2] = (sz / length) * halfWidth;
+      const rx = c[3 * k] - cx;
+      const ry = c[3 * k + 1] - cy;
+      const rz = c[3 * k + 2] - cz;
+      const length = Math.hypot(rx, ry, rz) || 1;
+      side[3 * k] = (rx / length) * halfWidth;
+      side[3 * k + 1] = (ry / length) * halfWidth;
+      side[3 * k + 2] = (rz / length) * halfWidth;
     }
     for (let s = 0; s < segments; s += 1) {
       // Segment 0 is the one nearest the body: it covers the last ARC_SUBSTEPS steps of the centre line.
@@ -421,7 +416,7 @@ export class PathView {
     }
     this.#positions.needsUpdate = true;
     if (this.#ribbonScaled !== null && this.#arcPositions !== null) {
-      this.#buildRibbon(origin.scaledCameraOrigin);
+      this.#buildRibbon();
       const arcOut = this.#arcPositions.array as Float32Array;
       for (let i = 0; i < arcOut.length; i += 3) {
         arcOut[i] = this.#ribbonScaled[i] - ox;

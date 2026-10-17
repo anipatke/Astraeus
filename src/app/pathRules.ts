@@ -130,8 +130,3 @@ export function arcSegmentAlpha(index: number, count: number, peak: number, expo
   const t = count <= 1 ? 1 : 1 - index / (count - 1);
   return peak * t ** exponent;
 }
-
-/** Whether a time falls inside the arc's span, the `arcMs` up to the clock, where the ring is left clear so the two never overlap. */
-export function insideArcSpan(nowUtcMs: number, vertexUtcMs: number, arcMs: number): boolean {
-  return vertexUtcMs >= nowUtcMs - arcMs && vertexUtcMs <= nowUtcMs;
-}

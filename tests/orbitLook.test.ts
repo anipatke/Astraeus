@@ -92,7 +92,7 @@ describe("a composition path's orbit look", () => {
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18, 6);
   });
 
-  it("clears the ring along the arc's span so the two never overlap", () => {
+  it("keeps the ring under the arc, as Planetary Explorer does", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
     const [ring] = lines(view);
@@ -100,18 +100,12 @@ describe("a composition path's orbit look", () => {
     const times = view.timesUtcMs;
     let inside = 0;
     for (let i = 0; i < times.length; i += 1) {
-      if (times[i] >= date - arcMs && times[i] <= date) {
+      if (times[i] >= date - arcMs && times[i] <= date && i > 20 && i < 160) {
         inside += 1;
-        expect(alphaOf(ring, i)).toBe(0);
-      } else if (i > 20 && i < 160 && times[i] > date + 0.1 * SIDEREAL_MONTH_MS) {
         expect(alphaOf(ring, i)).toBeGreaterThan(0.99);
       }
     }
     expect(inside).toBeGreaterThan(30);
-    // With the arc off the ring is whole again.
-    view.setLook({ ...view.defaultLook!, arcOn: false });
-    view.sync(date, placement, readableScale, 0);
-    expect(alphaOf(ring, 90)).toBe(1);
   });
 
   it("takes the ribbon width from the setting, in the orbit's plane", () => {
@@ -121,7 +115,7 @@ describe("a composition path's orbit look", () => {
     const origin = new FloatingOrigin();
     origin.set([0, 0, 1e7]);
     view.place(origin);
-    expect(view.arcRibbonWidth).toBeCloseTo(2 * 0.004 * extent, 3);
+    expect(view.arcRibbonWidth).toBeCloseTo(2 * 0.0015 * extent, 3);
     view.setLook({ ...view.defaultLook!, arcWidth: 0.006 });
     view.sync(date, placement, readableScale, 0);
     view.place(origin);

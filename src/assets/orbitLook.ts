@@ -23,7 +23,7 @@ export interface OrbitLook {
   readonly arcPeak: number;
   /** Separate segments the arc is built from, each with its own opacity (Planetary Explorer uses 16). */
   readonly arcSegments: number;
-  /** Half-width of the arc's ribbon as a share of the orbit's size. Planetary Explorer's is 0.0015 of the radius with a floor that dominates for small orbits; a ribbon under a pixel wide breaks up, so this is wider. */
+  /** Half-width of the arc's ribbon as a share of the orbit's size. Planetary Explorer's value, 0.0015 of the radius (its ring slices span R - hw to R + hw in the orbit's plane). */
   readonly arcWidth: number;
   /** Fade curve: segment opacity is peak times t to this power, t from 1 at the body to 0 at the tail. 1 is linear, 2 quadratic. */
   readonly arcExponent: number;
@@ -49,7 +49,7 @@ export const DEFAULT_ORBIT_LOOK: OrbitLook = Object.freeze({
   arcFraction: 0.2,
   arcPeak: 0.65,
   arcSegments: 16,
-  arcWidth: 0.004,
+  arcWidth: 0.0015,
   arcExponent: 2,
   zoomOn: true,
   zoomBoostBase: 0.45,
