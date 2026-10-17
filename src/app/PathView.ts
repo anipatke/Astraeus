@@ -5,7 +5,7 @@ import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimes
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
 import { catalogue } from "../assets/catalogue";
-import { resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
+import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import type { CompositionPath } from "../assets/compositions";
 import {
   DEFAULT_ECCENTRIC_SAMPLE_COUNT,
@@ -71,6 +71,7 @@ export class PathView {
   #ringColours: BufferAttribute | null = null;
   #arcColours: BufferAttribute | null = null;
   #arcScaled: Float64Array | null = null;
+  #arcTimes: readonly number[] = [];
   #arcPositions: BufferAttribute | null = null;
 
   constructor(readonly layer: PathLayer, style: PathStyle = {}, refresh: PathRefreshPolicy = DEFAULT_PATH_REFRESH) {
@@ -102,9 +103,10 @@ export class PathView {
   #addLookLayers(geometry: BufferGeometry, ring: Line, look: OrbitLook): void {
     const n = this.#capacity;
     this.#ringColours = new BufferAttribute(new Float32Array(n * 4).fill(1), 4);
-    this.#arcColours = new BufferAttribute(new Float32Array((n + 1) * 4).fill(1), 4);
-    this.#arcScaled = new Float64Array((n + 1) * 3);
-    this.#arcPositions = new BufferAttribute(new Float32Array((n + 1) * 3), 3);
+    const arcMax = ORBIT_LOOK_LIMITS.arcSamples.max;
+    this.#arcColours = new BufferAttribute(new Float32Array(arcMax * 4).fill(1), 4);
+    this.#arcScaled = new Float64Array(arcMax * 3);
+    this.#arcPositions = new BufferAttribute(new Float32Array(arcMax * 3), 3);
     geometry.setAttribute("color", this.#ringColours);
     const arcGeometry = new BufferGeometry();
     arcGeometry.setAttribute("position", this.#arcPositions);
@@ -139,24 +141,41 @@ export class PathView {
       this.#ringColours.setW(i, alpha);
     }
     this.#ringColours.needsUpdate = true;
+    // The arc is the body's own recent path, sampled here from its trajectory, never taken from the ring's window.
     const arcMs = look.arcFraction * span.windowMs;
-    let last = -1;
-    for (let i = 0; i < n; i += 1) if (times[i] <= timeUtcMs) last = i;
-    let first = last;
-    while (first > 0 && timeUtcMs - times[first - 1] < arcMs) first -= 1;
-    if (first > 0 && last >= 0) first -= 1; // one more, at nothing, so the tail ends in its own fade
-    const km = new Float64Array(3 * (Math.max(0, last - first + 1) + 1));
-    let v = 0;
-    for (let i = Math.max(first, 0); i <= last; i += 1) {
-      km.set(this.#samplesKm.subarray(3 * i, 3 * i + 3), 3 * v);
-      this.#arcColours.setW(v, arcAlpha(timeUtcMs, times[i], arcMs, look.arcExponent));
-      v += 1;
+    const points = Math.max(2, Math.round(look.arcSamples));
+    const km = new Float64Array(3 * points);
+    const arcTimes: number[] = [];
+    for (let k = 0; k < points; k += 1) {
+      const t = k === points - 1 ? timeUtcMs : Math.round(timeUtcMs - arcMs * (1 - k / (points - 1)));
+      arcTimes.push(t);
+      km.set(this.layer.source.stateAt(t, this.#explicitCentre).positionKm, 3 * k);
+      this.#arcColours.setW(k, arcAlpha(timeUtcMs, t, arcMs, look.arcExponent));
     }
-    km.set(this.layer.source.stateAt(timeUtcMs, this.#explicitCentre).positionKm, 3 * v);
-    this.#arcColours.setW(v, 1);
+    this.#arcTimes = arcTimes;
+    this.#arcColours.setW(points - 1, 1);
     this.#arcColours.needsUpdate = true;
     this.#arcScaled.set(eqjMapped(orbitKm(km, this.#frame, placement, timeUtcMs), policy));
+    const v = points - 1;
     this.#arc.geometry.setDrawRange(0, v + 1);
+  }
+
+  /** Longest segment of the drawn arc in scaled units. Diagnostic: a chord to a stale point would show here. */
+  arcLongestSegment(): number {
+    const count = this.#arc?.geometry.drawRange.count ?? 0;
+    if (this.#arcScaled === null) return 0;
+    let longest = 0;
+    for (let i = 1; i < count; i += 1) {
+      const a = 3 * (i - 1);
+      const b = 3 * i;
+      longest = Math.max(longest, Math.hypot(this.#arcScaled[b] - this.#arcScaled[a], this.#arcScaled[b + 1] - this.#arcScaled[a + 1], this.#arcScaled[b + 2] - this.#arcScaled[a + 2]));
+    }
+    return longest;
+  }
+
+  /** The times the arc's points were sampled at, oldest first; the last is the clock. */
+  get arcTimesUtcMs(): readonly number[] {
+    return this.#arcTimes;
   }
 
   /** Scaled absolute position of the arc's head (the last vertex drawn), or null with no arc yet. Diagnostic: it is where the body is. */
@@ -184,6 +203,13 @@ export class PathView {
     this.#ring.visible = look.baseOn;
     this.#arc.visible = look.arcOn;
     this.#applyOpacity();
+  }
+
+  /** A path with an orbit look resamples at once, unthrottled, when the clock leaves the window or moves more than `ringRefresh` of it: a load, a seek or fast playback never draws a stale ring. */
+  #ringStale(windowMs: number, timeUtcMs: number): boolean {
+    if (this.#look === null || this.#windowCentre === null || this.#times.length === 0) return false;
+    const outside = timeUtcMs < this.#times[0] || timeUtcMs > this.#times[this.#times.length - 1];
+    return outside || Math.abs(timeUtcMs - this.#windowCentre) > this.#look.ringRefresh * windowMs;
   }
 
   /** The zoom-out brightening, 0 close in to 1 at `zoomFarRatio` orbit sizes away; moved by `place` with the camera. */
@@ -264,7 +290,7 @@ export class PathView {
 
   sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy, realNowMs: number = performance.now()): void {
     const span = this.layer.span;
-    if (isRollingSpan(span) && pathNeedsRefresh(this.#windowCentre, span.windowMs, timeUtcMs, realNowMs, this.#builtRealMs, this.#refresh)) {
+    if (isRollingSpan(span) && (this.#ringStale(span.windowMs, timeUtcMs) || pathNeedsRefresh(this.#windowCentre, span.windowMs, timeUtcMs, realNowMs, this.#builtRealMs, this.#refresh))) {
       this.#resample(windowTimesUtcMs(timeUtcMs, span.windowMs, this.#capacity));
       this.#windowCentre = timeUtcMs;
       this.#builtRealMs = realNowMs;

@@ -21,6 +21,8 @@ export interface OrbitLook {
   readonly arcFraction: number;
   /** Arc opacity just behind the body, 0 to 1. */
   readonly arcPeak: number;
+  /** Points the arc is drawn through, sampled straight from the body's own path each frame (so it is always the true recent curve). */
+  readonly arcSamples: number;
   /** Fade curve: opacity falls as (1 - distance along the arc) to this power. 1 is linear, 2 quadratic. */
   readonly arcExponent: number;
   /** Brighten both layers as the camera zooms out. */
@@ -29,6 +31,8 @@ export interface OrbitLook {
   readonly zoomBoostBase: number;
   /** Extra arc opacity at full zoom-out. */
   readonly zoomBoostArc: number;
+  /** Share of the window the clock may move before the ring is resampled at once (a seek, a load or fast playback always resamples). */
+  readonly ringRefresh: number;
   /** Camera distance, in multiples of the orbit's own size, at which the brightening is complete (it starts at 1). Above 1. */
   readonly zoomFarRatio: number;
 }
@@ -42,10 +46,12 @@ export const DEFAULT_ORBIT_LOOK: OrbitLook = Object.freeze({
   arcOn: true,
   arcFraction: 0.2,
   arcPeak: 0.65,
+  arcSamples: 32,
   arcExponent: 2,
   zoomOn: true,
   zoomBoostBase: 0.45,
   zoomBoostArc: 0.3,
+  ringRefresh: 0.05,
   zoomFarRatio: 4,
 });
 
@@ -55,6 +61,8 @@ export const ORBIT_LOOK_LIMITS = Object.freeze({
   endFade: { min: 0, max: 0.5 },
   arcFraction: { min: 0, max: 0.5 },
   arcPeak: { min: 0, max: 1 },
+  arcSamples: { min: 4, max: 128 },
+  ringRefresh: { min: 0.005, max: 0.25 },
   arcExponent: { min: 0.5, max: 4 },
   zoomBoostBase: { min: 0, max: 1 },
   zoomBoostArc: { min: 0, max: 1 },

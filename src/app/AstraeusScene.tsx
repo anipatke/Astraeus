@@ -85,13 +85,14 @@ export interface SceneRuntime {
   readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
 }
 
-/** Diagnostic for the browser checks: how far the first orbit arc's head is from its body's drawn position, as a share of the orbit's size (`data-orbit-head-gap`). */
+/** Diagnostic for the browser checks: how far the first orbit arc's head is from its body's drawn position, as a share of the orbit's size (`data-orbit-head-gap`) and its longest segment as a share of the same (`data-orbit-arc-segment`). */
 function publishOrbitHeadGap(canvas: HTMLCanvasElement, views: readonly PathView[], absoluteOf: (id: BodyId) => RenderVector, policy: ScalePolicy): void {
   const view = views.find((candidate) => candidate.arcHeadAbsolute() !== null);
   const head = view?.arcHeadAbsolute() ?? null;
   if (view === undefined || head === null) return;
   const body = absoluteOf(view.layer.source.body as BodyId);
   const extent = view.extentUnits(policy);
+  canvas.dataset.orbitArcSegment = String(extent > 0 ? view.arcLongestSegment() / extent : 0);
   canvas.dataset.orbitHeadGap = String(extent > 0 ? Math.hypot(head[0] - body[0], head[1] - body[1], head[2] - body[2]) / extent : 0);
 }
 

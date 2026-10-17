@@ -12,6 +12,7 @@ import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { placementAbout } from "./scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();
+const DAY = 86_400_000;
 const placement = placementAbout("earth", adapter);
 const date = Date.UTC(2025, 2, 20, 9, 30);
 const moonPath = earthMoonSystem.paths![0];
@@ -80,11 +81,10 @@ describe("a composition path's orbit look", () => {
     expect(alphaOf(ring, 0)).toBe(0);
     expect(alphaOf(ring, 90)).toBe(1);
     const { count, position, colour } = arcOf(view);
-    expect(count).toBeGreaterThan(30);
-    expect(count).toBeLessThan(45);
+    expect(count).toBe(32);
     const head = count - 1;
     expect(colour.getW(head)).toBe(1);
-    expect(colour.getW(0)).toBe(0);
+    expect(colour.getW(0)).toBeCloseTo(0, 6);
     const body = placement.resolver.stateOf("moon", date, "earth").positionKm;
     const expected = eqjToRenderVector(readableScale.mapPosition(body));
     for (let k = 0; k < 3; k += 1) expect(position.array[3 * head + k]).toBeCloseTo(expected[k], 3);
@@ -113,29 +113,60 @@ describe("a composition path's orbit look", () => {
     }
   });
 
-  it("gives the same arc whether the window is stale or freshly built", () => {
+  const trueKm = (t: number) => placement.resolver.stateOf("moon", t, "earth").positionKm;
+  const trueRender = (t: number) => eqjToRenderVector(readableScale.mapPosition(trueKm(t)));
+
+  /** Every arc point lies on the body's true path at its own time, and no segment is longer than the true path between its ends. */
+  function expectArcOnTruePath(view: ReturnType<typeof compositionPathView>, now: number): void {
+    placed(view);
+    const { count, position } = arcOf(view);
+    const times = view.arcTimesUtcMs;
+    expect(times).toHaveLength(count);
+    expect(times[count - 1]).toBe(now);
+    expect(now - times[0]).toBeCloseTo(0.2 * SIDEREAL_MONTH_MS, -1);
+    const point = (i: number) => [position.array[3 * i], position.array[3 * i + 1], position.array[3 * i + 2]];
+    const distance = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    for (let i = 0; i < count; i += 1) expect(distance(point(i), Array.from(trueRender(times[i])))).toBeLessThan(1e-3);
+    for (let i = 1; i < count; i += 1) {
+      let along = 0;
+      let previous = Array.from(trueRender(times[i - 1]));
+      for (let k = 1; k <= 20; k += 1) {
+        const next = Array.from(trueRender(Math.round(times[i - 1] + ((times[i] - times[i - 1]) * k) / 20)));
+        along += distance(previous, next);
+        previous = next;
+      }
+      expect(distance(point(i - 1), point(i))).toBeLessThanOrEqual(along * 1.001 + 1e-6);
+    }
+  }
+
+  it("draws an arc of the true path right after a clock jump, at load and mid-play", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    view.sync(date, placement, readableScale, 0);
+    expectArcOnTruePath(view, date);
+    // A seek of a few days, with no real time passed: the ring resamples at once and the arc is still the true curve.
+    for (const [jump, real] of [[3 * DAY, 1], [-9 * DAY, 2], [40 * DAY, 3], [0.5 * DAY, 4]] as const) {
+      const now = date + jump;
+      view.sync(now, placement, readableScale, real);
+      const times = view.timesUtcMs;
+      expect(now).toBeGreaterThanOrEqual(times[0]);
+      expect(now).toBeLessThanOrEqual(times[times.length - 1]);
+      expect(Math.abs(times[90] - now)).toBeLessThanOrEqual(0.05 * SIDEREAL_MONTH_MS);
+      expectArcOnTruePath(view, now);
+    }
+  });
+
+  it("gives the same arc whether the ring window is stale or freshly built", () => {
     const stale = compositionPathView(moonPath, placement.resolver);
     stale.sync(date, placement, readableScale, 0);
-    const later = date + 50 * 60_000;
-    stale.sync(later, placement, readableScale, 1); // 50 minutes of drift is under the rebuild threshold: the window stays
+    const later = date + 20 * 60_000;
+    stale.sync(later, placement, readableScale, 1);
     expect(stale.timesUtcMs[90]).toBe(date);
     const fresh = compositionPathView(moonPath, placement.resolver);
     fresh.sync(later, placement, readableScale, 0);
+    expect(Array.from(stale.arcTimesUtcMs)).toEqual(Array.from(fresh.arcTimesUtcMs));
     placed(stale);
     placed(fresh);
-    const a = arcOf(stale);
-    const b = arcOf(fresh);
-    expect(Math.abs(a.count - b.count)).toBeLessThanOrEqual(1);
-    for (const f of [0.25, 0.5, 0.75]) {
-      // Same time before the body on both: the sample times differ, so compare each against the profile at its own time.
-      for (const [view, arc] of [[stale, a], [fresh, b]] as const) {
-        const times = view.timesUtcMs;
-        const vertex = Math.round(f * (arc.count - 2));
-        const lastIdx = times.filter((t) => t <= later).length - 1;
-        const sampleIndex = lastIdx - (arc.count - 2) + vertex;
-        expect(arc.colour.getW(vertex)).toBeCloseTo(arcAlpha(later, times[sampleIndex], 0.2 * SIDEREAL_MONTH_MS, 2), 5);
-      }
-    }
+    expect(Array.from(arcOf(stale).position.array.slice(0, 96))).toEqual(Array.from(arcOf(fresh).position.array.slice(0, 96)));
   });
 
   it("switches each layer off and back on", () => {
@@ -166,8 +197,12 @@ describe("a composition path's orbit look", () => {
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.5, 6);
     expect((arc.material as LineBasicMaterial).opacity).toBeCloseTo(0.9, 6);
     view.sync(date, placement, readableScale, 0); // shapes follow on the next frame
-    expect(arc.geometry.drawRange.count).toBeGreaterThan(1.8 * short);
-    expect(alphaOf(arc, 0)).toBe(0);
+    expect(arc.geometry.drawRange.count).toBe(short);
+    expect(date - view.arcTimesUtcMs[0]).toBeCloseTo(0.4 * SIDEREAL_MONTH_MS, -1);
+    expect(alphaOf(arc, 0)).toBeCloseTo(0, 6);
+    view.setLook({ ...view.defaultLook!, arcSamples: 10 });
+    view.sync(date, placement, readableScale, 0);
+    expect(arc.geometry.drawRange.count).toBe(10);
   });
 
   it("brightens both layers as the camera pulls back, and not when zoom is off", () => {
