@@ -64,6 +64,10 @@ history:
     actor: {role: executor, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'Owner, 2026-10-18, on the preview: "not happy with the trail, it looks like a paper trail the size of the planet! also it flickers near the object", then "this should have been a lift and shift of the code". Three drifts from Planetary Explorer OrbitalTrailArc/OrbitalTrail undone: (1) arcWidth default 0.004 back to the donor 0.0015 of the radius (0.004 x 421,700 km made Io''s ribbon about Io''s own size); (2) the ribbon turned to face the camera, whose side vector flips near the body (the flicker); it is now flat in the orbit''s plane, inner and outer edges along the line from the orbit''s centre, as the donor''s ring slices (R - hw, R + hw); (3) the ring was cleared under the arc; the donor draws OrbitalTrail under OrbitalTrailArc, so the ring now runs under the arc and carries the orbit when the flat arc is edge-on. insideArcSpan removed (unused). tsc 0, vitest 960 passed 1 skipped, driver guard pass. Headless look (scratchpad, not evidence): Io close-up a thin strip behind Io; Earth-Moon default view continuous line. Browser orbit-look and full run pending (another lane holds the browser). Owner look pending on the preview.'
+  - at: '2026-10-18T00:20:00Z'
+    actor: {role: executor, session: o020-orchestrator-20261018}
+    kind: repair_attempted
+    note: 'Owner looked at the lifted trail (0aad2d2) on the preview: "nice". Left open for the full run and verification in the O-020 Full Objective Check.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
