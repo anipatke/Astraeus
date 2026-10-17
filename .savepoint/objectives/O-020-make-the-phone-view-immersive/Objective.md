@@ -57,6 +57,7 @@ Owner, 2026-10-17: "our UI should be mobile friendly using drawers and sliders t
 10. **Apollo 11 at true scale only; scale explanation one tap away** (owner, 2026-10-17: "keep it one tap away, I dont like in the Readable view for Apollo it changes the planet size. I think for this story we remove that option is this is about scale"). Planned as T-085, after the shared driver (T-083).
 11. **Activity as a glow within the timeline line** (owner, 2026-10-17), replacing the purple graph, on the timeline only. Planned as T-084.
 12. **Correction recorded:** the showers offer two scales (True and Solar system), not three; the option-B menu (Decision 7) is built and tested in a harness and appears only for an experience with three or more scales.
+13. **Phone info sheet sits above the timeline** (owner, 2026-10-17, chose "Above the timeline"): unlike the mock-up's bottom-edge sheet, the info sheet sits above the timeline like the story sheet, so Play and the timeline stay reachable (T-081).
 ## Boundaries
 
 **In scope:**
