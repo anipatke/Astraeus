@@ -500,6 +500,7 @@ const SLIDERS = {
   "orbit-zoom-boost-ring": ["Zoom boost (ring)", "orbit-zoom-boost-base-value"],
   "orbit-zoom-boost-arc": ["Zoom boost (arc)", "orbit-zoom-boost-arc-value"],
   "glow-quiet": ["Timeline quiet brightness", "glow-min-value"],
+  "glow-steady": ["Timeline steady brightness", "glow-steady-value"],
   "glow-curve": ["Timeline glow curve", "glow-curve-value"],
   "glow-floor": ["Timeline played floor", "glow-floor-value"],
   "glow-thickness": ["Timeline glow thickness", "glow-thickness-value"],

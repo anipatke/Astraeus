@@ -176,4 +176,12 @@ describe("timeline activity glow (T-084)", () => {
     expect(glowDescription(windows)).toContain("Wide period: peak 40 things per hour");
     expect(glowDescription([windows[1]])).toBe("");
   });
+
+  it("glows evenly at the steady brightness when there is no rate (T-086)", () => {
+    const look = { ...DEFAULT_TIMELINE_GLOW, steadyBrightness: 0.37 };
+    const ahead = glowGradient(null, look, "ahead");
+    expect(ahead).toBe("linear-gradient(to right, rgba(207, 224, 255, 0.370) 0.000%, rgba(207, 224, 255, 0.370) 100.000%)");
+    expect(glowGradient(null, look, "played")).toContain("rgba(252, 99, 35, 0.622) 0.000%");
+    expect(glowTooltip([windows[1]], 5)).toBe("");
+  });
 });

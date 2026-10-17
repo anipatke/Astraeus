@@ -1,6 +1,6 @@
 // The timeline's activity glow (T-084): the scrubber track itself carries the activity profile as a gradient, brighter where the rate is high
 // and around the peak, fainter where nothing happens. Pure maths and strings here; TimelineBar draws it. Nothing names an experience (ARCH-01):
-// the profile is read from the experience's windows (`rateAt`), so an experience without a rate shows the plain track.
+// the profile is read from the experience's windows (`rateAt`), an experience without a rate glows evenly at the steady brightness (T-086).
 import { rateAt, type TimelineWindow } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
 import { formatWindowRate, timePositionPercent, windowPeakRateText } from "./timelineModel";
@@ -13,6 +13,8 @@ export interface TimelineGlowLook {
   readonly playedColor: string;
   /** Brightness (0-1) where nothing happens. */
   readonly minBrightness: number;
+  /** Brightness (0-1) of the whole line when the experience has no rate to follow. */
+  readonly steadyBrightness: number;
   /** Rate to brightness exponent: below 1 lifts the quiet shoulders, above 1 keeps only the peak bright. */
   readonly curve: number;
   /** Brightness floor of the played part (0-1), so the played portion always reads as played. */
@@ -27,6 +29,7 @@ export const DEFAULT_TIMELINE_GLOW: TimelineGlowLook = {
   color: "#cfe0ff",
   playedColor: "#fc6323",
   minBrightness: 0.1,
+  steadyBrightness: 0.5,
   curve: 0.45,
   playedFloor: 0.4,
   thicknessPx: 8,
@@ -74,11 +77,12 @@ function rgb(hex: string): string {
   return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
 }
 
-/** A CSS gradient along the track for the unplayed ("ahead") or played colour. */
-export function glowGradient(profile: readonly GlowStop[], look: TimelineGlowLook, part: "ahead" | "played"): string {
+/** A CSS gradient along the track (a null profile is the even glow) for the unplayed ("ahead") or played colour. */
+export function glowGradient(profile: readonly GlowStop[] | null, look: TimelineGlowLook, part: "ahead" | "played"): string {
   const colour = rgb(part === "ahead" ? look.color : look.playedColor);
-  const stops = profile.map((stop) => {
-    const b = glowBrightness(stop.value, look);
+  // No rate to follow: two stops, the same brightness end to end.
+  const stops = (profile ?? [{ percent: 0, value: 0 }, { percent: 100, value: 0 }]).map((stop) => {
+    const b = profile === null ? Math.max(0, Math.min(1, look.steadyBrightness)) : glowBrightness(stop.value, look);
     const alpha = part === "ahead" ? b : look.playedFloor + (1 - look.playedFloor) * b;
     return `rgba(${colour}, ${alpha.toFixed(3)}) ${stop.percent.toFixed(3)}%`;
   });

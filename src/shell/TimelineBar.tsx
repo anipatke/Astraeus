@@ -37,7 +37,8 @@ interface Props {
 export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
-  const gradients = useMemo(() => profile === null ? null : { ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }, [profile, glowLook]);
+  const gradients = useMemo(() => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }), [profile, glowLook]);
+  const description = glowDescription(windows);
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const playedPercent = timePositionPercent(clampToBounds(snapshot.timeUtcMs, experience.window), experience.window);
   const activityNow = activityAt(windows, snapshot.timeUtcMs);
@@ -69,24 +70,21 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
 
   const scrubber = (
   <div className="timeline-scrubber">
-    <div className={gradients === null ? "timeline-track" : "timeline-track timeline-track-glow"} title={gradients === null ? undefined : hoverTitle ?? glowDescription(windows)} onPointerMove={moveOnTrack} onPointerLeave={() => setHoverTitle(null)}>
-      {gradients !== null && (
-        <div
-          className="timeline-glow"
-          role="img"
-          aria-label={glowDescription(windows)}
-          style={{
-            "--glow-ahead": gradients.ahead,
-            "--glow-played": gradients.played,
-            "--glow-played-edge": `${(100 - playedPercent).toFixed(3)}%`,
-            "--glow-thickness": `${glowLook.thicknessPx}px`,
-            "--glow-halo": `${glowLook.haloPx}px`,
-          } as CSSProperties}
-        >
-          <span className="timeline-glow-ahead" />
-          <span className="timeline-glow-played"><span className="timeline-glow-line" /></span>
-        </div>
-      )}
+    <div className="timeline-track" title={profile === null ? undefined : hoverTitle ?? description} onPointerMove={moveOnTrack} onPointerLeave={() => setHoverTitle(null)}>
+      <div
+        className="timeline-glow"
+        {...(description === "" ? { "aria-hidden": true } : { role: "img", "aria-label": description })}
+        style={{
+          "--glow-ahead": gradients.ahead,
+          "--glow-played": gradients.played,
+          "--glow-played-edge": `${(100 - playedPercent).toFixed(3)}%`,
+          "--glow-thickness": `${glowLook.thicknessPx}px`,
+          "--glow-halo": `${glowLook.haloPx}px`,
+        } as CSSProperties}
+      >
+        <span className="timeline-glow-ahead" />
+        <span className="timeline-glow-played"><span className="timeline-glow-line" /></span>
+      </div>
       <div className="timeline-markers" aria-label="Timeline event markers">
         {experience.events.map((event) => (
           <button

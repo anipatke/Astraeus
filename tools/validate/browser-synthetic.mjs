@@ -144,8 +144,18 @@ try {
   assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
   assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
-  // Apollo has no windows, so no window strip is drawn and the timeline is as before.
-  assert.equal(await ui.glowCount(page), 0, "Apollo: no activity glow, the plain track");
+  // T-086: Apollo has no rate, so the same glow draws evenly (the plain track is gone). Scenario map: "no activity glow, the plain track" -> one glow, all stops one
+  // brightness, no text equivalent and no tooltip (nothing to report); "scrubber height unchanged" -> kept; steady brightness is a live setting.
+  assert.equal(await ui.glowCount(page), 1, "Apollo: the standard glow is drawn");
+  assert.equal(await ui.glowText(page), null, "Apollo: no activity to describe, so no text equivalent");
+  assert.equal(await ui.glowTooltipAt(page, 0.5), null, "Apollo: no activity tooltip");
+  const evenAlphas = async (part) => [...(await ui.glowGradients(page))[part].matchAll(/rgba\([^)]*, ([\d.]+)\) /g)].map((m) => Number(m[1]));
+  const ahead = await evenAlphas("ahead");
+  assert.ok(ahead.length >= 2 && ahead.every((a) => a === ahead[0]) && ahead[0] > 0, `Apollo: the glow is even (${ahead.join(",")})`);
+  await ui.openDeveloper(page);
+  await ui.dragSlider(page, "glow-steady", 0.8);
+  assert.ok((await evenAlphas("ahead"))[0] >= 0.79, "Apollo: the steady brightness setting changes the glow live");
+  await ui.closeDeveloper(page);
   assert.ok((await ui.windowParts(page).scrubber.boundingBox()).height < 50, "Apollo: scrubber height unchanged");
 } finally {
   await browser.close();

@@ -2,7 +2,8 @@
 id: T-086
 title: Make the glowing line the standard timeline for every experience
 objective: O-020
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-084, requires: clear}, {task: T-081, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -51,3 +52,13 @@ The timeline track's look only; built after T-081 merges because both edit the t
 ## Technical Verification
 
 Configured gates, lite, full run, pictures. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (T-086, builder, 2026-10-18)
+
+Design: `glowGradient` takes a null profile (no rate) and draws two stops at the new `steadyBrightness` setting (default 0.5; Timeline glow group, slider "Timeline steady brightness", now shown for every experience); with a rate nothing changes. `TimelineBar` always draws `.timeline-glow` (decorative, aria-hidden, when there is no activity text); no tooltip or peak text without a rate; slider name and value text unchanged. CSS: `.timeline-track-glow` merged into `.timeline-track` (plain track gone); markers and peak now centre on the track (`top: calc(50% - ...)`) so they sit on the line on the 44px phone track too. No experience names (ARCH-01).
+
+Files: src/shell/timelineGlow.ts, TimelineBar.tsx, TimelineBar.css, src/app/App.tsx, tests/timeline.test.ts, tools/validate/driver.mjs (slider `glow-steady`), tools/validate/browser-synthetic.mjs.
+
+TEST-03 map: Apollo "no activity glow, plain track" -> one glow, all stops one brightness, no text equivalent, no tooltip, steady slider changes it live; "scrubber height unchanged" kept. Showers scripts unchanged and pass (glowCount 1, peak brightest).
+
+Gates: tsc clean; vitest 968 passed 1 skipped; build ok; driver guard 4/4; full run `docs/evidence/o020-t086-full-20261017T230821Z` all steps exit 0, error-lines 0 (total 708 s). Pictures: all 16 scene pictures differ from the o017 baseline (3.6-12.4% over 16 levels) because the baseline predates the whole O-020 shell/timeline redesign, not only this Task; see contact-sheet.png in the run directory. Owner look at a non-shower experience still required.
