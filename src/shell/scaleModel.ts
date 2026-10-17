@@ -47,3 +47,9 @@ export function scalePolicyFor(id: ScaleId, supplied: readonly ScalePolicy[] = [
   if (own !== undefined) return own;
   return id === readableScale.id ? readableScale : trueScale;
 }
+
+/** The scale to start in: the address's, when this experience offers it, else the experience's first (True when it states none). */
+export function startScaleFor(linked: ScaleId | undefined, offered: readonly ScaleId[] | undefined): ScaleId {
+  const ids = offered ?? SCALE_CHOICES.map((choice) => choice.id);
+  return linked !== undefined && ids.includes(linked) ? linked : offered?.[0] ?? "true-scale";
+}

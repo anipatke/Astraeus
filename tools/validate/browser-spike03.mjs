@@ -4,7 +4,7 @@
 // Screenshots and machine-readable checks are written under docs/evidence/spike03/.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale, currentScale } from "./driver.mjs";
+import { currentScale } from "./driver.mjs";
 import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
@@ -41,11 +41,8 @@ const camera = async (objectId, presetId) => {
   await page.waitForTimeout(1250);
 };
 const capture = async (name) => {
-  if (await currentScale(page) !== "true-scale") {
-    await chooseScale(page, "True");
-    await page.waitForTimeout(250);
-  }
-  assert.equal(await currentScale(page), "true-scale", `${name}: screenshot uses the app's default True scale`);
+  // Apollo 11 offers True scale only (no control), so every picture here is at True scale.
+  assert.equal(await ui.hasScaleControl(page), false, `${name}: Apollo 11 has the one True scale`);
   await page.waitForTimeout(350);
   const path = `${out}/${name}.png`;
   await page.screenshot({ path });
@@ -77,7 +74,8 @@ const assertFitsViewport = async (label, { sheetAboveTimeline = false } = {}) =>
 };
 const assertTouchTargets = async (label) => {
   const targets = await ui.primaryControlTargets(page);
-  assert.ok(targets.length > 10, `${label}: primary controls are present`);
+  // T-085: Apollo 11 lost its (held) scale button, so one fewer primary control than before.
+  assert.ok(targets.length > 8, `${label}: primary controls are present`);
   for (const target of targets) assert.ok(target.height >= 43, `${label}: ${target.selector} ${target.label} is at least 44px high`);
   return targets;
 };
@@ -115,13 +113,10 @@ try {
   const panel = ui.infoPanel(page);
   await panel.waitFor();
   assert.ok(await ui.infoMetricCount(page) > 0, "Columbia information includes Metric Visuals");
-  await chooseScale(page, "True");
+  // T-085: Apollo 11 offers True scale only; the "identical under True and Readable" check moved to browser-shell.mjs on Earth–Moon (Moon metrics under both scales).
+  assert.equal(await ui.hasScaleControl(page), false, "Apollo 11 has no scale control (one scale)");
+  assert.equal(await currentScale(page), null);
   await page.waitForTimeout(250);
-  const metricsUnderTrue = await ui.infoMetricsText(page);
-  await chooseScale(page, "Readable");
-  await page.waitForTimeout(250);
-  const metricsUnderReadable = await ui.infoMetricsText(page);
-  assert.equal(metricsUnderReadable, metricsUnderTrue, "Metric Visual readouts are identical under True and Readable scales");
   await capture("metric-visuals-1440x900");
 
   // Event details and provenance are discoverable together without opening developer diagnostics.

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { ScaleControl } from "../src/shell/ScaleControl";
 import type { ExperienceConfig } from "../src/shell/experience";
 import { listedObjects, relatedObjects } from "../src/shell/objectModel";
-import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor } from "../src/shell/scaleModel";
+import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor } from "../src/shell/scaleModel";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { EARTH, MOON } from "../src/core/body";
 import { SimulationClock } from "../src/core/clock";
@@ -251,9 +251,20 @@ describe("scale choices", () => {
     expect(two).not.toContain("menuitemradio");
     expect(two).toContain('aria-label="Scale: True. Switch to Readable"');
     expect(two).toContain('data-scale="true-scale"');
+    expect(three).toContain('aria-label="About the scales"');
+    expect(two).toContain('aria-label="About the scales"');
+    expect(two).toContain("Distances and sizes are in real proportion");
+    expect(two).toContain("Pulls bodies much closer together");
     const one = render(["true-scale"], "true-scale");
-    expect(one).toContain('aria-label="Scale: True"');
-    expect(one).toContain("disabled");
+    expect(one).toBe("");
+  });
+
+  it("falls back to the first offered scale when an address names one that is not offered", () => {
+    expect(startScaleFor("readable-scale", ["true-scale"])).toBe("true-scale");
+    expect(startScaleFor(undefined, ["true-scale"])).toBe("true-scale");
+    expect(startScaleFor("readable-scale", ["true-scale", "readable-scale"])).toBe("readable-scale");
+    expect(startScaleFor("readable-scale", undefined)).toBe("readable-scale");
+    expect(startScaleFor("nope", undefined)).toBe("true-scale");
   });
 
   it("selects a supplied policy by id and otherwise keeps the existing mapping", () => {

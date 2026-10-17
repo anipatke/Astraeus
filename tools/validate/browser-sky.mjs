@@ -5,7 +5,7 @@
 //   stars are drawn ........................ the <canvas> element's data-sky-stars is the star count (8920 from the committed HYG file, the only star catalogue
 //                                            since O-017 T-067 removed Yale); more bright pixels than the same view with ?sky=off
 //   the sky is fixed under a centre change .. Developer mode reads back a probe direction (orientation in, screen position out). After each
-//                                            of: the Readable scale, Overview, Focus and Follow requests, the screen position equals the
+//                                            of: the scale toggle (where there is one), Overview, Focus and Follow requests, the screen position equals the
 //                                            position computed here from the camera's orientation alone
 //   the sky turns with the camera ........... a mouse drag moves the probe
 //   the panel cites both sources ............ the Sky item's provenance names the HYG catalogue and ESO/S. Brunier
@@ -187,7 +187,8 @@ try {
       await ui.toggleDeveloper(page);
       out.fpsWithSky = await fpsOf(page);
       const probes = [await checkProbe(page, label, "start")];
-      // The scale is one toggle button now (T-079): "Scale: Readable. Switch to True" and back, standing in for the old Readable and True buttons.
+      // The scale is one toggle button (T-079): "Scale: Readable. Switch to True" and back. T-085: Apollo 11 has True scale only and no toggle, so its "scale" requests
+      // are skipped (pressFirstControlNow returns false); Earth–Moon and the Perseids, which keep both scales, carry the scale requests that Apollo used to.
       for (const request of ["scale", "overview", "focus", "follow", "scale"]) {
         if (!(await ui.pressFirstControlNow(page, request))) continue; // pressed from inside the page: the developer panel covers some controls on a phone
         probes.push(await checkProbe(page, label, request));

@@ -9,7 +9,7 @@ import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
-import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
+import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
 import { SettingButtons, SettingGroup, SettingSlider } from "./SettingControls";
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
@@ -100,7 +100,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
   }, [runtime]);
   const linkedScale = scaleFromSearch(window.location.search);
-  const startScale: ScaleId = linkedScale !== undefined && (scaleChoiceIds ?? ["true-scale", "readable-scale"]).includes(linkedScale) ? linkedScale : scaleChoiceIds?.[0] ?? "true-scale";
+  const startScale: ScaleId = startScaleFor(linkedScale, scaleChoiceIds);
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);
   // The shell also lists the sky, citing its sources and saying whether the stars were fetched.
   const [starStatus, setStarStatus] = useState<StarStatus>({ kind: "loading" });

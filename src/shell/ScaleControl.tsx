@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { SCALE_CHOICES, SCALE_NOTE, type ScaleChoice, type ScaleId } from "./scaleModel";
-import { ChevronIcon, ScaleIcon } from "./topBarIcons";
+import { ChevronIcon, InfoIcon, ScaleIcon } from "./topBarIcons";
 
 interface Props {
   readonly scaleId: ScaleId;
@@ -11,16 +11,18 @@ interface Props {
 
 /**
  * One button for the scale. Two choices: a toggle that names the current scale and switches to the other. Three or more: a small menu
- * (arrow keys, Home and End, Escape, closes on an outside press). One choice: the same button, held still.
+ * (arrow keys, Home and End, Escape, closes on an outside press). One choice: no control at all (nothing to choose). Wherever there is a
+ * choice, an ⓘ button beside it opens the plain-words explanation of the scales (one tap, also on a phone).
  */
 export function ScaleControl({ scaleId, onScaleChange, choices = SCALE_CHOICES }: Props) {
   const current = choices.find((choice) => choice.id === scaleId) ?? choices[0];
   const options = choices.map((choice) => choice.id).join(",");
   const common = { className: "scale-control", "aria-label": "Scale", "data-scale-current": current?.id, "data-scale-options": options } as const;
-  if (current === undefined) return null;
+  if (current === undefined || choices.length < 2) return null;
   if (choices.length >= 3) return <ScaleMenu choices={choices} current={current} onScaleChange={onScaleChange} {...common} />;
   const other = choices.find((choice) => choice.id !== current.id);
-  const name = other === undefined ? `Scale: ${current.label}` : `Scale: ${current.label}. Switch to ${other.label}`;
+  if (other === undefined) return null;
+  const name = `Scale: ${current.label}. Switch to ${other.label}`;
   const hint = `${current.label}: ${current.explanation} ${SCALE_NOTE}`;
   return (
     <section {...common}>
@@ -28,15 +30,15 @@ export function ScaleControl({ scaleId, onScaleChange, choices = SCALE_CHOICES }
         type="button"
         className="scale-toggle top-bar-button"
         aria-label={name}
-        title={other === undefined ? `${name} (the only scale here). ${hint}` : `Scale: ${current.label} (tap for ${other.label}). ${hint}`}
+        title={`Scale: ${current.label} (tap for ${other.label}). ${hint}`}
         data-scale={current.id}
         data-scale-label={current.label}
-        disabled={other === undefined}
-        onClick={() => { if (other !== undefined) onScaleChange(other.id); }}
+        onClick={() => onScaleChange(other.id)}
       >
         <ScaleIcon />
         <span>{current.label}</span>
       </button>
+      <ScaleExplanation choices={choices} />
     </section>
   );
 }
@@ -129,6 +131,46 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
           </button>
         ))}
       </div>
+      <ScaleExplanation choices={choices} />
     </section>
+  );
+}
+
+/** The ⓘ beside the scale control: one tap opens what each scale means; a second tap, Escape or a press elsewhere closes it. */
+function ScaleExplanation({ choices }: { readonly choices: readonly ScaleChoice[] }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const root = useRef<HTMLSpanElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [open]);
+
+  return (
+    <span ref={root} className="scale-explanation">
+      <button
+        ref={trigger}
+        type="button"
+        className="scale-info top-bar-button"
+        aria-label="About the scales"
+        title="What the scales mean"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen(!open)}
+        onKeyDown={(event) => { if (event.key === "Escape" && open) { event.stopPropagation(); setOpen(false); trigger.current?.focus(); } }}
+      >
+        <InfoIcon />
+      </button>
+      <div className="scale-explanation-panel" id={panelId} role="region" aria-label="What the scales mean" hidden={!open}>
+        {choices.map((choice) => (
+          <p key={choice.id} data-scale-explained={choice.id}><strong>{choice.label}.</strong> {choice.explanation}</p>
+        ))}
+        <p className="scale-explanation-note">{SCALE_NOTE}</p>
+      </div>
+    </span>
   );
 }

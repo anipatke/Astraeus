@@ -510,7 +510,7 @@ export const closeStoryPanelNow = (page) => page.evaluate(() => { for (const b o
 export const closeAllPanelsNow = (page) => page.evaluate(() => { for (const b of document.querySelectorAll('button[aria-label="Close story panel"], #info-panel .info-panel-close')) b.click(); });
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-// The Scale control, as the top bar presents it (a toggle for two scales, a menu for three, one held button for one scale)
+// The Scale control, as the top bar presents it (a toggle for two scales, a menu for three, nothing at all for one scale) and its ⓘ explanation
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 /** The label a scale id carries in the top bar. */
@@ -519,13 +519,20 @@ const scaleControl = (page) => page.locator(".scale-control");
 const scaleTrigger = (page) => scaleControl(page).locator("button.scale-toggle");
 
 /** The id of the scale in force (for example "true-scale"). */
-export const currentScale = (page) => scaleControl(page).getAttribute("data-scale-current");
-/** The ids the control offers, in order. */
-export const scaleOptions = async (page) => (await scaleControl(page).getAttribute("data-scale-options")).split(",");
+export const currentScale = async (page) => ((await hasScaleControl(page)) ? scaleControl(page).getAttribute("data-scale-current") : null);
+/** Whether the top bar shows a scale control at all (an experience with one scale shows none). */
+export const hasScaleControl = async (page) => (await scaleControl(page).count()) > 0;
+/** The ids the control offers, in order; empty when there is no control (one scale). */
+export const scaleOptions = async (page) => ((await hasScaleControl(page)) ? (await scaleControl(page).getAttribute("data-scale-options")).split(",") : []);
 /** Whether the control offers the scale with this label. */
 export const offersScale = async (page, label) => (await scaleOptions(page)).some((id) => SCALE_LABELS[id] === label);
 /** Chooses a scale by its label ("True", "Readable" or "Solar system"), whichever form the control takes; a no-op when it is already in force. */
 export async function chooseScale(page, label) {
+  if (!(await hasScaleControl(page))) {
+    // One scale, so no control: only True is ever in force there.
+    if (label === "True") return;
+    throw new Error(`there is no scale control here (one scale, True), so the ${label} scale cannot be chosen`);
+  }
   const control = scaleControl(page);
   const trigger = scaleTrigger(page);
   if ((await trigger.getAttribute("data-scale-label")) === label) return;
@@ -541,6 +548,22 @@ export async function chooseScale(page, label) {
 /** The toggle's accessible name and tooltip (it states the scale in force and what a press does). */
 export const scaleToggleName = (page) => scaleControl(page).locator(".scale-toggle").getAttribute("aria-label");
 export const scaleToggleTitle = (page) => scaleControl(page).locator(".scale-toggle").getAttribute("title");
+
+/** The ⓘ button beside the scale control: its accessible name, its box (for the touch-target rule), and the explanation it opens. */
+const scaleInfo = (page) => scaleControl(page).locator("button.scale-info");
+export const hasScaleExplanation = async (page) => (await scaleInfo(page).count()) > 0;
+export const scaleInfoName = (page) => scaleInfo(page).getAttribute("aria-label");
+export const scaleInfoBox = (page) => scaleInfo(page).boundingBox();
+export const scaleInfoOpen = async (page) => (await scaleInfo(page).getAttribute("aria-expanded")) === "true";
+/** Presses the ⓘ once (opens the explanation, or closes it when open). */
+export const pressScaleInfo = (page) => scaleInfo(page).click();
+/** Presses the ⓘ from inside the page (for a phone, where the developer panel can cover it). */
+export const pressScaleInfoNow = (page) => scaleInfo(page).evaluate((element) => element.click());
+/** The explanation's text when it is showing, else null. */
+export async function scaleExplanationText(page) {
+  const panel = scaleControl(page).locator(".scale-explanation-panel");
+  return (await panel.isVisible()) ? panel.innerText() : null;
+}
 
 /** The Scale menu on its own (the isolated harness page `harness/scale-menu.html`): open, read, move with the keyboard, close. */
 export function scaleMenu(page) {

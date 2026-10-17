@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: tablet 768x1024: primary controls are present
+    at assertTouchTargets (file:///home/user/code/astraeus-t085/tools/validate/browser-spike03.mjs:77:10)
+    at async file:///home/user/code/astraeus-t085/tools/validate/browser-spike03.mjs:172:25 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
