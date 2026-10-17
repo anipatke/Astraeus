@@ -53,6 +53,7 @@
 .info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
 
 .provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.astraeus-shell .provenance-badge { display: inline-block; }
 .provenance-detail { margin: 0; font-size: 13px; }
 .provenance-detail dt { margin-top: 6px; color: var(--ui-color, #f0e6da); font-weight: 600; }
 .provenance-detail dd { margin: 2px 0 0; color: var(--ui-muted, #c7bdb3); overflow-wrap: anywhere; }

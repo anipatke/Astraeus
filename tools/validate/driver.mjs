@@ -427,7 +427,12 @@ const developerButton = (page) => page.getByRole("button", { name: "Developer mo
 export const toggleDeveloper = (page) => developerButton(page).click();
 export const developerButtonCount = (page) => developerButton(page).count();
 export const developerOpen = async (page) => (await developerButton(page).getAttribute("aria-pressed")) === "true";
-export async function openDeveloper(page) { if (!(await developerOpen(page))) await toggleDeveloper(page); }
+export async function openDeveloper(page) {
+  if (await developerOpen(page)) return;
+  await toggleDeveloper(page);
+  // Park the pointer off the controls so no control is read in its hover state (the orbit-look picture sums were sensitive to it).
+  await page.mouse.move(5, 500);
+}
 export async function closeDeveloper(page) { if (await developerOpen(page)) await toggleDeveloper(page); }
 /** Presses the drawer's button from inside the page (a phone drawer covers some controls). */
 export const pressDeveloperNow = (page) => developerButton(page).evaluate((element) => element.click());
@@ -677,7 +682,7 @@ export const waitForFrameGraphLine = (page, options) => frameRate(page).locator(
 // Layout measurements of the shell (what a viewer sees fit or not fit; the selectors are the shell's structure, kept here).
 
 /** The bounds of the shell's main parts that are showing: `{selector, left, top, right, bottom}` each. */
-export const shellBounds = (page) => page.evaluate(() => {
+export const shellBounds = async (page) => { await drawersSettled(page); return page.evaluate(() => {
   const selectors = [".shell-toolbar", ".developer-mode-toggle", ".timeline-bar", "#info-panel"];
   return selectors.flatMap((selector) => {
     const element = document.querySelector(selector);
@@ -685,13 +690,14 @@ export const shellBounds = (page) => page.evaluate(() => {
     const rect = element.getBoundingClientRect();
     return [{ selector, left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }];
   });
-});
+}); };
 
 /** Every primary control that is showing, with its height: `{selector, label, height}` each (for the touch-target rule). */
 export const primaryControlTargets = async (page) => {
+  const wasOpen = (await drawerStates(page)).controls;
   await openControlsDrawer(page);
   await drawersSettled(page);
-  return page.evaluate(() => {
+  const targets = await page.evaluate(() => {
   const selectors = [
     ".object-controls button",
     ".object-controls select",
@@ -710,6 +716,8 @@ export const primaryControlTargets = async (page) => {
     })
     .map((element) => ({ selector, label: element.getAttribute("aria-label") ?? element.textContent.trim(), height: element.getBoundingClientRect().height })));
   });
+  if (!wasOpen) await closeControlsDrawer(page);
+  return targets;
 };
 
 // The home page (not the shell): its experience cards.
