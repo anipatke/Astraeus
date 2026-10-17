@@ -118,7 +118,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
   const storyMarkerSpecs = useMemo<readonly StoryMarkerSpec[]>(
-    () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title }])),
+    () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }])),
     [storySet],
   );
   const controls = useRef<SceneControls>({

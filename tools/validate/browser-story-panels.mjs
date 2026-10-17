@@ -55,7 +55,8 @@ try {
   assert.equal(await isPlaying(page), false, "playback holds while the panel opens");
   assert.deepEqual(await openPanelIds(page), ["tli-cutoff"]);
   const panel = ui.storyPanel(page);
-  assert.match(await panel.innerText(), /Leaving Earth orbit/);
+  const firstPanel = apolloPanels.find((entry) => entry.id === "tli-cutoff");
+  assert.ok((await panel.innerText()).includes(firstPanel.title), "the first panel shows its title");
   assert.equal(await ui.storyPanelBadge(page), "observed");
   assert.ok((await ui.storyPanelSources(page)) >= 1, "a source line");
   // T-087: one folded section, closed by default, one tap opens it and another folds it away (details appear only where a panel has them).
@@ -63,8 +64,11 @@ try {
   assert.equal(await ui.storySourcesOpen(page), false, "the section is closed by default");
   const sectionLabel = await ui.storySectionLabel(page);
   assert.match(sectionLabel, (await ui.storyPanelDetails(page)).length > 0 ? /^The details and sources/ : /^Sources/, "label follows whether details exist");
+  assert.deepEqual(await ui.storyPanelDetailsShown(page), [], "no details show while the section is folded");
   await ui.openStorySources(page);
   assert.equal(await ui.storySourcesOpen(page), true, "one tap opens the section");
+  // C-066 / T-088: once opened, the panel's details paragraphs are what a person sees, word for word from the settings file.
+  assert.deepEqual(await ui.storyPanelDetailsShown(page), firstPanel.details ?? [], "the panel's details show once the section opens");
   assert.equal(await ui.storySectionLabel(page), sectionLabel, "the label stays stable when opened");
   await ui.closeStorySources(page);
   assert.equal(await ui.storySourcesOpen(page), false, "another tap folds it away");
@@ -116,18 +120,27 @@ try {
   assert.equal(await ui.storyMarkers(page, "touchdown").getAttribute("aria-pressed"), "true");
   note("timeline markers open their panel, one at a time");
 
-  // Scene marker on Eagle (touchdown time, Eagle in bounds).
+  // Scene marker on Eagle (touchdown time, Eagle in bounds). I-031: panels naming one object share one marker, and every one opens from it.
   await ui.closeStoryPanel(page);
   await ui.pickBody(page, "eagle");
   await ui.chooseCamera(page, "focus-eagle");
   await page.waitForTimeout(1800);
   assert.equal(await ui.sceneStoryMarker(page, "touchdown").isVisible(), true, "scene marker shows on Eagle");
+  const eaglePanels = apolloPanels.filter((entry) => entry.object === "eagle").sort((a, b) => apolloTime(a) - apolloTime(b)).map((entry) => entry.id);
+  assert.ok(eaglePanels.length >= 2, "the story names Eagle in more than one panel");
+  for (const id of eaglePanels) assert.equal(await ui.sceneStoryMarker(page, id).count(), 1, `${id} sits on exactly one scene marker`);
+  assert.deepEqual(await ui.sceneStoryMarkerPanelIds(page, "touchdown"), eaglePanels, "one Eagle marker carries all its panels, in time order");
   await ui.pressSceneStoryMarker(page, "touchdown");
   await ui.storyPanel(page, "touchdown").waitFor({ timeout: 5000 }); // the panel renders after the click; under load the first read came back empty (T-071)
   assert.deepEqual(await openPanelIds(page), ["touchdown"]);
   assert.equal(await ui.sceneStoryMarkerPressed(page, "touchdown"), true);
   await page.screenshot({ path: `${out}/desktop-scene-marker-panel.png` });
-  note("scene marker on the named body reopens its panel");
+  for (const id of eaglePanels.filter((entry) => entry !== "touchdown")) {
+    await ui.pressSceneStoryMarker(page, id);
+    assert.deepEqual(await openPanelIds(page), [id], `${id} opens from the shared Eagle marker`);
+  }
+  await ui.pressSceneStoryMarker(page, "touchdown");
+  note("scene marker on the named body reopens its panel; a shared marker reaches every panel on it", eaglePanels.join(", "));
   await ui.pressKey(page, "Escape");
   assert.equal((await openPanelIds(page)).length, 0);
   note("Escape closes the panel");
@@ -146,6 +159,9 @@ try {
     assert.equal(await ui.storyPanelBadge(page), panel.badge, `${panel.id} badge`);
     assert.match(await shown.innerText(), new RegExp(panel.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.ok((await ui.storyPanelSources(page)) >= 1, `${panel.id} has a source line`);
+    await ui.openStorySources(page);
+    assert.deepEqual(await ui.storyPanelDetailsShown(page), panel.details ?? [], `${panel.id} details show in the opened section`);
+    await ui.closeStorySources(page);
     await page.screenshot({ path: `${out}/apollo-desktop-${panel.id}.png` });
     await ui.closeStoryPanel(page);
   }
@@ -272,6 +288,9 @@ try {
     const shown = ui.storyPanel(pp);
     assert.equal(await ui.storyPanelBadge(pp), panel.badge, `${panel.id} badge`);
     assert.match(await shown.innerText(), /Sources|Source/i);
+    await ui.openStorySources(pp);
+    assert.deepEqual(await ui.storyPanelDetailsShown(pp), panel.details ?? [], `${panel.id} details show in the opened section`);
+    await ui.closeStorySources(pp);
     await pp.waitForTimeout(600);
     await pp.screenshot({ path: `${out}/perseids-desktop-${panel.id}.png` });
   }

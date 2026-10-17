@@ -1,0 +1,47 @@
+{
+  "_note": "Panel bodies as they stood before T-088 moved every figure and honesty note into details (O-015 T-088 no-fact-lost test). Frozen; never edit.",
+  "apollo11": {
+    "tli-cutoff": [
+      "At ground elapsed time 2:50:03.2 (16:22:03 UTC, 16 July 1969) the S-IVB's second burn cut off. NASA's postflight table puts the stack about 321 km above Earth, moving at about 10.84 km/s relative to Earth's centre.",
+      "The next anchor, translunar injection, follows ten seconds later."
+    ],
+    "loi": [
+      "At ground elapsed time 75:49:50.4 (17:21:50 UTC, 19 July 1969) the service module engine fired to let the Moon capture the spacecraft. The burn lasted 5 minutes 57.6 seconds, ending at 75:55:48.0.",
+      "Over that burn the speed relative to the Moon fell from about 2.51 km/s to about 1.67 km/s, and the altitude above the Moon from about 161 km to about 111 km."
+    ],
+    "powered-descent": [
+      "Eagle lit its descent engine at ground elapsed time 102:33:05.1 (20:05:05 UTC, 20 July 1969), about 11.9 km above the Moon and moving at about 1.70 km/s relative to it.",
+      "Touchdown came 12 minutes 34.8 seconds later. The two times are published values; the path drawn between them is a reconstruction, not a measured track."
+    ],
+    "touchdown": [
+      "Eagle touched down at ground elapsed time 102:45:39.9 (20:17:40 UTC, 20 July 1969), at 0.674° N, 23.473° E on the Moon.",
+      "The touchdown time and place are published values. The descent path drawn to reach them is a reconstruction: powered descent is a two-anchor interpolation, not a measured track."
+    ],
+    "ascent-docking": [
+      "Eagle's ascent engine lit at 124:22:00.8, after 21 hours 36 minutes on the surface. At 124:29:15.7 (18:01:16 UTC, 21 July 1969) it cut off, with Eagle about 18.5 km above the Moon and moving at about 1.69 km/s.",
+      "Eagle and Columbia docked at 128:03:00.0, 3 hours 41 minutes after lift-off. The ascent and rendezvous paths drawn between these times are reconstructions."
+    ],
+    "tei": [
+      "At ground elapsed time 135:23:42.3 (04:55:42 UTC, 22 July 1969) Columbia's engine fired for 2 minutes 31.4 seconds to send the crew back toward Earth.",
+      "Speed relative to the Moon rose from about 1.64 km/s to about 2.62 km/s over the burn, at an altitude of about 108 km."
+    ],
+    "splashdown": [
+      "Columbia's command module landed in the Pacific at ground elapsed time 195:18:35 (16:50:35 UTC, 24 July 1969), near 13.3° N, 169.15° W.",
+      "It had crossed the top of the atmosphere, defined as 400,000 feet, at 195:03:05.7, moving at about 11.03 km/s. The 15 minutes 29 seconds from there to the water are shown as events only; Astraeus draws no path for them."
+    ]
+  },
+  "perseids": {
+    "stream-shape": [
+      "The dots are about 25,600 Perseid orbits measured by the Global Meteor Network's cameras in July and August 2025. Together they trace a wide ribbon of dust along the orbit of comet Swift–Tuttle.",
+      "The orbits are measured. Where each dot sits along its orbit is not: those places are illustrative, chosen to show the ribbon's shape, so the pattern of dots along the ribbon says nothing about where the dust really is."
+    ],
+    "earth-crossing": [
+      "Once a year Earth passes through the ribbon. The Perseids are active from mid-July to late August and peak on the night of 12–13 August, at about 100 meteors an hour at best. They seem to come from a point in the constellation Perseus.",
+      "In the 2025 measured orbits, the stream passes closest to Earth about 2.2 hours before the official peak, and its radiant lies 0.04° from the IAU's."
+    ],
+    "swift-tuttle": [
+      "The dust comes from comet Swift–Tuttle, whose nucleus is about 26 km across. It takes about 133 years to orbit the Sun, last passed closest to it in December 1992, and is next due in 2126.",
+      "At the far end of its orbit the comet is about 51 AU from the Sun, well beyond Neptune."
+    ]
+  }
+}

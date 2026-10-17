@@ -8,11 +8,16 @@
         "utc": "2027-03-01T00:00:00Z"
       },
       "object": "perseids-stream",
-      "title": "A wide ribbon of dust",
+      "title": "A river of comet dust",
       "badge": "illustrative",
       "body": [
+        "Each dot follows the real path of a grain of comet dust. Cameras on Earth measured that path when the grain burned up as a shooting star.",
+        "Together, more than 25,000 of them trace a wide ribbon along the orbit of comet Swift–Tuttle."
+      ],
+      "details": [
         "The dots are about 25,600 Perseid orbits measured by the Global Meteor Network's cameras in July and August 2025. Together they trace a wide ribbon of dust along the orbit of comet Swift–Tuttle.",
-        "The orbits are measured. Where each dot sits along its orbit is not: those places are illustrative, chosen to show the ribbon's shape, so the pattern of dots along the ribbon says nothing about where the dust really is."
+        "The orbits are measured. Where each dot sits along its orbit is not: those places are illustrative, chosen to show the ribbon's shape, so the pattern of dots along the ribbon says nothing about where the dust really is.",
+        "More than 25,000: 25,588 bound orbits are drawn."
       ],
       "sources": [
         "Global Meteor Network, monthly trajectory summaries, Jul and Aug 2025, IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
@@ -25,10 +30,15 @@
         "event": "perseids-peak"
       },
       "object": "earth",
-      "title": "Earth crosses the stream",
+      "title": "Earth meets the dust",
       "badge": "observed",
       "body": [
-        "Once a year Earth passes through the ribbon. The Perseids are active from mid-July to late August and peak on the night of 12–13 August, at about 100 meteors an hour at best. They seem to come from a point in the constellation Perseus.",
+        "Earth passes through this ribbon every year, from mid-July to late August.",
+        "The dust burns up in our sky as shooting stars: up to about 100 an hour on the best night, under a perfectly dark sky.",
+        "They all seem to fly out of the constellation Perseus, which gives the shower its name."
+      ],
+      "details": [
+        "Once a year Earth passes through the ribbon. The Perseids are active from mid-July to late August (17 July to 24 August) and peak on the night of 12–13 August, at about 100 meteors an hour at best (a zenithal hourly rate, ZHR, of 100: the rate one observer would see under a perfectly dark sky with the radiant overhead). They seem to come from a point in the constellation Perseus.",
         "In the 2025 measured orbits, the stream passes closest to Earth about 2.2 hours before the official peak, and its radiant lies 0.04° from the IAU's."
       ],
       "sources": [
@@ -43,11 +53,17 @@
         "utc": "2027-10-01T00:00:00Z"
       },
       "object": "swift-tuttle",
-      "title": "Comet Swift–Tuttle",
+      "title": "Where the dust comes from",
       "badge": "modelled",
       "body": [
+        "All this dust comes from comet Swift–Tuttle, a huge lump of ice and rock.",
+        "Each time it swings close to the Sun it sheds a little more dust, then sails far out beyond Neptune.",
+        "It won't be back near the Sun until 2126."
+      ],
+      "details": [
         "The dust comes from comet Swift–Tuttle, whose nucleus is about 26 km across. It takes about 133 years to orbit the Sun, last passed closest to it in December 1992, and is next due in 2126.",
-        "At the far end of its orbit the comet is about 51 AU from the Sun, well beyond Neptune."
+        "At the far end of its orbit the comet is about 51 AU from the Sun (51 times Earth's distance from the Sun), well beyond Neptune.",
+        "2126 is the 1992 closest pass plus one orbital period: a two-body figure, not a perturbed prediction."
       ],
       "sources": [
         "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution SB405-CPV-2: diameter 26 km (Lamy et al. 2004, Comets II); period 48,681.19 d (about 133.3 years); time of perihelion JD 2448968.4998 TDB (1992 Dec 11); aphelion 51.22 au; https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 (accessed 2026-10-15)",

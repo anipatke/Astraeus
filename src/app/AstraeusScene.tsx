@@ -277,7 +277,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
-    storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null);
+    storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
     placeBodyLights(assets, lightRefs.current, resolver, t);
     readout.current = buildFrameReadout({ pair: readoutPair, pairLabels, clock, resolver, absoluteOf, timeUtcMs: t, policy, origin });
   });
