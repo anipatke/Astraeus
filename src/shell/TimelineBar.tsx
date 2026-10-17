@@ -1,8 +1,9 @@
-import type { CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, windowCurvePath, windowAreaPath, windowPeakHeightPercent, windowPeakRateText, windowTimeAtFraction, timePositionPercent, windowPositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 import type { StoryPanel } from "./storyPanels";
@@ -26,10 +27,27 @@ interface Props {
   readonly onWindowSeek: (window: TimelineWindow, timeUtcMs: number) => void;
   /** Opens the window's details without changing time. */
   readonly onWindowInfo: (window: TimelineWindow) => void;
+  /** How the activity glow looks (live settings); absent: the defaults. */
+  readonly glowLook?: TimelineGlowLook;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW }: Props) {
   const windows = experience.windows ?? [];
+  const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
+  const gradients = useMemo(() => profile === null ? null : { ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }, [profile, glowLook]);
+  const [hoverTitle, setHoverTitle] = useState<string | null>(null);
+  const playedPercent = timePositionPercent(clampToBounds(snapshot.timeUtcMs, experience.window), experience.window);
+  const activityNow = activityAt(windows, snapshot.timeUtcMs);
+  const valueText = activityNow !== null && activityNow.window.rate !== undefined
+    ? `${formatUtcTimestamp(snapshot.timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`
+    : formatUtcTimestamp(snapshot.timeUtcMs);
+  const moveOnTrack = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (profile === null) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const fraction = box.width > 16 ? Math.max(0, Math.min(1, (event.clientX - box.left - 8) / (box.width - 16))) : 0;
+    const text = glowTooltip(windows, experience.window.startUtcMs + (experience.window.endUtcMs - experience.window.startUtcMs) * fraction);
+    setHoverTitle((previous) => (previous === text ? previous : text));
+  };
   const navigation = navigationStops(experience.events, windows, snapshot.timeUtcMs);
   const goToStop = (stop: NavigationStop) => {
     if (stop.event !== undefined) onEventSeek(stop.event);
@@ -42,56 +60,24 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
 
   const scrubber = (
   <div className="timeline-scrubber">
-    {windows.length > 0 && (
-      <div className="timeline-windows" aria-label="Timeline windows">
-        {windows.map((window) => {
-          const { startPercent, endPercent } = windowPositionPercent(window, experience.window);
-          const area = windowAreaPath(window, experience.window);
-          const curve = windowCurvePath(window, experience.window);
-          const peakHeight = windowPeakHeightPercent(window);
-          const peakRate = windowPeakRateText(window);
-          return (
-            <div key={window.id} className="timeline-window-group">
-              {/* One plain caption for the whole shape: what it is (the window's own label) and what the curve measures (its rate, from the data). */}
-              <span className="timeline-window-caption" style={{ left: `${startPercent}%` }}>
-                <strong>{window.label}</strong>
-                {peakRate !== null && <span> · peak {peakRate}</span>}
-              </span>
-              {area !== null && curve !== null && (
-                <svg className="timeline-window-curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                  <path className="timeline-window-area" d={area} />
-                  <path className="timeline-window-line" d={curve} vectorEffect="non-scaling-stroke" />
-                </svg>
-              )}
-              <button
-                type="button"
-                className="timeline-window"
-                aria-label={`${window.label}, ${formatUtcTimestamp(window.startUtcMs)} to ${formatUtcTimestamp(window.endUtcMs)}`}
-                title={`${window.label}${peakRate === null ? "" : ` (the curve is the rate, peak ${peakRate})`}: click to jump to that time and open its details`}
-                style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }}
-                onClick={(event) => {
-                  const box = event.currentTarget.getBoundingClientRect();
-                  const fraction = box.width > 0 ? (event.clientX - box.left) / box.width : 0;
-                  onWindowSeek(window, windowTimeAtFraction(window, fraction));
-                  onWindowInfo(window);
-                }}
-              />
-              {window.peakUtcMs !== undefined && (
-                <button
-                  type="button"
-                  className="timeline-window-peak"
-                  aria-label={`Go to peak of ${window.label}`}
-                  title={`${window.label} peak`}
-                  style={{ left: `${timePositionPercent(window.peakUtcMs, experience.window)}%`, "--peak": peakHeight ?? 100 } as CSSProperties}
-                  onClick={() => { if (window.peakUtcMs !== undefined) onWindowSeek(window, window.peakUtcMs); onWindowInfo(window); }}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    )}
-    <div className="timeline-track">
+    <div className={gradients === null ? "timeline-track" : "timeline-track timeline-track-glow"} title={gradients === null ? undefined : hoverTitle ?? glowDescription(windows)} onPointerMove={moveOnTrack} onPointerLeave={() => setHoverTitle(null)}>
+      {gradients !== null && (
+        <div
+          className="timeline-glow"
+          role="img"
+          aria-label={glowDescription(windows)}
+          style={{
+            "--glow-ahead": gradients.ahead,
+            "--glow-played": gradients.played,
+            "--glow-played-edge": `${(100 - playedPercent).toFixed(3)}%`,
+            "--glow-thickness": `${glowLook.thicknessPx}px`,
+            "--glow-halo": `${glowLook.haloPx}px`,
+          } as CSSProperties}
+        >
+          <span className="timeline-glow-ahead" />
+          <span className="timeline-glow-played"><span className="timeline-glow-line" /></span>
+        </div>
+      )}
       <div className="timeline-markers" aria-label="Timeline event markers">
         {experience.events.map((event) => (
           <button
@@ -121,10 +107,23 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             <Label text={panel.title} className="timeline-marker-label" />
           </button>
         ))}
+        {windows.filter((window) => window.peakUtcMs !== undefined).map((window) => (
+          <button
+            key={`peak-${window.id}`}
+            type="button"
+            className="timeline-marker timeline-window-peak"
+            aria-label={`Go to peak of ${window.label}`}
+            title={`${window.label} peak`}
+            data-time-utc-ms={window.peakUtcMs}
+            style={{ left: `${timePositionPercent(window.peakUtcMs ?? 0, experience.window)}%` }}
+            onClick={() => { if (window.peakUtcMs !== undefined) onWindowSeek(window, window.peakUtcMs); onWindowInfo(window); }}
+          />
+        ))}
       </div>
       <input
         type="range"
         aria-label="Seek timeline"
+        aria-valuetext={valueText}
         min={experience.window.startUtcMs}
         max={experience.window.endUtcMs}
         step={TIMELINE_STEP_MS}

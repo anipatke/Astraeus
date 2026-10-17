@@ -37,3 +37,20 @@ export function SettingButtons({ label, children }: { readonly label?: string; r
     ? <div className="setting-buttons">{children}</div>
     : <div className="setting-buttons has-label"><span className="setting-label">{label}</span><div>{children}</div></div>;
 }
+
+/** One colour setting on one row: label on the left, the picker in the middle, the value on the right. */
+export function SettingColor({ label, ariaLabel, testId, value, onChange }: {
+  readonly label: string;
+  readonly ariaLabel: string;
+  readonly testId: string;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+}) {
+  return (
+    <label className="setting">
+      <span className="setting-label">{label}</span>
+      <input type="color" value={value} aria-label={ariaLabel} onChange={(event) => onChange(event.target.value)} />
+      <output data-testid={testId}>{value}</output>
+    </label>
+  );
+}

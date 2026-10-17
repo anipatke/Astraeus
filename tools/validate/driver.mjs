@@ -25,8 +25,9 @@ const HOOK = {
   eventContext: ".timeline-event-context",
   currentEventButton: ".timeline-event-current",
   timeLabel: ".timeline-time",
-  windowBand: "button.timeline-window",
   windowPeak: "button.timeline-window-peak",
+  glow: ".timeline-glow",
+  track: ".timeline-track",
   storyPanel: ".story-panel",
   storyMarker: ".timeline-panel-marker",
   developerPanel: ".developer-tools",
@@ -190,39 +191,40 @@ export const pickMissionEvent = (page, value) => page.getByLabel("Mission event"
 /** Waits until the clock reads a UTC instant (any parseable form). */
 export const waitForClock = (page, target, timeout = 5000) => page.waitForFunction((wanted) => Date.parse(document.querySelector(".timeline-time")?.getAttribute("datetime") ?? "") === Date.parse(wanted), target, { timeout });
 
-/** The activity window's marker elements, for reading (a count, a box). */
-export const windowBand = (page) => page.locator(HOOK.windowBand);
+/** The timeline bar's box on the page. */
+export const timelineBox = (page) => page.locator(".timeline-bar").boundingBox();
+/** A picture of the scene canvas with the timeline bar blacked out: the canvas lies behind the bar, so a pixel count must not count the bar's own colours (T-084; the old purple strip was once counted as the comet's orbit). */
+export const sceneCanvasPng = (page) => page.getByTestId("earth-moon-canvas").screenshot({ mask: [page.locator(".timeline-bar")], maskColor: "#000000" });
+/** The activity window's peak marker (a button on the timeline line). */
 export const windowPeak = (page) => page.locator(HOOK.windowPeak);
-/** What the window strip draws: the band, the rate curve parts, the caption. */
+/** The activity glow drawn inside the timeline track (T-084): how many there are (0 or 1), its text equivalent, and its gradient. */
+export const glowCount = (page) => page.locator(HOOK.glow).count();
+export const glowText = (page) => page.locator(HOOK.glow).getAttribute("aria-label");
+export const glowGradients = (page) => page.locator(HOOK.glow).evaluate((element) => ({ ahead: element.style.getPropertyValue("--glow-ahead"), played: element.style.getPropertyValue("--glow-played") }));
+/** The track's tooltip text, after the pointer has moved to a fraction (0-1) of the track's width. */
+export async function glowTooltipAt(page, fraction) {
+  const box = await page.locator(HOOK.track).boundingBox();
+  await page.mouse.move(box.x + 8 + (box.width - 16) * fraction, box.y + box.height / 2);
+  await page.waitForTimeout(100);
+  return page.locator(HOOK.track).getAttribute("title");
+}
+/** What the timeline draws for activity: the glow, the peak mark, the track and slider, for reading boxes. */
 export const windowParts = (page) => ({
-  band: page.locator(".timeline-window"),
-  strip: page.locator(".timeline-windows"),
-  line: page.locator(".timeline-window-line"),
-  area: page.locator(".timeline-window-area"),
-  peak: page.locator(".timeline-window-peak"),
-  curve: page.locator(".timeline-window-curve"),
-  curvePaths: page.locator(".timeline-window-curve path"),
-  caption: page.locator(".timeline-window-caption"),
+  glow: page.locator(HOOK.glow),
+  peak: page.locator(HOOK.windowPeak),
   inside: page.locator(".timeline-window-current"),
   scrubber: page.locator(".timeline-scrubber"),
+  bar: page.locator(".timeline-bar"),
   slider: seekSlider(page),
 });
 /** The peak marker's own instant (UTC ms), or null. */
 export const windowPeakTimeMs = async (page) => Number(await page.locator(HOOK.windowPeak).evaluate((button) => button.dataset.timeUtcMs ?? 0)) || null;
 /** Presses the window's peak marker: seeks to the peak and opens the window's information. */
 export const goToWindowPeak = (page, options) => page.locator(HOOK.windowPeak).click(options);
-/** Presses the window's band (opens the window's information). */
-export const pressWindowBand = (page, options) => page.locator(HOOK.windowBand).click(options);
 /** Presses a named window's own peak button ("Go to peak of <label>"). */
 export const goToNamedWindowPeak = (page, label) => page.getByRole("button", { name: `Go to peak of ${label}` }).click();
 /** Opens a window's information from its button in the Events list. */
 export const openNamedWindowInfo = (page, label) => page.getByRole("button", { name: `Information about ${label}` }).click();
-/** Clicks the window band at a fraction of its width and height (a pointer press on the strip, as a finger would). */
-export async function pressWindowBandAt(page, fx, fy) {
-  const box = await page.locator(".timeline-window").boundingBox();
-  await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
-}
-
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Bodies, information, camera
 // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -428,6 +430,11 @@ const SLIDERS = {
   "orbit-arc-width": ["Arc width", "orbit-arc-width-value"],
   "orbit-zoom-boost-ring": ["Zoom boost (ring)", "orbit-zoom-boost-base-value"],
   "orbit-zoom-boost-arc": ["Zoom boost (arc)", "orbit-zoom-boost-arc-value"],
+  "glow-quiet": ["Timeline quiet brightness", "glow-min-value"],
+  "glow-curve": ["Timeline glow curve", "glow-curve-value"],
+  "glow-floor": ["Timeline played floor", "glow-floor-value"],
+  "glow-thickness": ["Timeline glow thickness", "glow-thickness-value"],
+  "glow-halo": ["Timeline glow halo", "glow-halo-value"],
 };
 const slider = (page, id) => { assert.ok(SLIDERS[id], `driver: unknown slider ${id}`); return page.getByRole("slider", { name: SLIDERS[id][0] }); };
 export const setSlider = (page, id, value) => slider(page, id).fill(String(value));

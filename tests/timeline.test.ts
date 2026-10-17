@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { apollo11Experience } from "../src/experiences/apollo11/apollo11";
 import {
   eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
-  windowAreaPath, windowContextAt, windowCurvePath, windowPeakHeightPercent, windowPeakRateText, windowPositionPercent, windowTimeAtFraction, DEFAULT_PLAYBACK_SPEEDS,
+  windowContextAt, windowPeakRateText, DEFAULT_PLAYBACK_SPEEDS,
 } from "../src/shell/timelineModel";
+import { DEFAULT_TIMELINE_GLOW, activityAt, glowBrightness, glowDescription, glowGradient, glowProfile, glowTooltip } from "../src/shell/timelineGlow";
 import { createWindows } from "../src/core/timeWindow";
 import type { TimelineEvent } from "../src/core/events";
 
@@ -41,8 +42,7 @@ describe("timeline event context", () => {
   });
 
   it("positions markers within the configured window", () => {
-    const bounds = { startUtcMs: 10, endUtcMs: 30 };
-    expect(eventPositionPercent(sampleEvents[0], bounds)).toBe(0);
+        expect(eventPositionPercent(sampleEvents[0], bounds)).toBe(0);
     expect(eventPositionPercent(sampleEvents[1], bounds)).toBe(50);
     expect(eventPositionPercent(sampleEvents[2], bounds)).toBe(100);
   });
@@ -78,39 +78,9 @@ const windows = createWindows([
 const bounds = { startUtcMs: 10, endUtcMs: 30 };
 
 describe("timeline windows", () => {
-  it("positions a window and clamps it to the timeline", () => {
-    expect(windowPositionPercent(windows[0], bounds)).toEqual({ startPercent: 10, endPercent: 90 });
-    expect(windowPositionPercent({ ...windows[0], startUtcMs: 0, endUtcMs: 99 }, bounds)).toEqual({ startPercent: 0, endPercent: 100 });
-  });
-
-  it("draws the rate curve against the window's own maximum, only from its samples", () => {
-    expect(windowCurvePath(windows[0], bounds)).toBe("M10 100 L50 0 L90 75");
-    expect(windowCurvePath(windows[1], bounds)).toBeNull();
-    expect(windowCurvePath(windows[0], { startUtcMs: 12, endUtcMs: 20 })).toBe("M0 100 L100 0");
-    expect(windowCurvePath(windows[0], { startUtcMs: 21, endUtcMs: 30 })).toBeNull();
-  });
-
-  it("closes the curve down to the baseline so the rate reads as one filled shape", () => {
-    expect(windowAreaPath(windows[0], bounds)).toBe("M10 100 L50 0 L90 75 L90 100 L10 100 Z");
-    expect(windowAreaPath(windows[1], bounds)).toBeNull();
-  });
-
-  it("puts the peak at its height on the curve, and omits it without a peak or rate", () => {
-    expect(windowPeakHeightPercent(windows[0])).toBe(100);
-    expect(windowPeakHeightPercent({ ...windows[0], peakUtcMs: 28 })).toBe(25);
-    expect(windowPeakHeightPercent(windows[1])).toBeNull();
-  });
-
   it("names the window's highest rate in the readout's words, and has none without a rate (I-019 caption)", () => {
     expect(windowPeakRateText(windows[0])).toBe("40 things per hour");
     expect(windowPeakRateText(windows[1])).toBeNull();
-  });
-
-  it("turns a click along the band into a time inside the window", () => {
-    expect(windowTimeAtFraction(windows[0], 0)).toBe(12);
-    expect(windowTimeAtFraction(windows[0], 0.5)).toBe(20);
-    expect(windowTimeAtFraction(windows[0], 2)).toBe(28);
-    expect(windowTimeAtFraction(windows[0], -1)).toBe(12);
   });
 
   it("reports the windows the clock is inside, with their rate, boundaries included", () => {
@@ -165,5 +135,45 @@ describe("generic shell boundary", () => {
     const source = Object.values(import.meta.glob("../src/shell/**/*.{ts,tsx,css}", { eager: true, query: "?raw", import: "default" })).join("\n");
     expect(source).not.toMatch(/apollo|columbia|eagle/i);
     expect(source).not.toMatch(/meteor|shower|perseid/i);
+  });
+});
+
+describe("timeline activity glow (T-084)", () => {
+  const span = { startUtcMs: 10, endUtcMs: 30 };
+
+  it("maps the rate to a 0-1 profile against the highest rate, and is null without a rate", () => {
+    const profile = glowProfile(windows, span)!;
+    expect(profile[0]).toEqual({ percent: 0, value: 0 });
+    expect(profile.find((stop) => stop.percent === 50)?.value).toBe(1);
+    expect(profile.find((stop) => stop.percent === 90)?.value).toBe(0.25);
+    expect(profile[profile.length - 1].value).toBe(0);
+    expect(glowProfile([windows[1]], span)).toBeNull();
+    expect(glowProfile([], span)).toBeNull();
+  });
+
+  it("is brighter with activity, never below the quiet brightness and never above 1", () => {
+    const look = DEFAULT_TIMELINE_GLOW;
+    expect(glowBrightness(0, look)).toBeCloseTo(look.minBrightness);
+    expect(glowBrightness(1, look)).toBeCloseTo(1);
+    expect(glowBrightness(0.5, look)).toBeGreaterThan(glowBrightness(0.25, look));
+    expect(glowBrightness(7, look)).toBeCloseTo(1);
+  });
+
+  it("draws a smooth gradient in the look's colours; the played one keeps its floor", () => {
+    const profile = glowProfile(windows, span)!;
+    const look = { ...DEFAULT_TIMELINE_GLOW, color: "#102030", playedColor: "#ff0000", minBrightness: 0.2, playedFloor: 0.5 };
+    const ahead = glowGradient(profile, look, "ahead");
+    expect(ahead.startsWith("linear-gradient(to right, rgba(16, 32, 48, 0.200) 0.000%")).toBe(true);
+    expect(ahead).toContain("rgba(16, 32, 48, 1.000) 50.000%");
+    expect(glowGradient(profile, look, "played")).toContain("rgba(255, 0, 0, 0.600) 0.000%");
+  });
+
+  it("gives the rate at a time, a tooltip and a text equivalent from the window's own label and unit", () => {
+    expect(activityAt(windows, 20)?.rate).toBe(40);
+    expect(activityAt(windows, 11)).toBeNull();
+    expect(glowTooltip(windows, 24)).toBe("Wide period: 25 things per hour");
+    expect(glowTooltip(windows, 11)).toContain("peak 40 things per hour");
+    expect(glowDescription(windows)).toContain("Wide period: peak 40 things per hour");
+    expect(glowDescription([windows[1]])).toBe("");
   });
 });

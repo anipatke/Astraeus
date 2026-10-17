@@ -5,6 +5,7 @@ import type { TimelineWindow } from "../core/timeWindow";
 import { StoryPanelView } from "./StoryPanelView";
 import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
 import { TimelineBar } from "./TimelineBar";
+import type { TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
@@ -32,6 +33,8 @@ interface Props {
   readonly developerTools?: ReactNode;
   /** The live story-panel settings (auto-open, pause length); absent: the experience's own defaults. */
   readonly storyPanelSettings?: StoryPanelSettings;
+  /** The live look of the timeline's activity glow; absent: the defaults. */
+  readonly timelineGlow?: TimelineGlowLook;
   /** Starts or holds playback; the shell uses it to pause while a panel opens by itself. */
   readonly onSetPlaying?: (playing: boolean) => void;
   /** Asks the shell to open a panel (a scene marker was pressed); a new `serial` asks again. */
@@ -58,6 +61,7 @@ export function AstraeusShell({
   metricsFor,
   developerTools,
   storyPanelSettings,
+  timelineGlow,
   onSetPlaying,
   panelRequest,
   onOpenPanelChange,
@@ -208,6 +212,7 @@ export function AstraeusShell({
         onEventInfo={(event) => setInfo({ kind: "event", id: event.id })}
         onWindowSeek={seekToWindow}
         onWindowInfo={(window) => setInfo({ kind: "window", id: window.id })}
+        glowLook={timelineGlow}
       />
     </main>
   );

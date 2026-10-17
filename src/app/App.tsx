@@ -11,7 +11,8 @@ import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
 import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
-import { SettingButtons, SettingGroup, SettingSlider } from "./SettingControls";
+import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
 import type { StoryMarkerSpec } from "./StoryMarkers";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
@@ -142,6 +143,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
   const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
+  const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
+  const hasActivity = (experience.windows ?? []).some((window) => window.rate !== undefined);
   const [anchorLabels, setAnchorLabels] = useState(false);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
   const orbitPaths = runtime.composition?.paths ?? [];
@@ -249,7 +252,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         </section>
       )}
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
+      {(orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || hasActivity || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
         <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
           <div className="setting-groups">
@@ -284,6 +287,25 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               </SettingButtons>
               <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
                 onChange={setStoryPauseSeconds} />
+            </SettingGroup>
+          )}
+          {hasActivity && (
+            <SettingGroup id="timeline-glow" title="Timeline glow">
+              <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
+              <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={timelineGlow.playedColor} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
+              {([
+                ["minBrightness", "Quiet brightness", "Timeline quiet brightness", "glow-min-value", 0, 1, 0.01],
+                ["curve", "Curve (rate to brightness)", "Timeline glow curve", "glow-curve-value", 0.2, 3, 0.05],
+                ["playedFloor", "Played brightness floor", "Timeline played floor", "glow-floor-value", 0, 1, 0.01],
+                ["thicknessPx", "Thickness (px)", "Timeline glow thickness", "glow-thickness-value", 2, 14, 0.5],
+                ["haloPx", "Halo blur (px)", "Timeline glow halo", "glow-halo-value", 0, 20, 0.5],
+              ] as const).map(([key, label, ariaLabel, testId, min, max, step]) => (
+                <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={timelineGlow[key].toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0)} min={min} max={max} step={step} value={timelineGlow[key]}
+                  onChange={(value) => setTimelineGlow({ ...timelineGlow, [key]: value })} />
+              ))}
+              <SettingButtons>
+                <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
+              </SettingButtons>
             </SettingGroup>
           )}
           {orbitPaths.length > 0 && (
@@ -397,6 +419,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
+      timelineGlow={timelineGlow}
       onSetPlaying={setPlaying}
       panelRequest={panelRequest}
       onOpenPanelChange={markOpenPanel}
