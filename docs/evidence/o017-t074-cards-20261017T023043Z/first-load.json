@@ -1,0 +1,82 @@
+[
+  {
+    "id": "earth-moon-wide",
+    "size": "desktop",
+    "url": "http://localhost:5485/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3673918,
+    "gzipBytes": 2602473
+  },
+  {
+    "id": "earth-moon-wide",
+    "size": "phone",
+    "url": "http://localhost:5485/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3673918,
+    "gzipBytes": 2602473
+  },
+  {
+    "id": "earth-moon-close",
+    "size": "desktop",
+    "url": "http://localhost:5485/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3673918,
+    "gzipBytes": 2602473
+  },
+  {
+    "id": "earth-moon-close",
+    "size": "phone",
+    "url": "http://localhost:5485/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3673918,
+    "gzipBytes": 2602473
+  },
+  {
+    "id": "jupiter-io-wide",
+    "size": "desktop",
+    "url": "http://localhost:5485/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3804398,
+    "gzipBytes": 1895039
+  },
+  {
+    "id": "jupiter-io-wide",
+    "size": "phone",
+    "url": "http://localhost:5485/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3804398,
+    "gzipBytes": 1895039
+  },
+  {
+    "id": "jupiter-io-close",
+    "size": "desktop",
+    "url": "http://localhost:5485/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3804398,
+    "gzipBytes": 1895039
+  },
+  {
+    "id": "jupiter-io-close",
+    "size": "phone",
+    "url": "http://localhost:5485/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3804398,
+    "gzipBytes": 1895039
+  },
+  {
+    "id": "geminids",
+    "size": "desktop",
+    "url": "http://localhost:5485/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 19,
+    "bytes": 13135434,
+    "gzipBytes": 7879712
+  },
+  {
+    "id": "geminids",
+    "size": "phone",
+    "url": "http://localhost:5485/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 19,
+    "bytes": 13135434,
+    "gzipBytes": 7879712
+  }
+]

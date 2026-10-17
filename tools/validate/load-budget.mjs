@@ -17,11 +17,11 @@ const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
 const SHOWER_COMMON = ["showerDefinition.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /**
- * One limit per page set, in bytes, raw and gzipped. Each is the measurement of 2026-10-17 (lossless stream trim; textures kept at their original quality by owner decision) plus 5% headroom, rounded up to the next 10,000 bytes.
+ * One limit per page set, in bytes, raw and gzipped. Each is the measurement of 2026-10-17 (lossless stream trim; textures kept at their original quality by owner decision; the index page and the whole build re-measured with the three new demo-card pictures, T-074) plus 5% headroom, rounded up to the next 10,000 bytes.
  * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
 export const PAGES = [
-  { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 440_000, gzipLimit: 400_000 },
+  { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 260_000, gzipLimit: 240_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
   { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
@@ -30,7 +30,7 @@ export const PAGES = [
   { id: "app.html?experience=shower-geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
 ];
 /** Every file of the build together (also the net for a file no page set lists). */
-export const BUILD_LIMIT = { id: "whole build", rawLimit: 22_340_000, gzipLimit: 14_720_000 };
+export const BUILD_LIMIT = { id: "whole build", rawLimit: 22_500_000, gzipLimit: 14_860_000 };
 
 function* walk(directory) {
   for (const name of readdirSync(directory)) {
