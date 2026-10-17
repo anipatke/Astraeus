@@ -1,0 +1,76 @@
+{
+  "_note": "Map sources for donor bodies whose texture has no entry in the donor's public/textures/README.md. Each record names where Astraeus learned the source. Nothing here is verified against the original beyond what the cited Astraeus record says. The importer uses an entry only when the donor README gives no source for the body.",
+  "earth": {
+    "recordedIn": "docs/DONOR_PROVENANCE.md, section 'Texture assets (Earth and Moon replaced by sourced NASA maps, I-029)'",
+    "donorFileSourced": false,
+    "source": "NASA Earth Observatory, Blue Marble: Next Generation with Topography and Bathymetry, July 2004 (Reto Stockli); the donor's earth-2k.jpg is unrecorded (donor commit e65e305 notes 'NASA Blue Marble'); the map Astraeus ships is src/assets/textures/earth-bmng-july-4k.jpg",
+    "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/",
+    "licence": "Public domain (NASA media usage guidelines)",
+    "credit": "NASA Earth Observatory (Blue Marble: Next Generation, Reto Stockli)",
+    "registration": "Greenwich meridian at the image centre (docs/DONOR_PROVENANCE.md)"
+  },
+  "moon": {
+    "recordedIn": "docs/DONOR_PROVENANCE.md, section 'Texture assets (Earth and Moon replaced by sourced NASA maps, I-029)'",
+    "donorFileSourced": false,
+    "source": "NASA Scientific Visualization Studio, CGI Moon Kit (SVS 4720), lroc_color_poles_2k.tif; the donor's moon-orig-2k.jpg / moon-orig-4k.jpg origin was never recorded; the map Astraeus ships is src/assets/textures/moon-lroc-2k.jpg",
+    "sourcePage": "https://svs.gsfc.nasa.gov/4720",
+    "licence": "Public domain (NASA media usage guidelines)",
+    "credit": "NASA's Scientific Visualization Studio",
+    "registration": "Near side centred on longitude 0 (docs/DONOR_PROVENANCE.md)"
+  },
+  "jupiter": {
+    "recordedIn": "docs/DONOR_PROVENANCE.md, section 'Spike 04 - Jupiter texture (I-024, 2026-10-16)'",
+    "donorFileSourced": false,
+    "source": "Solar System Scope Jupiter map; the donor's jupiter-2k.jpg / jupiter-4k.jpg have no README source; the map Astraeus ships is src/assets/textures/jupiter-2k.jpg",
+    "sourcePage": "https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg",
+    "licence": "CC BY 4.0",
+    "credit": "Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA imagery",
+    "registration": "Jupiter's bands rotate at different rates, so any prime meridian is approximate (docs/DONOR_PROVENANCE.md)"
+  },
+  "uranus": {
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "source": "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg)",
+    "sourcePage": "https://www.solarsystemscope.com/textures/",
+    "licence": "CC BY 4.0",
+    "credit": "Solar System Scope",
+    "registration": null
+  },
+  "neptune": {
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "source": "Solar System Scope 2k_neptune.jpg (byte-identical to the donor's neptune-2k.jpg)",
+    "sourcePage": "https://www.solarsystemscope.com/textures/",
+    "licence": "CC BY 4.0",
+    "credit": "Solar System Scope",
+    "registration": null
+  },
+  "pluto": {
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "source": "NASA Photojournal PIA11707, New Horizons global colour map (same pixel size as the donor file; colour RMSE 0.25%, recompressed). Southern third is black (unlit at flyby)",
+    "sourcePage": "https://photojournal.jpl.nasa.gov/catalog/PIA11707",
+    "licence": "NASA/JPL image use policy: credit required",
+    "credit": "NASA/JHUAPL/SwRI",
+    "registration": null
+  },
+  "charon": {
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "source": "USGS Astrogeology, Charon New Horizons LORRI MVIC Global Mosaic 300 m (Jul 2017), the 1024 px preview JPG (byte-identical to the donor's charon-2k.jpg)",
+    "sourcePage": "https://astrogeology.usgs.gov/",
+    "licence": "Use constraint: please cite authors",
+    "credit": "New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017",
+    "registration": null
+  },
+  "ceres": {
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "donorFileShippable": false,
+    "source": "Surface geometry from the USGS/DLR Ceres Dawn FC Global Mosaic 140 m (Feb 2016), NCC 0.96 after a 180 degree shift; the colour and the yellow-green polar fill of the donor's ceres-2k.jpg come from an unknown source, so that file must not be shipped",
+    "sourcePage": "https://astrogeology.usgs.gov/",
+    "licence": "Use constraint: please cite authors",
+    "credit": "USGS/DLR Dawn FC team",
+    "registration": "Donor file matches the USGS/DLR mosaic after a 180 degree longitude shift (docs/DONOR_TEXTURE_INVENTORY.md)"
+  }
+}

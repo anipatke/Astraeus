@@ -1,0 +1,512 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "pluto",
+  "name": "Pluto",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 16,
+  "features": [
+    {
+      "id": "sputnik-planitia",
+      "name": "Sputnik Planitia",
+      "featureType": "nitrogen-ice plain",
+      "category": "plains",
+      "latitude": 25,
+      "longitude": -5,
+      "description": "Sputnik Planitia is the bright western lobe of Pluto's famous heart-shaped region, a vast basin filled with convecting nitrogen ice. The surface is divided into polygonal cells that slowly overturn like a frozen lava lamp, making it one of the most active icy landscapes ever seen in the outer Solar System.",
+      "tags": [
+        "plain",
+        "nitrogen ice",
+        "heart",
+        "active surface"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "~900 × 2,000 km; one of the largest known impact basins in the Solar System"
+        },
+        {
+          "label": "Depth",
+          "value": "~3 km below surrounding terrain — likely an ancient impact basin refilled with ice"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The convection cells in Sputnik Planitia may overturn on timescales of hundreds of thousands of years, extremely fast by planetary standards."
+        }
+      ]
+    },
+    {
+      "id": "tombaugh-regio",
+      "name": "Tombaugh Regio",
+      "featureType": "bright region",
+      "category": "regions",
+      "latitude": 20,
+      "longitude": -20,
+      "description": "Tombaugh Regio is Pluto's iconic bright 'heart', named for Pluto's discoverer Clyde Tombaugh. Spanning roughly 1,600 km across, it is divided into two contrasting lobes: the smooth nitrogen-ice plains of Sputnik Planitia to the west, and a rougher, more mottled eastern lobe of older ices and complex terrain. That hemispheric contrast reveals a world shaped by volatile cycling, where ices migrate, pool, and sublime on geological timescales.",
+      "tags": [
+        "heart",
+        "bright region",
+        "volatile ice",
+        "clyde tombaugh"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "~1,600 km across — roughly the distance from New York to Denver"
+        },
+        {
+          "label": "Western lobe",
+          "value": "Sputnik Planitia — actively convecting nitrogen-ice plains"
+        },
+        {
+          "label": "Eastern lobe",
+          "value": "Rougher terrain of older, mixed ices with more subdued brightness"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The heart became the defining image of Pluto almost immediately after New Horizons returned its first close-up mosaics in 2015."
+        }
+      ]
+    },
+    {
+      "id": "cthulhu-macula",
+      "name": "Cthulhu Macula",
+      "featureType": "dark equatorial region",
+      "category": "regions",
+      "latitude": -15,
+      "longitude": -90,
+      "description": "Cthulhu Macula is a long dark equatorial region coated in reddish organic compounds called tholins. It preserves some of Pluto's oldest visible surface and contrasts dramatically with the bright volatile plains of Tombaugh Regio, making Pluto a world of stark hemispheric and chemical oppositions.",
+      "tags": [
+        "dark terrain",
+        "tholins",
+        "equatorial",
+        "ancient"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "~3,000 km long — stretches more than a quarter of the way around Pluto"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Tholins form when sunlight and radiation process simple gases like methane into complex reddish organic residues."
+        }
+      ]
+    },
+    {
+      "id": "elliot-crater",
+      "name": "Elliot Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 12.04,
+      "longitude": -41.14,
+      "description": "Elliot Crater is a named impact crater on Pluto's northern encounter hemisphere. Its preserved bowl and rim mark one of the older, more stable terrains outside the active volatile-ice plains of Sputnik Planitia, where impacts remain visible instead of being erased by flowing nitrogen ice.",
+      "tags": [
+        "crater",
+        "impact",
+        "northern hemisphere",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~96 km"
+        },
+        {
+          "label": "Named for",
+          "value": "James L. Elliot, astronomer whose stellar-occultation work helped reveal atmospheres and ring systems in the outer Solar System"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 12.04°N, 138.86°E; app longitude remap: east - 180."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Craters like Elliot are valuable age markers on Pluto because nearby volatile-ice terrains can renew themselves and erase older impact records."
+        }
+      ]
+    },
+    {
+      "id": "edgeworth-crater",
+      "name": "Edgeworth Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 6.86,
+      "longitude": -70.58,
+      "description": "Edgeworth Crater is a large impact crater on Pluto's encounter hemisphere. Its location away from Sputnik Planitia places it in older terrain where cratering, irradiation, and volatile migration have left a more durable record of Pluto's geological history.",
+      "tags": [
+        "crater",
+        "impact",
+        "kuiper belt",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~149 km"
+        },
+        {
+          "label": "Named for",
+          "value": "Kenneth Edgeworth, who proposed that small icy bodies could exist beyond Neptune"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 6.86°N, 109.42°E; app longitude remap: east - 180."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Edgeworth's name is tied to the Edgeworth-Kuiper Belt, the distant population of icy worlds that includes Pluto."
+        }
+      ]
+    },
+    {
+      "id": "oort-crater",
+      "name": "Oort Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 7.86,
+      "longitude": -87.95,
+      "description": "Oort Crater is a named impact crater on Pluto, set in terrain that contrasts with the smooth, active deposits around Sputnik Planitia. It represents the cratered record of the Kuiper Belt environment, where impacts have shaped Pluto's surface over billions of years.",
+      "tags": [
+        "crater",
+        "impact",
+        "kuiper belt",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~123 km"
+        },
+        {
+          "label": "Named for",
+          "value": "Jan Oort, Dutch astronomer associated with the distant comet reservoir known as the Oort Cloud"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 7.86°N, 92.05°E; app longitude remap: east - 180."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pluto's surface preserves clues from both the Kuiper Belt and more distant comet populations studied by astronomers like Oort."
+        }
+      ]
+    },
+    {
+      "id": "lowell-regio",
+      "name": "Lowell Regio",
+      "featureType": "polar methane-ice terrain",
+      "category": "regions",
+      "latitude": 75,
+      "longitude": 140,
+      "description": "Lowell Regio is Pluto's bright north polar terrain, a broad cap enriched in methane and ethane ices that tint it a distinctive pale orange. Unlike the nitrogen-rich Sputnik Planitia, Lowell Regio's volatiles are less mobile and accumulate over the long polar seasons of Pluto's 248-year orbit. Named for Percival Lowell, who built the observatory that would eventually yield Pluto's discovery, it is one of the most visually striking regions in the New Horizons full-disc images of Pluto.",
+      "tags": [
+        "polar terrain",
+        "methane ice",
+        "north pole",
+        "bright region",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Dominant ices",
+          "value": "Methane (CH₄) and ethane (C₂H₆) — heavier volatiles that resist sublimation near the pole"
+        },
+        {
+          "label": "Colour",
+          "value": "Pale orange tint from photolytic processing of methane ice into complex organic residues"
+        },
+        {
+          "label": "Named for",
+          "value": "Percival Lowell (1855–1916), founder of Lowell Observatory, where Clyde Tombaugh discovered Pluto in 1930"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Pluto's axial tilt of 119° means its poles experience decades of continuous sunlight and darkness — shaping polar ice deposits unlike anything in the inner Solar System."
+        }
+      ]
+    },
+    {
+      "id": "voyager-terra",
+      "name": "Voyager Terra",
+      "featureType": "dark northern terrain",
+      "category": "regions",
+      "latitude": 52,
+      "longitude": -130,
+      "description": "Voyager Terra is a vast, dark northern terrain unit stretching across a large portion of Pluto's northern hemisphere. Its surface is mantled in reddish-brown tholins, giving it a colour similar to Cthulhu Macula at lower latitudes. Voyager Terra is one of Pluto's most ancient surfaces — heavily processed by billions of years of cosmic radiation and volatile cycling — and its rugged, pitted landscape contrasts sharply with the smooth brightness of Lowell Regio and Tombaugh Regio nearby. Named in honour of the twin Voyager spacecraft that revolutionised our understanding of the outer Solar System.",
+      "tags": [
+        "dark terrain",
+        "tholins",
+        "northern hemisphere",
+        "ancient surface",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Surface age",
+          "value": "Among the oldest visible terrain on Pluto, preserving a long record of bombardment and irradiation"
+        },
+        {
+          "label": "Colour",
+          "value": "Reddish-brown tholins — similar chemistry to Cthulhu Macula but at higher latitudes"
+        },
+        {
+          "label": "Named for",
+          "value": "NASA's Voyager 1 and 2 spacecraft, which explored the giant planet systems in the 1970s and 80s"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Although the Voyager spacecraft never reached Pluto, their legacy of outer Solar System exploration made naming this vast dark terrain after them especially fitting."
+        }
+      ]
+    },
+    {
+      "id": "water-ice-mountains",
+      "name": "Norgay and Hillary Montes",
+      "featureType": "water-ice mountains",
+      "category": "mountains",
+      "latitude": 18,
+      "longitude": -25,
+      "description": "Towering mountain ranges rise along the margins of Sputnik Planitia, built from bedrock-hard water ice. On Pluto, volatile ices like nitrogen and methane are soft and mobile, so the mountains stand above them like rocky peaks above glaciers on Earth.",
+      "tags": [
+        "mountains",
+        "water ice",
+        "norgay montes",
+        "hillary montes"
+      ],
+      "details": [
+        {
+          "label": "Relief",
+          "value": "Several peaks rise 3 to 5 km above surrounding terrain"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "At Pluto's surface temperature, water ice behaves more like solid rock than like snow."
+        }
+      ]
+    },
+    {
+      "id": "wright-mons",
+      "name": "Wright Mons",
+      "featureType": "possible cryovolcano",
+      "category": "mountains",
+      "latitude": -38,
+      "longitude": 35,
+      "description": "Wright Mons is one of Pluto's largest and most unusual landforms — a broad mountain in the southern hemisphere roughly 150 km across and 5 km tall, with a wide summit depression several kilometres deep. Its shape is strikingly similar to volcanic shield structures on Earth, and scientists believe it may have been built by repeated eruptions of slushy water-ice from Pluto's interior. If confirmed as a cryovolcano, it would indicate that even a small, distant world in the Kuiper Belt can sustain interior activity long after its formation.",
+      "tags": [
+        "cryovolcano",
+        "wright mons",
+        "interior activity",
+        "mountain",
+        "southern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "~150 km wide, ~5 km tall"
+        },
+        {
+          "label": "Summit depression",
+          "value": "Several kilometres deep — analogous to the caldera of a volcanic shield"
+        },
+        {
+          "label": "Location",
+          "value": "Southern hemisphere, southwest of Sputnik Planitia"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Possible cryovolcanoes on Pluto suggest even small distant worlds can remain geologically surprising."
+        }
+      ]
+    },
+    {
+      "id": "bladed-terrain",
+      "name": "Bladed Terrain of Tartarus Dorsa",
+      "featureType": "methane-ice ridge field",
+      "category": "mountains",
+      "latitude": 10,
+      "longitude": 40,
+      "description": "Tartarus Dorsa is covered in strange knife-edged ridges of methane ice, some hundreds of metres tall. No directly analogous landscape is known elsewhere in the Solar System, making Pluto's bladed terrain one of New Horizons' most alien discoveries.",
+      "tags": [
+        "bladed terrain",
+        "methane ice",
+        "ridge field",
+        "alien landscape"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The blades may form by a process similar to penitentes on Earth, where ice slowly sublimates into towering sharp ridges."
+        }
+      ]
+    },
+    {
+      "id": "charon-system-context",
+      "name": "Charon and the Pluto System",
+      "featureType": "system context",
+      "category": "system",
+      "latitude": -20,
+      "longitude": -60,
+      "description": "Pluto and Charon form a binary-like system, with both bodies orbiting a point in space outside Pluto itself. That unusual pairing, along with Pluto's smaller moons and location in the Kuiper Belt, makes the system feel more like a miniature planetary architecture than a lone frozen world.",
+      "tags": [
+        "charon",
+        "system",
+        "binary",
+        "kuiper belt"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Pluto and Charon are tidally locked to each other, always showing the same face across the gap."
+        }
+      ]
+    },
+    {
+      "id": "styx",
+      "name": "Styx",
+      "featureType": "small moon",
+      "category": "system-moons",
+      "description": "Styx is the innermost of Pluto's four small outer moons, discovered in 2012 from Hubble Space Telescope images taken in preparation for the New Horizons mission. It is elongated and irregularly shaped, measuring roughly 16 km across its longest axis. Like its siblings, Styx tumbles chaotically — its rotation is not synchronized to any orbital period, a consequence of the gravitational pushes and pulls of Charon, Nix, and Hydra.",
+      "tags": [
+        "small moon",
+        "styx",
+        "chaotic rotation",
+        "hubble discovery",
+        "new horizons"
+      ],
+      "ringRadius": 3.4,
+      "ringAngle": 0.8,
+      "moonRadius": 0.04,
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~16 km (longest axis)"
+        },
+        {
+          "label": "Orbital period",
+          "value": "20.2 days"
+        },
+        {
+          "label": "Discovered",
+          "value": "2012, via Hubble Space Telescope"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Styx's chaotic tumble means its 'day' length is completely unpredictable — it somersaults through space rather than spinning steadily."
+        }
+      ]
+    },
+    {
+      "id": "nix",
+      "name": "Nix",
+      "featureType": "small moon",
+      "category": "system-moons",
+      "description": "Nix was discovered in 2005 alongside Hydra, using the Hubble Space Telescope. New Horizons captured the clearest images of Nix during its 2015 flyby, revealing a potato-shaped body roughly 50 km in diameter with a surprisingly reddish patch on its otherwise bright, icy surface. Like all of Pluto's small moons, Nix tumbles chaotically, unable to settle into a stable spin in the complex gravity field of the Pluto-Charon binary.",
+      "tags": [
+        "small moon",
+        "nix",
+        "red spot",
+        "chaotic rotation",
+        "hubble",
+        "new horizons"
+      ],
+      "ringRadius": 3.9,
+      "ringAngle": 2.3,
+      "moonRadius": 0.04,
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~49.8 km (longest axis)"
+        },
+        {
+          "label": "Orbital period",
+          "value": "24.9 days"
+        },
+        {
+          "label": "Discovered",
+          "value": "2005, via Hubble Space Telescope"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Nix has a mysterious reddish spot on its surface — possibly a concentration of tholins or a younger impact scar against its otherwise ice-white terrain."
+        }
+      ]
+    },
+    {
+      "id": "kerberos",
+      "name": "Kerberos",
+      "featureType": "small moon",
+      "category": "system-moons",
+      "description": "Kerberos was discovered in 2011 by Hubble and puzzled scientists before New Horizons arrived. Pre-flyby models predicted it should be dark, like Nix and Hydra, since it would be coated in dust from micrometeorite impacts. Instead New Horizons found Kerberos to be surprisingly dark — perhaps because it is denser or retains material differently. It has a distinctive double-lobed silhouette, suggesting two smaller bodies that gently merged long ago.",
+      "tags": [
+        "small moon",
+        "kerberos",
+        "double-lobed",
+        "dark",
+        "hubble",
+        "new horizons"
+      ],
+      "ringRadius": 4.6,
+      "ringAngle": 4.1,
+      "moonRadius": 0.04,
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~19 km (longest axis)"
+        },
+        {
+          "label": "Orbital period",
+          "value": "32.2 days"
+        },
+        {
+          "label": "Discovered",
+          "value": "2011, via Hubble Space Telescope"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Kerberos has a bilobed shape, hinting it may have formed when two separate moonlets merged in a low-speed collision in the early Pluto system."
+        }
+      ]
+    },
+    {
+      "id": "hydra",
+      "name": "Hydra",
+      "featureType": "small moon",
+      "category": "system-moons",
+      "description": "Hydra is the outermost of Pluto's four small moons and the largest of the quartet, stretching roughly 51 km along its longest axis. Discovered alongside Nix in 2005, it was imaged in detail by New Horizons in 2015. Hydra's surface is dominated by bright, nearly pure water ice — among the most reflective icy surfaces seen in the outer Solar System. Like its siblings, it tumbles unpredictably in the shifting gravitational landscape of the Pluto-Charon binary.",
+      "tags": [
+        "small moon",
+        "hydra",
+        "water ice",
+        "bright",
+        "chaotic rotation",
+        "new horizons"
+      ],
+      "ringRadius": 5.2,
+      "ringAngle": 5.7,
+      "moonRadius": 0.04,
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~51.1 km (longest axis)"
+        },
+        {
+          "label": "Orbital period",
+          "value": "38.2 days"
+        },
+        {
+          "label": "Discovered",
+          "value": "2005, via Hubble Space Telescope"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Hydra's surface reflectivity is close to that of fresh snow — a remarkably pristine icy shell for a body billions of kilometers from the Sun."
+        }
+      ]
+    }
+  ]
+}

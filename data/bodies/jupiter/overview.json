@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "jupiter",
+  "name": "Jupiter",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "jupiter",
+    "discovery": "Known since antiquity",
+    "diameterKm": 139820,
+    "facts": [
+      "Jupiter is the largest planet in the solar system.",
+      "The Great Red Spot is a storm wider than Earth.",
+      "Its shortest day is only about 10 hours long.",
+      "Jupiter has faint rings and many moons."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Jupiter Facts",
+        "url": "https://science.nasa.gov/jupiter/jupiter-facts/"
+      }
+    ]
+  }
+}

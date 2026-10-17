@@ -1,0 +1,51 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "ceres",
+  "name": "Ceres",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/ceres-2k.jpg",
+      "width": 4000,
+      "height": 2000,
+      "bytes": 2454337,
+      "sha256": "220d5a9b56136e49cabdefdfbf42ad5d27abdd965f208a5f4de7d37da02ef84b",
+      "donorReadme": null
+    }
+  ],
+  "source": {
+    "recordedBy": "astraeus tools/import/planetary-explorer-map-sources.json",
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "donorFileShippable": false,
+    "description": "Surface geometry from the USGS/DLR Ceres Dawn FC Global Mosaic 140 m (Feb 2016), NCC 0.96 after a 180 degree shift; the colour and the yellow-green polar fill of the donor's ceres-2k.jpg come from an unknown source, so that file must not be shipped",
+    "sourcePage": "https://astrogeology.usgs.gov/",
+    "licence": "Use constraint: please cite authors",
+    "credit": "USGS/DLR Dawn FC team",
+    "registration": "Donor file matches the USGS/DLR mosaic after a 180 degree longitude shift (docs/DONOR_TEXTURE_INVENTORY.md)"
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 15.7,
+      "max": 318.3
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 180,
+    "recentringEvidence": "docs/DONOR_TEXTURE_INVENTORY.md section C: donor texture matches the USGS/DLR mosaic after a 180 degree shift (NCC 0.96)",
+    "donorReadmeNote": null
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "triton",
+  "name": "Triton",
+  "parent": "neptune",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/triton-voyager-map.jpg",
+      "width": 14138,
+      "height": 7069,
+      "bytes": 4281065,
+      "sha256": "eabcd1c5e4170a271d09cd4a525e838063f470ec88844265f916f42b8dfbd2cc",
+      "donorReadme": [
+        "- `triton-voyager-map.jpg`",
+        "  - Source: NASA/JPL-Caltech/Lunar & Planetary Institute Map of Triton (PIA18668), mirrored by the Ring-Moon Systems Node",
+        "  - Source page: https://pds-rings.seti.org/press_releases/pages/PIA18xxx/PIA18668.html",
+        "  - Original file source used: https://commons.wikimedia.org/wiki/File:Triton_Map.jpg",
+        "  - Download endpoint used: `https://upload.wikimedia.org/wikipedia/commons/6/6a/Triton_Map.jpg`",
+        "  - Purpose: simple-cylindrical Voyager 2 global colour map for the explorable Triton moon pack",
+        "  - Texture review: the direct NASA Photojournal JPEG endpoint for PIA18668 resolved locally to the current NASA web shell instead of image data, so the public-domain Wikimedia copy of the same NASA/JPL/LPI image is used. The shipped file is the original `14138x7069` JPEG, a simple-cylindrical 2:1 map without seam-producing margins.",
+        "  - Credit: NASA/JPL-Caltech/Lunar & Planetary Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL / Lunar & Planetary Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 14.5,
+      "max": 335
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "east-positive, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": 1,
+      "offsetDeg": 0
+    },
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Triton release uses the NASA/JPL/LPI PIA18668 Voyager 2 global map from the PDS Rings mirror. PIA18668 is a simple-cylindrical 2:1 global map with enhanced but near-natural colours. `data/triton-features.json` uses the texture's east-positive, 0-360 longitude frame. Control checks: Bubembe Regio is anchored at `18 N, 335 E` from the USGS Gazetteer; Tuonela Planitia is anchored at `34 N, 14.5 E`; Set Catena is anchored at about `22 N, 33.5 E`. Broad polar and plume-field entries are representative educational anchors rather than IAU feature centers."
+  }
+}

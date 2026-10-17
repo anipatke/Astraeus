@@ -1,0 +1,59 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "rhea",
+  "name": "Rhea",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/rhea-4k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 3013416,
+      "sha256": "f5bca905a538530a92618aa6d1f8b588e5e03e3eda59b183dfaad3f04470248d",
+      "donorReadme": [
+        "- `rhea-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Rhea - 2014 (PIA18438)",
+        "  - Source page: https://photojournal.jpl.nasa.gov/catalog/PIA18438",
+        "  - Purpose: Cassini global color map for the explorable Rhea moon pack",
+        "  - Processing: resized locally from the full-resolution `12015x6008` JPEG source to a true `4096x2048` web texture",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -148.5,
+      "max": 93
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": -1,
+      "offsetDeg": 180
+    },
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Rhea release uses the NASA/JPL PIA18438 Cassini global color map resized to `4K`. Source coordinates in the USGS Gazetteer use Rhea's IAU planetographic, positive-west, 0-360 system; because this texture is registered like the Dione and Tethys Cassini color maps, numeric marker longitudes use `markerLongitude = 180 - westLongitude`, normalized to `[-180, 180]`. Broad hemisphere terrain entries are visual storytelling anchors rather than IAU feature centers."
+  }
+}

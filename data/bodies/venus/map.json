@@ -1,0 +1,74 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "venus",
+  "name": "Venus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/venus-2k-balanced.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 1090552,
+      "sha256": "5ccac07333ba785cdff57f4fd0d3fbccecc6f7d415491bdf86a887554d63c237",
+      "donorReadme": [
+        "- `venus-2k-balanced.jpg`",
+        "  - Derived locally from the same USGS/NASA Magellan global mosaic source",
+        "  - Purpose: softer shipped mobile-class Venus texture with reduced mosaic harshness",
+        "  - Processing: same balanced pass as desktop, then resized to 2048x1024"
+      ]
+    },
+    {
+      "src": "/textures/venus-8k-balanced.jpg",
+      "minViewportWidth": 768,
+      "width": 8192,
+      "height": 4096,
+      "bytes": 14474577,
+      "sha256": "4d0e991b09e1134bd3aacfbd35423067259fbce91a44ad169e6c032b7d0bb0c9",
+      "donorReadme": [
+        "- `venus-8k-balanced.jpg`",
+        "  - Derived locally from the USGS/NASA Magellan Venus C3-MDIR colorized global mosaic",
+        "  - Source page: https://astrogeology.usgs.gov/search/map/Venus/Magellan/Venus_Magellan_C3MDIR_Colorized_Global_Mosaic_4641m",
+        "  - Downloaded from: `https://planetarymaps.usgs.gov/mosaic/Venus_Magellan_C3-MDIR_Colorized_Global_Mosaic_4641m.tif`",
+        "  - Purpose: softer shipped desktop-class Venus texture with reduced mosaic harshness",
+        "  - Processing: light blur, contrast reduction, restrained color, light re-sharpen"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "Solar System Scope",
+        "licence": "CC BY 4.0"
+      },
+      {
+        "group": "USGS / NASA",
+        "licence": "Public Domain"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 3,
+      "max": 359
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Venus release plan now uses balanced derivatives from the USGS/NASA Magellan surface mosaic to preserve sharpness while reducing visible mosaic artifacts."
+  }
+}

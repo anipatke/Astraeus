@@ -1,0 +1,503 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "uranus",
+  "name": "Uranus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 19,
+  "features": [
+    {
+      "id": "north-polar-hood",
+      "name": "North Polar Hood",
+      "featureType": "polar haze",
+      "category": "poles",
+      "latitude": 78,
+      "longitude": 30,
+      "description": "Uranus's north polar region is capped by a bright methane haze known as the north polar hood. It becomes especially prominent as the pole tilts toward the Sun, making seasonal lighting one of the main reasons Uranus's atmosphere can look dramatically different over decades.",
+      "tags": [
+        "polar",
+        "north",
+        "haze",
+        "seasonal"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Because Uranus is tipped on its side, one pole can spend roughly 42 years in continuous sunlight."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-region",
+      "name": "South Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": -74,
+      "longitude": 210,
+      "description": "The south polar region once appeared brighter during the Voyager 2 flyby, when Uranus was near southern summer. Long-term monitoring has shown the poles trading prominence as the seasons slowly shift across the planet's 84-year orbit.",
+      "tags": [
+        "polar",
+        "south",
+        "voyager 2",
+        "seasonal"
+      ],
+      "details": [
+        {
+          "label": "Year length",
+          "value": "84 Earth years"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Uranus's seasons are so long that no spacecraft has yet seen it under a full range of seasonal conditions."
+        }
+      ]
+    },
+    {
+      "id": "equatorial-band",
+      "name": "Equatorial Band",
+      "featureType": "atmospheric band",
+      "category": "bands",
+      "latitude": 2,
+      "longitude": 250,
+      "description": "A faint bright band wraps Uranus near the equator, produced by subtle changes in methane haze and cloud opacity. It is much more understated than the belts of Jupiter or Saturn, but it reveals that Uranus still has organized atmospheric circulation.",
+      "tags": [
+        "band",
+        "equator",
+        "methane",
+        "subtle"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "For decades Uranus looked almost featureless in small telescopes, but modern imaging has revealed faint bands and cloud structure across the disk."
+        }
+      ]
+    },
+    {
+      "id": "mid-latitude-banding",
+      "name": "Mid-Latitude Banding",
+      "featureType": "atmospheric bands",
+      "category": "bands",
+      "latitude": 34,
+      "longitude": 150,
+      "description": "Low-contrast bands and zonal flows stripe Uranus's mid-latitudes, though they are muted by the planet's thick methane haze. These belts become more visible in infrared observations, where cloud tops and deeper layers separate more clearly.",
+      "tags": [
+        "bands",
+        "mid-latitude",
+        "infrared",
+        "zonal flow"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Infrared imaging often shows Uranus as a much more structured world than it appears in visible light."
+        }
+      ]
+    },
+    {
+      "id": "bright-northern-storm",
+      "name": "Bright Northern Storm",
+      "featureType": "storm system",
+      "category": "storms",
+      "latitude": 34,
+      "longitude": 320,
+      "description": "In recent decades astronomers have tracked bright methane-ice storms erupting in Uranus's northern hemisphere, proving that the planet's atmosphere can become unexpectedly active. These outbreaks rise above the surrounding haze and can persist for months.",
+      "tags": [
+        "storm",
+        "methane ice",
+        "north",
+        "bright cloud"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Large Uranian storms have appeared often enough in the 21st century to surprise scientists who once expected the planet to remain almost inert."
+        }
+      ]
+    },
+    {
+      "id": "berg-feature",
+      "name": "The Berg",
+      "featureType": "long-lived storm",
+      "category": "storms",
+      "latitude": -34,
+      "longitude": 70,
+      "description": "The Berg was a long-lived cloud feature observed drifting through Uranus's southern mid-latitudes before changing latitude and fading. Its evolution showed that even Uranus's subdued weather can reorganize over time in ways that are dynamically rich rather than static.",
+      "tags": [
+        "storm",
+        "long-lived",
+        "cloud feature",
+        "drift"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The Berg was one of the first Uranian storm systems to be tracked over many years with Hubble and large ground-based telescopes."
+        }
+      ]
+    },
+    {
+      "id": "uranian-ring-system",
+      "name": "Uranian Ring System",
+      "featureType": "ring system",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 130,
+      "description": "Uranus is surrounded by a set of narrow, dark rings made mostly of radiation-processed water ice mixed with darker material. They are far less luminous than Saturn's broad icy rings, but they form one of the planet's most important structural features and reinforce its distinct sideways geometry.",
+      "tags": [
+        "rings",
+        "dark",
+        "narrow",
+        "system"
+      ],
+      "details": [
+        {
+          "label": "Discovery",
+          "value": "Stellar occultation observations, 1977"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Uranus's rings were discovered when they briefly dimmed a star before the planet itself passed in front of it."
+        }
+      ]
+    },
+    {
+      "id": "zeta-ring",
+      "name": "Zeta Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.03,
+      "ringAngle": 0.5,
+      "description": "The Zeta ring is the innermost of Uranus's known rings, appearing as a broad, faint band of dark material. Its dusty composition makes it one of the most transparent rings in the Uranian system.",
+      "tags": [
+        "ring",
+        "inner",
+        "dusty",
+        "faint"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "37,850 – 41,350 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Zeta ring may be the source of Uranus's extended dust halo."
+        }
+      ]
+    },
+    {
+      "id": "alpha-beta-rings",
+      "name": "Alpha & Beta Rings",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.33,
+      "ringAngle": 1.8,
+      "description": "Among the brightest of Uranus's narrow rings, the Alpha and Beta rings are dense, compact bands of dark material orbiting close to each other. They are more prominent than most Uranian rings but still far subtler than Saturn's bright bands.",
+      "tags": [
+        "ring",
+        "bright",
+        "narrow",
+        "alpha",
+        "beta"
+      ],
+      "details": [
+        {
+          "label": "Discovery",
+          "value": "Voyager 2, 1986"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Alpha and Beta are among the few Uranian rings bright enough to be observed from Earth with large telescopes."
+        }
+      ]
+    },
+    {
+      "id": "epsilon-ring",
+      "name": "Epsilon Ring",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 2.622,
+      "ringAngle": 3.2,
+      "description": "The Epsilon ring is the brightest and most prominent of Uranus's rings, a narrow but well-defined band of material. Its brightness varies with the orbital position of the moon Cordelia, which acts as a shepherd moon keeping the ring particles confined.",
+      "tags": [
+        "ring",
+        "brightest",
+        "prominent",
+        "Cordelia",
+        "shepherd"
+      ],
+      "details": [
+        {
+          "label": "Width",
+          "value": "Near 0 (20–100 km)"
+        },
+        {
+          "label": "Shepherd Moon",
+          "value": "Cordelia"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Epsilon ring shows dramatic brightness changes as Cordelia passages compress and rarefy the ring particles."
+        }
+      ]
+    },
+    {
+      "id": "nu-ring",
+      "name": "Nu Ring (Red)",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 3.48,
+      "ringAngle": 5.1,
+      "description": "The Nu ring is one of the outermost and most unusual Uranian rings, showing a distinctly reddish hue. Unlike the grey-brown inner rings, its color suggests a different composition or processing history.",
+      "tags": [
+        "ring",
+        "outer",
+        "red",
+        "colored",
+        "rare"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "~67,000 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The reddish color of the Nu ring may result from iron or organic compounds not found in the planet's other rings."
+        }
+      ]
+    },
+    {
+      "id": "mu-ring",
+      "name": "Mu Ring (Blue)",
+      "featureType": "ring",
+      "category": "rings",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 4.84,
+      "ringAngle": 6.5,
+      "description": "The Mu ring is the outermost known Uranian ring and one of the rarest phenomena in the Solar System — a distinctly blue ring. Similar to Saturn's E ring, it is likely composed of tiny dust particles generated by micrometeorite impacts on moons.",
+      "tags": [
+        "ring",
+        "outermost",
+        "blue",
+        "dust",
+        "rare"
+      ],
+      "details": [
+        {
+          "label": "Distance",
+          "value": "~94,500 km from center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The blue color of the Mu ring indicates it is made of sub-micron particles, similar to the E ring of Saturn generated by Enceladus."
+        }
+      ]
+    },
+    {
+      "id": "axial-tilt",
+      "name": "Axial Tilt and Sideways Seasons",
+      "featureType": "seasonal context",
+      "category": "seasons",
+      "latitude": 55,
+      "longitude": 20,
+      "description": "Uranus rotates with an axial tilt of about 98 degrees, essentially rolling around the Sun on its side. That extreme geometry drives the most unusual seasonal cycle in the Solar System, with poles taking turns pointing almost directly at the Sun for decades at a time.",
+      "tags": [
+        "axial tilt",
+        "seasons",
+        "extreme",
+        "context"
+      ],
+      "details": [
+        {
+          "label": "Tilt",
+          "value": "Approximately 98 degrees"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Around solstice, one Uranian pole experiences continuous daylight while the other sits in decades of darkness."
+        }
+      ]
+    },
+    {
+      "id": "ring-and-moon-context",
+      "name": "Rings and Moon System",
+      "featureType": "system context",
+      "category": "seasons",
+      "latitude": -12,
+      "longitude": 205,
+      "description": "Uranus is orbited by a set of dark narrow rings and a family of icy moons, but the whole system is tipped over with the planet itself. That shared sideways geometry makes Uranus feel architecturally distinct from every other major planet pack in the explorer.",
+      "tags": [
+        "rings",
+        "moons",
+        "system",
+        "sideways"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "When Uranus's ring plane points edge-on toward Earth, the rings can become extraordinarily difficult to detect."
+        }
+      ]
+    },
+    {
+      "id": "miranda",
+      "name": "Miranda",
+      "featureType": "major moon",
+      "category": "moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 5.8,
+      "ringAngle": 0.7,
+      "moonRadius": 0.03,
+      "description": "Miranda is the smallest of Uranus's five major moons, famous for its shattered, 'Frankenstein' appearance. When Voyager 2 flew by in 1986—the only spacecraft to ever visit the Uranian system—it captured only the sunlit southern hemisphere, revealing a jumbled, chaotic terrain.",
+      "tags": [
+        "moon",
+        "icy",
+        "voyager 2",
+        "fractured",
+        "frankenstein"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 472 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Miranda features Verona Rupes, a cliff estimated to be 20 km deep, making it one of the tallest known drop-offs in the Solar System."
+        }
+      ]
+    },
+    {
+      "id": "ariel",
+      "name": "Ariel",
+      "featureType": "major moon",
+      "category": "moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 7.5,
+      "ringAngle": 2,
+      "moonRadius": 0.073,
+      "description": "Ariel is the brightest of the Uranian moons. The limited Voyager 2 flyby imagery of its southern hemisphere revealed massive networks of fault valleys and canyons, suggesting the moon underwent significant icy resurfacing in its past.",
+      "tags": [
+        "moon",
+        "icy",
+        "canyons",
+        "bright",
+        "voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,158 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Ariel's surface is covered with winding canyons called chasmata, some of which appear to have smooth floors likely formed by ancient cryovolcanism."
+        }
+      ]
+    },
+    {
+      "id": "umbriel",
+      "name": "Umbriel",
+      "featureType": "major moon",
+      "category": "moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 9.8,
+      "ringAngle": 3.3,
+      "moonRadius": 0.073,
+      "description": "Umbriel is an extremely dark and heavily cratered moon, appearing far less geologically active than its neighbors. Like all of Uranus's major moons, only its southern hemisphere was mapped during the brief Voyager 2 flyby.",
+      "tags": [
+        "moon",
+        "dark",
+        "cratered",
+        "icy",
+        "voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,169 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Despite its overall darkness, Umbriel features a mysterious bright ring of material on the floor of the 131 km-wide Wunda crater."
+        }
+      ]
+    },
+    {
+      "id": "titania",
+      "name": "Titania",
+      "featureType": "major moon",
+      "category": "moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 12.9,
+      "ringAngle": 4.5,
+      "moonRadius": 0.098,
+      "description": "Titania is the largest moon of Uranus. The Voyager 2 flyby—which only mapped its sunlit southern half—revealed a surface marked by massive trenches and fault valleys, hinting at ancient internal expansion.",
+      "tags": [
+        "moon",
+        "largest",
+        "fault valleys",
+        "icy",
+        "voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,578 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Titania features Messina Chasma, an enormous canyon system spanning over 1,400 km across its icy surface."
+        }
+      ]
+    },
+    {
+      "id": "oberon",
+      "name": "Oberon",
+      "featureType": "major moon",
+      "category": "moons",
+      "latitude": 0,
+      "longitude": 0,
+      "ringRadius": 16,
+      "ringAngle": 5.7,
+      "moonRadius": 0.095,
+      "description": "Oberon is the outermost of Uranus's five major moons. The Voyager 2 encounter mapped its ancient, heavily cratered southern hemisphere, showing a dark icy surface with little sign of internal activity.",
+      "tags": [
+        "moon",
+        "outermost",
+        "cratered",
+        "icy",
+        "voyager 2"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,523 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "During the flyby, Voyager 2 spotted a prominent mountain on Oberon's limb that rises about 6 kilometers above the surrounding terrain."
+        }
+      ]
+    }
+  ]
+}

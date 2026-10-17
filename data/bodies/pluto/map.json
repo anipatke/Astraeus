@@ -1,0 +1,48 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "pluto",
+  "name": "Pluto",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/pluto-4k.jpg",
+      "width": 5926,
+      "height": 2963,
+      "bytes": 3972946,
+      "sha256": "d63da5ee9eab8d0b98ebef3c0cdc3a92676d7c9b247b2383294fb5da5c67a71a",
+      "donorReadme": null
+    }
+  ],
+  "source": {
+    "recordedBy": "astraeus tools/import/planetary-explorer-map-sources.json",
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "description": "NASA Photojournal PIA11707, New Horizons global colour map (same pixel size as the donor file; colour RMSE 0.25%, recompressed). Southern third is black (unlit at flyby)",
+    "sourcePage": "https://photojournal.jpl.nasa.gov/catalog/PIA11707",
+    "licence": "NASA/JPL image use policy: credit required",
+    "credit": "NASA/JHUAPL/SwRI"
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -130,
+      "max": 140
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": null
+  }
+}

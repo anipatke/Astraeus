@@ -1,0 +1,58 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "europa",
+  "name": "Europa",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/europa-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 552769,
+      "sha256": "3a1b17784e98621f558155e7b4c8dae99a89f6c33053bbe900ee681bf1ce4f59",
+      "donorReadme": [
+        "- `europa-2k.jpg`",
+        "  - Source: USGS Astrogeology Europa Voyager-Galileo SSI Global Mosaic 500m",
+        "  - Source page: https://astrogeology.usgs.gov/search/map/europa_voyager_galileo_ssi_global_mosaic_500m",
+        "  - Download endpoint used: `https://planetarymaps.usgs.gov/mosaic/Europa_Voyager_GalileoSSI_global_mosaic_500m.tif`",
+        "  - License: public domain as a USGS/NASA planetary data product",
+        "  - Purpose: replace the earlier low-resolution Europa texture with an authoritative 0-360 positive-west simple-cylindrical global map",
+        "  - Processing: converted from the 19631x9816 8-bit source mosaic to `2048x1024` progressive JPEG"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": "public domain as a USGS/NASA planetary data product",
+    "creditsMd": [
+      {
+        "group": "USGS / NASA",
+        "licence": "Public Domain"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 0,
+      "max": 340
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "conventionNote": "donor: the texture is positive-west 0-360 and matches the convention of europa-features.json; formula not stated",
+    "donorReadmeNote": "- The current Europa release uses the USGS/NASA global mosaic at `2K`; the source is simple-cylindrical, planetocentric, positive-west, and 0-360 longitude, matching the coordinate convention used by `data/europa-features.json`."
+  }
+}

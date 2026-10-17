@@ -1,0 +1,37 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "iapetus",
+  "name": "Iapetus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "leading-hemisphere",
+      "label": "Leading Hemisphere",
+      "color": "#6a5646",
+      "isFilterable": true
+    },
+    {
+      "key": "trailing-hemisphere",
+      "label": "Trailing Hemisphere",
+      "color": "#d8d3c8",
+      "isFilterable": true
+    },
+    {
+      "key": "montes",
+      "label": "Ridge & Montes",
+      "color": "#d7b56d",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#a8a3a0",
+      "isFilterable": true
+    }
+  ]
+}

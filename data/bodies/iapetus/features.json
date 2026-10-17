@@ -1,0 +1,368 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "iapetus",
+  "name": "Iapetus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 12,
+  "features": [
+    {
+      "id": "cassini-regio",
+      "name": "Cassini Regio",
+      "featureType": "dark terrain",
+      "category": "leading-hemisphere",
+      "latitude": -28.1,
+      "longitude": 87.4,
+      "description": "Cassini Regio is the immense dark terrain wrapped around Iapetus's leading hemisphere, the side that plows forward through Saturn's outer system. Its dusty surface absorbs more sunlight than the bright icy terrain, warms up, and helps drive ice away, reinforcing the moon's famous two-tone contrast.",
+      "tags": [
+        "dark terrain",
+        "leading hemisphere",
+        "two-tone",
+        "thermal segregation"
+      ],
+      "details": [
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 28.1 S, 92.6 W"
+        },
+        {
+          "label": "Texture cue",
+          "value": "Large dark field centered on the leading hemisphere"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Iapetus was one of the earliest moons where astronomers noticed the same object seemed to brighten and darken dramatically over its orbit."
+        }
+      ]
+    },
+    {
+      "id": "roncevaux-terra",
+      "name": "Roncevaux Terra",
+      "featureType": "bright terrain",
+      "category": "trailing-hemisphere",
+      "latitude": 37,
+      "longitude": -59.5,
+      "description": "Roncevaux Terra is a bright northern expanse where water ice still dominates the surface. It helps frame the bright side of Iapetus against the dark leading hemisphere, making the moon look almost as if two different worlds were joined together.",
+      "tags": [
+        "bright terrain",
+        "trailing hemisphere",
+        "ice",
+        "northern terrain"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,284 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 37.0 N, 239.5 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The bright trailing side can reflect several times more sunlight than the dark leading side, even though both belong to the same moon."
+        }
+      ]
+    },
+    {
+      "id": "saragossa-terra",
+      "name": "Saragossa Terra",
+      "featureType": "bright terrain",
+      "category": "trailing-hemisphere",
+      "latitude": -45,
+      "longitude": 0,
+      "description": "Saragossa Terra spreads across the southern bright terrain as icy highlands broken by very large impact scars. It is the cleaner, frostier counterpart to Cassini Regio and a strong reminder that Iapetus' color pattern is global, not just a small surface stain.",
+      "tags": [
+        "bright terrain",
+        "southern terrain",
+        "highlands",
+        "ice"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 2,300 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 45.0 S, 180.0 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Once the dark side of Iapetus warms enough, it loses bright ice faster, making the moon's colour contrast self-amplifying over time."
+        }
+      ]
+    },
+    {
+      "id": "equatorial-ridge",
+      "name": "Equatorial Ridge",
+      "featureType": "ridge system",
+      "category": "montes",
+      "latitude": 0,
+      "longitude": 0,
+      "description": "Iapetus' equatorial ridge is a chain of mountains and raised terrain that follows the equator across much of the moon, giving Iapetus its distinctive walnut-like outline. Some sections rise dramatically above the surrounding plains, and the ridge remains one of the most unusual structures found on a mid-sized icy moon.",
+      "tags": [
+        "equatorial ridge",
+        "mountains",
+        "tectonics",
+        "global structure"
+      ],
+      "details": [
+        {
+          "label": "Texture cue",
+          "value": "Thin equatorial highland chain crossing the dark terrain and named montes segments"
+        },
+        {
+          "label": "Source note",
+          "value": "Representative educational anchor; named ridge segments are listed separately"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "One idea is that the ridge formed from material that once orbited Iapetus and later collapsed onto the equator."
+        }
+      ]
+    },
+    {
+      "id": "carcassone-montes",
+      "name": "Carcassone Montes",
+      "featureType": "mountain chain",
+      "category": "montes",
+      "latitude": 0,
+      "longitude": -36.7,
+      "description": "Carcassone Montes is one of the named mountain-chain segments along Iapetus' equatorial ridge. It marks a long stretch of the ridge where the surface rises into a narrow, world-spanning spine instead of spreading into ordinary cratered plains.",
+      "tags": [
+        "montes",
+        "equatorial ridge",
+        "mountains"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 740 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 0.0 N, 216.7 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Town in southern France sacked by Roland"
+        }
+      ]
+    },
+    {
+      "id": "toledo-montes",
+      "name": "Toledo Montes",
+      "featureType": "mountain chain",
+      "category": "montes",
+      "latitude": 0,
+      "longitude": 44,
+      "description": "Toledo Montes is a broader named section of Iapetus' equatorial ridge. Its placement helps visitors follow the ridge across the globe and see how the raised belt ties together bright and dark terrains.",
+      "tags": [
+        "montes",
+        "equatorial ridge",
+        "mountains"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 1,100 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 0.0 N, 136.0 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Spanish town known for blacksmiths' work in the Song of Roland naming theme"
+        }
+      ]
+    },
+    {
+      "id": "turgis",
+      "name": "Turgis",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 16.9,
+      "longitude": 151.6,
+      "description": "Turgis is one of Iapetus' largest named impact craters, a huge circular scar on the darkened leading side. Its scale makes it a useful anchor for comparing basin-sized impacts against the equatorial ridge and the albedo boundary.",
+      "tags": [
+        "crater",
+        "impact",
+        "dark side",
+        "large basin"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "580 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 16.9 N, 28.4 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "A Saracen baron, count of Tortelosa, killed by Oliver"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Basins like Turgis help reveal whether Iapetus's crust behaved rigidly like rock or slowly relaxed like warm ice after giant impacts."
+        }
+      ]
+    },
+    {
+      "id": "abisme",
+      "name": "Abisme",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 37.53,
+      "longitude": 87.08,
+      "description": "Abisme is a vast northern crater superposed on the dark hemisphere. Its bright and dark materials sit near the heart of Cassini Regio, making it a strong control point for both crater storytelling and texture alignment.",
+      "tags": [
+        "crater",
+        "impact",
+        "dark terrain",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 768 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 37.53 N, 92.92 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "A Saracen lord killed by Archbishop Turpin"
+        }
+      ]
+    },
+    {
+      "id": "engelier",
+      "name": "Engelier",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -42.4,
+      "longitude": -82,
+      "description": "Engelier is a giant southern impact crater set in the brighter terrain of Iapetus. Its immense size and pale surroundings make it a key southern control feature on the Cassini color map.",
+      "tags": [
+        "crater",
+        "bright terrain",
+        "southern hemisphere",
+        "large basin"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "504 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 40.5 S, 264.7 W"
+        },
+        {
+          "label": "Texture calibration",
+          "value": "Visual center on the shipped texture: about 42.4 S, 82 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "One of the Twelve Peers, the Gascon of Bordeaux"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Crater rims crossing the colour boundary on Iapetus can appear half dark and half bright depending on which hemisphere they face."
+        }
+      ]
+    },
+    {
+      "id": "falsaron",
+      "name": "Falsaron",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 33.8,
+      "longitude": 97.4,
+      "description": "Falsaron is a broad crater in the northern dark terrain, close enough to Abisme to help show how heavily battered Cassini Regio really is. It gives the crater layer another large landmark on the leading hemisphere.",
+      "tags": [
+        "crater",
+        "impact",
+        "dark terrain",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "424 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 33.8 N, 82.6 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Brother of King Marsilion, killed by Oliver"
+        }
+      ]
+    },
+    {
+      "id": "gerin",
+      "name": "Gerin",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -50,
+      "longitude": -54,
+      "description": "Gerin is a large southern crater near Engelier in Iapetus' bright terrain. Together, the two craters make the southern hemisphere feel less empty and help compare overlapping impact scales on the icy crust.",
+      "tags": [
+        "crater",
+        "impact",
+        "bright terrain",
+        "southern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "445 km"
+        },
+        {
+          "label": "Source coordinates",
+          "value": "USGS/IAU center: 45.6 S, 233.0 W"
+        },
+        {
+          "label": "Texture calibration",
+          "value": "Visual center on the shipped texture: about 50 S, 54 W"
+        },
+        {
+          "label": "Name origin",
+          "value": "One of the Twelve Peers; killed by Grandoyne"
+        }
+      ]
+    },
+    {
+      "id": "dark-bright-boundary",
+      "name": "Cassini Boundary Zone",
+      "featureType": "hemispheric boundary",
+      "category": "leading-hemisphere",
+      "latitude": 0,
+      "longitude": 90,
+      "description": "The transition between dark Cassini Regio and the bright trailing terrain is surprisingly abrupt in places, creating one of the sharpest large-scale color boundaries on any planetary body. It records the interplay between dust deposition, sunlight absorption, and thermal ice migration.",
+      "tags": [
+        "boundary",
+        "albedo",
+        "thermal migration",
+        "two-tone"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "The leading hemisphere likely started dark because it sweeps up dust while moving forward through space, like a bug hitting the windshield of a car."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "mercury",
+  "name": "Mercury",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "basins",
+      "label": "Basins",
+      "color": "#D8A36A",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#B7C0CE",
+      "isFilterable": true
+    },
+    {
+      "key": "scarps",
+      "label": "Scarps",
+      "color": "#D97C59",
+      "isFilterable": true
+    },
+    {
+      "key": "volcanic",
+      "label": "Volcanic",
+      "color": "#D7B06C",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#DDE9F2",
+      "alwaysVisible": true
+    }
+  ]
+}

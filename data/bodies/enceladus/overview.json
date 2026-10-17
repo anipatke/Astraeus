@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "enceladus",
+  "name": "Enceladus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "enceladus",
+    "discovery": "Discovered in 1789 by British astronomer William Herschel",
+    "diameterKm": 504.2,
+    "facts": [
+      "Enceladus is one of the brightest worlds in the solar system.",
+      "Jets spray water and ice from cracks near its south pole.",
+      "A global saltwater ocean lies beneath its icy shell.",
+      "Material from its jets helps form Saturn's E ring."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Enceladus",
+        "url": "https://science.nasa.gov/saturn/moons/enceladus/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

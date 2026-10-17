@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "mimas",
+  "name": "Mimas",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "mimas",
+    "discovery": "Discovered in 1789 by British astronomer William Herschel",
+    "diameterKm": 396.4,
+    "facts": [
+      "Mimas is the smallest and innermost of Saturn's major moons.",
+      "Its giant Herschel Crater is about one-third as wide as the moon.",
+      "Mimas is made mostly of water ice.",
+      "It keeps the same face turned toward Saturn."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Mimas",
+        "url": "https://science.nasa.gov/saturn/moons/mimas/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

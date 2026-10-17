@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "europa",
+  "name": "Europa",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "europa",
+    "discovery": "Discovered in 1610 by Italian astronomer Galileo Galilei",
+    "diameterKm": 3121.6,
+    "facts": [
+      "Europa has a bright shell made mostly of water ice.",
+      "A salty ocean probably lies beneath its frozen surface.",
+      "Dark cracks crisscross its young, lightly cratered surface.",
+      "Jupiter's gravity flexes Europa and creates heat inside it."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Europa Facts",
+        "url": "https://science.nasa.gov/jupiter/jupiter-moons/europa/europa-facts/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

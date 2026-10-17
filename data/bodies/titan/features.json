@@ -1,0 +1,341 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "titan",
+  "name": "Titan",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 11,
+  "features": [
+    {
+      "id": "kraken-mare",
+      "name": "Kraken Mare",
+      "featureType": "methane sea",
+      "category": "lakes",
+      "latitude": 68,
+      "longitude": 310,
+      "description": "Titan's largest sea sprawls across the north polar region as a branching body of liquid methane and ethane. Cassini views show a coastline cut by bays, islands, and drowned channels, making Kraken Mare one of the clearest places to compare Titan's methane cycle with Earth's water cycle.",
+      "tags": [
+        "sea",
+        "methane",
+        "ethane",
+        "north pole",
+        "hydrocarbons",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 68.0 N, 310.0 W"
+        },
+        {
+          "label": "Extent",
+          "value": "About 1,170 km across"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Kraken Mare may contain more liquid hydrocarbons than all known oil and natural gas reserves on Earth combined."
+        }
+      ]
+    },
+    {
+      "id": "ligeia-mare",
+      "name": "Ligeia Mare",
+      "featureType": "methane sea",
+      "category": "lakes",
+      "latitude": 79.7,
+      "longitude": 247.9,
+      "description": "Ligeia Mare is Titan's second-largest sea and one of Cassini's best-studied targets. Radar observations showed that this alien sea is mostly liquid methane, with a floor likely coated in organic-rich sediment that rains out of Titan's atmosphere.",
+      "tags": [
+        "sea",
+        "methane",
+        "radar",
+        "polar",
+        "organic chemistry"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 79.7 N, 247.9 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "About 500 km"
+        },
+        {
+          "label": "Composition",
+          "value": "Predominantly liquid methane, with dissolved nitrogen and other organics"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cassini radar detected echoes from the seafloor, turning Ligeia Mare into the first extraterrestrial sea sounded from orbit."
+        }
+      ]
+    },
+    {
+      "id": "punga-mare",
+      "name": "Punga Mare",
+      "featureType": "methane sea",
+      "category": "lakes",
+      "latitude": 85.1,
+      "longitude": 339.7,
+      "description": "Punga Mare sits close to Titan's north pole between the larger polar seas and a scatter of smaller lakes. Its compact shape helps show how Titan's polar basins collect methane and ethane into a connected landscape of seas, shorelines, and bright highlands.",
+      "tags": [
+        "sea",
+        "methane",
+        "north pole",
+        "cassini",
+        "shoreline"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 85.1 N, 339.7 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "About 380 km"
+        },
+        {
+          "label": "Mission View",
+          "value": "Cassini's final Titan mosaic showed Punga Mare near Ligeia Mare and Kraken Mare in the north polar lake district."
+        }
+      ]
+    },
+    {
+      "id": "ontario-lacus",
+      "name": "Ontario Lacus",
+      "featureType": "methane-ethane lake",
+      "category": "lakes",
+      "latitude": -72,
+      "longitude": 183,
+      "description": "Ontario Lacus is Titan's major southern lake, a dark, smooth basin near the south pole. Cassini used it as a key comparison point for understanding why Titan's large liquid reservoirs are concentrated in the north while the south holds only one major lake.",
+      "tags": [
+        "lake",
+        "south pole",
+        "methane",
+        "ethane",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 72.0 S, 183.0 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "About 235 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Ontario Lacus was one of the first Titan lakes studied closely enough to compare its shoreline and liquid behavior with terrestrial lakes."
+        }
+      ]
+    },
+    {
+      "id": "belet",
+      "name": "Belet",
+      "featureType": "dark dune region",
+      "category": "dunes",
+      "latitude": -5,
+      "longitude": 255,
+      "description": "Belet is a broad dark equatorial region associated with Titan's immense dune fields. The long, wind-aligned ridges are likely built from organic sand grains produced in the hazy atmosphere and then carried across the surface by seasonal winds.",
+      "tags": [
+        "dunes",
+        "equatorial",
+        "organic sand",
+        "wind",
+        "albedo"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 5.0 S, 255.0 W"
+        },
+        {
+          "label": "Texture Cue",
+          "value": "Dark equatorial terrain with repeated linear dune textures"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Titan's dunes are thought to be made from hydrocarbon grains produced high in the atmosphere and dropped slowly to the ground."
+        }
+      ]
+    },
+    {
+      "id": "shangri-la",
+      "name": "Shangri-La",
+      "featureType": "dark albedo region",
+      "category": "dunes",
+      "latitude": -10,
+      "longitude": 165,
+      "description": "Shangri-La is a broad dark terrain crossed by dune-rich equatorial plains and brighter icy islands. The Huygens probe landed on the western side of this region, linking the global map to the only surface images ever taken from Titan.",
+      "tags": [
+        "dunes",
+        "huygens",
+        "equator",
+        "landing region"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 10.0 S, 165.0 W"
+        },
+        {
+          "label": "Mission Link",
+          "value": "Huygens landed west of Shangri-La on January 14, 2005"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The pebbles imaged by Huygens looked river-worn, suggesting methane rains and runoff had rounded them long before the landing."
+        }
+      ]
+    },
+    {
+      "id": "huygens-landing-site",
+      "name": "Huygens Landing Site",
+      "featureType": "landing site",
+      "category": "terrain",
+      "latitude": -10.6,
+      "longitude": 192.3,
+      "description": "Huygens descended through Titan's orange haze for more than two hours before touching down on a dark floodplain of icy cobbles and sand. Its images connected orbital hints of channels and shore-like terrain with direct ground truth from the outer solar system.",
+      "tags": [
+        "lander",
+        "huygens",
+        "floodplain",
+        "channels",
+        "surface"
+      ],
+      "details": [
+        {
+          "label": "Landing Date",
+          "value": "January 14, 2005"
+        },
+        {
+          "label": "Approximate Coordinates",
+          "value": "About 10.6 S, 192.3 W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Huygens remains the only spacecraft to land on a world in the outer solar system."
+        }
+      ]
+    },
+    {
+      "id": "xanadu",
+      "name": "Xanadu",
+      "featureType": "bright albedo region",
+      "category": "terrain",
+      "latitude": -15,
+      "longitude": 100,
+      "description": "Xanadu is a vast bright region roughly the size of a continent, standing out against Titan's darker equatorial dune belts. Cassini replaced earlier lower-quality coverage of Xanadu with sharper imaging in the June 2015 global map, making it one of the best visual anchors on Titan's surface.",
+      "tags": [
+        "bright terrain",
+        "albedo",
+        "cassini",
+        "continent-scale"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 15.0 S, 100.0 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "About 3,400 km"
+        },
+        {
+          "label": "Texture Cue",
+          "value": "Large bright region contrasting with the darker equatorial terrain"
+        }
+      ]
+    },
+    {
+      "id": "menrva",
+      "name": "Menrva",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 20.1,
+      "longitude": 87.2,
+      "description": "Menrva is Titan's largest confirmed impact crater, a broad multi-ring basin visible through the moon's haze and surface deposits. It matters because Titan's atmosphere, dunes, and methane weather quickly soften or bury many impact scars.",
+      "tags": [
+        "crater",
+        "impact",
+        "peak ring",
+        "large"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 20.1 N, 87.2 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "About 392 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Titan's atmosphere burns up many incoming objects, so only the largest impacts tend to survive as obvious craters."
+        }
+      ]
+    },
+    {
+      "id": "sinlap",
+      "name": "Sinlap",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 11.3,
+      "longitude": 16,
+      "description": "Sinlap is a comparatively crisp impact crater with a dark floor and brighter rim. Its relatively fresh appearance helps scientists judge how fast Titan's winds, haze fallout, and methane-driven erosion can disguise craters.",
+      "tags": [
+        "crater",
+        "young",
+        "rim",
+        "sediment"
+      ],
+      "details": [
+        {
+          "label": "Source Coordinates",
+          "value": "USGS/IAU center: 11.3 N, 16.0 W"
+        },
+        {
+          "label": "Diameter",
+          "value": "Roughly 80 km"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Sinlap is one of the few Titan craters where Cassini could clearly resolve both the rim and ejecta patterns through the thick haze."
+        }
+      ]
+    },
+    {
+      "id": "north-polar-lakes",
+      "name": "North Polar Lakes",
+      "featureType": "polar lake district",
+      "category": "poles",
+      "latitude": 83,
+      "longitude": 200,
+      "description": "Titan's north polar terrain is crowded with filled and empty lake basins carved into icy crust. Cassini found that the north holds the moon's great seas plus many smaller lakes, turning this region into the centerpiece of Titan's active methane climate.",
+      "tags": [
+        "polar",
+        "lakes",
+        "seasonal",
+        "north",
+        "methane cycle"
+      ],
+      "details": [
+        {
+          "label": "Source Note",
+          "value": "Broad storytelling anchor for the north polar lake district rather than one IAU feature center"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Some Titan lake basins have steep-sided rims and flat floors, making them look more like sinkholes than ordinary impact craters."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "moon",
+  "name": "Moon",
+  "parent": "earth",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "apollo",
+      "label": "Apollo",
+      "color": "#FC6323",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#8BA7C7",
+      "isFilterable": true
+    },
+    {
+      "key": "maria",
+      "label": "Maria",
+      "color": "#A4C639",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#B1A1DF",
+      "alwaysVisible": true
+    }
+  ]
+}

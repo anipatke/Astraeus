@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "callisto",
+  "name": "Callisto",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "callisto",
+    "discovery": "Discovered in 1610 by Italian astronomer Galileo Galilei",
+    "diameterKm": 4820.6,
+    "facts": [
+      "Callisto is Jupiter's second-largest moon.",
+      "Its ancient surface is one of the most heavily cratered known.",
+      "A salty ocean may lie deep beneath its icy crust.",
+      "Callisto orbits beyond Jupiter's three other large moons."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Callisto Facts",
+        "url": "https://science.nasa.gov/jupiter/jupiter-moons/callisto/facts/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

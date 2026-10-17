@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "titan",
+  "name": "Titan",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "titan",
+    "discovery": "Discovered in 1655 by Dutch astronomer Christiaan Huygens",
+    "diameterKm": 5149.52,
+    "facts": [
+      "Titan is Saturn's largest moon.",
+      "It is the only moon with a thick atmosphere.",
+      "Methane rain feeds rivers, lakes, and seas on its surface.",
+      "A liquid-water ocean is hidden beneath its icy crust."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Titan Facts",
+        "url": "https://science.nasa.gov/saturn/moons/titan/facts/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

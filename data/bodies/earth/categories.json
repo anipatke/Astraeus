@@ -1,0 +1,31 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "earth",
+  "name": "Earth",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "weird-geography",
+      "label": "Geography",
+      "color": "#E8724A",
+      "isFilterable": true
+    },
+    {
+      "key": "natural-oddities",
+      "label": "Nature",
+      "color": "#7BD6A0",
+      "isFilterable": true
+    },
+    {
+      "key": "bizarre-structures",
+      "label": "Structures",
+      "color": "#C8A97A",
+      "isFilterable": true
+    }
+  ]
+}

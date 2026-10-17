@@ -1,0 +1,85 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "io",
+  "name": "Io",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/io-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 364824,
+      "sha256": "2f65d8ee2716ceeff427492906dae8919cddb0e4c336663648e497d1938272f3",
+      "donorReadme": [
+        "- `io-2k.jpg` / `io-4k.jpg`",
+        "  - Source: USGS Astrogeology Io Galileo SSI Global Color Merge Mosaic 1km, combining Galileo/Voyager terrain imagery with Galileo colour",
+        "  - Source page: https://astrogeology.usgs.gov/search/map/io_galileo_ssi_global_color_merge_mosaic_1km",
+        "  - Download endpoint used: `https://planetarymaps.usgs.gov/mosaic/Io_Galileo_SSI_Global_Mosaic_ClrMerge_1km.tif`",
+        "  - Credit: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions",
+        "  - License: public domain; source lists no use constraints",
+        "  - Purpose: improve terrain detail using the colour-merged product rather than the previous `FalseColor` derivative",
+        "  - Processing: converted the `11445x5723` RGB TIFF with Lanczos resizing to `2048x1024` (quality 90) and `4096x2048` (quality 92) optimized progressive JPEGs; no synthetic detail or Juno patches",
+        "  - Selection: 2K below 768px viewport width; 4K at 768px and above",
+        "  - Projection: simple cylindrical, planetocentric latitude, positive-west longitudes from -180 to 180; raster runs from 180 W through 0 W to 180 W, equivalent to east-positive -180 to +180 left to right; north at top",
+        "  - Alignment: retained source orientation and existing east-positive feature coordinates; Loki, Pele, and Prometheus checked visually on the globe",
+        "  - Limitations: mixed native resolution, visible mosaic boundaries, interpolated polar coverage, and enhanced colours; this is a historical composite, not a current Juno global map"
+      ]
+    },
+    {
+      "src": "/textures/io-4k.jpg",
+      "minViewportWidth": 768,
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1240279,
+      "sha256": "d431d19ee9a5e4fb450ed7cd1fa54d6ade0fd8821b21cab3d5d9bd2b169a5eba",
+      "donorReadme": [
+        "- `io-2k.jpg` / `io-4k.jpg`",
+        "  - Source: USGS Astrogeology Io Galileo SSI Global Color Merge Mosaic 1km, combining Galileo/Voyager terrain imagery with Galileo colour",
+        "  - Source page: https://astrogeology.usgs.gov/search/map/io_galileo_ssi_global_color_merge_mosaic_1km",
+        "  - Download endpoint used: `https://planetarymaps.usgs.gov/mosaic/Io_Galileo_SSI_Global_Mosaic_ClrMerge_1km.tif`",
+        "  - Credit: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions",
+        "  - License: public domain; source lists no use constraints",
+        "  - Purpose: improve terrain detail using the colour-merged product rather than the previous `FalseColor` derivative",
+        "  - Processing: converted the `11445x5723` RGB TIFF with Lanczos resizing to `2048x1024` (quality 90) and `4096x2048` (quality 92) optimized progressive JPEGs; no synthetic detail or Juno patches",
+        "  - Selection: 2K below 768px viewport width; 4K at 768px and above",
+        "  - Projection: simple cylindrical, planetocentric latitude, positive-west longitudes from -180 to 180; raster runs from 180 W through 0 W to 180 W, equivalent to east-positive -180 to +180 left to right; north at top",
+        "  - Alignment: retained source orientation and existing east-positive feature coordinates; Loki, Pele, and Prometheus checked visually on the globe",
+        "  - Limitations: mixed native resolution, visible mosaic boundaries, interpolated polar coverage, and enhanced colours; this is a historical composite, not a current Juno global map"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": "public domain; source lists no use constraints",
+    "creditsMd": [
+      {
+        "group": "USGS / NASA",
+        "licence": "Public Domain"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 34.7,
+      "max": 303.8
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "planetocentric latitude, positive-west -180 to 180",
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "conventionNote": "donor: raster is equivalent to east-positive -180 to +180 left to right; existing east-positive feature coordinates retained",
+    "donorReadmeNote": "- The current Io release uses the USGS/NASA global mosaic at `2K`; the source includes original mission mosaic boundaries and polar coverage gaps, but it is correctly shaped for sphere texturing and avoids the stretched/non-standard dimensions of the previous local asset."
+  }
+}

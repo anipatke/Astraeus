@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "dione",
+  "name": "Dione",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "dione",
+    "discovery": "Discovered in 1684 by Italian-French astronomer Giovanni Domenico Cassini",
+    "diameterKm": 1122.8,
+    "facts": [
+      "Dione is an icy moon with bright cliffs and long fractures.",
+      "Its trailing side has a web of bright ice canyons.",
+      "A deep ocean may be hidden beneath its crust.",
+      "Dione keeps the same face turned toward Saturn."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Dione",
+        "url": "https://science.nasa.gov/saturn/moons/dione/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

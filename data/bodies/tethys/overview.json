@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "tethys",
+  "name": "Tethys",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "tethys",
+    "discovery": "Discovered in 1684 by Italian-French astronomer Giovanni Domenico Cassini",
+    "diameterKm": 1062.2,
+    "facts": [
+      "Tethys is made almost entirely of water ice.",
+      "The vast Odysseus impact basin covers much of one hemisphere.",
+      "Ithaca Chasma stretches about three-quarters around the moon.",
+      "Tethys keeps the same face turned toward Saturn."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Tethys",
+        "url": "https://science.nasa.gov/saturn/moons/tethys/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

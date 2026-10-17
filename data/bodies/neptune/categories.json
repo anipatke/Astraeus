@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "neptune",
+  "name": "Neptune",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "storms",
+      "label": "Storms",
+      "color": "#7db1ff",
+      "isFilterable": true
+    },
+    {
+      "key": "bands",
+      "label": "Bands",
+      "color": "#4c7fd1",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#a7d6ff",
+      "alwaysVisible": true
+    },
+    {
+      "key": "rings",
+      "label": "Rings",
+      "color": "#8db6c7",
+      "isFilterable": true
+    },
+    {
+      "key": "inner-moons",
+      "label": "Inner Moons",
+      "color": "#c9c1ad",
+      "isFilterable": true
+    },
+    {
+      "key": "system",
+      "label": "System",
+      "color": "#8db6c7",
+      "isFilterable": true
+    }
+  ]
+}

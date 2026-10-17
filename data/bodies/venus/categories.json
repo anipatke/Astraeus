@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "venus",
+  "name": "Venus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "landers",
+      "label": "Landers",
+      "color": "#F2C67C",
+      "isFilterable": true
+    },
+    {
+      "key": "highlands",
+      "label": "Highlands",
+      "color": "#D7A86E",
+      "isFilterable": true
+    },
+    {
+      "key": "volcanic",
+      "label": "Volcanic",
+      "color": "#E08A62",
+      "isFilterable": true
+    },
+    {
+      "key": "coronae",
+      "label": "Coronae",
+      "color": "#C98074",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#D7D0C6",
+      "isFilterable": true
+    }
+  ]
+}

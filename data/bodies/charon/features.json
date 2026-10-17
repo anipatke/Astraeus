@@ -1,0 +1,397 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "charon",
+  "name": "Charon",
+  "parent": "pluto",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 12,
+  "features": [
+    {
+      "id": "mordor-macula",
+      "name": "Mordor Macula",
+      "featureType": "dark polar region",
+      "category": "polar-region",
+      "latitude": 85,
+      "longitude": 0,
+      "description": "Mordor Macula is Charon's striking reddish-brown northern polar cap — one of the most unexpected discoveries of the 2015 New Horizons flyby. Unlike polar caps elsewhere in the Solar System, Mordor is not composed of ice deposited from within Charon. Instead, it is a vast cap of tholins: complex reddish organic molecules that form when ultraviolet radiation and cosmic rays process methane and nitrogen gas that escapes from Pluto, migrates across space, and freezes out at Charon's pole during its 124-year-long winters.",
+      "tags": [
+        "tholins",
+        "polar cap",
+        "new horizons",
+        "red",
+        "organic chemistry"
+      ],
+      "details": [
+        {
+          "label": "Approximate extent",
+          "value": "Covers roughly the top 10–15° of Charon's northern hemisphere"
+        },
+        {
+          "label": "Colour source",
+          "value": "Tholins — radiation-processed organic molecules originating from Pluto's atmosphere"
+        },
+        {
+          "label": "Formation mechanism",
+          "value": "Pluto's escaped gases freeze onto Charon's cold winter pole, then irradiation converts the ice into dark, reddish compounds"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Charon's polar night lasts about 62 years — long enough to build up a significant tholins deposit with each cycle."
+        }
+      ]
+    },
+    {
+      "id": "serenity-chasma",
+      "name": "Serenity Chasma",
+      "featureType": "canyon",
+      "category": "chasma",
+      "latitude": 5,
+      "longitude": 15,
+      "description": "Serenity Chasma is part of Charon's spectacular equatorial canyon system, a series of fractures and troughs that stretches over 1,600 km across the moon's face — comparable to the combined length of all the canyons within the Valles Marineris on Mars. The canyon system, of which Serenity is the most prominent named segment, formed as Charon's interior ocean froze solid early in its history, expanding and cracking the outer crust like a freezing water pipe.",
+      "tags": [
+        "canyon",
+        "fracture",
+        "tectonic",
+        "equatorial rift",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Total rift system length",
+          "value": "Over 1,600 km"
+        },
+        {
+          "label": "Depth",
+          "value": "Estimated 5–9 km in places"
+        },
+        {
+          "label": "Formation",
+          "value": "Crust fracturing as a subsurface ocean froze and expanded during early cooling"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Charon's canyon system is proportionally far more dramatic than Mars's Valles Marineris relative to the body's size."
+        }
+      ]
+    },
+    {
+      "id": "mandjet-chasma",
+      "name": "Mandjet Chasma",
+      "featureType": "canyon",
+      "category": "chasma",
+      "latitude": 4.8,
+      "longitude": 65.6,
+      "description": "Mandjet Chasma is one of the great troughs in Charon's global tectonic belt, running along the northern edge of Vulcan Planitia. Its broad, fault-bounded floor records crustal extension as Charon cooled and its interior evolved, making it a key link between the fractured highlands of Oz Terra and the smoother resurfaced plains to the south.",
+      "tags": [
+        "canyon",
+        "chasma",
+        "tectonic",
+        "vulcan planitia",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "~385 km in the IAU Gazetteer; mapped tectonic interpretations trace the system for at least 450 km"
+        },
+        {
+          "label": "Relief",
+          "value": "Walls descend roughly 5 to 7 km into the chasma floor in stereoscopic New Horizons topography"
+        },
+        {
+          "label": "Named for",
+          "value": "The Mandjet, the daytime boat of the Egyptian sun god Ra"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 4.80°N, 294.40°E; app longitude remap: 360 - east."
+        }
+      ]
+    },
+    {
+      "id": "argo-chasma",
+      "name": "Argo Chasma",
+      "featureType": "canyon",
+      "category": "chasma",
+      "latitude": 27.8,
+      "longitude": 80.4,
+      "description": "Argo Chasma is a large tectonic canyon near Charon's limb in New Horizons views. Its position and alignment show that Charon's extensional fractures were not confined to the central encounter face, but continued around the moon as part of a broader system of crustal stretching.",
+      "tags": [
+        "canyon",
+        "chasma",
+        "tectonic",
+        "limb feature",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "~355 km"
+        },
+        {
+          "label": "Depth",
+          "value": "At least ~5 km deep from New Horizons limb observations"
+        },
+        {
+          "label": "Named for",
+          "value": "Argo, the ship sailed by Jason and the Argonauts in Greek mythology"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 27.80°N, 80.40°E."
+        }
+      ]
+    },
+    {
+      "id": "caleuche-chasma",
+      "name": "Caleuche Chasma",
+      "featureType": "canyon",
+      "category": "chasma",
+      "latitude": 72.5,
+      "longitude": 118.2,
+      "description": "Caleuche Chasma is a high-northern canyon on Charon, cutting through the rugged terrain near Oz Terra and Neverland Regio. Its Y-shaped form and great depth make it one of the most dramatic tectonic scars on the moon, preserving evidence of intense extension in Charon's icy crust.",
+      "tags": [
+        "canyon",
+        "chasma",
+        "tectonic",
+        "northern hemisphere",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Approximate length",
+          "value": "~400 km"
+        },
+        {
+          "label": "Depth",
+          "value": "Reported as roughly 13 km deep, making it one of Charon's deepest known features"
+        },
+        {
+          "label": "Named for",
+          "value": "El Caleuche, a legendary ghost ship from Chilote mythology in southern Chile"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 72.50°N, 241.80°E; app longitude remap: 360 - east."
+        }
+      ]
+    },
+    {
+      "id": "clarke-montes",
+      "name": "Clarke Montes",
+      "featureType": "mountain range",
+      "category": "montes",
+      "latitude": 2,
+      "longitude": 10,
+      "description": "Clarke Montes is a rugged mountain range running along the equatorial zone of Charon's encounter hemisphere, closely associated with the canyon system that divides the moon's two great geological provinces. Individual peaks rise several kilometres above the surrounding terrain, making them the most visually prominent relief features on Charon's face. Their proximity to the canyon suggests they may have been uplifted as the crust fractured — slabs of crust pushed skyward as the rifting system propagated. Named after science fiction author Arthur C. Clarke, whose work helped inspire generations of planetary scientists.",
+      "tags": [
+        "mountains",
+        "montes",
+        "equatorial",
+        "canyon system",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Location",
+          "value": "Along the equatorial canyon system on the encounter hemisphere"
+        },
+        {
+          "label": "Peak heights",
+          "value": "Individual summits estimated at 3–5 km above surrounding terrain"
+        },
+        {
+          "label": "Named for",
+          "value": "Arthur C. Clarke (1917–2008), author of 2001: A Space Odyssey and visionary of space exploration"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The mountains and canyon together divide Charon into two distinct worlds: ancient cratered Oz Terra to the north and smoother, resurfaced Vulcan Planitia to the south."
+        }
+      ]
+    },
+    {
+      "id": "oz-terra",
+      "name": "Oz Terra",
+      "featureType": "ancient cratered terrain",
+      "category": "planitia",
+      "latitude": 60,
+      "longitude": 30,
+      "description": "Oz Terra is the informal name for Charon's rugged, heavily cratered northern terrain, lying just south of the dark Mordor Macula cap. Its densely pitted surface records billions of years of impact bombardment and represents some of the oldest preserved crust on Charon. The high crater density contrasts sharply with the smoother plains of Vulcan Planitia to the south, suggesting dramatically different geological histories for Charon's two hemispheres.",
+      "tags": [
+        "ancient terrain",
+        "craters",
+        "northern hemisphere",
+        "geology"
+      ],
+      "details": [
+        {
+          "label": "Character",
+          "value": "Heavily cratered, rugged highland terrain"
+        },
+        {
+          "label": "Age",
+          "value": "Among the most ancient preserved surfaces on Charon"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The sharp boundary between the old Oz Terra craterlands and the smooth Vulcan Planitia plains suggests a global resurfacing event reset Charon's southern hemisphere long ago."
+        }
+      ]
+    },
+    {
+      "id": "vulcan-planitia",
+      "name": "Vulcan Planitia",
+      "featureType": "smooth plains",
+      "category": "planitia",
+      "latitude": -20,
+      "longitude": 10,
+      "description": "Vulcan Planitia dominates Charon's encounter hemisphere as a broad, relatively smooth plain marked by gently rolling hills, isolated moats, and scattered small craters. Its smoothness compared to Oz Terra to the north is evidence of ancient cryovolcanic resurfacing — a period when warm slurry of water-ice erupted through the crust and flooded the southern plains, erasing whatever older terrain existed. Named for the Roman god of fire, Vulcan Planitia is Charon's largest recognized geological unit.",
+      "tags": [
+        "plains",
+        "cryovolcanism",
+        "resurfacing",
+        "smooth terrain",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Approximate size",
+          "value": "Roughly 800 × 500 km"
+        },
+        {
+          "label": "Formation",
+          "value": "Cryovolcanic flooding during an early warm period"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Vulcan Planitia is so smooth relative to Oz Terra that scientists believe it was completely resurfaced by liquid water or slush erupting from below after major impacts thinned the crust."
+        }
+      ]
+    },
+    {
+      "id": "kubrick-mons",
+      "name": "Kubrick Mons",
+      "featureType": "mountain",
+      "category": "montes",
+      "latitude": 65,
+      "longitude": 15,
+      "description": "Kubrick Mons is an isolated mountain near the southern margin of Mordor Macula, named after filmmaker Stanley Kubrick. It is one of several prominent peaks dotting Charon's surface that appear to have risen isostatically from the crust rather than through volcanic extrusion. Its steep flanks and sharp summit make it a striking landmark where the ancient dark cap meets the rugged Oz Terra highlands.",
+      "tags": [
+        "mountain",
+        "montes",
+        "isolated peak",
+        "mordor",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Estimated height",
+          "value": "~3–4 km above surrounding terrain"
+        },
+        {
+          "label": "Location",
+          "value": "Near the southern margin of Mordor Macula"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Several mountains near Mordor Macula are informally named after famous science fiction directors, forming a crater-and-peak landscape of pop-culture geography."
+        }
+      ]
+    },
+    {
+      "id": "dorothy-crater",
+      "name": "Dorothy Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 25,
+      "longitude": 35,
+      "description": "Dorothy Crater is one of Charon's larger named impact craters, located in Oz Terra's rough highlands. Its well-preserved ejecta blanket and central peak structure suggest a relatively young age, though still ancient by Earth standards. Craters in Oz Terra carry Wizard of Oz-inspired names, a naming theme chosen because the region was informally called Oz Terra during mission operations.",
+      "tags": [
+        "crater",
+        "impact",
+        "oz terra",
+        "highland",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "~230 km (rough estimate from limited-resolution imaging)"
+        },
+        {
+          "label": "Terrain context",
+          "value": "Oz Terra — Charon's ancient northern highland region"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Craters and features on Charon are named after fictional explorers, adventurers, and the authors and directors who created them."
+        }
+      ]
+    },
+    {
+      "id": "nemo-crater",
+      "name": "Nemo Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -5,
+      "longitude": 40,
+      "description": "Nemo Crater sits near the transition zone between the smooth Vulcan Planitia plains and the rougher terrain to the north, making it a natural laboratory for studying how impact craters interact with two very different surface types. Named after Jules Verne's Captain Nemo, it is part of a cluster of features on Charon informally named after explorers — real and fictional — who ventured into unknown territory.",
+      "tags": [
+        "crater",
+        "impact",
+        "transition zone",
+        "explorer names",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Location",
+          "value": "Near the Vulcan Planitia / Oz Terra boundary"
+        },
+        {
+          "label": "Science value",
+          "value": "Straddles two distinct terrain types, allowing direct comparison of impact morphology across geological units"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Charon's craters are named after legendary explorers — a fitting tribute for a world first seen up close only in 2015."
+        }
+      ]
+    },
+    {
+      "id": "spock-crater",
+      "name": "Spock Crater",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -35,
+      "longitude": 20,
+      "description": "Spock Crater is a well-defined impact crater set within the smooth plains of Vulcan Planitia. Its crisp rim and relatively shallow depth compared to craters in the older Oz Terra highlands reflect the different properties of the cryovolcanically resurfaced material beneath it. Like many features on Charon, Spock was informally named after a beloved fictional character — Mr. Spock of Star Trek — following the mission team's tradition of naming Charon's craters after legendary space explorers, both real and imagined.",
+      "tags": [
+        "crater",
+        "impact",
+        "vulcan planitia",
+        "star trek",
+        "new horizons"
+      ],
+      "details": [
+        {
+          "label": "Location",
+          "value": "Vulcan Planitia — Charon's southern smooth plains"
+        },
+        {
+          "label": "Named for",
+          "value": "Mr. Spock from Star Trek, created by Gene Roddenberry — a fitting choice for a crater on the plains named after the Roman god Vulcan"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The New Horizons team named Spock Crater in Vulcan Planitia as a deliberate Star Trek homage — Spock, the Vulcan, on a plain named Vulcan."
+        }
+      ]
+    }
+  ]
+}

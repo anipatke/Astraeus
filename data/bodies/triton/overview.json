@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "triton",
+  "name": "Triton",
+  "parent": "neptune",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "triton",
+    "discovery": "Discovered in 1846 by British astronomer William Lassell",
+    "diameterKm": 2705.2,
+    "facts": [
+      "Triton is Neptune's largest moon.",
+      "It orbits backward compared with Neptune's rotation.",
+      "Voyager 2 saw geysers spraying icy material from its surface.",
+      "Scientists think Neptune captured Triton from the Kuiper Belt."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Triton",
+        "url": "https://science.nasa.gov/neptune/moons/triton/"
+      },
+      {
+        "label": "JPL: Planetary Satellite Physical Parameters",
+        "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "ganymede",
+  "name": "Ganymede",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "sulci",
+      "label": "Sulci",
+      "color": "#A89878",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#8898A8",
+      "isFilterable": true
+    },
+    {
+      "key": "catenae",
+      "label": "Catenae",
+      "color": "#B9A58C",
+      "isFilterable": true
+    },
+    {
+      "key": "fossae",
+      "label": "Fossae",
+      "color": "#8FA0A8",
+      "isFilterable": true
+    },
+    {
+      "key": "regions",
+      "label": "Regions",
+      "color": "#786858",
+      "isFilterable": true
+    },
+    {
+      "key": "faculae",
+      "label": "Faculae",
+      "color": "#D6C7A5",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#C0CCD8",
+      "alwaysVisible": true
+    }
+  ]
+}

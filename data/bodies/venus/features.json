@@ -1,0 +1,469 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "venus",
+  "name": "Venus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 19,
+  "features": [
+    {
+      "id": "ishtar-terra",
+      "name": "Ishtar Terra",
+      "featureType": "highland-region",
+      "category": "highlands",
+      "latitude": 68,
+      "longitude": 20,
+      "description": "A major highland continent in Venus' northern hemisphere, often compared in scale to Australia. Ishtar Terra gathers some of the planet's most dramatic relief, including Maxwell Montes and Lakshmi Planum.",
+      "tags": [
+        "highlands",
+        "continent-scale",
+        "north",
+        "major region"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Ishtar, a Mesopotamian goddess associated with love and war."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Ishtar Terra is one of the strongest examples that Venus is not just smooth plains but also has continent-like elevated regions."
+        }
+      ]
+    },
+    {
+      "id": "aphrodite-terra",
+      "name": "Aphrodite Terra",
+      "featureType": "highland-region",
+      "category": "highlands",
+      "latitude": -10,
+      "longitude": 110,
+      "description": "The largest highland region on Venus, stretching for thousands of kilometers near the equator. It contains rifts, tessera terrain, and volcanic provinces that make it one of the planet's most geologically varied landscapes.",
+      "tags": [
+        "highlands",
+        "equatorial",
+        "tectonics",
+        "major region"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Aphrodite, the Greek goddess of love."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Aphrodite Terra is so vast that it behaves more like a continent than a single landmark."
+        }
+      ]
+    },
+    {
+      "id": "maxwell-montes",
+      "name": "Maxwell Montes",
+      "featureType": "mountain-range",
+      "category": "highlands",
+      "latitude": 65.2,
+      "longitude": 3,
+      "description": "The highest mountain range on Venus, rising roughly 11 km above the surrounding terrain. Radar-bright material near its peaks may reflect unusual minerals formed under the planet's extreme conditions.",
+      "tags": [
+        "highlands",
+        "mountains",
+        "highest",
+        "radar bright"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Unusually for Venus, it is named after James Clerk Maxwell rather than a female figure because the name predates the later naming convention."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Maxwell Montes is one of the rare Venus features whose summit regions may host chemistry unlike the lowlands because of the change in temperature and pressure with altitude."
+        }
+      ]
+    },
+    {
+      "id": "maat-mons",
+      "name": "Maat Mons",
+      "featureType": "volcano",
+      "category": "volcanic",
+      "latitude": 0.5,
+      "longitude": 194.6,
+      "description": "One of Venus' largest shield volcanoes, with broad flanks and signs of extensive lava flows. Recent scientific analysis has made Maat Mons one of the headline candidates for geologically recent volcanic activity on Venus.",
+      "tags": [
+        "volcanic",
+        "shield volcano",
+        "recent activity",
+        "equatorial"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Maat, the Egyptian goddess of truth and cosmic order."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Maat Mons is one of the most talked-about Venus volcanoes because orbital radar comparisons may hint at very recent activity."
+        }
+      ]
+    },
+    {
+      "id": "sapas-mons",
+      "name": "Sapas Mons",
+      "featureType": "volcano",
+      "category": "volcanic",
+      "latitude": 8.9,
+      "longitude": 190.7,
+      "description": "A large volcanic edifice associated with extensive lava flows and dome-like structures. It helps show that Venusian volcanism produced broad, complex surface resurfacing rather than only isolated cones.",
+      "tags": [
+        "volcanic",
+        "lava flows",
+        "domes",
+        "large edifice"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after a Phoenician goddess."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Venusian radar maps make volcanoes like Sapas Mons look almost sculpted in metal because the surface is seen through radar, not visible-light photography."
+        }
+      ]
+    },
+    {
+      "id": "artemis-corona",
+      "name": "Artemis Corona",
+      "featureType": "corona",
+      "category": "coronae",
+      "latitude": -35,
+      "longitude": 135,
+      "description": "A gigantic oval corona structure about 2,000 km across, marked by concentric fractures and surrounding tectonic deformation. Coronae are among Venus' signature landforms and may record mantle upwelling and crustal collapse.",
+      "tags": [
+        "corona",
+        "tectonics",
+        "mantle upwelling",
+        "signature venus"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Artemis, the Greek goddess associated with wild nature and the hunt."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Artemis Corona is so large that it behaves less like a crater and more like a whole tectonic province."
+        }
+      ]
+    },
+    {
+      "id": "heng-o-corona",
+      "name": "Heng-O Corona",
+      "featureType": "corona",
+      "category": "coronae",
+      "latitude": 2,
+      "longitude": 355,
+      "description": "A large fractured corona whose broken rings and surrounding deformation show the classic Venusian pattern of mantle upwelling followed by crustal collapse. It helps widen the corona story beyond Artemis by showing that these circular tectonic systems occur across very different parts of the planet.",
+      "tags": [
+        "corona",
+        "fractures",
+        "tectonics",
+        "mantle upwelling"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Heng-O, a Chinese moon goddess."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Coronae are one of the landforms most strongly associated with Venus because no other rocky planet shows them in such abundance and variety."
+        }
+      ]
+    },
+    {
+      "id": "quetsalpetlatl-corona",
+      "name": "Quetzalpetlatl Corona",
+      "featureType": "corona",
+      "category": "coronae",
+      "latitude": 64,
+      "longitude": 359,
+      "description": "This corona is notable for its concentric fractures, associated volcanic flows, and broad regional deformation. It is one of the best examples of how coronae can blend tectonic and volcanic processes into a single signature Venus landform.",
+      "tags": [
+        "corona",
+        "volcanic flows",
+        "concentric fractures",
+        "signature venus"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Quetzalpetlatl, an Aztec creator goddess."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Features like Quetzalpetlatl Corona make Venus feel alien in a way the Moon and Mercury do not, because they combine ring-like structures with evidence of internal upwelling instead of simple impact scars."
+        }
+      ]
+    },
+    {
+      "id": "alpha-regio",
+      "name": "Alpha Regio",
+      "featureType": "tessera-region",
+      "category": "highlands",
+      "latitude": 22,
+      "longitude": 5,
+      "description": "A classic tessera terrain region where highly deformed ridges and troughs intersect in multiple directions. Tesserae are some of the oldest and most geologically complex surfaces on Venus.",
+      "tags": [
+        "highlands",
+        "tessera",
+        "deformed terrain",
+        "ancient crust"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Tessera terrain is often described as Venus' most complicated surface texture, with ridge patterns crossing like woven fabric."
+        }
+      ]
+    },
+    {
+      "id": "ovda-regio",
+      "name": "Ovda Regio",
+      "featureType": "tessera-region",
+      "category": "highlands",
+      "latitude": -8,
+      "longitude": 89,
+      "description": "A vast highland and tessera region within Aphrodite Terra, preserving some of Venus' most intricate deformation patterns. It is central to debates about how Venusian crust formed and evolved.",
+      "tags": [
+        "highlands",
+        "tessera",
+        "aphrodite terra",
+        "tectonics"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Ovda Regio is often discussed as a possible key to understanding whether parts of Venus once behaved more like mobile crust than the planet does today."
+        }
+      ]
+    },
+    {
+      "id": "mead",
+      "name": "Mead",
+      "featureType": "impact-crater",
+      "category": "craters",
+      "latitude": 12.5,
+      "longitude": 57.2,
+      "description": "The largest confirmed impact crater on Venus, more than 270 km across. Its ring structure and preserved ejecta provide important clues about how impacts behave in Venus' dense atmosphere.",
+      "tags": [
+        "crater",
+        "largest",
+        "impact",
+        "dense atmosphere"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after anthropologist Margaret Mead."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Because Venus has such a thick atmosphere, only larger incoming objects tend to survive to make craters like Mead."
+        }
+      ]
+    },
+    {
+      "id": "isabella",
+      "name": "Isabella",
+      "featureType": "impact-crater",
+      "category": "craters",
+      "latitude": -29,
+      "longitude": 204,
+      "description": "One of the largest impact craters on Venus, Isabella preserves a prominent ring structure and a broad dark floor that stands out in radar imagery. It helps show that while Venus has relatively few craters, the largest ones become major regional landmarks.",
+      "tags": [
+        "crater",
+        "large impact",
+        "ring structure",
+        "regional landmark"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Isabella d'Este, an Italian Renaissance patron of the arts."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "On Venus, big craters like Isabella are especially valuable because the dense atmosphere filters out many smaller impactors before they ever reach the surface."
+        }
+      ]
+    },
+    {
+      "id": "saskia",
+      "name": "Saskia",
+      "featureType": "impact-crater",
+      "category": "craters",
+      "latitude": -6,
+      "longitude": 341,
+      "description": "A large, well-preserved crater whose bright rim and organized ejecta make it one of the clearer impact landmarks outside the Mead-Cleopatra pair. Saskia strengthens the feeling that Venusian impact sites are rare but visually distinctive when they do occur.",
+      "tags": [
+        "crater",
+        "ejecta",
+        "bright rim",
+        "distinctive impact"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Saskia van Uylenburgh, associated with Dutch Golden Age portraiture."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Because Venusian craters are relatively sparse, a feature like Saskia can anchor a whole region during visual exploration far more strongly than a similar-sized crater might on Mercury or the Moon."
+        }
+      ]
+    },
+    {
+      "id": "cleopatra",
+      "name": "Cleopatra",
+      "featureType": "impact-crater",
+      "category": "craters",
+      "latitude": 65.9,
+      "longitude": 7,
+      "description": "A radar-bright impact crater perched high within Maxwell Montes. Its unusual setting and outflow-like deposits made it one of the most debated Venus features during the Magellan era.",
+      "tags": [
+        "crater",
+        "maxwell montes",
+        "radar bright",
+        "classic venus"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Cleopatra, queen of ancient Egypt."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Cleopatra is famous partly because scientists once argued over whether it was really an impact crater or some exotic volcanic structure."
+        }
+      ]
+    },
+    {
+      "id": "gula-mons",
+      "name": "Gula Mons",
+      "featureType": "volcano",
+      "category": "volcanic",
+      "latitude": 22,
+      "longitude": 359,
+      "description": "A major shield volcano with expansive lava flows and a broad summit region, Gula Mons is one of the clearest volcanic landmarks outside the Maat-Sapas area. It helps show that Venusian volcanism is distributed across multiple provinces rather than concentrated in only one cluster.",
+      "tags": [
+        "volcanic",
+        "shield volcano",
+        "lava flows",
+        "major landmark"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Gula, a Mesopotamian goddess associated with healing."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Venusian shield volcanoes can be enormous, but because they are mapped by radar they often look smoother and more fluid than comparable volcanoes on Earth."
+        }
+      ]
+    },
+    {
+      "id": "theia-mons",
+      "name": "Theia Mons",
+      "featureType": "volcano",
+      "category": "volcanic",
+      "latitude": -25,
+      "longitude": 280,
+      "description": "A large volcanic rise with associated flow fields, Theia Mons helps broaden the explorer's view of Venusian volcanism beyond the best-known equatorial giants. It reinforces the idea that Venus has multiple major volcanic centers spread across the globe.",
+      "tags": [
+        "volcanic",
+        "flow fields",
+        "broad edifice",
+        "global volcanism"
+      ],
+      "details": [
+        {
+          "label": "Origin of Name",
+          "value": "Named after Theia, a Greek Titan associated with shining light."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Adding volcanoes like Theia Mons makes Venus feel less like a single-feature planet and more like a world shaped by repeated resurfacing in many regions."
+        }
+      ]
+    },
+    {
+      "id": "venera-7",
+      "name": "Venera 7 Landing Site",
+      "featureType": "landing-site",
+      "category": "landers",
+      "latitude": -5,
+      "longitude": 351,
+      "description": "The site where Venera 7 became the first spacecraft to transmit data from the surface of another planet in 1970. It survived only briefly, but proved that Venus' brutal surface conditions could be directly sampled.",
+      "tags": [
+        "lander",
+        "venera",
+        "first surface data",
+        "1970"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Venera 7 was the first successful soft landing on another planet, even though Venus gave it only a short time to talk back."
+        }
+      ]
+    },
+    {
+      "id": "venera-9",
+      "name": "Venera 9 Landing Site",
+      "featureType": "landing-site",
+      "category": "landers",
+      "latitude": 31,
+      "longitude": 291,
+      "description": "Venera 9 returned the first image ever taken from the surface of another planet in 1975. Its rocky panorama gave humanity the first direct look at Venus from ground level.",
+      "tags": [
+        "lander",
+        "venera",
+        "first image",
+        "1975"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Venera 9's blocky horizon is one of the foundational images in planetary exploration history."
+        }
+      ]
+    },
+    {
+      "id": "venera-13",
+      "name": "Venera 13 Landing Site",
+      "featureType": "landing-site",
+      "category": "landers",
+      "latitude": -7.5,
+      "longitude": 303,
+      "description": "Venera 13 returned some of the most famous Venus surface images and measurements in 1982, including color imagery and the sound of equipment operating in the extreme environment. It remains one of the richest direct datasets from Venus' surface.",
+      "tags": [
+        "lander",
+        "venera",
+        "color images",
+        "1982"
+      ],
+      "details": [
+        {
+          "label": "Fun Fact",
+          "value": "Venera 13 survived long enough to send back color views and compositional measurements from one of the harshest environments ever reached by a spacecraft."
+        }
+      ]
+    }
+  ]
+}

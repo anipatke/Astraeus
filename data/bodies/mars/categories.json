@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "mars",
+  "name": "Mars",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "landers",
+      "label": "Landers",
+      "color": "#F5C26B",
+      "isFilterable": true
+    },
+    {
+      "key": "volcanoes",
+      "label": "Volcanoes",
+      "color": "#D96B43",
+      "isFilterable": true
+    },
+    {
+      "key": "canyons",
+      "label": "Canyons",
+      "color": "#8C5E58",
+      "isFilterable": true
+    },
+    {
+      "key": "basins",
+      "label": "Basins",
+      "color": "#C98A5A",
+      "isFilterable": true
+    },
+    {
+      "key": "moons",
+      "label": "Moons",
+      "color": "#D6C2A2",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#D7EAF2",
+      "alwaysVisible": true
+    }
+  ]
+}

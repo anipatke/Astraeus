@@ -1,0 +1,739 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "ganymede",
+  "name": "Ganymede",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 25,
+  "features": [
+    {
+      "id": "galileo-regio",
+      "name": "Galileo Regio",
+      "featureType": "dark region",
+      "category": "regions",
+      "latitude": 45,
+      "longitude": -127,
+      "description": "Galileo Regio is Ganymede's largest named dark terrain province and one of the oldest recognizable surfaces in the Solar System. Its dense impact record preserves crust that survived before later tectonic extension broke much of Ganymede into younger bright grooved terrain.",
+      "tags": [
+        "dark terrain",
+        "ancient",
+        "craters",
+        "regio"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 4,439 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 45.00 N, 127.00 W; app longitude: 127.00 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large dark northern region bounded by brighter grooved belts"
+        },
+        {
+          "label": "Science value",
+          "value": "A reference area for reading the transition from ancient cratered crust to tectonically resurfaced bright terrain."
+        }
+      ]
+    },
+    {
+      "id": "uruk-sulcus",
+      "name": "Uruk Sulcus",
+      "featureType": "sulcus",
+      "category": "sulci",
+      "latitude": 3.4,
+      "longitude": -160,
+      "description": "Uruk Sulcus is a broad band of bright, grooved terrain that crosses older dark crust. Parallel ridges and troughs show where Ganymede's ice shell stretched, fractured, and was resurfaced by cleaner ice or material brought up from below.",
+      "tags": [
+        "sulcus",
+        "grooved terrain",
+        "tectonic",
+        "bright terrain"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 2,200 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 3.40 N, 160.00 W; app longitude: 160.00 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright grooved swath near the Galileo-Regio boundary"
+        },
+        {
+          "label": "Science value",
+          "value": "One of the clearest places to compare Ganymede's extensional tectonics with rift-like deformation on rocky worlds."
+        }
+      ]
+    },
+    {
+      "id": "mashu-sulcus",
+      "name": "Mashu Sulcus",
+      "featureType": "sulcus",
+      "category": "sulci",
+      "latitude": 34,
+      "longitude": 150,
+      "description": "Mashu Sulcus is a long northern belt of grooved terrain. It helps show that Ganymede's bright lanes are not isolated scars; they form a global network that replaced or dissected older dark crust over a large fraction of the moon.",
+      "tags": [
+        "sulcus",
+        "grooved terrain",
+        "northern hemisphere",
+        "tectonic belt"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 2,960 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 34.00 N, 210.00 W; app longitude: 150.00 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "High northern grooved belt between darker provinces"
+        }
+      ]
+    },
+    {
+      "id": "harpagia-sulcus",
+      "name": "Harpagia Sulcus",
+      "featureType": "sulcus",
+      "category": "sulci",
+      "latitude": -11.8,
+      "longitude": 46.5,
+      "description": "Harpagia Sulcus is a southern grooved lane that illustrates the same extensional style seen across Ganymede's bright terrain. Its position away from Galileo Regio helps make the point that tectonic resurfacing was global rather than confined to one famous hemisphere.",
+      "tags": [
+        "sulcus",
+        "southern hemisphere",
+        "grooved terrain",
+        "extension"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 1,400 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 11.80 S, 313.50 W; app longitude: 46.50 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern bright-groove system crossing darker background terrain"
+        }
+      ]
+    },
+    {
+      "id": "gilgamesh",
+      "name": "Gilgamesh",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -62.84,
+      "longitude": -124.83,
+      "description": "Gilgamesh is the named crater at the center of a much broader relaxed impact complex in Ganymede's southern hemisphere. The surrounding subdued rings and softened topography show how warm ice can slowly flow after an impact and blur what began as sharp relief.",
+      "tags": [
+        "crater",
+        "impact",
+        "relaxed terrain",
+        "ancient"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 153 km for the named crater"
+        },
+        {
+          "label": "Broader context",
+          "value": "The surrounding multi-ring Gilgamesh impact complex is commonly described at several hundred kilometres across."
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 62.84 S, 124.83 W; app longitude: 124.83 W."
+        },
+        {
+          "label": "Science value",
+          "value": "A strong example of viscous relaxation in an icy crust."
+        }
+      ]
+    },
+    {
+      "id": "osiris",
+      "name": "Osiris",
+      "featureType": "ray crater",
+      "category": "craters",
+      "latitude": -38.5,
+      "longitude": -166.5,
+      "description": "Osiris is a bright ray crater used here as a visual anchor for fresher ice exposures on Ganymede. Its pale ejecta rays stand out because impact excavation exposed cleaner ice that has not yet been fully darkened by space weathering.",
+      "tags": [
+        "crater",
+        "rays",
+        "bright ice",
+        "fresh impact"
+      ],
+      "details": [
+        {
+          "label": "Visual control",
+          "value": "User-verified marker target: about 38 S, 166.5 W on the rendered Ganymede texture."
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright ray pattern in southern mid-latitudes"
+        },
+        {
+          "label": "Science value",
+          "value": "Fresh ray craters provide a contrast against Ganymede's old dark terrain and help reveal the brightness of excavated ice."
+        }
+      ]
+    },
+    {
+      "id": "tros",
+      "name": "Tros",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 11.14,
+      "longitude": -27.26,
+      "description": "Tros is an ancient crater whose outline is partly softened by the slow flow of ice. It is useful for explaining palimpsests: impact scars that remain readable even after their topography has been muted by viscous relaxation.",
+      "tags": [
+        "crater",
+        "palimpsest",
+        "ancient",
+        "viscous relaxation"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 94 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 11.14 N, 27.26 W; app longitude: 27.26 W."
+        },
+        {
+          "label": "Visual control",
+          "value": "User-verified marker target: about 11 N, 27 W on the rendered Ganymede texture."
+        }
+      ]
+    },
+    {
+      "id": "nanshe-catena",
+      "name": "Nanshe Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 15.4,
+      "longitude": 7.1,
+      "description": "Nanshe Catena is a short chain of aligned craters in Ganymede's low northern latitudes. Catenae like this are useful evidence for clustered impacts, including debris that arrived in a string rather than as a single isolated body.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "impact",
+        "low latitude"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 104 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 15.40 N, 352.90 W; app longitude: 7.10 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Compact crater chain near the 0/360 longitude boundary"
+        }
+      ]
+    },
+    {
+      "id": "enki-catena",
+      "name": "Enki Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 38.84,
+      "longitude": -13.86,
+      "description": "Enki Catena is a prominent crater chain whose linked pits record a fragmented impactor striking Ganymede in sequence. Its mix of crater-chain form and icy ejecta context makes it a strong comparison point with chain impacts elsewhere in the Jovian system.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 160 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 38.84 N, 13.86 W; app longitude: 13.86 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater chain close to the prime-meridian side of the texture"
+        }
+      ]
+    },
+    {
+      "id": "terah-catena",
+      "name": "Terah Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 7.1,
+      "longitude": 82.4,
+      "description": "Terah Catena is a longer chain of impact craters in Ganymede's low northern terrain. It helps show that crater chains are not just isolated curiosities, but part of the impact record preserved across the moon's icy crust.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "impact",
+        "icy crust"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 283 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 7.10 N, 277.60 W; app longitude: 82.40 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Low northern crater chain on the east-positive side of the app map"
+        }
+      ]
+    },
+    {
+      "id": "memphis-facula",
+      "name": "Memphis Facula",
+      "featureType": "facula",
+      "category": "faculae",
+      "latitude": 14.1,
+      "longitude": -131.91,
+      "description": "Memphis Facula is a bright circular patch on Ganymede, interpreted as a palimpsest-like impact scar where the original crater relief has largely relaxed away. It gives the feature set a clear example of a bright icy impact remnant rather than a dark region or linear groove belt.",
+      "tags": [
+        "facula",
+        "bright terrain",
+        "palimpsest",
+        "impact remnant"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 361 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 14.10 N, 131.91 W; app longitude: 131.91 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright rounded patch close to the Galileo Regio / Uruk Sulcus region"
+        }
+      ]
+    },
+    {
+      "id": "buto-facula",
+      "name": "Buto Facula",
+      "featureType": "facula",
+      "category": "faculae",
+      "latitude": 13.3,
+      "longitude": 156.8,
+      "description": "Buto Facula is another bright impact-related patch on Ganymede. Paired with Memphis Facula, it helps show how icy-satellite impacts can leave low-relief bright scars that are very different from fresh bowl-shaped craters on rocky planets.",
+      "tags": [
+        "facula",
+        "palimpsest",
+        "bright ice",
+        "impact remnant"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 245 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 13.30 N, 203.20 W; app longitude: 156.80 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright circular feature in low northern latitudes"
+        }
+      ]
+    },
+    {
+      "id": "busiris-facula",
+      "name": "Busiris Facula",
+      "featureType": "facula",
+      "category": "faculae",
+      "latitude": 16,
+      "longitude": 144.7,
+      "description": "Busiris Facula is a broad bright palimpsest-like feature near the grooved terrains around Tiamat and related sulci. It gives the tour another example of a relaxed icy impact scar whose brightness remains easier to read than its relief.",
+      "tags": [
+        "facula",
+        "palimpsest",
+        "bright ice",
+        "impact remnant"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 369 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 16.00 N, 215.30 W; app longitude: 144.70 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Broad bright circular patch near the Tiamat and Marius terrain boundary"
+        }
+      ]
+    },
+    {
+      "id": "coptos-facula",
+      "name": "Coptos Facula",
+      "featureType": "facula",
+      "category": "faculae",
+      "latitude": 10,
+      "longitude": 151,
+      "description": "Coptos Facula is a large bright spot in the same family of relaxed impact remnants as Busiris and Memphis. Its low-latitude placement helps compare several palimpsest-style features across Ganymede's bright and dark terrain boundaries.",
+      "tags": [
+        "facula",
+        "palimpsest",
+        "bright terrain",
+        "impact remnant"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 329 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 10.00 N, 209.00 W; app longitude: 151.00 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large low-latitude facula near other bright palimpsest targets"
+        }
+      ]
+    },
+    {
+      "id": "lakhmu-fossae",
+      "name": "Lakhmu Fossae",
+      "featureType": "fossae",
+      "category": "fossae",
+      "latitude": 50.4,
+      "longitude": -128,
+      "description": "Lakhmu Fossae is an enormous system of long narrow depressions and furrows crossing much of Ganymede's northern terrain. Its scale connects local grooves and troughs to the broader tectonic architecture of the ice shell.",
+      "tags": [
+        "fossae",
+        "furrows",
+        "tectonic",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 3,700 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 50.40 N, 128.00 W; app longitude: 128.00 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large northern fossa system spanning a wide longitude range"
+        }
+      ]
+    },
+    {
+      "id": "zu-fossae",
+      "name": "Zu Fossae",
+      "featureType": "fossae",
+      "category": "fossae",
+      "latitude": 38.5,
+      "longitude": -150.5,
+      "description": "Zu Fossae is a broad northern system of troughs and furrows associated with Ganymede's tectonic and impact-modified crust. Together with Lakhmu Fossae, it helps show that Ganymede's dark terrain preserves large structural patterns as well as craters.",
+      "tags": [
+        "fossae",
+        "furrows",
+        "tectonic",
+        "dark terrain"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 2,900 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 38.50 N, 150.50 W; app longitude: 150.50 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large northern fossa system near the Galileo Regio side of the map"
+        }
+      ]
+    },
+    {
+      "id": "anshar-sulcus",
+      "name": "Anshar Sulcus",
+      "featureType": "sulcus",
+      "category": "sulci",
+      "latitude": 18.9,
+      "longitude": 161.3,
+      "description": "Anshar Sulcus is a grooved terrain lane that has been studied as a key example of Ganymede's tectonic resurfacing. Its ridges, troughs, and local cross-cutting structures help explain how bright terrain was built by extension and shear in the icy shell.",
+      "tags": [
+        "sulcus",
+        "grooved terrain",
+        "tectonic",
+        "bright terrain"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 1,372 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 18.90 N, 198.70 W; app longitude: 161.30 E."
+        },
+        {
+          "label": "Science value",
+          "value": "A good target for discussing groove formation and strike-slip deformation on Ganymede."
+        }
+      ]
+    },
+    {
+      "id": "dardanus-sulcus",
+      "name": "Dardanus Sulcus",
+      "featureType": "sulcus",
+      "category": "sulci",
+      "latitude": -31.5,
+      "longitude": -12.7,
+      "description": "Dardanus Sulcus is a southern grooved terrain belt. It extends the sulci set into Ganymede's southern hemisphere and helps compare resurfaced bright lanes with nearby darker cratered provinces.",
+      "tags": [
+        "sulcus",
+        "grooved terrain",
+        "southern hemisphere",
+        "tectonic"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 1,500 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 31.50 S, 12.70 W; app longitude: 12.70 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern bright terrain close to the prime-meridian side of the texture"
+        }
+      ]
+    },
+    {
+      "id": "mysia-sulci",
+      "name": "Mysia Sulci",
+      "featureType": "sulci",
+      "category": "sulci",
+      "latitude": -7,
+      "longitude": -7.8,
+      "description": "Mysia Sulci is one of Ganymede's largest named sulci systems, stretching across thousands of kilometres. Its scale makes it a useful capstone feature for explaining that Ganymede's grooved terrain is a global resurfacing network rather than a set of local cracks.",
+      "tags": [
+        "sulci",
+        "grooved terrain",
+        "global tectonics",
+        "bright terrain"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 5,066 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 7.00 S, 7.80 W; app longitude: 7.80 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Very broad sulci system near the prime-meridian side of the texture"
+        }
+      ]
+    },
+    {
+      "id": "nicholson-regio",
+      "name": "Nicholson Regio",
+      "featureType": "dark region",
+      "category": "regions",
+      "latitude": -18,
+      "longitude": 5,
+      "description": "Nicholson Regio is a southern dark-terrain province that preserves ancient, densely cratered crust. It broadens the tour beyond Galileo Regio and helps compare old dark terrain on different hemispheres of Ganymede.",
+      "tags": [
+        "dark terrain",
+        "ancient",
+        "southern hemisphere",
+        "regio"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Dark southern terrain near the 0/360 longitude boundary"
+        },
+        {
+          "label": "Science value",
+          "value": "A useful contrast with adjacent bright grooved terrain, where tectonic resurfacing was more intense."
+        }
+      ]
+    },
+    {
+      "id": "barnard-regio",
+      "name": "Barnard Regio",
+      "featureType": "dark region",
+      "category": "regions",
+      "latitude": -6.8,
+      "longitude": -11.6,
+      "description": "Barnard Regio is a major dark terrain province straddling Ganymede's low southern latitudes. Its broad, cratered surface helps frame the scale of Ganymede's older crustal blocks before the moon's bright grooved lanes cut across them.",
+      "tags": [
+        "dark terrain",
+        "regio",
+        "ancient crust",
+        "low latitude"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 3,200 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 6.80 S, 11.60 W; app longitude: 11.60 W."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large dark province near the prime-meridian side of the texture"
+        }
+      ]
+    },
+    {
+      "id": "marius-regio",
+      "name": "Marius Regio",
+      "featureType": "dark region",
+      "category": "regions",
+      "latitude": 2.5,
+      "longitude": 172.3,
+      "description": "Marius Regio is one of Ganymede's largest named dark terrain regions. It sits beside bright grooved belts, making it a strong teaching target for how younger tectonic terrain fragmented older cratered crust.",
+      "tags": [
+        "dark terrain",
+        "regio",
+        "ancient crust",
+        "tectonic boundary"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 4,940 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 2.50 N, 187.70 W; app longitude: 172.30 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Broad low-latitude dark terrain near the Uruk and Mashu grooved systems"
+        }
+      ]
+    },
+    {
+      "id": "melotte-regio",
+      "name": "Melotte Regio",
+      "featureType": "dark region",
+      "category": "regions",
+      "latitude": -12,
+      "longitude": 115,
+      "description": "Melotte Regio is a large named region on Ganymede's trailing-side terrain. Including it gives the fact sheet a wider longitudinal spread and helps students compare several dark provinces rather than treating Galileo Regio as the whole story.",
+      "tags": [
+        "dark terrain",
+        "regio",
+        "trailing hemisphere",
+        "ancient crust"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 4,100 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS/IAU center: 12.00 S, 245.00 W; app longitude: 115.00 E."
+        },
+        {
+          "label": "Map cue",
+          "value": "Large southern-leaning dark region on the opposite side from Galileo Regio"
+        }
+      ]
+    },
+    {
+      "id": "north-pole-ganymede",
+      "name": "North Polar Cap",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": 78,
+      "longitude": 0,
+      "description": "Ganymede's north polar region is brightened by water frost and shaped by charged particles moving through Jupiter's magnetosphere. Because Ganymede has its own internally generated magnetic field, its poles are also tied to auroral activity and plasma interactions unlike any other moon.",
+      "tags": [
+        "polar",
+        "frost",
+        "magnetosphere",
+        "aurora"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Bright high-latitude cap; longitude is a representative anchor rather than a named IAU feature center"
+        },
+        {
+          "label": "Science value",
+          "value": "Connects surface frost, Jupiter's plasma environment, and Ganymede's unique intrinsic magnetic field."
+        }
+      ]
+    },
+    {
+      "id": "south-pole-ganymede",
+      "name": "South Polar Cap",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": -78,
+      "longitude": 180,
+      "description": "Ganymede's south polar region mirrors the northern frost story, with bright water-ice deposits concentrated at high latitude. Future close orbital observations by ESA's JUICE mission should sharpen how the polar caps connect to surface composition, magnetic-field geometry, and plasma weathering.",
+      "tags": [
+        "polar",
+        "frost",
+        "JUICE",
+        "magnetosphere"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "Bright high southern cap; longitude is a representative anchor rather than a named IAU feature center"
+        },
+        {
+          "label": "Science value",
+          "value": "A natural endpoint for explaining why Ganymede is both an icy world and a magnetized world."
+        }
+      ]
+    }
+  ]
+}

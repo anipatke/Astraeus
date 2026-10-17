@@ -1,0 +1,58 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "enceladus",
+  "name": "Enceladus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/enceladus-4k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 3656613,
+      "sha256": "00c6af6394f8ac0c3ef89341c6c5bc898945585fdf2361cb22e80ae01c6ad12c",
+      "donorReadme": [
+        "- `enceladus-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Enceladus - 2014 (PIA18435)",
+        "  - Source page: https://science.nasa.gov/photojournal/color-maps-of-enceladus-2014/",
+        "  - Catalog page: https://photojournal.jpl.nasa.gov/catalog/PIA18435",
+        "  - Purpose: web-ready simple-cylindrical Enceladus texture for the Saturn moon pack",
+        "  - Processing: resized locally from the oversized `15960x7980` checked-in source image to a true `4096x2048` JPEG",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -179.1,
+      "max": 190
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "conventionNote": "donor: visually calibrated against the rendered texture; raw positive-west values must be converted before use",
+    "donorReadmeNote": "- The current Enceladus release uses the NASA/JPL PIA18435 Cassini global map resized to `4K`. Feature coordinates in `data/enceladus-features.json` are visually calibrated against the rendered texture and coordinate readout; raw IAU positive-west, 0-360 longitude anchors must be converted before use."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "mercury",
+  "name": "Mercury",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "mercury",
+    "discovery": "Known since antiquity",
+    "diameterKm": 4879.4,
+    "facts": [
+      "Mercury is the closest planet to the Sun.",
+      "It is the smallest planet in the solar system.",
+      "One solar day lasts 176 Earth days.",
+      "Water ice survives inside permanently shadowed polar craters."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Mercury Facts",
+        "url": "https://science.nasa.gov/mercury/facts/"
+      }
+    ]
+  }
+}

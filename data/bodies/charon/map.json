@@ -1,0 +1,48 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "charon",
+  "name": "Charon",
+  "parent": "pluto",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/charon-2k.jpg",
+      "width": 1024,
+      "height": 512,
+      "bytes": 69352,
+      "sha256": "63928064ce7edf8e15750e74b5a2b3090d12188f28c99ace63b4b02f53b8d35b",
+      "donorReadme": null
+    }
+  ],
+  "source": {
+    "recordedBy": "astraeus tools/import/planetary-explorer-map-sources.json",
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "description": "USGS Astrogeology, Charon New Horizons LORRI MVIC Global Mosaic 300 m (Jul 2017), the 1024 px preview JPG (byte-identical to the donor's charon-2k.jpg)",
+    "sourcePage": "https://astrogeology.usgs.gov/",
+    "licence": "Use constraint: please cite authors",
+    "credit": "New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017"
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 0,
+      "max": 118.2
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": null
+  }
+}

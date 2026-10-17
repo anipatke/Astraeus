@@ -1,0 +1,270 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "mimas",
+  "name": "Mimas",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 8,
+  "features": [
+    {
+      "id": "herschel-central-basin",
+      "name": "Herschel Crater",
+      "featureType": "impact crater",
+      "category": "herschel",
+      "latitude": -1.3,
+      "longitude": -114,
+      "description": "Herschel is Mimas's defining landmark: a 139-kilometre impact basin cut into a moon only about 394 kilometres wide. Its floor, bright central peak, and towering rim make the small icy moon look uncannily like the Death Star.",
+      "tags": [
+        "herschel",
+        "impact",
+        "death star",
+        "central peak",
+        "cassini"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "139 km"
+        },
+        {
+          "label": "Rim height",
+          "value": "About 5 km"
+        },
+        {
+          "label": "Central peak",
+          "value": "About 6 km high"
+        },
+        {
+          "label": "Coordinates",
+          "value": "1.3° S, 114° W"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The Herschel impact was so large that shock waves may have fractured terrain on the opposite side of Mimas."
+        }
+      ]
+    },
+    {
+      "id": "herschel-rim",
+      "name": "Herschel Rim",
+      "featureType": "crater rim",
+      "category": "herschel",
+      "latitude": 20,
+      "longitude": -111,
+      "description": "The raised rim around Herschel marks where the impact lifted and broke Mimas's icy crust. On the global map, the rim is the crisp circular boundary around the basin, with slumped walls and rugged ejecta fading into older cratered terrain.",
+      "tags": [
+        "herschel",
+        "rim",
+        "terraces",
+        "ejecta"
+      ],
+      "details": [
+        {
+          "label": "Map position",
+          "value": "Northern rim near 20° N, 111° W"
+        },
+        {
+          "label": "Feature role",
+          "value": "Boundary of Mimas's largest crater"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Herschel's rim is tall enough that, scaled to Earth, it would be comparable to a mountain range encircling a continent-sized basin."
+        }
+      ]
+    },
+    {
+      "id": "arthur",
+      "name": "Arthur",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -35.4,
+      "longitude": 163.96,
+      "description": "Arthur is a 64-kilometre crater on Mimas's southern hemisphere. Its preserved outline sits among dense overlapping impacts, a reminder that Mimas has not erased its surface the way active icy moons can.",
+      "tags": [
+        "crater",
+        "southern hemisphere",
+        "ancient surface"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "64 km"
+        },
+        {
+          "label": "Coordinates",
+          "value": "35.40° S, 196.04° W"
+        },
+        {
+          "label": "Name origin",
+          "value": "King Arthur of the Round Table"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Mimas crater names are drawn from Arthurian legend, echoing the moon's discovery by William Herschel and its largest crater's Herschel name."
+        }
+      ]
+    },
+    {
+      "id": "merlin",
+      "name": "Merlin",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -38.43,
+      "longitude": 140.99,
+      "description": "Merlin is a 37-kilometre crater in the rugged southern mid-latitudes. It lies in terrain where impact scars overlap so tightly that the moon's icy crust reads like a collision record.",
+      "tags": [
+        "crater",
+        "overlapping impacts",
+        "ancient surface",
+        "arthurian"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "37 km"
+        },
+        {
+          "label": "Coordinates",
+          "value": "38.43° S, 219.01° W"
+        },
+        {
+          "label": "Name origin",
+          "value": "The magician and adviser from Arthurian legend"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Crater counts on worlds like Mimas help scientists compare how long different icy surfaces have been exposed to impacts."
+        }
+      ]
+    },
+    {
+      "id": "gwynevere",
+      "name": "Gwynevere",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -17.6,
+      "longitude": 36.3,
+      "description": "Gwynevere is a 42-kilometre crater set in the heavily battered hemisphere away from Herschel. It gives visitors a strong comparison point: even outside the giant basin, Mimas is crowded with large, long-lived impact scars.",
+      "tags": [
+        "crater",
+        "far side",
+        "ancient surface",
+        "arthurian"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "42 km"
+        },
+        {
+          "label": "Coordinates",
+          "value": "17.60° S, 323.70° W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Queen Gwynevere from Arthurian legend"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "With no air, rain, or active plate tectonics, crater rims on Mimas can remain visible for immense spans of time."
+        }
+      ]
+    },
+    {
+      "id": "tintagil-catena",
+      "name": "Tintagil Catena",
+      "featureType": "crater chain",
+      "category": "chasmata",
+      "latitude": -58,
+      "longitude": 125,
+      "description": "Tintagil Catena is a 130-kilometre chain of depressions in Mimas's southern terrain. It is one of the linear features that hints at crustal stress, possibly linked to the shock of the Herschel-forming impact.",
+      "tags": [
+        "catena",
+        "linear feature",
+        "southern terrain",
+        "fractures"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 130 km"
+        },
+        {
+          "label": "Coordinates",
+          "value": "58.00° S, 235.00° W"
+        },
+        {
+          "label": "Name origin",
+          "value": "Tintagil, legendary home of Igraine"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The feature was originally treated as a chasma before its name was updated to Tintagil Catena."
+        }
+      ]
+    },
+    {
+      "id": "south-polar-small-craters",
+      "name": "South Polar Small-Crater Terrain",
+      "featureType": "cratered terrain",
+      "category": "craters",
+      "latitude": -72,
+      "longitude": -80,
+      "description": "Near the south pole, Mimas's crater population changes: many craters are smaller than those across the rest of the moon. NASA notes that this pattern may point to later melting or resurfacing in the polar region.",
+      "tags": [
+        "terrain",
+        "south pole",
+        "small craters",
+        "resurfacing"
+      ],
+      "details": [
+        {
+          "label": "Typical crater size",
+          "value": "Often 20 km or less"
+        },
+        {
+          "label": "Map position",
+          "value": "South polar terrain"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The south polar contrast is one of the clues that Mimas may not be quite as simple and frozen as its cratered face suggests."
+        }
+      ]
+    },
+    {
+      "id": "anti-herschel-crater-fields",
+      "name": "Anti-Herschel Crater Fields",
+      "featureType": "cratered terrain",
+      "category": "terrain",
+      "latitude": 18,
+      "longitude": 60,
+      "description": "Much of Mimas away from Herschel is blanketed with closely packed impact craters. This ancient terrain preserves a stark contrast with Enceladus, whose active south pole has erased many old scars.",
+      "tags": [
+        "terrain",
+        "crater fields",
+        "ancient crust",
+        "frozen surface"
+      ],
+      "details": [
+        {
+          "label": "Surface character",
+          "value": "Heavily cratered ancient ice"
+        },
+        {
+          "label": "Scientific puzzle",
+          "value": "Mimas appears frozen despite an orbit that should allow tidal heating"
+        },
+        {
+          "label": "Fun Fact",
+          "value": "The contrast between frozen Mimas and active Enceladus is sometimes called the Mimas Test for models of icy moon heating."
+        }
+      ]
+    }
+  ]
+}

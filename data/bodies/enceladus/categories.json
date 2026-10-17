@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "enceladus",
+  "name": "Enceladus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "geysers",
+      "label": "Geysers",
+      "color": "#d8f0ff",
+      "isFilterable": true
+    },
+    {
+      "key": "tiger-stripes",
+      "label": "Tiger Stripes",
+      "color": "#9cc9e8",
+      "isFilterable": true
+    },
+    {
+      "key": "tectonics",
+      "label": "Sulci",
+      "color": "#74d0ff",
+      "isFilterable": true
+    },
+    {
+      "key": "fossa",
+      "label": "Fossa",
+      "color": "#68b8c8",
+      "isFilterable": true
+    },
+    {
+      "key": "plains",
+      "label": "Plains",
+      "color": "#f4fbff",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#b8c7d4",
+      "isFilterable": true
+    }
+  ]
+}

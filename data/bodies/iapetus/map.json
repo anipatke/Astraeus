@@ -1,0 +1,60 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "iapetus",
+  "name": "Iapetus",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/iapetus-4k.jpg",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1635347,
+      "sha256": "9b00db76dff8ad5c680ef5fbee4b6a04d4d4a307376897ce0731f4bb8f62c05e",
+      "donorReadme": [
+        "- `iapetus-4k.jpg`",
+        "  - Source: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Iapetus - 2014 (PIA18436)",
+        "  - Source page: https://commons.wikimedia.org/wiki/File:Color_map_of_Iapetus_PIA18436_Nov._2014.jpg",
+        "  - Purpose: Cassini global color map for the explorable Iapetus moon pack",
+        "  - Projection: equidistant/simple cylindrical global map, source feature coordinates are IAU planetographic positive-west, but the shipped texture is registered 180 degrees from the app's east-positive marker frame",
+        "  - Processing: resized locally from the checked-in `11741x5871` source image to a true `4096x2048` JPEG sphere texture",
+        "  - Credit: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": null,
+    "creditsMd": [
+      {
+        "group": "NASA / JPL-Caltech / Space Science Institute",
+        "licence": "NASA/JPL (attribution required)"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -82,
+      "max": 151.6
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": "IAU planetographic, positive-west, 0-360",
+    "markerLongitudeFromSource": {
+      "scale": -1,
+      "offsetDeg": 180
+    },
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Iapetus release uses the NASA/JPL PIA18436 Cassini global color map. Source coordinates in the USGS Gazetteer use Iapetus' IAU planetographic, positive-west, 0-360 system; because this texture is registered like the Tethys, Dione, and Rhea Cassini color maps, numeric marker longitudes use `markerLongitude = 180 - westLongitude`, normalized to `[-180, 180]`. Control checks: Turgis source `16.9 N, 28.4 W` maps to `151.6 E`; Carcassone Montes source `0.0 N, 216.7 W` maps to `36.7 W`; Toledo Montes source `0.0 N, 136.0 W` maps to `44.0 E`; Engelier and Gerin are visually calibrated near `42.4 S, 82 W` and `50 S, 54 W`."
+  }
+}

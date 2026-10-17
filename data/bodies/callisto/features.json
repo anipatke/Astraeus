@@ -1,0 +1,664 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "callisto",
+  "name": "Callisto",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 22,
+  "features": [
+    {
+      "id": "valhalla",
+      "name": "Valhalla",
+      "featureType": "large ringed feature",
+      "category": "basins",
+      "latitude": 14.7,
+      "longitude": 124,
+      "description": "Valhalla is Callisto's signature landmark and one of the Solar System's largest known impact structures. A bright central zone is surrounded by an enormous pattern of concentric fractures where Callisto's cold, icy crust rang outward after an ancient collision.",
+      "tags": [
+        "basin",
+        "multi-ring",
+        "largest",
+        "ancient",
+        "ice crust"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 3,000 km for the named ringed feature"
+        },
+        {
+          "label": "Central bright zone",
+          "value": "Roughly 600 km across in Galileo-era imaging"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright bullseye-like terrain near 15-17 degrees north, about 122-124 degrees east in the app view"
+        },
+        {
+          "label": "Science value",
+          "value": "The rings show how impact energy spread through a rigid ice shell without the global resurfacing seen on Europa or Ganymede."
+        }
+      ]
+    },
+    {
+      "id": "asgard",
+      "name": "Asgard",
+      "featureType": "large ringed feature",
+      "category": "basins",
+      "latitude": 32.2,
+      "longitude": 40.1,
+      "description": "Asgard is Callisto's second-largest named multi-ring basin. Its broad pale interior and surrounding arcs sit in the northern hemisphere, preserving a second example of the way major impacts fractured Callisto's ice-rich crust.",
+      "tags": [
+        "basin",
+        "multi-ring",
+        "ancient",
+        "northern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 1,400 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Large pale ringed terrain near 32 degrees north, 40 degrees east in the app view"
+        },
+        {
+          "label": "Nearby context",
+          "value": "Utgard lies close to Asgard and partly overlaps the same complex high-latitude terrain."
+        },
+        {
+          "label": "Science value",
+          "value": "Asgard helps compare different generations of basin formation on a world with very little later geologic erasure."
+        }
+      ]
+    },
+    {
+      "id": "adlinda",
+      "name": "Adlinda",
+      "featureType": "large ringed feature",
+      "category": "basins",
+      "latitude": -48.5,
+      "longitude": 144.4,
+      "description": "Adlinda is a large southern multi-ring basin, smaller than Valhalla and Asgard but still vast on a moon only about 4,821 km wide. Its subdued arcs and degraded terrain show how ancient impacts can remain readable even after billions of years of micrometeorite gardening and slow ice relaxation.",
+      "tags": [
+        "basin",
+        "multi-ring",
+        "southern",
+        "ancient"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 840 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern hemisphere ringed terrain near 49 degrees south, 144 degrees east in the app view"
+        },
+        {
+          "label": "Why it matters",
+          "value": "Adlinda extends the basin story away from the bright Valhalla hemisphere and helps show that giant impacts scarred Callisto globally."
+        }
+      ]
+    },
+    {
+      "id": "utgard",
+      "name": "Utgard",
+      "featureType": "large ringed feature",
+      "category": "basins",
+      "latitude": 45,
+      "longitude": 46,
+      "description": "Utgard is a large ringed feature near Asgard, making the region one of Callisto's richest impact-basin neighborhoods. Its overlap with older and younger markings gives the surface a layered, palimpsest-like appearance.",
+      "tags": [
+        "basin",
+        "multi-ring",
+        "asgard region",
+        "overlap"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 610 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern high-latitude ringed feature close to Asgard, near 45 degrees north, 46 degrees east in the app view"
+        },
+        {
+          "label": "Reading the terrain",
+          "value": "The crowded basin field helps students see how impacts of different ages overlap on an old, inactive surface."
+        }
+      ]
+    },
+    {
+      "id": "kol-facula",
+      "name": "Kol Facula",
+      "featureType": "facula",
+      "category": "faculae",
+      "latitude": 4.5,
+      "longitude": -102.7,
+      "description": "Kol Facula is Callisto's single named facula, a bright spot that stands out against the moon's darker, heavily cratered terrain. It gives the feature set a useful visual target beyond craters, ring basins, and crater chains.",
+      "tags": [
+        "facula",
+        "bright spot",
+        "named feature",
+        "frost giant"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 390 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Bright low-latitude patch near 5 degrees north, 103 degrees west in the app view"
+        },
+        {
+          "label": "Naming origin",
+          "value": "Named for Kol, an Icelandic frost or storm giant."
+        }
+      ]
+    },
+    {
+      "id": "bran",
+      "name": "Bran",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -24.2,
+      "longitude": -25.6,
+      "description": "Bran is a prominent mid-sized crater in Callisto's southern hemisphere. Its cleaner circular outline contrasts with the battered background terrain and helps anchor the anti-Jovian side of the texture with a recognizable named impact.",
+      "tags": [
+        "crater",
+        "southern",
+        "circular",
+        "ancient terrain"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 78 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern crater near 24 degrees south, 26 degrees west in the app view"
+        },
+        {
+          "label": "Naming origin",
+          "value": "Named from Celtic tradition for an omnipotent god who watched over people."
+        }
+      ]
+    },
+    {
+      "id": "lofn",
+      "name": "Lofn",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -56.5,
+      "longitude": 157.7,
+      "description": "Lofn is one of Callisto's large named craters, positioned in the far southern terrain near the Adlinda basin. Its broad impact scar is a useful comparison point for basin-scale impacts because it is large enough to reshape regional terrain but not large enough to create Valhalla-style global rings.",
+      "tags": [
+        "crater",
+        "top five crater",
+        "large crater",
+        "southern",
+        "ancient"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 200 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern crater near 57 degrees south, 158 degrees east in the app view"
+        },
+        {
+          "label": "Science value",
+          "value": "Large craters like Lofn help reveal how Callisto's ice-rich crust slowly relaxes while still preserving a very old impact record."
+        }
+      ]
+    },
+    {
+      "id": "har",
+      "name": "Har",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -3.5,
+      "longitude": -178,
+      "description": "Har is a low-latitude crater near Callisto's anti-meridian in the app view. Its position makes it a helpful reference point for checking that source Gazetteer longitudes have been remapped onto the displayed texture.",
+      "tags": [
+        "crater",
+        "equatorial",
+        "coordinate reference",
+        "norse"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 52 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Small equatorial crater near 4 degrees south, 178 degrees west in the app view"
+        },
+        {
+          "label": "Coordinate note",
+          "value": "IAU source longitude 358 degrees west remaps to 178 degrees west for this displayed texture."
+        }
+      ]
+    },
+    {
+      "id": "heimdall",
+      "name": "Heimdall",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": -63.5,
+      "longitude": -177,
+      "description": "Heimdall is a large high-southern crater close to the 0-degree meridian. It is useful for showing how named Callisto craters appear at very different scales, from small circular bowls to broad, softened impact structures hundreds of kilometers wide.",
+      "tags": [
+        "crater",
+        "top five crater",
+        "southern",
+        "large crater",
+        "high latitude"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 210 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "High-southern crater near 64 degrees south, 177 degrees west in the app view"
+        },
+        {
+          "label": "Correction note",
+          "value": "This entry uses the IAU Gazetteer location; the previous north-polar placement was not aligned to the map."
+        }
+      ]
+    },
+    {
+      "id": "debegey",
+      "name": "Debegey",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 10.2,
+      "longitude": 13.8,
+      "description": "Debegey is Callisto's third-largest named crater, a broad impact structure in the northern low latitudes. Its size places it between the giant softened craters and the more common smaller bowls scattered across the ancient surface.",
+      "tags": [
+        "crater",
+        "top five crater",
+        "large crater",
+        "yukaghir"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 125 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern low-latitude crater near 10 degrees north, 14 degrees east in the app view"
+        },
+        {
+          "label": "Naming origin",
+          "value": "Named for Debegey, a Yukaghir mythological hero."
+        }
+      ]
+    },
+    {
+      "id": "gloi",
+      "name": "Gloi",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 49,
+      "longitude": -65,
+      "description": "Gloi is one of Callisto's largest named craters and anchors the northern hemisphere away from the Valhalla and Asgard basin fields.",
+      "tags": [
+        "crater",
+        "top five crater",
+        "large crater",
+        "northern"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 115.3 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater near 49 degrees north, 65 degrees west in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 245 degrees west, equivalent to 115 degrees east before the texture-display remap."
+        }
+      ]
+    },
+    {
+      "id": "nori",
+      "name": "Nori",
+      "featureType": "crater",
+      "category": "craters",
+      "latitude": 45.2,
+      "longitude": -163.6,
+      "description": "Nori completes the top-five largest named crater set for Callisto. It lies in the northern hemisphere near the anti-meridian in the app view.",
+      "tags": [
+        "crater",
+        "top five crater",
+        "large crater",
+        "northern"
+      ],
+      "details": [
+        {
+          "label": "IAU diameter",
+          "value": "About 114 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater near 45 degrees north, 164 degrees west in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 343.6 degrees west, equivalent to 16.4 degrees east before the texture-display remap."
+        }
+      ]
+    },
+    {
+      "id": "eikin-catena",
+      "name": "Eikin Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": -8.9,
+      "longitude": 164.5,
+      "description": "Eikin Catena is a low-latitude crater chain. It helps round out Callisto's named catenae set and gives a clear example of how a fragmented impactor can leave a long stitched path of craters.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "low latitude"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 223 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Low-latitude crater chain near 9 degrees south, 165 degrees east in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 15.5 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "fimbulthul-catena",
+      "name": "Fimbulthul Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 8.2,
+      "longitude": 115.2,
+      "description": "Fimbulthul Catena is a long crater chain crossing the Valhalla-side hemisphere. Its scale makes it one of the more useful chain features for visual checking against the global texture.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "valhalla hemisphere"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 287 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Low northern crater chain near 8 degrees north, 115 degrees east in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 64.8 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "geirvimul-catena",
+      "name": "Geirvimul Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 48.9,
+      "longitude": -167.2,
+      "description": "Geirvimul Catena is a northern crater chain close to the 0-degree meridian. It adds a compact chain target outside the larger Valhalla and Asgard basin fields.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "northern"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 113 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater chain near 49 degrees north, 167 degrees west in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 347.2 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "gipul-catena",
+      "name": "Gipul Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 68.5,
+      "longitude": 125.8,
+      "description": "Gipul Catena is a long chain of craters in Callisto's northern hemisphere. Catenae on icy moons are often linked to fragmented impactors, where a disrupted comet or asteroid strikes in a sequence and leaves a dotted line across the surface.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "northern"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 641 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater chain arcing near 69 degrees north, 126 degrees east in the app view"
+        },
+        {
+          "label": "Science value",
+          "value": "Crater chains connect Callisto to the broader Jovian system, where Jupiter's gravity can tear passing bodies into fragments before impact."
+        }
+      ]
+    },
+    {
+      "id": "gomul-catena",
+      "name": "Gomul Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 35.5,
+      "longitude": 132.9,
+      "description": "Gomul Catena is another named crater chain on Callisto, shorter than Gipul Catena but easier to connect visually with the Valhalla hemisphere. Its beads of impact pits preserve a record of a body arriving as multiple fragments rather than a single projectile.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "valhalla region"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 343 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern-midlatitude crater chain near 36 degrees north, 133 degrees east in the app view"
+        },
+        {
+          "label": "Classroom cue",
+          "value": "Compare this dotted impact trail with single craters and ringed basins to see three different impact outcomes on one moon."
+        }
+      ]
+    },
+    {
+      "id": "gunntro-catena",
+      "name": "Gunntro Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": -19.5,
+      "longitude": -163.1,
+      "description": "Gunntro Catena is a southern crater chain near the 0-degree meridian. It balances the northern catenae by showing that fragmented-impact trails are not confined to one hemisphere.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "southern"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 149 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Southern crater chain near 20 degrees south, 163 degrees west in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 343.1 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "sid-catena",
+      "name": "Sid Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 49.2,
+      "longitude": 76.1,
+      "description": "Sid Catena is a shorter northern crater chain. Its inclusion completes the named Callisto catenae set from the geological features list for visual review.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "northern"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 81 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Northern crater chain near 49 degrees north, 76 degrees east in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 103.9 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "svol-catena",
+      "name": "Svol Catena",
+      "featureType": "catena",
+      "category": "catenae",
+      "latitude": 10.6,
+      "longitude": 142.8,
+      "description": "Svol Catena is a low northern crater chain near the Valhalla side of Callisto. Together with Gipul and Gomul, it makes crater chains easier to compare against large ringed structures in the same broad hemisphere.",
+      "tags": [
+        "catena",
+        "crater chain",
+        "fragmented impactor",
+        "valhalla hemisphere"
+      ],
+      "details": [
+        {
+          "label": "IAU length/diameter measure",
+          "value": "About 161 km"
+        },
+        {
+          "label": "Map cue",
+          "value": "Low northern crater chain near 11 degrees north, 143 degrees east in the app view"
+        },
+        {
+          "label": "Source longitude",
+          "value": "IAU source longitude 37.2 degrees west."
+        }
+      ]
+    },
+    {
+      "id": "north-pole-callisto",
+      "name": "North Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": 80,
+      "longitude": 0,
+      "description": "Callisto's north polar region is a densely cratered ancient landscape that has remained largely geologically quiet for billions of years. Unlike Io, Europa, and Ganymede, Callisto is not locked in the same strong orbital resonance, so Jupiter's tides have not continually refreshed its surface.",
+      "tags": [
+        "polar",
+        "ancient",
+        "cratered",
+        "low tidal heating"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "High northern cratered terrain above 80 degrees north"
+        },
+        {
+          "label": "Why it matters",
+          "value": "The polar regions help show that Callisto's old impact record is global, not limited to the famous basin hemisphere."
+        },
+        {
+          "label": "Exploration note",
+          "value": "Callisto's distance from Jupiter keeps it outside the most intense radiation zones around the planet."
+        }
+      ]
+    },
+    {
+      "id": "south-pole-callisto",
+      "name": "South Polar Region",
+      "featureType": "polar region",
+      "category": "poles",
+      "latitude": -80,
+      "longitude": 180,
+      "description": "Callisto's south polar region continues the moon's ancient cratered character into high southern latitudes. Its terrain is a reminder that Callisto is a fossilized record of early outer Solar System bombardment, with far less resurfacing than the inner Galilean moons.",
+      "tags": [
+        "polar",
+        "ancient",
+        "radiation",
+        "exploration",
+        "impact record"
+      ],
+      "details": [
+        {
+          "label": "Map cue",
+          "value": "High southern cratered terrain below 80 degrees south"
+        },
+        {
+          "label": "Exploration note",
+          "value": "Callisto has been discussed as a potential future staging point because it offers solid terrain with a much lower radiation burden than Io or Europa."
+        },
+        {
+          "label": "Science value",
+          "value": "Comparing both poles with Valhalla and Asgard helps separate global crater saturation from local basin structure."
+        }
+      ]
+    }
+  ]
+}

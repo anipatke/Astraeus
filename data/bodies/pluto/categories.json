@@ -1,0 +1,49 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "pluto",
+  "name": "Pluto",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "plains",
+      "label": "Plains",
+      "color": "#d8d5c8",
+      "isFilterable": true
+    },
+    {
+      "key": "regions",
+      "label": "Regions",
+      "color": "#b08f7c",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#c9b7a4",
+      "isFilterable": true
+    },
+    {
+      "key": "mountains",
+      "label": "Mountains",
+      "color": "#9fb4cf",
+      "isFilterable": true
+    },
+    {
+      "key": "system",
+      "label": "System",
+      "color": "#a59bb8",
+      "isFilterable": true
+    },
+    {
+      "key": "system-moons",
+      "label": "System Moons",
+      "color": "#c8bfe0",
+      "isFilterable": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "mimas",
+  "name": "Mimas",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#b4bac5",
+      "isFilterable": true
+    },
+    {
+      "key": "herschel",
+      "label": "Herschel",
+      "color": "#8f97a5",
+      "isFilterable": true
+    },
+    {
+      "key": "chasmata",
+      "label": "Chasmata",
+      "color": "#c8a56c",
+      "isFilterable": true
+    },
+    {
+      "key": "terrain",
+      "label": "Terrain",
+      "color": "#d8d2c4",
+      "isFilterable": true
+    }
+  ]
+}

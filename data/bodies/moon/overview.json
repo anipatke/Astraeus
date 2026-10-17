@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "moon",
+  "name": "Moon",
+  "parent": "earth",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "moon",
+    "discovery": "Known since prehistoric times",
+    "diameterKm": 3474.8,
+    "facts": [
+      "The Moon is Earth's only natural satellite.",
+      "It keeps nearly the same face turned toward Earth.",
+      "Its gravity is about one-sixth as strong as Earth's.",
+      "Twelve people walked on the Moon between 1969 and 1972."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Moon Facts",
+        "url": "https://science.nasa.gov/moon/facts/"
+      },
+      {
+        "label": "NASA NSSDCA: Moon Fact Sheet",
+        "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html"
+      }
+    ]
+  }
+}

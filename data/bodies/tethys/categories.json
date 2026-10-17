@@ -1,0 +1,37 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "tethys",
+  "name": "Tethys",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#d6d8de",
+      "isFilterable": true
+    },
+    {
+      "key": "chasma",
+      "label": "Chasma",
+      "color": "#97a7bb",
+      "isFilterable": true
+    },
+    {
+      "key": "montes",
+      "label": "Montes",
+      "color": "#b8bec8",
+      "isFilterable": true
+    },
+    {
+      "key": "terrain",
+      "label": "Terrain",
+      "color": "#e8eef6",
+      "isFilterable": true
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "io",
+  "name": "Io",
+  "parent": "jupiter",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "volcanoes",
+      "label": "Volcanoes",
+      "color": "#E8A030",
+      "isFilterable": true
+    },
+    {
+      "key": "paterae",
+      "label": "Paterae",
+      "color": "#D45A20",
+      "isFilterable": true
+    },
+    {
+      "key": "lava-fields",
+      "label": "Lava Fields",
+      "color": "#8B4010",
+      "isFilterable": true
+    }
+  ]
+}

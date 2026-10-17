@@ -1,0 +1,69 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "mars",
+  "name": "Mars",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/mars-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 429761,
+      "sha256": "97e8ed6a4d342ee2820a8e706728da7782892b21573421a345f5512c63bc0d3c",
+      "donorReadme": [
+        "- `mars-2k.jpg`",
+        "  - Derived locally from `mars-8k.jpg`",
+        "  - Purpose: lower-bandwidth mobile-class texture variant",
+        "  - Export target: 2048px wide JPEG"
+      ]
+    },
+    {
+      "src": "/textures/mars-8k.jpg",
+      "minViewportWidth": 768,
+      "width": 8192,
+      "height": 4096,
+      "bytes": 8396951,
+      "sha256": "4cc52149924abc6ae507d63032f994e1d42a55cb82c09e002d1a567ff66c23ee",
+      "donorReadme": [
+        "- `mars-8k.jpg`",
+        "  - Source: Solar System Scope Mars texture",
+        "  - Source page: https://www.solarsystemscope.com/textures/",
+        "  - Download endpoint used: `https://www.solarsystemscope.com/textures/download/8k_mars.jpg`",
+        "  - License: CC BY 4.0 per the Solar System Scope textures page"
+      ]
+    }
+  ],
+  "source": {
+    "recordedBy": "donor public/textures/README.md",
+    "licence": "CC BY 4.0 per the Solar System Scope textures page",
+    "creditsMd": [
+      {
+        "group": "Solar System Scope",
+        "licence": "CC BY 4.0"
+      }
+    ]
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": -133.8,
+      "max": 354.47
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": "- The current Mars release plan uses `2K` for mobile-class viewports and `8K` for desktop-class viewports."
+  }
+}

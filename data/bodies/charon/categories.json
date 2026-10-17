@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "charon",
+  "name": "Charon",
+  "parent": "pluto",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "polar-region",
+      "label": "Polar Region",
+      "color": "#8b4a3a",
+      "isFilterable": true
+    },
+    {
+      "key": "chasma",
+      "label": "Chasma",
+      "color": "#7a9bb5",
+      "isFilterable": true
+    },
+    {
+      "key": "craters",
+      "label": "Craters",
+      "color": "#b0a898",
+      "isFilterable": true
+    },
+    {
+      "key": "montes",
+      "label": "Montes",
+      "color": "#c4b89a",
+      "isFilterable": true
+    },
+    {
+      "key": "planitia",
+      "label": "Planitia",
+      "color": "#a8b4a0",
+      "isFilterable": true
+    }
+  ]
+}

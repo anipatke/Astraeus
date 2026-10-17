@@ -1,0 +1,386 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "features",
+  "body": "rhea",
+  "name": "Rhea",
+  "parent": "saturn",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "featureCount": 13,
+  "features": [
+    {
+      "id": "tirawa",
+      "name": "Tirawa",
+      "featureType": "impact basin",
+      "category": "craters",
+      "latitude": 34.2,
+      "longitude": 28.3,
+      "description": "Tirawa marks one of Rhea's great ancient impact scars. Its eroded basin rim and battered surroundings make it a useful landmark for reading how heavily the moon's icy crust was cratered early in Saturn-system history.",
+      "tags": [
+        "basin",
+        "impact",
+        "ancient crust",
+        "control feature"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "Large basin; USGS center feature lists 0 km because the named point is used as the formal anchor."
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 34.20 N, 151.70 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Why it matters",
+          "value": "NASA identifies Tirawa as the giant basin visible near Rhea's limb in late Cassini views, making it one of the moon's signature landmarks."
+        }
+      ]
+    },
+    {
+      "id": "mamaldi",
+      "name": "Mamaldi",
+      "featureType": "impact basin",
+      "category": "craters",
+      "latitude": 14,
+      "longitude": -4,
+      "description": "Mamaldi is a broad, 480 km impact structure that sprawls across Rhea's cratered terrain. Its size makes it one of the best stops for comparing basin-scale impacts with smaller, sharper craters nearby.",
+      "tags": [
+        "basin",
+        "impact",
+        "large crater",
+        "control feature"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 480 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 14.00 N, 184.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for a Nanai creator goddess connected with the creation of the Asian continent and Sakhalin Island."
+        }
+      ]
+    },
+    {
+      "id": "inktomi",
+      "name": "Inktomi",
+      "featureType": "ray crater",
+      "category": "craters",
+      "latitude": -14.1,
+      "longitude": 67.9,
+      "description": "Inktomi is Rhea's bright young showpiece: a 47 km crater with rays of fresh icy ejecta spread across older terrain. Its crisp rays and strong water-ice signature help scientists study one of the more recent major impacts in Saturn's mid-sized moons.",
+      "tags": [
+        "crater",
+        "young",
+        "bright rays",
+        "fresh ice",
+        "control feature"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 47 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 14.10 S, 112.10 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Published age estimates place Inktomi among the youngest large craters in Saturn's regular moon system."
+        }
+      ]
+    },
+    {
+      "id": "powehiwehi",
+      "name": "Powehiwehi",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": -8.2,
+      "longitude": -100.4,
+      "description": "Powehiwehi is a huge crater on Rhea's darker trailing hemisphere. Its broad form helps show how the trailing side has been altered by magnetospheric particles while still preserving the old impact record.",
+      "tags": [
+        "crater",
+        "trailing hemisphere",
+        "dark terrain"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 271 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 8.20 S, 280.40 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for the first female being in Hawaiian myth, paired with Pouliuli."
+        }
+      ]
+    },
+    {
+      "id": "wakonda",
+      "name": "Wakonda",
+      "featureType": "impact crater",
+      "category": "craters",
+      "latitude": 48.6,
+      "longitude": -89.7,
+      "description": "Wakonda is a large northern crater that gives the explorer a high-latitude reference point away from the equatorial ray systems and trailing-hemisphere scarps.",
+      "tags": [
+        "crater",
+        "northern hemisphere",
+        "large crater"
+      ],
+      "details": [
+        {
+          "label": "Diameter",
+          "value": "About 123 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 48.60 N, 269.70 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for the Sioux great creator of all things."
+        }
+      ]
+    },
+    {
+      "id": "galunlati-chasmata",
+      "name": "Galunlati Chasmata",
+      "featureType": "chasmata",
+      "category": "chasmata",
+      "latitude": 38,
+      "longitude": -110,
+      "description": "Galunlati Chasmata is one of the long fracture systems cutting across Rhea. These troughs and scarps are part of the wispy-looking terrain that hints at tectonic stresses in an otherwise quiet icy moon.",
+      "tags": [
+        "chasmata",
+        "tectonic scarps",
+        "wispy terrain",
+        "control feature"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 740 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 38.00 N, 290.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for the vault above the sky in Cherokee creation stories."
+        }
+      ]
+    },
+    {
+      "id": "avaiki-chasmata",
+      "name": "Avaiki Chasmata",
+      "featureType": "chasmata",
+      "category": "chasmata",
+      "latitude": 25,
+      "longitude": -99,
+      "description": "Avaiki Chasmata traces a long set of grooves and scarps through Rhea's fractured hemisphere. It is a strong companion stop to Galunlati for showing that Rhea's surface is more than a static crater field.",
+      "tags": [
+        "chasmata",
+        "fractures",
+        "trailing hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 580 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 25.00 N, 279.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for an underworld in Cook Islands mythology."
+        }
+      ]
+    },
+    {
+      "id": "puchou-catenae",
+      "name": "Puchou Catenae",
+      "featureType": "crater chain",
+      "category": "catenae",
+      "latitude": 32,
+      "longitude": 93,
+      "description": "Puchou Catenae is a long chain of aligned depressions. Catenae can record secondary impacts, structural weaknesses, or disrupted impactor fragments, making them useful clues to local surface history.",
+      "tags": [
+        "catenae",
+        "crater chain",
+        "aligned depressions",
+        "control feature"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 620 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 32.00 N, 87.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for a mountain in Chinese mythology connected with the tilting of Earth's axis."
+        }
+      ]
+    },
+    {
+      "id": "onokoro-catenae",
+      "name": "Onokoro Catenae",
+      "featureType": "crater chain",
+      "category": "catenae",
+      "latitude": -44.7,
+      "longitude": -148.5,
+      "description": "Onokoro Catenae is a southern chain of pits and small craters that cuts across older terrain. Its aligned form gives Rhea's southern hemisphere a different texture from the broad basins and isolated craters.",
+      "tags": [
+        "catenae",
+        "southern hemisphere",
+        "aligned pits"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 240 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 44.70 S, 328.50 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for the island formed by a drop of water from the sword of Izanagi and Izanami."
+        }
+      ]
+    },
+    {
+      "id": "harahvaiti-fossa",
+      "name": "Harahvaiti Fossa",
+      "featureType": "fossa",
+      "category": "fossae",
+      "latitude": -36,
+      "longitude": 9,
+      "description": "Harahvaiti Fossa is a southern trough system. It gives the map a compact tectonic stop that contrasts with Rhea's longer chasmata and with the impact-dominated landscapes around Mamaldi.",
+      "tags": [
+        "fossa",
+        "trough",
+        "southern hemisphere"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 190 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 36.00 S, 171.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for a beautiful land created by Ahura Mazda in Persian tradition."
+        }
+      ]
+    },
+    {
+      "id": "parun-fossa",
+      "name": "Parun Fossa",
+      "featureType": "fossa",
+      "category": "fossae",
+      "latitude": -46.5,
+      "longitude": 28,
+      "description": "Parun Fossa is a shorter trough south of the equator. Its placement near other southern features makes it a good marker for following Rhea's fractured terrain across the globe.",
+      "tags": [
+        "fossa",
+        "trough",
+        "fractured terrain"
+      ],
+      "details": [
+        {
+          "label": "Length",
+          "value": "About 120 km"
+        },
+        {
+          "label": "Coordinate source",
+          "value": "USGS Gazetteer center: 46.50 S, 152.00 W; app longitude remap: 180 - west."
+        },
+        {
+          "label": "Name origin",
+          "value": "Named for a river in Nuristan tradition."
+        }
+      ]
+    },
+    {
+      "id": "e-ring-coated-leading-hemisphere",
+      "name": "E-ring-coated Leading Hemisphere",
+      "featureType": "bright icy terrain",
+      "category": "terrain",
+      "latitude": 5,
+      "longitude": 90,
+      "description": "Rhea's leading hemisphere is relatively bright because it is dusted by icy particles from Saturn's E ring, supplied by neighboring Enceladus. The contrast with the darker trailing side is one of the main color stories in the Cassini global map.",
+      "tags": [
+        "terrain",
+        "leading hemisphere",
+        "E-ring dust",
+        "ice"
+      ],
+      "details": [
+        {
+          "label": "Coordinate note",
+          "value": "Broad visual storytelling anchor, not an IAU named feature center."
+        },
+        {
+          "label": "Texture cue",
+          "value": "NASA's PIA18438 notes the leading hemisphere is lighter while the trailing hemisphere is darker and altered by Saturn's magnetospheric environment."
+        },
+        {
+          "label": "Fun Fact",
+          "value": "Rhea is far enough from Enceladus that the E-ring coating is subtler than on closer moons, but it still helps paint the global color pattern."
+        }
+      ]
+    },
+    {
+      "id": "dark-trailing-hemisphere",
+      "name": "Dark Trailing Hemisphere",
+      "featureType": "altered icy terrain",
+      "category": "terrain",
+      "latitude": -5,
+      "longitude": -90,
+      "description": "The trailing hemisphere carries darker, more radiation-processed colors than the leading side. This broad terrain stop helps connect Rhea's surface appearance to the plasma and particle environment inside Saturn's magnetosphere.",
+      "tags": [
+        "terrain",
+        "trailing hemisphere",
+        "magnetosphere",
+        "color contrast"
+      ],
+      "details": [
+        {
+          "label": "Coordinate note",
+          "value": "Broad visual storytelling anchor, not an IAU named feature center."
+        },
+        {
+          "label": "Texture cue",
+          "value": "The Cassini color map emphasizes the brightness and color difference between the two hemispheres."
+        },
+        {
+          "label": "Why it matters",
+          "value": "Leading-trailing color asymmetry is a shared theme across several Saturnian icy moons, but each moon records it differently."
+        }
+      ]
+    }
+  ]
+}

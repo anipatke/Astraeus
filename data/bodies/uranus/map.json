@@ -1,0 +1,48 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "map",
+  "body": "uranus",
+  "name": "Uranus",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "textures": [
+    {
+      "src": "/textures/uranus-2k.jpg",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 77751,
+      "sha256": "d15239d46f82d3ea13d2b260b5b29b2a382f42f2916dae0694d0387b1204a09d",
+      "donorReadme": null
+    }
+  ],
+  "source": {
+    "recordedBy": "astraeus tools/import/planetary-explorer-map-sources.json",
+    "recordedIn": "docs/DONOR_TEXTURE_INVENTORY.md, section C",
+    "donorFileSourced": false,
+    "description": "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg)",
+    "sourcePage": "https://www.solarsystemscope.com/textures/",
+    "licence": "CC BY 4.0",
+    "credit": "Solar System Scope"
+  },
+  "coordinates": {
+    "placement": "latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs",
+    "latitudeDegrees": "north positive, -90 to 90",
+    "longitudeDegrees": "exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)",
+    "longitudeRange": {
+      "min": 0,
+      "max": 320
+    },
+    "phiDeg": "90 - latitude (polar angle from +Y)",
+    "thetaDeg": "longitude + 90 (azimuth from +X toward +Z)",
+    "position": "[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]",
+    "phiOffsetDeg": 90,
+    "thetaOffsetDeg": 90,
+    "sourceLongitude": null,
+    "markerLongitudeFromSource": null,
+    "textureRecentringDeg": 0,
+    "donorReadmeNote": null
+  }
+}

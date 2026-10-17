@@ -1,0 +1,43 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "categories",
+  "body": "triton",
+  "name": "Triton",
+  "parent": "neptune",
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "categories": [
+    {
+      "key": "cryovolcanism",
+      "label": "Cryovolcanism",
+      "color": "#b9d7e8",
+      "isFilterable": true
+    },
+    {
+      "key": "cantaloupe",
+      "label": "Cantaloupe Terrain",
+      "color": "#d1b48a",
+      "isFilterable": true
+    },
+    {
+      "key": "plains",
+      "label": "Plains",
+      "color": "#a9c0c9",
+      "isFilterable": true
+    },
+    {
+      "key": "poles",
+      "label": "Poles",
+      "color": "#e9f4f6",
+      "alwaysVisible": true
+    },
+    {
+      "key": "orbit",
+      "label": "Orbit",
+      "color": "#9ab3ff",
+      "isFilterable": true
+    }
+  ]
+}

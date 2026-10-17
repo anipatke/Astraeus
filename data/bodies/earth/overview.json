@@ -1,0 +1,32 @@
+{
+  "format": "astraeus.body-package/1",
+  "kind": "overview",
+  "body": "earth",
+  "name": "Earth",
+  "parent": null,
+  "donor": {
+    "project": "planetary-explorer",
+    "commit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+  },
+  "overview": {
+    "bodyId": "earth",
+    "discovery": "Known since antiquity",
+    "diameterKm": 12742,
+    "facts": [
+      "Earth is the only world known to have life.",
+      "Liquid water covers most of its surface.",
+      "One full turn takes about 24 hours.",
+      "Earth has one natural moon."
+    ],
+    "sources": [
+      {
+        "label": "NASA Science: Facts About Earth",
+        "url": "https://science.nasa.gov/earth/facts/"
+      },
+      {
+        "label": "NASA NSSDCA: Earth Fact Sheet",
+        "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html"
+      }
+    ]
+  }
+}
