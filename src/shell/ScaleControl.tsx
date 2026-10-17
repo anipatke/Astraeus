@@ -28,7 +28,7 @@ export function ScaleControl({ scaleId, onScaleChange, choices = SCALE_CHOICES }
     <section {...common}>
       <button
         type="button"
-        className="scale-toggle top-bar-button"
+        className="scale-toggle top-bar-button ui-accent"
         aria-label={name}
         title={`Scale: ${current.label} (tap for ${other.label}). ${hint}`}
         data-scale={current.id}
@@ -99,7 +99,7 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
       <button
         ref={trigger}
         type="button"
-        className="scale-toggle scale-menu-trigger top-bar-button"
+        className="scale-toggle scale-menu-trigger top-bar-button ui-accent"
         aria-label={`Scale: ${current.label}, choose another`}
         title={`Scale: ${current.label} (choose another). ${SCALE_NOTE}`}
         aria-haspopup="menu"
@@ -120,6 +120,7 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
             key={choice.id}
             ref={(element) => { items.current[index] = element; }}
             type="button"
+            className="ui-row"
             role="menuitemradio"
             aria-checked={choice.id === current.id}
             tabIndex={-1}
@@ -155,7 +156,7 @@ function ScaleExplanation({ choices }: { readonly choices: readonly ScaleChoice[
       <button
         ref={trigger}
         type="button"
-        className="scale-info top-bar-button"
+        className="scale-info top-bar-button ui-icon"
         aria-label="About the scales"
         title="What the scales mean"
         aria-expanded={open}

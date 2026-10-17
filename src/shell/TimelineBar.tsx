@@ -2,11 +2,12 @@ import { useMemo, useState, type CSSProperties, type PointerEvent as ReactPointe
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds, formatRateCompact } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 import type { StoryPanel } from "./storyPanels";
+import { useDrawerSwipe } from "./useDrawerSwipe";
 import "./TimelineBar.css";
 
 interface Props {
@@ -29,9 +30,11 @@ interface Props {
   readonly onWindowInfo: (window: TimelineWindow) => void;
   /** How the activity glow looks (live settings); absent: the defaults. */
   readonly glowLook?: TimelineGlowLook;
+  /** On a phone the timeline has a drawer (speed slider, events) under its two lines; absent: the larger-screen bar. */
+  readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
   const gradients = useMemo(() => profile === null ? null : { ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }, [profile, glowLook]);
@@ -57,6 +60,12 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
     windows.length === 0 || stop === null ? `${direction} event` : `${direction}: ${stop.label}`;
   const speeds = mergeSpeeds(DEFAULT_PLAYBACK_SPEEDS, experience.rates);
   const timestamp = formatUtcTimestamp(snapshot.timeUtcMs);
+  const handle = useDrawerSwipe({
+    thresholdPx: drawer?.swipeThresholdPx ?? 0,
+    onTap: () => drawer?.onOpenChange(!drawer.open),
+    onSwipe: (direction) => drawer?.onOpenChange(direction === "up"),
+  });
+  const speedIndex = Math.max(0, speeds.findIndex((speed) => speed.rate === snapshot.rate));
 
   const scrubber = (
   <div className="timeline-scrubber">
@@ -139,15 +148,18 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   );
 
   return (
-    <section className="timeline-bar" aria-label="Timeline controls">
+    <section className="timeline-bar" aria-label="Timeline controls" data-drawer-open={drawer?.open}>
+      {drawer !== undefined && (
+        <button type="button" className="drawer-handle drawer-handle-top ui-bare" aria-label="Timeline drawer" aria-expanded={drawer.open} aria-controls="timeline-drawer" {...handle}><span /></button>
+      )}
       <div className="timeline-main-row">
         <div className="timeline-transport">
-          <button type="button" className="timeline-play" title={snapshot.playing ? "Pause" : "Play"} onClick={onTogglePlayback} aria-label={snapshot.playing ? "Pause playback" : "Play playback"}>
+          <button type="button" className="timeline-play ui-icon ui-accent" title={snapshot.playing ? "Pause" : "Play"} onClick={onTogglePlayback} aria-label={snapshot.playing ? "Pause playback" : "Play playback"}>
             {snapshot.playing ? <Symbol path="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /> : <Symbol path="M7 5v14l12-7z" />}
           </button>
           <button
             type="button"
-            className="timeline-previous"
+            className="timeline-previous ui-icon ui-ghost"
             aria-label={stopLabel("Previous", navigation.previous)}
             title={stopLabel("Previous", navigation.previous)}
             disabled={navigation.previous === null}
@@ -157,7 +169,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           </button>
           <button
             type="button"
-            className="timeline-next"
+            className="timeline-next ui-icon ui-ghost"
             aria-label={stopLabel("Next", navigation.next)}
             title={stopLabel("Next", navigation.next)}
             disabled={navigation.next === null}
@@ -175,17 +187,48 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         <label className="timeline-speed">
           <span>Playback rate</span>
           <select aria-label="Playback speed" title="Playback speed" value={snapshot.rate} onChange={(event) => onRateChange(Number(event.target.value))}>
-            {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{speed.label}</option>)}
+            {/* On a phone the line is short, so the picker shows the rate in a few characters; the speed slider in the drawer says it in words. */}
+            {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{drawer === undefined ? speed.label : formatRateCompact(speed.rate)}</option>)}
           </select>
         </label>
 
         {scrubber}
 
-        <details className="timeline-event-list">
-          <summary title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
-          <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
-        </details>
+        {drawer === undefined && (
+          <details className="timeline-event-list">
+            <summary className="ui-button" title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
+            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
+          </details>
+        )}
       </div>
+      {drawer !== undefined && (
+        <div
+          id="timeline-drawer"
+          className="timeline-drawer"
+          role="region"
+          aria-label="Timeline details"
+          data-open={drawer.open}
+          onClick={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) drawer.onOpenChange(false); }}
+        >
+          <div className="timeline-drawer-body">
+            <div className="timeline-speed-slider">
+              <span aria-hidden="true">Playback speed</span>
+              <input
+                type="range"
+                aria-label="Speed slider"
+                aria-valuetext={speeds[speedIndex]?.label}
+                min={0}
+                max={speeds.length - 1}
+                step={1}
+                value={speedIndex}
+                onChange={(event) => { const next = speeds[Number(event.target.value)]; if (next !== undefined) onRateChange(next.rate); }}
+              />
+              <output>{speeds[speedIndex]?.label}</output>
+            </div>
+            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -218,7 +261,8 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
           : (
             <button
               type="button"
-              className="timeline-event-current"
+              className="timeline-event-current ui-row"
+              data-closes-drawer=""
               aria-label={`Information about ${context.current.label}`}
               aria-controls="info-panel"
               onClick={() => { if (context.current !== null) onEventInfo(context.current); }}
@@ -231,7 +275,8 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
           <button
             key={window.id}
             type="button"
-            className="timeline-event-current timeline-window-current"
+            className="timeline-event-current timeline-window-current ui-row"
+            data-closes-drawer=""
             aria-label={`Information about ${window.label}`}
             aria-controls="info-panel"
             onClick={() => onWindowInfo(window)}
@@ -246,6 +291,8 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
           <li key={event.id}>
             <button
               type="button"
+              className="ui-row"
+              data-closes-drawer=""
               aria-current={context.current?.id === event.id ? "time" : undefined}
               onClick={() => { onEventSeek(event); onEventInfo(event); }}
             >

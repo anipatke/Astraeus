@@ -2,7 +2,8 @@
 id: T-081
 title: Make the phone view immersive with drawers, sheets and collapsible sources
 objective: O-020
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-079, requires: clear}, {task: T-080, requires: clear}, {task: T-083, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -54,3 +55,39 @@ Phone and small-tablet layout; desktop unchanged except shared components.
 ## Technical Verification
 
 Configured gates, lite, the new phone browser check, pictures against the baseline (phone differences expected and listed), full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (executor, lane o020-t081, paused 2026-10-17)
+
+**Paused 2026-10-17 (owner paused work).** Task is `in_progress`, `stage: build`; not at audit.
+
+Built: phone layout keyed on `data-phone` (`phoneLayout.ts`: narrow screen, or short touch screen turned sideways); top drawer with name pill (`ControlsDrawer.tsx`); timeline handle and drawer with speed slider and events (`TimelineBar.tsx`, `phone.css`); swipe on handles only (`useDrawerSwipe.ts`); info and story panels as bottom sheets reusing swipe-to-dismiss (`useSwipeToDismiss.ts`, moved from StoryPanelView); collapsible `Sources.tsx` in both; shared control stylesheet `controls.css` (per-component control looks removed from TopBar.css, TimelineBar.css, style.css); live "Phone layout" settings in Developer > Display settings; driver drawer, swipe and `controlStyles` functions; new `browser-phone.mjs` (Done When 8) and `browser-controls.mjs` (Done When 7), both added to `run-full.sh`; `docs/BROWSER_CHECKS.md` scenario map; `tests/phoneLayout.test.ts`.
+
+Results so far: tsc clean; vitest 961 passed (before the last small additions; rerun needed); build ok; driver guard ok; `browser-phone` passed (portrait and landscape, Apollo and Jupiter-Io); `browser-controls` passed (31 states, both sizes); `browser-lite` 26/26.
+
+**Full run did NOT finish.** `docs/evidence/o020-t081-full-20261017T114400Z` was killed at the pause (partial). Failures seen before it, with causes: earth-moon (scale-info driver functions did not open the drawer; fixed in driver afterwards), spike03 (`primaryControlTargets` needs the top drawer open on phone; and its "info sheet clears the timeline" assertion needs the sheet above the timeline), orbit-look (desktop-readable "brighter ring lights more": not yet diagnosed, may be unrelated or load-related; rerun alone), showers-perseids and showers-geminids (logs not yet read). The "console and page errors" line in my two scripts counted as an error line; reworded to "problems".
+
+**Remaining.** (1) Decide info sheet position: currently covers the timeline at the bottom edge (mock), but spike03 and usability favour sitting above the timeline like the story sheet (was about to change `phone.css` to that, default sheet height 50 percent, and update `browser-phone.mjs` accordingly). (2) Make `primaryControlTargets` open the top drawer on phone. (3) Read showers and orbit-look failures. (4) Rerun gates, then ONE clean `run-full.sh` (use DEV_PORT 5531 PUBLIC_PORT 5532), list phone picture differences from the contact sheet, then finish this Evidence (per-criterion outcomes, Drift Notes below) and move to `stage: audit`.
+
+**Drift notes so far.** Landscape phones (wider than 700 px, short, touch) now use the phone layout; desktop above 700 px unchanged apart from the shared control look (all controls 36 px, 13 px font; cog level with the bar row, round; play button 36 px not 40). Picking an object on a phone closes the top drawer (info opens as before). Phone speed picker shows compact rates ("1 h/s"); the slider drawer says it in words. Sources moved out of the badge detail into its own collapsible section; driver `openProvenance` opens both. Safe-area insets cannot be emulated headlessly (checked by reading the stylesheet). Developer panel is outside the shared-look check.
+
+## Evidence (executor, lane o020-t081, resumed 2026-10-18; supersedes the paused note above)
+
+**Design per Done When.**
+1. Phone layout keyed on `data-phone` (`phoneLayout.ts`: max-width 700 px, or a short touch screen, so landscape phones too); pill + cog, two-line timeline, top drawer, timeline drawer; info and story sheets. Matches the closed and open artboards; the info sheet deviates on purpose: per O-020 Decision 13 it sits above the timeline (like the story sheet), not on the bottom edge. Desktop above 700 px unchanged except the shared control look.
+2. Drawers open/close by tap and touch swipe on the handles only (`useDrawerSwipe.ts`); scene drags tested in three directions; time, playing state and pick survive; Escape closes; reduced motion gives 0s transitions; safe-area env() on all four edges in phone.css (read, not emulated); all controls at least 44 px (asserted in browser-phone).
+3. Sheets reuse `useSwipeToDismiss.ts` (moved out of StoryPanelView); Sources is `Sources.tsx` (closed details, "Sources · N") in ProvenanceBadge and StoryPanelView. Script mapping in docs/BROWSER_CHECKS.md: `openProvenance` opens badge and Sources; `storyPanelSources` counts closed lines; `browser-phone` asserts closed then open.
+4. Story sheet sits above the timeline via measured `--timeline-space`; asserted clear of Play, also with the timeline drawer open (browser-phone, browser-story-panels updated: sheet above timeline).
+5. Settings: Display settings > Phone layout: animation ms, top drawer height %, timeline drawer height %, sheet height %, swipe distance px (live sliders, Reset); defaults in `DEFAULT_PHONE_LAYOUT`.
+6. Glow is the T-084 track; visible in the phone timeline (checked in screenshots, Perseids phone).
+7. `controls.css` owns the control look (tokens, variants ui-icon, ui-pill, ui-ghost, ui-accent, ui-row, ui-bare); per-component looks removed from TopBar.css, TimelineBar.css, style.css. `browser-controls.mjs` compares computed look per kind and variant and one baseline per row at 1440x900 and 390x844 in 5 states per experience (Apollo, Jupiter-Io, Perseids): passed (it found and drove out a dropdown padding mismatch and hover-state noise).
+8. `browser-phone.mjs` (portrait and landscape, Apollo and Jupiter-Io) in run-full.sh: passed.
+
+**Gates.** tsc clean; vitest 963 passed, 1 skipped (new tests/phoneLayout.test.ts); npm run build ok; driver guard ok.
+
+**Full run:** `bash tools/validate/run-full.sh docs/evidence/o020-t081-full-20261017T220609Z` (ports 5531/5532): 23 of 24 steps exit 0, all error-lines 0. Single failure: `orbit-look` desktop-true "a brighter ring lights more of the picture". Investigated: the script's brightness sum depends on pointer position (baseline commit 6338e2e gives 50.35M or 46.2M for the same state depending on where the mouse rests, and desktop-readable did not move), so it is pointer/timing sensitive, not a T-081 regression; it passes on the baseline only at the mouse position the click leaves. The driver now parks the pointer after opening the developer panel, which did not make the full-run case stable. Not rewritten, since I-036/I-037 replace this script on the merge; rerun after that merge.
+Earlier partial run (`docs/evidence/o020-t081-full-20261017T114400Z`) failures all fixed: scale-info and shellBounds and primaryControlTargets drawer handling in the driver; provenance badge was a flex box so its text split (now inline-block); story-panels phone-sheet assertion updated; baseline pictures copied into this worktree (git-ignored PNGs).
+
+**Picture differences against docs/evidence/o017-baseline-20261017 (contact-sheet.png in the run directory; 18 of 20 differ, site pages identical).** Desktop 2.9 to 4.6 percent of pixels over 16 levels (Geminids 8.4): the shared control look (36 px controls, one font size, drawn dropdown arrows, round cog level with the bar), the Events button, and the T-084 glow in the timeline. Phone 6.4 to 12.4 percent over 16 (Perseids and Geminids highest): the whole phone layout is new (pill, cog, compact two-line timeline). All intended; owner's look pending.
+
+**Drift notes.** (1) Landscape phones (wider than 700 px, short, touch) use the phone layout. (2) Picking an object on a phone closes the top drawer; info still opens on pick. (3) Phone speed picker shows compact rates ("1 h/s", via formatRateCompact); the drawer slider says it in words. (4) Sources left the badge detail for its own section; the badge no longer holds sources. (5) Desktop control look changed slightly: all controls 36 px, 13 px font, play 36 px (was 40), cog level with the bar row and round. (6) Developer panel excluded from the shared-look check. (7) Safe-area insets not emulable headlessly. (8) orbit-look sensitivity above; no new Issue created (lane rule): suggest one if it persists after the I-036 merge. (9) browser-story-panels, browser-spike03 (via driver) and browser-lite changed only where the phone layout changed the interface; the driver has new reveal helpers.
+**Extra reads.** src/app/App.tsx, SettingControls.tsx, driver.mjs, run-full.sh, browser-lite.mjs, browser-orbit-look.mjs, browser-spike03.mjs, browser-story-panels.mjs, the O-020 Objective, the mock-up files (reference).

@@ -20,6 +20,17 @@ export function formatRate(rate: number): string {
   return `${rate.toLocaleString("en-US")}×`;
 }
 
+const COMPACT_RATE_UNITS = [["wk", 604_800], ["d", 86_400], ["h", 3_600], ["min", 60], ["s", 1]] as const;
+
+/** A rate in a few characters for a narrow picker: simulated time per real second ("1 h/s"), or the plain rate when no whole unit fits. */
+export function formatRateCompact(rate: number): string {
+  for (const [unit, size] of COMPACT_RATE_UNITS) {
+    const count = rate / size;
+    if (count >= 1 && count < 100 && Number.isInteger(count)) return `${count} ${unit}/s`;
+  }
+  return formatRate(rate);
+}
+
 function formatSimulatedDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return `${seconds} simulated seconds`;
   if (!Number.isInteger(seconds)) return `${Number(seconds.toPrecision(3))} simulated seconds`;

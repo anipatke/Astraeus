@@ -45,6 +45,8 @@ pictures() {
 }
 laneA() {
   dev lite browser-lite.mjs
+  dev phone browser-phone.mjs
+  dev controls browser-controls.mjs
   dev spike02 browser-spike02.mjs
   dev shell browser-shell.mjs
   dev anchor-labels browser-anchor-labels.mjs "$B/anchor-labels"

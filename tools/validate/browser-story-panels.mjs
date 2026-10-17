@@ -190,7 +190,9 @@ try {
   const sheet = ui.storyPanel(p);
   await p.waitForTimeout(600); // the sheet slides in; measure it at rest
   const sbox = await sheet.boundingBox();
-  assert.ok(Math.abs(sbox.y + sbox.height - 844) < 2 && sbox.width >= 388, "phone sheet sits at the bottom, full width");
+  // T-081: the sheet rides above the timeline bar (the Play button stays reachable), nearly full width.
+  const { bar: phoneBar } = await ui.phoneBoxes(p);
+  assert.ok(sbox.y + sbox.height <= phoneBar.top + 0.5 && sbox.width >= 370, "phone sheet sits above the timeline, nearly full width");
   assert.equal(await ui.storyPanelHandleVisible(p), true, "grab handle shows");
   assert.ok(sbox.height <= 844 / 2 + 1, "sheet is at most half the screen");
   const scrollWidth = await p.evaluate(() => document.documentElement.scrollWidth);

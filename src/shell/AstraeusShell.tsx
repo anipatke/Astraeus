@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
@@ -10,10 +10,29 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
+import { ControlsDrawer } from "./ControlsDrawer";
+import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAvailable } from "./objectModel";
+import "./controls.css";
 import "./style.css";
+import "./phone.css";
+
+/** Keeps `--timeline-space` at the distance from the screen's bottom to the top of the timeline bar, so a phone sheet can sit above it. */
+function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone: boolean): void {
+  useEffect(() => {
+    const shell = root.current;
+    const bar = shell?.querySelector<HTMLElement>(".timeline-bar") ?? null;
+    if (shell === null || bar === null || typeof ResizeObserver === "undefined") return undefined;
+    const measure = () => shell.style.setProperty("--timeline-space", `${Math.ceil(window.innerHeight - bar.getBoundingClientRect().top)}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    window.addEventListener("resize", measure);
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); shell.style.removeProperty("--timeline-space"); };
+  }, [root, phone]);
+}
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -35,6 +54,8 @@ interface Props {
   readonly storyPanelSettings?: StoryPanelSettings;
   /** The live look of the timeline's activity glow; absent: the defaults. */
   readonly timelineGlow?: TimelineGlowLook;
+  /** The phone layout's live numbers (drawer heights, animation, swipe distance); absent: the defaults. */
+  readonly phoneLayout?: PhoneLayoutSettings;
   /** Starts or holds playback; the shell uses it to pause while a panel opens by itself. */
   readonly onSetPlaying?: (playing: boolean) => void;
   /** Asks the shell to open a panel (a scene marker was pressed); a new `serial` asks again. */
@@ -62,6 +83,7 @@ export function AstraeusShell({
   developerTools,
   storyPanelSettings,
   timelineGlow,
+  phoneLayout = DEFAULT_PHONE_LAYOUT,
   onSetPlaying,
   panelRequest,
   onOpenPanelChange,
@@ -70,6 +92,20 @@ export function AstraeusShell({
   const [selectedObjectId, setSelectedObjectId] = useState(() =>
     firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? experience.objects[0]?.id ?? "",
   );
+  const phone = usePhone();
+  const root = useRef<HTMLElement | null>(null);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  /** The two drawers share the screen, so opening one closes the other. */
+  const openControls = (open: boolean) => { setControlsOpen(open); if (open) setTimelineOpen(false); };
+  const openTimeline = (open: boolean) => { setTimelineOpen(open); if (open) setControlsOpen(false); };
+  useEffect(() => {
+    if (!phone || (!controlsOpen && !timelineOpen)) return undefined;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setControlsOpen(false); setTimelineOpen(false); } };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [phone, controlsOpen, timelineOpen]);
+  useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   /** The object panel follows the selected object; an event panel names its event. */
   const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | null>(null);
@@ -173,23 +209,29 @@ export function AstraeusShell({
     : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, snapshot.timeUtcMs);
   const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, snapshot.timeUtcMs) : [];
 
+  const selectedLabel = experience.objects.find((object) => object.id === selectedObjectId)?.label ?? "Controls";
+  const topBar = (
+    <TopBar
+      experience={experience}
+      timeUtcMs={snapshot.timeUtcMs}
+      selectedObjectId={selectedObjectId}
+      activePresetId={activePresetId}
+      onSelectObject={selectObject}
+      onCameraPreset={activatePreset}
+      infoOpen={info?.kind === "object"}
+      onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
+      scaleId={scaleId}
+      onScaleChange={onScaleChange}
+      scaleChoices={scaleChoices}
+    />
+  );
+
   return (
-    <main className="astraeus-shell">
+    <main className="astraeus-shell" ref={root} data-phone={phone} style={phoneLayoutStyle(phoneLayout)}>
       <div className="shell-canvas">{children}</div>
+      {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}</ControlsDrawer>}
       <div className="shell-top">
-        <TopBar
-          experience={experience}
-          timeUtcMs={snapshot.timeUtcMs}
-          selectedObjectId={selectedObjectId}
-          activePresetId={activePresetId}
-          onSelectObject={selectObject}
-          onCameraPreset={activatePreset}
-          infoOpen={info?.kind === "object"}
-          onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
-          scaleId={scaleId}
-          onScaleChange={onScaleChange}
-          scaleChoices={scaleChoices}
-        />
+        {!phone && topBar}
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>
       {story.openPanel !== null && (
@@ -213,6 +255,7 @@ export function AstraeusShell({
         onWindowSeek={seekToWindow}
         onWindowInfo={(window) => setInfo({ kind: "window", id: window.id })}
         glowLook={timelineGlow}
+        drawer={phone ? { open: timelineOpen, onOpenChange: openTimeline, swipeThresholdPx: phoneLayout.swipeThresholdPx } : undefined}
       />
     </main>
   );
