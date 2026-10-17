@@ -45,6 +45,10 @@ Owner, 2026-10-17: "our UI should be mobile friendly using drawers and sliders t
    - **Info and story panels:** the Sources list becomes a collapsible section, closed by default (owner, 2026-10-17: "on the info / story tile, make the sources a collapsible section"). Today it is always open in the info panel (`src/shell/ProvenanceBadge.tsx`) and the story panels (`src/shell/StoryPanelView.tsx`). Browser scripts that read the sources text (`browser-showers.mjs`, `browser-public-showers.mjs` and others) open the section first or read it while closed, with each scenario mapped (TEST-03). The credits stay complete and reachable in one tap (PROV-01).
    - Every icon keeps a text tooltip and an accessible name (screen readers and the browser checks find buttons by name), and touch targets stay at least 44 px on phones.
 
+5. **The portfolio embeds the app** (owner, 2026-10-17, screenshot of the portfolio's Astraeus section, `main-portfolio/components/astraeus/AstraeusBridge.tsx`): the portfolio shows its own story buttons (Apollo 11, The Perseids, The Geminids, Earth & Moon, Jupiter & Io) and a Full Screen button above an iframe of `https://astraeus.anipatke.com/app.html?experience=...`. Consequences:
+   - **Stable addresses.** `app.html`, `?experience=shower-perseids`, `shower-geminids`, `earth-moon` and `jupiter-io` are a public contract: they keep opening the same experience through this and later Objectives (O-018, O-019); a browser check asserts each.
+   - **Embedded look.** When the app sits inside another page (detected, or an address flag decided at planning), its own top bar is as slim as possible so the two bars do not stack heavily; full screen keeps the full layout.
+   - **Developer mode stays public** as the cog icon (owner: "Keep it, its a demo so i want people to know the ins and outs").
 ## Boundaries
 
 **In scope:**
