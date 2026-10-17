@@ -3,7 +3,7 @@
 // PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-orbit-look.mjs
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
+import { currentScale, loadAddress, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -31,15 +31,15 @@ const litPixels = async (page) => {
   }, png);
 };
 
-for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 900 }, "true-scale"], ["desktop-readable", { width: 1440, height: 900 }, "readable"], ["phone", { width: 390, height: 844 }, "true-scale"]]) {
+for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 900 }, "true-scale"], ["desktop-readable", { width: 1440, height: 900 }, "readable-scale"], ["phone", { width: 390, height: 844 }, "true-scale"]]) {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
-  await page.goto(`${base}?experience=earth-moon&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`);
-  await page.waitForSelector("canvas");
+  await loadAddress(page, `${base}?experience=earth-moon&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`); // throws when the scale is not offered or not in force (I-036)
   await page.waitForTimeout(3000);
   await openDeveloper(page);
   await waitForOrbitLines(page);
+  assert.equal(await currentScale(page), scale, `${label}: the scale in use is ${scale}`);
   const toggles = { "Orbit ring": "orbit-ring", "Fade ring ends": "orbit-ring-fade", "Trailing arc": "orbit-arc", "Brighten when zoomed out": "orbit-zoom-brighten" };
   const outcome = { toggles: {} };
   const base0 = await litPixels(page);

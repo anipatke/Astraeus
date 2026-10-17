@@ -172,12 +172,13 @@ const pathPixels = async (page) => {
     ctx.drawImage(image, 0, 0);
     const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
     const half = Math.floor(copy.width / 2);
-    const count = { blue: 0, violet: 0, left: 0, right: 0, bright: 0 };
+    const count = { blue: 0, violet: 0, orbit: 0, left: 0, right: 0, bright: 0 };
     for (let i = 0; i < pixels.length; i += 4) {
       const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
       const x = (i / 4) % copy.width;
       if (b > 90 && b - r > 35 && b - g > 15 && g >= r) { count.blue += 1; if (x < half) count.left += 1; else count.right += 1; }
       if (b > 110 && r - g > 15 && b - r > 25) count.violet += 1;
+      if (r >= 70 && r - g >= 15 && r - g <= 48 && b - g >= 8 && b - g <= 42 && Math.abs(b - r) <= 25) count.orbit += 1; // the orbit line as the I-035 look draws it: lavender, red and blue both above green (213,180,199 at full brightness, 108,92,119 where it fades); the stream is amber, planets tan, Earth's path blue
       if (r + g + b > 60) count.bright += 1;
     }
     return count;
@@ -277,12 +278,29 @@ async function checkSunEarth(page, label, shot, canvas) {
   for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); await closeInfo(); }]]) {
     await move();
     await choose("sun", "overview");
+    await ui.closeAllPanelsNow(page); // a story or information panel lies over the canvas and its text would be counted as scene pixels (I-037)
+    await page.waitForTimeout(300);
     // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
     // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
     const whole = await pathPixels(page);
-    // T-084 drift: this used to assert violet > 60, but those pixels were the old purple window strip under the timeline bar (the canvas lies behind it); the scene itself draws
-    // the parent's orbit in the I-035 look, not violet, so scene-only the count is ~0. Recorded, not asserted, until the owner/an Issue decides the comet-orbit check's new colour.
+    // I-037: the comet's whole orbit is drawn in the Overview, proved from the scene alone (ui.sceneCanvasPng blacks out the timeline bar, whose purple strip once supplied the old violet count).
+    // The scene draws the parent's orbit in the I-035 look, a pale lavender line (about 213,180,199 in the Overview), which the `orbit` test in pathPixels matches; the stream (amber), Earth's
+    // path (blue) and the planets' orbits (tan) do not. Negative probe: the same test with the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view
+    // (Focus Earth is no probe: the comet's orbit passes close by Earth), must find far fewer, so the test measures the orbit.
     out.path[`${name}WholeOrbitViolet`] = whole.violet;
+    out.path[`${name}WholeOrbitPixels`] = whole.orbit;
+    if (name === "start") {
+      // At the peak the Overview framing puts the orbit's line under the dense stream and the Sun's glow, so the peak is not asserted here: checkWholeOrbit asserts the orbit is drawn at the peak (Whole orbit preset, scene only).
+      assert.ok(whole.orbit > 100, `${label}/${name}: the comet's whole orbit is drawn in the Overview, scene only (${whole.orbit} orbit-coloured pixels)`);
+      const boxN = await canvas.boundingBox();
+      await page.mouse.move(boxN.x + boxN.width / 2, boxN.y + boxN.height / 2);
+      for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
+      await page.waitForTimeout(1200);
+      const without = await pathPixels(page);
+      out.path.startOrbitOutOfViewPixels = without.orbit;
+      assert.ok(without.orbit < whole.orbit / 4, `${label}/${name}: the orbit test finds the line only when it is in view (${without.orbit} with it out of view, ${whole.orbit} in the Overview)`);
+    }
+    await choose("sun", "overview");
     const box0 = await canvas.boundingBox();
     await page.mouse.move(box0.x + box0.width / 2, box0.y + box0.height / 2);
     let overview = whole;
@@ -481,8 +499,9 @@ async function checkWholeOrbit(page, label, shot, canvas) {
   await selectOrbit(page, parent, `${parent}-orbit`);
   await ui.closeInfo(page);
   await ui.chooseCamera(page, "whole-orbit");
+  await ui.closeAllPanelsNow(page);
   await page.waitForTimeout(2500);
-  const png = (await canvas.screenshot()).toString("base64"); // unmasked on purpose: the Whole orbit extent is violet, the bar has none, and a masked picture of this canvas read a different extent (T-084)
+  const png = (await canvas.screenshot()).toString("base64"); // unmasked on purpose for the extent: the Whole orbit extent is violet, the bar has none, and a masked picture of this canvas read a different extent (T-084); the scene-only count is asserted below (I-037)
   const extent = await page.evaluate(async (data) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -500,6 +519,9 @@ async function checkWholeOrbit(page, label, shot, canvas) {
     return { minX, maxX, minY, maxY, count, width: copy.width, height: copy.height };
   }, png);
   out.violet = extent;
+  const scene = await pathPixels(page); // scene only: the timeline bar is blacked out, so only the canvas can supply these pixels (I-037)
+  out.sceneOrbitPixels = scene.orbit;
+  assert.ok(scene.orbit > 150, `${label}: the comet's whole orbit is drawn in the scene at the peak (${scene.orbit} orbit-coloured pixels, bar masked)`);
   const spanY = (extent.maxY - extent.minY) / extent.height;
   const spanX = (extent.maxX - extent.minX) / extent.width;
   assert.ok(extent.count > 150, `${label}: the comet's whole orbit is drawn (${extent.count} violet pixels)`);
