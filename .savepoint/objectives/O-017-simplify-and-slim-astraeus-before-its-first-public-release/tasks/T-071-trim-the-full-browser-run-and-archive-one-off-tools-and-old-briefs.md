@@ -2,8 +2,7 @@
 id: T-071
 title: Trim the full browser run and archive one-off tools and old briefs
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-067, requires: clear}, {task: T-068, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-plan-20261017}
@@ -82,3 +81,7 @@ Run 2026-10-17 by the builder (executor) session; no app code changed. Evidence 
 ## Drift Notes
 
 Design tools/validate row (Task 7): Design.md still lists `browser-lighting.mjs`, `browser-showers-gmn.mjs`, `browser-sky-map.mjs` (no longer present), the archived tools as live, the on-request move, `run-full.sh`, `contact-sheet.mjs` and the trimmed showers/sky; T-072 reconciles these (deferred here, named integration Task T-072).
+
+## Owner Completion — 2026-10-17
+
+Marked done on the owner's standing instruction ("yes, mark each clear step done and keep going") after Quick Task Check C-052 CLEAR.
