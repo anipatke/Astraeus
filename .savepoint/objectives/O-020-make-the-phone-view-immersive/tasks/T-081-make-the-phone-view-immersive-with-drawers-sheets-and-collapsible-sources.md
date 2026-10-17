@@ -3,7 +3,7 @@ id: T-081
 title: Make the phone view immersive with drawers, sheets and collapsible sources
 objective: O-020
 status: planned
-depends_on: [{task: T-079, requires: clear}, {task: T-080, requires: clear}]
+depends_on: [{task: T-079, requires: clear}, {task: T-080, requires: clear}, {task: T-083, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
