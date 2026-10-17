@@ -30,6 +30,11 @@ export interface PointGroup {
   readonly provenance: Provenance;
   /** Writes every member's position (EQJ km, x y z per member) into `out`, which must hold 3 × count values. */
   fillPositionsKm(timeUtcMs: number, out: Float64Array): void;
+  /**
+   * Optional: the same values as `fillPositionsKm` for members `start` up to (not including) `end` only; the other
+   * entries of `out` are left alone. Lets the points layer spread a large fill over several frames.
+   */
+  fillPositionsRangeKm?(timeUtcMs: number, out: Float64Array, start: number, end: number): void;
   /** One member as an ordinary State; positionKm equals the batch values for the same time. */
   stateAt(index: number, timeUtcMs: number): State;
 }
@@ -49,6 +54,12 @@ export function assertWithinBounds(bounds: TimeBounds | undefined, timeUtcMs: nu
 export function assertFillBuffer(count: number, out: Float64Array): void {
   if (out.length !== 3 * count) {
     throw new GroupBufferError(`fill buffer must hold ${3 * count} values, received ${out.length}`);
+  }
+}
+
+export function assertMemberRange(count: number, start: number, end: number): void {
+  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end > count || start > end) {
+    throw new RangeError(`member range must satisfy 0 <= start <= end <= ${count}`);
   }
 }
 

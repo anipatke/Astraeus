@@ -2,6 +2,7 @@ import type { CenterId } from "./body";
 import { memberStatesOf, propagatedPositionOf, seededRandom, type ElementPlane } from "./orbitGroup";
 import {
   assertFillBuffer,
+  assertMemberRange,
   assertGroupCount,
   assertMemberIndex,
   assertWithinBounds,
@@ -253,7 +254,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
     notes: `${input.provenance.notes} ${PHASE_NOTE}${concentration === undefined ? "" : ` ${CONCENTRATION_NOTE}`}`.trim(),
   });
 
-  const group: ListedOrbitGroup = {
+  const group: ListedOrbitGroup & { fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void } = {
     id: input.id,
     count,
     center,
@@ -261,11 +262,15 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
     ...(bounds === undefined ? {} : { bounds }),
     provenance,
     fillPositionsKm(timeUtcMs: number, out: Float64Array): void {
+      group.fillPositionsRangeKm(timeUtcMs, out, 0, count);
+    },
+    fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void {
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
       assertFillBuffer(count, out);
+      assertMemberRange(count, start, end);
       const dtSeconds = (timeUtcMs - referenceUtcMs) / 1000;
-      for (let member = 0; member < count; member++) adapter.propagateMemberInto(states, member, dtSeconds, center, out);
+      for (let member = start; member < end; member++) adapter.propagateMemberInto(states, member, dtSeconds, center, out);
     },
     stateAt(index: number, timeUtcMs: number) {
       assertMemberIndex(count, index);

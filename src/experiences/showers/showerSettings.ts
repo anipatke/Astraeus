@@ -40,6 +40,8 @@ export interface ShowerLook {
   readonly pointSizePx: number;
   /** How long the clock runs between two exact fills of the stream (hours of simulated time); presentation only. */
   readonly refillAfterHours: number;
+  /** Milliseconds per frame the stream may spend computing its next fill ahead of time; 0 fills whole in one frame. Absent: the engine default. */
+  readonly refillSliceMs?: number;
   readonly earthPathColor: string;
   readonly parentPathColor: string;
   /** How much larger than life Earth and every other planet are drawn under the solar-system scale (one factor, so their sizes stay in proportion); each info states it. */
@@ -258,6 +260,7 @@ function look(raw: Raw): ShowerLook {
     streamColor: colour(raw, "streamColor", "look"),
     pointSizePx: positive(raw, "pointSizePx", "look"),
     refillAfterHours: positive(raw, "refillAfterHours", "look"),
+    ...(raw.refillSliceMs === undefined ? {} : { refillSliceMs: nonNegative(raw, "refillSliceMs", "look") }),
     earthPathColor: colour(raw, "earthPathColor", "look"),
     parentPathColor: colour(raw, "parentPathColor", "look"),
     planetExaggeration,

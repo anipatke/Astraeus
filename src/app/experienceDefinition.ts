@@ -56,6 +56,12 @@ export interface GroupLayer {
    * fills. Defaults to five minutes. The group's State is unchanged.
    */
   readonly refillAfterMs?: number;
+  /**
+   * Presentation only: milliseconds per frame the points layer may spend computing the next fill ahead of time,
+   * so a large group does not hitch for a whole frame at each fill. 0 turns that off (every fill is made whole in
+   * one frame). Only groups that can fill a range of members and hold more than 1,024 are spread. Defaults to 8.
+   */
+  readonly refillSliceMs?: number;
 }
 
 /**

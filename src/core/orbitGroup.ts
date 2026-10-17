@@ -2,6 +2,7 @@ import type { CenterId } from "./body";
 import { createProvenance, type Provenance } from "./provenance";
 import {
   assertFillBuffer,
+  assertMemberRange,
   assertGroupCount,
   assertMemberIndex,
   assertWithinBounds,
@@ -154,15 +155,17 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
   });
   const { count, center, epochUtcMs, bounds } = input;
 
-  const fillPositionsKm = (timeUtcMs: number, out: Float64Array): void => {
+  const fillPositionsRangeKm = (timeUtcMs: number, out: Float64Array, start: number, end: number): void => {
     assertUtcUnixMs(timeUtcMs);
     assertWithinBounds(bounds, timeUtcMs);
     assertFillBuffer(count, out);
+    assertMemberRange(count, start, end);
     const dtSeconds = (timeUtcMs - epochUtcMs) / 1000;
-    for (let member = 0; member < count; member++) {
+    for (let member = start; member < end; member++) {
       adapter.propagateMemberInto(states, member, dtSeconds, center, out);
     }
   };
+  const fillPositionsKm = (timeUtcMs: number, out: Float64Array): void => fillPositionsRangeKm(timeUtcMs, out, 0, count);
 
   const group: PointGroup = {
     id: input.id,
@@ -172,6 +175,7 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
     ...(bounds === undefined ? {} : { bounds }),
     provenance,
     fillPositionsKm,
+    fillPositionsRangeKm,
     stateAt(index: number, timeUtcMs: number) {
       assertMemberIndex(count, index);
       assertUtcUnixMs(timeUtcMs);
