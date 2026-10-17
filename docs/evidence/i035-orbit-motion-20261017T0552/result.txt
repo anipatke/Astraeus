@@ -1,0 +1,17 @@
+{
+ "jupiter-io": {
+  "rate": "604800",
+  "frames": 360,
+  "readings": 360,
+  "maxGap": 0,
+  "time": "2000-01-01T14:11:41.639Z"
+ },
+ "earth-moon": {
+  "rate": "604800",
+  "frames": 360,
+  "readings": 360,
+  "maxGap": 0,
+  "time": "2025-01-01T20:39:22.320Z"
+ }
+}
+orbit arc motion: ok

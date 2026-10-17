@@ -20,6 +20,7 @@ import { AstraeusScene, type SceneControls } from "./AstraeusScene";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
+import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { baseGlowOf, GLOW_LIMITS, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
@@ -143,6 +144,14 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [developerMode, setDeveloperMode] = useState(false);
   const [anchorLabels, setAnchorLabels] = useState(false);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
+  const orbitPaths = runtime.composition?.paths ?? [];
+  const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
+  const [orbitShown, setOrbitShown] = useState<OrbitLook>(orbitDefault);
+  const setOrbit = (change: Partial<OrbitLook>) => {
+    controls.current.orbitLook = { ...controls.current.orbitLook, ...change };
+    setOrbitShown({ ...orbitDefault, ...controls.current.orbitLook });
+  };
+  const resetOrbit = () => { delete controls.current.orbitLook; setOrbitShown(orbitDefault); };
   const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
@@ -240,7 +249,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         </section>
       )}
       <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
+      {(orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
         <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
           <h3 id="developer-display-heading">Display settings</h3>
           <div className="setting-groups">
@@ -275,6 +284,33 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               </SettingButtons>
               <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
                 onChange={setStoryPauseSeconds} />
+            </SettingGroup>
+          )}
+          {orbitPaths.length > 0 && (
+            <SettingGroup id="orbit-lines" title="Orbit lines">
+              <SettingButtons>
+                <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>Orbit ring</button>
+                <button aria-pressed={orbitShown.endFadeOn} onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}>Fade ring ends</button>
+                <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>Trailing arc</button>
+                <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
+              </SettingButtons>
+              {([
+                ["baseOpacity", "Ring opacity", "orbit-base-opacity", 0.01],
+                ["endFade", "End fade (of ring)", "orbit-end-fade", 0.01],
+                ["arcFraction", "Arc length (of orbit)", "orbit-arc-fraction", 0.01],
+                ["arcPeak", "Arc opacity", "orbit-arc-peak", 0.01],
+                ["arcExponent", "Fade curve (power)", "orbit-arc-exponent", 0.1],
+                ["arcSegments", "Arc segments", "orbit-arc-segments", 1],
+                ["arcWidth", "Arc width (of orbit)", "orbit-arc-width", 0.0001],
+                ["zoomBoostBase", "Zoom boost (ring)", "orbit-zoom-boost-base", 0.01],
+                ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
+              ] as const).map(([key, label, testId, step]) => (
+                <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
+                  onChange={(value) => setOrbit({ [key]: value })} />
+              ))}
+              <SettingButtons>
+                <button onClick={resetOrbit}>Reset orbit lines</button>
+              </SettingButtons>
             </SettingGroup>
           )}
           {runtime.sky.visible && (

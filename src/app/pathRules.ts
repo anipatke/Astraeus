@@ -98,3 +98,40 @@ export function pathNeedsRefresh(
   if (drift > windowMs / 4) return true; // seek: the old window no longer brackets the date
   return drift > policy.maxDriftMs && realNowMs - lastBuildRealMs >= policy.minRealIntervalMs;
 }
+
+const smoothstep = (x: number): number => {
+  const c = Math.max(0, Math.min(1, x));
+  return c * c * (3 - 2 * c);
+};
+
+/**
+ * Opacity (0 to 1) of a ring vertex sampled at `vertexUtcMs`, for a ring one `periodMs` wide centred on the clock `nowUtcMs` whose two ends
+ * fade out over `endFade` of the period: a function of time, so it slides continuously with the clock and does not depend on when the sampled
+ * window was last rebuilt.
+ */
+export function ringAlpha(nowUtcMs: number, vertexUtcMs: number, periodMs: number, endFade: number): number {
+  if (!(endFade > 0)) return 1;
+  const fromEnd = Math.min(vertexUtcMs - (nowUtcMs - periodMs / 2), nowUtcMs + periodMs / 2 - vertexUtcMs);
+  return smoothstep(fromEnd / (endFade * periodMs));
+}
+
+/** Opacity of a ring vertex by its place in the sampled window alone (0 at both physical ends, full by `endFade` of the way in): hides where a stale window stops. */
+export function windowEdgeAlpha(index: number, count: number, endFade: number): number {
+  if (!(endFade > 0) || count < 2) return 1;
+  const t = index / (count - 1);
+  return smoothstep(Math.min(t, 1 - t) / endFade);
+}
+
+/**
+ * Opacity of arc segment `index` of `count` (0 nearest the body), the donor's profile: `peak * t^exponent` with t from 1 at the body to 0 at the
+ * tail, so the last segment is nothing (Planetary Explorer's `0.65 * t * t`).
+ */
+export function arcSegmentAlpha(index: number, count: number, peak: number, exponent: number): number {
+  const t = count <= 1 ? 1 : 1 - index / (count - 1);
+  return peak * t ** exponent;
+}
+
+/** Whether a time falls inside the arc's span, the `arcMs` up to the clock, where the ring is left clear so the two never overlap. */
+export function insideArcSpan(nowUtcMs: number, vertexUtcMs: number, arcMs: number): boolean {
+  return vertexUtcMs >= nowUtcMs - arcMs && vertexUtcMs <= nowUtcMs;
+}
