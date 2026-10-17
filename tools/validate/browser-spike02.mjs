@@ -166,9 +166,10 @@ async function run(label, viewport) {
     await eventPicker.selectOption(option.value);
     await click("Jump to event");
     // The shell clock readout is refreshed by App's 100 ms snapshot poll.
-    await page.waitForTimeout(150);
-    const actual = await readTime();
+    // Under a loaded machine (the full run's parallel lanes) the poll can lag; wait for the readout to reach the event, then assert as before.
     const expected = timelineEvent.utc;
+    await page.waitForFunction((target) => Date.parse(document.querySelector(".timeline-time")?.getAttribute("datetime") ?? "") === Date.parse(target), expected, { timeout: 5000 }).catch(() => {});
+    const actual = await readTime();
     assert.equal(Date.parse(actual), Date.parse(expected), `event lands at ${option.label}`);
     eventJumps.push({ label: option.label, expected, actual });
   }

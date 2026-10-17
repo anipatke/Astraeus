@@ -1,0 +1,22 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: event lands at GET 101:36:14.0 · Descent orbit insertion (DOI) ignition
++ actual - expected
+
++ -14190487100
+- -14187106000
+      ^
+
+    at run (file:///home/user/code/Astraeus/tools/validate/browser-spike02.mjs:172:12)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-spike02.mjs:274:42 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: -14190487100,
+  expected: -14187106000,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

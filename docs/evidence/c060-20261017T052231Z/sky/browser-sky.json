@@ -1,0 +1,32 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 28.9,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 6449,
+          "lit": 482613,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 4363,
+          "lit": 97505,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 5464,
+          "lit": 106324,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 16.7,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 18.8,
+      "probeChecks": 2
+    }
+  },
+  "errors": []
+}

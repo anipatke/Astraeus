@@ -562,13 +562,17 @@ async function checkCrossing(page, label) {
   if (process.env.ASTRAEUS_SOFT_PEAK === "1" && !(Math.abs(longitude - published) < 0.3)) out.peakToleranceMiss = `solar longitude ${longitude.toFixed(2)} vs published ${published}`;
   else assert.ok(Math.abs(longitude - published) < 0.3, `${label}: the peak instant ${instant} has solar longitude ${longitude.toFixed(2)}, within 0.3 deg of the published ${published}`);
   const rates = [];
+  // T-080 moved the "Inside: ... N meteors per hour" readout into the Events popover; open it to read the rate. The window caption now also says "peak N meteors per hour" (a constant), so the match is the "Inside:" line, the live rate (it stays open across the seeks, closed again below).
+  const eventsDetails = page.locator("details.timeline-event-list");
+  if (!(await eventsDetails.evaluate((element) => element.open))) await eventsDetails.locator("summary").click();
   // Ten days either side of the peak when the window has them, else one day short of the nearer window edge (a short window, such as a December shower's, ends a few days after its peak).
   const edgeDays = Math.floor(Math.min(Date.parse(settingsFile.activity.peakUtc) - Date.parse(settingsFile.activity.startUtc), Date.parse(settingsFile.activity.endUtc) - Date.parse(settingsFile.activity.peakUtc)) / 86_400_000);
   const offsetDays = Math.min(10, edgeDays - 1);
   out.rateOffsetDays = offsetDays;
-  for (const days of [-offsetDays, 0, offsetDays]) { await seek(page, Date.parse(instant) + days * 86_400_000); rates.push(Number((await page.getByRole("region", { name: "Timeline controls" }).innerText()).match(/([\d.]+) meteors per hour/)?.[1])); }
+  for (const days of [-offsetDays, 0, offsetDays]) { await seek(page, Date.parse(instant) + days * 86_400_000); rates.push(Number((await page.getByRole("region", { name: "Timeline controls" }).innerText()).match(/Inside:[^\n]*?([\d.,]+) meteors per hour/)?.[1]?.replace(/,/g, ""))); }
   out.rateAtMinus10dPeakPlus10d = rates;
   assert.ok(rates[1] > rates[0] && rates[1] > rates[2], `${label}: the rate readout is highest at the peak (${rates})`);
+  if (await eventsDetails.evaluate((element) => element.open)) await eventsDetails.locator("summary").click();
   await page.locator("button.timeline-window-peak").click();
   await page.waitForTimeout(400);
 }

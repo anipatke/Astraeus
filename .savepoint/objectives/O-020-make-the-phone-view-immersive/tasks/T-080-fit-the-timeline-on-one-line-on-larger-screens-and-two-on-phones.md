@@ -99,3 +99,11 @@ Pictures: `docs/evidence/o020-t080-shots/{before,after}-{desktop,phone}-{apollo,
 
 ### Limitations
 - Phone pictures and the Events popover were checked by screenshots at 390x844 and 1440x900 only; 768 width was covered by the spike03 touch-target assertions, not by a picture. Rate-window experiences are taller than one line (the window strip stays above the line).
+
+### Repair after merge (2026-10-17)
+
+The orchestrator's full run on the merged tree (`docs/evidence/c060-20261017T052231Z/`) failed `browser-showers.mjs perseids`: "desktop: the rate readout is highest at the peak (100,100,100)". Cause: the script, not the app. The rate regex `([\d.]+) meteors per hour` read the first match in the timeline region, which is now the window caption "... peak 100 meteors per hour" (a constant), and the live "Inside: ... N meteors per hour" line now lives in the closed Events popover (hidden from `innerText`). Fix in `tools/validate/browser-showers.mjs` (`checkCrossing`): open `details.timeline-event-list` before the three seeks, match the `Inside:` line (commas stripped), and close the popover afterwards; every scenario kept. Solo run (`perseids`, dev server on 5494): exit 0 (`docs/evidence/o020-repair-showers-053144-d`). The live rate still updates in the app.
+
+Other repairs (T-079 controls, spike02 timing) are in T-079's "Repair after merge". Files changed: `tools/validate/browser-showers.mjs`, `browser-sky.mjs`, `browser-spike02.mjs`. Gates: tsc clean, vitest 939 passed, build ok. The full-run summary is appended below once it finishes.
+
+Full browser run after the repairs (`bash tools/validate/run-full.sh`, 2026-10-17): `docs/evidence/o020-repair-full2-053144/summary.txt`, every step exit 0, zero error lines. Picture difference figures (differ from the baseline by design): {"files":20,"identical":2,"maxOver16Pct":13.0982}. A first full run (`o020-repair-full-053144`) failed only `showers-perseids` at `checkLoopOff` ("Select object" stream option not enabled) while the machine was loaded by other builders (325 s versus 161 s); the same script passed solo right after (`o020-repair-showers-053144-e`) and in the second full run, so it is recorded as a load flake, not a regression (not fixed; not reproduced).

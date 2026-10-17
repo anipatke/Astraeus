@@ -102,3 +102,14 @@ New: `src/shell/TopBar.tsx`, `src/shell/TopBar.css`, `src/shell/topBarIcons.tsx`
 - Design.md (shell components, ARCH-02): the top bar is now `TopBar` (picker, Info, camera buttons, Scale) plus `DeveloperToggle`, with `ExperienceObject.listed` and `partOf`; the reachable-orbit rule is part of the shell/experience contract. Deferred to the integration Task that reconciles Design before the Full Objective Check.
 - The phone layout here is only kept working (one row, 44 px targets, scale text hidden under 480 px); the immersive drawers are T-081. A short phone (under 680 px high) still hides the toolbar while an info sheet is open, as before.
 - The browser scripts' default result files write into tracked historical evidence folders (`docs/evidence/regression-spike01-02`, `docs/evidence/spike03`); a later change could point them at the run's evidence directory.
+
+### Repair after merge (2026-10-17)
+
+The orchestrator's full run on the merged T-079 + T-080 tree (`docs/evidence/c060-20261017T052231Z/`) failed two scripts that touch T-079 controls. Both are script fixes; the app did not regress.
+
+- `browser-sky.mjs` ("apollo-desktop: at least the start and two requests were checked"): the script clicked buttons named `Readable` and `True`, which T-079 replaced with one scale toggle (`Scale: <current>. Switch to <other>`). Only Overview and Focus matched, so fewer than 3 probes ran. Fix: the request list is now `/^Scale: /, Overview, Focus, Follow, /^Scale: /` (the toggle clicked twice stands in for Readable and True; every scenario kept). Solo run: exit 0, 4 probe checks (`docs/evidence/o020-repair-sky-053144*`).
+- `browser-spike02.mjs` ("event lands at ... DOI ignition"): not a layout change. The same script passes alone on this tree; in the full run it read the previous event's time after a fixed 150 ms wait on the clock readout under parallel-lane load. Fix: wait (up to 5 s) for `.timeline-time` to reach the event's time before the unchanged assertion. Solo run: exit 0 (`docs/evidence/o020-repair-spike02-053144*`).
+
+Gates: tsc clean, vitest 939 passed, build ok. Full browser run: see the T-080 repair note.
+
+Full browser run after the repairs (`bash tools/validate/run-full.sh`, 2026-10-17): `docs/evidence/o020-repair-full2-053144/summary.txt`, every step exit 0, zero error lines. Picture difference figures (differ from the baseline by design): {"files":20,"identical":2,"maxOver16Pct":13.0982}. A first full run (`o020-repair-full-053144`) failed only `showers-perseids` at `checkLoopOff` ("Select object" stream option not enabled) while the machine was loaded by other builders (325 s versus 161 s); the same script passed solo right after (`o020-repair-showers-053144-e`) and in the second full run, so it is recorded as a load flake, not a regression (not fixed; not reproduced).

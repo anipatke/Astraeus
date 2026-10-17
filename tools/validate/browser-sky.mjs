@@ -187,7 +187,8 @@ try {
       await page.getByRole("button", { name: "Developer mode" }).click();
       out.fpsWithSky = await fpsOf(page);
       const probes = [await checkProbe(page, label, "start")];
-      for (const request of [/^Readable$/, /^Overview$/, /^Focus /, /^Follow /, /^True$/]) {
+      // The scale is one toggle button now (T-079): "Scale: Readable. Switch to True" and back, standing in for the old Readable and True buttons.
+      for (const request of [/^Scale: /, /^Overview$/, /^Focus /, /^Follow /, /^Scale: /]) {
         const button = page.getByRole("button", { name: request }).first();
         if ((await button.count()) === 0 || !(await button.isEnabled())) continue;
         await button.evaluate((element) => element.click()); // the developer panel covers some controls on a phone
