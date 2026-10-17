@@ -4,7 +4,7 @@
 //   - the top drawer opens and closes by a tap on the pill and the handle, and by a swipe down and a swipe up;
 //   - the timeline drawer opens and closes by a tap on its handle and by swipes; its speed slider drives the speed;
 //   - a drag on the scene (every direction) never opens a drawer; time, playing state and the picked object survive opening and closing;
-//   - an information panel opens as a sheet with Sources closed, one tap opens them, a swipe down dismisses the sheet;
+//   - an information panel opens as a sheet above the timeline (Play stays reachable) with Sources closed, one tap opens them, a swipe down dismisses the sheet;
 //   - a story panel's Sources are closed by default, and the panel never covers the timeline's Play button;
 //   - touch targets are at least 44 px; the settings that drive the layout have live controls in the developer panel;
 //   - reduced motion removes the drawer animation; zero console and page errors.
@@ -162,10 +162,11 @@ async function checkInfoSheet(label, page) {
   await ui.waitForInfo(page);
   // The drawer closes itself so the sheet and the scene show.
   assert.equal((await ui.drawerStates(page)).controls, false, `${label}: opening information closes the top drawer`);
-  const sheet = (await ui.phoneBoxes(page)).sheet;
+  const { sheet, bar, play } = await ui.phoneBoxes(page);
   const viewport = page.viewportSize();
-  assert.ok(Math.abs(sheet.bottom - viewport.height) < 1 && sheet.left === 0 && sheet.right === viewport.width, `${label}: the information panel is a sheet on the bottom edge`);
-  assert.ok(sheet.height <= viewport.height * 0.61, `${label}: the sheet leaves the scene visible (${Math.round(sheet.height)} px of ${viewport.height})`);
+  assert.ok(sheet.bottom <= bar.top + 0.5 && sheet.left >= 0 && sheet.right <= viewport.width, `${label}: the information panel is a sheet above the timeline (O-020 Decision 13)`);
+  assert.ok(play !== null && sheet.bottom <= play.top + 0.5, `${label}: the sheet does not cover the Play button`);
+  assert.ok(sheet.top > 52, `${label}: the sheet leaves the top row clear`);
   assert.equal(await ui.infoSourcesClosed(page), true, `${label}: Sources start closed`);
   assert.ok((await ui.sourceLines(page)).length > 0, `${label}: the sources are in the page, closed`);
   await shot(page, `${label}-info-sheet-sources-closed`);

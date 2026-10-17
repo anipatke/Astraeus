@@ -133,40 +133,27 @@
 
 /* ---- Sheets: information and story panels ---- */
 [data-phone="true"] .sheet-handle { display: block; flex: 0 0 auto; align-self: center; width: 40px; height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ui-accent, #fc6323) 45%, transparent); }
+/* Both sheets ride above the timeline bar, so the Play button is never covered (C-053 Observation 2, O-020 Decision 13). */
 [data-phone="true"] .info-panel,
 [data-phone="true"] .story-panel {
   position: fixed;
-  right: 0;
-  left: 0;
-  box-sizing: border-box;
-  width: auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  border-width: 1px 0 0;
-  animation: story-sheet-in var(--drawer-ms, 240ms) var(--drawer-ease);
-}
-/* Information: a sheet from the bottom edge, over the timeline (the mock-up's third phone). */
-[data-phone="true"] .info-panel {
-  z-index: 8;
-  bottom: 0;
-  max-height: var(--sheet-max, 60dvh);
-  padding: 6px calc(20px + var(--safe-right)) calc(24px + var(--safe-bottom)) calc(20px + var(--safe-left));
-  border-radius: 22px 22px 0 0;
-  background: #0e0e13;
-}
-[data-phone="true"] .info-panel-header h2 { margin: 0; font-size: 22px; }
-/* A story panel rides above the timeline bar, so the Play button is never covered (C-053 Observation 2). */
-[data-phone="true"] .story-panel {
-  z-index: 4;
   top: auto;
   bottom: calc(var(--timeline-space, 150px) + 8px);
   right: calc(8px + var(--safe-right));
   left: calc(8px + var(--safe-left));
-  max-height: min(var(--sheet-max, 60dvh), calc(100dvh - var(--timeline-space, 150px) - 8px - 64px - var(--safe-top)));
+  box-sizing: border-box;
+  width: auto;
+  max-height: min(var(--sheet-max, 50dvh), calc(100dvh - var(--timeline-space, 150px) - 8px - 64px - var(--safe-top)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px 14px 14px;
   border-width: 1px;
   border-radius: 16px;
+  animation: story-sheet-in var(--drawer-ms, 240ms) var(--drawer-ease);
 }
+[data-phone="true"] .info-panel { z-index: 8; background: #0e0e13; }
+[data-phone="true"] .story-panel { z-index: 4; }
+[data-phone="true"] .info-panel-header h2 { margin: 0; font-size: 22px; }
 
 /* ---- The Developer panel below the pill, above the timeline ---- */
 [data-phone="true"] .developer-tools {

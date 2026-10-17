@@ -688,7 +688,10 @@ export const shellBounds = (page) => page.evaluate(() => {
 });
 
 /** Every primary control that is showing, with its height: `{selector, label, height}` each (for the touch-target rule). */
-export const primaryControlTargets = (page) => page.evaluate(() => {
+export const primaryControlTargets = async (page) => {
+  await openControlsDrawer(page);
+  await drawersSettled(page);
+  return page.evaluate(() => {
   const selectors = [
     ".object-controls button",
     ".object-controls select",
@@ -706,7 +709,8 @@ export const primaryControlTargets = (page) => page.evaluate(() => {
       return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
     })
     .map((element) => ({ selector, label: element.getAttribute("aria-label") ?? element.textContent.trim(), height: element.getBoundingClientRect().height })));
-});
+  });
+};
 
 // The home page (not the shell): its experience cards.
 

@@ -23,7 +23,7 @@ export const DEFAULT_PHONE_LAYOUT: PhoneLayoutSettings = {
   animationMs: 240,
   timelineDrawerMaxPercent: 55,
   controlsDrawerMaxPercent: 60,
-  sheetMaxPercent: 60,
+  sheetMaxPercent: 50,
   swipeThresholdPx: 30,
 };
 
