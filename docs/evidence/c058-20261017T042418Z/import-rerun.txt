@@ -1,0 +1,25 @@
+earth: 20 features, 3 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+moon: 30 features, 4 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+mars: 32 features, 6 categories, map source donor public/textures/README.md, 2 oddities
+mercury: 16 features, 5 categories, map source donor public/textures/README.md
+venus: 19 features, 5 categories, map source donor public/textures/README.md
+jupiter: 15 features, 5 categories, map source astraeus tools/import/planetary-explorer-map-sources.json, 6 oddities
+saturn: 20 features, 3 categories, map source donor public/textures/README.md
+neptune: 19 features, 6 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+triton: 12 features, 5 categories, map source donor public/textures/README.md
+uranus: 19 features, 6 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+pluto: 16 features, 6 categories, map source astraeus tools/import/planetary-explorer-map-sources.json, 4 oddities
+charon: 12 features, 5 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+ceres: 8 features, 2 categories, map source astraeus tools/import/planetary-explorer-map-sources.json
+io: 12 features, 3 categories, map source donor public/textures/README.md
+europa: 19 features, 6 categories, map source donor public/textures/README.md
+ganymede: 25 features, 7 categories, map source donor public/textures/README.md
+callisto: 22 features, 5 categories, map source donor public/textures/README.md
+titan: 11 features, 5 categories, map source donor public/textures/README.md
+enceladus: 16 features, 6 categories, map source donor public/textures/README.md
+mimas: 8 features, 4 categories, map source donor public/textures/README.md
+tethys: 12 features, 4 categories, map source donor public/textures/README.md
+dione: 15 features, 5 categories, map source donor public/textures/README.md
+rhea: 13 features, 5 categories, map source donor public/textures/README.md
+iapetus: 12 features, 4 categories, map source donor public/textures/README.md
+Wrote 24 bodies, 403 features (donor 84f8d3e)
