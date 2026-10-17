@@ -25,7 +25,9 @@ On a phone: the scene fills the screen; each drawer opens and closes by tap and 
 3. Sheets: info and story panels reuse the existing bottom-sheet and swipe-to-dismiss parts (STYLE-07); Sources in `ProvenanceBadge` and `StoryPanelView` become a collapsible section, closed by default, one tap to open (O-020 Decision 4); browser scripts that read source text open it first or read it while closed, each scenario mapped (TEST-03).
 4. A story panel never covers the timeline's Play button on phones (C-053 Observation 2).
 5. Drawer heights, animation times and any auto-hide delay are settings with live controls (owner rule), not hard-coded numbers.
-6. A browser check at phone sizes (portrait and landscape) that opens and closes each drawer, checks a scene drag does not open a drawer, opens an info sheet with Sources closed then open, and finds no console errors; added to `tools/validate/run-full.sh`.
+6. **Activity graph in the drawer** (owner, 2026-10-17, on the T-080 preview: "In the mobile view, why are the purple lines above the timeline?"): on phones the shower's activity window graph (meteors per hour across the active weeks) leaves the compact timeline and shows, readable, in the expanded timeline drawer; desktop unchanged.
+7. **One shared set of control styles** (owner, same look: "The two drop downs arent sized/aligned the same"): buttons, icon buttons and dropdowns take their height, padding, radius and font from one shared stylesheet with desktop and phone sizes (44 px targets on phones), used by the top bar (T-079), the timeline (T-080), the drawers and the sheets; no component sets its own control sizes. A browser check measures that every visible control in a row shares one height and baseline at 1440x900 and 390x844.
+8. A browser check at phone sizes (portrait and landscape) that opens and closes each drawer, checks a scene drag does not open a drawer, opens an info sheet with Sources closed then open, and finds no console errors; added to `tools/validate/run-full.sh`.
 
 ## Context Files
 
