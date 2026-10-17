@@ -11,6 +11,7 @@ import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCat
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
 import type { BodyMarkerSettings, GlowLook } from "./bodyDraw";
+import type { OrbitLook } from "../assets/orbitLook";
 import {
   attachOrbitGestures,
   createOrbitCameraState,
@@ -94,6 +95,8 @@ export interface SceneControls {
   bodyMarker: BodyMarkerSettings;
   /** Presentation only: the live halo settings of a body whose record has a glow (the Sun). */
   glowLook?: GlowLook;
+  /** Presentation only: live changes to the orbit look of every composition path, over each path's own settings (Developer > Display settings). */
+  orbitLook?: Partial<OrbitLook>;
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
@@ -225,7 +228,10 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const camState = orbit.current;
     for (const view of groupViews) view.sync(t, placement, policy);
     for (const view of sunCentredViews) view.sync(t, placement, policy);
-    for (const view of compositionPaths) view.sync(t, placement, policy);
+    for (const view of compositionPaths) {
+      if (view.defaultLook !== null) view.setLook({ ...view.defaultLook, ...controls.orbitLook });
+      view.sync(t, placement, policy);
+    }
     recordFrameStats(controls.frameStats, controls.groupFills, groupViews);
     // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
     const composed = placeComposition(runtime.bodies, placement, policy, t);

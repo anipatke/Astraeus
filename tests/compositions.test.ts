@@ -62,7 +62,6 @@ describe("compositions", () => {
     expect(() => createComposition(catalogue, { ...base, bodies: [] })).toThrow(CompositionError);
     expect(() => createComposition(catalogue, { ...base, paths: [{ body: "sun", spanMs: 1 }] })).toThrow(/not one of its bodies/);
     expect(() => createComposition(catalogue, { ...base, paths: [{ body: "moon", spanMs: 0 }] })).toThrow(/positive finite span/);
-    expect(() => createComposition(catalogue, { ...base, paths: [{ body: "moon", spanMs: 1, overlap: -0.1 }] })).toThrow(/overlap/);
   });
 });
 

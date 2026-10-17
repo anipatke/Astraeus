@@ -5,7 +5,8 @@ import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimes
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
 import { catalogue } from "../assets/catalogue";
-import { DEFAULT_PATH_OVERLAP, type CompositionPath } from "../assets/compositions";
+import { resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
+import type { CompositionPath } from "../assets/compositions";
 import {
   DEFAULT_ECCENTRIC_SAMPLE_COUNT,
   DEFAULT_PATH_SAMPLE_COUNT,
@@ -15,7 +16,7 @@ import {
   type PathLayer,
 } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { inertialTrailKm, mapPathKm, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
+import { inertialTrailKm, mapPathKm, orbitLookShapes, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -31,6 +32,11 @@ export interface PathStyle {
   readonly layer?: number;
   /** Draw order among transparent objects; defaults to 1, after the data dots a line crosses. */
   readonly renderOrder?: number;
+  /**
+   * Draw an orbit as a faint ring with faded ends plus a brighter arc behind the body (see `OrbitLook`); the line's `opacity` is then
+   * replaced by the look's. Rolling spans only: the body is the middle vertex.
+   */
+  readonly orbitLook?: OrbitLook;
 }
 
 /**
@@ -57,6 +63,13 @@ export class PathView {
   #centreKm: [number, number, number] = [0, 0, 0];
   #extentKm = 0;
   #centre: RenderVector = [0, 0, 0];
+  #extentScaled = 0;
+  #look: OrbitLook | null = null;
+  #defaultLook: OrbitLook | null = null;
+  #ring: Line | null = null;
+  #arc: Line | null = null;
+  #ringColours: BufferAttribute | null = null;
+  #arcColours: BufferAttribute | null = null;
 
   constructor(readonly layer: PathLayer, style: PathStyle = {}, refresh: PathRefreshPolicy = DEFAULT_PATH_REFRESH) {
     validatePathSpec(layer.object?.id ?? "path", layer);
@@ -80,6 +93,72 @@ export class PathView {
     // Overlays are drawn after the data dots they cross, so a belt cannot swallow the line (I-020).
     line.renderOrder = style.renderOrder ?? 1;
     this.group.add(line);
+    if (style.orbitLook !== undefined && rolling) this.#addLookLayers(geometry, line, style.orbitLook);
+  }
+
+  /** The ring is the line already built (vertex colours carry the end fade); the arc shares its vertices over the stretch behind the body. */
+  #addLookLayers(geometry: BufferGeometry, ring: Line, look: OrbitLook): void {
+    const n = this.#capacity;
+    this.#ringColours = new BufferAttribute(new Float32Array(n * 4), 4);
+    this.#arcColours = new BufferAttribute(new Float32Array(n * 4), 4);
+    geometry.setAttribute("color", this.#ringColours);
+    const arcGeometry = new BufferGeometry();
+    arcGeometry.setAttribute("position", this.#positions);
+    arcGeometry.setAttribute("color", this.#arcColours);
+    const ringMaterial = ring.material as LineBasicMaterial;
+    ringMaterial.vertexColors = true;
+    const arcMaterial = new LineBasicMaterial({ vertexColors: true, color: ringMaterial.color.clone(), transparent: true, depthTest: ringMaterial.depthTest });
+    const arc = new Line(arcGeometry, arcMaterial);
+    arc.frustumCulled = false;
+    arc.layers.mask = ring.layers.mask;
+    arc.renderOrder = ring.renderOrder + 1;
+    this.group.add(arc);
+    this.#ring = ring;
+    this.#arc = arc;
+    this.#defaultLook = look;
+    this.setLook(look);
+  }
+
+  /** The look this path was built with (its data), which live controls start from and reset to; null for a plain line. */
+  get defaultLook(): OrbitLook | null {
+    return this.#defaultLook;
+  }
+
+  /** The orbit look now in force, or null for a plain line. */
+  get look(): OrbitLook | null {
+    return this.#look;
+  }
+
+  /** Applies a look live: layers switch, shapes and opacities change, with no rebuild of the samples. Ignored for a plain line. */
+  setLook(look: OrbitLook): void {
+    if (this.#ring === null || this.#arc === null || this.#ringColours === null || this.#arcColours === null) return;
+    const before = this.#look;
+    this.#look = look;
+    const shapeChanged = before === null || before.endFadeOn !== look.endFadeOn || before.endFade !== look.endFade || before.arcFraction !== look.arcFraction || before.arcExponent !== look.arcExponent;
+    if (shapeChanged) {
+      const shapes = orbitLookShapes(this.#capacity, look.endFadeOn ? look.endFade : 0, look.arcFraction, look.arcExponent);
+      for (let i = 0; i < this.#capacity; i += 1) {
+        this.#ringColours.setXYZW(i, 1, 1, 1, shapes.ring[i]);
+        this.#arcColours.setXYZW(i, 1, 1, 1, shapes.arc[i]);
+      }
+      this.#ringColours.needsUpdate = true;
+      this.#arcColours.needsUpdate = true;
+      this.#arc.geometry.setDrawRange(shapes.arcFirst, shapes.arcCount);
+    }
+    this.#ring.visible = look.baseOn;
+    this.#arc.visible = look.arcOn;
+    this.#applyOpacity();
+  }
+
+  /** The zoom-out brightening, 0 close in to 1 at `zoomFarRatio` orbit sizes away; moved by `place` with the camera. */
+  #zoom = 0;
+
+  #applyOpacity(): void {
+    const look = this.#look;
+    if (look === null || this.#ring === null || this.#arc === null) return;
+    const sf = look.zoomOn ? this.#zoom : 0;
+    (this.#ring.material as LineBasicMaterial).opacity = Math.min(1, look.baseOpacity + sf * look.zoomBoostBase);
+    (this.#arc.material as LineBasicMaterial).opacity = Math.min(1, look.arcPeak + sf * look.zoomBoostArc);
   }
 
   get id(): string {
@@ -171,11 +250,18 @@ export class PathView {
       widest = Math.max(widest, Math.hypot(km[i] - this.#centreKm[0], km[i + 1] - this.#centreKm[1], km[i + 2] - this.#centreKm[2]));
     }
     this.#extentKm = widest;
+    this.#extentScaled = scaleLength(policy, widest);
     this.#centre = eqjToRenderVector(policy.mapPosition(this.#centreKm));
   }
 
   place(origin: FloatingOrigin): void {
     const [ox, oy, oz] = origin.scaledCameraOrigin;
+    if (this.#look !== null && this.#extentScaled > 0) {
+      const distance = Math.hypot(this.#centre[0] - ox, this.#centre[1] - oy, this.#centre[2] - oz);
+      const far = this.#look.zoomFarRatio;
+      this.#zoom = Math.max(0, Math.min(1, (distance / this.#extentScaled - 1) / (far - 1)));
+      this.#applyOpacity();
+    }
     const out = this.#positions.array as Float32Array;
     for (let i = 0; i < out.length; i += 3) {
       out[i] = this.#scaled[i] - ox;
@@ -266,8 +352,13 @@ export function compositionPathLayer(path: CompositionPath, resolver: StateResol
     center: parent,
     color: "#f0e6da",
     source,
-    span: { windowMs: path.spanMs * (1 + (path.overlap ?? DEFAULT_PATH_OVERLAP)) },
+    span: { windowMs: path.spanMs },
     ...(path.samples === undefined ? {} : { samples: path.samples }),
     object: { id: `${path.body}-orbit`, label: `${path.body} orbit` },
   };
+}
+
+/** A composition path drawn with its orbit look (the path's own settings over the defaults), on the scene's own layer. */
+export function compositionPathView(path: CompositionPath, resolver: StateResolver): PathView {
+  return new PathView(compositionPathLayer(path, resolver), { ...COMPOSITION_PATH_STYLE, orbitLook: resolveOrbitLook(path.look, `path for "${path.body}"`) });
 }

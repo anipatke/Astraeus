@@ -98,3 +98,25 @@ export function pathNeedsRefresh(
   if (drift > windowMs / 4) return true; // seek: the old window no longer brackets the date
   return drift > policy.maxDriftMs && realNowMs - lastBuildRealMs >= policy.minRealIntervalMs;
 }
+
+/**
+ * Opacity shapes (0 to 1) of the two layers of an orbit line over `count` evenly spaced vertices of a window, the body at the middle vertex.
+ * `ring`: nothing at both ends rising smoothly to full by `endFade` of the way in. `arc`: the vertices from the body back over
+ * `arcFraction` of `periodFraction` of the window (the period as a share of the window), 1 at the body falling to 0 at the tail as
+ * (1 - along)^exponent; 0 elsewhere. `arcFirst`/`arcCount` give the arc's vertex range.
+ */
+export function orbitLookShapes(count: number, endFadeFraction: number, arcFraction: number, exponent: number, periodShare = 1): { readonly ring: Float32Array; readonly arc: Float32Array; readonly arcFirst: number; readonly arcCount: number } {
+  const ring = new Float32Array(count).fill(1);
+  if (endFadeFraction > 0 && count >= 2) {
+    for (let i = 0; i < count; i += 1) {
+      const t = i / (count - 1);
+      const x = Math.min(1, Math.min(t, 1 - t) / endFadeFraction);
+      ring[i] = x * x * (3 - 2 * x);
+    }
+  }
+  const body = (count - 1) / 2;
+  const segments = Math.min(body, Math.round(arcFraction * periodShare * (count - 1)));
+  const arc = new Float32Array(count);
+  for (let k = 0; k <= segments; k += 1) arc[body - k] = segments === 0 ? 1 : (1 - k / segments) ** exponent;
+  return { ring, arc, arcFirst: body - segments, arcCount: segments + 1 };
+}

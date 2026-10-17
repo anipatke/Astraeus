@@ -1,25 +1,18 @@
 import type { BodyId } from "../core/body";
 import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { catalogue, type BodyCatalogue } from "./catalogue";
+import { resolveOrbitLook, type OrbitLook } from "./orbitLook";
 
 /** One sidereal month, the span the Moon's orbit path covers. */
 export const SIDEREAL_MONTH_MS = 27.321661 * 86_400_000;
 
-/**
- * How much more than one period a composition path draws, as a fraction of the period. A window exactly one period wide has its two ends
- * opposite the body, and a perturbed orbit (the Moon's) does not retrace itself, so they miss by thousands of km and leave a moving gap;
- * drawing past the start of the loop makes the ends overlap it. 0.1 is about 2.7 days of the Moon's month.
- */
-export const DEFAULT_PATH_OVERLAP = 0.1;
-
 /** A path the composition draws by default: the declared body's positions about its own parent, carried with that parent. */
 export interface CompositionPath {
   readonly body: BodyId;
-  /** One period of the body: the loop the line closes. */
   readonly spanMs: number;
-  /** Extra width drawn beyond one period, as a fraction of `spanMs` (default `DEFAULT_PATH_OVERLAP`), so the ends overlap instead of leaving a gap. */
-  readonly overlap?: number;
   readonly samples?: number;
+  /** Look of the line: any of the `OrbitLook` settings over Planetary Explorer's defaults. Live controls start from the result. */
+  readonly look?: Partial<OrbitLook>;
 }
 
 /** Which catalogued bodies are drawn together, and which one is their natural centre. Ids only: it cannot hold a second Earth. */
@@ -56,9 +49,7 @@ export function createComposition(source: BodyCatalogue, composition: SystemComp
     if (!seen.has(path.body)) throw new CompositionError(`composition "${composition.id}" path names "${path.body}", which is not one of its bodies`);
     if (!(path.spanMs > 0) || !Number.isFinite(path.spanMs)) throw new CompositionError(`composition "${composition.id}" path for "${path.body}" needs a positive finite span`);
   }
-  for (const path of composition.paths ?? []) {
-    if (path.overlap !== undefined && !(path.overlap >= 0 && path.overlap <= 1)) throw new CompositionError(`composition "${composition.id}" path for "${path.body}" needs an overlap from 0 to 1 of a period`);
-  }
+  for (const path of composition.paths ?? []) resolveOrbitLook(path.look, `composition "${composition.id}" path for "${path.body}"`);
   return Object.freeze({
     ...composition,
     bodies: Object.freeze([...composition.bodies]),
@@ -89,5 +80,6 @@ export const jupiterIoSystem: SystemComposition = createComposition(catalogue, {
   id: "jupiter-io",
   bodies: ["jupiter", "io"],
   defaultCenter: "jupiter",
-  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000 }],
+  // Io's orbit is Keplerian and closes exactly (a gap of 0 km), so its ring needs no end fade; the arc and zoom brightening stay.
+  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
 });
