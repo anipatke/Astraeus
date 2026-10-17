@@ -123,11 +123,15 @@ export function windowEdgeAlpha(index: number, count: number, endFade: number): 
 }
 
 /**
- * Opacity (0 to 1) of the trailing arc at a vertex sampled at `vertexUtcMs`: 1 at the body (`nowUtcMs`), falling to 0 `arcMs` earlier as
- * (1 - age/arcMs)^exponent; 0 for a time after the body or beyond the tail.
+ * Opacity of arc segment `index` of `count` (0 nearest the body), the donor's profile: `peak * t^exponent` with t from 1 at the body to 0 at the
+ * tail, so the last segment is nothing (Planetary Explorer's `0.65 * t * t`).
  */
-export function arcAlpha(nowUtcMs: number, vertexUtcMs: number, arcMs: number, exponent: number): number {
-  const age = nowUtcMs - vertexUtcMs;
-  if (age < 0 || !(arcMs > 0) || age >= arcMs) return 0;
-  return (1 - age / arcMs) ** exponent;
+export function arcSegmentAlpha(index: number, count: number, peak: number, exponent: number): number {
+  const t = count <= 1 ? 1 : 1 - index / (count - 1);
+  return peak * t ** exponent;
+}
+
+/** Whether a time falls inside the arc's span, the `arcMs` up to the clock, where the ring is left clear so the two never overlap. */
+export function insideArcSpan(nowUtcMs: number, vertexUtcMs: number, arcMs: number): boolean {
+  return vertexUtcMs >= nowUtcMs - arcMs && vertexUtcMs <= nowUtcMs;
 }

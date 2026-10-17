@@ -24,6 +24,10 @@ history:
     actor: {role: executor, session: i035-lane}
     kind: repair_attempted
     note: 'Lane i035-orbit-gap. Owner: Io looked like laser beams at the start. The arc no longer takes points from the ring window: each frame it samples the body''s own path from its trajectory (arcSamples, default 32) so it cannot contain a chord, and the ring resamples at once when the clock leaves the window or moves more than ringRefresh (0.05) of it. Browser check docs/evidence/i035-orbit-motion-20261017T0626 (load, seeks, 604800x playback, mid-play seek: longest arc segment 0.04 of orbit size, head gap 0); lite 26/26 docs/evidence/i035-lite-20261017T0626. Not verified: owner visual judgement.'
+  - at: '2026-10-17T21:30:00Z'
+    actor: {role: executor, session: i035-lane}
+    kind: repair_attempted
+    note: 'Lane i035-orbit-gap. Owner: the arc looked like a dashed line (two 1 px lines tracing one curve). The arc is now Planetary Explorer''s construction: 16 flat ribbon segments (camera-facing, transparent, no depth write, both sides) at 0.65 t squared with the same zoom boost, points from the body''s own path each frame; the ring is cleared along the arc''s span so they never overlap. New settings arcSegments (16) and arcWidth (0.004 of orbit size). Checks: docs/evidence/i035-orbit-motion-20261017T0634, lite 26/26 docs/evidence/i035-lite-20261017T0634. Not verified: owner visual judgement.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon

@@ -21,9 +21,11 @@ export interface OrbitLook {
   readonly arcFraction: number;
   /** Arc opacity just behind the body, 0 to 1. */
   readonly arcPeak: number;
-  /** Points the arc is drawn through, sampled straight from the body's own path each frame (so it is always the true recent curve). */
-  readonly arcSamples: number;
-  /** Fade curve: opacity falls as (1 - distance along the arc) to this power. 1 is linear, 2 quadratic. */
+  /** Separate segments the arc is built from, each with its own opacity (Planetary Explorer uses 16). */
+  readonly arcSegments: number;
+  /** Half-width of the arc's ribbon as a share of the orbit's size. Planetary Explorer's is 0.0015 of the radius with a floor that dominates for small orbits; a ribbon under a pixel wide breaks up, so this is wider. */
+  readonly arcWidth: number;
+  /** Fade curve: segment opacity is peak times t to this power, t from 1 at the body to 0 at the tail. 1 is linear, 2 quadratic. */
   readonly arcExponent: number;
   /** Brighten both layers as the camera zooms out. */
   readonly zoomOn: boolean;
@@ -46,7 +48,8 @@ export const DEFAULT_ORBIT_LOOK: OrbitLook = Object.freeze({
   arcOn: true,
   arcFraction: 0.2,
   arcPeak: 0.65,
-  arcSamples: 32,
+  arcSegments: 16,
+  arcWidth: 0.004,
   arcExponent: 2,
   zoomOn: true,
   zoomBoostBase: 0.45,
@@ -61,7 +64,8 @@ export const ORBIT_LOOK_LIMITS = Object.freeze({
   endFade: { min: 0, max: 0.5 },
   arcFraction: { min: 0, max: 0.5 },
   arcPeak: { min: 0, max: 1 },
-  arcSamples: { min: 4, max: 128 },
+  arcSegments: { min: 2, max: 32 },
+  arcWidth: { min: 0.0002, max: 0.01 },
   ringRefresh: { min: 0.005, max: 0.25 },
   arcExponent: { min: 0.5, max: 4 },
   zoomBoostBase: { min: 0, max: 1 },

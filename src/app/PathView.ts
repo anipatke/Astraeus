@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial } from "three";
+import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial } from "three";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
@@ -16,10 +16,13 @@ import {
   type PathLayer,
 } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { arcAlpha, inertialTrailKm, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
+import { arcSegmentAlpha, inertialTrailKm, insideArcSpan, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
+
+/** Steps each arc segment is cut into, as the donor's ring slices (8). */
+const ARC_SUBSTEPS = 8;
 
 const scaleLength = (policy: ScalePolicy, km: number): number => policy.mapPosition([km, 0, 0])[0];
 
@@ -67,10 +70,14 @@ export class PathView {
   #look: OrbitLook | null = null;
   #defaultLook: OrbitLook | null = null;
   #ring: Line | null = null;
-  #arc: Line | null = null;
+  #arc: Mesh | null = null;
   #ringColours: BufferAttribute | null = null;
   #arcColours: BufferAttribute | null = null;
+  /** The arc's centre line, oldest first, in scaled absolute positions: `segments x ARC_SUBSTEPS + 1` points. */
   #arcScaled: Float64Array | null = null;
+  #arcPoints = 0;
+  #arcBase: Float32Array = new Float32Array(0);
+  #ribbonScaled: Float64Array | null = null;
   #arcTimes: readonly number[] = [];
   #arcPositions: BufferAttribute | null = null;
 
@@ -103,19 +110,30 @@ export class PathView {
   #addLookLayers(geometry: BufferGeometry, ring: Line, look: OrbitLook): void {
     const n = this.#capacity;
     this.#ringColours = new BufferAttribute(new Float32Array(n * 4).fill(1), 4);
-    const arcMax = ORBIT_LOOK_LIMITS.arcSamples.max;
-    this.#arcColours = new BufferAttribute(new Float32Array(arcMax * 4).fill(1), 4);
-    this.#arcScaled = new Float64Array(arcMax * 3);
-    this.#arcPositions = new BufferAttribute(new Float32Array(arcMax * 3), 3);
+    const maxSegments = ORBIT_LOOK_LIMITS.arcSegments.max;
+    const maxVertices = maxSegments * (ARC_SUBSTEPS + 1) * 2;
+    this.#arcColours = new BufferAttribute(new Float32Array(maxVertices * 4).fill(1), 4);
+    this.#arcScaled = new Float64Array((maxSegments * ARC_SUBSTEPS + 1) * 3);
+    this.#ribbonScaled = new Float64Array(maxVertices * 3);
+    this.#arcPositions = new BufferAttribute(new Float32Array(maxVertices * 3), 3);
     geometry.setAttribute("color", this.#ringColours);
+    const indices: number[] = [];
+    for (let s = 0; s < maxSegments; s += 1) {
+      for (let j = 0; j < ARC_SUBSTEPS; j += 1) {
+        const v = (s * (ARC_SUBSTEPS + 1) + j) * 2;
+        indices.push(v, v + 1, v + 2, v + 1, v + 3, v + 2);
+      }
+    }
     const arcGeometry = new BufferGeometry();
     arcGeometry.setAttribute("position", this.#arcPositions);
     arcGeometry.setAttribute("color", this.#arcColours);
+    arcGeometry.setIndex(indices);
     arcGeometry.setDrawRange(0, 0);
     const ringMaterial = ring.material as LineBasicMaterial;
     ringMaterial.vertexColors = true;
-    const arcMaterial = new LineBasicMaterial({ vertexColors: true, color: ringMaterial.color.clone(), transparent: true, depthTest: ringMaterial.depthTest });
-    const arc = new Line(arcGeometry, arcMaterial);
+    // Planetary Explorer's arc: flat ribbons, transparent, no depth write, both sides; the opacity rides on the vertices, segment by segment.
+    const arcMaterial = new MeshBasicMaterial({ vertexColors: true, color: ringMaterial.color.clone(), transparent: true, depthWrite: false, side: DoubleSide, depthTest: ringMaterial.depthTest });
+    const arc = new Mesh(arcGeometry, arcMaterial);
     arc.frustumCulled = false;
     arc.layers.mask = ring.layers.mask;
     arc.renderOrder = ring.renderOrder + 1;
@@ -136,40 +154,111 @@ export class PathView {
     if (look === null || this.#ringColours === null || this.#arcColours === null || this.#arcScaled === null || this.#arcPositions === null || this.#arc === null || !isRollingSpan(span) || this.#frame === undefined) return;
     const times = this.#times;
     const n = times.length;
+    const arcMs = look.arcFraction * span.windowMs;
     for (let i = 0; i < n; i += 1) {
-      const alpha = look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
+      // The ring is left clear along the arc's span (the arc covers it), so the two never interleave.
+      const clear = look.arcOn && insideArcSpan(timeUtcMs, times[i], arcMs);
+      const alpha = clear ? 0 : look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
       this.#ringColours.setW(i, alpha);
     }
     this.#ringColours.needsUpdate = true;
-    // The arc is the body's own recent path, sampled here from its trajectory, never taken from the ring's window.
-    const arcMs = look.arcFraction * span.windowMs;
-    const points = Math.max(2, Math.round(look.arcSamples));
+    // The arc is the body's own recent path, sampled here from its trajectory (never from the ring's window), cut into equal-time segments.
+    const segments = Math.max(2, Math.round(look.arcSegments));
+    const points = segments * ARC_SUBSTEPS + 1;
     const km = new Float64Array(3 * points);
     const arcTimes: number[] = [];
     for (let k = 0; k < points; k += 1) {
       const t = k === points - 1 ? timeUtcMs : Math.round(timeUtcMs - arcMs * (1 - k / (points - 1)));
       arcTimes.push(t);
       km.set(this.layer.source.stateAt(t, this.#explicitCentre).positionKm, 3 * k);
-      this.#arcColours.setW(k, arcAlpha(timeUtcMs, t, arcMs, look.arcExponent));
     }
     this.#arcTimes = arcTimes;
-    this.#arcColours.setW(points - 1, 1);
-    this.#arcColours.needsUpdate = true;
+    this.#arcPoints = points;
     this.#arcScaled.set(eqjMapped(orbitKm(km, this.#frame, placement, timeUtcMs), policy));
-    const v = points - 1;
-    this.#arc.geometry.setDrawRange(0, v + 1);
+    this.#arcBase = Float32Array.from({ length: segments }, (_, i) => arcSegmentAlpha(i, segments, look.arcPeak, look.arcExponent));
+    this.#arc.geometry.setDrawRange(0, segments * ARC_SUBSTEPS * 6);
+    this.#paintArc();
   }
 
-  /** Longest segment of the drawn arc in scaled units. Diagnostic: a chord to a stale point would show here. */
-  arcLongestSegment(): number {
-    const count = this.#arc?.geometry.drawRange.count ?? 0;
-    if (this.#arcScaled === null) return 0;
-    let longest = 0;
-    for (let i = 1; i < count; i += 1) {
-      const a = 3 * (i - 1);
-      const b = 3 * i;
-      longest = Math.max(longest, Math.hypot(this.#arcScaled[b] - this.#arcScaled[a], this.#arcScaled[b + 1] - this.#arcScaled[a + 1], this.#arcScaled[b + 2] - this.#arcScaled[a + 2]));
+  /**
+   * Each centre-line point gets a left and a right vertex, half the width either side across the line as the camera sees it (the ribbon
+   * faces the camera, so it never goes edge-on from the side). Positions are scaled absolute; `place` subtracts the floating origin.
+   */
+  #buildRibbon(camera: ArrayLike<number>): void {
+    const c = this.#arcScaled;
+    const out = this.#ribbonScaled;
+    const look = this.#look;
+    if (c === null || out === null || look === null) return;
+    const points = this.#arcPoints;
+    const segments = this.#arcBase.length;
+    const halfWidth = look.arcWidth * this.#extentScaled;
+    const side = new Float64Array(3 * points);
+    for (let k = 0; k < points; k += 1) {
+      const a = Math.max(0, k - 1);
+      const b = Math.min(points - 1, k + 1);
+      const tx = c[3 * b] - c[3 * a];
+      const ty = c[3 * b + 1] - c[3 * a + 1];
+      const tz = c[3 * b + 2] - c[3 * a + 2];
+      const vx = c[3 * k] - camera[0];
+      const vy = c[3 * k + 1] - camera[1];
+      const vz = c[3 * k + 2] - camera[2];
+      const sx = ty * vz - tz * vy;
+      const sy = tz * vx - tx * vz;
+      const sz = tx * vy - ty * vx;
+      const length = Math.hypot(sx, sy, sz) || 1;
+      side[3 * k] = (sx / length) * halfWidth;
+      side[3 * k + 1] = (sy / length) * halfWidth;
+      side[3 * k + 2] = (sz / length) * halfWidth;
     }
+    for (let s = 0; s < segments; s += 1) {
+      // Segment 0 is the one nearest the body: it covers the last ARC_SUBSTEPS steps of the centre line.
+      const headPoint = points - 1 - s * ARC_SUBSTEPS;
+      for (let j = 0; j <= ARC_SUBSTEPS; j += 1) {
+        const k = headPoint - ARC_SUBSTEPS + j;
+        const base = (s * (ARC_SUBSTEPS + 1) + j) * 2;
+        for (let m = 0; m < 3; m += 1) {
+          out[3 * base + m] = c[3 * k + m] - side[3 * k + m];
+          out[3 * (base + 1) + m] = c[3 * k + m] + side[3 * k + m];
+        }
+      }
+    }
+  }
+
+  /** The arc's vertex opacities: each segment's own level, brightened a little as the camera pulls back. */
+  #paintArc(): void {
+    const look = this.#look;
+    if (look === null || this.#arcColours === null) return;
+    const boost = look.zoomOn ? this.#zoom * look.zoomBoostArc : 0;
+    for (let s = 0; s < this.#arcBase.length; s += 1) {
+      const alpha = Math.min(1, this.#arcBase[s] + boost);
+      for (let v = 0; v < (ARC_SUBSTEPS + 1) * 2; v += 1) this.#arcColours.setW(s * (ARC_SUBSTEPS + 1) * 2 + v, alpha);
+    }
+    this.#arcColours.needsUpdate = true;
+  }
+
+  /** Segment opacities of the arc as drawn, nearest the body first (diagnostic). */
+  get arcSegmentOpacities(): readonly number[] {
+    const colours = this.#arcColours;
+    return colours === null ? [] : Array.from(this.#arcBase, (_, s) => colours.getW(s * (ARC_SUBSTEPS + 1) * 2));
+  }
+
+  /** The arc's centre line in scaled absolute positions, oldest first, 3 per point (diagnostic). */
+  get arcPointsAbsolute(): Float64Array {
+    return this.#arcScaled === null ? new Float64Array(0) : this.#arcScaled.subarray(0, 3 * this.#arcPoints);
+  }
+
+  /** Full width of the ribbon in scaled units, read from its first two vertices after `place` (diagnostic). */
+  get arcRibbonWidth(): number {
+    const r = this.#ribbonScaled;
+    return r === null ? 0 : Math.hypot(r[3] - r[0], r[4] - r[1], r[5] - r[2]);
+  }
+
+  /** Longest step of the arc's centre line in scaled units. Diagnostic: a chord to a stale point would show here. */
+  arcLongestSegment(): number {
+    const c = this.#arcScaled;
+    if (c === null) return 0;
+    let longest = 0;
+    for (let k = 1; k < this.#arcPoints; k += 1) longest = Math.max(longest, Math.hypot(c[3 * k] - c[3 * k - 3], c[3 * k + 1] - c[3 * k - 2], c[3 * k + 2] - c[3 * k - 1]));
     return longest;
   }
 
@@ -180,9 +269,8 @@ export class PathView {
 
   /** Scaled absolute position of the arc's head (the last vertex drawn), or null with no arc yet. Diagnostic: it is where the body is. */
   arcHeadAbsolute(): RenderVector | null {
-    const count = this.#arc?.geometry.drawRange.count ?? 0;
-    if (this.#arcScaled === null || count === 0) return null;
-    const i = 3 * (count - 1);
+    if (this.#arcScaled === null || this.#arcPoints === 0) return null;
+    const i = 3 * (this.#arcPoints - 1);
     return [this.#arcScaled[i], this.#arcScaled[i + 1], this.#arcScaled[i + 2]];
   }
 
@@ -220,7 +308,7 @@ export class PathView {
     if (look === null || this.#ring === null || this.#arc === null) return;
     const sf = look.zoomOn ? this.#zoom : 0;
     (this.#ring.material as LineBasicMaterial).opacity = Math.min(1, look.baseOpacity + sf * look.zoomBoostBase);
-    (this.#arc.material as LineBasicMaterial).opacity = Math.min(1, look.arcPeak + sf * look.zoomBoostArc);
+    this.#paintArc();
   }
 
   get id(): string {
@@ -332,12 +420,13 @@ export class PathView {
       out[i + 2] = this.#scaled[i + 2] - oz;
     }
     this.#positions.needsUpdate = true;
-    if (this.#arcScaled !== null && this.#arcPositions !== null) {
+    if (this.#ribbonScaled !== null && this.#arcPositions !== null) {
+      this.#buildRibbon(origin.scaledCameraOrigin);
       const arcOut = this.#arcPositions.array as Float32Array;
       for (let i = 0; i < arcOut.length; i += 3) {
-        arcOut[i] = this.#arcScaled[i] - ox;
-        arcOut[i + 1] = this.#arcScaled[i + 1] - oy;
-        arcOut[i + 2] = this.#arcScaled[i + 2] - oz;
+        arcOut[i] = this.#ribbonScaled[i] - ox;
+        arcOut[i + 1] = this.#ribbonScaled[i + 1] - oy;
+        arcOut[i + 2] = this.#ribbonScaled[i + 2] - oz;
       }
       this.#arcPositions.needsUpdate = true;
     }

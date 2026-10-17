@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Line, LineBasicMaterial } from "three";
+import { DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial } from "three";
 import { createComposition, earthMoonSystem, jupiterIoSystem, SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { catalogue } from "../src/assets/catalogue";
 import { DEFAULT_ORBIT_LOOK, resolveOrbitLook } from "../src/assets/orbitLook";
@@ -7,7 +7,7 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { readableScale } from "../src/core/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { compositionPathView } from "../src/app/PathView";
-import { arcAlpha, ringAlpha, windowEdgeAlpha } from "../src/app/pathRules";
+import { arcSegmentAlpha, ringAlpha, windowEdgeAlpha } from "../src/app/pathRules";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { placementAbout } from "./scenePlacement";
 
@@ -17,6 +17,7 @@ const placement = placementAbout("earth", adapter);
 const date = Date.UTC(2025, 2, 20, 9, 30);
 const moonPath = earthMoonSystem.paths![0];
 const lines = (view: ReturnType<typeof compositionPathView>) => view.group.children as Line[];
+const RIBBON_ROWS = 9 * 2; // ARC_SUBSTEPS + 1 points, two vertices each, per segment
 const alphaOf = (line: Line, i: number) => line.geometry.getAttribute("color").getW(i);
 
 describe("orbit look alpha, from time", () => {
@@ -31,22 +32,16 @@ describe("orbit look alpha, from time", () => {
     expect(windowEdgeAlpha(0, 181, 0.1)).toBe(0);
     expect(windowEdgeAlpha(90, 181, 0.1)).toBe(1);
   });
-  it("makes the arc 1 at the body, 0 at its tail, quadratic between, 0 ahead", () => {
-    const arcMs = 0.2 * P;
-    expect(arcAlpha(now, now, arcMs, 2)).toBe(1);
-    expect(arcAlpha(now, now - arcMs, arcMs, 2)).toBe(0);
-    expect(arcAlpha(now, now - arcMs / 2, arcMs, 2)).toBeCloseTo(0.25, 6);
-    expect(arcAlpha(now, now - arcMs / 2, arcMs, 1)).toBeCloseTo(0.5, 6);
-    expect(arcAlpha(now, now + 1, arcMs, 2)).toBe(0);
+  it("gives arc segments the donor's profile: 0.65 t squared, 1 at the body, nothing at the tail", () => {
+    const ops = Array.from({ length: 16 }, (_, i) => arcSegmentAlpha(i, 16, 0.65, 2));
+    expect(ops[0]).toBeCloseTo(0.65, 9);
+    expect(ops[15]).toBe(0);
+    for (let i = 0; i < 16; i += 1) expect(ops[i]).toBeCloseTo(0.65 * (1 - i / 15) ** 2, 9);
+    expect(arcSegmentAlpha(7, 15, 0.5, 1)).toBeCloseTo(0.25, 9);
   });
-  it("is continuous in the clock: a small step moves every vertex's alpha a little", () => {
-    const arcMs = 0.2 * P;
+  it("keeps the ring continuous in the clock: a small step moves every vertex's alpha a little", () => {
     const step = P / 100_000;
-    for (let t = now - P; t <= now + P; t += P / 997) {
-      for (const [a, b] of [[arcAlpha(now, t, arcMs, 2), arcAlpha(now + step, t, arcMs, 2)], [ringAlpha(now, t, P, 0.1), ringAlpha(now + step, t, P, 0.1)]]) {
-        expect(Math.abs(a - b)).toBeLessThan(2e-4 * 10);
-      }
-    }
+    for (let t = now - P; t <= now + P; t += P / 997) expect(Math.abs(ringAlpha(now, t, P, 0.1) - ringAlpha(now + step, t, P, 0.1))).toBeLessThan(2e-3);
   });
 });
 
@@ -65,77 +60,106 @@ describe("a composition path's orbit look", () => {
     expect(() => resolveOrbitLook({ endFade: 0.5, arcFraction: 0.5 })).not.toThrow();
   });
 
-  const arcOf = (view: ReturnType<typeof compositionPathView>) => {
-    const arc = lines(view)[1];
-    const count = arc.geometry.drawRange.count;
-    return { arc, count, position: arc.geometry.getAttribute("position"), colour: arc.geometry.getAttribute("color") };
-  };
   const placed = (view: ReturnType<typeof compositionPathView>) => view.place(new FloatingOrigin());
+  const trueKm = (t: number) => placement.resolver.stateOf("moon", t, "earth").positionKm;
+  const trueRender = (t: number) => Array.from(eqjToRenderVector(readableScale.mapPosition(trueKm(t))));
+  const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const centreLine = (view: ReturnType<typeof compositionPathView>) => {
+    const c = view.arcPointsAbsolute;
+    return Array.from({ length: c.length / 3 }, (_, k) => [c[3 * k], c[3 * k + 1], c[3 * k + 2]]);
+  };
 
-  it("draws a ring of the whole window and a short arc that ends exactly at the body", () => {
+  it("builds the arc from 16 ribbon segments at the donor's opacities, ending exactly at the body", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
     placed(view);
-    const [ring] = lines(view);
+    const [ring, arc] = lines(view);
     expect(lines(view)).toHaveLength(2);
-    expect(alphaOf(ring, 0)).toBe(0);
-    expect(alphaOf(ring, 90)).toBe(1);
-    const { count, position, colour } = arcOf(view);
-    expect(count).toBe(32);
-    const head = count - 1;
-    expect(colour.getW(head)).toBe(1);
-    expect(colour.getW(0)).toBeCloseTo(0, 6);
-    const body = placement.resolver.stateOf("moon", date, "earth").positionKm;
-    const expected = eqjToRenderVector(readableScale.mapPosition(body));
-    for (let k = 0; k < 3; k += 1) expect(position.array[3 * head + k]).toBeCloseTo(expected[k], 3);
+    expect(arc).toBeInstanceOf(Mesh);
+    const material = arc.material as MeshBasicMaterial;
+    expect([material.transparent, material.depthWrite, material.side]).toEqual([true, false, DoubleSide]);
+    expect(arc.geometry.drawRange.count).toBe(16 * 8 * 6);
+    const ops = view.arcSegmentOpacities;
+    expect(ops).toHaveLength(16);
+    ops.forEach((op, i) => expect(op).toBeCloseTo(0.65 * (1 - i / 15) ** 2, 5));
+    expect(ops[15]).toBe(0);
+    const colour = arc.geometry.getAttribute("color");
+    expect(colour.getW(0)).toBeCloseTo(ops[0], 6); // first vertex of segment 0
+    expect(colour.getW(RIBBON_ROWS * 15)).toBe(0);
+    const head = centreLine(view).at(-1)!;
+    expect(distance(head, trueRender(date))).toBeLessThan(1e-3);
+    expect(alphaOf(ring, 40)).toBe(1);
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18, 6);
-    expect((lines(view)[1].material as LineBasicMaterial).opacity).toBeCloseTo(0.65, 6);
+  });
+
+  it("clears the ring along the arc's span so the two never overlap", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    view.sync(date, placement, readableScale, 0);
+    const [ring] = lines(view);
+    const arcMs = 0.2 * SIDEREAL_MONTH_MS;
+    const times = view.timesUtcMs;
+    let inside = 0;
+    for (let i = 0; i < times.length; i += 1) {
+      if (times[i] >= date - arcMs && times[i] <= date) {
+        inside += 1;
+        expect(alphaOf(ring, i)).toBe(0);
+      } else if (i > 20 && i < 160 && times[i] > date + 0.1 * SIDEREAL_MONTH_MS) {
+        expect(alphaOf(ring, i)).toBeGreaterThan(0.99);
+      }
+    }
+    expect(inside).toBeGreaterThan(30);
+    // With the arc off the ring is whole again.
+    view.setLook({ ...view.defaultLook!, arcOn: false });
+    view.sync(date, placement, readableScale, 0);
+    expect(alphaOf(ring, 90)).toBe(1);
+  });
+
+  it("takes the ribbon width from the setting, in the orbit's plane", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    view.sync(date, placement, readableScale, 0);
+    const extent = view.extentUnits(readableScale);
+    const origin = new FloatingOrigin();
+    origin.set([0, 0, 1e7]);
+    view.place(origin);
+    expect(view.arcRibbonWidth).toBeCloseTo(2 * 0.004 * extent, 3);
+    view.setLook({ ...view.defaultLook!, arcWidth: 0.006 });
+    view.sync(date, placement, readableScale, 0);
+    view.place(origin);
+    expect(view.arcRibbonWidth).toBeCloseTo(2 * 0.006 * extent, 3);
+    view.setLook({ ...view.defaultLook!, arcSegments: 10 });
+    view.sync(date, placement, readableScale, 0);
+    expect(view.arcSegmentOpacities).toHaveLength(10);
+    expect(lines(view)[1].geometry.drawRange.count).toBe(10 * 8 * 6);
   });
 
   it("keeps the arc on the body between window rebuilds and across one", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     let real = 0;
-    let previousHead: number[] | null = null;
-    // Steps of 20 minutes drift the clock past the rebuild threshold (an hour) twice; the head must always be the body.
     for (let step = 0; step <= 12; step += 1) {
       const t = date + step * 20 * 60_000;
       real += 1000;
       view.sync(t, placement, readableScale, real);
-      placed(view);
-      const { count, position, colour } = arcOf(view);
-      const head = count - 1;
-      const expected = eqjToRenderVector(readableScale.mapPosition(placement.resolver.stateOf("moon", t, "earth").positionKm));
-      for (let k = 0; k < 3; k += 1) expect(position.array[3 * head + k]).toBeCloseTo(expected[k], 3);
-      expect(colour.getW(head)).toBe(1);
-      const now = Array.from(position.array.slice(3 * head, 3 * head + 3));
-      if (previousHead !== null) expect(Math.hypot(now[0] - previousHead[0], now[1] - previousHead[1], now[2] - previousHead[2])).toBeLessThan(0.2);
-      previousHead = now;
+      expect(distance(view.arcHeadAbsolute()!, trueRender(t))).toBeLessThan(1e-3);
     }
   });
 
-  const trueKm = (t: number) => placement.resolver.stateOf("moon", t, "earth").positionKm;
-  const trueRender = (t: number) => eqjToRenderVector(readableScale.mapPosition(trueKm(t)));
-
-  /** Every arc point lies on the body's true path at its own time, and no segment is longer than the true path between its ends. */
+  /** Every arc point lies on the body's true path at its own time, and no step is longer than the true path between its ends. */
   function expectArcOnTruePath(view: ReturnType<typeof compositionPathView>, now: number): void {
-    placed(view);
-    const { count, position } = arcOf(view);
+    const points = centreLine(view);
     const times = view.arcTimesUtcMs;
-    expect(times).toHaveLength(count);
-    expect(times[count - 1]).toBe(now);
+    expect(times).toHaveLength(points.length);
+    expect(times[points.length - 1]).toBe(now);
     expect(now - times[0]).toBeCloseTo(0.2 * SIDEREAL_MONTH_MS, -1);
-    const point = (i: number) => [position.array[3 * i], position.array[3 * i + 1], position.array[3 * i + 2]];
-    const distance = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-    for (let i = 0; i < count; i += 1) expect(distance(point(i), Array.from(trueRender(times[i])))).toBeLessThan(1e-3);
-    for (let i = 1; i < count; i += 1) {
+    for (let i = 0; i < points.length; i += 1) expect(distance(points[i], trueRender(times[i]))).toBeLessThan(1e-3);
+    for (let i = 1; i < points.length; i += 1) {
       let along = 0;
-      let previous = Array.from(trueRender(times[i - 1]));
+      let previous = trueRender(times[i - 1]);
       for (let k = 1; k <= 20; k += 1) {
-        const next = Array.from(trueRender(Math.round(times[i - 1] + ((times[i] - times[i - 1]) * k) / 20)));
+        const next = trueRender(Math.round(times[i - 1] + ((times[i] - times[i - 1]) * k) / 20));
         along += distance(previous, next);
         previous = next;
       }
-      expect(distance(point(i - 1), point(i))).toBeLessThanOrEqual(along * 1.001 + 1e-6);
+      expect(distance(points[i - 1], points[i])).toBeLessThanOrEqual(along * 1.001 + 1e-6);
     }
   }
 
@@ -143,7 +167,6 @@ describe("a composition path's orbit look", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
     expectArcOnTruePath(view, date);
-    // A seek of a few days, with no real time passed: the ring resamples at once and the arc is still the true curve.
     for (const [jump, real] of [[3 * DAY, 1], [-9 * DAY, 2], [40 * DAY, 3], [0.5 * DAY, 4]] as const) {
       const now = date + jump;
       view.sync(now, placement, readableScale, real);
@@ -164,9 +187,7 @@ describe("a composition path's orbit look", () => {
     const fresh = compositionPathView(moonPath, placement.resolver);
     fresh.sync(later, placement, readableScale, 0);
     expect(Array.from(stale.arcTimesUtcMs)).toEqual(Array.from(fresh.arcTimesUtcMs));
-    placed(stale);
-    placed(fresh);
-    expect(Array.from(arcOf(stale).position.array.slice(0, 96))).toEqual(Array.from(arcOf(fresh).position.array.slice(0, 96)));
+    expect(Array.from(stale.arcPointsAbsolute)).toEqual(Array.from(fresh.arcPointsAbsolute));
   });
 
   it("switches each layer off and back on", () => {
@@ -190,25 +211,20 @@ describe("a composition path's orbit look", () => {
   it("carries a slider change to the material and the shape at once", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
-    const [ring, arc] = lines(view);
+    const [ring] = lines(view);
     const look = view.defaultLook!;
-    const short = arc.geometry.drawRange.count;
     view.setLook({ ...look, baseOpacity: 0.5, arcPeak: 0.9, arcFraction: 0.4, arcExponent: 1 });
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.5, 6);
-    expect((arc.material as LineBasicMaterial).opacity).toBeCloseTo(0.9, 6);
     view.sync(date, placement, readableScale, 0); // shapes follow on the next frame
-    expect(arc.geometry.drawRange.count).toBe(short);
+    expect(view.arcSegmentOpacities[0]).toBeCloseTo(0.9, 6);
+    expect(view.arcSegmentOpacities[5]).toBeCloseTo(0.9 * (1 - 5 / 15), 6);
     expect(date - view.arcTimesUtcMs[0]).toBeCloseTo(0.4 * SIDEREAL_MONTH_MS, -1);
-    expect(alphaOf(arc, 0)).toBeCloseTo(0, 6);
-    view.setLook({ ...view.defaultLook!, arcSamples: 10 });
-    view.sync(date, placement, readableScale, 0);
-    expect(arc.geometry.drawRange.count).toBe(10);
   });
 
   it("brightens both layers as the camera pulls back, and not when zoom is off", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
-    const [ring, arc] = lines(view);
+    const [ring] = lines(view);
     const centre = view.absolute();
     const extent = view.extentUnits(readableScale);
     const at = (factor: number) => {
@@ -220,8 +236,10 @@ describe("a composition path's orbit look", () => {
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18, 3);
     at(4);
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18 + 0.45, 3);
-    expect((arc.material as LineBasicMaterial).opacity).toBe(0.95);
+    expect(view.arcSegmentOpacities[0]).toBeCloseTo(0.95, 6);
+    expect(view.arcSegmentOpacities[15]).toBeCloseTo(0.3, 6); // the donor adds the boost to every segment
     view.setLook({ ...view.defaultLook!, zoomOn: false });
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18, 6);
+    expect(view.arcSegmentOpacities[0]).toBeCloseTo(0.65, 6);
   });
 });
