@@ -13,6 +13,8 @@ export interface StoryPanel {
   /** Paragraphs, in order. */
   readonly body: readonly string[];
   readonly badge: PanelBadge;
+  /** Short paragraphs of exact figures and measured-versus-reconstructed notes, shown in the folded section above the sources. Empty when the panel has none. */
+  readonly details: readonly string[];
   /** One line per cited source (PROV-01); never empty. */
   readonly sources: readonly string[];
   /** A shell object this panel is about; the scene draws a marker on it that reopens the panel. */
@@ -105,6 +107,7 @@ function parsePanel(raw: unknown, index: number, lookup: PanelLookup): StoryPane
     title: text(id, "title", raw.title),
     body: lines(id, "body", raw.body),
     badge: badge as PanelBadge,
+    details: raw.details === undefined ? [] : lines(id, "details", raw.details),
     sources: lines(id, "sources", raw.sources),
     ...(objectId === undefined ? {} : { objectId }),
   };
@@ -112,7 +115,7 @@ function parsePanel(raw: unknown, index: number, lookup: PanelLookup): StoryPane
 
 /**
  * Validates a story's panel settings (STYLE-06) and resolves each panel's time. Shape:
- * `{ pauseSeconds?, autoOpen?, panels: [{ id, at: { utc | event | anchor }, title, body, badge, sources, object? }] }`.
+ * `{ pauseSeconds?, autoOpen?, panels: [{ id, at: { utc | event | anchor }, title, body, details?, badge, sources, object? }] }`.
  * Panels come back sorted by time; ids must be unique.
  */
 export function parseStoryPanels(raw: unknown, lookup: PanelLookup): StoryPanelSet {

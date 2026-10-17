@@ -161,3 +161,35 @@ describe("the demo wiring (T-059 Done When 5)", () => {
     expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
   });
 });
+
+describe("details in the folded section (T-087 Done When 1-3)", () => {
+  const withDetails = parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, details: ["Exact figure one.", "Reconstructed note two."] }] }, lookup).panels[0]!;
+  const view = (panel: StoryPanel) => renderToStaticMarkup(createElement(StoryPanelView, { panel, holding: false, onClose: () => undefined, onContinue: () => undefined }));
+
+  it("parses an optional details list, a single line or several, and defaults to none", () => {
+    expect(withDetails.details).toEqual(["Exact figure one.", "Reconstructed note two."]);
+    expect(set.panels[1]!.details).toEqual([]);
+    const single = parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, details: "Only one." }] }, lookup).panels[0]!;
+    expect(single.details).toEqual(["Only one."]);
+  });
+
+  it.each([
+    ["an empty list", { details: [] }, /second: details must be one or more non-empty lines/],
+    ["an empty line", { details: ["ok", " "] }, /second: details\[1\] must be non-empty text/],
+    ["a non-text line", { details: [3] }, /second: details\[0\] must be non-empty text/],
+  ])("names the panel and field for %s", (_what, change, message) => {
+    expect(() => parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, ...change }] }, lookup)).toThrow(message);
+  });
+
+  it("shows one closed section, details above sources, labelled by whether details exist", () => {
+    const markup = view(withDetails);
+    expect(markup.match(/<details/g)).toHaveLength(1);
+    expect(markup).not.toContain(" open");
+    expect(markup).toContain("The details and sources");
+    expect(markup.indexOf("Exact figure one.")).toBeLessThan(markup.indexOf("Made-up source B"));
+    const plain = view(set.panels[1]!);
+    expect(plain.match(/<details/g)).toHaveLength(1);
+    expect(plain).not.toContain("The details and sources");
+    expect(plain).toContain("Sources");
+  });
+});

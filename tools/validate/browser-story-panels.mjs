@@ -58,6 +58,16 @@ try {
   assert.match(await panel.innerText(), /Leaving Earth orbit/);
   assert.equal(await ui.storyPanelBadge(page), "observed");
   assert.ok((await ui.storyPanelSources(page)) >= 1, "a source line");
+  // T-087: one folded section, closed by default, one tap opens it and another folds it away (details appear only where a panel has them).
+  assert.equal(await ui.storySectionCount(page), 1, "one folded section per panel");
+  assert.equal(await ui.storySourcesOpen(page), false, "the section is closed by default");
+  const sectionLabel = await ui.storySectionLabel(page);
+  assert.match(sectionLabel, (await ui.storyPanelDetails(page)).length > 0 ? /^The details and sources/ : /^Sources/, "label follows whether details exist");
+  await ui.openStorySources(page);
+  assert.equal(await ui.storySourcesOpen(page), true, "one tap opens the section");
+  assert.equal(await ui.storySectionLabel(page), sectionLabel, "the label stays stable when opened");
+  await ui.closeStorySources(page);
+  assert.equal(await ui.storySourcesOpen(page), false, "another tap folds it away");
   await page.waitForTimeout(600); // the panel slides in; measure it at rest
   const box = await panel.boundingBox();
   assert.ok(box.x > 1440 / 2 && box.x + box.width <= 1440, "desktop side panel sits on the right");
@@ -194,6 +204,12 @@ try {
   const { bar: phoneBar } = await ui.phoneBoxes(p);
   assert.ok(sbox.y + sbox.height <= phoneBar.top + 0.5 && sbox.width >= 370, "phone sheet sits above the timeline, nearly full width");
   assert.equal(await ui.storyPanelHandleVisible(p), true, "grab handle shows");
+  assert.equal(await ui.storySectionCount(p), 1, "phone sheet: one folded section");
+  assert.equal(await ui.storySourcesOpen(p), false, "phone sheet: section closed by default");
+  await ui.openStorySources(p);
+  assert.equal(await ui.storySourcesOpen(p), true, "phone sheet: one tap opens it");
+  await ui.closeStorySources(p);
+  assert.equal(await ui.storySourcesOpen(p), false, "phone sheet: another tap folds it");
   assert.ok(sbox.height <= 844 / 2 + 1, "sheet is at most half the screen");
   const scrollWidth = await p.evaluate(() => document.documentElement.scrollWidth);
   assert.ok(scrollWidth <= 390, `no horizontal scroll, got ${scrollWidth}`);

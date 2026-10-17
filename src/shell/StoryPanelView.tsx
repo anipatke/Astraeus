@@ -37,7 +37,7 @@ export function StoryPanelView({ panel, holding, onClose, onContinue }: Props) {
       </header>
       <h2 id="story-panel-title">{panel.title}</h2>
       <div className="story-panel-body">{panel.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
-      <Sources sources={panel.sources} />
+      <Sources sources={panel.sources} details={panel.details} />
       {holding && <button type="button" className="story-panel-continue ui-accent" onClick={onContinue}>Continue playback</button>}
     </aside>
   );

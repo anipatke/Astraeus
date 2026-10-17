@@ -2,7 +2,8 @@
 id: T-087
 title: Give every story panel a folded details and sources section
 objective: O-015
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-059, requires: clear}, {task: T-081, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -49,3 +50,18 @@ The panel format and view only; copy is T-B and T-C.
 ## Technical Verification
 
 Configured gates, lite, browser-story-panels, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (executor, lane o0xx-t087)
+
+Changed: `src/shell/storyPanels.ts` (optional `details`, validated like `body`, named errors `details`/`details[i]`; defaults to `[]`), `src/shell/Sources.tsx` (optional `details`; one folded section, label "The details and sources" with details, "Sources · n" without), `src/shell/StoryPanelView.tsx`, `src/shell/style.css` (`.sources-details`), `tests/storyPanels.test.ts`, `tools/validate/driver.mjs` (storySectionCount, storySectionLabel, storyPanelDetails, closeStorySources), `tools/validate/browser-story-panels.mjs`.
+
+Criteria:
+1. Parser and tests: single/list/empty/blank/non-text details; panel without details gets `[]`; details render above sources.
+2. Reuses T-081 `Sources` (ProvenanceBadge unchanged); one `<details>`, closed by default (unit markup test); story-panels script asserts one section, closed, stable label, tap opens/another folds, on desktop and phone sheet.
+3. No story wording in shell; synthetic story (`settingsFile` panel plus details) in tests proves details need no code.
+4. Driver readouts only; driver guard passes. Prior scenarios in browser-story-panels unchanged and still pass (additions only). Limitation: no shipped panel has `details` yet (T-088), so the "The details and sources" label and details text are proved by unit test, not in the browser.
+
+Commands: `npx tsc --noEmit` clean; `npx vitest run` 61 files, 972 passed, 1 skipped; `npm run build` ok; story-panels alone ok (docs/evidence/o015-t087-story-20261017T225212Z); `bash tools/validate/run-full.sh docs/evidence/o015-t087-full-20261017T225429Z` 24/24 steps exit 0, error-lines 0.
+
+Extra reads: none beyond Context Files (plus `src/shell/ProvenanceBadge.tsx` usage grep, `style.css` sources rules).
+Drift notes: none architectural. No Tasks/Issues needed.
