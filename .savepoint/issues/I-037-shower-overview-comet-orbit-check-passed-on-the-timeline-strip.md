@@ -3,6 +3,7 @@ id: I-037
 title: The showers' "comet orbit drawn in the Overview" check was passing on the timeline strip, not the scene
 type: defect
 status: open
+checks: [C-063]
 source:
   kind: report
   actor: {role: checker, session: o017-orchestrator-check-20261017}
