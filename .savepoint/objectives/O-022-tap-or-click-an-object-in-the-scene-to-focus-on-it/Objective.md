@@ -28,10 +28,7 @@ Owner, 2026-10-18: "at the moment you can only focus on objects through the top 
 
 1. **Focus only** ("tap to focus only"): a tap or click focuses the camera; it does not open the information sheet.
 2. **Planets, moons and the Sun only** ("lets make it planets moons sun only"): spacecraft (Columbia, Eagle), comets, asteroids, meteor streams and catalogue points are not tap targets.
-
-## Open Questions (to settle when this Objective is planned)
-
-- Hover feedback on laptops (pointer cursor, label brightening) — explained to the owner 2026-10-18, answer pending.
+3. **Hover highlight on laptops** (owner chose "both"): over a tappable body or its label the cursor becomes a pointing hand and the body's label brightens gently; the brightening amount is a live setting (owner rule). Phones have no hover.
 
 ## Architectural Considerations
 
