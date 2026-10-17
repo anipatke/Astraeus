@@ -51,6 +51,7 @@ export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits,
     color: settings.look.streamColor,
     pointSizePx: settings.look.pointSizePx,
     refillAfterMs: settings.look.refillAfterHours * HOUR_MS,
+    ...(settings.look.refillSliceMs === undefined ? {} : { refillSliceMs: settings.look.refillSliceMs }),
     object: streamObject(settings, description, { set, counts, provenance: all.provenance }),
   };
 }
