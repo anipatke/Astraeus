@@ -1,5 +1,5 @@
 import type { CenterId } from "./body";
-import { rotateInto, seededRandom, type ElementPlane } from "./orbitGroup";
+import { memberStatesOf, propagatedPositionOf, seededRandom, type ElementPlane } from "./orbitGroup";
 import {
   assertFillBuffer,
   assertGroupCount,
@@ -236,25 +236,14 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
     : referenceMeanAnomalyRad(concentration.around, center, referenceUtcMs, adapter) / RADIANS;
   const anomaliesDeg = assignMeanAnomaliesDeg(count, input.phase, referenceDeg);
 
-  const rotation = input.plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
-  const states = new Float64Array(6 * count);
-  input.members.forEach(({ elements }, member) => {
-    const { position, velocity } = adapter.elementsToState({
-      semiMajorAxisKm: elements.semiMajorAxisKm,
-      eccentricity: elements.eccentricity,
-      inclinationRad: elements.inclinationDeg * RADIANS,
-      raanRad: elements.raanDeg * RADIANS,
-      argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
-      trueAnomalyRad: trueAnomalyFromMeanRad(anomaliesDeg[member] * RADIANS, elements.eccentricity),
-    }, center);
-    if (rotation === null) {
-      states.set(position, 6 * member);
-      states.set(velocity, 6 * member + 3);
-    } else {
-      rotateInto(rotation, position, states, 6 * member);
-      rotateInto(rotation, velocity, states, 6 * member + 3);
-    }
-  });
+  const states = memberStatesOf(input.members.map(({ elements }, member) => ({
+    semiMajorAxisKm: elements.semiMajorAxisKm,
+    eccentricity: elements.eccentricity,
+    inclinationRad: elements.inclinationDeg * RADIANS,
+    raanRad: elements.raanDeg * RADIANS,
+    argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
+    trueAnomalyRad: trueAnomalyFromMeanRad(anomaliesDeg[member] * RADIANS, elements.eccentricity),
+  })), input.plane, center, adapter);
 
   const recordIds = input.members.map((member) => member.recordId);
   const provenance = createProvenance({
@@ -282,10 +271,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
       assertMemberIndex(count, index);
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
-      const position = new Float64Array(3);
-      const single = new Float64Array(6);
-      single.set(states.subarray(6 * index, 6 * index + 6));
-      adapter.propagateMemberInto(single, 0, (timeUtcMs - referenceUtcMs) / 1000, center, position);
+      const position = propagatedPositionOf(states, index, (timeUtcMs - referenceUtcMs) / 1000, center, adapter);
       return createState({ body: `${input.id}:${recordIds[index]}`, center, timeUtcMs, frame: EQJ, positionKm: position, orientation: null });
     },
     recordIdAt(index: number): string {

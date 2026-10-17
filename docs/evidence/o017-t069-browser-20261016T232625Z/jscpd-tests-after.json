@@ -1,0 +1,261 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 255,
+        "endLoc": {
+          "column": 104,
+          "line": 255,
+          "position": 15570
+        },
+        "name": "compositions.test.ts",
+        "start": 246,
+        "startLoc": {
+          "column": 25,
+          "line": 246,
+          "position": 15021
+        }
+      },
+      "format": "typescript",
+      "fragment": "  id, label: id, radiusKm, ...(parentId === undefined ? {} : { parentId }), orientation, accuracy,\n});\nconst spin: Quaternion = [0, 0, Math.SQRT1_2, Math.SQRT1_2];\nconst fakeBinding = (body: string, center: string, position: number[], orientation: Quaternion | null): StateSourceBinding => ({\n  body,\n  create: (): Trajectory => ({\n    body,\n    stateAt: (timeUtcMs, from = center) => {\n      if (from !== center) throw new RangeError(`${body} holds center ${center}`);\n      return createState({ body, center, timeUtcMs, positionKm: position.map((v) => v * (1 + timeUtcMs / 1e9)), orientation });",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 138,
+        "endLoc": {
+          "column": 104,
+          "line": 138,
+          "position": 7483
+        },
+        "name": "stateResolver.test.ts",
+        "start": 129,
+        "startLoc": {
+          "column": 28,
+          "line": 129,
+          "position": 6934
+        }
+      },
+      "tokens": 138
+    },
+    {
+      "firstFile": {
+        "end": 106,
+        "endLoc": {
+          "column": 55,
+          "line": 106,
+          "position": 4125
+        },
+        "name": "core.test.ts",
+        "start": 96,
+        "startLoc": {
+          "column": 58,
+          "line": 96,
+          "position": 3745
+        }
+      },
+      "format": "typescript",
+      "fragment": "      expect(state.positionKm).toBeInstanceOf(Float64Array);\n      maximumAngleArcminutes = Math.max(\n        maximumAngleArcminutes,\n        angularDifferenceArcminutes(state.positionKm, sample.positionKm),\n      );\n      maximumDistanceErrorKm = Math.max(\n        maximumDistanceErrorKm,\n        Math.abs(magnitude(state.positionKm) - magnitude(sample.positionKm)),\n      );\n    }\n    expect(maximumAngleArcminutes).toBeLessThanOrEqual(2);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 11,
+      "secondFile": {
+        "end": 126,
+        "endLoc": {
+          "column": 55,
+          "line": 126,
+          "position": 4918
+        },
+        "name": "core.test.ts",
+        "start": 116,
+        "startLoc": {
+          "column": 39,
+          "line": 116,
+          "position": 4538
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 243,
+        "endLoc": {
+          "column": 5,
+          "line": 243,
+          "position": 15246
+        },
+        "name": "elementsBody.test.ts",
+        "start": 236,
+        "startLoc": {
+          "column": 110,
+          "line": 236,
+          "position": 15056
+        }
+      },
+      "format": "typescript",
+      "fragment": "    expect(() => extendCatalogue(catalogue, [{ ...record, id: \"earth\" }])).toThrow(/duplicate body id \"earth\"/);\n  });\n});\n\ndescribe(\"the name check\", () => {\n  const files = import.meta.glob(\"../src/**/*.{ts,tsx}\", { query: \"?raw\", import: \"default\", eager: true }) as Record<string, string>;\n\n  it(\"finds the asteroid's name nowhere in src: it exists only in its settings file\", () => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 8,
+      "secondFile": {
+        "end": 167,
+        "endLoc": {
+          "column": 5,
+          "line": 167,
+          "position": 9648
+        },
+        "name": "swiftTuttle.test.ts",
+        "start": 160,
+        "startLoc": {
+          "column": 60,
+          "line": 160,
+          "position": 9458
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 1,
+          "line": 43,
+          "position": 1959
+        },
+        "name": "experiencePlugIn.test.ts",
+        "start": 31,
+        "startLoc": {
+          "column": 19,
+          "line": 31,
+          "position": 1681
+        }
+      },
+      "format": "typescript",
+      "fragment": "    snapshot: clock.snapshot(),\n    developerMode: false,\n    onDeveloperModeChange: noop,\n    onTogglePlayback: noop,\n    onRateChange: noop,\n    onSeek: noop,\n    onCameraRequest: noop,\n    onSelectionChange: noop,\n    scaleId: \"true-scale\",\n    onScaleChange: noop,\n    children: null,\n  }));\n}",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 13,
+      "secondFile": {
+        "end": 36,
+        "endLoc": {
+          "column": 1,
+          "line": 36,
+          "position": 1802
+        },
+        "name": "syntheticRing.test.ts",
+        "start": 32,
+        "startLoc": {
+          "column": 62,
+          "line": 32,
+          "position": 1556
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 166,
+        "endLoc": {
+          "column": 11,
+          "line": 166,
+          "position": 6896
+        },
+        "name": "orbitGroup.test.ts",
+        "start": 157,
+        "startLoc": {
+          "column": 47,
+          "line": 157,
+          "position": 6535
+        }
+      },
+      "format": "typescript",
+      "fragment": "      const out = fill(zeroSpread(center, \"EQJ\"), t);\n      const e = ring.base;\n      const state = elementsToState({\n        semiMajorAxis: e.semiMajorAxisKm,\n        eccentricity: e.eccentricity,\n        inclination: e.inclinationDeg * RADIANS,\n        raan: e.raanDeg * RADIANS,\n        argumentOfPeriapsis: e.argumentOfPeriapsisDeg * RADIANS,\n        trueAnomaly: e.trueAnomalyDeg * RADIANS,\n      }, GM[center]);",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 10,
+      "secondFile": {
+        "end": 187,
+        "endLoc": {
+          "column": 9,
+          "line": 187,
+          "position": 7732
+        },
+        "name": "orbitGroup.test.ts",
+        "start": 178,
+        "startLoc": {
+          "column": 55,
+          "line": 178,
+          "position": 7389
+        }
+      },
+      "tokens": 65
+    },
+    {
+      "firstFile": {
+        "end": 128,
+        "endLoc": {
+          "column": 4,
+          "line": 128,
+          "position": 6943
+        },
+        "name": "paths.test.ts",
+        "start": 123,
+        "startLoc": {
+          "column": 89,
+          "line": 123,
+          "position": 6716
+        }
+      },
+      "format": "typescript",
+      "fragment": "describe(\"a relative trail is each sample from the scene centre at the sample's own time\", () => {\n  const source = circling(\"earth\");\n  const times = Array.from({ length: 21 }, (_v, k) => Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20));\n  const km = samplePathKm(source, SPAN, 21);\n\n  it.each([\"earth\", \"moon\", \"sun\"] as const)(\"equals sample + the scene centre's offset at each sample time (centre %s)\", (centre) => {",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 151,
+        "endLoc": {
+          "column": 7,
+          "line": 151,
+          "position": 8246
+        },
+        "name": "paths.test.ts",
+        "start": 147,
+        "startLoc": {
+          "column": 97,
+          "line": 147,
+          "position": 8017
+        }
+      },
+      "tokens": 70
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-10-16T23:26:37.281Z",
+    "formats": {
+      "typescript": {
+        "clones": 6,
+        "duplicatedLines": 58,
+        "duplicatedTokens": 434,
+        "lines": 9912,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.5851493139628733,
+        "percentageTokens": 0.3611400041605991,
+        "sources": 52,
+        "tokens": 120175
+      }
+    },
+    "total": {
+      "clones": 6,
+      "duplicatedLines": 58,
+      "duplicatedTokens": 434,
+      "lines": 9912,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 0.5851493139628733,
+      "percentageTokens": 0.3611400041605991,
+      "sources": 52,
+      "tokens": 120175
+    }
+  }
+}

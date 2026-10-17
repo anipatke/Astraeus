@@ -1,0 +1,133 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 7,
+          "line": 92,
+          "position": 4470
+        },
+        "name": "core/sunCentredSources.ts",
+        "start": 87,
+        "startLoc": {
+          "column": 62,
+          "line": 87,
+          "position": 4159
+        }
+      },
+      "format": "typescript",
+      "fragment": "export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {\n  if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);\n  assertUtcUnixMs(span.startUtcMs);\n  assertUtcUnixMs(span.endUtcMs);\n  if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError(\"a path span must end after it starts\");\n  const times: number[] = [];",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 6,
+      "secondFile": {
+        "end": 131,
+        "endLoc": {
+          "column": 7,
+          "line": 131,
+          "position": 6632
+        },
+        "name": "core/sunCentredSources.ts",
+        "start": 126,
+        "startLoc": {
+          "column": 97,
+          "line": 126,
+          "position": 6321
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 123,
+        "endLoc": {
+          "column": 9,
+          "line": 123,
+          "position": 5665
+        },
+        "name": "synthetic/syntheticListedDefinition.ts",
+        "start": 117,
+        "startLoc": {
+          "column": 179,
+          "line": 117,
+          "position": 5375
+        }
+      },
+      "format": "typescript",
+      "fragment": "    { id: \"earth\", label: \"Earth\", color: \"#9fd8ff\", labelPriority: 100, labelMaxDistance: 500, description: \"Earth, on its path round the Sun; the listed orbits circle the Sun.\" },\n  ],\n  cameraPresets: [\n    { id: \"overview\", label: \"Overview\", request: { kind: \"overview\" } },\n    { id: \"sun-view\", label: \"Sun view\", request: { kind: \"focus\", target: \"sun\" } },\n    { id: \"focus-earth\", label: \"Focus Earth\", request: { kind: \"focus\", target: \"earth\" } },\n    { id: \"focus-listed\", label: \"Focus listed orbits\", request: { kind: \"focus\", target: \"listed-orbits\" } },",
+      "isNew": false,
+      "kind": "exact",
+      "lines": 7,
+      "secondFile": {
+        "end": 206,
+        "endLoc": {
+          "column": 9,
+          "line": 206,
+          "position": 9046
+        },
+        "name": "synthetic/syntheticRingDefinition.ts",
+        "start": 200,
+        "startLoc": {
+          "column": 171,
+          "line": 200,
+          "position": 8756
+        }
+      },
+      "tokens": 72
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-10-16T23:26:37.191Z",
+    "formats": {
+      "css": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 760,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 2,
+        "tokens": 14185
+      },
+      "tsx": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 2801,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 23,
+        "tokens": 25535
+      },
+      "typescript": {
+        "clones": 2,
+        "duplicatedLines": 13,
+        "duplicatedTokens": 136,
+        "lines": 10904,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.11922230374174615,
+        "percentageTokens": 0.16758055572669583,
+        "sources": 111,
+        "tokens": 81155
+      }
+    },
+    "total": {
+      "clones": 2,
+      "duplicatedLines": 13,
+      "duplicatedTokens": 136,
+      "lines": 14465,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 0.08987210508123056,
+      "percentageTokens": 0.1125129265770424,
+      "sources": 136,
+      "tokens": 120875
+    }
+  }
+}

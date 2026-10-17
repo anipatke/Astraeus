@@ -139,7 +139,6 @@ export type Metric =
   | UncertaintyMetric
   | PhaseMetric
   | CoordinatesMetric;
-export type MetricKind = Metric["kind"];
 
 /** Glyphs that draw a value in a body's radii show this many radii; farther values are drawn broken. */
 export const RADII_WINDOW = 6;

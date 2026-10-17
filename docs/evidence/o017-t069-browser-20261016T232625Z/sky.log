@@ -1,0 +1,161 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 34.9,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 12773,
+          "lit": 567535,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 11202,
+          "lit": 237482,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 11864,
+          "lit": 245133,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 22.8,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 29.6,
+      "probeChecks": 4
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 60,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 6183,
+          "lit": 193358,
+          "total": 329160
+        },
+        "off": {
+          "bright": 5965,
+          "lit": 136898,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 6145,
+          "lit": 138146,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 46.9,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 60.3,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "earth-moon-desktop": {
+      "fpsWithoutSky": 34.5,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 9038,
+          "lit": 568481,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 8000,
+          "lit": 213383,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 8514,
+          "lit": 218476,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 21.9,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 28.3,
+      "probeChecks": 5
+    },
+    "earth-moon-mobile": {
+      "fpsWithoutSky": 60.2,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 5105,
+          "lit": 170042,
+          "total": 329160
+        },
+        "off": {
+          "bright": 5001,
+          "lit": 128843,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 5075,
+          "lit": 129706,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 32.2,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 49.7,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "perseids-desktop": {
+      "fpsWithoutSky": 29.8,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 51215,
+          "lit": 681981,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 50024,
+          "lit": 394769,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 50460,
+          "lit": 399638,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 18.5,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 19.4,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "perseids-mobile": {
+      "fpsWithoutSky": 31.1,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 17967,
+          "lit": 232440,
+          "total": 329160
+        },
+        "off": {
+          "bright": 17647,
+          "lit": 184899,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 17735,
+          "lit": 183982,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 17.3,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 24.6,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    }
+  },
+  "errors": 0
+}

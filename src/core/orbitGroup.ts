@@ -110,17 +110,18 @@ function sampleMembers(input: OrbitGroupInput): ClassicalElements[] {
   return members;
 }
 
-export function rotateInto(matrix: Float64Array, v: ArrayLike<number>, out: Float64Array, offset: number): void {
+function rotateInto(matrix: Float64Array, v: ArrayLike<number>, out: Float64Array, offset: number): void {
   for (let row = 0; row < 3; row++) {
     out[offset + row] = matrix[3 * row] * v[0] + matrix[3 * row + 1] * v[1] + matrix[3 * row + 2] * v[2];
   }
 }
 
-function initialStates(input: OrbitGroupInput, adapter: TwoBodyAdapter): Float64Array {
-  const rotation = input.plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
-  const states = new Float64Array(6 * input.count);
-  sampleMembers(input).forEach((elements, member) => {
-    const { position, velocity } = adapter.elementsToState(elements, input.center);
+/** Places each member on its orbit about `center`: six values per member (position, velocity), in J2000 equatorial axes. */
+export function memberStatesOf(members: readonly ClassicalElements[], plane: ElementPlane, center: CenterId, adapter: TwoBodyAdapter): Float64Array {
+  const rotation = plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
+  const states = new Float64Array(6 * members.length);
+  members.forEach((elements, member) => {
+    const { position, velocity } = adapter.elementsToState(elements, center);
     if (rotation === null) {
       states.set(position, 6 * member);
       states.set(velocity, 6 * member + 3);
@@ -132,9 +133,21 @@ function initialStates(input: OrbitGroupInput, adapter: TwoBodyAdapter): Float64
   return states;
 }
 
+/**
+ * One member's position after `dtSeconds`, by the same propagation path as the batch, on a one-member view,
+ * so the single answer and the batch never disagree.
+ */
+export function propagatedPositionOf(states: Float64Array, index: number, dtSeconds: number, center: CenterId, adapter: TwoBodyAdapter): Float64Array {
+  const position = new Float64Array(3);
+  const single = new Float64Array(6);
+  single.set(states.subarray(6 * index, 6 * index + 6));
+  adapter.propagateMemberInto(single, 0, dtSeconds, center, position);
+  return position;
+}
+
 export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter): PointGroup {
   assertInput(input);
-  const states = initialStates(input, adapter);
+  const states = memberStatesOf(sampleMembers(input), input.plane, input.center, adapter);
   const provenance = createProvenance({
     ...input.provenance,
     notes: `${input.provenance.notes} ${TWO_BODY_NOTE}`.trim(),
@@ -163,11 +176,7 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
       assertMemberIndex(count, index);
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
-      const position = new Float64Array(3);
-      // Same propagation path as the batch, on a one-member view, so the two never disagree.
-      const single = new Float64Array(6);
-      single.set(states.subarray(6 * index, 6 * index + 6));
-      adapter.propagateMemberInto(single, 0, (timeUtcMs - epochUtcMs) / 1000, center, position);
+      const position = propagatedPositionOf(states, index, (timeUtcMs - epochUtcMs) / 1000, center, adapter);
       return memberState(group, index, timeUtcMs, position);
     },
   };

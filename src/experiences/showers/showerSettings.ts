@@ -1,4 +1,5 @@
 import { validateStartView, type StartView } from "../../app/viewLink";
+import { fieldReaders, type Raw } from "../../core/fieldReaders";
 import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../core/elementsBody";
 
 /** A cited fact: where a value was read, and when. */
@@ -133,40 +134,15 @@ export class ShowerSettingsError extends TypeError {
   override readonly name = "ShowerSettingsError";
 }
 
-type Raw = Readonly<Record<string, unknown>>;
-
 function fail(path: string, problem: string): never {
   throw new ShowerSettingsError(`shower settings ${path} ${problem}`);
 }
 
-function record(value: unknown, path: string): Raw {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
-  return value as Raw;
-}
-
-function text(parent: Raw, key: string, path: string): string {
-  const value = parent[key];
-  if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
-  return value;
-}
-
-function finite(parent: Raw, key: string, path: string): number {
-  const value = parent[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
-  return value;
-}
+const { record, text, finite, instant } = fieldReaders(fail);
 
 function nonNegative(parent: Raw, key: string, path: string): number {
   const value = finite(parent, key, path);
   if (value < 0) fail(`${path}.${key}`, `must not be negative, got ${value}`);
-  return value;
-}
-
-function instant(parent: Raw, key: string, path: string): string {
-  const value = text(parent, key, path);
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(value) || !Number.isFinite(Date.parse(value))) {
-    fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
-  }
   return value;
 }
 
