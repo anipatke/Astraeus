@@ -54,7 +54,10 @@ async function checkWindow(label, size) {
   // Peak: Inside line and the first source wording.
   await page.getByRole("button", { name: "Go to peak of Contact window" }).click();
   await page.waitForTimeout(200);
+  // T-080: the "Inside" line lives behind the Events button; open it to read, then close it.
+  await page.locator(".timeline-event-list summary").click();
   const inside = await page.locator(".timeline-window-current").innerText();
+  await page.locator(".timeline-event-list summary").click();
   assert.match(inside, /Inside:\s*Contact window/);
   assert.match(inside, /48 passes per hour/);
   // Source wording changes across the midpoint.

@@ -104,7 +104,6 @@
 .astraeus-shell button:focus-visible,
 .astraeus-shell select:focus-visible,
 .astraeus-shell input:focus-visible,
-.timeline-event-list summary:focus-visible,
 .developer-tools summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 .astraeus-shell button:disabled { opacity: .45; cursor: not-allowed; }
 
@@ -137,108 +136,6 @@
 
 .developer-tools[hidden] { display: none !important; }
 
-.timeline-bar {
-  position: absolute;
-  z-index: 3;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding: 10px 12px 8px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 12px;
-  background: rgba(13, 13, 13, .9);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
-  font-size: 14px;
-  backdrop-filter: blur(10px);
-}
-
-.timeline-main-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.timeline-transport { display: flex; flex: 0 0 auto; gap: 5px; }
-.timeline-transport button:first-child { border-color: rgba(252, 99, 35, .72); }
-.timeline-time {
-  flex: 0 0 24ch;
-  width: 24ch;
-  font: 13px ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.timeline-speed { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; color: var(--ui-muted, #c7bdb3); }
-.timeline-speed select { min-height: 36px; max-width: min(420px, 42vw); padding: 4px 8px; }
-.timeline-event-list { position: relative; flex: 0 0 auto; margin-left: auto; }
-
-.timeline-event-list summary {
-  min-height: 36px;
-  padding: 8px 10px;
-  border: 1px solid #45413d;
-  border-radius: 7px;
-  background: rgba(13, 13, 13, .92);
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.timeline-event-list summary span { color: var(--ui-data, #b1a1df); }
-.timeline-event-list ol {
-  position: absolute;
-  z-index: 6;
-  right: 0;
-  bottom: calc(100% + 10px);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: min(480px, calc(100vw - 48px));
-  max-height: min(48vh, 390px);
-  overflow: auto;
-  margin: 0;
-  padding: 6px;
-  border: 1px solid #45413d;
-  border-radius: 10px;
-  background: rgba(13, 13, 13, .97);
-  list-style: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
-}
-
-.timeline-event-list li { margin: 0; padding: 0; }
-.timeline-event-list li button { display: flex; align-items: baseline; gap: 10px; width: 100%; min-height: 36px; border-color: transparent; background: transparent; text-align: left; }
-.timeline-event-list li button[aria-current="time"] { border-color: var(--ui-accent, #fc6323); }
-.timeline-event-list li time { flex: 0 0 auto; color: var(--ui-data, #b1a1df); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
-.timeline-event-list li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.timeline-event-context { display: flex; gap: 20px; min-width: 0; overflow: hidden; color: var(--ui-muted, #c7bdb3); white-space: nowrap; text-overflow: ellipsis; }
-.timeline-event-context span { overflow: hidden; text-overflow: ellipsis; }
-.astraeus-shell .timeline-event-current { min-height: 28px; overflow: hidden; padding: 2px 8px; border-color: transparent; background: transparent; color: inherit; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
-.astraeus-shell .timeline-event-current:hover { border-color: #45413d; }
-.timeline-event-current span { color: var(--ui-data, #b1a1df); }
-.timeline-event-context strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
-.timeline-scrubber { display: flex; flex-direction: column; gap: 1px; }
-.timeline-track { position: relative; display: flex; align-items: center; height: 22px; }
-.timeline-track input[type="range"] { position: relative; z-index: 1; width: 100%; height: 22px; margin: 0; accent-color: var(--ui-accent, #fc6323); background: transparent; cursor: pointer; }
-.timeline-markers { position: absolute; z-index: 2; inset: 0 8px; pointer-events: none; }
-.timeline-marker { position: absolute; top: 1px; width: 18px; min-height: 20px !important; height: 20px; padding: 0 !important; border: 0 !important; border-radius: 3px !important; background: transparent !important; opacity: .9; transform: translateX(-50%); pointer-events: auto; }
-.timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
-.timeline-marker:hover::after,
-.timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
-/* I-019: one shape. The window's band is a thick baseline that sits on the slider line (the strip overlaps the track's upper half by --tl-half), the rate curve rises from it, and the peak's stem drops from the diamond to it. The caption names the shape above. */
-.timeline-windows { --tl-half: 11px; --tl-caption: 22px; --tl-base: 4px; position: relative; height: 76px; margin: 0 8px calc(-1 * var(--tl-half)); }
-.timeline-window-group { position: absolute; inset: 0; pointer-events: none; }
-.timeline-window { position: absolute; top: 0; bottom: 0; min-height: 0 !important; padding: 0 !important; overflow: hidden; border: 0 !important; border-bottom: var(--tl-base) solid var(--ui-data, #b1a1df) !important; border-left: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-right: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-radius: 0 !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 10%, transparent) !important; text-align: left; pointer-events: auto; cursor: pointer; }
-.timeline-window:hover,
-.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 24%, transparent) !important; }
-.timeline-window-caption { position: absolute; top: 2px; max-width: 100%; color: var(--ui-muted, #c7bdb3); font-size: 12px; line-height: 16px; white-space: nowrap; pointer-events: none; }
-.timeline-window-caption strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
-.timeline-window-curve { position: absolute; inset: var(--tl-caption) 0 var(--tl-base); width: 100%; height: calc(100% - var(--tl-caption) - var(--tl-base)); overflow: visible; pointer-events: none; }
-.timeline-window-area { fill: color-mix(in srgb, var(--ui-data, #b1a1df) 50%, transparent); stroke: none; }
-.timeline-window-line { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 2.5; stroke-linejoin: round; }
-.timeline-window-peak { position: absolute; top: 0; bottom: 0; width: 28px; min-height: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; transform: translateX(-50%); pointer-events: auto; cursor: pointer; }
-.astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 214px; }
-.timeline-window-peak::before { position: absolute; bottom: var(--tl-base); left: 50%; height: calc((100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); border-left: 1px dashed var(--ui-accent, #fc6323); content: ""; }
-.timeline-window-peak::after { position: absolute; bottom: calc(var(--tl-base) + (100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); left: 50%; width: 10px; height: 10px; margin: 0 0 -5px -5px; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
-.timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
-.timeline-marker:hover .timeline-marker-label,
-.timeline-marker:focus .timeline-marker-label { display: block; }
-.timeline-bounds { display: flex; justify-content: space-between; color: var(--ui-subtle, #a99e94); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
 
 /* Metric Visuals: the number leads; the shape is small, quiet and only drawn against a real reference. */
 .metric {
@@ -322,28 +219,6 @@
   .info-panel button,
   .astraeus-shell .provenance-badge { min-height: 44px; }
   .astraeus-label { font-size: 12px; }
-  .timeline-bar { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 8px; gap: 7px; padding: 8px; font-size: 14px; }
-  .timeline-main-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
-  .timeline-transport { gap: 4px; }
-  .timeline-transport { grid-column: 1 / -1; grid-row: 1; }
-  .timeline-transport button { min-height: 44px; padding: 4px 6px; font-size: 13px; }
-  .timeline-time { grid-column: 1; grid-row: 2; width: auto; min-width: 0; overflow: hidden; font-size: 12px; text-overflow: ellipsis; }
-  .timeline-speed { grid-column: 2; grid-row: 2; justify-self: end; margin-left: 0; min-width: 0; }
-  .timeline-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .timeline-speed select { width: min(40vw, 160px); min-height: 44px; max-width: 100%; }
-  .timeline-event-list { grid-column: 2; grid-row: 1; margin-left: 0; }
-  .timeline-event-list summary { min-height: 44px; }
-  .timeline-bar .timeline-event-current { min-height: 44px; }
-  .timeline-event-context { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 6px; font-size: 12px; }
-  .timeline-event-context > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .timeline-bar .timeline-event-current { width: 100%; padding-right: 4px; padding-left: 4px; }
-  .timeline-track { height: 44px; }
-  .timeline-track input[type="range"] { height: 44px; }
-  .timeline-windows { --tl-half: 22px; height: 88px; }
-  /* The peak figure is in the band's tooltip and the "Inside" line; on a phone the caption keeps to the name so it never runs off the edge. */
-  .timeline-window-caption span { display: none; }
-  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 358px; }
-  .timeline-window-peak { width: 44px; }
   /* Below the object and scale bars, above the timeline: it scrolls inside that space and never covers either. */
   .developer-tools { top: 172px; right: 8px; left: 8px; width: auto; max-height: max(160px, calc(100dvh - 172px - 276px)); padding: 9px; }
 }
@@ -354,23 +229,11 @@
 
 @media (min-width: 701px) and (max-width: 900px) {
   .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
-  .timeline-main-row { flex-wrap: wrap; row-gap: 7px; }
-  .timeline-time { flex: 1 1 20ch; width: auto; }
-  .timeline-speed { margin-left: auto; }
-  .timeline-event-list { margin-left: auto; }
-  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 246px; }
-  .timeline-track { height: 44px; }
-  .timeline-track input[type="range"] { height: 44px; }
   .info-panel button,
-  .astraeus-shell .provenance-badge,
-  .timeline-transport button,
-  .timeline-speed select,
-  .timeline-event-list summary,
-  .timeline-bar .timeline-event-current { min-height: 44px; }
+  .astraeus-shell .provenance-badge { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .timeline-bar,
   .developer-tools,
   .astraeus-shell button { scroll-behavior: auto; transition: none !important; }
 }
@@ -445,11 +308,7 @@
 .story-marker::before { position: absolute; inset: -10px; content: ""; }
 .story-marker[aria-pressed="true"] { background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 8px var(--ui-accent, #fc6323), 0 0 16px color-mix(in srgb, var(--ui-accent, #fc6323) 40%, transparent); }
 .story-marker[hidden] { display: none !important; }
-.timeline-panel-marker::after { width: 8px !important; height: 8px !important; border: 1.5px solid var(--ui-accent, #fc6323); border-radius: 50% !important; background: rgba(0, 0, 0, .55) !important; }
-.timeline-panel-marker[aria-pressed="true"]::after { background: var(--ui-accent, #fc6323) !important; }
 
-/* The open Events list rises over the panel rather than hiding behind it. */
-.timeline-bar:has(.timeline-event-list[open]) { z-index: 5; }
 
 /* On a wide screen the diagnostics step left of an open story panel instead of covering it. */
 @media (min-width: 701px) {

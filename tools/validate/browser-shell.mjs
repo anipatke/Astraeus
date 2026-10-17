@@ -134,7 +134,10 @@ try {
   await page.keyboard.press("Escape");
   assert.equal(await panel.count(), 0, "Escape closes the info panel");
 
+  // T-080: "Just happened / Up next" now live behind the Events button, so open it first and close it again afterwards.
+  await page.locator(".timeline-event-list summary").click();
   await page.locator(".timeline-event-current").click();
+  await page.locator(".timeline-event-list summary").click();
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-kind"), "event");
   assert.match(await panel.locator(".provenance-badge").innerText(), /^Observed ⓘ/);
