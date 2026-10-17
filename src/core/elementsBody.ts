@@ -1,5 +1,6 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "./body";
 import { trueAnomalyFromMean } from "./bodies/io";
+import { fieldReaders, type Raw } from "./fieldReaders";
 import { createProvenance } from "./provenance";
 import { createTwoBodyTrajectory, type EccentricSampling } from "./sunCentredSources";
 import type { Trajectory } from "./trajectory";
@@ -83,46 +84,14 @@ export class ElementsBodyError extends TypeError {
   override readonly name = "ElementsBodyError";
 }
 
-type Raw = Readonly<Record<string, unknown>>;
-
 function fail(path: string, problem: string): never {
   throw new ElementsBodyError(`body record ${path} ${problem}`);
 }
 
-function record(value: unknown, path: string): Raw {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
-  return value as Raw;
-}
+const { record, text, finite, instant } = fieldReaders(fail);
 
-function text(parent: Raw, key: string, path: string): string {
-  const value = parent[key];
-  if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
-  return value;
-}
-
-function finite(parent: Raw, key: string, path: string): number {
-  const value = parent[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
-  return value;
-}
-
-function instant(parent: Raw, key: string, path: string): string {
-  const value = text(parent, key, path);
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(value) || !Number.isFinite(Date.parse(value))) {
-    fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
-  }
-  return value;
-}
-
-/** Checks a body record field by field and returns it typed, with the optional marker and limitations filled by their defaults. Every error names the field. */
-export function parseElementsBodyRecord(input: unknown, path = "body"): ElementsBodyRecord {
-  const root = record(input, path);
-  const id = text(root, "id", path);
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail(`${path}.id`, `must be lower-case words joined by hyphens, got "${id}"`);
-  const label = text(root, "label", path);
-
-  const raw = record(root.elements, `${path}.elements`);
-  const here = `${path}.elements`;
+/** The five orbit-shape elements and the one placement along the orbit (exactly one of mean anomaly and perihelion time). */
+function parseOrbitElements(raw: Raw, here: string): ElementsBodyRecord["elements"] {
   const semiMajorAxisAu = finite(raw, "semiMajorAxisAu", here);
   if (!(semiMajorAxisAu > 0)) fail(`${here}.semiMajorAxisAu`, `must be positive, got ${semiMajorAxisAu}`);
   const eccentricity = finite(raw, "eccentricity", here);
@@ -139,62 +108,65 @@ export function parseElementsBodyRecord(input: unknown, path = "body"): Elements
   if (hasMean === hasPerihelion) fail(here, "must give exactly one of meanAnomalyDeg and perihelionJdTdb");
   const placement = hasMean ? { meanAnomalyDeg: finite(raw, "meanAnomalyDeg", here) } : { perihelionJdTdb: finite(raw, "perihelionJdTdb", here) };
   if (hasMean && (placement.meanAnomalyDeg! < 0 || placement.meanAnomalyDeg! >= 360)) fail(`${here}.meanAnomalyDeg`, `must be at least 0 and below 360, got ${placement.meanAnomalyDeg}`);
+  return { semiMajorAxisAu, eccentricity, inclinationDeg, ascendingNodeDeg, argumentOfPerihelionDeg, ...placement };
+}
 
-  const epochRaw = record(root.epoch, `${path}.epoch`);
-  const epochJd = finite(epochRaw, "jd", `${path}.epoch`);
-  const timeScale = epochRaw.timeScale;
-  if (timeScale !== "TDB" && timeScale !== "TT" && timeScale !== "UTC") fail(`${path}.epoch.timeScale`, `must be "TDB", "TT" or "UTC", got ${String(timeScale)}`);
-  let ttMinusUtcSeconds: number | undefined;
+function parseEpoch(raw: Raw, here: string): ElementsBodyRecord["epoch"] {
+  const jd = finite(raw, "jd", here);
+  const timeScale = raw.timeScale;
+  if (timeScale !== "TDB" && timeScale !== "TT" && timeScale !== "UTC") fail(`${here}.timeScale`, `must be "TDB", "TT" or "UTC", got ${String(timeScale)}`);
   if (timeScale === "UTC") {
-    if (epochRaw.ttMinusUtcSeconds !== undefined) fail(`${path}.epoch.ttMinusUtcSeconds`, "must be absent when the epoch is already UTC");
-  } else {
-    ttMinusUtcSeconds = finite(epochRaw, "ttMinusUtcSeconds", `${path}.epoch`);
-    if (ttMinusUtcSeconds < 32 || ttMinusUtcSeconds > 120) fail(`${path}.epoch.ttMinusUtcSeconds`, `must be from 32 to 120 seconds (32.184 plus the leap seconds), got ${ttMinusUtcSeconds}`);
+    if (raw.ttMinusUtcSeconds !== undefined) fail(`${here}.ttMinusUtcSeconds`, "must be absent when the epoch is already UTC");
+    return { jd, timeScale };
   }
+  const ttMinusUtcSeconds = finite(raw, "ttMinusUtcSeconds", here);
+  if (ttMinusUtcSeconds < 32 || ttMinusUtcSeconds > 120) fail(`${here}.ttMinusUtcSeconds`, `must be from 32 to 120 seconds (32.184 plus the leap seconds), got ${ttMinusUtcSeconds}`);
+  return { jd, timeScale, ttMinusUtcSeconds };
+}
+
+function parseSource(raw: Raw, here: string): ElementsSource {
+  return { name: text(raw, "name", here), url: text(raw, "url", here), solution: text(raw, "solution", here), accessed: text(raw, "accessed", here) };
+}
+
+function parseRadius(raw: Raw, here: string): NonNullable<ElementsBodyRecord["radius"]> {
+  const km = finite(raw, "km", here);
+  if (!(km > 0)) fail(`${here}.km`, `must be positive, got ${km}`);
+  return { km, source: text(raw, "source", here) };
+}
+
+function parseAccuracy(raw: Raw, here: string): ElementsBodyRecord["accuracy"] {
+  const classification = raw.classification;
+  if (classification !== "approximate" && classification !== "indicative") fail(`${here}.classification`, `must be "approximate" or "indicative", got ${String(classification)}`);
+  const validFromUtc = instant(raw, "validFromUtc", here);
+  const validToUtc = instant(raw, "validToUtc", here);
+  if (Date.parse(validToUtc) <= Date.parse(validFromUtc)) fail(`${here}.validToUtc`, "must be after accuracy.validFromUtc");
+  const limitations = raw.limitations ?? [];
+  if (!Array.isArray(limitations) || limitations.some((item) => typeof item !== "string" || item.trim().length === 0)) fail(`${here}.limitations`, "must be a list of non-empty text");
+  return { classification, statement: text(raw, "statement", here), validFromUtc, validToUtc, limitations: [...limitations] };
+}
+
+function parseMarker(raw: Raw, here: string): ElementsBodyRecord["marker"] {
+  const color = raw.color === undefined ? DEFAULT_ELEMENTS_MARKER_COLOUR : text(raw, "color", here);
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) fail(`${here}.color`, `must be a colour like #9fe3ff, got "${color}"`);
+  const sizePx = raw.sizePx === undefined ? DEFAULT_ELEMENTS_MARKER_SIZE_PX : finite(raw, "sizePx", here);
+  if (!(sizePx > 0)) fail(`${here}.sizePx`, `must be above zero, got ${sizePx}`);
+  return { color, sizePx };
+}
+
+/** Checks a body record field by field and returns it typed, with the optional marker and limitations filled by their defaults. Every error names the field. */
+export function parseElementsBodyRecord(input: unknown, path = "body"): ElementsBodyRecord {
+  const root = record(input, path);
+  const id = text(root, "id", path);
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail(`${path}.id`, `must be lower-case words joined by hyphens, got "${id}"`);
+  const label = text(root, "label", path);
+  const elements = parseOrbitElements(record(root.elements, `${path}.elements`), `${path}.elements`);
+  const epoch = parseEpoch(record(root.epoch, `${path}.epoch`), `${path}.epoch`);
   if (root.frame !== "ecliptic-j2000") fail(`${path}.frame`, `must be "ecliptic-j2000", got ${String(root.frame)}`);
-
-  const sourceRaw = record(root.source, `${path}.source`);
-  const source: ElementsSource = {
-    name: text(sourceRaw, "name", `${path}.source`),
-    url: text(sourceRaw, "url", `${path}.source`),
-    solution: text(sourceRaw, "solution", `${path}.source`),
-    accessed: text(sourceRaw, "accessed", `${path}.source`),
-  };
-
-  let radius: ElementsBodyRecord["radius"];
-  if (root.radius !== undefined) {
-    const radiusRaw = record(root.radius, `${path}.radius`);
-    const km = finite(radiusRaw, "km", `${path}.radius`);
-    if (!(km > 0)) fail(`${path}.radius.km`, `must be positive, got ${km}`);
-    radius = { km, source: text(radiusRaw, "source", `${path}.radius`) };
-  }
-
-  const accuracyRaw = record(root.accuracy, `${path}.accuracy`);
-  const classification = accuracyRaw.classification;
-  if (classification !== "approximate" && classification !== "indicative") fail(`${path}.accuracy.classification`, `must be "approximate" or "indicative", got ${String(classification)}`);
-  const validFromUtc = instant(accuracyRaw, "validFromUtc", `${path}.accuracy`);
-  const validToUtc = instant(accuracyRaw, "validToUtc", `${path}.accuracy`);
-  if (Date.parse(validToUtc) <= Date.parse(validFromUtc)) fail(`${path}.accuracy.validToUtc`, "must be after accuracy.validFromUtc");
-  const limitationsRaw = accuracyRaw.limitations ?? [];
-  if (!Array.isArray(limitationsRaw) || limitationsRaw.some((item) => typeof item !== "string" || item.trim().length === 0)) fail(`${path}.accuracy.limitations`, "must be a list of non-empty text");
-
-  const markerRaw = root.marker === undefined ? {} : record(root.marker, `${path}.marker`);
-  const color = markerRaw.color === undefined ? DEFAULT_ELEMENTS_MARKER_COLOUR : text(markerRaw, "color", `${path}.marker`);
-  if (!/^#[0-9a-fA-F]{6}$/.test(color)) fail(`${path}.marker.color`, `must be a colour like #9fe3ff, got "${color}"`);
-  const sizePx = markerRaw.sizePx === undefined ? DEFAULT_ELEMENTS_MARKER_SIZE_PX : finite(markerRaw, "sizePx", `${path}.marker`);
-  if (!(sizePx > 0)) fail(`${path}.marker.sizePx`, `must be above zero, got ${sizePx}`);
-
-  return {
-    id,
-    label,
-    elements: { semiMajorAxisAu, eccentricity, inclinationDeg, ascendingNodeDeg, argumentOfPerihelionDeg, ...placement },
-    epoch: { jd: epochJd, timeScale, ...(ttMinusUtcSeconds === undefined ? {} : { ttMinusUtcSeconds }) },
-    frame: "ecliptic-j2000",
-    source,
-    ...(radius === undefined ? {} : { radius }),
-    accuracy: { classification, statement: text(accuracyRaw, "statement", `${path}.accuracy`), validFromUtc, validToUtc, limitations: [...limitationsRaw] },
-    marker: { color, sizePx },
-  };
+  const source = parseSource(record(root.source, `${path}.source`), `${path}.source`);
+  const radius = root.radius === undefined ? undefined : parseRadius(record(root.radius, `${path}.radius`), `${path}.radius`);
+  const accuracy = parseAccuracy(record(root.accuracy, `${path}.accuracy`), `${path}.accuracy`);
+  const marker = parseMarker(root.marker === undefined ? {} : record(root.marker, `${path}.marker`), `${path}.marker`);
+  return { id, label, elements, epoch, frame: "ecliptic-j2000", source, ...(radius === undefined ? {} : { radius }), accuracy, marker };
 }
 
 /** The body a record's elements orbit: its id and gravitational parameter, from the catalogue's root. */

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "apollo11-overview",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?view=earth,0,70,130&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4038691,
+    "gzipBytes": 2720311
+  },
+  {
+    "id": "apollo11-overview",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?view=moon,270,50,214&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4038691,
+    "gzipBytes": 2720311
+  },
+  {
+    "id": "apollo11-moon",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?view=moon,0,30,6&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4038691,
+    "gzipBytes": 2720311
+  },
+  {
+    "id": "apollo11-moon",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?view=moon,0,30,6&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4038691,
+    "gzipBytes": 2720311
+  },
+  {
+    "id": "earth-moon-wide",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3671629,
+    "gzipBytes": 2601663
+  },
+  {
+    "id": "earth-moon-wide",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=earth-moon&view=earth,30,30,130&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3671629,
+    "gzipBytes": 2601663
+  },
+  {
+    "id": "earth-moon-close",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3671629,
+    "gzipBytes": 2601663
+  },
+  {
+    "id": "earth-moon-close",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=earth-moon&view=earth,30,30,4&scale=true-scale&t=2025-01-10T00:00:00Z",
+    "files": 10,
+    "bytes": 3671629,
+    "gzipBytes": 2601663
+  },
+  {
+    "id": "jupiter-io-wide",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3802109,
+    "gzipBytes": 1894220
+  },
+  {
+    "id": "jupiter-io-wide",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3802109,
+    "gzipBytes": 1894220
+  },
+  {
+    "id": "jupiter-io-close",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3802109,
+    "gzipBytes": 1894220
+  },
+  {
+    "id": "jupiter-io-close",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3802109,
+    "gzipBytes": 1894220
+  },
+  {
+    "id": "perseids",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+    "files": 19,
+    "bytes": 10648446,
+    "gzipBytes": 7072612
+  },
+  {
+    "id": "perseids",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+    "files": 19,
+    "bytes": 10648446,
+    "gzipBytes": 7072612
+  },
+  {
+    "id": "geminids",
+    "size": "desktop",
+    "url": "http://localhost:5478/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 19,
+    "bytes": 13132919,
+    "gzipBytes": 7878822
+  },
+  {
+    "id": "geminids",
+    "size": "phone",
+    "url": "http://localhost:5478/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 19,
+    "bytes": 13132919,
+    "gzipBytes": 7878822
+  },
+  {
+    "id": "site-index",
+    "size": "desktop",
+    "url": "http://localhost:5478/index.html",
+    "files": 17,
+    "bytes": 630024,
+    "gzipBytes": 577211
+  },
+  {
+    "id": "site-index",
+    "size": "phone",
+    "url": "http://localhost:5478/index.html",
+    "files": 17,
+    "bytes": 630024,
+    "gzipBytes": 577211
+  },
+  {
+    "id": "site-assets",
+    "size": "desktop",
+    "url": "http://localhost:5478/assets.html",
+    "files": 16,
+    "bytes": 549797,
+    "gzipBytes": 509479
+  },
+  {
+    "id": "site-assets",
+    "size": "phone",
+    "url": "http://localhost:5478/assets.html",
+    "files": 15,
+    "bytes": 528729,
+    "gzipBytes": 488438
+  }
+]

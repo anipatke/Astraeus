@@ -1,6 +1,6 @@
 # Astraeus Metric Visuals
 
-Reusable, numbers-first measurement readouts for Astraeus experiences (T-022, O-005). Brief: `docs/ASTRAEUS_SPIKE_03_METRIC_VISUALS_BRIEF.md`.
+Reusable, numbers-first measurement readouts for Astraeus experiences (T-022, O-005). Brief: `docs/archive/ASTRAEUS_SPIKE_03_METRIC_VISUALS_BRIEF.md`.
 
 **The number is primary. The visual provides context.** A visual is drawn only against a real reference. Without one, the readout falls back to the number and unit alone.
 

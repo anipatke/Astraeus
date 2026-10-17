@@ -4,6 +4,7 @@
 //   - the canvas draws (a screenshot of it has lit pixels, so it is not blank),
 //   - the timeline controls (the shell) are present,
 //   - the object list opens one object's information panel,
+//   - the page heading (T-070): app.html's own title is "Astraeus"; once the experience is open the title is "<its label> · Astraeus" (a made-up one, which has no label, keeps "Astraeus"),
 //   - zero console errors and zero page errors.
 // For experiences that have story panels (data/stories/<name>/panels.json: Apollo and the Perseids today): one panel opens from its timeline marker.
 // Also loads the site pages index.html and assets.html at both sizes: no console errors, no horizontal scroll.
@@ -13,8 +14,8 @@
 //
 // Deliberately does NOT cover (run the full set for those: every tools/validate/browser-*.mjs, for Full Objective Checks and before a release or merge):
 //   exact numbers and readouts (browser-shell, browser-precision), camera presets and labels (browser-anchor-labels, browser-earth-moon, browser-jupiter-io),
-//   lighting and the Sun (browser-lighting, browser-sun), the sky and its map (browser-sky, browser-sky-map), shower streams, sources and orbits
-//   (browser-showers, browser-showers-gmn, browser-public-showers), the made-up experiences' own behaviour (browser-synthetic*), story panel timing, auto-open
+//   the Sun (browser-sun), the sky (browser-sky), shower streams, sources and orbits
+//   (browser-showers, browser-public-showers), the made-up experiences' own behaviour (browser-synthetic*), story panel timing, auto-open
 //   and settings (browser-story-panels), view links (browser-view-link), and the spike scripts. A pass here is a smoke result, not a substitute for those.
 //
 // Run: start the app, then
@@ -44,9 +45,10 @@ const siteUrl = (name) => new URL(name, appUrl).href;
 
 // ---- Discover the experiences ----
 const mainSource = readFileSync(new URL("src/main.tsx", root), "utf8");
-const definitionsBlock = /const DEFINITIONS[^\n]*>\s*=\s*\{([\s\S]*?)\n\};/.exec(mainSource);
-if (definitionsBlock === null) throw new Error("could not find DEFINITIONS in src/main.tsx");
-const named = [...definitionsBlock[1].matchAll(/^\s*"?([A-Za-z0-9-]+)"?\s*:/gm)].map((match) => match[1]);
+// DEFINITIONS holds the real ones; SYNTHETIC the made-up ones, which only the dev server mounts (a public build leaves them out, T-068).
+const blocks = ["DEFINITIONS", "SYNTHETIC"].map((name) => new RegExp(`const ${name}[^\\n]*>\\s*=[^{\\n]*\\{([\\s\\S]*?)\\n\\};`).exec(mainSource));
+if (blocks.includes(null)) throw new Error("could not find DEFINITIONS and SYNTHETIC in src/main.tsx");
+const named = blocks.flatMap((block) => [...block[1].matchAll(/^\s*"?([A-Za-z0-9-]+)"?\s*:/gm)].map((match) => match[1]));
 const showers = readdirSync(new URL("data/showers/", root)).filter((file) => file.endsWith(".json")).map((file) => file.replace(/\.json$/, "")).sort();
 const hasPanels = (storyName) => existsSync(new URL(`data/stories/${storyName}/panels.json`, root));
 const experiences = [
@@ -121,6 +123,15 @@ async function load(label, url, size, checks) {
 function experienceChecks(experience) {
   return async (page, check, detail) => {
     await check("canvas present", () => page.waitForSelector("canvas", { timeout: 60000 }));
+    await check("page heading names the experience once it is open", async () => {
+      const served = await page.request.get(appUrl.split("?")[0]);
+      if (!/<title>Astraeus<\/title>/.test(await served.text())) throw new Error("app.html's own title is not exactly Astraeus");
+      const title = await page.evaluate(() => document.title);
+      detail.title = title;
+      if (/spike/i.test(title)) throw new Error(`the title still says spike: ${title}`);
+      const made = experience.id.startsWith("synthetic");
+      if (made ? title !== "Astraeus" : !/^.+ \u00b7 Astraeus$/.test(title)) throw new Error(`unexpected page title "${title}"`);
+    });
     await check("timeline/shell present", () => page.getByRole("region", { name: "Timeline controls" }).waitFor({ timeout: 60000 }));
     // Hold playback still so the scene and any auto-opening panel settle; a story panel's own hold may already have paused it.
     const pause = page.getByRole("button", { name: "Pause playback" });
@@ -170,13 +181,27 @@ const siteChecks = async (page, check, detail) => {
   detail.title = await page.title().catch(() => "");
 };
 
+/** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
+const FIVE_ADDRESSES = ["app.html", "app.html?experience=shower-perseids", "app.html?experience=shower-geminids", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
+const indexChecks = async (page, check, detail) => {
+  await siteChecks(page, check, detail);
+  await check("home page links all five experience addresses", async () => {
+    const hrefs = await page.locator("a.demo").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    const missing = FIVE_ADDRESSES.filter((address) => !hrefs.includes(address));
+    if (missing.length > 0) throw new Error(`the home page does not link ${missing.join(", ")}`);
+    const broken = await page.locator("a.demo img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
+    if (broken.length > 0) throw new Error(`card pictures did not load: ${broken.join(", ")}`);
+    detail.demoLinks = hrefs;
+  });
+};
+
 try {
   console.log(`lite browser check: ${experiences.length} experiences (${experiences.map((e) => e.id).join(", ")}) + 2 site pages, ${VIEWPORTS.length} sizes`);
   for (const experience of experiences) {
     for (const size of VIEWPORTS) await load(experience.id, `${appUrl}${experience.query}`, size, experienceChecks(experience));
   }
   for (const page of ["index.html", "assets.html"]) {
-    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, siteChecks);
+    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : siteChecks);
   }
 } finally {
   await browser.close();

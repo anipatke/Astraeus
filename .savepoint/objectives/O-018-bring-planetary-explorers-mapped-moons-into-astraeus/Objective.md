@@ -1,0 +1,60 @@
+---
+id: O-018
+title: Bring Planetary Explorer's mapped moons into Astraeus
+status: planned
+depends_on: []
+release: G-005
+---
+
+# O-018: Bring Planetary Explorer's mapped moons into Astraeus
+
+## Outcome
+
+Astraeus can take any body Planetary Explorer has already built (its surface map, its tagged surface features, its feature categories and its overview facts) and show it as a globe with those features marked, selectable and explained. The means to do this is reusable at any time for any of Planetary Explorer's 24 bodies. The first release uses it for every moon Planetary Explorer has mapped, and the assets catalogue lists each one. The deploy waits for this Objective and O-017.
+
+## Why
+
+Owner, 2026-10-17: "we have each moon already mapped built and tagged with interesting features (and the means to do so) as part of planetary explorer. this was effort, I want to re-use this anytime", and "update the catalogue". Planetary Explorer (the owner's own earlier project) holds, per body: a map with a recorded source (`public/textures/README.md`, `CREDITS.md`), a feature list of 8 to 32 named places with latitude, longitude, type, category, description, tags and details (`data/<body>-features.json`, coordinates from the USGS Gazetteer of Planetary Nomenclature), category colours and camera settings (`src/entities/<body>.ts`), overview facts with sources (`data/body-overviews.json`), each map's coordinate convention and control checks (the README notes), and the hotspot interface that places, filters and opens them (`src/features/hotspots/`). Rebuilding any of it would repeat that effort.
+
+## Success Conditions
+
+1. **Reuse rights recorded.** The owner's statement that Planetary Explorer is their own work and that its data, maps and code may be reused and published in Astraeus is recorded (owner decision, below) in `docs/DONOR_PROVENANCE.md`, replacing the "code licence unresolved; local use only" note for what this Objective uses. Third-party map and fact sources keep their own credits (PROV-02).
+2. **A body package format.** One data package per body, committed for all 24 donor bodies so the verified data is preserved and reusable even where a body is not shown yet: map file and licence record, the map's coordinate convention (east or west positive, longitude range, any offset, as in the donor's README notes), features, categories with colours, overview facts and their sources. It is story or asset data, never engine code (ARCH-01).
+3. **An importer: "the means to do so".** A committed tool reads a Planetary Explorer body (`src/entities/<body>.ts`, `data/<body>-features.json`, `data/body-overviews.json`, the texture and its README entry) and writes the Astraeus package, converting coordinates by the recorded convention. It works for every one of the 24 donor bodies (a dry run lists each body and what it would write), records the donor commit it read, and refuses a map with no recorded source. Running it again with an unchanged donor produces identical output.
+4. **Surface features on a globe: a generic capability.** Any globe body can carry features: markers placed by latitude and longitude, hidden on the far side, coloured by category, filterable by category, selectable to open the information panel with the feature's description, details, tags and source, and a focus that turns the globe to face a feature. Proven first on a made-up body with made-up features (ARCH-03). No body names in `src/core/` or the shell. The story-panel and info-panel parts already ported from Planetary Explorer are reused, not duplicated (STYLE-07).
+5. **Every mapped moon ships, and every body's tagged locations come with it** (owner, 2026-10-17: "not just the moon, all planets and moons have some tagged locations, even the gas giants (although less worried about them)"). The donor has feature files for 23 bodies, 373 features in all (donor commit 84f8d3e): Mercury 16, Venus 19, Earth 20, Mars 32, Jupiter 15, Saturn 20, Uranus 19, Neptune 19, Ceres 8, Pluto 16, Charon 12, and the moons Io 12, Europa 19, Ganymede 25, Callisto 22, Mimas 8, Enceladus 16, Tethys 12, Dione 15, Rhea 13, Titan 11, Iapetus 12, Triton 12 (the Moon's features as the donor holds them, to be located at planning). Imported through the tool: the moons ship as globes with all their features, each map at a true 2:1 size within the load budget (Charon re-derived from the full USGS 2017 mosaic; Dione and Triton resized; Ganymede's 180-degree re-centring recorded), with an `AssetLicence` record. The bodies Astraeus already draws (Mercury, Venus, Earth, the Moon, Mars, Jupiter, Io) gain their tagged locations in the experiences that show them. Bodies not drawn yet (Saturn, Uranus, Neptune, Ceres, Pluto) keep their packages ready and gain their locations when they arrive (O-019 brings Saturn, Neptune and Pluto).
+6. **A Moons experience.** Each moon is a globe the viewer can rotate and zoom, with its features, its parent planet, size and overview facts. How the globes are arranged (a row, a grid, or by parent) is a presentation choice settled at planning and labelled illustrative, not an orbit (PROV-01). Io keeps its existing real orbit in Jupiter–Io and gains its features there too.
+7. **The donor's verified positions are the reference** (owner, 2026-10-17: "One thing i want to preserve from planetary explorer is the coordinate and tagged locations, this was painfully verified visually over months, and I want to make sure its re-usable"). (a) Every feature's latitude, longitude, name, category, tags and text is carried over exactly: no rounding, no re-derivation and no "correction" from another source; a round-trip test proves each imported value converts back to the donor's own value bit for bit, for all 24 donor bodies, not only the shipped moons. (b) Each map keeps the donor's registration (the same texture file and the same longitude offset or yaw), so a marker lands on the same pixel of the same map. (c) Visual parity with the donor as the oracle: for every body that shows its locations, screenshots of Planetary Explorer and of Astraeus framed on the same features (at least three per rocky or icy body, spread across the globe; at least one per gas giant, whose features matter less to the owner), side by side on a contact sheet for the owner, with marker positions compared in pixels. (d) The USGS Gazetteer comparison stays only as a report: where it disagrees with the donor, the donor's value stands unless the owner decides otherwise per feature.
+8. **Pictures and features load only when used.** No other experience gets heavier; O-017's load-size budget passes with a stated limit for the Moons page.
+9. **The home page shelf grows with it** (owner, 2026-10-17: "our shelf will be way bigger once we do 18, should update the catalogue"). The "The shelf, ready to use" row on `index.html` (8 globes today: Sun, Mercury, Venus, Earth, Moon, Mars, Jupiter, Io) shows every shipped body, laid out so 20 or more still read well on desktop and phone (for example grouped by planet, or the planets with a "+N moons" link to the catalogue; decided at planning and shown to the owner), with each globe's thumbnail and licence line from the same records as the catalogue; the index load budget is raised on purpose (T-070 rule). O-019's new bodies (Saturn, Neptune, Pluto) join the same shelf.
+10. **The catalogue is updated, tagged locations included** (owner, 2026-10-17: "they need to be part of our catalogue"). `assets.html` lists each shipped moon map and its feature source (USGS Gazetteer) under Surface pictures and Credits, and gains a tagged-locations section: for every body, how many locations it carries, their categories, where the names and positions come from (Planetary Explorer, positions verified visually by the owner; names from the USGS Gazetteer where that applies), whether they are shown in the app yet, and a way to browse each body's list (generated from the same packages, never typed by hand); the "Traced, not in the app yet" section and the wish list shrink to match; `tests/assetsPageCredits.test.ts` checks each new row against its licence record.
+11. **Checks.** Configured gates, the lite browser check, a browser check for the Moons experience and for feature selection at desktop and phone sizes with zero console errors, the public build with the asset validator, and the owner's look.
+
+## Architectural Considerations
+
+- Body definition rule (ARCH-05): a moon shown as a globe without a real orbit must not pretend to have one. Planning settles whether each moon is a catalogued body with an illustrative fixed placement or the globes sit outside scientific State as presentation (ARCH-02); the choice is recorded and labelled.
+- Surface coordinates are a body-fixed frame. Feature placement uses the body's existing orientation where one exists (the Moon, Io) so features stay on the right spot as the body turns.
+- Donor code is adapted to Astraeus's contracts (no Zustand store, no donor registry); data is imported, not hand-copied.
+- The donor repository stays read-only; the importer reads it, never writes it.
+
+## Owner Decisions — 2026-10-17
+
+1. **Scope:** every moon Planetary Explorer has mapped, as globes you can spin, with their tagged features. Superseded in part the same day: the owner then directed that the donor data be enriched with real orbits and correct positions, and that the launch wait for them; that work is O-019, which builds on this Objective.
+2. **Reuse:** Planetary Explorer's maps, features, categories, facts and the means of building them are to be reused, at any time, for any body ("this was effort, I want to re-use this anytime").
+3. **Planetary Explorer is the owner's own work; its data and code may be reused and published in Astraeus.** Confirmed by the owner in chat, 2026-10-17 ("thats right"). This replaces the earlier "code licence unresolved; local use only" note; O-018 records it in `docs/DONOR_PROVENANCE.md`.
+4. **Order:** after O-017 (simplify), before the deploy.
+5. **Update the catalogue** with every shipped moon and every body's tagged locations.
+6. **Update the home page shelf too** (owner, 2026-10-17), with a layout that holds 20 or more bodies.
+7. **Preserve the donor's coordinates and tagged locations exactly** (owner, 2026-10-17): they were verified visually over months. They are the reference for every planet and moon, gas giants included (lower priority), carried over without rounding or correction, kept for all 24 donor bodies in reusable packages, and proven by a bit-for-bit round trip and a side-by-side visual check against Planetary Explorer (Success Condition 7).
+
+## Boundaries
+
+**In scope:**
+- The importer and package format for any donor body; the generic surface-feature capability; the moons, their features, the Moons experience; the catalogue; tests and checks.
+
+**Out of scope:**
+- Real orbital positions, orientations and parent planets for the new moons (O-019); shipping the planets Saturn, Uranus, Neptune, Pluto or Ceres and the rings in this release (the importer supports them; shipping them is a later choice); Phobos and Deimos and small moons (no global maps); Uranus's five main moons (no maps in the donor); Ceres's untraced colouring; the donor's missions, satellites and intro screens.
+
+## Dependency Note — 2026-10-17
+
+Owner, 2026-10-17: "I really want to speed this up, can we run any of the other work in parallel in worktrees i.e. the other objectives". The Objective-level wait on O-017 is removed so its Tasks can run in worktree lanes beside O-017's last Task; the release order is unchanged (nothing deploys before the owner decides).

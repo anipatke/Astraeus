@@ -1,0 +1,935 @@
+8,7,75,1,8,"textureRightsProblem@33-40@src/assets/licence.ts","src/assets/licence.ts","textureRightsProblem","textureRightsProblem ( texture TextureRef )",33,40
+1,1,48,2,1,"dot@22-22@src/assets/sky.ts","src/assets/sky.ts","dot","dot ( a ArrayLike , b ArrayLike )",22,22
+1,1,74,2,1,"cross@23-23@src/assets/sky.ts","src/assets/sky.ts","cross","cross ( a Vec3 , b Vec3 )",23,23
+6,1,66,2,8,"eqjUnit@26-33@src/assets/sky.ts","src/assets/sky.ts","eqjUnit","eqjUnit ( raDeg , decDeg )",26,33
+1,1,4,0,1,"(anonymous)@39-39@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",39,39
+1,1,21,0,1,"(anonymous)@42-42@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",42,42
+1,1,21,0,1,"(anonymous)@43-43@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",43,43
+12,1,169,0,13,"galacticAxes@33-45@src/assets/sky.ts","src/assets/sky.ts","galacticAxes","galacticAxes ( )",33,45
+1,1,27,0,1,"(anonymous)@56-56@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",56,56
+9,1,91,2,11,"galacticToEqj@50-60@src/assets/sky.ts","src/assets/sky.ts","galacticToEqj","galacticToEqj ( lDeg , bDeg )",50,60
+6,1,131,1,8,"eqjToGalactic@60-67@src/assets/sky.ts","src/assets/sky.ts","eqjToGalactic","eqjToGalactic ( eqj ArrayLike )",60,67
+5,1,52,1,7,"milkyWayUv@67-73@src/assets/sky.ts","src/assets/sky.ts","milkyWayUv","milkyWayUv ( eqj ArrayLike )",67,73
+7,1,115,1,11,"equatorialUv@73-83@src/assets/sky.ts","src/assets/sky.ts","equatorialUv","equatorialUv ( eqj ArrayLike )",73,83
+1,2,11,0,1,"(anonymous)@123-123@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",123,123
+15,12,208,0,15,"(anonymous)@129-143@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",129,143
+20,25,463,2,36,"parseSkyManifest@115-150@src/assets/sky.ts","src/assets/sky.ts","parseSkyManifest","parseSkyManifest ( json , baseUrl )",115,150
+4,2,40,2,6,"pictureUv@150-155@src/assets/sky.ts","src/assets/sky.ts","pictureUv","pictureUv ( frame PictureFrame , eqj ArrayLike )",150,155
+8,1,159,5,8,"pictureTexel@155-162@src/assets/sky.ts","src/assets/sky.ts","pictureTexel","pictureTexel ( frame PictureFrame , widthPx , heightPx , tilePx , eqj ArrayLike )",155,162
+1,1,10,0,1,"(anonymous)@183-183@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",183,183
+7,8,86,0,7,"(anonymous)@181-187@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",181,187
+8,7,132,1,16,"parseStarFile@178-193@src/assets/sky.ts","src/assets/sky.ts","parseStarFile","parseStarFile ( json )",178,193
+5,4,50,1,7,"starSourceFromSearch@198-204@src/assets/sky.ts","src/assets/sky.ts","starSourceFromSearch","starSourceFromSearch ( search )",198,204
+8,3,54,1,8,"fetchStarFile@218-225@src/assets/sky.ts","src/assets/sky.ts","fetchStarFile","fetchStarFile ( url )",218,225
+1,4,30,0,1,"(anonymous)@237-237@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",237,237
+4,1,43,1,6,"temperatureFromBV@244-249@src/assets/sky.ts","src/assets/sky.ts","temperatureFromBV","temperatureFromBV ( bMinusV )",244,249
+1,1,24,1,1,"clamp@254-254@src/assets/sky.ts","src/assets/sky.ts","clamp","clamp ( value )",254,254
+1,1,10,0,1,"(anonymous)@255-255@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",255,255
+9,5,168,1,14,"colourFromTemperature@249-262@src/assets/sky.ts","src/assets/sky.ts","colourFromTemperature","colourFromTemperature ( kelvin )",249,262
+4,1,81,1,4,"starAppearance@262-265@src/assets/sky.ts","src/assets/sky.ts","starAppearance","starAppearance ( vMag )",262,265
+1,1,31,0,1,"(anonymous)@290-290@src/assets/sky.ts","src/assets/sky.ts","(anonymous)","(anonymous)",290,290
+10,5,93,3,10,"loadPictureSet@308-317@src/assets/sky.ts","src/assets/sky.ts","loadPictureSet","loadPictureSet ( source SkyMapSource , fetcher typeof fetch fetch , production import meta env PROD )",308,317
+4,1,18,1,4,"constructor@26-29@src/assets/compositions.ts","src/assets/compositions.ts","constructor","constructor ( message )",26,29
+1,2,37,1,1,"(anonymous)@52-52@src/assets/compositions.ts","src/assets/compositions.ts","(anonymous)","(anonymous) ( composition paths undefined paths Object freeze ( composition paths map ( ( path )",52,52
+20,14,282,2,20,"createComposition@33-52@src/assets/compositions.ts","src/assets/compositions.ts","createComposition","createComposition ( source BodyCatalogue , composition SystemComposition )",33,52
+2,1,8,0,2,"(anonymous)@88-89@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",88,89
+1,1,4,0,1,"(anonymous)@89-89@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",89,89
+2,1,11,0,2,"(anonymous)@89-90@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",89,90
+2,1,3,0,2,"(anonymous)@90-91@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",90,91
+2,1,3,0,2,"(anonymous)@91-92@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",91,92
+47,18,565,3,51,"createCatalogue@42-92@src/assets/catalogue.ts","src/assets/catalogue.ts","createCatalogue","createCatalogue ( definitions readonly CelestialBodyDefinition , bindings readonly StateSourceBinding , visuals readonly VisualEntry , )",42,92
+1,1,15,0,1,"(anonymous)@104-104@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",104,104
+1,1,19,0,1,"(anonymous)@105-105@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",105,105
+1,1,4,0,1,"(anonymous)@117-117@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",117,117
+1,1,4,0,1,"(anonymous)@118-118@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",118,118
+23,3,231,2,25,"extendCatalogue@100-124@src/assets/catalogue.ts","src/assets/catalogue.ts","extendCatalogue","extendCatalogue ( base BodyCatalogue , records readonly ElementsBodyRecord )",100,124
+1,1,6,0,1,"(anonymous)@125-125@src/assets/catalogue.ts","src/assets/catalogue.ts","(anonymous)","(anonymous)",125,125
+6,2,47,1,8,"rootBodyId@124-131@src/assets/catalogue.ts","src/assets/catalogue.ts","rootBodyId","rootBodyId ( source BodyCatalogue catalogue )",124,131
+13,1,72,3,13,"planetEphemeris@13-25@src/core/bodies/planetRecords.ts","src/core/bodies/planetRecords.ts","planetEphemeris","planetEphemeris ( label , measured , extraLimitations readonly )",13,25
+11,2,120,2,18,"trueAnomalyFromMean@43-60@src/core/bodies/io.ts","src/core/bodies/io.ts","trueAnomalyFromMean","trueAnomalyFromMean ( meanRad , eccentricity )",43,60
+4,1,33,2,6,"siderealPeriodDays@60-65@src/core/bodies/io.ts","src/core/bodies/io.ts","siderealPeriodDays","siderealPeriodDays ( anomalisticDays , apsisPeriodYears )",60,65
+5,1,38,2,7,"periodConsistentSemiMajorAxisKm@65-71@src/core/bodies/io.ts","src/core/bodies/io.ts","periodConsistentSemiMajorAxisKm","periodConsistentSemiMajorAxisKm ( gmKm3S2 , periodDays )",65,71
+1,1,24,1,1,"positionAt@91-91@src/core/bodies/io.ts","src/core/bodies/io.ts","positionAt","positionAt ( timeUtcMs )",91,91
+11,2,96,2,11,"stateAt@94-104@src/core/bodies/io.ts","src/core/bodies/io.ts","stateAt","stateAt ( timeUtcMs , center CenterId )",94,104
+25,1,153,0,38,"createIoTrajectory@71-108@src/core/bodies/io.ts","src/core/bodies/io.ts","createIoTrajectory","createIoTrajectory ( )",71,108
+1,1,4,0,1,"create@149-149@src/core/bodies/io.ts","src/core/bodies/io.ts","create","create",149,149
+17,1,83,0,18,"createSwiftTuttleTrajectory@77-94@src/core/bodies/swiftTuttle.ts","src/core/bodies/swiftTuttle.ts","createSwiftTuttleTrajectory","createSwiftTuttleTrajectory ( )",77,94
+1,1,4,0,1,"create@121-121@src/core/bodies/swiftTuttle.ts","src/core/bodies/swiftTuttle.ts","create","create",121,121
+12,2,88,2,12,"stateAt@18-29@src/core/bodies/planetTrajectory.ts","src/core/bodies/planetTrajectory.ts","stateAt","stateAt ( timeUtcMs , center CenterId )",18,29
+10,1,34,3,21,"createPlanetSunTrajectory@11-31@src/core/bodies/planetTrajectory.ts","src/core/bodies/planetTrajectory.ts","createPlanetSunTrajectory","createPlanetSunTrajectory ( planet PlanetId , rotation IauRotationElements , adapter AstronomyAdapter , )",11,31
+1,1,6,0,1,"create@31-31@src/core/bodies/index.ts","src/core/bodies/index.ts","create","create",31,31
+1,1,9,0,1,"create@32-32@src/core/bodies/index.ts","src/core/bodies/index.ts","create","create",32,32
+1,1,9,0,1,"create@33-33@src/core/bodies/index.ts","src/core/bodies/index.ts","create","create",33,33
+1,1,9,0,1,"create@34-34@src/core/bodies/index.ts","src/core/bodies/index.ts","create","create",34,34
+1,1,9,0,1,"create@35-35@src/core/bodies/index.ts","src/core/bodies/index.ts","create","create",35,35
+7,1,79,0,7,"(anonymous)@62-68@src/core/orbitGroup.ts","src/core/orbitGroup.ts","(anonymous)","(anonymous)",62,68
+4,1,27,1,10,"seededRandom@60-69@src/core/orbitGroup.ts","src/core/orbitGroup.ts","seededRandom","seededRandom ( seed )",60,69
+13,10,134,1,14,"assertInput@71-84@src/core/orbitGroup.ts","src/core/orbitGroup.ts","assertInput","assertInput ( input OrbitGroupInput )",71,84
+8,6,69,2,10,"assertBoundOrbit@84-93@src/core/orbitGroup.ts","src/core/orbitGroup.ts","assertBoundOrbit","assertBoundOrbit ( e ClassicalElements , member )",84,93
+2,1,10,1,2,"value@97-98@src/core/orbitGroup.ts","src/core/orbitGroup.ts","value","value ( key keyof OrbitElements )",97,98
+19,4,157,1,21,"sampleMembers@93-113@src/core/orbitGroup.ts","src/core/orbitGroup.ts","sampleMembers","sampleMembers ( input OrbitGroupInput )",93,113
+6,2,88,4,7,"rotateInto@113-119@src/core/orbitGroup.ts","src/core/orbitGroup.ts","rotateInto","rotateInto ( matrix Float64Array , v ArrayLike , out Float64Array , offset )",113,119
+10,2,83,0,10,"(anonymous)@122-131@src/core/orbitGroup.ts","src/core/orbitGroup.ts","(anonymous)","(anonymous)",122,131
+7,2,63,2,17,"initialStates@119-135@src/core/orbitGroup.ts","src/core/orbitGroup.ts","initialStates","initialStates ( input OrbitGroupInput , adapter TwoBodyAdapter )",119,135
+9,2,70,2,9,"fillPositionsKm@144-152@src/core/orbitGroup.ts","src/core/orbitGroup.ts","fillPositionsKm","fillPositionsKm ( timeUtcMs , out Float64Array )",144,152
+10,1,101,2,11,"stateAt@162-172@src/core/orbitGroup.ts","src/core/orbitGroup.ts","stateAt","stateAt ( index , timeUtcMs )",162,172
+21,1,115,2,41,"createOrbitGroup@135-175@src/core/orbitGroup.ts","src/core/orbitGroup.ts","createOrbitGroup","createOrbitGroup ( input OrbitGroupInput , adapter TwoBodyAdapter )",135,175
+4,1,27,2,6,"describe@77-82@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","describe","describe ( member ListedMember , index )",77,82
+24,12,238,0,24,"(anonymous)@85-108@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",85,108
+6,2,52,1,30,"assertMembers@82-111@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","assertMembers","assertMembers ( members readonly ListedMember )",82,111
+10,11,125,1,12,"assertPhase@111-122@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","assertPhase","assertPhase ( phase ListedPhase )",111,122
+9,5,114,2,9,"eccentricAnomalyRad@122-130@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","eccentricAnomalyRad","eccentricAnomalyRad ( meanAnomalyRad , e )",122,130
+5,1,68,2,6,"trueAnomalyFromMeanRad@133-138@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","trueAnomalyFromMeanRad","trueAnomalyFromMeanRad ( meanAnomalyRad , e )",133,138
+2,1,22,2,2,"cross@138-139@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","cross","cross ( a ArrayLike , b ArrayLike )",138,139
+1,1,48,2,1,"dot@143-143@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","dot","dot ( a ArrayLike , b ArrayLike )",143,143
+1,1,14,0,1,"(anonymous)@150-150@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",150,150
+1,1,4,0,1,"(anonymous)@158-158@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",158,158
+22,5,375,3,25,"meanAnomalyFromStateRad@146-170@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","meanAnomalyFromStateRad","meanAnomalyFromStateRad ( r ArrayLike , v ArrayLike , mu )",146,170
+9,1,68,2,10,"muOf@170-179@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","muOf","muOf ( adapter TwoBodyAdapter , center CenterId )",170,179
+1,1,20,0,1,"(anonymous)@185-185@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",185,185
+11,2,123,4,17,"referenceMeanAnomalyRad@179-195@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","referenceMeanAnomalyRad","referenceMeanAnomalyRad ( around Trajectory , center CenterId , timeUtcMs , adapter TwoBodyAdapter )",179,195
+1,1,2,0,1,"(anonymous)@197-197@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",197,197
+1,1,20,1,1,"wrap@204-204@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","wrap","wrap ( deg )",204,204
+23,10,268,3,24,"assignMeanAnomaliesDeg@195-218@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","assignMeanAnomaliesDeg","assignMeanAnomaliesDeg ( count , phase ListedPhase , referenceDeg null )",195,218
+17,2,134,0,17,"(anonymous)@241-257@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",241,257
+1,1,4,0,1,"(anonymous)@259-259@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","(anonymous)","(anonymous)",259,259
+56,5,514,2,76,"createListedOrbitGroup@226-301@src/core/listedOrbitGroup.ts","src/core/listedOrbitGroup.ts","createListedOrbitGroup","createListedOrbitGroup ( input ListedOrbitGroupInput , adapter TwoBodyAdapter )",226,301
+1,1,9,1,1,"constructor@13-13@src/core/moonTrajectory.ts","src/core/moonTrajectory.ts","constructor","constructor ( private readonly adapter AstronomyAdapter )",13,13
+16,2,116,2,16,"stateAt@15-30@src/core/moonTrajectory.ts","src/core/moonTrajectory.ts","stateAt","stateAt ( timeUtcMs , center CenterId )",15,30
+4,1,36,2,4,"constructor@21-24@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","constructor","constructor ( timeUtcMs , bounds TimeBounds )",21,24
+1,1,8,0,1,"(anonymous)@30-30@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","(anonymous)","(anonymous)",30,30
+7,3,74,2,9,"finiteVector@27-35@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","finiteVector","finiteVector ( value ArrayLike , label )",27,35
+1,1,6,0,1,"(anonymous)@50-50@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","(anonymous)","(anonymous)",50,50
+9,4,86,0,9,"(anonymous)@59-67@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","(anonymous)","(anonymous)",59,67
+20,10,231,1,28,"constructor@44-71@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","constructor","constructor ( input SampledTrajectoryInput )",44,71
+23,7,185,2,23,"stateAt@73-95@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","stateAt","stateAt ( timeUtcMs , center CenterId this )",73,95
+10,3,66,1,10,"#upperIndex@98-107@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","#upperIndex","#upperIndex ( timeUtcMs )",98,107
+31,4,364,2,31,"#interpolate@109-139@src/core/sampledTrajectory.ts","src/core/sampledTrajectory.ts","#interpolate","#interpolate ( lower , timeUtcMs )",109,139
+4,3,30,1,6,"assertCenterId@11-16@src/core/body.ts","src/core/body.ts","assertCenterId","assertCenterId ( id BodyId )",11,16
+4,1,18,1,4,"constructor@21-24@src/core/stateResolver.ts","src/core/stateResolver.ts","constructor","constructor ( message )",21,24
+1,1,6,0,1,"(anonymous)@34-34@src/core/stateResolver.ts","src/core/stateResolver.ts","(anonymous)","(anonymous)",34,34
+20,11,253,1,20,"indexDefinitions@27-46@src/core/stateResolver.ts","src/core/stateResolver.ts","indexDefinitions","indexDefinitions ( definitions readonly CelestialBodyDefinition )",27,46
+24,9,228,3,24,"createProviders@48-71@src/core/stateResolver.ts","src/core/stateResolver.ts","createProviders","createProviders ( byId ReadonlyMap , bindings readonly StateSourceBinding , adapter AstronomyAdapter , )",48,71
+1,1,6,0,1,"(anonymous)@80-80@src/core/stateResolver.ts","src/core/stateResolver.ts","(anonymous)","(anonymous)",80,80
+4,2,31,1,4,"requiresOrientation@81-84@src/core/stateResolver.ts","src/core/stateResolver.ts","requiresOrientation","requiresOrientation ( body BodyId )",81,84
+14,5,157,2,15,"native@87-101@src/core/stateResolver.ts","src/core/stateResolver.ts","native","native ( body BodyId , timeUtcMs )",87,101
+6,2,62,1,8,"chainToRoot@101-108@src/core/stateResolver.ts","src/core/stateResolver.ts","chainToRoot","chainToRoot ( body BodyId )",101,108
+7,3,68,3,8,"upTo@108-115@src/core/stateResolver.ts","src/core/stateResolver.ts","upTo","upTo ( body BodyId , ancestor BodyId , timeUtcMs )",108,115
+1,1,7,0,1,"(anonymous)@125-125@src/core/stateResolver.ts","src/core/stateResolver.ts","(anonymous)","(anonymous)",125,125
+19,7,234,3,22,"stateOf@115-136@src/core/stateResolver.ts","src/core/stateResolver.ts","stateOf","stateOf ( body BodyId , timeUtcMs , center CenterId )",115,136
+2,1,31,3,2,"offsetKm@138-139@src/core/stateResolver.ts","src/core/stateResolver.ts","offsetKm","offsetKm ( from CenterId , center CenterId , timeUtcMs )",138,139
+2,1,22,2,2,"sunFrom@139-140@src/core/stateResolver.ts","src/core/stateResolver.ts","sunFrom","sunFrom ( center CenterId , timeUtcMs )",139,140
+14,1,99,3,69,"createStateResolver@73-141@src/core/stateResolver.ts","src/core/stateResolver.ts","createStateResolver","createStateResolver ( definitions readonly CelestialBodyDefinition , bindings readonly StateSourceBinding , adapter AstronomyAdapter , )",73,141
+1,1,10,0,1,"(anonymous)@23-23@src/core/events.ts","src/core/events.ts","(anonymous)","(anonymous)",23,23
+13,5,136,1,13,"createEvents@12-24@src/core/events.ts","src/core/events.ts","createEvents","createEvents ( input readonly TimelineEvent )",12,24
+5,3,48,2,6,"sameEpochAndFrame@6-11@src/core/referenceCenters.ts","src/core/referenceCenters.ts","sameEpochAndFrame","sameEpochAndFrame ( a CenteredPosition , b CenteredPosition )",6,11
+21,2,119,2,22,"composeCenteredPositions@11-32@src/core/referenceCenters.ts","src/core/referenceCenters.ts","composeCenteredPositions","composeCenteredPositions ( bodyFromOrigin CenteredPosition , originFromCenter CenteredPosition , )",11,32
+11,1,76,1,12,"inverseCenteredPosition@32-43@src/core/referenceCenters.ts","src/core/referenceCenters.ts","inverseCenteredPosition","inverseCenteredPosition ( position CenteredPosition )",32,43
+11,1,56,2,12,"earthStateAt@43-54@src/core/referenceCenters.ts","src/core/referenceCenters.ts","earthStateAt","earthStateAt ( adapter AstronomyAdapter , timeUtcMs )",43,54
+9,1,43,2,9,"sunPositionFromEarthAt@54-62@src/core/referenceCenters.ts","src/core/referenceCenters.ts","sunPositionFromEarthAt","sunPositionFromEarthAt ( adapter AstronomyAdapter , timeUtcMs )",54,62
+8,1,80,0,8,"createPlanetModels@10-17@src/core/planetModels.ts","src/core/planetModels.ts","createPlanetModels","createPlanetModels ( )",10,17
+6,3,38,1,7,"assertUtcUnixMs@36-42@src/core/state.ts","src/core/state.ts","assertUtcUnixMs","assertUtcUnixMs ( timeUtcMs )",36,42
+9,4,81,2,10,"copyVector@42-51@src/core/state.ts","src/core/state.ts","copyVector","copyVector ( value ArrayLike , label )",42,51
+1,1,8,0,1,"(anonymous)@53-53@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",53,53
+1,1,4,0,1,"(anonymous)@58-58@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",58,58
+11,5,107,1,12,"copyQuaternion@51-62@src/core/state.ts","src/core/state.ts","copyQuaternion","copyQuaternion ( value Quaternion null )",51,62
+1,1,4,0,1,"(anonymous)@70-70@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",70,70
+1,1,4,0,1,"(anonymous)@70-70@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",70,70
+23,8,158,1,25,"createCenteredPosition@62-86@src/core/state.ts","src/core/state.ts","createCenteredPosition","createCenteredPosition ( input Omit )",62,86
+1,1,6,0,1,"(anonymous)@89-89@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",89,89
+1,1,4,0,1,"(anonymous)@89-89@src/core/state.ts","src/core/state.ts","(anonymous)","(anonymous)",89,89
+1,1,11,1,1,"builtInRule@93-93@src/core/state.ts","src/core/state.ts","builtInRule","builtInRule ( body )",93,93
+7,3,72,2,7,"createState@95-101@src/core/state.ts","src/core/state.ts","createState","createState ( input StateInput , requiresOrientation OrientationRule builtInRule )",95,101
+1,1,10,0,1,"(anonymous)@45-45@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","(anonymous)","(anonymous)",45,45
+7,4,59,1,7,"gmOf@46-52@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","gmOf","gmOf ( center CenterId )",46,52
+3,1,14,0,3,"eclipticJ2000ToEqjMatrix@57-59@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","eclipticJ2000ToEqjMatrix","eclipticJ2000ToEqjMatrix ( )",57,59
+11,1,86,2,11,"elementsToState@61-71@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","elementsToState","elementsToState ( elements ClassicalElements , center CenterId )",61,71
+12,1,124,5,12,"propagateMemberInto@73-84@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","propagateMemberInto","propagateMemberInto ( initialStates , member , dtSeconds , center , out )",73,84
+15,1,91,3,46,"createOrbTwoBodyAdapter@42-87@src/core/twoBodyAdapter.ts","src/core/twoBodyAdapter.ts","createOrbTwoBodyAdapter","createOrbTwoBodyAdapter ( definitions readonly CelestialBodyDefinition SUN , EARTH , MOON , )",42,87
+6,3,51,3,7,"assertInside@34-40@src/core/timeWindow.ts","src/core/timeWindow.ts","assertInside","assertInside ( window TimelineWindow , timeUtcMs , what )",34,40
+12,4,102,0,12,"(anonymous)@43-54@src/core/timeWindow.ts","src/core/timeWindow.ts","(anonymous)","(anonymous)",43,54
+7,2,83,2,19,"copyRate@40-58@src/core/timeWindow.ts","src/core/timeWindow.ts","copyRate","copyRate ( window TimelineWindow , rate WindowRate )",40,58
+18,3,122,0,18,"(anonymous)@60-77@src/core/timeWindow.ts","src/core/timeWindow.ts","(anonymous)","(anonymous)",60,77
+6,1,49,2,25,"copySpans@58-82@src/core/timeWindow.ts","src/core/timeWindow.ts","copySpans","copySpans ( window TimelineWindow , spans readonly WindowProvenanceSpan )",58,82
+18,6,157,0,18,"(anonymous)@84-101@src/core/timeWindow.ts","src/core/timeWindow.ts","(anonymous)","(anonymous)",84,101
+4,1,41,1,21,"createWindows@82-102@src/core/timeWindow.ts","src/core/timeWindow.ts","createWindows","createWindows ( input readonly TimelineWindow )",82,102
+1,1,8,0,1,"(anonymous)@103-103@src/core/timeWindow.ts","src/core/timeWindow.ts","(anonymous)","(anonymous)",103,103
+19,11,212,2,21,"rateAt@108-128@src/core/timeWindow.ts","src/core/timeWindow.ts","rateAt","rateAt ( window TimelineWindow , timeUtcMs )",108,128
+9,7,109,2,9,"provenanceAt@128-136@src/core/timeWindow.ts","src/core/timeWindow.ts","provenanceAt","provenanceAt ( window TimelineWindow , timeUtcMs )",128,136
+4,1,21,2,4,"constructor@19-22@src/core/clock.ts","src/core/clock.ts","constructor","constructor ( initialUtcMs , private readonly monotonicNow MonotonicTimeSource ( )",19,22
+4,1,27,1,6,"isPlanetId@6-11@src/core/planetSeries.ts","src/core/planetSeries.ts","isPlanetId","isPlanetId ( id )",6,11
+1,1,10,0,1,"(anonymous)@33-33@src/core/planetSeries.ts","src/core/planetSeries.ts","(anonymous)","(anonymous)",33,33
+4,3,30,0,4,"loadPlanetSeries@32-35@src/core/planetSeries.ts","src/core/planetSeries.ts","loadPlanetSeries","loadPlanetSeries ( )",32,35
+4,2,22,0,4,"planetModels@38-41@src/core/planetSeries.ts","src/core/planetSeries.ts","planetModels","planetModels ( )",38,41
+1,1,8,0,1,"(anonymous)@6-6@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","(anonymous)","(anonymous)",6,6
+6,3,51,2,7,"requireVector@5-11@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","requireVector","requireVector ( vector Vector3 , label )",5,11
+7,2,91,2,8,"normalize@11-18@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","normalize","normalize ( vector Vector3 , label )",11,18
+8,1,81,2,10,"cross@18-27@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","cross","cross ( a Vector3 , b Vector3 )",18,27
+1,1,8,0,1,"(anonymous)@28-28@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","(anonymous)","(anonymous)",28,28
+37,7,344,1,38,"quaternionFromMatrix@27-64@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","quaternionFromMatrix","quaternionFromMatrix ( matrix ArrayLike )",27,64
+1,1,8,0,1,"(anonymous)@65-65@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","(anonymous)","(anonymous)",65,65
+14,4,127,1,15,"normalizeQuaternion@64-78@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","normalizeQuaternion","normalizeQuaternion ( value ArrayLike )",64,78
+13,1,155,2,14,"rotateVectorByQuaternion@78-91@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","rotateVectorByQuaternion","rotateVectorByQuaternion ( quaternion Quaternion , vector Vector3 )",78,91
+4,1,19,1,5,"earthOrientationFromEcefToEqj@91-95@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","earthOrientationFromEcefToEqj","earthOrientationFromEcefToEqj ( matrix ArrayLike )",91,95
+22,1,150,3,22,"moonOrientationFromOrbit@95-116@src/core/bodyOrientation.ts","src/core/bodyOrientation.ts","moonOrientationFromOrbit","moonOrientationFromOrbit ( moonFromEarthKm Vector3 , earlierMoonFromEarthKm Vector3 , laterMoonFromEarthKm Vector3 , )",95,116
+1,1,8,0,1,"(anonymous)@21-21@src/core/iauRotation.ts","src/core/iauRotation.ts","(anonymous)","(anonymous)",21,21
+7,5,75,1,9,"assertIauRotationElements@19-27@src/core/iauRotation.ts","src/core/iauRotation.ts","assertIauRotationElements","assertIauRotationElements ( elements IauRotationElements )",19,27
+8,1,51,2,8,"iauAnglesAt@27-34@src/core/iauRotation.ts","src/core/iauRotation.ts","iauAnglesAt","iauAnglesAt ( elements IauRotationElements , daysSinceJ2000 )",27,34
+1,1,21,0,1,"(anonymous)@51-51@src/core/iauRotation.ts","src/core/iauRotation.ts","(anonymous)","(anonymous)",51,51
+20,2,312,2,21,"iauBodyToEqjMatrix@40-60@src/core/iauRotation.ts","src/core/iauRotation.ts","iauBodyToEqjMatrix","iauBodyToEqjMatrix ( elements IauRotationElements , daysSinceJ2000 )",40,60
+3,1,24,2,3,"iauOrientation@60-62@src/core/iauRotation.ts","src/core/iauRotation.ts","iauOrientation","iauOrientation ( elements IauRotationElements , daysSinceJ2000 )",60,62
+17,6,152,2,26,"assertCentre@12-37@src/core/sunCentredSources.ts","src/core/sunCentredSources.ts","assertCentre","assertCentre ( native CenterId , center CenterId )",12,37
+4,3,31,1,5,"validateRadius@11-15@src/core/scalePolicy.ts","src/core/scalePolicy.ts","validateRadius","validateRadius ( radiusKm )",11,15
+1,1,8,0,1,"(anonymous)@16-16@src/core/scalePolicy.ts","src/core/scalePolicy.ts","(anonymous)","(anonymous)",16,16
+6,3,45,1,7,"validatePosition@15-21@src/core/scalePolicy.ts","src/core/scalePolicy.ts","validatePosition","validatePosition ( positionKm ArrayLike )",15,21
+5,1,55,1,5,"mapPosition@25-29@src/core/scalePolicy.ts","src/core/scalePolicy.ts","mapPosition","mapPosition ( positionKm ArrayLike )",25,29
+4,1,21,1,4,"mapRadius@31-34@src/core/scalePolicy.ts","src/core/scalePolicy.ts","mapRadius","mapRadius ( radiusKm )",31,34
+4,3,40,2,5,"validateFactor@64-68@src/core/scalePolicy.ts","src/core/scalePolicy.ts","validateFactor","validateFactor ( label , factor )",64,68
+1,1,10,0,1,"(anonymous)@76-76@src/core/scalePolicy.ts","src/core/scalePolicy.ts","(anonymous)","(anonymous)",76,76
+19,5,209,1,19,"createSolarSystemScale@68-86@src/core/scalePolicy.ts","src/core/scalePolicy.ts","createSolarSystemScale","createSolarSystemScale ( options SolarSystemScaleOptions )",68,86
+5,1,23,1,6,"instantAt@24-29@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","instantAt","instantAt ( timeUtcMs )",24,29
+1,1,8,0,1,"(anonymous)@31-31@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","(anonymous)","(anonymous)",31,31
+8,3,65,2,9,"finiteVector@29-37@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","finiteVector","finiteVector ( values ArrayLike , label )",29,37
+19,5,141,1,19,"moonPositionKm@40-58@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","moonPositionKm","moonPositionKm ( timeUtcMs )",40,58
+7,3,55,1,7,"earthPositionFromSunKm@60-66@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","earthPositionFromSunKm","earthPositionFromSunKm ( timeUtcMs )",60,66
+7,3,55,1,7,"sunPositionFromEarthKm@68-74@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","sunPositionFromEarthKm","sunPositionFromEarthKm ( timeUtcMs )",68,74
+18,5,176,2,18,"planetPositionFromSunKm@76-93@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","planetPositionFromSunKm","planetPositionFromSunKm ( planet PlanetId , timeUtcMs )",76,93
+6,2,52,1,6,"daysSinceJ2000Tt@95-100@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","daysSinceJ2000Tt","daysSinceJ2000Tt ( timeUtcMs )",95,100
+3,1,27,1,3,"earthFixedToEqjMatrix@102-104@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","earthFixedToEqjMatrix","earthFixedToEqjMatrix ( timeUtcMs )",102,104
+11,1,41,0,70,"createOrbAstronomyAdapter@37-106@src/core/astronomyAdapter.ts","src/core/astronomyAdapter.ts","createOrbAstronomyAdapter","createOrbAstronomyAdapter ( )",37,106
+6,3,33,1,7,"assertGroupCount@37-43@src/core/pointGroup.ts","src/core/pointGroup.ts","assertGroupCount","assertGroupCount ( count )",37,43
+6,4,51,2,7,"assertWithinBounds@43-49@src/core/pointGroup.ts","src/core/pointGroup.ts","assertWithinBounds","assertWithinBounds ( bounds TimeBounds undefined , timeUtcMs )",43,49
+6,2,42,2,7,"assertFillBuffer@49-55@src/core/pointGroup.ts","src/core/pointGroup.ts","assertFillBuffer","assertFillBuffer ( count , out Float64Array )",49,55
+6,4,46,2,8,"assertMemberIndex@55-62@src/core/pointGroup.ts","src/core/pointGroup.ts","assertMemberIndex","assertMemberIndex ( count , index )",55,62
+15,1,71,4,15,"memberState@62-76@src/core/pointGroup.ts","src/core/pointGroup.ts","memberState","memberState ( group Pick , index , timeUtcMs , positionKm ArrayLike , )",62,76
+6,3,33,1,7,"classifyPositionError@25-31@src/core/elementsBody.ts","src/core/elementsBody.ts","classifyPositionError","classifyPositionError ( maxFraction )",25,31
+4,1,30,2,5,"fail@88-92@src/core/elementsBody.ts","src/core/elementsBody.ts","fail","fail ( path , problem )",88,92
+5,4,44,2,6,"record@92-97@src/core/elementsBody.ts","src/core/elementsBody.ts","record","record ( value , path )",92,97
+6,3,61,3,7,"text@97-103@src/core/elementsBody.ts","src/core/elementsBody.ts","text","text ( parent Raw , key , path )",97,103
+6,3,59,3,7,"finite@103-109@src/core/elementsBody.ts","src/core/elementsBody.ts","finite","finite ( parent Raw , key , path )",103,109
+8,3,78,3,10,"instant@109-118@src/core/elementsBody.ts","src/core/elementsBody.ts","instant","instant ( parent Raw , key , path )",109,118
+1,2,15,0,1,"(anonymous)@179-179@src/core/elementsBody.ts","src/core/elementsBody.ts","(anonymous)","(anonymous)",179,179
+4,3,45,1,9,"epochUtcMsOf@216-224@src/core/elementsBody.ts","src/core/elementsBody.ts","epochUtcMsOf","epochUtcMsOf ( epoch ElementsBodyRecord )",216,224
+13,3,160,2,13,"buildElementsBody@224-236@src/core/elementsBody.ts","src/core/elementsBody.ts","buildElementsBody","buildElementsBody ( input ElementsBodyRecord , centre ElementsCentre )",224,236
+14,1,79,0,14,"create@242-255@src/core/elementsBody.ts","src/core/elementsBody.ts","create","create ( )",242,255
+132,41,1358,2,176,"parseElementsBodyRecord@118-293@src/core/elementsBody.ts","src/core/elementsBody.ts","parseElementsBodyRecord","parseElementsBodyRecord ( input , path )",118,293
+1,1,8,0,1,"(anonymous)@4-4@src/core/illumination.ts","src/core/illumination.ts","(anonymous)","(anonymous)",4,4
+9,4,124,2,10,"unit@3-12@src/core/illumination.ts","src/core/illumination.ts","unit","unit ( vector ArrayLike , label )",3,12
+6,4,65,2,7,"validateSameCenter@12-18@src/core/illumination.ts","src/core/illumination.ts","validateSameCenter","validateSameCenter ( a CenteredPosition , b CenteredPosition )",12,18
+10,2,87,2,11,"directionToSun@18-28@src/core/illumination.ts","src/core/illumination.ts","directionToSun","directionToSun ( body CenteredPosition , sun CenteredPosition )",18,28
+5,2,35,1,10,"directionFromCenterToSun@28-37@src/core/illumination.ts","src/core/illumination.ts","directionFromCenterToSun","directionFromCenterToSun ( sun CenteredPosition )",28,37
+15,4,162,2,16,"illuminatedFraction@37-52@src/core/illumination.ts","src/core/illumination.ts","illuminatedFraction","illuminatedFraction ( bodyFromParent CenteredPosition , sunFromParent CenteredPosition )",37,52
+6,4,50,2,6,"lunarIlluminatedFraction@52-57@src/core/illumination.ts","src/core/illumination.ts","lunarIlluminatedFraction","lunarIlluminatedFraction ( moonFromEarth CenteredPosition , sunFromEarth CenteredPosition )",52,57
+1,2,11,0,1,"(anonymous)@15-15@src/core/provenance.ts","src/core/provenance.ts","(anonymous)","(anonymous)",15,15
+12,3,92,1,12,"createProvenance@13-24@src/core/provenance.ts","src/core/provenance.ts","createProvenance","createProvenance ( input Provenance )",13,24
+5,2,26,1,5,"(anonymous)@26-30@src/shell/InfoPanel.tsx","src/shell/InfoPanel.tsx","(anonymous)","(anonymous) ( event )",26,30
+1,1,4,0,1,"(anonymous)@40-40@src/shell/InfoPanel.tsx","src/shell/InfoPanel.tsx","(anonymous)","(anonymous)",40,40
+1,1,4,0,1,"(anonymous)@45-45@src/shell/InfoPanel.tsx","src/shell/InfoPanel.tsx","(anonymous)","(anonymous)",45,45
+30,6,199,3,35,"InfoPanel@16-50@src/shell/InfoPanel.tsx","src/shell/InfoPanel.tsx","InfoPanel","InfoPanel ( view , metrics , onClose Props )",16,50
+4,1,39,3,4,"constructor@47-50@src/shell/storyPanels.ts","src/shell/storyPanels.ts","constructor","constructor ( panel , field , problem )",47,50
+1,3,27,1,1,"isRecord@54-54@src/shell/storyPanels.ts","src/shell/storyPanels.ts","isRecord","isRecord ( value )",54,54
+5,3,47,3,6,"text@56-61@src/shell/storyPanels.ts","src/shell/storyPanels.ts","text","text ( panel , field , value )",56,61
+1,1,18,0,1,"(anonymous)@64-64@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",64,64
+6,4,75,3,7,"lines@61-67@src/shell/storyPanels.ts","src/shell/storyPanels.ts","lines","lines ( panel , field , value )",61,67
+1,1,7,0,1,"(anonymous)@69-69@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",69,69
+1,1,6,0,1,"(anonymous)@79-79@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",79,79
+22,9,267,3,23,"timeOf@67-89@src/shell/storyPanels.ts","src/shell/storyPanels.ts","timeOf","timeOf ( panel , at , lookup PanelLookup )",67,89
+24,10,271,3,30,"parsePanel@89-118@src/shell/storyPanels.ts","src/shell/storyPanels.ts","parsePanel","parsePanel ( raw , index , lookup PanelLookup )",89,118
+1,1,9,0,1,"(anonymous)@128-128@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",128,128
+1,1,8,0,1,"(anonymous)@134-134@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",134,134
+19,14,236,2,24,"parseStoryPanels@118-141@src/shell/storyPanels.ts","src/shell/storyPanels.ts","parseStoryPanels","parseStoryPanels ( raw , lookup PanelLookup )",118,141
+1,2,12,0,1,"(anonymous)@143-143@src/shell/storyPanels.ts","src/shell/storyPanels.ts","(anonymous)","(anonymous)",143,143
+5,2,48,3,6,"panelsCrossed@141-146@src/shell/storyPanels.ts","src/shell/storyPanels.ts","panelsCrossed","panelsCrossed ( panels readonly StoryPanel , previousMs , currentMs )",141,146
+3,1,13,1,3,"constructor@159-161@src/shell/storyPanels.ts","src/shell/storyPanels.ts","constructor","constructor ( startMs )",159,161
+3,1,15,1,3,"rebase@163-165@src/shell/storyPanels.ts","src/shell/storyPanels.ts","rebase","rebase ( timeUtcMs )",163,165
+5,5,66,4,5,"advance@168-172@src/shell/storyPanels.ts","src/shell/storyPanels.ts","advance","advance ( panels readonly StoryPanel , timeUtcMs , playing , autoOpen )",168,172
+1,1,4,0,1,"(anonymous)@12-12@src/shell/ScaleControl.tsx","src/shell/ScaleControl.tsx","(anonymous)","(anonymous)",12,12
+5,2,42,1,7,"joinLabels@11-17@src/shell/ScaleControl.tsx","src/shell/ScaleControl.tsx","joinLabels","joinLabels ( choices readonly ScaleChoice )",11,17
+11,1,47,0,11,"(anonymous)@24-34@src/shell/ScaleControl.tsx","src/shell/ScaleControl.tsx","(anonymous)","(anonymous)",24,34
+3,1,20,0,3,"(anonymous)@48-50@src/shell/ScaleControl.tsx","src/shell/ScaleControl.tsx","(anonymous)","(anonymous)",48,50
+28,1,154,3,40,"ScaleControl@17-56@src/shell/ScaleControl.tsx","src/shell/ScaleControl.tsx","ScaleControl","ScaleControl ( scaleId , onScaleChange , choices SCALE_CHOICES Props )",17,56
+1,1,6,0,1,"(anonymous)@36-36@src/shell/scaleModel.ts","src/shell/scaleModel.ts","(anonymous)","(anonymous)",36,36
+5,2,36,0,5,"(anonymous)@35-39@src/shell/scaleModel.ts","src/shell/scaleModel.ts","(anonymous)","(anonymous)",35,39
+4,1,28,1,9,"scaleChoicesFor@34-42@src/shell/scaleModel.ts","src/shell/scaleModel.ts","scaleChoicesFor","scaleChoicesFor ( ids readonly ScaleId )",34,42
+1,1,6,0,1,"(anonymous)@46-46@src/shell/scaleModel.ts","src/shell/scaleModel.ts","(anonymous)","(anonymous)",46,46
+5,3,52,2,5,"scalePolicyFor@45-49@src/shell/scaleModel.ts","src/shell/scaleModel.ts","scalePolicyFor","scalePolicyFor ( id ScaleId , supplied readonly ScalePolicy )",45,49
+1,1,22,1,1,"clamp01@153-153@src/shell/metrics.ts","src/shell/metrics.ts","clamp01","clamp01 ( value )",153,153
+4,1,32,2,5,"formatMetricNumber@155-159@src/shell/metrics.ts","src/shell/metrics.ts","formatMetricNumber","formatMetricNumber ( value , digits )",155,159
+7,5,79,1,8,"speedGauge@167-174@src/shell/metrics.ts","src/shell/metrics.ts","speedGauge","speedGauge ( metric SpeedMetric )",167,174
+1,1,4,0,1,"(anonymous)@185-185@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",185,185
+1,1,18,0,1,"(anonymous)@190-190@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",190,190
+12,6,101,1,14,"distanceScale@182-195@src/shell/metrics.ts","src/shell/metrics.ts","distanceScale","distanceScale ( metric DistanceMetric )",182,195
+1,1,27,1,1,"at@199-199@src/shell/metrics.ts","src/shell/metrics.ts","at","at ( v )",199,199
+13,9,170,1,15,"rateScale@195-209@src/shell/metrics.ts","src/shell/metrics.ts","rateScale","rateScale ( metric RateMetric )",195,209
+1,1,20,0,1,"(anonymous)@214-214@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",214,214
+9,3,66,1,10,"progressScale@209-218@src/shell/metrics.ts","src/shell/metrics.ts","progressScale","progressScale ( metric ProgressMetric )",209,218
+7,5,63,1,9,"relationGlyph@226-234@src/shell/metrics.ts","src/shell/metrics.ts","relationGlyph","relationGlyph ( metric RelativeDistanceMetric )",226,234
+7,4,59,1,9,"altitudeGlyph@234-242@src/shell/metrics.ts","src/shell/metrics.ts","altitudeGlyph","altitudeGlyph ( metric AltitudeMetric )",234,242
+5,5,60,1,6,"uncertaintyBand@242-247@src/shell/metrics.ts","src/shell/metrics.ts","uncertaintyBand","uncertaintyBand ( metric UncertaintyMetric )",242,247
+1,1,4,0,1,"(anonymous)@266-266@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",266,266
+1,1,4,0,1,"(anonymous)@267-267@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",267,267
+1,1,27,0,1,"(anonymous)@268-268@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",268,268
+1,1,37,2,1,"project@270-270@src/shell/metrics.ts","src/shell/metrics.ts","project","project ( xyz readonly , second )",270,270
+1,1,21,0,1,"(anonymous)@275-275@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",275,275
+6,2,60,2,6,"view@271-276@src/shell/metrics.ts","src/shell/metrics.ts","view","view ( name , second )",271,276
+12,6,160,1,18,"planViews@263-280@src/shell/metrics.ts","src/shell/metrics.ts","planViews","planViews ( metric CoordinatesMetric )",263,280
+9,4,76,1,11,"litDiscPath@289-299@src/shell/metrics.ts","src/shell/metrics.ts","litDiscPath","litDiscPath ( fraction )",289,299
+6,3,71,1,7,"phaseVisual@299-305@src/shell/metrics.ts","src/shell/metrics.ts","phaseVisual","phaseVisual ( metric PhaseMetric )",299,305
+1,3,25,1,1,"unavailableReading@310-310@src/shell/metrics.ts","src/shell/metrics.ts","unavailableReading","unavailableReading ( metric MetricCommon )",310,310
+26,14,323,1,28,"metricReadings@313-340@src/shell/metrics.ts","src/shell/metrics.ts","metricReadings","metricReadings ( metric Metric )",313,340
+1,1,10,0,1,"(anonymous)@393-393@src/shell/metrics.ts","src/shell/metrics.ts","(anonymous)","(anonymous)",393,393
+4,2,74,1,4,"describeMetric@392-395@src/shell/metrics.ts","src/shell/metrics.ts","describeMetric","describeMetric ( metric Metric )",392,395
+4,3,43,1,4,"goToStop@35-38@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","goToStop","goToStop ( stop NavigationStop )",35,38
+2,1,15,2,2,"stopLabel@39-40@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","stopLabel","stopLabel ( direction , stop NavigationStop null )",39,40
+1,1,4,0,1,"(anonymous)@74-74@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous)",74,74
+1,1,15,0,1,"(anonymous)@86-86@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous) ( )",86,86
+12,3,63,0,12,"(anonymous)@81-92@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous)",81,92
+7,2,44,0,7,"yet@100-106@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","yet","yet ( ( )",100,106
+13,3,77,0,13,"(anonymous)@112-124@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous)",112,124
+6,2,59,1,6,"(anonymous)@154-159@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous) ( event )",154,159
+1,2,27,0,1,"(anonymous)@168-168@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous) ( )",168,168
+34,7,198,0,44,"(anonymous)@130-173@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","(anonymous)","(anonymous)",130,173
+112,15,820,12,194,"TimelineBar@30-223@src/shell/TimelineBar.tsx","src/shell/TimelineBar.tsx","TimelineBar","TimelineBar ( experience , snapshot , onTogglePlayback , onRateChange , onSeek , panels , openPanelId null , onPanelOpen , onEventSeek , onEventInfo , onWindowSeek , onWindowInfo Props )",30,223
+1,1,6,0,1,"(anonymous)@25-25@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",25,25
+1,1,4,0,1,"(anonymous)@30-30@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",30,30
+1,1,6,0,1,"(anonymous)@31-31@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",31,31
+1,1,10,0,1,"(anonymous)@93-93@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",93,93
+4,2,30,1,4,"(anonymous)@92-95@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous) ( event )",92,95
+9,2,27,0,9,"(anonymous)@97-105@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",97,105
+43,8,195,0,54,"(anonymous)@55-108@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","(anonymous)","(anonymous)",55,108
+23,3,117,1,77,"renderPreset@33-109@src/shell/ObjectControls.tsx","src/shell/ObjectControls.tsx","renderPreset","renderPreset ( preset ExperienceCameraPreset undefined )",33,109
+5,1,27,4,5,"useStoryPanels@15-19@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","useStoryPanels","useStoryPanels ( panels readonly StoryPanel , settings StoryPanelSettings , snapshot ClockSnapshot , setPlaying ( ( playing )",15,19
+10,4,88,0,10,"(anonymous)@27-36@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",27,36
+3,3,15,0,3,"(anonymous)@39-41@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",39,41
+3,1,15,0,3,"(anonymous)@45-47@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",45,47
+4,2,29,0,6,"(anonymous)@43-48@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",43,48
+1,1,7,0,1,"(anonymous)@49-49@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",49,49
+4,1,16,0,4,"(anonymous)@52-55@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",52,55
+1,1,8,0,1,"(anonymous)@56-56@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",56,56
+3,2,23,0,3,"(anonymous)@57-59@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",57,59
+3,1,15,0,3,"(anonymous)@62-64@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",62,64
+1,1,6,0,1,"(anonymous)@67-67@src/shell/useStoryPanels.ts","src/shell/useStoryPanels.ts","(anonymous)","(anonymous)",67,67
+5,1,19,1,6,"arcPoint@29-34@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","arcPoint","arcPoint ( degrees )",29,34
+5,1,20,1,6,"arcPath@34-39@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","arcPath","arcPath ( fraction )",34,39
+3,1,18,0,3,"(anonymous)@64-66@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","(anonymous)","(anonymous)",64,66
+10,3,60,1,10,"SpeedVisual@71-80@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","SpeedVisual","SpeedVisual ( metric readonly metric SpeedMetric )",71,80
+12,3,83,1,12,"RelationVisual@83-94@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","RelationVisual","RelationVisual ( metric readonly metric RelativeDistanceMetric )",83,94
+12,3,91,1,12,"AltitudeVisual@97-108@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","AltitudeVisual","AltitudeVisual ( metric readonly metric AltitudeMetric )",97,108
+1,1,24,2,1,"toScreen@156-156@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","toScreen","toScreen ( a , b readonly , )",156,156
+4,1,27,0,4,"(anonymous)@161-164@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","(anonymous)","(anonymous)",161,164
+3,1,36,0,3,"(anonymous)@165-167@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","(anonymous)","(anonymous)",165,167
+14,2,154,1,19,"RadarVisual@152-170@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","RadarVisual","RadarVisual ( metric readonly metric CoordinatesMetric )",152,170
+26,14,171,1,26,"Visual@172-197@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","Visual","Visual ( metric readonly metric Metric )",172,197
+5,1,17,0,5,"(anonymous)@208-212@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","(anonymous)","(anonymous)",208,212
+1,1,2,0,1,"(anonymous)@217-217@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","(anonymous)","(anonymous)",217,217
+18,3,125,1,22,"MetricVisual@200-221@src/shell/MetricVisual.tsx","src/shell/MetricVisual.tsx","MetricVisual","MetricVisual ( metric readonly metric Metric )",200,221
+1,1,1,0,1,"(anonymous)@68-68@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",68,68
+1,2,7,0,1,"(anonymous)@83-83@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",83,83
+36,21,233,20,38,"AstraeusShell@46-83@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","AstraeusShell","AstraeusShell ( experience , snapshot , developerMode , onDeveloperModeChange , onTogglePlayback , onRateChange , onSeek , onCameraRequest , onSelectionChange , scaleId , onScaleChange , scaleChoices , metricsFor , developerTools , storyPanelSettings , onSetPlaying , panelRequest , onOpenPanelChange , children , Props )",46,83
+3,3,21,0,5,"(anonymous)@85-89@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",85,89
+4,1,20,1,4,"seek@91-94@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","seek","seek ( timeUtcMs )",91,94
+4,1,34,1,4,"openPanelFromTimeline@95-98@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","openPanelFromTimeline","openPanelFromTimeline ( panel readonly id readonly timeUtcMs )",95,98
+3,1,7,0,3,"(anonymous)@100-102@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",100,102
+1,1,6,0,1,"(anonymous)@105-105@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",105,105
+1,1,6,0,1,"(anonymous)@112-112@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",112,112
+1,1,8,0,1,"(anonymous)@115-115@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",115,115
+20,12,165,0,21,"(anonymous)@104-124@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",104,124
+1,1,6,0,1,"(anonymous)@132-132@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",132,132
+20,14,183,1,20,"selectObject@126-145@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","selectObject","selectObject ( id )",126,145
+10,3,74,1,10,"activatePreset@147-156@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","activatePreset","activatePreset ( preset ExperienceCameraPreset )",147,156
+4,3,39,1,4,"seekToEvent@158-161@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","seekToEvent","seekToEvent ( event TimelineEvent )",158,161
+4,3,41,2,4,"seekToWindow@163-166@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","seekToWindow","seekToWindow ( window TimelineWindow , timeUtcMs )",163,166
+1,3,18,0,1,"(anonymous)@177-177@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",177,177
+1,1,5,0,1,"(anonymous)@188-188@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",188,188
+1,1,15,0,1,"(anonymous)@205-205@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",205,205
+1,1,15,0,1,"(anonymous)@205-205@src/shell/AstraeusShell.tsx","src/shell/AstraeusShell.tsx","(anonymous)","(anonymous)",205,205
+1,1,2,0,1,"(anonymous)@25-25@src/shell/ProvenanceBadge.tsx","src/shell/ProvenanceBadge.tsx","(anonymous)","(anonymous)",25,25
+1,1,2,0,1,"(anonymous)@29-29@src/shell/ProvenanceBadge.tsx","src/shell/ProvenanceBadge.tsx","(anonymous)","(anonymous)",29,29
+32,3,198,1,32,"ProvenanceBadge@5-36@src/shell/ProvenanceBadge.tsx","src/shell/ProvenanceBadge.tsx","ProvenanceBadge","ProvenanceBadge ( provenance readonly provenance ProvenanceView )",5,36
+8,3,73,3,8,"createLabelElement@25-32@src/shell/Label.tsx","src/shell/Label.tsx","createLabelElement","createLabelElement ( text , color , className )",25,32
+13,2,70,4,15,"Label@11-25@src/shell/Label.tsx","src/shell/Label.tsx","Label","Label ( text , className , color , hidden false LabelProps )",11,25
+4,1,18,1,5,"formatRate@19-23@src/shell/timelineModel.ts","src/shell/timelineModel.ts","formatRate","formatRate ( rate )",19,23
+15,6,156,1,18,"formatSimulatedDuration@23-40@src/shell/timelineModel.ts","src/shell/timelineModel.ts","formatSimulatedDuration","formatSimulatedDuration ( seconds )",23,40
+5,2,36,1,7,"describePlaybackRate@40-46@src/shell/timelineModel.ts","src/shell/timelineModel.ts","describePlaybackRate","describePlaybackRate ( rate )",40,46
+1,1,6,0,1,"(anonymous)@47-47@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",47,47
+1,1,11,0,1,"(anonymous)@47-47@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",47,47
+1,1,13,0,1,"(anonymous)@48-48@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",48,48
+1,1,8,0,1,"(anonymous)@49-49@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",49,49
+6,1,63,2,7,"mergeSpeeds@46-52@src/shell/timelineModel.ts","src/shell/timelineModel.ts","mergeSpeeds","mergeSpeeds ( base readonly PlaybackSpeed , rates readonly )",46,52
+14,7,93,2,16,"eventContextAt@67-82@src/shell/timelineModel.ts","src/shell/timelineModel.ts","eventContextAt","eventContextAt ( events readonly TimelineEvent , timeUtcMs )",67,82
+21,9,142,2,22,"eventNavigationTargets@82-103@src/shell/timelineModel.ts","src/shell/timelineModel.ts","eventNavigationTargets","eventNavigationTargets ( events readonly TimelineEvent , timeUtcMs )",82,103
+4,1,35,2,5,"clampToBounds@103-107@src/shell/timelineModel.ts","src/shell/timelineModel.ts","clampToBounds","clampToBounds ( timeUtcMs , bounds TimeBounds )",103,107
+6,2,65,2,7,"eventPositionPercent@107-113@src/shell/timelineModel.ts","src/shell/timelineModel.ts","eventPositionPercent","eventPositionPercent ( event TimelineEvent , bounds TimeBounds )",107,113
+4,1,28,1,6,"formatUtcTimestamp@113-118@src/shell/timelineModel.ts","src/shell/timelineModel.ts","formatUtcTimestamp","formatUtcTimestamp ( timeUtcMs )",113,118
+6,2,63,2,8,"timePositionPercent@118-125@src/shell/timelineModel.ts","src/shell/timelineModel.ts","timePositionPercent","timePositionPercent ( timeUtcMs , bounds TimeBounds )",118,125
+3,1,48,2,3,"windowPositionPercent@125-127@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowPositionPercent","windowPositionPercent ( window TimelineWindow , bounds TimeBounds )",125,127
+1,2,16,0,1,"(anonymous)@134-134@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",134,134
+1,1,4,0,1,"(anonymous)@135-135@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",135,135
+2,1,17,1,2,"point@137-138@src/shell/timelineModel.ts","src/shell/timelineModel.ts","point","point ( sample readonly timeUtcMs readonly value )",137,138
+1,1,9,0,1,"(anonymous)@139-139@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",139,139
+8,5,105,2,11,"windowCurvePath@133-143@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowCurvePath","windowCurvePath ( window TimelineWindow , bounds TimeBounds )",133,143
+1,1,5,0,1,"(anonymous)@146-146@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",146,146
+1,1,4,0,1,"(anonymous)@153-153@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",153,153
+8,6,102,1,10,"windowPeakHeightPercent@151-160@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowPeakHeightPercent","windowPeakHeightPercent ( window TimelineWindow )",151,160
+1,1,4,0,1,"(anonymous)@162-162@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",162,162
+6,3,66,1,8,"windowPeakRateText@160-167@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowPeakRateText","windowPeakRateText ( window TimelineWindow )",160,167
+5,1,55,2,6,"windowTimeAtFraction@167-172@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowTimeAtFraction","windowTimeAtFraction ( window TimelineWindow , fraction )",167,172
+4,1,25,2,5,"formatWindowRate@172-176@src/shell/timelineModel.ts","src/shell/timelineModel.ts","formatWindowRate","formatWindowRate ( value , unit )",172,176
+1,2,12,0,1,"(anonymous)@185-185@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",185,185
+1,1,15,0,1,"(anonymous)@186-186@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",186,186
+6,1,39,2,7,"windowContextAt@183-189@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowContextAt","windowContextAt ( windows readonly TimelineWindow , timeUtcMs )",183,189
+1,1,6,0,1,"(anonymous)@206-206@src/shell/timelineModel.ts","src/shell/timelineModel.ts","(anonymous)","(anonymous)",206,206
+10,4,121,1,15,"windowStops@202-216@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowStops","windowStops ( window TimelineWindow )",202,216
+2,1,13,1,2,"asStop@218-219@src/shell/timelineModel.ts","src/shell/timelineModel.ts","asStop","asStop ( event TimelineEvent null )",218,219
+11,9,165,3,12,"navigationStops@216-227@src/shell/timelineModel.ts","src/shell/timelineModel.ts","navigationStops","navigationStops ( events readonly TimelineEvent , windows readonly TimelineWindow , timeUtcMs )",216,227
+20,2,189,2,74,"windowAreaPath@143-216@src/shell/timelineModel.ts","src/shell/timelineModel.ts","windowAreaPath","windowAreaPath ( window TimelineWindow , bounds TimeBounds )",143,216
+4,1,37,2,9,"provenanceView@40-48@src/shell/infoModel.ts","src/shell/infoModel.ts","provenanceView","provenanceView ( provenance Provenance , knownLimitations readonly )",40,48
+1,1,8,0,1,"(anonymous)@50-50@src/shell/infoModel.ts","src/shell/infoModel.ts","(anonymous)","(anonymous)",50,50
+1,1,8,0,1,"(anonymous)@65-65@src/shell/infoModel.ts","src/shell/infoModel.ts","(anonymous)","(anonymous)",65,65
+27,13,282,3,27,"infoView@48-74@src/shell/infoModel.ts","src/shell/infoModel.ts","infoView","infoView ( experience ExperienceConfig , target InfoTarget , timeUtcMs )",48,74
+1,1,8,0,1,"(anonymous)@74-74@src/shell/infoModel.ts","src/shell/infoModel.ts","(anonymous)","(anonymous)",74,74
+1,1,17,2,1,"useSwipeToDismiss@13-13@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","useSwipeToDismiss","useSwipeToDismiss ( ref RefObject , onDismiss ( )",13,13
+1,5,31,1,1,"start@20-20@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","start","start ( event TouchEvent )",20,20
+5,3,36,1,5,"move@21-25@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","move","move ( event TouchEvent )",21,25
+7,3,46,1,7,"end@26-32@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","end","end ( event TouchEvent )",26,32
+6,1,38,0,6,"(anonymous)@37-42@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","(anonymous)","(anonymous)",37,42
+13,2,100,0,28,"useEffect@16-43@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","useEffect","useEffect ( ( )",16,43
+3,1,36,1,3,"StoryBadge@47-49@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","StoryBadge","StoryBadge ( badge readonly badge PanelBadge )",47,49
+1,2,20,1,1,"onKey@67-67@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","onKey","onKey ( event KeyboardEvent )",67,67
+1,1,9,0,1,"(anonymous)@69-69@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","(anonymous)","(anonymous)",69,69
+5,1,21,0,5,"(anonymous)@66-70@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","(anonymous)","(anonymous)",66,70
+1,1,2,0,1,"(anonymous)@78-78@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","(anonymous)","(anonymous)",78,78
+1,1,2,0,1,"(anonymous)@81-81@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","(anonymous)","(anonymous)",81,81
+20,2,187,4,24,"StoryPanelView@63-86@src/shell/StoryPanelView.tsx","src/shell/StoryPanelView.tsx","StoryPanelView","StoryPanelView ( panel , holding , onClose , onContinue Props )",63,86
+5,3,40,2,6,"isObjectAvailable@5-10@src/shell/objectModel.ts","src/shell/objectModel.ts","isObjectAvailable","isObjectAvailable ( ExperienceObject , timeUtcMs )",5,10
+1,1,6,0,1,"(anonymous)@15-15@src/shell/objectModel.ts","src/shell/objectModel.ts","(anonymous)","(anonymous)",15,15
+9,3,52,3,10,"availableObjectById@10-19@src/shell/objectModel.ts","src/shell/objectModel.ts","availableObjectById","availableObjectById ( experience ExperienceConfig , id , timeUtcMs , )",10,19
+1,1,7,0,1,"(anonymous)@23-23@src/shell/objectModel.ts","src/shell/objectModel.ts","(anonymous)","(anonymous)",23,23
+7,1,30,2,8,"firstAvailableObject@19-26@src/shell/objectModel.ts","src/shell/objectModel.ts","firstAvailableObject","firstAvailableObject ( experience ExperienceConfig , timeUtcMs , )",19,26
+5,3,35,0,5,"(anonymous)@31-35@src/shell/objectModel.ts","src/shell/objectModel.ts","(anonymous)","(anonymous)",31,35
+7,1,34,3,11,"findCameraPreset@26-36@src/shell/objectModel.ts","src/shell/objectModel.ts","findCameraPreset","findCameraPreset ( experience ExperienceConfig , mode CameraMode , target , )",26,36
+6,2,68,2,17,"mapPathKm@14-30@src/app/pathRules.ts","src/app/pathRules.ts","mapPathKm","mapPathKm ( positionsKm Float64Array , policy ScalePolicy )",14,30
+5,2,48,4,7,"orbitKm@30-36@src/app/pathRules.ts","src/app/pathRules.ts","orbitKm","orbitKm ( samplesKm Float64Array , center CenterId , placement ScenePlacement , clockUtcMs )",30,36
+4,2,49,0,4,"(anonymous)@39-42@src/app/pathRules.ts","src/app/pathRules.ts","(anonymous)","(anonymous)",39,42
+7,3,69,3,12,"relativeTrailKm@36-47@src/app/pathRules.ts","src/app/pathRules.ts","relativeTrailKm","relativeTrailKm ( samples PathSamples , native CenterId , placement ScenePlacement )",36,47
+4,2,47,0,5,"(anonymous)@49-53@src/app/pathRules.ts","src/app/pathRules.ts","(anonymous)","(anonymous)",49,53
+6,1,48,3,12,"rootFrameKm@47-58@src/app/pathRules.ts","src/app/pathRules.ts","rootFrameKm","rootFrameKm ( samples PathSamples , native CenterId , placement ScenePlacement )",47,58
+4,1,39,3,5,"inertialTrailKm@58-62@src/app/pathRules.ts","src/app/pathRules.ts","inertialTrailKm","inertialTrailKm ( rootKm Float64Array , placement ScenePlacement , displayUtcMs )",58,62
+10,2,105,2,11,"shiftedBy@62-72@src/app/pathRules.ts","src/app/pathRules.ts","shiftedBy","shiftedBy ( positionsKm Float64Array , offset ArrayLike ZERO )",62,72
+13,4,81,6,13,"pathNeedsRefresh@88-100@src/app/pathRules.ts","src/app/pathRules.ts","pathNeedsRefresh","pathNeedsRefresh ( centerUtcMs null , windowMs , timeUtcMs , realNowMs , lastBuildRealMs , policy PathRefreshPolicy DEFAULT_PATH_REFRESH , )",88,100
+6,1,44,0,6,"(anonymous)@28-33@src/app/SceneLabels.ts","src/app/SceneLabels.ts","(anonymous)","(anonymous)",28,33
+5,1,46,2,10,"constructor@26-35@src/app/SceneLabels.ts","src/app/SceneLabels.ts","constructor","constructor ( host HTMLElement , objects readonly ExperienceObject )",26,35
+3,1,14,1,3,"update@37-39@src/app/SceneLabels.ts","src/app/SceneLabels.ts","update","update ( positionFor ( objectId )",37,39
+20,8,171,0,20,"(anonymous)@47-66@src/app/SceneLabels.ts","src/app/SceneLabels.ts","(anonymous)","(anonymous)",47,66
+1,2,23,0,1,"(anonymous)@66-66@src/app/SceneLabels.ts","src/app/SceneLabels.ts","(anonymous)","(anonymous)",66,66
+1,1,10,0,1,"(anonymous)@76-76@src/app/SceneLabels.ts","src/app/SceneLabels.ts","(anonymous)","(anonymous)",76,76
+4,4,58,3,4,"overlapsWithPadding@94-97@src/app/SceneLabels.ts","src/app/SceneLabels.ts","overlapsWithPadding","overlapsWithPadding ( a Rect , b Rect , padding )",94,97
+9,3,91,2,14,"drawnRadii@18-31@src/app/bodyDraw.ts","src/app/bodyDraw.ts","drawnRadii","drawnRadii ( definition CelestialBodyDefinition , policy ScalePolicy )",18,31
+5,2,66,4,7,"projectedRadiusPx@41-47@src/app/bodyDraw.ts","src/app/bodyDraw.ts","projectedRadiusPx","projectedRadiusPx ( radiusUnits , distanceUnits , fovDeg , viewportHeightPx )",41,47
+4,1,23,2,6,"drawsAsMarker@47-52@src/app/bodyDraw.ts","src/app/bodyDraw.ts","drawsAsMarker","drawsAsMarker ( radiusPx , settings BodyMarkerSettings DEFAULT_BODY_MARKER )",47,52
+11,6,105,2,13,"markerSettingsFromSearch@52-64@src/app/bodyDraw.ts","src/app/bodyDraw.ts","markerSettingsFromSearch","markerSettingsFromSearch ( search , base BodyMarkerSettings DEFAULT_BODY_MARKER )",52,64
+10,7,80,3,10,"markerOf@64-73@src/app/bodyDraw.ts","src/app/bodyDraw.ts","markerOf","markerOf ( asset BodyAsset , override readonly color readonly sizePx , fallbackPx , )",64,73
+12,1,155,4,12,"createMarker@76-87@src/app/bodyDraw.ts","src/app/bodyDraw.ts","createMarker","createMarker ( asset BodyAsset , layer , override readonly color readonly sizePx , fallbackPx )",76,87
+13,2,73,2,15,"describeBody@100-114@src/app/bodyDraw.ts","src/app/bodyDraw.ts","describeBody","describeBody ( asset BodyAsset , policy ScalePolicy )",100,114
+11,6,127,4,13,"boundedParam@128-140@src/app/bodyDraw.ts","src/app/bodyDraw.ts","boundedParam","boundedParam ( search , name , limit min max , fallback )",128,140
+8,1,69,2,10,"glowLookFromSearch@140-149@src/app/bodyDraw.ts","src/app/bodyDraw.ts","glowLookFromSearch","glowLookFromSearch ( search , base GlowLook )",140,149
+1,1,8,0,1,"(anonymous)@150-150@src/app/bodyDraw.ts","src/app/bodyDraw.ts","(anonymous)","(anonymous)",150,150
+5,5,63,1,7,"baseGlowOf@149-155@src/app/bodyDraw.ts","src/app/bodyDraw.ts","baseGlowOf","baseGlowOf ( assets readonly BodyAsset )",149,155
+4,2,41,2,6,"glowSizePx@155-160@src/app/bodyDraw.ts","src/app/bodyDraw.ts","glowSizePx","glowSizePx ( look GlowLook , bodyDiameterPx )",155,160
+4,1,48,4,5,"pxToUnits@160-164@src/app/bodyDraw.ts","src/app/bodyDraw.ts","pxToUnits","pxToUnits ( px , distanceUnits , fovDeg , viewportHeightPx )",160,164
+16,2,137,0,21,"softGlowTexture@167-187@src/app/bodyDraw.ts","src/app/bodyDraw.ts","softGlowTexture","softGlowTexture ( )",167,187
+8,1,75,2,10,"createGlow@187-196@src/app/bodyDraw.ts","src/app/bodyDraw.ts","createGlow","createGlow ( color , layer )",187,196
+17,3,200,4,20,"applyGlowLook@205-224@src/app/bodyDraw.ts","src/app/bodyDraw.ts","applyGlowLook","applyGlowLook ( sprite Sprite , look GlowLook , baseColor , view GlowView )",205,224
+6,2,53,1,8,"viewUpVector@13-20@src/app/viewUp.ts","src/app/viewUp.ts","viewUpVector","viewUpVector ( up ViewUp undefined )",13,20
+1,1,38,1,1,"along@24-24@src/app/viewUp.ts","src/app/viewUp.ts","along","along ( axis RenderVector )",24,24
+7,2,125,2,7,"orbitAnglesFor@20-26@src/app/viewUp.ts","src/app/viewUp.ts","orbitAnglesFor","orbitAnglesFor ( offset RenderVector , up RenderVector )",20,26
+5,3,41,2,10,"viewUpFromSearch@29-38@src/app/viewUp.ts","src/app/viewUp.ts","viewUpFromSearch","viewUpFromSearch ( search , fallback ViewUp )",29,38
+5,1,106,1,5,"orbitBasis@38-42@src/app/viewUp.ts","src/app/viewUp.ts","orbitBasis","orbitBasis ( up RenderVector )",38,42
+10,1,101,3,11,"lineWithCapacity@28-38@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","lineWithCapacity","lineWithCapacity ( count , color , opacity )",28,38
+4,1,58,3,4,"smooth@50-53@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","smooth","smooth ( edge0 , edge1 , x )",50,53
+19,4,229,0,27,"anchorSpriteTexture@46-72@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","anchorSpriteTexture","anchorSpriteTexture ( )",46,72
+1,1,10,0,1,"(anonymous)@117-117@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","(anonymous)","(anonymous)",117,117
+33,1,318,1,35,"constructor@90-124@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","constructor","constructor ( readonly body TrackedBody )",90,124
+18,4,235,5,20,"update@126-145@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","update","update ( timeUtcMs , policy ScalePolicy , origin FloatingOrigin , camera Camera , placement ScenePlacement )",126,145
+8,3,104,2,8,"#remap@151-158@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","#remap","#remap ( policy ScalePolicy , placement ScenePlacement )",151,158
+4,2,54,2,4,"#relative@160-163@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","#relative","#relative ( samples PathSamples , placement ScenePlacement )",160,163
+5,1,46,1,5,"push@177-181@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","push","push ( render ArrayLike )",177,181
+18,5,160,6,22,"#fillPath@166-187@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","#fillPath","#fillPath ( line Line , from , to , leading RenderVector null , trailing RenderVector null , origin FloatingOrigin , )",166,187
+3,1,34,2,3,"anchorLocalPosition@190-192@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","anchorLocalPosition","anchorLocalPosition ( index , out Vector3 )",190,192
+9,2,122,1,9,"#fillAnchors@194-202@src/app/TrackedBodyView.ts","src/app/TrackedBodyView.ts","#fillAnchors","#fillAnchors ( origin FloatingOrigin )",194,202
+1,1,22,3,1,"constructor@25-25@src/app/StoryMarkers.ts","src/app/StoryMarkers.ts","constructor","constructor ( host HTMLElement , specs readonly StoryMarkerSpec , onOpen ( panelId )",25,25
+1,1,6,0,1,"(anonymous)@35-35@src/app/StoryMarkers.ts","src/app/StoryMarkers.ts","(anonymous)","(anonymous)",35,35
+1,1,15,0,1,"(anonymous)@36-36@src/app/StoryMarkers.ts","src/app/StoryMarkers.ts","(anonymous)","(anonymous)",36,36
+13,1,103,0,13,"(anonymous)@27-39@src/app/StoryMarkers.ts","src/app/StoryMarkers.ts","(anonymous)","(anonymous)",27,39
+2,1,5,0,2,"(anonymous)@44-45@src/app/StoryMarkers.ts","src/app/StoryMarkers.ts","(anonymous)","(anonymous)",44,45
+3,3,37,3,3,"centreOffsetKm@17-19@src/app/PointsView.ts","src/app/PointsView.ts","centreOffsetKm","centreOffsetKm ( layer GroupLayer , placement ScenePlacement , timeUtcMs )",17,19
+9,1,64,0,9,"emptyFill@64-72@src/app/PointsView.ts","src/app/PointsView.ts","emptyFill","emptyFill ( )",64,72
+26,7,216,1,34,"constructor@58-91@src/app/PointsView.ts","src/app/PointsView.ts","constructor","constructor ( readonly layer GroupLayer )",58,91
+3,1,15,0,3,"get id@93-95@src/app/PointsView.ts","src/app/PointsView.ts","get id","get id ( )",93,95
+3,1,11,0,3,"get drawn@98-100@src/app/PointsView.ts","src/app/PointsView.ts","get drawn","get drawn ( )",98,100
+3,1,11,0,3,"absolute@103-105@src/app/PointsView.ts","src/app/PointsView.ts","absolute","absolute ( )",103,105
+4,1,33,1,4,"extentUnits@108-111@src/app/PointsView.ts","src/app/PointsView.ts","extentUnits","extentUnits ( policy ScalePolicy )",108,111
+1,1,25,0,1,"(anonymous)@135-135@src/app/PointsView.ts","src/app/PointsView.ts","(anonymous)","(anonymous)",135,135
+21,10,243,3,21,"sync@117-137@src/app/PointsView.ts","src/app/PointsView.ts","sync","sync ( timeUtcMs , placement ScenePlacement , policy ScalePolicy )",117,137
+16,3,210,1,17,"place@140-156@src/app/PointsView.ts","src/app/PointsView.ts","place","place ( origin FloatingOrigin )",140,156
+4,1,52,1,4,"memberLocalPosition@159-162@src/app/PointsView.ts","src/app/PointsView.ts","memberLocalPosition","memberLocalPosition ( index )",159,162
+26,14,281,3,26,"#advance@168-193@src/app/PointsView.ts","src/app/PointsView.ts","#advance","#advance ( timeUtcMs , placement ScenePlacement , policy ScalePolicy )",168,193
+29,3,296,4,29,"#fill@195-223@src/app/PointsView.ts","src/app/PointsView.ts","#fill","#fill ( target Fill , timeUtcMs , placement ScenePlacement , policy ScalePolicy )",195,223
+16,3,167,2,16,"#remap@225-240@src/app/PointsView.ts","src/app/PointsView.ts","#remap","#remap ( fill Fill , policy ScalePolicy )",225,240
+5,1,68,3,5,"#holdCentre@243-247@src/app/PointsView.ts","src/app/PointsView.ts","#holdCentre","#holdCentre ( placement ScenePlacement , timeUtcMs , policy ScalePolicy )",243,247
+4,1,16,2,4,"load@7-10@src/app/useBodyTexture.ts","src/app/useBodyTexture.ts","load","load ( url , onLoad ( texture Texture )",7,10
+2,1,9,1,2,"onProgress?@10-11@src/app/useBodyTexture.ts","src/app/useBodyTexture.ts","onProgress?","onProgress? ( event ProgressEvent )",10,11
+3,1,21,0,3,"(anonymous)@12-14@src/app/useBodyTexture.ts","src/app/useBodyTexture.ts","(anonymous)","(anonymous)",12,14
+1,1,4,0,1,"(anonymous)@20-20@src/app/useBodyTexture.ts","src/app/useBodyTexture.ts","(anonymous)","(anonymous)",20,20
+8,2,63,1,8,"useBodyTexture@19-26@src/app/useBodyTexture.ts","src/app/useBodyTexture.ts","useBodyTexture","useBodyTexture ( url )",19,26
+12,4,78,7,12,"BodyMesh@19-30@src/app/BodyMesh.tsx","src/app/BodyMesh.tsx","BodyMesh","BodyMesh ( function BodyMesh ( radius , textureUrl , material , layer , unlit , children , ref , )",19,30
+4,3,30,1,4,"UnlitTexturedMaterial@33-36@src/app/BodyMesh.tsx","src/app/BodyMesh.tsx","UnlitTexturedMaterial","UnlitTexturedMaterial ( url readonly url )",33,36
+3,1,29,1,3,"FlatMaterial@38-40@src/app/BodyMesh.tsx","src/app/BodyMesh.tsx","FlatMaterial","FlatMaterial ( material readonly material BodyMaterialConfig )",38,40
+11,4,55,2,11,"TexturedMaterial@42-52@src/app/BodyMesh.tsx","src/app/BodyMesh.tsx","TexturedMaterial","TexturedMaterial ( url , material readonly url readonly material BodyMaterialConfig )",42,52
+4,1,36,2,6,"fitDistance@19-24@src/app/sceneFraming.ts","src/app/sceneFraming.ts","fitDistance","fitDistance ( extentUnits , fovDeg )",19,24
+6,4,79,3,9,"sphereRadius@41-49@src/app/sceneFraming.ts","src/app/sceneFraming.ts","sphereRadius","sphereRadius ( focus BodyId , policy ScalePolicy , source BodyCatalogue )",41,49
+6,7,105,4,6,"focusLimits@49-54@src/app/sceneFraming.ts","src/app/sceneFraming.ts","focusLimits","focusLimits ( focus BodyId , frame SceneFrame , policy ScalePolicy , declared CameraReach )",49,54
+4,1,42,5,6,"startsInsideFocus@63-68@src/app/sceneFraming.ts","src/app/sceneFraming.ts","startsInsideFocus","startsInsideFocus ( startDistance , focus BodyId , frame SceneFrame , policy ScalePolicy , declared CameraReach )",63,68
+6,5,72,3,8,"defaultDistance@68-75@src/app/sceneFraming.ts","src/app/sceneFraming.ts","defaultDistance","defaultDistance ( focus BodyId , frame SceneFrame , policy ScalePolicy )",68,75
+4,3,33,3,6,"focusRadius@75-80@src/app/sceneFraming.ts","src/app/sceneFraming.ts","focusRadius","focusRadius ( focus BodyId , policy ScalePolicy , source BodyCatalogue catalogue )",75,80
+4,1,31,2,6,"scaleLength@80-85@src/app/sceneFraming.ts","src/app/sceneFraming.ts","scaleLength","scaleLength ( policy ScalePolicy , km )",80,85
+15,5,134,3,15,"assignBodyLayers@92-106@src/app/sceneFraming.ts","src/app/sceneFraming.ts","assignBodyLayers","assignBodyLayers ( bodies readonly BodyId , overlayLayer , source BodyCatalogue catalogue )",92,106
+6,1,34,0,6,"(anonymous)@36-41@src/app/AtmosphereGlow.tsx","src/app/AtmosphereGlow.tsx","(anonymous)","(anonymous)",36,41
+20,1,127,3,25,"AtmosphereGlow@33-57@src/app/AtmosphereGlow.tsx","src/app/AtmosphereGlow.tsx","AtmosphereGlow","AtmosphereGlow ( radius , atmosphere , layer radius atmosphere AtmosphereConfig layer )",33,57
+1,1,28,2,1,"scaleLength@23-23@src/app/PathView.ts","src/app/PathView.ts","scaleLength","scaleLength ( policy ScalePolicy , km )",23,23
+22,18,278,3,23,"constructor@61-83@src/app/PathView.ts","src/app/PathView.ts","constructor","constructor ( readonly layer PathLayer , style PathStyle , refresh PathRefreshPolicy DEFAULT_PATH_REFRESH )",61,83
+3,1,15,0,3,"get id@85-87@src/app/PathView.ts","src/app/PathView.ts","get id","get id ( )",85,87
+3,1,15,0,3,"get fitsWhole@90-92@src/app/PathView.ts","src/app/PathView.ts","get fitsWhole","get fitsWhole ( )",90,92
+3,1,11,0,3,"get samplesKm@95-97@src/app/PathView.ts","src/app/PathView.ts","get samplesKm","get samplesKm ( )",95,97
+3,1,14,0,3,"get timesUtcMs@100-102@src/app/PathView.ts","src/app/PathView.ts","get timesUtcMs","get timesUtcMs ( )",100,102
+3,1,11,0,3,"get maxRadiusKm@105-107@src/app/PathView.ts","src/app/PathView.ts","get maxRadiusKm","get maxRadiusKm ( )",105,107
+3,1,13,0,3,"get frame@110-112@src/app/PathView.ts","src/app/PathView.ts","get frame","get frame ( )",110,112
+13,2,149,1,13,"#resample@114-126@src/app/PathView.ts","src/app/PathView.ts","#resample","#resample ( times readonly )",114,126
+18,9,227,2,20,"#vertexKm@129-148@src/app/PathView.ts","src/app/PathView.ts","#vertexKm","#vertexKm ( placement ScenePlacement , timeUtcMs )",129,148
+12,3,166,1,14,"boundsMidpoint@219-232@src/app/PathView.ts","src/app/PathView.ts","boundsMidpoint","boundsMidpoint ( km Float64Array )",219,232
+11,2,107,2,13,"eqjMapped@232-244@src/app/PathView.ts","src/app/PathView.ts","eqjMapped","eqjMapped ( km Float64Array , policy ScalePolicy )",232,244
+1,1,4,0,1,"(anonymous)@245-245@src/app/PathView.ts","src/app/PathView.ts","(anonymous)","(anonymous)",245,245
+4,1,32,1,6,"pathReachKm@244-249@src/app/PathView.ts","src/app/PathView.ts","pathReachKm","pathReachKm ( views readonly PathView )",244,249
+1,1,6,0,1,"(anonymous)@250-250@src/app/PathView.ts","src/app/PathView.ts","(anonymous)","(anonymous)",250,250
+4,1,27,1,6,"createPathViews@249-254@src/app/PathView.ts","src/app/PathView.ts","createPathViews","createPathViews ( paths readonly PathLayer )",249,254
+1,1,13,0,1,"stateAt@263-263@src/app/PathView.ts","src/app/PathView.ts","stateAt","stateAt",263,263
+14,2,124,2,14,"compositionPathLayer@260-273@src/app/PathView.ts","src/app/PathView.ts","compositionPathLayer","compositionPathLayer ( path CompositionPath , resolver StateResolver )",260,273
+4,1,40,1,6,"fpsAxisTop@15-20@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","fpsAxisTop","fpsAxisTop ( history readonly )",15,20
+4,1,35,2,6,"fpsY@20-25@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","fpsY","fpsY ( fps , top )",20,25
+1,1,10,1,1,"(anonymous)@26-26@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","(anonymous)","(anonymous) ( history length )",26,26
+1,1,2,0,1,"(anonymous)@27-27@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","(anonymous)","(anonymous)",27,27
+1,1,12,0,1,"(anonymous)@35-35@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","(anonymous)","(anonymous)",35,35
+5,2,62,0,5,"(anonymous)@41-45@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","(anonymous)","(anonymous)",41,45
+3,1,34,0,3,"(anonymous)@48-50@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","(anonymous)","(anonymous)",48,50
+22,2,327,1,28,"FpsGraph@30-57@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","FpsGraph","FpsGraph ( history readonly history readonly )",30,57
+4,3,33,1,5,"overTone@59-63@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","overTone","overTone ( frames FrameSnapshot )",59,63
+23,6,272,3,23,"FrameRateSection@63-85@src/app/FrameRateSection.tsx","src/app/FrameRateSection.tsx","FrameRateSection","FrameRateSection ( frames , fills , fpsHistory readonly frames FrameSnapshot null readonly fills readonly GroupFill readonly fpsHistory readonly )",63,85
+9,5,111,4,9,"projectToScreen@5-13@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","projectToScreen","projectToScreen ( local Vector3 , camera Camera , widthPx , heightPx , )",5,13
+8,1,54,0,8,"(anonymous)@28-35@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","(anonymous)","(anonymous)",28,35
+1,3,21,0,8,"(anonymous)@28-35@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","(anonymous)","(anonymous)",28,35
+6,1,53,2,13,"constructor@25-37@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","constructor","constructor ( host HTMLElement , views readonly TrackedBodyView )",25,37
+11,5,117,4,11,"update@39-49@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","update","update ( visible , camera Camera , widthPx , heightPx )",39,49
+3,1,14,0,3,"dispose@51-53@src/app/AnchorLabels.ts","src/app/AnchorLabels.ts","dispose","dispose ( )",51,53
+7,2,87,3,10,"applyOrientation@15-24@src/app/sceneLayout.ts","src/app/sceneLayout.ts","applyOrientation","applyOrientation ( mesh Object3D , state State , textureYawRad )",15,24
+4,1,34,2,6,"createSceneResolver@24-29@src/app/sceneLayout.ts","src/app/sceneLayout.ts","createSceneResolver","createSceneResolver ( adapter AstronomyAdapter , source BodyCatalogue catalogue )",24,29
+4,2,44,3,5,"sceneOffsetKm@38-42@src/app/sceneLayout.ts","src/app/sceneLayout.ts","sceneOffsetKm","sceneOffsetKm ( placement ScenePlacement , from CenterId , timeUtcMs )",38,42
+8,5,98,2,8,"readoutPairOf@52-59@src/app/sceneLayout.ts","src/app/sceneLayout.ts","readoutPairOf","readoutPairOf ( bodies readonly BodyId , source BodyCatalogue catalogue )",52,59
+4,1,28,2,10,"bodyAbsolute@62-71@src/app/sceneLayout.ts","src/app/sceneLayout.ts","bodyAbsolute","bodyAbsolute ( positionKm ArrayLike , policy ScalePolicy )",62,71
+16,2,97,7,18,"placeBody@71-88@src/app/sceneLayout.ts","src/app/sceneLayout.ts","placeBody","placeBody ( group Object3D , mesh Object3D null , state State , positionKm ArrayLike , textureYawRad , policy ScalePolicy , origin FloatingOrigin , )",71,88
+16,1,94,3,18,"bodyAbsolutes@88-105@src/app/sceneLayout.ts","src/app/sceneLayout.ts","bodyAbsolutes","bodyAbsolutes ( moon State , policy ScalePolicy , earthPositionKm ArrayLike , , , )",88,105
+6,2,94,3,8,"trackedAbsolute@105-112@src/app/sceneLayout.ts","src/app/sceneLayout.ts","trackedAbsolute","trackedAbsolute ( state State , policy ScalePolicy , placement ScenePlacement )",105,112
+18,7,239,4,18,"placeComposition@123-140@src/app/sceneLayout.ts","src/app/sceneLayout.ts","placeComposition","placeComposition ( bodies readonly BodyId , placement ScenePlacement , policy ScalePolicy , timeUtcMs )",123,140
+1,2,12,0,1,"(anonymous)@38-38@src/app/mission.ts","src/app/mission.ts","(anonymous)","(anonymous)",38,38
+8,6,79,2,9,"discrepancyAt@36-44@src/app/mission.ts","src/app/mission.ts","discrepancyAt","discrepancyAt ( body TrackedBody , timeUtcMs )",36,44
+8,3,67,1,10,"anchorLabelsOf@57-66@src/app/mission.ts","src/app/mission.ts","anchorLabelsOf","anchorLabelsOf ( body TrackedBody )",57,66
+5,3,49,2,7,"stateIfInBounds@66-72@src/app/mission.ts","src/app/mission.ts","stateIfInBounds","stateIfInBounds ( body TrackedBody , timeUtcMs )",66,72
+5,1,51,2,7,"stateClampedToBounds@72-78@src/app/mission.ts","src/app/mission.ts","stateClampedToBounds","stateClampedToBounds ( body TrackedBody , timeUtcMs )",72,78
+1,1,18,0,1,"(anonymous)@83-83@src/app/mission.ts","src/app/mission.ts","(anonymous)","(anonymous)",83,83
+9,1,50,2,11,"sampleTrackedPositions@78-88@src/app/mission.ts","src/app/mission.ts","sampleTrackedPositions","sampleTrackedPositions ( trajectory Trajectory , timesUtcMs readonly , )",78,88
+11,3,68,2,13,"travelledCount@88-100@src/app/mission.ts","src/app/mission.ts","travelledCount","travelledCount ( timesUtcMs readonly , timeUtcMs )",88,100
+4,1,22,1,5,"markerRadiusUnits@103-107@src/app/mission.ts","src/app/mission.ts","markerRadiusUnits","markerRadiusUnits ( cameraDistanceUnits )",103,107
+1,1,6,0,1,"(anonymous)@108-108@src/app/mission.ts","src/app/mission.ts","(anonymous)","(anonymous)",108,108
+7,2,67,3,8,"jumpToEvent@107-114@src/app/mission.ts","src/app/mission.ts","jumpToEvent","jumpToEvent ( clock SimulationClock , events readonly TimelineEvent , id )",107,114
+17,4,148,2,17,"trackedReadouts@129-145@src/app/mission.ts","src/app/mission.ts","trackedReadouts","trackedReadouts ( bodies readonly TrackedBody , timeUtcMs )",129,145
+1,3,37,0,1,"(anonymous)@43-43@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",43,43
+1,2,35,0,1,"(anonymous)@44-44@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",44,44
+1,2,31,0,1,"(anonymous)@45-45@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",45,45
+11,6,102,0,11,"(anonymous)@46-56@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",46,56
+1,1,5,0,1,"(anonymous)@62-62@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",62,62
+6,4,47,0,6,"(anonymous)@58-63@src/app/BodyView.tsx","src/app/BodyView.tsx","(anonymous)","(anonymous)",58,63
+30,7,250,9,46,"BodyView@40-85@src/app/BodyView.tsx","src/app/BodyView.tsx","BodyView","BodyView ( asset , policy , layer , markerLayer , markerPx DEFAULT_BODY_MARKER markerPx , glowLook , groupRef , orientRef , onParts BodyViewProps )",40,85
+1,1,19,0,1,"(anonymous)@147-147@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",147,147
+1,1,13,0,1,"(anonymous)@148-148@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",148,148
+1,1,8,0,1,"(anonymous)@148-148@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",148,148
+1,1,30,0,1,"(anonymous)@148-148@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",148,148
+1,1,11,0,1,"(anonymous)@177-177@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",177,177
+4,2,34,0,4,"(anonymous)@186-189@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",186,189
+24,3,173,0,29,"(anonymous)@170-198@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","(anonymous)","(anonymous)",170,198
+342,138,4377,2,406,"LayeredRender@169-574@src/app/AstraeusScene.tsx","src/app/AstraeusScene.tsx","LayeredRender","LayeredRender ( lightLayers , merged readonly lightLayers readonly readonly merged )",169,574
+13,8,133,1,15,"validateCameraReach@184-198@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","validateCameraReach","validateCameraReach ( reach CameraReach )",184,198
+4,2,27,1,6,"cameraReachOf@198-203@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","cameraReachOf","cameraReachOf ( definition ExperienceDefinition )",198,203
+4,3,18,1,6,"catalogueOf@203-208@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","catalogueOf","catalogueOf ( definition ExperienceDefinition )",203,208
+4,1,17,1,6,"compositionOf@208-213@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","compositionOf","compositionOf ( definition ExperienceDefinition )",208,213
+9,4,80,1,11,"scaleChoiceIdsOf@213-223@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","scaleChoiceIdsOf","scaleChoiceIdsOf ( definition ExperienceDefinition )",213,223
+11,8,137,1,11,"visualOverridesOf@223-233@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","visualOverridesOf","visualOverridesOf ( definition ExperienceDefinition )",223,233
+12,2,85,2,18,"assetWithOverride@236-253@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","assetWithOverride","assetWithOverride ( asset BodyAsset , override VisualOverride undefined )",236,253
+11,7,111,1,13,"sceneCenterOf@253-265@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","sceneCenterOf","sceneCenterOf ( definition ExperienceDefinition )",253,265
+1,2,12,0,1,"(anonymous)@270-270@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","(anonymous)","(anonymous)",270,270
+8,6,89,1,13,"mountedBodiesOf@265-277@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","mountedBodiesOf","mountedBodiesOf ( definition ExperienceDefinition )",265,277
+1,1,6,0,1,"(anonymous)@280-280@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","(anonymous)","(anonymous)",280,280
+6,5,52,1,8,"initialObjectIdOf@277-284@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","initialObjectIdOf","initialObjectIdOf ( definition ExperienceDefinition )",277,284
+4,2,30,1,6,"trackedBodiesOf@284-289@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","trackedBodiesOf","trackedBodiesOf ( definition ExperienceDefinition )",284,289
+5,2,32,0,5,"(anonymous)@292-296@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","(anonymous)","(anonymous)",292,296
+6,4,60,1,11,"groupsOf@289-299@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","groupsOf","groupsOf ( definition ExperienceDefinition )",289,299
+1,1,17,1,1,"isRollingSpan@305-305@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","isRollingSpan","isRollingSpan ( span PathSpec )",305,305
+51,45,780,3,56,"validatePathSpec@311-366@src/app/experienceDefinition.ts","src/app/experienceDefinition.ts","validatePathSpec","validatePathSpec ( id , path PathSpec , catalogue BodyCatalogue builtInCatalogue )",311,366
+4,1,32,1,9,"eqjToRenderVector@10-18@src/app/renderCoordinates.ts","src/app/renderCoordinates.ts","eqjToRenderVector","eqjToRenderVector ( vector ArrayLike )",10,18
+4,1,34,1,10,"eqjToRenderQuaternion@18-27@src/app/renderCoordinates.ts","src/app/renderCoordinates.ts","eqjToRenderQuaternion","eqjToRenderQuaternion ( quaternion Quaternion )",18,27
+8,1,57,3,8,"SettingGroup@4-11@src/app/SettingControls.tsx","src/app/SettingControls.tsx","SettingGroup","SettingGroup ( id , title , children readonly id readonly title readonly children ReactNode )",4,11
+10,1,73,9,10,"SettingSlider@14-23@src/app/SettingControls.tsx","src/app/SettingControls.tsx","SettingSlider","SettingSlider ( label , ariaLabel , testId , display , min , max , step , value , onChange readonly label readonly ariaLabel readonly testId readonly display readonly min readonly max readonly step readonly value readonly onChange ( value )",14,23
+5,3,40,2,5,"SettingButtons@34-38@src/app/SettingControls.tsx","src/app/SettingControls.tsx","SettingButtons","SettingButtons ( label , children readonly label readonly children ReactNode )",34,38
+7,8,100,1,7,"skySettingsOf@31-37@src/app/App.tsx","src/app/App.tsx","skySettingsOf","skySettingsOf ( definition ExperienceDefinition )",31,37
+1,1,6,0,1,"(anonymous)@41-41@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",41,41
+1,1,4,0,1,"(anonymous)@41-41@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",41,41
+11,10,142,2,13,"hiddenLabelsFrom@40-52@src/app/App.tsx","src/app/App.tsx","hiddenLabelsFrom","hiddenLabelsFrom ( search , objects readonly readonly id readonly showLabel )",40,52
+5,3,43,2,6,"loopFromSearch@52-57@src/app/App.tsx","src/app/App.tsx","loopFromSearch","loopFromSearch ( search , fallback )",52,57
+28,4,204,0,30,"(anonymous)@58-87@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",58,87
+2,1,23,0,2,"(anonymous)@89-90@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",89,90
+1,1,9,0,1,"(anonymous)@93-93@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",93,93
+1,2,17,0,1,"(anonymous)@94-94@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",94,94
+5,3,63,0,5,"suppliedPolicies@95-99@src/app/App.tsx","src/app/App.tsx","suppliedPolicies","suppliedPolicies ( ( )",95,99
+8,1,78,1,43,"App@57-99@src/app/App.tsx","src/app/App.tsx","App","App ( definition readonly definition ExperienceDefinition )",57,99
+1,1,9,0,1,"(anonymous)@102-102@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",102,102
+3,3,34,0,3,"(anonymous)@107-109@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",107,109
+1,1,6,0,1,"(anonymous)@110-110@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",110,110
+5,1,27,0,7,"(anonymous)@105-111@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",105,111
+1,1,25,0,1,"(anonymous)@112-112@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",112,112
+1,1,13,0,1,"(anonymous)@113-113@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",113,113
+1,1,9,0,1,"(anonymous)@114-114@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",114,114
+1,1,19,0,1,"(anonymous)@114-114@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",114,114
+1,2,33,0,1,"(anonymous)@117-117@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",117,117
+3,4,24,0,3,"storyMarkerSpecs@116-118@src/app/App.tsx","src/app/App.tsx","storyMarkerSpecs","storyMarkerSpecs ( ( )",116,118
+1,1,8,0,1,"(anonymous)@140-140@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",140,140
+1,1,6,0,1,"(anonymous)@145-145@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",145,145
+1,1,16,0,1,"(anonymous)@145-145@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",145,145
+1,1,10,0,1,"(anonymous)@146-146@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",146,146
+1,1,8,0,1,"(anonymous)@152-152@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",152,152
+3,1,22,1,3,"useCallback@162-164@src/app/App.tsx","src/app/App.tsx","useCallback","useCallback ( ( request ExperienceCameraRequest )",162,164
+1,1,13,0,1,"(anonymous)@166-166@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",166,166
+5,2,38,0,5,"(anonymous)@167-171@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",167,171
+3,1,13,0,3,"(anonymous)@173-175@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",173,175
+4,1,24,0,4,"(anonymous)@176-179@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",176,179
+4,2,34,0,5,"(anonymous)@182-186@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",182,186
+1,1,7,0,1,"(anonymous)@187-187@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",187,187
+4,1,26,0,8,"(anonymous)@181-188@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",181,188
+1,1,19,0,1,"(anonymous)@198-198@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",198,198
+1,1,7,0,1,"(anonymous)@199-199@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",199,199
+8,3,78,0,8,"(anonymous)@194-201@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",194,201
+6,1,28,0,6,"(anonymous)@202-207@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",202,207
+7,2,53,0,19,"(anonymous)@190-208@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",190,208
+7,1,20,1,7,"developerTools@228-234@src/app/App.tsx","src/app/App.tsx","developerTools","developerTools ( sections filter ( ( section )",228,234
+1,1,15,0,1,"(anonymous)@242-242@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",242,242
+1,1,21,0,1,"(anonymous)@249-249@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( )",249,249
+4,1,30,0,4,"(anonymous)@248-251@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",248,251
+1,1,26,0,1,"(anonymous)@251-251@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",251,251
+1,1,5,0,1,"(anonymous)@254-254@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",254,254
+1,1,12,1,1,"(anonymous)@259-259@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( event )",259,259
+1,1,20,0,1,"(anonymous)@265-265@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( )",265,265
+1,1,20,0,1,"(anonymous)@280-280@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( )",280,280
+1,1,15,0,1,"(anonymous)@282-282@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",282,282
+1,1,15,0,1,"(anonymous)@284-284@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",284,284
+1,1,30,1,1,"(anonymous)@290-290@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( value )",290,290
+1,1,30,1,1,"(anonymous)@291-291@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( value )",291,291
+1,1,30,1,1,"(anonymous)@292-292@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( value )",292,292
+4,2,42,1,4,"(anonymous)@296-299@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( runtime trackedBodies length ( )",296,299
+7,4,68,0,7,"(anonymous)@301-307@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( )",301,307
+4,1,38,0,10,"(anonymous)@300-309@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",300,309
+5,1,46,0,5,"(anonymous)@316-320@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( )",316,320
+4,1,32,0,8,"(anonymous)@315-322@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",315,322
+1,1,6,0,1,"(anonymous)@328-328@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous)",328,328
+6,2,50,1,6,"return@332-337@src/app/App.tsx","src/app/App.tsx","return","return ( shellExperience clockSnapshot developerMode setDeveloperMode ( )",332,337
+4,1,26,1,4,"(anonymous)@337-340@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( rate )",337,340
+4,1,26,1,4,"(anonymous)@340-343@src/app/App.tsx","src/app/App.tsx","(anonymous)","(anonymous) ( timeUtcMs )",340,343
+1,1,20,1,1,"wrapAzimuth@19-19@src/app/viewLink.ts","src/app/viewLink.ts","wrapAzimuth","wrapAzimuth ( deg )",19,19
+1,1,22,2,1,"round@20-20@src/app/viewLink.ts","src/app/viewLink.ts","round","round ( value , places )",20,20
+10,1,91,4,12,"viewFromAngles@23-34@src/app/viewLink.ts","src/app/viewLink.ts","viewFromAngles","viewFromAngles ( focus , azimuthRad , elevationRad , distance )",23,34
+4,1,37,1,6,"formatView@34-39@src/app/viewLink.ts","src/app/viewLink.ts","formatView","formatView ( view StartView )",34,39
+5,3,59,1,5,"number@46-50@src/app/viewLink.ts","src/app/viewLink.ts","number","number ( key )",46,50
+16,10,237,2,22,"validateStartView@39-60@src/app/viewLink.ts","src/app/viewLink.ts","validateStartView","validateStartView ( raw , where )",39,60
+4,2,43,2,4,"numeric@64-67@src/app/viewLink.ts","src/app/viewLink.ts","numeric","numeric ( name , value )",64,67
+10,3,122,1,15,"parseView@60-74@src/app/viewLink.ts","src/app/viewLink.ts","parseView","parseView ( text )",60,74
+6,3,50,1,8,"viewFromSearch@74-81@src/app/viewLink.ts","src/app/viewLink.ts","viewFromSearch","viewFromSearch ( search )",74,81
+7,3,57,1,9,"timeFromSearch@81-89@src/app/viewLink.ts","src/app/viewLink.ts","timeFromSearch","timeFromSearch ( search )",81,89
+5,3,39,1,7,"scaleFromSearch@89-95@src/app/viewLink.ts","src/app/viewLink.ts","scaleFromSearch","scaleFromSearch ( search )",89,95
+8,1,110,2,8,"viewLinkSearch@95-102@src/app/viewLink.ts","src/app/viewLink.ts","viewLinkSearch","viewLinkSearch ( search , state view StartView scaleId up timeUtcMs )",95,102
+1,1,16,1,1,"centreName@7-7@src/app/metricReadouts.ts","src/app/metricReadouts.ts","centreName","centreName ( center )",7,7
+1,1,14,1,1,"hours@17-17@src/app/metricReadouts.ts","src/app/metricReadouts.ts","hours","hours ( ms )",17,17
+1,1,19,0,1,"(anonymous)@28-28@src/app/metricReadouts.ts","src/app/metricReadouts.ts","(anonymous)","(anonymous)",28,28
+22,7,147,3,24,"journeyProgressMetric@10-33@src/app/metricReadouts.ts","src/app/metricReadouts.ts","journeyProgressMetric","journeyProgressMetric ( events readonly TimelineEvent , timeUtcMs , labels readonly start readonly end , )",10,33
+6,1,30,0,6,"(anonymous)@66-71@src/app/metricReadouts.ts","src/app/metricReadouts.ts","(anonymous)","(anonymous)",66,71
+39,3,252,1,45,"sceneMetrics@33-77@src/app/metricReadouts.ts","src/app/metricReadouts.ts","sceneMetrics","sceneMetrics ( readout DebugReadout )",33,77
+1,1,16,1,1,"centreName@11-11@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","centreName","centreName ( center )",11,11
+1,1,19,2,1,"stateAt@18-18@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","stateAt","stateAt ( timeUtcMs , center defaultCenter )",18,18
+4,1,26,3,6,"resolverTrajectory@17-22@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","resolverTrajectory","resolverTrajectory ( resolver StateResolver , body BodyId , defaultCenter CenterId )",17,22
+13,1,85,6,15,"distanceMetric@22-36@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","distanceMetric","distanceMetric ( resolver StateResolver , id , label , body BodyId , from BodyId , timeUtcMs )",22,36
+1,1,5,0,1,"(anonymous)@40-40@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","(anonymous)","(anonymous)",40,40
+15,1,175,6,16,"phaseMetric@36-51@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","phaseMetric","phaseMetric ( resolver StateResolver , body BodyId , parent BodyId , parentLabel , label , timeUtcMs )",36,51
+1,1,25,0,1,"(anonymous)@58-58@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","(anonymous)","(anonymous)",58,58
+14,1,98,5,21,"coordinatesMetric@51-71@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","coordinatesMetric","coordinatesMetric ( resolver StateResolver , body BodyId , parent BodyId , label , timeUtcMs )",51,71
+19,14,283,0,19,"(anonymous)@80-98@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","(anonymous)","(anonymous)",80,98
+11,1,80,4,29,"bodyMetrics@71-99@src/app/bodyMetrics.ts","src/app/bodyMetrics.ts","bodyMetrics","bodyMetrics ( resolver StateResolver , ids readonly BodyId , kinds readonly BodyMetricKind , , , source BodyCatalogue builtInCatalogue , )",71,99
+11,1,85,3,11,"catalogueItem@10-20@src/app/catalogueItem.ts","src/app/catalogueItem.ts","catalogueItem","catalogueItem ( id BodyId , own Partial , source BodyCatalogue builtInCatalogue )",10,20
+1,1,26,1,1,"triple@63-63@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","triple","triple ( v ArrayLike )",63,63
+26,1,182,1,27,"buildDebugReadout@66-92@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","buildDebugReadout","buildDebugReadout ( input DebugReadoutInput )",66,92
+1,1,15,2,1,"vec@92-92@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","vec","vec ( v readonly , digits )",92,92
+1,2,18,1,1,"quat@97-97@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","quat","quat ( q Quad null )",97,97
+20,3,145,1,20,"overlayRows@95-114@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","overlayRows","overlayRows ( r DebugReadout )",95,114
+1,1,8,0,1,"(anonymous)@128-128@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","(anonymous)","(anonymous)",128,128
+1,1,4,0,1,"(anonymous)@133-133@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","(anonymous)","(anonymous)",133,133
+6,1,14,0,6,"(anonymous)@138-143@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","(anonymous)","(anonymous)",138,143
+27,4,144,1,33,"DebugOverlay@116-148@src/app/DebugOverlay.tsx","src/app/DebugOverlay.tsx","DebugOverlay","DebugOverlay ( readout readonly readout DebugReadout null )",116,148
+15,1,88,2,16,"createOrbitCameraState@33-48@src/app/CameraController.tsx","src/app/CameraController.tsx","createOrbitCameraState","createOrbitCameraState ( distance , focus FocusId )",33,48
+4,1,35,2,6,"clampDistance@60-65@src/app/CameraController.tsx","src/app/CameraController.tsx","clampDistance","clampDistance ( distance , limits DistanceLimits )",60,65
+5,1,17,3,5,"attachOrbitGestures@65-69@src/app/CameraController.tsx","src/app/CameraController.tsx","attachOrbitGestures","attachOrbitGestures ( element HTMLElement , state OrbitCameraState , getLimits ( )",65,69
+5,2,55,1,5,"onPointerDown@73-77@src/app/CameraController.tsx","src/app/CameraController.tsx","onPointerDown","onPointerDown ( event PointerEvent )",73,77
+22,5,213,1,22,"onPointerMove@79-100@src/app/CameraController.tsx","src/app/CameraController.tsx","onPointerMove","onPointerMove ( event PointerEvent )",79,100
+4,2,29,1,4,"onPointerEnd@102-105@src/app/CameraController.tsx","src/app/CameraController.tsx","onPointerEnd","onPointerEnd ( event PointerEvent )",102,105
+5,1,45,1,5,"onWheel@107-111@src/app/CameraController.tsx","src/app/CameraController.tsx","onWheel","onWheel ( event WheelEvent )",107,111
+7,1,47,0,7,"(anonymous)@118-124@src/app/CameraController.tsx","src/app/CameraController.tsx","(anonymous)","(anonymous)",118,124
+14,1,110,0,57,"(anonymous)@69-125@src/app/CameraController.tsx","src/app/CameraController.tsx","(anonymous)","(anonymous)",69,125
+7,1,43,1,8,"cancelCameraTransition@128-135@src/app/CameraController.tsx","src/app/CameraController.tsx","cancelCameraTransition","cancelCameraTransition ( state OrbitCameraState )",128,135
+5,1,61,1,7,"pointerSpread@135-141@src/app/CameraController.tsx","src/app/CameraController.tsx","pointerSpread","pointerSpread ( pointers Map )",135,141
+6,3,68,3,12,"switchFocus@141-152@src/app/CameraController.tsx","src/app/CameraController.tsx","switchFocus","switchFocus ( state OrbitCameraState , focus FocusId , newTargetAbsolute RenderVector )",141,152
+1,1,31,0,1,"(anonymous)@174-174@src/app/CameraController.tsx","src/app/CameraController.tsx","(anonymous)","(anonymous)",174,174
+27,5,330,6,28,"resolveCamera@152-179@src/app/CameraController.tsx","src/app/CameraController.tsx","resolveCamera","resolveCamera ( state OrbitCameraState , focusAbsolute RenderVector , origin FloatingOrigin , deltaSeconds , rebaseThreshold , up RenderVector EQUATORIAL_UP , )",152,179
+4,1,38,2,6,"shortestAngleDelta@179-184@src/app/CameraController.tsx","src/app/CameraController.tsx","shortestAngleDelta","shortestAngleDelta ( from , to )",179,184
+17,1,151,6,17,"poseCamera@184-200@src/app/CameraController.tsx","src/app/CameraController.tsx","poseCamera","poseCamera ( camera PerspectiveCamera , state OrbitCameraState , focusRadius , origin FloatingOrigin , far , up RenderVector EQUATORIAL_UP , )",184,200
+4,2,28,1,6,"lightingFromSearch@19-24@src/app/lighting.ts","src/app/lighting.ts","lightingFromSearch","lightingFromSearch ( search )",19,24
+7,6,85,1,9,"sunLightFromSearch@34-42@src/app/lighting.ts","src/app/lighting.ts","sunLightFromSearch","sunLightFromSearch ( search )",34,42
+7,2,72,3,7,"bodyLightDirections@42-48@src/app/lighting.ts","src/app/lighting.ts","bodyLightDirections","bodyLightDirections ( bodies readonly BodyId , resolver StateResolver , timeUtcMs )",42,48
+4,1,39,4,5,"sunScaledPosition@51-55@src/app/lighting.ts","src/app/lighting.ts","sunScaledPosition","sunScaledPosition ( resolver StateResolver , sceneCenter BodyId , policy ScalePolicy , timeUtcMs )",51,55
+8,1,88,2,14,"unitFrom@55-68@src/app/lighting.ts","src/app/lighting.ts","unitFrom","unitFrom ( from ArrayLike , to ArrayLike )",55,68
+4,1,28,2,9,"singleSunDirection@68-76@src/app/lighting.ts","src/app/lighting.ts","singleSunDirection","singleSunDirection ( bodyScaled ArrayLike , sunScaled ArrayLike )",68,76
+3,1,27,2,3,"centreDirectionalDirection@76-78@src/app/lighting.ts","src/app/lighting.ts","centreDirectionalDirection","centreDirectionalDirection ( centreScaled ArrayLike , sunScaled ArrayLike )",76,78
+4,1,27,1,5,"starRenderDirection@8-12@src/app/skyModel.ts","src/app/skyModel.ts","starRenderDirection","starRenderDirection ( star StarRow )",8,12
+8,2,113,0,8,"(anonymous)@26-33@src/app/skyModel.ts","src/app/skyModel.ts","(anonymous)","(anonymous)",26,33
+8,1,78,1,17,"buildStarBuffers@22-38@src/app/skyModel.ts","src/app/skyModel.ts","buildStarBuffers","buildStarBuffers ( stars readonly StarRow )",22,38
+24,3,94,1,26,"skyObject@48-73@src/app/skyModel.ts","src/app/skyModel.ts","skyObject","skyObject ( status StarStatus )",48,73
+1,1,6,0,1,"(anonymous)@74-74@src/app/skyModel.ts","src/app/skyModel.ts","(anonymous)","(anonymous)",74,74
+5,3,58,3,7,"withSkyObject@73-79@src/app/skyModel.ts","src/app/skyModel.ts","withSkyObject","withSkyObject ( config ExperienceConfig , visible , status StarStatus )",73,79
+4,4,51,2,4,"check@80-83@src/app/skyModel.ts","src/app/skyModel.ts","check","check ( name , value )",80,83
+10,11,100,1,13,"resolveSkySettings@79-91@src/app/skyModel.ts","src/app/skyModel.ts","resolveSkySettings","resolveSkySettings ( settings SkySettings undefined )",79,91
+36,12,445,4,38,"buildPictureMesh@116-153@src/app/skyModel.ts","src/app/skyModel.ts","buildPictureMesh","buildPictureMesh ( columns , rows , section TileSection readonly index readonly count index , count )",116,153
+5,2,54,3,5,"pictureDirection@153-157@src/app/skyModel.ts","src/app/skyModel.ts","pictureDirection","pictureDirection ( frame PictureFrame , u , v )",153,157
+3,1,17,1,3,"constructor@27-29@src/app/frameStats.ts","src/app/frameStats.ts","constructor","constructor ( windowSize DEFAULT_WINDOW )",27,29
+13,5,108,1,13,"tick@32-44@src/app/frameStats.ts","src/app/frameStats.ts","tick","tick ( nowMs )",32,44
+5,1,26,0,5,"reset@46-50@src/app/frameStats.ts","src/app/frameStats.ts","reset","reset ( )",46,50
+17,6,143,0,17,"snapshot@52-68@src/app/frameStats.ts","src/app/frameStats.ts","snapshot","snapshot ( )",52,68
+4,3,25,1,6,"fpsTone@74-79@src/app/frameStats.ts","src/app/frameStats.ts","fpsTone","fpsTone ( fps )",74,79
+3,3,24,1,3,"frameTone@79-81@src/app/frameStats.ts","src/app/frameStats.ts","frameTone","frameTone ( ms )",79,81
+18,9,155,1,18,"constructor@98-115@src/app/SkyView.ts","src/app/SkyView.ts","constructor","constructor ( options SkyViewOptions )",98,115
+29,3,280,0,32,"(anonymous)@124-155@src/app/SkyView.ts","src/app/SkyView.ts","(anonymous)","(anonymous)",124,155
+7,1,79,2,39,"#build@118-156@src/app/SkyView.ts","src/app/SkyView.ts","#build","#build ( set PictureSet , textures readonly Texture )",118,156
+9,4,93,0,9,"#clear@158-166@src/app/SkyView.ts","src/app/SkyView.ts","#clear","#clear ( )",158,166
+4,1,22,1,4,"setPicture@169-172@src/app/SkyView.ts","src/app/SkyView.ts","setPicture","setPicture ( set PictureSet )",169,172
+1,1,16,1,1,"requestPicture@178-178@src/app/SkyView.ts","src/app/SkyView.ts","requestPicture","requestPicture ( load ( source SkyMapSource )",178,178
+1,2,16,0,1,"(anonymous)@181-181@src/app/SkyView.ts","src/app/SkyView.ts","(anonymous)","(anonymous)",181,181
+5,3,41,1,10,"milkyWayFromSearch@269-278@src/app/SkyView.ts","src/app/SkyView.ts","milkyWayFromSearch","milkyWayFromSearch ( search )",269,278
+11,6,104,2,13,"brightnessFromSearch@278-290@src/app/SkyView.ts","src/app/SkyView.ts","brightnessFromSearch","brightnessFromSearch ( search , key )",278,290
+4,1,24,1,6,"skyHiddenBySearch@290-295@src/app/SkyView.ts","src/app/SkyView.ts","skyHiddenBySearch","skyHiddenBySearch ( search )",290,295
+4,4,51,1,4,"skyMapFromSearch@295-298@src/app/SkyView.ts","src/app/SkyView.ts","skyMapFromSearch","skyMapFromSearch ( search )",295,298
+3,2,28,1,3,"needsPlanetSeries@5-7@src/app/planetNeeds.ts","src/app/planetNeeds.ts","needsPlanetSeries","needsPlanetSeries ( definition ExperienceDefinition )",5,7
+1,1,8,1,1,"xyz@13-13@src/types/orb.d.ts","src/types/orb.d.ts","xyz","xyz ( date Date )",13,13
+1,1,8,1,1,"xyz@14-14@src/types/orb.d.ts","src/types/orb.d.ts","xyz","xyz ( date Date )",14,14
+1,1,8,1,1,"xyz@15-15@src/types/orb.d.ts","src/types/orb.d.ts","xyz","xyz ( date Date )",15,15
+1,1,8,1,1,"xyz@16-16@src/types/orb.d.ts","src/types/orb.d.ts","xyz","xyz ( date Date )",16,16
+8,1,38,1,8,"xyz@26-33@src/types/orb.d.ts","src/types/orb.d.ts","xyz","xyz ( date Date )",26,33
+1,1,8,1,1,"fromUnixMs@39-39@src/types/orb.d.ts","src/types/orb.d.ts","fromUnixMs","fromUnixMs ( milliseconds )",39,39
+6,1,32,1,6,"makeState@53-58@src/types/orb.d.ts","src/types/orb.d.ts","makeState","makeState ( input readonly t AstroInstant readonly frame readonly center readonly r ArrayLike )",53,58
+1,1,17,2,1,"transform@59-59@src/types/orb.d.ts","src/types/orb.d.ts","transform","transform ( state OrbState , options readonly frame )",59,59
+1,1,16,3,1,"transformationMatrix@60-60@src/types/orb.d.ts","src/types/orb.d.ts","transformationMatrix","transformationMatrix ( from , to , instant AstroInstant )",60,60
+1,1,8,1,1,"state@71-71@src/types/orb.d.ts","src/types/orb.d.ts","state","state ( instant AstroInstant )",71,71
+1,1,8,1,1,"state@72-72@src/types/orb.d.ts","src/types/orb.d.ts","state","state ( instant AstroInstant )",72,72
+6,1,27,4,6,"propagateKepler@81-86@src/types/orb.d.ts","src/types/orb.d.ts","propagateKepler","propagateKepler ( r0 ArrayLike , v0 ArrayLike , dtSeconds , mu , )",81,86
+11,1,44,2,11,"elementsToState@87-97@src/types/orb.d.ts","src/types/orb.d.ts","elementsToState","elementsToState ( elements readonly semiMajorAxis readonly eccentricity readonly inclination readonly raan readonly argumentOfPeriapsis readonly trueAnomaly , mu , )",87,97
+1,1,2,0,1,"(anonymous)@41-41@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",41,41
+12,1,58,1,12,"MissionSummary@34-45@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","MissionSummary","MissionSummary ( mission SummaryProps )",34,45
+4,1,30,2,5,"telemetryAt@47-51@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","telemetryAt","telemetryAt ( mission MissionConfig , timeUtcMs )",47,51
+1,1,11,0,1,"(anonymous)@52-52@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",52,52
+1,1,16,0,1,"(anonymous)@54-54@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",54,54
+1,1,7,0,1,"(anonymous)@55-55@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",55,55
+4,1,19,0,4,"(anonymous)@53-56@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",53,56
+1,1,11,0,1,"(anonymous)@57-57@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",57,57
+1,1,20,0,1,"(anonymous)@57-57@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",57,57
+1,1,8,0,1,"(anonymous)@58-58@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",58,58
+1,1,20,0,1,"(anonymous)@58-58@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",58,58
+11,3,107,0,11,"(anonymous)@65-75@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",65,75
+14,3,119,3,28,"MissionTelemetry@51-78@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","MissionTelemetry","MissionTelemetry ( mission , clock , moon TelemetryProps )",51,78
+1,1,6,0,1,"(anonymous)@82-82@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",82,82
+1,1,11,0,1,"(anonymous)@84-84@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",84,84
+1,1,7,0,1,"(anonymous)@85-85@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",85,85
+4,1,19,0,4,"(anonymous)@83-86@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","(anonymous)","(anonymous)",83,86
+6,2,74,2,9,"JourneyProgress@81-89@src/experiences/apollo11/MissionPanel.tsx","src/experiences/apollo11/MissionPanel.tsx","JourneyProgress","JourneyProgress ( mission , clock readonly mission MissionConfig readonly clock SimulationClock )",81,89
+11,3,94,1,12,"discrepancyOf@67-78@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","discrepancyOf","discrepancyOf ( segment GeneratedSegment )",67,78
+1,1,4,0,1,"(anonymous)@90-90@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",90,90
+1,1,4,0,1,"(anonymous)@91-91@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",91,91
+1,1,4,0,1,"(anonymous)@92-92@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",92,92
+20,1,119,4,21,"trackedBody@78-98@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","trackedBody","trackedBody ( id , label , color , file GeneratedFile )",78,98
+6,1,32,0,6,"(anonymous)@103-108@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",103,108
+20,1,138,3,26,"buildApollo11Mission@98-123@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","buildApollo11Mission","buildApollo11Mission ( columbia GeneratedFile columbiaFile as as GeneratedFile , eagle GeneratedFile eagleFile as as GeneratedFile , eventList GeneratedEvents eventsFile as as GeneratedEvents , )",98,123
+1,1,17,2,1,"km@130-130@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","km","km ( value , digits )",130,130
+9,3,78,3,10,"peakSpeedKmS@133-142@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","peakSpeedKmS","peakSpeedKmS ( trajectory Trajectory , startUtcMs , endUtcMs )",133,142
+1,1,2,0,1,"(anonymous)@142-142@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",142,142
+1,2,16,0,1,"(anonymous)@143-143@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",143,143
+2,3,12,0,2,"(anonymous)@148-149@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",148,149
+1,3,7,0,1,"(anonymous)@151-151@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",151,151
+9,5,118,2,11,"smoothedJoins@146-156@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","smoothedJoins","smoothedJoins ( vehicle , validation GeneratedValidation )",146,156
+1,2,12,0,1,"(anonymous)@157-157@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",157,157
+1,3,13,1,1,"residual@159-159@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","residual","residual ( segment ValidationSegment )",159,159
+10,2,97,2,11,"burnCutoffs@156-166@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","burnCutoffs","burnCutoffs ( vehicle , validation GeneratedValidation )",156,166
+1,2,12,0,1,"(anonymous)@167-167@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",167,167
+2,2,6,0,2,"(anonymous)@168-169@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",168,169
+11,6,139,3,13,"postTliSpeed@166-178@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","postTliSpeed","postTliSpeed ( vehicle , validation GeneratedValidation , trajectory Trajectory )",166,178
+1,1,6,0,1,"(anonymous)@180-180@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",180,180
+1,4,32,1,1,"at@180-180@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","at","at ( timeUtcMs )",180,180
+1,1,14,0,1,"(anonymous)@182-182@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",182,182
+10,2,64,2,12,"landingSite@178-189@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","landingSite","landingSite ( validation GeneratedValidation , events GeneratedEvents )",178,189
+1,1,6,0,1,"(anonymous)@194-194@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",194,194
+1,1,18,1,1,"of@194-194@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","of","of ( id )",194,194
+8,1,58,3,8,"apollo11KnownLimitations@189-196@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","apollo11KnownLimitations","apollo11KnownLimitations ( mission MissionConfig , validation GeneratedValidation validationFile as as GeneratedValidation , events GeneratedEvents eventsFile as as GeneratedEvents , )",189,196
+1,1,4,0,1,"(anonymous)@196-196@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",196,196
+1,1,14,0,1,"apollo11KnownLimitations@196-196@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","apollo11KnownLimitations","apollo11KnownLimitations",196,196
+9,1,47,1,11,"eventProvenance@214-224@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","eventProvenance","eventProvenance ( events GeneratedEvents eventsFile as as GeneratedEvents )",214,224
+1,1,12,0,1,"(anonymous)@226-226@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",226,226
+1,3,26,0,1,"(anonymous)@226-226@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",226,226
+11,3,40,0,11,"(anonymous)@230-240@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",230,240
+1,1,4,0,1,"(anonymous)@263-263@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","(anonymous)","(anonymous)",263,263
+33,1,371,2,44,"buildApollo11Experience@224-267@src/experiences/apollo11/apollo11.ts","src/experiences/apollo11/apollo11.ts","buildApollo11Experience","buildApollo11Experience ( mission MissionConfig apollo11Mission , panels panelsFile )",224,267
+4,2,28,0,4,"(anonymous)@14-17@src/experiences/apollo11/apolloMetrics.ts","src/experiences/apollo11/apolloMetrics.ts","(anonymous)","(anonymous)",14,17
+5,1,71,2,8,"apolloMetrics@11-18@src/experiences/apollo11/apolloMetrics.ts","src/experiences/apollo11/apolloMetrics.ts","apolloMetrics","apolloMetrics ( bodies readonly TrackedBody , resolver StateResolver )",11,18
+2,1,16,1,2,"createMetrics@19-20@src/experiences/apollo11/apollo11Definition.tsx","src/experiences/apollo11/apollo11Definition.tsx","createMetrics","createMetrics ( resolver )",19,20
+1,3,8,0,1,"(anonymous)@30-30@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",30,30
+15,10,202,1,16,"parseUtcInput@27-42@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","parseUtcInput","parseUtcInput ( text )",27,42
+4,1,25,1,5,"scrubWindowAround@42-46@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","scrubWindowAround","scrubWindowAround ( centerUtcMs )",42,46
+4,1,35,2,9,"clampToWindow@46-54@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","clampToWindow","clampToWindow ( timeUtcMs , window ScrubWindow )",46,54
+5,1,27,2,7,"seekClock@54-60@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","seekClock","seekClock ( clock SimulationClock , timeUtcMs )",54,60
+5,2,31,2,6,"setPlaying@60-65@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","setPlaying","setPlaying ( clock SimulationClock , playing )",60,65
+8,2,45,1,11,"formatUtcInput@65-75@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","formatUtcInput","formatUtcInput ( timeUtcMs )",65,75
+1,5,14,0,1,"(anonymous)@78-78@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",78,78
+1,1,9,0,1,"(anonymous)@80-80@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",80,80
+1,1,6,0,1,"(anonymous)@82-82@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",82,82
+1,1,9,0,1,"(anonymous)@83-83@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",83,83
+3,3,27,0,3,"(anonymous)@91-93@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",91,93
+5,2,30,0,8,"(anonymous)@87-94@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",87,94
+1,1,7,0,1,"(anonymous)@95-95@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",95,95
+4,1,22,0,11,"(anonymous)@86-96@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",86,96
+1,1,12,0,1,"refresh@98-98@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","refresh","refresh ( )",98,98
+6,1,35,1,6,"seek@99-104@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","seek","seek ( timeUtcMs )",99,104
+1,1,19,0,1,"(anonymous)@109-109@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous) ( )",109,109
+1,1,18,0,1,"(anonymous)@113-113@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous) ( )",113,113
+6,1,47,0,6,"(anonymous)@112-117@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",112,117
+8,2,39,0,8,"(anonymous)@122-129@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous) ( ( )",122,129
+1,1,4,0,1,"(anonymous)@134-134@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",134,134
+1,1,14,0,1,"(anonymous)@136-136@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","(anonymous)","(anonymous)",136,136
+6,2,37,0,6,"onClick@139-144@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","onClick","onClick",139,144
+73,10,509,2,109,"DebugControls@75-183@src/experiences/apollo11/DebugControls.tsx","src/experiences/apollo11/DebugControls.tsx","DebugControls","DebugControls ( clock , mission Props )",75,183
+1,1,16,1,1,"centreName@16-16@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","centreName","centreName ( center )",16,16
+10,5,78,1,12,"peakAnchorSpeedKmS@23-34@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","peakAnchorSpeedKmS","peakAnchorSpeedKmS ( body TrackedBody )",23,34
+9,4,72,3,10,"referenceInSameFrame@34-43@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","referenceInSameFrame","referenceInSameFrame ( label , row Pick , reference CenteredPosition null , )",34,43
+13,1,65,2,14,"spacecraftRangeMetric@43-56@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftRangeMetric","spacecraftRangeMetric ( row TrackedReadout , moon MetricReference null )",43,56
+14,1,70,2,16,"spacecraftSpeedMetric@56-71@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftSpeedMetric","spacecraftSpeedMetric ( row TrackedReadout , peakKmS null )",56,71
+4,4,43,2,5,"moonInSameFrame@71-75@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","moonInSameFrame","moonInSameFrame ( row TrackedReadout , moon CenteredPosition null )",71,75
+1,1,51,2,1,"separationKm@75-75@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","separationKm","separationKm ( a readonly , b ArrayLike )",75,75
+17,2,103,2,22,"spacecraftMoonMetric@78-99@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftMoonMetric","spacecraftMoonMetric ( row TrackedReadout , moon CenteredPosition null )",78,99
+18,5,129,2,19,"spacecraftAltitudeMetric@99-117@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftAltitudeMetric","spacecraftAltitudeMetric ( row TrackedReadout , moon CenteredPosition null )",99,117
+1,1,23,0,1,"(anonymous)@124-124@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","(anonymous)","(anonymous)",124,124
+14,2,124,2,14,"spacecraftPositionMetric@117-130@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftPositionMetric","spacecraftPositionMetric ( row TrackedReadout , moon CenteredPosition null )",117,130
+1,2,17,0,1,"(anonymous)@136-136@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","(anonymous)","(anonymous)",136,136
+13,5,91,2,13,"spacecraftDiscrepancyMetric@134-146@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","spacecraftDiscrepancyMetric","spacecraftDiscrepancyMetric ( body TrackedBody , timeUtcMs )",134,146
+1,1,11,0,1,"(anonymous)@162-162@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","(anonymous)","(anonymous)",162,162
+1,1,6,0,1,"(anonymous)@164-164@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","(anonymous)","(anonymous)",164,164
+11,5,98,0,11,"(anonymous)@163-173@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","(anonymous)","(anonymous)",163,173
+4,1,46,2,14,"createTrackedMetrics@161-174@src/experiences/apollo11/spacecraftMetrics.ts","src/experiences/apollo11/spacecraftMetrics.ts","createTrackedMetrics","createTrackedMetrics ( bodies , moon TrackedMetricSources )",161,174
+2,1,16,1,2,"createMetrics@51-52@src/experiences/jupiter-io/jupiterIo.ts","src/experiences/jupiter-io/jupiterIo.ts","createMetrics","createMetrics ( resolver )",51,52
+1,2,27,1,1,"isShippableLicence@16-16@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","isShippableLicence","isShippableLicence ( licence )",16,16
+2,1,13,2,2,"isReliable@60-61@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","isReliable","isReliable ( quality MemberQuality , rule QualityRule )",60,61
+12,5,107,2,14,"orbitSetCounts@72-85@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","orbitSetCounts","orbitSetCounts ( orbits MeasuredOrbits , rule QualityRule )",72,85
+1,1,7,0,1,"(anonymous)@87-87@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",87,87
+1,1,5,0,1,"(anonymous)@88-88@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",88,88
+1,1,5,0,1,"(anonymous)@88-88@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",88,88
+6,2,83,3,7,"selectOrbits@85-91@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","selectOrbits","selectOrbits ( orbits MeasuredOrbits , set OrbitSet , rule QualityRule )",85,91
+1,1,32,3,1,"shippedOrbitsPath@98-98@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","shippedOrbitsPath","shippedOrbitsPath ( story , iauCode , source MeasuredSource )",98,98
+1,1,28,3,1,"shippedUrl@100-100@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","shippedUrl","shippedUrl ( story , iauCode , source MeasuredSource )",100,100
+1,2,14,0,1,"(anonymous)@106-106@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",106,106
+4,1,46,4,4,"offeredSources@105-108@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","offeredSources","offeredSources ( story , iauCode , candidates readonly MeasuredSource , production import meta env PROD )",105,108
+1,1,26,2,1,"measuredOrbitsUrl@108-108@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","measuredOrbitsUrl","measuredOrbitsUrl ( iauCode , source MeasuredSource )",108,108
+2,1,25,3,2,"fetchOrbitsCommand@109-110@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","fetchOrbitsCommand","fetchOrbitsCommand ( iauCode , source MeasuredSource , months readonly )",109,110
+3,1,22,1,3,"fail@112-114@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","fail","fail ( problem )",112,114
+22,11,295,0,22,"(anonymous)@138-159@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",138,159
+22,16,321,2,45,"parseMeasuredOrbits@120-164@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","parseMeasuredOrbits","parseMeasuredOrbits ( input , iauCode )",120,164
+16,7,123,0,16,"(anonymous)@183-198@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",183,198
+1,1,8,0,1,"(anonymous)@199-199@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",199,199
+3,2,44,2,18,"attempt@182-199@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","attempt","attempt ( url , isShipped )",182,199
+1,3,21,0,1,"(anonymous)@202-202@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","(anonymous)","(anonymous)",202,202
+13,5,146,3,31,"loadMeasuredOrbits@176-206@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","loadMeasuredOrbits","loadMeasuredOrbits ( iauCode , source MeasuredSource , story )",176,206
+3,1,13,0,3,"forgetMeasuredOrbitRequests@209-211@src/experiences/showers/measuredOrbits.ts","src/experiences/showers/measuredOrbits.ts","forgetMeasuredOrbitRequests","forgetMeasuredOrbitRequests ( )",209,211
+10,3,64,1,12,"showerCatalogue@30-41@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","showerCatalogue","showerCatalogue ( settings ShowerSettings )",30,41
+1,2,16,0,1,"(anonymous)@58-58@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","(anonymous)","(anonymous)",58,58
+15,7,195,4,17,"showerStoryPanels@50-66@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","showerStoryPanels","showerStoryPanels ( settings ShowerSettings , objectIds readonly , events readonly readonly id readonly timeUtcMs , window readonly startUtcMs readonly endUtcMs )",50,66
+1,1,23,1,1,"sourceLine@66-66@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","sourceLine","sourceLine ( source ShowerSource )",66,66
+5,2,67,1,5,"timelineBoundsOf@69-73@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","timelineBoundsOf","timelineBoundsOf ( settings ShowerSettings )",69,73
+4,1,55,1,4,"yearBoundsOf@76-79@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","yearBoundsOf","yearBoundsOf ( settings ShowerSettings )",76,79
+1,1,15,1,1,"streamIdOf@82-82@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","streamIdOf","streamIdOf ( settings ShowerSettings )",82,82
+1,1,15,1,1,"windowIdOf@83-83@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","windowIdOf","windowIdOf ( settings ShowerSettings )",83,83
+1,1,15,1,1,"percent@87-87@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","percent","percent ( fraction )",87,87
+13,5,214,4,15,"orbitSetSentence@90-104@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","orbitSetSentence","orbitSetSentence ( settings ShowerSettings , set OrbitSet , counts OrbitSetCounts , source OrbitSource )",90,104
+7,3,83,2,8,"gmnSourceSentence@104-111@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","gmnSourceSentence","gmnSourceSentence ( settings ShowerSettings , provenance MeasuredOrbitProvenance )",104,111
+13,4,163,2,14,"streamLimitations@111-124@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","streamLimitations","streamLimitations ( settings ShowerSettings , orbitSet readonly set OrbitSet readonly counts OrbitSetCounts readonly source OrbitSource readonly provenance MeasuredOrbitProvenance )",111,124
+11,1,83,3,12,"streamObject@124-135@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","streamObject","streamObject ( settings ShowerSettings , description , orbitSet readonly set OrbitSet readonly counts OrbitSetCounts readonly source OrbitSource readonly provenance MeasuredOrbitProvenance )",124,135
+16,8,236,5,18,"measuredProvenance@135-152@src/experiences/showers/showerDefinition.ts","src/experiences/showers/showerDefinition.ts","measuredProvenance","measuredProvenance ( settings ShowerSettings , orbits MeasuredOrbits , shown , set OrbitSet , source OrbitSource )",135,152
+4,1,30,2,5,"fail@143-147@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","fail","fail ( path , problem )",143,147
+5,4,44,2,6,"record@147-152@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","record","record ( value , path )",147,152
+6,3,61,3,7,"text@152-158@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","text","text ( parent Raw , key , path )",152,158
+6,3,59,3,7,"finite@158-164@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","finite","finite ( parent Raw , key , path )",158,164
+6,2,59,3,7,"nonNegative@164-170@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","nonNegative","nonNegative ( parent Raw , key , path )",164,170
+8,3,78,3,9,"instant@170-178@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","instant","instant ( parent Raw , key , path )",170,178
+6,1,88,3,7,"source@178-184@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","source","source ( parent Raw , key , path )",178,184
+1,2,12,0,1,"(anonymous)@191-191@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","(anonymous)","(anonymous)",191,191
+17,11,288,1,17,"orbitSources@184-200@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","orbitSources","orbitSources ( stream Raw )",184,200
+4,3,53,2,5,"citedSourceOf@203-207@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","citedSourceOf","citedSourceOf ( settings ShowerSettings , source OrbitSource settings stream source )",203,207
+8,4,95,2,10,"orbitElements@207-216@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","orbitElements","orbitElements ( raw Raw , path )",207,216
+9,3,48,1,11,"parentRecord@216-226@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","parentRecord","parentRecord ( input )",216,226
+10,4,98,2,11,"orbitElementsOf@226-236@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","orbitElementsOf","orbitElementsOf ( orbit Raw , parent ElementsBodyRecord undefined )",226,236
+6,2,62,3,7,"positive@236-242@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","positive","positive ( parent Raw , key , path )",236,242
+13,5,112,1,15,"story@330-344@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","story","story ( input )",330,344
+55,21,676,1,62,"parseShowerSettings@344-405@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","parseShowerSettings","parseShowerSettings ( input )",344,405
+89,2,80,3,165,"colour@242-406@src/experiences/showers/showerSettings.ts","src/experiences/showers/showerSettings.ts","colour","colour ( parent Raw , key , path )",242,406
+4,2,48,1,4,"showerEntryName@2-5@src/experiences/showers/showerEntry.ts","src/experiences/showers/showerEntry.ts","showerEntryName","showerEntryName ( path )",2,5
+2,1,16,1,2,"createMetrics@45-46@src/experiences/earth-moon/earthMoonExplorer.ts","src/experiences/earth-moon/earthMoonExplorer.ts","createMetrics","createMetrics ( resolver )",45,46
+2,1,10,0,2,"createMetrics@195-196@src/synthetic/syntheticRingDefinition.ts","src/synthetic/syntheticRingDefinition.ts","createMetrics","createMetrics ( )",195,196
+2,1,10,0,2,"createMetrics@233-234@src/synthetic/syntheticRingDefinition.ts","src/synthetic/syntheticRingDefinition.ts","createMetrics","createMetrics ( )",233,234
+2,1,6,0,2,"(anonymous)@28-29@src/synthetic/syntheticListedDefinition.ts","src/synthetic/syntheticListedDefinition.ts","(anonymous)","(anonymous)",28,29
+5,1,36,1,6,"lcg@26-31@src/synthetic/syntheticListedDefinition.ts","src/synthetic/syntheticListedDefinition.ts","lcg","lcg ( seed )",26,31
+11,1,95,0,11,"(anonymous)@36-46@src/synthetic/syntheticListedDefinition.ts","src/synthetic/syntheticListedDefinition.ts","(anonymous)","(anonymous)",36,46
+2,1,10,0,2,"createMetrics@146-147@src/synthetic/syntheticListedDefinition.ts","src/synthetic/syntheticListedDefinition.ts","createMetrics","createMetrics ( )",146,147
+9,1,111,0,9,"(anonymous)@28-36@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",28,36
+1,1,4,0,1,"(anonymous)@46-46@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",46,46
+1,1,12,1,1,"at@56-56@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","at","at ( minutes )",56,56
+2,1,11,2,2,"windowProvenance@58-59@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","windowProvenance","windowProvenance ( accuracy , notes )",58,59
+1,1,13,0,1,"(anonymous)@84-84@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",84,84
+1,1,4,0,1,"(anonymous)@107-107@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",107,107
+14,3,72,1,15,"contactRateMetric@110-124@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","contactRateMetric","contactRateMetric ( timeUtcMs )",110,124
+1,1,1,0,1,"(anonymous)@162-162@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",162,162
+6,2,93,1,6,"createMetrics@158-163@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","createMetrics","createMetrics ( resolver )",158,163
+1,1,8,0,1,"(anonymous)@168-168@src/synthetic/syntheticDefinition.ts","src/synthetic/syntheticDefinition.ts","(anonymous)","(anonymous)",168,168
+2,1,11,0,2,"(anonymous)@16-17@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",16,17
+2,1,11,0,2,"(anonymous)@17-18@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",17,18
+2,1,14,0,2,"synthetic@18-19@src/main.tsx","src/main.tsx","synthetic","synthetic ( )",18,19
+2,1,11,0,2,"(anonymous)@19-20@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",19,20
+2,1,11,0,2,"(anonymous)@20-21@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",20,21
+2,1,11,0,2,"(anonymous)@21-22@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",21,22
+2,1,11,0,2,"(anonymous)@22-23@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",22,23
+2,1,11,0,2,"(anonymous)@23-24@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",23,24
+1,1,6,0,1,"(anonymous)@27-27@src/main.tsx","src/main.tsx","(anonymous)","(anonymous)",27,27
+22,16,359,0,28,"chooseDefinition@31-58@src/main.tsx","src/main.tsx","chooseDefinition","chooseDefinition ( )",31,58
+6,2,43,0,6,"start@58-63@src/main.tsx","src/main.tsx","start","start ( )",58,63

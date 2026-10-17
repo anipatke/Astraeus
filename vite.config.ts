@@ -32,6 +32,8 @@ export default defineConfig({
       },
     },
   },
+  // True in a public build: the made-up (synthetic) experiences are then left out of the entry, so no chunk of them is built (T-068).
+  define: { __PUBLIC_BUILD__: JSON.stringify(process.env.ASTRAEUS_PUBLIC_BUILD === "1") },
   resolve: { alias: process.env.ASTRAEUS_PUBLIC_BUILD === "1" ? [...publicBuildAliases()] : [] },
   test: {
     environment: "node",

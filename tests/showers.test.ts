@@ -20,11 +20,11 @@ import {
   streamLimitations,
   timelineBoundsOf,
 } from "../src/experiences/showers/showerDefinition";
-import { offeredSources, orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
+import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { buildElementsBody } from "../src/core/elementsBody";
-import { parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
+import { citedSourceOf, parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 
 const adapter = createOrbAstronomyAdapter();
@@ -44,8 +44,7 @@ const madeUp = {
   },
   stream: {
     iauCode: 999,
-    source: "cams",
-    sources: { cams: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
+    sources: { gmn: { source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" }, months: ["203001"], licence: "CC BY 4.0", licenceUrl: "https://example.invalid/licence", ruleNote: "Made-up mapping for the builder test." } },
     seed: 11,
     quality: {
       default: "all",
@@ -106,10 +105,10 @@ describe("shower settings contract", () => {
     ["a bad seed", (s: Record<string, any>) => { s.stream.seed = 1.5; }, /stream\.seed/],
     ["a missing IAU code", (s: Record<string, any>) => { delete s.stream.iauCode; }, /stream\.iauCode/],
     ["a fractional IAU code", (s: Record<string, any>) => { s.stream.iauCode = 7.5; }, /stream\.iauCode/],
-    ["a missing data source", (s: Record<string, any>) => { delete s.stream.sources.cams; }, /stream\.sources\.cams/],
-    ["a GMN choice with no GMN entry", (s: Record<string, any>) => { s.stream.source = "gmn"; }, /stream\.source/],
-    ["an unknown orbit source", (s: Record<string, any>) => { s.stream.source = "mdc"; }, /stream\.source/],
-    ["GMN months that are not YYYYMM", (s: Record<string, any>) => { s.stream.sources.gmn = { source: s.stream.sources.cams, months: ["2025-08"], licence: "CC BY 4.0", licenceUrl: "https://example.invalid/l", ruleNote: "x" }; }, /stream\.sources\.gmn\.months/],
+    ["a missing GMN entry", (s: Record<string, any>) => { delete s.stream.sources.gmn; }, /stream\.sources\.gmn/],
+    ["a CAMS entry (removed in O-017)", (s: Record<string, any>) => { s.stream.sources.cams = structuredClone(s.stream.sources.gmn.source); }, /stream\.sources\.cams is no longer supported/],
+    ["a source choice (removed in O-017)", (s: Record<string, any>) => { s.stream.source = "cams"; }, /stream\.source is no longer a setting/],
+    ["GMN months that are not YYYYMM", (s: Record<string, any>) => { s.stream.sources.gmn.months = ["2025-08"]; }, /stream\.sources\.gmn\.months/],
     ["a clump share above one", (s: Record<string, any>) => { s.stream.concentration.fraction = 1.5; }, /stream\.concentration\.fraction/],
     ["a clump of no width", (s: Record<string, any>) => { s.stream.concentration.widthDeg = 0; }, /stream\.concentration\.widthDeg/],
     ["a clump with no status", (s: Record<string, any>) => { s.stream.concentration.status = "guessed"; }, /stream\.concentration\.status/],
@@ -213,7 +212,7 @@ describe("the shared shower builder with a made-up shower", () => {
     expect(text).toMatch(/\(illustrative defaults: Made-up default for the builder test\.\)/);
     expect(text).toContain(`band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}`);
     expect(text).toMatch(/Parts of the stream that miss Earth are not shown/);
-    expect(layer.object.knownLimitations).toEqual(streamLimitations(settings, { set: "all", counts: orbitSetCounts(loaded.orbits, settings.stream.quality.rule) }));
+    expect(layer.object.knownLimitations).toEqual(streamLimitations(settings, { set: "all", counts: orbitSetCounts(loaded.orbits, settings.stream.quality.rule), provenance: loaded.orbits.provenance }));
     const window = createActivityWindow(settings);
     const peak = Date.parse(settings.activity.peakUtc);
     expect(provenanceAt(window, peak)?.sourceType).toBe("observed");
@@ -251,53 +250,47 @@ describe("the shared shower builder with a made-up shower", () => {
   });
 });
 
-describe("the orbit source (T-056)", () => {
+describe("the orbit source", () => {
   const perseids = parseShowerSettings(perseidsFile);
-  it("defaults to the GMN (owner, 2026-10-16), keeps CAMS available, names the GMN months and licence in the settings, and offers the live source switch only where GMN is configured", () => {
-    expect(perseids.stream.source).toBe("gmn");
-    expect(parseShowerSettings(geminidsFile).stream.source).toBe("gmn");
-    expect(parseShowerSettings(geminidsFile).stream.sources.gmn).toMatchObject({ months: ["202412", "202512"], licence: "CC BY 4.0" });
+  const geminids = parseShowerSettings(geminidsFile);
+
+  it("is the GMN for both showers, named with its months and licence in the settings, and offers no source switch", () => {
+    expect(geminids.stream.sources.gmn).toMatchObject({ months: ["202412", "202512"], licence: "CC BY 4.0" });
     expect(perseids.stream.sources.gmn).toMatchObject({ months: ["202507", "202508"], licence: "CC BY 4.0" });
-    const switches = buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn").alternates?.filter((a) => a.param === "source");
-    expect(switches?.map((a) => [a.value, a.active])).toEqual([["cams", false], ["gmn", true]]);
+    expect(citedSourceOf(perseids).name).toContain("Global Meteor Network");
+    expect(buildShowerDefinition(perseids, { kind: "absent" }, "all").alternates).toBeUndefined();
     expect(buildShowerDefinition(parseShowerSettings(madeUp), { kind: "absent" }).alternates).toBeUndefined();
   });
 
+  it("refuses a settings file that still names CAMS, with a named error", () => {
+    for (const change of [(s: Record<string, any>) => { s.stream.source = "cams"; }, (s: Record<string, any>) => { s.stream.sources.cams = structuredClone(s.stream.sources.gmn.source); }]) {
+      const old = structuredClone(perseidsFile) as Record<string, any>;
+      change(old);
+      expect(() => parseShowerSettings(old)).toThrow(ShowerSettingsError);
+      expect(() => parseShowerSettings(old)).toThrow(/stream\.source(s\.cams| is no longer a setting)/);
+    }
+  });
+
   it("says how to fetch the GMN months when they are not on this machine", () => {
-    const definition = buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn");
+    const definition = buildShowerDefinition(perseids, { kind: "absent" }, "all");
     const item = experienceWithGroups(definition).objects.find((o) => o.id === streamIdOf(perseids));
-    expect(item?.description).toContain("node tools/data/fetch-meteoroid-orbits.mjs 7 --source gmn --months 202507,202508");
+    expect(item?.description).toContain("node tools/data/fetch-meteoroid-orbits.mjs 7 --months 202507,202508");
+    expect(item?.description).not.toContain("--source");
     expect(item?.provenance?.sources.join(" ")).toContain("Global Meteor Network");
   });
 });
 
 describe("what a production build offers (I-030)", () => {
-  const perseids = parseShowerSettings(perseidsFile);
   const geminids = parseShowerSettings(geminidsFile);
-  const sourceSwitch = (offered: readonly ("cams" | "gmn")[]) => buildShowerDefinition(perseids, { kind: "absent" }, "all", "gmn", offered).alternates?.filter((a) => a.param === "source");
-
-  it("ships the GMN orbits of both showers and no CAMS file, so a production build offers GMN only", () => {
-    for (const [story, iau] of [["perseids", 7], ["geminids", 4]] as const) {
-      expect(offeredSources(story, iau, ["cams", "gmn"], true)).toEqual(["gmn"]);
-      expect(offeredSources(story, iau, ["cams", "gmn"], false)).toEqual(["cams", "gmn"]);
-    }
-    expect(offeredSources("made-up", 999, ["cams", "gmn"], true)).toEqual([]);
-  });
-
-  it("lists the source switch only when two sources can be read", () => {
-    expect(sourceSwitch(["cams", "gmn"])?.map((a) => a.value)).toEqual(["cams", "gmn"]);
-    expect(sourceSwitch(["gmn"])).toBeUndefined();
-    expect(buildShowerDefinition(geminids, { kind: "absent" }, "all", "gmn", ["gmn"]).alternates).toBeUndefined();
-  });
 
   it("says in plain words that a production build has no orbits, without a fetch command", () => {
     for (const load of [{ kind: "absent" }, { kind: "invalid", problem: "wrong shower" }] as const) {
-      const text = absentStreamObject(geminids, load, "gmn", true).description;
+      const text = absentStreamObject(geminids, load, true).description;
       expect(text).toContain("The Geminids stream is drawn from measured meteoroid orbits.");
       expect(text).toMatch(load.kind === "absent" ? /This build does not include measured orbits for the Geminids, so no stream is drawn/ : /cannot be used \(wrong shower\), so no stream is drawn/);
       expect(text).not.toMatch(/fetch-meteoroid-orbits|Run "/);
     }
-    expect(absentStreamObject(geminids, { kind: "absent" }, "gmn", false).description).toMatch(/not fetched on this machine.*fetch-meteoroid-orbits\.mjs 4 --source gmn --months 202412,202512/s);
+    expect(absentStreamObject(geminids, { kind: "absent" }, false).description).toMatch(/not fetched on this machine.*fetch-meteoroid-orbits\.mjs 4 --months 202412,202512/s);
   });
 });
 
@@ -408,13 +401,12 @@ describe("the orbit sets", () => {
   const settings = parseShowerSettings(madeUp);
   const orbits = madeUpOrbits(999, 200);
   const rule = settings.stream.quality.rule;
-  // madeUpOrbits: Q is 8 for every 4th member (cut); the velocity error is 9 km/s, over 10% of 59, for every 5th (cut); every 10th is a double entry.
+  // madeUpOrbits: Q is 8 for every 4th member (cut); the velocity error is 9 km/s, over 10% of 59, for every 5th (cut).
   const expectedCut = Array.from({ length: 200 }, (_, k) => k).filter((k) => k % 4 === 0 || k % 5 === 0).length;
 
-  it("counts both sets and the double entries, and selects the reliable one in file order", () => {
+  it("counts both sets and selects the reliable one in file order", () => {
     const counts = orbitSetCounts(orbits, rule);
-    expect(counts).toMatchObject({ all: 200, cut: expectedCut, reliable: 200 - expectedCut, pairsFlagged: 20 });
-    expect(counts.pairsFlaggedReliable).toBe(Array.from({ length: 200 }, (_, k) => k).filter((k) => k % 10 === 0 && k % 4 !== 0 && k % 5 !== 0).length);
+    expect(counts).toEqual({ all: 200, cut: expectedCut, reliable: 200 - expectedCut });
     const reliable = selectOrbits(orbits, "reliable", rule);
     expect(reliable.members).toHaveLength(counts.reliable);
     expect(reliable.members.every((m) => Number(m.recordId.split("-")[2]) % 4 !== 0 && Number(m.recordId.split("-")[2]) % 5 !== 0)).toBe(true);
@@ -422,7 +414,7 @@ describe("the orbit sets", () => {
   });
 
   it("keeps a record that sits exactly on the thresholds, and cuts one just outside", () => {
-    const edge = (q: number, sigma: number) => orbitSetCounts({ ...orbits, members: orbits.members.slice(0, 1), quality: [{ convergenceAngleDeg: q, velocityKmS: 50, velocityErrorKmS: sigma, pairsFlag: 0 }] }, rule).reliable;
+    const edge = (q: number, sigma: number) => orbitSetCounts({ ...orbits, members: orbits.members.slice(0, 1), quality: [{ convergenceAngleDeg: q, velocityKmS: 50, velocityErrorKmS: sigma }] }, rule).reliable;
     expect(edge(15, 5)).toBe(1);
     expect(edge(14.99, 5)).toBe(0);
     expect(edge(15, 5.01)).toBe(0);
@@ -437,9 +429,9 @@ describe("the orbit sets", () => {
     expect(groupsOf(reliable)[0].group.count).toBe(counts.reliable);
     const text = (groupsOf(reliable)[0].object.knownLimitations ?? []).join(" ");
     expect(text).toMatch(new RegExp(`Orbit set shown: reliable orbits only \\(${counts.reliable} of 200 bound orbits`));
-    expect(text).toMatch(/convergence angle Q at least 15° and velocity error at most 10% of the geocentric velocity/);
-    expect(text).toMatch(/The cut is published: Made-up rule for the builder test/);
-    expect(text).toMatch(/20 records flagged as double entries are kept in both sets/);
+    expect(text).toMatch(/Qc \(the maximum convergence angle between the stations that saw the meteor\) at least 15° and the Vgeo sigma at most 10% of Vgeo/);
+    expect(text).toMatch(/The cut is the published rule: Made-up rule for the builder test/);
+    expect(text).toMatch(/GMN has no double-entry flag/);
     expect(orbitSetSentence(settings, "all", counts)).toMatch(/Orbit set shown: all orbits \(200 of 200/);
     expect(groupsOf(reliable)[0].group.provenance.notes).toMatch(new RegExp(`${counts.reliable} orbits drawn \\(reliable set\\)`));
     expect(all.alternates?.map((a) => [a.param, a.value, a.active])).toEqual([["orbits", "all", true], ["orbits", "reliable", false]]);

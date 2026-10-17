@@ -1,0 +1,8 @@
+npm run typecheck | exit=0 | 20:54:51-20:54:52
+npm run build | exit=0 | 20:54:52-20:54:52
+npm test -- --reporter=default --reporter=junit --outputFile.junit=/tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/gate-junit.xml | exit=0 | 20:54:52-20:55:24
+IO-HORIZONS errors km: 2398.0, 1114.2, 825.5, 2780.3, 5536.7, 9387.5; max 9387.47
+stdout | tests/showersMeasured.test.ts > Perseids from the fetched CAMS orbits > holds both orbit sets: 18,699 orbits, 15,644 reliable (Q >= 15 deg and velocity error <= 10%), 3,055 cut, 99 double entries kept
+     ✓ holds both orbit sets: 18,699 orbits, 15,644 reliable (Q >= 15 deg and velocity error <= 10%), 3,055 cut, 99 double entries kept 453ms
+ Test Files  49 passed (49)
+      Tests  906 passed | 1 skipped (907)

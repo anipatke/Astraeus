@@ -4,6 +4,11 @@ export interface ScalePolicy {
   /** Open: an application may supply policies beyond the engine's own three. */
   readonly id: string;
   mapPosition(positionKm: ArrayLike<number>): Float64Array;
+  /**
+   * Present when `mapPosition` is exactly a plain multiplication of every component by this number (scaled units per km), so a
+   * presentation may apply it itself. Absent for any policy that maps positions another way.
+   */
+  readonly linearUnitsPerKm?: number;
   /** `bodyId` lets a policy enlarge particular bodies; the True and Readable policies ignore it. */
   mapRadius(radiusKm: number, bodyId?: BodyId): number;
 }
@@ -22,9 +27,13 @@ abstract class EarthRadiusScale implements ScalePolicy {
   abstract readonly id: string;
   protected abstract readonly distanceFactor: number;
 
+  get linearUnitsPerKm(): number {
+    return this.distanceFactor / EARTH.radiusKm;
+  }
+
   mapPosition(positionKm: ArrayLike<number>): Float64Array {
     validatePosition(positionKm);
-    const factor = this.distanceFactor / EARTH.radiusKm;
+    const factor = this.linearUnitsPerKm;
     return Float64Array.of(positionKm[0] * factor, positionKm[1] * factor, positionKm[2] * factor);
   }
 
@@ -80,6 +89,7 @@ export function createSolarSystemScale(options: SolarSystemScaleOptions): SolarS
     id: "solar-system" as const,
     explanation,
     factorFor,
+    linearUnitsPerKm: trueScale.linearUnitsPerKm,
     mapPosition: (positionKm: ArrayLike<number>) => trueScale.mapPosition(positionKm),
     mapRadius: (radiusKm: number, bodyId?: BodyId) => trueScale.mapRadius(radiusKm) * factorFor(bodyId),
   });

@@ -1,0 +1,31 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "name": "timeline shows a marker per panel",
+      "detail": "7"
+    },
+    {
+      "name": "forward playback opens the first panel and holds playback",
+      "detail": "side panel at right"
+    },
+    {
+      "name": "playback resumes on its own after the pause",
+      "detail": "panel stays open"
+    },
+    {
+      "name": "a tap on Continue resumes playback early",
+      "detail": ""
+    },
+    {
+      "name": "scrubbing back and forth past the markers opens nothing",
+      "detail": ""
+    },
+    {
+      "name": "timeline markers open their panel, one at a time",
+      "detail": ""
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   'touchdown'\n- ]\n\n    at file:///home/user/code/Astraeus/tools/validate/browser-story-panels.mjs:121:10"
+}

@@ -207,12 +207,15 @@ async function run(label, viewport) {
     const time = Date.parse(await readTime());
     const rangeKm = Number((await rangeReadout.textContent()).replaceAll(",", ""));
     const speedKmS = Number((await speedReadout.textContent()).replaceAll(",", ""));
+    // The readouts are read one after another while playback runs (T-071: under load the gap grew until the bound below failed once), so the range is bounded by the
+    // simulated time from the previous sample's first read to this sample's last read, not by the gap between the two time reads alone.
+    const timeAfter = Date.parse(await readTime());
     assert.ok(Number.isFinite(time) && Number.isFinite(rangeKm) && Number.isFinite(speedKmS), "follow telemetry stays numeric");
     if (track.length > 0) {
       const previous = track.at(-1);
       const elapsedSeconds = (time - previous.time) / 1_000;
       assert.ok(elapsedSeconds > 0, "follow time advances monotonically");
-      assert.ok(Math.abs(rangeKm - previous.rangeKm) <= Math.max(5, Math.max(speedKmS, previous.speedKmS) * elapsedSeconds * 1.5), "range changes continuously within the speed bound");
+      assert.ok(Math.abs(rangeKm - previous.rangeKm) <= Math.max(5, Math.max(speedKmS, previous.speedKmS) * ((timeAfter - previous.time) / 1_000) * 1.5), "range changes continuously within the speed bound");
     }
     track.push({ time, rangeKm, speedKmS });
   }

@@ -1,0 +1,58 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 22.5,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 12954,
+          "lit": 567531,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 10941,
+          "lit": 237587,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 11894,
+          "lit": 245188,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 12.6,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 15,
+      "probeChecks": 4
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 47.5,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 6191,
+          "lit": 193364,
+          "total": 329160
+        },
+        "off": {
+          "bright": 5976,
+          "lit": 136916,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 6105,
+          "lit": 138123,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 26.6,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 33.2,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    }
+  },
+  "errors": []
+}

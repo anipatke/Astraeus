@@ -36,6 +36,7 @@ const experience: ExperienceConfig = {
  * else. It states dates, presets and copy; every body, texture, radius and provider is the catalogue's.
  */
 export const earthMoonExplorer: ExperienceDefinition = {
+  label: "Earth–Moon",
   experience,
   clock: { startUtcMs: WINDOW.startUtcMs, rate: 3_600 },
   sceneLayers: [],

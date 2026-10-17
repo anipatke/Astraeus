@@ -1,4 +1,4 @@
-// I-027: the IAU MDC and CAMS peak solar longitudes are J2000.0 values ("All records on J2000"), so the fact helper must return the Sun's longitude in the
+// I-027: the IAU MDC peak solar longitudes are J2000.0 values ("All records on J2000"), so the fact helper must return the Sun's longitude in the
 // J2000 ecliptic and equinox, not the longitude of date. Pinned against JPL Horizons geometric vectors of Earth about the Sun in the J2000 ecliptic,
 // fetched live (VEC_CORR=NONE, REF_PLANE=ECLIPTIC, REF_SYSTEM=ICRF) and archived raw in tests/fixtures/earth-ecliptic-j2000-horizons.json.
 import { describe, expect, it } from "vitest";

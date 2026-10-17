@@ -1,6 +1,6 @@
 # Astraeus — Perseids Reference Capability
 
-Owner specification, supplied 2026-10-11 during the O-011 replan of T-038. Kept verbatim below. It sets the reference capability target for Spike 04 alongside `docs/ASTRAEUS_SPIKE_04_BRIEF.md`; where they differ, the decisions recorded in O-011 say which applies.
+Owner specification, supplied 2026-10-11 during the O-011 replan of T-038. Kept verbatim below. It sets the reference capability target for Spike 04 alongside `docs/archive/ASTRAEUS_SPIKE_04_BRIEF.md`; where they differ, the decisions recorded in O-011 say which applies.
 
 ---
 

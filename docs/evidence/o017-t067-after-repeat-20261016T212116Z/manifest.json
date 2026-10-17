@@ -1,0 +1,59 @@
+{
+  "startedUtc": "2026-10-16T21:21:17.130Z",
+  "command": "/home/user/.nvm/versions/node/v24.16.0/bin/node /home/user/code/Astraeus/tools/validate/capture-experience-pictures.mjs --out docs/evidence/o017-t067-after-repeat-20261016T212116Z --port 5460 --only perseids,geminids",
+  "base": "http://localhost:5460",
+  "node": "v24.16.0",
+  "pictures": [
+    {
+      "id": "perseids",
+      "size": "desktop",
+      "file": "perseids-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5460/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+      "pinnedTimeUtc": "2027-08-12T12:00:00Z",
+      "timelineReadsUtc": "2027-08-12T11:59:43.119Z"
+    },
+    {
+      "id": "perseids",
+      "size": "phone",
+      "file": "perseids-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5460/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+      "pinnedTimeUtc": "2027-08-12T12:00:00Z",
+      "timelineReadsUtc": "2027-08-12T11:59:43.119Z"
+    },
+    {
+      "id": "geminids",
+      "size": "desktop",
+      "file": "geminids-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5460/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+      "pinnedTimeUtc": "2026-12-13T23:31:44Z",
+      "timelineReadsUtc": "2026-12-13T23:32:09.119Z"
+    },
+    {
+      "id": "geminids",
+      "size": "phone",
+      "file": "geminids-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5460/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+      "pinnedTimeUtc": "2026-12-13T23:31:44Z",
+      "timelineReadsUtc": "2026-12-13T23:32:09.119Z"
+    }
+  ],
+  "errors": [],
+  "chromium": "147.0.7727.15",
+  "finishedUtc": "2026-10-16T21:21:44.887Z"
+}

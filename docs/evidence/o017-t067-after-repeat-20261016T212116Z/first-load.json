@@ -1,0 +1,34 @@
+[
+  {
+    "id": "perseids",
+    "size": "desktop",
+    "url": "http://localhost:5460/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+    "files": 24,
+    "bytes": 10919297,
+    "gzipBytes": 7311931
+  },
+  {
+    "id": "perseids",
+    "size": "phone",
+    "url": "http://localhost:5460/app.html?experience=shower-perseids&view=sun,100,40,250000&scale=true-scale&up=ecliptic&t=2027-08-12T12:00:00Z",
+    "files": 24,
+    "bytes": 10919297,
+    "gzipBytes": 7311931
+  },
+  {
+    "id": "geminids",
+    "size": "desktop",
+    "url": "http://localhost:5460/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 24,
+    "bytes": 13689207,
+    "gzipBytes": 8371118
+  },
+  {
+    "id": "geminids",
+    "size": "phone",
+    "url": "http://localhost:5460/app.html?experience=shower-geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic&t=2026-12-13T23:31:44Z",
+    "files": 24,
+    "bytes": 13689207,
+    "gzipBytes": 8371118
+  }
+]

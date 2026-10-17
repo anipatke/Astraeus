@@ -56,6 +56,12 @@ export interface GroupLayer {
    * fills. Defaults to five minutes. The group's State is unchanged.
    */
   readonly refillAfterMs?: number;
+  /**
+   * Presentation only: milliseconds per frame the points layer may spend computing the next fill ahead of time,
+   * so a large group does not hitch for a whole frame at each fill. 0 turns that off (every fill is made whole in
+   * one frame). Only groups that can fill a range of members and hold more than 1,024 are spread. Defaults to 8.
+   */
+  readonly refillSliceMs?: number;
 }
 
 /**
@@ -136,6 +142,8 @@ export const DEFAULT_CAMERA_FAR = 5_000;
  * It grows from ExperienceConfig and TrackedBody; it never makes a body mandatory.
  */
 export interface ExperienceDefinition {
+  /** The experience's name, shown in the page heading once it opens ("<label> · Astraeus"). Absent: the heading stays "Astraeus". */
+  readonly label?: string;
   readonly experience: ExperienceConfig;
   readonly clock: { readonly startUtcMs: number; readonly rate: number };
   /** Layers the scene mounts, e.g. the tracked-body list. */
@@ -178,6 +186,14 @@ export interface ExperienceDefinition {
   readonly startView?: import("./viewLink").StartView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
+}
+
+/** The product name the page heading starts with, before any experience opens. */
+export const PAGE_TITLE = "Astraeus";
+
+/** The page heading for an open experience: its own label before the product name; the product name alone when it declares none. */
+export function pageTitleOf(definition: Pick<ExperienceDefinition, "label">): string {
+  return definition.label === undefined || definition.label.trim() === "" ? PAGE_TITLE : `${definition.label} · ${PAGE_TITLE}`;
 }
 
 /** Checks a declared camera reach, naming the offending field. Returns it unchanged. */
@@ -304,44 +320,57 @@ export const DEFAULT_WINDOW_SAMPLE_COUNT = 181;
 
 export const isRollingSpan = (span: PathSpec["span"]): span is RollingSpan => "windowMs" in span;
 
+type PathFault = typeof TypeError | typeof RangeError;
+
+/** Throws `fault` with `message` unless `ok`: one line per field check. */
+const must = (ok: boolean, fault: PathFault, message: string): void => {
+  if (!ok) throw new fault(message);
+};
+const isPositiveFinite = (value: number): boolean => value > 0 && Number.isFinite(value);
+
+function checkPathRule(id: string, path: PathSpec, catalogue: BodyCatalogue): void {
+  const rule = path as { kind?: unknown; frame?: unknown; center?: unknown };
+  must(rule.kind === "orbit" || rule.kind === "trail", TypeError, `path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`);
+  must(rule.kind !== "trail" || rule.frame === "relative" || rule.frame === "inertial", TypeError, `path "${id}" frame must be "relative" or "inertial", got ${String(rule.frame)}`);
+  must(rule.kind !== "orbit" || rule.center === undefined || (typeof rule.center === "string" && catalogue.has(rule.center)), RangeError, `path "${id}" center "${String(rule.center)}" is not a catalogued body`);
+  must(typeof path.source?.stateAt === "function", TypeError, `path "${id}" source must be a Trajectory with stateAt`);
+}
+
+function checkRollingSpan(id: string, path: PathSpec, span: RollingSpan): void {
+  must(isPositiveFinite(span.windowMs), RangeError, `path "${id}" span windowMs must be positive and finite`);
+  const samples = path.samples ?? DEFAULT_WINDOW_SAMPLE_COUNT;
+  must(Number.isInteger(samples) && samples >= 3 && samples % 2 === 1, RangeError, `path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`);
+  must(path.sampling === undefined, RangeError, `path "${id}" sampling by eccentric anomaly needs a fixed span, not a rolling window`);
+}
+
+/** Checks a fixed span and its sampling, and returns the span start the source is probed at. */
+function checkFixedSpan(id: string, path: PathSpec, span: TimeBounds | undefined): number {
+  const { startUtcMs, endUtcMs } = span ?? ({} as TimeBounds); // a missing span fails the finite check below
+  if (path.sampling !== undefined) {
+    const { eccentricity, periodMs, periapsisUtcMs } = path.sampling;
+    must(eccentricity >= 0 && eccentricity < 1, RangeError, `path "${id}" sampling eccentricity must be at least 0 and below 1, got ${eccentricity}`);
+    must(isPositiveFinite(periodMs), RangeError, `path "${id}" sampling periodMs must be positive and finite`);
+    must(Number.isFinite(periapsisUtcMs), RangeError, `path "${id}" sampling periapsisUtcMs must be finite`);
+  }
+  must(Number.isFinite(startUtcMs) && Number.isFinite(endUtcMs), RangeError, `path "${id}" span needs finite start and end times`);
+  must(endUtcMs > startUtcMs, RangeError, `path "${id}" span must end after it starts`);
+  const samples = path.samples ?? (path.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
+  must(Number.isInteger(samples) && samples >= 2, RangeError, `path "${id}" samples must be a whole number of at least 2, got ${samples}`);
+  return startUtcMs;
+}
+
 /**
  * Checks one path declaration, naming `id` and the offending field: an unknown rule or frame, an uncatalogued centre, a source that
  * cannot answer a state, an empty or reversed span (or a bad window), or a bad sample count.
  */
 export function validatePathSpec(id: string, path: PathSpec, catalogue: BodyCatalogue = builtInCatalogue): void {
-  const rule = path as { kind?: unknown; frame?: unknown; center?: unknown };
-  if (rule.kind !== "orbit" && rule.kind !== "trail") throw new TypeError(`path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`);
-  if (rule.kind === "trail" && rule.frame !== "relative" && rule.frame !== "inertial") {
-    throw new TypeError(`path "${id}" frame must be "relative" or "inertial", got ${String(rule.frame)}`);
-  }
-  if (rule.kind === "orbit" && rule.center !== undefined && !(typeof rule.center === "string" && catalogue.has(rule.center))) {
-    throw new RangeError(`path "${id}" center "${String(rule.center)}" is not a catalogued body`);
-  }
-  if (typeof path.source?.stateAt !== "function") throw new TypeError(`path "${id}" source must be a Trajectory with stateAt`);
+  checkPathRule(id, path, catalogue);
   const center = path.kind === "orbit" ? path.center : undefined;
-  let first: number;
   if (path.span !== undefined && isRollingSpan(path.span)) {
-    const { windowMs } = path.span;
-    if (!(windowMs > 0) || !Number.isFinite(windowMs)) throw new RangeError(`path "${id}" span windowMs must be positive and finite`);
-    const samples = path.samples ?? DEFAULT_WINDOW_SAMPLE_COUNT;
-    if (!Number.isInteger(samples) || samples < 3 || samples % 2 === 0) throw new RangeError(`path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`);
-    if (path.sampling !== undefined) throw new RangeError(`path "${id}" sampling by eccentric anomaly needs a fixed span, not a rolling window`);
-    first = Number.NaN;
-  } else {
-    const { startUtcMs, endUtcMs } = path.span ?? {};
-    if (path.sampling !== undefined) {
-      const { eccentricity, periodMs, periapsisUtcMs } = path.sampling;
-      if (!(eccentricity >= 0 && eccentricity < 1)) throw new RangeError(`path "${id}" sampling eccentricity must be at least 0 and below 1, got ${eccentricity}`);
-      if (!(periodMs > 0) || !Number.isFinite(periodMs)) throw new RangeError(`path "${id}" sampling periodMs must be positive and finite`);
-      if (!Number.isFinite(periapsisUtcMs)) throw new RangeError(`path "${id}" sampling periapsisUtcMs must be finite`);
-    }
-    if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs)) throw new RangeError(`path "${id}" span needs finite start and end times`);
-    if (!(endUtcMs > startUtcMs)) throw new RangeError(`path "${id}" span must end after it starts`);
-    const samples = path.samples ?? (path.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
-    if (!Number.isInteger(samples) || samples < 2) throw new RangeError(`path "${id}" samples must be a whole number of at least 2, got ${samples}`);
-    first = startUtcMs;
+    checkRollingSpan(id, path, path.span);
+    return; // a rolling span has no fixed start to probe; its source is asked at the clock time
   }
-  if (Number.isNaN(first)) return; // a rolling span has no fixed start to probe; its source is asked at the clock time
+  const first = checkFixedSpan(id, path, path.span);
   try {
     path.source.stateAt(first, center);
   } catch (error) {

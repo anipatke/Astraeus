@@ -1,20 +1,16 @@
 import { describe, expect, it } from "vitest";
 import ioFixture from "./fixtures/io-horizons.json";
-import phaseFixture from "./fixtures/usno-moon-phases-2024.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES, JUPITER, MARS, MERCURY } from "../src/core/bodies";
 import { IO, IO_DIAMETER_KM, IO_EPOCH_UTC_MS, IO_MAX_ERROR_KM, IO_MEAN_ELEMENTS, IO_PERIOD_DAYS, createIoTrajectory, siderealPeriodDays, trueAnomalyFromMean } from "../src/core/bodies/io";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
-import { illuminatedFraction } from "../src/core/illumination";
 import { createProvenance } from "../src/core/provenance";
-import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { createTwoBodyTrajectory, fullTurnSpanMs } from "../src/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { catalogue } from "../src/assets/catalogue";
 import { jupiterIoSystem } from "../src/assets/compositions";
-import { bodyLightDirections, centreDirectionalDirection, lightingFromSearch, singleSunDirection, sunScaledPosition } from "../src/app/lighting";
-import { bodyAbsolute, createSceneResolver } from "../src/app/sceneLayout";
+import { bodyLightDirections } from "../src/app/lighting";
 
 const adapter = createOrbAstronomyAdapter();
 const resolver = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, adapter);
@@ -168,54 +164,6 @@ describe("lighting over any composition", () => {
     const parallaxDeg = angleDeg(a, b);
     expect(parallaxDeg).toBeGreaterThan(0);
     expect(parallaxDeg).toBeLessThan(0.04);
-  });
-
-  it("reads the lighting model from the query, defaulting to per-body", () => {
-    expect(lightingFromSearch("")).toBe("per-body");
-    expect(lightingFromSearch("?experience=earth-moon&lighting=single-sun")).toBe("single-sun");
-    expect(lightingFromSearch("?lighting=other")).toBe("per-body");
-  });
-
-  it("measures one Sun light at the Sun's scaled position against the per-body lights on the Spike 01 USNO dates", () => {
-    const sceneResolver = createSceneResolver(adapter);
-    const events = phaseFixture.phasedata.filter((event) => event.month === 1 && event.year === 2024 && ["Last Quarter", "New Moon", "First Quarter", "Full Moon"].includes(event.phase));
-    expect(events).toHaveLength(4);
-    const policies: ScalePolicy[] = [trueScale, readableScale];
-    let maxPoint = 0;
-    let maxDirectional = 0;
-    let maxAngleDirectional = 0;
-    let maxAnglePoint = 0;
-    const rows: string[] = [];
-    for (const policy of policies) {
-      for (const event of events) {
-        const time = Date.parse(`${event.year}-${String(event.month).padStart(2, "0")}-${String(event.day).padStart(2, "0")}T${event.time}:00Z`);
-        const perBody = illuminatedFraction(sceneResolver.stateOf("moon", time, "earth"), sceneResolver.sunFrom("earth", time));
-        // Scene centre is Earth. Floating origin = Earth, so local coordinates are the scaled absolutes, narrowed to float32.
-        const sunScaled = sunScaledPosition(sceneResolver, "earth", policy, time);
-        const moonScaled = bodyAbsolute(sceneResolver.stateOf("moon", time, "earth").positionKm, policy);
-        const fround = (v: ArrayLike<number>) => [Math.fround(v[0]), Math.fround(v[1]), Math.fround(v[2])];
-        const point = singleSunDirection(fround(moonScaled), fround(sunScaled));
-        const centred = centreDirectionalDirection([0, 0, 0], fround(sunScaled));
-        const toEarth = moonScaled.map((c) => -c);
-        const fraction = (lightDirection: ArrayLike<number>) => {
-          const len = Math.hypot(...toEarth);
-          return Math.max(0, Math.min(1, (1 + (lightDirection[0] * toEarth[0] + lightDirection[1] * toEarth[1] + lightDirection[2] * toEarth[2]) / len) / 2));
-        };
-        const perBodyDirection = bodyLightDirections(["moon"], sceneResolver, time).get("moon")!;
-        maxAnglePoint = Math.max(maxAnglePoint, angleDeg(point, perBodyDirection));
-        maxAngleDirectional = Math.max(maxAngleDirectional, angleDeg(centred, perBodyDirection));
-        maxPoint = Math.max(maxPoint, Math.abs(fraction(point) - perBody));
-        maxDirectional = Math.max(maxDirectional, Math.abs(fraction(centred) - perBody));
-        rows.push(`${policy.id} ${event.phase}: per-body ${perBody.toFixed(6)} point ${fraction(point).toFixed(6)} directional ${fraction(centred).toFixed(6)}`);
-      }
-    }
-    console.info(`LIGHTING-MEASUREMENT\n${rows.join("\n")}\nmax |fraction diff| point=${maxPoint.toExponential(3)} directional-from-centre=${maxDirectional.toExponential(3)}; max direction angle point=${maxAnglePoint.toExponential(3)} deg directional=${maxAngleDirectional.toExponential(3)} deg`);
-    // Light in the same place as the Sun for every scale that moves all positions alike: no measurable difference.
-    expect(maxPoint).toBeLessThan(1e-4);
-    expect(maxAnglePoint).toBeLessThan(0.01);
-    // One directional light at the centre's direction: the Moon's parallax from the Sun, under a fifth of a degree.
-    expect(maxAngleDirectional).toBeLessThan(0.2);
-    expect(maxDirectional).toBeLessThan(0.005);
   });
 });
 

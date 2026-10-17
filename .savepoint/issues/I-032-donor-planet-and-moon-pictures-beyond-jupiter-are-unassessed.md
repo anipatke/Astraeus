@@ -20,6 +20,10 @@ history:
     actor: {role: checker, session: o011-orchestrator-morning-20261017}
     kind: observed
     note: 'Owner asked to trace the rest, the rings for all planets and the Mars moons. Traced by comparison with downloaded originals: Uranus and Neptune byte-identical to Solar System Scope; Charon byte-identical to the USGS 2017 mosaic preview; Pluto is NASA PIA11707; Ganymede is the USGS 1 km mosaic shifted 180 degrees; Ceres surface is the USGS/DLR Dawn mosaic but its colour and polar fill are untraced (do not ship). JPL image policy confirms the Cassini and Voyager maps. Rings checked against NASA NSSDC fact sheets: Saturn, Uranus, Neptune close; Jupiter about 20 percent too close in. Mars moons and other small moons have no picture; candidates listed. docs/DONOR_TEXTURE_INVENTORY.md and the assets page section Traced, not in the app yet, updated.'
+  - at: '2026-10-17T08:30:00Z'
+    actor: {role: planner, session: o017-plan-20261017}
+    kind: deferred
+    note: 'Owner, 2026-10-17: include all the moons before go-live, as globes you can spin, and update the catalogue. Planned as O-018 (reuse Planetary Explorer moon maps and tagged features through a reusable importer, a Moons experience, catalogue rows; rescoped 2026-10-17 on the owner''s correction), after O-017 and before the deploy. Planets, rings, Mars moons, small moons and real orbits stay out; this Issue stays open for them.'
 ---
 
 # I-032: Donor planet and moon pictures beyond Jupiter are unassessed and unused

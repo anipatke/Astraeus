@@ -29,7 +29,7 @@ export function proveItFails(): {
 };
 export const REQUIRED_PAGES: readonly string[];
 export const SHIPPABLE_LICENCES: readonly string[];
-/** Which files of a made-up data/local/ the validator would still check (CAMS, Yale, a non-shippable licence) and which it passes (a declared CC BY 4.0). */
+/** Which files of a made-up data/local/ the validator would still check (a file with no licence, a non-shippable licence) and which it passes (a declared CC BY 4.0). */
 export function proveLicenceHandling(): readonly string[];
 export const STAR_ASSET: string;
 export const STAR_LICENCES: readonly string[];
@@ -43,3 +43,12 @@ export interface StarAssetResult {
 /** The committed star asset must declare a shippable licence and be present, byte for byte, in the build. */
 export function checkStarAsset(input: { readonly distDir: string; readonly rootDir?: string; readonly starPath?: string }): StarAssetResult;
 export function proveStarAssetHandling(): { readonly good: StarAssetResult; readonly empty: StarAssetResult; readonly badLicence: StarAssetResult };
+export const SYNTHETIC_KEYS: readonly string[];
+export interface SyntheticResult {
+  readonly ok: boolean;
+  readonly modules: readonly string[];
+  readonly matches: readonly { readonly path: string; readonly how: string }[];
+}
+/** A public build holds no made-up (synthetic) experience: no chunk named for one and no entry key. */
+export function checkNoSyntheticExperiences(input: { readonly distDir: string; readonly rootDir?: string }): SyntheticResult;
+export function proveSyntheticCheck(): { readonly clean: SyntheticResult; readonly chunk: SyntheticResult; readonly key: SyntheticResult };

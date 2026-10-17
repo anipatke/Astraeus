@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { BUILD_LIMIT, PAGES, proveLoadBudgetFails, staticImportsOf } from "../tools/validate/load-budget.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
@@ -53,11 +54,11 @@ describe("shippable measured orbits (T-056)", () => {
   it("keeps the shippable-licence list equal in the loader, the fetch tool and the validator", () => {
     expect([...TOOL_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
     expect([...VALIDATOR_LICENCES]).toEqual([...SHIPPABLE_LICENCES]);
-    expect(SHIPPABLE_LICENCES.some((licence) => /cams|yale|nc|unknown/i.test(licence))).toBe(false);
+    expect(SHIPPABLE_LICENCES.some((licence) => /nc|unknown/i.test(licence))).toBe(false);
   });
 
-  it("checks every fetched file that declares no shippable licence (CAMS, Yale) and passes only a declared CC BY or CC0 file", () => {
-    expect(proveLicenceHandling()).toEqual(["data/local/cams-iau-7.json", "data/local/other-nc.json", "data/local/yale-bsc-v65.json"]);
+  it("checks every fetched file that declares no shippable licence (no licence, or a non-commercial one) and passes only a declared CC BY or CC0 file", () => {
+    expect(proveLicenceHandling()).toEqual(["data/local/other-nc.json", "data/local/unlicensed-orbits.json", "data/local/unlicensed-stars.json"]);
   });
 });
 
@@ -82,8 +83,55 @@ describe("shipped HYG star asset (T-060)", () => {
     expect(proof.badLicence.problems.join("; ")).toMatch(/no attribution/);
   });
 
-  it("still rejects Yale: a copy of the Yale file in the build is found by the data check", () => {
-    expect(proveLicenceHandling()).toContain("data/local/yale-bsc-v65.json");
+  it("still rejects an unlicensed star catalogue: a copy of it in the build is found by the data check", () => {
+    expect(proveLicenceHandling()).toContain("data/local/unlicensed-stars.json");
     expect(proveItFails().dataCopied.ok).toBe(false);
+  });
+});
+
+describe("made-up experiences stay out of the public build (T-068)", () => {
+  it("fails a build that holds a synthetic chunk or an entry key, and passes a clean one", () => {
+    const { clean, chunk, key } = proveSyntheticCheck();
+    expect(clean.ok).toBe(true);
+    expect(clean.modules.length).toBeGreaterThan(0);
+    expect(chunk.matches.map((match) => match.how)).toEqual(["file name"]);
+    expect(key.matches.map((match) => match.how)).toEqual(["entry key synthetic-ring"]);
+  });
+
+  it("lists the same entry keys main.tsx mounts in development", async () => {
+    const { readFileSync } = await (import(/* @vite-ignore */ `node:${"fs"}`) as Promise<any>);
+    const entry = readFileSync(new URL("../src/main.tsx", import.meta.url), "utf8") as string;
+    const mounted = [...entry.matchAll(/^\s+"?(synthetic[\w-]*)"?: async/gm)].map((match) => match[1]);
+    expect([...SYNTHETIC_KEYS].sort()).toEqual(mounted.sort());
+  });
+});
+
+describe("first-load size budget (T-070)", () => {
+  it("fails a page over its limit, a stale page set, an eager script the set does not list, and an unlisted heavy file; passes a build within its limits", () => {
+    const proof = proveLoadBudgetFails();
+    expect(proof.within.ok).toBe(true);
+    expect(proof.heavier.ok).toBe(false);
+    expect(proof.heavier.pages[0].problems.join(" ")).toMatch(/raw is over the limit of 6000/);
+    expect(proof.missing.ok).toBe(false);
+    expect(proof.missing.pages[0].problems.join(" ")).toMatch(/picture\.jpg is not in the build/);
+    expect(proof.unlistedImport.ok).toBe(false);
+    expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(/imports assets\/extra-AbCdEf12\.js, which the page set does not list/);
+    expect(proof.unlistedFile.ok).toBe(false);
+    expect(proof.unlistedFile.pages[proof.unlistedFile.pages.length - 1]?.id).toBe("whole build");
+  });
+
+  it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {
+    const ids = PAGES.map((page) => page.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual(["index.html", "assets.html", "app.html (Apollo 11)", "app.html?experience=earth-moon", "app.html?experience=jupiter-io", "app.html?experience=shower-perseids", "app.html?experience=shower-geminids"]);
+    for (const limit of [...PAGES, BUILD_LIMIT]) {
+      expect(limit.rawLimit).toBeGreaterThan(0);
+      expect(limit.gzipLimit).toBeGreaterThan(0);
+      expect(limit.gzipLimit).toBeLessThanOrEqual(limit.rawLimit);
+    }
+  });
+
+  it("reads the scripts a built script imports at load, not the ones it imports on demand", () => {
+    expect(staticImportsOf('import{U as e}from"./app-AbCdEf12.js";import"./eph-AbCdEf12.js";const f=()=>import(`./later-AbCdEf12.js`);')).toEqual(["assets/app-AbCdEf12.js", "assets/eph-AbCdEf12.js"]);
   });
 });

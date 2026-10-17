@@ -1,13 +1,15 @@
 // Public-build output gate (design C.3). Hashes every file under dist/ and fails if any matches a local-only source texture,
 // byte for byte or embedded in a text asset as base64.
 //   ASTRAEUS_PUBLIC_BUILD=1 npm run build && node tools/validate/public-build-assets.mjs [distDir] [resultsFile]
+// It also fails a build that holds any made-up (synthetic) experience (T-068), and a build whose page loads outgrow their limits (tools/validate/load-budget.mjs, T-070).
 // Local-only sources are the images a body record imports and declares `localOnly` (src/assets/bodies/*.ts), plus every file under the
-// git-ignored data/local/ (fetched star catalogue and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
+// git-ignored data/local/ (fetched data and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkLoadBudget, proveLoadBudgetFails } from "./load-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
 export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html"];
@@ -50,7 +52,7 @@ export function findLocalDataSources(rootDir = root) {
   return [...walk(directory)].filter((path) => !declaresShippableLicence(path)).map((path) => ({ file: `data/local/${path.slice(directory.length + 1)}`, path, text: true }));
 }
 
-/** Licences that allow a measured-orbit file to ship (the fetch tool and the loader keep the same list). A fetched file that declares one is a story's shippable data, copied under data/stories/; CAMS and the Yale catalogue declare none and stay checked. */
+/** Licences that allow a measured-orbit file to ship (the fetch tool and the loader keep the same list). A fetched file that declares one is a story's shippable data, copied under data/stories/; a fetched file that declares none, or another licence, stays checked. */
 export const SHIPPABLE_LICENCES = ["CC BY 4.0", "CC0 1.0"];
 function declaresShippableLicence(path) {
   if (!path.endsWith(".json")) return false;
@@ -86,14 +88,14 @@ export function checkPublicBuild({ distDir, sources }) {
   return { ok: matches.length === 0, checked, sources: wanted.map(({ file, hash, size }) => ({ file, sha256: hash, bytes: size })), matches };
 }
 
-/** Which files of a made-up data/local/ are still checked: CAMS, Yale and a non-shippable licence are; a declared CC BY 4.0 file is not. */
+/** Which files of a made-up data/local/ are still checked: a file with no licence, and one with a non-shippable licence, are; a declared CC BY 4.0 file is not. */
 export function proveLicenceHandling() {
   const project = mkdtempSync(join(tmpdir(), "astraeus-ship-"));
   try {
     const local = join(project, "data", "local");
     mkdirSync(local, { recursive: true });
-    writeFileSync(join(local, "cams-iau-7.json"), JSON.stringify({ provenance: { database: "CAMS" }, rows: [] }));
-    writeFileSync(join(local, "yale-bsc-v65.json"), JSON.stringify({ provenance: { source: "Yale" }, stars: [] }));
+    writeFileSync(join(local, "unlicensed-orbits.json"), JSON.stringify({ provenance: { database: "Made-up orbit catalogue with no licence" }, rows: [] }));
+    writeFileSync(join(local, "unlicensed-stars.json"), JSON.stringify({ provenance: { source: "Made-up star catalogue with no licence" }, stars: [] }));
     writeFileSync(join(local, "gmn-iau-7.json"), JSON.stringify({ provenance: { licence: "CC BY 4.0" }, rows: [] }));
     writeFileSync(join(local, "other-nc.json"), JSON.stringify({ provenance: { licence: "CC BY-NC 4.0" }, rows: [] }));
     return findLocalDataSources(project).map((source) => source.file).sort();
@@ -104,7 +106,7 @@ export function proveLicenceHandling() {
 
 /** The committed star asset the public build draws (HYG, CC BY-SA 4.0). */
 export const STAR_ASSET = "src/assets/stars/hyg-v42-naked-eye.json";
-/** The licences a star file may declare to ship. Yale declares none, so it never qualifies. */
+/** The licences a star file may declare to ship. A catalogue that declares none, or another licence, never qualifies. */
 export const STAR_LICENCES = ["CC BY-SA 4.0"];
 
 /**
@@ -146,6 +148,43 @@ export function proveStarAssetHandling() {
     const bad = join(temp, "bad.json");
     writeFileSync(bad, JSON.stringify({ ...body, provenance: { ...body.provenance, licence: "CC BY-NC 4.0", attribution: "" } }));
     return { good: checkStarAsset({ distDir: good }), empty: checkStarAsset({ distDir: empty }), badLicence: checkStarAsset({ distDir: good, starPath: bad }) };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+/** The entry keys of the made-up (synthetic) experiences; a public build must not mount them (T-068). */
+export const SYNTHETIC_KEYS = ["synthetic", "synthetic-bare", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric"];
+
+/**
+ * The made-up experiences are test fixtures: a public build must contain none of them. Fails on a file whose name carries a synthetic module
+ * (each is its own chunk) and on a text asset that still holds an entry key or a synthetic source module's name. Returns { ok, matches }.
+ */
+export function checkNoSyntheticExperiences({ distDir, rootDir = root }) {
+  const modules = existsSync(join(rootDir, "src", "synthetic")) ? readdirSync(join(rootDir, "src", "synthetic")).map((name) => name.replace(/\.[^.]+$/, "")) : [];
+  const matches = [];
+  for (const path of walk(distDir)) {
+    const name = path.slice(distDir.length + 1);
+    if (modules.some((module) => name.includes(module)) || /(^|[\\/])synthetic/i.test(name)) matches.push({ path: name, how: "file name" });
+    else if (TEXT_EXTENSIONS.test(path)) {
+      const text = readFileSync(path, "latin1");
+      const key = SYNTHETIC_KEYS.find((candidate) => text.includes(`"${candidate}"`) || text.includes(`'${candidate}'`));
+      if (key !== undefined) matches.push({ path: name, how: `entry key ${key}` });
+    }
+  }
+  return { ok: matches.length === 0, modules, matches };
+}
+
+/** Proves the synthetic check can fail: a made-up build holding a synthetic chunk, and one holding only an entry key, fail; a clean one passes. */
+export function proveSyntheticCheck() {
+  const temp = mkdtempSync(join(tmpdir(), "astraeus-synthetic-"));
+  try {
+    const [clean, chunk, key] = ["clean", "chunk", "key"].map((name) => join(temp, name, "assets"));
+    for (const directory of [clean, chunk, key]) mkdirSync(directory, { recursive: true });
+    for (const directory of [clean, chunk, key]) writeFileSync(join(directory, "app-AbC.js"), 'const a = { "earth-moon": 1 };');
+    writeFileSync(join(chunk, "syntheticDefinition-AbC.js"), "export const x = 1;");
+    writeFileSync(join(key, "app-AbC.js"), 'const a = { "synthetic-ring": 1 };');
+    return { clean: checkNoSyntheticExperiences({ distDir: join(temp, "clean") }), chunk: checkNoSyntheticExperiences({ distDir: join(temp, "chunk") }), key: checkNoSyntheticExperiences({ distDir: join(temp, "key") }) };
   } finally {
     rmSync(temp, { recursive: true, force: true });
   }
@@ -199,15 +238,20 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const distDir = resolve(process.argv[2] ?? join(root, "dist"));
   const localData = findLocalDataSources();
   const sources = [...findLocalOnlySources(), ...localData];
-  // Every texture is licensed since I-029, so the local data files alone may be the sources; only an empty list proves nothing.
-  if (sources.length === 0) {
-    console.error("no local-only textures or local data files found; the validator would prove nothing");
-    process.exit(1);
-  }
+  // Every texture is licensed since I-029 and a clean checkout has no unlicensed data/local/ files, so the source list may be empty. The validator then still proves
+  // itself on made-up files (it must fail on a copied or embedded one and pass a clean build) and still fails any path under data/local/ in the build.
+  const proof = proveItFails();
+  const selfProof = proof.clean.ok && !proof.copied.ok && !proof.embedded.ok && proof.dataClean.ok && !proof.dataCopied.ok && !proof.dataEmbedded.ok && !proof.dataPath.ok;
   const missingPages = REQUIRED_PAGES.filter((page) => !existsSync(join(distDir, page)));
   const checked = checkPublicBuild({ distDir, sources });
   const starAsset = checkStarAsset({ distDir });
-  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, ...checked, ok: checked.ok && missingPages.length === 0 && starAsset.ok };
+  const synthetic = checkNoSyntheticExperiences({ distDir });
+  const syntheticProof = proveSyntheticCheck();
+  const syntheticSelfProof = syntheticProof.clean.ok && !syntheticProof.chunk.ok && !syntheticProof.key.ok;
+  const loadBudget = checkLoadBudget({ distDir });
+  const budgetProof = proveLoadBudgetFails();
+  const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
+  const result = { distDir, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

@@ -1,0 +1,58 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 21,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 12788,
+          "lit": 567504,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 10934,
+          "lit": 237561,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 11823,
+          "lit": 245133,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 17.1,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 19,
+      "probeChecks": 4
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 58.4,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 6205,
+          "lit": 193362,
+          "total": 329160
+        },
+        "off": {
+          "bright": 5960,
+          "lit": 136904,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 6147,
+          "lit": 138152,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 32.9,
+      "panel": "Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Sources HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the c",
+      "fpsWithSky": 41.5,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    }
+  },
+  "errors": 0
+}

@@ -1,9 +1,9 @@
 // Browser check for the sky behind every experience (T-053). Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-sky.mjs
 //
-// Scenarios, each run for Apollo (the default), the Earth-Moon Explorer and Perseids, at 1280x800 and 390x844:
-//   stars are drawn ........................ the <canvas> element's data-sky-stars is the star count (8920 from the committed HYG file; 8404 with ASTRAEUS_STARS=yale
-//                                            and data/local/yale-bsc-v65.json fetched); more bright pixels than the same view with ?sky=off
+// Scenarios, each run for a sample (T-071): Apollo (the default) at 1280x800 and 390x844:
+//   stars are drawn ........................ the <canvas> element's data-sky-stars is the star count (8920 from the committed HYG file, the only star catalogue
+//                                            since O-017 T-067 removed Yale); more bright pixels than the same view with ?sky=off
 //   the sky is fixed under a centre change .. Developer mode reads back a probe direction (orientation in, screen position out). After each
 //                                            of: the Readable scale, Overview, Focus and Follow requests, the screen position equals the
 //                                            position computed here from the camera's orientation alone
@@ -14,7 +14,7 @@
 //   frame rate .............................. with and without the sky, from the Developer tools counter (recorded, not asserted)
 //   zero console errors ..................... page errors and console errors are collected for the whole run
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
@@ -22,17 +22,17 @@ const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-// The stars come from the committed HYG file by default (public and local builds alike); ASTRAEUS_STARS=yale draws the local Yale file instead (local build only).
-const starSource = process.env.ASTRAEUS_STARS === "yale" ? "yale" : "hyg";
-const starFileUrl = new URL(starSource === "yale" ? "../../data/local/yale-bsc-v65.json" : "../../src/assets/stars/hyg-v42-naked-eye.json", import.meta.url);
-const haveStars = existsSync(starFileUrl);
-const starCount = haveStars ? String(JSON.parse(readFileSync(starFileUrl, "utf8")).stars.length) : "0";
+// The stars come from the committed HYG file (public and local builds alike), so the star file is always there.
+const starCount = String(JSON.parse(readFileSync(new URL("../../src/assets/stars/hyg-v42-naked-eye.json", import.meta.url), "utf8")).stars.length);
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
-const results = { starSource, starCount, starsFetched: haveStars, runs: {} };
+const results = { starSource: "hyg", starCount, runs: {} };
 
+// T-071 (trim): the sky is one component behind every experience, so a sample covers it. Apollo runs at both sizes (the phone once); the
+// Earth-Moon Explorer and the Perseids are not run (their sky is the same component, behind the shower scenes: browser-showers.mjs asserts the stream with ?sky=off and on). Every other experience's sky is seen in the before/after pictures and its canvas drawing in browser-lite.mjs.
 const EXPERIENCES = [["apollo", ""], ["earth-moon", "experience=earth-moon"], ["perseids", "experience=shower-perseids"]];
 const SIZES = [["desktop", { width: 1280, height: 800 }], ["mobile", { width: 390, height: 844 }]];
+const SAMPLED = new Set(["apollo-desktop", "apollo-mobile"]);
 // Must equal SKY_PROBE_DIRECTION in src/app/SkyView.ts (render frame).
 const PROBE = (() => { const v = [0.62, 0.35, -0.7]; const n = Math.hypot(...v); return v.map((x) => x / n); })();
 const FOV_DEG = 45;
@@ -41,7 +41,7 @@ const open = async (viewport, query, deviceScaleFactor = 1) => {
   const page = await browser.newPage({ viewport, deviceScaleFactor });
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
-  await page.goto(`${base}?${[query, starSource === "yale" ? "stars=yale" : ""].filter(Boolean).join("&")}`);
+  await page.goto(`${base}?${query}`);
   await page.waitForSelector("canvas");
   // The sky's attribute appears once the scene has mounted; with ?sky=off it never does, so wait for the canvas to settle instead.
   if (!query.includes("sky=off")) await page.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStars !== undefined, null, { timeout: 20000 });
@@ -49,7 +49,7 @@ const open = async (viewport, query, deviceScaleFactor = 1) => {
   // A story panel (Apollo opens one at its first anchor) covers part of the canvas and would change the pixel counts below; close it so the sky is measured alone.
   await page.locator(".story-panel-close").click({ timeout: 1500 }).catch(() => {});
   await page.waitForTimeout(400);
-  if (haveStars && !query.includes("sky=off")) await page.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStars !== "0", null, { timeout: 15000 });
+  if (!query.includes("sky=off")) await page.waitForFunction(() => document.querySelector("canvas")?.dataset.skyStars !== "0", null, { timeout: 15000 });
   return page;
 };
 
@@ -115,6 +115,7 @@ try {
   for (const [name, query] of EXPERIENCES) {
     for (const [sizeName, viewport] of SIZES) {
       const label = `${name}-${sizeName}`;
+      if (!SAMPLED.has(label)) continue;
       const out = (results.runs[label] = {});
       // The same view without the sky, for the star pixels and the frame-rate comparison.
       const off = await open(viewport, [query, "sky=off"].filter(Boolean).join("&"));
@@ -129,12 +130,11 @@ try {
       assert.equal(await page.locator("canvas").getAttribute("data-sky-picture"), "on", `${label}: ?milkyway=on starts with the picture on`);
       const stars = await page.locator("canvas").getAttribute("data-sky-stars");
       out.stars = Number(stars);
-      if (haveStars) assert.equal(stars, starCount, `${label}: every star of V 6.5 or brighter in the ${starSource} file is drawn`);
-      else assert.equal(stars, "0", `${label}: with no star file the sky draws no stars`);
+      assert.equal(stars, starCount, `${label}: every star of V 6.5 or brighter in the HYG file is drawn`);
       const onPixels = await brightPixels(page);
       out.pixels = { on: onPixels, off: offPixels };
       assert.ok(onPixels.lit > offPixels.lit + 0.02 * onPixels.total, `${label}: the sky lights more of the canvas than a black background (${onPixels.lit} vs ${offPixels.lit})`);
-      if (haveStars) assert.ok(onPixels.bright > offPixels.bright + (sizeName === "mobile" ? 5 : 20), `${label}: stars are drawn (bright pixels ${onPixels.bright} vs ${offPixels.bright})`);
+      assert.ok(onPixels.bright > offPixels.bright + (sizeName === "mobile" ? 5 : 20), `${label}: stars are drawn (bright pixels ${onPixels.bright} vs ${offPixels.bright})`);
       if (outDir) await page.screenshot({ path: join(outDir, `${label}.png`) });
 
       // The picture switch: the same view with the picture off still draws every star and the picture's light is gone.
@@ -142,7 +142,7 @@ try {
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-stars"), stars, `${label}: the default (picture off) keeps every star`);
       const noPicturePixels = await brightPixels(noPicture);
       out.pixels.noPicture = noPicturePixels;
-      if (haveStars) assert.ok(noPicturePixels.bright > offPixels.bright + (sizeName === "mobile" ? 5 : 20), `${label}: stars are drawn with the picture off (bright pixels ${noPicturePixels.bright} vs ${offPixels.bright})`);
+      assert.ok(noPicturePixels.bright > offPixels.bright + (sizeName === "mobile" ? 5 : 20), `${label}: stars are drawn with the picture off (bright pixels ${noPicturePixels.bright} vs ${offPixels.bright})`);
       assert.ok(noPicturePixels.lit < onPixels.lit, `${label}: the picture lights pixels the stars alone do not (${noPicturePixels.lit} vs ${onPixels.lit})`);
       assert.ok(noPicturePixels.lit < offPixels.lit + 0.02 * onPixels.total, `${label}: with the picture off the canvas is nearly the bare scene plus stars (${noPicturePixels.lit} vs ${offPixels.lit})`);
       if (outDir) await noPicture.screenshot({ path: join(outDir, `${label}-picture-off.png`) });
@@ -178,8 +178,7 @@ try {
       const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
       assert.match(detail, /HYG star database v4\.2.*CC BY-SA 4\.0/, `${label}: the Sky item cites the HYG star catalogue and its licence`);
       assert.match(detail, /ESO\/S\. Brunier/, `${label}: the Sky item cites the Milky Way image`);
-      if (haveStars) assert.match(detail, new RegExp(`${starCount} stars`), `${label}: the panel counts the stars`);
-      else assert.match(detail, /could not be loaded/, `${label}: the panel says the stars could not be loaded`);
+      assert.match(detail, new RegExp(`${starCount} stars`), `${label}: the panel counts the stars`);
       out.panel = detail.slice(0, 400);
       await page.locator("#info-panel .info-panel-close").click();
       await page.getByLabel("Select object").selectOption({ index: 0 });

@@ -1,7 +1,7 @@
-import { EQUATORIAL_UP, orbitAnglesFor, orbitBasis } from "./viewUp";
+import { EQUATORIAL_UP } from "./viewUp";
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group, PerspectiveCamera, PointLight } from "three";
+import type { DirectionalLight, Group, PerspectiveCamera } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -10,46 +10,40 @@ import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
-import { drawnRadii, drawsAsMarker, projectedRadiusPx, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
+import type { BodyMarkerSettings, GlowLook } from "./bodyDraw";
 import {
   attachOrbitGestures,
-  clampDistance,
   createOrbitCameraState,
   poseCamera,
   resolveCamera,
-  switchFocus,
   type CameraRequest,
-  type FocusId,
   type OrbitCameraState,
 } from "./CameraController";
-import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
+import type { DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
 import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
-import { stateIfInBounds, type TrackedBody } from "./mission";
-import { bodyLightDirections, DEFAULT_LIGHTING, sunScaledPosition, type LightingModel, type SunLightStrength } from "./lighting";
+import type { TrackedBody } from "./mission";
+import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
-import { bodyAbsolute, placeBody, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
+import { rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
+import { buildFrameReadout, publishSceneData, recordFrameStats } from "./sceneDebug";
+import { bodyAbsolute, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
+import { placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
+import { placeBodyLights } from "./sceneLights";
+import { useHostLayer, useSceneViews, useSkyStars } from "./sceneHooks";
+import { updateSky } from "./sceneSky";
+import { focusAbsoluteOf, labelPositionOf, type SceneTargets } from "./sceneTargets";
 import { viewFromAngles, type StartView } from "./viewLink";
 import {
   assignBodyLayers,
-  defaultDistance,
-  START_CAMERA_DISTANCE,
-  startsInsideFocus,
-  fitDistance,
   focusLimits,
   focusRadius,
-  GROUP_FRAMING,
-  scaleLength,
-  TRACKED_DEFAULT_DISTANCE,
+  START_CAMERA_DISTANCE,
   type SceneFrame,
 } from "./sceneFraming";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
-import { PointsView } from "./PointsView";
-import { SkyView, skyMapFromSearch } from "./SkyView";
-import { loadStarCatalogue } from "../assets/sky";
-import { COMPOSITION_PATH_STYLE, PathView, compositionPathLayer, createPathViews, pathReachKm } from "./PathView";
-import { TRACK_LAYER, TrackedBodyView } from "./TrackedBodyView";
+import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
 import type { ExperienceObject } from "../shell/experience";
@@ -85,12 +79,8 @@ export interface SceneRuntime {
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
-  /** How the Sun lights the scene; absent means each body is lit by its own Sun direction. */
-  readonly lighting?: LightingModel;
-  /** Single Sun light only: its strength; absent takes the strongest of the lit bodies' own values. */
-  readonly sunLight?: SunLightStrength | null;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
-  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly source?: import("../assets/sky").SkyMapSource };
+  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
 }
 
 export interface SceneControls {
@@ -154,49 +144,15 @@ export function AstraeusScene(props: Props) {
       data-testid="earth-moon-canvas"
       data-scene-center={runtime.sceneCenter}
       data-bodies={runtime.bodies.join(",")}
-      data-lighting={runtime.lighting ?? DEFAULT_LIGHTING}
+      data-lighting="per-body"
       data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
     >
       <SceneContents {...props} layers={layers} />
-      <LayeredRender lightLayers={lightLayers} merged={runtime.lighting === "single-sun"} />
+      <LayeredRender lightLayers={lightLayers} />
     </Canvas>
   );
-}
-
-/** Takes over rendering so each lit body is lit only by its own Sun direction, one pass per body. */
-function LayeredRender({ lightLayers, merged }: { readonly lightLayers: readonly number[]; readonly merged: boolean }) {
-  useFrame(({ gl, scene, camera }) => {
-    const previousAutoClear = gl.autoClear;
-    const previousMask = camera.layers.mask;
-    gl.autoClear = false;
-    gl.clear();
-    if (merged) {
-      // One Sun light lights every body, so every body is drawn in one pass.
-      camera.layers.mask = lightLayers.reduce((mask, layer) => mask | (1 << layer), 1);
-      gl.render(scene, camera);
-      camera.layers.mask = 1 << TRACK_LAYER;
-      gl.render(scene, camera);
-      camera.layers.mask = previousMask;
-      gl.autoClear = previousAutoClear;
-      return;
-    }
-    // Layer 0 (paths) is drawn with the first body's pass, then every later body's pass shares the depth buffer.
-    lightLayers.forEach((layer, index) => {
-      camera.layers.mask = (index === 0 ? 1 : 0) | (1 << layer);
-      gl.render(scene, camera);
-    });
-    if (lightLayers.length === 0) {
-      camera.layers.mask = 1;
-      gl.render(scene, camera);
-    }
-    camera.layers.mask = 1 << TRACK_LAYER;
-    gl.render(scene, camera);
-    camera.layers.mask = previousMask;
-    gl.autoClear = previousAutoClear;
-  }, 1);
-  return null;
 }
 
 interface SceneContentsProps extends Props {
@@ -210,9 +166,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const groupRefs = useRef(new Map<BodyId, Group>());
   const orientRefs = useRef(new Map<BodyId, Group>());
   const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
-  const sunLight = useRef<PointLight>(null);
-  const singleSun = runtime.lighting === "single-sun";
-  const placed = useRef<ReadonlyMap<BodyId, RenderVector>>(new Map());
   const refFor = (map: Map<BodyId, Group>, id: BodyId) => (node: Group | null) => {
     if (node === null) map.delete(id);
     else map.set(id, node);
@@ -223,6 +176,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     if (parts === null) partsRefs.current.delete(id);
     else partsRefs.current.set(id, parts);
   }] as const)), [runtime.bodies]);
+
+  const bodyRefs: BodyRefs = { groups: groupRefs.current, orients: orientRefs.current, parts: partsRefs.current };
 
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
@@ -235,67 +190,15 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
   const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
 
-  const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
-  const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
-  const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
-  const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => new PathView(compositionPathLayer(path, runtime.resolver), COMPOSITION_PATH_STYLE)), [runtime.composition, runtime.resolver]);
-  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, source: skyMapFromSearch(window.location.search) ?? runtime.sky.source }) : null), [runtime.sky, gl]);
+  const { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView } = useSceneViews(runtime, gl);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
 
-  // The stars load from the local file when it exists; without it the Milky Way is drawn alone.
-  useEffect(() => {
-    if (skyView === null) return undefined;
-    let cancelled = false;
-    gl.domElement.dataset.skyStars = "0";
-    void loadStarCatalogue().then((loaded) => {
-      if (cancelled || loaded === null) return;
-      skyView.setStars(loaded.stars);
-      gl.domElement.dataset.skyStars = String(skyView.starCount);
-    });
-    return () => {
-      cancelled = true;
-      delete gl.domElement.dataset.skyStars;
-      delete gl.domElement.dataset.skyPicture;
-      delete gl.domElement.dataset.skyPictureSource;
-      delete gl.domElement.dataset.skyStarBrightness;
-      skyView.dispose();
-    };
-  }, [gl, skyView]);
-
-  useEffect(() => {
-    const host = gl.domElement.parentElement;
-    if (host === null) return undefined;
-    const layer = new AnchorLabelLayer(host, trackedViews);
-    anchorLabels.current = layer;
-    return () => {
-      layer.dispose();
-      anchorLabels.current = null;
-    };
-  }, [gl, trackedViews]);
-
-  useEffect(() => {
-    const host = gl.domElement.parentElement;
-    if (host === null) return undefined;
-    const layer = new SceneLabelLayer(host, controls.labelObjects);
-    sceneLabels.current = layer;
-    return () => {
-      layer.dispose();
-      sceneLabels.current = null;
-    };
-  }, [gl, controls.labelObjects]);
-
-  useEffect(() => {
-    const host = gl.domElement.parentElement;
-    if (host === null || controls.storyMarkers === undefined || controls.storyMarkers.length === 0) return undefined;
-    const layer = new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId));
-    storyMarkers.current = layer;
-    return () => {
-      layer.dispose();
-      storyMarkers.current = null;
-    };
-  }, [gl, controls]);
+  useSkyStars(gl.domElement, skyView);
+  useHostLayer(gl.domElement, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [gl, trackedViews]);
+  useHostLayer(gl.domElement, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects), [gl, controls.labelObjects]);
+  useHostLayer(gl.domElement, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [gl, controls]);
 
   /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
   const bodyIdFor = (id: string): BodyId | null => {
@@ -323,225 +226,45 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of groupViews) view.sync(t, placement, policy);
     for (const view of sunCentredViews) view.sync(t, placement, policy);
     for (const view of compositionPaths) view.sync(t, placement, policy);
-    if (controls.frameStats !== null) {
-      controls.frameStats.tick(performance.now());
-      groupViews.forEach((view, i) => {
-        const fill = controls.groupFills[i];
-        if (fill === undefined) controls.groupFills[i] = { id: view.id, count: view.fillCount };
-        else fill.count = view.fillCount;
-      });
-    }
+    recordFrameStats(controls.frameStats, controls.groupFills, groupViews);
     // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
     const composed = placeComposition(runtime.bodies, placement, policy, t);
-    placed.current = composed.absolutes;
     const absoluteOf = (id: BodyId): RenderVector =>
       composed.absolutes.get(id) ?? bodyAbsolute(resolver.stateOf(id, t, sceneCenter).positionKm, policy);
     const span = composed.span;
     if (policy.id !== lastPolicyId.current) {
-      // Keep the same relative framing when the visual scale changes; physical state is untouched.
-      if (camState.focus === sceneCenter) camState.distance *= span / spanScaled.current;
-      for (let i = 0; i < 3; i += 1) camState.transition[i] *= span / spanScaled.current;
+      rescaleCameraForPolicy(camState, sceneCenter, span / spanScaled.current);
       lastPolicyId.current = policy.id;
     }
     spanScaled.current = span;
     const frame: SceneFrame = { centre: sceneCenter, span, bodies: catalogue };
+    const targets: SceneTargets = { bodyIdFor, placed: composed.absolutes, absoluteOf, groupViews, sunCentredViews, trackedViews, timeUtcMs: t, policy, placement };
 
-    const focusAbsolute = (focus: FocusId): RenderVector => {
-      const body = bodyIdFor(focus);
-      if (body !== null) return absoluteOf(body);
-      const group = groupViews.find((candidate) => candidate.id === focus);
-      if (group) return group.absolute();
-      const sunCentred = sunCentredViews.find((candidate) => candidate.id === focus);
-      if (sunCentred) return sunCentred.absolute();
-      const view = trackedViews.find((candidate) => candidate.body.id === focus);
-      if (!view) throw new RangeError(`unknown focus target "${focus}"`);
-      return view.absolute(t, policy, placement);
-    };
-
-    const canFocus = (focus: FocusId): boolean => {
-      try { focusAbsolute(focus); return true; } catch { return false; }
-    };
-    // The first frame: a start distance below what the centre body allows (a large centre body) would be clamped up to its closest approach,
-    // so the experience opens on a close-up of that body. It opens at its overview instead (I-028); other experiences start as before.
-    let openedAtOverview = false;
-    if (!started.current) {
-      started.current = true;
-      if (controls.startView !== undefined && canFocus(controls.startView.focus)) {
-        // An explicit start view wins over the overview rule: the camera opens exactly there (the zoom limits still apply below).
-        const view = controls.startView;
-        camState.focus = view.focus;
-        camState.transition.fill(0);
-        camState.azimuth = camState.targetAzimuth = (view.azimuthDeg * Math.PI) / 180;
-        camState.elevation = camState.targetElevation = (view.elevationDeg * Math.PI) / 180;
-        camState.distance = camState.targetDistance = view.distance;
-        controls.cameraRequest = null;
-      } else if (controls.cameraRequest === null && startsInsideFocus(camState.distance, bodyIdFor(camState.focus) ?? camState.focus, frame, policy, runtime.cameraReach)) {
-        controls.cameraRequest = { kind: "overview" };
-        openedAtOverview = true;
-      }
-    }
-    if (controls.cameraRequest) {
-      const request = controls.cameraRequest;
-      controls.cameraRequest = null;
-      const target = request.kind === "overview" ? sceneCenter : request.target;
-      const targetBody = bodyIdFor(target);
-      switchFocus(camState, target, focusAbsolute(target));
-      const framedGroup = groupViews.find((candidate) => candidate.id === target) ?? sunCentredViews.find((candidate) => candidate.id === target);
-      if (request.kind !== "follow") {
-        if (framedGroup) {
-          const extent = framedGroup.extentUnits(policy);
-          const whole = framedGroup instanceof PathView && framedGroup.fitsWhole;
-          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, whole ? fitDistance(extent, (camera as PerspectiveCamera).fov) : GROUP_FRAMING * extent);
-        } else if (targetBody !== null && catalogue.get(targetBody).visual.kind === "marker") {
-          // A marker is a point: it is framed by how far the declared paths reach from it.
-          const reachKm = pathReachKm(sunCentredViews);
-          camState.targetDistance = Math.max(TRACKED_DEFAULT_DISTANCE, GROUP_FRAMING * scaleLength(policy, reachKm));
-        } else {
-          camState.targetDistance = defaultDistance(targetBody ?? target, frame, policy);
-        }
-      }
-      const parent = targetBody === null ? undefined : catalogue.get(targetBody).definition.parentId;
-      if (request.kind === "focus" && targetBody !== null && targetBody !== sceneCenter && parent !== undefined && placed.current.has(parent)) {
-        // Start on the side of the body that faces its parent, so a phase reads as an observer on the parent sees it.
-        const at = placed.current.get(targetBody)!;
-        const from = placed.current.get(parent)!;
-        const toParent = [from[0] - at[0], from[1] - at[1], from[2] - at[2]];
-        const distance = Math.hypot(toParent[0], toParent[1], toParent[2]);
-        const { east, south } = orbitBasis(viewUp);
-        const along = (axis: RenderVector): number => toParent[0] * axis[0] + toParent[1] * axis[1] + toParent[2] * axis[2];
-        camState.targetElevation = Math.asin(along(viewUp) / distance);
-        camState.targetAzimuth = Math.atan2(along(east), along(south));
-      }
-    }
-    if (openedAtOverview) camState.distance = camState.targetDistance;
-    // A change of up direction keeps the camera where it is: the same offset from the target is re-expressed in the new orbit basis.
-    if (lastUp.current !== null && lastUp.current.some((v, k) => v !== viewUp[k])) {
-      const offset = [0, 1, 2].map((k) => camState.cameraAbsolute[k] - camState.targetAbsolute[k]);
-      const angles = orbitAnglesFor(offset as RenderVector, viewUp);
-      if (angles !== null) {
-        camState.elevation = camState.targetElevation = angles.elevation;
-        camState.azimuth = camState.targetAzimuth = angles.azimuth;
-      }
-    }
+    const firstFrame = !started.current;
+    started.current = true;
+    const focusBody = stepCameraTarget({ camState, controls, targets, frame, catalogue, reach: runtime.cameraReach, fovDeg: (camera as PerspectiveCamera).fov, viewUp, firstFrame, previousUp: lastUp.current });
     lastUp.current = viewUp;
-    const focusBody = bodyIdFor(camState.focus) ?? camState.focus;
-    const limits = focusLimits(focusBody, frame, policy, runtime.cameraReach);
-    camState.distance = clampDistance(camState.distance, limits);
-    camState.targetDistance = clampDistance(camState.targetDistance, limits);
-
-    resolveCamera(camState, focusAbsolute(camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
-    for (const asset of assets) {
-      const id = asset.definition.id;
-      const state = composed.states.get(id)!;
-      const mesh = asset.definition.orientation === "none" ? null : orientRefs.current.get(id)!;
-      placeBody(groupRefs.current.get(id)!, mesh, state, state.positionKm, asset.visual.textureYawRad ?? 0, policy, origin);
-    }
-    poseCamera(
-      camera as import("three").PerspectiveCamera,
-      camState,
-      focusRadius(focusBody, policy, catalogue),
-      origin,
-      runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR,
-      viewUp,
-    );
+    resolveCamera(camState, focusAbsoluteOf(targets, camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
+    placeBodies(assets, composed.states, bodyRefs, policy, origin);
+    poseCamera(camera as PerspectiveCamera, camState, focusRadius(focusBody, policy, catalogue), origin, runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR, viewUp);
     controls.viewReadout = viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
-    // The marker rule: a sphere that would be under a few pixels across is drawn as a marker at the same place. Presentation only.
-    const swapped: BodyId[] = [];
-    for (const asset of assets) {
-      const parts = partsRefs.current.get(asset.definition.id);
-      if (parts === undefined) continue;
-      const at = groupRefs.current.get(asset.definition.id)!.position;
-      const radiusPx = projectedRadiusPx(drawnRadii(asset.definition, policy).equatorial, at.distanceTo(camera.position), (camera as PerspectiveCamera).fov, size.height);
-      const marker = drawsAsMarker(radiusPx, controls.bodyMarker);
-      parts.sphere.visible = !marker;
-      parts.marker.visible = marker;
-      if (marker) swapped.push(asset.definition.id);
-    }
-    const swappedList = swapped.join(",");
-    if (gl.domElement.dataset.markerBodies !== swappedList) gl.domElement.dataset.markerBodies = swappedList;
-    const upText = `${viewUp[0].toFixed(6)},${viewUp[1].toFixed(6)},${viewUp[2].toFixed(6)}`;
-    if (gl.domElement.dataset.cameraUp !== upText) gl.domElement.dataset.cameraUp = upText;
-    const threshold = String(controls.bodyMarker.minSpherePx);
-    if (gl.domElement.dataset.markerPx !== threshold) gl.domElement.dataset.markerPx = threshold;
-    if (skyView !== null) {
-      skyView.follow(camera as PerspectiveCamera);
-      skyView.setPictureVisible(controls.showMilkyWay);
-      if (controls.showMilkyWay) skyView.requestPicture();
-      skyView.setStarBrightness(controls.starBrightness);
-      skyView.setMilkyWayBrightness(controls.milkyWayBrightness);
-      const starGain = String(controls.starBrightness);
-      if (gl.domElement.dataset.skyStarBrightness !== starGain) gl.domElement.dataset.skyStarBrightness = starGain;
-      const picture = controls.showMilkyWay ? "on" : "off";
-      if (gl.domElement.dataset.skyPicture !== picture) gl.domElement.dataset.skyPicture = picture;
-      const pictureSource = skyView.pictureSource ?? "none";
-      if (gl.domElement.dataset.skyPictureSource !== pictureSource) gl.domElement.dataset.skyPictureSource = pictureSource;
-      // Developer mode reads the sky back so the invariance can be checked from outside (orientation in, screen position out).
-      if (controls.frameStats !== null) gl.domElement.dataset.skyProbe = JSON.stringify(skyView.probe(camera));
-    }
+    const markerBodies = swapSmallBodiesToMarkers(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.bodyMarker);
+    publishSceneData(gl.domElement, { markerBodies, viewUp, markerMinSpherePx: controls.bodyMarker.minSpherePx });
+    if (skyView !== null) updateSky(skyView, camera as PerspectiveCamera, gl.domElement, controls, controls.frameStats !== null);
     for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
-    const positionFor = (id: string): RenderVector | null => {
-      const body = bodyIdFor(id);
-      if (body !== null) return placed.current.get(body) ?? null;
-      const group = groupViews.find((candidate) => candidate.id === id);
-      if (group !== undefined) return group.drawn ? group.absolute() : null;
-      const sunCentred = sunCentredViews.find((candidate) => candidate.id === id);
-      if (sunCentred !== undefined) return sunCentred.labelAnchor();
-      const view = trackedViews.find((candidate) => candidate.body.id === id);
-      if (view === undefined || stateIfInBounds(view.body, t) === null) return null;
-      return view.absolute(t, policy, placement);
-    };
+    const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
     storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null);
-
-    if (singleSun) {
-      // One point light at the Sun's scaled position, expressed from the floating origin like every other position.
-      const at = origin.toLocal(sunScaledPosition(resolver, sceneCenter, policy, t));
-      sunLight.current?.position.set(at[0], at[1], at[2]);
-    } else {
-      // Each lit body is lit along its own physical Sun direction (before any readable compression).
-      const directions: Map<BodyId, RenderVector> = bodyLightDirections(assets.filter((asset) => lightRefs.current.has(asset.definition.id)).map((asset) => asset.definition.id), resolver, t);
-      for (const asset of assets) {
-        const light = lightRefs.current.get(asset.definition.id);
-        const toSun = directions.get(asset.definition.id);
-        if (light === undefined || toSun === undefined) continue;
-        light.position.set(toSun[0], toSun[1], toSun[2]);
-      }
-    }
-
-    if (readoutPair === null) {
-      readout.current = null;
-      return;
-    }
-    const earthAbsolute = absoluteOf(readoutPair.parent);
-    const moonAbsolute = absoluteOf(readoutPair.child);
-    readout.current = buildDebugReadout({
-      pair: pairLabels,
-      timeUtcMs: t,
-      rate: clock.rate,
-      policy,
-      earth: resolver.stateOf(readoutPair.parent, t, rootBodyId()),
-      moonFromEarth: resolver.stateOf(readoutPair.child, t, readoutPair.parent),
-      sunFromEarth: resolver.sunFrom(readoutPair.parent, t),
-      placed: { earthAbsolute, moonAbsolute },
-      renderedDistanceUnits: Math.hypot(moonAbsolute[0] - earthAbsolute[0], moonAbsolute[1] - earthAbsolute[1], moonAbsolute[2] - earthAbsolute[2]),
-      origin,
-    });
+    placeBodyLights(assets, lightRefs.current, resolver, t);
+    readout.current = buildFrameReadout({ pair: readoutPair, pairLabels, clock, resolver, absoluteOf, timeUtcMs: t, policy, origin });
   });
 
-  const lit = assets.map((asset) => asset.visual.light).filter((light) => light !== undefined);
-  const sunStrength: SunLightStrength = runtime.sunLight ?? { ambient: Math.max(0, ...lit.map((light) => light.ambient)), directional: Math.max(0, ...lit.map((light) => light.directional)) };
   return (
     <group ref={rootRef}>
-      {singleSun && lit.length > 0 && (
-        <>
-          <ambientLight layers={0} intensity={sunStrength.ambient} />
-          <pointLight ref={sunLight} layers={0} decay={0} intensity={sunStrength.directional} />
-        </>
-      )}
       {assets.map((asset) => {
         const id = asset.definition.id;
         const layer = layers.get(id)!;
@@ -549,7 +272,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         return (
           <group key={id}>
             <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
-            {light !== undefined && !singleSun && (
+            {light !== undefined && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />
                 <directionalLight

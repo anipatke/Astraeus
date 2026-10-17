@@ -1,0 +1,189 @@
+{
+  "dirA": "docs/evidence/o017-baseline-20261017",
+  "dirB": "docs/evidence/o017-objective-check-20261017T040127Z/full/pictures",
+  "files": 20,
+  "identical": 8,
+  "maxOver16Pct": 0.0177,
+  "rows": [
+    {
+      "name": "apollo11-moon-desktop.png",
+      "pixels": 1296000,
+      "differing": 36,
+      "differingPct": 0.0028,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "apollo11-moon-phone.png",
+      "pixels": 329160,
+      "differing": 65,
+      "differingPct": 0.0197,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "apollo11-overview-desktop.png",
+      "pixels": 1296000,
+      "differing": 281,
+      "differingPct": 0.0217,
+      "over16": 230,
+      "over16Pct": 0.0177,
+      "maxDelta": 100
+    },
+    {
+      "name": "apollo11-overview-phone.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "earth-moon-close-desktop.png",
+      "pixels": 1296000,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "earth-moon-close-phone.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "earth-moon-wide-desktop.png",
+      "pixels": 1296000,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "earth-moon-wide-phone.png",
+      "pixels": 329160,
+      "differing": 41,
+      "differingPct": 0.0125,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "geminids-desktop.png",
+      "pixels": 1296000,
+      "differing": 19,
+      "differingPct": 0.0015,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "geminids-phone.png",
+      "pixels": 329160,
+      "differing": 1,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 5
+    },
+    {
+      "name": "jupiter-io-close-desktop.png",
+      "pixels": 1296000,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "jupiter-io-close-phone.png",
+      "pixels": 329160,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "jupiter-io-wide-desktop.png",
+      "pixels": 1296000,
+      "differing": 230,
+      "differingPct": 0.0177,
+      "over16": 229,
+      "over16Pct": 0.0177,
+      "maxDelta": 50
+    },
+    {
+      "name": "jupiter-io-wide-phone.png",
+      "pixels": 329160,
+      "differing": 58,
+      "differingPct": 0.0176,
+      "over16": 55,
+      "over16Pct": 0.0167,
+      "maxDelta": 50
+    },
+    {
+      "name": "perseids-desktop.png",
+      "pixels": 1296000,
+      "differing": 5,
+      "differingPct": 0.0004,
+      "over16": 3,
+      "over16Pct": 0.0002,
+      "maxDelta": 52
+    },
+    {
+      "name": "perseids-phone.png",
+      "pixels": 329160,
+      "differing": 2,
+      "differingPct": 0.0006,
+      "over16": 2,
+      "over16Pct": 0.0006,
+      "maxDelta": 50
+    },
+    {
+      "name": "site-assets-desktop.png",
+      "pixels": 10402560,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "site-assets-phone.png",
+      "pixels": 5310240,
+      "differing": 0,
+      "differingPct": 0,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 0
+    },
+    {
+      "name": "site-index-desktop.png",
+      "pixels": 5430240,
+      "differing": 12,
+      "differingPct": 0.0002,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    },
+    {
+      "name": "site-index-phone.png",
+      "pixels": 2568540,
+      "differing": 7,
+      "differingPct": 0.0003,
+      "over16": 0,
+      "over16Pct": 0,
+      "maxDelta": 1
+    }
+  ]
+}

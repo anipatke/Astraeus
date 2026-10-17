@@ -1,7 +1,7 @@
 ---
 id: O-017
 title: Simplify and slim Astraeus before its first public release
-status: planned
+status: in_progress
 depends_on: [O-011, O-012]
 release: G-005
 ---
@@ -43,6 +43,8 @@ Recorded from the planning interview (structured questions):
 4. **Experiences:** keep all; leave the made-up test experiences out of the public build.
 5. **Optimise means:** a load-size budget enforced by a test, plus easy weight wins. Not phone frame rate or start-up time.
 6. **Proof of no visible change:** automatic before/after pictures of every experience at both sizes, plus one short owner look at the end.
+7. **No quality trade for size** (2026-10-17, T-070): "I don't want to compromise on quality". Textures stay at their original encoding; only lossless trims count as easy wins.
+8. **Browser checks until the trim** (2026-10-17, owner remote): until T-071 trims the full browser run, Task handoff and Quick Task Checks run only the lite tier (`tools/validate/browser-lite.mjs`) and the before/after pictures (`capture-experience-pictures.mjs` + `diff-screenshots.mjs`), not the per-area full scripts. This is an owner exception to the AGENTS.md "Scene-affecting fuller gate" rule for O-017 Tasks only; it is not technical evidence for those scripts. The Full Objective Check still runs the trimmed full run from T-071.
 
 ## Planned Tasks (drafts; created after the merge)
 

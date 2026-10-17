@@ -1,0 +1,53 @@
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 221 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../tmp/tmp.BkNfi9DUMl/public/app.html                                    0.46 kB │ gzip:     0.28 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/panels-CCb6a5vK.json                 6.31 kB │ gzip:     1.88 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-milky-way-BpzDL6CS.jpg             7.56 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-mars-2k-C1F1cZqq.jpg              19.68 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-io-2k-BOLMOZ6N.jpg                21.06 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-mercury-2k-YI6CwAf2.jpg           21.77 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-jupiter-2k-H6qj4EOG.jpg           21.81 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/index.html                                 22.91 kB │ gzip:     7.45 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-moon-lroc-urh6biVR.jpg            23.91 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-earth-bmng-Dj1tZINx.jpg           26.40 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-venus-2k-CaKlBPYD.jpg             30.54 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets.html                                32.32 kB │ gzip:    10.01 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/t-sun-2k-06TFWV66.jpg               39.65 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/perseids-gmn-Dfo-du4O.jpg           86.18 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/apollo-moon-BjbPYeAm.jpg            88.52 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/hyg-v42-naked-eye-DIEj4sz2.json    284.31 kB │ gzip:   119.03 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/io-2k-CG7hitww.jpg                 364.82 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/mars-2k-CmcQf1fB.jpg               429.76 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/jupiter-2k-CEiO5JSj.jpg            498.97 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/moon-lroc-2k-z9MmovVg.jpg          565.97 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/sun-2k-BfaUCBxs.jpg                822.42 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/mercury-2k-lhhbYhEJ.jpg            872.55 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/venus-2k-B7XKoL-0.jpg              885.07 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/earth-bmng-july-4k-BJxMI6UV.jpg  1,559.34 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/milky-way-left-BVH6yQ3I.jpg      1,751.81 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/milky-way-right-CiMp2gkm.jpg     1,951.62 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/gmn-iau-7-BeRRPk6y.json          2,596.95 kB │ gzip: 1,006.04 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/gmn-iau-4-Bsd20Dtd.json          5,081.42 kB │ gzip: 1,863.25 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/app-CXUXbORv.css                    31.18 kB │ gzip:     6.53 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/ephemerisProvenance-Cuq_d44K.js      0.02 kB │ gzip:     0.04 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/earthMoonExplorer-J-yYn9u9.js        1.19 kB │ gzip:     0.66 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/jupiterIo-CdkQthnY.js                1.42 kB │ gzip:     0.77 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/scales-ACmYmfpM.js                   2.15 kB │ gzip:     0.97 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/catalogueItem-TGUgYvz_.js            3.47 kB │ gzip:     1.54 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/panels-DOAkjHYP.js                   5.28 kB │ gzip:     1.83 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/showerSettings-BFJDWKm5.js           7.64 kB │ gzip:     2.92 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/measuredOrbits-Dle1aJij.js           8.66 kB │ gzip:     4.39 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/showerDefinition-ow8erafu.js        24.84 kB │ gzip:     9.77 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/apollo11Definition-C38hhl6u.js     362.96 kB │ gzip:   118.66 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/app-C2fsa5M4.js                  1,223.49 kB │ gzip:   358.10 kB
+../../../../tmp/tmp.BkNfi9DUMl/public/assets/planetModels-COxUZuA6.js         1,391.80 kB │ gzip:   560.54 kB
+
+✓ built in 410ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

@@ -311,10 +311,20 @@ describe("listed orbit group phase rule (T-052 Done When 3)", () => {
 });
 
 describe("listed orbit group performance (T-052 Done When 4)", () => {
+  const perfOnRequest = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env.ASTRAEUS_PERF !== "1";
   const big = madeUpMembers(30_000, 21);
   const group = createListedOrbitGroup(baseInput(big), adapter);
 
-  it("fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically", () => {
+  // T-071: the frame-time assertions flaked twice under load (the machine runs browser checks beside the tests), so they run only on request:
+  // ASTRAEUS_PERF=1 npm test -- listedOrbitGroup. The default run keeps the fill itself (below) and the bit-identical test.
+  it("fills 30,000 members with finite positions", () => {
+    const out = new Float64Array(3 * group.count);
+    group.fillPositionsKm(REFERENCE, out);
+    expect(group.count).toBe(30_000);
+    expect(out.every(Number.isFinite)).toBe(true);
+  });
+
+  it.skipIf(perfOnRequest)("fills 30,000 members inside the frame budget and as fast as the existing orbit group (on request: ASTRAEUS_PERF=1)", () => {
     const out = new Float64Array(3 * group.count);
     const orbitGroup = createOrbitGroup({
       id: "cmp", count: 30_000, center: "sun", plane: "ecliptic-j2000", epochUtcMs: REFERENCE,

@@ -18,7 +18,7 @@ export const HYG_PAGE_URL = "https://www.astronexus.com/projects/hyg";
 export const HYG_ARCHIVE_URL = "https://codeberg.org/astronexus/hyg";
 export const HYG_LICENCE = "CC BY-SA 4.0";
 export const HYG_LICENCE_URL = "https://creativecommons.org/licenses/by-sa/4.0/";
-/** Faintest magnitude kept: the same naked-eye limit as the Yale set (tools/data/fetch-stars.mjs). */
+/** Faintest magnitude kept: the naked-eye limit. */
 export const MAGNITUDE_LIMIT = 6.5;
 export const DEFAULT_OUT = join(ROOT, "src", "assets", "stars", "hyg-v42-naked-eye.json");
 export const ATTRIBUTION = "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (astronexus.com), CC BY-SA 4.0. Rows with V <= 6.5 kept; right ascension converted from hours to degrees and rounded to 5 decimals; no other change.";

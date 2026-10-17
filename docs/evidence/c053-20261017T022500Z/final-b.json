@@ -1,0 +1,32 @@
+{
+ "perseids": {
+  "over60": 0,
+  "over90": 0,
+  "frames": 442,
+  "median": 33.3,
+  "p95": 33.4,
+  "max": 50,
+  "longFrames": 3,
+  "longMs": [
+   "210:50",
+   "269:50",
+   "367:50"
+  ],
+  "errors": []
+ },
+ "geminids": {
+  "over60": 11,
+  "over90": 2,
+  "frames": 277,
+  "median": 49.9,
+  "p95": 50.1,
+  "max": 116.8,
+  "longFrames": 3,
+  "longMs": [
+   "25:83",
+   "27:117",
+   "34:100"
+  ],
+  "errors": []
+ }
+}

@@ -1,0 +1,35 @@
+
+> astraeus@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+stdout | tests/listedOrbitGroup.test.ts > listed orbit group performance (T-052 Done When 4) > fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically
+listed 30,000 fill best 18.16 ms; orbit group 30,000 fill best 11.09 ms; best FrameStats duration 18.16 ms (budget 33.4)
+
+ ❯ tests/listedOrbitGroup.test.ts (20 tests | 1 failed) 1478ms
+   ❯ listed orbit group performance (T-052 Done When 4) (2)
+     × fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically 861ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/listedOrbitGroup.test.ts > listed orbit group performance (T-052 Done When 4) > fills 30,000 members inside the frame budget, as fast as the existing orbit group, and bit-identically
+AssertionError: expected 18.157686000000012 to be less than 16.632269999999608
+ ❯ tests/listedOrbitGroup.test.ts:349:24
+    347|     expect(statsBest).toBeLessThan(FRAME_BUDGET_MS);
+    348|     expect(listedBest).toBeLessThan(FRAME_BUDGET_MS);
+    349|     expect(listedBest).toBeLessThan(1.5 * orbitBest);
+       |                        ^
+    350|   });
+    351|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 47 passed (48)
+      Tests  1 failed | 884 passed (885)
+   Start at  11:19:16
+   Duration  30.29s (tests 68%, transform 17%, import 12%, setup 2%)
+
+test-exit 1

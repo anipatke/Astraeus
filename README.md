@@ -92,11 +92,10 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Earth and Moon | `/app.html?experience=earth-moon` |
 | Jupiter and Io | `/app.html?experience=jupiter-io` |
 
-Optional steps, each local only and never committed:
+Data:
 
-- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file. `node tools/data/fetch-stars.mjs` fetches the Yale Bright Star Catalogue (8,404 stars) to this machine, and `?stars=yale` draws it instead. The Yale file is never shipped.
-- **CAMS orbits:** `node tools/data/fetch-meteoroid-orbits.mjs 7` fetches the CAMS Perseid orbits, and `4` fetches the Geminids. The CAMS terms are not confirmed, so these are not shipped, and a public build offers only the Global Meteor Network source.
-- **Perseids and Geminids work out of the box.** They default to the Global Meteor Network orbits (CC BY 4.0), and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching.
+- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file.
+- **Perseids and Geminids work out of the box.** They draw the Global Meteor Network orbits (CC BY 4.0), the only orbit source, and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching; `node tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a file from the monthly summaries.
 
 ## Develop
 
@@ -109,6 +108,19 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 
 `ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node tools/validate/public-build-assets.mjs` then checks that none of them, and nothing from `data/local/`, is in `dist/`.
 
+**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-17 (the index page and whole-build rows re-measured after the three new home-page demo pictures, T-074), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"). Each limit is the measurement plus 5%, rounded up to the next 10 kB; a change that makes a page heavier raises its limit on purpose, with the new measurement.
+
+| Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
+|---|---|---|---|---|
+| `index.html` | 567,702 B | 600,000 B | 503,261 B | 530,000 B |
+| `assets.html` | 244,750 B | 260,000 B | 220,942 B | 240,000 B |
+| `app.html` (Apollo 11) | 4,038,691 B | 4,250,000 B | 2,720,311 B | 2,860,000 B |
+| `app.html?experience=earth-moon` | 3,671,629 B | 3,860,000 B | 2,601,663 B | 2,740,000 B |
+| `app.html?experience=jupiter-io` | 3,802,109 B | 4,000,000 B | 1,894,220 B | 1,990,000 B |
+| `app.html?experience=shower-perseids` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
+| `app.html?experience=shower-geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |
+| whole build | 21,427,066 B | 22,500,000 B | 14,148,373 B | 14,860,000 B |
+
 The browser checks in `tools/validate/` drive the app in headless Chromium through `playwright-core`, which `npm install` adds. Install the browser once with `npx playwright-core install chromium`, start `npm run dev -- --port 5199`, then run for example `node tools/validate/browser-shell.mjs`. Set `ASTRAEUS_URL` to point a script at another address and `PLAYWRIGHT_CORE` to use another copy of the library.
 
 Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
@@ -117,13 +129,12 @@ Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/AST
 
 Everything the demos draw, with its source, licence and whether it can go public. The same list, with pictures, is on the [assets page](https://astraeus.curiouscode.ai/assets.html).
 
-**The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain, local only and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
+**The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
 
 | Asset | Source | Licence | Status |
 |---|---|---|---|
 | Milky Way panorama | ESO eso0932a, ESO/S. Brunier | CC BY 4.0 | Public |
 | Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
-| Yale stars (8,404, option) | Yale Bright Star Catalogue, 5th rev., Hoffleit & Warren 1991 | Terms not established as public domain | This machine only |
 | Sun, Mercury, Venus, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
 | Io map | USGS Galileo and Voyager mosaic | Public domain | Public |
 | Earth map | NASA Earth Observatory, Blue Marble: Next Generation with topography and bathymetry, July 2004 (Reto Stöckli) | Public domain | Public |
@@ -133,7 +144,6 @@ Everything the demos draw, with its source, licence and whether it can go public
 | Comet 109P/Swift-Tuttle, asteroid 3200 Phaethon | NASA JPL Small-Body Database | Public | Public |
 | Apollo 11 paths and events | NASA Apollo 11 Mission Report, MSC-00171 / SP-238 | Public domain | Public |
 | Perseid orbits (25,588) and Geminid orbits (51,115) | Global Meteor Network trajectory summaries, Vida et al. | CC BY 4.0 | Public, with credit |
-| Perseid and Geminid orbits | CAMS v3, 2010 to 2016, P. Jenniskens | Terms pending | This machine only |
 | Shower facts | IAU Meteor Data Center; American Meteor Society calendar | Published reference values | Public |
 
 Credit lines, word for word:
@@ -144,10 +154,8 @@ Credit lines, word for word:
 - Earth map, public domain: NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096x2048.
 - Moon map, public domain: NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.
 - Global Meteor Network, CC BY 4.0: Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).
-- CAMS: CAMS Meteoroid Orbit Database v3, P. Jenniskens, SETI Institute. Jenniskens et al. 2018, Planetary and Space Science 154.
 - IAU Meteor Data Center: Jenniskens et al. 2020, Planetary and Space Science 182; Jopek & Kanuchova 2017, Planetary and Space Science 143.
 - Bright stars, CC BY-SA 4.0: HYG database v4.2 (Hipparcos, Yale Bright Star and Gliese catalogues), astronexus, astronexus.com/projects/hyg. Changed: stars of magnitude 6.5 or brighter kept, right ascension converted from hours to degrees. The CC BY-SA 4.0 licence covers this star file only; the code stays MIT.
-- Yale stars (local option, never shipped): Yale Bright Star Catalogue, 5th revised edition, Hoffleit & Warren 1991, via CDS Strasbourg.
 - Orbits and positions: NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon & Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.
 - Apollo 11, public domain: NASA Apollo 11 Mission Report, MSC-00171 / SP-238.
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.

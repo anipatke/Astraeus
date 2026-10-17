@@ -1,0 +1,30 @@
+{
+  "url": "http://localhost:5479/app.html",
+  "viewport": "1280x800",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 40,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "screenshots": [
+    "docs/evidence/o017-t071-full-20261017T014452Z/anchor-labels/labels-on-overview.png",
+    "docs/evidence/o017-t071-full-20261017T014452Z/anchor-labels/labels-on-follow.png"
+  ],
+  "errors": []
+}
+{
+  "url": "http://localhost:5479/app.html",
+  "viewport": "390x844",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 10,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "screenshots": [
+    "docs/evidence/o017-t071-full-20261017T014452Z/anchor-labels/labels-on-overview-phone.png",
+    "docs/evidence/o017-t071-full-20261017T014452Z/anchor-labels/labels-on-follow-phone.png"
+  ],
+  "errors": []
+}

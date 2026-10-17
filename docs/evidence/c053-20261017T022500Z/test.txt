@@ -1,0 +1,9 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+
+ Test Files  51 passed (51)
+      Tests  902 passed | 1 skipped (903)
+   Start at  13:51:23
+   Duration  30.25s (tests 73%, transform 13%, import 11%, setup 2%)
+

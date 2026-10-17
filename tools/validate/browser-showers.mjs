@@ -8,9 +8,23 @@
 //   peak solar longitude 140.1 deg (checkCrossing) ........... settings radiant.peakSolarLongitudeDeg
 //   radiant RA 47.9 / Dec 57.9 / "IAU Meteor Data Center" .... settings radiant.raDeg / decDeg / the first words of radiant.source.name
 //   the clump "30% ... ±20° ... 109P/Swift-Tuttle" ........... settings stream.concentration and parentBody
-//   fetch command "... 7" and orbit file cams-iau-7 .......... settings stream.iauCode
+//   fetch command "... 7" and orbit file gmn-iau-7 .......... settings stream.iauCode
 //   "Information about Perseids stream" ....................... settings label
-// T-056: every URL here pins ?source=cams so the CAMS path stays covered (the Perseids default is the GMN since the owner's 2026-10-16 choice; browser-showers-gmn.mjs covers that default).
+// O-017 T-071 (trim): the phone run checks the phone layout once, so it keeps the plain load, the peak (stream drawn, details, credits, member count, the clump and
+// not-shown statements) and the window details, and no longer repeats: start and end stream drawn and the rate rising to the peak (desktop asserts both), the zoomed-out sweep
+// (kept, desktop and phone), checkSunEarth, checkBodies, checkWholeOrbit, checkCrossing, checkYear, checkLoop and checkEclipticFlat (desktop only; they measure the same
+// scene geometry, not a layout). The zoomed-out and credits steps still run on both sizes. The full run (run-full.sh) runs Perseids in full and Geminids with ASTRAEUS_LIGHT=1
+// (both sizes light): Geminids' own settings figures, credits, counts, quality sets and span are asserted; the geometry scenarios are the same code and ran for Perseids.
+// O-017 T-067 (CAMS and Yale removed; GMN is the only orbit source): the stream is the committed GMN copy data/stories/<shower>/gmn-iau-<code>.json, so no URL pins a source any more
+// and the figures that were read from the local CAMS file (kept count, orbit sets, rows) are read from that copy. browser-showers-gmn.mjs is removed and each of its scenarios is mapped:
+//   its scenario ......................................................... now asserted by
+//   ?source=gmn draws the stream from the GMN file; panel names the GMN, CC BY 4.0, months, counts ... the stream-details scenario (every shower, desktop and phone): GMN credit, licence, months, counts, both citations
+//   ?source=gmn&orbits=all|reliable draws each set; panel states the Qc / Vgeo-sigma rule ............. checkQuality (set counts from the shipped file's compact columns, the mapped rule sentence)
+//   the default is CAMS and its panel carries no GMN sentence .............. dropped with CAMS; replaced by "the panel names no CAMS source" (stream-details) and the removed ?source= address being ignored (checkRemovedSwitches)
+//   Developer offers "Orbits from CAMS" / "Orbits from GMN" and reloads ..... dropped with the switch; replaced by checkRemovedSwitches (no "Orbits from" button, ?source=cams still draws GMN, no CAMS file requested)
+//   not fetched: the panel gives the GMN fetch command ................. checkNotFetched (blocks the local file and the shipped copy, asserts the --months command and no --source)
+//   ASTRAEUS_SHIPPED=1 checkShipped (public build) ......................... browser-public-showers.mjs (shipped copy requested, no data/local served, GMN credit, absent message)
+//   the owner's CAMS-vs-GMN comparison screenshots (compare/) ............... dropped: a one-off comparison for the owner's source choice in T-056; the before/after pictures of tools/validate/capture-experience-pictures.mjs cover the look
 // I-028 (new scenario, "plain load"): a load with no preset clicked and the sky on draws the stream (>50 stream-coloured pixels: the Geminid dots are 1.6 px aqua and read thin, 95 on the phone) and is not a Sun close-up (<30% lit).
 //   the comet "swift-tuttle" and "Focus comet" ................ the parent id (parentElements.id or parentBodyId) and the generic "Focus parent" preset
 //   the mounted bodies (seven) ................................ the built-in Sun-circling bodies, plus the parent when the settings define it
@@ -21,7 +35,7 @@
 //   NEW plain load opens at the shower's look.startView ....... the Developer view readout matches the settings file within 1.5 deg / 2% (only when the file declares one)
 //
 // T-038 scenario map (the T-047, T-049 and T-053 scenarios are all kept; each one whose subject changed names its replacement).
-//   NEW in T-038: the stream is the measured CAMS orbits, fetched to data/local/ by tools/data/fetch-meteoroid-orbits.mjs (git-ignored, never shipped); the
+//   NEW in T-038: the stream is the measured orbits (then CAMS, now the GMN copy under data/stories/, see O-017 T-067 above); the
 //   Sun-centred scene holds the Sun, Earth, the four planets and the comet, as catalogued bodies, with the comet's whole orbit drawn.
 //   prior scenario .............................................. now asserted by
 //   one stream group, listed once, no Apollo objects ............ unchanged (data-point-groups 1) + the panel's member count equals the fetched file's kept count
@@ -54,11 +68,14 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const shower = process.argv[2] ?? process.env.ASTRAEUS_SHOWER;
+// ASTRAEUS_LIGHT=1: a second shower in the full run. Both sizes run only the settings-driven scenarios (plain load, peak, details, credits, counts, window), not the scene geometry the first shower already proved.
+const lightRun = process.env.ASTRAEUS_LIGHT === "1";
 const showersDir = new URL("../../data/showers/", import.meta.url);
 if (shower === undefined) {
   // Every discovered shower, one run each, in its own child process, log and evidence folder.
@@ -75,7 +92,9 @@ if (shower === undefined) {
   process.exit(failed === 0 ? 0 : 1);
 }
 const settingsFile = JSON.parse(readFileSync(new URL(`${shower}.json`, showersDir), "utf8"));
-const orbitFile = new URL(`../../data/local/cams-iau-${settingsFile.stream.iauCode}.json`, import.meta.url);
+// The committed GMN copy a public build ships (compact columns, see SHIPPED_COLUMNS in tools/data/fetch-meteoroid-orbits.mjs): recordId, epochUtcMs, a, e, i, w, node, Qc, Vgeo, Vgeo sigma.
+const orbitFile = new URL(`../../data/stories/${shower}/gmn-iau-${settingsFile.stream.iauCode}.json`, import.meta.url);
+const gmnSettings = settingsFile.stream.sources.gmn;
 const haveOrbits = existsSync(orbitFile);
 const fetched = haveOrbits ? JSON.parse(readFileSync(orbitFile, "utf8")).provenance : null;
 // The parent: defined in the file (its id is the record's) or catalogued. The mounted bodies are the built-in Sun-circling ones plus a defined parent.
@@ -545,9 +564,12 @@ async function checkCrossing(page, label) {
 async function checkNotFetched() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    // As the dev server answers an unfetched path: the app's page, 200, not JSON (a 404 would be logged as a console error by the browser itself).
-    await page.route("**/data/local/cams-iau-*.json", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>app</title>" }));
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
+    // As the dev server answers an unfetched path: the app's page, 200, not JSON (a 404 would be logged as a console error by the browser itself). The dev server falls back to the story's
+    // shipped copy when the local file is absent, so both are blocked (the bare file fetch, not vite's ?url module).
+    const app = (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>app</title>" });
+    await page.route("**/data/local/gmn-iau-*.json", app);
+    await page.route((url) => url.pathname.startsWith("/data/stories/") && url.pathname.endsWith(".json") && url.search === "", app);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -557,7 +579,8 @@ async function checkNotFetched() {
     if (!(await page.locator("#info-panel").count())) await page.getByRole("button", { name: streamButtonName }).click();
     const text = (await page.locator("#info-panel").innerText()).replace(/\s+/g, " ");
     assert.match(text, /not fetched on this machine/i, "not fetched: the panel says so");
-    assert.match(text, new RegExp(`node tools/data/fetch-meteoroid-orbits\\.mjs ${settingsFile.stream.iauCode}`), "not fetched: the panel gives the command");
+    assert.match(text, new RegExp(`node tools/data/fetch-meteoroid-orbits\\.mjs ${settingsFile.stream.iauCode} --months ${gmnSettings.months.join(",")}`), "not fetched: the panel gives the GMN fetch command");
+    assert.ok(!text.includes("--source"), "not fetched: the command has no removed --source flag");
     results.notFetched = { panel: text.slice(0, 400) };
     if (outDir) await page.screenshot({ path: `${outDir}/not-fetched.png` });
     // The rest of the scene is still there.
@@ -605,6 +628,8 @@ async function checkLoop(page, label, canvas) {
   if (await page.getByRole("button", { name: "Play playback", exact: true }).count()) await page.getByRole("button", { name: "Play playback", exact: true }).click();
   const seen = [];
   for (let i = 0; i < 30; i += 1) { await page.waitForTimeout(60); seen.push(await timeOf()); }
+  // A story panel (the Perseids' "earth-crossing") auto-opens while playback runs across its event and covers the controls; close it before pausing (pre-existing since the story panels, found in T-067).
+  await page.locator(".story-panel-close").click({ timeout: 1500 }).catch(() => {});
   await page.getByRole("button", { name: "Pause playback" }).click();
   out.times = seen.map((t) => new Date(t).toISOString());
   const wrapped = seen.findIndex((t, k) => k > 0 && t < seen[k - 1]);
@@ -620,7 +645,7 @@ async function checkLoop(page, label, canvas) {
 async function checkLoopOff() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&loop=off`);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off&loop=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     await page.getByRole("button", { name: "Pause playback" }).click();
@@ -674,7 +699,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   const out = (results[label].eclipticFlat ??= {});
   const p = await openPage(page.viewportSize());
   try {
-    await p.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
+    await p.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
     await p.waitForSelector("canvas");
     await p.getByRole("region", { name: "Timeline controls" }).waitFor();
     await p.getByRole("button", { name: "Pause playback" }).click();
@@ -754,7 +779,7 @@ async function checkYear(page, label, canvas) {
 async function checkSpanActivity() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&span=activity`);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off&span=activity`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const slider = page.locator('input[aria-label="Seek timeline"]');
@@ -769,10 +794,10 @@ async function checkSpanActivity() {
 // Orbit sets (owner, 2026-10-16, to compare all orbits with reliable-only): the panel says which set is shown, its count and the cited rule; ?orbits=reliable draws the smaller set;
 // Developer > Display settings offers both and choosing one reloads with it.
 const reliableCount = () => {
-  const rows = JSON.parse(readFileSync(orbitFile, "utf8")).rows;
+  const rows = rowsOfFile(JSON.parse(readFileSync(orbitFile, "utf8")));
   const rule = settingsFile.stream.quality.rule;
-  const isReliable = (r) => r[9] >= rule.minConvergenceAngleDeg && r[11] <= rule.maxVelocityErrorFraction * r[10];
-  return { all: rows.length, reliable: rows.filter(isReliable).length, pairsFlagged: rows.filter((r) => r[12] === 1).length, pairsFlaggedReliable: rows.filter((r) => r[12] === 1 && isReliable(r)).length };
+  const isReliable = (r) => r[7] >= rule.minConvergenceAngleDeg && r[9] <= rule.maxVelocityErrorFraction * r[8];
+  return { all: rows.length, reliable: rows.filter(isReliable).length };
 };
 
 async function checkQuality() {
@@ -781,7 +806,7 @@ async function checkQuality() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
     for (const set of ["all", "reliable"]) {
-      await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off&orbits=${set}`);
+      await page.goto(`${base}?experience=shower-${shower}&sky=off&orbits=${set}`);
       await page.waitForSelector("canvas");
       await page.getByRole("region", { name: "Timeline controls" }).waitFor();
       await page.getByRole("button", { name: "Pause playback" }).click();
@@ -791,21 +816,21 @@ async function checkQuality() {
       assert.match(description, new RegExp(`${counts[set]} measured meteoroid orbits`), `orbits=${set}: the stream describes ${counts[set]} orbits`);
       await page.locator("#info-panel .provenance-badge").click();
       const detail = (await page.locator("#info-panel .provenance-detail").innerText()).replace(/\s+/g, " ");
-      const sentence = detail.match(/Orbit set shown:[^]*?double entries[^.]*\./)?.[0] ?? "";
+      const sentence = detail.match(/Orbit set shown:[^]*?GMN has no double-entry flag\./)?.[0] ?? "";
       out[set] = sentence.slice(0, 700);
       assert.match(sentence, new RegExp(`Orbit set shown: ${set === "all" ? "all orbits" : "reliable orbits only"} \\(${counts[set]} of ${counts.all} bound orbits`), `orbits=${set}: the panel says which set and its count`);
       assert.match(sentence, new RegExp(`has ${counts.reliable} and cuts ${counts.all - counts.reliable}`), `orbits=${set}: both counts are stated`);
       const rule = settingsFile.stream.quality.rule;
-      assert.ok(sentence.includes(`convergence angle Q at least ${rule.minConvergenceAngleDeg}° and velocity error at most ${Math.round(rule.maxVelocityErrorFraction * 100)}%`), `orbits=${set}: the rule is stated`);
+      assert.ok(sentence.includes(`Qc (the maximum convergence angle between the stations that saw the meteor) at least ${rule.minConvergenceAngleDeg}° and the Vgeo sigma at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of Vgeo`), `orbits=${set}: the rule is stated, mapped to the GMN columns`);
       assert.ok(sentence.includes(rule.source.name.split(/[,(:]/)[0].trim()), `orbits=${set}: the rule is cited (${rule.source.name.split(/[,(:]/)[0].trim()})`);
       assert.ok(sentence.includes(rule.quote.slice(1, 46)), `orbits=${set}: the published wording is quoted`);
-      assert.ok(sentence.includes(`${counts.pairsFlagged} records flagged as double entries are kept in both sets (${counts.pairsFlaggedReliable} of them in the reliable set)`), `orbits=${set}: the double entries are counted (${counts.pairsFlagged}, ${counts.pairsFlaggedReliable} in the reliable set)`);
+      assert.ok(sentence.includes(gmnSettings.ruleNote) && sentence.endsWith("GMN has no double-entry flag."), `orbits=${set}: the GMN rule note and the no-double-entry statement are given`);
       assert.match(detail, new RegExp(`${counts[set]} orbits drawn`), `orbits=${set}: the provenance counts the orbits drawn`);
       assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", `orbits=${set}: the stream is drawn`);
       if (outDir) await page.screenshot({ path: `${outDir}/quality-${set}.png` });
     }
     // The live switch: Developer > Display settings, choosing the other set reloads with it.
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off`);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
     await page.waitForSelector("canvas");
     await page.getByRole("button", { name: "Developer mode" }).click();
     const reliableButton = page.getByRole("button", { name: `Reliable only (${counts.reliable})` });
@@ -814,6 +839,27 @@ async function checkQuality() {
     await page.waitForSelector("canvas");
     await page.getByRole("button", { name: "Developer mode" }).click();
     assert.equal(await page.getByRole("button", { name: `Reliable only (${counts.reliable})` }).getAttribute("aria-pressed"), "true", "after the switch the reliable set is active");
+  } finally {
+    await page.close();
+  }
+}
+
+// O-017 T-067: the source switch and the ?source= address are gone. The Developer panel offers no "Orbits from ..." button, and the old address is ignored: the GMN stream is
+// still drawn and no CAMS file is requested.
+async function checkRemovedSwitches() {
+  const page = await openPage({ width: 1280, height: 800 });
+  const requests = [];
+  page.on("request", (request) => requests.push(request.url()));
+  try {
+    await page.goto(`${base}?experience=shower-${shower}&source=cams&stars=yale&sky=off`);
+    await page.waitForSelector("canvas");
+    await page.getByRole("region", { name: "Timeline controls" }).waitFor();
+    await page.waitForTimeout(2500);
+    assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "removed ?source=cams: the GMN stream is still drawn");
+    await page.getByRole("button", { name: "Developer mode" }).click();
+    assert.equal(await page.getByRole("button", { name: /^Orbits from/ }).count(), 0, "no source switch is offered");
+    assert.ok(!requests.some((url) => /cams-iau|yale-bsc/.test(url)), `no CAMS or Yale file is requested (${requests.filter((url) => /cams-iau|yale-bsc/.test(url)).join(" ")})`);
+    results.removedSwitches = "?source=cams&stars=yale ignored; no source switch; no CAMS or Yale request";
   } finally {
     await page.close();
   }
@@ -843,6 +889,7 @@ async function checkUpToggle(page, label) {
 }
 
 async function run(label, viewport) {
+  const phoneOnce = label === "phone" || lightRun;
   const page = await openPage(viewport);
   const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const streamId = `${shower}-stream`;
@@ -851,7 +898,7 @@ async function run(label, viewport) {
     let startViewRead;
     const plain = await openPage(viewport);
     try {
-      await plain.goto(`${base}?experience=shower-${shower}&source=cams`);
+      await plain.goto(`${base}?experience=shower-${shower}`);
       await plain.waitForSelector("canvas");
       await plain.getByRole("region", { name: "Timeline controls" }).waitFor();
       await plain.waitForTimeout(2500);
@@ -876,7 +923,7 @@ async function run(label, viewport) {
     } finally {
       await plain.close();
     }
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&sky=off${ENGINE_DEFAULT_VIEW}`);
+    await page.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}`);
     await page.waitForSelector("canvas");
     await page.getByRole("region", { name: "Timeline controls" }).waitFor();
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -885,7 +932,8 @@ async function run(label, viewport) {
     assert.equal(await page.locator(`option[value="${streamId}"]`).count(), 1, `${label}: the stream is listed once`);
     assert.equal(await page.locator('option[value="columbia"]').count(), 0, `${label}: no Apollo objects`);
     assert.equal(await page.locator('option[value="moon"]').count(), 0, `${label}: no Moon item`);
-    await page.getByRole("button", { name: "Pause playback" }).click();
+    // A DOM click: on the phone a story panel can auto-open over the button while the page settles (it intercepted a pointer click once under load, T-071).
+    await page.evaluate(() => document.querySelector('button[aria-label="Pause playback"]')?.click());
 
     // The activity window and its peak are on the timeline.
     const windowButton = page.locator("button.timeline-window");
@@ -929,7 +977,7 @@ async function run(label, viewport) {
       ["start", () => seek(page, Number(start))],
       ["peak", async () => { await peakButton.click(); await page.waitForTimeout(500); }],
       ["end", () => seek(page, Number(end))],
-    ]) {
+    ].filter(([name]) => !phoneOnce || name === "peak")) {
       await move();
       // Jumping to the peak opens the window's details; frame the stream again, then read its own details.
       await focusStream();
@@ -955,8 +1003,10 @@ async function run(label, viewport) {
     await openDetails();
     // The readout rises to the peak and falls again.
     const rateOf = (name) => Number(results[label].readings[name].panel.match(/Activity rate\D*([\d.]+)/)?.[1]);
-    assert.ok(rateOf("peak") > rateOf("start"), `${label}: rate at the peak is above the start`);
-    assert.ok(rateOf("peak") > rateOf("end"), `${label}: rate at the peak is above the end`);
+    if (!phoneOnce) {
+      assert.ok(rateOf("peak") > rateOf("start"), `${label}: rate at the peak is above the start`);
+      assert.ok(rateOf("peak") > rateOf("end"), `${label}: rate at the peak is above the end`);
+    }
 
     // The radiant and the published/modelled split are visible in the stream's details.
     const text = await panel.innerText();
@@ -969,7 +1019,9 @@ async function run(label, viewport) {
     assert.match(await badge.innerText(), /^Illustrative/, `${label}: the stream is marked illustrative`);
     await badge.click();
     const detail = await panel.locator(".provenance-detail").innerText();
-    assert.match(detail, /CAMS/, `${label}: the measured source is cited`);
+    for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", `Read from ${gmnSettings.months.join(" and ")}`, `${fetched.counts.kept} bound orbits kept`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
+    // The published rule's quote (a citation of the 2025 papers) still says the papers applied it "to the CAMS v3.0 database"; that is their wording, not a data source here.
+    assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(detail), `${label}: the panel cites no CAMS data source`);
     assert.match(detail, new RegExp(`${fetched.counts.kept} orbits drawn`), `${label}: the member count equals the fetched file's (${fetched.counts.kept})`);
     assert.match(detail, /position of each dot along its orbit is illustrative/i, `${label}: the position along each orbit is stated illustrative`);
     const clump = settingsFile.stream.concentration;
@@ -990,6 +1042,7 @@ async function run(label, viewport) {
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
     await shot("window-details");
+    if (phoneOnce) return; // the phone layout is checked once, through the scenarios above; the rest repeat the desktop's geometry
     await checkSunEarth(page, label, shot, canvas);
     await checkBodies(page, label, shot, canvas);
     await checkWholeOrbit(page, label, shot, canvas);
@@ -1012,6 +1065,7 @@ try {
   await checkLoopOff();
   await checkSpanActivity();
   await checkQuality();
+  await checkRemovedSwitches();
   // Existing experiences still mount by their old names.
   const page = await openPage({ width: 1280, height: 800 });
   await page.goto(base);

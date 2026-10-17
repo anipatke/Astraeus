@@ -1,0 +1,11 @@
+
+  VITE v8.3.2  ready in 153 ms
+
+  ➜  Local:   http://localhost:5479/
+  ➜  Network: use --host to expose
+2:45:10 PM [vite] (client) page reload data/showers/perseids.json
+2:46:28 PM [vite] (client) page reload docs/evidence/o017-t072-full-20261017T034453Z/contact-sheet.html
+2:51:31 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+2:51:31 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+2:53:50 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+2:53:50 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2

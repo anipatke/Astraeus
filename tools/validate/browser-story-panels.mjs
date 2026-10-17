@@ -104,8 +104,10 @@ try {
 
   // Timeline marker: seeks and opens; a second marker replaces, never stacks.
   await page.locator('.timeline-panel-marker[data-panel-id="tli-cutoff"]').click();
+  await page.locator('.story-panel[data-panel-id="tli-cutoff"]').waitFor({ timeout: 5000 });
   assert.deepEqual(await openPanelIds(page), ["tli-cutoff"]);
   await page.locator('.timeline-panel-marker[data-panel-id="touchdown"]').click();
+  await page.locator('.story-panel[data-panel-id="touchdown"]').waitFor({ timeout: 5000 });
   assert.deepEqual(await openPanelIds(page), ["touchdown"]);
   assert.equal(await page.locator('.timeline-panel-marker[data-panel-id="touchdown"]').getAttribute("aria-pressed"), "true");
   note("timeline markers open their panel, one at a time");
@@ -118,6 +120,7 @@ try {
   const sceneMarker = page.locator('.story-marker[data-panel-id="touchdown"]');
   assert.equal(await sceneMarker.isVisible(), true, "scene marker shows on Eagle");
   await sceneMarker.click();
+  await page.locator('.story-panel[data-panel-id="touchdown"]').waitFor({ timeout: 5000 }); // the panel renders after the click; under load the first read came back empty (T-071)
   assert.deepEqual(await openPanelIds(page), ["touchdown"]);
   assert.equal(await sceneMarker.getAttribute("aria-pressed"), "true");
   await page.screenshot({ path: `${out}/desktop-scene-marker-panel.png` });
@@ -184,6 +187,7 @@ try {
   assert.equal((await openPanelIds(page)).length, 0, "auto-open off opens nothing");
   assert.equal(await isPlaying(page), true);
   await page.locator('.timeline-panel-marker[data-panel-id="tli-cutoff"]').click();
+  await page.locator('.story-panel[data-panel-id="tli-cutoff"]').waitFor({ timeout: 5000 });
   assert.deepEqual(await openPanelIds(page), ["tli-cutoff"]);
   note("auto-open off: playback crosses silently, markers still open panels");
   await context.close();
