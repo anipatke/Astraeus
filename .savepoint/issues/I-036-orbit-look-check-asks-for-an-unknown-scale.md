@@ -14,7 +14,7 @@ history:
     note: 'Found by the T-085 builder (Drift Note): tools/validate/browser-orbit-look.mjs loads `scale=readable`, which is not a scale id (`readable-scale` is), so its "desktop-readable" case silently renders True scale and never checks the orbit look under Readable.'
   - at: '2026-10-17T22:00:00Z'
     actor: {role: executor, session: i036-i037-builder-20261017}
-    kind: note
+    kind: repair_attempted
     note: 'Executor stopped (owner pause). Done: driver loadAddress/assertScaleInUse throw when a scale is not offered or not in force (tests/browserDriverScale.test.ts); browser-orbit-look now loads earth-moon with scale=readable-scale and asserts currentScale. Single run of browser-orbit-look passed. tsc, vitest, build and driver guard passed. Remains: the final run-full (not run) and a Check.'
 ---
 
