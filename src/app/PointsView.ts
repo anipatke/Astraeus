@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial } from "three";
+import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial, Vector3, type WebGLProgramParametersWithUniforms } from "three";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -34,6 +34,20 @@ interface Fill {
   extentKm: number;
   centroid: RenderVector;
   mappedFor: string;
+  /** Changes whenever the fill's drawn content changes, so the GPU copy knows when to be rewritten. */
+  version: number;
+}
+
+/**
+ * The numbers the vertex shader mixes: each member is `from + factor * (to - from) + offset`, in 32-bit floats.
+ * `from` and `to` are the two fills relative to `anchor` (so they stay small and exact in 32 bits wherever the
+ * group is); `offset` is the anchor minus the floating origin, the only thing that changes when the camera moves.
+ */
+export interface BlendInputs {
+  readonly from: Float32Array;
+  readonly to: Float32Array;
+  readonly factor: number;
+  readonly offset: Float32Array;
 }
 
 /** A fill being computed a slice per frame toward a time known in advance. Not drawn until complete and swapped in. */
@@ -69,8 +83,17 @@ export class PointsView {
   /** Number of batch fills so far; lets tests and diagnostics see that no fill happens outside bounds. */
   fillCount = 0;
   readonly #points: Points;
-  readonly #positions: BufferAttribute;
+  readonly #from: BufferAttribute;
+  readonly #to: BufferAttribute;
   readonly #material: PointsMaterial;
+  readonly #uniforms = { uBlend: { value: 0 }, uOffset: { value: new Vector3() } };
+  readonly #offset = new Float32Array(3);
+  #anchor: RenderVector = [0, 0, 0];
+  #uploadedBefore: Fill | null = null;
+  #uploadedAfter: Fill | null = null;
+  #uploadedBeforeVersion = -1;
+  #uploadedAfterVersion = -1;
+  #versions = 0;
   readonly #spanMs: number;
   readonly #sliceMs: number;
   readonly #now: () => number;
@@ -102,8 +125,10 @@ export class PointsView {
     this.#before = this.#emptyFill();
     this.#after = this.#emptyFill();
     const geometry = new BufferGeometry();
-    this.#positions = new BufferAttribute(new Float32Array(3 * count), 3);
-    geometry.setAttribute("position", this.#positions);
+    this.#from = new BufferAttribute(new Float32Array(3 * count), 3);
+    this.#to = new BufferAttribute(new Float32Array(3 * count), 3);
+    geometry.setAttribute("position", this.#from);
+    geometry.setAttribute("positionTo", this.#to);
     this.#material = new PointsMaterial({
       color: layer.color,
       size: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX,
@@ -112,6 +137,8 @@ export class PointsView {
       opacity: 0.9,
       depthWrite: false,
     });
+    this.#material.onBeforeCompile = (shader) => this.#blendInVertexShader(shader);
+    this.#material.customProgramCacheKey = () => "astraeus-points-blend";
     this.#points = new Points(geometry, this.#material);
     this.#points.frustumCulled = false;
     this.#points.layers.set(TRACK_LAYER);
@@ -174,29 +201,72 @@ export class PointsView {
     if (!wholeFill) this.#lookAhead(placement, policy);
   }
 
-  /** Writes the narrowed, origin-relative, blended positions the GPU draws. */
+  /**
+   * Hands the GPU this frame's numbers. The two fills are copied into the attributes only when one of them has
+   * changed (a fill, a slide, a scale change); every other frame only the blend factor and offset change.
+   */
   place(origin: FloatingOrigin): void {
     this.#points.visible = this.#drawn;
     if (!this.#drawn) return;
+    if (this.#uploadedBefore !== this.#before || this.#uploadedBeforeVersion !== this.#before.version
+      || this.#uploadedAfter !== this.#after || this.#uploadedAfterVersion !== this.#after.version) this.#upload();
     const [ox, oy, oz] = origin.scaledCameraOrigin;
-    const from = this.#before.scaled;
-    const to = this.#after.scaled;
-    const f = this.#blend;
-    const out = this.#positions.array as Float32Array;
-    for (let i = 0; i < from.length; i += 3) {
-      out[i] = from[i] + f * (to[i] - from[i]) - ox;
-      out[i + 1] = from[i + 1] + f * (to[i + 1] - from[i + 1]) - oy;
-      out[i + 2] = from[i + 2] + f * (to[i + 2] - from[i + 2]) - oz;
-    }
-    this.#positions.needsUpdate = true;
+    const anchor = this.#anchor;
+    this.#offset[0] = anchor[0] - ox;
+    this.#offset[1] = anchor[1] - oy;
+    this.#offset[2] = anchor[2] - oz;
+    this.#uniforms.uBlend.value = this.#blend;
+    this.#uniforms.uOffset.value.set(this.#offset[0], this.#offset[1], this.#offset[2]);
     // Mapped positions are not consistent with body radii in ReadableScale, so only TrueScale occludes.
     this.#material.depthTest = this.#mappedFor === "true-scale";
   }
 
+  /** The numbers the shader mixes as last placed; tests prove them against the exact blend. */
+  get blendInputs(): BlendInputs {
+    return { from: this.#from.array as Float32Array, to: this.#to.array as Float32Array, factor: this.#blend, offset: this.#offset };
+  }
+
+  /** Copies both fills into the attributes relative to a common anchor, narrowed to 32 bits. */
+  #upload(): void {
+    const a = this.#before;
+    const b = this.#after;
+    const anchor = a.centroid;
+    this.#anchor = [anchor[0], anchor[1], anchor[2]];
+    const from = this.#from.array as Float32Array;
+    const to = this.#to.array as Float32Array;
+    for (let i = 0; i < from.length; i += 3) {
+      from[i] = a.scaled[i] - anchor[0];
+      from[i + 1] = a.scaled[i + 1] - anchor[1];
+      from[i + 2] = a.scaled[i + 2] - anchor[2];
+      to[i] = b.scaled[i] - anchor[0];
+      to[i + 1] = b.scaled[i + 1] - anchor[1];
+      to[i + 2] = b.scaled[i + 2] - anchor[2];
+    }
+    this.#from.needsUpdate = true;
+    this.#to.needsUpdate = true;
+    this.#uploadedBefore = a;
+    this.#uploadedAfter = b;
+    this.#uploadedBeforeVersion = a.version;
+    this.#uploadedAfterVersion = b.version;
+  }
+
+  /** Makes the stock point shader read `position` and `positionTo` and mix them, so the blend costs the CPU nothing per member. */
+  #blendInVertexShader(shader: WebGLProgramParametersWithUniforms): void {
+    shader.uniforms.uBlend = this.#uniforms.uBlend;
+    shader.uniforms.uOffset = this.#uniforms.uOffset;
+    shader.vertexShader = shader.vertexShader
+      .replace("void main() {", "attribute vec3 positionTo;\nuniform float uBlend;\nuniform vec3 uOffset;\nvoid main() {")
+      .replace("#include <begin_vertex>", "vec3 transformed = position + uBlend * (positionTo - position) + uOffset;");
+  }
+
   /** Local (floating-origin) position of member `index` as last placed. */
   memberLocalPosition(index: number): [number, number, number] {
-    const a = this.#positions.array;
-    return [a[3 * index], a[3 * index + 1], a[3 * index + 2]];
+    const { from, to, factor, offset } = this.blendInputs;
+    const f = Math.fround;
+    return [0, 1, 2].map((k) => {
+      const a = from[3 * index + k];
+      return f(f(a + f(factor * f(to[3 * index + k] - a))) + offset[k]);
+    }) as [number, number, number];
   }
 
   /**
@@ -241,6 +311,7 @@ export class PointsView {
       b.extentKm = a.extentKm;
       b.centroid = a.centroid;
       b.mappedFor = a.mappedFor;
+      b.version = ++this.#versions;
       this.#filled = true;
     }
   }
@@ -252,6 +323,7 @@ export class PointsView {
     if (pending === null || pending.phase !== 2 || pending.direction !== direction) return null;
     if (pending.timeUtcMs !== timeUtcMs || pending.policyId !== policy.id) return null;
     this.fillCount += 1;
+    pending.target.version = ++this.#versions;
     return pending.target;
   }
 
@@ -348,6 +420,7 @@ export class PointsView {
       extentKm: 0,
       centroid: [0, 0, 0],
       mappedFor: "",
+      version: 0,
     };
   }
 
@@ -386,6 +459,7 @@ export class PointsView {
     this.#mapRange(fill, policy, 0, this.layer.group.count);
     fill.centroid = eqjToRenderVector(policy.mapPosition(fill.centroidKm));
     fill.mappedFor = policy.id;
+    fill.version = ++this.#versions;
   }
 
   /** Maps members `from` up to `to` of a fill's km positions through the policy into its scaled positions. */

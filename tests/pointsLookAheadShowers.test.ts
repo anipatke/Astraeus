@@ -31,7 +31,7 @@ describe.each([
     const look = new PointsView(layerOf({ group: counted }), () => (now += 0.25)); // a quarter millisecond a chunk: a fill takes a few frames
     const plain = new PointsView(layerOf({ refillSliceMs: 0 }));
     const { group } = look.layer;
-    expect(look.layer.refillSliceMs).toBeUndefined(); // the engine default applies
+    expect(look.layer.refillSliceMs).toBe(story === "geminids" ? 12 : undefined); // the Geminids file sets its own slice; the Perseids take the default
     const origin = new FloatingOrigin();
     const check = (t: number): void => {
       for (const view of [look, plain]) { view.sync(t, placement, trueScale); view.place(origin); }

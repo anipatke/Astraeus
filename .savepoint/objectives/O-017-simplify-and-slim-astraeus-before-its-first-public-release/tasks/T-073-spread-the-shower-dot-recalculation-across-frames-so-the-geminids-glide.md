@@ -105,3 +105,32 @@ Changed: `src/app/PointsView.ts`, `src/app/experienceDefinition.ts`, `src/core/p
 ## Drift Notes
 
 Design "Shower builder" and the points layer gain: the optional `fillPositionsRangeKm` on `PointGroup`, the pending look-ahead fill with its fallbacks, and the `refillSliceMs` setting (layer field and `look.refillSliceMs`). Deferred to Task 7 (Design reconciliation), which accounts for each as reflected in Design.md.
+
+## Second Build Pass — GPU blend (executor, main checkout, 2026-10-17)
+
+### Design
+
+- `PointsView` now draws with two position attributes: `position` = the "before" fill and `positionTo` = the "after" fill, both as 32-bit values relative to an anchor (the before fill's centroid, kept in 64 bits), so they stay small and exact wherever the group is. The stock `PointsMaterial` is kept (same colour, size, opacity, transparency, `depthWrite: false`, per-frame `depthTest` rule for true scale) and extended with `onBeforeCompile`: the `begin_vertex` chunk becomes `position + uBlend * (positionTo - position) + uOffset`. Uniforms: `uBlend` (blend factor) and `uOffset` (anchor minus the floating origin, 64-bit subtraction then narrowed), so the floating-origin shift is a uniform, not a per-member subtraction.
+- Upload: both attributes are rewritten (one pass over the members) only when a fill changed: opening fill, a slide, a seek, a scale-policy remap, a look-ahead fill swapped in. Each `Fill` has a `version` bumped when its drawn content changes. Frames that only move the blend or the camera upload nothing.
+- Slicing is unchanged and still spreads the fill compute; the swap-in is what triggers the one attribute rewrite.
+- CPU per frame now: `sync` (blend factor, centroid, extent, look-ahead slice within `refillSliceMs`), `place` (a few uniforms). One O(count) attribute rewrite per slide (every `refillAfterMs`).
+- `memberLocalPosition` and a new `blendInputs` getter compute/return the exact numbers handed to the shader (32-bit arithmetic); tests prove them.
+- Limitation: the per-slide attribute rewrite is whole (two Float32Array passes over 51,115 members, well under a millisecond-scale loop, but not sliced).
+
+### Tests
+
+- Added `tests/pointsGpuBlend.test.ts` (made-up 500-member ring about the Moon, ARCH-03): shader inputs equal the 64-bit exact blend within 1e-4 Earth radii at a seek, between fills, after a slide, with the origin moved (attributes untouched, only the offset changes) and after a true-to-readable scale change; attributes are rewritten only on a fill change.
+- Fixed a stale assertion in `tests/pointsLookAheadShowers.test.ts` (Geminids file now sets `refillSliceMs: 12`; Perseids use the default).
+- All existing point/ring/belt/listed tests pass unchanged through `memberLocalPosition`.
+
+### Gates (this pass)
+
+- `npx tsc --noEmit`: clean. `npx vitest run`: 51 files, 902 passed, 1 skipped. `npm run build`: built. `ASTRAEUS_PUBLIC_BUILD=1 npm run build` then `node tools/validate/public-build-assets.mjs dist`: ok, 42 files checked, load budget held.
+- Lite browser (dev server on 5484): see results below.
+- Frame-timing probes (desktop and 390x844 with 4x CPU throttle, both showers): NOT run by the executor; PENDING, the orchestrator times them on a quiet machine.
+
+### Browser evidence (this pass, 2026-10-17, machine busy with other builders, load average about 10)
+
+- Lite: `PLAYWRIGHT_CORE=... ASTRAEUS_URL=http://localhost:5484/app.html ASTRAEUS_EVIDENCE_DIR=docs/evidence/o017-t073-gpu-lite-20261017T023324Z node tools/validate/browser-lite.mjs`: 26/26 loads passed, zero console errors (both showers, synthetic ring/belt/listed/eccentric, Apollo, pages).
+- Pictures: `node tools/validate/capture-experience-pictures.mjs --out docs/evidence/o017-t073-gpu-after-20261017T023324Z --port 5484`, then diff against `docs/evidence/o017-before-20261016T205125Z`: first run maxOver16Pct 0.0473 (apollo11-moon-desktop, 613 px; Apollo does not use the changed path beyond its small group, and the earlier T-070 set had none there), over tolerance. Rerun alone, `docs/evidence/o017-t073-gpu-after2-20261017T023324Z`: maxOver16Pct 0.0189, 7 identical, within 0.024%; geminids-desktop 0.0002%, perseids-desktop 0.0011%, perseids-phone 0.0018%.
+- Dev server on 5484 stopped (the picture script owned it at the end); no frame probes run (PENDING for the orchestrator). `browser-showers.mjs` and `browser-public-showers.mjs` not run here (O-017 Decision 8: lite and pictures only).

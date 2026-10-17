@@ -3,7 +3,9 @@ const base = process.env.ASTRAEUS_URL ?? "http://localhost:5302/app.html";
 const browser = await (pw.chromium ?? pw.default.chromium).launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const out = {};
 for (const shower of ["perseids", "geminids"]) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const phone = process.env.PHONE === "1";
+  const page = await browser.newPage({ viewport: phone ? { width: 390, height: 844 } : { width: 1440, height: 900 }, deviceScaleFactor: phone ? 2 : 1 });
+  if (phone) { const cdp = await page.context().newCDPSession(page); await cdp.send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.THROTTLE ?? 4) }); }
   const errors = [];
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
   await page.goto(`${base}?experience=shower-${shower}&sky=off`);
@@ -11,7 +13,7 @@ for (const shower of ["perseids", "geminids"]) {
   await page.waitForFunction(() => document.querySelector("[data-point-groups]")?.getAttribute("data-point-groups") === "1", null, { timeout: 60000 });
   await page.waitForTimeout(3000);
   const play = page.getByRole("button", { name: "Play playback" });
-  if (await play.count()) await play.click();
+  if (await play.count()) await play.dispatchEvent("click");
   const deltas = await page.evaluate(() => new Promise((resolve) => {
     const d = []; let last = performance.now(); const end = last + 12000;
     const tick = (t) => { d.push(t - last); last = t; if (t < end) requestAnimationFrame(tick); else resolve(d); };
