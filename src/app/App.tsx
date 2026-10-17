@@ -341,10 +341,11 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
                 ["arcExponent", "Fade curve (power)", "orbit-arc-exponent", 0.1],
                 ["arcSegments", "Arc segments", "orbit-arc-segments", 1],
                 ["arcWidth", "Arc width (of orbit)", "orbit-arc-width", 0.0001],
+                ["arcMaxWidthPx", "Arc max width (px)", "orbit-arc-max-width", 0.5],
                 ["zoomBoostBase", "Zoom boost (ring)", "orbit-zoom-boost-base", 0.01],
                 ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
               ] as const).map(([key, label, testId, step]) => (
-                <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
+                <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
                   onChange={(value) => setOrbit({ [key]: value })} />
               ))}
               <SettingButtons>

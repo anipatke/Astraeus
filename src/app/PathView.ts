@@ -186,7 +186,7 @@ export class PathView {
    * camera, so it cannot flip or flicker; seen edge-on it thins away, as the donor's does. Positions are scaled absolute; `place` subtracts
    * the floating origin.
    */
-  #buildRibbon(): void {
+  #buildRibbon(camera: ArrayLike<number>, screen: PathScreen | undefined): void {
     const c = this.#arcScaled;
     const out = this.#ribbonScaled;
     const look = this.#look;
@@ -195,15 +195,19 @@ export class PathView {
     const segments = this.#arcBase.length;
     const halfWidth = look.arcWidth * this.#extentScaled;
     const [cx, cy, cz] = this.#centre;
+    // Units per pixel at unit distance; the half-width at a point is capped at half of `arcMaxWidthPx` there (owner, 2026-10-18).
+    const perPx = screen === undefined ? Infinity : (2 * Math.tan((screen.fovDeg * Math.PI) / 360)) / screen.viewportHeightPx;
     const side = new Float64Array(3 * points);
     for (let k = 0; k < points; k += 1) {
       const rx = c[3 * k] - cx;
       const ry = c[3 * k + 1] - cy;
       const rz = c[3 * k + 2] - cz;
       const length = Math.hypot(rx, ry, rz) || 1;
-      side[3 * k] = (rx / length) * halfWidth;
-      side[3 * k + 1] = (ry / length) * halfWidth;
-      side[3 * k + 2] = (rz / length) * halfWidth;
+      const distance = Math.hypot(c[3 * k] - camera[0], c[3 * k + 1] - camera[1], c[3 * k + 2] - camera[2]);
+      const half = Math.min(halfWidth, (look.arcMaxWidthPx / 2) * perPx * distance);
+      side[3 * k] = (rx / length) * half;
+      side[3 * k + 1] = (ry / length) * half;
+      side[3 * k + 2] = (rz / length) * half;
     }
     for (let s = 0; s < segments; s += 1) {
       // Segment 0 is the one nearest the body: it covers the last ARC_SUBSTEPS steps of the centre line.
@@ -400,7 +404,7 @@ export class PathView {
     this.#updateLook(timeUtcMs, placement, policy);
   }
 
-  place(origin: FloatingOrigin): void {
+  place(origin: FloatingOrigin, screen?: PathScreen): void {
     const [ox, oy, oz] = origin.scaledCameraOrigin;
     if (this.#look !== null && this.#extentScaled > 0) {
       const distance = Math.hypot(this.#centre[0] - ox, this.#centre[1] - oy, this.#centre[2] - oz);
@@ -416,7 +420,7 @@ export class PathView {
     }
     this.#positions.needsUpdate = true;
     if (this.#ribbonScaled !== null && this.#arcPositions !== null) {
-      this.#buildRibbon();
+      this.#buildRibbon(origin.scaledCameraOrigin, screen);
       const arcOut = this.#arcPositions.array as Float32Array;
       for (let i = 0; i < arcOut.length; i += 3) {
         arcOut[i] = this.#ribbonScaled[i] - ox;
@@ -493,6 +497,12 @@ export function createPathViews(paths: readonly PathLayer[]): readonly PathView[
 }
 
 /** How the Moon-style composition orbit looks: the quiet, occludable line the Earth-Moon scene has always drawn, on the scene's own layer. */
+/** The camera's vertical field of view and the viewport's height, so the arc's width can be capped in pixels. */
+export interface PathScreen {
+  readonly fovDeg: number;
+  readonly viewportHeightPx: number;
+}
+
 export const COMPOSITION_PATH_STYLE: PathStyle = Object.freeze({ opacity: 0.45, depthTest: true, layer: 0, renderOrder: 0 });
 
 /**

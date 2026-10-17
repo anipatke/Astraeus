@@ -126,6 +126,26 @@ describe("a composition path's orbit look", () => {
     expect(lines(view)[1].geometry.drawRange.count).toBe(10 * 8 * 6);
   });
 
+  it("caps the ribbon at arcMaxWidthPx on screen up close and keeps the donor width from afar", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    view.sync(date, placement, readableScale, 0);
+    const extent = view.extentUnits(readableScale);
+    const screen = { fovDeg: 45, viewportHeightPx: 900 };
+    const head = centreLine(view).at(-1)!;
+    const near = new FloatingOrigin();
+    near.set([head[0], head[1] + extent * 0.01, head[2]]);
+    view.place(near, screen);
+    const perPx = (2 * Math.tan((45 * Math.PI) / 360)) / 900;
+    const first = centreLine(view)[0];
+    const firstDistance = Math.hypot(first[0] - head[0], first[1] - head[1] - extent * 0.01, first[2] - head[2]);
+    expect(view.arcRibbonWidth).toBeLessThanOrEqual(3 * perPx * firstDistance * 1.0001);
+    expect(view.arcRibbonWidth).toBeLessThan(2 * 0.0015 * extent);
+    const far = new FloatingOrigin();
+    far.set([0, 0, extent * 50]);
+    view.place(far, { fovDeg: 45, viewportHeightPx: 900 });
+    expect(view.arcRibbonWidth).toBeCloseTo(2 * 0.0015 * extent, 3);
+  });
+
   it("keeps the arc on the body between window rebuilds and across one", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     let real = 0;

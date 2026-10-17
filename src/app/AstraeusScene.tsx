@@ -272,7 +272,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
-    for (const view of compositionPaths) view.place(origin);
+    for (const view of compositionPaths) view.place(origin, { fovDeg: (camera as PerspectiveCamera).fov, viewportHeightPx: size.height });
     publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);

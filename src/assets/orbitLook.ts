@@ -25,6 +25,8 @@ export interface OrbitLook {
   readonly arcSegments: number;
   /** Half-width of the arc's ribbon as a share of the orbit's size. Planetary Explorer's value, 0.0015 of the radius (its ring slices span R - hw to R + hw in the orbit's plane). */
   readonly arcWidth: number;
+  /** The arc's widest on-screen width in pixels. Astraeus lets the camera come far closer to a moon than Planetary Explorer did, where the donor's width became a band (owner, 2026-10-18: cap it); from ordinary distances the donor's width is narrower than this, so its look is unchanged. */
+  readonly arcMaxWidthPx: number;
   /** Fade curve: segment opacity is peak times t to this power, t from 1 at the body to 0 at the tail. 1 is linear, 2 quadratic. */
   readonly arcExponent: number;
   /** Brighten both layers as the camera zooms out. */
@@ -50,6 +52,7 @@ export const DEFAULT_ORBIT_LOOK: OrbitLook = Object.freeze({
   arcPeak: 0.65,
   arcSegments: 16,
   arcWidth: 0.0015,
+  arcMaxWidthPx: 3,
   arcExponent: 2,
   zoomOn: true,
   zoomBoostBase: 0.45,
@@ -66,6 +69,7 @@ export const ORBIT_LOOK_LIMITS = Object.freeze({
   arcPeak: { min: 0, max: 1 },
   arcSegments: { min: 2, max: 32 },
   arcWidth: { min: 0.0002, max: 0.01 },
+  arcMaxWidthPx: { min: 0.5, max: 40 },
   ringRefresh: { min: 0.005, max: 0.25 },
   arcExponent: { min: 0.5, max: 4 },
   zoomBoostBase: { min: 0, max: 1 },

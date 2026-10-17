@@ -68,6 +68,10 @@ history:
     actor: {role: executor, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'Owner looked at the lifted trail (0aad2d2) on the preview: "nice". Left open for the full run and verification in the O-020 Full Objective Check.'
+  - at: '2026-10-18T01:00:00Z'
+    actor: {role: executor, session: o020-orchestrator-20261018}
+    kind: repair_attempted
+    note: 'The merged full run contact sheet (docs/evidence/o020-merged-t081-20261017T221925Z) showed the donor width as a grey band beside the Moon in Apollo''s close Moon view (1,200 km wide at true scale; Planetary Explorer''s camera never came that close). Owner chose "Cap it at a few pixels": new setting arcMaxWidthPx (default 3, slider "Arc max width (px)"), half-width per point = min(donor half-width, arcMaxWidthPx/2 x pixel size at that point''s distance); PathView.place takes the camera field of view and viewport height. Test: capped up close, donor width from afar. vitest 967 passed 1 skipped. Headless look: Apollo Moon close view a thin line.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
