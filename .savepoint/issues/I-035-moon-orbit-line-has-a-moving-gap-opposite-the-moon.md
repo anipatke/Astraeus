@@ -28,6 +28,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner looked at the lane build 393e900 on the local preview (faint ring with faded ends, trailing arc, zoom brighten, Developer > Display settings > Orbit lines controls, Io without end fade): "like it all". To be checked and resolved after merging with T-079/T-080.'
+  - at: '2026-10-18T01:45:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner, same look: "EXCEPT - IOs, line jumps rather than moving smoothly with the moon". Likely the arc follows sample indices on the rolling window (steps at the sample spacing, a jump at each rebuild), visible for fast Io. Builder asked to drive the fade from time per vertex every frame and start the arc at the body''s live position, with a per-frame check at Io''s fastest rate.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
