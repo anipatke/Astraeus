@@ -4,6 +4,7 @@
 // Screenshots and machine-readable checks are written under docs/evidence/spike03/.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { chooseScale, currentScale } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -56,12 +57,11 @@ const camera = async (objectId, presetName) => {
   await page.waitForTimeout(1250);
 };
 const capture = async (name) => {
-  const trueScale = page.getByRole("button", { name: "True", exact: true, includeHidden: true });
-  if (await trueScale.getAttribute("aria-pressed") !== "true") {
-    await trueScale.click();
+  if (await currentScale(page) !== "true-scale") {
+    await chooseScale(page, "True");
     await page.waitForTimeout(250);
   }
-  assert.equal(await trueScale.getAttribute("aria-pressed"), "true", `${name}: screenshot uses the app's default True scale`);
+  assert.equal(await currentScale(page), "true-scale", `${name}: screenshot uses the app's default True scale`);
   await page.waitForTimeout(350);
   const path = `${out}/${name}.png`;
   await page.screenshot({ path });
@@ -157,10 +157,10 @@ try {
   const panel = page.locator("#info-panel");
   await panel.waitFor();
   assert.ok(await panel.locator(".metric").count() > 0, "Columbia information includes Metric Visuals");
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   await page.waitForTimeout(250);
   const metricsUnderTrue = await panel.locator(".info-panel-metrics").innerText();
-  await page.getByRole("button", { name: "Readable", exact: true }).click();
+  await chooseScale(page, "Readable");
   await page.waitForTimeout(250);
   const metricsUnderReadable = await panel.locator(".info-panel-metrics").innerText();
   assert.equal(metricsUnderReadable, metricsUnderTrue, "Metric Visual readouts are identical under True and Readable scales");

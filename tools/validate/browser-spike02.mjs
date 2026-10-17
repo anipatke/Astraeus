@@ -20,6 +20,7 @@
 // Phone-only layout assertions are not added here; browser-shell.mjs and browser-spike03.mjs own phone layout.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { chooseScale as chooseScaleByLabel } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -65,7 +66,7 @@ const chooseScale = async (scale) => {
     await developer.click();
     await page.getByLabel("UTC date and time").waitFor({ state: "hidden" });
   }
-  await page.getByRole("button", { name: scale, exact: true }).click();
+  await chooseScaleByLabel(page, scale);
   if (compactPhone) {
     await developer.click();
     await page.getByLabel("UTC date and time").waitFor();

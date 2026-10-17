@@ -2,6 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ScaleControl } from "../src/shell/ScaleControl";
+import type { ExperienceConfig } from "../src/shell/experience";
+import { listedObjects, relatedObjects } from "../src/shell/objectModel";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor } from "../src/shell/scaleModel";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { EARTH, MOON } from "../src/core/body";
@@ -239,14 +241,19 @@ describe("scale choices", () => {
     expect(() => scaleChoicesFor(["nope"])).toThrow(RangeError);
   });
 
-  it("renders N buttons with pressed state and the default pair when none is supplied", () => {
+  it("renders a menu for three choices, a toggle for two and a held button for one", () => {
     const three = render(["true-scale", "readable-scale", "solar-system"], "solar-system");
-    expect(three.match(/data-scale="/g)).toHaveLength(3);
-    expect(three).toContain('aria-pressed="true" data-scale="solar-system"');
-    expect(three).toContain("What do True, Readable and Solar system scale mean?");
+    expect(three).toContain('aria-haspopup="menu"');
+    expect(three).toContain('aria-label="Scale: Solar system, choose another"');
+    expect(three.match(/role="menuitemradio"/g)).toHaveLength(3);
+    expect(three).toContain('data-scale-options="true-scale,readable-scale,solar-system"');
     const two = render(undefined, "true-scale");
-    expect(two.match(/data-scale="/g)).toHaveLength(2);
-    expect(two).toContain("What do True and Readable scale mean?");
+    expect(two).not.toContain("menuitemradio");
+    expect(two).toContain('aria-label="Scale: True. Switch to Readable"');
+    expect(two).toContain('data-scale="true-scale"');
+    const one = render(["true-scale"], "true-scale");
+    expect(one).toContain('aria-label="Scale: True"');
+    expect(one).toContain("disabled");
   });
 
   it("selects a supplied policy by id and otherwise keeps the existing mapping", () => {
@@ -254,5 +261,17 @@ describe("scale choices", () => {
     expect(scalePolicyFor("solar-system", [solar])).toBe(solar);
     expect(scalePolicyFor("readable-scale", [solar])).toBe(readableScale);
     expect(scalePolicyFor("true-scale")).toBe(trueScale);
+  });
+});
+
+describe("Object list", () => {
+  const object = (id: string, extra: object = {}) => ({ id, label: id, ...extra });
+  const config = { objects: [object("body"), object("body-orbit", { listed: false, partOf: "body" }), object("other")] } as unknown as ExperienceConfig;
+
+  it("leaves unlisted objects out, keeps the selected one, and finds an object's related unlisted ones", () => {
+    expect(listedObjects(config, "other").map((o) => o.id)).toEqual(["body", "other"]);
+    expect(listedObjects(config, "body-orbit").map((o) => o.id)).toEqual(["body", "body-orbit", "other"]);
+    expect(relatedObjects(config, "body").map((o) => o.id)).toEqual(["body-orbit"]);
+    expect(relatedObjects(config, "other")).toEqual([]);
   });
 });

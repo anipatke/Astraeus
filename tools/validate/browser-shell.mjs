@@ -1,6 +1,7 @@
 // Focused UI smoke for the reusable shell. Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-shell.mjs
 import assert from "node:assert/strict";
+import { chooseScale, currentScale } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -142,16 +143,16 @@ try {
   await objectPicker.selectOption("columbia");
   await panel.waitFor();
   const metricsUnderTrue = await panel.locator(".info-panel-metrics").innerText();
-  const readable = page.getByRole("button", { name: "Readable", exact: true });
-  await readable.click();
-  assert.equal(await readable.getAttribute("aria-pressed"), "true");
+  // T-079: Scale is one toggle (two scales); the choice shows in its data-scale and its name.
+  await chooseScale(page, "Readable");
+  assert.equal(await currentScale(page), "readable-scale");
+  assert.equal(await page.locator(".scale-toggle").getAttribute("aria-label"), "Scale: Readable. Switch to True");
   await page.waitForTimeout(400);
   assert.equal(await panel.locator(".info-panel-metrics").innerText(), metricsUnderTrue, "readouts are identical under True and Readable");
-  await page.getByRole("button", { name: "What do True and Readable scale mean?" }).click();
-  assert.match(await page.locator(".scale-explanation").innerText(), /closer[\s\S]*true size[\s\S]*drawn on top/);
+  // T-079: the explanation moved from a panel opened by an info button into the toggle's tooltip (and each menu item's).
+  assert.match(await page.locator(".scale-toggle").getAttribute("title"), /closer[\s\S]*true size[\s\S]*drawn on top/);
   if (infoShot) await page.screenshot({ path: `${infoShot}/scale-readable-1280x800.png` });
-  await page.getByRole("button", { name: "What do True and Readable scale mean?" }).click();
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   await panel.getByRole("button", { name: "Close information" }).click();
 
   await objectPicker.selectOption("columbia");

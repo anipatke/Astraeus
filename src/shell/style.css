@@ -25,52 +25,7 @@
   pointer-events: none;
 }
 .shell-top > * { pointer-events: auto; }
-.shell-toolbar { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
-
-.object-controls,
-.scale-control {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 10px;
-  background: rgba(13, 13, 13, .9);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
-  backdrop-filter: blur(8px);
-}
-
-.object-picker { display: flex; align-items: center; gap: 7px; color: var(--ui-muted, #c7bdb3); font-size: 13px; white-space: nowrap; }
-.object-picker select { min-width: 118px; min-height: 38px; padding: 5px 8px; }
-.object-camera-actions { display: flex; gap: 5px; }
-.object-camera-picker { display: none; }
-.object-camera-actions button[aria-pressed="true"],
-.scale-choices button[aria-pressed="true"] { border-color: var(--ui-accent, #fc6323); color: var(--ui-accent, #fc6323); }
-
-.scale-control { position: relative; }
-.scale-choices { display: flex; align-items: center; gap: 5px; }
-.scale-control-label { margin-right: 2px; color: var(--ui-muted, #c7bdb3); font-size: 13px; }
-.scale-explain { min-width: 36px; }
-.scale-explanation {
-  position: absolute;
-  z-index: 6;
-  top: calc(100% + 8px);
-  left: 0;
-  width: min(340px, calc(100vw - 24px));
-  padding: 10px 12px;
-  border: 1px solid #45413d;
-  border-radius: 10px;
-  background: rgba(13, 13, 13, .97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
-  box-sizing: border-box;
-  font-size: 13px;
-}
-.scale-explanation[hidden],
 .provenance-detail[hidden] { display: none !important; }
-.scale-explanation dl { display: grid; gap: 6px; margin: 0; }
-.scale-explanation dt { color: var(--ui-color, #f0e6da); font-weight: 600; }
-.scale-explanation dd { margin: 0; color: var(--ui-muted, #c7bdb3); }
-.scale-explanation p { margin: 8px 0 0; color: var(--ui-data, #b1a1df); }
 
 .info-panel {
   display: flex;
@@ -152,16 +107,6 @@
 .timeline-event-list summary:focus-visible,
 .developer-tools summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 .astraeus-shell button:disabled { opacity: .45; cursor: not-allowed; }
-
-.developer-mode-toggle {
-  position: absolute;
-  z-index: 5;
-  top: 12px;
-  right: 12px;
-  font-size: 13px !important;
-}
-
-.developer-mode-toggle[aria-pressed="true"] { border-color: var(--ui-accent, #fc6323); color: var(--ui-accent, #fc6323); }
 
 .developer-tools {
   position: absolute;
@@ -363,20 +308,6 @@
 
 @media (max-width: 700px) {
   .shell-top { top: 8px; left: 8px; gap: 6px; width: calc(100vw - 16px); max-width: calc(100vw - 16px); --shell-timeline-space: 266px; }
-  .shell-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; width: 100%; max-width: 100%; margin-top: 48px; }
-  .shell-toolbar > * { max-width: 100%; box-sizing: border-box; }
-  .object-picker { flex: 1 1 auto; min-width: 0; }
-  .object-picker select { flex: 1 1 0; width: auto; min-width: 0; }
-  .object-controls,
-  .scale-control { flex-wrap: wrap; gap: 6px; padding: 6px; }
-  .object-controls,
-  .scale-control { width: 100%; }
-  .object-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; }
-  .object-picker { grid-column: 1; grid-row: 1; width: auto; }
-  .object-controls > .object-info-toggle { grid-column: 3; grid-row: 1; }
-  .object-camera-actions { display: none; }
-  .object-controls .object-camera-picker { display: block; grid-column: 2; grid-row: 1; width: 100%; min-height: 44px; }
-  .scale-choices { flex-wrap: wrap; min-width: 0; }
   .info-panel {
     position: fixed;
     z-index: 8;
@@ -388,11 +319,6 @@
     padding: 10px;
     border-radius: 12px;
   }
-  .object-picker { gap: 5px; }
-  .object-picker select { min-width: 0; min-height: 44px; }
-  .object-camera-actions { display: none; }
-  .object-controls > button,
-  .scale-control button { min-height: 44px; }
   .info-panel button,
   .astraeus-shell .provenance-badge { min-height: 44px; }
   .astraeus-label { font-size: 12px; }
@@ -420,17 +346,14 @@
   .timeline-window-peak { width: 44px; }
   /* Below the object and scale bars, above the timeline: it scrolls inside that space and never covers either. */
   .developer-tools { top: 172px; right: 8px; left: 8px; width: auto; max-height: max(160px, calc(100dvh - 172px - 276px)); padding: 9px; }
-  .developer-mode-toggle { top: 8px; right: 8px; min-height: 40px !important; }
 }
 
 @media (max-width: 700px) and (max-height: 680px) {
-  .shell-top:has(.info-panel) .shell-toolbar { visibility: hidden; }
   .shell-top:has(.info-panel) .info-panel { max-height: max(64px, calc(100dvh - var(--shell-timeline-space, 266px) - 72px)); }
 }
 
 @media (min-width: 701px) and (max-width: 900px) {
   .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
-  .shell-toolbar { max-width: calc(100vw - 164px); }
   .timeline-main-row { flex-wrap: wrap; row-gap: 7px; }
   .timeline-time { flex: 1 1 20ch; width: auto; }
   .timeline-speed { margin-left: auto; }
@@ -438,9 +361,6 @@
   .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 246px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
-  .object-controls button,
-  .object-controls select,
-  .scale-control button,
   .info-panel button,
   .astraeus-shell .provenance-badge,
   .timeline-transport button,

@@ -7,6 +7,7 @@
 //   zero console errors
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import { chooseScale } from "../shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -109,7 +110,7 @@ try {
   assert.ok(results.afterBigBright > results.afterSizeZero + 100, `a bigger, brighter halo is drawn (${results.afterBigBright})`);
 
   // Solar system scale, and close on the Sun.
-  await withGlow.getByRole("button", { name: "Solar system", exact: true }).click();
+  await chooseScale(withGlow, "Solar system");
   await withGlow.waitForTimeout(1200);
   await shot(withGlow, "perseids-solar-system-overview-peak");
   await withGlow.close();

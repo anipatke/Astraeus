@@ -7,6 +7,7 @@
 // the default, and there are no console errors. The look (flattening, lit side, Io's night side) is judged by the owner from the screenshots.
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
+import { scaleOptions } from "./shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -92,7 +93,7 @@ async function run(name, viewport) {
     assert.deepEqual(options, ["jupiter", "io", "sky"], `${name}: the object list is Jupiter, Io and the sky`);
     const body = await page.locator("body").innerText();
     assert.doesNotMatch(body, /apollo|columbia|mission|perseid/i, `${name}: no other experience's content`);
-    const scales = await page.locator(".scale-choices button[data-scale]").evaluateAll((buttons) => buttons.map((b) => b.dataset.scale));
+    const scales = await scaleOptions(page);
     assert.deepEqual(scales, ["true-scale"], `${name}: true scale only (the other scales would bury or enlarge Io)`);
 
     const start = Number(await page.locator('input[aria-label="Seek timeline"]').getAttribute("min"));

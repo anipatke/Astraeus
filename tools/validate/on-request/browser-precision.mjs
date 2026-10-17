@@ -12,6 +12,7 @@
 // Both are in pixels. The GPU's own Float32 matrix arithmetic is not included (a headless software renderer is the only GPU here).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { chooseScale } from "../shellScale.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -162,7 +163,7 @@ try {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, String(time));
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }, clock);
-  await page.getByRole("button", { name: "True", exact: true }).click();
+  await chooseScale(page, "True");
   const closeInfo = async () => { const c = page.locator("#info-panel .info-panel-close"); if (await c.count()) await c.click(); };
   const box = await canvas.boundingBox();
   const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };

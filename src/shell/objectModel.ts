@@ -34,3 +34,13 @@ export function findCameraPreset(
     return request.kind === mode && request.target === target;
   });
 }
+
+/** The objects the Object list offers: the listed ones, and the selected one even when unlisted so the list never shows a blank. */
+export function listedObjects(experience: ExperienceConfig, selectedId: string): readonly ExperienceObject[] {
+  return experience.objects.filter((object) => object.listed !== false || object.id === selectedId);
+}
+
+/** Unlisted objects that belong to `id` (an orbit line to its body), for the related buttons in the top bar. */
+export function relatedObjects(experience: ExperienceConfig, id: string): readonly ExperienceObject[] {
+  return experience.objects.filter((object) => object.listed === false && object.partOf === id);
+}

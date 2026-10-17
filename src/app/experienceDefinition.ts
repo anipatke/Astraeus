@@ -422,7 +422,12 @@ export function experienceWithGroups(definition: ExperienceDefinition): Experien
       provenance: object.provenance ?? group.provenance,
     }));
   for (const object of addedGroups) known.add(object.id);
-  const drawn = [...(sun === undefined ? [] : [sun.object]), ...paths.map((path) => path.object)];
+  // An orbit line that names the body it belongs to (`partOf`) is drawn and selectable but left out of the Object list; that body's top bar
+  // offers it. An orbit with no home, and any trail, stays listed so nothing is left unreachable.
+  const drawn = [
+    ...(sun === undefined ? [] : [sun.object]),
+    ...paths.map((path): ExperienceObject => (path.kind === "orbit" && path.object.partOf !== undefined ? { ...path.object, listed: false } : path.object)),
+  ];
   const addedSunCentred = drawn.filter((object) => !known.has(object.id));
   return { ...definition.experience, objects: [...definition.experience.objects, ...addedGroups, ...addedSunCentred] };
 }
