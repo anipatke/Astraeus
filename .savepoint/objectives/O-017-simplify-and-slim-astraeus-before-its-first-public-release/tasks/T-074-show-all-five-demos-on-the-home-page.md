@@ -2,10 +2,9 @@
 id: T-074
 title: Show all five demos on the home page
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-070, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-054, scope: [home page shows all five demos], accepted_by: {role: owner, session: o017-orchestrator-check-20261017}}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
 
@@ -72,3 +71,7 @@ Lane `o017-t074` (worktree /home/user/code/astraeus-t074, from d586a57). Router 
 ## Drift Notes
 
 None for Design. Browser scripts other than lite were not run (lite plus pictures suffice per O-017 Decision 8).
+
+## Owner Completion — 2026-10-17
+
+Owner looked at the home page on the public preview of 80614e2 (http://localhost:5490/) and said "Yes mark that done". Quick Task Check C-054 CLEAR.
