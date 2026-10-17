@@ -26,8 +26,9 @@ Owner, 2026-10-17: "we have each moon already mapped built and tagged with inter
 6. **A Moons experience.** Each moon is a globe the viewer can rotate and zoom, with its features, its parent planet, size and overview facts. How the globes are arranged (a row, a grid, or by parent) is a presentation choice settled at planning and labelled illustrative, not an orbit (PROV-01). Io keeps its existing real orbit in Jupiter–Io and gains its features there too.
 7. **Feature positions are right.** For each moon, at least two control features from the donor's README notes or the USGS Gazetteer land on the matching spot of the rendered map (an independent check, not the importer's own conversion), recorded with screenshots.
 8. **Pictures and features load only when used.** No other experience gets heavier; O-017's load-size budget passes with a stated limit for the Moons page.
-9. **The catalogue is updated.** `assets.html` lists each shipped moon map and its feature source (USGS Gazetteer) under Surface pictures and Credits; the "Traced, not in the app yet" section and the wish list shrink to match; `tests/assetsPageCredits.test.ts` checks each new row against its licence record.
-10. **Checks.** Configured gates, the lite browser check, a browser check for the Moons experience and for feature selection at desktop and phone sizes with zero console errors, the public build with the asset validator, and the owner's look.
+9. **The home page shelf grows with it** (owner, 2026-10-17: "our shelf will be way bigger once we do 18, should update the catalogue"). The "The shelf, ready to use" row on `index.html` (8 globes today: Sun, Mercury, Venus, Earth, Moon, Mars, Jupiter, Io) shows every shipped body, laid out so 20 or more still read well on desktop and phone (for example grouped by planet, or the planets with a "+N moons" link to the catalogue; decided at planning and shown to the owner), with each globe's thumbnail and licence line from the same records as the catalogue; the index load budget is raised on purpose (T-070 rule). O-019's new bodies (Saturn, Neptune, Pluto) join the same shelf.
+10. **The catalogue is updated.** `assets.html` lists each shipped moon map and its feature source (USGS Gazetteer) under Surface pictures and Credits; the "Traced, not in the app yet" section and the wish list shrink to match; `tests/assetsPageCredits.test.ts` checks each new row against its licence record.
+11. **Checks.** Configured gates, the lite browser check, a browser check for the Moons experience and for feature selection at desktop and phone sizes with zero console errors, the public build with the asset validator, and the owner's look.
 
 ## Architectural Considerations
 
@@ -43,6 +44,7 @@ Owner, 2026-10-17: "we have each moon already mapped built and tagged with inter
 3. **Planetary Explorer is the owner's own work; its data and code may be reused and published in Astraeus.** Confirmed by the owner in chat, 2026-10-17 ("thats right"). This replaces the earlier "code licence unresolved; local use only" note; O-018 records it in `docs/DONOR_PROVENANCE.md`.
 4. **Order:** after O-017 (simplify), before the deploy.
 5. **Update the catalogue** with every shipped moon.
+6. **Update the home page shelf too** (owner, 2026-10-17), with a layout that holds 20 or more bodies.
 
 ## Boundaries
 
