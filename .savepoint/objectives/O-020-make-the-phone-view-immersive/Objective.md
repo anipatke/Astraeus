@@ -58,6 +58,7 @@ Owner, 2026-10-17: "our UI should be mobile friendly using drawers and sliders t
 11. **Activity as a glow within the timeline line** (owner, 2026-10-17), replacing the purple graph, on the timeline only. Planned as T-084.
 12. **Correction recorded:** the showers offer two scales (True and Solar system), not three; the option-B menu (Decision 7) is built and tested in a harness and appears only for an experience with three or more scales.
 13. **Phone info sheet sits above the timeline** (owner, 2026-10-17, chose "Above the timeline"): unlike the mock-up's bottom-edge sheet, the info sheet sits above the timeline like the story sheet, so Play and the timeline stay reachable (T-081).
+14. **The glowing line is the standard timeline** (owner, 2026-10-18: "can we make this the standard tieline, discard the old one"), for every experience; flat glow without activity data. Planned as T-086, after T-081.
 ## Boundaries
 
 **In scope:**
