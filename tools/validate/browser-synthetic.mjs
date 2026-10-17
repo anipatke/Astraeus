@@ -14,32 +14,35 @@ const errors = [];
 page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
 page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
 
-// The made-up contact window: band, curve, peak, stops, "Inside" line, source change and rate readout.
+// The made-up contact window: glow, peak, stops, "Inside" line, source change and rate readout.
 async function checkWindow(label, size) {
   await page.setViewportSize(size);
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
   await ui.pausePlayback(page);
   const win = ui.windowParts(page);
-  const band = win.band;
-  assert.equal(await band.count(), 1, `${label}: one window band`);
-  assert.ok((await band.boundingBox()).width > 0, `${label}: band has width`);
-  assert.equal(await win.line.count(), 1, `${label}: rate curve line`);
-  assert.equal(await win.area.count(), 1, `${label}: rate curve filled area`);
+  // T-084: the activity is a glow inside the timeline track, not a strip above it. Scenario map: "one window band" -> one glow; "rate curve line / filled area" -> a gradient
+  // whose brightest stop is at the peak and whose quiet stops are fainter; "peak marker" -> the peak mark on the line; "caption names the shape" -> the glow's text equivalent.
+  assert.equal(await win.glow.count(), 1, `${label}: one activity glow`);
   assert.equal(await win.peak.count(), 1, `${label}: peak marker`);
   assert.equal(await win.inside.count(), 0, `${label}: no Inside line before the window`);
-  // I-019: band, curve and peak are one linked shape, together on one side of the slider.
-  const [strip, slider, curve, peak, bandBox] = await Promise.all([win.strip.boundingBox(), win.slider.boundingBox(), win.curve.boundingBox(), win.peak.boundingBox(), band.boundingBox()]);
-  assert.ok(Math.abs(strip.y + strip.height - (slider.y + slider.height / 2)) <= 3, `${label}: the window's baseline sits on the slider line, not apart from it (strip bottom ${strip.y + strip.height}, slider middle ${slider.y + slider.height / 2})`);
-  const caption = (await win.caption.innerText()).replace(/\s+/g, " ");
-  assert.match(caption, /^Contact window( · peak 48 passes per hour)?$/, `${label}: the shape is named in plain words from the window's data`);
-  const captionBox = await win.caption.boundingBox();
-  assert.ok(captionBox.y + captionBox.height <= curve.y + 1, `${label}: the caption sits above the curve, not over it`);
-  assert.ok(curve.y >= strip.y - 1 && curve.y + curve.height <= strip.y + strip.height + 1, `${label}: curve inside the strip`);
-  assert.ok(peak.x + peak.width / 2 >= bandBox.x && peak.x + peak.width / 2 <= bandBox.x + bandBox.width, `${label}: peak sits inside the band`);
-  assert.ok(curve.height >= 40, `${label}: curve height ${curve.height} shows the rise and fall`);
-  const touchMin = size.width < 700 ? 44 : 28;
-  assert.ok(bandBox.height >= touchMin && peak.width >= touchMin, `${label}: window targets at least ${touchMin}px (band h ${bandBox.height}, peak w ${peak.width})`);
+  const [glow, slider, peak, bar] = await Promise.all([win.glow.boundingBox(), win.slider.boundingBox(), win.peak.boundingBox(), win.bar.boundingBox()]);
+  assert.ok(glow.width > 100, `${label}: the glow spans the track`);
+  assert.ok(Math.abs(glow.y + glow.height / 2 - (slider.y + slider.height / 2)) <= 2, `${label}: the glow sits on the slider line, not apart from it`);
+  assert.ok(peak.y + peak.height / 2 >= slider.y - 12 && peak.y + peak.height / 2 <= slider.y + slider.height && peak.x + peak.width / 2 >= glow.x && peak.x + peak.width / 2 <= glow.x + glow.width, `${label}: the peak mark rides on the line, inside the glow's span`);
+  const heightLimit = size.width < 700 ? 130 : 70;
+  assert.ok(bar.height <= heightLimit, `${label}: the timeline is the one slim line again (${bar.height} px, limit ${heightLimit})`);
+  assert.match(await ui.glowText(page), /Contact window: peak 48 passes per hour/, `${label}: the glow has a text equivalent from the window's data`);
+  const gradients = await ui.glowGradients(page);
+  const alphas = [...gradients.ahead.matchAll(/rgba\([^)]*, ([\d.]+)\) ([\d.]+)%/g)].map((m) => ({ alpha: Number(m[1]), at: Number(m[2]) }));
+  const brightest = alphas.reduce((a, b) => (b.alpha > a.alpha ? b : a));
+  assert.ok(alphas.length > 100, `${label}: the gradient has many stops, so it is smooth (${alphas.length})`);
+  assert.ok(Math.abs(brightest.at - (135 / 480) * 100) < 2, `${label}: the glow is brightest at the peak (${brightest.at}%)`);
+  assert.ok(alphas[0].alpha < brightest.alpha / 2 && alphas[alphas.length - 1].alpha < brightest.alpha / 2, `${label}: quiet ends are fainter than the peak`);
+  assert.ok(alphas[0].alpha > 0, `${label}: the quiet track is still visible`);
+  // Hovering the track tells the rate at that moment; away from the window it says nothing is happening.
+  assert.match(await ui.glowTooltipAt(page, 135 / 480), /^Contact window: (4\d(\.\d+)?|48) passes per hour$/, `${label}: the tooltip gives the rate at the hovered time`);
+  assert.match(await ui.glowTooltipAt(page, 0.02), /^No activity here\. .*peak 48 passes per hour/, `${label}: the tooltip away from the window says so and names the peak`);
   const steps = [];
   for (let i = 0; i < 6 && (await ui.hasNextEvent(page)); i += 1) {
     steps.push(await ui.nextEventLabel(page));
@@ -88,12 +91,13 @@ async function checkWindow(label, size) {
   await seekTo(0);
   await page.waitForTimeout(200);
   assert.match(await ui.infoPanel(page).innerText(), /outside the contact window/);
-  // A click along the band seeks to that point (not the start) and opens the window details.
-  await ui.pressWindowBandAt(page, 0.25, 0.4);
+  // Was: a click along the band seeks to that point and opens the window details. Now the track is the slider: seeking inside the window lands there, and the window's details open from its peak mark / Events list (above).
+  await seekTo((30 + 180 * 0.25) / 480);
   await page.waitForTimeout(200);
   const clicked = Date.parse(await ui.clockIso(page));
   const { min: lo, max: hi } = await ui.seekRange(page);
-  assert.ok(Math.abs((clicked - lo) / (hi - lo) - (30 + 180 * 0.25) / 480) < 0.02, `${label}: band click seeks to the clicked point`);
+  assert.ok(Math.abs((clicked - lo) / (hi - lo) - (30 + 180 * 0.25) / 480) < 0.02, `${label}: seeking inside the window lands at that point`);
+  await ui.goToNamedWindowPeak(page, "Contact window");
   await ui.waitForInfo(page);
   if (outDir) {
     mkdirSync(outDir, { recursive: true });
@@ -141,8 +145,7 @@ try {
   assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
   // Apollo has no windows, so no window strip is drawn and the timeline is as before.
-  assert.equal(await ui.windowParts(page).strip.count(), 0, "Apollo: no window strip");
-  assert.equal(await ui.windowParts(page).band.count(), 0, "Apollo: no window band");
+  assert.equal(await ui.glowCount(page), 0, "Apollo: no activity glow, the plain track");
   assert.ok((await ui.windowParts(page).scrubber.boundingBox()).height < 50, "Apollo: scrubber height unchanged");
 } finally {
   await browser.close();

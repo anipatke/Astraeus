@@ -34,9 +34,6 @@
 .timeline-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .timeline-bar .timeline-speed select { width: 210px; min-height: 32px; max-width: 30vw; text-overflow: ellipsis; padding: 2px 8px; font-size: 12px; }
 .timeline-scrubber { display: flex; flex: 1 1 0; flex-direction: column; gap: 1px; min-width: 0; }
-.timeline-bar:has(.timeline-windows) .timeline-main-row { align-items: flex-end; }
-.timeline-bar:has(.timeline-windows) .timeline-main-row > :not(.timeline-scrubber) { margin-bottom: 3px; }
-.timeline-bar:has(.timeline-windows) { padding-top: 4px; }
 .astraeus-shell .timeline-event-list summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 
 /* Events: a button on the line; what just happened, what is next and the full list open above it. */
@@ -82,7 +79,7 @@
 .timeline-event-current span { color: var(--ui-data, #b1a1df); }
 .timeline-event-context strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
 
-/* The scrubber, its event marks and the rate windows. */
+/* The scrubber, its event marks and the activity glow. */
 .timeline-track { position: relative; display: flex; align-items: center; height: 22px; }
 .timeline-track input[type="range"] { position: relative; z-index: 1; width: 100%; height: 22px; margin: 0; accent-color: var(--ui-accent, #fc6323); background: transparent; cursor: pointer; }
 .timeline-markers { position: absolute; z-index: 2; inset: 0 8px; pointer-events: none; }
@@ -90,20 +87,28 @@
 .timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
 .timeline-marker:hover::after,
 .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
-/* I-019: one shape. The window's band is a thick baseline that sits on the slider line (the strip overlaps the track's upper half by --tl-half), the rate curve rises from it, and the peak's stem drops from the diamond to it. The caption names the shape above. */
-.timeline-windows { --tl-half: 11px; --tl-caption: 22px; --tl-base: 4px; position: relative; height: 76px; margin: 0 8px calc(-1 * var(--tl-half)); }
-.timeline-window-group { position: absolute; inset: 0; pointer-events: none; }
-.timeline-window { position: absolute; top: 0; bottom: 0; min-height: 0 !important; padding: 0 !important; overflow: hidden; border: 0 !important; border-bottom: var(--tl-base) solid var(--ui-data, #b1a1df) !important; border-left: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-right: 1px dashed color-mix(in srgb, var(--ui-data, #b1a1df) 80%, transparent) !important; border-radius: 0 !important; background: color-mix(in srgb, var(--ui-data, #b1a1df) 10%, transparent) !important; text-align: left; pointer-events: auto; cursor: pointer; }
-.timeline-window:hover,
-.timeline-window:focus-visible { background: color-mix(in srgb, var(--ui-accent, #fc6323) 24%, transparent) !important; }
-.timeline-window-caption { position: absolute; top: 2px; max-width: 100%; color: var(--ui-muted, #c7bdb3); font-size: 12px; line-height: 16px; white-space: nowrap; pointer-events: none; }
-.timeline-window-caption strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
-.timeline-window-curve { position: absolute; inset: var(--tl-caption) 0 var(--tl-base); width: 100%; height: calc(100% - var(--tl-caption) - var(--tl-base)); overflow: visible; pointer-events: none; }
-.timeline-window-area { fill: color-mix(in srgb, var(--ui-data, #b1a1df) 50%, transparent); stroke: none; }
-.timeline-window-line { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 2.5; stroke-linejoin: round; }
-.timeline-window-peak { position: absolute; top: 0; bottom: 0; width: 28px; min-height: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; transform: translateX(-50%); pointer-events: auto; cursor: pointer; }
-.timeline-window-peak::before { position: absolute; bottom: var(--tl-base); left: 50%; height: calc((100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); border-left: 1px dashed var(--ui-accent, #fc6323); content: ""; }
-.timeline-window-peak::after { position: absolute; bottom: calc(var(--tl-base) + (100% - var(--tl-caption) - var(--tl-base)) * var(--peak, 100) / 100); left: 50%; width: 10px; height: 10px; margin: 0 0 -5px -5px; background: var(--ui-accent, #fc6323); transform: rotate(45deg); content: ""; }
+/* T-084: the activity is a glow inside the track. The input's own track turns transparent; the glow (brightness follows the rate) sits behind it, the played part keeps the accent colour, and the thumb stays a clear disc. */
+.timeline-glow { position: absolute; z-index: 0; top: 50%; right: 8px; left: 8px; height: var(--glow-thickness, 6px); transform: translateY(-50%); border-radius: 999px; pointer-events: none; }
+.timeline-glow-ahead,
+.timeline-glow-line { position: absolute; inset: 0; border-radius: inherit; background: var(--glow-ahead); }
+.timeline-glow-ahead::after,
+.timeline-glow-line::after { position: absolute; inset: 0; border-radius: inherit; background: inherit; filter: blur(var(--glow-halo, 7px)); content: ""; }
+/* The played part is the same shape in the accent colour, clipped at the playhead (the clip leaves room above and below for the halo). */
+.timeline-glow-played { position: absolute; inset: 0; clip-path: inset(-24px var(--glow-played-edge, 100%) -24px -24px); }
+.timeline-glow-line { background: var(--glow-played); }
+/* The peak mark rides above the line (diamond and a short stem), so an event or story-panel mark that falls on the peak stays pressable at the line itself. */
+.timeline-marker.timeline-window-peak { top: -7px; width: 16px; min-height: 12px !important; height: 12px; }
+.timeline-window-peak::before { position: absolute; top: 7px; left: 50%; height: 9px; border-left: 1px solid var(--ui-accent, #fc6323); content: ""; }
+.timeline-window-peak::after { width: 9px !important; height: 9px !important; margin-top: 1.5px !important; border-radius: 1px !important; background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 0 2px rgba(13, 13, 13, .8); transform: rotate(45deg); }
+.timeline-track-glow .timeline-marker::after { background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 1px rgba(13, 13, 13, .6); }
+.timeline-track-glow .timeline-marker:hover::after,
+.timeline-track-glow .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
+.timeline-track-glow input[type="range"] { -webkit-appearance: none; appearance: none; }
+.timeline-track-glow input[type="range"]::-webkit-slider-runnable-track { height: 22px; background: transparent; border: 0; }
+.timeline-track-glow input[type="range"]::-moz-range-track { height: 22px; background: transparent; border: 0; }
+.timeline-track-glow input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
+.timeline-track-glow input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 16px; height: 16px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
+.timeline-track-glow input[type="range"]:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; border-radius: 8px; }
 .timeline-bar .timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
 .timeline-bar .timeline-marker:hover .timeline-marker-label,
 .timeline-bar .timeline-marker:focus .timeline-marker-label { display: block; }
@@ -111,7 +116,6 @@
 .timeline-panel-marker::after { width: 8px !important; height: 8px !important; border: 1.5px solid var(--ui-accent, #fc6323); border-radius: 50% !important; background: rgba(0, 0, 0, .55) !important; }
 .timeline-panel-marker[aria-pressed="true"]::after { background: var(--ui-accent, #fc6323) !important; }
 .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: 84px; }
-.astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 160px; }
 
 /* Phones and tablets: two lines. Transport, time and speed above; scrubber and Events below. */
 @media (max-width: 900px) {
@@ -129,19 +133,12 @@
   .timeline-bar .timeline-event-current { min-height: 44px; }
   .timeline-track { height: 44px; }
   .timeline-track input[type="range"] { height: 44px; }
-  .timeline-bar:has(.timeline-windows) .timeline-main-row { align-items: center; }
-  .timeline-bar:has(.timeline-windows) .timeline-main-row > :not(.timeline-scrubber) { margin-bottom: 0; }
-  .timeline-windows { --tl-half: 22px; height: 88px; }
-  .timeline-window-peak { width: 44px; }
-  .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: 150px; }
-  .astraeus-shell:has(.timeline-windows) .shell-top { --shell-timeline-space: 240px; }
-}
+      .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: 150px; }
+  }
 @media (max-width: 700px) {
   .timeline-time { flex-basis: auto; width: auto; }
   .timeline-time-full { display: none; }
   .timeline-time-short { display: inline; }
-  /* The peak figure is in the band's tooltip and the "Inside" line; on a phone the caption keeps to the name so it never runs off the edge. */
-  .timeline-window-caption span { display: none; }
   .timeline-bar .timeline-speed select { width: 84px; padding: 2px 4px; font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) {

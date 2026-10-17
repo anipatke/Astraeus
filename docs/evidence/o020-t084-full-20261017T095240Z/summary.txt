@@ -1,0 +1,23 @@
+pictures-capture | exit=0 | 20:52:41-20:54:10 | 89s | error-lines=0
+pictures-diff | exit=0 | 20:54:10-20:54:11 | 1s | error-lines=0
+contact-sheet | exit=0 | 20:54:11-20:54:11 | 0s | error-lines=0
+public-build-assets | exit=0 | 20:54:11-20:54:13 | 2s | error-lines=0
+public-showers | exit=0 | 20:54:13-20:54:57 | 44s | error-lines=0
+earth-moon | exit=0 | 20:54:57-20:55:31 | 34s | error-lines=0
+lite | exit=0 | 20:54:11-20:56:06 | 115s | error-lines=0
+jupiter-io | exit=0 | 20:55:31-20:56:10 | 39s | error-lines=0
+orbit-motion | exit=0 | 20:56:10-20:56:36 | 26s | error-lines=0
+orbit-look | exit=0 | 20:56:36-20:57:26 | 50s | error-lines=0
+spike03 | exit=0 | 20:57:26-20:58:31 | 65s | error-lines=0
+view-link | exit=0 | 20:58:31-20:59:05 | 34s | error-lines=0
+showers-perseids | exit=0 | 20:54:11-20:59:19 | 308s | error-lines=0
+spike02 | exit=0 | 20:56:06-20:59:41 | 215s | error-lines=0
+shell | exit=0 | 20:59:41-21:00:07 | 26s | error-lines=0
+anchor-labels | exit=0 | 21:00:07-21:00:22 | 15s | error-lines=0
+synthetic | exit=0 | 21:00:22-21:00:46 | 24s | error-lines=0
+showers-geminids | exit=0 | 20:59:19-21:00:52 | 93s | error-lines=0
+sky | exit=0 | 20:59:05-21:00:57 | 112s | error-lines=0
+synthetic-ring | exit=0 | 21:00:46-21:01:28 | 42s | error-lines=0
+synthetic-listed | exit=0 | 21:01:28-21:01:56 | 28s | error-lines=0
+story-panels | exit=0 | 21:00:57-21:03:02 | 125s | error-lines=0
+total 622s (servers and public build included)
