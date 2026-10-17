@@ -36,6 +36,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner look on a laptop (public preview of 80614e2, T-073 slicing plus GPU blend): "thats way smoother, however where geminids orbits the sun, it appears to pulse back and forth". This is cause 1: the straight-line blend between 72 h fills cuts the corner on the tight perihelion arcs (Phaethon q about 0.14 AU) and snaps back at each fill. T-075 (exact Kepler positions on the graphics chip every frame) removes the blend; its builder was asked to measure the mid-interval deviation near perihelion before and after.'
+  - at: '2026-10-17T23:10:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner watched both showers on a real phone on the live site (astraeus.anipatke.com, main 7377a87, T-073 slicing + GPU blend + T-075 Kepler on the GPU): "Performance looks good, let''s keep going." The real-phone look owed by C-053/C-055/C-057 is done. Ready to resolve: repaired by T-073 and T-075, verified by C-053 and C-055 and the owner''s look.'
 ---
 
 # I-034: Geminid dots jump during playback
