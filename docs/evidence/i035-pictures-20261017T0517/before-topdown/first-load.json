@@ -1,0 +1,50 @@
+[
+  {
+    "id": "apollo11-topdown",
+    "size": "desktop",
+    "url": "http://localhost:5461/app.html?view=earth,0,89,330&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4048683,
+    "gzipBytes": 2723944
+  },
+  {
+    "id": "apollo11-topdown",
+    "size": "phone",
+    "url": "http://localhost:5461/app.html?view=earth,0,89,330&scale=true-scale&t=1969-07-20T20:17:39Z",
+    "files": 11,
+    "bytes": 4048683,
+    "gzipBytes": 2723944
+  },
+  {
+    "id": "earth-moon-topdown",
+    "size": "desktop",
+    "url": "http://localhost:5461/app.html?experience=earth-moon&view=earth,0,89,330&scale=true-scale&t=2026-10-17T00:00:00Z",
+    "files": 10,
+    "bytes": 3681619,
+    "gzipBytes": 2605295
+  },
+  {
+    "id": "earth-moon-topdown",
+    "size": "phone",
+    "url": "http://localhost:5461/app.html?experience=earth-moon&view=earth,0,89,330&scale=true-scale&t=2026-10-17T00:00:00Z",
+    "files": 10,
+    "bytes": 3681619,
+    "gzipBytes": 2605295
+  },
+  {
+    "id": "jupiter-io-topdown",
+    "size": "desktop",
+    "url": "http://localhost:5461/app.html?experience=jupiter-io&view=jupiter,0,89,330&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3812100,
+    "gzipBytes": 1897858
+  },
+  {
+    "id": "jupiter-io-topdown",
+    "size": "phone",
+    "url": "http://localhost:5461/app.html?experience=jupiter-io&view=jupiter,0,89,330&scale=true-scale&t=2000-01-05T00:00:00Z",
+    "files": 10,
+    "bytes": 3812100,
+    "gzipBytes": 1897858
+  }
+]

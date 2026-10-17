@@ -12,6 +12,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "in the moons orbit directly on the other side of the moon there is a break in the orbit line that moves with the moon". Also visible in the owner''s Earth and Moon card screenshot (the line near Earth is broken).'
+  - at: '2026-10-17T17:30:00Z'
+    actor: {role: executor, session: i035-lane}
+    kind: repair_attempted
+    note: 'Lane i035-orbit-gap. Measured gap (first to last sample): Moon 3215-7952 km (0.8-2.2 percent of orbit radius) at four dates; Io 0 km (Keplerian, closes exactly). Repair: CompositionPath.overlap (fraction of period, default DEFAULT_PATH_OVERLAP = 0.1) widens the drawn window to 1.1 periods in compositionPathLayer; Apollo 11 shares earthMoonSystem so it is fixed too. Pictures docs/evidence/i035-pictures-20261017T0517/ (before/after, plus top-down views); lite docs/evidence/i035-lite-20261017T0517, 26/26. Not verified: owner visual judgement.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon

@@ -5,10 +5,20 @@ import { catalogue, type BodyCatalogue } from "./catalogue";
 /** One sidereal month, the span the Moon's orbit path covers. */
 export const SIDEREAL_MONTH_MS = 27.321661 * 86_400_000;
 
+/**
+ * How much more than one period a composition path draws, as a fraction of the period. A window exactly one period wide has its two ends
+ * opposite the body, and a perturbed orbit (the Moon's) does not retrace itself, so they miss by thousands of km and leave a moving gap;
+ * drawing past the start of the loop makes the ends overlap it. 0.1 is about 2.7 days of the Moon's month.
+ */
+export const DEFAULT_PATH_OVERLAP = 0.1;
+
 /** A path the composition draws by default: the declared body's positions about its own parent, carried with that parent. */
 export interface CompositionPath {
   readonly body: BodyId;
+  /** One period of the body: the loop the line closes. */
   readonly spanMs: number;
+  /** Extra width drawn beyond one period, as a fraction of `spanMs` (default `DEFAULT_PATH_OVERLAP`), so the ends overlap instead of leaving a gap. */
+  readonly overlap?: number;
   readonly samples?: number;
 }
 
@@ -45,6 +55,9 @@ export function createComposition(source: BodyCatalogue, composition: SystemComp
   for (const path of composition.paths ?? []) {
     if (!seen.has(path.body)) throw new CompositionError(`composition "${composition.id}" path names "${path.body}", which is not one of its bodies`);
     if (!(path.spanMs > 0) || !Number.isFinite(path.spanMs)) throw new CompositionError(`composition "${composition.id}" path for "${path.body}" needs a positive finite span`);
+  }
+  for (const path of composition.paths ?? []) {
+    if (path.overlap !== undefined && !(path.overlap >= 0 && path.overlap <= 1)) throw new CompositionError(`composition "${composition.id}" path for "${path.body}" needs an overlap from 0 to 1 of a period`);
   }
   return Object.freeze({
     ...composition,

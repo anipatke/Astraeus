@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Line, PerspectiveCamera } from "three";
-import { earthMoonSystem, SIDEREAL_MONTH_MS } from "../src/assets/compositions";
+import { DEFAULT_PATH_OVERLAP, earthMoonSystem, SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import type { CenterId } from "../src/core/body";
 import { createProvenance } from "../src/core/provenance";
@@ -231,13 +231,35 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
   it("is declared on the composition as a month-long window", () => {
     expect(declared).toEqual({ body: "moon", spanMs: SIDEREAL_MONTH_MS });
     const spec = compositionPathLayer(declared, placement.resolver);
-    expect(spec).toMatchObject({ kind: "orbit", center: "earth", span: { windowMs: SIDEREAL_MONTH_MS } });
+    expect(spec).toMatchObject({ kind: "orbit", center: "earth", span: { windowMs: SIDEREAL_MONTH_MS * (1 + DEFAULT_PATH_OVERLAP) } });
+  });
+
+  it("draws more than one month, so the ends overlap the start of the loop (I-035)", () => {
+    const spec = compositionPathLayer(declared, placement.resolver);
+    const windowMs = (spec.span as { windowMs: number }).windowMs;
+    expect(windowMs).toBeCloseTo(SIDEREAL_MONTH_MS * (1 + DEFAULT_PATH_OVERLAP), 0);
+    expect(compositionPathLayer({ ...declared, overlap: 0.25 }, placement.resolver).span).toEqual({ windowMs: SIDEREAL_MONTH_MS * 1.25 });
+    const view = new PathView(spec, COMPOSITION_PATH_STYLE);
+    view.sync(dates[0], placement, readableScale, 0);
+    const times = view.timesUtcMs;
+    const last = times.length - 1;
+    // The window runs half a month plus half the overlap either side of the clock; the first and last times lie past the opposite point.
+    expect(times[0]).toBeLessThan(dates[0] - SIDEREAL_MONTH_MS / 2);
+    expect(times[last]).toBeGreaterThan(dates[0] + SIDEREAL_MONTH_MS / 2);
+    // The last sample is one month-and-overlap after the first: it lies past the first sample along the loop, so the line overlaps itself.
+    expect(times[last] - times[0] - SIDEREAL_MONTH_MS).toBeCloseTo(SIDEREAL_MONTH_MS * DEFAULT_PATH_OVERLAP, -1);
+    const km = view.samplesKm;
+    const near = (i: number, j: number) => Math.hypot(km[3 * i] - km[3 * j], km[3 * i + 1] - km[3 * j + 1], km[3 * i + 2] - km[3 * j + 2]);
+    // The last sample is closer to a sample inside the first part of the line than the sample spacing, not left apart: no open gap.
+    const spacing = near(0, 1);
+    const closest = Math.min(...Array.from({ length: 30 }, (_, i) => near(last, i)));
+    expect(closest).toBeLessThan(spacing);
   });
 
   it.each(dates.map((d) => [new Date(d).toISOString(), d] as const))("has today's vertices and times at %s", (_label, date) => {
     const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
     view.sync(date, placement, readableScale, 0);
-    const reference = legacySampleOrbitPath(moon, date, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);
+    const reference = legacySampleOrbitPath(moon, date, SIDEREAL_MONTH_MS * (1 + DEFAULT_PATH_OVERLAP), DEFAULT_WINDOW_SAMPLE_COUNT);
     expect(Array.from(view.timesUtcMs)).toEqual(reference.timesUtcMs);
     expect(Array.from(view.samplesKm)).toEqual(Array.from(reference.positionsKm));
     // And as drawn: scaled absolute positions are the samples through the policy and render axes (Earth-centred: nothing added).

@@ -5,7 +5,7 @@ import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimes
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
 import { catalogue } from "../assets/catalogue";
-import type { CompositionPath } from "../assets/compositions";
+import { DEFAULT_PATH_OVERLAP, type CompositionPath } from "../assets/compositions";
 import {
   DEFAULT_ECCENTRIC_SAMPLE_COUNT,
   DEFAULT_PATH_SAMPLE_COUNT,
@@ -266,7 +266,7 @@ export function compositionPathLayer(path: CompositionPath, resolver: StateResol
     center: parent,
     color: "#f0e6da",
     source,
-    span: { windowMs: path.spanMs },
+    span: { windowMs: path.spanMs * (1 + (path.overlap ?? DEFAULT_PATH_OVERLAP)) },
     ...(path.samples === undefined ? {} : { samples: path.samples }),
     object: { id: `${path.body}-orbit`, label: `${path.body} orbit` },
   };

@@ -1,0 +1,83 @@
+{
+  "startedUtc": "2026-10-17T05:20:17.680Z",
+  "command": "/home/user/.nvm/versions/node/v24.16.0/bin/node /tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/cap2.mjs --port 5461 --out docs/evidence/i035-pictures-20261017T0517/after-topdown",
+  "base": "http://localhost:5461",
+  "node": "v24.16.0",
+  "pictures": [
+    {
+      "id": "apollo11-topdown",
+      "size": "desktop",
+      "file": "apollo11-topdown-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5461/app.html?view=earth,0,89,330&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "apollo11-topdown",
+      "size": "phone",
+      "file": "apollo11-topdown-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5461/app.html?view=earth,0,89,330&scale=true-scale&t=1969-07-20T20:17:39Z",
+      "pinnedTimeUtc": "1969-07-20T20:17:39Z",
+      "timelineReadsUtc": "1969-07-20T20:18:00.600Z"
+    },
+    {
+      "id": "earth-moon-topdown",
+      "size": "desktop",
+      "file": "earth-moon-topdown-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5461/app.html?experience=earth-moon&view=earth,0,89,330&scale=true-scale&t=2026-10-17T00:00:00Z",
+      "pinnedTimeUtc": "2026-10-17T00:00:00Z",
+      "timelineReadsUtc": "2025-04-01T00:00:00.000Z"
+    },
+    {
+      "id": "earth-moon-topdown",
+      "size": "phone",
+      "file": "earth-moon-topdown-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5461/app.html?experience=earth-moon&view=earth,0,89,330&scale=true-scale&t=2026-10-17T00:00:00Z",
+      "pinnedTimeUtc": "2026-10-17T00:00:00Z",
+      "timelineReadsUtc": "2025-04-01T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-topdown",
+      "size": "desktop",
+      "file": "jupiter-io-topdown-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://localhost:5461/app.html?experience=jupiter-io&view=jupiter,0,89,330&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "jupiter-io-topdown",
+      "size": "phone",
+      "file": "jupiter-io-topdown-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://localhost:5461/app.html?experience=jupiter-io&view=jupiter,0,89,330&scale=true-scale&t=2000-01-05T00:00:00Z",
+      "pinnedTimeUtc": "2000-01-05T00:00:00Z",
+      "timelineReadsUtc": "2000-01-05T00:00:00.000Z"
+    }
+  ],
+  "errors": [],
+  "chromium": "147.0.7727.15",
+  "finishedUtc": "2026-10-17T05:20:45.213Z"
+}
