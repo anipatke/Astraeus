@@ -552,6 +552,21 @@ export async function chooseScale(page, label) {
   const now = SCALE_LABELS[await currentScale(page)];
   if (now !== label) throw new Error(`could not choose the ${label} scale (now ${now})`);
 }
+/** Loads an address and, when it asks for `scale=<id>`, fails loudly unless the experience offers that scale and it is the one in force (I-036: an unknown or unoffered scale id silently fell back to the default, so a "Readable" case rendered True). */
+export async function loadAddress(page, url, options) {
+  await page.goto(url, options);
+  await page.waitForSelector("canvas");
+  const wanted = new URL(url).searchParams.get("scale");
+  if (wanted === null) return;
+  await assertScaleInUse(page, wanted);
+}
+/** Throws unless the scale id is offered by the experience and is the one in force. A one-scale experience offers only "true-scale". */
+export async function assertScaleInUse(page, scaleId) {
+  const offered = (await hasScaleControl(page)) ? await scaleOptions(page) : ["true-scale"];
+  if (!offered.includes(scaleId)) throw new Error(`driver: the experience does not offer scale "${scaleId}" (it offers ${offered.join(", ")}); the address would fall back silently`);
+  const now = (await hasScaleControl(page)) ? await currentScale(page) : "true-scale";
+  if (now !== scaleId) throw new Error(`driver: asked for scale "${scaleId}" but "${now}" is in force`);
+}
 /** The toggle's accessible name and tooltip (it states the scale in force and what a press does). */
 export const scaleToggleName = (page) => scaleControl(page).locator(".scale-toggle").getAttribute("aria-label");
 export const scaleToggleTitle = (page) => scaleControl(page).locator(".scale-toggle").getAttribute("title");
