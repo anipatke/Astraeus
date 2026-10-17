@@ -1,3 +1,4 @@
+// Shower definition: assembles the shower experience definition from its settings and re-exports the pieces.
 import { bodyMetrics } from "../../app/bodyMetrics";
 import type { ExperienceDefinition } from "../../app/experienceDefinition";
 import { rootBodyId } from "../../assets/catalogue";

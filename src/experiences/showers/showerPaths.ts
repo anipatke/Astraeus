@@ -1,3 +1,4 @@
+// Shower paths: the Earth, planet and parent-orbit path layers.
 import type { PathLayer } from "../../app/experienceDefinition";
 import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
 import { rootBodyId } from "../../assets/catalogue";

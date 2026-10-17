@@ -1,3 +1,4 @@
+// Scene sky: per-frame update of the sky view from the camera and the sky look settings.
 import type { PerspectiveCamera } from "three";
 import { setDatum } from "./sceneDebug";
 import type { SkyView } from "./SkyView";

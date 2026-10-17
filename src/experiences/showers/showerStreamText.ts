@@ -1,3 +1,4 @@
+// Shower stream text: the sentences, limitations and shell objects that describe the stream and its source.
 import { createProvenance } from "../../core/provenance";
 import type { ExperienceObject } from "../../shell/experience";
 import { fetchOrbitsCommand, type MeasuredLoad, type MeasuredOrbitProvenance, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";

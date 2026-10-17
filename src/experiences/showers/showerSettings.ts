@@ -1,3 +1,4 @@
+// Shower settings: the settings types and their strict validation from a shower file.
 import { validateStartView, type StartView } from "../../app/viewLink";
 import { fieldReaders, type Raw } from "../../core/fieldReaders";
 import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../core/elementsBody";

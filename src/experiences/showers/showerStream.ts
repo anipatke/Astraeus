@@ -1,3 +1,4 @@
+// Shower stream: builds the meteor stream group layer from measured orbits.
 import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createListedOrbitGroup } from "../../core/listedOrbitGroup";
 import { createProvenance, type Provenance } from "../../core/provenance";

@@ -161,6 +161,8 @@ Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**,
 
 ### Lighting model measurement
 
+*Historical (2026-10-17, O-017): the `?lighting=single-sun` mode was removed; only the per-body Sun direction remains. The measurement below records the mode as it was.*
+
 Each frame's lit body is lit along its own Sun direction (one pass per body), or by one point light at the Sun's scaled position (`?lighting=single-sun`, a measurement mode). Geometric result on the four January 2024 USNO phase events, True and Readable scales, Moon seen from Earth (`tests/jupiterIo.test.ts`): the point light's illuminated fraction differs from the per-body figure by at most 7.2e-9 and its direction by at most 1.5e-6 degrees (float32 narrowing included); one directional light pointed at the scene centre differs by 1.36e-3 in fraction and 0.156 degrees. Rendered comparison (`tools/validate/browser-lighting.mjs`, headless Chromium, per-pixel mean difference of 255 over lit pixels): Earth 0.0 and 0.006, Jupiter 0.004 and 0.006, Io 0.0, 0.0 and 0.0; Moon 7.7 to 13.0, which is brightness only: Earth's light is stronger (1.8/0.18) than the Moon's (1.4/0.08) and one light has one strength. With the Moon's own strength the Moon difference is 0.0005 to 0.009. Recommendation: keep per-body lights for Spike 04; the single point light is viable for larger systems.
 
 ## 109P/Swift-Tuttle about the Sun (O-011 / T-054)
@@ -202,6 +204,8 @@ Even-in-time sampling of an e = 0.96 orbit leaves a few long chords across the s
 At 256 samples the ratio misses the one-tenth requirement by a hair, so a path declared with `sampling` defaults to 512 samples (a setting, `PathLayer.samples`). Precision 50 AU out is measured in the browser with the method of `tools/validate/browser-precision.mjs`; figures are in the Task evidence and the run directory named there.
 
 ## Perseid stream from measured CAMS orbits (O-011 / T-038)
+
+*Historical (2026-10-17, O-017): CAMS was removed; the Perseid stream now comes from the GMN files only (see the GMN sections below). This section records the CAMS measurement as it was.*
 
 ### Source and what is drawn
 

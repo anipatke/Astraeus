@@ -1,3 +1,4 @@
+// Scene lights: points each body's directional light at the Sun from its resolved state.
 import type { DirectionalLight } from "three";
 import type { BodyAsset } from "../assets/catalogue";
 import type { BodyId } from "../core/body";

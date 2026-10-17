@@ -1,3 +1,4 @@
+// Shower bodies: the system composition, planet ids and the shell objects for the bodies.
 import { catalogueItem } from "../../app/catalogueItem";
 import { EARTH_EPHEMERIS } from "../../app/ephemerisProvenance";
 import type { BodyId } from "../../core/body";

@@ -1,3 +1,4 @@
+// Scene targets: what the camera can focus on and where labels sit, across bodies, paths and groups.
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FocusId } from "./CameraController";

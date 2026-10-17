@@ -1,3 +1,4 @@
+// Shower activity: the rate samples, activity window and the rate and radiant metrics.
 import { createProvenance, type Provenance } from "../../core/provenance";
 import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../core/timeWindow";
 import type { CoordinatesMetric, RateMetric } from "../../shell/metrics";

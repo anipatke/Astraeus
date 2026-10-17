@@ -1,3 +1,4 @@
+// Scene layout: body orientation, the state resolver and placement of states relative to the scene centre.
 import { Object3D, Quaternion as ThreeQuaternion, Vector3 } from "three";
 import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId, CenterId } from "../core/body";

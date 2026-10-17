@@ -1,3 +1,4 @@
+// Shower basics: shared time constants, label priorities, ids and the shower catalogue.
 import { catalogue as builtInCatalogue, extendCatalogue, type BodyCatalogue } from "../../assets/catalogue";
 import type { ShowerSettings, ShowerSource } from "./showerSettings";
 

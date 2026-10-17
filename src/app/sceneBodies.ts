@@ -1,3 +1,4 @@
+// Scene body placement: positions the body meshes from resolved states and swaps small bodies for markers.
 import type { Camera, Group } from "three";
 import type { BodyAsset } from "../assets/catalogue";
 import type { BodyId } from "../core/body";

@@ -1,3 +1,4 @@
+// Scene debug output: data attributes on the canvas, frame statistics and the frame-rate readout.
 import type { BodyId } from "../core/body";
 import type { SimulationClock } from "../core/clock";
 import { rootBodyId } from "../assets/catalogue";

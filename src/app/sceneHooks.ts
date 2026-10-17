@@ -1,3 +1,4 @@
+// Scene React hooks: host-layer lifetime, sky stars loading and the scene views.
 import { useEffect, useMemo } from "react";
 import type { WebGLRenderer } from "three";
 import { loadStarCatalogue } from "../assets/sky";

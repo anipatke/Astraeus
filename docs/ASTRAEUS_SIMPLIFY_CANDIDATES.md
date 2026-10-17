@@ -70,6 +70,8 @@ Not proposed but worth knowing: `tests/fixtures/*-horizons-source.txt` are NASA 
 
 ## 3. Before numbers (O-017 Success Condition 8)
 
+The after figures and the comparison are in `docs/O017_RESULTS.md` (T-072).
+
 Tree: `main` 4f10505 plus this branch's `.savepoint` edits. All counts are lines of text (`cat | wc -l`).
 
 ### Lines and files

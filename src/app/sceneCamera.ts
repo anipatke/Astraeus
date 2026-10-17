@@ -1,3 +1,4 @@
+// Scene camera: orbit-camera state, rescaling when the scale policy changes, and the per-frame target step.
 import type { BodyCatalogue } from "../assets/catalogue";
 import type { BodyId } from "../core/body";
 import {
