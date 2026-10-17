@@ -1,7 +1,7 @@
 ---
 id: O-020
 title: Make the phone view immersive and slim the larger-screen layout
-status: planned
+status: in_progress
 depends_on: [O-017]
 release: G-005
 ---
@@ -50,6 +50,10 @@ Owner, 2026-10-17: "our UI should be mobile friendly using drawers and sliders t
    - **Stable addresses.** `app.html`, `?experience=shower-perseids`, `shower-geminids`, `earth-moon` and `jupiter-io` are a public contract: they keep opening the same experience through this and later Objectives (O-018, O-019); a browser check asserts each.
    - **Embedded look.** When the app sits inside another page (detected, or an address flag decided at planning), its own top bar is as slim as possible so the two bars do not stack heavily; full screen keeps the full layout.
    - **Developer mode stays public** as the cog icon (owner: "Keep it, its a demo so i want people to know the ins and outs").
+6. **Mock-ups approved** (owner, 2026-10-17: "Build from them as they are"): the design canvas https://claude.ai/artifact/Akgz8SgcZBq1jCy15aPqoS (desktop single bar and one-line timeline, phone drawers closed and open, phone info sheet with collapsed Sources, slim bar inside the portfolio) is the starting design; tweaks come at the owner's look on the result.
+7. **Three-way scale: a small menu** (option B) for experiences with three scales (the showers); experiences with two keep a plain toggle.
+8. **Focus moves to the interface** (owner, 2026-10-17: "Can we focus on the mobile UI next?", "Well ui just generally") after O-017 went live; O-018 and O-019 continue after it.
+9. **Accessible names stay stable**: icon buttons keep their current accessible names (for example "Play playback", "Pause playback", "Info"), so screen readers and the browser checks keep finding them; visible text becomes icons with tooltips.
 ## Boundaries
 
 **In scope:**
