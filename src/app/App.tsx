@@ -6,7 +6,7 @@ import { SimulationClock } from "../core/clock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, type ScaleId } from "../shell/scaleModel";
@@ -54,6 +54,10 @@ export function loopFromSearch(search: string, fallback: boolean): boolean {
 }
 
 export function App({ definition }: { readonly definition: ExperienceDefinition }) {
+  // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
+  useEffect(() => {
+    document.title = pageTitleOf(definition);
+  }, [definition]);
   const runtime = useMemo(() => {
     const adapter = createOrbAstronomyAdapter();
     const clock = new SimulationClock(definition.clock.startUtcMs);

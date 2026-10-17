@@ -8,6 +8,7 @@ import { JourneyProgress, MissionSummary, MissionTelemetry } from "./MissionPane
 
 /** Apollo 11: the Earth–Moon composition, plus the spacecraft, events and panels that are its own. */
 export const apollo11Definition: ExperienceDefinition = {
+  label: "Apollo 11",
   experience: apollo11Experience,
   clock: { startUtcMs: apollo11Mission.window.startUtcMs, rate: 3_600 },
   sceneLayers: ["tracked-bodies"],

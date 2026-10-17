@@ -19,6 +19,24 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const SHIPPABLE_LICENCES = Object.freeze(["CC BY 4.0", "CC0 1.0"]);
 /** The compact layout of a shipped file: the full layout without the sheet row, the solar longitude and the double-entry flag. */
 export const SHIPPED_COLUMNS = Object.freeze(["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"]);
+/** `provenance.layout` of a shipped file whose `rows` hold one array per column, not one per orbit; the epoch column is stored as differences from the row before (T-070). */
+export const COLUMN_LAYOUT = "columns";
+const EPOCH_COLUMN = SHIPPED_COLUMNS.indexOf("epochUtcMs");
+/** Rows (one array per orbit) to columns (one array per column, the epoch as differences). Lossless: `fromColumns` returns the same rows. */
+export function toColumns(rows) {
+  const columns = SHIPPED_COLUMNS.map((_, c) => rows.map((row) => row[c]));
+  const epochs = columns[EPOCH_COLUMN];
+  columns[EPOCH_COLUMN] = epochs.map((epoch, k) => (k === 0 ? epoch : epoch - epochs[k - 1]));
+  return columns;
+}
+/** The inverse of `toColumns`. */
+export function fromColumns(columns) {
+  const epochs = [];
+  columns[EPOCH_COLUMN].forEach((step, k) => epochs.push(k === 0 ? step : epochs[k - 1] + step));
+  return columns[0].map((_, k) => columns.map((column, c) => (c === EPOCH_COLUMN ? epochs[k] : column[k])));
+}
+/** The rows of a shipped or fetched file in either layout. */
+export const rowsOfFile = (file) => (file.provenance.layout === COLUMN_LAYOUT ? fromColumns(file.rows) : file.rows);
 export const shippedFileFor = (story, iauCode) => join(ROOT, "data", "stories", story, `gmn-iau-${iauCode}.json`);
 export const localFileFor = (iauCode) => join(ROOT, "data", "local", `gmn-iau-${iauCode}.json`);
 
@@ -215,8 +233,8 @@ export function shippedCopy(file) {
   const { columnPositionsByFile, ...header } = file.provenance;
   const dropped = from.filter((name) => !SHIPPED_COLUMNS.includes(name));
   return {
-    provenance: { ...header, columns: [...SHIPPED_COLUMNS], shipped: { droppedColumns: dropped, note: "Shipped copy of the fetched file: same records and header, without the columns the app never reads (the pairs flag is always 0 for GMN). Credit: Global Meteor Network, CC BY 4.0." } },
-    rows: file.rows.map((row) => keep.map((k) => row[k])),
+    provenance: { ...header, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT, shipped: { droppedColumns: dropped, note: "Shipped copy of the fetched file: same records and header, without the columns the app never reads (the pairs flag is always 0 for GMN). Rows are stored column by column, the epoch as differences from the row before, to send fewer bytes; every value is unchanged. Credit: Global Meteor Network, CC BY 4.0." } },
+    rows: toColumns(rowsOfFile(file).map((row) => keep.map((k) => row[k]))),
   };
 }
 

@@ -63,6 +63,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -786,7 +787,7 @@ async function checkSpanActivity() {
 // Orbit sets (owner, 2026-10-16, to compare all orbits with reliable-only): the panel says which set is shown, its count and the cited rule; ?orbits=reliable draws the smaller set;
 // Developer > Display settings offers both and choosing one reloads with it.
 const reliableCount = () => {
-  const rows = JSON.parse(readFileSync(orbitFile, "utf8")).rows;
+  const rows = rowsOfFile(JSON.parse(readFileSync(orbitFile, "utf8")));
   const rule = settingsFile.stream.quality.rule;
   const isReliable = (r) => r[7] >= rule.minConvergenceAngleDeg && r[9] <= rule.maxVelocityErrorFraction * r[8];
   return { all: rows.length, reliable: rows.filter(isReliable).length };

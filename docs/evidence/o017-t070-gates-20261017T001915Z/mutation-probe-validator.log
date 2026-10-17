@@ -1,0 +1,115 @@
+{
+  "distDir": "/tmp/claude-1000/-home-user-code-Astraeus/9f41da67-d196-4cdd-b989-572f65eae286/scratchpad/pub2mut",
+  "loadBudget": {
+    "ok": false,
+    "pages": [
+      {
+        "id": "index.html",
+        "files": 12,
+        "raw": 410045,
+        "gzip": 373790,
+        "rawLimit": 440000,
+        "gzipLimit": 400000,
+        "problems": []
+      },
+      {
+        "id": "assets.html",
+        "files": 10,
+        "raw": 244750,
+        "gzip": 220942,
+        "rawLimit": 260000,
+        "gzipLimit": 240000,
+        "problems": []
+      },
+      {
+        "id": "app.html (Apollo 11)",
+        "files": 11,
+        "raw": 3734239,
+        "gzip": 2413006,
+        "rawLimit": 3930000,
+        "gzipLimit": 2540000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=earth-moon",
+        "files": 10,
+        "raw": 3367177,
+        "gzip": 2294360,
+        "rawLimit": 3540000,
+        "gzipLimit": 2410000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=jupiter-io",
+        "files": 10,
+        "raw": 3640580,
+        "gzip": 1732763,
+        "rawLimit": 3830000,
+        "gzipLimit": 1820000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=shower-perseids",
+        "files": 19,
+        "raw": 9770623,
+        "gzip": 6193163,
+        "rawLimit": 9740000,
+        "gzipLimit": 5980000,
+        "problems": [
+          "9770623 bytes raw is over the limit of 9740000",
+          "6193163 bytes gzipped is over the limit of 5980000"
+        ]
+      },
+      {
+        "id": "app.html?experience=shower-geminids",
+        "files": 19,
+        "raw": 11755096,
+        "gzip": 6498040,
+        "rawLimit": 12350000,
+        "gzipLimit": 6830000,
+        "problems": []
+      },
+      {
+        "id": "whole build",
+        "files": 42,
+        "raw": 20389070,
+        "gzip": 13138567,
+        "rawLimit": 20890000,
+        "gzipLimit": 13270000,
+        "problems": []
+      }
+    ]
+  },
+  "budgetSelfProof": true,
+  "localDataFilesChecked": 0,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html"
+  ],
+  "missingPages": [],
+  "starAsset": {
+    "ok": true,
+    "problems": [],
+    "file": "src/assets/stars/hyg-v42-naked-eye.json",
+    "sha256": "f4076d268d53f2781cb8f4beaafe63abbf9c89366f641ff080d02af4ef54f540",
+    "bytes": 284317
+  },
+  "synthetic": {
+    "ok": true,
+    "modules": [
+      "syntheticDefinition",
+      "syntheticEccentricDefinition",
+      "syntheticListedDefinition",
+      "syntheticRingDefinition"
+    ],
+    "matches": []
+  },
+  "syntheticSelfProof": true,
+  "selfProof": true,
+  "ok": false,
+  "checked": 42,
+  "sources": [],
+  "matches": []
+}
+validator-exit 1

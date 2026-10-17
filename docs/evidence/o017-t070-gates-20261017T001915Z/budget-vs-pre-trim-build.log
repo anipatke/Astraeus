@@ -1,0 +1,20 @@
+ok   index.html: 12 files, 410045 B raw (limit 440000), 373790 B gzip (limit 400000)
+ok   assets.html: 10 files, 244750 B raw (limit 260000), 220942 B gzip (limit 240000)
+FAIL app.html (Apollo 11): 11 files, 4038535 B raw (limit 3930000), 2720337 B gzip (limit 2540000)
+       4038535 bytes raw is over the limit of 3930000
+       2720337 bytes gzipped is over the limit of 2540000
+FAIL app.html?experience=earth-moon: 10 files, 3671470 B raw (limit 3540000), 2601676 B gzip (limit 2410000)
+       3671470 bytes raw is over the limit of 3540000
+       2601676 bytes gzipped is over the limit of 2410000
+FAIL app.html?experience=jupiter-io: 10 files, 3801948 B raw (limit 3830000), 1894246 B gzip (limit 1820000)
+       1894246 bytes gzipped is over the limit of 1820000
+FAIL app.html?experience=shower-perseids: 19 files, 10911032 B raw (limit 9740000), 7307200 B gzip (limit 5980000)
+       10911032 bytes raw is over the limit of 9740000
+       7307200 bytes gzipped is over the limit of 5980000
+FAIL app.html?experience=shower-geminids: 19 files, 13680942 B raw (limit 12350000), 8366387 B gzip (limit 6830000)
+       13680942 bytes raw is over the limit of 12350000
+       8366387 bytes gzipped is over the limit of 6830000
+FAIL whole build: 42 files, 22078097 B raw (limit 20890000), 14740323 B gzip (limit 13270000)
+       22078097 bytes raw is over the limit of 20890000
+       14740323 bytes gzipped is over the limit of 13270000
+exit 1

@@ -42,6 +42,7 @@ const experience: ExperienceConfig = {
  * nor the Sun. True scale only: the Readable scale pulls Io inside Jupiter, and the Solar system scale would enlarge both.
  */
 export const jupiterIoExplorer: ExperienceDefinition = {
+  label: "Jupiter and Io",
   experience,
   clock: { startUtcMs: WINDOW.startUtcMs, rate: 3_600 },
   sceneLayers: [],

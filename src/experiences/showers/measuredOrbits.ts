@@ -11,6 +11,18 @@ export const MEASURED_ROW_COLUMNS = ["recordId", "sheetRow", "epochUtcMs", "semi
  */
 export const SHIPPED_ROW_COLUMNS = ["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"] as const;
 
+/**
+ * A shipped file may store its rows column by column (`provenance.layout` is "columns"): one array per entry of `provenance.columns`, the epoch column as
+ * differences from the row before. Every value is unchanged; the layout only sends fewer bytes (T-070). The tool's `toColumns` writes it, this reads it back.
+ */
+export const COLUMN_LAYOUT = "columns";
+function rowsFromColumns(columns: unknown, width: number): unknown {
+  if (!Array.isArray(columns) || columns.length !== width || !columns.every((column) => Array.isArray(column) && column.length === columns[0].length)) return fail(`has column-wise rows that are not ${width} arrays of one length`);
+  const epochs: unknown[] = [];
+  (columns[1] as unknown[]).forEach((step, k) => epochs.push(k === 0 ? step : typeof step === "number" && typeof epochs[k - 1] === "number" ? (epochs[k - 1] as number) + step : Number.NaN));
+  return (columns[0] as unknown[]).map((_, k) => columns.map((column, c) => (c === 1 ? epochs[k] : (column as unknown[])[k])));
+}
+
 /** Licences under which a measured-orbit file may be copied into a public build. A file with no licence, or any other, never ships. The fetch tool keeps the same list. */
 export const SHIPPABLE_LICENCES = ["CC BY 4.0", "CC0 1.0"] as const;
 export const isShippableLicence = (licence: unknown): boolean => typeof licence === "string" && (SHIPPABLE_LICENCES as readonly string[]).includes(licence);
@@ -116,7 +128,8 @@ export function parseMeasuredOrbits(input: unknown, iauCode: number): MeasuredOr
   for (const key of ["database", "citation", "source", "fetchedAt"] as const) {
     if (typeof provenance[key] !== "string" || (provenance[key] as string).length === 0) return fail(`provenance.${key} is missing`);
   }
-  const rows = file.rows;
+  if (provenance.layout === COLUMN_LAYOUT && !compact) return fail("stores columns, which only the shipped column list allows");
+  const rows = provenance.layout === COLUMN_LAYOUT ? rowsFromColumns(file.rows, width) : file.rows;
   if (!Array.isArray(rows) || rows.length === 0) return fail("holds no rows");
   const quality: MemberQuality[] = [];
   const members = rows.map((row: unknown, index): ListedMember => {

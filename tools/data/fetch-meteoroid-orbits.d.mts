@@ -28,5 +28,9 @@ export function extractGmn(files: { month: string; lines: AsyncIterable<string> 
 export function gmnShowerFile(input: { iauCode: number; extraction: GmnExtraction; downloads: { month: string; url: string; bytes: number; sha256: string; lastModified: string | null }[]; fetchedAt: string }): { provenance: Record<string, any>; rows: Extraction["rows"] };
 export const SHIPPABLE_LICENCES: readonly string[];
 export const SHIPPED_COLUMNS: readonly string[];
+export const COLUMN_LAYOUT: "columns";
+export function toColumns(rows: unknown[][]): unknown[][];
+export function fromColumns(columns: unknown[][]): unknown[][];
+export function rowsOfFile(file: { provenance: Record<string, any>; rows: unknown[][] }): unknown[][];
 export function shippedFileFor(story: string, iauCode: number): string;
 export function shippedCopy(file: { provenance: Record<string, any>; rows: unknown[][] }): { provenance: Record<string, any>; rows: unknown[][] };

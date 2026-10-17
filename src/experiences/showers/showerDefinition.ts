@@ -108,6 +108,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
     }),
   };
   return {
+    label: settings.label,
     experience,
     clock: { startUtcMs, rate: settings.timeline.rateSecondsPerSecond },
     alternates: alternatesOf(settings, load, set),

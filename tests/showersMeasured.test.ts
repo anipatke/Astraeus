@@ -10,7 +10,7 @@ import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { ROW_COLUMNS, SHIPPED_COLUMNS } from "../tools/data/fetch-meteoroid-orbits.mjs";
-import { SHIPPED_COL as C, readShippedFile, readShippedOrbits } from "./helpers/measuredOrbits";
+import { SHIPPED_COL as C, readShippedFile, readShippedOrbits, readStoredShippedFile } from "./helpers/measuredOrbits";
 import { AU_KM, SUN_GM_KM3_S2, apply, earthEcliptic, ellipseOf, nearestPoint, raDecOf, separationDeg, solarLongitudeDeg, timeOfSolarLongitude, velocityOn } from "./helpers/streamFacts";
 
 // The facts of each shower from the Global Meteor Network's measured orbits, read from the committed copy the public build ships
@@ -61,7 +61,7 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     expect(provenance.counts.members).toBe(provenance.counts.unbound + provenance.counts.incomplete + provenance.counts.badSemiMajorAxis + provenance.counts.kept);
     expect(file.rows).toHaveLength(provenance.counts.kept);
     expect(file.rows.length).toBeGreaterThan(minRows);
-    expect(parseMeasuredOrbits(file, iau).members).toHaveLength(provenance.counts.kept);
+    expect(parseMeasuredOrbits(readStoredShippedFile(story, iau), iau).members).toHaveLength(provenance.counts.kept);
     console.info(`${letters} GMN COUNTS ${JSON.stringify(provenance.counts)}`);
   });
 

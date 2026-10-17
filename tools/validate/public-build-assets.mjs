@@ -1,7 +1,7 @@
 // Public-build output gate (design C.3). Hashes every file under dist/ and fails if any matches a local-only source texture,
 // byte for byte or embedded in a text asset as base64.
 //   ASTRAEUS_PUBLIC_BUILD=1 npm run build && node tools/validate/public-build-assets.mjs [distDir] [resultsFile]
-// It also fails a build that holds any made-up (synthetic) experience (T-068).
+// It also fails a build that holds any made-up (synthetic) experience (T-068), and a build whose page loads outgrow their limits (tools/validate/load-budget.mjs, T-070).
 // Local-only sources are the images a body record imports and declares `localOnly` (src/assets/bodies/*.ts), plus every file under the
 // git-ignored data/local/ (fetched data and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
 import { createHash } from "node:crypto";
@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkLoadBudget, proveLoadBudgetFails } from "./load-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
 export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html"];
@@ -247,7 +248,10 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const synthetic = checkNoSyntheticExperiences({ distDir });
   const syntheticProof = proveSyntheticCheck();
   const syntheticSelfProof = syntheticProof.clean.ok && !syntheticProof.chunk.ok && !syntheticProof.key.ok;
-  const result = { distDir, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok };
+  const loadBudget = checkLoadBudget({ distDir });
+  const budgetProof = proveLoadBudgetFails();
+  const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
+  const result = { distDir, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

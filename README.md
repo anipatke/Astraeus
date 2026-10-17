@@ -108,6 +108,19 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 
 `ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node tools/validate/public-build-assets.mjs` then checks that none of them, and nothing from `data/local/`, is in `dist/`.
 
+**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-17, summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"). Each limit is the measurement plus 5%, rounded up to the next 10 kB; a change that makes a page heavier raises its limit on purpose, with the new measurement.
+
+| Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
+|---|---|---|---|---|
+| `index.html` | 410,045 B | 440,000 B | 373,790 B | 400,000 B |
+| `assets.html` | 244,750 B | 260,000 B | 220,942 B | 240,000 B |
+| `app.html` (Apollo 11) | 4,038,691 B | 4,250,000 B | 2,720,311 B | 2,860,000 B |
+| `app.html?experience=earth-moon` | 3,671,629 B | 3,860,000 B | 2,601,663 B | 2,740,000 B |
+| `app.html?experience=jupiter-io` | 3,802,109 B | 4,000,000 B | 1,894,220 B | 1,990,000 B |
+| `app.html?experience=shower-perseids` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
+| `app.html?experience=shower-geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |
+| whole build | 21,266,893 B | 22,340,000 B | 14,018,016 B | 14,720,000 B |
+
 The browser checks in `tools/validate/` drive the app in headless Chromium through `playwright-core`, which `npm install` adds. Install the browser once with `npx playwright-core install chromium`, start `npm run dev -- --port 5199`, then run for example `node tools/validate/browser-shell.mjs`. Set `ASTRAEUS_URL` to point a script at another address and `PLAYWRIGHT_CORE` to use another copy of the library.
 
 Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).

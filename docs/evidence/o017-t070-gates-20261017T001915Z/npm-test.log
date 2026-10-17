@@ -1,0 +1,13 @@
+
+> astraeus@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+
+ Test Files  48 passed (48)
+      Tests  885 passed (885)
+   Start at  11:19:57
+   Duration  29.91s (tests 67%, transform 17%, import 13%, setup 2%)
+

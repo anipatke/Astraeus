@@ -4,6 +4,7 @@
 //   - the canvas draws (a screenshot of it has lit pixels, so it is not blank),
 //   - the timeline controls (the shell) are present,
 //   - the object list opens one object's information panel,
+//   - the page heading (T-070): app.html's own title is "Astraeus"; once the experience is open the title is "<its label> · Astraeus" (a made-up one, which has no label, keeps "Astraeus"),
 //   - zero console errors and zero page errors.
 // For experiences that have story panels (data/stories/<name>/panels.json: Apollo and the Perseids today): one panel opens from its timeline marker.
 // Also loads the site pages index.html and assets.html at both sizes: no console errors, no horizontal scroll.
@@ -122,6 +123,15 @@ async function load(label, url, size, checks) {
 function experienceChecks(experience) {
   return async (page, check, detail) => {
     await check("canvas present", () => page.waitForSelector("canvas", { timeout: 60000 }));
+    await check("page heading names the experience once it is open", async () => {
+      const served = await page.request.get(appUrl.split("?")[0]);
+      if (!/<title>Astraeus<\/title>/.test(await served.text())) throw new Error("app.html's own title is not exactly Astraeus");
+      const title = await page.evaluate(() => document.title);
+      detail.title = title;
+      if (/spike/i.test(title)) throw new Error(`the title still says spike: ${title}`);
+      const made = experience.id.startsWith("synthetic");
+      if (made ? title !== "Astraeus" : !/^.+ \u00b7 Astraeus$/.test(title)) throw new Error(`unexpected page title "${title}"`);
+    });
     await check("timeline/shell present", () => page.getByRole("region", { name: "Timeline controls" }).waitFor({ timeout: 60000 }));
     // Hold playback still so the scene and any auto-opening panel settle; a story panel's own hold may already have paused it.
     const pause = page.getByRole("button", { name: "Pause playback" });

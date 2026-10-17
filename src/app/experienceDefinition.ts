@@ -136,6 +136,8 @@ export const DEFAULT_CAMERA_FAR = 5_000;
  * It grows from ExperienceConfig and TrackedBody; it never makes a body mandatory.
  */
 export interface ExperienceDefinition {
+  /** The experience's name, shown in the page heading once it opens ("<label> · Astraeus"). Absent: the heading stays "Astraeus". */
+  readonly label?: string;
   readonly experience: ExperienceConfig;
   readonly clock: { readonly startUtcMs: number; readonly rate: number };
   /** Layers the scene mounts, e.g. the tracked-body list. */
@@ -178,6 +180,14 @@ export interface ExperienceDefinition {
   readonly startView?: import("./viewLink").StartView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
+}
+
+/** The product name the page heading starts with, before any experience opens. */
+export const PAGE_TITLE = "Astraeus";
+
+/** The page heading for an open experience: its own label before the product name; the product name alone when it declares none. */
+export function pageTitleOf(definition: Pick<ExperienceDefinition, "label">): string {
+  return definition.label === undefined || definition.label.trim() === "" ? PAGE_TITLE : `${definition.label} · ${PAGE_TITLE}`;
 }
 
 /** Checks a declared camera reach, naming the offending field. Returns it unchanged. */

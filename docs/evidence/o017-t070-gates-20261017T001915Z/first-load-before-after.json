@@ -1,0 +1,213 @@
+{
+ "note": "static = files of the page set summed from the public build on disk (site pages: every picture they name, the upper bound; external Google Fonts excluded). browser = files fetched by headless Chromium (capture-experience-pictures first-load.json; site pages include external fonts and only the pictures a full-page screenshot loaded).",
+ "rows": [
+  {
+   "page": "index.html",
+   "staticBeforeTrim": {
+    "files": 12,
+    "raw": 410045,
+    "gzip": 373790
+   },
+   "staticAfterTrim": {
+    "files": 12,
+    "raw": 410045,
+    "gzip": 373790
+   },
+   "limit": {
+    "raw": 440000,
+    "gzip": 400000
+   },
+   "browserT066Baseline": {
+    "files": 17,
+    "raw": 630024,
+    "gzip": 577211
+   },
+   "browserAfterTrim": {
+    "files": 17,
+    "raw": 630024,
+    "gzip": 577211
+   }
+  },
+  {
+   "page": "assets.html",
+   "staticBeforeTrim": {
+    "files": 10,
+    "raw": 244750,
+    "gzip": 220942
+   },
+   "staticAfterTrim": {
+    "files": 10,
+    "raw": 244750,
+    "gzip": 220942
+   },
+   "limit": {
+    "raw": 260000,
+    "gzip": 240000
+   },
+   "browserT066Baseline": {
+    "files": 16,
+    "raw": 551506,
+    "gzip": 509886
+   },
+   "browserAfterTrim": {
+    "files": 16,
+    "raw": 549797,
+    "gzip": 509479
+   }
+  },
+  {
+   "page": "app.html (Apollo 11)",
+   "staticBeforeTrim": {
+    "files": 11,
+    "raw": 4038535,
+    "gzip": 2720337
+   },
+   "staticAfterTrim": {
+    "files": 11,
+    "raw": 3734239,
+    "gzip": 2413006
+   },
+   "limit": {
+    "raw": 3930000,
+    "gzip": 2540000
+   },
+   "browserT066Baseline": {
+    "files": 15,
+    "raw": 4046212,
+    "gzip": 2724405
+   },
+   "browserAfterTrim": {
+    "files": 11,
+    "raw": 3734239,
+    "gzip": 2413006
+   }
+  },
+  {
+   "page": "app.html?experience=earth-moon",
+   "staticBeforeTrim": {
+    "files": 10,
+    "raw": 3671470,
+    "gzip": 2601676
+   },
+   "staticAfterTrim": {
+    "files": 10,
+    "raw": 3367177,
+    "gzip": 2294360
+   },
+   "limit": {
+    "raw": 3540000,
+    "gzip": 2410000
+   },
+   "browserT066Baseline": {
+    "files": 13,
+    "raw": 3678856,
+    "gzip": 2605465
+   },
+   "browserAfterTrim": {
+    "files": 10,
+    "raw": 3367177,
+    "gzip": 2294360
+   }
+  },
+  {
+   "page": "app.html?experience=jupiter-io",
+   "staticBeforeTrim": {
+    "files": 10,
+    "raw": 3801948,
+    "gzip": 1894246
+   },
+   "staticAfterTrim": {
+    "files": 10,
+    "raw": 3640580,
+    "gzip": 1732763
+   },
+   "limit": {
+    "raw": 3830000,
+    "gzip": 1820000
+   },
+   "browserT066Baseline": {
+    "files": 13,
+    "raw": 3809334,
+    "gzip": 1898009
+   },
+   "browserAfterTrim": {
+    "files": 10,
+    "raw": 3640580,
+    "gzip": 1732763
+   }
+  },
+  {
+   "page": "app.html?experience=shower-perseids",
+   "staticBeforeTrim": {
+    "files": 19,
+    "raw": 10911032,
+    "gzip": 7307200
+   },
+   "staticAfterTrim": {
+    "files": 19,
+    "raw": 9270623,
+    "gzip": 5691830
+   },
+   "limit": {
+    "raw": 9740000,
+    "gzip": 5980000
+   },
+   "browserT066Baseline": {
+    "files": 24,
+    "raw": 10922682,
+    "gzip": 7313022
+   },
+   "browserAfterTrim": {
+    "files": 19,
+    "raw": 9270623,
+    "gzip": 5691830
+   }
+  },
+  {
+   "page": "app.html?experience=shower-geminids",
+   "staticBeforeTrim": {
+    "files": 19,
+    "raw": 13680942,
+    "gzip": 8366387
+   },
+   "staticAfterTrim": {
+    "files": 19,
+    "raw": 11755096,
+    "gzip": 6498040
+   },
+   "limit": {
+    "raw": 12350000,
+    "gzip": 6830000
+   },
+   "browserT066Baseline": {
+    "files": 24,
+    "raw": 13692592,
+    "gzip": 8372209
+   },
+   "browserAfterTrim": {
+    "files": 19,
+    "raw": 11755096,
+    "gzip": 6498040
+   }
+  },
+  {
+   "page": "whole build",
+   "staticBeforeTrim": {
+    "files": 42,
+    "raw": 22078097,
+    "gzip": 14740323
+   },
+   "staticAfterTrim": {
+    "files": 42,
+    "raw": 19889070,
+    "gzip": 12637234
+   },
+   "limit": {
+    "raw": 20890000,
+    "gzip": 13270000
+   },
+   "browserT066Baseline": null,
+   "browserAfterTrim": null
+  }
+ ]
+}

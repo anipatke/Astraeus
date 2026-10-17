@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkLayout, extractGmn, gmnEpochMs, gmnLayout, gmnShowerFile, shippedCopy, SHIPPED_COLUMNS, ROW_COLUMNS } from "../tools/data/fetch-meteoroid-orbits.mjs";
+import { checkLayout, extractGmn, gmnEpochMs, gmnLayout, gmnShowerFile, shippedCopy, SHIPPED_COLUMNS, ROW_COLUMNS, COLUMN_LAYOUT, toColumns, fromColumns, rowsOfFile } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { parseMeasuredOrbits, SHIPPED_ROW_COLUMNS } from "../src/experiences/showers/measuredOrbits";
 
 // The Global Meteor Network's monthly summaries (made-up rows in the real file's shape).
@@ -82,11 +82,27 @@ describe("shipping a measured-orbit file", () => {
     expect(shipped.provenance.citations).toHaveLength(2);
     expect(shipped.provenance.files[0].sha256).toBe("ab");
     expect(shipped.provenance.counts.kept).toBe(12);
-    expect(shipped.rows[0]).toHaveLength(SHIPPED_COLUMNS.length);
+    expect(shipped.provenance.layout).toBe(COLUMN_LAYOUT);
+    expect(shipped.rows).toHaveLength(SHIPPED_COLUMNS.length);
+    expect(fromColumns(shipped.rows)).toHaveLength(12);
+    expect(rowsOfFile(shipped)[0]).toHaveLength(SHIPPED_COLUMNS.length);
+    expect(toColumns(fromColumns(shipped.rows))).toEqual(shipped.rows);
     const a = parseMeasuredOrbits(full, 7);
     const b = parseMeasuredOrbits(shipped, 7);
     expect(b.members).toEqual(a.members);
     expect(b.quality.map((q) => [q.convergenceAngleDeg, q.velocityKmS, q.velocityErrorKmS])).toEqual(a.quality.map((q) => [q.convergenceAngleDeg, q.velocityKmS, q.velocityErrorKmS]));
+  });
+
+  it("stores the shipped rows column by column without changing any value, and the loader rejects columns that do not line up", async () => {
+    const rows = Array.from({ length: 5 }, (_, k) => [`id-${k}`, 1_752_785_250_169 + k * 4_321 - (k === 3 ? 9_000 : 0), 2 + k / 7, 0.5 + k / 100, 100 + k, 140 + k, 115 + k, 10 + k, 50 + k / 3, 0.1 * k]);
+    expect(fromColumns(toColumns(rows))).toEqual(rows);
+    const columns = toColumns(rows);
+    expect(columns[1].slice(0, 2)).toEqual([rows[0][1], 4_321]);
+    const provenance = { database: "d", citation: "c", source: "s", fetchedAt: "t", iauCode: 7, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT };
+    expect(parseMeasuredOrbits({ provenance, rows: columns }, 7).members.map((m) => m.epochUtcMs)).toEqual(rows.map((r) => r[1]));
+    expect(() => parseMeasuredOrbits({ provenance, rows: columns.slice(1) }, 7)).toThrow(/column-wise rows/);
+    expect(() => parseMeasuredOrbits({ provenance, rows: columns.map((c, k) => (k === 2 ? c.slice(1) : c)) }, 7)).toThrow(/column-wise rows/);
+    expect(() => parseMeasuredOrbits({ provenance: { ...provenance, columns: [...ROW_COLUMNS] }, rows: columns }, 7)).toThrow(/only the shipped column list/);
   });
 
   it("refuses to ship a file with no licence, and a licence that does not allow it", async () => {
