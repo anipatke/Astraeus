@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "id": "charon",
+  "label": "Charon",
+  "naifId": 901,
+  "parent": "pluto",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "PLU060",
+    "tableId": 455,
+    "referenceNumber": 6,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 455, Charon)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "equatorial",
+    "poleRaDeg": 132.993,
+    "poleDecDeg": -6.163,
+    "tiltToPlanetEquatorDeg": null,
+    "note": "JPL gives this row in the planet's equatorial frame with no pole columns; the equator is Pluto's IAU 2015 pole (see rotation of pluto, NAIF BODY999)."
+  },
+  "elements": {
+    "semiMajorAxisKm": 19600.0,
+    "eccentricity": 0.0,
+    "argumentOfPeriapsisDeg": 0.0,
+    "meanAnomalyDeg": 304.1,
+    "inclinationDeg": 0.0,
+    "nodeDeg": 0.0,
+    "periodDays": 6.387222,
+    "apsisPeriodYears": null,
+    "nodePeriodYears": null
+  },
+  "parentBody": {
+    "id": "pluto",
+    "gmKm3S2": 869.326,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/pluto-phys.txt: GM (planet) km^3/s^2 = 869.326 (Horizons physical data for Pluto 999, PLU060/DE440); Charon GM 106.1 +- 0.3"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 106.1,
+    "meanRadiusKm": 606.0,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "901",
+    "centre": "500@999",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/charon-six.txt and charon-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 132.993,
+      "perCentury": 0.0
+    },
+    "poleDecDeg": {
+      "constant": -6.163,
+      "perCentury": 0.0
+    },
+    "primeMeridianDeg": {
+      "constant": 122.695,
+      "perDay": 56.3625225
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY901_POLE_RA, BODY901_POLE_DEC, BODY901_PM"
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 36,
+    "maxErrorAt": "2030-Jun-01 00:00:00.0000",
+    "errorAtEpochKm": 29,
+    "bodyDiameterKm": 1212,
+    "maxErrorDiameters": 0.03,
+    "semiMajorAxisKm": 19600.0,
+    "maxErrorFractionOfSemiMajorAxis": 0.00183,
+    "class": "within one diameter",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "Charon is measured about Pluto's body centre (Horizons 901 centred 500@999) with GM of Pluto plus Charon; the table row is in the Pluto equatorial frame and carries no pole columns, so Pluto's IAU 2015 pole is used for the plane."
+    ]
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "id": "titan",
+  "label": "Titan",
+  "naifId": 606,
+  "parent": "saturn",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "SAT441",
+    "tableId": 123,
+    "referenceNumber": 36,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 123, Titan)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "Laplace",
+    "poleRaDeg": 36.4,
+    "poleDecDeg": 84.0,
+    "tiltToPlanetEquatorDeg": 0.6,
+    "note": "Laplace plane pole as JPL tabulates it."
+  },
+  "elements": {
+    "semiMajorAxisKm": 1221900.0,
+    "eccentricity": 0.029,
+    "argumentOfPeriapsisDeg": 78.3,
+    "meanAnomalyDeg": 11.7,
+    "inclinationDeg": 0.3,
+    "nodeDeg": 78.6,
+    "periodDays": 15.945448,
+    "apsisPeriodYears": 346.68,
+    "nodePeriodYears": 687.37
+  },
+  "parentBody": {
+    "id": "saturn",
+    "gmKm3S2": 37931206.234,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/saturn-phys.txt: GM (km^3/s^2) = 37931206.234 (Horizons physical data for Saturn 699)"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 8978.1371,
+    "meanRadiusKm": 2574.76,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "606",
+    "centre": "500@699",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/titan-six.txt and titan-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 39.4827,
+      "perCentury": 0.0
+    },
+    "poleDecDeg": {
+      "constant": 83.4279,
+      "perCentury": 0.0
+    },
+    "primeMeridianDeg": {
+      "constant": 186.5855,
+      "perDay": 22.5769768
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY606_POLE_RA, BODY606_POLE_DEC, BODY606_PM, BODY606_NUT_PREC_RA/DEC/PM, BODY6_NUT_PREC_ANGLES",
+    "periodicTerms": {
+      "anglesParentBody": "saturn",
+      "coefficientsRaDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientsDecDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientsPrimeMeridianDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "note": "Coefficient k multiplies sin or cos of the k-th nutation-precession angle (RA and W: sin; Dec: cos) of the parent system; angles are in nutationPrecessionAngles as [constant, perCentury] pairs. Not used by the offline test.",
+      "nutationPrecessionAngles": [
+        [
+          353.32,
+          75706.7
+        ],
+        [
+          28.72,
+          75706.7
+        ],
+        [
+          177.4,
+          -36505.5
+        ],
+        [
+          300.0,
+          -7225.9
+        ],
+        [
+          316.45,
+          506.2
+        ],
+        [
+          345.2,
+          -1016.3
+        ],
+        [
+          706.64,
+          151413.4
+        ],
+        [
+          57.44,
+          151413.4
+        ]
+      ]
+    }
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 2436395,
+    "maxErrorAt": "2000-Jan-05 11:40:20.6400",
+    "errorAtEpochKm": 2392318,
+    "bodyDiameterKm": 5149.52,
+    "maxErrorDiameters": 473.13,
+    "semiMajorAxisKm": 1221900.0,
+    "maxErrorFractionOfSemiMajorAxis": 1.99394,
+    "class": "not usable as published",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "The tabulated angles do not reproduce the Horizons (SAT441) position at the epoch: the mean longitude is off by the amount in diagnosticPhase, with the period and plane right (the error does not grow with time). The cause was not found; it is not a constant frame rotation (the offsets differ body to body) and not a time shift."
+    ],
+    "diagnosticPhase": {
+      "meanAnomalyShiftDeg": 205.995,
+      "epochErrorKmAfterShift": 6862,
+      "maxErrorKmAfterShift": 125315,
+      "note": "Measurement aid only, not a source: the shift is fitted to the Horizons position at the epoch itself, so it says how much of the error is a phase offset, not how good the table is."
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "id": "ganymede",
+  "label": "Ganymede",
+  "naifId": 503,
+  "parent": "jupiter",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "JUP365",
+    "tableId": 5,
+    "referenceNumber": 29,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 5, Ganymede)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "Laplace",
+    "poleRaDeg": 268.2,
+    "poleDecDeg": 64.6,
+    "tiltToPlanetEquatorDeg": 0.1,
+    "note": "Laplace plane pole as JPL tabulates it."
+  },
+  "elements": {
+    "semiMajorAxisKm": 1070400.0,
+    "eccentricity": 0.001,
+    "argumentOfPeriapsisDeg": 198.3,
+    "meanAnomalyDeg": 324.8,
+    "inclinationDeg": 0.2,
+    "nodeDeg": 58.5,
+    "periodDays": 7.155588,
+    "apsisPeriodYears": 68.301,
+    "nodePeriodYears": 137.812
+  },
+  "parentBody": {
+    "id": "jupiter",
+    "gmKm3S2": 126686531.9,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/jupiter-phys.txt: GM (km^3/s^2) = 126686531.900 (Horizons physical data for Jupiter 599)"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 9887.83275,
+    "meanRadiusKm": 2631.2,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "503",
+    "centre": "500@599",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/ganymede-six.txt and ganymede-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 268.2,
+      "perCentury": -0.009
+    },
+    "poleDecDeg": {
+      "constant": 64.57,
+      "perCentury": 0.003
+    },
+    "primeMeridianDeg": {
+      "constant": 44.064,
+      "perDay": 50.3176081
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY503_POLE_RA, BODY503_POLE_DEC, BODY503_PM, BODY503_NUT_PREC_RA/DEC/PM, BODY5_NUT_PREC_ANGLES",
+    "periodicTerms": {
+      "anglesParentBody": "jupiter",
+      "coefficientsRaDeg": [
+        0.0,
+        0.0,
+        0.0,
+        -0.037,
+        0.431,
+        0.091
+      ],
+      "coefficientsDecDeg": [
+        0.0,
+        0.0,
+        0.0,
+        -0.016,
+        0.186,
+        0.039
+      ],
+      "coefficientsPrimeMeridianDeg": [
+        0.0,
+        0.0,
+        0.0,
+        0.033,
+        -0.389,
+        -0.082
+      ],
+      "note": "Coefficient k multiplies sin or cos of the k-th nutation-precession angle (RA and W: sin; Dec: cos) of the parent system; angles are in nutationPrecessionAngles as [constant, perCentury] pairs. Not used by the offline test.",
+      "nutationPrecessionAngles": [
+        [
+          73.32,
+          91472.9
+        ],
+        [
+          24.62,
+          45137.2
+        ],
+        [
+          283.9,
+          4850.7
+        ],
+        [
+          355.8,
+          1191.3
+        ],
+        [
+          119.9,
+          262.1
+        ],
+        [
+          229.8,
+          64.3
+        ],
+        [
+          352.25,
+          2382.6
+        ],
+        [
+          113.35,
+          6070.0
+        ],
+        [
+          146.64,
+          182945.8
+        ],
+        [
+          49.24,
+          90274.4
+        ],
+        [
+          99.360714,
+          4850.4046
+        ],
+        [
+          175.895369,
+          1191.9605
+        ],
+        [
+          300.323162,
+          262.5475
+        ],
+        [
+          114.012305,
+          6070.2476
+        ],
+        [
+          49.511251,
+          64.3
+        ]
+      ]
+    }
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 6101,
+    "maxErrorAt": "2030-Jun-01 00:00:00.0000",
+    "errorAtEpochKm": 1620,
+    "bodyDiameterKm": 5262.4,
+    "maxErrorDiameters": 1.16,
+    "semiMajorAxisKm": 1070400.0,
+    "maxErrorFractionOfSemiMajorAxis": 0.0057,
+    "class": "approximate demonstration",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "One unperturbed ellipse: resonance and periapsis precession are not modelled. 1,619 km at the epoch, 6,101 km by 2030."
+    ]
+  }
+}

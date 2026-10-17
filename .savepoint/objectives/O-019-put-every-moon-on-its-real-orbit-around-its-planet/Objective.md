@@ -1,7 +1,7 @@
 ---
 id: O-019
 title: Put every moon on its real orbit around its planet
-status: planned
+status: in_progress
 depends_on: []
 release: G-005
 ---

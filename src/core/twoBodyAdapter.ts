@@ -40,7 +40,7 @@ export interface TwoBodyAdapter {
  * The default is the three built-in bodies; a test asserts their values equal the library's own table.
  */
 export function createOrbTwoBodyAdapter(
-  definitions: readonly CelestialBodyDefinition[] = [SUN, EARTH, MOON],
+  definitions: readonly Pick<CelestialBodyDefinition, "id" | "gmKm3S2">[] = [SUN, EARTH, MOON],
 ): TwoBodyAdapter {
   const gmByCenter = new Map(definitions.map((definition) => [definition.id, definition.gmKm3S2]));
   const gmOf = (center: CenterId): number => {

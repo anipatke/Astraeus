@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "id": "io",
+  "label": "Io",
+  "naifId": 501,
+  "parent": "jupiter",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "JUP365",
+    "tableId": 3,
+    "referenceNumber": 29,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 3, Io)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "Laplace",
+    "poleRaDeg": 268.1,
+    "poleDecDeg": 64.5,
+    "tiltToPlanetEquatorDeg": 0.0,
+    "note": "Laplace plane pole as JPL tabulates it."
+  },
+  "elements": {
+    "semiMajorAxisKm": 421800.0,
+    "eccentricity": 0.004,
+    "argumentOfPeriapsisDeg": 49.1,
+    "meanAnomalyDeg": 330.9,
+    "inclinationDeg": 0.0,
+    "nodeDeg": 0.0,
+    "periodDays": 1.762732,
+    "apsisPeriodYears": 1.333,
+    "nodePeriodYears": 0.0
+  },
+  "parentBody": {
+    "id": "jupiter",
+    "gmKm3S2": 126686531.9,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/jupiter-phys.txt: GM (km^3/s^2) = 126686531.900 (Horizons physical data for Jupiter 599)"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 5959.91547,
+    "meanRadiusKm": 1821.49,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "501",
+    "centre": "500@599",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/io-six.txt and io-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 268.05,
+      "perCentury": -0.009
+    },
+    "poleDecDeg": {
+      "constant": 64.5,
+      "perCentury": 0.003
+    },
+    "primeMeridianDeg": {
+      "constant": 200.39,
+      "perDay": 203.4889538
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY501_POLE_RA, BODY501_POLE_DEC, BODY501_PM, BODY501_NUT_PREC_RA/DEC/PM, BODY5_NUT_PREC_ANGLES",
+    "periodicTerms": {
+      "anglesParentBody": "jupiter",
+      "coefficientsRaDeg": [
+        0.0,
+        0.0,
+        0.094,
+        0.024
+      ],
+      "coefficientsDecDeg": [
+        0.0,
+        0.0,
+        0.04,
+        0.011
+      ],
+      "coefficientsPrimeMeridianDeg": [
+        0.0,
+        0.0,
+        -0.085,
+        -0.022
+      ],
+      "note": "Coefficient k multiplies sin or cos of the k-th nutation-precession angle (RA and W: sin; Dec: cos) of the parent system; angles are in nutationPrecessionAngles as [constant, perCentury] pairs. Not used by the offline test.",
+      "nutationPrecessionAngles": [
+        [
+          73.32,
+          91472.9
+        ],
+        [
+          24.62,
+          45137.2
+        ],
+        [
+          283.9,
+          4850.7
+        ],
+        [
+          355.8,
+          1191.3
+        ],
+        [
+          119.9,
+          262.1
+        ],
+        [
+          229.8,
+          64.3
+        ],
+        [
+          352.25,
+          2382.6
+        ],
+        [
+          113.35,
+          6070.0
+        ],
+        [
+          146.64,
+          182945.8
+        ],
+        [
+          49.24,
+          90274.4
+        ],
+        [
+          99.360714,
+          4850.4046
+        ],
+        [
+          175.895369,
+          1191.9605
+        ],
+        [
+          300.323162,
+          262.5475
+        ],
+        [
+          114.012305,
+          6070.2476
+        ],
+        [
+          49.511251,
+          64.3
+        ]
+      ]
+    }
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 4196,
+    "maxErrorAt": "1969-Jul-21 00:00:00.0000",
+    "errorAtEpochKm": 826,
+    "bodyDiameterKm": 3642.98,
+    "maxErrorDiameters": 1.15,
+    "semiMajorAxisKm": 421800.0,
+    "maxErrorFractionOfSemiMajorAxis": 0.00995,
+    "class": "approximate demonstration",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "Io moves on one unperturbed ellipse: the periapsis precession and the Io-Europa-Ganymede resonance are not modelled; only the mean longitude is kept right.",
+      "With this record's rule (IAU rate) the largest difference is 4,195 km; the shipped Io definition (src/core/bodies/io.ts, apsis-corrected period) measured 9,388 km on the same six dates, so the shipped rule is the weaker of the two."
+    ]
+  }
+}

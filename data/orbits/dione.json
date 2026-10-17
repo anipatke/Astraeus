@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "id": "dione",
+  "label": "Dione",
+  "naifId": 604,
+  "parent": "saturn",
+  "kind": "moon",
+  "source": {
+    "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+    "url": "https://ssd.jpl.nasa.gov/sats/elem/",
+    "accessed": "2026-10-17",
+    "ephemeris": "SAT441",
+    "tableId": 121,
+    "referenceNumber": 36,
+    "licenceNote": "Mean elements, physical data and GM are NASA/JPL numbers published without a licence statement; they are facts cited with their source, as the other JPL-sourced data in this project is. The source page asks that its elements not be used for ephemeris computation.",
+    "rawResponse": "docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html (row 121, Dione)"
+  },
+  "epoch": {
+    "tdb": "2000-01-01.5",
+    "jdTdb": 2451545.0,
+    "ttMinusUtcSeconds": 64.184
+  },
+  "plane": {
+    "frame": "Laplace",
+    "poleRaDeg": 40.6,
+    "poleDecDeg": 83.5,
+    "tiltToPlanetEquatorDeg": 0.0,
+    "note": "Laplace plane pole as JPL tabulates it."
+  },
+  "elements": {
+    "semiMajorAxisKm": 377700.0,
+    "eccentricity": 0.002,
+    "argumentOfPeriapsisDeg": 116.0,
+    "meanAnomalyDeg": 212.0,
+    "inclinationDeg": 0.0,
+    "nodeDeg": 0.0,
+    "periodDays": 2.736916,
+    "apsisPeriodYears": 11.698,
+    "nodePeriodYears": 0.0
+  },
+  "parentBody": {
+    "id": "saturn",
+    "gmKm3S2": 37931206.234,
+    "source": "JPL Horizons physical data, https://ssd.jpl.nasa.gov/api/horizons.api, raw docs/evidence/o019-t078-horizons-20261017T035154Z/saturn-phys.txt: GM (km^3/s^2) = 37931206.234 (Horizons physical data for Saturn 699)"
+  },
+  "bodyPhysical": {
+    "gmKm3S2": 73.11607,
+    "meanRadiusKm": 561.4,
+    "source": "JPL SSD Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/, accessed 2026-10-17, raw docs/evidence/o019-t078-sats-phys-20261017T035359Z/sats-phys.html"
+  },
+  "horizons": {
+    "command": "604",
+    "centre": "500@699",
+    "raw": "docs/evidence/o019-t078-horizons-20261017T035154Z/dione-six.txt and dione-dense.txt",
+    "normalised": "tests/fixtures/moon-orbits-horizons.json"
+  },
+  "rotation": {
+    "model": "IAU WGCCRE 2015 (Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22), as transcribed in NAIF pck00011.tpc",
+    "poleRaDeg": {
+      "constant": 40.66,
+      "perCentury": -0.036
+    },
+    "poleDecDeg": {
+      "constant": 83.52,
+      "perCentury": -0.004
+    },
+    "primeMeridianDeg": {
+      "constant": 357.6,
+      "perDay": 131.5349316
+    },
+    "epoch": "J2000 (2000-01-01 12:00 TDB); T in Julian centuries, d in days",
+    "kernelVariables": "BODY604_POLE_RA, BODY604_POLE_DEC, BODY604_PM"
+  },
+  "model": {
+    "periodRule": "iau-rate",
+    "semiMajorAxis": "period",
+    "note": "The body turns synchronously, so its sidereal mean motion is the IAU prime-meridian rate (rotation.primeMeridianDeg.perDay); the semi-major axis is the one whose two-body period equals it. The table's own P is the sidereal period for the Saturn rows but not for the Jovian rows (Europa: 3.525 d against 3.551 d), so it is not used."
+  },
+  "accuracy": {
+    "comparedWith": "JPL Horizons vectors, planet-centred (body centre), ICRF treated as EQJ, geometric, UTC",
+    "dates": "the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00, 2010-07-01, 2024-01-01, 2030-06-01 (JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5) and 25 equally spaced samples over one orbit from 2000-01-01 12:00 UT",
+    "sampleCount": 31,
+    "maxErrorKm": 732463,
+    "maxErrorAt": "2000-Jan-03 13:15:51.1200",
+    "errorAtEpochKm": 730845,
+    "bodyDiameterKm": 1122.8,
+    "maxErrorDiameters": 652.35,
+    "semiMajorAxisKm": 377700.0,
+    "maxErrorFractionOfSemiMajorAxis": 1.93927,
+    "class": "not usable as published",
+    "classRule": "within one diameter: largest error at most the body's mean diameter; approximate demonstration: at most one tenth of the semi-major axis; otherwise not usable as published",
+    "knownLimitations": [
+      "The tabulated angles do not reproduce the Horizons (SAT441) position at the epoch: the mean longitude is off by the amount in diagnosticPhase, with the period and plane right (the error does not grow with time). The cause was not found; it is not a constant frame rotation (the offsets differ body to body) and not a time shift."
+    ],
+    "diagnosticPhase": {
+      "meanAnomalyShiftDeg": 208.54,
+      "epochErrorKmAfterShift": 355,
+      "maxErrorKmAfterShift": 4817,
+      "note": "Measurement aid only, not a source: the shift is fitted to the Horizons position at the epoch itself, so it says how much of the error is a phase offset, not how good the table is."
+    }
+  }
+}
