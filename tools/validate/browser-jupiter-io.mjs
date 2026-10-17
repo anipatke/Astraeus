@@ -82,7 +82,9 @@ async function run(name, viewport) {
     const body = await ui.pageText(page);
     assert.doesNotMatch(body, /apollo|columbia|mission|perseid/i, `${name}: no other experience's content`);
     const scales = await scaleOptions(page);
-    assert.deepEqual(scales, ["true-scale"], `${name}: true scale only (the other scales would bury or enlarge Io)`);
+    // T-085: one scale means no scale control at all (it was a held button before), so the options are empty and True stays in force.
+    assert.deepEqual(scales, [], `${name}: true scale only, so no scale control (the other scales would bury or enlarge Io)`);
+    assert.equal(await ui.hasScaleControl(page), false, `${name}: no scale control for one scale`);
 
     const start = (await ui.seekRange(page)).min;
     await seek(page, start);

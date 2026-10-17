@@ -108,7 +108,7 @@ describe("the Earth–Moon Explorer", () => {
 describe("Apollo", () => {
   it("declares the Earth–Moon composition and the two original scale choices", () => {
     expect(compositionOf(apollo11Definition)).toBe(earthMoonSystem);
-    expect(scaleChoiceIdsOf(apollo11Definition)).toEqual(["true-scale", "readable-scale"]);
+    expect(scaleChoiceIdsOf(apollo11Definition)).toEqual(["true-scale"]);
   });
 
   it("keeps Earth's and the Moon's rows as they were, and the spacecraft's after them", () => {

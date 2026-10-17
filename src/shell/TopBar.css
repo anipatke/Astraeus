@@ -75,6 +75,25 @@
 .astraeus-shell .scale-menu button:hover:not(:disabled) { background: rgba(240, 230, 218, .08); }
 .astraeus-shell .scale-menu button[aria-checked="true"] { background: color-mix(in srgb, var(--ui-accent, #fc6323) 14%, transparent); color: var(--ui-accent, #fc6323); }
 
+.top-bar .scale-explanation { display: contents; }
+.scale-explanation-panel {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(320px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
+  border-radius: 12px;
+  background: rgba(13, 13, 13, .97);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.scale-explanation-panel[hidden] { display: none !important; }
+.scale-explanation-panel p { margin: 0 0 8px; }
+.scale-explanation-panel .scale-explanation-note { margin: 0; opacity: .75; }
+
 .developer-mode-toggle {
   position: absolute;
   z-index: 5;
@@ -96,6 +115,7 @@
   .astraeus-shell .scale-menu button { min-height: 44px; }
   .developer-mode-toggle { top: 8px; right: 8px; width: 44px; height: 44px; }
   .scale-menu { right: auto; left: 0; }
+  .scale-explanation-panel { right: auto; left: 0; }
 }
 
 @media (max-width: 480px) {

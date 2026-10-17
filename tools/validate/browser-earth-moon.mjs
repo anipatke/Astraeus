@@ -71,6 +71,13 @@ async function run(label, viewport) {
     // Scale: True and Readable, as for Apollo.
     const scaleLabels = await scaleOptions(page);
     assert.deepEqual(scaleLabels, ["true-scale", "readable-scale"], `${label}: the usual two scales`);
+    // T-085: the explanation is one tap away beside the toggle, at 44 px on a phone.
+    assert.equal(await ui.scaleInfoName(page), "About the scales", `${label}: the explanation button is named`);
+    if (page.viewportSize().width <= 700) assert.ok((await ui.scaleInfoBox(page)).height >= 44, `${label}: the explanation button is 44 px on a phone`);
+    await ui.pressScaleInfoNow(page);
+    assert.match(await ui.scaleExplanationText(page), /real proportion[\s\S]*closer together/, `${label}: one tap shows what True and Readable mean`);
+    await ui.pressScaleInfoNow(page);
+    assert.equal(await ui.scaleExplanationText(page), null, `${label}: a second tap closes it`);
 
     // Time moves things: the Moon's distance and phase change over half a month.
     const start = (await ui.seekRange(page)).min;

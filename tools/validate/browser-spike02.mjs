@@ -8,7 +8,7 @@
 // the event list or the clock rather than layout. The only difference is how a camera preset is chosen: the phone shell hides the
 // camera buttons (.object-camera-actions) and shows a native "Camera mode" select, so chooseCamera picks the option with the same label.
 //   desktop assertion                                             phone counterpart
-//   six phases: readouts present, identical under both scales ... same, at 390x844 (scale buttons clicked with the Developer panel
+//   six phases: readouts present at True (the only Apollo scale; the both-scales pairs are in browser-shell on Earth–Moon) ... same, at 390x844 (scale buttons clicked with the Developer panel
 //                                                                    closed, because the phone panel overlays them)
 //   camera presets leave UTC and spacecraft readouts unchanged .... same (select option instead of button)
 //   30 events in Developer mode, same list as the timeline, each
@@ -20,7 +20,7 @@
 // Phone-only layout assertions are not added here; browser-shell.mjs and browser-spike03.mjs own phone layout.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chooseScale as chooseScaleByLabel } from "./driver.mjs";
+import { chooseScale as chooseScaleByLabel, hasScaleControl } from "./driver.mjs";
 import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
@@ -80,7 +80,9 @@ async function run(label, viewport) {
   await ui.waitForUtcField(page);
   await pause();
 
-  // Six mission phases at both scales: scientific telemetry must be identical.
+  // Six mission phases. T-085: Apollo 11 offers True scale only, so the "identical under both scales" pairs moved to browser-shell.mjs (Earth–Moon keeps both
+  // scales; its readouts are compared under True and Readable). Here each phase is read at True and Apollo is checked to have no scale control.
+  assert.equal(await hasScaleControl(page), false, "Apollo 11 has no scale control (one scale)");
   const phases = [
     { id: "earth-orbit", utc: "1969-07-16 14:30:00", object: "columbia", camera: "follow-columbia" },
     { id: "translunar", utc: "1969-07-18 12:00:00", object: "columbia", camera: "follow-columbia" },
@@ -90,7 +92,7 @@ async function run(label, viewport) {
     { id: "entry", utc: "1969-07-24 16:30:00", object: "columbia", camera: "follow-columbia" },
   ];
   const scaleRuns = [];
-  for (const scale of ["Readable", "True"]) {
+  for (const scale of ["True"]) {
     for (const phase of phases) {
       await pause();
       await chooseScale(scale);
@@ -101,13 +103,7 @@ async function run(label, viewport) {
       scaleRuns.push({ id: phase.id, scale, utc: phase.utc, readouts });
     }
   }
-  const scalePairs = phases.map(({ id }) => {
-    const readable = scaleRuns.find((run) => run.id === id && run.scale === "Readable");
-    const trueScale = scaleRuns.find((run) => run.id === id && run.scale === "True");
-    const same = JSON.stringify(readable?.readouts) === JSON.stringify(trueScale?.readouts);
-    assert.equal(same, true, `${id}: physical readouts match under both scales`);
-    return { id, same };
-  });
+  const scalePairs = phases.map(({ id }) => ({ id, same: scaleRuns.some((run) => run.id === id && run.readouts.length > 0) }));
 
   // Camera selection/presets do not change time or telemetry.
   await pause();

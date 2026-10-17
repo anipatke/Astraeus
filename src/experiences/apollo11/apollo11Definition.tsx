@@ -13,7 +13,8 @@ export const apollo11Definition: ExperienceDefinition = {
   clock: { startUtcMs: apollo11Mission.window.startUtcMs, rate: 3_600 },
   sceneLayers: ["tracked-bodies"],
   composition: earthMoonSystem,
-  scaleChoices: ["true-scale", "readable-scale"],
+  // True scale only: this story is about scale, so no Readable view that changes the planets' size (owner, 2026-10-17, O-020 Decision 10).
+  scaleChoices: ["true-scale"],
   // Seen from above: Earth, the Moon and the whole outbound and return path in frame (owner-chosen angle, T-063).
   startView: { focus: "earth", azimuthDeg: 0, elevationDeg: 70, distance: 130 },
   trackedBodies: apollo11Mission.bodies,

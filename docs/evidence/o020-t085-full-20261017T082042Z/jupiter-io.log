@@ -1,0 +1,23 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: true scale only (the other scales would bury or enlarge Io)
++ actual - expected
+
++ []
+- [
+-   'true-scale'
+- ]
+
+    at run (file:///home/user/code/astraeus-t085/tools/validate/browser-jupiter-io.mjs:85:12)
+    at async file:///home/user/code/astraeus-t085/tools/validate/browser-jupiter-io.mjs:148:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [],
+  expected: [ 'true-scale' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

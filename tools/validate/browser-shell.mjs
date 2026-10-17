@@ -132,16 +132,46 @@ try {
   await ui.pickBody(page, "columbia");
   await panel.waitFor();
   const metricsUnderTrue = await ui.infoMetricsText(page);
-  // T-079: Scale is one toggle (two scales); the choice shows in its data-scale and its name.
-  await chooseScale(page, "Readable");
-  assert.equal(await currentScale(page), "readable-scale");
-  assert.equal(await ui.scaleToggleName(page), "Scale: Readable. Switch to True");
-  await page.waitForTimeout(400);
-  assert.equal(await ui.infoMetricsText(page), metricsUnderTrue, "readouts are identical under True and Readable");
-  // T-079: the explanation moved from a panel opened by an info button into the toggle's tooltip (and each menu item's).
-  assert.match(await ui.scaleToggleTitle(page), /closer[\s\S]*true size[\s\S]*drawn on top/);
-  if (infoShot) await page.screenshot({ path: `${infoShot}/scale-readable-1280x800.png` });
+  // T-085: Apollo 11 offers True scale only, so the top bar shows no scale control and no explanation button, and True stays in force.
+  assert.equal(await ui.hasScaleControl(page), false, "Apollo 11 has no scale control (one scale)");
+  assert.equal(await ui.hasScaleExplanation(page), false, "Apollo 11 has no scale explanation button");
+  assert.equal(await currentScale(page), null);
   await chooseScale(page, "True");
+  // T-085 move: the scenario that switched Apollo to Readable (toggle name, readouts identical under both scales, tooltip wording) now runs on Earth–Moon, which keeps both.
+  {
+    const emPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    emPage.on("pageerror", (error) => errors.push(`earth-moon pageerror: ${error.message}`));
+    emPage.on("console", (message) => { if (message.type() === "error") errors.push(`earth-moon console: ${message.text()}`); });
+    await emPage.goto(`${url}${url.includes("?") ? "&" : "?"}experience=earth-moon`);
+    await emPage.waitForSelector("canvas");
+    await ui.waitForShell(emPage);
+    await ui.pausePlayback(emPage);
+    await ui.pickBody(emPage, "moon");
+    await ui.infoPanel(emPage).waitFor();
+    const emTrue = await ui.infoMetricsText(emPage);
+    assert.equal(await currentScale(emPage), "true-scale");
+    assert.equal(await ui.scaleToggleName(emPage), "Scale: True. Switch to Readable");
+    await chooseScale(emPage, "Readable");
+    assert.equal(await currentScale(emPage), "readable-scale");
+    assert.equal(await ui.scaleToggleName(emPage), "Scale: Readable. Switch to True");
+    await emPage.waitForTimeout(400);
+    assert.equal(await ui.infoMetricsText(emPage), emTrue, "readouts are identical under True and Readable");
+    assert.match(await ui.scaleToggleTitle(emPage), /closer[\s\S]*true size[\s\S]*drawn on top/);
+    // T-085: the explanation is one tap away: the information button beside the toggle, with a stable accessible name.
+    assert.equal(await ui.scaleInfoName(emPage), "About the scales");
+    assert.equal(await ui.scaleExplanationText(emPage), null, "the explanation starts closed");
+    await ui.pressScaleInfo(emPage);
+    assert.equal(await ui.scaleInfoOpen(emPage), true);
+    const explained = await ui.scaleExplanationText(emPage);
+    assert.match(explained, /True\.[\s\S]*real proportion/);
+    assert.match(explained, /Readable\.[\s\S]*closer together/);
+    assert.match(explained, /Only the picture changes/);
+    if (infoShot) await emPage.screenshot({ path: `${infoShot}/scale-readable-1280x800.png` });
+    await ui.pressScaleInfo(emPage);
+    assert.equal(await ui.scaleExplanationText(emPage), null, "a second tap closes it");
+    await chooseScale(emPage, "True");
+    await emPage.close();
+  }
   await ui.closeInfoByPanelButton(page);
 
   await ui.pickBody(page, "columbia");
