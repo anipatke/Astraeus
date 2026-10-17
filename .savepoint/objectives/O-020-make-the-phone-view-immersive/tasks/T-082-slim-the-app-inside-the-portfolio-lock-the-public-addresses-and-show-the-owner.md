@@ -3,7 +3,7 @@ id: T-082
 title: Slim the app inside the portfolio, lock the public addresses and show the owner
 objective: O-020
 status: planned
-depends_on: [{task: T-081, requires: clear}]
+depends_on: [{task: T-081, requires: clear}, {task: T-086, requires: clear}, {task: T-090, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 ---
