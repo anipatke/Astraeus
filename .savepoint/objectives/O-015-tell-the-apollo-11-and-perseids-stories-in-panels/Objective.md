@@ -22,6 +22,14 @@ Owner, 2026-10-16: "We should use some of the UI elements from planetary explore
 2. Apollo panels pop up as playback reaches them, pausing briefly. Tapping a marker reopens the panel.
 3. New Goal G-005, built overnight on 2026-10-16 for the owner's morning look (owner: "New goal, build tonight").
 
+## Confirmed Decisions (owner, 2026-10-18)
+
+4. **Plain words** (owner: "Stories need to be plainsplained. i.e. they still feel too sciency, we want people to engage with it, not be turned off by stats and numbers, so lets review the copy for each of these"). Voice: warm and plain, short sentences and everyday comparisons, like a good museum label (owner chose "Warm and plain" over playful or documentary).
+5. **Figures and honesty notes fold away**: exact times, numbers, measured-versus-reconstructed notes and sources sit in one folded "details and sources" section under the story, closed by default (owner chose the folded section). The badge still shows observed, modelled or illustrative at a glance, so PROV-01 holds.
+6. **Stories on every demo** (owner: "Extend stories to all demos"): Geminids, Earth–Moon and Jupiter–Io get about three panels each, at moments inside each demo's own timeline.
+7. **Sources collapsible** (owner: "Believe I had asked for Sources to be a collapsible section"): built by O-020 T-081 (O-020 Decision 4); this Objective's folded section builds on it rather than adding a second one.
+8. The copy is reviewed by the owner reading the panels on the preview; T-059, T-061 and T-062 stay open and are accepted with the rewritten copy.
+
 ## Success Conditions
 
 1. Panel text, times and badges live in each story's settings file. A further story gets panels with no code, proved by a synthetic story in tests (ARCH-03).
@@ -38,4 +46,4 @@ Story panels are story data (owner rule: story data is never part of the engine)
 
 **In scope:** the panel capability, the Apollo 11 and Perseids panel files, and a config-only proof.
 
-**Out of scope:** chapters, narration audio, a ground view, and new data sources.
+**Out of scope:** chapters, narration audio, a ground view, and new data sources (new panels use facts with published sources, recorded in each panel's sources).
