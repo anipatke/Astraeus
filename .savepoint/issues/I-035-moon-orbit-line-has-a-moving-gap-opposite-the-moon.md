@@ -32,6 +32,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner, same look: "EXCEPT - IOs, line jumps rather than moving smoothly with the moon". Likely the arc follows sample indices on the rolling window (steps at the sample spacing, a jump at each rebuild), visible for fast Io. Builder asked to drive the fade from time per vertex every frame and start the arc at the body''s live position, with a per-frame check at Io''s fastest rate.'
+  - at: '2026-10-18T02:40:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner on 0e94678 (Io smooth arc): "no it just looks like its shooting laser beams. But only at the start then it stabilises?" Likely stale ring-window samples after the load/seek clock jump, joined to the live head as long chords until the next rebuild. Builder asked to sample the arc per frame from the body''s own trajectory and rebuild the ring immediately when the clock leaves or jumps within its window, with tests and a browser check for chords after load and seek.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon
