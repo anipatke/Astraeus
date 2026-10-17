@@ -32,6 +32,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner: "I have only just noticed a slight stutter on the fastest setting for Perseids, its not as noticable as the other one but its there". The Perseids fastest rate is 604,800 s/s (one week per second, also the default), so this is the same fill hitch at half the member count (25,588). The first probe showed Perseids frames up to 67 ms against a 33 ms median, under the 3x-median flag used then, so the probe threshold hid it. T-073 slices any range-fill group over 1,024 members, so it covers both showers; its timing proof must flag any frame over 1.5x the median for both showers.'
+  - at: '2026-10-17T18:10:00Z'
+    actor: {role: checker, session: o017-orchestrator-check-20261017}
+    kind: observed
+    note: 'Owner look on a laptop (public preview of 80614e2, T-073 slicing plus GPU blend): "thats way smoother, however where geminids orbits the sun, it appears to pulse back and forth". This is cause 1: the straight-line blend between 72 h fills cuts the corner on the tight perihelion arcs (Phaethon q about 0.14 AU) and snaps back at each fill. T-075 (exact Kepler positions on the graphics chip every frame) removes the blend; its builder was asked to measure the mid-interval deviation near perihelion before and after.'
 ---
 
 # I-034: Geminid dots jump during playback
