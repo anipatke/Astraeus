@@ -564,6 +564,11 @@ export const storyPanelSources = (page) => page.locator(`${HOOK.storyPanel} ${HO
 /** The story panel's Sources section: whether it is open, and opening it with one tap. */
 export const storySourcesOpen = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection}`).evaluate((element) => element.open);
 export const openStorySources = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).click();
+/** The story panel's one folded section: how many there are, its label, its details paragraphs (read open or closed), and folding it away. */
+export const storySectionCount = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection}`).count();
+export const storySectionLabel = async (page) => (await page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).innerText()).replace(/\s+/g, " ").trim();
+export const storyPanelDetails = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} .sources-details p`).allTextContents();
+export const closeStorySources = async (page) => { if (await storySourcesOpen(page)) await page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).click(); };
 export const storyPanelHandleVisible = (page) => page.locator(`${HOOK.storyPanel} .sheet-handle`).isVisible();
 export const storyPanelBox = (page) => page.locator(HOOK.storyPanel).boundingBox();
 export const storyPanelBadgeElement = (page) => page.locator(`${HOOK.storyPanel} .story-badge`);

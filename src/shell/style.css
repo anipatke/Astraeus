@@ -224,6 +224,8 @@
 .sources-count { color: var(--ui-subtle, #a99e94); font-weight: 400; }
 .sources-section[open] summary svg { transform: rotate(180deg); }
 .sources-section ul { margin: 0 0 8px; padding-left: 18px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.sources-details { margin: 0 0 8px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; }
+.sources-details p { margin: 6px 0; }
 .sources-section li + li { margin-top: 3px; }
 .story-panel-close { font-size: 20px; line-height: 1; }
 .story-panel-continue { align-self: flex-start; }
