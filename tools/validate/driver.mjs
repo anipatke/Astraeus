@@ -245,6 +245,8 @@ export const waitForClock = (page, target, timeout = 5000) => page.waitForFuncti
 export const timelineBox = (page) => page.locator(".timeline-bar").boundingBox();
 /** A picture of the scene canvas with the timeline bar blacked out: the canvas lies behind the bar, so a pixel count must not count the bar's own colours (T-084; the old purple strip was once counted as the comet's orbit). */
 export const sceneCanvasPng = (page) => page.getByTestId("earth-moon-canvas").screenshot({ mask: [page.locator(".timeline-bar")], maskColor: "#000000" });
+/** The scene alone, for brightness sums: the first canvas with every interface layer over it blacked out (top bar, drawers, timeline, developer panel, labels stay as drawn). */
+export const sceneOnlyPng = (page) => page.locator("canvas").first().screenshot({ mask: [page.locator(".top-bar"), page.locator(".controls-drawer"), page.locator(".timeline-bar"), page.locator(".developer-tools")], maskColor: "#000000" });
 /** The activity window's peak marker (a button on the timeline line). */
 export const windowPeak = (page) => page.locator(HOOK.windowPeak);
 /** The activity glow drawn inside the timeline track (T-084): how many there are (0 or 1), its text equivalent, and its gradient. */

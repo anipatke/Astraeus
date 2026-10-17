@@ -1,0 +1,93 @@
+{
+ "desktop-true": {
+  "toggles": {
+   "Orbit ring": {
+    "on": 1122592,
+    "off": 1060790,
+    "back": 1122592
+   },
+   "Fade ring ends": {
+    "on": 1122592,
+    "off": 1125803,
+    "back": 1122592
+   },
+   "Trailing arc": {
+    "on": 1122592,
+    "off": 1121996,
+    "back": 1122592
+   },
+   "Brighten when zoomed out": {
+    "on": 1122592,
+    "off": 1122592,
+    "back": 1122592
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "litBefore": 1122592,
+   "litAfter": 1335737
+  }
+ },
+ "desktop-readable": {
+  "toggles": {
+   "Orbit ring": {
+    "on": 1082585,
+    "off": 1046377,
+    "back": 1082585
+   },
+   "Fade ring ends": {
+    "on": 1082585,
+    "off": 1082638,
+    "back": 1082585
+   },
+   "Trailing arc": {
+    "on": 1082585,
+    "off": 1082535,
+    "back": 1082585
+   },
+   "Brighten when zoomed out": {
+    "on": 1082585,
+    "off": 1082585,
+    "back": 1082585
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "litBefore": 1082585,
+   "litAfter": 1206639
+  }
+ },
+ "phone": {
+  "toggles": {
+   "Orbit ring": {
+    "on": 416118,
+    "off": 412074,
+    "back": 416118
+   },
+   "Fade ring ends": {
+    "on": 416118,
+    "off": 416263,
+    "back": 416118
+   },
+   "Trailing arc": {
+    "on": 416118,
+    "off": 416090,
+    "back": 416118
+   },
+   "Brighten when zoomed out": {
+    "on": 416118,
+    "off": 416118,
+    "back": 416118
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "litBefore": 416118,
+   "litAfter": 430248
+  }
+ }
+}
+orbit look controls: ok

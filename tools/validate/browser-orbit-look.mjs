@@ -3,7 +3,7 @@
 // PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-orbit-look.mjs
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { currentScale, loadAddress, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
+import { currentScale, ensurePaused, loadAddress, sceneOnlyPng, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -15,7 +15,8 @@ const errors = [];
 const results = {};
 
 const litPixels = async (page) => {
-  const png = (await page.locator("canvas").first().screenshot()).toString("base64");
+  // Scene only, with the clock paused (below): a moving Earth and the panels over the canvas changed the sum by more than the ring did.
+  const png = (await sceneOnlyPng(page)).toString("base64");
   return page.evaluate(async (data) => {
     const image = new Image();
     image.src = `data:image/png;base64,${data}`;
@@ -37,6 +38,7 @@ for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
   await loadAddress(page, `${base}?experience=earth-moon&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`); // throws when the scale is not offered or not in force (I-036)
   await page.waitForTimeout(3000);
+  await ensurePaused(page);
   await openDeveloper(page);
   await waitForOrbitLines(page);
   assert.equal(await currentScale(page), scale, `${label}: the scale in use is ${scale}`);
@@ -57,15 +59,16 @@ for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 
     if (name === "Orbit ring" || name === "Trailing arc") assert.notEqual(off, base0, `${label}: switching "${name}" off changes the picture`);
   }
   const before = await sliderReadout(page, "orbit-ring-opacity");
+  const dim = await litPixels(page);
   await dragSlider(page, "orbit-ring-opacity", 0.8);
   await page.waitForTimeout(500);
   assert.equal(await sliderReadout(page, "orbit-ring-opacity"), "0.80", `${label}: the slider reads 0.80 (was ${before})`);
   const bright = await litPixels(page);
-  assert.ok(bright > base0, `${label}: a brighter ring lights more of the picture`);
+  assert.ok(bright > dim, `${label}: a brighter ring lights more of the picture (${dim} to ${bright})`);
   await resetOrbitLines(page);
   await page.waitForTimeout(500);
   assert.equal(await sliderReadout(page, "orbit-ring-opacity"), before, `${label}: reset returns the slider to ${before}`);
-  outcome.slider = { before, set: "0.80", litBefore: base0, litAfter: bright };
+  outcome.slider = { before, set: "0.80", litBefore: dim, litAfter: bright };
   if (outDir) await page.screenshot({ path: `${outDir}/${label}.png` });
   results[label] = outcome;
   await page.close();
