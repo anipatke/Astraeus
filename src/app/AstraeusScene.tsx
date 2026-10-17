@@ -5,6 +5,7 @@ import type { DirectionalLight, Group, PerspectiveCamera } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
+import type { PathView } from "./PathView";
 import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
@@ -82,6 +83,16 @@ export interface SceneRuntime {
   readonly cameraReach: CameraReach;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
   readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
+}
+
+/** Diagnostic for the browser checks: how far the first orbit arc's head is from its body's drawn position, as a share of the orbit's size (`data-orbit-head-gap`). */
+function publishOrbitHeadGap(canvas: HTMLCanvasElement, views: readonly PathView[], absoluteOf: (id: BodyId) => RenderVector, policy: ScalePolicy): void {
+  const view = views.find((candidate) => candidate.arcHeadAbsolute() !== null);
+  const head = view?.arcHeadAbsolute() ?? null;
+  if (view === undefined || head === null) return;
+  const body = absoluteOf(view.layer.source.body as BodyId);
+  const extent = view.extentUnits(policy);
+  canvas.dataset.orbitHeadGap = String(extent > 0 ? Math.hypot(head[0] - body[0], head[1] - body[1], head[2] - body[2]) / extent : 0);
 }
 
 export interface SceneControls {
@@ -261,6 +272,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of groupViews) view.place(origin);
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin);
+    publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);

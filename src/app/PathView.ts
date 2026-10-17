@@ -16,7 +16,7 @@ import {
   type PathLayer,
 } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { inertialTrailKm, mapPathKm, orbitLookShapes, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
+import { arcAlpha, inertialTrailKm, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -70,6 +70,8 @@ export class PathView {
   #arc: Line | null = null;
   #ringColours: BufferAttribute | null = null;
   #arcColours: BufferAttribute | null = null;
+  #arcScaled: Float64Array | null = null;
+  #arcPositions: BufferAttribute | null = null;
 
   constructor(readonly layer: PathLayer, style: PathStyle = {}, refresh: PathRefreshPolicy = DEFAULT_PATH_REFRESH) {
     validatePathSpec(layer.object?.id ?? "path", layer);
@@ -96,15 +98,18 @@ export class PathView {
     if (style.orbitLook !== undefined && rolling) this.#addLookLayers(geometry, line, style.orbitLook);
   }
 
-  /** The ring is the line already built (vertex colours carry the end fade); the arc shares its vertices over the stretch behind the body. */
+  /** The ring is the line already built (vertex colours carry the end fade); the arc is its own short line from the recent samples to the body's live position. */
   #addLookLayers(geometry: BufferGeometry, ring: Line, look: OrbitLook): void {
     const n = this.#capacity;
-    this.#ringColours = new BufferAttribute(new Float32Array(n * 4), 4);
-    this.#arcColours = new BufferAttribute(new Float32Array(n * 4), 4);
+    this.#ringColours = new BufferAttribute(new Float32Array(n * 4).fill(1), 4);
+    this.#arcColours = new BufferAttribute(new Float32Array((n + 1) * 4).fill(1), 4);
+    this.#arcScaled = new Float64Array((n + 1) * 3);
+    this.#arcPositions = new BufferAttribute(new Float32Array((n + 1) * 3), 3);
     geometry.setAttribute("color", this.#ringColours);
     const arcGeometry = new BufferGeometry();
-    arcGeometry.setAttribute("position", this.#positions);
+    arcGeometry.setAttribute("position", this.#arcPositions);
     arcGeometry.setAttribute("color", this.#arcColours);
+    arcGeometry.setDrawRange(0, 0);
     const ringMaterial = ring.material as LineBasicMaterial;
     ringMaterial.vertexColors = true;
     const arcMaterial = new LineBasicMaterial({ vertexColors: true, color: ringMaterial.color.clone(), transparent: true, depthTest: ringMaterial.depthTest });
@@ -119,6 +124,49 @@ export class PathView {
     this.setLook(look);
   }
 
+  /**
+   * Opacities from time, every frame: the ring's end fade slides with the clock, and the arc runs from the last sample at or before the clock
+   * to the body's live position, so neither steps with the sampling or jumps when the window is rebuilt.
+   */
+  #updateLook(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
+    const look = this.#look;
+    const span = this.layer.span;
+    if (look === null || this.#ringColours === null || this.#arcColours === null || this.#arcScaled === null || this.#arcPositions === null || this.#arc === null || !isRollingSpan(span) || this.#frame === undefined) return;
+    const times = this.#times;
+    const n = times.length;
+    for (let i = 0; i < n; i += 1) {
+      const alpha = look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
+      this.#ringColours.setW(i, alpha);
+    }
+    this.#ringColours.needsUpdate = true;
+    const arcMs = look.arcFraction * span.windowMs;
+    let last = -1;
+    for (let i = 0; i < n; i += 1) if (times[i] <= timeUtcMs) last = i;
+    let first = last;
+    while (first > 0 && timeUtcMs - times[first - 1] < arcMs) first -= 1;
+    if (first > 0 && last >= 0) first -= 1; // one more, at nothing, so the tail ends in its own fade
+    const km = new Float64Array(3 * (Math.max(0, last - first + 1) + 1));
+    let v = 0;
+    for (let i = Math.max(first, 0); i <= last; i += 1) {
+      km.set(this.#samplesKm.subarray(3 * i, 3 * i + 3), 3 * v);
+      this.#arcColours.setW(v, arcAlpha(timeUtcMs, times[i], arcMs, look.arcExponent));
+      v += 1;
+    }
+    km.set(this.layer.source.stateAt(timeUtcMs, this.#explicitCentre).positionKm, 3 * v);
+    this.#arcColours.setW(v, 1);
+    this.#arcColours.needsUpdate = true;
+    this.#arcScaled.set(eqjMapped(orbitKm(km, this.#frame, placement, timeUtcMs), policy));
+    this.#arc.geometry.setDrawRange(0, v + 1);
+  }
+
+  /** Scaled absolute position of the arc's head (the last vertex drawn), or null with no arc yet. Diagnostic: it is where the body is. */
+  arcHeadAbsolute(): RenderVector | null {
+    const count = this.#arc?.geometry.drawRange.count ?? 0;
+    if (this.#arcScaled === null || count === 0) return null;
+    const i = 3 * (count - 1);
+    return [this.#arcScaled[i], this.#arcScaled[i + 1], this.#arcScaled[i + 2]];
+  }
+
   /** The look this path was built with (its data), which live controls start from and reset to; null for a plain line. */
   get defaultLook(): OrbitLook | null {
     return this.#defaultLook;
@@ -129,22 +177,10 @@ export class PathView {
     return this.#look;
   }
 
-  /** Applies a look live: layers switch, shapes and opacities change, with no rebuild of the samples. Ignored for a plain line. */
+  /** Applies a look live: layers switch and opacities change at once (the shapes follow in `sync`). Ignored for a plain line. */
   setLook(look: OrbitLook): void {
-    if (this.#ring === null || this.#arc === null || this.#ringColours === null || this.#arcColours === null) return;
-    const before = this.#look;
+    if (this.#ring === null || this.#arc === null) return;
     this.#look = look;
-    const shapeChanged = before === null || before.endFadeOn !== look.endFadeOn || before.endFade !== look.endFade || before.arcFraction !== look.arcFraction || before.arcExponent !== look.arcExponent;
-    if (shapeChanged) {
-      const shapes = orbitLookShapes(this.#capacity, look.endFadeOn ? look.endFade : 0, look.arcFraction, look.arcExponent);
-      for (let i = 0; i < this.#capacity; i += 1) {
-        this.#ringColours.setXYZW(i, 1, 1, 1, shapes.ring[i]);
-        this.#arcColours.setXYZW(i, 1, 1, 1, shapes.arc[i]);
-      }
-      this.#ringColours.needsUpdate = true;
-      this.#arcColours.needsUpdate = true;
-      this.#arc.geometry.setDrawRange(shapes.arcFirst, shapes.arcCount);
-    }
     this.#ring.visible = look.baseOn;
     this.#arc.visible = look.arcOn;
     this.#applyOpacity();
@@ -252,6 +288,7 @@ export class PathView {
     this.#extentKm = widest;
     this.#extentScaled = scaleLength(policy, widest);
     this.#centre = eqjToRenderVector(policy.mapPosition(this.#centreKm));
+    this.#updateLook(timeUtcMs, placement, policy);
   }
 
   place(origin: FloatingOrigin): void {
@@ -269,6 +306,15 @@ export class PathView {
       out[i + 2] = this.#scaled[i + 2] - oz;
     }
     this.#positions.needsUpdate = true;
+    if (this.#arcScaled !== null && this.#arcPositions !== null) {
+      const arcOut = this.#arcPositions.array as Float32Array;
+      for (let i = 0; i < arcOut.length; i += 3) {
+        arcOut[i] = this.#arcScaled[i] - ox;
+        arcOut[i + 1] = this.#arcScaled[i + 1] - oy;
+        arcOut[i + 2] = this.#arcScaled[i + 2] - oz;
+      }
+      this.#arcPositions.needsUpdate = true;
+    }
   }
 
   /** The centre of the drawn line, so a focused path sits in the middle of the view. */

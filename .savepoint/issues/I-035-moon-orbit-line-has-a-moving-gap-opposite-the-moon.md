@@ -16,6 +16,10 @@ history:
     actor: {role: executor, session: i035-lane}
     kind: repair_attempted
     note: 'Lane i035-orbit-gap. Measured gap (first to last sample): Moon 3215-7952 km (0.8-2.2 percent of orbit radius) at four dates; Io 0 km. An overlap of the window traded the break for a double line, so by owner decision the orbit look is Planetary Explorer''s: faint ring with faded ends, quadratic trailing arc, zoom brightening; each layer toggleable and each number a path setting (src/assets/orbitLook.ts, defaults 0.18 / 0.1 / 0.2 / 0.65 / 2 / 0.45 / 0.3) with live controls under Developer > Display settings > Orbit lines. Lite 26/26 (docs/evidence/i035-lite-20261017T0534), controls check docs/evidence/i035-orbit-look-20261017T0534. Pictures skipped by owner request; owner inspects. Not verified: owner visual judgement.'
+  - at: '2026-10-17T19:30:00Z'
+    actor: {role: executor, session: i035-lane}
+    kind: repair_attempted
+    note: 'Lane i035-orbit-gap. Owner: Io''s line jumped. Cause: the arc was drawn by sample index on a stale rolling window, so its head lagged the body and stepped at each rebuild. Now alphas are computed from time every frame and the arc runs from the last sample to the body''s live position. Checks: docs/evidence/i035-orbit-motion-20261017T0552 (head gap 0 at 604800x for Jupiter-Io and Earth-Moon), lite 26/26 docs/evidence/i035-lite-20261017T0552. Not verified: owner visual judgement; frame-to-frame alpha smoothness is covered by unit tests, not measured in the browser.'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon

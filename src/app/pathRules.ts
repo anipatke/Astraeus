@@ -99,24 +99,35 @@ export function pathNeedsRefresh(
   return drift > policy.maxDriftMs && realNowMs - lastBuildRealMs >= policy.minRealIntervalMs;
 }
 
+const smoothstep = (x: number): number => {
+  const c = Math.max(0, Math.min(1, x));
+  return c * c * (3 - 2 * c);
+};
+
 /**
- * Opacity shapes (0 to 1) of the two layers of an orbit line over `count` evenly spaced vertices of a window, the body at the middle vertex.
- * `ring`: nothing at both ends rising smoothly to full by `endFade` of the way in. `arc`: the vertices from the body back over
- * `arcFraction` of `periodFraction` of the window (the period as a share of the window), 1 at the body falling to 0 at the tail as
- * (1 - along)^exponent; 0 elsewhere. `arcFirst`/`arcCount` give the arc's vertex range.
+ * Opacity (0 to 1) of a ring vertex sampled at `vertexUtcMs`, for a ring one `periodMs` wide centred on the clock `nowUtcMs` whose two ends
+ * fade out over `endFade` of the period: a function of time, so it slides continuously with the clock and does not depend on when the sampled
+ * window was last rebuilt.
  */
-export function orbitLookShapes(count: number, endFadeFraction: number, arcFraction: number, exponent: number, periodShare = 1): { readonly ring: Float32Array; readonly arc: Float32Array; readonly arcFirst: number; readonly arcCount: number } {
-  const ring = new Float32Array(count).fill(1);
-  if (endFadeFraction > 0 && count >= 2) {
-    for (let i = 0; i < count; i += 1) {
-      const t = i / (count - 1);
-      const x = Math.min(1, Math.min(t, 1 - t) / endFadeFraction);
-      ring[i] = x * x * (3 - 2 * x);
-    }
-  }
-  const body = (count - 1) / 2;
-  const segments = Math.min(body, Math.round(arcFraction * periodShare * (count - 1)));
-  const arc = new Float32Array(count);
-  for (let k = 0; k <= segments; k += 1) arc[body - k] = segments === 0 ? 1 : (1 - k / segments) ** exponent;
-  return { ring, arc, arcFirst: body - segments, arcCount: segments + 1 };
+export function ringAlpha(nowUtcMs: number, vertexUtcMs: number, periodMs: number, endFade: number): number {
+  if (!(endFade > 0)) return 1;
+  const fromEnd = Math.min(vertexUtcMs - (nowUtcMs - periodMs / 2), nowUtcMs + periodMs / 2 - vertexUtcMs);
+  return smoothstep(fromEnd / (endFade * periodMs));
+}
+
+/** Opacity of a ring vertex by its place in the sampled window alone (0 at both physical ends, full by `endFade` of the way in): hides where a stale window stops. */
+export function windowEdgeAlpha(index: number, count: number, endFade: number): number {
+  if (!(endFade > 0) || count < 2) return 1;
+  const t = index / (count - 1);
+  return smoothstep(Math.min(t, 1 - t) / endFade);
+}
+
+/**
+ * Opacity (0 to 1) of the trailing arc at a vertex sampled at `vertexUtcMs`: 1 at the body (`nowUtcMs`), falling to 0 `arcMs` earlier as
+ * (1 - age/arcMs)^exponent; 0 for a time after the body or beyond the tail.
+ */
+export function arcAlpha(nowUtcMs: number, vertexUtcMs: number, arcMs: number, exponent: number): number {
+  const age = nowUtcMs - vertexUtcMs;
+  if (age < 0 || !(arcMs > 0) || age >= arcMs) return 0;
+  return (1 - age / arcMs) ** exponent;
 }
