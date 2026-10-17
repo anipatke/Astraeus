@@ -2,8 +2,7 @@
 id: T-081
 title: Make the phone view immersive with drawers, sheets and collapsible sources
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-079, requires: clear}, {task: T-080, requires: clear}, {task: T-083, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-orchestrator-check-20261017}
@@ -91,3 +90,7 @@ Earlier partial run (`docs/evidence/o020-t081-full-20261017T114400Z`) failures a
 
 **Drift notes.** (1) Landscape phones (wider than 700 px, short, touch) use the phone layout. (2) Picking an object on a phone closes the top drawer; info still opens on pick. (3) Phone speed picker shows compact rates ("1 h/s", via formatRateCompact); the drawer slider says it in words. (4) Sources left the badge detail for its own section; the badge no longer holds sources. (5) Desktop control look changed slightly: all controls 36 px, 13 px font, play 36 px (was 40), cog level with the bar row and round. (6) Developer panel excluded from the shared-look check. (7) Safe-area insets not emulable headlessly. (8) orbit-look sensitivity above; no new Issue created (lane rule): suggest one if it persists after the I-036 merge. (9) browser-story-panels, browser-spike03 (via driver) and browser-lite changed only where the phone layout changed the interface; the driver has new reveal helpers.
 **Extra reads.** src/app/App.tsx, SettingControls.tsx, driver.mjs, run-full.sh, browser-lite.mjs, browser-orbit-look.mjs, browser-spike03.mjs, browser-story-panels.mjs, the O-020 Objective, the mock-up files (reference).
+
+## Owner Completion — 2026-10-18
+
+Marked done on the owner's standing instruction for O-020 ("Yes, for all clear interface steps"), after Quick Task Check C-065 CLEAR. The owner's laptop-and-phone look is T-082's; the owner said 2026-10-18 "I'm remote so review will come later, proceed with other work".
