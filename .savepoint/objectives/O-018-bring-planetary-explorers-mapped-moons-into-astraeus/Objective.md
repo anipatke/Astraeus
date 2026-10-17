@@ -2,7 +2,7 @@
 id: O-018
 title: Bring Planetary Explorer's mapped moons into Astraeus
 status: planned
-depends_on: [O-017]
+depends_on: []
 release: G-005
 ---
 
@@ -54,3 +54,7 @@ Owner, 2026-10-17: "we have each moon already mapped built and tagged with inter
 
 **Out of scope:**
 - Real orbital positions, orientations and parent planets for the new moons (O-019); shipping the planets Saturn, Uranus, Neptune, Pluto or Ceres and the rings in this release (the importer supports them; shipping them is a later choice); Phobos and Deimos and small moons (no global maps); Uranus's five main moons (no maps in the donor); Ceres's untraced colouring; the donor's missions, satellites and intro screens.
+
+## Dependency Note — 2026-10-17
+
+Owner, 2026-10-17: "I really want to speed this up, can we run any of the other work in parallel in worktrees i.e. the other objectives". The Objective-level wait on O-017 is removed so its Tasks can run in worktree lanes beside O-017's last Task; the release order is unchanged (nothing deploys before the owner decides).

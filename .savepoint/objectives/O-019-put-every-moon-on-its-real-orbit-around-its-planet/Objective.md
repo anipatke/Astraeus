@@ -2,7 +2,7 @@
 id: O-019
 title: Put every moon on its real orbit around its planet
 status: planned
-depends_on: [O-018]
+depends_on: []
 release: G-005
 ---
 
@@ -43,3 +43,7 @@ Owner, 2026-10-17: "what it doesnt probably have is orbits, correct positions et
 
 **Out of scope:**
 - Phobos and Deimos and small moons; Uranus and its moons; perturbation theory beyond what accuracy requires; meteor or story content for these systems.
+
+## Dependency Note — 2026-10-17
+
+Owner, 2026-10-17: "I really want to speed this up, can we run any of the other work in parallel in worktrees". The Objective-level wait on O-018 is removed so the orbit research can start now; every Task that draws or places a moon names its O-018 Task dependency itself.
