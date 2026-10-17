@@ -2,8 +2,7 @@
 id: T-069
 title: Simplify the code the owner picked from the ranked list
 objective: O-017
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-066, requires: accepted}, {task: T-067, requires: clear}, {task: T-068, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o017-plan-20261017}
@@ -124,3 +123,7 @@ Deferred to the O-017 integration Task (Task 7 in the plan), which must account 
 - Components/Codebase Map: `src/app/` gains `LayeredRender.tsx` and the `scene*` helpers (`sceneTargets`, `sceneCamera`, `sceneBodies`, `sceneLights`, `sceneSky`, `sceneDebug`, `sceneHooks`); `src/core/` gains `fieldReaders.ts`; `src/experiences/showers/` gains `showerBasics`, `showerStream`, `showerStreamText`, `showerPaths`, `showerActivity`, `showerBodies` (the assembler `showerDefinition.ts` remains the entry). Architectural for the map; no contract or behaviour change.
 - `rotateInto` is no longer exported from `orbitGroup.ts`; `memberStatesOf` and `propagatedPositionOf` are new core helpers shared by the two orbit groups (non-architectural, internal).
 - `tests/showersMeasuredGeminids.test.ts` no longer exists; its scenarios live in `tests/showersMeasured.test.ts` (map above).
+
+## Owner Completion — 2026-10-17
+
+Marked done by the orchestrator on the owner's standing instruction (owner, remote, 2026-10-17: "yes, mark each clear step done and keep going"), after Quick Task Check C-050 CLEAR.
