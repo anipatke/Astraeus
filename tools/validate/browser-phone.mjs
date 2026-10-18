@@ -199,6 +199,24 @@ async function checkStoryPanel(label, page) {
   await ui.closeStoryPanel(page);
 }
 
+/** The developer panel as a first-time viewer finds it (T-090): short list of group headings, the first open, 44 px tall, each folding with one press, remembered. */
+async function checkDeveloperGroups(label, page) {
+  await ui.toggleDeveloper(page, { expand: false });
+  const groups = await ui.developerGroups(page);
+  assert.ok(groups.length >= 3 && groups.length <= 8, `${label}: a short list of group headings (${groups.map((g) => g.label).join(", ")})`);
+  assert.deepEqual(groups.map((g) => g.open), groups.map((_, i) => i === 0), `${label}: only the first group starts open`);
+  for (const g of groups) assert.ok(g.height >= 44, `${label}: the "${g.label}" heading is at least 44 px tall (${g.height})`);
+  const second = groups[1].id;
+  await ui.toggleDeveloperGroup(page, second);
+  assert.equal(await ui.developerGroupOpen(page, second), true, `${label}: one press opens "${groups[1].label}"`);
+  await page.reload({ waitUntil: "load" });
+  await ui.toggleDeveloper(page, { expand: false });
+  assert.equal(await ui.developerGroupOpen(page, second), true, `${label}: an opened group is remembered after a reload`);
+  await ui.toggleDeveloperGroup(page, second);
+  assert.equal(await ui.developerGroupOpen(page, second), false, `${label}: one press closes it again`);
+  await ui.closeDeveloper(page);
+}
+
 async function checkSettings(label, page) {
   await ui.openDeveloper(page);
   for (const name of ui.PHONE_LAYOUT_SLIDERS) assert.ok(await ui.phoneSettingShown(page, name), `${label}: a live control for "${name}"`);
@@ -223,6 +241,7 @@ for (const experience of EXPERIENCES) {
     await attempt(`${label}: scene drag`, () => checkSceneDrag(label, page));
     await attempt(`${label}: information sheet`, () => checkInfoSheet(label, page));
     if (experience.hasPanels) await attempt(`${label}: story panel`, () => checkStoryPanel(label, page));
+    if (experience.name === "apollo11") await attempt(`${label}: developer groups`, () => checkDeveloperGroups(label, page));
     if (experience.name === "apollo11") await attempt(`${label}: settings`, () => checkSettings(label, page));
     await context.close();
   }

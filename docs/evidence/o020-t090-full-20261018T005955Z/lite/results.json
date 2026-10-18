@@ -1,0 +1,428 @@
+{
+  "tier": "lite (I-033)",
+  "at": "2026-10-18T01:03:58.012Z",
+  "appUrl": "http://localhost:5591/app.html",
+  "experiences": [
+    "apollo11",
+    "earth-moon",
+    "jupiter-io",
+    "synthetic",
+    "synthetic-bare",
+    "synthetic-ring",
+    "synthetic-belt",
+    "synthetic-listed",
+    "synthetic-eccentric",
+    "shower-geminids",
+    "shower-perseids"
+  ],
+  "loads": 26,
+  "failed": 0,
+  "results": [
+    {
+      "label": "apollo11",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html",
+      "ok": true,
+      "seconds": 5.7,
+      "screenshot": "apollo11-desktop.png",
+      "detail": {
+        "title": "Apollo 11 · Astraeus",
+        "litPixels": 43882,
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "apollo11",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html",
+      "ok": true,
+      "seconds": 4.8,
+      "screenshot": "apollo11-phone.png",
+      "detail": {
+        "title": "Apollo 11 · Astraeus",
+        "litPixels": 18844,
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "earth-moon",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=earth-moon",
+      "ok": true,
+      "seconds": 6,
+      "screenshot": "earth-moon-desktop.png",
+      "detail": {
+        "title": "Earth–Moon · Astraeus",
+        "litPixels": 43718,
+        "object": "moon",
+        "panel": "same-face"
+      },
+      "failures": []
+    },
+    {
+      "label": "earth-moon",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=earth-moon",
+      "ok": true,
+      "seconds": 6.4,
+      "screenshot": "earth-moon-phone.png",
+      "detail": {
+        "title": "Earth–Moon · Astraeus",
+        "litPixels": 19422,
+        "object": "moon",
+        "panel": "same-face"
+      },
+      "failures": []
+    },
+    {
+      "label": "jupiter-io",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=jupiter-io",
+      "ok": true,
+      "seconds": 9.2,
+      "screenshot": "jupiter-io-desktop.png",
+      "detail": {
+        "title": "Jupiter and Io · Astraeus",
+        "litPixels": 541995,
+        "object": "io",
+        "panel": "volcanoes"
+      },
+      "failures": []
+    },
+    {
+      "label": "jupiter-io",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=jupiter-io",
+      "ok": true,
+      "seconds": 4.4,
+      "screenshot": "jupiter-io-phone.png",
+      "detail": {
+        "title": "Jupiter and Io · Astraeus",
+        "litPixels": 69083,
+        "object": "io",
+        "panel": "volcanoes"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic",
+      "ok": true,
+      "seconds": 5.5,
+      "screenshot": "synthetic-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 33519,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic",
+      "ok": true,
+      "seconds": 5.7,
+      "screenshot": "synthetic-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 15024,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-bare",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic-bare",
+      "ok": true,
+      "seconds": 3.1,
+      "screenshot": "synthetic-bare-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 31859,
+        "object": "sky"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-bare",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic-bare",
+      "ok": true,
+      "seconds": 3,
+      "screenshot": "synthetic-bare-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 14217,
+        "object": "sky"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-ring",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic-ring",
+      "ok": true,
+      "seconds": 6.1,
+      "screenshot": "synthetic-ring-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 106060,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-ring",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic-ring",
+      "ok": true,
+      "seconds": 8.2,
+      "screenshot": "synthetic-ring-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 55221,
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic-belt",
+      "ok": true,
+      "seconds": 5.2,
+      "screenshot": "synthetic-belt-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 84550,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic-belt",
+      "ok": true,
+      "seconds": 5.5,
+      "screenshot": "synthetic-belt-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 53015,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-listed",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic-listed",
+      "ok": true,
+      "seconds": 3.8,
+      "screenshot": "synthetic-listed-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 71263,
+        "object": "listed-orbits"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-listed",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic-listed",
+      "ok": true,
+      "seconds": 5.8,
+      "screenshot": "synthetic-listed-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 41728,
+        "object": "listed-orbits"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 4.9,
+      "screenshot": "synthetic-eccentric-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 44561,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 6.6,
+      "screenshot": "synthetic-eccentric-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "litPixels": 21005,
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-geminids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=shower-geminids",
+      "ok": true,
+      "seconds": 8.7,
+      "screenshot": "shower-geminids-desktop.png",
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "litPixels": 42704,
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-geminids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=shower-geminids",
+      "ok": true,
+      "seconds": 10,
+      "screenshot": "shower-geminids-phone.png",
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "litPixels": 23012,
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-perseids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/app.html?experience=shower-perseids",
+      "ok": true,
+      "seconds": 7.3,
+      "screenshot": "shower-perseids-desktop.png",
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "litPixels": 124508,
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "shower-perseids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/app.html?experience=shower-perseids",
+      "ok": true,
+      "seconds": 10,
+      "screenshot": "shower-perseids-phone.png",
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "litPixels": 37267,
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/index.html",
+      "ok": true,
+      "seconds": 1.9,
+      "screenshot": "index-page-desktop.png",
+      "detail": {
+        "title": "Astraeus",
+        "demoLinks": [
+          "app.html",
+          "app.html?experience=shower-perseids",
+          "app.html?experience=shower-geminids",
+          "app.html?experience=earth-moon",
+          "app.html?experience=jupiter-io"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/index.html",
+      "ok": true,
+      "seconds": 1.8,
+      "screenshot": "index-page-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "demoLinks": [
+          "app.html",
+          "app.html?experience=shower-perseids",
+          "app.html?experience=shower-geminids",
+          "app.html?experience=earth-moon",
+          "app.html?experience=jupiter-io"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5591/assets.html",
+      "ok": true,
+      "seconds": 1.7,
+      "screenshot": "assets-page-desktop.png",
+      "detail": {
+        "title": "Astraeus Assets"
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5591/assets.html",
+      "ok": true,
+      "seconds": 1.7,
+      "screenshot": "assets-page-phone.png",
+      "detail": {
+        "title": "Astraeus Assets"
+      },
+      "failures": []
+    }
+  ]
+}

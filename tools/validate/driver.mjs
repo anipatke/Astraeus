@@ -349,7 +349,11 @@ export async function closeInfo(page) { if (await infoOpen(page)) await page.loc
 /** Closes it when open, giving up quietly after 5 s. */
 export async function closeInfoQuietly(page) { if (await infoOpen(page)) await page.locator(HOOK.infoClose).click({ timeout: 5000 }).catch(() => undefined); }
 /** Closes it; fails when it is not open. */
-export const closeInfoStrict = (page) => page.locator(HOOK.infoClose).click();
+export async function closeInfoStrict(page) {
+  const close = page.locator(HOOK.infoClose);
+  // With the developer panel open and every group expanded (the driver does that), its box can cover the sheet's Close; then press it from inside the page.
+  try { await close.click({ timeout: 3000 }); } catch (error) { if (!/intercepts pointer events/.test(String(error?.message))) throw error; await close.evaluate((element) => element.click()); }
+}
 /** Closes it with the Escape key from its close button (a phone has no pointer). */
 export async function closeInfoByKeyboard(page) { await page.locator(HOOK.infoClose).focus(); await page.keyboard.press("Escape"); }
 /** Closes it the way the viewport suits: Escape on a phone, a press on a larger screen. */
@@ -425,8 +429,29 @@ export const showSceneLabels = (page) => page.evaluate((hook) => { for (const el
 
 const developerButton = (page) => page.getByRole("button", { name: "Developer mode" });
 
-/** Opens or closes the developer drawer. */
-export const toggleDeveloper = (page) => developerButton(page).click();
+/**
+ * Opens every fold in the developer panel, nested ones included (T-090: the panel's groups start closed except the first, and remember how a viewer
+ * left them). Scripts reach a control by name; the driver opens the groups first so no script has to know the panel's layout.
+ */
+export async function expandDeveloperGroups(page) {
+  const closed = page.locator('[data-fold-toggle][aria-expanded="false"]');
+  await page.locator("[data-fold-toggle]").first().waitFor({ timeout: 10000 });
+  for (let guard = 0; guard < 30 && (await closed.count()) > 0; guard++) await closed.first().evaluate((element) => element.click());
+}
+/** Whether a group (fold) of the developer panel is open, by its id ("demo", "camera", "timeline", "orbit-lines", "orbit-fine-tune", "sky-sun", "labels", "phone-layout", "under-the-hood"). */
+export const developerGroupOpen = async (page, id) => (await page.locator(`[data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) === "true";
+/** The ids of the developer panel's groups, in order, with whether each is open. */
+export const developerGroups = (page) => page.locator("[data-fold-toggle]").evaluateAll((els) => els.map((el) => ({ id: el.dataset.foldToggle, open: el.getAttribute("aria-expanded") === "true", label: el.textContent.trim(), height: el.getBoundingClientRect().height })));
+/** Opens or closes the developer drawer; an opened drawer has all its groups opened. */
+export async function toggleDeveloper(page, { expand = true } = {}) {
+  await developerButton(page).click();
+  if (await developerOpen(page)) {
+    if (expand) await expandDeveloperGroups(page);
+    else await page.locator("[data-fold-toggle]").first().waitFor({ timeout: 10000 });
+  }
+}
+/** Opens or closes one group of the developer panel (by id) the way a viewer would: one press on its heading. */
+export const toggleDeveloperGroup = (page, id) => page.locator(`[data-fold-toggle="${id}"]`).click();
 export const developerButtonCount = (page) => developerButton(page).count();
 export const developerOpen = async (page) => (await developerButton(page).getAttribute("aria-pressed")) === "true";
 export async function openDeveloper(page) {
@@ -901,7 +926,7 @@ export const drawerTransition = (page) => page.locator(HOOK.controlsDrawer).eval
 export const objectListShown = (page) => bodyPicker(page).isVisible();
 export const speedSliderShown = (page) => page.getByLabel("Speed slider").isVisible();
 export const infoSourceLinesShown = (page) => sourcesSection(page).locator("li").first().isVisible();
-/** The phone layout's live settings in the developer panel (Display settings > Phone layout), by the name each slider carries. */
+/** The phone layout's live settings in the developer panel (the "Phone layout" group), by the name each slider carries. */
 export const PHONE_LAYOUT_SLIDERS = ["Phone drawer animation", "Phone top drawer height", "Phone timeline drawer height", "Phone sheet height", "Phone swipe distance"];
 export const phoneSettingShown = (page, name) => page.getByRole("slider", { name }).isVisible();
 export const setPhoneSetting = (page, name, value) => page.getByRole("slider", { name }).fill(String(value));
