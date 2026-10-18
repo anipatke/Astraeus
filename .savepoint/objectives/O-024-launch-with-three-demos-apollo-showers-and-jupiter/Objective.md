@@ -1,7 +1,7 @@
 ---
 id: O-024
 title: Launch with three demos — Apollo, Showers and Jupiter
-status: planned
+status: in_progress
 depends_on: [O-020]
 release: G-005
 ---
@@ -29,6 +29,10 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we combine the Perseids an
 2. Earth–Moon's experience, story file and checks are removed; nothing else breaks (engine parts it used stay).
 3. Home page shelf, catalogue links and page titles show three demos; the picture baseline and contact sheet cover the three.
 4. Browser checks through the shared driver cover the switch both ways, desktop and phone; full run passes; owner look.
+
+## Design Confirmation
+
+The outcome, decisions and success conditions above come from the owner's launch definition and answers on 2026-10-18; the owner then said "please proceed and I will review when back". Tasks: T-091 (combine and switch), T-092 (21 September 2019 year), T-093 (remove Earth–Moon, three demos on the home page, addresses, baseline).
 
 ## Notes for planning
 
