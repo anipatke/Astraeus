@@ -1,7 +1,7 @@
 ---
 id: T-100
 title: Open "Jupiter and its moons" on 4 November 2016 with its stories moved there
-objective: O-025
+objective: O-032
 status: planned
 depends_on: [{task: T-098, requires: clear}]
 owner_validation: {required: true}
@@ -9,6 +9,10 @@ planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
 # Open "Jupiter and its moons" on 4 November 2016 with its stories moved there
+
+## Planning Note (owner, 2026-10-18)
+
+Parked: "Park the Juno demo". Moved from O-025 to O-032 in the post-launch Goal G-008 (owner chose a new Goal over keeping it in O-025 or dropping it). Done When unchanged; its references to O-025 Decisions 4 and 5 now read as O-032's carried-over decisions.
 
 ## Outcome
 

@@ -42,14 +42,14 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 5. Data size within the public load budget (tables compressed or streamed); scene performance on a phone holds (one chunk of work per frame, as the showers do).
 6. Browser checks through the shared driver; full run passes; owner look.
 
-4. **Date window** (owner, 2026-10-18): the demo starts on **4 November 2016** ("Actually, 4 Nov 2016, the day my son was born"), replacing the January 2000 start; the window runs a year so the outer moons' orbits show.
-5. **Name** (owner, "yes"): "Jupiter and its moons".
+4. **Date window** (owner, 2026-10-18; **parked 2026-10-18 to O-032**, owner: "Park the Juno demo" — meanwhile the demo starts on 4 November 2016 for two weeks, T-098): the demo starts on **4 November 2016** ("Actually, 4 Nov 2016, the day my son was born"), replacing the January 2000 start; the window runs a year so the outer moons' orbits show.
+5. **Name** (owner, "yes"; **parked 2026-10-18 to O-032** with T-100): "Jupiter and its moons".
 6. **Moon groups panel** (owner, 2026-10-18: "97 moons is a lot, are there some logical groupings ... a sliding panel where the user can scroll through and on click touch opens an info panel"; approved "Looks good"): a sliding panel (the phone drawer on phones) listing the moons by family — the big four (Galilean, always shown with pictures), inner moons (Amalthea group), Himalia group, Ananke group, Carme group, Pasiphae group, loners (Themisto, Carpo, Valetudo and the like) — each a collapsible section with a plain one-line description and a count; named moons first, provisional designations folded into a "+N unnamed" row; tapping a group heading highlights that family's dots and orbits in the scene; tapping a moon focuses it and opens its information panel; a small search box. Group membership comes from a published source (JPL/Sheppard's moon pages) recorded with the data. Reuses the collapsible part and drawers from O-020.
 7. **Faint rings** (owner, 2026-10-18: "can we also apply faint rings like in planetary explorer?"): Planetary Explorer's Jupiter ring system lifted as-is — four flat bands (halo #a0b0d0 0.105, main #d0a080 0.28, Amalthea/inner Thebe gossamer #b08060 0.065, outer Thebe gossamer #a07050 0.026; `src/entities/jupiter.ts` ringSystem, `src/features/moon/PlanetRingSystem.tsx`) — with one named deviation the owner chose ("Your look, real distances"): each band sits at the real ring's distance (halo about 1.4-1.7, main about 1.72-1.81, gossamer out to about 3.1 Jupiter radii, from a published source), so the true-scale inner moons sit in the rings they feed. Opacities and colours are live settings.
 
 ## Open Questions (to settle when this Objective is planned)
 
-- The three Io stories are pinned to January 2000 and must move into the new window; "The most volcanic world we know" refers to Galileo's flyby "a few weeks before this scene" and needs new wording. NASA's Juno was in orbit around Jupiter on 4 November 2016 (arrived July 2016), a possible story tie-in.
+- (Parked to O-032 with T-100, 2026-10-18.) The three Io stories are pinned to January 2000 and must move into the new window; "The most volcanic world we know" refers to Galileo's flyby "a few weeks before this scene" and needs new wording. NASA's Juno was in orbit around Jupiter on 4 November 2016 (arrived July 2016), a possible story tie-in.
 - Moons discovered after 2016 still have Horizons positions for 2016 (computed from their orbits); their larger uncertainty goes in the details.
 
 ## Boundaries
