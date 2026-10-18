@@ -2,11 +2,18 @@
 id: I-035
 title: The Moon's orbit line has a moving gap opposite the Moon
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: checker, session: o017-orchestrator-check-20261017}
   at: '2026-10-17T23:59:00Z'
+checks: [C-078]
+resolution:
+  disposition: verified
+  check: C-078
+  actor: {role: checker, session: o020-full-check-20261018}
+  at: '2026-10-18T09:55:00Z'
+  reason: 'Repaired by owner direction with the Planetary Explorer orbit look (faded ring ends, trailing arc, pixel-capped width) instead of an overlap; owner looked ("nice"); fresh orbit-look and orbit-motion pass in the C-078 full run (head gap 0, longest arc segment under 0.01 of the orbit size). Proven by C-078 (CLEAR).'
 history:
   - at: '2026-10-17T23:59:00Z'
     actor: {role: checker, session: o017-orchestrator-check-20261017}
@@ -72,6 +79,11 @@ history:
     actor: {role: executor, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'The merged full run contact sheet (docs/evidence/o020-merged-t081-20261017T221925Z) showed the donor width as a grey band beside the Moon in Apollo''s close Moon view (1,200 km wide at true scale; Planetary Explorer''s camera never came that close). Owner chose "Cap it at a few pixels": new setting arcMaxWidthPx (default 3, slider "Arc max width (px)"), half-width per point = min(donor half-width, arcMaxWidthPx/2 x pixel size at that point''s distance); PathView.place takes the camera field of view and viewport height. Test: capped up close, donor width from afar. vitest 967 passed 1 skipped. Headless look: Apollo Moon close view a thin line.'
+  - at: '2026-10-18T09:55:00Z'
+    actor: {role: checker, session: o020-full-check-20261018}
+    kind: rechecked
+    check: C-078
+    note: 'Repaired by owner direction with the Planetary Explorer orbit look (faded ring ends, trailing arc, pixel-capped width) instead of an overlap; owner looked ("nice"); fresh orbit-look and orbit-motion pass in the C-078 full run (head gap 0, longest arc segment under 0.01 of the orbit size). Proven by C-078 (CLEAR).'
 ---
 
 # I-035: The Moon's orbit line has a moving gap opposite the Moon

@@ -2,12 +2,18 @@
 id: I-037
 title: The showers' "comet orbit drawn in the Overview" check was passing on the timeline strip, not the scene
 type: defect
-status: open
-checks: [C-063]
+status: resolved
+checks: [C-063, C-078]
 source:
   kind: report
   actor: {role: checker, session: o017-orchestrator-check-20261017}
   at: '2026-10-17T21:10:00Z'
+resolution:
+  disposition: verified
+  check: C-078
+  actor: {role: checker, session: o020-full-check-20261018}
+  at: '2026-10-18T09:55:00Z'
+  reason: 'The showers check reads the comet orbit from the scene path readout (visible, vertices in view, extent) with an out-of-view negative probe (accepted deviation from a hide toggle, which the orbit lacks); fresh showers-perseids and showers-geminids pass. Proven by C-078 (CLEAR).'
 history:
   - at: '2026-10-17T21:10:00Z'
     actor: {role: checker, session: o017-orchestrator-check-20261017}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'Merged into o018-o019 (merge of o020-i036-i037). Full run docs/evidence/o020-i036-i037-full-20261017T212213Z in the lane at db92b3b: 22/22 exit 0, error-lines 0 (showers-perseids and showers-geminids pass). Scene-only orbit count asserted at the Overview start (>100) and in the Whole-orbit preset at the peak (>150); peak Overview recorded only. Proof 2 deviation: the negative probe pulls the camera in so the orbit is out of view, because the shower orbit has no hide toggle; it shows the count measures the orbit, not a hide switch. Left open for verification in the O-020 Full Objective Check, where the checker judges that deviation.'
+  - at: '2026-10-18T09:55:00Z'
+    actor: {role: checker, session: o020-full-check-20261018}
+    kind: rechecked
+    check: C-078
+    note: 'The showers check reads the comet orbit from the scene path readout (visible, vertices in view, extent) with an out-of-view negative probe (accepted deviation from a hide toggle, which the orbit lacks); fresh showers-perseids and showers-geminids pass. Proven by C-078 (CLEAR).'
 ---
 
 # I-037: The showers' Overview comet-orbit check passed on the timeline strip

@@ -1,0 +1,1933 @@
+{
+  "loads": [
+    {
+      "view": "phone-portrait",
+      "exp": "apollo",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 724,
+        "bottom": 836,
+        "height": 112,
+        "width": 374
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-portrait",
+      "exp": "earth-moon",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 724,
+        "bottom": 836,
+        "height": 112,
+        "width": 374
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-portrait",
+      "exp": "jupiter-io",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 724,
+        "bottom": 836,
+        "height": 112,
+        "width": 374
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 92
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-portrait",
+      "exp": "perseids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 724,
+        "bottom": 836,
+        "height": 112,
+        "width": 374
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-portrait",
+      "exp": "geminids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 724,
+        "bottom": 836,
+        "height": 112,
+        "width": 374
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "apollo",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 472,
+        "bottom": 632,
+        "height": 160,
+        "width": 344
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "earth-moon",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 472,
+        "bottom": 632,
+        "height": 160,
+        "width": 344
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "jupiter-io",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 472,
+        "bottom": 632,
+        "height": 160,
+        "width": 344
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 92
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "perseids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 472,
+        "bottom": 632,
+        "height": 160,
+        "width": 344
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "geminids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 472,
+        "bottom": 632,
+        "height": 160,
+        "width": 344
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "apollo",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Braking to stay at the Moon] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 270,
+        "bottom": 382,
+        "height": 112,
+        "width": 828
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "earth-moon",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 270,
+        "bottom": 382,
+        "height": 112,
+        "width": 828
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 84
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "jupiter-io",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 270,
+        "bottom": 382,
+        "height": 112,
+        "width": 828
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 92
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "perseids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A river of comet dust] 14x14",
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Open story panel: Where the dust comes from] 14x14",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 270,
+        "bottom": 382,
+        "height": 112,
+        "width": 828
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "geminids",
+      "phone": "true",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 270,
+        "bottom": 382,
+        "height": 112,
+        "width": 828
+      },
+      "toolbar": null,
+      "pill": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 73
+      },
+      "cog": {
+        "top": 8,
+        "bottom": 52,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "tablet",
+      "exp": "apollo",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 906,
+        "bottom": 1016,
+        "height": 110,
+        "width": 752
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 70,
+        "height": 58,
+        "width": 399
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 63,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "tablet",
+      "exp": "earth-moon",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 906,
+        "bottom": 1016,
+        "height": 110,
+        "width": 752
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 70,
+        "height": 58,
+        "width": 391
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 63,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "tablet",
+      "exp": "jupiter-io",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 906,
+        "bottom": 1016,
+        "height": 110,
+        "width": 752
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 70,
+        "height": 58,
+        "width": 292
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 63,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "tablet",
+      "exp": "perseids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 906,
+        "bottom": 1016,
+        "height": 110,
+        "width": 752
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 70,
+        "height": 58,
+        "width": 658
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 63,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "tablet",
+      "exp": "geminids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Information about Sun] 41x44",
+        "button[About the scales] 41x44",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 906,
+        "bottom": 1016,
+        "height": 110,
+        "width": 752
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 70,
+        "height": 58,
+        "width": 696
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 63,
+        "height": 44,
+        "width": 44
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "laptop",
+      "exp": "apollo",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Braking to stay at the Moon] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "select[Select object] 220x36",
+        "button[Information about Earth] 36x36",
+        "button[Focus Earth] 36x36",
+        "button[Earth–Moon overview] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20",
+        "input[Seek timeline] 299x22",
+        "summary[Events (30)] 105x36",
+        "button[Information about GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 472x36",
+        "button[1969-07-16T13:32:00.] 480x36",
+        "button[1969-07-16T13:43:39.] 480x36",
+        "button[1969-07-16T16:16:16.] 480x36",
+        "button[1969-07-16T16:22:03.] 480x36",
+        "button[1969-07-16T16:49:04.] 480x36",
+        "button[1969-07-16T16:56:03.] 480x36",
+        "button[1969-07-16T17:48:59.] 480x36",
+        "button[1969-07-16T18:12:01.] 480x36",
+        "button[1969-07-17T16:16:58.] 480x36",
+        "button[1969-07-19T17:21:50.] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 704,
+        "bottom": 756,
+        "height": 52,
+        "width": 1000
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 375
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "laptop",
+      "exp": "earth-moon",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "select[Select object] 78x36",
+        "button[Information about Earth] 36x36",
+        "button[Focus Earth] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Readable] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20",
+        "input[Seek timeline] 308x22",
+        "summary[Events (0)] 96x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 704,
+        "bottom": 756,
+        "height": 52,
+        "width": 1000
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 359
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "laptop",
+      "exp": "jupiter-io",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "select[Select object] 113x36",
+        "button[Information about Jupiter] 36x36",
+        "button[Focus Jupiter] 36x36",
+        "button[Overview] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20",
+        "input[Seek timeline] 308x22",
+        "summary[Events (0)] 96x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 704,
+        "bottom": 756,
+        "height": 52,
+        "width": 1000
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 268
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "laptop",
+      "exp": "perseids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Open story panel: Where the dust comes from] 14x14",
+        "button[Perseids] 80x36",
+        "button[Geminids] 87x36",
+        "select[Select object] 151x36",
+        "button[Information about Sun] 36x36",
+        "button[Focus Sun] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Solar system] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next: Perseids activity begins] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12",
+        "input[Seek timeline] 308x22",
+        "summary[Events (3)] 96x36",
+        "button[2020-07-17T00:00:00Z] 480x36",
+        "button[2020-08-12T15:41:56Z] 480x36",
+        "button[2020-08-25T00:00:00Z] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 704,
+        "bottom": 756,
+        "height": 52,
+        "width": 1000
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 626
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "laptop",
+      "exp": "geminids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Perseids] 80x36",
+        "button[Geminids] 87x36",
+        "select[Select object] 210x36",
+        "button[Information about Sun] 36x36",
+        "button[Focus Sun] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Solar system] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next: Geminids activity begins] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12",
+        "input[Seek timeline] 308x22",
+        "summary[Events (3)] 96x36",
+        "button[2019-12-04T00:00:00Z] 480x36",
+        "button[2019-12-14T04:33:33Z] 480x36",
+        "button[2019-12-18T00:00:00Z] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 704,
+        "bottom": 756,
+        "height": 52,
+        "width": 1000
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 685
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "desktop",
+      "exp": "apollo",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panels: Leaving Earth behind; Heading home] 14x14",
+        "button[Open story panel: Braking to stay at the Moon] 14x14",
+        "button[Open story panel: Home with a splash] 14x14",
+        "select[Select object] 220x36",
+        "button[Information about Earth] 36x36",
+        "button[Focus Earth] 36x36",
+        "button[Earth–Moon overview] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to GET 00:00:00.6 · Lift-off] 18x20",
+        "button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20",
+        "button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20",
+        "button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20",
+        "button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20",
+        "button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20",
+        "button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20",
+        "button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20",
+        "button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20",
+        "button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20",
+        "button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20",
+        "button[Go to GET 100:12:00 · Undocking] 18x20",
+        "button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20",
+        "button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20",
+        "button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20",
+        "button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20",
+        "button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20",
+        "button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20",
+        "button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20",
+        "button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20",
+        "button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20",
+        "button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20",
+        "button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20",
+        "button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20",
+        "button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20",
+        "button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20",
+        "button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20",
+        "button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20",
+        "button[Go to GET 195:12:06.9 · Drogue deployment] 18x20",
+        "button[Go to GET 195:18:35 · Splashdown / Landing] 18x20",
+        "button[Open story panel: Leaving Earth behind] 18x20",
+        "button[Open story panel: Braking to stay at the Moon] 18x20",
+        "button[Open story panel: Heading down to the surface] 18x20",
+        "button[Open story panel: The Eagle has landed] 18x20",
+        "button[Open story panel: Back up to Columbia] 18x20",
+        "button[Open story panel: Heading home] 18x20",
+        "button[Open story panel: Home with a splash] 18x20",
+        "input[Seek timeline] 715x22",
+        "summary[Events (30)] 105x36",
+        "button[Information about GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 472x36",
+        "button[1969-07-16T13:32:00.] 480x36",
+        "button[1969-07-16T13:43:39.] 480x36",
+        "button[1969-07-16T16:16:16.] 480x36",
+        "button[1969-07-16T16:22:03.] 480x36",
+        "button[1969-07-16T16:49:04.] 480x36",
+        "button[1969-07-16T16:56:03.] 480x36",
+        "button[1969-07-16T17:48:59.] 480x36",
+        "button[1969-07-16T18:12:01.] 480x36",
+        "button[1969-07-17T16:16:58.] 480x36",
+        "button[1969-07-19T17:21:50.] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 836,
+        "bottom": 888,
+        "height": 52,
+        "width": 1416
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 375
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "desktop",
+      "exp": "earth-moon",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: The face we always see] 14x14",
+        "button[Open story panel: A red Moon in Earth's shadow] 14x14",
+        "select[Select object] 78x36",
+        "button[Information about Earth] 36x36",
+        "button[Focus Earth] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Readable] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Open story panel: The face we always see] 18x20",
+        "button[Open story panel: The Moon is slowly drifting away] 18x20",
+        "button[Open story panel: A red Moon in Earth's shadow] 18x20",
+        "input[Seek timeline] 724x22",
+        "summary[Events (0)] 96x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 836,
+        "bottom": 888,
+        "height": 52,
+        "width": 1416
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 359
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "desktop",
+      "exp": "jupiter-io",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: Squeezed by a giant] 14x14",
+        "select[Select object] 113x36",
+        "button[Information about Jupiter] 36x36",
+        "button[Focus Jupiter] 36x36",
+        "button[Overview] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next event] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Open story panel: The most volcanic world we know] 18x20",
+        "button[Open story panel: Squeezed by a giant] 18x20",
+        "button[Open story panel: Four laps, two laps, one lap] 18x20",
+        "input[Seek timeline] 724x22",
+        "summary[Events (0)] 96x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 836,
+        "bottom": 888,
+        "height": 52,
+        "width": 1416
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 268
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "desktop",
+      "exp": "perseids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A river of comet dust] 14x14",
+        "button[Open story panel: Earth meets the dust] 14x14",
+        "button[Open story panel: Where the dust comes from] 14x14",
+        "button[Perseids] 80x36",
+        "button[Geminids] 87x36",
+        "select[Select object] 151x36",
+        "button[Information about Sun] 36x36",
+        "button[Focus Sun] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Solar system] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next: Perseids activity begins] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to Perseids activity begins] 18x20",
+        "button[Go to Perseids peak] 18x20",
+        "button[Go to Perseids activity ends] 18x20",
+        "button[Open story panel: A river of comet dust] 18x20",
+        "button[Open story panel: Earth meets the dust] 18x20",
+        "button[Open story panel: Where the dust comes from] 18x20",
+        "button[Go to peak of Perseids activity] 16x12",
+        "input[Seek timeline] 724x22",
+        "summary[Events (3)] 96x36",
+        "button[2020-07-17T00:00:00Z] 480x36",
+        "button[2020-08-12T15:41:56Z] 480x36",
+        "button[2020-08-25T00:00:00Z] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 836,
+        "bottom": 888,
+        "height": 52,
+        "width": 1416
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 626
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    },
+    {
+      "view": "desktop",
+      "exp": "geminids",
+      "phone": "false",
+      "embedded": "false",
+      "hScroll": false,
+      "overflow": [],
+      "small": [
+        "button[Open story panel: A rock that behaves like a comet] 14x14",
+        "button[Open story panel: The best shower of the year] 14x14",
+        "button[Open story panel: Earth reaches the thickest dust] 14x14",
+        "button[Perseids] 80x36",
+        "button[Geminids] 87x36",
+        "select[Select object] 210x36",
+        "button[Information about Sun] 36x36",
+        "button[Focus Sun] 36x36",
+        "button[Overview] 36x36",
+        "button[Scale: True. Switch to Solar system] 78x36",
+        "button[About the scales] 36x36",
+        "button[Developer mode] 36x36",
+        "button[Pause playback] 36x36",
+        "button[Previous event] 36x36",
+        "button[Next: Geminids activity begins] 36x36",
+        "select[Playback speed] 210x36",
+        "button[Go to Geminids activity begins] 18x20",
+        "button[Go to Geminids peak] 18x20",
+        "button[Go to Geminids activity ends] 18x20",
+        "button[Open story panel: A rock that behaves like a comet] 18x20",
+        "button[Open story panel: The best shower of the year] 18x20",
+        "button[Open story panel: Earth reaches the thickest dust] 18x20",
+        "button[Go to peak of Geminids activity] 16x12",
+        "input[Seek timeline] 724x22",
+        "summary[Events (3)] 96x36",
+        "button[2019-12-04T00:00:00Z] 480x36",
+        "button[2019-12-14T04:33:33Z] 480x36",
+        "button[2019-12-18T00:00:00Z] 480x36"
+      ],
+      "tiny": [],
+      "timeline": {
+        "top": 836,
+        "bottom": 888,
+        "height": 52,
+        "width": 1416
+      },
+      "toolbar": {
+        "top": 12,
+        "bottom": 62,
+        "height": 50,
+        "width": 685
+      },
+      "pill": null,
+      "cog": {
+        "top": 19,
+        "bottom": 55,
+        "height": 36,
+        "width": 36
+      },
+      "names": [
+        "Pause playback",
+        "Developer mode",
+        "Select object",
+        "Seek timeline",
+        "Playback speed"
+      ],
+      "errors": []
+    }
+  ],
+  "phone": [
+    {
+      "view": "phone-portrait",
+      "exp": "apollo",
+      "reduced": false,
+      "initial": {
+        "top": "false",
+        "tl": "false",
+        "time": "1969-07-16T15:04:18.481Z",
+        "playing": true,
+        "pick": "earth"
+      },
+      "timelineDrawer": {
+        "height": 344,
+        "top": 489,
+        "slider": true
+      },
+      "info": {
+        "panel": true,
+        "sheetBottom": 716,
+        "playTop": 741,
+        "playReachable": true,
+        "sourcesOpen": false,
+        "hasSources": true,
+        "drawerOpen": "false"
+      },
+      "dev": {
+        "left": 8,
+        "right": 382,
+        "w": 390,
+        "headings": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ],
+        "open": 1
+      },
+      "errors": []
+    },
+    {
+      "view": "phone-portrait",
+      "exp": "perseids",
+      "reduced": true,
+      "initial": {
+        "top": "false",
+        "tl": "false",
+        "time": "2019-10-03T23:05:08.160Z",
+        "playing": true,
+        "pick": "sun"
+      },
+      "reducedTransition": "0s",
+      "timelineDrawer": {
+        "height": 282,
+        "top": 551,
+        "slider": true
+      },
+      "info": {
+        "panel": true,
+        "sheetBottom": 716,
+        "playTop": 741,
+        "playReachable": true,
+        "sourcesOpen": false,
+        "hasSources": true,
+        "drawerOpen": "false"
+      },
+      "dev": {
+        "left": 8,
+        "right": 382,
+        "w": 390,
+        "headings": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ],
+        "open": 1
+      },
+      "errors": []
+    },
+    {
+      "view": "phone-landscape",
+      "exp": "jupiter-io",
+      "reduced": false,
+      "initial": {
+        "top": "false",
+        "tl": "false",
+        "time": "2016-11-04T02:13:12.720Z",
+        "playing": true,
+        "pick": "jupiter"
+      },
+      "timelineDrawer": {
+        "height": 95,
+        "top": 285,
+        "slider": true
+      },
+      "info": {
+        "panel": true,
+        "sheetBottom": 262,
+        "playTop": 287,
+        "playReachable": true,
+        "sourcesOpen": false,
+        "hasSources": true,
+        "drawerOpen": "false"
+      },
+      "dev": {
+        "left": 8,
+        "right": 836,
+        "w": 844,
+        "headings": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ],
+        "open": 1
+      },
+      "errors": []
+    },
+    {
+      "view": "phone-small",
+      "exp": "earth-moon",
+      "reduced": true,
+      "initial": {
+        "top": "false",
+        "tl": "false",
+        "time": "2025-01-01T01:26:58.920Z",
+        "playing": true,
+        "pick": "earth"
+      },
+      "reducedTransition": "0s",
+      "timelineDrawer": {
+        "height": 165,
+        "top": 464,
+        "slider": true
+      },
+      "info": {
+        "panel": true,
+        "sheetBottom": 464,
+        "playTop": 489,
+        "playReachable": true,
+        "sourcesOpen": false,
+        "hasSources": true,
+        "drawerOpen": "false"
+      },
+      "dev": {
+        "left": 8,
+        "right": 352,
+        "w": 360,
+        "headings": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ],
+        "open": 1
+      },
+      "errors": []
+    }
+  ],
+  "collapsible": {
+    "apollo": [
+      "demo:true",
+      "camera:false",
+      "timeline:false",
+      "orbit-lines:false",
+      "sky-sun:false",
+      "labels:false",
+      "phone-layout:false",
+      "under-the-hood:false"
+    ],
+    "earthMoonAfterApollo": [
+      "camera:false",
+      "timeline:false",
+      "orbit-lines:false",
+      "sky-sun:false",
+      "phone-layout:false",
+      "under-the-hood:false"
+    ],
+    "earthMoonFresh": [
+      "camera:true",
+      "timeline:false",
+      "orbit-lines:false",
+      "sky-sun:false",
+      "phone-layout:false",
+      "under-the-hood:false"
+    ]
+  },
+  "failures": [
+    "phone-portrait/apollo: targets under 44px: button[Open story panels: Leaving Earth behind; Heading home] 14x14; button[Open story panel: Home with a splash] 14x14; button[Go to GET 00:00:00.6 · Lift-off] 18x20; button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20; button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20; button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20; button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20; button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20; button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20; button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20; button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20; button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20; button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20; button[Go to GET 100:12:00 · Undocking] 18x20; button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20; button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20; button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20; button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20; button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20; button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20; button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20; button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20; button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20; button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20; button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20; button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20; button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20; button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20; button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20; button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20; button[Go to GET 195:12:06.9 · Drogue deployment] 18x20; button[Go to GET 195:18:35 · Splashdown / Landing] 18x20; button[Open story panel: Leaving Earth behind] 18x20; button[Open story panel: Braking to stay at the Moon] 18x20; button[Open story panel: Heading down to the surface] 18x20; button[Open story panel: The Eagle has landed] 18x20; button[Open story panel: Back up to Columbia] 18x20; button[Open story panel: Heading home] 18x20; button[Open story panel: Home with a splash] 18x20",
+    "phone-portrait/earth-moon: targets under 44px: button[Open story panel: The face we always see] 14x14; button[Open story panel: A red Moon in Earth's shadow] 14x14; button[Open story panel: The face we always see] 18x20; button[Open story panel: The Moon is slowly drifting away] 18x20; button[Open story panel: A red Moon in Earth's shadow] 18x20",
+    "phone-portrait/jupiter-io: targets under 44px: button[Open story panel: Squeezed by a giant] 14x14; button[Open story panel: The most volcanic world we know] 18x20; button[Open story panel: Squeezed by a giant] 18x20; button[Open story panel: Four laps, two laps, one lap] 18x20",
+    "phone-portrait/perseids: targets under 44px: button[Open story panel: Earth meets the dust] 14x14; button[Go to Perseids activity begins] 18x20; button[Go to Perseids peak] 18x20; button[Go to Perseids activity ends] 18x20; button[Open story panel: A river of comet dust] 18x20; button[Open story panel: Earth meets the dust] 18x20; button[Open story panel: Where the dust comes from] 18x20; button[Go to peak of Perseids activity] 16x12",
+    "phone-portrait/geminids: targets under 44px: button[Open story panel: A rock that behaves like a comet] 14x14; button[Open story panel: The best shower of the year] 14x14; button[Open story panel: Earth reaches the thickest dust] 14x14; button[Go to Geminids activity begins] 18x20; button[Go to Geminids peak] 18x20; button[Go to Geminids activity ends] 18x20; button[Open story panel: A rock that behaves like a comet] 18x20; button[Open story panel: The best shower of the year] 18x20; button[Open story panel: Earth reaches the thickest dust] 18x20; button[Go to peak of Geminids activity] 16x12",
+    "phone-small/apollo: targets under 44px: button[Open story panels: Leaving Earth behind; Heading home] 14x14; button[Open story panel: Home with a splash] 14x14; button[Go to GET 00:00:00.6 · Lift-off] 18x20; button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20; button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20; button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20; button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20; button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20; button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20; button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20; button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20; button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20; button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20; button[Go to GET 100:12:00 · Undocking] 18x20; button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20; button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20; button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20; button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20; button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20; button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20; button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20; button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20; button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20; button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20; button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20; button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20; button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20; button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20; button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20; button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20; button[Go to GET 195:12:06.9 · Drogue deployment] 18x20; button[Go to GET 195:18:35 · Splashdown / Landing] 18x20; button[Open story panel: Leaving Earth behind] 18x20; button[Open story panel: Braking to stay at the Moon] 18x20; button[Open story panel: Heading down to the surface] 18x20; button[Open story panel: The Eagle has landed] 18x20; button[Open story panel: Back up to Columbia] 18x20; button[Open story panel: Heading home] 18x20; button[Open story panel: Home with a splash] 18x20",
+    "phone-small/earth-moon: targets under 44px: button[Open story panel: The face we always see] 14x14; button[Open story panel: A red Moon in Earth's shadow] 14x14; button[Open story panel: The face we always see] 18x20; button[Open story panel: The Moon is slowly drifting away] 18x20; button[Open story panel: A red Moon in Earth's shadow] 18x20",
+    "phone-small/jupiter-io: targets under 44px: button[Open story panel: Squeezed by a giant] 14x14; button[Open story panel: The most volcanic world we know] 18x20; button[Open story panel: Squeezed by a giant] 18x20; button[Open story panel: Four laps, two laps, one lap] 18x20",
+    "phone-small/perseids: targets under 44px: button[Open story panel: Earth meets the dust] 14x14; button[Go to Perseids activity begins] 18x20; button[Go to Perseids peak] 18x20; button[Go to Perseids activity ends] 18x20; button[Open story panel: A river of comet dust] 18x20; button[Open story panel: Earth meets the dust] 18x20; button[Open story panel: Where the dust comes from] 18x20; button[Go to peak of Perseids activity] 16x12",
+    "phone-small/geminids: targets under 44px: button[Open story panel: A rock that behaves like a comet] 14x14; button[Open story panel: The best shower of the year] 14x14; button[Open story panel: Earth reaches the thickest dust] 14x14; button[Go to Geminids activity begins] 18x20; button[Go to Geminids peak] 18x20; button[Go to Geminids activity ends] 18x20; button[Open story panel: A rock that behaves like a comet] 18x20; button[Open story panel: The best shower of the year] 18x20; button[Open story panel: Earth reaches the thickest dust] 18x20; button[Go to peak of Geminids activity] 16x12",
+    "phone-landscape/apollo: targets under 44px: button[Open story panels: Leaving Earth behind; Heading home] 14x14; button[Open story panel: Braking to stay at the Moon] 14x14; button[Open story panel: Home with a splash] 14x14; button[Go to GET 00:00:00.6 · Lift-off] 18x20; button[Go to GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)] 18x20; button[Go to GET 02:44:16.2 · Translunar injection maneuver ignition] 18x20; button[Go to GET 02:50:03.2 · Translunar injection maneuver cutoff] 18x20; button[Go to GET 03:17:04.6 · Command and service module / S-IVB separation] 18x20; button[Go to GET 03:24:03.1 · First docking (CSM with LM)] 18x20; button[Go to GET 04:16:59.1 · Spacecraft ejection (from S-IVB)] 18x20; button[Go to GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)] 18x20; button[Go to GET 26:44:58.7 · First midcourse correction (MCC-1) ignition] 18x20; button[Go to GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition] 18x20; button[Go to GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition] 18x20; button[Go to GET 100:12:00 · Undocking] 18x20; button[Go to GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)] 18x20; button[Go to GET 101:36:14.0 · Descent orbit insertion (DOI) ignition] 18x20; button[Go to GET 102:33:05.2 · Powered descent initiation (PDI)] 18x20; button[Go to GET 102:45:39.9 · Lunar landing (touchdown)] 18x20; button[Go to GET 124:22:00.8 · Lunar lift-off] 18x20; button[Go to GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)] 18x20; button[Go to GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition] 18x20; button[Go to GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition] 18x20; button[Go to GET 127:03:51.8 · Terminal phase initiation (TPI) ignition] 18x20; button[Go to GET 127:46:09.8 · Terminal phase finalize (TPFI)] 18x20; button[Go to GET 128:03:00 · Docking (CSM and LM ascent stage)] 18x20; button[Go to GET 130:09:31.2 · Ascent stage jettison] 18x20; button[Go to GET 130:30:01 · Separation maneuver ignition (from ascent stage)] 18x20; button[Go to GET 135:23:42.3 · Transearth injection maneuver ignition] 18x20; button[Go to GET 194:49:12.7 · Command module / service module separation] 18x20; button[Go to GET 195:03:05.7 · Entry interface (400 000 feet altitude)] 18x20; button[Go to GET 195:12:06.9 · Drogue deployment] 18x20; button[Go to GET 195:18:35 · Splashdown / Landing] 18x20; button[Open story panel: Leaving Earth behind] 18x20; button[Open story panel: Braking to stay at the Moon] 18x20; button[Open story panel: Heading down to the surface] 18x20; button[Open story panel: The Eagle has landed] 18x20; button[Open story panel: Back up to Columbia] 18x20; button[Open story panel: Heading home] 18x20; button[Open story panel: Home with a splash] 18x20",
+    "phone-landscape/earth-moon: targets under 44px: button[Open story panel: The face we always see] 14x14; button[Open story panel: A red Moon in Earth's shadow] 14x14; button[Open story panel: The face we always see] 18x20; button[Open story panel: The Moon is slowly drifting away] 18x20; button[Open story panel: A red Moon in Earth's shadow] 18x20",
+    "phone-landscape/jupiter-io: targets under 44px: button[Open story panel: Squeezed by a giant] 14x14; button[Open story panel: The most volcanic world we know] 18x20; button[Open story panel: Squeezed by a giant] 18x20; button[Open story panel: Four laps, two laps, one lap] 18x20",
+    "phone-landscape/perseids: targets under 44px: button[Open story panel: A river of comet dust] 14x14; button[Open story panel: Earth meets the dust] 14x14; button[Open story panel: Where the dust comes from] 14x14; button[Go to Perseids activity begins] 18x20; button[Go to Perseids peak] 18x20; button[Go to Perseids activity ends] 18x20; button[Open story panel: A river of comet dust] 18x20; button[Open story panel: Earth meets the dust] 18x20; button[Open story panel: Where the dust comes from] 18x20; button[Go to peak of Perseids activity] 16x12",
+    "phone-landscape/geminids: targets under 44px: button[Open story panel: A rock that behaves like a comet] 14x14; button[Open story panel: The best shower of the year] 14x14; button[Open story panel: Earth reaches the thickest dust] 14x14; button[Go to Geminids activity begins] 18x20; button[Go to Geminids peak] 18x20; button[Go to Geminids activity ends] 18x20; button[Open story panel: A rock that behaves like a comet] 18x20; button[Open story panel: The best shower of the year] 18x20; button[Open story panel: Earth reaches the thickest dust] 18x20; button[Go to peak of Geminids activity] 16x12",
+    "phone-portrait/perseids: scene drag opened a drawer {\"top\":\"false\",\"tl\":\"true\",\"time\":\"2019-11-01T06:08:29.760Z\",\"playing\":false,\"pick\":\"sun\"}",
+    "phone-small/earth-moon: scene drag opened a drawer {\"top\":\"false\",\"tl\":\"true\",\"time\":\"2025-01-01T03:02:00.600Z\",\"playing\":false,\"pick\":\"earth\"}",
+    "story flow threw Error: locator.click: Element is not visible"
+  ]
+}

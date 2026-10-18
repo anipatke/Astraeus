@@ -1,9 +1,10 @@
 ---
 id: O-020
 title: Make the phone view immersive and slim the larger-screen layout
-status: in_progress
+status: done
 depends_on: [O-017]
 release: G-005
+last_check: C-078
 ---
 
 # O-020: Make the phone view immersive and slim the larger-screen layout
