@@ -52,6 +52,11 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 - (Parked to O-032 with T-100, 2026-10-18.) The three Io stories are pinned to January 2000 and must move into the new window; "The most volcanic world we know" refers to Galileo's flyby "a few weeks before this scene" and needs new wording. NASA's Juno was in orbit around Jupiter on 4 November 2016 (arrived July 2016), a possible story tie-in.
 - Moons discovered after 2016 still have Horizons positions for 2016 (computed from their orbits); their larger uncertainty goes in the details.
 
+## Open Notes (2026-10-18)
+
+- **Design drift for the Full Objective Check:** `.savepoint/Design.md`'s Jupiter and Io paragraph still says Io is placed by mean elements; since T-098 the Jupiter demo places Io (and the other mapped moons) from the core Horizons curve fits (T-096). Reconcile before the Check (noted by C-080).
+- **Opening view:** with T-100 parked to O-032, the demo opens framed on Callisto, the farthest drawn body, so Jupiter looks small (T-098 Drift Note). Ask the owner whether to set a better opening view before launch.
+
 ## Boundaries
 
 **In scope:** Jupiter's moons, their data, look, names and checks.
