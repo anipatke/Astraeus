@@ -33,6 +33,8 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 
 4. **Date window** (owner, 2026-10-18): the demo starts on **4 November 2016** ("Actually, 4 Nov 2016, the day my son was born"), replacing the January 2000 start; the window runs a year so the outer moons' orbits show.
 5. **Name** (owner, "yes"): "Jupiter and its moons".
+6. **Moon groups panel** (owner, 2026-10-18: "97 moons is a lot, are there some logical groupings ... a sliding panel where the user can scroll through and on click touch opens an info panel"; approved "Looks good"): a sliding panel (the phone drawer on phones) listing the moons by family — the big four (Galilean, always shown with pictures), inner moons (Amalthea group), Himalia group, Ananke group, Carme group, Pasiphae group, loners (Themisto, Carpo, Valetudo and the like) — each a collapsible section with a plain one-line description and a count; named moons first, provisional designations folded into a "+N unnamed" row; tapping a group heading highlights that family's dots and orbits in the scene; tapping a moon focuses it and opens its information panel; a small search box. Group membership comes from a published source (JPL/Sheppard's moon pages) recorded with the data. Reuses the collapsible part and drawers from O-020.
+7. **Faint rings** (owner, 2026-10-18: "can we also apply faint rings like in planetary explorer?"): Planetary Explorer's Jupiter ring system lifted as-is — four flat bands (halo #a0b0d0 0.105, main #d0a080 0.28, Amalthea/inner Thebe gossamer #b08060 0.065, outer Thebe gossamer #a07050 0.026; `src/entities/jupiter.ts` ringSystem, `src/features/moon/PlanetRingSystem.tsx`) — with one named deviation the owner chose ("Your look, real distances"): each band sits at the real ring's distance (halo about 1.4-1.7, main about 1.72-1.81, gossamer out to about 3.1 Jupiter radii, from a published source), so the true-scale inner moons sit in the rings they feed. Opacities and colours are live settings.
 
 ## Open Questions (to settle when this Objective is planned)
 
@@ -43,4 +45,4 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 
 **In scope:** Jupiter's moons, their data, look, names and checks.
 
-**Out of scope:** other planets' moons (O-018, O-019 beyond Jupiter); rings; Juno or other spacecraft.
+**Out of scope:** other planets' moons and rings (O-018, O-019 beyond Jupiter); Juno or other spacecraft.
