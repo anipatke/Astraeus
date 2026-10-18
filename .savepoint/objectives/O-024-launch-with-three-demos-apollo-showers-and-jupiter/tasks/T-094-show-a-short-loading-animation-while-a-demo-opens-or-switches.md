@@ -2,7 +2,8 @@
 id: T-094
 title: Show a short loading animation while a demo opens or switches
 objective: O-024
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-091, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -52,3 +53,11 @@ The loading moment only; switching in place without a reload is not in scope.
 ## Technical Verification
 
 Configured gates, lite, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (builder, lane o024-t094, 2026-10-18)
+
+- Built: loader markup and inline CSS in `app.html` (`#boot`, orbit ring with a travelling body, "Loading", a failure line; still under reduced motion; `pointer-events: none` so it can never block a tap); `src/shell/bootLoader.ts` ends it (`hideBootLoader` on the scene's first drawn frame via `requestAnimationFrame` in `AstraeusScene.tsx`; `failBootLoader` from `main.tsx` when start rejects); fade time = `?loadfade=`, else saved setting (Developer > Display "Loading fade", applies next load), else 0.6 s. Driver: `watchLoader`, `loaderWasSeen`, `loaderState`, `waitForLoaderGone`; lite asserts them for every experience at both sizes. Unit tests `tests/bootLoader.test.ts`.
+- Gates: tsc clean, vitest 66 files 1020 passed, build ok, driver guard ok.
+- Full run docs/evidence/o024-t094-full-20261018T0301Z: every step exit 0, error-lines 0, except earth-moon (phone "explanation button is 44 px", a layout measurement unrelated to the loader); reruns alone, idle: earth-moon-rerun1/2 exit 0.
+- Earlier run docs/evidence/o024-t094-full-20261018T0236Z: story-panels failed (a forced tap on the phone hit the loader while it was still fading); fixed with `pointer-events: none`; story-panels-rerun exit 0 in that directory.
+- Drift: no load-failure message existed in the app; the loader's failure line is new. Design.md public site/shell could mention the loader (not done in the lane).

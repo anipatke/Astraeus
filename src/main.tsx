@@ -7,6 +7,7 @@ import { chooseShower, type ShowerEntry } from "./experiences/showers/showerChoi
 import { showerEntryName } from "./experiences/showers/showerEntry";
 import type { ShowerSettings } from "./experiences/showers/showerSettings";
 import type { ExperienceDefinition } from "./app/experienceDefinition";
+import { failBootLoader } from "./shell/bootLoader";
 import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
@@ -60,4 +61,4 @@ async function start(): Promise<void> {
   if (needsPlanetSeries(definition)) await loadPlanetSeries();
   createRoot(app!).render(<StrictMode><App definition={definition} /></StrictMode>);
 }
-void start();
+start().catch((error: unknown) => { failBootLoader(); throw error; });

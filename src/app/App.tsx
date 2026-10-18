@@ -12,6 +12,7 @@ import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
 import { Collapsible } from "../shell/Collapsible";
+import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
@@ -164,6 +165,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
+  const [loadFade, setLoadFade] = useState(() => bootFadeSeconds());
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
@@ -285,6 +287,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         </SettingButtons>
         <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
           onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
+        <SettingSlider label="Loading fade (s, next load)" ariaLabel="Loading fade" testId="load-fade-value" display={loadFade.toFixed(1)} min={BOOT_FADE_LIMITS.min} max={BOOT_FADE_LIMITS.max} step={0.1} value={loadFade}
+          onChange={(value) => { saveBootFadeSeconds(value); setLoadFade(value); }} />
         <div className="view-link" role="group" aria-label="Camera view">
           <SettingButtons label="Camera view">
             <button onClick={() => void copyViewLink()}>Copy view link</button>
