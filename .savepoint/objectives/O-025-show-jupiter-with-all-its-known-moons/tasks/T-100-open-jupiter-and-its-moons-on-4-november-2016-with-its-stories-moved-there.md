@@ -22,7 +22,7 @@ Open the demo: the title reads "Jupiter and its moons", the clock starts on 4 No
 
 1. O-025 Decisions 4 and 5 (owner: start "4 Nov 2016, the day my son was born"; name "Jupiter and its moons"); the demo's address and title follow the name (the Jupiter address in the locked list from T-093 updated if it changes).
 2. The window is a year from 2016-11-04 so the outer moons' loops show; the T-096 chunks needed for it are the only ones fetched.
-3. The three Io panels move into the window; "The most volcanic world we know" drops "A few weeks before this scene, the Galileo spacecraft flew past Io" for a line true in 2016, in the same plain voice; facts and sources updated (PROV-01). The owner is offered a Juno panel (Juno was orbiting Jupiter on 4 November 2016, since July 2016), written only if the owner says yes.
+3. The three Io panels move into the window; "The most volcanic world we know" drops "A few weeks before this scene, the Galileo spacecraft flew past Io" for a line true in 2016, in the same plain voice; facts and sources updated (PROV-01). A Juno panel is added (owner, 2026-10-18: "yes add a Juno story"): NASA's Juno had been orbiting Jupiter since 4 July 2016, so it was there on 4 November 2016; plain voice, facts and sources from NASA/JPL, badge chosen honestly; whether Juno itself is drawn in the scene stays out of scope (O-025 Boundaries) unless the owner asks, and the panel's details say so.
 4. The home page card for the demo uses a fresh picture of the new scene (owner may supply a screenshot as before).
 5. Tests pinning panel times and the window updated; browser checks through the shared driver; full run passes; owner look.
 
