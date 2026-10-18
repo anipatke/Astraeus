@@ -20,7 +20,8 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we combine the Perseids an
 
 1. One Showers demo with a switch between the Perseids and the Geminids; each shower keeps its data, story panels, settings and checks.
 2. Earth–Moon is removed, with its three stories (text stays in history).
-3. Old addresses (`?experience=shower-perseids`, `shower-geminids`, `earth-moon`) are not redirected; the owner updates the portfolio at launch.
+3. **Start date** (owner, 2026-10-18): the Showers demo starts on **21 September 2019** ("Date my daughter was born") and runs a year, so the Geminids' peak (December 2019) and the Perseids' peak (August 2020) both fall inside it.
+4. Old addresses (`?experience=shower-perseids`, `shower-geminids`, `earth-moon`) are not redirected; the owner updates the portfolio at launch.
 
 ## Success Conditions
 
@@ -28,6 +29,11 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we combine the Perseids an
 2. Earth–Moon's experience, story file and checks are removed; nothing else breaks (engine parts it used stay).
 3. Home page shelf, catalogue links and page titles show three demos; the picture baseline and contact sheet cover the three.
 4. Browser checks through the shared driver cover the switch both ways, desktop and phone; full run passes; owner look.
+
+## Notes for planning
+
+- Each shower's peak, activity window and story panel times move into the new year from published values (IMO/AMS peak times for 2019 and 2020; Phaethon's and Swift–Tuttle's positions from JPL for those dates); the panel tests that pin times are updated.
+- The meteor orbits were measured by the Global Meteor Network in 2025; shown in 2019–2020 they stay what they already are, a measured shape with illustrative positions, and the details say the measurement year.
 
 ## Boundaries
 
