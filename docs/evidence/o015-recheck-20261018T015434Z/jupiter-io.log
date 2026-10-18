@@ -1,0 +1,47 @@
+{
+  "results": {
+    "desktop": {
+      "overviewLit": 39113,
+      "ioLabel": {
+        "t0": [
+          791,
+          464
+        ],
+        "sixHours": [
+          549,
+          398
+        ]
+      },
+      "lit": {
+        "overview": 39069,
+        "focus-jupiter": 39063,
+        "focus-io": 66503,
+        "follow-io": 66614
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin. Io circles it once in about 42 hours. Distance to Io 420,693 km centre to centre · EQJ",
+      "ioDetail": "Reconstructed ⓘ : data source and known limitations Known limitations Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration. Largest sampled difference from Horizons is about 9,388 km, 2.6 Io diameters; the position is an approximate demonstration, not an ephemeris. It is nearest right at the J2000 epoch (about 0.8 thousand km) and grows with distance from it. Io moves on one unperturbed ellipse: the precession of its periapsis and the resonance with Europa and Ganymede are not modelled, only the mean longitude is kept right by using the siderea"
+    },
+    "phone": {
+      "overviewLit": 25143,
+      "ioLabel": {
+        "t0": [
+          353,
+          490
+        ],
+        "sixHours": [
+          97,
+          420
+        ]
+      },
+      "lit": {
+        "overview": 25063,
+        "focus-jupiter": 25063,
+        "focus-io": 39629,
+        "follow-io": 39621
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin. Io circles it once in about 42 hours. Distance to Io 420,693 km centre to centre · EQJ",
+      "ioDetail": "Reconstructed ⓘ : data source and known limitations Known limitations Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration. Largest sampled difference from Horizons is about 9,388 km, 2.6 Io diameters; the position is an approximate demonstration, not an ephemeris. It is nearest right at the J2000 epoch (about 0.8 thousand km) and grows with distance from it. Io moves on one unperturbed ellipse: the precession of its periapsis and the resonance with Europa and Ganymede are not modelled, only the mean longitude is kept right by using the siderea"
+    }
+  },
+  "errors": []
+}

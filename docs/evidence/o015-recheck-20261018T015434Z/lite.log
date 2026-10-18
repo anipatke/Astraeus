@@ -1,0 +1,29 @@
+lite browser check: 11 experiences (apollo11, earth-moon, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, shower-geminids, shower-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    6.4s {"title":"Apollo 11 · Astraeus","litPixels":43890,"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     7.4s {"title":"Apollo 11 · Astraeus","litPixels":19030,"object":"moon","panel":"tli-cutoff"}
+ok   earth-moon                 1440x900    5.1s {"title":"Earth–Moon · Astraeus","litPixels":43795,"object":"moon","panel":"same-face"}
+ok   earth-moon                 390x844       5s {"title":"Earth–Moon · Astraeus","litPixels":19552,"object":"moon","panel":"same-face"}
+ok   jupiter-io                 1440x900      6s {"title":"Jupiter and Io · Astraeus","litPixels":549252,"object":"io","panel":"volcanoes"}
+ok   jupiter-io                 390x844     4.9s {"title":"Jupiter and Io · Astraeus","litPixels":69787,"object":"io","panel":"volcanoes"}
+ok   synthetic                  1440x900    5.3s {"title":"Astraeus","litPixels":33502,"object":"moon"}
+ok   synthetic                  390x844     6.4s {"title":"Astraeus","litPixels":15050,"object":"moon"}
+ok   synthetic-bare             1440x900    3.2s {"title":"Astraeus","litPixels":31845,"object":"sky"}
+ok   synthetic-bare             390x844       3s {"title":"Astraeus","litPixels":14217,"object":"sky"}
+ok   synthetic-ring             1440x900    6.3s {"title":"Astraeus","litPixels":106174,"object":"moon"}
+ok   synthetic-ring             390x844     6.2s {"title":"Astraeus","litPixels":55157,"object":"moon"}
+ok   synthetic-belt             1440x900    4.6s {"title":"Astraeus","litPixels":84515,"object":"dust-belt"}
+ok   synthetic-belt             390x844     7.2s {"title":"Astraeus","litPixels":53014,"object":"dust-belt"}
+ok   synthetic-listed           1440x900    3.9s {"title":"Astraeus","litPixels":71410,"object":"listed-orbits"}
+ok   synthetic-listed           390x844     4.7s {"title":"Astraeus","litPixels":41702,"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900    5.2s {"title":"Astraeus","litPixels":44556,"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     4.7s {"title":"Astraeus","litPixels":20985,"object":"dust-belt"}
+ok   shower-geminids            1440x900    9.4s {"title":"Geminids · Astraeus","litPixels":42820,"object":"earth","panel":"phaethon"}
+ok   shower-geminids            390x844    11.5s {"title":"Geminids · Astraeus","litPixels":22530,"object":"earth","panel":"phaethon"}
+ok   shower-perseids            1440x900    7.8s {"title":"Perseids · Astraeus","litPixels":124997,"object":"earth","panel":"stream-shape"}
+ok   shower-perseids            390x844     7.9s {"title":"Perseids · Astraeus","litPixels":37232,"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900      2s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=shower-perseids","app.html?experience=shower-geminids","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   index-page                 390x844     1.8s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=shower-perseids","app.html?experience=shower-geminids","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   assets-page                1440x900    1.7s {"title":"Astraeus Assets"}
+ok   assets-page                390x844     1.7s {"title":"Astraeus Assets"}
+
+26/26 loads passed; results and screenshots in docs/evidence/o015-recheck-20261018T015434Z/lite

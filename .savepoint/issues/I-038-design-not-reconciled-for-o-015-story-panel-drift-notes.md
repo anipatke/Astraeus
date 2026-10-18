@@ -2,14 +2,20 @@
 id: I-038
 title: Design.md not reconciled for O-015 story-panel drift notes
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-071
   actor: {role: checker, session: o015-full-check-20261018}
   at: '2026-10-18T01:45:00Z'
 tasks: [T-059, T-062, T-087, T-088, T-089]
-checks: [C-071]
+checks: [C-071, C-072]
+resolution:
+  disposition: verified
+  check: C-072
+  actor: {role: checker, session: o015-full-recheck-20261018}
+  at: '2026-10-18T02:30:00Z'
+  reason: Repair proven by the CLEAR O-015 Full Objective Recheck C-072.
 history:
   - at: '2026-10-18T01:45:00Z'
     actor: {role: checker, session: o015-full-check-20261018}
@@ -20,6 +26,11 @@ history:
     actor: {role: planner, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'Design.md story-panel paragraph rewritten: details field and the folded Sources section (item 2); markers group by object with groupStoryMarkers/panelForMarkerPress and the clock time (item 1); every demo has a story, Earth–Moon due to go with T-093 (item 3); the eager glob bundling every story panels file on shower pages recorded as kept, with the reason (item 4, non-architectural); load-budget sentence gains the same-stem chunk rule (item 5); open-items paragraph no longer lists I-031 as open, states the owner read and accepted the panels on 2026-10-18 (item 6). Recheck pending.'
+  - at: '2026-10-18T02:30:00Z'
+    actor: {role: checker, session: o015-full-recheck-20261018}
+    kind: rechecked
+    note: 'C-072 (O-015 Full Objective Recheck, CLEAR) checked each of the six items against the code on 43b51df: Design line 151 now describes groupStoryMarkers/panelForMarkerPress (StoryMarkers.ts:28,43-46), the details field and the one folded Sources section (storyPanels.ts:110, Sources.tsx:10), every demo having a story, and the eager glob kept with a reason (showerDefinition.ts:30, non-architectural); line 153 gains the same-stem chunk rule (load-budget.mjs proveSameStemChunks); line 193 no longer lists I-031 open and states the owner read. Proof Needed 1-3 met. Closed as verified.'
+    check: C-072
 ---
 
 # I-038: Design.md not reconciled for O-015 story-panel drift notes

@@ -2,15 +2,21 @@
 id: I-039
 title: The Earth–Moon eclipse panel gives the catalogue's dynamical time as UT
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-071
   actor: {role: checker, session: o015-full-check-20261018}
   at: '2026-10-18T01:45:00Z'
 tasks: [T-089]
-checks: [C-071]
+checks: [C-071, C-072]
 guardrail_ids: [PROV-01]
+resolution:
+  disposition: verified
+  check: C-072
+  actor: {role: checker, session: o015-full-recheck-20261018}
+  at: '2026-10-18T02:30:00Z'
+  reason: Repair proven by the CLEAR O-015 Full Objective Recheck C-072.
 history:
   - at: '2026-10-18T01:45:00Z'
     actor: {role: checker, session: o015-full-check-20261018}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o020-orchestrator-20261018}
     kind: repair_attempted
     note: 'Panel opens at 2025-03-14T06:58:41Z; details give 06:58:41 UT with the working (catalogue 06:59:56 TD minus Delta T 75 s); both catalogue source lines now say TD. tests/storyStoriesAllDemos.test.ts derives the UT instant from the TD value and Delta T. Test file 8/8 pass. Full run and recheck pending.'
+  - at: '2026-10-18T02:30:00Z'
+    actor: {role: checker, session: o015-full-recheck-20261018}
+    kind: rechecked
+    note: 'C-072 (O-015 Full Objective Recheck, CLEAR): red-moon opens at 2025-03-14T06:58:41Z; details give 06:58:41 UT with the working (06:59:56 TD minus Delta T 75 s); both catalogue source lines say TD; no 06:59:56 UT remains. Independent probe: TD minus 75 s equals the panel time, and the NASA Science totality midpoint 06:58:30 is 11 s away. tests/storyStoriesAllDemos.test.ts derives the UT instant from TD and Delta T (Proof 2). Fresh full run 24/24, Earth-Moon panels open in order. Closed as verified.'
+    check: C-072
 ---
 
 # I-039: The Earth–Moon eclipse panel gives the catalogue's dynamical time as UT

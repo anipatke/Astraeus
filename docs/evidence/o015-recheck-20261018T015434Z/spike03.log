@@ -1,0 +1,26 @@
+{
+  "screenshots": [
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/earth-moon-overview-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/translunar-coast-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/close-earth-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/close-moon-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/spacecraft-follow-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/metric-visuals-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/event-provenance-open-1440x900.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/laptop-1280x800.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/tablet-768x1024.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/mobile-390x844.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/mobile-info-sheet-390x844.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/mobile-developer-390x844.png",
+    "docs/evidence/o015-recheck-20261018T015434Z/spike03/mobile-developer-390x640.png"
+  ],
+  "viewports": [
+    "1440x900",
+    "1280x800",
+    "768x1024",
+    "390x844"
+  ],
+  "scaleReadoutsIdentical": true,
+  "cameraReadoutsUnchanged": true,
+  "errors": []
+}
