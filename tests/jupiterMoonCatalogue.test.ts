@@ -28,7 +28,7 @@ describe("Jupiter moon catalogue (core data)", () => {
     for (const moon of catalogue.moons) expect(declared.has(moon.family), moon.id).toBe(true);
     for (const family of catalogue.families) expect(catalogue.moons.some((moon) => moon.family === family.id), family.id).toBe(true);
     const count = (id: string) => catalogue.moons.filter((moon) => moon.family === id).length;
-    expect([count("galilean"), count("inner"), count("himalia"), count("ananke"), count("carme"), count("pasiphae")]).toEqual([4, 4, 11, 29, 41, 22]);
+    expect([count("galilean"), count("inner"), count("himalia"), count("ananke"), count("carme"), count("pasiphae")]).toEqual([4, 4, 11, 28, 41, 23]);
   });
 
   it("gives every moon a size, a discovery year and sources that resolve", () => {

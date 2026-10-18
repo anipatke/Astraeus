@@ -2813,7 +2813,7 @@
    "named": false,
    "designation": "S/2010 J 6",
    "naifId": 55534,
-   "family": "ananke",
+   "family": "pasiphae",
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
@@ -2824,7 +2824,7 @@
    "bodyPackage": null,
    "sources": {
     "list": "horizons-moon-list",
-    "family": "wikipedia-moons-of-jupiter",
+    "family": "sheppard-jupiter-moons",
     "familyBasis": [
      "sheppard-jewitt-2003",
      "sheppard-jupiter-moons"
