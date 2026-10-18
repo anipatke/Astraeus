@@ -3,7 +3,7 @@ id: T-092
 title: Start the Showers demo on 21 September 2019 and move both showers into that year
 objective: O-024
 status: in_progress
-stage: build
+stage: audit
 depends_on: [{task: T-091, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -70,3 +70,7 @@ Tests. `tests/showers.test.ts`: year start (made-up settings: bounds, clock, str
 
 Files changed: data/showers/{perseids,geminids}.json, data/stories/{perseids,geminids}/panels.json, src/experiences/showers/{showerSettings,showerBasics}.ts, tests/{showers,elementsBody}.test.ts, tests/showersYearHorizons.test.ts (new), tests/fixtures/showers-year-horizons{-source.txt,.json} (new), tools/validate/{browser-showers,browser-story-panels,capture-experience-pictures,capture-site-pictures}.mjs, docs/ASTRONOMY_VALIDATION.md, README.md, this Task.
 Extra reads (outside Context Files, all to find what pins dates or the year shape): src/experiences/showers/{showerDefinition,showerBasics,showerChoice}.ts, src/main.tsx (span override), src/app/App.tsx and src/core/clock.ts (t= and loop wrap), src/app/CameraController.tsx (wheel), src/core/elementsBody.ts, tests/{elementsBody,swiftTuttle,showersMeasured,storyPanels}.test.ts, tests/helpers/streamFacts.ts, tools/validate/{capture-*,run-full.sh,diff-screenshots,contact-sheet,driver}.mjs, README.md, T-091 evidence.
+
+Verification (handoff tier lite; full run deferred to the orchestrator's batch run). Gates after merging o018-o019 (T-102): `npx tsc --noEmit` clean; `npx vitest run` 71 files, 1081 passed, 1 skipped; `npm run build` ok; driver guard ok. Browser, one at a time on an idle machine, dev server :5610: before the merge `browser-lite` exit 0, 0 error lines (docs/evidence/o024-t092-lite-20261018T072208Z), `browser-story-panels` exit 0 (o024-t092-story-panels-20261018T072549Z), `browser-showers` perseids and geminids (light) exit 0 (…-054039Z, …-055542Z). After the merge: `browser-showers perseids` exit 0, 260 s (o024-t092-showers-perseids-20261018T073802Z.log), `browser-showers geminids` (ASTRAEUS_LIGHT=1) exit 0, 108 s (…-geminids-20261018T074316Z.log), 0 error lines each. Limitation: `browser-story-panels` was not rerun after the merge (the session ended); its pre-merge run passed. The equatorial-up tilt workaround was dropped at the merge: T-102 reads the path's vertices, not pixels. Screenshots from the pre-merge runs were deleted (T-102: no screenshots).
+
+Drift Notes: (1) Phaethon's perihelia (2 Jul 2019, 7 Dec 2020) fall outside the year, so the Phaethon panel moved to 1 Nov 2019 with one body sentence changed (owner to confirm the wording). (2) Peak instants keep the I-027 IAU MDC solar-longitude rule; both fall inside IMO's published peak periods, not at IMO's single best Geminid estimate. (3) The IMO site is down; calendars read from the Internet Archive (hashes recorded). (4) README still says `?experience=shower-<name>` (T-093 owns addresses). (5) The picture baseline predates the new year; the archived capture scripts carry the new times.
