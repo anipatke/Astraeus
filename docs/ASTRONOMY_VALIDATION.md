@@ -157,13 +157,27 @@ Mean orbital elements of Io about Jupiter are the JPL Solar System Dynamics "Pla
 
 Raw Horizons response archived in [`io-horizons-source.txt`](../tests/fixtures/io-horizons-source.txt) (one API response preceded by a `==== QUERY ... ====` line with the exact parameters; text unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='501'`, `CENTER='500@599'` Jupiter's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` the same six Julian dates as the planets: 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). Target Io (501) and centre Jupiter (599) are both `jup365_merged`. Normalized vectors: `io-horizons.json`.
 
-Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**, at 2030-06-01; the J2000 sample is 825.5 km. The one-Io-diameter line (3,643 km) is exceeded, so Io's record says "approximate demonstration" and the figure is in its known limitations; the test asserts the recorded figure (9,388 km, rounded up) equals the measured one and that the classification follows from it. The error grows away from the epoch (mean elements fitted for a precessing ellipse, no Europa and Ganymede resonance, fixed rather than precessing periapsis). Orientation is the Moon's approximate tidal lock about Jupiter (near side towards the parent, no libration).
+Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**, at 2030-06-01; the J2000 sample is 825.5 km. The one-Io-diameter line (3,643 km) is exceeded, so Io's record says "approximate demonstration" and the figure is in its known limitations; the test asserts the recorded figure (9,388 km, rounded up) equals the measured one and that the classification follows from it. The error grows away from the epoch (mean elements fitted for a precessing ellipse, no Europa and Ganymede resonance, fixed rather than precessing periapsis). Orientation is the Moon's approximate tidal lock about Jupiter (near side towards the parent, no libration). On T-078's six dates (O-019, `docs/MOON_ORBITS.md`) the generic mean-element path (`src/core/satelliteMeanElements.ts`, period from the IAU rotation rate) gives **4,196 km** largest error against this shipped definition's **9,388 km**; the two Io paths duplicate each other (ARCH-05), carried to O-033. Since T-098 (2026-10-18) the Jupiter demo places Io from the core JPL Horizons curve fits (T-096), whose figure its information panel states (0.0994 m); this mean-element definition and its figure remain as recorded.
 
 ### Lighting model measurement
 
 *Historical (2026-10-17, O-017): the `?lighting=single-sun` mode was removed; only the per-body Sun direction remains. The measurement below records the mode as it was.*
 
 Each frame's lit body is lit along its own Sun direction (one pass per body), or by one point light at the Sun's scaled position (`?lighting=single-sun`, a measurement mode). Geometric result on the four January 2024 USNO phase events, True and Readable scales, Moon seen from Earth (`tests/jupiterIo.test.ts`): the point light's illuminated fraction differs from the per-body figure by at most 7.2e-9 and its direction by at most 1.5e-6 degrees (float32 narrowing included); one directional light pointed at the scene centre differs by 1.36e-3 in fraction and 0.156 degrees. Rendered comparison (`tools/validate/browser-lighting.mjs`, headless Chromium, per-pixel mean difference of 255 over lit pixels): Earth 0.0 and 0.006, Jupiter 0.004 and 0.006, Io 0.0, 0.0 and 0.0; Moon 7.7 to 13.0, which is brightness only: Earth's light is stronger (1.8/0.18) than the Moon's (1.4/0.08) and one light has one strength. With the Moon's own strength the Moon difference is 0.0005 to 0.009. Recommendation: keep per-body lights for Spike 04; the single point light is viable for larger systems.
+
+## Moons and Pluto against Horizons (O-019 / T-078)
+
+Measured 2026-10-17; full report `docs/MOON_ORBITS.md`, offline test `tests/moonOrbits.test.ts`, data `data/orbits/<body>.json`. Nothing here is drawn yet.
+
+What was measured: 13 moons and Io from the JPL Solar System Dynamics "Planetary Satellite Mean Elements" rows (epoch 2000-01-01.5 TDB, each row's Laplace plane; Charon in Pluto's equatorial plane), and Pluto about the Sun from its JPL Small-Body Database elements, each propagated by unperturbed two-body motion and compared with JPL Horizons vectors over 31 dates (Pluto 66). The class rule is applied by the test: **within one diameter** if the largest error is at most the body's mean diameter, **approximate demonstration** if at most a tenth of the semi-major axis, otherwise **not usable as published**.
+
+| Class | Bodies (largest error) |
+|---|---|
+| Within one diameter | Charon (36 km) |
+| Approximate demonstration | Io (4,196 km), Europa (13,351 km), Ganymede (6,101 km), Callisto (10,861 km), Triton (33,573 km, 9.46% of its orbit, at the edge), Pluto about the Sun (15,475,866 km, 0.26%) |
+| Not usable as published | Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus |
+
+**Saturn finding:** the published Saturn rows do not reproduce SAT441 at the epoch: period and plane are right, but the phase is off by an angle that differs from moon to moon (from 5.5 to 157 degrees, both ways), so the seven Saturn moons are not usable as published. Carried to O-033, with Triton's phase offset and Iapetus.
 
 ## 109P/Swift-Tuttle about the Sun (O-011 / T-054)
 

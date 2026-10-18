@@ -2,7 +2,8 @@
 id: T-105
 title: Point the astronomy validation notes at the moon orbit report
 objective: O-019
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o018-o019-rescope-20261018}
@@ -52,7 +53,14 @@ Configured gates; evaluated under `agent-skills/references/check-method.md` with
 
 ## Technical Evidence
 
-Pending execution.
+Executor session 009b0116-b8b7-4912-9273-91d589baf044, main checkout `o018-o019`, 2026-10-18. Extra reads: `src/core/bodies/io.ts` (grep only), to confirm the mean-element Io definition still ships after T-098, because criterion 2 calls it "the shipped definition".
+
+Per criterion:
+1. **Met.** `docs/ASTRONOMY_VALIDATION.md` gains "Moons and Pluto against Horizons (O-019 / T-078)", placed after the Io section: what was measured, the class rule, a table of the three classes with each body's largest error copied from `docs/MOON_ORBITS.md` (not re-derived), the Saturn finding (phase off by 5.5 to 157 degrees, both ways; not usable as published; carried to O-033), and pointers to `docs/MOON_ORBITS.md`, `tests/moonOrbits.test.ts` and `data/orbits/`.
+2. **Met.** Io's "Horizons comparison" paragraph adds 4,196 km (generic path) against 9,388 km (shipped definition) on T-078's six dates, and that the duplication (ARCH-05) is carried to O-033. Added for accuracy: since T-098 the Jupiter demo places Io from the core Horizons curve fits (T-096), while the mean-element definition (still in `src/core/bodies/io.ts`) and its figure stay as recorded.
+3. **Met.** `npx tsc --noEmit` exit 0; `npx vitest run` 74 files, 1103 passed, 1 skipped; `npm run build` exit 0. Documentation only: no code changed.
+
+Files changed: `docs/ASTRONOMY_VALIDATION.md`, this Task, router (O-019/T-105). Limitations: none known.
 
 ## Drift Notes
 
