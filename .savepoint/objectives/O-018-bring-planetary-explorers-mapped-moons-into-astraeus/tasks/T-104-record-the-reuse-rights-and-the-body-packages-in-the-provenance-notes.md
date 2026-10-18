@@ -2,11 +2,17 @@
 id: T-104
 title: Record the reuse rights and the body packages in the provenance notes
 objective: O-018
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o018-o019-rescope-20261018}
+check_waiver:
+    task: T-104
+    reason: "Owner waived the optional Task Check and closed this Task ('Waive close'); the Full Objective Check covers it."
+    actor:
+        role: owner
+        session: 009b0116-b8b7-4912-9273-91d589baf044
+    recorded_at: "2026-10-18T10:24:07Z"
 ---
 
 # Record the reuse rights and the body packages in the provenance notes

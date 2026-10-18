@@ -1,9 +1,10 @@
 ---
 id: O-018
 title: Keep Planetary Explorer's bodies as reusable packages with exact locations
-status: in_progress
+status: done
 depends_on: []
 release: G-005
+last_check: C-079
 ---
 
 # O-018: Keep Planetary Explorer's bodies as reusable packages with exact locations

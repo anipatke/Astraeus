@@ -1,9 +1,10 @@
 ---
 id: O-019
 title: Measure each moon's orbit against JPL Horizons
-status: in_progress
+status: done
 depends_on: []
 release: G-005
+last_check: C-080
 ---
 
 # O-019: Measure each moon's orbit against JPL Horizons
