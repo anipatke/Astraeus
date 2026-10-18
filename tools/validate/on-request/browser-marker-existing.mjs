@@ -1,6 +1,6 @@
 // What the marker rule changes in the experiences that already existed (T-054): for each, the default view at True scale and at the other
 // scales offered, with the rule on (the default) and off (?markerpx=0, which is how they looked before). Records which bodies are drawn
-// as markers and keeps a screenshot pair for each. It asserts only that every view mounts and logs no console error.
+// as markers. It asserts only that every view mounts and logs no console error.
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-marker-existing.mjs
 import assert from "node:assert/strict";
@@ -42,7 +42,6 @@ try {
             threshold: await page.locator("canvas").first().getAttribute("data-marker-px"),
             bodies: await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"),
           };
-          if (outDir) await page.screenshot({ path: `${outDir}/${name}-${scale.toLowerCase().replace(/ /g, "-")}-${rule}.png` });
         }
         result[`${name}/${rule}`] = scales;
         assert.ok(Object.keys(scales).length > 0, `${name}: at least one scale is offered`);

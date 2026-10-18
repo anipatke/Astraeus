@@ -153,6 +153,11 @@ describe("Perseids in the Sun-centred composition", () => {
     expect(objects.filter((object) => object.listed !== false).map((object) => object.id)).toEqual(expect.arrayContaining(["sun", "earth", "swift-tuttle", `${settings.id}-stream`]));
   });
 
+  it("draws no labels on any orbit or path line by default (owner, 2026-10-18: \"off by default for all demos\")", () => {
+    const objects = experienceWithGroups(perseids).objects;
+    for (const id of ["mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", "earth-path", parentOrbitIdOf(settings)]) expect(objects.find((object) => object.id === id)?.showLabel).toBe(false);
+  });
+
   it("declares Earth's path and the parent's orbit as orbit paths about the Sun", () => {
     const { paths, sun } = sunCentredOf(perseids);
     expect(sun).toBeUndefined();

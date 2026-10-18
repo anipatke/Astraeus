@@ -248,10 +248,6 @@ export const waitForClock = (page, target, timeout = 5000) => page.waitForFuncti
 
 /** The timeline bar's box on the page. */
 export const timelineBox = (page) => page.locator(".timeline-bar").boundingBox();
-/** A picture of the scene canvas with the timeline bar blacked out: the canvas lies behind the bar, so a pixel count must not count the bar's own colours (T-084; the old purple strip was once counted as the comet's orbit). */
-export const sceneCanvasPng = (page) => page.getByTestId("earth-moon-canvas").screenshot({ mask: [page.locator(".timeline-bar")], maskColor: "#000000" });
-/** The scene alone, for brightness sums: the first canvas with every interface layer over it blacked out (top bar, drawers, timeline, developer panel, labels stay as drawn). */
-export const sceneOnlyPng = (page) => page.locator("canvas").first().screenshot({ mask: [page.locator(".top-bar"), page.locator(".controls-drawer"), page.locator(".timeline-bar"), page.locator(".developer-tools")], maskColor: "#000000" });
 /** The activity window's peak marker (a button on the timeline line). */
 export const windowPeak = (page) => page.locator(HOOK.windowPeak);
 /** The activity glow drawn inside the timeline track (T-084): how many there are (0 or 1), its text equivalent, and its gradient. */
@@ -748,6 +744,68 @@ export function scaleMenu(page) {
 
 /** The scene canvas (pictures and its `data-*` readouts). */
 export const sceneCanvas = (page) => page.getByTestId("earth-moon-canvas");
+/**
+ * Each drawn path line as the scene reports it (`data-paths`, I-040): { id, visible, vertices, inView, spanX, spanY }, where inView counts the vertices in front of the camera and
+ * inside the view and spanX/spanY are the share of the view (0 to 1) they cover. It describes the line, never its label, so "the orbit is drawn" is asserted from this and not from colour.
+ */
+export async function scenePaths(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-paths")) ?? "[]");
+}
+/** One path's readout by id (for example `earth-path`, `1p-orbit`), or undefined when the scene draws no such path. */
+export async function scenePath(page, id) {
+  return (await scenePaths(page)).find((path) => path.id === id);
+}
+/**
+ * Each point group as the scene reports it (`data-points`, T-102): { id, drawn, members, inView, spanX, spanY }, where drawn means inside its time bounds and shown, inView is the number of
+ * members in front of the camera and inside the view (an even sample scaled up), and spanX/spanY are the share of the view they cover. It describes the dots, never a picture of them.
+ */
+export async function scenePoints(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-points")) ?? "[]");
+}
+/** One point group's readout by id, or undefined when the scene has no such group. */
+export async function scenePointGroup(page, id) {
+  return (await scenePoints(page)).find((group) => group.id === id);
+}
+/** The dots drawn in view across every group: the sum of `inView` over the groups that are drawn. */
+export async function sceneDotsInView(page) {
+  return (await scenePoints(page)).reduce((sum, group) => sum + (group.drawn ? group.inView : 0), 0);
+}
+/**
+ * Each body as the scene reports it (`data-body-screen`, T-102): { id, as: "sphere" | "marker" | "none", radiusPx, x, y, inView }, with x and y the centre as shares of the view (0 to 1, y down)
+ * and radiusPx the drawn sphere's radius in pixels (the size the marker rule judges).
+ */
+export async function sceneBodies(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-body-screen")) ?? "[]");
+}
+/** One body's readout by id, or undefined when the scene does not draw it. */
+export async function sceneBody(page, id) {
+  return (await sceneBodies(page)).find((body) => body.id === id);
+}
+/** The sky as the scene reports it: star count, the star and Milky Way brightness in force, and whether the picture is on and shown. Stars is 0 when the scene has no sky. */
+export async function sceneSky(page) {
+  const data = await page.locator("canvas").first().evaluate((canvas) => ({ ...canvas.dataset }));
+  return {
+    stars: Number(data.skyStars ?? 0),
+    starBrightness: data.skyStarBrightness === undefined ? null : Number(data.skyStarBrightness),
+    milkyWayBrightness: data.skyMilkyWayBrightness === undefined ? null : Number(data.skyMilkyWayBrightness),
+    picture: data.skyPicture === "on",
+    pictureShown: data.skyPictureShown === "true",
+  };
+}
+/** Whether the scene draws anything: some body as a sphere or marker in view, point group members in view, a path line in view, or the sky's stars. The readout form of "the canvas is not blank". */
+export async function sceneDrawsSomething(page) {
+  const bodies = (await sceneBodies(page)).filter((body) => body.as !== "none" && body.inView).length;
+  return { bodies, dots: await sceneDotsInView(page), paths: (await scenePaths(page)).filter((path) => path.visible && path.inView > 0).length, stars: (await sceneSky(page)).stars };
+}
+/** A point on the scene canvas where the canvas itself is on top (no story marker, label or panel over it), the middle first: where a wheel or drag reaches the camera. Null when nothing is free. */
+export async function freeCanvasPoint(page) {
+  const box = await page.getByTestId("earth-moon-canvas").boundingBox();
+  for (const [fx, fy] of [[0.5, 0.5], [0.5, 0.4], [0.4, 0.5], [0.6, 0.5], [0.5, 0.6], [0.3, 0.3], [0.7, 0.3], [0.3, 0.6]]) {
+    const point = { x: box.x + box.width * fx, y: box.y + box.height * fy };
+    if (await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName === "CANVAS", point)) return point;
+  }
+  return null;
+}
 /** The anchor-label layer: whether it is hidden, how many labels it holds, how many are on screen. */
 export const anchorLayerHidden = async (page) => (await page.locator(HOOK.anchorLabels).getAttribute("hidden")) !== null;
 export const anchorLabelCount = (page) => page.locator(`${HOOK.anchorLabels} .anchor-label`).count();
@@ -812,6 +870,8 @@ export const homeBrokenPictures = (page) => page.locator("a.demo img").evaluateA
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 /** Whether each phone drawer is open: `{controls, timeline}`; both false on a larger screen. */
+/** Taps the Object list (as a thumb would, opening it) without choosing anything. */
+export const tapObjectPicker = async (page) => { await bodyPicker(page).click(); await page.keyboard.press("Escape"); };
 export async function drawerStates(page) {
   const open = async (hook) => (await page.locator(hook).count()) > 0 && (await page.locator(hook).getAttribute("aria-expanded")) === "true";
   return { controls: await open(HOOK.controlsPill), timeline: await open(HOOK.timelineHandle) };
@@ -1044,3 +1104,54 @@ export async function tapScene(page, x, y) {
 export const bodySetNameShown = (page, id) => page.locator(`[data-body-set-label="${id}"]`).evaluate((element) => !element.hidden);
 /** The ids of every body-set member whose name is showing. */
 export const bodySetNamesShown = (page) => page.locator("[data-body-set-label]").evaluateAll((elements) => elements.filter((element) => !element.hidden).map((element) => element.getAttribute("data-body-set-label")));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Inside another page (T-082, O-020 Decision 5): the owner's portfolio shows the app in an iframe under its own story buttons.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The size of the portfolio's iframe (`components/astraeus/AstraeusBridge.tsx`, read-only reference): full width and 660 px (>= 1024 wide), 580 px (>= 768), 460 px on a phone. */
+export const PORTFOLIO_FRAME_HEIGHT = (viewportWidth) => (viewportWidth >= 1024 ? 660 : viewportWidth >= 768 ? 580 : 460);
+
+/** Browser flags that let a stand-in page frame the local app (a recent Chromium blocks a local address framed by another origin as a local-network request; the portfolio live is public to public, so no such block exists there). */
+export const FRAMING_BROWSER_ARGS = ["--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessForNavigations,BlockInsecurePrivateNetworkRequests"];
+
+/** The stand-in page's address: the app's own port under another host name (`127.0.0.1` for `localhost`), so it is another origin like the portfolio is, yet the browser allows the frame (it blocks a local app framed by a public-looking host). Answered by a route; the server never sees it. */
+const standInAddress = (appUrl) => { const url = new URL(appUrl); url.hostname = url.hostname === "localhost" ? "127.0.0.1" : "localhost"; url.pathname = "/portfolio-stand-in"; url.search = ""; return url.href; };
+
+/**
+ * Opens a stand-in for the portfolio page at a made-up address and puts the app in a full-width iframe of the portfolio's height; returns the
+ * frame, which every driver function accepts in place of a page (a frame has the same locators), after the shell has appeared in it.
+ * The caller makes the page (so it can attach its error listeners first) and passes the app's address.
+ */
+export async function openInPortfolioFrame(page, appUrl, options) {
+  const height = PORTFOLIO_FRAME_HEIGHT(page.viewportSize().width);
+  await page.route(standInAddress(appUrl), (route) => route.fulfill({
+    contentType: "text/html",
+    body: `<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1"><title>Portfolio stand-in</title><body style="margin:0;background:#050507"><iframe id="astraeus" src="${appUrl}" title="Astraeus" allow="fullscreen; accelerometer; gyroscope" style="display:block;width:100%;height:${height}px;border:0"></iframe></body>`,
+  }));
+  await page.goto(standInAddress(appUrl), { waitUntil: "load" });
+  const handle = await page.locator("iframe#astraeus").elementHandle();
+  const frame = await handle.contentFrame();
+  await waitForShell(frame, options);
+  return frame;
+}
+
+/** What the page shows of the embedded look: the shell's flag, the control height, the bars' heights and their gaps to the frame's edges. */
+export const embeddedLook = (page) => page.evaluate(() => {
+  const shell = document.querySelector(".astraeus-shell");
+  const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height }; };
+  const timeline = box(".timeline-bar");
+  const bar = box(".controls-pill") ?? box(".top-bar");
+  const button = document.querySelector(".timeline-play");
+  return {
+    embedded: shell?.getAttribute("data-embedded") ?? null,
+    phone: shell?.getAttribute("data-phone") ?? null,
+    controlHeight: button === null ? null : button.getBoundingClientRect().height,
+    topBar: bar,
+    timeline,
+    timelineBottomGap: timeline === null ? null : window.innerHeight - timeline.bottom,
+    topGap: bar === null ? null : bar.top,
+    viewport: { width: window.innerWidth, height: window.innerHeight },
+    scrollsHorizontally: document.documentElement.scrollWidth > window.innerWidth + 1,
+  };
+});

@@ -11,6 +11,7 @@ import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
 import { ControlsDrawer } from "./ControlsDrawer";
+import { isEmbedded } from "./embedded";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
@@ -19,6 +20,7 @@ import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAv
 import "./controls.css";
 import "./style.css";
 import "./phone.css";
+import "./embedded.css";
 
 /** Keeps `--timeline-space` at the distance from the screen's bottom to the top of the timeline bar, so a phone sheet can sit above it. */
 function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone: boolean): void {
@@ -97,6 +99,8 @@ export function AstraeusShell({
     firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? experience.objects[0]?.id ?? "",
   );
   const phone = usePhone();
+  /** Fixed for the page: a frame does not appear or vanish while the app runs. */
+  const [embedded] = useState(isEmbedded);
   const root = useRef<HTMLElement | null>(null);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
@@ -232,7 +236,7 @@ export function AstraeusShell({
   );
 
   return (
-    <main className="astraeus-shell" ref={root} data-phone={phone} style={phoneLayoutStyle(phoneLayout)}>
+    <main className="astraeus-shell" ref={root} data-phone={phone} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
       <div className="shell-canvas">{children}</div>
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}</ControlsDrawer>}
       <div className="shell-top">

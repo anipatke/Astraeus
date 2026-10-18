@@ -28,9 +28,6 @@ const smallest = smallMoons.reduce((a, b) => (b.meanRadiusKm < a.meanRadiusKm ? 
 const EARTH_RADIUS_KM = 6371.0084; // only for choosing a close-up distance
 
 
-/** The bodies drawn as dots this frame because their sphere would be too small (`data-marker-bodies` on the scene canvas). */
-const markerBodies = async (page) => ((await page.locator("canvas").first().getAttribute("data-marker-bodies")) ?? "").split(",").filter(Boolean);
-
 const seek = async (page, timeUtcMs) => {
   await ui.seekTo(page, timeUtcMs);
   await page.waitForTimeout(500);
@@ -67,6 +64,9 @@ async function moons(page, name, notes) {
   assert.equal(far.members, smallMoons.length, `${name}: every small moon is in the batch (${far.members})`);
   assert.equal(far.drawn, smallMoons.length, `${name}: every small moon is drawn (${far.drawn})`);
   assert.equal(far.members + MAPPED.length, moonData.moons.length, `${name}: ${moonData.moons.length} moons drawn in all`);
+  const dots = (await ui.scenePoints(page)).find((group) => group.id === "jupiter-small-moons");
+  notes.moonDots = dots;
+  assert.ok(dots?.drawn && dots.members === smallMoons.length && dots.inView > smallMoons.length / 2, `${name}: the small moons' dots are drawn and in view (scene readout ${JSON.stringify(dots)})`);
   assert.equal(far.orbits, moonData.moons.length - 1, `${name}: one batched orbit line per moon but Io (Io keeps its own loop)`);
   assert.equal(far.rings, 4, `${name}: four ring bands`);
   assert.deepEqual(Object.keys(far.familyColors), moonData.families.map((family) => family.id), `${name}: a colour for every family`);
@@ -158,9 +158,8 @@ async function run(name, viewport) {
     const start = (await ui.seekRange(page)).min;
     await seek(page, start);
     await preset(page, "jupiter", "overview");
-    // Owner, 2026-10-18: no pictures; what is drawn is read from the scene (`data-marker-bodies`: spheres too small to see, drawn as dots).
-    notes.overviewMarkers = await markerBodies(page);
-    assert.ok(!notes.overviewMarkers.includes("jupiter"), `${name}: Jupiter is drawn as a sphere in the overview (${notes.overviewMarkers.join(",")})`);
+    notes.overviewJupiter = await ui.sceneBody(page, "jupiter");
+    assert.ok(notes.overviewJupiter?.inView && notes.overviewJupiter.as === "sphere" && notes.overviewJupiter.radiusPx > 3, `${name}: Jupiter is drawn as a sphere in view in the overview (scene readout ${JSON.stringify(notes.overviewJupiter)})`);
     for (const id of ["jupiter", "io"]) {
       assert.ok(await labelCentre(page, id), `${name}: the ${id} label is shown`);
     }
@@ -180,15 +179,17 @@ async function run(name, viewport) {
     notes.ioLabel = { t0: ioAt0, sixHours: ioAt1 };
     assert.ok(ioAt0 && ioAt1 && Math.hypot(ioAt1[0] - ioAt0[0], ioAt1[1] - ioAt0[1]) > 10, `${name}: Io moves on screen (${JSON.stringify(notes.ioLabel)})`);
 
-    // The four presets each frame their body: its label is on screen, and a focused body is drawn as a sphere, not a dot.
+    // The four presets each frame something drawn, and a focused body is drawn as a sphere in view.
     await seek(page, start + 3_600_000);
-    notes.presets = {};
+    notes.lit = {};
     for (const [objectId, key] of [["jupiter", "overview"], ["jupiter", "focus-jupiter"], ["io", "focus-io"], ["io", "follow-io"]]) {
       await preset(page, objectId, key);
-      const markers = await markerBodies(page);
-      notes.presets[key] = { label: await labelCentre(page, objectId), markers };
-      assert.ok(notes.presets[key].label, `${name}/${key}: ${objectId} is on screen`);
-      if (key !== "overview") assert.ok(!markers.includes(objectId), `${name}/${key}: ${objectId} is drawn as a sphere`);
+      notes.lit[key] = await ui.sceneDrawsSomething(page);
+      assert.ok(notes.lit[key].bodies + notes.lit[key].paths > 0, `${name}/${key}: something is drawn (scene readout ${JSON.stringify(notes.lit[key])})`);
+      if (key !== "overview") {
+        const body = await ui.sceneBody(page, objectId);
+        assert.ok(body?.inView && body.as === "sphere", `${name}/${key}: ${objectId} is drawn as a sphere in view (${JSON.stringify(body)})`);
+      }
     }
     await seek(page, start + 9 * 3_600_000);
     await page.waitForTimeout(500);

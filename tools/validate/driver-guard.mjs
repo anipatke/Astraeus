@@ -6,6 +6,7 @@
 //   - call getByRole, getByText, getByLabel, getByPlaceholder, getByTitle or getByAltText;
 //   - call click, dblclick, fill, selectOption, check, uncheck, press, focus, hover or tap on anything, or use `keyboard.`;
 //   - call locator(...), querySelector(...) or querySelectorAll(...) with any selector other than the exceptions below, or with a selector it builds at run time.
+//   - take or save a screenshot (`.screenshot(`): browser checks never take or save pictures; the owner judges looks on the preview, and every check reads the scene's own readouts (data-paths, data-points, data-body-screen, the sky and frame data) instead (T-102).
 // EXCEPTIONS (reads, never operation of a shell control):
 //   - the scene canvas: `canvas`, and `getByTestId(...)` (a stable test id the app sets for tests);
 //   - data-attribute readouts: a selector that begins `[data-` (for example `[data-label-id="sun"]`, `[data-frame-fps]`, `[data-metric="eagle-altitude"]`).
@@ -24,6 +25,7 @@ const OWN_FILES = new Set(["driver.mjs", "driver-guard.mjs"]);
 export const OPT_OUT = new Map();
 
 const OPERATIONS = /\.(click|dblclick|selectOption|check|uncheck|press|focus|hover|tap)\s*\(|\.fill\s*\((?!\s*0\s*\))/;
+const SCREENSHOT = /\.screenshot\s*\(/;
 const KEYBOARD = /\bkeyboard\./;
 const BY_TEXT = /\.(getByRole|getByText|getByLabel|getByPlaceholder|getByTitle|getByAltText)\s*\(/;
 const SELECTOR_CALL = /\.(locator|querySelector|querySelectorAll|waitForSelector|\$|\$\$)\s*\(\s*(?:(["'`])((?:\\.|(?!\2).)*)\2|([^)]{0,40}))/g;
@@ -51,6 +53,7 @@ export function violationsIn(text) {
   for (const { number, text: line } of codeLines(text)) {
     const problems = [];
     if (OPERATIONS.test(line)) problems.push("operates an element directly");
+    if (SCREENSHOT.test(line)) problems.push("takes a screenshot (checks read the scene's readouts; looks are judged on the preview)");
     if (KEYBOARD.test(line)) problems.push("presses keys directly");
     if (BY_TEXT.test(line)) problems.push("finds an element by role, label or text");
     for (const match of line.matchAll(SELECTOR_CALL)) {

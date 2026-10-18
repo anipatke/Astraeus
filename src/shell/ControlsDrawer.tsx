@@ -38,7 +38,8 @@ export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, ch
         role="region"
         aria-label="Controls"
         data-open={open}
-        onClick={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onOpenChange(false); }}
+        // A dropdown closes the drawer on its change, not on the tap that opens it (owner bug, 2026-10-18: the drawer shut as the picker opened).
+        onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onOpenChange(false); }}
         onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onOpenChange(false); }}
       >
         {children}

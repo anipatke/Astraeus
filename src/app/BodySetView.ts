@@ -20,6 +20,7 @@ import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { projectedRadiusPx } from "./bodyDraw";
+import type { PointsScreenReadout } from "./PointsView";
 import type { BodySetLayer, BodySetLook } from "./bodySet";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { bodyLightDirections } from "./lighting";
@@ -60,6 +61,8 @@ export class BodySetView {
   readonly #projected = new Vector3();
   #policyId = "";
   #drawn = false;
+  #widthPx = 1;
+  #heightPx = 1;
 
   constructor(readonly layer: BodySetLayer) {
     const n = layer.members.length;
@@ -157,6 +160,8 @@ export class BodySetView {
       for (const screen of this.screen) screen.visible = false;
       return;
     }
+    this.#widthPx = widthPx;
+    this.#heightPx = heightPx;
     camera.updateMatrixWorld(true);
     const [ox, oy, oz] = origin.scaledCameraOrigin;
     const out = this.#positions.array as Float32Array;
@@ -188,6 +193,20 @@ export class BodySetView {
     this.#ballMaterial.color.set(look.dotColor);
     // Mapped positions and radii agree only at true scale, so only there may a ball or a body hide a dot.
     this.#pointMaterial.depthTest = trueScale;
+  }
+
+  /** The dots as the scene's point readout reports a point group (`data-points`): drawn, members, members in view and the box they cover (shares of the view). */
+  screenReadout(): PointsScreenReadout {
+    const out: PointsScreenReadout = { id: this.id, drawn: this.#drawn, members: this.count, sampled: this.count, inView: 0, minX: 1, maxX: 0, minY: 1, maxY: 0 };
+    if (!this.#drawn) return out;
+    for (const screen of this.screen) {
+      if (!screen.visible) continue;
+      const sx = screen.x / this.#widthPx;
+      const sy = screen.y / this.#heightPx;
+      out.inView += 1;
+      out.minX = Math.min(out.minX, sx); out.maxX = Math.max(out.maxX, sx); out.minY = Math.min(out.minY, sy); out.maxY = Math.max(out.maxY, sy);
+    }
+    return out;
   }
 
   dispose(): void {

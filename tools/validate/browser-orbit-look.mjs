@@ -1,9 +1,9 @@
 // Browser check for the orbit-line controls (I-035): Developer > Display settings > Orbit lines. Toggles every layer off and on, moves a slider,
-// resets, and checks the canvas really changes, with zero console errors. Run the app, then:
+// resets, and checks the scene reports each layer and the ring opacity changing (the path readout, not pixels), with zero console errors. Run the app, then:
 // PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-orbit-look.mjs
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { currentScale, ensurePaused, loadAddress, sceneOnlyPng, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
+import { currentScale, ensurePaused, loadAddress, scenePaths, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -14,22 +14,11 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 const errors = [];
 const results = {};
 
-const litPixels = async (page) => {
-  // Scene only, with the clock paused (below): a moving Earth and the panels over the canvas changed the sum by more than the ring did.
-  const png = (await sceneOnlyPng(page)).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let sum = 0;
-    for (let i = 0; i < pixels.length; i += 4) sum += pixels[i] + pixels[i + 1] + pixels[i + 2];
-    return sum;
-  }, png);
+// T-102: the orbit look as the scene draws it (the `data-paths` readout), not the sum of canvas pixels: which layers are shown and the ring's opacity now.
+const lookNow = async (page) => {
+  const path = (await scenePaths(page)).find((entry) => entry.look !== null);
+  assert.ok(path !== undefined, "the scene reports an orbit with a look");
+  return path.look;
 };
 
 for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 900 }, "true-scale"], ["desktop-readable", { width: 1440, height: 900 }, "readable-scale"], ["phone", { width: 390, height: 844 }, "true-scale"]]) {
@@ -44,32 +33,34 @@ for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 
   assert.equal(await currentScale(page), scale, `${label}: the scale in use is ${scale}`);
   const toggles = { "Orbit ring": "orbit-ring", "Fade ring ends": "orbit-ring-fade", "Trailing arc": "orbit-arc", "Brighten when zoomed out": "orbit-zoom-brighten" };
   const outcome = { toggles: {} };
-  const base0 = await litPixels(page);
+  const base0 = await lookNow(page);
   for (const [name, id] of Object.entries(toggles)) {
     assert.equal(await toggleOn(page, id), true, `${label}: ${name} starts on`);
     await pressToggle(page, id);
     assert.equal(await toggleOn(page, id), false, `${label}: ${name} off`);
     await page.waitForTimeout(500);
-    const off = await litPixels(page);
+    const off = await lookNow(page);
     await pressToggle(page, id);
     assert.equal(await toggleOn(page, id), true, `${label}: ${name} back on`);
     await page.waitForTimeout(500);
-    const on = await litPixels(page);
+    const on = await lookNow(page);
     outcome.toggles[name] = { on: base0, off, back: on };
-    if (name === "Orbit ring" || name === "Trailing arc") assert.notEqual(off, base0, `${label}: switching "${name}" off changes the picture`);
+    const layer = { "Orbit ring": "ring", "Trailing arc": "arc", "Fade ring ends": "endFade", "Brighten when zoomed out": "zoomBrighten" }[name];
+    assert.equal(base0[layer], true, `${label}: the scene reports ${name} on at the start`);
+    assert.equal(off[layer], false, `${label}: switching "${name}" off is drawn off (scene readout ${layer})`);
+    assert.equal(on[layer], true, `${label}: "${name}" back on is drawn on`);
   }
   const before = await sliderReadout(page, "orbit-ring-opacity");
-  const dim = await litPixels(page);
+  const dim = (await lookNow(page)).ringOpacity;
   await dragSlider(page, "orbit-ring-opacity", 0.8);
   await page.waitForTimeout(500);
   assert.equal(await sliderReadout(page, "orbit-ring-opacity"), "0.80", `${label}: the slider reads 0.80 (was ${before})`);
-  const bright = await litPixels(page);
-  assert.ok(bright > dim, `${label}: a brighter ring lights more of the picture (${dim} to ${bright})`);
+  const bright = (await lookNow(page)).ringOpacity;
+  assert.ok(bright > dim, `${label}: a brighter ring is drawn with more opacity (${dim} to ${bright})`);
   await resetOrbitLines(page);
   await page.waitForTimeout(500);
   assert.equal(await sliderReadout(page, "orbit-ring-opacity"), before, `${label}: reset returns the slider to ${before}`);
-  outcome.slider = { before, set: "0.80", litBefore: dim, litAfter: bright };
-  if (outDir) await page.screenshot({ path: `${outDir}/${label}.png` });
+  outcome.slider = { before, set: "0.80", ringOpacityBefore: dim, ringOpacityAfter: bright };
   results[label] = outcome;
   await page.close();
 }

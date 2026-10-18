@@ -132,7 +132,6 @@ for (const experience of EXPERIENCES) {
         await inState(label, size, page, "story panel");
         await ui.closeStoryPanel(page);
       }
-      if (outDir !== undefined) await page.screenshot({ path: `${outDir}/${label.replace(/\s+/g, "-")}.png` });
     } catch (error) {
       failures.push(`${label}: ${String(error?.message ?? error).split("\n")[0]}`);
       console.log(`FAIL ${label}: ${String(error?.message ?? error).split("\n")[0]}`);
