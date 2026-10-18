@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial } from "three";
+import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3, type Camera } from "three";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
@@ -20,6 +20,20 @@ import { arcSegmentAlpha, inertialTrailKm, mapPathKm, ringAlpha, windowEdgeAlpha
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
+
+/** What `PathView.screenReadout` reports for one path (diagnostic). */
+export interface PathScreenReadout {
+  readonly id: string;
+  readonly visible: boolean;
+  readonly vertices: number;
+  /** Vertices in front of the camera and inside the view. */
+  readonly inView: number;
+  /** The box those vertices cover, as shares of the view; meaningless (min above max) when `inView` is 0. */
+  readonly minX: number;
+  readonly maxX: number;
+  readonly minY: number;
+  readonly maxY: number;
+}
 
 /** Steps each arc segment is cut into, as the donor's ring slices (8). */
 const ARC_SUBSTEPS = 8;
@@ -69,6 +83,7 @@ export class PathView {
   #extentScaled = 0;
   #look: OrbitLook | null = null;
   #defaultLook: OrbitLook | null = null;
+  #line: Line | null = null;
   #ring: Line | null = null;
   #arc: Mesh | null = null;
   #ringColours: BufferAttribute | null = null;
@@ -103,6 +118,7 @@ export class PathView {
     // Overlays are drawn after the data dots they cross, so a belt cannot swallow the line (I-020).
     line.renderOrder = style.renderOrder ?? 1;
     this.group.add(line);
+    this.#line = line;
     if (style.orbitLook !== undefined && rolling) this.#addLookLayers(geometry, line, style.orbitLook);
   }
 
@@ -431,6 +447,33 @@ export class PathView {
     }
   }
 
+  /**
+   * Diagnostic for the browser checks: whether the line is drawn, its vertex count, how many vertices are in front of the camera and inside the
+   * view, and the box they cover as shares of the view (0 to 1, y down). It reads the vertices as last placed and the camera's current matrices,
+   * so it describes the line itself, never its label.
+   */
+  screenReadout(camera: Camera): PathScreenReadout {
+    const line = this.#line;
+    const count = this.#capacity;
+    const visible = line !== null && line.visible && this.group.visible && (this.#ring === null || this.#ring.visible);
+    const a = this.#positions.array;
+    camera.updateMatrixWorld();
+    const point = new Vector3();
+    let inView = 0;
+    let [minX, maxX, minY, maxY] = [1, 0, 1, 0];
+    for (let i = 0; i < count; i += 1) {
+      point.set(a[3 * i], a[3 * i + 1], a[3 * i + 2]).applyMatrix4(camera.matrixWorldInverse);
+      if (point.z >= 0) continue;
+      point.applyMatrix4(camera.projectionMatrix);
+      if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) continue;
+      const x = (point.x + 1) / 2;
+      const y = (1 - point.y) / 2;
+      inView += 1;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    }
+    return { id: this.id, visible, vertices: count, inView, minX, maxX, minY, maxY };
+  }
+
   /** The centre of the drawn line, so a focused path sits in the middle of the view. */
   absolute(): RenderVector {
     return this.#centre;
@@ -520,7 +563,8 @@ export function compositionPathLayer(path: CompositionPath, resolver: StateResol
     source,
     span: { windowMs: path.spanMs },
     ...(path.samples === undefined ? {} : { samples: path.samples }),
-    object: { id: `${path.body}-orbit`, label: `${path.body} orbit` },
+    // Orbit labels are off by default in every demo (owner, 2026-10-18); switchable under labels.
+    object: { id: `${path.body}-orbit`, label: `${path.body} orbit`, showLabel: false },
   };
 }
 

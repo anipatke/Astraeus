@@ -25,6 +25,7 @@ export function createEarthPathLayer(settings: ShowerSettings): PathLayer {
       label: "Earth's path",
       color: settings.look.earthPathColor,
       labelPriority: LABEL_PRIORITY.earthPath,
+      showLabel: false, // orbit and path labels off by default in every demo (owner, 2026-10-18); switchable under labels
       description: "Earth's path round the Sun over one year, drawn from the same Earth–Sun geometry that places Earth.",
       provenance: EARTH_EPHEMERIS.provenance,
       knownLimitations: ["A year's samples joined by straight segments."],
@@ -68,6 +69,8 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
           label: `${definition.label}'s orbit`,
           color: visual.material.color,
           labelPriority: LABEL_PRIORITY.planetOrbit,
+          // Owner, 2026-10-18: "dont think we need the planet orbit labels, these can be removed", then "off by default for all demos".
+          showLabel: false,
           description: `${definition.label}'s path round the Sun for one full turn from the peak, from the same position source that places ${definition.label} when it is drawn.`,
           provenance: definition.accuracy.position,
           knownLimitations: [
@@ -144,6 +147,7 @@ export function createParentOrbitPathLayer(settings: ShowerSettings): PathLayer 
       label: `${definition.label} orbit`,
       color: settings.look.parentPathColor,
       labelPriority: LABEL_PRIORITY.parentOrbit,
+      showLabel: false, // orbit and path labels off by default in every demo (owner, 2026-10-18); switchable under labels
       description: `The whole orbit of ${settings.parentBody}, the source of the ${settings.label}, from its nearest point to the Sun out to its farthest and back. The stream follows orbits like this one.`,
       provenance: definition.accuracy.position,
       knownLimitations: [
