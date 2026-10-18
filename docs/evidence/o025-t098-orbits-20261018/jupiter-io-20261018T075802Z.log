@@ -1,0 +1,267 @@
+{
+  "results": {
+    "desktop": {
+      "overviewJupiter": {
+        "id": "jupiter",
+        "as": "sphere",
+        "radiusPx": 15.322,
+        "x": 0.5,
+        "y": 0.5,
+        "inView": true,
+        "glow": null
+      },
+      "ioLabel": {
+        "t0": [
+          580,
+          373
+        ],
+        "sixHours": [
+          598,
+          384
+        ]
+      },
+      "lit": {
+        "overview": {
+          "bodies": 5,
+          "dots": 19,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-jupiter": {
+          "bodies": 5,
+          "dots": 19,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-io": {
+          "bodies": 1,
+          "dots": 15,
+          "paths": 1,
+          "stars": 8920
+        },
+        "follow-io": {
+          "bodies": 1,
+          "dots": 15,
+          "paths": 1,
+          "stars": 8920
+        }
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances. Distance to Io 420,468 km centre to centre · EQJ Distance to Europa 664,911 km centre to centre · EQJ Distance to Gan",
+      "ioDetail": "Ephemeris ⓘ : data source and known limitations Known limitations The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration. Accuracy Io's position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within 0.0994 m at 1,001 checked dates 2010-2030 (T-096). Horizons' own uncertainty is not stated in its output. Notes Geometric position about Jupiter's centre; no light-time. Valid 2010-2030, the span of the committed fits. Sources · 1 JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter s",
+      "moons": {
+        "members": 111,
+        "drawn": 111,
+        "orbits": 114,
+        "rings": 4,
+        "named": 0,
+        "familyColors": {
+          "galilean": "#f0e6da",
+          "inner": "#f0e442",
+          "himalia": "#e69f00",
+          "ananke": "#56b4e9",
+          "carme": "#cc79a7",
+          "pasiphae": "#009e73",
+          "carpo": "#d55e00",
+          "loner": "#bbbbbb"
+        }
+      },
+      "moonDots": {
+        "id": "jupiter-small-moons",
+        "drawn": true,
+        "members": 111,
+        "inView": 84,
+        "spanX": 0.926,
+        "spanY": 0.965
+      },
+      "nameOnDemand": {
+        "dot": "pasiphae",
+        "shown": [
+          "pasiphae"
+        ]
+      },
+      "onOwnLine": {
+        "s2021-j7": {
+          "id": "s2021-j7",
+          "gapPx": 0,
+          "pathGapPx": 0.291,
+          "lineSpanPx": 32965
+        },
+        "sinope": {
+          "id": "sinope",
+          "gapPx": 0,
+          "pathGapPx": 0.459,
+          "lineSpanPx": 26185
+        },
+        "carme": {
+          "id": "carme",
+          "gapPx": 0,
+          "pathGapPx": 1.111,
+          "lineSpanPx": 82278
+        },
+        "ananke": {
+          "id": "ananke",
+          "gapPx": 0,
+          "pathGapPx": 0.449,
+          "lineSpanPx": 35184
+        },
+        "himalia": {
+          "id": "himalia",
+          "gapPx": 0,
+          "pathGapPx": 0.933,
+          "lineSpanPx": 4089
+        }
+      },
+      "closeUp": {
+        "moon": "s2010-j2",
+        "radiusKm": 0.5,
+        "distanceUnits": 0.003,
+        "azimuth": 0,
+        "widest": {
+          "id": "s2010-j2",
+          "radiusPx": 25.262528776306016
+        },
+        "dotPx": 3,
+        "named": true
+      },
+      "rings": {
+        "before": [
+          0.105,
+          0.28,
+          0.065,
+          0.026
+        ],
+        "after": [
+          0.105,
+          0.5,
+          0.065,
+          0.026
+        ]
+      }
+    },
+    "phone": {
+      "overviewJupiter": {
+        "id": "jupiter",
+        "as": "sphere",
+        "radiusPx": 16.166,
+        "x": 0.5,
+        "y": 0.5,
+        "inView": true,
+        "glow": null
+      },
+      "ioLabel": {
+        "t0": [
+          131,
+          394
+        ],
+        "sixHours": [
+          152,
+          405
+        ]
+      },
+      "lit": {
+        "overview": {
+          "bodies": 5,
+          "dots": 9,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-jupiter": {
+          "bodies": 5,
+          "dots": 9,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-io": {
+          "bodies": 1,
+          "dots": 4,
+          "paths": 1,
+          "stars": 8920
+        },
+        "follow-io": {
+          "bodies": 1,
+          "dots": 4,
+          "paths": 1,
+          "stars": 8920
+        }
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances. Distance to Io 420,468 km centre to centre · EQJ Distance to Europa 664,911 km centre to centre · EQJ Distance to Gan",
+      "ioDetail": "Ephemeris ⓘ : data source and known limitations Known limitations The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration. Accuracy Io's position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within 0.0994 m at 1,001 checked dates 2010-2030 (T-096). Horizons' own uncertainty is not stated in its output. Notes Geometric position about Jupiter's centre; no light-time. Valid 2010-2030, the span of the committed fits. Sources · 1 JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter s",
+      "moons": {
+        "members": 111,
+        "drawn": 111,
+        "orbits": 114,
+        "rings": 4,
+        "named": 0,
+        "familyColors": {
+          "galilean": "#f0e6da",
+          "inner": "#f0e442",
+          "himalia": "#e69f00",
+          "ananke": "#56b4e9",
+          "carme": "#cc79a7",
+          "pasiphae": "#009e73",
+          "carpo": "#d55e00",
+          "loner": "#bbbbbb"
+        }
+      },
+      "moonDots": {
+        "id": "jupiter-small-moons",
+        "drawn": true,
+        "members": 111,
+        "inView": 21,
+        "spanX": 0.906,
+        "spanY": 0.909
+      },
+      "nameOnDemand": {
+        "dot": "pasiphae",
+        "shown": [
+          "pasiphae"
+        ]
+      },
+      "onOwnLine": {
+        "s2021-j7": {
+          "id": "s2021-j7",
+          "gapPx": 0,
+          "pathGapPx": 0.194,
+          "lineSpanPx": 34814
+        },
+        "sinope": {
+          "id": "sinope",
+          "gapPx": 0,
+          "pathGapPx": 0.457,
+          "lineSpanPx": 27625
+        },
+        "carme": {
+          "id": "carme",
+          "gapPx": 0,
+          "pathGapPx": 0.788,
+          "lineSpanPx": 86967
+        },
+        "ananke": {
+          "id": "ananke",
+          "gapPx": 0,
+          "pathGapPx": 0.503,
+          "lineSpanPx": 37133
+        },
+        "himalia": {
+          "id": "himalia",
+          "gapPx": 0,
+          "pathGapPx": 0.831,
+          "lineSpanPx": 4313
+        }
+      },
+      "closeUp": {
+        "moon": "s2010-j2",
+        "radiusKm": 0.5,
+        "distanceUnits": 0.003,
+        "azimuth": 0,
+        "widest": {
+          "id": "s2010-j2",
+          "radiusPx": 26.65196785900285
+        },
+        "dotPx": 3,
+        "named": true
+      }
+    }
+  },
+  "errors": []
+}

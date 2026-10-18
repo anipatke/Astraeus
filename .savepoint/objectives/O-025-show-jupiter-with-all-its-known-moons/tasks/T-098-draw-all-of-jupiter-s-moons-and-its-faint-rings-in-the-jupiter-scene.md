@@ -126,3 +126,13 @@ Changed: new `src/core/ephemerisGroup.ts`, `src/core/bodies/jupiterMoons.ts`, `s
 - **Stale wording found, not changed:** the experience's Jupiter limitation says Jupiter is "drawn flat in one colour", but the catalogue's Jupiter has a CC BY 4.0 texture and draws it; the browser check still asserts that sentence.
 - **Design reconciliation (deferred to the O-025 integration Task):** Design.md should gain the body-set layer (dots, balls, names on demand, batched family orbits), the curve-fit-backed moon bindings and their loader, `ExperienceDefinition.prepare` and `bodySets`, ring systems as opt-in visual data, and the `fetchedFiles` load-budget entry.
 - Lane rules: no router edit; no Task, Check or Issue created.
+
+### Orbit-line fix (owner report 2026-10-18: S/2021 J 7 off its line), commit `3d88a86` plus coordinator follow-up
+
+Change (`3d88a86`): each moon's orbit line is its own fitted path over one period ending at the clock time, plus a head segment to the live place, replacing the osculating ellipses (Limitations bullet 1 no longer applies). History chunks 2014-2015 shipped and loaded.
+
+Coordinator verification, session 009b0116, 2026-10-18 07:53-08:02Z, lane dev server `127.0.0.1:5199`:
+- `browser-jupiter-io.mjs` first run (`docs/evidence/o025-t098-orbits-20261018/jupiter-io-20261018T075352Z.log`) passed, but its on-own-line assertion was vacuous: `gapPx` is `min(gap, pathGap)` and `gap` includes the head segment, which ends on the body, so it is always 0. Measured to the sampled path alone (`pathGapPx`) at 0.5 units the gaps were 138-968 px.
+- Scratch probe over view distances 5/50/500/3000 units: `pathGapPx` falls as 1/distance (S/2021 J 7 25.6/2.0/0.21/0.05 px; Himalia 52.9/12.3/0/0.19), so the gap is the short head chord along the path, not a body off its line.
+- Assertion corrected in `tools/validate/browser-jupiter-io.mjs`: views at 500 units, `pathGapPx <= 1.5`. Rerun (`jupiter-io-20261018T075802Z/`): exit 0, zero console errors; desktop 0.29/0.46/1.11/0.45/0.93 px, phone 0.19/0.46/0.79/0.50/0.83 px (S/2021 J 7, Sinope, Carme, Ananke, Himalia).
+- Phone probe (`on-request/probe-phone-frames.mjs`, 4x throttle, compare only), before = main checkout `o018-o019` at `860548b` on `127.0.0.1:5691`, two interleaved rounds (`probe/*.json`), mean/p50/p95 ms: default opening before 24.1/16.7/33.4 and 24.2/16.7/33.4, fix 25.4/33.2/33.4 and 25.9/33.3/33.4; whole swarm before 24.3/16.7/33.4 twice, fix 25.6/33.2/33.4 and 24.8/16.7/33.4. Mean +5-7 % (inside the stated 10 % margin); p50 at the default opening is 33 ms against 16.7 ms in both rounds, which misses the stated "same p50" margin. Load at the default opening 2.0-3.7 s against 1.5-1.6 s (history chunks). Owner decision pending.
