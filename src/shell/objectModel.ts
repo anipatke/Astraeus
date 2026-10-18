@@ -23,6 +23,14 @@ export function firstAvailableObject(
   return experience.objects.find((object) => isObjectAvailable(object, timeUtcMs));
 }
 
+/**
+ * The Focus button for an object: the experience's own focus preset when it has one, otherwise a plain focus on the object, so every
+ * listed object can be focused from the top bar (owner, 2026-10-18: the big moons had no focus button).
+ */
+export function focusPresetFor(experience: ExperienceConfig, object: { readonly id: string; readonly label: string }): ExperienceCameraPreset {
+  return findCameraPreset(experience, "focus", object.id) ?? { id: `focus-${object.id}`, label: `Focus ${object.label}`, request: { kind: "focus", target: object.id } };
+}
+
 export function findCameraPreset(
   experience: ExperienceConfig,
   mode: CameraMode,

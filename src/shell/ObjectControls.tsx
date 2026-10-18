@@ -1,5 +1,5 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
-import { findCameraPreset, isObjectAvailable, listedObjects, relatedObjects } from "./objectModel";
+import { findCameraPreset, focusPresetFor, isObjectAvailable, listedObjects, relatedObjects } from "./objectModel";
 import { ButtonText, FocusIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
 
 interface Props {
@@ -26,7 +26,7 @@ export function ObjectControls({
   const selected = experience.objects.find((object) => object.id === selectedObjectId);
   const selectedAvailable = selected !== undefined && isObjectAvailable(selected, timeUtcMs);
   const overview = findCameraPreset(experience, "overview");
-  const focus = selected === undefined ? undefined : findCameraPreset(experience, "focus", selected.id);
+  const focus = selected === undefined ? undefined : focusPresetFor(experience, selected);
   const follow = selected === undefined ? undefined : findCameraPreset(experience, "follow", selected.id);
 
   const related = selected === undefined ? [] : relatedObjects(experience, selected.id);
