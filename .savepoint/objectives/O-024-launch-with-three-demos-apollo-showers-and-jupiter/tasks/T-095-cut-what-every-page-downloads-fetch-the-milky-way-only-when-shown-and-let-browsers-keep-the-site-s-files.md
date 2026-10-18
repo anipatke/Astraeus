@@ -2,8 +2,7 @@
 id: T-095
 title: Cut what every page downloads — fetch the Milky Way only when shown, and let browsers keep the site's files
 objective: O-024
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -59,3 +58,7 @@ Configured gates, sky script, full run. Evaluated under `agent-skills/references
 - Done When 3: no per-page reduction exists to take (measurements 4.08/3.72/3.85/10.71/13.19 MB vs limits already measurement+5%); limits left unchanged, none raised.
 - Gates: tsc, vitest, build pass. Full run: docs/evidence/o024-t095-full-20261018T033437Z (first run docs/evidence/o024-t095-full-20261018T032044Z failed sky on a dev-server ?import module request matched by the tracker, and lite on a transient socket hang up; tracker narrowed to the .jpg, rerun passed every step, error-lines 0).
 - Extra read: src/app/sceneHooks.ts, sceneSky.ts (to find the actual load path).
+
+## Owner Completion — 2026-10-18
+
+Owner: "3 mark done". Quick Task Check C-075 CLEAR (owner validation not required; the Task delivered the caching rule and a Milky Way assertion, no download saving, as the owner was told).

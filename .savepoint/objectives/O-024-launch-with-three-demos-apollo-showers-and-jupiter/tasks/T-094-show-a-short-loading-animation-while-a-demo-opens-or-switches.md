@@ -2,10 +2,9 @@
 id: T-094
 title: Show a short loading animation while a demo opens or switches
 objective: O-024
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-091, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-074, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -61,3 +60,7 @@ Configured gates, lite, full run. Evaluated under `agent-skills/references/check
 - Full run docs/evidence/o024-t094-full-20261018T0301Z: every step exit 0, error-lines 0, except earth-moon (phone "explanation button is 44 px", a layout measurement unrelated to the loader); reruns alone, idle: earth-moon-rerun1/2 exit 0.
 - Earlier run docs/evidence/o024-t094-full-20261018T0236Z: story-panels failed (a forced tap on the phone hit the loader while it was still fading); fixed with `pointer-events: none`; story-panels-rerun exit 0 in that directory.
 - Drift: no load-failure message existed in the app; the loader's failure line is new. Design.md public site/shell could mention the loader (not done in the lane).
+
+## Owner Completion — 2026-10-18
+
+Owner switched showers on the preview: "2 good". Quick Task Check C-074 CLEAR.
