@@ -814,6 +814,8 @@ export const homeBrokenPictures = (page) => page.locator("a.demo img").evaluateA
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 /** Whether each phone drawer is open: `{controls, timeline}`; both false on a larger screen. */
+/** Taps the Object list (as a thumb would, opening it) without choosing anything. */
+export const tapObjectPicker = async (page) => { await bodyPicker(page).click(); await page.keyboard.press("Escape"); };
 export async function drawerStates(page) {
   const open = async (hook) => (await page.locator(hook).count()) > 0 && (await page.locator(hook).getAttribute("aria-expanded")) === "true";
   return { controls: await open(HOOK.controlsPill), timeline: await open(HOOK.timelineHandle) };

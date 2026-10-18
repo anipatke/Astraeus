@@ -77,6 +77,10 @@ async function checkControlsDrawer(label, page) {
   await ui.waitForDrawer(page, "controls", true);
   assert.deepEqual(await ui.drawerStates(page), { controls: true, timeline: false }, `${label}: a tap on the pill opens the top drawer`);
   assert.ok(await ui.objectListShown(page), `${label}: the object list shows in the open drawer`);
+  // Owner bug, 2026-10-18: tapping the object list (opening it) closed the drawer; only a pick should.
+  await ui.tapObjectPicker(page);
+  await page.waitForTimeout(400);
+  assert.equal((await ui.drawerStates(page)).controls, true, `${label}: tapping the object list leaves the top drawer open`);
   await checkTouchTargets(`${label} top drawer`, page);
   await shot(page, `${label}-controls-open`);
   const boxes = await ui.phoneBoxes(page);
