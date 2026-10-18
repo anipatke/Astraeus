@@ -31,6 +31,8 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 
 10. **Show off the curve fits on the home page** (owner, 2026-10-18, after a plain explanation of curve fits: "Sounds like a cool thing to show off on the main page"): once the format is proven, the Astraeus home page (`index.html`) gains a short section explaining it in plain words — many position "photos" versus a few short "recipes" — with a small live visual (for example one moon's path drawn from table dots and from the fitted curve, with a slider that moves through time and the measured size saving and accuracy against NASA shown beside it). Built from the real fitted data, within the home page's load budget; owner look.
 
+11. **Planet positions as curve fits too** (owner, 2026-10-18, accepted the optimisation list): the planet position series (`planetModels` chunk, about 1.4 MB in the public build) is core data like the moons, so once the curve-fit format is proven for Jupiter's moons, Jupiter's own position and the other planets' positions move to the same format if it is smaller at equal accuracy (measured; the planet accuracy checks C-022/C-023 still pass).
+
 ## Success Conditions
 
 1. Every moon Horizons lists for Jupiter at build time is present, with its name and source; the count and the table date are recorded and shown in the information panel and the details.
