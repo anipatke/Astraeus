@@ -4,6 +4,7 @@ title: Pack the shower meteor orbits as compact numbers
 status: planned
 depends_on: []
 release: G-007
+priority: low
 ---
 
 # O-026: Pack the shower meteor orbits as compact numbers
@@ -15,6 +16,8 @@ The Showers demo downloads its meteor orbits as compact binary numbers instead o
 ## Why
 
 Owner, 2026-10-18, asking whether the showers would benefit from the curve-fit format: curve fits would not help (each meteor already is a six-number orbit, computed on the graphics chip), but the orbit files are text (`gmn-iau-7` about 2.6 MB, `gmn-iau-4` about 5.1 MB in the public build). Owner: "Add it to a clean up goal".
+
+Priority (owner, 2026-10-18): "It's not core like the moons, so not a priority but would like to clean up" — low priority within G-007.
 
 ## Success Conditions
 
