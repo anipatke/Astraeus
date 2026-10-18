@@ -1,0 +1,6 @@
+lite exit=0 errors=0
+shell exit=0 errors=0
+phone exit=0 errors=0
+controls exit=0 errors=0
+embedded exit=0 errors=0
+done
