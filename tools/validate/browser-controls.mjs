@@ -27,7 +27,7 @@ const SIZES = [
 const EXPERIENCES = [
   { name: "apollo11", query: "", panels: true },
   { name: "jupiter-io", query: "?experience=jupiter-io", panels: false },
-  { name: "shower-perseids", query: "?experience=shower-perseids", panels: true },
+  { name: "shower-perseids", query: "?experience=showers", panels: true },
 ];
 
 /** Compares controls of one kind and variant; returns the differences found. */

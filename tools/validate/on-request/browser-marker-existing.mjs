@@ -16,7 +16,7 @@ if (outDir) mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
 const result = {};
-const experiences = [["apollo", ""], ["earth-moon", "experience=earth-moon"], ["jupiter-io", "experience=jupiter-io"], ["perseids", "experience=shower-perseids"]];
+const experiences = [["apollo", ""], ["earth-moon", "experience=earth-moon"], ["jupiter-io", "experience=jupiter-io"], ["perseids", "experience=showers"]];
 try {
   for (const [name, query] of experiences) {
     for (const [rule, extra] of [["rule-on", ""], ["rule-off", "markerpx=0"]]) {

@@ -494,6 +494,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
+      switcher={definition.switcher}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

@@ -14,7 +14,8 @@
   backdrop-filter: blur(8px);
 }
 .top-bar .object-controls,
-.top-bar .scale-control { display: contents; }
+.top-bar .scale-control,
+.top-bar .switch-control { display: contents; }
 .object-camera-actions { display: flex; align-items: center; gap: 6px; }
 .top-bar-divider { flex: 0 0 auto; width: 1px; height: 22px; margin: 0 4px; background: var(--ui-border, rgba(240, 230, 218, .18)); }
 

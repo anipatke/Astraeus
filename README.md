@@ -16,7 +16,7 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 |---|---|
 | ![Apollo 11's free-return path from above, Earth and the Moon with the touchdown story panel open](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
 | **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. Seven story panels. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. Three story panels. |
-| [Try it](https://astraeus.curiouscode.ai/app.html) (going live soon) | [Try it](https://astraeus.curiouscode.ai/app.html?experience=shower-perseids) (going live soon) |
+| [Try it](https://astraeus.curiouscode.ai/app.html) (going live soon) | [Try it](https://astraeus.curiouscode.ai/app.html?experience=showers) (going live soon) |
 
 <sub>Perseids image: orbits from the Global Meteor Network, CC BY 4.0.</sub>
 
@@ -87,8 +87,8 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Experience | URL |
 |---|---|
 | Apollo 11 (default) | `/app.html` |
-| The Perseids | `/app.html?experience=shower-perseids` |
-| The Geminids | `/app.html?experience=shower-geminids` |
+| Meteor showers: the Perseids (default) | `/app.html?experience=showers` |
+| Meteor showers: the Geminids | `/app.html?experience=showers&shower=geminids` |
 | Earth and Moon | `/app.html?experience=earth-moon` |
 | Jupiter and Io | `/app.html?experience=jupiter-io` |
 
@@ -117,8 +117,8 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 | `app.html` (Apollo 11) | 4,038,691 B | 4,250,000 B | 2,720,311 B | 2,860,000 B |
 | `app.html?experience=earth-moon` | 3,671,629 B | 3,860,000 B | 2,601,663 B | 2,740,000 B |
 | `app.html?experience=jupiter-io` | 3,802,109 B | 4,000,000 B | 1,894,220 B | 1,990,000 B |
-| `app.html?experience=shower-perseids` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
-| `app.html?experience=shower-geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |
+| `app.html?experience=showers` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
+| `app.html?experience=showers&shower=geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |
 | whole build | 21,427,066 B | 22,500,000 B | 14,148,373 B | 14,860,000 B |
 
 The browser checks in `tools/validate/` drive the app in headless Chromium through `playwright-core`, which `npm install` adds. Install the browser once with `npx playwright-core install chromium`, start `npm run dev -- --port 5199`, then run for example `node tools/validate/browser-shell.mjs`. Set `ASTRAEUS_URL` to point a script at another address and `PLAYWRIGHT_CORE` to use another copy of the library.

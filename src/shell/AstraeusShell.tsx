@@ -12,6 +12,7 @@ import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
+import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAvailable } from "./objectModel";
@@ -47,6 +48,8 @@ interface Props {
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
+  /** A choice between versions of the experience (top bar and phone drawer); absent: none. */
+  readonly switcher?: ExperienceSwitch;
   /** Live measurements for an object's info panel, from the app's own State; empty when it has none. */
   readonly metricsFor?: (objectId: string, timeUtcMs: number) => readonly Metric[];
   readonly developerTools?: ReactNode;
@@ -79,6 +82,7 @@ export function AstraeusShell({
   scaleId,
   onScaleChange,
   scaleChoices,
+  switcher,
   metricsFor,
   developerTools,
   storyPanelSettings,
@@ -223,6 +227,7 @@ export function AstraeusShell({
       scaleId={scaleId}
       onScaleChange={onScaleChange}
       scaleChoices={scaleChoices}
+      switcher={switcher}
     />
   );
 

@@ -28,7 +28,7 @@ async function open(name, query, route) {
   const requests = [];
   page.on("response", (r) => requests.push({ url: r.url(), status: r.status() }));
   if (route) await route(page);
-  await page.goto(`${base}?experience=shower-${name}${query}`);
+  await page.goto(`${base}?experience=showers&shower=${name}${query}`);
   await page.waitForSelector("canvas");
   await ui.waitForShell(page);
   await page.waitForTimeout(3000);

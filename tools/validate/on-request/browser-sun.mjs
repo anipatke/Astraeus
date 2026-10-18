@@ -70,12 +70,12 @@ const sunPixels = async (page, radius = 40) => {
 
 try {
   // Perseids at the True overview, peak: the halo stays visible over the stream dots.
-  const withGlow = await open("experience=shower-perseids&sky=off&labels=sun:on");
+  const withGlow = await open("experience=showers&sky=off&labels=sun:on");
   await seekPeak(withGlow);
   await overview(withGlow);
   results.truePeakWithGlow = await sunPixels(withGlow);
   await shot(withGlow, "perseids-true-overview-peak");
-  const noGlow = await open("experience=shower-perseids&sky=off&labels=sun:on&sunglow=0");
+  const noGlow = await open("experience=showers&sky=off&labels=sun:on&sunglow=0");
   await seekPeak(noGlow);
   await overview(noGlow);
   results.truePeakNoGlow = await sunPixels(noGlow);
@@ -109,7 +109,7 @@ try {
   await withGlow.waitForTimeout(1200);
   await shot(withGlow, "perseids-solar-system-overview-peak");
   await withGlow.close();
-  const ser = await open(`experience=shower-perseids&sky=off&labels=sun:on${ENGINE_DEFAULT_VIEW}`); // fresh, with the default halo; the camera the zoom series was written for, not the opening camera Perseids now carries (look.startView)
+  const ser = await open(`experience=showers&sky=off&labels=sun:on${ENGINE_DEFAULT_VIEW}`); // fresh, with the default halo; the camera the zoom series was written for, not the opening camera Perseids now carries (look.startView)
   await seekPeak(ser);
   await overview(ser);
   const box = await ser.getByTestId("earth-moon-canvas").boundingBox();
@@ -161,13 +161,13 @@ try {
   await ser.close();
 
   // The address sets the start.
-  const url = await open("experience=shower-perseids&sky=off&labels=sun:on&sunglow=120&sunbrightness=0.5");
+  const url = await open("experience=showers&sky=off&labels=sun:on&sunglow=120&sunbrightness=0.5");
   await ui.toggleDeveloper(url);
   assert.deepEqual({ size: await ui.sliderValue(url, "sun-glow-size"), brightness: await ui.sliderValue(url, "sun-glow-brightness") }, { size: "120", brightness: "0.5" }, "?sunglow and ?sunbrightness set the start");
   await url.close();
 
   // The Sun's label is a setting (the shower settings file turns it off): hidden by default, still selectable, and a live toggle brings it back.
-  const lab = await open("experience=shower-perseids&sky=off");
+  const lab = await open("experience=showers&sky=off");
   await overview(lab);
   const shownIds = () => lab.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => el.dataset.labelId));
   results.labelsDefault = await shownIds();
@@ -182,7 +182,7 @@ try {
   results.labelsAfterToggle = await shownIds();
   assert.ok(results.labelsAfterToggle.includes("sun"), "the toggle brings the Sun's label back");
   await lab.close();
-  const urlOn = await open("experience=shower-perseids&sky=off&labels=sun:on");
+  const urlOn = await open("experience=showers&sky=off&labels=sun:on");
   await overview(urlOn);
   assert.ok((await urlOn.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => el.dataset.labelId))).includes("sun"), "?labels=sun:on shows it");
   await urlOn.close();
