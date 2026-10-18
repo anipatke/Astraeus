@@ -1,0 +1,3607 @@
+{
+ "span": [
+  "2010-01-01",
+  "2030-01-01"
+ ],
+ "moonCount": 115,
+ "listFetched": "2026-10-18T04:30:41.878Z",
+ "requests": 4,
+ "timeScaleCheck": {
+  "samples": 1201,
+  "worstResidualAfter1972S": 0.00000558453197641029,
+  "note": "Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050"
+ },
+ "bodies": [
+  {
+   "id": "jupiter",
+   "naifId": 599,
+   "ephemeris": "jup365_merged",
+   "periodDays": 1.769,
+   "segmentDays": 2.25,
+   "calibratedSegmentDays": 2.25,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 2.25,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 451791,
+   "span": {
+    "worstM": 0.0039,
+    "worstAt": "2022-08-19 11:08:00.000 TDB",
+    "rmsM": 0.0014,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.0036,
+    "worstAt": "2016-12-07 00:30:00.000 TDB",
+    "rmsM": 0.0014,
+    "count": 10224
+   }
+  },
+  {
+   "id": "io",
+   "naifId": 501,
+   "ephemeris": "jup365_merged",
+   "periodDays": 1.77,
+   "segmentDays": 1.125,
+   "calibratedSegmentDays": 1.125,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 1.125,
+   "sampleStepMinutes": 60,
+   "samples": 175339,
+   "chunkBytes": 1077981,
+   "span": {
+    "worstM": 0.0354,
+    "worstAt": "2019-12-11 01:42:00.000 TDB",
+    "rmsM": 0.0143,
+    "count": 9842
+   },
+   "demo": {
+    "worstM": 0.042,
+    "worstAt": "2017-01-18 23:30:00.000 TDB",
+    "rmsM": 0.0145,
+    "count": 10224
+   },
+   "endToEnd": {
+    "worstM": 0.0994,
+    "rmsM": 0.0396,
+    "count": 1001
+   }
+  },
+  {
+   "id": "europa",
+   "naifId": 502,
+   "ephemeris": "jup365_merged",
+   "periodDays": 3.55,
+   "segmentDays": 1.125,
+   "calibratedSegmentDays": 1.125,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 1.125,
+   "sampleStepMinutes": 60,
+   "samples": 175339,
+   "chunkBytes": 941049,
+   "span": {
+    "worstM": 0.0365,
+    "worstAt": "2020-02-14 00:41:00.000 TDB",
+    "rmsM": 0.0138,
+    "count": 9842
+   },
+   "demo": {
+    "worstM": 0.0372,
+    "worstAt": "2016-12-18 14:30:00.000 TDB",
+    "rmsM": 0.0139,
+    "count": 10224
+   },
+   "endToEnd": {
+    "worstM": 0.0755,
+    "rmsM": 0.0322,
+    "count": 1001
+   }
+  },
+  {
+   "id": "ganymede",
+   "naifId": 503,
+   "ephemeris": "jup365_merged",
+   "periodDays": 7.155,
+   "segmentDays": 1.125,
+   "calibratedSegmentDays": 1.125,
+   "degree": 9,
+   "calibratedDegree": 9,
+   "sourceGridDays": 1.125,
+   "sampleStepMinutes": 60,
+   "samples": 175339,
+   "chunkBytes": 705300,
+   "span": {
+    "worstM": 0.0287,
+    "worstAt": "2020-11-09 08:20:00.000 TDB",
+    "rmsM": 0.0114,
+    "count": 9842
+   },
+   "demo": {
+    "worstM": 0.0274,
+    "worstAt": "2017-05-02 20:30:00.000 TDB",
+    "rmsM": 0.0114,
+    "count": 10224
+   },
+   "endToEnd": {
+    "worstM": 0.0662,
+    "rmsM": 0.0258,
+    "count": 1001
+   }
+  },
+  {
+   "id": "callisto",
+   "naifId": 504,
+   "ephemeris": "jup365_merged",
+   "periodDays": 16.691,
+   "segmentDays": 2.25,
+   "calibratedSegmentDays": 2.25,
+   "degree": 10,
+   "calibratedDegree": 10,
+   "sourceGridDays": 2.25,
+   "sampleStepMinutes": 270,
+   "samples": 38977,
+   "chunkBytes": 375786,
+   "span": {
+    "worstM": 0.0314,
+    "worstAt": "2015-08-02 05:51:00.000 TDB",
+    "rmsM": 0.0119,
+    "count": 9972
+   },
+   "demo": {
+    "worstM": 0.0297,
+    "worstAt": "2017-02-15 02:15:00.000 TDB",
+    "rmsM": 0.0118,
+    "count": 6816
+   },
+   "endToEnd": {
+    "worstM": 0.0521,
+    "rmsM": 0.0213,
+    "count": 1001
+   }
+  },
+  {
+   "id": "amalthea",
+   "naifId": 505,
+   "ephemeris": "jup365_merged",
+   "periodDays": 0.501,
+   "segmentDays": 0.375,
+   "calibratedSegmentDays": 0.375,
+   "degree": 13,
+   "calibratedDegree": 13,
+   "sourceGridDays": 0.375,
+   "sampleStepMinutes": 30,
+   "samples": 350659,
+   "chunkBytes": 3084530,
+   "span": {
+    "worstM": 0.0349,
+    "worstAt": "2017-02-01 02:23:00.000 TDB",
+    "rmsM": 0.0136,
+    "count": 9675
+   },
+   "demo": {
+    "worstM": 0.0358,
+    "worstAt": "2016-12-07 06:37:30.000 TDB",
+    "rmsM": 0.0135,
+    "count": 40896
+   },
+   "endToEnd": {
+    "worstM": 0.1397,
+    "rmsM": 0.0581,
+    "count": 1001
+   }
+  },
+  {
+   "id": "himalia",
+   "naifId": 506,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 247.778,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 29,
+   "calibratedDegree": 29,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 58895,
+   "span": {
+    "worstM": 0.7053,
+    "worstAt": "2019-10-26 19:40:00.000 TDB",
+    "rmsM": 0.1221,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.498,
+    "worstAt": "2017-01-28 07:30:00.000 TDB",
+    "rmsM": 0.1256,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.473,
+    "rmsM": 0.1234,
+    "count": 1001
+   }
+  },
+  {
+   "id": "elara",
+   "naifId": 507,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 259.653,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 60139,
+   "span": {
+    "worstM": 0.5316,
+    "worstAt": "2014-04-23 14:13:00.000 TDB",
+    "rmsM": 0.105,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4978,
+    "worstAt": "2017-11-06 07:30:00.000 TDB",
+    "rmsM": 0.1023,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4611,
+    "rmsM": 0.1059,
+    "count": 1001
+   }
+  },
+  {
+   "id": "pasiphae",
+   "naifId": 508,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 735,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 35,
+   "calibratedDegree": 35,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58753,
+   "chunkBytes": 38885,
+   "span": {
+    "worstM": 0.8806,
+    "worstAt": "2018-10-14 11:33:00.000 TDB",
+    "rmsM": 0.0768,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4703,
+    "worstAt": "2016-10-28 19:30:00.000 TDB",
+    "rmsM": 0.0759,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6715,
+    "rmsM": 0.0765,
+    "count": 1001
+   }
+  },
+  {
+   "id": "sinope",
+   "naifId": 509,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 758,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35361,
+   "span": {
+    "worstM": 0.5067,
+    "worstAt": "2023-11-27 09:15:00.000 TDB",
+    "rmsM": 0.092,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4672,
+    "worstAt": "2017-09-11 07:30:00.000 TDB",
+    "rmsM": 0.127,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3894,
+    "rmsM": 0.0921,
+    "count": 1001
+   }
+  },
+  {
+   "id": "lysithea",
+   "naifId": 510,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 259.22,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 28,
+   "calibratedDegree": 28,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 57354,
+   "span": {
+    "worstM": 0.5677,
+    "worstAt": "2010-09-08 08:30:00.000 TDB",
+    "rmsM": 0.1237,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4894,
+    "worstAt": "2017-10-12 16:30:00.000 TDB",
+    "rmsM": 0.1268,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4634,
+    "rmsM": 0.1237,
+    "count": 1001
+   }
+  },
+  {
+   "id": "carme",
+   "naifId": 511,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 692,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35935,
+   "span": {
+    "worstM": 0.5211,
+    "worstAt": "2010-10-23 14:32:00.000 TDB",
+    "rmsM": 0.1022,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.5057,
+    "worstAt": "2016-10-25 22:30:00.000 TDB",
+    "rmsM": 0.1169,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5451,
+    "rmsM": 0.1013,
+    "count": 1001
+   }
+  },
+  {
+   "id": "ananke",
+   "naifId": 512,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 631,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 42662,
+   "span": {
+    "worstM": 0.5529,
+    "worstAt": "2010-10-24 08:03:00.000 TDB",
+    "rmsM": 0.102,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4612,
+    "worstAt": "2017-09-17 07:30:00.000 TDB",
+    "rmsM": 0.1307,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4946,
+    "rmsM": 0.1024,
+    "count": 1001
+   }
+  },
+  {
+   "id": "leda",
+   "naifId": 513,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 238.72,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 60678,
+   "span": {
+    "worstM": 0.584,
+    "worstAt": "2021-05-24 16:19:00.000 TDB",
+    "rmsM": 0.1202,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4923,
+    "worstAt": "2017-06-14 16:30:00.000 TDB",
+    "rmsM": 0.118,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.481,
+    "rmsM": 0.1215,
+    "count": 1001
+   }
+  },
+  {
+   "id": "thebe",
+   "naifId": 514,
+   "ephemeris": "jup365_merged",
+   "periodDays": 0.6776,
+   "segmentDays": 0.375,
+   "calibratedSegmentDays": 0.375,
+   "degree": 11,
+   "calibratedDegree": 11,
+   "sourceGridDays": 0.375,
+   "sampleStepMinutes": 20,
+   "samples": 525988,
+   "chunkBytes": 2761885,
+   "span": {
+    "worstM": 0.0297,
+    "worstAt": "2013-12-24 21:29:00.000 TDB",
+    "rmsM": 0.0124,
+    "count": 9509
+   },
+   "demo": {
+    "worstM": 0.0331,
+    "worstAt": "2017-02-16 06:50:00.000 TDB",
+    "rmsM": 0.0125,
+    "count": 30672
+   },
+   "endToEnd": {
+    "worstM": 0.1269,
+    "rmsM": 0.0526,
+    "count": 1001
+   }
+  },
+  {
+   "id": "adrastea",
+   "naifId": 515,
+   "ephemeris": "jup365_merged",
+   "periodDays": 0.3024,
+   "segmentDays": 0.375,
+   "calibratedSegmentDays": 0.375,
+   "degree": 14,
+   "calibratedDegree": 14,
+   "sourceGridDays": 0.375,
+   "sampleStepMinutes": 30,
+   "samples": 350659,
+   "chunkBytes": 3600122,
+   "span": {
+    "worstM": 0.0349,
+    "worstAt": "2028-07-21 18:32:00.000 TDB",
+    "rmsM": 0.0139,
+    "count": 9675
+   },
+   "demo": {
+    "worstM": 0.0401,
+    "worstAt": "2017-06-10 12:55:00.000 TDB",
+    "rmsM": 0.0139,
+    "count": 61344
+   },
+   "endToEnd": {
+    "worstM": 0.1659,
+    "rmsM": 0.0678,
+    "count": 1001
+   }
+  },
+  {
+   "id": "metis",
+   "naifId": 516,
+   "ephemeris": "jup365_merged",
+   "periodDays": 0.29893,
+   "segmentDays": 0.375,
+   "calibratedSegmentDays": 0.375,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 0.375,
+   "sampleStepMinutes": 30,
+   "samples": 350659,
+   "chunkBytes": 3743865,
+   "span": {
+    "worstM": 0.0381,
+    "worstAt": "2015-08-29 23:29:00.000 TDB",
+    "rmsM": 0.0143,
+    "count": 9675
+   },
+   "demo": {
+    "worstM": 0.0371,
+    "worstAt": "2016-10-28 16:45:00.000 TDB",
+    "rmsM": 0.0144,
+    "count": 61344
+   },
+   "endToEnd": {
+    "worstM": 0.1584,
+    "rmsM": 0.0687,
+    "count": 1001
+   }
+  },
+  {
+   "id": "callirrhoe",
+   "naifId": 517,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1268.03,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 42,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 33358,
+   "span": {
+    "worstM": 0.9779,
+    "worstAt": "2024-01-24 18:35:00.000 TDB",
+    "rmsM": 0.1341,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.6364,
+    "worstAt": "2017-11-13 07:30:00.000 TDB",
+    "rmsM": 0.1303,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.9128,
+    "rmsM": 0.1312,
+    "count": 1001
+   }
+  },
+  {
+   "id": "themisto",
+   "naifId": 518,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 106.846,
+   "segmentDays": 6,
+   "calibratedSegmentDays": 6,
+   "degree": 14,
+   "calibratedDegree": 14,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 138201,
+   "span": {
+    "worstM": 0.4984,
+    "worstAt": "2029-12-18 07:47:00.000 TDB",
+    "rmsM": 0.0734,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.3024,
+    "worstAt": "2016-10-14 16:30:00.000 TDB",
+    "rmsM": 0.0742,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3781,
+    "rmsM": 0.0763,
+    "count": 1001
+   }
+  },
+  {
+   "id": "megaclite",
+   "naifId": 519,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1063.9,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 32,
+   "calibratedDegree": 32,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36310,
+   "span": {
+    "worstM": 0.822,
+    "worstAt": "2024-02-08 08:55:00.000 TDB",
+    "rmsM": 0.0996,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.3935,
+    "worstAt": "2017-10-16 07:30:00.000 TDB",
+    "rmsM": 0.0891,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7068,
+    "rmsM": 0.1002,
+    "count": 1001
+   }
+  },
+  {
+   "id": "taygete",
+   "naifId": 520,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 977.99,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 40465,
+   "span": {
+    "worstM": 0.5691,
+    "worstAt": "2015-07-20 20:04:00.000 TDB",
+    "rmsM": 0.115,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4411,
+    "worstAt": "2017-06-17 19:30:00.000 TDB",
+    "rmsM": 0.1483,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4927,
+    "rmsM": 0.1159,
+    "count": 1001
+   }
+  },
+  {
+   "id": "chaldene",
+   "naifId": 521,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 714.013,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 76577,
+   "span": {
+    "worstM": 0.1225,
+    "worstAt": "2016-04-20 23:51:00.000 TDB",
+    "rmsM": 0.0183,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.0383,
+    "worstAt": "2017-03-21 16:30:00.000 TDB",
+    "rmsM": 0.0149,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0914,
+    "rmsM": 0.0188,
+    "count": 1001
+   }
+  },
+  {
+   "id": "harpalyke",
+   "naifId": 522,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 772.031,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36234,
+   "span": {
+    "worstM": 0.5214,
+    "worstAt": "2029-07-12 22:40:00.000 TDB",
+    "rmsM": 0.1416,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4675,
+    "worstAt": "2017-08-07 04:30:00.000 TDB",
+    "rmsM": 0.1565,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5261,
+    "rmsM": 0.1415,
+    "count": 1001
+   }
+  },
+  {
+   "id": "kalyke",
+   "naifId": 523,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 532.283,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 40,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 32314,
+   "span": {
+    "worstM": 0.6854,
+    "worstAt": "2024-12-20 09:38:00.000 TDB",
+    "rmsM": 0.1372,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4874,
+    "worstAt": "2016-10-28 19:30:00.000 TDB",
+    "rmsM": 0.1343,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5636,
+    "rmsM": 0.1363,
+    "count": 1001
+   }
+  },
+  {
+   "id": "iocaste",
+   "naifId": 524,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 864.54,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36620,
+   "span": {
+    "worstM": 0.7993,
+    "worstAt": "2014-06-11 11:50:00.000 TDB",
+    "rmsM": 0.1423,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4771,
+    "worstAt": "2017-10-22 13:30:00.000 TDB",
+    "rmsM": 0.123,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6943,
+    "rmsM": 0.1418,
+    "count": 1001
+   }
+  },
+  {
+   "id": "erinome",
+   "naifId": 525,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 506.195,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 48,
+   "degree": 27,
+   "calibratedDegree": 27,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14641,
+   "chunkBytes": 47070,
+   "span": {
+    "worstM": 0.7561,
+    "worstAt": "2028-08-03 21:50:00.000 TDB",
+    "rmsM": 0.0342,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.1895,
+    "worstAt": "2016-10-29 22:30:00.000 TDB",
+    "rmsM": 0.0223,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.2856,
+    "rmsM": 0.0324,
+    "count": 1001
+   }
+  },
+  {
+   "id": "isonoe",
+   "naifId": 526,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 772.232,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 9,
+   "calibratedDegree": 9,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 54522,
+   "span": {
+    "worstM": 0.7585,
+    "worstAt": "2025-03-23 02:15:00.000 TDB",
+    "rmsM": 0.1629,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.4879,
+    "worstAt": "2017-04-21 19:30:00.000 TDB",
+    "rmsM": 0.1844,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6268,
+    "rmsM": 0.1626,
+    "count": 1001
+   }
+  },
+  {
+   "id": "praxidike",
+   "naifId": 527,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 442.478,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 10,
+   "calibratedDegree": 9,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 56489,
+   "span": {
+    "worstM": 0.8109,
+    "worstAt": "2023-05-09 22:39:00.000 TDB",
+    "rmsM": 0.1636,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.3674,
+    "worstAt": "2016-10-05 22:30:00.000 TDB",
+    "rmsM": 0.082,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.79,
+    "rmsM": 0.1631,
+    "count": 1001
+   }
+  },
+  {
+   "id": "autonoe",
+   "naifId": 528,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1238.33,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 18,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14653,
+   "chunkBytes": 45604,
+   "span": {
+    "worstM": 0.9066,
+    "worstAt": "2015-10-03 06:46:00.000 TDB",
+    "rmsM": 0.1267,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.4626,
+    "worstAt": "2017-10-09 22:30:00.000 TDB",
+    "rmsM": 0.1293,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7411,
+    "rmsM": 0.1257,
+    "count": 1001
+   }
+  },
+  {
+   "id": "thyone",
+   "naifId": 529,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 803.04,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36679,
+   "span": {
+    "worstM": 0.6341,
+    "worstAt": "2012-06-22 13:55:00.000 TDB",
+    "rmsM": 0.1174,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4654,
+    "worstAt": "2017-09-14 13:30:00.000 TDB",
+    "rmsM": 0.1351,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.603,
+    "rmsM": 0.1177,
+    "count": 1001
+   }
+  },
+  {
+   "id": "hermippe",
+   "naifId": 530,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 519.433,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 14,
+   "calibratedDegree": 14,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9761,
+   "chunkBytes": 35851,
+   "span": {
+    "worstM": 0.869,
+    "worstAt": "2014-11-17 14:28:00.000 TDB",
+    "rmsM": 0.235,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.4886,
+    "worstAt": "2016-10-21 13:30:00.000 TDB",
+    "rmsM": 0.1735,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.8497,
+    "rmsM": 0.2358,
+    "count": 1001
+   }
+  },
+  {
+   "id": "aitne",
+   "naifId": 531,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 937.764,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35922,
+   "span": {
+    "worstM": 0.5086,
+    "worstAt": "2027-06-14 21:20:00.000 TDB",
+    "rmsM": 0.103,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4226,
+    "worstAt": "2017-05-25 22:30:00.000 TDB",
+    "rmsM": 0.1355,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4709,
+    "rmsM": 0.1045,
+    "count": 1001
+   }
+  },
+  {
+   "id": "eurydome",
+   "naifId": 532,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1131.73,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 32,
+   "calibratedDegree": 32,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36822,
+   "span": {
+    "worstM": 0.6554,
+    "worstAt": "2016-01-14 04:37:00.000 TDB",
+    "rmsM": 0.1046,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.5975,
+    "worstAt": "2017-11-23 04:30:00.000 TDB",
+    "rmsM": 0.1079,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5953,
+    "rmsM": 0.1066,
+    "count": 1001
+   }
+  },
+  {
+   "id": "euanthe",
+   "naifId": 533,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 594.958,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 41673,
+   "span": {
+    "worstM": 0.5033,
+    "worstAt": "2029-01-07 19:55:00.000 TDB",
+    "rmsM": 0.1283,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4484,
+    "worstAt": "2017-01-24 16:30:00.000 TDB",
+    "rmsM": 0.142,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4674,
+    "rmsM": 0.1287,
+    "count": 1001
+   }
+  },
+  {
+   "id": "euporie",
+   "naifId": 534,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 620.157,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 37202,
+   "span": {
+    "worstM": 0.5011,
+    "worstAt": "2020-06-17 20:02:00.000 TDB",
+    "rmsM": 0.1791,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4399,
+    "worstAt": "2017-08-07 07:30:00.000 TDB",
+    "rmsM": 0.1842,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4437,
+    "rmsM": 0.1791,
+    "count": 1001
+   }
+  },
+  {
+   "id": "orthosie",
+   "naifId": 535,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 963.307,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 34,
+   "calibratedDegree": 34,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 39223,
+   "span": {
+    "worstM": 0.8465,
+    "worstAt": "2021-01-18 09:56:00.000 TDB",
+    "rmsM": 0.1024,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.3554,
+    "worstAt": "2017-09-14 01:30:00.000 TDB",
+    "rmsM": 0.0877,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.8558,
+    "rmsM": 0.103,
+    "count": 1001
+   }
+  },
+  {
+   "id": "sponde",
+   "naifId": 536,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 922.222,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 32,
+   "calibratedDegree": 32,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36499,
+   "span": {
+    "worstM": 0.6768,
+    "worstAt": "2011-03-14 04:46:00.000 TDB",
+    "rmsM": 0.0829,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4794,
+    "worstAt": "2017-04-22 22:30:00.000 TDB",
+    "rmsM": 0.12,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5225,
+    "rmsM": 0.0818,
+    "count": 1001
+   }
+  },
+  {
+   "id": "kale",
+   "naifId": 537,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 501.077,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 40,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 32372,
+   "span": {
+    "worstM": 0.7214,
+    "worstAt": "2020-10-09 16:38:00.000 TDB",
+    "rmsM": 0.1406,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4991,
+    "worstAt": "2016-11-01 07:30:00.000 TDB",
+    "rmsM": 0.1282,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5613,
+    "rmsM": 0.1389,
+    "count": 1001
+   }
+  },
+  {
+   "id": "pasithee",
+   "naifId": 538,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 488.85,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 48,
+   "degree": 34,
+   "calibratedDegree": 34,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 53576,
+   "span": {
+    "worstM": 0.9472,
+    "worstAt": "2010-09-20 00:46:00.000 TDB",
+    "rmsM": 0.0345,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.3711,
+    "worstAt": "2016-10-05 22:30:00.000 TDB",
+    "rmsM": 0.0238,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4885,
+    "rmsM": 0.033,
+    "count": 1001
+   }
+  },
+  {
+   "id": "hegemone",
+   "naifId": 539,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 459.653,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 35,
+   "calibratedDegree": 35,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38582,
+   "span": {
+    "worstM": 0.3752,
+    "worstAt": "2016-12-03 06:01:00.000 TDB",
+    "rmsM": 0.0456,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.3866,
+    "worstAt": "2016-11-24 07:30:00.000 TDB",
+    "rmsM": 0.0776,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.2428,
+    "rmsM": 0.0437,
+    "count": 1001
+   }
+  },
+  {
+   "id": "mneme",
+   "naifId": 540,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 881.836,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 33,
+   "calibratedDegree": 33,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38311,
+   "span": {
+    "worstM": 0.5316,
+    "worstAt": "2012-05-21 11:11:00.000 TDB",
+    "rmsM": 0.0919,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.3982,
+    "worstAt": "2017-07-02 19:30:00.000 TDB",
+    "rmsM": 0.1089,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4375,
+    "rmsM": 0.0905,
+    "count": 1001
+   }
+  },
+  {
+   "id": "aoede",
+   "naifId": 541,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1308.4,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 35,
+   "calibratedDegree": 35,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38528,
+   "span": {
+    "worstM": 0.6318,
+    "worstAt": "2011-05-25 10:55:00.000 TDB",
+    "rmsM": 0.0509,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4273,
+    "worstAt": "2017-08-01 16:30:00.000 TDB",
+    "rmsM": 0.0728,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4636,
+    "rmsM": 0.0524,
+    "count": 1001
+   }
+  },
+  {
+   "id": "thelxinoe",
+   "naifId": 542,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 764.757,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36157,
+   "span": {
+    "worstM": 0.5717,
+    "worstAt": "2021-01-19 20:58:00.000 TDB",
+    "rmsM": 0.1442,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4254,
+    "worstAt": "2017-06-30 04:30:00.000 TDB",
+    "rmsM": 0.153,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5041,
+    "rmsM": 0.1441,
+    "count": 1001
+   }
+  },
+  {
+   "id": "arche",
+   "naifId": 543,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 957.76,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 40675,
+   "span": {
+    "worstM": 0.6439,
+    "worstAt": "2019-10-26 02:09:00.000 TDB",
+    "rmsM": 0.1247,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.573,
+    "worstAt": "2017-11-30 19:30:00.000 TDB",
+    "rmsM": 0.1288,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5363,
+    "rmsM": 0.1257,
+    "count": 1001
+   }
+  },
+  {
+   "id": "kallichore",
+   "naifId": 544,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 943.003,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19585,
+   "chunkBytes": 35299,
+   "span": {
+    "worstM": 0.7052,
+    "worstAt": "2025-10-30 23:19:00.000 TDB",
+    "rmsM": 0.1288,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.476,
+    "worstAt": "2017-08-26 01:30:00.000 TDB",
+    "rmsM": 0.1409,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5965,
+    "rmsM": 0.1308,
+    "count": 1001
+   }
+  },
+  {
+   "id": "helike",
+   "naifId": 545,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 546.53,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 9,
+   "calibratedDegree": 9,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 54818,
+   "span": {
+    "worstM": 0.5493,
+    "worstAt": "2013-05-11 04:17:00.000 TDB",
+    "rmsM": 0.179,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.4974,
+    "worstAt": "2017-01-14 01:30:00.000 TDB",
+    "rmsM": 0.1855,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4844,
+    "rmsM": 0.1792,
+    "count": 1001
+   }
+  },
+  {
+   "id": "carpo",
+   "naifId": 546,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 755.458,
+   "segmentDays": 6,
+   "calibratedSegmentDays": 36,
+   "degree": 36,
+   "calibratedDegree": 36,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 202766,
+   "span": {
+    "worstM": 0.0359,
+    "worstAt": "2023-08-06 23:41:00.000 TDB",
+    "rmsM": 0.0125,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.0316,
+    "worstAt": "2017-05-31 13:30:00.000 TDB",
+    "rmsM": 0.0128,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0394,
+    "rmsM": 0.0142,
+    "count": 1001
+   }
+  },
+  {
+   "id": "eukelade",
+   "naifId": 547,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 485.258,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 40874,
+   "span": {
+    "worstM": 0.6523,
+    "worstAt": "2026-12-23 21:53:00.000 TDB",
+    "rmsM": 0.1259,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4847,
+    "worstAt": "2016-12-05 22:30:00.000 TDB",
+    "rmsM": 0.1344,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5349,
+    "rmsM": 0.1263,
+    "count": 1001
+   }
+  },
+  {
+   "id": "cyllene",
+   "naifId": 548,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1472.15,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 36,
+   "degree": 37,
+   "calibratedDegree": 35,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29305,
+   "chunkBytes": 73206,
+   "span": {
+    "worstM": 0.8876,
+    "worstAt": "2021-11-20 22:56:00.000 TDB",
+    "rmsM": 0.0301,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.2607,
+    "worstAt": "2017-10-01 01:30:00.000 TDB",
+    "rmsM": 0.0294,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.9672,
+    "rmsM": 0.04,
+    "count": 1001
+   }
+  },
+  {
+   "id": "kore",
+   "naifId": 549,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 592.05,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 36,
+   "degree": 19,
+   "calibratedDegree": 18,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9769,
+   "chunkBytes": 50373,
+   "span": {
+    "worstM": 0.9892,
+    "worstAt": "2027-05-29 19:58:00.000 TDB",
+    "rmsM": 0.0516,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.5523,
+    "worstAt": "2016-10-06 01:30:00.000 TDB",
+    "rmsM": 0.0378,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.8181,
+    "rmsM": 0.0516,
+    "count": 1001
+   }
+  },
+  {
+   "id": "herse",
+   "naifId": 550,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 944.41,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 18,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14653,
+   "chunkBytes": 45650,
+   "span": {
+    "worstM": 0.5358,
+    "worstAt": "2029-05-27 23:07:00.000 TDB",
+    "rmsM": 0.1132,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.4792,
+    "worstAt": "2017-06-07 19:30:00.000 TDB",
+    "rmsM": 0.1519,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4686,
+    "rmsM": 0.114,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j1",
+   "naifId": 551,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 827.99,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35617,
+   "span": {
+    "worstM": 0.4479,
+    "worstAt": "2023-04-25 08:19:00.000 TDB",
+    "rmsM": 0.0988,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4589,
+    "worstAt": "2017-03-18 19:30:00.000 TDB",
+    "rmsM": 0.1417,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4452,
+    "rmsM": 0.0981,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j2",
+   "naifId": 552,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 701.399,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 32,
+   "calibratedDegree": 32,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 37564,
+   "span": {
+    "worstM": 0.7398,
+    "worstAt": "2025-07-30 06:42:00.000 TDB",
+    "rmsM": 0.1212,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4292,
+    "worstAt": "2017-02-07 22:30:00.000 TDB",
+    "rmsM": 0.126,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6741,
+    "rmsM": 0.1215,
+    "count": 1001
+   }
+  },
+  {
+   "id": "dia",
+   "naifId": 553,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 309.364,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 18,
+   "degree": 23,
+   "calibratedDegree": 23,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58609,
+   "chunkBytes": 64351,
+   "span": {
+    "worstM": 0.5913,
+    "worstAt": "2027-08-20 07:21:00.000 TDB",
+    "rmsM": 0.1042,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4922,
+    "worstAt": "2016-12-10 07:30:00.000 TDB",
+    "rmsM": 0.1122,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4951,
+    "rmsM": 0.1122,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2016-j1",
+   "naifId": 554,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 741.905,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36105,
+   "span": {
+    "worstM": 0.5721,
+    "worstAt": "2012-06-25 11:59:00.000 TDB",
+    "rmsM": 0.1326,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4533,
+    "worstAt": "2017-09-10 10:30:00.000 TDB",
+    "rmsM": 0.1532,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5067,
+    "rmsM": 0.1327,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j18",
+   "naifId": 555,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 539.309,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 34,
+   "calibratedDegree": 34,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 30517,
+   "span": {
+    "worstM": 0.4929,
+    "worstAt": "2012-01-29 08:06:00.000 TDB",
+    "rmsM": 0.2065,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4786,
+    "worstAt": "2016-10-31 19:30:00.000 TDB",
+    "rmsM": 0.2003,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4809,
+    "rmsM": 0.2067,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j2",
+   "naifId": 556,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 878.816,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 48,
+   "degree": 25,
+   "calibratedDegree": 23,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9761,
+   "chunkBytes": 45592,
+   "span": {
+    "worstM": 0.7318,
+    "worstAt": "2010-03-12 01:53:00.000 TDB",
+    "rmsM": 0.0403,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.22,
+    "worstAt": "2017-11-18 01:30:00.000 TDB",
+    "rmsM": 0.023,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4892,
+    "rmsM": 0.0394,
+    "count": 1001
+   }
+  },
+  {
+   "id": "eirene",
+   "naifId": 557,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 873.303,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 76416,
+   "span": {
+    "worstM": 0.0969,
+    "worstAt": "2022-04-02 01:27:00.000 TDB",
+    "rmsM": 0.0178,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.0511,
+    "worstAt": "2017-11-05 22:30:00.000 TDB",
+    "rmsM": 0.0152,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.102,
+    "rmsM": 0.0186,
+    "count": 1001
+   }
+  },
+  {
+   "id": "philophrosyne",
+   "naifId": 558,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 492.327,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 41,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 33000,
+   "span": {
+    "worstM": 0.7617,
+    "worstAt": "2028-04-09 20:41:00.000 TDB",
+    "rmsM": 0.1192,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4141,
+    "worstAt": "2016-10-29 19:30:00.000 TDB",
+    "rmsM": 0.1082,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5715,
+    "rmsM": 0.119,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j1",
+   "naifId": 559,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 348.116,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 33,
+   "calibratedDegree": 33,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58753,
+   "chunkBytes": 37293,
+   "span": {
+    "worstM": 0.8323,
+    "worstAt": "2014-10-29 15:02:00.000 TDB",
+    "rmsM": 0.0853,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4953,
+    "worstAt": "2016-10-22 10:30:00.000 TDB",
+    "rmsM": 0.109,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5826,
+    "rmsM": 0.0828,
+    "count": 1001
+   }
+  },
+  {
+   "id": "eupheme",
+   "naifId": 560,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 397.304,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 42777,
+   "span": {
+    "worstM": 0.7464,
+    "worstAt": "2013-07-04 04:31:00.000 TDB",
+    "rmsM": 0.1391,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4425,
+    "worstAt": "2016-10-18 01:30:00.000 TDB",
+    "rmsM": 0.1228,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6075,
+    "rmsM": 0.1401,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j19",
+   "naifId": 561,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 528.733,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35363,
+   "span": {
+    "worstM": 0.7298,
+    "worstAt": "2014-11-06 15:43:00.000 TDB",
+    "rmsM": 0.1379,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4837,
+    "worstAt": "2016-11-29 22:30:00.000 TDB",
+    "rmsM": 0.136,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.715,
+    "rmsM": 0.1378,
+    "count": 1001
+   }
+  },
+  {
+   "id": "valetudo",
+   "naifId": 562,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 759.906,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 43690,
+   "span": {
+    "worstM": 0.6528,
+    "worstAt": "2010-01-11 05:31:00.000 TDB",
+    "rmsM": 0.1172,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4814,
+    "worstAt": "2017-06-03 01:30:00.000 TDB",
+    "rmsM": 0.1401,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5078,
+    "rmsM": 0.1176,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j2",
+   "naifId": 563,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 809.604,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 74653,
+   "span": {
+    "worstM": 0.3837,
+    "worstAt": "2026-02-15 23:47:00.000 TDB",
+    "rmsM": 0.0246,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.0782,
+    "worstAt": "2017-11-18 01:30:00.000 TDB",
+    "rmsM": 0.016,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.1899,
+    "rmsM": 0.0244,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j3",
+   "naifId": 564,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 726.982,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 39,
+   "calibratedDegree": 39,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 32588,
+   "span": {
+    "worstM": 0.7647,
+    "worstAt": "2028-02-20 05:33:00.000 TDB",
+    "rmsM": 0.178,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.6032,
+    "worstAt": "2017-11-20 01:30:00.000 TDB",
+    "rmsM": 0.1707,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6561,
+    "rmsM": 0.1821,
+    "count": 1001
+   }
+  },
+  {
+   "id": "pandia",
+   "naifId": 565,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 301.858,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 29,
+   "calibratedDegree": 29,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 58645,
+   "span": {
+    "worstM": 0.6829,
+    "worstAt": "2027-06-11 05:45:00.000 TDB",
+    "rmsM": 0.1313,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4662,
+    "worstAt": "2017-09-12 16:30:00.000 TDB",
+    "rmsM": 0.1287,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.492,
+    "rmsM": 0.1316,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j5",
+   "naifId": 566,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1061.2,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 40725,
+   "span": {
+    "worstM": 0.5212,
+    "worstAt": "2027-12-19 11:07:00.000 TDB",
+    "rmsM": 0.1164,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4655,
+    "worstAt": "2017-10-12 10:30:00.000 TDB",
+    "rmsM": 0.1362,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4824,
+    "rmsM": 0.1178,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j6",
+   "naifId": 567,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 982.258,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 35,
+   "calibratedDegree": 35,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38631,
+   "span": {
+    "worstM": 0.3928,
+    "worstAt": "2017-04-18 17:38:00.000 TDB",
+    "rmsM": 0.0461,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4022,
+    "worstAt": "2017-03-15 04:30:00.000 TDB",
+    "rmsM": 0.0805,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3947,
+    "rmsM": 0.0478,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j7",
+   "naifId": 568,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 566.931,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36016,
+   "span": {
+    "worstM": 0.7829,
+    "worstAt": "2013-08-27 22:16:00.000 TDB",
+    "rmsM": 0.153,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4802,
+    "worstAt": "2017-01-06 13:30:00.000 TDB",
+    "rmsM": 0.1632,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7369,
+    "rmsM": 0.1532,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j8",
+   "naifId": 569,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1021.28,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36136,
+   "span": {
+    "worstM": 0.5359,
+    "worstAt": "2029-08-20 15:03:00.000 TDB",
+    "rmsM": 0.1087,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.5148,
+    "worstAt": "2017-11-24 01:30:00.000 TDB",
+    "rmsM": 0.1326,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5038,
+    "rmsM": 0.1106,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j9",
+   "naifId": 570,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 510.638,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 40,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 32601,
+   "span": {
+    "worstM": 0.6595,
+    "worstAt": "2013-04-15 15:12:00.000 TDB",
+    "rmsM": 0.1389,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4457,
+    "worstAt": "2016-10-25 07:30:00.000 TDB",
+    "rmsM": 0.1388,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5633,
+    "rmsM": 0.1386,
+    "count": 1001
+   }
+  },
+  {
+   "id": "ersa",
+   "naifId": 571,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 246.533,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 26,
+   "calibratedDegree": 26,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 55931,
+   "span": {
+    "worstM": 0.6732,
+    "worstAt": "2018-08-20 17:48:00.000 TDB",
+    "rmsM": 0.1516,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.6065,
+    "worstAt": "2017-11-30 19:30:00.000 TDB",
+    "rmsM": 0.1398,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6297,
+    "rmsM": 0.1522,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j1",
+   "naifId": 572,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 479.882,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 9,
+   "calibratedDegree": 9,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 53972,
+   "span": {
+    "worstM": 0.8948,
+    "worstAt": "2014-09-03 10:15:00.000 TDB",
+    "rmsM": 0.1788,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.5013,
+    "worstAt": "2016-10-01 19:30:00.000 TDB",
+    "rmsM": 0.1235,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.8295,
+    "rmsM": 0.1779,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j2",
+   "naifId": 55501,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 588.94,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 41608,
+   "span": {
+    "worstM": 0.7657,
+    "worstAt": "2025-07-17 20:55:00.000 TDB",
+    "rmsM": 0.156,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4615,
+    "worstAt": "2016-12-31 16:30:00.000 TDB",
+    "rmsM": 0.1595,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6686,
+    "rmsM": 0.1576,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j4",
+   "naifId": 55502,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 715.364,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 77026,
+   "span": {
+    "worstM": 0.3303,
+    "worstAt": "2020-03-31 00:14:00.000 TDB",
+    "rmsM": 0.0233,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.0331,
+    "worstAt": "2017-04-09 04:30:00.000 TDB",
+    "rmsM": 0.0141,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.1348,
+    "rmsM": 0.0233,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j9",
+   "naifId": 55503,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 796.279,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 22,
+   "calibratedDegree": 22,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 78235,
+   "span": {
+    "worstM": 0.0618,
+    "worstAt": "2022-05-01 23:38:00.000 TDB",
+    "rmsM": 0.0168,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.0338,
+    "worstAt": "2017-10-10 19:30:00.000 TDB",
+    "rmsM": 0.0147,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0485,
+    "rmsM": 0.0174,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j10",
+   "naifId": 55504,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 511.921,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35232,
+   "span": {
+    "worstM": 0.6633,
+    "worstAt": "2018-11-21 10:25:00.000 TDB",
+    "rmsM": 0.1272,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4642,
+    "worstAt": "2016-10-24 16:30:00.000 TDB",
+    "rmsM": 0.1369,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5883,
+    "rmsM": 0.1272,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j12",
+   "naifId": 55505,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 827.965,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 42845,
+   "span": {
+    "worstM": 0.8122,
+    "worstAt": "2021-04-07 05:44:00.000 TDB",
+    "rmsM": 0.1363,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4808,
+    "worstAt": "2017-11-29 22:30:00.000 TDB",
+    "rmsM": 0.109,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6929,
+    "rmsM": 0.1368,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j16",
+   "naifId": 55506,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 779.507,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 33,
+   "calibratedDegree": 33,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38298,
+   "span": {
+    "worstM": 0.6042,
+    "worstAt": "2012-03-03 15:23:00.000 TDB",
+    "rmsM": 0.0876,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4215,
+    "worstAt": "2017-03-15 04:30:00.000 TDB",
+    "rmsM": 0.109,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4931,
+    "rmsM": 0.0878,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j23",
+   "naifId": 55507,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 1049,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 41499,
+   "span": {
+    "worstM": 0.8907,
+    "worstAt": "2013-06-12 07:01:00.000 TDB",
+    "rmsM": 0.0897,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.3405,
+    "worstAt": "2017-08-03 13:30:00.000 TDB",
+    "rmsM": 0.0994,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7775,
+    "rmsM": 0.0896,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2003-j24",
+   "naifId": 55508,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 684.185,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35916,
+   "span": {
+    "worstM": 0.5295,
+    "worstAt": "2011-03-11 06:42:00.000 TDB",
+    "rmsM": 0.1005,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.443,
+    "worstAt": "2017-03-18 16:30:00.000 TDB",
+    "rmsM": 0.1359,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.48,
+    "rmsM": 0.1011,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j3",
+   "naifId": 55509,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 315.372,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 60073,
+   "span": {
+    "worstM": 0.5329,
+    "worstAt": "2015-01-03 07:32:00.000 TDB",
+    "rmsM": 0.1014,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4569,
+    "worstAt": "2017-03-16 16:30:00.000 TDB",
+    "rmsM": 0.0987,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4812,
+    "rmsM": 0.103,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2018-j2",
+   "naifId": 55510,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 257.05,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 18,
+   "degree": 21,
+   "calibratedDegree": 21,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 180,
+   "samples": 58609,
+   "chunkBytes": 63376,
+   "span": {
+    "worstM": 0.6467,
+    "worstAt": "2012-11-02 09:57:00.000 TDB",
+    "rmsM": 0.1329,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4983,
+    "worstAt": "2017-08-20 04:30:00.000 TDB",
+    "rmsM": 0.1406,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5746,
+    "rmsM": 0.1345,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2018-j3",
+   "naifId": 55511,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 515.894,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35962,
+   "span": {
+    "worstM": 0.4996,
+    "worstAt": "2023-01-08 18:53:00.000 TDB",
+    "rmsM": 0.1016,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4626,
+    "worstAt": "2016-11-28 22:30:00.000 TDB",
+    "rmsM": 0.1306,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4135,
+    "rmsM": 0.1006,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j1",
+   "naifId": 55512,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 487.828,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 48,
+   "degree": 30,
+   "calibratedDegree": 28,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14641,
+   "chunkBytes": 50784,
+   "span": {
+    "worstM": 0.8075,
+    "worstAt": "2016-05-15 01:54:00.000 TDB",
+    "rmsM": 0.0428,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.6053,
+    "worstAt": "2016-10-05 22:30:00.000 TDB",
+    "rmsM": 0.0285,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5752,
+    "rmsM": 0.0401,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j2",
+   "naifId": 55513,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 436.878,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 21,
+   "calibratedDegree": 19,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14641,
+   "chunkBytes": 42472,
+   "span": {
+    "worstM": 0.9871,
+    "worstAt": "2028-08-03 21:50:00.000 TDB",
+    "rmsM": 0.1347,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.7788,
+    "worstAt": "2016-10-05 22:30:00.000 TDB",
+    "rmsM": 0.0611,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7101,
+    "rmsM": 0.1368,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j3",
+   "naifId": 55514,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 907.796,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 34,
+   "calibratedDegree": 34,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 38936,
+   "span": {
+    "worstM": 0.3403,
+    "worstAt": "2017-10-15 06:44:00.000 TDB",
+    "rmsM": 0.0634,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4008,
+    "worstAt": "2017-10-16 10:30:00.000 TDB",
+    "rmsM": 0.0884,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3407,
+    "rmsM": 0.0653,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j4",
+   "naifId": 55515,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 545.076,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 28,
+   "calibratedDegree": 26,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14689,
+   "chunkBytes": 26861,
+   "span": {
+    "worstM": 0.9482,
+    "worstAt": "2020-08-13 00:49:00.000 TDB",
+    "rmsM": 0.2278,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.5043,
+    "worstAt": "2016-10-18 13:30:00.000 TDB",
+    "rmsM": 0.1371,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.9597,
+    "rmsM": 0.2346,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j5",
+   "naifId": 55516,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 661.909,
+   "segmentDays": 48,
+   "calibratedSegmentDays": 48,
+   "degree": 40,
+   "calibratedDegree": 40,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 32313,
+   "span": {
+    "worstM": 0.6981,
+    "worstAt": "2015-02-09 12:53:00.000 TDB",
+    "rmsM": 0.1344,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4261,
+    "worstAt": "2017-01-30 22:30:00.000 TDB",
+    "rmsM": 0.1524,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7114,
+    "rmsM": 0.1342,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j6",
+   "naifId": 55517,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 421.884,
+   "segmentDays": 18,
+   "calibratedSegmentDays": 18,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14653,
+   "chunkBytes": 46034,
+   "span": {
+    "worstM": 0.6439,
+    "worstAt": "2022-09-15 11:15:00.000 TDB",
+    "rmsM": 0.1264,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.4834,
+    "worstAt": "2016-11-20 01:30:00.000 TDB",
+    "rmsM": 0.1315,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5749,
+    "rmsM": 0.1256,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2016-j3",
+   "naifId": 55518,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 803.827,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 36018,
+   "span": {
+    "worstM": 0.4917,
+    "worstAt": "2029-01-12 22:32:00.000 TDB",
+    "rmsM": 0.1006,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4593,
+    "worstAt": "2017-04-21 22:30:00.000 TDB",
+    "rmsM": 0.1358,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4651,
+    "rmsM": 0.0997,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2016-j4",
+   "naifId": 55519,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 577.566,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 48,
+   "degree": 22,
+   "calibratedDegree": 22,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 78344,
+   "span": {
+    "worstM": 0.1143,
+    "worstAt": "2012-07-29 01:45:00.000 TDB",
+    "rmsM": 0.018,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.037,
+    "worstAt": "2016-10-11 01:30:00.000 TDB",
+    "rmsM": 0.0146,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.077,
+    "rmsM": 0.0188,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2018-j4",
+   "naifId": 55520,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 424.996,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 31,
+   "calibratedDegree": 31,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 39257,
+   "span": {
+    "worstM": 0.4674,
+    "worstAt": "2011-05-23 23:53:00.000 TDB",
+    "rmsM": 0.1517,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4328,
+    "worstAt": "2017-03-17 07:30:00.000 TDB",
+    "rmsM": 0.1507,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4174,
+    "rmsM": 0.1514,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2022-j1",
+   "naifId": 55521,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 895.279,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 40676,
+   "span": {
+    "worstM": 0.5696,
+    "worstAt": "2021-06-17 00:51:00.000 TDB",
+    "rmsM": 0.1202,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4374,
+    "worstAt": "2017-07-09 22:30:00.000 TDB",
+    "rmsM": 0.1518,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4568,
+    "rmsM": 0.1199,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2022-j2",
+   "naifId": 55522,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 951.055,
+   "segmentDays": 36,
+   "calibratedSegmentDays": 36,
+   "degree": 30,
+   "calibratedDegree": 30,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 360,
+   "samples": 29377,
+   "chunkBytes": 35359,
+   "span": {
+    "worstM": 0.6609,
+    "worstAt": "2013-08-30 02:49:00.000 TDB",
+    "rmsM": 0.1351,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4498,
+    "worstAt": "2017-08-07 13:30:00.000 TDB",
+    "rmsM": 0.1492,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5916,
+    "rmsM": 0.1353,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2022-j3",
+   "naifId": 55523,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 822.834,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 24,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 540,
+   "samples": 19521,
+   "chunkBytes": 41732,
+   "span": {
+    "worstM": 0.84,
+    "worstAt": "2027-12-20 22:09:00.000 TDB",
+    "rmsM": 0.154,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4571,
+    "worstAt": "2017-08-03 01:30:00.000 TDB",
+    "rmsM": 0.1474,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6951,
+    "rmsM": 0.1539,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j10",
+   "naifId": 55525,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 580.629,
+   "segmentDays": 24,
+   "calibratedSegmentDays": 48,
+   "degree": 25,
+   "calibratedDegree": 23,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 1080,
+   "samples": 9761,
+   "chunkBytes": 45970,
+   "span": {
+    "worstM": 0.5045,
+    "worstAt": "2018-01-05 00:36:00.000 TDB",
+    "rmsM": 0.0342,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.1925,
+    "worstAt": "2016-12-17 01:30:00.000 TDB",
+    "rmsM": 0.0247,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3946,
+    "rmsM": 0.0336,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j11",
+   "naifId": 55526,
+   "ephemeris": "jup347_merged_DE442",
+   "periodDays": 419.137,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 10,
+   "calibratedDegree": 10,
+   "sourceGridDays": 6,
+   "sampleStepMinutes": 720,
+   "samples": 14617,
+   "chunkBytes": 56313,
+   "span": {
+    "worstM": 0.5518,
+    "worstAt": "2016-09-06 16:01:00.000 TDB",
+    "rmsM": 0.1194,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.4794,
+    "worstAt": "2016-11-04 01:30:00.000 TDB",
+    "rmsM": 0.1242,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4787,
+    "rmsM": 0.1197,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j4",
+   "naifId": 55527,
+   "ephemeris": "jup348_merged_DE442",
+   "periodDays": 261.527,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 76832,
+   "span": {
+    "worstM": 0.0318,
+    "worstAt": "2016-08-12 20:27:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.0263,
+    "worstAt": "2017-10-31 07:30:00.000 TDB",
+    "rmsM": 0.0108,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0269,
+    "rmsM": 0.013,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2018-j5",
+   "naifId": 55528,
+   "ephemeris": "jup348_merged_DE442",
+   "periodDays": 1015.36,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 6,
+   "calibratedDegree": 6,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 62806,
+   "span": {
+    "worstM": 0.7642,
+    "worstAt": "2026-02-20 08:53:00.000 TDB",
+    "rmsM": 0.1716,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.4897,
+    "worstAt": "2017-11-12 07:30:00.000 TDB",
+    "rmsM": 0.1537,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.667,
+    "rmsM": 0.171,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2024-j1",
+   "naifId": 55529,
+   "ephemeris": "jup348_merged_DE442",
+   "periodDays": 554.512,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 7,
+   "calibratedDegree": 6,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 63890,
+   "span": {
+    "worstM": 0.6483,
+    "worstAt": "2018-08-10 12:34:00.000 TDB",
+    "rmsM": 0.1301,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.25,
+    "worstAt": "2016-10-04 10:30:00.000 TDB",
+    "rmsM": 0.0751,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.632,
+    "rmsM": 0.1314,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j5",
+   "naifId": 55530,
+   "ephemeris": "jup348_merged_DE442",
+   "periodDays": 1029.56,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 7,
+   "calibratedDegree": 7,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 360,
+   "samples": 29233,
+   "chunkBytes": 65283,
+   "span": {
+    "worstM": 0.4757,
+    "worstAt": "2023-10-22 14:56:00.000 TDB",
+    "rmsM": 0.1074,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4693,
+    "worstAt": "2017-07-28 13:30:00.000 TDB",
+    "rmsM": 0.1449,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.4188,
+    "rmsM": 0.1065,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j3",
+   "naifId": 55531,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 554.683,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 67187,
+   "span": {
+    "worstM": 0.0285,
+    "worstAt": "2015-12-07 23:16:00.000 TDB",
+    "rmsM": 0.011,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.0235,
+    "worstAt": "2017-07-23 10:30:00.000 TDB",
+    "rmsM": 0.0108,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.026,
+    "rmsM": 0.012,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j4",
+   "naifId": 55532,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 979.68,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 67912,
+   "span": {
+    "worstM": 0.0281,
+    "worstAt": "2027-09-09 00:18:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.0263,
+    "worstAt": "2017-08-21 13:30:00.000 TDB",
+    "rmsM": 0.0111,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0274,
+    "rmsM": 0.012,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j5",
+   "naifId": 55533,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 967.683,
+   "segmentDays": 27,
+   "calibratedSegmentDays": 54,
+   "degree": 27,
+   "calibratedDegree": 27,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 720,
+   "samples": 14635,
+   "chunkBytes": 42086,
+   "span": {
+    "worstM": 0.8851,
+    "worstAt": "2020-01-09 23:53:00.000 TDB",
+    "rmsM": 0.0662,
+    "count": 9995
+   },
+   "demo": {
+    "worstM": 0.4744,
+    "worstAt": "2017-11-17 22:30:00.000 TDB",
+    "rmsM": 0.0489,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.57,
+    "rmsM": 0.0666,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2010-j6",
+   "naifId": 55534,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 888.341,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 7,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 67327,
+   "span": {
+    "worstM": 0.0288,
+    "worstAt": "2029-07-31 22:06:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.0276,
+    "worstAt": "2017-01-24 22:30:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.03,
+    "rmsM": 0.0122,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2011-j6",
+   "naifId": 55535,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 568.754,
+   "segmentDays": 27,
+   "calibratedSegmentDays": 54,
+   "degree": 26,
+   "calibratedDegree": 26,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 360,
+   "samples": 29269,
+   "chunkBytes": 41564,
+   "span": {
+    "worstM": 0.5134,
+    "worstAt": "2010-06-09 20:26:00.000 TDB",
+    "rmsM": 0.068,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.1899,
+    "worstAt": "2016-10-18 01:30:00.000 TDB",
+    "rmsM": 0.0338,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3977,
+    "rmsM": 0.0682,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j12",
+   "naifId": 55536,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 906.713,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 54,
+   "degree": 24,
+   "calibratedDegree": 24,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 480,
+   "samples": 21925,
+   "chunkBytes": 106091,
+   "span": {
+    "worstM": 0.0265,
+    "worstAt": "2021-01-03 02:05:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 9988
+   },
+   "demo": {
+    "worstM": 0.0251,
+    "worstAt": "2017-06-20 22:30:00.000 TDB",
+    "rmsM": 0.0106,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0266,
+    "rmsM": 0.0122,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j13",
+   "naifId": 55537,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 617.571,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 54,
+   "degree": 25,
+   "calibratedDegree": 25,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 480,
+   "samples": 21925,
+   "chunkBytes": 109479,
+   "span": {
+    "worstM": 0.0273,
+    "worstAt": "2026-07-22 21:52:00.000 TDB",
+    "rmsM": 0.011,
+    "count": 9988
+   },
+   "demo": {
+    "worstM": 0.0275,
+    "worstAt": "2016-11-03 13:30:00.000 TDB",
+    "rmsM": 0.011,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0284,
+    "rmsM": 0.012,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j14",
+   "naifId": 55538,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 486.065,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 54,
+   "degree": 32,
+   "calibratedDegree": 32,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 360,
+   "samples": 29233,
+   "chunkBytes": 126019,
+   "span": {
+    "worstM": 0.0269,
+    "worstAt": "2024-04-07 11:46:00.000 TDB",
+    "rmsM": 0.0111,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.0246,
+    "worstAt": "2017-01-13 04:30:00.000 TDB",
+    "rmsM": 0.0112,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0316,
+    "rmsM": 0.0122,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j15",
+   "naifId": 55539,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 419.436,
+   "segmentDays": 27,
+   "calibratedSegmentDays": 27,
+   "degree": 25,
+   "calibratedDegree": 25,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 540,
+   "samples": 19513,
+   "chunkBytes": 40771,
+   "span": {
+    "worstM": 0.539,
+    "worstAt": "2016-09-03 00:26:00.000 TDB",
+    "rmsM": 0.0783,
+    "count": 9990
+   },
+   "demo": {
+    "worstM": 0.4737,
+    "worstAt": "2016-10-27 01:30:00.000 TDB",
+    "rmsM": 0.0766,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5526,
+    "rmsM": 0.0773,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j16",
+   "naifId": 55540,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 588.275,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 7,
+   "calibratedDegree": 7,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 65076,
+   "span": {
+    "worstM": 0.7712,
+    "worstAt": "2024-12-21 20:40:00.000 TDB",
+    "rmsM": 0.1488,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.4675,
+    "worstAt": "2017-01-02 13:30:00.000 TDB",
+    "rmsM": 0.1574,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.7302,
+    "rmsM": 0.1499,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j17",
+   "naifId": 55541,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 256.568,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 75549,
+   "span": {
+    "worstM": 0.0294,
+    "worstAt": "2018-07-20 08:35:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.0264,
+    "worstAt": "2017-01-15 10:30:00.000 TDB",
+    "rmsM": 0.0108,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0375,
+    "rmsM": 0.0127,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2017-j18",
+   "naifId": 55542,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 626.05,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 7,
+   "calibratedDegree": 7,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1080,
+   "samples": 9745,
+   "chunkBytes": 65377,
+   "span": {
+    "worstM": 0.6869,
+    "worstAt": "2013-02-01 15:32:00.000 TDB",
+    "rmsM": 0.141,
+    "count": 10000
+   },
+   "demo": {
+    "worstM": 0.4729,
+    "worstAt": "2017-01-29 10:30:00.000 TDB",
+    "rmsM": 0.1576,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.5996,
+    "rmsM": 0.1416,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j7",
+   "naifId": 55543,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 1006.02,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 66596,
+   "span": {
+    "worstM": 0.0282,
+    "worstAt": "2019-12-13 23:46:00.000 TDB",
+    "rmsM": 0.011,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.0244,
+    "worstAt": "2017-05-03 10:30:00.000 TDB",
+    "rmsM": 0.0106,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.0322,
+    "rmsM": 0.0124,
+    "count": 1001
+   }
+  },
+  {
+   "id": "s2021-j8",
+   "naifId": 55544,
+   "ephemeris": "jup349_merged_DE442",
+   "periodDays": 730.744,
+   "segmentDays": 9,
+   "calibratedSegmentDays": 9,
+   "degree": 8,
+   "calibratedDegree": 8,
+   "sourceGridDays": 9,
+   "sampleStepMinutes": 1440,
+   "samples": 7309,
+   "chunkBytes": 68800,
+   "span": {
+    "worstM": 0.0271,
+    "worstAt": "2010-07-17 01:47:00.000 TDB",
+    "rmsM": 0.0109,
+    "count": 10002
+   },
+   "demo": {
+    "worstM": 0.022,
+    "worstAt": "2017-02-03 10:30:00.000 TDB",
+    "rmsM": 0.0105,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.031,
+    "rmsM": 0.0122,
+    "count": 1001
+   }
+  }
+ ]
+}

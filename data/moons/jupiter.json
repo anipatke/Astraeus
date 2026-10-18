@@ -1,0 +1,3097 @@
+{
+ "format": "astraeus.moon-catalogue/1",
+ "kind": "moon-catalogue",
+ "parent": "jupiter",
+ "note": "Facts only. The moon list is the T-096 curve-fit index (JPL Horizons). Radius basis 'measured' is a published measurement; 'estimate' is Sheppard's brightness-based diameter halved. A moon in no published family is a loner. The four moons with a bodyPackage use the O-018 packages unchanged.",
+ "asOf": "2026-10-18",
+ "ephemeris": {
+  "path": "data/ephemerides/jupiter-moons/index.json",
+  "moonCount": 115
+ },
+ "sources": {
+  "horizons-moon-list": {
+   "title": "JPL Horizons On-Line Ephemeris System, major-body list for Jupiter (115 moons, fetched 2026-10-18)",
+   "url": "https://ssd.jpl.nasa.gov/horizons/"
+  },
+  "jpl-sat-elem": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements (regular satellites on JUP365; irregular satellites on JUP347, JUP348, JUP349)",
+   "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+  },
+  "jpl-sat-phys": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters (mean radius: Archinal et al. 2018)",
+   "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+  },
+  "jpl-sat-discovery": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Discovery Circumstances (data last updated 2023-May-23)",
+   "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+  },
+  "sheppard-jupiter-moons": {
+   "title": "Scott S. Sheppard (Carnegie Science), Jupiter's moons page: the dynamical groups and the diameters of most irregular moons",
+   "url": "https://sites.google.com/carnegiescience.edu/sheppard/moons/jupitermoons"
+  },
+  "sheppard-jewitt-2003": {
+   "title": "Sheppard & Jewitt 2003, An abundant population of small irregular satellites around Jupiter, Nature 423, 261-263 (the irregular moons fall into groups, remnants of larger parent bodies)",
+   "url": "https://doi.org/10.1038/nature01584"
+  },
+  "wikipedia-moons-of-jupiter": {
+   "title": "Moons of Jupiter (Wikipedia), read 2026-10-18: the table that lists each moon's group, diameter and the note on diameter sources (Sheppard's page, Grav et al. 2015, Rizos et al. 2026). A compilation, used because Sheppard's own table is an image, not text; group membership was not re-derived.",
+   "url": "https://en.wikipedia.org/wiki/Moons_of_Jupiter"
+  }
+ },
+ "families": [
+  {
+   "id": "galilean",
+   "label": "The big four (Galilean moons)",
+   "description": "Io, Europa, Ganymede and Callisto: the four large moons, all discovered in 1610. Each has a Planetary Explorer body package.",
+   "sources": [
+    "jpl-sat-elem"
+   ]
+  },
+  {
+   "id": "inner",
+   "label": "Inner moons (Amalthea group)",
+   "description": "Metis, Adrastea, Amalthea and Thebe: small regular moons inside Io's orbit, on nearly circular orbits close to Jupiter.",
+   "sources": [
+    "jpl-sat-elem"
+   ]
+  },
+  {
+   "id": "himalia",
+   "label": "Himalia group",
+   "description": "Irregular moons on similar prograde orbits about 11 to 12 million km out, taken to be pieces of one parent body.",
+   "sources": [
+    "sheppard-jewitt-2003",
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  },
+  {
+   "id": "ananke",
+   "label": "Ananke group",
+   "description": "Irregular moons on similar retrograde orbits about 20 to 22 million km out, taken to be pieces of one parent body.",
+   "sources": [
+    "sheppard-jewitt-2003",
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  },
+  {
+   "id": "carme",
+   "label": "Carme group",
+   "description": "Irregular moons on similar retrograde orbits about 22 to 24 million km out, taken to be pieces of one parent body.",
+   "sources": [
+    "sheppard-jewitt-2003",
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  },
+  {
+   "id": "pasiphae",
+   "label": "Pasiphae group",
+   "description": "Irregular moons on retrograde orbits with a wide spread of distances and shapes; Sinope is listed here though it may have been captured separately.",
+   "sources": [
+    "sheppard-jewitt-2003",
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  },
+  {
+   "id": "carpo",
+   "label": "Carpo group",
+   "description": "Two small prograde irregular moons on orbits further out than the Himalia group (Carpo and S/2018 J 4).",
+   "sources": [
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  },
+  {
+   "id": "loner",
+   "label": "Loners",
+   "description": "Moons in no published family: Themisto (prograde, the innermost irregular) and Valetudo (prograde, on an orbit that crosses the retrograde moons').",
+   "sources": [
+    "sheppard-jupiter-moons",
+    "wikipedia-moons-of-jupiter"
+   ]
+  }
+ ],
+ "moons": [
+  {
+   "id": "io",
+   "name": "Io",
+   "named": true,
+   "designation": null,
+   "naifId": 501,
+   "family": "galilean",
+   "meanRadiusKm": 1821.49,
+   "radiusBasis": "measured",
+   "discoveryYear": 1610,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "io"
+   },
+   "bodyPackage": "data/bodies/io",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "europa",
+   "name": "Europa",
+   "named": true,
+   "designation": null,
+   "naifId": 502,
+   "family": "galilean",
+   "meanRadiusKm": 1560.8,
+   "radiusBasis": "measured",
+   "discoveryYear": 1610,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "europa"
+   },
+   "bodyPackage": "data/bodies/europa",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "ganymede",
+   "name": "Ganymede",
+   "named": true,
+   "designation": null,
+   "naifId": 503,
+   "family": "galilean",
+   "meanRadiusKm": 2631.2,
+   "radiusBasis": "measured",
+   "discoveryYear": 1610,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "ganymede"
+   },
+   "bodyPackage": "data/bodies/ganymede",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "callisto",
+   "name": "Callisto",
+   "named": true,
+   "designation": null,
+   "naifId": 504,
+   "family": "galilean",
+   "meanRadiusKm": 2410.3,
+   "radiusBasis": "measured",
+   "discoveryYear": 1610,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "callisto"
+   },
+   "bodyPackage": "data/bodies/callisto",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "amalthea",
+   "name": "Amalthea",
+   "named": true,
+   "designation": null,
+   "naifId": 505,
+   "family": "inner",
+   "meanRadiusKm": 83.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 1892,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "amalthea"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "himalia",
+   "name": "Himalia",
+   "named": true,
+   "designation": null,
+   "naifId": 506,
+   "family": "himalia",
+   "meanRadiusKm": 85,
+   "radiusBasis": "measured",
+   "discoveryYear": 1904,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "himalia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "elara",
+   "name": "Elara",
+   "named": true,
+   "designation": null,
+   "naifId": 507,
+   "family": "himalia",
+   "meanRadiusKm": 39.95,
+   "radiusBasis": "measured",
+   "discoveryYear": 1905,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "elara"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "pasiphae",
+   "name": "Pasiphae",
+   "named": true,
+   "designation": null,
+   "naifId": 508,
+   "family": "pasiphae",
+   "meanRadiusKm": 28.9,
+   "radiusBasis": "measured",
+   "discoveryYear": 1908,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "pasiphae"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "sinope",
+   "name": "Sinope",
+   "named": true,
+   "designation": null,
+   "naifId": 509,
+   "family": "pasiphae",
+   "meanRadiusKm": 17.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 1914,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "sinope"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "lysithea",
+   "name": "Lysithea",
+   "named": true,
+   "designation": null,
+   "naifId": 510,
+   "family": "himalia",
+   "meanRadiusKm": 21.1,
+   "radiusBasis": "measured",
+   "discoveryYear": 1938,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "lysithea"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "carme",
+   "name": "Carme",
+   "named": true,
+   "designation": null,
+   "naifId": 511,
+   "family": "carme",
+   "meanRadiusKm": 23.35,
+   "radiusBasis": "measured",
+   "discoveryYear": 1938,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "carme"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "ananke",
+   "name": "Ananke",
+   "named": true,
+   "designation": null,
+   "naifId": 512,
+   "family": "ananke",
+   "meanRadiusKm": 14.55,
+   "radiusBasis": "measured",
+   "discoveryYear": 1951,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "ananke"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "leda",
+   "name": "Leda",
+   "named": true,
+   "designation": null,
+   "naifId": 513,
+   "family": "himalia",
+   "meanRadiusKm": 10.75,
+   "radiusBasis": "measured",
+   "discoveryYear": 1974,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "leda"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "thebe",
+   "name": "Thebe",
+   "named": true,
+   "designation": null,
+   "naifId": 514,
+   "family": "inner",
+   "meanRadiusKm": 49.3,
+   "radiusBasis": "measured",
+   "discoveryYear": 1979,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "thebe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "adrastea",
+   "name": "Adrastea",
+   "named": true,
+   "designation": null,
+   "naifId": 515,
+   "family": "inner",
+   "meanRadiusKm": 8.2,
+   "radiusBasis": "measured",
+   "discoveryYear": 1979,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "adrastea"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "metis",
+   "name": "Metis",
+   "named": true,
+   "designation": null,
+   "naifId": 516,
+   "family": "inner",
+   "meanRadiusKm": 21.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 1979,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "metis"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "callirrhoe",
+   "name": "Callirrhoe",
+   "named": true,
+   "designation": "S/1999 J 1",
+   "naifId": 517,
+   "family": "pasiphae",
+   "meanRadiusKm": 4.8,
+   "radiusBasis": "measured",
+   "discoveryYear": 1999,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "callirrhoe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "themisto",
+   "name": "Themisto",
+   "named": true,
+   "designation": "S/1975 J 1",
+   "naifId": 518,
+   "family": "loner",
+   "meanRadiusKm": 4.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 1975,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "themisto"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "megaclite",
+   "name": "Megaclite",
+   "named": true,
+   "designation": "S/2000 J 8",
+   "naifId": 519,
+   "family": "pasiphae",
+   "meanRadiusKm": 3,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "megaclite"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "taygete",
+   "name": "Taygete",
+   "named": true,
+   "designation": "S/2000 J 9",
+   "naifId": 520,
+   "family": "carme",
+   "meanRadiusKm": 2.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "taygete"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "chaldene",
+   "name": "Chaldene",
+   "named": true,
+   "designation": "S/2000 J 10",
+   "naifId": 521,
+   "family": "carme",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "chaldene"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "harpalyke",
+   "name": "Harpalyke",
+   "named": true,
+   "designation": "S/2000 J 5",
+   "naifId": 522,
+   "family": "ananke",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "harpalyke"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "kalyke",
+   "name": "Kalyke",
+   "named": true,
+   "designation": "S/2000 J 2",
+   "naifId": 523,
+   "family": "carme",
+   "meanRadiusKm": 3.45,
+   "radiusBasis": "measured",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "kalyke"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "iocaste",
+   "name": "Iocaste",
+   "named": true,
+   "designation": "S/2000 J 3",
+   "naifId": 524,
+   "family": "ananke",
+   "meanRadiusKm": 2.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "iocaste"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "erinome",
+   "name": "Erinome",
+   "named": true,
+   "designation": "S/2000 J 4",
+   "naifId": 525,
+   "family": "carme",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "erinome"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "isonoe",
+   "name": "Isonoe",
+   "named": true,
+   "designation": "S/2000 J 6",
+   "naifId": 526,
+   "family": "carme",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "isonoe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "praxidike",
+   "name": "Praxidike",
+   "named": true,
+   "designation": "S/2000 J 7",
+   "naifId": 527,
+   "family": "ananke",
+   "meanRadiusKm": 3.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "praxidike"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "autonoe",
+   "name": "Autonoe",
+   "named": true,
+   "designation": "S/2001 J 1",
+   "naifId": 528,
+   "family": "pasiphae",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "autonoe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "thyone",
+   "name": "Thyone",
+   "named": true,
+   "designation": "S/2001 J 2",
+   "naifId": 529,
+   "family": "ananke",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "thyone"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "hermippe",
+   "name": "Hermippe",
+   "named": true,
+   "designation": "S/2001 J 3",
+   "naifId": 530,
+   "family": "ananke",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "hermippe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "aitne",
+   "name": "Aitne",
+   "named": true,
+   "designation": "S/2001 J 11",
+   "naifId": 531,
+   "family": "carme",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "aitne"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "eurydome",
+   "name": "Eurydome",
+   "named": true,
+   "designation": "S/2001 J 4",
+   "naifId": 532,
+   "family": "pasiphae",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "eurydome"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "euanthe",
+   "name": "Euanthe",
+   "named": true,
+   "designation": "S/2001 J 7",
+   "naifId": 533,
+   "family": "ananke",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "euanthe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "euporie",
+   "name": "Euporie",
+   "named": true,
+   "designation": "S/2001 J 10",
+   "naifId": 534,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "euporie"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "orthosie",
+   "name": "Orthosie",
+   "named": true,
+   "designation": "S/2001 J 9",
+   "naifId": 535,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "orthosie"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "sponde",
+   "name": "Sponde",
+   "named": true,
+   "designation": "S/2001 J 5",
+   "naifId": 536,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "sponde"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "kale",
+   "name": "Kale",
+   "named": true,
+   "designation": "S/2001 J 8",
+   "naifId": 537,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "kale"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "pasithee",
+   "name": "Pasithee",
+   "named": true,
+   "designation": "S/2001 J 6",
+   "naifId": 538,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "pasithee"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "hegemone",
+   "name": "Hegemone",
+   "named": true,
+   "designation": "S/2003 J 8",
+   "naifId": 539,
+   "family": "pasiphae",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "hegemone"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "mneme",
+   "name": "Mneme",
+   "named": true,
+   "designation": "S/2003 J 21",
+   "naifId": 540,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "mneme"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "aoede",
+   "name": "Aoede",
+   "named": true,
+   "designation": "S/2003 J 7",
+   "naifId": 541,
+   "family": "pasiphae",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "aoede"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "thelxinoe",
+   "name": "Thelxinoe",
+   "named": true,
+   "designation": "S/2003 J 22",
+   "naifId": 542,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "thelxinoe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "arche",
+   "name": "Arche",
+   "named": true,
+   "designation": "S/2002 J 1",
+   "naifId": 543,
+   "family": "carme",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "arche"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "kallichore",
+   "name": "Kallichore",
+   "named": true,
+   "designation": "S/2003 J 11",
+   "naifId": 544,
+   "family": "carme",
+   "meanRadiusKm": 1.9,
+   "radiusBasis": "measured",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "kallichore"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "wikipedia-moons-of-jupiter",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "helike",
+   "name": "Helike",
+   "named": true,
+   "designation": "S/2003 J 6",
+   "naifId": 545,
+   "family": "ananke",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "helike"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "carpo",
+   "name": "Carpo",
+   "named": true,
+   "designation": "S/2003 J 20",
+   "naifId": 546,
+   "family": "carpo",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "carpo"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "eukelade",
+   "name": "Eukelade",
+   "named": true,
+   "designation": "S/2003 J 1",
+   "naifId": 547,
+   "family": "carme",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "eukelade"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "cyllene",
+   "name": "Cyllene",
+   "named": true,
+   "designation": "S/2003 J 13",
+   "naifId": 548,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "cyllene"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "kore",
+   "name": "Kore",
+   "named": true,
+   "designation": "S/2003 J 14",
+   "naifId": 549,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "kore"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "herse",
+   "name": "Herse",
+   "named": true,
+   "designation": "S/2003 J 17",
+   "naifId": 550,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "herse"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j1",
+   "name": "S/2010 J 1",
+   "named": false,
+   "designation": "S/2010 J 1",
+   "naifId": 551,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j2",
+   "name": "S/2010 J 2",
+   "named": false,
+   "designation": "S/2010 J 2",
+   "naifId": 552,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "dia",
+   "name": "Dia",
+   "named": true,
+   "designation": "S/2000 J 11",
+   "naifId": 553,
+   "family": "himalia",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2000,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "dia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2016-j1",
+   "name": "S/2016 J 1",
+   "named": false,
+   "designation": "S/2016 J 1",
+   "naifId": 554,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2016,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2016-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j18",
+   "name": "S/2003 J 18",
+   "named": false,
+   "designation": "2003J18",
+   "naifId": 555,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j18"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j2",
+   "name": "S/2011 J 2",
+   "named": false,
+   "designation": "2011J2",
+   "naifId": 556,
+   "family": "pasiphae",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "eirene",
+   "name": "Eirene",
+   "named": true,
+   "designation": "S/2003 J 5",
+   "naifId": 557,
+   "family": "carme",
+   "meanRadiusKm": 2,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "eirene"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "philophrosyne",
+   "name": "Philophrosyne",
+   "named": true,
+   "designation": "S/2003 J 15",
+   "naifId": 558,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "philophrosyne"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j1",
+   "name": "S/2017 J 1",
+   "named": false,
+   "designation": "S/2017 J 1",
+   "naifId": 559,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "eupheme",
+   "name": "Eupheme",
+   "named": true,
+   "designation": "S/2003 J 3",
+   "naifId": 560,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "eupheme"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j19",
+   "name": "S/2003 J 19",
+   "named": false,
+   "designation": "S/2003 J 19",
+   "naifId": 561,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j19"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "valetudo",
+   "name": "Valetudo",
+   "named": true,
+   "designation": "S/2016 J 2",
+   "naifId": 562,
+   "family": "loner",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2016,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "valetudo"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j2",
+   "name": "S/2017 J 2",
+   "named": false,
+   "designation": "S/2017 J 2",
+   "naifId": 563,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j3",
+   "name": "S/2017 J 3",
+   "named": false,
+   "designation": "S/2017 J 3",
+   "naifId": 564,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "pandia",
+   "name": "Pandia",
+   "named": true,
+   "designation": "S/2017 J 4",
+   "naifId": 565,
+   "family": "himalia",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "pandia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j5",
+   "name": "S/2017 J 5",
+   "named": false,
+   "designation": "S/2017 J 5",
+   "naifId": 566,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j6",
+   "name": "S/2017 J 6",
+   "named": false,
+   "designation": "S/2017 J 6",
+   "naifId": 567,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j6"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j7",
+   "name": "S/2017 J 7",
+   "named": false,
+   "designation": "S/2017 J 7",
+   "naifId": 568,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j7"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j8",
+   "name": "S/2017 J 8",
+   "named": false,
+   "designation": "S/2017 J 8",
+   "naifId": 569,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j8"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j9",
+   "name": "S/2017 J 9",
+   "named": false,
+   "designation": "2017J9",
+   "naifId": 570,
+   "family": "ananke",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j9"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "ersa",
+   "name": "Ersa",
+   "named": true,
+   "designation": "S/2018 J 1",
+   "naifId": 571,
+   "family": "himalia",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2018,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "ersa"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j1",
+   "name": "S/2011 J 1",
+   "named": false,
+   "designation": "S/2011 J 1",
+   "naifId": 572,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j2",
+   "name": "S/2003 J 2",
+   "named": false,
+   "designation": "S/2003 J 2",
+   "naifId": 55501,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j4",
+   "name": "S/2003 J 4",
+   "named": false,
+   "designation": "S/2003 J 4",
+   "naifId": 55502,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j9",
+   "name": "S/2003 J 9",
+   "named": false,
+   "designation": "S/2003 J 9",
+   "naifId": 55503,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j9"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j10",
+   "name": "S/2003 J 10",
+   "named": false,
+   "designation": "S/2003 J 10",
+   "naifId": 55504,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j10"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j12",
+   "name": "S/2003 J 12",
+   "named": false,
+   "designation": "S/2003 J 12",
+   "naifId": 55505,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j12"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j16",
+   "name": "S/2003 J 16",
+   "named": false,
+   "designation": "S/2003 J 16",
+   "naifId": 55506,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j16"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j23",
+   "name": "S/2003 J 23",
+   "named": false,
+   "designation": "S/2003 J 23",
+   "naifId": 55507,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j23"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2003-j24",
+   "name": "S/2003 J 24",
+   "named": false,
+   "designation": "S/2003 J 24",
+   "naifId": 55508,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2003-j24"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j3",
+   "name": "S/2011 J 3",
+   "named": false,
+   "designation": "S/2011 J 3",
+   "naifId": 55509,
+   "family": "himalia",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2018-j2",
+   "name": "S/2018 J 2",
+   "named": false,
+   "designation": "S/2018 J 2",
+   "naifId": 55510,
+   "family": "himalia",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2018,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2018-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2018-j3",
+   "name": "S/2018 J 3",
+   "named": false,
+   "designation": "S/2018 J 3",
+   "naifId": 55511,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2018,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2018-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j1",
+   "name": "S/2021 J 1",
+   "named": false,
+   "designation": "S/2021 J 1",
+   "naifId": 55512,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j2",
+   "name": "S/2021 J 2",
+   "named": false,
+   "designation": "S/2021 J 2",
+   "naifId": 55513,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j3",
+   "name": "S/2021 J 3",
+   "named": false,
+   "designation": "S/2021 J 3",
+   "naifId": 55514,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j4",
+   "name": "S/2021 J 4",
+   "named": false,
+   "designation": "S/2021 J 4",
+   "naifId": 55515,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j5",
+   "name": "S/2021 J 5",
+   "named": false,
+   "designation": "S/2021 J 5",
+   "naifId": 55516,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j6",
+   "name": "S/2021 J 6",
+   "named": false,
+   "designation": "S/2021 J 6",
+   "naifId": 55517,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j6"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2016-j3",
+   "name": "S/2016 J 3",
+   "named": false,
+   "designation": "S/2016 J 3",
+   "naifId": 55518,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2016,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2016-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2016-j4",
+   "name": "S/2016 J 4",
+   "named": false,
+   "designation": "S/2016 J 4",
+   "naifId": 55519,
+   "family": "pasiphae",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2016,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2016-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2018-j4",
+   "name": "S/2018 J 4",
+   "named": false,
+   "designation": "S/2018 J 4",
+   "naifId": 55520,
+   "family": "carpo",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2018,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2018-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2022-j1",
+   "name": "S/2022 J 1",
+   "named": false,
+   "designation": "S/2022 J 1",
+   "naifId": 55521,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2022,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2022-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2022-j2",
+   "name": "S/2022 J 2",
+   "named": false,
+   "designation": "S/2022 J 2",
+   "naifId": 55522,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2022,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2022-j2"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2022-j3",
+   "name": "S/2022 J 3",
+   "named": false,
+   "designation": "S/2022 J 3",
+   "naifId": 55523,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2022,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2022-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j10",
+   "name": "S/2017 J 10",
+   "named": false,
+   "designation": "S/2017 J 10",
+   "naifId": 55525,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j10"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j11",
+   "name": "S/2017 J 11",
+   "named": false,
+   "designation": "S/2017 J 11",
+   "naifId": 55526,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j11"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j4",
+   "name": "S/2011 J 4",
+   "named": false,
+   "designation": "S/2011 J 4",
+   "naifId": 55527,
+   "family": "himalia",
+   "meanRadiusKm": 1.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2018-j5",
+   "name": "S/2018 J 5",
+   "named": false,
+   "designation": "S/2018 J 5",
+   "naifId": 55528,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2018,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2018-j5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2024-j1",
+   "name": "S/2024 J 1",
+   "named": false,
+   "designation": "S/2024 J 1",
+   "naifId": 55529,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2024,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2024-j1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j5",
+   "name": "S/2011 J 5",
+   "named": false,
+   "designation": "S/2011 J 5",
+   "naifId": 55530,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j3",
+   "name": "S/2010 J 3",
+   "named": false,
+   "designation": "S/2010 J 3",
+   "naifId": 55531,
+   "family": "pasiphae",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j3"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j4",
+   "name": "S/2010 J 4",
+   "named": false,
+   "designation": "S/2010 J 4",
+   "naifId": 55532,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j4"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j5",
+   "name": "S/2010 J 5",
+   "named": false,
+   "designation": "S/2010 J 5",
+   "naifId": 55533,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2010-j6",
+   "name": "S/2010 J 6",
+   "named": false,
+   "designation": "S/2010 J 6",
+   "naifId": 55534,
+   "family": "ananke",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2010,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2010-j6"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2011-j6",
+   "name": "S/2011 J 6",
+   "named": false,
+   "designation": "S/2011 J 6",
+   "naifId": 55535,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2011-j6"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j12",
+   "name": "S/2017 J 12",
+   "named": false,
+   "designation": "S/2017 J 12",
+   "naifId": 55536,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j12"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j13",
+   "name": "S/2017 J 13",
+   "named": false,
+   "designation": "S/2017 J 13",
+   "naifId": 55537,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j13"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j14",
+   "name": "S/2017 J 14",
+   "named": false,
+   "designation": "S/2017 J 14",
+   "naifId": 55538,
+   "family": "pasiphae",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j14"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j15",
+   "name": "S/2017 J 15",
+   "named": false,
+   "designation": "S/2017 J 15",
+   "naifId": 55539,
+   "family": "pasiphae",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j15"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j16",
+   "name": "S/2017 J 16",
+   "named": false,
+   "designation": "S/2017 J 16",
+   "naifId": 55540,
+   "family": "carme",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j16"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j17",
+   "name": "S/2017 J 17",
+   "named": false,
+   "designation": "S/2017 J 17",
+   "naifId": 55541,
+   "family": "himalia",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j17"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2017-j18",
+   "name": "S/2017 J 18",
+   "named": false,
+   "designation": "S/2017 J 18",
+   "naifId": 55542,
+   "family": "carme",
+   "meanRadiusKm": 1,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2017,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2017-j18"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j7",
+   "name": "S/2021 J 7",
+   "named": false,
+   "designation": "S/2021 J 7",
+   "naifId": 55543,
+   "family": "pasiphae",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j7"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-j8",
+   "name": "S/2021 J 8",
+   "named": false,
+   "designation": "S/2021 J 8",
+   "naifId": 55544,
+   "family": "ananke",
+   "meanRadiusKm": 0.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "jupiter-moons",
+    "body": "s2021-j8"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-jupiter",
+    "familyBasis": [
+     "sheppard-jewitt-2003",
+     "sheppard-jupiter-moons"
+    ],
+    "radius": "sheppard-jupiter-moons",
+    "discovery": "jpl-sat-discovery"
+   }
+  }
+ ]
+}

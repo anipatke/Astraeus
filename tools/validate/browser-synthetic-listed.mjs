@@ -1,12 +1,12 @@
 // Browser smoke for the made-up listed-orbits experience (a group drawn from a list of per-member orbits). Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic-listed.mjs
-// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots; use a new directory, never an old one).
+// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (results; use a new directory, never an old one).
 //
-// Runs at 1280x800 (desktop) and 390x844 (phone) in one browser with the same assertions; phone screenshots carry a `phone-` prefix.
-// Every assertion reads data attributes, option lists, panel text or canvas pixels rather than layout:
+// Runs at 1280x800 (desktop) and 390x844 (phone) in one browser with the same assertions.
+// Every assertion reads data attributes, option lists, panel text or the scene's point readout rather than layout:
 //   points layer mounted, one group listed, no Apollo objects
 //   panel: Illustrative badge, "Made up", the position along each orbit is illustrative, the clump is a model, not-shown parts
-//   focus and follow the group; dots are drawn (lit pixels on the canvas) in True and Readable
+//   focus and follow the group; dots are drawn (members in view in the point readout) in True and Readable
 //   group information identical under True and Readable
 //   playback runs with zero console errors; Apollo stays the default experience
 import assert from "node:assert/strict";
@@ -21,33 +21,13 @@ const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 let page;
-let prefix = "";
 const errors = [];
 const results = {};
-const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${prefix}${name}.png` }); };
 const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
-// Pixels on the canvas close to the group's dot colour (#9de3a8), with the text labels hidden: relative evidence that dots are drawn.
-const dotPixels = async () => {
-  await ui.hideSceneLabels(page);
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await ui.showSceneLabels(page);
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const px = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let n = 0;
-    for (let i = 0; i < px.length; i += 4) if (px[i + 1] > 150 && px[i + 1] - px[i] > 25 && px[i + 1] >= px[i + 2]) n += 1;
-    return n;
-  }, png);
-};
+// Dots of the group in view, from the scene's point readout (members in front of the camera and inside the view): evidence that dots are drawn.
+const dotsInView = () => ui.sceneDotsInView(page);
 
 async function run(label, viewport) {
-  prefix = label === "desktop" ? "" : `${label}-`;
   results[label] = {};
   page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
@@ -80,15 +60,12 @@ async function run(label, viewport) {
 
   await choosePreset("overview");
   await page.waitForTimeout(1200);
-  await shot("listed-true-overview");
   await choosePreset("focus-listed");
   await page.waitForTimeout(1500);
-  await shot("listed-true-focus");
-  results[label].dotPixelsTrueFocus = await dotPixels();
-  assert.ok(results[label].dotPixelsTrueFocus > 20, "dots are drawn in True scale");
+  results[label].dotsInViewTrueFocus = await dotsInView();
+  assert.ok(results[label].dotsInViewTrueFocus > 20, "dots are drawn in True scale");
   await choosePreset("follow-listed");
   await page.waitForTimeout(1200);
-  await shot("listed-true-follow");
 
   const infoUnderTrue = await panel.innerText();
   await chooseScale(page, "Readable");
@@ -98,15 +75,13 @@ async function run(label, viewport) {
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is identical under True and Readable");
   await choosePreset("focus-listed");
   await page.waitForTimeout(1500);
-  await shot("listed-readable-focus");
-  results[label].dotPixelsReadableFocus = await dotPixels();
-  assert.ok(results[label].dotPixelsReadableFocus > 20, "dots are drawn in Readable scale");
+  results[label].dotsInViewReadableFocus = await dotsInView();
+  assert.ok(results[label].dotsInViewReadableFocus > 20, "dots are drawn in Readable scale");
   await chooseScale(page, "True");
   await page.waitForTimeout(600);
 
   await ui.playPlayback(page);
   await page.waitForTimeout(2500);
-  await shot("listed-playing");
   await ui.pausePlayback(page);
 
   await page.goto(base);

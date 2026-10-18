@@ -33,7 +33,7 @@
 .drawer-handle span { display: block; width: 36px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--ui-color, #f0e6da) 28%, transparent); }
 .drawer-handle:hover span { background: color-mix(in srgb, var(--ui-color, #f0e6da) 50%, transparent); }
 /* The hit area (44 px) reaches past the panel's edge so a thumb finds it; the grip is drawn inside the panel. */
-.drawer-handle-top { top: -20px; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+.drawer-handle-top { top: -28px; align-items: flex-end; justify-content: center; padding-bottom: 10px; }
 .drawer-handle-bottom { bottom: -20px; align-items: flex-start; justify-content: center; padding-top: 12px; }
 
 [data-phone="true"] .controls-drawer {
@@ -90,7 +90,9 @@
   right: calc(8px + var(--safe-right));
   bottom: calc(8px + var(--safe-bottom));
   left: calc(8px + var(--safe-left));
-  padding: 24px 10px 8px;
+  /* Slimmer (owner, 2026-10-18: "quite a bit of space above the pause play buttons same below the timeline"): the grip sits in the top
+     16 px, the handle's hit area ends where the buttons begin, and the 44 px track keeps its touch height. */
+  padding: 16px 10px 2px;
   border-radius: 18px;
 }
 [data-phone="true"] .timeline-bar[data-drawer-open="true"] { z-index: 6; background: var(--panel-bg); }

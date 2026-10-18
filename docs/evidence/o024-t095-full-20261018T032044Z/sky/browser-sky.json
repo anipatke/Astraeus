@@ -1,0 +1,29 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 34.2,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 8704,
+          "lit": 480472,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 6788,
+          "lit": 92586,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 7829,
+          "lit": 101381,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 19.7
+    }
+  },
+  "errors": []
+}

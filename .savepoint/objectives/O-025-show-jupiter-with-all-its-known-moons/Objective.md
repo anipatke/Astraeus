@@ -1,7 +1,7 @@
 ---
 id: O-025
 title: Show Jupiter with all its known moons
-status: planned
+status: in_progress
 depends_on: [O-020]
 release: G-005
 ---
@@ -26,6 +26,12 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 
 8. **Moon data is core** (owner: "all this moon data will be part of the core package, unlike shower data and Apollo data which are add one for the demo"): Jupiter's moon positions (the Horizons tables), the moon list and family groups, the four textured moons' body packages and tagged places, and the ring bands belong to Astraeus's reusable core assets, usable by any experience — not to the Jupiter demo. The demo is a thin story layer on top (its window, start view, story panels). Shower meteor data and Apollo 11's mission data stay demo add-ons (owner rule, 2026-10-16). Core data still is data, never engine code (ARCH-01; `data/bodies/README.md`), each set with its source and licence (PROV-02). Owner: "User may choose to omit them for a story, but we'll model it and leave it on the shelf": the core models every moon; an experience chooses which bodies to show (for example a story may show only the big four), and the rest stay available in the catalogue ("on the shelf").
    - Planning question that follows: the core tables' time span. A core asset serves any date an experience asks for, not only the demo's year; the span (for example 1950-2050 at a step fine enough for the inner moons) is set against the load budget, with only the demo's needed span fetched at run time.
+
+9. **Curve-fit format, no database** (owner, 2026-10-18, after a comparison of Postgres, SQLite in the browser, static tables and NASA-style curve fits: "Ok curve fit"): core moon positions ship as piecewise polynomial (Chebyshev) fits sampled from JPL Horizons, the approach of NASA's SPICE kernels, chunked by planet and time span so an experience downloads only what it needs; no Postgres or in-browser database. The first step proves the format for Jupiter: file size against raw tables, accuracy against Horizons at sample dates (metre-level target, recorded per moon), and evaluation time on a phone-class device. A local authoring store (SQLite or DuckDB) as the master copy is optional, used only if it simplifies import and checking; the browser never sees it. Small moons draw as one batch (as the showers' points do) and names appear only on hover, tap or zoom, which matter more for smoothness than the data format.
+
+10. **Show off the curve fits on the home page** (owner, 2026-10-18, after a plain explanation of curve fits: "Sounds like a cool thing to show off on the main page"): once the format is proven, the Astraeus home page (`index.html`) gains a short section explaining it in plain words — many position "photos" versus a few short "recipes" — with a small live visual (for example one moon's path drawn from table dots and from the fitted curve, with a slider that moves through time and the measured size saving and accuracy against NASA shown beside it). Built from the real fitted data, within the home page's load budget; owner look.
+
+11. **Planet positions as curve fits too** (owner, 2026-10-18, accepted the optimisation list): the planet position series (`planetModels` chunk, about 1.4 MB in the public build) is core data like the moons, so once the curve-fit format is proven for Jupiter's moons, Jupiter's own position and the other planets' positions move to the same format if it is smaller at equal accuracy (measured; the planet accuracy checks C-022/C-023 still pass).
 
 ## Success Conditions
 

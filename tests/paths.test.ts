@@ -120,6 +120,37 @@ describe("an orbit is the same shape wherever the scene centre is", () => {
   });
 });
 
+describe("a path reports itself to the browser checks (I-040)", () => {
+  const t = T0 + 3 * DAY;
+  const placed = (view: PathView, cameraZ: number) => {
+    view.sync(t, placementAbout("earth", adapter), trueScale);
+    view.place(new FloatingOrigin());
+    const camera = new PerspectiveCamera(50, 1, 1e-3, 1e12);
+    camera.position.set(0, 0, cameraZ);
+    camera.updateMatrixWorld();
+    return view.screenReadout(camera);
+  };
+
+  it("counts the line's vertices in view and the share of the view they span, and none when it is out of view", () => {
+    const view = new PathView(layer({ kind: "orbit" }, circling("earth")));
+    const size = Math.max(...Array.from(view.samplesKm, Math.abs));
+    const unit = trueScale.mapPosition([size, 0, 0])[0];
+    const near = placed(view, unit * 4);
+    expect(near.visible).toBe(true);
+    expect(near.vertices).toBe(21);
+    expect(near.inView).toBe(21);
+    expect(near.maxX - near.minX).toBeGreaterThan(0.2);
+    const behind = placed(view, -unit * 4);
+    expect(behind.inView).toBe(0);
+  });
+
+  it("is not visible when the group is hidden", () => {
+    const view = new PathView(layer({ kind: "orbit" }, circling("earth")));
+    view.group.visible = false;
+    expect(placed(view, 1).visible).toBe(false);
+  });
+});
+
 describe("a relative trail is each sample from the scene centre at the sample's own time", () => {
   const source = circling("earth");
   const times = Array.from({ length: 21 }, (_v, k) => Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20));
@@ -232,6 +263,7 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
     expect(declared).toEqual({ body: "moon", spanMs: SIDEREAL_MONTH_MS });
     const spec = compositionPathLayer(declared, placement.resolver);
     expect(spec).toMatchObject({ kind: "orbit", center: "earth", span: { windowMs: SIDEREAL_MONTH_MS } });
+    expect(spec.object.showLabel).toBe(false); // orbit labels off by default in every demo (owner, 2026-10-18)
   });
 
   it.each(dates.map((d) => [new Date(d).toISOString(), d] as const))("has today's vertices and times at %s", (_label, date) => {

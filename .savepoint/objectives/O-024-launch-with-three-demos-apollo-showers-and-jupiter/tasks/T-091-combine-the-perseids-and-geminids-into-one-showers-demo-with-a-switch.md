@@ -2,10 +2,9 @@
 id: T-091
 title: Combine the Perseids and Geminids into one Showers demo with a switch
 objective: O-024
-status: in_progress
-stage: audit
+status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-073, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -63,3 +62,7 @@ Done When: 1 yes. 2 yes, desktop and phone drawer; reload chosen (simpler, match
 Gates: `npx tsc --noEmit` clean; `npx vitest run` 65 files, 1016 passed (one earlier run showed a single failure that did not reproduce twice; it was during my first edit cycle, a name check on src that I then fixed); `npm run build` ok; driver guard ok; load budget on the public build ok. Full run: `docs/evidence/o024-t091-full-20261018T013907Z` (`bash tools/validate/run-full.sh`, DEV_PORT=5601 PUBLIC_PORT=5602), every step exit=0 with error-lines=0, total 802 s. Targeted run before it: `browser-showers.mjs geminids` (light) exit 0.
 
 Drift Notes: (1) switching reloads the page (same as the Developer "Data" alternates), recorded per Done When 2. (2) The picture step compared with `docs/evidence/o017-baseline-20261017`; apollo and earth-moon differ by 15-35% of pixels against that old baseline too, so the contact sheet drift is not from this Task (the picture baseline predates later top-bar work), owner to judge the sheet. (3) `capture-experience-pictures` still takes a perseids and a geminids picture (two query strings) for the shower; the home page uses one card with the Perseids picture; T-093 reworks the home page. (4) Dev-server `?import` url requests are ignored by checkSwitch, they are module wrappers, not downloads.
+
+## Owner Completion — 2026-10-18
+
+Owner tried the switch on the preview: "switch is ok, but there is a slight pause and screen goes blank between. Suggest a short loading animation?" Accepted; the loading animation is planned as its own Task. Quick Task Check C-073 CLEAR.

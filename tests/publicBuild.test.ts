@@ -1,3 +1,4 @@
+import vercelText from "../vercel.json?raw";
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
@@ -141,5 +142,18 @@ describe("first-load size budget (T-070)", () => {
 
   it("reads the scripts a built script imports at load, not the ones it imports on demand", () => {
     expect(staticImportsOf('import{U as e}from"./app-AbCdEf12.js";import"./eph-AbCdEf12.js";const f=()=>import(`./later-AbCdEf12.js`);')).toEqual(["assets/app-AbCdEf12.js", "assets/eph-AbCdEf12.js"]);
+  });
+});
+
+describe("site caching rule (O-024 T-095)", () => {
+  const config = JSON.parse(vercelText) as { headers: { source: string; headers: { key: string; value: string }[] }[] };
+
+  it("keeps content-hashed files under /assets/ for a year, immutable", () => {
+    const rule = config.headers.find((entry) => entry.source === "/assets/(.*)");
+    expect(rule?.headers).toEqual([{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }]);
+  });
+
+  it("sends no long-lived rule for anything outside /assets/, so the HTML pages revalidate", () => {
+    expect(config.headers.map((entry) => entry.source)).toEqual(["/assets/(.*)"]);
   });
 });

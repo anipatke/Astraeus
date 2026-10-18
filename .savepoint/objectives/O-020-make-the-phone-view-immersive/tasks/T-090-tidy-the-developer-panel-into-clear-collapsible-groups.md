@@ -2,10 +2,9 @@
 id: T-090
 title: Tidy the developer panel into clear collapsible groups
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-081, requires: clear}, {task: T-086, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-070, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -124,3 +123,7 @@ Nothing dropped, merged or renamed apart from the group headings.
 - Frame rate placement (Under the hood) is an unlisted-in-grouping call; see Decisions.
 - `docs/BROWSER_CHECKS.md` not changed: no scenario removed or moved; the driver expands groups so existing scripts are unchanged except the new check in `browser-phone.mjs`.
 - Design.md shell/developer panel description not updated in this lane (non-architectural presentation; for the integration Task to account for).
+
+## Owner Completion — 2026-10-18
+
+Owner opened the developer panel on the preview: "1 good". Quick Task Check C-070 CLEAR.

@@ -1,0 +1,48 @@
+{
+ "geminids": {
+  "kept": 51115,
+  "default": {
+   "requests": [
+    {
+     "url": "http://localhost:5642/assets/gmn-iau-4-Bsd20Dtd.json",
+     "status": 200
+    }
+   ],
+   "description": "Geminids stream Close Illustrative ⓘ : data source and known limitations Sources · 3 51115 measured meteoroid orbits of the Geminids, each drawn as one dot (Global Meteor Network trajectory summary, m"
+  },
+  "source-cams-ignored": {
+   "requests": [
+    {
+     "url": "http://localhost:5642/assets/gmn-iau-4-Bsd20Dtd.json",
+     "status": 200
+    }
+   ],
+   "description": "Geminids stream Close Illustrative ⓘ : data source and known limitations Sources · 3 51115 measured meteoroid orbits of the Geminids, each drawn as one dot (Global Meteor Network trajectory summary, m"
+  },
+  "absent": "Geminids stream Close Observed ⓘ : data source and known limitations Sources · 1 The Geminids stream is drawn from measured meteoroid orbits. This build does not include measured orbits for the Geminids, so no stream is drawn. Activity rate — outside the activity window Geminids activity Radiant RA "
+ },
+ "perseids": {
+  "kept": 25588,
+  "default": {
+   "requests": [
+    {
+     "url": "http://localhost:5642/assets/gmn-iau-7-BeRRPk6y.json",
+     "status": 200
+    }
+   ],
+   "description": "Perseids stream Close Illustrative ⓘ : data source and known limitations Sources · 3 25588 measured meteoroid orbits of the Perseids, each drawn as one dot (Global Meteor Network trajectory summary, m"
+  },
+  "source-cams-ignored": {
+   "requests": [
+    {
+     "url": "http://localhost:5642/assets/gmn-iau-7-BeRRPk6y.json",
+     "status": 200
+    }
+   ],
+   "description": "Perseids stream Close Illustrative ⓘ : data source and known limitations Sources · 3 25588 measured meteoroid orbits of the Perseids, each drawn as one dot (Global Meteor Network trajectory summary, m"
+  },
+  "absent": "Perseids stream Close Observed ⓘ : data source and known limitations Sources · 1 The Perseids stream is drawn from measured meteoroid orbits. This build does not include measured orbits for the Perseids, so no stream is drawn. Activity rate — outside the activity window Perseids activity Radiant RA "
+ },
+ "consoleErrors": []
+}
+OK: public build probe passed for geminids, perseids

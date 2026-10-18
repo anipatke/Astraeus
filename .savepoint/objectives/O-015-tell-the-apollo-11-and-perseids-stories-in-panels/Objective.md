@@ -1,9 +1,10 @@
 ---
 id: O-015
 title: Tell the Apollo 11 and Perseids stories in light panels
-status: in_progress
+status: done
 depends_on: []
 release: G-005
+last_check: C-072
 ---
 
 # O-015: Tell the Apollo 11 and Perseids stories in light panels
@@ -47,3 +48,7 @@ Story panels are story data (owner rule: story data is never part of the engine)
 **In scope:** the panel capability, the Apollo 11 and Perseids panel files, and a config-only proof.
 
 **Out of scope:** chapters, narration audio, a ground view, and new data sources (new panels use facts with published sources, recorded in each panel's sources).
+
+## Owner Closure — 2026-10-18
+
+All six Tasks done; Full Objective Recheck C-072 CLEAR (supersedes C-071); I-031, I-038, I-039 verified. Owner, asked to close the story panels work: "Story panels are good".

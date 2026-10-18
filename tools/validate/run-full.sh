@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The trimmed full browser run (O-017 T-071): every automated browser script worth running for Full Objective Checks and before a release or merge. The pictures run first and alone, then three lanes side by side.
+# The trimmed full browser run (O-017 T-071): every automated browser script worth running for Full Objective Checks and before a release or merge. Three lanes run side by side. No script takes, saves or compares a screenshot (T-102): every check reads the scene's own readouts, and the owner judges looks on the preview.
 #   PLAYWRIGHT_CORE=/home/user/code/planetary-explorer/node_modules/playwright-core/index.js tools/validate/run-full.sh [evidence-dir]
 # It starts its own dev server (port DEV_PORT, default 5479) and a preview of a scratch PUBLIC build (PUBLIC_PORT, default 5480), writes every log to a fresh evidence
 # directory (default docs/evidence/o017-t071-full-<UTC stamp>; never reused), prints and writes summary.txt, then stops both servers. Exit code is non-zero if any step failed or logged an error.
@@ -10,7 +10,6 @@ cd "$(dirname "$0")/../.."
 export PLAYWRIGHT_CORE
 DEV_PORT=${DEV_PORT:-5479}; PUBLIC_PORT=${PUBLIC_PORT:-5480}
 B=${1:-docs/evidence/o017-t071-full-$(date -u +%Y%m%dT%H%M%SZ)}
-BEFORE=${BEFORE:-docs/evidence/o017-baseline-20261017}
 if [ -e "$B" ] && [ -n "$(ls -A "$B" 2>/dev/null)" ]; then echo "$B is not empty; use a fresh directory" >&2; exit 2; fi
 mkdir -p "$B"
 DEV=http://localhost:$DEV_PORT/app.html
@@ -38,11 +37,6 @@ run() {
 }
 dev() { local name=$1 script=$2; shift 2; run "$name" env ASTRAEUS_URL=$DEV ASTRAEUS_EVIDENCE_DIR="$B/$name" node "tools/validate/$script" "$@"; }
 
-pictures() {
-  run pictures-capture node tools/validate/capture-experience-pictures.mjs --out "$B/pictures" --url "http://localhost:$PUBLIC_PORT"
-  run pictures-diff node tools/validate/diff-screenshots.mjs "$BEFORE" "$B/pictures" "$B/diff.json"
-  run contact-sheet node tools/validate/contact-sheet.mjs "$BEFORE" "$B/pictures" "$B/diff.json" "$B"
-}
 laneA() {
   dev lite browser-lite.mjs
   dev phone browser-phone.mjs
@@ -59,6 +53,7 @@ laneB() {
   run public-showers env ASTRAEUS_URL=$PUB ASTRAEUS_EVIDENCE_DIR="$B/public-showers" node tools/validate/browser-public-showers.mjs
   dev earth-moon browser-earth-moon.mjs
   dev jupiter-io browser-jupiter-io.mjs
+  dev embedded browser-embedded.mjs
   dev orbit-motion browser-orbit-motion.mjs
   dev orbit-look browser-orbit-look.mjs
   dev spike03 browser-spike03.mjs
@@ -70,8 +65,6 @@ laneC() {
   dev showers-perseids browser-showers.mjs perseids
   run showers-geminids env ASTRAEUS_LIGHT=1 ASTRAEUS_URL=$DEV ASTRAEUS_EVIDENCE_DIR="$B/showers-geminids" node tools/validate/browser-showers.mjs geminids
 }
-# The pictures run first and alone: under load the scene settles differently and the comparison drifts past its tolerance (measured in T-071).
-pictures
 laneA & A=$!
 laneB & Bp=$!
 laneC & C=$!

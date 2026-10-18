@@ -14,23 +14,6 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 const errors = [];
 const results = {};
 
-// Pixels on the canvas that are not black: something is drawn.
-const litPixels = async (page) => {
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let lit = 0;
-    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;
-    return lit;
-  }, png);
-};
 
 const seek = async (page, timeUtcMs) => {
   await ui.seekTo(page, timeUtcMs);
@@ -46,7 +29,6 @@ async function run(label, viewport) {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
-  const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const notes = {};
   results[label] = notes;
   try {
@@ -105,9 +87,8 @@ async function run(label, viewport) {
     notes.lit = {};
     for (const [objectId, key] of [["earth", "overview"], ["earth", "focus-earth"], ["moon", "focus-moon"], ["moon", "follow-moon"]]) {
       await preset(page, objectId, key);
-      notes.lit[key] = await litPixels(page);
-      assert.ok(notes.lit[key] > 300, `${label}/${key}: something is drawn (${notes.lit[key]})`);
-      await shot(key);
+      notes.lit[key] = await ui.sceneDrawsSomething(page);
+      assert.ok(notes.lit[key].bodies + notes.lit[key].paths > 0, `${label}/${key}: something is drawn (scene readout ${JSON.stringify(notes.lit[key])})`);
     }
 
     // The Moon's monthly path is mounted with the composition.

@@ -28,9 +28,9 @@ import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
 import { rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
-import { buildFrameReadout, publishSceneData, recordFrameStats } from "./sceneDebug";
+import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
 import { bodyAbsolute, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
-import { placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
+import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
 import { placeBodyLights } from "./sceneLights";
 import { useHostLayer, useSceneViews, useSkyStars } from "./sceneHooks";
 import { updateSky } from "./sceneSky";
@@ -48,6 +48,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
+import { hideBootLoader } from "../shell/bootLoader";
 import type { ExperienceObject } from "../shell/experience";
 
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
@@ -265,6 +266,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     resolveCamera(camState, focusAbsoluteOf(targets, camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
     placeBodies(assets, composed.states, bodyRefs, policy, origin);
     poseCamera(camera as PerspectiveCamera, camState, focusRadius(focusBody, policy, catalogue), origin, runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR, viewUp);
+    if (firstFrame) requestAnimationFrame(hideBootLoader);
     controls.viewReadout = viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
     const markerBodies = swapSmallBodiesToMarkers(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.bodyMarker);
     publishSceneData(gl.domElement, { markerBodies, viewUp, markerMinSpherePx: controls.bodyMarker.minSpherePx });
@@ -274,6 +276,9 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin, { fovDeg: (camera as PerspectiveCamera).fov, viewportHeightPx: size.height });
     publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
+    publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
+    publishPointsData(gl.domElement, groupViews, camera);
+    publishBodyData(gl.domElement, bodyScreenReadouts(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.glowLook));
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);

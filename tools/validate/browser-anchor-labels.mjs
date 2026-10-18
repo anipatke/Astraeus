@@ -1,27 +1,30 @@
 // Spike 01 anchor-label regression against the current shell and Developer mode.
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-anchor-labels.mjs
-// Optional first argument selects a screenshot directory. Defaults are isolated from committed Spike 02 evidence.
+// Output directory (I-040): the first argument, else ASTRAEUS_EVIDENCE_DIR, else a fresh timestamped directory under the system temp directory. A plain call never writes into
+// committed evidence (historical evidence rule); pass a docs/evidence/ path deliberately to keep a run.
 //
 // Sizes (I-023): the scenario runs at 1280x800 (desktop) and again at 390x844 (phone) with the same assertions and expected values;
-// the phone run writes its screenshots and results with a `-phone` suffix. The only difference is how the Follow preset is chosen:
+// the phone run writes its results with a `-phone` suffix. The only difference is how the Follow preset is chosen:
 // the phone shell shows a native "Camera mode" select instead of the camera buttons, so the option with the same label is picked.
 //   desktop assertion                                  phone counterpart
 //   layer hidden initially, zero visible labels ........ same
 //   toggle reports on, 40 labels created ............... same 40 label elements; on screen: all 40 on desktop, and on the phone
 //                                                        only those whose projection lies inside the narrower view (AnchorLabels hides
 //                                                        an off-screen anchor), so the phone asserts 1 to 40 on screen
-//   follow Columbia with labels on (screenshot) ........ same, via the camera select
+//   follow Columbia with labels on ........ same, via the camera select
 //   second click hides the layer, aria-pressed false ... same
 //   zero console and page errors ....................... same
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const out = process.argv[2] ?? "docs/evidence/regression-spike01-02/anchor-labels";
+const out = process.argv[2] ?? process.env.ASTRAEUS_EVIDENCE_DIR ?? join(tmpdir(), `astraeus-anchor-labels-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
@@ -68,15 +71,11 @@ async function run(label, viewport) {
   assert.equal(await ui.anchorLabelCount(page), 40, "all labelled source anchors are created when enabled");
   if (label === "desktop") assert.equal(countWhenOn, 40, "all 40 anchor labels are on screen in the desktop overview");
   else assert.ok(countWhenOn > 0 && countWhenOn <= 40, "the anchor labels inside the phone view are shown (the rest are off screen)");
-  const overviewScreenshot = `${out}/labels-on-overview${suffix}.png`;
-  await page.screenshot({ path: overviewScreenshot });
 
   await ui.pickBody(page, "columbia");
   await closeInfo();
   await choosePreset("follow-columbia");
   await page.waitForTimeout(1_500);
-  const followScreenshot = `${out}/labels-on-follow${suffix}.png`;
-  await page.screenshot({ path: followScreenshot });
 
   await ui.pressToggle(page, "anchor-labels");
   await ui.waitForAnchorLayer(page, true);
@@ -94,7 +93,6 @@ async function run(label, viewport) {
     countWhenOn,
     pressedOff,
     hiddenAfterToggle: await ui.anchorLayerHidden(page),
-    screenshots: [overviewScreenshot, followScreenshot],
     errors,
   };
   writeFileSync(`${out}/browser-anchor-labels-results${suffix}.json`, JSON.stringify(result, null, 2));

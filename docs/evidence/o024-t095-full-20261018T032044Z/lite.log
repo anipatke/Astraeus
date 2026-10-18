@@ -1,0 +1,34 @@
+lite browser check: 12 experiences (apollo11, earth-moon, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, showers, showers-geminids, showers-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    6.4s {"title":"Apollo 11 · Astraeus","litPixels":43901,"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     8.1s {"title":"Apollo 11 · Astraeus","litPixels":19022,"object":"moon","panel":"tli-cutoff"}
+ok   earth-moon                 1440x900    5.5s {"title":"Earth–Moon · Astraeus","litPixels":43754,"object":"moon","panel":"same-face"}
+ok   earth-moon                 390x844     6.4s {"title":"Earth–Moon · Astraeus","litPixels":19383,"object":"moon","panel":"same-face"}
+ok   jupiter-io                 1440x900    7.8s {"title":"Jupiter and Io · Astraeus","litPixels":547589,"object":"io","panel":"volcanoes"}
+ok   jupiter-io                 390x844     5.6s {"title":"Jupiter and Io · Astraeus","litPixels":73539,"object":"io","panel":"volcanoes"}
+ok   synthetic                  1440x900    7.7s {"title":"Astraeus","litPixels":33514,"object":"moon"}
+FAIL synthetic                  390x844     4.8s {"litPixels":15067,"object":"moon"}
+       - page heading names the experience once it is open: apiRequestContext.get: socket hang up
+ok   synthetic-bare             1440x900    3.4s {"title":"Astraeus","litPixels":31878,"object":"sky"}
+ok   synthetic-bare             390x844     3.1s {"title":"Astraeus","litPixels":14217,"object":"sky"}
+ok   synthetic-ring             1440x900    5.9s {"title":"Astraeus","litPixels":106020,"object":"moon"}
+ok   synthetic-ring             390x844     6.1s {"title":"Astraeus","litPixels":55272,"object":"moon"}
+ok   synthetic-belt             1440x900    5.7s {"title":"Astraeus","litPixels":84558,"object":"dust-belt"}
+ok   synthetic-belt             390x844     7.7s {"title":"Astraeus","litPixels":53002,"object":"dust-belt"}
+ok   synthetic-listed           1440x900    4.2s {"title":"Astraeus","litPixels":71280,"object":"listed-orbits"}
+ok   synthetic-listed           390x844     5.3s {"title":"Astraeus","litPixels":41699,"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900    4.3s {"title":"Astraeus","litPixels":44477,"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     4.3s {"title":"Astraeus","litPixels":20983,"object":"dust-belt"}
+ok   showers                    1440x900    7.6s {"title":"Perseids · Astraeus","litPixels":128955,"object":"earth","panel":"stream-shape"}
+ok   showers                    390x844       8s {"title":"Perseids · Astraeus","litPixels":37143,"object":"earth","panel":"stream-shape"}
+ok   showers-geminids           1440x900    8.2s {"title":"Geminids · Astraeus","litPixels":46366,"object":"earth","panel":"phaethon"}
+ok   showers-geminids           390x844    11.4s {"title":"Geminids · Astraeus","litPixels":22623,"object":"earth","panel":"phaethon"}
+ok   showers-perseids           1440x900    7.1s {"title":"Perseids · Astraeus","litPixels":128785,"object":"earth","panel":"stream-shape"}
+ok   showers-perseids           390x844     7.4s {"title":"Perseids · Astraeus","litPixels":37053,"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900      2s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   index-page                 390x844     1.8s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   assets-page                1440x900    1.8s {"title":"Astraeus Assets"}
+ok   assets-page                390x844     1.7s {"title":"Astraeus Assets"}
+
+27/28 loads passed; results and screenshots in docs/evidence/o024-t095-full-20261018T032044Z/lite
+FAILED:
+  synthetic phone: page heading names the experience once it is open: apiRequestContext.get: socket hang up

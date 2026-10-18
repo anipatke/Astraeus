@@ -51,3 +51,7 @@ The line-up, links and baseline; the Jupiter demo's content is O-025.
 ## Technical Verification
 
 Configured gates, lite, full run, contact sheet. Evaluated under `agent-skills/references/check-method.md`.
+
+## Planning Note — 2026-10-18
+
+Owner: "can we bin the whole screenshots thing" (chose "All of it"). Done When 5 (new picture baseline and contact sheet) is withdrawn; T-102 removes the picture machinery. When T-093 starts, its Done When is revised accordingly.

@@ -1,7 +1,7 @@
 // Lite browser check (the lite tier from I-033): one quick pass for everyday scene-affecting changes (Task handoff, Quick Checks).
 //
 // Covers, for EVERY experience, at desktop 1440x900 and phone 390x844 (one browser, a fresh context and page per load):
-//   - the canvas draws (a screenshot of it has lit pixels, so it is not blank),
+//   - the canvas draws (the scene reports a body, dots, a path or stars in view, so it is not blank),
 //   - the timeline controls (the shell) are present,
 //   - the object list opens one object's information panel,
 //   - the page heading (T-070): app.html's own title is "Astraeus"; once the experience is open the title is "<its label> · Astraeus" (a made-up one, which has no label, keeps "Astraeus"),
@@ -68,24 +68,6 @@ const VIEWPORTS = [
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const results = [];
 
-// Pixels on the canvas that are not near-black: something is drawn.
-async function litPixels(page) {
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let lit = 0;
-    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;
-    return lit;
-  }, png);
-}
-
 const hasHorizontalScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
 
 // One load: runs the checks, never throws; every failed check is collected so the run reports them all.
@@ -101,21 +83,19 @@ async function load(label, url, size, checks) {
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
-  const shotName = `${label}-${size.name}.png`;
   try {
+    if (checks.watchesLoader === true) await ui.watchLoader(page);
     await page.goto(url, { waitUntil: "load", timeout: 60000 });
     await checks(page, check, detail);
     await page.waitForTimeout(300);
-    await check("screenshot", () => page.screenshot({ path: `${outDir}/${shotName}` }));
   } catch (error) {
     failures.push(`load: ${String(error?.message ?? error).split("\n")[0]}`);
-    try { await page.screenshot({ path: `${outDir}/${shotName}` }); } catch { /* the page may be gone */ }
   } finally {
     await context.close();
   }
   for (const error of errors) failures.push(error);
   const seconds = Math.round((Date.now() - started) / 100) / 10;
-  const record = { label, size: size.name, viewport: `${size.viewport.width}x${size.viewport.height}`, url, ok: failures.length === 0, seconds, screenshot: shotName, detail, failures };
+  const record = { label, size: size.name, viewport: `${size.viewport.width}x${size.viewport.height}`, url, ok: failures.length === 0, seconds, detail, failures };
   results.push(record);
   console.log(`${record.ok ? "ok  " : "FAIL"} ${label.padEnd(26)} ${record.viewport.padEnd(9)} ${String(seconds).padStart(5)}s${Object.keys(detail).length ? ` ${JSON.stringify(detail)}` : ""}`);
   for (const failure of failures) console.log(`       - ${failure}`);
@@ -123,7 +103,7 @@ async function load(label, url, size, checks) {
 
 // ---- Experience checks ----
 function experienceChecks(experience) {
-  return async (page, check, detail) => {
+  const run = async (page, check, detail) => {
     await check("canvas present", () => page.waitForSelector("canvas", { timeout: 60000 }));
     await check("page heading names the experience once it is open", async () => {
       const served = await page.request.get(appUrl.split("?")[0]);
@@ -134,14 +114,19 @@ function experienceChecks(experience) {
       const made = experience.id.startsWith("synthetic");
       if (made ? title !== "Astraeus" : !/^.+ \u00b7 Astraeus$/.test(title)) throw new Error(`unexpected page title "${title}"`);
     });
+    await check("loading screen was shown from the first paint and is gone once the scene is ready", async () => {
+      if (!(await ui.loaderWasSeen(page))) throw new Error("the loader was not in the page, loading, at first paint");
+      await ui.waitForLoaderGone(page, { timeout: 15000 });
+      if ((await ui.loaderState(page)) !== "absent") throw new Error("the loader is still in the page");
+    });
     await check("timeline/shell present", () => ui.waitForShell(page, { timeout: 60000 }));
     // Hold playback still so the scene and any auto-opening panel settle; a story panel's own hold may already have paused it.
     await ui.ensurePausedQuietly(page);
     await page.waitForTimeout(1500);
     await check("canvas draws", async () => {
-      const lit = await litPixels(page);
-      detail.litPixels = lit;
-      if (lit < 200) throw new Error(`only ${lit} lit pixels`);
+      const drawn = await ui.sceneDrawsSomething(page);
+      detail.drawn = drawn;
+      if (drawn.bodies + drawn.dots + drawn.paths + drawn.stars === 0) throw new Error(`the scene reports nothing drawn in view (${JSON.stringify(drawn)})`);
     });
     await check("object information opens", async () => {
       await ui.waitForBodyPicker(page, { timeout: 10000 });
@@ -166,6 +151,8 @@ function experienceChecks(experience) {
       });
     }
   };
+  run.watchesLoader = true;
+  return run;
 }
 
 // ---- Site page checks ----
@@ -175,6 +162,20 @@ const siteChecks = async (page, check, detail) => {
     if (await hasHorizontalScroll(page)) throw new Error("the page scrolls sideways");
   });
   detail.title = await page.title().catch(() => "");
+};
+
+/** The catalogue page lists Jupiter's moons by family (O-025 T-097): the families that the core data names, each with its moons, 115 in all. */
+const assetsChecks = async (page, check, detail) => {
+  await siteChecks(page, check, detail);
+  await check("catalogue page lists Jupiter's moons by family", async () => {
+    const families = await ui.catalogueMoonFamilies(page);
+    const data = JSON.parse(readFileSync(new URL("data/moons/jupiter.json", root), "utf8"));
+    const ids = families.flatMap((family) => family.moons);
+    if (families.length !== data.families.length) throw new Error(`${families.length} families on the page, ${data.families.length} in the data`);
+    if (ids.length !== data.moons.length || new Set(ids).size !== ids.length) throw new Error(`${ids.length} moons listed, ${data.moons.length} in the data`);
+    for (const family of families) if (family.count !== family.moons.length) throw new Error(`${family.family}: count ${family.count} but ${family.moons.length} listed`);
+    detail.moonFamilies = Object.fromEntries(families.map((family) => [family.family, family.count]));
+  });
 };
 
 /** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
@@ -197,7 +198,7 @@ try {
     for (const size of VIEWPORTS) await load(experience.id, `${appUrl}${experience.query}`, size, experienceChecks(experience));
   }
   for (const page of ["index.html", "assets.html"]) {
-    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : siteChecks);
+    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : assetsChecks);
   }
 } finally {
   await browser.close();
@@ -205,7 +206,7 @@ try {
 
 const failed = results.filter((result) => !result.ok);
 writeFileSync(`${outDir}/results.json`, JSON.stringify({ tier: "lite (I-033)", at: new Date().toISOString(), appUrl, experiences: experiences.map((e) => e.id), loads: results.length, failed: failed.length, results }, null, 2));
-console.log(`\n${results.length - failed.length}/${results.length} loads passed; results and screenshots in ${outDir}`);
+console.log(`\n${results.length - failed.length}/${results.length} loads passed; results in ${outDir}`);
 if (failed.length > 0) {
   console.log("FAILED:");
   for (const result of failed) console.log(`  ${result.label} ${result.size}: ${result.failures.join(" | ")}`);

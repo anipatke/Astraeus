@@ -206,7 +206,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           role="region"
           aria-label="Timeline details"
           data-open={drawer.open}
-          onClick={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) drawer.onOpenChange(false); }}
+          onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") drawer.onOpenChange(false); }}
         >
           <div className="timeline-drawer-body">
             <div className="timeline-speed-slider">

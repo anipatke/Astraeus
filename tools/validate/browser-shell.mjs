@@ -20,10 +20,6 @@ try {
   assert.equal(await (await ui.developerOpen(page) ? "true" : "false"), "false");
   assert.equal(await ui.developerPanel(page).isVisible(), false);
   assert.equal(await ui.missionPanel(page).count(), 0);
-  if (process.env.ASTRAEUS_SCREENSHOT) {
-    await page.waitForTimeout(2000);
-    await page.screenshot({ path: process.env.ASTRAEUS_SCREENSHOT });
-  }
 
   await ui.pausePlayback(page);
   await ui.toggleEventList(page);
@@ -97,7 +93,6 @@ try {
   assert.equal(await ui.sceneLabelVisible(page, "eagle"), false);
 
   // Info panel, provenance and scale choice on request (T-019), with both vehicles in bounds.
-  const infoShot = process.env.ASTRAEUS_INFO_SCREENSHOTS;
   const panel = ui.infoPanel(page);
   const expectedStatus = { earth: "Ephemeris", moon: "Ephemeris", columbia: "Reconstructed", eagle: "Reconstructed" };
   const provenanceText = {};
@@ -112,7 +107,6 @@ try {
     assert.equal(await badge.getAttribute("aria-expanded"), "true");
     provenanceText[id] = await ui.provenanceDetailRaw(page);
     for (const heading of ["Known limitations", "Sources", "Accuracy"]) assert.ok(provenanceText[id].includes(heading), `${id} provenance shows ${heading}`);
-    if (infoShot) await page.screenshot({ path: `${infoShot}/provenance-${id}-1280x800.png` });
   }
   for (const phrase of ["Smoothed joins", "Burn cutoffs", "translunar injection"]) assert.ok(provenanceText.columbia.includes(phrase), phrase);
   for (const phrase of ["Landing site", "Smoothed joins", "Burn cutoffs"]) assert.ok(provenanceText.eagle.includes(phrase), phrase);
@@ -127,7 +121,6 @@ try {
   await panel.waitFor();
   assert.equal(await panel.getAttribute("data-info-kind"), "event");
   assert.match(await ui.provenanceBadgeText(page), /^Observed ⓘ/);
-  if (infoShot) await page.screenshot({ path: `${infoShot}/event-info-1280x800.png` });
 
   await ui.pickBody(page, "columbia");
   await panel.waitFor();
@@ -166,7 +159,6 @@ try {
     assert.match(explained, /True\.[\s\S]*real proportion/);
     assert.match(explained, /Readable\.[\s\S]*closer together/);
     assert.match(explained, /Only the picture changes/);
-    if (infoShot) await emPage.screenshot({ path: `${infoShot}/scale-readable-1280x800.png` });
     await ui.pressScaleInfo(emPage);
     assert.equal(await ui.scaleExplanationText(emPage), null, "a second tap closes it");
     await chooseScale(emPage, "True");
@@ -216,20 +208,10 @@ try {
   assert.equal(await page.locator('[data-metric="moon-position"] .metric-reading').count(), 3);
   assert.equal(await ui.missionRadars(page).count(), 2, "each vehicle position shows the radar view");
   assert.match(await page.locator('[data-metric="columbia-position"] svg.metric-radar').getAttribute("aria-label"), /round: top view x–y · tick: z · rim ±[\d,]+ km · lavender: Moon/);
-  const metricShot = process.env.ASTRAEUS_METRIC_SCREENSHOTS;
-  if (metricShot) {
-    await ui.drawerSection(page, "telemetry").screenshot({ path: `${metricShot}/metric-visuals-telemetry-1280x800.png` });
-    await ui.drawerSection(page, "scene").screenshot({ path: `${metricShot}/metric-visuals-scene-1280x800.png` });
-    await ui.drawerSection(page, "journey").screenshot({ path: `${metricShot}/metric-visuals-journey-1280x800.png` });
-  }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);
   const overflow = await ui.overflowingMetrics(page);
   assert.deepEqual(overflow, [], "metric visuals should fit mobile portrait without overflow");
-  if (metricShot) {
-    await ui.scrollDrawerToTelemetry(page);
-    await page.screenshot({ path: `${metricShot}/metric-visuals-390x844.png` });
-  }
   await page.setViewportSize({ width: 1280, height: 800 });
   await ui.openAdvancedReadouts(page);
   await ui.advancedReadouts(page).list.waitFor();

@@ -1,0 +1,111 @@
+{
+  "distDir": "/tmp/tmp.DCcFkeDxIk/public",
+  "loadBudget": {
+    "ok": true,
+    "pages": [
+      {
+        "id": "index.html",
+        "files": 14,
+        "raw": 450809,
+        "gzip": 406641,
+        "rawLimit": 600000,
+        "gzipLimit": 530000,
+        "problems": []
+      },
+      {
+        "id": "assets.html",
+        "files": 10,
+        "raw": 244750,
+        "gzip": 220942,
+        "rawLimit": 260000,
+        "gzipLimit": 240000,
+        "problems": []
+      },
+      {
+        "id": "app.html (Apollo 11)",
+        "files": 11,
+        "raw": 4084645,
+        "gzip": 2734239,
+        "rawLimit": 4250000,
+        "gzipLimit": 2860000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=earth-moon",
+        "files": 11,
+        "raw": 3720247,
+        "gzip": 2617150,
+        "rawLimit": 3860000,
+        "gzipLimit": 2740000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=jupiter-io",
+        "files": 11,
+        "raw": 3850818,
+        "gzip": 1909445,
+        "rawLimit": 4000000,
+        "gzipLimit": 1990000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers",
+        "files": 21,
+        "raw": 10708322,
+        "gzip": 7091095,
+        "rawLimit": 11190000,
+        "gzipLimit": 7430000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers&shower=geminids",
+        "files": 21,
+        "raw": 13192795,
+        "gzip": 7897305,
+        "rawLimit": 13790000,
+        "gzipLimit": 8280000,
+        "problems": []
+      },
+      {
+        "id": "whole build",
+        "files": 50,
+        "raw": 21393732,
+        "gzip": 14079317,
+        "rawLimit": 22500000,
+        "gzipLimit": 14860000,
+        "problems": []
+      }
+    ]
+  },
+  "budgetSelfProof": true,
+  "localDataFilesChecked": 0,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html"
+  ],
+  "missingPages": [],
+  "starAsset": {
+    "ok": true,
+    "problems": [],
+    "file": "src/assets/stars/hyg-v42-naked-eye.json",
+    "sha256": "f4076d268d53f2781cb8f4beaafe63abbf9c89366f641ff080d02af4ef54f540",
+    "bytes": 284317
+  },
+  "synthetic": {
+    "ok": true,
+    "modules": [
+      "syntheticDefinition",
+      "syntheticEccentricDefinition",
+      "syntheticListedDefinition",
+      "syntheticRingDefinition"
+    ],
+    "matches": []
+  },
+  "syntheticSelfProof": true,
+  "selfProof": true,
+  "ok": true,
+  "checked": 50,
+  "sources": [],
+  "matches": []
+}

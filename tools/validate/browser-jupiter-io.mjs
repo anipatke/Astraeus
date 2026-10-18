@@ -4,7 +4,7 @@
 // Asserted at both sizes: Jupiter and Io are the mounted bodies with Jupiter as the scene centre, both labels are shown, Io's loop is
 // drawn, Io moves between two dates (its position readout and its label on screen), the four presets frame something drawn, Jupiter's
 // panel states the missing texture, Io's states its Horizons figure and its approximate-demonstration class, the per-body lighting is
-// the default, and there are no console errors. The look (flattening, lit side, Io's night side) is judged by the owner from the screenshots.
+// the default, and there are no console errors. The look (flattening, lit side, Io's night side) is judged by the owner on the preview.
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { scaleOptions } from "./driver.mjs";
@@ -19,22 +19,6 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 const errors = [];
 const results = {};
 
-const litPixels = async (page) => {
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let lit = 0;
-    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 60) lit += 1;
-    return lit;
-  }, png);
-};
 
 const seek = async (page, timeUtcMs) => {
   await ui.seekTo(page, timeUtcMs);
@@ -63,7 +47,6 @@ async function run(name, viewport) {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
-  const shot = async (shotName) => { if (outDir) await page.screenshot({ path: `${outDir}/${name}-${shotName}.png` }); };
   const notes = {};
   results[name] = notes;
   try {
@@ -89,12 +72,11 @@ async function run(name, viewport) {
     const start = (await ui.seekRange(page)).min;
     await seek(page, start);
     await preset(page, "jupiter", "overview");
-    notes.overviewLit = await litPixels(page);
-    assert.ok(notes.overviewLit > 800, `${name}: Jupiter is drawn in the overview (${notes.overviewLit})`);
+    notes.overviewJupiter = await ui.sceneBody(page, "jupiter");
+    assert.ok(notes.overviewJupiter?.inView && notes.overviewJupiter.as === "sphere" && notes.overviewJupiter.radiusPx > 5, `${name}: Jupiter is drawn as a sphere in view in the overview (scene readout ${JSON.stringify(notes.overviewJupiter)})`);
     for (const id of ["jupiter", "io"]) {
       assert.ok(await labelCentre(page, id), `${name}: the ${id} label is shown`);
     }
-    await shot("overview-t0");
 
     // Io moves: its label on screen and its position readout change between two dates six hours apart (about a third of an orbit).
     const ioAt0 = await labelCentre(page, "io");
@@ -110,20 +92,17 @@ async function run(name, viewport) {
     await ui.closeInfoStrict(page);
     notes.ioLabel = { t0: ioAt0, sixHours: ioAt1 };
     assert.ok(ioAt0 && ioAt1 && Math.hypot(ioAt1[0] - ioAt0[0], ioAt1[1] - ioAt0[1]) > 10, `${name}: Io moves on screen (${JSON.stringify(notes.ioLabel)})`);
-    await shot("overview-t6h");
 
     // The four presets each frame something drawn.
     await seek(page, start + 3_600_000);
     notes.lit = {};
     for (const [objectId, key] of [["jupiter", "overview"], ["jupiter", "focus-jupiter"], ["io", "focus-io"], ["io", "follow-io"]]) {
       await preset(page, objectId, key);
-      notes.lit[key] = await litPixels(page);
-      assert.ok(notes.lit[key] > 300, `${name}/${key}: something is drawn (${notes.lit[key]})`);
-      await shot(key);
+      notes.lit[key] = await ui.sceneDrawsSomething(page);
+      assert.ok(notes.lit[key].bodies + notes.lit[key].paths > 0, `${name}/${key}: something is drawn (scene readout ${JSON.stringify(notes.lit[key])})`);
     }
     await seek(page, start + 9 * 3_600_000);
     await page.waitForTimeout(500);
-    await shot("follow-io-later");
 
     // Accuracy records: Jupiter's missing texture, Io's Horizons figure and class.
     const jupiterPanel = await openPanel(page, "jupiter", "Jupiter");
@@ -131,7 +110,6 @@ async function run(name, viewport) {
     const jupiterDetail = (await ui.provenanceDetail(page).innerText()).replace(/\s+/g, " ");
     assert.match(jupiterDetail, /flat in one colour/i, `${name}: Jupiter's missing texture is stated`);
     notes.jupiterPanel = jupiterPanel.slice(0, 300);
-    await shot("jupiter-info");
     await ui.closeInfoStrict(page);
     await openPanel(page, "io", "Io");
     await ui.openProvenance(page);
@@ -140,7 +118,6 @@ async function run(name, viewport) {
     assert.match(ioDetail, /9,388 km/, `${name}: Io's Horizons figure is stated`);
     assert.match(ioDetail, /not intended for ephemeris computation/i, `${name}: the source's own warning is stated`);
     notes.ioDetail = ioDetail.slice(0, 600);
-    await shot("io-info");
   } finally {
     await page.close();
   }

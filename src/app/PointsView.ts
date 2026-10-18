@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial, Vector3, type WebGLProgramParametersWithUniforms } from "three";
+import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial, Vector3, type Camera, type WebGLProgramParametersWithUniforms } from "three";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -25,6 +25,23 @@ export const DEFAULT_REFILL_SLICE_MS = 8;
 export const KEPLER_CENTROID_SPAN_MS = 7 * 24 * 3_600_000;
 /** Members computed between two looks at the clock while a fill is spread over frames; groups at or below it fill whole. */
 export const SLICE_CHUNK_MEMBERS = 1024;
+
+/** What `PointsView.screenReadout` reports for one group (diagnostic). */
+export interface PointsScreenReadout {
+  readonly id: string;
+  /** Inside its time bounds and drawn at the last placement. */
+  readonly drawn: boolean;
+  readonly members: number;
+  /** Members actually projected (an even sample of at most the limit). */
+  sampled: number;
+  /** Members in front of the camera and inside the view, scaled up from the sample. */
+  inView: number;
+  /** The box the sampled in-view members cover, as shares of the view; meaningless (min above max) when `inView` is 0. */
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
 
 const NO_OFFSET: ArrayLike<number> = Object.freeze([0, 0, 0]);
 
@@ -325,6 +342,36 @@ export class PointsView {
     shader.vertexShader = shader.vertexShader
       .replace("void main() {", "attribute vec3 positionTo;\nuniform float uBlend;\nuniform vec3 uOffset;\nvoid main() {")
       .replace("#include <begin_vertex>", "vec3 transformed = position + uBlend * (positionTo - position) + uOffset;");
+  }
+
+  /**
+   * Diagnostic: whether the group is drawn and how many of its members (sampled evenly, at most `limit`) are in front of the camera and inside the view,
+   * with the box they cover as shares of the view (0 to 1, y down). `inView` is scaled up to all members. Reads the members as last placed.
+   */
+  screenReadout(camera: Camera, limit = 512): PointsScreenReadout {
+    const members = this.layer.group.count;
+    const drawn = this.#drawn && this.#filled && (this.#gpu ? this.#kepler!.points.visible : this.#points.visible);
+    const out = { id: this.id, drawn, members, sampled: 0, inView: 0, minX: 1, maxX: 0, minY: 1, maxY: 0 };
+    if (!drawn || members === 0) return out;
+    camera.updateMatrixWorld();
+    const point = new Vector3();
+    const step = Math.max(1, Math.floor(members / limit));
+    let seen = 0;
+    for (let i = 0; i < members; i += step) {
+      seen += 1;
+      const [x, y, z] = this.memberLocalPosition(i);
+      point.set(x, y, z).applyMatrix4(camera.matrixWorldInverse);
+      if (point.z >= 0) continue;
+      point.applyMatrix4(camera.projectionMatrix);
+      if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) continue;
+      const sx = (point.x + 1) / 2;
+      const sy = (1 - point.y) / 2;
+      out.inView += 1;
+      out.minX = Math.min(out.minX, sx); out.maxX = Math.max(out.maxX, sx); out.minY = Math.min(out.minY, sy); out.maxY = Math.max(out.maxY, sy);
+    }
+    out.sampled = seen;
+    out.inView = Math.round((out.inView / seen) * members);
+    return out;
   }
 
   /** Local (floating-origin) position of member `index` as last placed. */
