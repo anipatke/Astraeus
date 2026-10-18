@@ -51,3 +51,7 @@ The developer panel's organisation and look; no setting's behaviour changes.
 ## Technical Verification
 
 Configured gates, lite, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Owner Decision — 2026-10-18
+
+Proposed grouping sent to the owner (eight collapsible groups, first open: This demo; Camera and view; Timeline and stories (timeline glow + story panels); Orbit lines (toggles, then a nested "Fine-tune" fold for segments, widths, fade curve, zoom boosts); Sky and Sun (Sky + Sun glow); Labels; Phone layout; Under the hood (Scene instrumentation + Data); nothing dropped). Owner: "think we make them collapsible section" — grouping approved as proposed; Done When 2's owner approval is met.

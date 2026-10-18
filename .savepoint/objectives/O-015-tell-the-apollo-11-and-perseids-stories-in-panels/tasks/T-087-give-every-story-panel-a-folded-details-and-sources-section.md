@@ -2,8 +2,7 @@
 id: T-087
 title: Give every story panel a folded details and sources section
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-059, requires: clear}, {task: T-081, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -65,3 +64,7 @@ Commands: `npx tsc --noEmit` clean; `npx vitest run` 61 files, 972 passed, 1 ski
 
 Extra reads: none beyond Context Files (plus `src/shell/ProvenanceBadge.tsx` usage grep, `style.css` sources rules).
 Drift notes: none architectural. No Tasks/Issues needed.
+
+## Owner Completion — 2026-10-18
+
+Owner opened and folded "The details and sources" on the preview: "3 good". Quick Task Check C-066 CLEAR (owner validation not required on this Task).

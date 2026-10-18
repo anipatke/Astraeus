@@ -2,10 +2,9 @@
 id: T-089
 title: Tell short stories for the Geminids, Earth and Moon, and Jupiter and Io
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-087, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-068, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -121,3 +120,7 @@ No experience needed new code to take panels beyond naming its own panels file: 
 
 - Design.md story layer: stories now exist for all five demos, and the load budget admits several same-named story chunks per page; for the O-015 integration account (non-architectural beyond the budget rule).
 - `showerDefinition.ts` reads every `data/stories/*/panels.json` eagerly through its glob, so shower pages also carry the Apollo, Earth–Moon and Jupiter–Io panels chunks (a few kilobytes); a narrower load is possible later but would need the generic path to know shower stories by name.
+
+## Owner Completion — 2026-10-18
+
+Owner read the new stories on the preview (Jupiter–Io first panel and its folded details): "3 good". Quick Task Check C-068 CLEAR.

@@ -52,3 +52,7 @@ No new features; desktop and phone layouts as built by T-079 to T-081.
 ## Technical Verification
 
 Configured gates, lite, the address check, pictures, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Owner Notes — 2026-10-18
+
+On the local preview the owner checked the phone layout on a real phone ("2 good") and will test again on the live site after the merge ("will test in live as well later after merge").

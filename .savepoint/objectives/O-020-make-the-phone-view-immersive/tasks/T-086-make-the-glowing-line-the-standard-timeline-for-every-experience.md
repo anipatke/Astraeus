@@ -2,10 +2,9 @@
 id: T-086
 title: Make the glowing line the standard timeline for every experience
 objective: O-020
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-084, requires: clear}, {task: T-081, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-067, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -62,3 +61,7 @@ Files: src/shell/timelineGlow.ts, TimelineBar.tsx, TimelineBar.css, src/app/App.
 TEST-03 map: Apollo "no activity glow, plain track" -> one glow, all stops one brightness, no text equivalent, no tooltip, steady slider changes it live; "scrubber height unchanged" kept. Showers scripts unchanged and pass (glowCount 1, peak brightest).
 
 Gates: tsc clean; vitest 968 passed 1 skipped; build ok; driver guard 4/4; full run `docs/evidence/o020-t086-full-20261017T230821Z` all steps exit 0, error-lines 0 (total 708 s). Pictures: all 16 scene pictures differ from the o017 baseline (3.6-12.4% over 16 levels) because the baseline predates the whole O-020 shell/timeline redesign, not only this Task; see contact-sheet.png in the run directory. Owner look at a non-shower experience still required.
+
+## Owner Completion — 2026-10-18
+
+Owner looked at the Earth–Moon timeline on the preview: "1 good". Quick Task Check C-067 CLEAR.
