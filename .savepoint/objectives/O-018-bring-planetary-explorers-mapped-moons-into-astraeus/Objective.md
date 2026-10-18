@@ -1,16 +1,16 @@
 ---
 id: O-018
-title: Bring Planetary Explorer's mapped moons into Astraeus
+title: Keep Planetary Explorer's bodies as reusable packages with exact locations
 status: planned
 depends_on: []
 release: G-005
 ---
 
-# O-018: Bring Planetary Explorer's mapped moons into Astraeus
+# O-018: Keep Planetary Explorer's bodies as reusable packages with exact locations
 
 ## Outcome
 
-Astraeus can take any body Planetary Explorer has already built (its surface map, its tagged surface features, its feature categories and its overview facts) and show it as a globe with those features marked, selectable and explained. The means to do this is reusable at any time for any of Planetary Explorer's 24 bodies. The first release uses it for every moon Planetary Explorer has mapped, and the assets catalogue lists each one. The deploy waits for this Objective and O-017.
+Planetary Explorer's 24 bodies are preserved in Astraeus as reusable data packages, written by a committed importer, with every tagged location carried over exactly as the owner verified it, and the right to reuse and publish the donor's work recorded. Drawing the moons, the Moons page, the shelf and the catalogue moved to O-033 (owner, 2026-10-18); Jupiter's four moons are O-025's.
 
 ## Why
 
@@ -21,6 +21,23 @@ Owner, 2026-10-17: "we have each moon already mapped built and tagged with inter
 "We will do the same for the other planets, but post launch is ok": after the launch, every other planet gets the Jupiter treatment from O-025 — all known moons as core package data with exact JPL Horizons positions over a wide span, the mapped moons textured with their tagged places, the rest as grey dots named on hover, tap or zoom, a moon-families panel, and rings from Planetary Explorer at real distances. O-025 builds the pattern for Jupiter first; this Objective reuses it.
 
 ## Success Conditions
+
+1. **Reuse rights recorded.** The owner's statement that Planetary Explorer is their own work and that its data, maps and code may be reused and published in Astraeus is recorded (Owner Decision 3) in `docs/DONOR_PROVENANCE.md`, replacing the "code licence unresolved; local use only" note. Third-party map and fact sources keep their own credits (PROV-02).
+2. **A body package format.** One data package per body under `data/bodies/<body>/`, committed for all 24 donor bodies: map record and licence, the map's coordinate convention, features, categories with colours, overview facts and their sources. Story or asset data, never engine code (ARCH-01). (T-077.)
+3. **An importer.** `tools/import/planetary-explorer.mjs` reads a Planetary Explorer body and writes its package; works for all 24 bodies (dry run), records the donor commit, refuses a map with no recorded source, and is byte-identical on rerun. (T-077.)
+4. **Exact preservation.** Every feature's latitude, longitude, name, category, tags and text is carried over exactly; a test proves bit-for-bit equality against the donor's own files for all 24 bodies, and the coordinate convention is proven against the donor's own placement function. (T-077; original SC 7(a).)
+5. **Records reconciled.** T-077's drift notes are reflected: `.savepoint/Design.md` names the packages and importer (done in planning, 2026-10-18), and `docs/DONOR_PROVENANCE.md` gains the body-packages section (where the data came from, map images not copied, the eight map sources from Astraeus's own trace, Ceres's donor file not shippable).
+6. **Checks.** Configured gates (typecheck, tests, build). Nothing is drawn, so no browser check applies.
+
+## Moved Out — 2026-10-18
+
+Owner, 2026-10-18, asked to check O-018 and O-019 together; only their groundwork Task was built. The owner chose to shrink both Objectives to that groundwork (over keeping them open or checking them as they stood) and to move the rest to a new post-launch Goal, G-009 "Astraeus other planets and their moons", as O-033. Jupiter's moons are already O-025's.
+
+Original outcome, kept for the record:
+
+> Astraeus can take any body Planetary Explorer has already built (its surface map, its tagged surface features, its feature categories and its overview facts) and show it as a globe with those features marked, selectable and explained. The means to do this is reusable at any time for any of Planetary Explorer's 24 bodies. The first release uses it for every moon Planetary Explorer has mapped, and the assets catalogue lists each one. The deploy waits for this Objective and O-017.
+
+Original success conditions, kept for the record (those not listed above now belong to O-033):
 
 1. **Reuse rights recorded.** The owner's statement that Planetary Explorer is their own work and that its data, maps and code may be reused and published in Astraeus is recorded (owner decision, below) in `docs/DONOR_PROVENANCE.md`, replacing the "code licence unresolved; local use only" note for what this Objective uses. Third-party map and fact sources keep their own credits (PROV-02).
 2. **A body package format.** One data package per body, committed for all 24 donor bodies so the verified data is preserved and reusable even where a body is not shown yet: map file and licence record, the map's coordinate convention (east or west positive, longitude range, any offset, as in the donor's README notes), features, categories with colours, overview facts and their sources. It is story or asset data, never engine code (ARCH-01).
