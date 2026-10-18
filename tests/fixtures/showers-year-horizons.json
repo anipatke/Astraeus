@@ -1,0 +1,156 @@
+{
+  "note": "JPL Horizons, Sun-centred geometric positions of 3200 Phaethon and 109P/Swift-Tuttle at six dates across the Showers demo's year (21 September 2019 to 20 September 2020), and Phaethon's osculating elements with the perihelion times either side of that year (O-024 T-092).",
+  "center": "Sun body center (500@10)",
+  "frame": "ICRF, treated as EQJ",
+  "correction": "geometric; VEC_CORR=NONE",
+  "units": "km",
+  "timeScale": "UT",
+  "rawFile": "showers-year-horizons-source.txt",
+  "phaethon": {
+    "command": "3200;",
+    "solution": "JPL#1019",
+    "retrievedUtc": "2026-10-18T02:30:49Z",
+    "samples": [
+      {
+        "jdUtc": 2458747.5,
+        "utcMs": 1569024000000,
+        "label": "2019-Sep-21 00:00:00 UTC",
+        "positionKm": [
+          193628938.3980638,
+          65183590.99181268,
+          110483671.086577
+        ]
+      },
+      {
+        "jdUtc": 2458831.5,
+        "utcMs": 1576281600000,
+        "label": "2019-Dec-14 00:00:00 UTC",
+        "positionKm": [
+          238224056.3780822,
+          150484247.3650442,
+          163593919.4399608
+        ]
+      },
+      {
+        "jdUtc": 2458909.5,
+        "utcMs": 1583020800000,
+        "label": "2020-Mar-01 00:00:00 UTC",
+        "positionKm": [
+          233335774.2795391,
+          201925209.5930731,
+          181699565.7636185
+        ]
+      },
+      {
+        "jdUtc": 2459001.5,
+        "utcMs": 1590969600000,
+        "label": "2020-Jun-01 00:00:00 UTC",
+        "positionKm": [
+          187648414.4864054,
+          227602725.1656608,
+          171791404.8310452
+        ]
+      },
+      {
+        "jdUtc": 2459073.5,
+        "utcMs": 1597190400000,
+        "label": "2020-Aug-12 00:00:00 UTC",
+        "positionKm": [
+          123872838.0306062,
+          213970838.838315,
+          138487378.6277789
+        ]
+      },
+      {
+        "jdUtc": 2459112.5,
+        "utcMs": 1600560000000,
+        "label": "2020-Sep-20 00:00:00 UTC",
+        "positionKm": [
+          77908223.50156693,
+          187527067.2806409,
+          107943525.6388097
+        ]
+      }
+    ]
+  },
+  "swiftTuttle": {
+    "command": "DES=109P;CAP",
+    "solution": "JPL#32",
+    "retrievedUtc": "2026-10-18T02:30:49Z",
+    "samples": [
+      {
+        "jdUtc": 2458747.5,
+        "utcMs": 1569024000000,
+        "label": "2019-Sep-21 00:00:00 UTC",
+        "positionKm": [
+          -4441822857.666916,
+          3091738122.918315,
+          -2063559150.1388
+        ]
+      },
+      {
+        "jdUtc": 2458831.5,
+        "utcMs": 1576281600000,
+        "label": "2019-Dec-14 00:00:00 UTC",
+        "positionKm": [
+          -4461745774.511552,
+          3106554620.967031,
+          -2064875451.302037
+        ]
+      },
+      {
+        "jdUtc": 2458909.5,
+        "utcMs": 1583020800000,
+        "label": "2020-Mar-01 00:00:00 UTC",
+        "positionKm": [
+          -4480105344.927349,
+          3120223061.485776,
+          -2066027906.186245
+        ]
+      },
+      {
+        "jdUtc": 2459001.5,
+        "utcMs": 1590969600000,
+        "label": "2020-Jun-01 00:00:00 UTC",
+        "positionKm": [
+          -4501587264.984788,
+          3136233922.729906,
+          -2067302101.220984
+        ]
+      },
+      {
+        "jdUtc": 2459073.5,
+        "utcMs": 1597190400000,
+        "label": "2020-Aug-12 00:00:00 UTC",
+        "positionKm": [
+          -4518270885.217473,
+          3148682890.118081,
+          -2068234878.254054
+        ]
+      },
+      {
+        "jdUtc": 2459112.5,
+        "utcMs": 1600560000000,
+        "label": "2020-Sep-20 00:00:00 UTC",
+        "positionKm": [
+          -4527262214.586092,
+          3155396193.36215,
+          -2068716803.288385
+        ]
+      }
+    ]
+  },
+  "phaethonPerihelia": {
+    "retrievedUtc": "2026-10-18T02:31:01Z",
+    "timeScale": "TDB",
+    "tpJdTdb": [
+      2458667.4947465216,
+      2459191.10211018
+    ],
+    "qKm": [
+      20941022.81147967,
+      20960867.16054178
+    ],
+    "solution": "JPL#1019"
+  }
+}

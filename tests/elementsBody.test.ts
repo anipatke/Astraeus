@@ -162,7 +162,8 @@ describe("the parent a settings file defines, against JPL Horizons", () => {
     const periodDays = body.sampling.periodMs / 86_400_000;
     expect((rows[7].utcMs - rows[0].utcMs) / 86_400_000 / periodDays).toBeGreaterThan(8);
     expect(rows.some((row) => /^2026-Dec-14/.test(row.label))).toBe(true);
-    expect(record.accuracy.validFromUtc).toBe("2020-12-14T00:00:00Z");
+    // O-024 T-092 extended the validity back to the Showers year's start, from the second comparison (tests/showersYearHorizons.test.ts).
+    expect(record.accuracy.validFromUtc).toBe("2019-09-21T00:00:00Z");
     expect(record.accuracy.validToUtc).toBe("2032-12-14T00:00:00Z");
   });
 

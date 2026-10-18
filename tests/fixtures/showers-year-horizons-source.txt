@@ -1,0 +1,484 @@
+==== QUERY https://ssd.jpl.nasa.gov/api/horizons.api format=text COMMAND='3200;' EPHEM_TYPE=VECTORS CENTER=500@10 REF_SYSTEM=ICRF REF_PLANE=FRAME VEC_TABLE=1 VEC_CORR=NONE OUT_UNITS=KM-S TIME_TYPE=UT TLIST='2458747.5 2458831.5 2458909.5 2459001.5 2459073.5 2459112.5' retrieved 2026-10-18T02:30:49Z UTC (raw response follows) ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS               3200 Phaethon (1983 TB)         2026-Oct-17 19:30:51
+Rec #:    3200 (+COV) Soln.date: 2026-Oct-17_06:49:06   # obs: 8695 (1983-2026)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2457607.5 ! 2016-Aug-07.00 (TDB)         Residual RMS= .12877
+   EC= .8899023907299661   QR= .1399569554868016   TP= 2457620.3178278827
+   OM= 265.2511477626204   W=  322.1539113190802   IN= 22.24577456410674
+   A= 1.271207943703232    MA= 351.1855825996203   ADIST= 2.402458931919662
+   PER= 1.43329            N= .687668572           ANGMOM= .008847048
+   DAN= .15534             DDN= .88976             L= 229.5298121
+   B= -13.4310549          MOID= .0199762          TP= 2016-Aug-19.8178278827
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604
+   H= 14.38                G= .150                 B-V= n.a.
+                           ALBEDO= .1066           STYP= B
+
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):
+   AMRAT=  0.
+   A1= 0.                  A2= -6.212027869879E-15 A3= 0.
+ Non-standard or simulated/proxy model:
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.
+
+ASTEROID comments: 
+1: soln ref.= JPL#1019, PHA  OCC=0       radar( 8 delay, 0 Dop.)
+2: source=ORB; Nongravitational accels. using nonstandard g(r) = (1 au/ r)^2
+*******************************************************************************
+
+  
+
+*******************************************************************************
+Ephemeris / API_USER Sat Oct 17 19:30:51 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 3200 Phaethon (1983 TB)         {source: JPL#1019}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2019-Sep-21 00:00:00.0000 UT 
+Stop  time      : A.D. 2020-Sep-20 00:00:00.0000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261016.p270112
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-16. PREDICTS-> 2027-JAN-11
+Reference frame : ICRF
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2457607.5 ! 2016-Aug-07.00 (TDB)         Residual RMS= .12877        
+   EC= .8899023907299661   QR= .1399569554868016   TP= 2457620.3178278827      
+   OM= 265.2511477626204   W=  322.1539113190802   IN= 22.24577456410674       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-1.329208190919494E-01  Y= 4.326525989967180E-01  Z= 1.122252859891263E-01
+  VX=-9.303710578246339E-03 VY=-2.706775925069099E-02 VZ=-1.473585942296802E-02
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604               
+   H= 14.38                G= .150                 B-V= n.a.                   
+                           ALBEDO= .1066           STYP= B                     
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):  
+   AMRAT=  0.                                                                  
+   A1= 0.                  A2= -6.212027869879E-15 A3= 0.                      
+ Non-standard or simulated/proxy model:                                        
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.       
+*******************************************************************************
+JDUT 
+   X     Y     Z
+*******************************************************************************
+$$SOE
+2458747.500000000 = A.D. 2019-Sep-21 00:00:00.0000 UTC 
+ X = 1.936289383980638E+08 Y = 6.518359099181268E+07 Z = 1.104836710865770E+08
+2458831.500000000 = A.D. 2019-Dec-14 00:00:00.0000 UTC 
+ X = 2.382240563780822E+08 Y = 1.504842473650442E+08 Z = 1.635939194399608E+08
+2458909.500000000 = A.D. 2020-Mar-01 00:00:00.0000 UTC 
+ X = 2.333357742795391E+08 Y = 2.019252095930731E+08 Z = 1.816995657636185E+08
+2459001.500000000 = A.D. 2020-Jun-01 00:00:00.0000 UTC 
+ X = 1.876484144864054E+08 Y = 2.276027251656608E+08 Z = 1.717914048310452E+08
+2459073.500000000 = A.D. 2020-Aug-12 00:00:00.0000 UTC 
+ X = 1.238728380306062E+08 Y = 2.139708388383150E+08 Z = 1.384873786277789E+08
+2459112.500000000 = A.D. 2020-Sep-20 00:00:00.0000 UTC 
+ X = 7.790822350156693E+07 Y = 1.875270672806409E+08 Z = 1.079435256388097E+08
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************
+==== QUERY https://ssd.jpl.nasa.gov/api/horizons.api format=text COMMAND='DES=109P;CAP' EPHEM_TYPE=VECTORS CENTER=500@10 REF_SYSTEM=ICRF REF_PLANE=FRAME VEC_TABLE=1 VEC_CORR=NONE OUT_UNITS=KM-S TIME_TYPE=UT TLIST='2458747.5 2458831.5 2458909.5 2459001.5 2459073.5 2459112.5' retrieved 2026-10-18T02:30:49Z UTC (raw response follows) ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS                  109P/Swift-Tuttle            2026-Oct-17 19:30:51
+Rec #:90000985 (+COV) Soln.date: 2001-Oct-09_15:34:49    # obs: 652 (1737-1995)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2450000.5 ! 1995-Oct-10.0000000 (TDB)    RMSW= n.a.
+   EC= .9632257550460384   QR= .9595161550688684   TP= 2448968.4997845562
+   OM= 139.3811920815948   W= 152.9821676305871    IN= 113.4538169971712
+   A= 26.09206949782666    MA= 7.631696167124793   ADIST= 51.22462284058444
+   PER= 133.281843840504   N= .007395053           ANGMOM= .023609822
+   DAN= 13.27557           DDN= 1.0138             L= 330.8536722
+   B= 24.6287339           MOID= .00089214         TP= 1992-Dec-11.9997845562
+ 
+Comet physical (GM= km^3/s^2; RAD= km):
+   GM= n.a.                RAD= 13.
+   M1=  4.5      M2=  8.5      k1=  15.    k2=  10.     PHCOF= n.a.
+
+COMET comments 
+1: soln ref.= JPL#32, data arc: 1737-07-08 to 1995-03-29
+2: k1=15.0, k2=10.0;
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sat Oct 17 19:30:52 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 109P/Swift-Tuttle               {source: JPL#32}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2019-Sep-21 00:00:00.0000 UT 
+Stop  time      : A.D. 2020-Sep-20 00:00:00.0000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261016.p270112
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-16. PREDICTS-> 2027-JAN-11
+Reference frame : ICRF
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2450000.5 ! 1995-Oct-10.0000000 (TDB)    RMSW= n.a.                  
+   EC= .9632257550460384   QR= .9595161550688684   TP= 2448968.4997845562      
+   OM= 139.3811920815948   W= 152.9821676305871    IN= 113.4538169971712       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-5.961434623156935E+00  Y= 3.700438936751722E+00  Z=-6.922297729421842E+00
+  VX=-5.226325508711362E-03 VY= 3.593351825095821E-03 VZ=-2.911438559166090E-03
+Comet physical (GM= km^3/s^2; RAD= km):                                        
+   GM= n.a.                RAD= 13.                                            
+   M1=  4.5      M2=  8.5      k1=  15.    k2=  10.     PHCOF= n.a.            
+*******************************************************************************
+JDUT 
+   X     Y     Z
+*******************************************************************************
+$$SOE
+2458747.500000000 = A.D. 2019-Sep-21 00:00:00.0000 UTC 
+ X =-4.441822857666916E+09 Y = 3.091738122918315E+09 Z =-2.063559150138800E+09
+2458831.500000000 = A.D. 2019-Dec-14 00:00:00.0000 UTC 
+ X =-4.461745774511552E+09 Y = 3.106554620967031E+09 Z =-2.064875451302037E+09
+2458909.500000000 = A.D. 2020-Mar-01 00:00:00.0000 UTC 
+ X =-4.480105344927349E+09 Y = 3.120223061485776E+09 Z =-2.066027906186245E+09
+2459001.500000000 = A.D. 2020-Jun-01 00:00:00.0000 UTC 
+ X =-4.501587264984788E+09 Y = 3.136233922729906E+09 Z =-2.067302101220984E+09
+2459073.500000000 = A.D. 2020-Aug-12 00:00:00.0000 UTC 
+ X =-4.518270885217473E+09 Y = 3.148682890118081E+09 Z =-2.068234878254054E+09
+2459112.500000000 = A.D. 2020-Sep-20 00:00:00.0000 UTC 
+ X =-4.527262214586092E+09 Y = 3.155396193362150E+09 Z =-2.068716803288385E+09
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************
+==== QUERY https://ssd.jpl.nasa.gov/api/horizons.api format=text COMMAND='3200;' EPHEM_TYPE=ELEMENTS CENTER=500@10 REF_PLANE=ECLIPTIC REF_SYSTEM=ICRF TP_TYPE=ABSOLUTE TIME_TYPE=TDB TLIST='2458666.5 2459197.5' retrieved 2026-10-18T02:31:01Z UTC (raw response follows) ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS               3200 Phaethon (1983 TB)         2026-Oct-17 19:31:02
+Rec #:    3200 (+COV) Soln.date: 2026-Oct-17_06:49:06   # obs: 8695 (1983-2026)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2457607.5 ! 2016-Aug-07.00 (TDB)         Residual RMS= .12877
+   EC= .8899023907299661   QR= .1399569554868016   TP= 2457620.3178278827
+   OM= 265.2511477626204   W=  322.1539113190802   IN= 22.24577456410674
+   A= 1.271207943703232    MA= 351.1855825996203   ADIST= 2.402458931919662
+   PER= 1.43329            N= .687668572           ANGMOM= .008847048
+   DAN= .15534             DDN= .88976             L= 229.5298121
+   B= -13.4310549          MOID= .0199762          TP= 2016-Aug-19.8178278827
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604
+   H= 14.38                G= .150                 B-V= n.a.
+                           ALBEDO= .1066           STYP= B
+
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):
+   AMRAT=  0.
+   A1= 0.                  A2= -6.212027869879E-15 A3= 0.
+ Non-standard or simulated/proxy model:
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.
+
+ASTEROID comments: 
+1: soln ref.= JPL#1019, PHA  OCC=0       radar( 8 delay, 0 Dop.)
+2: source=ORB; Nongravitational accels. using nonstandard g(r) = (1 au/ r)^2
+*******************************************************************************
+
+  
+
+*******************************************************************************
+Ephemeris / API_USER Sat Oct 17 19:31:02 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 3200 Phaethon (1983 TB)         {source: JPL#1019}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2019-Jul-02 00:00:00.0000 TDB
+Stop  time      : A.D. 2020-Dec-14 00:00:00.0000 TDB
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2457607.5 ! 2016-Aug-07.00 (TDB)         Residual RMS= .12877        
+   EC= .8899023907299661   QR= .1399569554868016   TP= 2457620.3178278827      
+   OM= 265.2511477626204   W=  322.1539113190802   IN= 22.24577456410674       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-1.329208190919494E-01  Y= 4.326525989967180E-01  Z= 1.122252859891263E-01
+  VX=-9.303710578246339E-03 VY=-2.706775925069099E-02 VZ=-1.473585942296802E-02
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= n.a.                RAD= 3.125              ROTPER= 3.604               
+   H= 14.38                G= .150                 B-V= n.a.                   
+                           ALBEDO= .1066           STYP= B                     
+Asteroid non-gravitational force model (AMRAT= m^2/kg;A1,A2,A3=au/d^2;R0=au):  
+   AMRAT=  0.                                                                  
+   A1= 0.                  A2= -6.212027869879E-15 A3= 0.                      
+ Non-standard or simulated/proxy model:                                        
+   ALN=  1.            NK=  0.       NM=  2.       NN=  0.       R0=  1.       
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2458666.500000000 = A.D. 2019-Jul-02 00:00:00.0000 TDB 
+ EC= 8.898939791566643E-01 QR= 2.094102281147967E+07 IN= 2.226023446159659E+01
+ OM= 2.652162706438844E+02 W = 3.221857209341441E+02 Tp=  2458667.494746521581
+ N = 7.957895216454279E-06 MA= 3.593160499462629E+02 TA= 3.350325296480408E+02
+ A = 1.901896249731491E+08 AD= 3.594382271348185E+08 PR= 4.523809251165306E+07
+2459197.500000000 = A.D. 2020-Dec-14 00:00:00.0000 TDB 
+ EC= 8.897962770869747E-01 QR= 2.096086716054178E+07 IN= 2.225713597609334E+01
+ OM= 2.652202340487257E+02 W = 3.221815461393467E+02 Tp=  2459191.102110180072
+ N = 7.957176296270656E-06 MA= 4.398549456017517E+00 TA= 9.497191147177320E+01
+ A = 1.902010803853194E+08 AD= 3.594412936100971E+08 PR= 4.524217971250979E+07
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

@@ -32,8 +32,8 @@ export const VIEWS = [
   { id: "earth-moon-close", page: "app.html", query: "experience=earth-moon&view=earth,30,30,4&scale=true-scale", t: "2025-01-10T00:00:00Z" },
   { id: "jupiter-io-wide", page: "app.html", query: "experience=jupiter-io&view=jupiter,30,30,200&scale=true-scale", t: "2000-01-05T00:00:00Z" },
   { id: "jupiter-io-close", page: "app.html", query: "experience=jupiter-io&view=jupiter,30,30,40&scale=true-scale", t: "2000-01-05T00:00:00Z" },
-  { id: "perseids", page: "app.html", query: "experience=showers&view=sun,100,40,250000&scale=true-scale&up=ecliptic", t: "2027-08-12T12:00:00Z" },
-  { id: "geminids", page: "app.html", query: "experience=showers&shower=geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic", t: "2026-12-13T23:31:44Z" },
+  { id: "perseids", page: "app.html", query: "experience=showers&view=sun,100,40,250000&scale=true-scale&up=ecliptic", t: "2020-08-12T12:00:00Z" },
+  { id: "geminids", page: "app.html", query: "experience=showers&shower=geminids&view=sun,100,40,100000&scale=true-scale&up=ecliptic", t: "2019-12-14T04:33:33Z" },
   { id: "site-index", page: "index.html", site: true },
   { id: "site-assets", page: "assets.html", site: true },
 ];

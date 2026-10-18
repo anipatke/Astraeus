@@ -359,11 +359,11 @@ try {
     await context.close();
   }
 
-  // The Geminids' shower-only view (span=activity) keeps the two December panels and leaves out the September one.
+  // The Geminids' shower-only view (span=activity) keeps the two December panels and leaves out the Phaethon one (1 November 2019, outside the activity window).
   {
     const { context, page } = await openStory("showers&shower=geminids&span=activity");
     assert.equal(await ui.storyMarkers(page).count(), 2, "Geminids activity view: two markers");
-    assert.equal(await ui.storyMarkers(page, "phaethon").count(), 0, "Geminids activity view: the September panel is left out");
+    assert.equal(await ui.storyMarkers(page, "phaethon").count(), 0, "Geminids activity view: the Phaethon panel is left out");
     note("Geminids activity view keeps the two December panels");
     await context.close();
   }

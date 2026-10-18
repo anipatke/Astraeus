@@ -289,3 +289,37 @@ Fetched 2026-10-16T03:43:16Z from `https://ssd.jpl.nasa.gov/api/horizons.api` (`
 | 2032-12-14 | 2.315 AU | 32,673 km | 0.009% |
 
 Maximum error **935,344 km at 2020-12-14**, 2.18% of its 0.287 AU distance from the Sun there; the agreement at the epoch (47 km) confirms the time-scale conversion. The error is largest close to perihelion, as expected: the body moves fastest there (q = 0.14 AU), so a small timing difference is a large position difference, and Horizons integrates the planets' pull and the non-gravitational term that the fixed ellipse leaves out. **Classification: indicative** (rule in `classifyPositionError`: within 1% of the distance from the Sun at every compared date is "approximate", within 5% "indicative"; 2.18% earns the second). It is good enough to show where the asteroid is on its orbit at overview scale (935,344 km is 0.4% of the semi-major axis), not an ephemeris and not good enough for a close approach. The record states two-body, no perturbations, no non-gravitational forces, and names the small perihelion as the weak point; validity is stated as 2020-12-14 to 2032-12-14 only. The test asserts the recorded figure, the percentage and that the classification follows from them. A date list is not a bound for other dates.
+
+## The Showers year, 21 September 2019 to 20 September 2020 (O-024 / T-092)
+
+Owner decision (O-024 Decision 3): the Showers demo starts on 21 September 2019 and runs one year (365.256363 days, to 2020-09-20T06:09:09.763Z), so the Geminid peak of December 2019 and the Perseid peak of August 2020 both fall inside it. Both shower files set `timeline.yearStartUtc` to 2019-09-21T00:00:00Z; the year was previously centred on each peak. The comet and asteroid positions, the activity windows, the peak instants and the story moments follow from that year as below.
+
+### Activity windows and peaks
+
+The IMO site was being rebuilt when this was written (imo.net served a holding page for every calendar file), so the calendars were read from the Internet Archive's copies: the 2019 Meteor Shower Calendar (IMO_INFO(2-18), ed. J. Rendtel; `https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf`, 808,404 bytes, SHA-256 b0c4b8bc...83fd02e) and the 2020 one (IMO_INFO(2-19); `https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf`, 868,189 bytes, SHA-256 56927b2d...e739493), both read 2026-10-18. Their solar longitudes are J2000.
+
+| Shower | Published (IMO) | In the shower file |
+|---|---|---|
+| Geminids 2019 | active December 4-17; maximum December 14, solar longitude 262.2; peak period solar longitude 261.5 to 262.4, "2019 December 14 between 02h and 23h UT"; ZHR 140 (working list) | 2019-12-04 to 2019-12-18 (end exclusive); peak 2019-12-14T04:33:33Z; peak night "Dec 13-14, 2019"; ZHR 150 (AMS, unchanged) |
+| Perseids 2020 | active July 17 - August 24; maximum August 12, 13h to 16h UT (node at solar longitude 140.0 to 140.1); ZHR 110 in the entry, 100 in the working list | 2020-07-17 to 2020-08-25 (end exclusive); peak 2020-08-12T15:41:56Z; "Aug 12, 2020"; ZHR 100 (AMS, unchanged) |
+
+The peak instant keeps the I-027 rule: the moment the Sun's geometric J2000 longitude on the engine ephemeris equals the IAU MDC peak (261.6 and 140.1 degrees), found by bisection. Both instants fall inside IMO's published peak periods; the Geminid one is earlier on 14 December than IMO's single best estimate (262.2 degrees, about 19h UT), and the radiant and the browser check keep the MDC value. The activity dates are the same calendar dates as the AMS 2026/2027 figures used before; only the year moved. `tests/showers.test.ts` ("pins the published 2019-2020 values ...") pins them.
+
+Measured-orbit facts at the new peaks (`tests/showersMeasured.test.ts`, the same suites and tolerances): Perseids, smallest mean distance of the 100 nearest ellipses at 2020-08-12T13:23Z, -0.10 d (all) and 14:24Z, -0.05 d (reliable); radiant of the 11,251 / 10,118 members within 0.02 AU of Earth at RA 47.82, Dec +57.85, 0.06 deg from the published one. Geminids, 2019-12-14T17:05Z, +0.52 d (all and reliable); radiant of 41,310 / 37,774 members at RA 113.17, Dec +32.40, 0.14 deg off. The orbits are still the Global Meteor Network's 2025 (Perseids) and December 2024 and 2025 (Geminids) measurements drawn in the earlier year: a measured shape with illustrative places along it, as the panels' details now say.
+
+### Comet and asteroid against Horizons
+
+Raw responses in [`showers-year-horizons-source.txt`](../tests/fixtures/showers-year-horizons-source.txt) (three responses, each preceded by its `==== QUERY ... ====` line), normalized in `showers-year-horizons.json`, fetched 2026-10-18 from `https://ssd.jpl.nasa.gov/api/horizons.api` with the same vector settings as above (`CENTER='500@10'`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`) at six dates: JD 2458747.5, 2458831.5, 2458909.5, 2459001.5, 2459073.5, 2459112.5. Horizons now serves Phaethon solution JPL#1019 (the shipped elements are SB441-N16, the fit Horizons served as JPL#1017 on 2026-10-16); Swift-Tuttle is still JPL#32. Checked by `tests/showersYearHorizons.test.ts`.
+
+| Date (UTC) | Phaethon from the Sun | Difference | Fraction | Swift-Tuttle from the Sun | Difference | Fraction |
+|---|---|---|---|---|---|---|
+| 2019-09-21 (year start) | 1.553 AU | 327,825 km | 0.141% | 38.72 AU | **7,644,938 km** | 0.132% |
+| 2019-12-14 (Geminid peak day) | 2.178 AU | 152,869 km | 0.047% | 38.88 AU | 7,601,745 km | 0.131% |
+| 2020-03-01 | 2.394 AU | 111,309 km | 0.031% | 39.02 AU | 7,560,496 km | 0.130% |
+| 2020-06-01 | 2.282 AU | 190,483 km | 0.056% | 39.19 AU | 7,510,001 km | 0.128% |
+| 2020-08-12 (Perseid peak day) | 1.894 AU | 290,228 km | 0.102% | 39.32 AU | 7,469,829 km | 0.127% |
+| 2020-09-20 (year end) | 1.537 AU | **365,665 km** | 0.159% | 39.39 AU | 7,449,016 km | 0.126% |
+
+Phaethon stays well inside its recorded 935,344 km (2.18%) and its indicative class; the year is now part of its stated validity (`validFromUtc` 2019-09-21, with the gap from 2020-09-20 to 2020-12-14 named in its limitations). Swift-Tuttle stays inside its recorded 10,686,093 km and its 1990-2030 validity; its record is unchanged.
+
+Phaethon's perihelia either side of the year, from Horizons osculating elements (third response, `EPHEM_TYPE=ELEMENTS`, `TP_TYPE=ABSOLUTE`, at 2019-07-02 and 2020-12-14 TDB): Tp = JD 2458667.494747 TDB (2019-07-02 about 23:51 UTC) and JD 2459191.102110 TDB (2020-12-07 about 14:26 UTC), with TT minus UTC 69.184 s. Neither is inside the year, so the Geminid Phaethon panel, which opened at the 2026 perihelion, now opens on 2019-11-01, six weeks in and before the shower begins, when the model puts Phaethon about 1.9 AU from the Sun on its way out (the Perseid stream panel opens on the same date; ten days in, tried first, opened the panel over the phone scene before the plain-load check could see the stream); its body says the last close pass was in early July 2019 and its details give both times. (The two-body model's own perihelion is 2019-07-02 about 18:47 UTC, five hours from Horizons, as expected that far from the 2026 epoch.)
