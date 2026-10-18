@@ -79,9 +79,13 @@ const drawersSettled = (page) => page.waitForFunction((hooks) => [...document.qu
 async function reveal(page, locator) {
   if (await isPhoneLayout(page)) await drawersSettled(page);
   if (!(await isPhoneLayout(page)) || (await locator.first().isVisible())) return locator;
+  // Wait for each drawer to finish sliding after opening it, so a size or position read afterwards is the settled one (a busy machine
+  // used to measure the scale ⓘ mid-slide, smaller than 44 px).
   await openControlsDrawer(page);
+  await drawersSettled(page);
   if (await locator.first().isVisible()) return locator;
   await openTimelineDrawer(page);
+  await drawersSettled(page);
   return locator;
 }
 
