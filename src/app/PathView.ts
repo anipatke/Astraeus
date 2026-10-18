@@ -310,6 +310,16 @@ export class PathView {
     return this.#look;
   }
 
+  /** Recolours the line (ring and arc) live, e.g. to its family's colour; the opacities are unchanged. */
+  setColor(color: string): void {
+    const ring = this.group.children[0] as Line;
+    const material = ring.material as LineBasicMaterial;
+    if (material.userData.color === color) return;
+    material.userData.color = color;
+    material.color.set(color);
+    if (this.#arc !== null) (this.#arc.material as MeshBasicMaterial).color.set(color);
+  }
+
   /** Applies a look live: layers switch and opacities change at once (the shapes follow in `sync`). Ignored for a plain line. */
   setLook(look: OrbitLook): void {
     if (this.#ring === null || this.#arc === null) return;

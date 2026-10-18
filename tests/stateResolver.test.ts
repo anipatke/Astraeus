@@ -16,7 +16,8 @@ import type { Trajectory } from "../src/core/trajectory";
 
 const adapter = createOrbAstronomyAdapter();
 const real = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, adapter);
-const T = Date.parse("2024-01-15T00:00:00Z");
+// In 2016, the year whose Jupiter moon fits the test setup loads (vitest.setup.ts).
+const T = Date.parse("2016-01-15T00:00:00Z");
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
 const accuracy = {
   dimensions: provenance,
@@ -27,7 +28,7 @@ const accuracy = {
 
 describe("built-in catalogue", () => {
   it("defines each body once with its parent, orientation model and accuracy record", () => {
-    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "swift-tuttle"]);
+    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
     expect([SUN.parentId, EARTH.parentId, MOON.parentId]).toEqual([undefined, "sun", "earth"]);
     expect([SUN.orientation, EARTH.orientation, MOON.orientation]).toEqual(["none", "ecef", "tidal-lock"]);
     for (const body of BUILT_IN_BODIES) {
@@ -37,7 +38,7 @@ describe("built-in catalogue", () => {
     }
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/254 km.*8\.4°/);
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/no libration/);
-    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "swift-tuttle"]);
+    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
   });
 
   it("carries gravitational parameters equal to the library's own table", () => {

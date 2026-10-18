@@ -1,0 +1,24 @@
+{
+  "format": "astraeus.ring-system/1",
+  "kind": "ring-system",
+  "body": "jupiter",
+  "note": "Facts plus a look. Radii are the published ring radii (km, about Jupiter's centre, in its equator plane). Colours and opacities are Planetary Explorer's Jupiter ring bands (the owner's own project, src/entities/jupiter.ts ringSystem at donor commit 84f8d3ee77aff47f2f36f157b62b97dce7176b95), lifted as they are. The donor placed its bands at 1.6-3.2 planet radii; the owner chose the real distances instead (O-025 Decision 7, 'Your look, real distances'). The faint Thebe extension (221,900-280,000 km) has no donor band and is not drawn.",
+  "asOf": "2026-10-18",
+  "sources": {
+    "radii": {
+      "title": "NASA NSSDC, Jupiter Rings Fact Sheet (radii in km; Jupiter's equatorial radius 71,492 km)",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupringfact.html",
+      "accessed": "2026-10-18"
+    },
+    "look": {
+      "title": "Planetary Explorer src/entities/jupiter.ts ringSystem bands and src/features/moon/SaturnRingMesh.tsx texture (owner's own project)",
+      "donorCommit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+    }
+  },
+  "bands": [
+    { "id": "halo", "label": "Halo ring", "innerKm": 89400, "outerKm": 123000, "color": "#a0b0d0", "opacity": 0.105, "donorRadii": [1.6, 2.0] },
+    { "id": "main", "label": "Main ring", "innerKm": 123000, "outerKm": 128940, "color": "#d0a080", "opacity": 0.28, "donorRadii": [2.0, 2.15] },
+    { "id": "amalthea-gossamer", "label": "Amalthea gossamer ring", "innerKm": 128940, "outerKm": 181350, "color": "#b08060", "opacity": 0.065, "donorRadii": [2.15, 2.7] },
+    { "id": "thebe-gossamer", "label": "Thebe gossamer ring", "innerKm": 181350, "outerKm": 221900, "color": "#a07050", "opacity": 0.026, "donorRadii": [2.7, 3.2] }
+  ]
+}

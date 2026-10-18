@@ -1,0 +1,19 @@
+{
+  "label": "baseline-default-repeat",
+  "experience": "jupiter-io",
+  "view": null,
+  "throttle": 4,
+  "seconds": 8,
+  "viewport": "390x844 @1x, touch",
+  "loadMs": 1438,
+  "frames": 376,
+  "meanMs": 21.3,
+  "p50Ms": 16.7,
+  "p95Ms": 33.4,
+  "maxMs": 33.5,
+  "fps": 46.9,
+  "bodies": "jupiter,io",
+  "bodySetMembers": null,
+  "at": "2026-10-18T07:36:38.185Z",
+  "errors": []
+}

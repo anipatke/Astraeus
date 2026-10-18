@@ -73,7 +73,7 @@ describe("planets in the catalogue", () => {
       expect(definition.accuracy.validUtc.startUtcMs).toBe(Date.UTC(1969, 6, 21));
       expect(definition.accuracy.validUtc.endUtcMs).toBe(Date.UTC(2030, 5, 1));
     }
-    expect(BUILT_IN_BODIES.map((definition) => definition.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "swift-tuttle"]);
+    expect(BUILT_IN_BODIES.map((definition) => definition.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
   });
 
   it("carry the NASA fact-sheet dimensions, with both radii where flattening is visible", () => {

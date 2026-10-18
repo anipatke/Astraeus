@@ -58,6 +58,7 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
 // The planet series (about 1.4 MB) load only for a composition that contains a planet.
 async function start(): Promise<void> {
   const definition = await chooseDefinition();
+  if (definition.prepare !== undefined) await definition.prepare();
   if (needsPlanetSeries(definition)) await loadPlanetSeries();
   createRoot(app!).render(<StrictMode><App definition={definition} /></StrictMode>);
 }

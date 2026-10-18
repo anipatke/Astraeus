@@ -44,10 +44,10 @@ export function publishPathData(canvas: HTMLElement, views: readonly PathView[],
  * What the browser scripts read back about every point group (`data-points`, JSON): per group its id, whether it is drawn, its member count, how many members
  * are in view (an even sample scaled up) and the share of the view they span. This is the dots themselves, so a check that a stream is drawn never depends on pixels.
  */
-export function publishPointsData(canvas: HTMLElement, views: readonly PointsView[], camera: Camera): void {
+export function publishPointsData(canvas: HTMLElement, views: readonly PointsView[], camera: Camera, others: readonly { screenReadout(): ReturnType<PointsView["screenReadout"]> }[] = []): void {
   const round = (value: number): number => Math.round(value * 1000) / 1000;
-  const groups = views.map((view) => {
-    const r = view.screenReadout(camera);
+  // Point groups, then any other batch of dots (body sets, T-098), read the same way.
+  const groups = [...views.map((view) => view.screenReadout(camera)), ...others.map((other) => other.screenReadout())].map((r) => {
     const none = r.inView === 0;
     return { id: r.id, drawn: r.drawn, members: r.members, inView: r.inView, spanX: none ? 0 : round(r.maxX - r.minX), spanY: none ? 0 : round(r.maxY - r.minY) };
   });

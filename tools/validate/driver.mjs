@@ -453,6 +453,10 @@ export async function toggleDeveloper(page, { expand = true } = {}) {
 }
 /** Opens or closes one group of the developer panel (by id) the way a viewer would: one press on its heading. */
 export const toggleDeveloperGroup = (page, id) => page.locator(`[data-fold-toggle="${id}"]`).click();
+/** Opens one group of the developer panel (by id) unless it is already open. */
+export async function openDeveloperGroup(page, id) {
+  if ((await page.locator(`[data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) !== "true") await toggleDeveloperGroup(page, id);
+}
 export const developerButtonCount = (page) => developerButton(page).count();
 export const developerOpen = async (page) => (await developerButton(page).getAttribute("aria-pressed")) === "true";
 export async function openDeveloper(page) {
@@ -500,6 +504,7 @@ const TOGGLES = {
   "orbit-ring-fade": "Fade ring ends",
   "orbit-arc": "Trailing arc",
   "orbit-zoom-brighten": "Brighten when zoomed out",
+  "moon-orbits": "Moon orbits",
 };
 const toggle = (page, id) => { assert.ok(TOGGLES[id], `driver: unknown toggle ${id}`); return page.getByRole("button", { name: TOGGLES[id], exact: true }); };
 export const pressToggle = (page, id) => toggle(page, id).click();
@@ -531,6 +536,10 @@ const SLIDERS = {
   "glow-floor": ["Timeline played floor", "glow-floor-value"],
   "glow-thickness": ["Timeline glow thickness", "glow-thickness-value"],
   "glow-halo": ["Timeline glow halo", "glow-halo-value"],
+  "ring-halo-opacity": ["Halo ring: opacity", "ring-halo-opacity"],
+  "ring-main-opacity": ["Main ring: opacity", "ring-main-opacity"],
+  "ring-amalthea-gossamer-opacity": ["Amalthea gossamer ring: opacity", "ring-amalthea-gossamer-opacity"],
+  "ring-thebe-gossamer-opacity": ["Thebe gossamer ring: opacity", "ring-thebe-gossamer-opacity"],
 };
 const slider = (page, id) => { assert.ok(SLIDERS[id], `driver: unknown slider ${id}`); return page.getByRole("slider", { name: SLIDERS[id][0] }); };
 export const setSlider = (page, id, value) => slider(page, id).fill(String(value));
@@ -1057,6 +1066,44 @@ export const catalogueMoonFamilies = (page) => page.locator("[data-moon-family]"
   count: Number(family.getAttribute("data-count")),
   moons: [...family.querySelectorAll("[data-moon]")].map((moon) => moon.getAttribute("data-moon")),
 })));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Body sets (O-025 T-098): many small bodies as one batch of dots, balls close up, names on hover, tap or near zoom, orbit lines by family.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The scene's body-set readouts (`data-body-set-*` on the drawn canvas): members held and drawn, a sample of on-screen members, the widest ball, orbits, family colours. */
+export const bodySetReadout = (page) => page.locator("canvas").first().evaluate((canvas) => {
+  const data = canvas.dataset;
+  const json = (text, fallback) => (text === undefined || text === "" ? fallback : JSON.parse(text));
+  return {
+    members: Number(data.bodySetMembers ?? 0),
+    drawn: Number(data.bodySetDrawn ?? 0),
+    sample: json(data.bodySetSample, []),
+    widest: json(data.bodySetWidest, null),
+    dotPx: Number(data.bodySetDotPx ?? 0),
+    orbits: Number(data.bodySetOrbits ?? 0),
+    familyColors: json(data.bodySetFamilyColors, {}),
+    hover: data.bodySetHover ?? "",
+    named: Number(data.bodySetNamed ?? 0),
+    rings: Number(canvas.closest("[data-rings]")?.getAttribute("data-rings") ?? 0),
+  };
+});
+/** The drawn rings (`data-ring-bands`): whether the disc is shown and each band's radii, colour and opacity in force; null when none. */
+export const ringReadout = (page) => page.locator("canvas").first().evaluate((canvas) => (canvas.dataset.ringBands ? JSON.parse(canvas.dataset.ringBands) : null));
+/** Moves the mouse over a point of the scene (CSS px from the canvas's top left), as a viewer pointing at a dot. */
+export async function pointAtScene(page, x, y) {
+  const box = await page.locator("canvas").first().boundingBox();
+  await page.mouse.move(box.x + x, box.y + y);
+}
+/** Taps (clicks without dragging) a point of the scene. */
+export async function tapScene(page, x, y) {
+  const box = await page.locator("canvas").first().boundingBox();
+  await page.mouse.click(box.x + x, box.y + y);
+}
+/** Whether a body-set member's name is showing. */
+export const bodySetNameShown = (page, id) => page.locator(`[data-body-set-label="${id}"]`).evaluate((element) => !element.hidden);
+/** The ids of every body-set member whose name is showing. */
+export const bodySetNamesShown = (page) => page.locator("[data-body-set-label]").evaluateAll((elements) => elements.filter((element) => !element.hidden).map((element) => element.getAttribute("data-body-set-label")));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Inside another page (T-082, O-020 Decision 5): the owner's portfolio shows the app in an iframe under its own story buttons.

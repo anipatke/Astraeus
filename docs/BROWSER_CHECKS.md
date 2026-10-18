@@ -126,3 +126,14 @@ Every assertion that counted pixels, and what reads it now. A threshold was kept
 | `browser-sun` the disc shows texture, not a flat wash; not washed to white | luminance spread and mean of the middle | **dropped:** the texture and its tone are a look with no scene readout; the owner judges them on the preview. The halo going behind a big disc, the mechanism that keeps the disc from washing out, is read instead |
 
 Screenshots taken only to keep a picture (every other `screenshot` call in the scripts, 27 of them, and the `ASTRAEUS_SCREENSHOT`, `ASTRAEUS_INFO_SCREENSHOTS` and `ASTRAEUS_METRIC_SCREENSHOTS` options of `browser-shell`) were removed with nothing replacing them: no assertion read them.
+
+## Jupiter and its moons (O-025 T-098)
+
+`browser-jupiter-io.mjs` now opens Jupiter with its four mapped moons and the 111 small moons. Changed scenarios and where each prior assertion went:
+
+| Before | Now | Where the prior assertion is |
+|--------|-----|------------------------------|
+| Mounted bodies `jupiter,io`, one composition loop, object list Jupiter, Io, sky | `jupiter,io,europa,ganymede,callisto`, Io's loop as before plus 114 batched orbit lines (`data-body-set-orbits`), those five and the sky | same script |
+| Io's details state the mean-element figure (9,388 km), "approximate demonstration" and the source's warning | Io's details state Horizons and the fits' 0.0994 m | the mean-element record and its 9,388 km figure: `tests/jupiterIo.test.ts` ("kept as the record: the mean-element model ..."); Io against Horizons through the resolver: same file ("is placed where Horizons puts it") |
+
+New (driver: `bodySetReadout`, `pointAtScene`, `tapScene`, `bodySetNameShown`, `bodySetNamesShown`, toggle `moon-orbits`, sliders `ring-*-opacity`): every catalogued moon drawn (111 + 4), no names before asking, a dot's name on hover (desktop) or tap (phone), the smallest moon a ball far wider than its dot and named up close, the four ring bands drawn at the NSSDC radii in the donor's look and taking the live opacity (`data-ring-bands`, driver `ringReadout`; desktop), one distinct orbit colour per family. Phone-class frame time: `on-request/probe-phone-frames.mjs` (CPU throttled through DevTools).

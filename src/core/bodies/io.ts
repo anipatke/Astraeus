@@ -7,6 +7,7 @@ import { createTwoBodyTrajectory } from "../sunCentredSources";
 import type { Trajectory } from "../trajectory";
 import { createOrbTwoBodyAdapter } from "../twoBodyAdapter";
 import { JUPITER } from "./jupiter";
+import { createFittedMoonTrajectory, fittedMoonPosition, JUPITER_MOON_FIT_SPAN } from "./jupiterMoons";
 
 const DEGREES = Math.PI / 180;
 const ORIENTATION_SAMPLE_SECONDS = 1800;
@@ -105,7 +106,8 @@ export function createIoTrajectory(): Trajectory {
   });
 }
 
-const IO_VALID_UTC = Object.freeze({ startUtcMs: Date.UTC(1969, 6, 21), endUtcMs: Date.UTC(2030, 5, 1) });
+/** The dates the mean-element model was compared over (T-078); not the dates Io is valid for now (the fits). */
+export const IO_MEAN_ELEMENT_VALID_UTC = Object.freeze({ startUtcMs: Date.UTC(1969, 6, 21), endUtcMs: Date.UTC(2030, 5, 1) });
 const HORIZONS_PHYSICAL = "JPL Horizons satellite physical properties for Io 501 (https://ssd.jpl.nasa.gov/api/horizons.api, header archived in tests/fixtures/io-horizons-source.txt), read 2026-10-12";
 
 /** The largest Jupiter-centred distance from Horizons over the six compared dates (tests/jupiterIo.test.ts asserts this). */
@@ -135,15 +137,11 @@ export const IO: CelestialBodyDefinition = Object.freeze({
       accuracy: "Mean radius 1821.49 km and GM 5959.9155 km^3/s^2 as printed in the Horizons header; Io is drawn as a sphere.",
       notes: "Gravitational parameter in km^3/s^2.",
     }),
-    position: createProvenance({
-      sourceType: "reconstructed",
-      sources: [IO_MEAN_ELEMENTS.citation, "Unperturbed two-body motion about Jupiter's GM (JPL Horizons physical data for Jupiter)"],
-      accuracy: `Position was compared with JPL Horizons (jup365_merged) at six dates from 1969 to 2030: the largest difference is about ${IO_MAX_ERROR_KM.toLocaleString("en-US")} km, ${(IO_MAX_ERROR_KM / IO_DIAMETER_KM).toFixed(1)} Io diameters, so this is an approximate demonstration. See docs/ASTRONOMY_VALIDATION.md.`,
-      notes: "Geometric position about Jupiter's centre; no light-time.",
-    }),
-    validUtc: IO_VALID_UTC,
-    orientationLimitations: Object.freeze([IO_TIDAL_LOCK_LIMITATION, ...IO_EPHEMERIS_LIMITATIONS]),
+    position: fittedMoonPosition("Io", 0.0994),
+    validUtc: JUPITER_MOON_FIT_SPAN,
+    orientationLimitations: Object.freeze([IO_TIDAL_LOCK_LIMITATION]),
   }),
 });
 
-export const IO_BINDING: StateSourceBinding = Object.freeze({ body: IO.id, create: () => createIoTrajectory() });
+/** Io's position comes from the core curve fits (JPL Horizons, O-025 Decision 3); the mean-element model above is kept as the record T-078 measured. */
+export const IO_BINDING: StateSourceBinding = Object.freeze({ body: IO.id, create: () => createFittedMoonTrajectory(IO.id) });

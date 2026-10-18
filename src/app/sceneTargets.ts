@@ -3,6 +3,7 @@ import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FocusId } from "./CameraController";
 import { stateIfInBounds } from "./mission";
+import type { BodySetView } from "./BodySetView";
 import type { PathView } from "./PathView";
 import type { PointsView } from "./PointsView";
 import type { RenderVector } from "./renderCoordinates";
@@ -19,6 +20,8 @@ export interface SceneTargets {
   readonly groupViews: readonly PointsView[];
   readonly sunCentredViews: readonly PathView[];
   readonly trackedViews: readonly TrackedBodyView[];
+  /** Body sets: each member id is a focus target. Absent: none. */
+  readonly bodySetViews?: readonly BodySetView[];
   readonly timeUtcMs: number;
   readonly policy: ScalePolicy;
   readonly placement: ScenePlacement;
@@ -32,6 +35,8 @@ export function focusAbsoluteOf(targets: SceneTargets, focus: FocusId): RenderVe
   if (group) return group.absolute();
   const sunCentred = targets.sunCentredViews.find((candidate) => candidate.id === focus);
   if (sunCentred) return sunCentred.absolute();
+  const member = bodySetMemberAbsolute(targets, focus);
+  if (member !== null) return member;
   const view = targets.trackedViews.find((candidate) => candidate.body.id === focus);
   if (!view) throw new RangeError(`unknown focus target "${focus}"`);
   return view.absolute(targets.timeUtcMs, targets.policy, targets.placement);
@@ -57,4 +62,13 @@ export function labelPositionOf(targets: SceneTargets, id: string): RenderVector
   const view = targets.trackedViews.find((candidate) => candidate.body.id === id);
   if (view === undefined || stateIfInBounds(view.body, targets.timeUtcMs) === null) return null;
   return view.absolute(targets.timeUtcMs, targets.policy, targets.placement);
+}
+
+/** Where a body-set member is, or null when no set holds that id. */
+export function bodySetMemberAbsolute(targets: Pick<SceneTargets, "bodySetViews">, id: string): RenderVector | null {
+  for (const view of targets.bodySetViews ?? []) {
+    const at = view.memberAbsolute(id);
+    if (at !== null) return at;
+  }
+  return null;
 }

@@ -4,6 +4,8 @@ import type { WebGLRenderer } from "three";
 import { loadStarCatalogue } from "../assets/sky";
 import type { SceneRuntime } from "./AstraeusScene";
 import { compositionPathView, createPathViews } from "./PathView";
+import { BodySetView } from "./BodySetView";
+import { OrbitSetView } from "./OrbitSetView";
 import { PointsView } from "./PointsView";
 import { SkyView } from "./SkyView";
 import { TrackedBodyView } from "./TrackedBodyView";
@@ -57,5 +59,9 @@ export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver)), [runtime.composition, runtime.resolver]);
   const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null }) : null), [runtime.sky, gl]);
-  return { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView };
+  const bodySetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)), [runtime.bodySets]);
+  const orbitSetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)), [runtime.bodySets]);
+  useEffect(() => () => { for (const view of bodySetViews) view.dispose(); }, [bodySetViews]);
+  useEffect(() => () => { for (const view of orbitSetViews) view.dispose(); }, [orbitSetViews]);
+  return { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, bodySetViews, orbitSetViews };
 }

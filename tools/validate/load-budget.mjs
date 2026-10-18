@@ -25,12 +25,15 @@ export const PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 260_000, gzipLimit: 240_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
   { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "panels.js", "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
-  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg"], rawLimit: 4_000_000, gzipLimit: 1_990_000 },
+  // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
+  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js). Measured 2026-10-18 on the public build plus 5%.
+  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin"], rawLimit: 7_270_000, gzipLimit: 4_630_000 },
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
   { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
 ];
 /** Every file of the build together (also the net for a file no page set lists). */
-export const BUILD_LIMIT = { id: "whole build", rawLimit: 22_500_000, gzipLimit: 14_860_000 };
+// T-098 raised it for the Jupiter moons (three moon pictures, the fit index and the 2016 fit chunks): measured 2026-10-18 plus 5%.
+export const BUILD_LIMIT = { id: "whole build", rawLimit: 25_700_000, gzipLimit: 17_410_000 };
 
 function* walk(directory) {
   for (const name of readdirSync(directory)) {
@@ -112,6 +115,12 @@ export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIM
           }
         }
         queue = next;
+      }
+      // Files the page fetches by URL rather than imports (a window's curve-fit chunks): every file with the stem counts.
+      for (const entry of page.fetchedFiles ?? []) {
+        const found = findFiles(names, entry);
+        if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
+        files.push(...found.filter((name) => !files.includes(name)));
       }
       for (const [entry, found] of severalEntries) {
         if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
