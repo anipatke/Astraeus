@@ -22,6 +22,11 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 2. The rest: grey dots, a grey ball when close, names on hover, tap or zoom (owner chose over all-labelled and best-guess looks).
 3. Positions exact from NASA JPL Horizons tables for every moon (owner chose over approximate published orbits); this takes the O-019 T-078 finding (mean elements fail for some moons) for Jupiter.
 
+## Architectural Decision (owner, 2026-10-18)
+
+8. **Moon data is core** (owner: "all this moon data will be part of the core package, unlike shower data and Apollo data which are add one for the demo"): Jupiter's moon positions (the Horizons tables), the moon list and family groups, the four textured moons' body packages and tagged places, and the ring bands belong to Astraeus's reusable core assets, usable by any experience — not to the Jupiter demo. The demo is a thin story layer on top (its window, start view, story panels). Shower meteor data and Apollo 11's mission data stay demo add-ons (owner rule, 2026-10-16). Core data still is data, never engine code (ARCH-01; `data/bodies/README.md`), each set with its source and licence (PROV-02).
+   - Planning question that follows: the core tables' time span. A core asset serves any date an experience asks for, not only the demo's year; the span (for example 1950-2050 at a step fine enough for the inner moons) is set against the load budget, with only the demo's needed span fetched at run time.
+
 ## Success Conditions
 
 1. Every moon Horizons lists for Jupiter at build time is present, with its name and source; the count and the table date are recorded and shown in the information panel and the details.
