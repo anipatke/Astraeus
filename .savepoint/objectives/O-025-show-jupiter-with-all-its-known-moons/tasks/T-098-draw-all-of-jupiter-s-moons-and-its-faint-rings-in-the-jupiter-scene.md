@@ -23,9 +23,10 @@ Open the Jupiter demo, zoom out to see the swarm of dots far from Jupiter, zoom 
 1. O-025 Decisions 2, 7 and 9: dots for the small moons drawn as one batch (like the showers' points), a pixel floor so they never vanish, a grey ball at true size when close; names appear on hover, tap or near zoom only (no wall of labels).
 2. The four mapped moons draw as today (textures, lighting, tagged places from their packages).
 3. Rings: Planetary Explorer's bands lifted as-is in colour and opacity (halo #a0b0d0 0.105, main #d0a080 0.28, inner gossamer #b08060 0.065, outer gossamer #a07050 0.026; `/home/user/code/planetary-explorer/src/entities/jupiter.ts`, `PlanetRingSystem.tsx`), placed at the real rings' radii from a published source (the owner's chosen deviation), flat in Jupiter's equator; opacities and colours are live settings.
-4. Positions from the T-096 provider; generic engine and presentation code (no Jupiter names outside data, ARCH-01); an experience may choose which bodies to show (O-025 Decision 8: the rest stay "on the shelf").
-5. Phone performance: frame time measured on a throttled phone-class run with all moons and rings shown, no worse than today's Jupiter–Io demo by more than a stated margin.
-6. Browser checks through the shared driver (moon count drawn, a dot's name on hover, a small moon's ball up close, rings present); full run passes; owner look.
+4. **Family-coloured orbits** (owner, 2026-10-18: "would be cool to have different coloured orbits for each family"): each moon's orbit line is drawn in its family's colour (families from T-097's `data/moons/jupiter.json`), in the faint I-035 orbit look and batched so 115 orbits stay cheap; one colour per family from a palette that reads on the dark sky and stays distinguishable for common colour-vision differences; the palette is live settings (owner rule); the dots stay grey (owner's choice, Decision 2); orbit labels stay off by default (owner, 2026-10-18); T-099's family highlight brightens that family's orbits.
+5. Positions from the T-096 provider; generic engine and presentation code (no Jupiter names outside data, ARCH-01); an experience may choose which bodies to show (O-025 Decision 8: the rest stay "on the shelf").
+6. Phone performance: frame time measured on a throttled phone-class run with all moons and rings shown, no worse than today's Jupiter–Io demo by more than a stated margin.
+7. Browser checks through the shared driver (moon count drawn, a dot's name on hover, a small moon's ball up close, rings present, one orbit colour per family); full run passes; owner look.
 
 ## Context Files
 
