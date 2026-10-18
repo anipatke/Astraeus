@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
 import { proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
-import { BUILD_LIMIT, PAGES, proveLoadBudgetFails, staticImportsOf } from "../tools/validate/load-budget.mjs";
+import { BUILD_LIMIT, PAGES, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
@@ -118,6 +118,14 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(/imports assets\/extra-AbCdEf12\.js, which the page set does not list/);
     expect(proof.unlistedFile.ok).toBe(false);
     expect(proof.unlistedFile.pages[proof.unlistedFile.pages.length - 1]?.id).toBe("whole build");
+  });
+
+  it("lists only the same-named chunks a page's scripts import when the bundler splits one stem into several (T-089: one panels chunk per story)", () => {
+    const proof = proveSameStemChunks();
+    expect(proof.first).toMatchObject({ files: 3, problems: [] });
+    expect(proof.chained).toMatchObject({ files: 4, problems: [] });
+    expect(proof.stemLeftOut.problems.join(" ")).toMatch(/imports assets\/panels-AAAAAAAA\.js, which the page set does not list/);
+    expect(proof.notImported.problems.join(" ")).toMatch(/panels\.js names 3 files, none of which a listed script imports/);
   });
 
   it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {

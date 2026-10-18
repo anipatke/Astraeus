@@ -1,4 +1,4 @@
-// Story panels (O-015 / T-059): auto-open on forward playback, brief pause, one at a time, markers, settings, phone sheet.
+// Story panels (O-015 / T-059): auto-open on forward playback, brief pause, one at a time, markers, settings, phone sheet; T-089 adds the Geminids, Earth–Moon and Jupiter–Io stories.
 // Run the app, then:
 //   PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_URL=http://localhost:5401/app.html ASTRAEUS_OUT=docs/evidence/o015-t059-<UTC stamp> node tools/validate/browser-story-panels.mjs
 // Writes screenshots and results.json into ASTRAEUS_OUT, which must not already hold files (historical evidence is never overwritten).
@@ -20,7 +20,15 @@ const perseidsPanels = readJson("data/stories/perseids/panels.json").panels;
 const anchorTimes = new Map(readJson("data/apollo11/normalised/anchors.json").anchors.map((anchor) => [anchor.id, anchor.timeUtcMs]));
 const eventTimes = new Map(readJson("data/apollo11/generated/events.json").events.map((event) => [event.id, event.timeUtcMs]));
 const apolloTime = (panel) => panel.at.anchor !== undefined ? anchorTimes.get(panel.at.anchor) : panel.at.event !== undefined ? eventTimes.get(panel.at.event) : Date.parse(panel.at.utc);
-const perseidsUrl = process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=shower-perseids`;
+// T-089: the three further stories, each a panels file under data/stories/<story>/ (times are utc, or the shower's peak event).
+const geminidsPeak = Date.parse(readJson("data/showers/geminids.json").activity.peakUtc);
+const utcOr = (events) => (panel) => panel.at.utc !== undefined ? Date.parse(panel.at.utc) : events[panel.at.event];
+const moreStories = [
+  { name: "Geminids", experience: "shower-geminids", time: utcOr({ "geminids-peak": geminidsPeak }), file: "data/stories/geminids/panels.json" },
+  { name: "Earth–Moon", experience: "earth-moon", time: utcOr({}), file: "data/stories/earth-moon/panels.json" },
+  { name: "Jupiter–Io", experience: "jupiter-io", time: utcOr({}), file: "data/stories/jupiter-io/panels.json" },
+].map((story) => ({ ...story, panels: [...readJson(story.file).panels].sort((a, b) => story.time(a) - story.time(b)) }));
+const perseidsUrl =process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=shower-perseids`;
 const TLI = -14542676800; // anchor A-02
 const LANDING = -14182940100; // anchor A-LND
 const results = [];
@@ -294,6 +302,63 @@ try {
   }
   note("phone sheets for two Perseids panels captured");
   await perPhone.close();
+
+  // ---- T-089: the Geminids, Earth–Moon and Jupiter–Io stories, through the same generic panel path ----
+  // Each panel: seek to half a second of playback before it, play, and it must open by itself, in time order, with its badge,
+  // a source line, and one folded section, closed by default, that holds its details.
+  const openStory = async (experience) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
+    page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+    await page.goto(`${url}?experience=${experience}`);
+    await page.waitForSelector("canvas");
+    await ui.waitForShell(page);
+    return { context, page };
+  };
+  for (const story of moreStories) {
+    const { context, page } = await openStory(story.experience);
+    assert.equal(await ui.storyMarkers(page).count(), story.panels.length, `${story.name}: a timeline marker per panel`);
+    const rate = Number(await ui.speed(page));
+    const storyOpened = [];
+    for (const panel of story.panels) {
+      await ui.ensurePaused(page);
+      await seekTo(page, Math.round(story.time(panel) - rate * 500));
+      await page.waitForTimeout(250);
+      assert.equal((await openPanelIds(page)).includes(panel.id), false, `${panel.id}: a seek does not open it`);
+      await ui.playPlayback(page);
+      await ui.storyPanel(page, panel.id).waitFor({ timeout: 15000 });
+      storyOpened.push((await openPanelIds(page)).join(","));
+      assert.equal(await ui.storyPanelBadge(page), panel.badge, `${panel.id} badge`);
+      assert.match(await ui.storyPanel(page).innerText(), new RegExp(panel.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.ok((await ui.storyPanelSources(page)) >= 1, `${panel.id} has a source line`);
+      assert.equal(await ui.storySectionCount(page), 1, `${panel.id}: one folded section`);
+      assert.equal(await ui.storySourcesOpen(page), false, `${panel.id}: the section is closed by default`);
+      await ui.openStorySources(page);
+      assert.ok((await ui.storyPanelDetails(page)).length >= 1, `${panel.id}: details sit in the folded section`);
+      await ui.closeStorySources(page);
+      await page.waitForTimeout(600);
+      await page.screenshot({ path: `${out}/${story.experience}-desktop-${panel.id}.png` });
+      await ui.closeStoryPanel(page);
+    }
+    assert.deepEqual(storyOpened, story.panels.map((panel) => panel.id), `${story.name} panels open in order on playback`);
+    // A timeline marker reopens a panel after playback has passed it.
+    await ui.ensurePaused(page);
+    await ui.openStoryPanel(page, story.panels[0].id);
+    await ui.storyPanel(page, story.panels[0].id).waitFor({ timeout: 5000 });
+    assert.deepEqual(await openPanelIds(page), [story.panels[0].id], `${story.name}: a marker reopens its panel`);
+    note(`${story.name} panels open in order on playback; a marker reopens one`, storyOpened.join(" > "));
+    await context.close();
+  }
+
+  // The Geminids' shower-only view (span=activity) keeps the two December panels and leaves out the September one.
+  {
+    const { context, page } = await openStory("shower-geminids&span=activity");
+    assert.equal(await ui.storyMarkers(page).count(), 2, "Geminids activity view: two markers");
+    assert.equal(await ui.storyMarkers(page, "phaethon").count(), 0, "Geminids activity view: the September panel is left out");
+    note("Geminids activity view keeps the two December panels");
+    await context.close();
+  }
 
   assert.deepEqual(errors, [], "zero console errors");
   note("zero console errors");

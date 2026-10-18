@@ -24,8 +24,8 @@ export const PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 260_000, gzipLimit: 240_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
-  { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
-  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg"], rawLimit: 4_000_000, gzipLimit: 1_990_000 },
+  { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "panels.js", "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
+  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg"], rawLimit: 4_000_000, gzipLimit: 1_990_000 },
   { id: "app.html?experience=shower-perseids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
   { id: "app.html?experience=shower-geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
 ];
@@ -42,11 +42,12 @@ function* walk(directory) {
 const relativeTo = (distDir, path) => path.slice(distDir.length + 1).split("\\").join("/");
 
 /** The built file for a `<stem>.<ext>` entry: assets/<stem>-<8 hash characters>.<ext>, or the page itself. Undefined when the build has none. */
-function findFile(names, entry) {
-  if (entry.endsWith(".html")) return names.includes(entry) ? entry : undefined;
+/** Every hashed file in the build whose stem is the entry's (several when the bundler splits same-named modules, e.g. one `panels` chunk per story). */
+function findFiles(names, entry) {
+  if (entry.endsWith(".html")) return names.includes(entry) ? [entry] : [];
   const dot = entry.lastIndexOf(".");
   const pattern = new RegExp(`^assets/${entry.slice(0, dot).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-[A-Za-z0-9_-]{8}\\.${entry.slice(dot + 1)}$`);
-  return names.find((name) => pattern.test(name));
+  return names.filter((name) => pattern.test(name));
 }
 
 /** The assets/ files a site page names, and the ones those name in turn (a script or style it loads): the most a visitor can download, lazy pictures included. */
@@ -93,10 +94,27 @@ export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIM
       if (names.includes(page.htmlPage)) files = siteFiles(distDir, names, page.htmlPage);
       else problems.push(`${page.htmlPage} is not in the build`);
     } else {
+      // A stem that names one file lists it. A stem that names several (same-named modules split per importer) lists only those a listed
+      // script imports at load, followed through the chain: the page fetches those and no others, and an unrelated new chunk still fails.
+      const several = new Set();
+      const severalEntries = [];
       for (const entry of page.files) {
-        const found = findFile(names, entry);
-        if (found === undefined) problems.push(`${entry} is not in the build (the page set is out of date)`);
-        else files.push(found);
+        const found = findFiles(names, entry);
+        if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
+        else if (found.length === 1) files.push(found[0]);
+        else { severalEntries.push([entry, found]); for (const name of found) several.add(name); }
+      }
+      for (let queue = files.filter((name) => name.endsWith(".js")); queue.length > 0;) {
+        const next = [];
+        for (const file of queue) {
+          for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
+            if (several.has(imported) && !files.includes(imported)) { files.push(imported); next.push(imported); }
+          }
+        }
+        queue = next;
+      }
+      for (const [entry, found] of severalEntries) {
+        if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
       }
       files = [...new Set(files)];
       const listed = new Set(files);
@@ -151,6 +169,34 @@ export function proveLoadBudgetFails() {
     };
   } finally {
     rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Made-up builds for a stem the bundler splits into several chunks (one `panels` chunk per story, T-089): a page set naming the stem once
+ * admits exactly the chunks its scripts import, through a chain; leaving the stem out, or naming it where no listed script imports it, fails.
+ */
+export function proveSameStemChunks() {
+  const dir = mkdtempSync(join(tmpdir(), "astraeus-same-stem-"));
+  try {
+    mkdirSync(join(dir, "assets"));
+    writeFileSync(join(dir, "app.html"), "<html></html>");
+    writeFileSync(join(dir, "assets", "first-AbCdEf12.js"), 'import"./panels-AAAAAAAA.js";');
+    writeFileSync(join(dir, "assets", "second-AbCdEf12.js"), 'import"./panels-BBBBBBBB.js";');
+    writeFileSync(join(dir, "assets", "panels-AAAAAAAA.js"), "export const a = 1;");
+    writeFileSync(join(dir, "assets", "panels-BBBBBBBB.js"), 'import"./panels-CCCCCCCC.js";export const b = 2;');
+    writeFileSync(join(dir, "assets", "panels-CCCCCCCC.js"), "export const c = 3;");
+    writeFileSync(join(dir, "assets", "stray-AbCdEf12.js"), "export const d = 4;");
+    const limits = { rawLimit: 100_000, gzipLimit: 100_000 };
+    const check = (files) => checkLoadBudget({ distDir: dir, pages: [{ id: "page", files, ...limits }], buildLimit: { id: "whole build", ...limits } }).pages[0];
+    return {
+      first: check(["app.html", "first.js", "panels.js"]),
+      chained: check(["app.html", "second.js", "panels.js"]),
+      stemLeftOut: check(["app.html", "first.js"]),
+      notImported: check(["app.html", "stray.js", "panels.js"]),
+    };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 }
 

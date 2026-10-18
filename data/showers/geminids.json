@@ -111,6 +111,9 @@
     "cameraMaxFocusDistance": 400000,
     "cameraFar": 1200000
   },
+  "story": {
+    "panels": "data/stories/geminids/panels.json"
+  },
   "activity": {
     "startUtc": "2026-12-04T00:00:00Z",
     "endUtc": "2026-12-18T00:00:00Z",

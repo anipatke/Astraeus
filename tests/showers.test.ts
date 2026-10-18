@@ -632,8 +632,9 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
 
   it("carries no panels unless the settings name them", () => {
     expect(build(clone()).experience.storyPanels).toBeUndefined();
-    expect(buildShowerDefinition(parseShowerSettings(geminidsFile), { kind: "absent" }).experience.storyPanels).toBeUndefined();
-    expect((geminidsFile as Record<string, unknown>).story).toBeUndefined();
+    // The Geminids now carry their own story (T-089); a shower without a story block still has none.
+    const { story: _story, ...geminidsWithoutStory } = geminidsFile as Record<string, unknown>;
+    expect(buildShowerDefinition(parseShowerSettings(geminidsWithoutStory), { kind: "absent" }).experience.storyPanels).toBeUndefined();
   });
 
   it("reads a panels file by the path the settings name", () => {

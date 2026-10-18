@@ -1,0 +1,95 @@
+{
+  "results": {
+    "desktop-true": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 1122947,
+          "off": 1060617,
+          "back": 1122947
+        },
+        "Fade ring ends": {
+          "on": 1122947,
+          "off": 1126362,
+          "back": 1122947
+        },
+        "Trailing arc": {
+          "on": 1122947,
+          "off": 1122382,
+          "back": 1122947
+        },
+        "Brighten when zoomed out": {
+          "on": 1122947,
+          "off": 1122947,
+          "back": 1122947
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 1122947,
+        "litAfter": 1337737
+      }
+    },
+    "desktop-readable": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 1082567,
+          "off": 1046361,
+          "back": 1082567
+        },
+        "Fade ring ends": {
+          "on": 1082567,
+          "off": 1082626,
+          "back": 1082567
+        },
+        "Trailing arc": {
+          "on": 1082567,
+          "off": 1082521,
+          "back": 1082567
+        },
+        "Brighten when zoomed out": {
+          "on": 1082567,
+          "off": 1082567,
+          "back": 1082567
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 1082567,
+        "litAfter": 1206699
+      }
+    },
+    "phone": {
+      "toggles": {
+        "Orbit ring": {
+          "on": 416056,
+          "off": 412067,
+          "back": 416056
+        },
+        "Fade ring ends": {
+          "on": 416056,
+          "off": 416218,
+          "back": 416056
+        },
+        "Trailing arc": {
+          "on": 416056,
+          "off": 416025,
+          "back": 416056
+        },
+        "Brighten when zoomed out": {
+          "on": 416056,
+          "off": 416056,
+          "back": 416056
+        }
+      },
+      "slider": {
+        "before": "0.18",
+        "set": "0.80",
+        "litBefore": 416056,
+        "litAfter": 430026
+      }
+    }
+  },
+  "errors": []
+}
