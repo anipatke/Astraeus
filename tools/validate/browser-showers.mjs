@@ -58,7 +58,7 @@
 //   T-038 additions:
 //     the comet and the planets are visible with labels ......... checkBodies: over a zoom sweep every body's label is shown, the planets and Earth draw as markers at
 //                                                                 true scale and Earth and at least two other planets draw as bodies under the solar-system scale
-//     the comet's whole orbit is drawn and the preset frames it .. checkWholeOrbit: the "Whole orbit" preset leaves the violet orbit spanning most of the canvas
+//     the comet's whole orbit is drawn and the preset frames it .. checkWholeOrbit: the "Whole orbit" preset leaves the orbit line (the scene path readout, I-040) in view and spanning most of the canvas
 //     the crossing is at the peak ................................ checkCrossing: the instant the peak marker seeks to has solar longitude 140.1 (J2000; low-precision
 //                                                                 almanac formula, written here) within 0.3 deg, and the rate readout peaks there
 //     no data, no stream ........................................ checkNotFetched: with the orbit file blocked the stream is not drawn and its panel says "not fetched"
@@ -283,22 +283,24 @@ async function checkSunEarth(page, label, shot, canvas) {
     // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
     // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
     const whole = await pathPixels(page);
-    // I-037: the comet's whole orbit is drawn in the Overview, proved from the scene alone (ui.sceneCanvasPng blacks out the timeline bar, whose purple strip once supplied the old violet count).
-    // The scene draws the parent's orbit in the I-035 look, a pale lavender line (about 213,180,199 in the Overview), which the `orbit` test in pathPixels matches; the stream (amber), Earth's
-    // path (blue) and the planets' orbits (tan) do not. Negative probe: the same test with the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view
-    // (Focus Earth is no probe: the comet's orbit passes close by Earth), must find far fewer, so the test measures the orbit.
-    out.path[`${name}WholeOrbitViolet`] = whole.violet;
-    out.path[`${name}WholeOrbitPixels`] = whole.orbit;
+    // I-040: the comet's whole orbit is drawn in the Overview, proved from the line itself: the scene's path readout (driver.scenePath) says the line is visible, has its vertices and that they
+    // lie in the view, with labels on or off. (I-037 moved a colour count off the timeline strip; the orbit's label, in the same colour, then supplied most of that count, so the colour count
+    // is recorded below but no longer asserted.) Negative probe: the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view, must read fewer
+    // vertices in view (a short orbit such as the Geminids' keeps its near-Sun end in view, so the bar is 60%, not a quarter) (Focus Earth is no probe: the comet's orbit passes close by Earth).
+    out.path[`${name}WholeOrbitPixels`] = whole.orbit; // recorded only
+    const orbitLine = await ui.scenePath(page, `${parent}-orbit`);
+    out.path[`${name}WholeOrbitReadout`] = orbitLine;
+    assert.ok(orbitLine?.visible, `${label}/${name}: the comet's orbit line is drawn (visible in the scene's path readout; the scene's paths: ${JSON.stringify(await ui.scenePaths(page))})`);
+    assert.ok(orbitLine.vertices >= 500 && orbitLine.inView >= 0.9 * orbitLine.vertices, `${label}/${name}: the comet's whole orbit is in view in the Overview (${orbitLine.inView} of ${orbitLine.vertices} vertices)`);
+    assert.ok(Math.max(orbitLine.spanX, orbitLine.spanY) > 0.03, `${label}/${name}: the comet's orbit is a line with an extent in the view, not a point (${orbitLine.spanX} x ${orbitLine.spanY}; the Overview frames it small at some times, the Whole orbit preset is asserted to span over 30%)`);
     if (name === "start") {
-      // At the peak the Overview framing puts the orbit's line under the dense stream and the Sun's glow, so the peak is not asserted here: checkWholeOrbit asserts the orbit is drawn at the peak (Whole orbit preset, scene only).
-      assert.ok(whole.orbit > 100, `${label}/${name}: the comet's whole orbit is drawn in the Overview, scene only (${whole.orbit} orbit-coloured pixels)`);
       const boxN = await canvas.boundingBox();
       await page.mouse.move(boxN.x + boxN.width / 2, boxN.y + boxN.height / 2);
       for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
       await page.waitForTimeout(1200);
-      const without = await pathPixels(page);
-      out.path.startOrbitOutOfViewPixels = without.orbit;
-      assert.ok(without.orbit < whole.orbit / 4, `${label}/${name}: the orbit test finds the line only when it is in view (${without.orbit} with it out of view, ${whole.orbit} in the Overview)`);
+      const without = await ui.scenePath(page, `${parent}-orbit`);
+      out.path.startOrbitOutOfViewReadout = without;
+      assert.ok(without.inView < orbitLine.inView * 0.6, `${label}/${name}: the path readout finds the line only when it is in view (${without.inView} vertices in view with it out of view, ${orbitLine.inView} in the Overview)`);
     }
     await choose("sun", "overview");
     const box0 = await canvas.boundingBox();
@@ -501,32 +503,15 @@ async function checkWholeOrbit(page, label, shot, canvas) {
   await ui.chooseCamera(page, "whole-orbit");
   await ui.closeAllPanelsNow(page);
   await page.waitForTimeout(2500);
-  const png = (await canvas.screenshot()).toString("base64"); // unmasked on purpose for the extent: the Whole orbit extent is violet, the bar has none, and a masked picture of this canvas read a different extent (T-084); the scene-only count is asserted below (I-037)
-  const extent = await page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let [minX, maxX, minY, maxY, count] = [copy.width, 0, copy.height, 0, 0];
-    for (let i = 0; i < pixels.length; i += 4) {
-      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
-      if (b > 110 && r - g > 15 && b - r > 25) { const x = (i / 4) % copy.width; const y = Math.floor(i / 4 / copy.width); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); count += 1; }
-    }
-    return { minX, maxX, minY, maxY, count, width: copy.width, height: copy.height };
-  }, png);
-  out.violet = extent;
-  const scene = await pathPixels(page); // scene only: the timeline bar is blacked out, so only the canvas can supply these pixels (I-037)
+  await shot("whole-orbit"); // before the assertions, so a failure leaves the picture
+  // I-040: proved from the line itself (the scene's path readout), not from orbit-coloured pixels, which the orbit's same-coloured label used to supply. The preset must frame the whole line.
+  const line = await ui.scenePath(page, `${parent}-orbit`);
+  out.readout = line;
+  const scene = await pathPixels(page); // recorded only
   out.sceneOrbitPixels = scene.orbit;
-  assert.ok(scene.orbit > 150, `${label}: the comet's whole orbit is drawn in the scene at the peak (${scene.orbit} orbit-coloured pixels, bar masked)`);
-  const spanY = (extent.maxY - extent.minY) / extent.height;
-  const spanX = (extent.maxX - extent.minX) / extent.width;
-  assert.ok(extent.count > 150, `${label}: the comet's whole orbit is drawn (${extent.count} violet pixels)`);
-  assert.ok(Math.max(spanX, spanY) > 0.3, `${label}: the Whole orbit preset frames the orbit, a substantial part of the canvas (over 30% in one direction; the orbit is inclined 113 degrees to the ecliptic the camera now looks along) (${spanX.toFixed(2)} x ${spanY.toFixed(2)})`);
-  await shot("whole-orbit");
+  assert.ok(line?.visible, `${label}: the comet's orbit line is drawn at the peak (visible in the path readout)`);
+  assert.ok(line.inView >= 0.9 * line.vertices, `${label}: the Whole orbit preset has the whole line in view (${line.inView} of ${line.vertices} vertices)`);
+  assert.ok(Math.max(line.spanX, line.spanY) > 0.2, `${label}: the Whole orbit preset frames the orbit, a substantial part of the view (over 20% in one direction: the line's own vertices, measured 0.25 for the Perseids' 113-degree orbit seen nearly end-on, where the old violet-pixel box read over 30%) (${line.spanX} x ${line.spanY})`);
 }
 
 // The Sun's longitude in the J2000.0 ecliptic and equinox. CONVENTION (I-027): the IAU MDC peak solar longitudes ("All records on J2000") are J2000 values. The

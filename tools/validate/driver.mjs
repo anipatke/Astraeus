@@ -739,6 +739,17 @@ export function scaleMenu(page) {
 
 /** The scene canvas (pictures and its `data-*` readouts). */
 export const sceneCanvas = (page) => page.getByTestId("earth-moon-canvas");
+/**
+ * Each drawn path line as the scene reports it (`data-paths`, I-040): { id, visible, vertices, inView, spanX, spanY }, where inView counts the vertices in front of the camera and
+ * inside the view and spanX/spanY are the share of the view (0 to 1) they cover. It describes the line, never its label, so "the orbit is drawn" is asserted from this and not from colour.
+ */
+export async function scenePaths(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-paths")) ?? "[]");
+}
+/** One path's readout by id (for example `earth-path`, `1p-orbit`), or undefined when the scene draws no such path. */
+export async function scenePath(page, id) {
+  return (await scenePaths(page)).find((path) => path.id === id);
+}
 /** The anchor-label layer: whether it is hidden, how many labels it holds, how many are on screen. */
 export const anchorLayerHidden = async (page) => (await page.locator(HOOK.anchorLabels).getAttribute("hidden")) !== null;
 export const anchorLabelCount = (page) => page.locator(`${HOOK.anchorLabels} .anchor-label`).count();

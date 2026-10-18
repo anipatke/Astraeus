@@ -28,7 +28,7 @@ import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
 import { rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
-import { buildFrameReadout, publishSceneData, recordFrameStats } from "./sceneDebug";
+import { buildFrameReadout, publishPathData, publishSceneData, recordFrameStats } from "./sceneDebug";
 import { bodyAbsolute, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import { placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
 import { placeBodyLights } from "./sceneLights";
@@ -276,6 +276,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin, { fovDeg: (camera as PerspectiveCamera).fov, viewportHeightPx: size.height });
     publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
+    publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);

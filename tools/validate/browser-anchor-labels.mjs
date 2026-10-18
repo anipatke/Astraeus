@@ -1,7 +1,8 @@
 // Spike 01 anchor-label regression against the current shell and Developer mode.
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-anchor-labels.mjs
-// Optional first argument selects a screenshot directory. Defaults are isolated from committed Spike 02 evidence.
+// Output directory (I-040): the first argument, else ASTRAEUS_EVIDENCE_DIR, else a fresh timestamped directory under the system temp directory. A plain call never writes into
+// committed evidence (historical evidence rule); pass a docs/evidence/ path deliberately to keep a run.
 //
 // Sizes (I-023): the scenario runs at 1280x800 (desktop) and again at 390x844 (phone) with the same assertions and expected values;
 // the phone run writes its screenshots and results with a `-phone` suffix. The only difference is how the Follow preset is chosen:
@@ -16,12 +17,14 @@
 //   zero console and page errors ....................... same
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import * as ui from "./driver.mjs";
 
 const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const out = process.argv[2] ?? "docs/evidence/regression-spike01-02/anchor-labels";
+const out = process.argv[2] ?? process.env.ASTRAEUS_EVIDENCE_DIR ?? join(tmpdir(), `astraeus-anchor-labels-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
