@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-015 Full Objective Check against T-089 Done When 5 ("The eclipse time is checked against a published table") and PROV-01. The catalogue's greatest-eclipse column is Terrestrial Dynamical Time (TD), not UT.
     check: C-071
+  - at: '2026-10-18T02:10:00Z'
+    actor: {role: executor, session: o020-orchestrator-20261018}
+    kind: repair_attempted
+    note: 'Panel opens at 2025-03-14T06:58:41Z; details give 06:58:41 UT with the working (catalogue 06:59:56 TD minus Delta T 75 s); both catalogue source lines now say TD. tests/storyStoriesAllDemos.test.ts derives the UT instant from the TD value and Delta T. Test file 8/8 pass. Full run and recheck pending.'
 ---
 
 # I-039: The Earth–Moon eclipse panel gives the catalogue's dynamical time as UT

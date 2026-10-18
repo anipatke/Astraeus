@@ -48,8 +48,11 @@ describe("short stories for the three demos without one (T-089)", () => {
 
   it("opens the eclipse panel at greatest eclipse in NASA's table, and the Earth–Moon full Moon at NASA's phase time", () => {
     const panels = earthMoonExplorer.experience.storyPanels!.panels;
-    expect(panels.find((panel) => panel.id === "red-moon")!.timeUtcMs).toBe(Date.parse("2025-03-14T06:59:56Z"));
-    expect(panels.find((panel) => panel.id === "red-moon")!.details.join(" ")).toMatch(/06:59:56 UT/);
+    // I-039: NASA's catalogue time is Terrestrial Dynamical Time; UT = TD - Delta T (75 s in 2025).
+    const catalogueTd = Date.parse("2025-03-14T06:59:56Z");
+    const deltaTSeconds = 75;
+    expect(panels.find((panel) => panel.id === "red-moon")!.timeUtcMs).toBe(catalogueTd - deltaTSeconds * 1000);
+    expect(panels.find((panel) => panel.id === "red-moon")!.details.join(" ")).toMatch(/06:58:41 UT/);
     expect(panels.find((panel) => panel.id === "drifting-away")!.timeUtcMs).toBe(Date.parse("2025-01-13T22:27:00Z"));
   });
 

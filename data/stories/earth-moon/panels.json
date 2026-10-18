@@ -51,7 +51,7 @@
     {
       "id": "red-moon",
       "at": {
-        "utc": "2025-03-14T06:59:56Z"
+        "utc": "2025-03-14T06:58:41Z"
       },
       "object": "earth",
       "title": "A red Moon in Earth's shadow",
@@ -61,13 +61,13 @@
         "That light has passed through Earth's air, as if every sunrise and sunset on Earth were shining on the Moon at once. People across the Americas watched it for about an hour."
       ],
       "details": [
-        "Greatest eclipse: 14 March 2025 at 06:59:56 UT (NASA catalogue of lunar eclipses, Espenak and Meeus, entry 09706: total eclipse, Saros 123, umbral magnitude 1.1784, totality 65.4 minutes, partial phases 218.3 minutes). The panel opens at greatest eclipse.",
+        "Greatest eclipse: 14 March 2025 at 06:58:41 UT. NASA's catalogue gives 06:59:56 in Terrestrial Dynamical Time (TD); minus Delta T of 75 s, that is 06:58:41 UT (catalogue of lunar eclipses, Espenak and Meeus, entry 09706: total eclipse, Saros 123, umbral magnitude 1.1784, totality 65.4 minutes, partial phases 218.3 minutes). The panel opens at greatest eclipse.",
         "Totality ran from 06:26 to 07:31 UTC (NASA), about 65 minutes. NASA lists the eclipse as visible from Earth's western hemisphere; its decade table names the Pacific, the Americas, western Europe and western Africa.",
         "The scene places the Moon from its ephemeris but does not draw Earth's shadow, so the Moon is not shown darkened or red."
       ],
       "sources": [
-        "NASA Goddard (F. Espenak and J. Meeus), Catalog of Lunar Eclipses 2001 to 2100: 09706, 2025 Mar 14, greatest eclipse 06:59:56 UT (Delta T 75 s), Saros 123, type T, umbral magnitude 1.1784, partial 218.3 min, total 65.4 min; https://eclipse.gsfc.nasa.gov/LEcat5/LE2001-2100.html (accessed 2026-10-18)",
-        "NASA Goddard, Lunar Eclipses 2021 to 2030: 2025 Mar 14, 06:59:56, total, Saros 123, totality 01h05m, visible Pacific, Americas, western Europe, western Africa; https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2021.html (accessed 2026-10-18)",
+        "NASA Goddard (F. Espenak and J. Meeus), Catalog of Lunar Eclipses 2001 to 2100: 09706, 2025 Mar 14, greatest eclipse 06:59:56 TD (Delta T 75 s, so 06:58:41 UT), Saros 123, type T, umbral magnitude 1.1784, partial 218.3 min, total 65.4 min; https://eclipse.gsfc.nasa.gov/LEcat5/LE2001-2100.html (accessed 2026-10-18)",
+        "NASA Goddard, Lunar Eclipses 2021 to 2030: 2025 Mar 14, 06:59:56 TD of greatest eclipse, total, Saros 123, totality 01h05m, visible Pacific, Americas, western Europe, western Africa; https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2021.html (accessed 2026-10-18)",
         "NASA Science, What You Need to Know about the March 2025 Total Lunar Eclipse: totality 06:26 to 07:31 UTC; \"It's as if all the world's sunrises and sunsets are projected onto the Moon\"; https://science.nasa.gov/solar-system/moon/what-you-need-to-know-about-the-march-2025-total-lunar-eclipse/ (accessed 2026-10-18)"
       ]
     }

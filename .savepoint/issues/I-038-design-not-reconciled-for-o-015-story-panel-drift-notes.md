@@ -16,6 +16,10 @@ history:
     kind: observed
     note: Found by the O-015 Full Objective Check against the AGENTS.md project rule "Deferred Design reconciliation". Five O-015 Task drift notes were deferred to "the O-015 integration", but O-015 owns no integration Task and Design.md still describes the pre-rescope story layer.
     check: C-071
+  - at: '2026-10-18T02:20:00Z'
+    actor: {role: planner, session: o020-orchestrator-20261018}
+    kind: repair_attempted
+    note: 'Design.md story-panel paragraph rewritten: details field and the folded Sources section (item 2); markers group by object with groupStoryMarkers/panelForMarkerPress and the clock time (item 1); every demo has a story, Earth–Moon due to go with T-093 (item 3); the eager glob bundling every story panels file on shower pages recorded as kept, with the reason (item 4, non-architectural); load-budget sentence gains the same-stem chunk rule (item 5); open-items paragraph no longer lists I-031 as open, states the owner read and accepted the panels on 2026-10-18 (item 6). Recheck pending.'
 ---
 
 # I-038: Design.md not reconciled for O-015 story-panel drift notes
