@@ -2,8 +2,7 @@
 id: T-096
 title: Store Jupiter's moon positions as NASA-checked curve fits in the core data
 objective: O-025
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}

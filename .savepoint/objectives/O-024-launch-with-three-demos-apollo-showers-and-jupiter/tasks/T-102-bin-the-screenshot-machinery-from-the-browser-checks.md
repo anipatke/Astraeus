@@ -7,6 +7,13 @@ stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
+check_waiver:
+    task: T-102
+    reason: "Owner waived the optional Task Check for this batch ('Waive the task checks just do one for the objective'); the Full Objective Check covers it."
+    actor:
+        role: owner
+        session: 009b0116-b8b7-4912-9273-91d589baf044
+    recorded_at: "2026-10-18T09:26:44Z"
 ---
 
 # Bin the screenshot machinery from the browser checks

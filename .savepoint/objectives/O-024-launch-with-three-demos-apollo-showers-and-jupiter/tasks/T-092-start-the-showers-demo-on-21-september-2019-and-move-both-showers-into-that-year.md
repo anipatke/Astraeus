@@ -7,6 +7,13 @@ stage: audit
 depends_on: [{task: T-091, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
+check_waiver:
+    task: T-092
+    reason: "Owner waived the optional Task Check for this batch ('Waive the task checks just do one for the objective'); the Full Objective Check covers it."
+    actor:
+        role: owner
+        session: 009b0116-b8b7-4912-9273-91d589baf044
+    recorded_at: "2026-10-18T09:26:44Z"
 ---
 
 # Start the Showers demo on 21 September 2019 and move both showers into that year
