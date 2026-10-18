@@ -559,8 +559,8 @@ export const storyPanel = (page, id) => id === undefined ? page.locator(HOOK.sto
 export const waitForStoryPanel = (page, id, options) => storyPanel(page, id).waitFor(options);
 export const openStoryPanelIds = (page) => page.locator(HOOK.storyPanel).evaluateAll((els) => els.map((el) => el.dataset.panelId));
 export const storyPanelBadge = (page) => page.locator(`${HOOK.storyPanel} .story-badge`).getAttribute("data-badge");
-/** Whether the scene's story marker is pressed (its panel open). */
-export const sceneStoryMarkerPressed = async (page, id) => (await page.locator(`.story-marker[data-panel-id="${id}"]`).getAttribute("aria-pressed")) === "true";
+/** Whether the scene's story marker carrying this panel is pressed (one of its panels open). */
+export const sceneStoryMarkerPressed = async (page, id) => (await sceneStoryMarker(page, id).getAttribute("aria-pressed")) === "true";
 export const storyPanelSources = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} li`).count();
 /** The story panel's Sources section: whether it is open, and opening it with one tap. */
 export const storySourcesOpen = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection}`).evaluate((element) => element.open);
@@ -569,6 +569,8 @@ export const openStorySources = (page) => page.locator(`${HOOK.storyPanel} ${HOO
 export const storySectionCount = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection}`).count();
 export const storySectionLabel = async (page) => (await page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).innerText()).replace(/\s+/g, " ").trim();
 export const storyPanelDetails = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} .sources-details p`).allTextContents();
+/** The story panel's details paragraphs a person can see right now: none while the section is folded, all of them once it is open. */
+export const storyPanelDetailsShown = (page) => page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} .sources-details p`).evaluateAll((els) => els.filter((el) => el.checkVisibility()).map((el) => el.textContent));
 export const closeStorySources = async (page) => { if (await storySourcesOpen(page)) await page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).click(); };
 export const storyPanelHandleVisible = (page) => page.locator(`${HOOK.storyPanel} .sheet-handle`).isVisible();
 export const storyPanelBox = (page) => page.locator(HOOK.storyPanel).boundingBox();
@@ -579,9 +581,25 @@ export const storyMarkers = (page, id) => id === undefined ? page.locator(HOOK.s
 export const firstStoryMarkerId = (page) => storyMarkers(page).first().getAttribute("data-panel-id");
 /** Presses a story panel's marker on the timeline. */
 export const openStoryPanel = (page, id, options) => storyMarkers(page, id).click(options);
-/** Presses the story marker the scene draws for a panel. */
-export const pressSceneStoryMarker = (page, id) => page.locator(`.story-marker[data-panel-id="${id}"]`).click();
-export const sceneStoryMarker = (page, id) => page.locator(`.story-marker[data-panel-id="${id}"]`);
+/**
+ * The scene marker that carries a panel. Panels naming the same object share one marker (I-031); its
+ * `data-panel-ids` lists them in time order.
+ */
+export const sceneStoryMarker = (page, id) => page.locator(`.story-marker[data-panel-ids~="${id}"]`);
+/** The panel ids one scene marker carries, in time order. */
+export const sceneStoryMarkerPanelIds = async (page, id) => ((await sceneStoryMarker(page, id).getAttribute("data-panel-ids")) ?? "").split(" ").filter(Boolean);
+/** Presses the scene marker carrying a panel once (a shared marker opens the panel the clock has reached, or the next after the open one). */
+export const pressSceneStoryMarkerOnce = (page, id) => sceneStoryMarker(page, id).click();
+/** Presses the scene marker carrying a panel until that panel is open (at most once per panel on the marker); fails when it never opens. */
+export async function pressSceneStoryMarker(page, id) {
+  const count = (await sceneStoryMarkerPanelIds(page, id)).length;
+  for (let press = 0; press < Math.max(count, 1); press += 1) {
+    await sceneStoryMarker(page, id).click();
+    const opened = await page.locator(`${HOOK.storyPanel}[data-panel-id="${id}"]`).waitFor({ timeout: 2000 }).then(() => true, () => false);
+    if (opened) return press + 1;
+  }
+  throw new Error(`the scene marker never opened story panel ${id}`);
+}
 /** Closes the open story panel; fails when none is open. */
 export const closeStoryPanel = (page) => page.getByRole("button", { name: "Close story panel" }).click();
 /** Closes the story panel when one is open (no wait when none). */
