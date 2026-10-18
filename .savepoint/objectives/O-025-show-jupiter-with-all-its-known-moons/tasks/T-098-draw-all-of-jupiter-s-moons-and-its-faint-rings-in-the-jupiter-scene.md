@@ -2,8 +2,7 @@
 id: T-098
 title: Draw all of Jupiter's moons and its faint rings in the Jupiter scene
 objective: O-025
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-096, requires: clear}, {task: T-097, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}

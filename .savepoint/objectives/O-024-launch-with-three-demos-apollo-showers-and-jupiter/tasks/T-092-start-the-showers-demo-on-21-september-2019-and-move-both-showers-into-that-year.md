@@ -2,8 +2,7 @@
 id: T-092
 title: Start the Showers demo on 21 September 2019 and move both showers into that year
 objective: O-024
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-091, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
