@@ -1,0 +1,3527 @@
+{
+ "501": {
+  "periodDays": 1.77,
+  "calibrationStepMinutes": 60,
+  "probeStepMinutes": 5,
+  "sourceGrid": {
+   "lengthS": 97200,
+   "phaseS": 528627600,
+   "boundariesSeen": 56
+  },
+  "segmentSeconds": 97200,
+  "degree": 15,
+  "phaseS": 528627600,
+  "sampleStepS": 3600,
+  "coefficientsPerDay": 42.67,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 10179,
+  "header": {
+   "target": "Io (501)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:32:25 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Io  / (Jupiter)  501",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Mean radius (km)  = 1821.49  Density (g cm^-3) = 3.528 +- 0.006",
+    "GM (km^3/s^2)  = 5959.9155+- 0.004 Geometric Albedo  = 0.63  +- 0.02",
+    "V(1,0)  = -1.68",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km)~ 422,000  Orbital period  ~ 1.77 d",
+    "Eccentricity, e  ~ 0.00472  Rotational period = Synchronous",
+    "Inclination, i  (deg)  ~ 0.0375"
+   ]
+  }
+ },
+ "502": {
+  "periodDays": 3.55,
+  "calibrationStepMinutes": 60,
+  "probeStepMinutes": 10,
+  "sourceGrid": {
+   "lengthS": 97200,
+   "phaseS": 528627600,
+   "boundariesSeen": 73
+  },
+  "segmentSeconds": 97200,
+  "degree": 15,
+  "phaseS": 528627600,
+  "sampleStepS": 3600,
+  "coefficientsPerDay": 42.67,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 10179,
+  "header": {
+   "target": "Europa (502)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:35:57 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Europa / (Jupiter)  502",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Mean radius (km)  = 1560.8  +- 0.3  Density (g cm^-3)= 3.013 +- 0.005",
+    "GM  (km^3/s^2)  = 3202.7121+- 0.0054 Geometric Albedo = 0.67 +/- 0.03",
+    "V(1,0)  = -1.41",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 671,000  Orbital period  ~ 3.55 d",
+    "Eccentricity, e  ~ 0.00981  Rotational period  = Synchronous",
+    "Inclination, i  (deg)  ~ 0.462"
+   ]
+  }
+ },
+ "503": {
+  "periodDays": 7.155,
+  "calibrationStepMinutes": 60,
+  "probeStepMinutes": 20,
+  "sourceGrid": {
+   "lengthS": 97200,
+   "phaseS": 528627600,
+   "boundariesSeen": 106
+  },
+  "segmentSeconds": 97200,
+  "degree": 9,
+  "phaseS": 528627600,
+  "sampleStepS": 3600,
+  "coefficientsPerDay": 26.67,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 10179,
+  "header": {
+   "target": "Ganymede (503)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:38:44 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Ganymede / (Jupiter)  503",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Mean radius (km)  = 2631.2  +- 1.7  Density (g cm^-3)= 1.942 +- 0.005",
+    "GM (km^3/s^2)  = 9887.8328+- 0.0074 Geometric Albedo = 0.43  +- 0.02",
+    "V(1,0)  = -2.09",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 1,070,000  Orbital period  ~ 7.155 d",
+    "Eccentricity, e  ~ 0.00146  Rotational period= Synchronous",
+    "Inclination, i  (deg)  ~ 0.207"
+   ]
+  }
+ },
+ "504": {
+  "periodDays": 16.691,
+  "calibrationStepMinutes": 90,
+  "probeStepMinutes": 60,
+  "sourceGrid": {
+   "lengthS": 194400,
+   "phaseS": 528724800,
+   "boundariesSeen": 53
+  },
+  "segmentSeconds": 194400,
+  "degree": 10,
+  "phaseS": 528724800,
+  "sampleStepS": 16200,
+  "coefficientsPerDay": 14.67,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 6768,
+  "header": {
+   "target": "Callisto (504)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:33:10 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Callisto / (Jupiter)  504",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Mean radius (km)  = 2410.3 +- 1.5  Density (g cm^-3)= 1.834 +- 0.004",
+    "GM (km^3/s^2)  = 7179.2834 +- 0.0097 Geometric Albedo = 0.17  +- 0.02",
+    "V(1,0)  = -1.05",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km)~ 1,883,000  Orbital period  ~ 16.691  d",
+    "Eccentricity, e  ~ 0.00744  Rotational period= Synchronous",
+    "Inclination, i  (deg)  ~ 0.200"
+   ]
+  }
+ },
+ "505": {
+  "periodDays": 0.501,
+  "calibrationStepMinutes": 15,
+  "probeStepMinutes": 1,
+  "sourceGrid": {
+   "lengthS": 32400,
+   "phaseS": 528562800,
+   "boundariesSeen": 37
+  },
+  "segmentSeconds": 32400,
+  "degree": 13,
+  "phaseS": 528562800,
+  "sampleStepS": 1800,
+  "coefficientsPerDay": 112,
+  "calibrationWorstM": 0.0001,
+  "calibrationRmsM": 0,
+  "calibrationTests": 40860,
+  "header": {
+   "target": "Amalthea (505)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:40:50 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Amalthea / (Jupiter)  505",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Mean radius (km)  = 83.5  +- 3  Density (g cm^-3) = 0.849 +- 0.199",
+    "GM (km^3/s^2)  = 0.1646  +- 0.026 Geometric Albedo  = 0.090 +- 0.005",
+    "V(1,0)  = +7.4",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 182,000  Orbital period  ~ 0.501 d",
+    "Eccentricity, e  ~ 0.00613  Rotational period  = Synchronous",
+    "Inclination, i  (deg)  ~ 0.376"
+   ]
+  }
+ },
+ "506": {
+  "periodDays": 247.778,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 29,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.75,
+  "calibrationWorstM": 0.4913,
+  "calibrationRmsM": 0.1256,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Himalia (506)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:30:52 2026",
+   "notes": [
+    "Revised: May 12, 2025  Himalia  / (Jupiter)  506",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 85 +- 10  Density (g cm^-3)  =",
+    "GM (km^3/s^2)  = 0.151552  Geometric Albedo  =  0.04",
+    "V(1,0)  = +8.14",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) ~ 11,370,000  Orbital period  = 247.778 d",
+    "Eccentricity, e  ~  0.166  Rotational period  = 0.4 d",
+    "Inclination, i  (deg)  ~  30.18 (equator)"
+   ]
+  }
+ },
+ "507": {
+  "periodDays": 259.653,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 4,
+  "calibrationWorstM": 0.4825,
+  "calibrationRmsM": 0.0973,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Elara (507)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:41:36 2026",
+   "notes": [
+    "Revised: May 12, 2025  Elara  / (Jupiter)  507",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 40 +- 10  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =  0.03",
+    "V(1,0)  = +10.0",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 11737 (10^3)  Orbital period  = 259.6528 d",
+    "Eccentricity, e  =  0.207  Rotational period  = 0.5 d",
+    "Inclination, i  (deg)  =  28  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "508": {
+  "periodDays": 735,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 35,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0.4706,
+  "calibrationRmsM": 0.0758,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Pasiphae (508)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:41:48 2026",
+   "notes": [
+    "Revised: May 12, 2025  Pasiphae / (Jupiter)  508",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 18  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +10.33",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 23500 (10^3)  Orbital period  = 735 d (retro)",
+    "Eccentricity, e  =  0.378  Rotational period  =",
+    "Inclination, i  (deg)  =  148  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "509": {
+  "periodDays": 758,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4685,
+  "calibrationRmsM": 0.1177,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Sinope (509)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:00 2026",
+   "notes": [
+    "Revised: May 12, 2025  Sinope / (Jupiter)  509",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 14  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +11.6",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 23700 (10^3)  Orbital period  = 758 d (retro)",
+    "Eccentricity, e  =  0.275  Rotational period  =",
+    "Inclination, i  (deg)  =  153  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "510": {
+  "periodDays": 259.22,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 28,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.63,
+  "calibrationWorstM": 0.4902,
+  "calibrationRmsM": 0.1235,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Lysithea (510)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:13 2026",
+   "notes": [
+    "Revised: May 12, 2025  Lysithea / (Jupiter)  510",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 12  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +11.7",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 11720 (10^3)  Orbital period  = 259.22 d",
+    "Eccentricity, e  =  0.107  Rotational period  =",
+    "Inclination, i  (deg)  =  29  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "511": {
+  "periodDays": 692,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4798,
+  "calibrationRmsM": 0.1184,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Carme (511)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:25 2026",
+   "notes": [
+    "Revised: May 12, 2025  Carme  / (Jupiter)  511",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 15  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +11.3",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 22600 (10^3)  Orbital period  = 692 d (retro)",
+    "Eccentricity, e  =  0.207  Rotational period  =",
+    "Inclination, i  (deg)  =  163  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "512": {
+  "periodDays": 631,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.4539,
+  "calibrationRmsM": 0.1319,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Ananke (512)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:37 2026",
+   "notes": [
+    "Revised: May 12, 2025  Ananke / (Jupiter)  512",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 10  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +12.2",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 21200 (10^3)  Orbital period  = 631 d (retro)",
+    "Eccentricity, e  =  0.169  Rotational period  =",
+    "Inclination, i  (deg)  =  147  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "513": {
+  "periodDays": 238.72,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 4,
+  "calibrationWorstM": 0.488,
+  "calibrationRmsM": 0.1177,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Leda (513)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:47 2026",
+   "notes": [
+    "Revised: May 12, 2025  Leda  / (Jupiter)  513",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  =  5  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +13.5",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) = 11094 (10^3)  Orbital period  = 238.72 d",
+    "Eccentricity, e  =  0.148  Rotational period  =",
+    "Inclination, i  (deg)  =  27  Local invar ref. pln= Sun"
+   ]
+  }
+ },
+ "514": {
+  "periodDays": 0.6776,
+  "calibrationStepMinutes": 20,
+  "probeStepMinutes": 1,
+  "sourceGrid": {
+   "lengthS": 32400,
+   "phaseS": 528562800,
+   "boundariesSeen": 37
+  },
+  "segmentSeconds": 32400,
+  "degree": 11,
+  "phaseS": 528562800,
+  "sampleStepS": 1200,
+  "coefficientsPerDay": 96,
+  "calibrationWorstM": 0.0001,
+  "calibrationRmsM": 0,
+  "calibrationTests": 30645,
+  "header": {
+   "target": "Thebe (514)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:42:59 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Thebe / (Jupiter)  514",
+    "SATELLITE PHYSICAL P:",
+    "Mean radius (km)  = 49.3 +- 4  Density (g cm^-3)=",
+    "GM (km^3/s^2)  =  0.0301 +/- 0.0375  Geometric Albedo= 0.047 +/- 0.003",
+    "V(1,0)  = +9.0",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 222,000  Orbital period  ~ 0.6776 d",
+    "Eccentricity, e  ~  0.015  Rotational period = synchronous",
+    "Inclination, i (deg)  ~  1.1"
+   ]
+  }
+ },
+ "515": {
+  "periodDays": 0.3024,
+  "calibrationStepMinutes": 10,
+  "probeStepMinutes": 1,
+  "sourceGrid": {
+   "lengthS": 32400,
+   "phaseS": 528562800,
+   "boundariesSeen": 37
+  },
+  "segmentSeconds": 32400,
+  "degree": 14,
+  "phaseS": 528562800,
+  "sampleStepS": 1800,
+  "coefficientsPerDay": 120,
+  "calibrationWorstM": 0.0001,
+  "calibrationRmsM": 0,
+  "calibrationTests": 61290,
+  "header": {
+   "target": "Adrastea (515)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:43:43 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Adrastea / (Jupiter)  515",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  =  8.2 +/- 2  Density (g cm^-3) =",
+    "GM (km^3/s^2)  =  0.0001 +/- 0.0006 Geometric Albedo  = 0.1 +/- 0.045",
+    "V(1,0)  = +12.4",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 130,000  Orbital period  = 0.30240 d",
+    "Eccentricity, e  ~  0.007  Rotational period = Synchronous",
+    "Inclination, i  (deg)  ~  0.007"
+   ]
+  }
+ },
+ "516": {
+  "periodDays": 0.29893,
+  "calibrationStepMinutes": 10,
+  "probeStepMinutes": 1,
+  "sourceGrid": {
+   "lengthS": 32400,
+   "phaseS": 528562800,
+   "boundariesSeen": 37
+  },
+  "segmentSeconds": 32400,
+  "degree": 15,
+  "phaseS": 528562800,
+  "sampleStepS": 1800,
+  "coefficientsPerDay": 128,
+  "calibrationWorstM": 0.0001,
+  "calibrationRmsM": 0,
+  "calibrationTests": 61290,
+  "header": {
+   "target": "Metis (516)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:30:58 2026",
+   "notes": [
+    "Revised: Mar 12, 2021  Metis  / (Jupiter)  516",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  = 21.5 +/- 2.0  Density (g cm^-3)=",
+    "GM (km^3/s^2)  = 0.0025 +/- 0.0048 Geometric Albedo = 0.061 +/- 0.003",
+    "V(1,0)  = +10.8",
+    "SATELLITE ORBIT (at J2000.0 epoch, 2000-Jan-1.5):",
+    "Semi-major axis, a (km) ~ 128,900  Orbital period  = 0.298930 d",
+    "Eccentricity, e  ~  0.006  Rotational period= Synchronous",
+    "Inclination, i  (deg)  ~  0.006"
+   ]
+  }
+ },
+ "517": {
+  "periodDays": 1268.03,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.4549,
+  "calibrationRmsM": 0.0906,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Callirrhoe (517)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:44:40 2026",
+   "notes": [
+    "Revised: May 12, 2025  Callirrhoe / (Jupiter)  517",
+    "Discovery announcement: IAUC 7460",
+    "V(1,0) = +14.2"
+   ]
+  }
+ },
+ "518": {
+  "periodDays": 106.846,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 518400,
+  "degree": 14,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 7.5,
+  "calibrationWorstM": 0.2832,
+  "calibrationRmsM": 0.072,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "Themisto (518)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:44:50 2026",
+   "notes": [
+    "Revised: May 12, 2025  Themisto / (Jupiter)  518",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0) = +14.4"
+   ]
+  }
+ },
+ "519": {
+  "periodDays": 1063.9,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 32,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.3745,
+  "calibrationRmsM": 0.0717,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Megaclite (519)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:01 2026",
+   "notes": [
+    "Revised: May 12, 2025  Megaclite / (Jupiter)  519",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0) = +15.0"
+   ]
+  }
+ },
+ "520": {
+  "periodDays": 977.99,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.444,
+  "calibrationRmsM": 0.1496,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Taygete (520)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:10 2026",
+   "notes": [
+    "Revised: May 12, 2025  Taygete  / (Jupiter)  520",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0) = +15.4"
+   ]
+  }
+ },
+ "521": {
+  "periodDays": 714.013,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.38,
+  "calibrationWorstM": 0.3316,
+  "calibrationRmsM": 0.1166,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Chaldene (521)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:20 2026",
+   "notes": [
+    "Revised: May 12, 2025  Chaldene / (Jupiter)  521",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0)= +15.7"
+   ]
+  }
+ },
+ "522": {
+  "periodDays": 772.031,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4674,
+  "calibrationRmsM": 0.1552,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Harpalyke (522)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:27 2026",
+   "notes": [
+    "Revised: May 12, 2025  Harpalyke / (Jupiter)  522",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0)= +15.2"
+   ]
+  }
+ },
+ "523": {
+  "periodDays": 532.283,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.476,
+  "calibrationRmsM": 0.1386,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Kalyke (523)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:38 2026",
+   "notes": [
+    "Revised: May 12, 2025  Kalyke / (Jupiter)  523",
+    "Recently discovered Jovian irregular satellite.",
+    "V(1,0)= +15.3"
+   ]
+  }
+ },
+ "524": {
+  "periodDays": 864.54,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4666,
+  "calibrationRmsM": 0.1064,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Iocaste (524)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:47 2026",
+   "notes": [
+    "Revised: May 12, 2025  Iocaste  / (Jupiter)  524",
+    "Recently discovered irregular Jovian satellite.",
+    "V(1,0)= +14.5"
+   ]
+  }
+ },
+ "525": {
+  "periodDays": 506.195,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 27,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 1.75,
+  "calibrationWorstM": 0.4942,
+  "calibrationRmsM": 0.1289,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Erinome (525)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:45:56 2026",
+   "notes": [
+    "Revised: May 12, 2025  Erinome / (Jupiter)  525",
+    "Recently discovered irregular Jovian satellite.",
+    "V(1,0)= +16.0"
+   ]
+  }
+ },
+ "526": {
+  "periodDays": 772.232,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1036800,
+  "degree": 9,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4902,
+  "calibrationRmsM": 0.1851,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "Isonoe (526)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:09 2026",
+   "notes": [
+    "Revised: May 12, 2025  Isonoe / (Jupiter)  526",
+    "Recently discovered irregular Jovian satellite.",
+    "V(1,0)= +15.9"
+   ]
+  }
+ },
+ "527": {
+  "periodDays": 442.478,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1036800,
+  "degree": 9,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4673,
+  "calibrationRmsM": 0.1218,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "Praxidike (527)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:19 2026",
+   "notes": [
+    "Revised: May 12, 2025  Praxidike / (Jupiter)  527",
+    "Recently discovered irregular Jovian satellite.",
+    "V(1,0)= +15.0"
+   ]
+  }
+ },
+ "528": {
+  "periodDays": 1238.33,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1555200,
+  "degree": 15,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4635,
+  "calibrationRmsM": 0.1281,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "Autonoe (528)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:27 2026",
+   "notes": [
+    "Revised: May 12, 2025  Autonoe / (Jupiter)  528",
+    "SATELLITE PHYSICAL PROPERTIES:",
+    "Radius (km)  =  Density (g cm^-3)  =",
+    "Mass (10^20 kg )  =  Geometric Albedo  =",
+    "V(1,0)  = +15.4",
+    "SATELLITE ORBITAL DATA:",
+    "Semi-major axis, a (km) =  Orbital period  =",
+    "Eccentricity, e  =  Rotational period  =",
+    "Inclination, i  (deg)  ="
+   ]
+  }
+ },
+ "529": {
+  "periodDays": 803.04,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4652,
+  "calibrationRmsM": 0.1341,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Thyone (529)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:36 2026",
+   "notes": [
+    "Revised: May 12, 2025  Thyone / (Jupiter)  529",
+    "Jovian irregular satellite.",
+    "V(1,0)= +15.7"
+   ]
+  }
+ },
+ "530": {
+  "periodDays": 519.433,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 14,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.88,
+  "calibrationWorstM": 0.4822,
+  "calibrationRmsM": 0.1712,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Hermippe (530)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:46 2026",
+   "notes": [
+    "Revised: May 12, 2025  Hermippe / (Jupiter)  530",
+    "Jovian irregular satellite.",
+    "V(1,0)= +15.5"
+   ]
+  }
+ },
+ "531": {
+  "periodDays": 937.764,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4129,
+  "calibrationRmsM": 0.1387,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Aitne (531)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:46:54 2026",
+   "notes": [
+    "Revised: May 12, 2025  Aitne  / (Jupiter)  531",
+    "Jovian irregular satellite.",
+    "V(1,0)= +16.1"
+   ]
+  }
+ },
+ "532": {
+  "periodDays": 1131.73,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 32,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.3286,
+  "calibrationRmsM": 0.0672,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Eurydome (532)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:03 2026",
+   "notes": [
+    "Revised: May 12, 2025  Eurydome / (Jupiter)  532",
+    "Jovian irregular satellite.",
+    "V(1,0)= +16.1"
+   ]
+  }
+ },
+ "533": {
+  "periodDays": 594.958,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4346,
+  "calibrationRmsM": 0.1433,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Euanthe (533)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:13 2026",
+   "notes": [
+    "Revised: May 12, 2025  Euanthe / (Jupiter)  533",
+    "Jovian irregular satellite.",
+    "V(1,0)= +16.2"
+   ]
+  }
+ },
+ "534": {
+  "periodDays": 620.157,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.436,
+  "calibrationRmsM": 0.1804,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Euporie (534)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:24 2026",
+   "notes": [
+    "Revised: May 12, 2025  Euporie / (Jupiter)  534",
+    "Jovian irregular satellite."
+   ]
+  }
+ },
+ "535": {
+  "periodDays": 963.307,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 34,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.92,
+  "calibrationWorstM": 0.3481,
+  "calibrationRmsM": 0.0838,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Orthosie (535)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:34 2026",
+   "notes": [
+    "Revised: May 12, 2025  Orthosie / (Jupiter)  535",
+    "Jovian irregular satellite."
+   ]
+  }
+ },
+ "536": {
+  "periodDays": 922.222,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 32,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.4624,
+  "calibrationRmsM": 0.1226,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Sponde (536)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:45 2026",
+   "notes": [
+    "Revised: May 12, 2025  Sponde / (Jupiter)  536",
+    "Jovian irregular satellite",
+    "V(1,0)= +16.4"
+   ]
+  }
+ },
+ "537": {
+  "periodDays": 501.077,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.4951,
+  "calibrationRmsM": 0.132,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Kale (537)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:47:56 2026",
+   "notes": [
+    "Revised: May 12, 2025  Kale / (Jupiter)  537",
+    "Jovian irregular satellite",
+    "V(1,0)= +16.4"
+   ]
+  }
+ },
+ "538": {
+  "periodDays": 488.85,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 34,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.19,
+  "calibrationWorstM": 0.4668,
+  "calibrationRmsM": 0.1142,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Pasithee (538)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:48:08 2026",
+   "notes": [
+    "Revised: May 12, 2025  Pasithee / (Jupiter)  538",
+    "Jovian irregular satellite"
+   ]
+  }
+ },
+ "539": {
+  "periodDays": 459.653,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 35,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0.4162,
+  "calibrationRmsM": 0.0774,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Hegemone (539)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:48:21 2026",
+   "notes": [
+    "Revised: May 12, 2025  Hegemone / (Jupiter)  539",
+    "Description: Apr 15, 2008  http://ssd.jpl.nasa.gov/?sat_elem",
+    "Irregular retrograde moon discovered in 2003 (IAUC 8088) by S. S. Sheppard",
+    "(University of Hawaii).",
+    "Initial designation S/2003J8. Named in March 2005 (IAUC 8502)."
+   ]
+  }
+ },
+ "540": {
+  "periodDays": 881.836,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 33,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.83,
+  "calibrationWorstM": 0.4206,
+  "calibrationRmsM": 0.1107,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Mneme (540)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:48:33 2026",
+   "notes": [
+    "Revised: May 12, 2025  Mneme / (Jupiter)  540",
+    "Recently discovered Jovian satellite"
+   ]
+  }
+ },
+ "541": {
+  "periodDays": 1308.4,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 35,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0.4148,
+  "calibrationRmsM": 0.0716,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Aoede (541)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:48:44 2026",
+   "notes": [
+    "Revised: May 12, 2025  Aoede / (Jupiter)  541",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "542": {
+  "periodDays": 764.757,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.429,
+  "calibrationRmsM": 0.1543,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Thelxinoe (542)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:48:53 2026",
+   "notes": [
+    "Revised: May 12, 2025  Thelxinoe / (Jupiter)  542",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "543": {
+  "periodDays": 957.76,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4522,
+  "calibrationRmsM": 0.1161,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Arche (543)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:02 2026",
+   "notes": [
+    "Revised: May 12, 2025  Arche / (Jupiter)  543",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "544": {
+  "periodDays": 943.003,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4758,
+  "calibrationRmsM": 0.1366,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Kallichore (544)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:10 2026",
+   "notes": [
+    "Revised: May 12, 2025  Kallichore / (Jupiter)  544",
+    "Recently discovered irregular Jovian satellite."
+   ]
+  }
+ },
+ "545": {
+  "periodDays": 546.53,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1036800,
+  "degree": 9,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4887,
+  "calibrationRmsM": 0.1849,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "Helike (545)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:19 2026",
+   "notes": [
+    "Revised: May 12, 2025  Helike / (Jupiter)  545",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "546": {
+  "periodDays": 755.458,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 36,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.08,
+  "calibrationWorstM": 0.481,
+  "calibrationRmsM": 0.0716,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Carpo (546)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:27 2026",
+   "notes": [
+    "Revised: May 12, 2025  Carpo / (Jupiter)  546",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "547": {
+  "periodDays": 485.258,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4962,
+  "calibrationRmsM": 0.1352,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Eukelade (547)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:43 2026",
+   "notes": [
+    "Revised: May 12, 2025  Eukelade / (Jupiter)  547",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "548": {
+  "periodDays": 1472.15,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 35,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0.3912,
+  "calibrationRmsM": 0.0813,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Cyllene (548)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:49:52 2026",
+   "notes": [
+    "Revised: May 12, 2025  Cyllene / (Jupiter)  548",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "549": {
+  "periodDays": 592.05,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 18,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.58,
+  "calibrationWorstM": 0.4568,
+  "calibrationRmsM": 0.1516,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "Kore (549)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:02 2026",
+   "notes": [
+    "Revised: May 12, 2025  Kore / (Jupiter)  549",
+    "Description: Apr 15, 2008  http://ssd.jpl.nasa.gov/?sat_elem",
+    "Irregular Jovian satellite reported by S.S. Sheppard (Univ.  of Hawaii).",
+    "Initial designation S/2003 J14 (IAUC 8116, 2004-Apr-11).  Named in IAUC 8826",
+    "(2007-Apr-5)."
+   ]
+  }
+ },
+ "550": {
+  "periodDays": 944.41,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1555200,
+  "degree": 15,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4781,
+  "calibrationRmsM": 0.1531,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "Herse (550)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:11 2026",
+   "notes": [
+    "Revised: May 12, 2025  Herse (S2003_J17) / (Jupiter)  550",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "551": {
+  "periodDays": 827.99,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4663,
+  "calibrationRmsM": 0.1455,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2010_J1 (551)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:20 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2010_J1 / (Jupiter)  551",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "552": {
+  "periodDays": 701.399,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 32,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.4216,
+  "calibrationRmsM": 0.1287,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2010_J2 (552)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:29 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2010_J2 / (Jupiter)  552",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "553": {
+  "periodDays": 309.364,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1555200,
+  "degree": 23,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 4,
+  "calibrationWorstM": 0.4688,
+  "calibrationRmsM": 0.1121,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "Dia (553)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:38 2026",
+   "notes": [
+    "Revised: May 12, 2025  Dia (S2000_J11) / (Jupiter)  553",
+    "Recently recovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "554": {
+  "periodDays": 741.905,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4502,
+  "calibrationRmsM": 0.155,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2016_J1 (554)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:50:49 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2016_J1 / (Jupiter)  554",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "555": {
+  "periodDays": 539.309,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 34,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.19,
+  "calibrationWorstM": 0.4847,
+  "calibrationRmsM": 0.1968,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2003_J18 (555)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:00 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J18 / (Jupiter)  555",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "556": {
+  "periodDays": 878.816,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 23,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.5,
+  "calibrationWorstM": 0.4642,
+  "calibrationRmsM": 0.1122,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2011_J2 (556)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:11 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2011_J2 / (Jupiter)  556",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "557": {
+  "periodDays": 873.303,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.38,
+  "calibrationWorstM": 0.4967,
+  "calibrationRmsM": 0.1329,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Eirene (557)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:19 2026",
+   "notes": [
+    "Revised: May 12, 2025  Eirene (S2003_J5) / (Jupiter)  557",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "558": {
+  "periodDays": 492.327,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.4597,
+  "calibrationRmsM": 0.136,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "Philophrosyne (558)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:27 2026",
+   "notes": [
+    "Revised: May 12, 2025  Philophrosyne (S2003_J15) / (Jupiter)  558",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "559": {
+  "periodDays": 348.116,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 33,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 2.83,
+  "calibrationWorstM": 0.4961,
+  "calibrationRmsM": 0.1105,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2017_J1 (559)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:37 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J1 / (Jupiter)  559",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "560": {
+  "periodDays": 397.304,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.4397,
+  "calibrationRmsM": 0.1233,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Eupheme (560)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:47 2026",
+   "notes": [
+    "Revised: May 12, 2025  Eupheme (S2003_J3) / (Jupiter)  560",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "561": {
+  "periodDays": 528.733,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4726,
+  "calibrationRmsM": 0.1389,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2003_J19 (561)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:51:56 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J19 / (Jupiter)  561",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "562": {
+  "periodDays": 759.906,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.4872,
+  "calibrationRmsM": 0.1418,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Valetudo (562)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:34:36 2026",
+   "notes": [
+    "Revised: May 12, 2025  Valetudo / (Jupiter)  562",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "563": {
+  "periodDays": 809.604,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.31,
+  "calibrationWorstM": 0.3952,
+  "calibrationRmsM": 0.1577,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2017_J2 (563)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:10 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J2 / (Jupiter)  563",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "564": {
+  "periodDays": 726.982,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 39,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4742,
+  "calibrationRmsM": 0.1475,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2017_J3 (564)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:18 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J3 / (Jupiter)  564",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "565": {
+  "periodDays": 301.858,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 29,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.75,
+  "calibrationWorstM": 0.4679,
+  "calibrationRmsM": 0.1292,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Pandia (565)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:27 2026",
+   "notes": [
+    "Revised: May 12, 2025  Pandia (S2017_J4) / (Jupiter)  565",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "566": {
+  "periodDays": 1061.2,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4689,
+  "calibrationRmsM": 0.1311,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2017_J5 (566)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:38 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J5 / (Jupiter)  566",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "567": {
+  "periodDays": 982.258,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 35,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0.3995,
+  "calibrationRmsM": 0.08,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2017_J6 (567)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:48 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J6 / (Jupiter)  567",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "568": {
+  "periodDays": 566.931,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4865,
+  "calibrationRmsM": 0.167,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2017_J7 (568)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:52:58 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J7 / (Jupiter)  568",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "569": {
+  "periodDays": 1021.28,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4455,
+  "calibrationRmsM": 0.1161,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2017_J8 (569)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:53:08 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J8 / (Jupiter)  569",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "570": {
+  "periodDays": 510.638,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.4396,
+  "calibrationRmsM": 0.1429,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2017_J9 (570)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:53:19 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J9 / (Jupiter)  570",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "571": {
+  "periodDays": 246.533,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 26,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.38,
+  "calibrationWorstM": 0.4727,
+  "calibrationRmsM": 0.1347,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "Ersa (571)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:53:30 2026",
+   "notes": [
+    "Revised: May 12, 2025  Ersa (S2018_J1) / (Jupiter)  571",
+    "Recently discovered irregular Jovian satellite"
+   ]
+  }
+ },
+ "572": {
+  "periodDays": 479.882,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1036800,
+  "degree": 9,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4914,
+  "calibrationRmsM": 0.1195,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "S2011_J1 (572)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:53:43 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2011_J1 / (Jupiter)  572",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "599": {
+  "periodDays": 1.769,
+  "calibrationStepMinutes": 60,
+  "probeStepMinutes": 5,
+  "sourceGrid": {
+   "lengthS": 194400,
+   "phaseS": 528724800,
+   "boundariesSeen": 30
+  },
+  "segmentSeconds": 194400,
+  "degree": 15,
+  "phaseS": 528724800,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 21.33,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 10152,
+  "header": {
+   "target": "Jupiter (599)",
+   "targetSource": "jup365_merged",
+   "centerSource": "jup365_merged",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:30:44 2026",
+   "notes": [
+    "Revised: April 12, 2021  Jupiter  599",
+    "PHYSICAL DATA (revised 2025-Jan-30):",
+    "Mass x 10^26 (kg)  = 18.9819  Density (g/cm^3)  = 1.3262 +- .0003",
+    "Equat. radius (1 bar) = 71492+-4 km  Polar radius (km)  = 66854+-10",
+    "Vol. Mean Radius (km) = 69911+-6  Flattening  = 0.06487",
+    "Geometric Albedo  = 0.52  Rocky core mass (Mc/M)= 0.0261",
+    "Sid. rot. period (III)= 9h 55m 29.711 s  Sid. rot. rate (rad/s)= 0.00017585",
+    "Mean solar day, hrs  = ~9.9259",
+    "GM (km^3/s^2)  = 126686531.900  GM 1-sigma (km^3/s^2) =  +- 1.2732",
+    "Equ. grav, ge (m/s^2) = 24.79  Pol. grav, gp (m/s^2) =  28.34",
+    "Vis. magnitude V(1,0) = -9.40",
+    "Vis. mag. (opposition)= -2.70  Obliquity to orbit  =  3.13 deg",
+    "Sidereal orbit period = 11.861982204 y  Sidereal orbit period = 4332.589 d",
+    "Mean daily motion  = 0.0831294 deg/d  Mean orbit speed, km/s= 13.0697",
+    "Atmos. temp. (1 bar)  = 165+-5 K  Escape speed, km/s  =  59.5",
+    "A_roche(ice)/Rp  =  2.76  Hill's sphere rad. Rp = 740",
+    "Perihelion  Aphelion  Mean",
+    "Solar Constant (W/m^2)  56  46  51",
+    "Maximum Planetary IR (W/m^2)  13.7  13.4  13.6",
+    "Minimum Planetary IR (W/m^2)  13.7  13.4  13.6"
+   ]
+  }
+ },
+ "55501": {
+  "periodDays": 588.94,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4683,
+  "calibrationRmsM": 0.1615,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2003_J2 (55501)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:53:54 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J2 / (Jupiter)  55501",
+    "Recently discovered irregular Jovian satellite."
+   ]
+  }
+ },
+ "55502": {
+  "periodDays": 715.364,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 1.38,
+  "calibrationWorstM": 0.4883,
+  "calibrationRmsM": 0.0869,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2003_J4 (55502)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:06 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J4 / (Jupiter)  55502",
+    "Recently discovered irregular Jovian satellite."
+   ]
+  }
+ },
+ "55503": {
+  "periodDays": 796.279,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 22,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.44,
+  "calibrationWorstM": 0.3479,
+  "calibrationRmsM": 0.0988,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2003_J9 (55503)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:16 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J9 / (Jupiter)  55503",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "55504": {
+  "periodDays": 511.921,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4736,
+  "calibrationRmsM": 0.1396,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2003_J10 (55504)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:25 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J10 / (Jupiter)  55504",
+    "Recently discovered irregular Jovian satellite."
+   ]
+  }
+ },
+ "55505": {
+  "periodDays": 827.965,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.3953,
+  "calibrationRmsM": 0.1002,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2003_J12 (55505)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:34 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J12 / (Jupiter)  55505",
+    "Recently discovered irregular Jovian satellite."
+   ]
+  }
+ },
+ "55506": {
+  "periodDays": 779.507,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 33,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.83,
+  "calibrationWorstM": 0.4188,
+  "calibrationRmsM": 0.1108,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2003_J16 (55506)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:43 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J16 / (Jupiter)  55506",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "55507": {
+  "periodDays": 1049,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4752,
+  "calibrationRmsM": 0.146,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2003_J23 (55507)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:54:52 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2003_J23 / (Jupiter)  55507",
+    "Irregular Jovian satellite"
+   ]
+  }
+ },
+ "55508": {
+  "periodDays": 684.185,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4286,
+  "calibrationRmsM": 0.14,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2003_J24 (55508)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:01 2026",
+   "notes": [
+    "Revised: Nov 19, 2021  S2003_J24 / (Jupiter)  55508",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55509": {
+  "periodDays": 315.372,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 4,
+  "calibrationWorstM": 0.4665,
+  "calibrationRmsM": 0.0945,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2011_J3 (55509)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:11 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2011_J3 / (Jupiter)  55509",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55510": {
+  "periodDays": 257.05,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1555200,
+  "degree": 21,
+  "phaseS": 528984000,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 3.67,
+  "calibrationWorstM": 0.48,
+  "calibrationRmsM": 0.1414,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2018_J2 (55510)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:22 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2018_J2 / (Jupiter)  55510",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55511": {
+  "periodDays": 515.894,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4611,
+  "calibrationRmsM": 0.1337,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2018_J3 (55511)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:33 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2018_J3 / (Jupiter)  55511",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55512": {
+  "periodDays": 487.828,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 28,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 1.81,
+  "calibrationWorstM": 0.4978,
+  "calibrationRmsM": 0.1554,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2021_J1 (55512)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:43 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J1 / (Jupiter)  55512",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55513": {
+  "periodDays": 436.878,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 19,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 2.5,
+  "calibrationWorstM": 0.4651,
+  "calibrationRmsM": 0.1074,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2021_J2 (55513)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:55:52 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J2 / (Jupiter)  55513",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55514": {
+  "periodDays": 907.796,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 34,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.92,
+  "calibrationWorstM": 0.4094,
+  "calibrationRmsM": 0.0833,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2021_J3 (55514)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:00 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J3 / (Jupiter)  55514",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55515": {
+  "periodDays": 545.076,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 26,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 1.69,
+  "calibrationWorstM": 0.4634,
+  "calibrationRmsM": 0.1449,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2021_J4 (55515)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:10 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J4 / (Jupiter)  55515",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55516": {
+  "periodDays": 661.909,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 40,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.56,
+  "calibrationWorstM": 0.4315,
+  "calibrationRmsM": 0.1582,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2021_J5 (55516)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:16 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J5 / (Jupiter)  55516",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55517": {
+  "periodDays": 421.884,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1555200,
+  "degree": 15,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.486,
+  "calibrationRmsM": 0.1302,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2021_J6 (55517)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:25 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2021_J6 / (Jupiter)  55517",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55518": {
+  "periodDays": 803.827,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4445,
+  "calibrationRmsM": 0.1394,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2016_J3 (55518)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:35 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2016_J3 / (Jupiter)  55518",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55519": {
+  "periodDays": 577.566,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 22,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.44,
+  "calibrationWorstM": 0.4023,
+  "calibrationRmsM": 0.1036,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2016_J4 (55519)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:45 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2016_J4 / (Jupiter)  55519",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55520": {
+  "periodDays": 424.996,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 31,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4254,
+  "calibrationRmsM": 0.1465,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2018_J4 (55520)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:56:56 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2018_J4 / (Jupiter)  55520",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55521": {
+  "periodDays": 895.279,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4404,
+  "calibrationRmsM": 0.1538,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2022_J1 (55521)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:06 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2022_J1 / (Jupiter)  55521",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55522": {
+  "periodDays": 951.055,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 3110400,
+  "degree": 30,
+  "phaseS": 528984000,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.58,
+  "calibrationWorstM": 0.4436,
+  "calibrationRmsM": 0.1488,
+  "calibrationTests": 3168,
+  "header": {
+   "target": "S2022_J2 (55522)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:15 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2022_J2 / (Jupiter)  55522",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55523": {
+  "periodDays": 822.834,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 2073600,
+  "degree": 20,
+  "phaseS": 528984000,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.63,
+  "calibrationWorstM": 0.4465,
+  "calibrationRmsM": 0.1474,
+  "calibrationTests": 3264,
+  "header": {
+   "target": "S2022_J3 (55523)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:24 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2022_J3 / (Jupiter)  55523",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55525": {
+  "periodDays": 580.629,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 4147200,
+  "degree": 23,
+  "phaseS": 528984000,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.5,
+  "calibrationWorstM": 0.4486,
+  "calibrationRmsM": 0.1675,
+  "calibrationTests": 3072,
+  "header": {
+   "target": "S2017_J10 (55525)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:33 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J10 / (Jupiter)  55525",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55526": {
+  "periodDays": 419.137,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 518400,
+   "phaseS": 528984000,
+   "boundariesSeen": 20
+  },
+  "segmentSeconds": 1036800,
+  "degree": 10,
+  "phaseS": 528984000,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 2.75,
+  "calibrationWorstM": 0.488,
+  "calibrationRmsM": 0.1208,
+  "calibrationTests": 3360,
+  "header": {
+   "target": "S2017_J11 (55526)",
+   "targetSource": "jup347_merged_DE442",
+   "centerSource": "DE441",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:41 2026",
+   "notes": [
+    "Revised: May 12, 2025  S2017_J11 / (Jupiter)  55526",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55527": {
+  "periodDays": 261.527,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2011_J4 (55527)",
+   "targetSource": "jup348_merged_DE442",
+   "centerSource": "jup348_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:49 2026",
+   "notes": [
+    "Revised: Mar 18, 2025  S2011_J4 / (Jupiter)  55527",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55528": {
+  "periodDays": 1015.36,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 6,
+  "phaseS": 529243200,
+  "sampleStepS": 10800,
+  "coefficientsPerDay": 2.33,
+  "calibrationWorstM": 0.4969,
+  "calibrationRmsM": 0.1521,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2018_J5 (55528)",
+   "targetSource": "jup348_merged_DE442",
+   "centerSource": "jup348_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:57:57 2026",
+   "notes": [
+    "Revised: Mar 18, 2025  S2018_J5 / (Jupiter)  55528",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55529": {
+  "periodDays": 554.512,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 6,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.33,
+  "calibrationWorstM": 0.4421,
+  "calibrationRmsM": 0.123,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2024_J1 (55529)",
+   "targetSource": "jup348_merged_DE442",
+   "centerSource": "jup348_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:07 2026",
+   "notes": [
+    "Revised: Mar 18, 2025  S2024_J1 / (Jupiter)  55529",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55530": {
+  "periodDays": 1029.56,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 7,
+  "phaseS": 529243200,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4754,
+  "calibrationRmsM": 0.1463,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2011_J5 (55530)",
+   "targetSource": "jup348_merged_DE442",
+   "centerSource": "jup348_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:16 2026",
+   "notes": [
+    "Revised: Mar 18, 2025  S2011_J5 / (Jupiter)  55530",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55531": {
+  "periodDays": 554.683,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2010_J3 (55531)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:26 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2010_J3 / (Jupiter)  55531",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55532": {
+  "periodDays": 979.68,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2010_J4 (55532)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:34 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2010_J4 / (Jupiter)  55532",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55533": {
+  "periodDays": 967.683,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 4665600,
+  "degree": 27,
+  "phaseS": 529243200,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 1.56,
+  "calibrationWorstM": 0.4887,
+  "calibrationRmsM": 0.127,
+  "calibrationTests": 3024,
+  "header": {
+   "target": "S2010_J5 (55533)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:43 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2010_J5 / (Jupiter)  55533",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55534": {
+  "periodDays": 888.341,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 7,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4856,
+  "calibrationRmsM": 0.1209,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2010_J6 (55534)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:58:53 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2010_J6 / (Jupiter)  55534",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55535": {
+  "periodDays": 568.754,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 4665600,
+  "degree": 26,
+  "phaseS": 529243200,
+  "sampleStepS": 21600,
+  "coefficientsPerDay": 1.5,
+  "calibrationWorstM": 0.4967,
+  "calibrationRmsM": 0.1145,
+  "calibrationTests": 3024,
+  "header": {
+   "target": "S2011_J6 (55535)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:59:03 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2011_J6 / (Jupiter)  55535",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55536": {
+  "periodDays": 906.713,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 4665600,
+  "degree": 24,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.39,
+  "calibrationWorstM": 0.4794,
+  "calibrationRmsM": 0.1154,
+  "calibrationTests": 3024,
+  "header": {
+   "target": "S2017_J12 (55536)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:59:16 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J12 / (Jupiter)  55536",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55537": {
+  "periodDays": 617.571,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 4665600,
+  "degree": 25,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 1.44,
+  "calibrationWorstM": 0.4416,
+  "calibrationRmsM": 0.1129,
+  "calibrationTests": 3024,
+  "header": {
+   "target": "S2017_J13 (55537)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:59:27 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J13 / (Jupiter)  55537",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55538": {
+  "periodDays": 486.065,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 4665600,
+  "degree": 32,
+  "phaseS": 529243200,
+  "sampleStepS": 43200,
+  "coefficientsPerDay": 1.83,
+  "calibrationWorstM": 0.4924,
+  "calibrationRmsM": 0.098,
+  "calibrationTests": 3024,
+  "header": {
+   "target": "S2017_J14 (55538)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:59:39 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J14 / (Jupiter)  55538",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55539": {
+  "periodDays": 419.436,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 2332800,
+  "degree": 25,
+  "phaseS": 529243200,
+  "sampleStepS": 32400,
+  "coefficientsPerDay": 2.89,
+  "calibrationWorstM": 0.4621,
+  "calibrationRmsM": 0.0719,
+  "calibrationTests": 3240,
+  "header": {
+   "target": "S2017_J15 (55539)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:59:51 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J15 / (Jupiter)  55539",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55540": {
+  "periodDays": 588.275,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 7,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4698,
+  "calibrationRmsM": 0.1579,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2017_J16 (55540)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 22:00:02 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J16 / (Jupiter)  55540",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55541": {
+  "periodDays": 256.568,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2017_J17 (55541)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 22:00:11 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J17 / (Jupiter)  55541",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55542": {
+  "periodDays": 626.05,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 7,
+  "phaseS": 529243200,
+  "sampleStepS": 64800,
+  "coefficientsPerDay": 2.67,
+  "calibrationWorstM": 0.4675,
+  "calibrationRmsM": 0.158,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2017_J18 (55542)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 22:00:19 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2017_J18 / (Jupiter)  55542",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55543": {
+  "periodDays": 1006.02,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2021_J7 (55543)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 22:00:29 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2021_J7 / (Jupiter)  55543",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ },
+ "55544": {
+  "periodDays": 730.744,
+  "calibrationStepMinutes": 180,
+  "probeStepMinutes": 180,
+  "sourceGrid": {
+   "lengthS": 777600,
+   "phaseS": 529243200,
+   "boundariesSeen": 13
+  },
+  "segmentSeconds": 777600,
+  "degree": 8,
+  "phaseS": 529243200,
+  "sampleStepS": 86400,
+  "coefficientsPerDay": 3,
+  "calibrationWorstM": 0,
+  "calibrationRmsM": 0,
+  "calibrationTests": 3312,
+  "header": {
+   "target": "S2021_J8 (55544)",
+   "targetSource": "jup349_merged_DE442",
+   "centerSource": "jup349_merged_DE442",
+   "apiVersion": "1.2",
+   "generated": "Sat Oct 17 21:31:36 2026",
+   "notes": [
+    "Revised: Apr 13, 2026  S2021_J8 / (Jupiter)  55544",
+    "Recently discovered irregular satellite"
+   ]
+  }
+ }
+}
