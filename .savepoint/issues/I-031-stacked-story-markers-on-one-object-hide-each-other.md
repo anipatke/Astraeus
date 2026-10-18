@@ -3,7 +3,7 @@ id: I-031
 title: Story markers on the same object stack and hide each other
 type: defect
 status: open
-checks: [C-069]
+checks: [C-069, C-071]
 source:
   kind: report
   actor: {role: checker, session: o011-orchestrator-check-20261016-night}
@@ -18,6 +18,11 @@ history:
     actor: {role: executor, session: o015-t088-lane-builder}
     kind: repair_attempted
     note: 'T-088 (lane o015-t088): src/app/StoryMarkers.ts now merges panels that name the same object into one scene marker (groupStoryMarkers), whose data-panel-ids lists them in time order. A press opens the latest panel the clock has reached (or the first), and a press while one of its panels is open opens the next, wrapping round (panelForMarkerPress), so every panel on the object is reachable from the scene. Generic, no object names. The scene marker update now receives the clock time (AstraeusScene) and each spec carries its panel time (App). Apollo 11 powered-descent and ascent-docking now name eagle and tei names columbia, so every Apollo panel is reachable from the scene and the timeline. Proof: tests/storyMarkers.test.ts (synthetic story, three panels on one object); browser-story-panels asserts one Eagle marker carries all three Eagle panels and each opens from it (driver pressSceneStoryMarker). Browser evidence is recorded in T-088. Status left open for the Check.'
+  - at: '2026-10-18T01:45:00Z'
+    actor: {role: checker, session: o015-full-check-20261018}
+    kind: rechecked
+    note: 'C-071 (O-015 Full Objective Check) verified the Proof Needed on HEAD 88c5d02. Proof 1: groupStoryMarkers and panelForMarkerPress are generic, with one marker per object; checker probes cover the clock rule at its boundaries, presses while another panel is open, and cycling that reaches all three panels. Proof 2: tests/storyMarkers.test.ts plus the browser step "a shared marker reaches every panel on it (powered-descent, touchdown, ascent-docking)". Proof 3: story-panels, shell and spike03 passed with zero console errors in the fresh full run docs/evidence/o015-full-check-20261018T011817Z (24/24). Left open: C-071 is NEEDS WORK on other Issues (I-038, I-039), and only a CLEAR Check may close this as verified.'
+    check: C-071
 ---
 
 # I-031: Story markers on the same object stack and hide each other
