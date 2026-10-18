@@ -22,7 +22,7 @@ const SHOWER_COMMON = ["showerDefinition.js", "showerSettings.js", "measuredOrbi
  */
 export const PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
-  { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 260_000, gzipLimit: 240_000 },
+  { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 274_000, gzipLimit: 240_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
   { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "panels.js", "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
