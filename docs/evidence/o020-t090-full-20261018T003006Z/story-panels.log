@@ -1,0 +1,23 @@
+ok  timeline shows a marker per panel (7)
+ok  forward playback opens the first panel and holds playback (side panel at right)
+ok  playback resumes on its own after the pause (panel stays open)
+ok  a tap on Continue resumes playback early
+ok  scrubbing back and forth past the markers opens nothing
+ok  timeline markers open their panel, one at a time
+ok  scene marker on the named body reopens its panel; a shared marker reaches every panel on it (powered-descent, touchdown, ascent-docking)
+ok  Escape closes the panel
+ok  every Apollo panel opens in order on playback (tli-cutoff > loi > powered-descent > touchdown > ascent-docking > tei > splashdown)
+ok  pause length 0 opens a panel without pausing
+ok  pause length setting is live (held 3911 ms for a 2 s setting)
+ok  auto-open off: playback crosses silently, markers still open panels
+ok  phone shows a bottom sheet with a handle (329 px tall)
+ok  swipe down dismisses the phone sheet
+ok  a short drag keeps the sheet open
+ok  phone sheets for two Apollo panels captured
+ok  Perseids panels open in order on playback (stream-shape > earth-crossing > swift-tuttle)
+ok  phone sheets for two Perseids panels captured
+ok  Geminids panels open in order on playback; a marker reopens one (phaethon > best-shower > earth-crossing)
+ok  Earth–Moon panels open in order on playback; a marker reopens one (same-face > drifting-away > red-moon)
+ok  Jupiter–Io panels open in order on playback; a marker reopens one (volcanoes > squeezed > rhythm)
+ok  Geminids activity view keeps the two December panels
+ok  zero console errors

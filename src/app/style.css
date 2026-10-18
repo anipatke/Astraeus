@@ -50,7 +50,8 @@ body,
   background: rgba(255, 255, 255, .035);
 }
 
-.hud-section h3 {
+.hud-section h3,
+.hud-section h4 {
   margin: 0 0 8px;
   color: var(--ui-muted);
   font-size: 12px;
@@ -60,14 +61,24 @@ body,
   text-transform: uppercase;
 }
 
-.hud-section-display { column-span: all; margin-top: 12px; }
-.hud .setting-groups { column-count: 2; column-gap: 24px; }
-.hud .setting-groups > .setting-group { break-inside: avoid; }
-/* Frame rate straight under the heading has no neighbour: it goes full width, readouts beside the graph. */
-.developer-heading + .hud-section-frame { column-span: all; }
-.developer-heading + .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
-.developer-heading + .hud-section-frame .frame-readouts { margin-top: 0; }
+/* Frame rate has a whole row to itself in "Under the hood": readouts beside the graph. */
+.hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
+.hud-section-frame .frame-readouts { margin-top: 0; }
 .hud .frame-body > p { grid-column: 1 / -1; }
+/* The panel's folds (T-090): a full-width heading button over the body; the first group's cards flow in two columns as they did. */
+.hud > .dev-group { column-span: all; padding: 4px 10px 6px; border: 1px solid var(--ui-border); border-radius: 9px; background: rgba(255, 255, 255, .035); }
+.collapsible-heading { margin: 0; font-size: 13px; }
+.hud .collapsible-toggle { width: 100%; min-height: var(--control-height, 36px); font-weight: 650; }
+.hud .collapsible-toggle svg { transition: transform .15s; }
+.hud .collapsible-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.collapsible-body { padding: 4px 2px 6px; }
+.collapsible-body[hidden] { display: none; }
+.dev-group-cards > .collapsible-body { column-count: 2; column-gap: 10px; }
+.dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 10px; }
+.dev-group-cards .hud-section-clock { column-span: all; }
+.collapsible-nested { margin: 4px 0 8px; border-left: 2px solid var(--ui-border); padding-left: 8px; }
+.hud .collapsible-nested .collapsible-toggle { font-weight: 500; color: var(--ui-muted); }
+@media (prefers-reduced-motion: reduce) { .hud .collapsible-toggle svg { transition: none; } }
 .setting-group { margin: 0 0 12px; padding: 0; border: 0; min-width: 0; }
 .setting-group:last-child { margin-bottom: 0; }
 .setting-group > h4 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--ui-border); color: var(--ui-data); font-size: 12px; font-weight: 650; letter-spacing: .03em; }
@@ -180,8 +191,8 @@ body,
 /* Developer panel on a phone: one column, label above control, labels never squeezed to a few letters. */
 @media (max-width: 700px) {
   .hud { column-count: 1; }
-  .hud .setting-groups { column-count: 1; }
-  .developer-heading + .hud-section-frame .frame-body { display: block; }
+  .dev-group-cards > .collapsible-body { column-count: 1; }
+  .hud-section-frame .frame-body { display: block; }
   .hud .setting { grid-template-columns: minmax(0, 1fr) 3.4em; }
   .hud .setting-label { grid-column: 1 / -1; }
   .hud .setting input[type="range"] { grid-column: 1; }

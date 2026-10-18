@@ -64,7 +64,7 @@ function overTone(frames: FrameSnapshot): Tone {
 export function FrameRateSection({ frames, fills, fpsHistory = [] }: { readonly frames: FrameSnapshot | null; readonly fills: readonly GroupFill[]; readonly fpsHistory?: readonly number[] }) {
   return (
     <section className="hud-section hud-section-frame" aria-labelledby="developer-frame-rate-heading" data-testid="frame-rate">
-      <h3 id="developer-frame-rate-heading">Frame rate</h3>
+      <h4 id="developer-frame-rate-heading">Frame rate</h4>
       <div className="frame-body">
       {frames === null || frames.frames === 0 ? <p>Measuring…</p> : (
         <dl className="frame-readouts" aria-label="Frame timing">

@@ -1,0 +1,13 @@
+{
+  "results": {
+    "desktop": {
+      "dotPixelsTrueFocus": 8198,
+      "dotPixelsReadableFocus": 8134
+    },
+    "phone": {
+      "dotPixelsTrueFocus": 1083,
+      "dotPixelsReadableFocus": 1072
+    }
+  },
+  "errors": []
+}

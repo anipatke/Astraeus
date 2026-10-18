@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
@@ -11,6 +11,7 @@ import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
+import { Collapsible } from "../shell/Collapsible";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
@@ -239,72 +240,74 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       {section.render(experienceRuntime)}
     </section>
   );
-  const developerTools = (
-    <div className="hud">
-      <header className="developer-heading">
-        <h2>Developer tools</h2>
-        <p>Live readouts, controls and diagnostics for this scene.</p>
-      </header>
-      {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
-      {hud !== null && (
-        <section className="hud-section" aria-labelledby="developer-scene-heading">
-          <h3 id="developer-scene-heading">Scene instrumentation</h3>
-          <DebugOverlay readout={hud} />
-        </section>
-      )}
-      <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      {(orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")) && (
-        <section className="hud-section hud-section-display" aria-labelledby="developer-display-heading">
-          <h3 id="developer-display-heading">Display settings</h3>
-          <div className="setting-groups">
-          <SettingGroup id="view" title="View">
-            <SettingButtons label="Up direction">
-              {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
-                <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
-              ))}
-            </SettingButtons>
-            <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
-              onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
-            <div className="view-link" role="group" aria-label="Camera view">
-              <SettingButtons label="Camera view">
-                <button onClick={() => void copyViewLink()}>Copy view link</button>
-              </SettingButtons>
-              {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
-              {viewLink !== null && (
-                <p className="view-link-field">
-                  <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />
-                  <span>{viewLink.copied ? "Copied to the clipboard." : "Clipboard unavailable: select the link above and copy it."}</span>
-                </p>
-              )}
-            </div>
-            <SettingButtons>
-              <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
-            </SettingButtons>
-          </SettingGroup>
-          {storySet !== undefined && storySet.panels.length > 0 && (
-            <SettingGroup id="story-panels" title="Story panels">
-              <SettingButtons>
-                <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
-              </SettingButtons>
-              <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
-                onChange={setStoryPauseSeconds} />
-            </SettingGroup>
+  const showDisplay = orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
+  const hasAlternates = (definition.alternates ?? []).length > 0;
+  // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
+  const orbitSliders = {
+    main: [
+      ["baseOpacity", "Ring opacity", "orbit-base-opacity", 0.01],
+      ["endFade", "End fade (of ring)", "orbit-end-fade", 0.01],
+      ["arcFraction", "Arc length (of orbit)", "orbit-arc-fraction", 0.01],
+      ["arcPeak", "Arc opacity", "orbit-arc-peak", 0.01],
+    ],
+    fine: [
+      ["arcExponent", "Fade curve (power)", "orbit-arc-exponent", 0.1],
+      ["arcSegments", "Arc segments", "orbit-arc-segments", 1],
+      ["arcWidth", "Arc width (of orbit)", "orbit-arc-width", 0.0001],
+      ["arcMaxWidthPx", "Arc max width (px)", "orbit-arc-max-width", 0.5],
+      ["zoomBoostBase", "Zoom boost (ring)", "orbit-zoom-boost-base", 0.01],
+      ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
+    ],
+  } as const;
+  const orbitSlider = ([key, label, testId, step]: readonly [Exclude<keyof typeof orbitShown, "baseOn" | "endFadeOn" | "arcOn" | "zoomOn">, string, string, number]) => (
+    <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
+      onChange={(value) => setOrbit({ [key]: value })} />
+  );
+  // The panel's folds, in order; the first one present opens by default and the rest start closed (T-090).
+  const groups: ReadonlyArray<{ readonly id: string; readonly title: string; readonly className?: string; readonly body: ReactNode } | null> = [
+    sections.length === 0 ? null : {
+      id: "demo", title: "This demo", className: "dev-group-cards",
+      body: (
+        <>
+          {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
+          {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
+        </>
+      ),
+    },
+    !showDisplay ? null : {
+      id: "camera", title: "Camera and view",
+      body: (
+        <>
+        <SettingButtons label="Up direction">
+          {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
+            <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
+          ))}
+        </SettingButtons>
+        <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
+          onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
+        <div className="view-link" role="group" aria-label="Camera view">
+          <SettingButtons label="Camera view">
+            <button onClick={() => void copyViewLink()}>Copy view link</button>
+          </SettingButtons>
+          {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
+          {viewLink !== null && (
+            <p className="view-link-field">
+              <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />
+              <span>{viewLink.copied ? "Copied to the clipboard." : "Clipboard unavailable: select the link above and copy it."}</span>
+            </p>
           )}
-          <SettingGroup id="phone-layout" title="Phone layout">
-            {([
-              ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
-              ["controlsDrawerMaxPercent", "Top drawer height (% of screen)", "Phone top drawer height", "phone-controls-height-value"],
-              ["timelineDrawerMaxPercent", "Timeline drawer height (% of screen)", "Phone timeline drawer height", "phone-timeline-height-value"],
-              ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
-              ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
-            ] as const).map(([key, label, ariaLabel, testId]) => (
-              <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
-                onChange={(value) => setPhoneLayout({ ...phoneLayout, [key]: value })} />
-            ))}
-            <SettingButtons>
-              <button onClick={() => setPhoneLayout(DEFAULT_PHONE_LAYOUT)}>Reset phone layout</button>
-            </SettingButtons>
-          </SettingGroup>
+        </div>
+        <SettingButtons>
+          <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
+        </SettingButtons>
+      
+        </>
+      ),
+    },
+    !showDisplay ? null : {
+      id: "timeline", title: "Timeline and stories",
+      body: (
+        <>
           <SettingGroup id="timeline-glow" title="Timeline glow">
             <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
             <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={timelineGlow.playedColor} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
@@ -323,34 +326,42 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
             </SettingButtons>
           </SettingGroup>
-          {orbitPaths.length > 0 && (
-            <SettingGroup id="orbit-lines" title="Orbit lines">
+          {storySet !== undefined && storySet.panels.length > 0 && (
+            <SettingGroup id="story-panels" title="Story panels">
               <SettingButtons>
-                <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>Orbit ring</button>
-                <button aria-pressed={orbitShown.endFadeOn} onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}>Fade ring ends</button>
-                <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>Trailing arc</button>
-                <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
+                <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
               </SettingButtons>
-              {([
-                ["baseOpacity", "Ring opacity", "orbit-base-opacity", 0.01],
-                ["endFade", "End fade (of ring)", "orbit-end-fade", 0.01],
-                ["arcFraction", "Arc length (of orbit)", "orbit-arc-fraction", 0.01],
-                ["arcPeak", "Arc opacity", "orbit-arc-peak", 0.01],
-                ["arcExponent", "Fade curve (power)", "orbit-arc-exponent", 0.1],
-                ["arcSegments", "Arc segments", "orbit-arc-segments", 1],
-                ["arcWidth", "Arc width (of orbit)", "orbit-arc-width", 0.0001],
-                ["arcMaxWidthPx", "Arc max width (px)", "orbit-arc-max-width", 0.5],
-                ["zoomBoostBase", "Zoom boost (ring)", "orbit-zoom-boost-base", 0.01],
-                ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
-              ] as const).map(([key, label, testId, step]) => (
-                <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
-                  onChange={(value) => setOrbit({ [key]: value })} />
-              ))}
-              <SettingButtons>
-                <button onClick={resetOrbit}>Reset orbit lines</button>
-              </SettingButtons>
+              <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
+                onChange={setStoryPauseSeconds} />
             </SettingGroup>
           )}
+        </>
+      ),
+    },
+    orbitPaths.length === 0 ? null : {
+      id: "orbit-lines", title: "Orbit lines",
+      body: (
+        <>
+          <SettingButtons>
+            <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>Orbit ring</button>
+            <button aria-pressed={orbitShown.endFadeOn} onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}>Fade ring ends</button>
+            <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>Trailing arc</button>
+            <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
+          </SettingButtons>
+          {orbitSliders.main.map(orbitSlider)}
+          <Collapsible id="orbit-fine-tune" title="Fine-tune" level={4} nested>
+            {orbitSliders.fine.map(orbitSlider)}
+          </Collapsible>
+          <SettingButtons>
+            <button onClick={resetOrbit}>Reset orbit lines</button>
+          </SettingButtons>
+        </>
+      ),
+    },
+    !(runtime.sky.visible || glowShown !== null) ? null : {
+      id: "sky-sun", title: "Sky and Sun",
+      body: (
+        <>
           {runtime.sky.visible && (
             <SettingGroup id="sky" title="Sky">
               <SettingButtons>
@@ -372,23 +383,62 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
                 onChange={(value) => { controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
             </SettingGroup>
           )}
-          {(labelToggles.length > 0 || runtime.trackedBodies.length > 0) && (
-            <SettingGroup id="labels" title="Labels">
-              <SettingButtons>
-                {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
-                {labelToggles.map((object) => (
-                  <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
-                    const hidden = controls.current.hiddenLabels ?? new Set<string>();
-                    if (hidden.has(object.id)) hidden.delete(object.id);
-                    else hidden.add(object.id);
-                    controls.current.hiddenLabels = hidden;
-                    setHiddenLabels(new Set(hidden));
-                  }}>{`${object.label} label`}</button>
-                ))}
-              </SettingButtons>
-            </SettingGroup>
+        </>
+      ),
+    },
+    !(labelToggles.length > 0 || runtime.trackedBodies.length > 0) ? null : {
+      id: "labels", title: "Labels",
+      body: (
+        <>
+          <SettingButtons>
+            {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
+            {labelToggles.map((object) => (
+              <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
+                const hidden = controls.current.hiddenLabels ?? new Set<string>();
+                if (hidden.has(object.id)) hidden.delete(object.id);
+                else hidden.add(object.id);
+                controls.current.hiddenLabels = hidden;
+                setHiddenLabels(new Set(hidden));
+              }}>{`${object.label} label`}</button>
+            ))}
+          </SettingButtons>
+        
+        </>
+      ),
+    },
+    !showDisplay ? null : {
+      id: "phone-layout", title: "Phone layout",
+      body: (
+        <>
+        {([
+          ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
+          ["controlsDrawerMaxPercent", "Top drawer height (% of screen)", "Phone top drawer height", "phone-controls-height-value"],
+          ["timelineDrawerMaxPercent", "Timeline drawer height (% of screen)", "Phone timeline drawer height", "phone-timeline-height-value"],
+          ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
+          ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
+        ] as const).map(([key, label, ariaLabel, testId]) => (
+          <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
+            onChange={(value) => setPhoneLayout({ ...phoneLayout, [key]: value })} />
+        ))}
+        <SettingButtons>
+          <button onClick={() => setPhoneLayout(DEFAULT_PHONE_LAYOUT)}>Reset phone layout</button>
+        </SettingButtons>
+      
+        </>
+      ),
+    },
+    {
+      id: "under-the-hood", title: "Under the hood",
+      body: (
+        <>
+          {hud !== null && (
+            <section className="hud-section" aria-labelledby="developer-scene-heading">
+              <h4 id="developer-scene-heading">Scene instrumentation</h4>
+              <DebugOverlay readout={hud} />
+            </section>
           )}
-          {(definition.alternates ?? []).length > 0 && (
+          <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
+          {showDisplay && hasAlternates && (
             <SettingGroup id="data" title="Data">
               <SettingButtons>
                 {(definition.alternates ?? []).map((alternate) => (
@@ -401,10 +451,22 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               </SettingButtons>
             </SettingGroup>
           )}
-          </div>
-        </section>
-      )}
-      {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
+        </>
+      ),
+    },
+  ];
+  const presentGroups = groups.filter((group) => group !== null);
+  const developerTools = (
+    <div className="hud">
+      <header className="developer-heading">
+        <h2>Developer tools</h2>
+        <p>Live readouts, controls and diagnostics for this scene.</p>
+      </header>
+      {presentGroups.map((group, index) => (
+        <Collapsible key={group.id} id={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
+          {group.body}
+        </Collapsible>
+      ))}
     </div>
   );
 
