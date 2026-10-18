@@ -5,7 +5,7 @@ import { membersToName, pickMember } from "../src/app/BodySetLabels";
 import { DEFAULT_BODY_SET_LOOK, DEFAULT_FAMILY_PALETTE, familiesWithPalette, familyColorOf, validateBodySet, type BodySetLayer } from "../src/app/bodySet";
 import { osculatingPeriodS } from "../src/core/orbitPeriod";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { OrbitSetView, ORBIT_SET_SAMPLES } from "../src/app/OrbitSetView";
+import { OrbitSetView, ORBIT_HEAD_SUBSTEPS, ORBIT_SET_SAMPLES } from "../src/app/OrbitSetView";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { defaultDistance, focusLimits, MEMBER_MIN_DISTANCE } from "../src/app/sceneFraming";
 import { bodySetMemberAbsolute } from "../src/app/sceneTargets";
@@ -148,24 +148,37 @@ describe("body set dots and balls", () => {
 });
 
 describe("body set orbit lines", () => {
-  it("draws each body's own path over one period ending now (shorter where the loaded data begin later), the body at its head", () => {
+  it("draws each body's own path over one period up to now (shorter where the loaded data begin later), the body at its head", () => {
     const orbits = new OrbitSetView(layer, 32);
     orbits.sync(T0, placement, trueScale, true);
     expect(orbits.computed).toBe(2);
     const alphaPeriodMs = 1000 * 2 * Math.PI * Math.sqrt(RADII_KM.alpha ** 3 / GM);
+    const alphaStep = orbits.stepMs(0);
+    expect(alphaStep).toBeCloseTo(alphaPeriodMs / 31, 3);
     expect(orbits.spanMs(0)).toBeCloseTo(alphaPeriodMs, -1);
-    expect(orbits.spanMs(1)).toBe(5 * 86_400_000);
+    // Beta's data begin 5 days back: its path starts there and ends a whole step before the step the clock is in.
+    expect(orbits.spanMs(1)).toBeLessThanOrEqual(5 * 86_400_000);
+    expect(orbits.spanMs(1)).toBeGreaterThan(5 * 86_400_000 - 2 * orbits.stepMs(1));
+    const near = (a: readonly number[], b: readonly number[], tolerance: number): boolean => a.every((v, k) => Math.abs(v - b[k]) < tolerance);
     for (const [m, id] of [[0, "alpha"], [1, "beta"]] as const) {
-      expect(orbits.pointKm(m, 31).map((v, k) => v - circular(id, T0).p[k]).every((d) => Math.abs(d) < 1e-9)).toBe(true);
-      expect(orbits.pointKm(m, 0).map((v, k) => v - circular(id, Math.round(T0 - orbits.spanMs(m))).p[k]).every((d) => Math.abs(d) < 1e-6)).toBe(true);
+      // The path's last sample is a whole multiple of the step; the head runs on from it through fine points to the body now.
+      const lastMs = Math.round((Math.floor(T0 / orbits.stepMs(m)) - 1) * orbits.stepMs(m));
+      expect(near(orbits.pointKm(m, 31), circular(id, lastMs).p, 1e-6)).toBe(true);
+      const head = orbits.headPointsKm(m);
+      expect(near(head[0], orbits.pointKm(m, 31), 1e-9)).toBe(true);
+      expect(head.length).toBeGreaterThanOrEqual(ORBIT_HEAD_SUBSTEPS + 1);
+      expect(near(head[head.length - 1], circular(id, T0).p, 1e-9)).toBe(true);
     }
-    // Less than a sample step on, nothing is re-sampled (the head segment reaches the body); past a step, the stale path is.
-    const alphaStep = Math.round(orbits.spanMs(0) / 31);
-    orbits.sync(T0 + Math.round(0.5 * alphaStep), placement, trueScale, true);
+    // Within the step the clock is in, nothing is re-sampled; once it enters the next, the path is, and the points that stay on the line
+    // do not move (each sits at a whole multiple of the step), so the line does not shift up close.
+    const before = orbits.pointKm(0, 10);
+    const nextStep = (Math.floor(T0 / alphaStep) + 1) * alphaStep;
+    orbits.sync(Math.round(nextStep - 0.01 * alphaStep), placement, trueScale, true);
     expect(orbits.computed).toBe(2);
-    expect(orbits.headKm(0)).toEqual(circular("alpha", T0 + Math.round(0.5 * alphaStep)).p);
-    orbits.sync(T0 + Math.round(1.01 * alphaStep), placement, trueScale, true);
+    expect(orbits.headKm(0)).toEqual(circular("alpha", Math.round(nextStep - 0.01 * alphaStep)).p);
+    orbits.sync(Math.round(nextStep + 0.01 * alphaStep), placement, trueScale, true);
     expect(orbits.computed).toBe(3);
+    expect(orbits.pointKm(0, 9)).toEqual(before);
     orbits.place(new FloatingOrigin(), { ...DEFAULT_BODY_SET_LOOK, familyColors: { near: "#ff0000" } }, true);
     expect(orbits.colorOfFamily(0)).toBe("#ff0000");
     expect(orbits.colorOfFamily(1)).toBe(DEFAULT_FAMILY_PALETTE[1]);
@@ -182,7 +195,9 @@ describe("body set orbit lines", () => {
     const gaps = orbits.gapReadout(cam, 1280, 800);
     const betaGap = gaps.find((gap) => gap.id === "beta")!;
     expect(betaGap.gapPx).toBeLessThan(0.5);
-    expect(betaGap.pathGapPx).toBeLessThan(0.5);
+    // The body is at most one fine step past its head's last fine point, under the browser check's 1.5 px.
+    expect(betaGap.pathGapPx).toBeLessThan(1.5);
+    expect(betaGap.offLinePx).toBeLessThan(0.1);
     expect(betaGap.lineSpanPx).toBeGreaterThan(50);
   });
 
