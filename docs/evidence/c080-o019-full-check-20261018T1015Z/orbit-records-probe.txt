@@ -1,0 +1,19 @@
+Independent checker probes (Python, not the project's test), 2026-10-18 ~10:20Z, HEAD a952ac5.
+
+1. Class rule re-applied from each data/orbits/<body>.json accuracy block
+   (within one diameter if maxErrorKm <= bodyDiameterKm; approximate demonstration if
+   <= semiMajorAxisKm/10; else not usable as published): 14 of 14 match the recorded class.
+2. docs/ASTRONOMY_VALIDATION.md "Moons and Pluto against Horizons" table vs records:
+   Charon 36, Io 4196, Europa 13351, Ganymede 6101, Callisto 10861, Triton 33573
+   (fraction 0.09462 -> 9.46%), Pluto 15475866 (0.00261 -> 0.26%): all equal;
+   seven Saturn moons listed as not usable as published, matching records.
+   Saturn phase range "5.5 to 157 degrees, both ways" matches docs/MOON_ORBITS.md
+   finding 1 (49, 5.5, -61, -151, -157, -154, +145). "31 dates (Pluto 66)" matches
+   sampleCount 31 / 66.
+3. Every record carries source.url, source.accessed, source.licenceNote,
+   source.rawResponse (file exists on disk for all 14), epoch, plane, elements,
+   parentBody.gmKm3S2, rotation (IAU WGCCRE 2015 citation) and accuracy.
+4. Raw table spot check (docs/evidence/o019-t078-sats-elem-20261017T034943Z/sats-elem.html):
+   Charon row "PLU060 equatorial 2000-01-01.5 19600. 0.000 0.0 304.1 0.0 0.0 6.387222" and
+   Triton row "NEP097 Laplace 2000-01-01.5 354800. 0.000 0.0 63.0 157.3 178.1 5.876994 0.000 340.379"
+   equal data/orbits/charon.json and triton.json elements.

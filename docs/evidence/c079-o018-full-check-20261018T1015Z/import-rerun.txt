@@ -1,0 +1,6 @@
+HEAD a952ac553b9ef9cbec6e862244115aeebee4d172
+donor HEAD 84f8d3ee77aff47f2f36f157b62b97dce7176b95
+$ node tools/import/planetary-explorer.mjs --out <scratch>/out
+Wrote 24 bodies, 403 features (donor 84f8d3e)
+$ diff -rq <scratch>/out data/bodies
+Only in data/bodies: README.md

@@ -1,0 +1,9 @@
+Independent checker probe (Python, not the project's test), 2026-10-18T10:16Z.
+For every donor feature in /home/user/code/planetary-explorer/data/<body>-features.json
+(moon: data/hotspots.json) at donor 84f8d3e, look up the package feature by id in
+data/bodies/<body>/features.json; compare latitude/longitude as IEEE-754 bit patterns
+(struct.pack('>d')) and every other donor key by deep equality; flag any donor key
+missing from the package and any count difference.
+Result: total 403 bad 0 coord values 782   (391 positioned features x 2; 12 ring-only features carry no lat/lon)
+Note: a first draft compared Python repr() and flagged -114.0 vs -114 (int vs float
+in JSON text); these are the same double, so the probe was corrected to bit patterns.
