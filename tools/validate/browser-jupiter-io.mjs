@@ -84,6 +84,22 @@ async function moons(page, name, notes) {
   notes.nameOnDemand = { dot: dot.id, shown };
   assert.ok(shown.length <= 2, `${name}: only the asked-for name shows (${shown.join(", ")})`);
 
+  // Every moon sits on its own orbit line (owner, 2026-10-18: S/2021 J 7 was off its line when the lines were osculating ellipses). Views
+  // of irregular moons, S/2021 J 7 among them: the readout gives each in-view moon's on-screen distance from its own sampled path. The head
+  // segment always ends on the body, so the gap is taken to the sampled path alone, from 500 units out where it stays under a pixel.
+  notes.onOwnLine = {};
+  for (const id of ["s2021-j7", "sinope", "carme", "ananke", "himalia"]) {
+    await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${id},30,20,500&sky=off`);
+    await ui.waitForShell(page);
+    await ui.ensurePaused(page);
+    await page.waitForTimeout(1200);
+    const gap = (await ui.bodySetReadout(page)).orbitGaps.find((entry) => entry.id === id);
+    notes.onOwnLine[id] = gap;
+    assert.ok(gap, `${name}: ${id}'s orbit line is measured in view`);
+    assert.ok(gap.lineSpanPx > 50, `${name}: ${id}'s orbit line crosses the view (${gap.lineSpanPx} px)`);
+    assert.ok(gap.pathGapPx <= 1.5, `${name}: ${id} sits on its own orbit line (${gap.pathGapPx} px off its sampled path)`);
+  }
+
   // The smallest moon close up: a ball wider than its dot, named by near zoom.
   const units = smallest.meanRadiusKm / EARTH_RADIUS_KM;
   const distance = Math.max(0.003, 12 * units);

@@ -1,0 +1,19 @@
+{
+  "label": "fix-swarm-2",
+  "experience": "jupiter-io",
+  "view": "jupiter,30,30,6000",
+  "throttle": 4,
+  "seconds": 8,
+  "viewport": "390x844 @1x, touch",
+  "loadMs": 1169,
+  "frames": 325,
+  "meanMs": 24.8,
+  "p50Ms": 16.7,
+  "p95Ms": 33.4,
+  "maxMs": 50,
+  "fps": 40.3,
+  "bodies": "jupiter,io,europa,ganymede,callisto",
+  "bodySetMembers": null,
+  "at": "2026-10-18T08:02:12.182Z",
+  "errors": []
+}

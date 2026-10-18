@@ -26,8 +26,8 @@ export const PAGES = [
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
   { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "panels.js", "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
-  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js). Measured 2026-10-18 on the public build plus 5%.
-  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin"], rawLimit: 7_270_000, gzipLimit: 4_630_000 },
+  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Measured 2026-10-18 on the public build plus 5%.
+  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin", "2014.bin", "2015.bin"], rawLimit: 8_110_000, gzipLimit: 5_220_000 },
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
   { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
 ];

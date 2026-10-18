@@ -34,7 +34,7 @@ export interface BodySetLayer {
    * each with its family: they join the one batch of orbit lines. Absent: none.
    */
   readonly extraOrbits?: { readonly group: EphemerisGroup; readonly families: readonly string[] };
-  /** Gravitational parameter of the set's centre, km^3/s^2: each orbit line is the member's osculating ellipse about it. */
+  /** Gravitational parameter of the set's centre, km^3/s^2: it sizes each orbit line to about one orbital period of the member's own path. */
   readonly centreGmKm3S2: number;
 }
 
@@ -120,54 +120,4 @@ export function validateBodySet(layer: BodySetLayer): BodySetLayer {
 /** The colour each family's orbits are drawn in now: the live choice, else the family's own. */
 export function familyColorOf(layer: BodySetLayer, look: BodySetLook, family: string): string {
   return look.familyColors[family] ?? layer.families.find((candidate) => candidate.id === family)?.color ?? "#ffffff";
-}
-
-/**
- * The osculating ellipse of a body at position `r` (km) and velocity `v` (km/s) about a centre of gravitational parameter `gm`: `samples`
- * points (km, about the centre, same frame) evenly spaced in eccentric anomaly, starting at periapsis, written into `out` from `offset`
- * (3 per point). The body lies on it at that moment. Returns the semi-major axis in km, or 0 (points all at the centre) when the orbit is
- * not bound.
- */
-export function osculatingEllipseInto(r: ArrayLike<number>, v: ArrayLike<number>, gm: number, samples: number, out: Float32Array | Float64Array, offset = 0): number {
-  const [rx, ry, rz] = [r[0], r[1], r[2]];
-  const [vx, vy, vz] = [v[0], v[1], v[2]];
-  const rn = Math.hypot(rx, ry, rz);
-  const v2 = vx * vx + vy * vy + vz * vz;
-  const energy = v2 / 2 - gm / rn;
-  const blank = () => { out.fill(0, offset, offset + 3 * samples); return 0; };
-  if (!(rn > 0) || !(energy < 0)) return blank();
-  const a = -gm / (2 * energy);
-  // Angular momentum and the eccentricity vector.
-  const hx = ry * vz - rz * vy;
-  const hy = rz * vx - rx * vz;
-  const hz = rx * vy - ry * vx;
-  const hn = Math.hypot(hx, hy, hz);
-  if (!(hn > 0)) return blank();
-  const rv = rx * vx + ry * vy + rz * vz;
-  const ex = ((v2 - gm / rn) * rx - rv * vx) / gm;
-  const ey = ((v2 - gm / rn) * ry - rv * vy) / gm;
-  const ez = ((v2 - gm / rn) * rz - rv * vz) / gm;
-  const e = Math.hypot(ex, ey, ez);
-  if (!(e < 1)) return blank();
-  // P towards periapsis (any in-plane direction for a circle), Q = h x P / |h|.
-  let px = ex;
-  let py = ey;
-  let pz = ez;
-  if (e < 1e-12) { px = rx; py = ry; pz = rz; }
-  const pn = Math.hypot(px, py, pz);
-  px /= pn; py /= pn; pz /= pn;
-  const qx = (hy * pz - hz * py) / hn;
-  const qy = (hz * px - hx * pz) / hn;
-  const qz = (hx * py - hy * px) / hn;
-  const b = a * Math.sqrt(1 - e * e);
-  for (let i = 0; i < samples; i += 1) {
-    const E = (2 * Math.PI * i) / samples;
-    const c = a * (Math.cos(E) - e);
-    const s = b * Math.sin(E);
-    const at = offset + 3 * i;
-    out[at] = c * px + s * qx;
-    out[at + 1] = c * py + s * qy;
-    out[at + 2] = c * pz + s * qz;
-  }
-  return a;
 }

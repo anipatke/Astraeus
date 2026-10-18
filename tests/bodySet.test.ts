@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera } from "three";
 import { BodySetView } from "../src/app/BodySetView";
 import { membersToName, pickMember } from "../src/app/BodySetLabels";
-import { DEFAULT_BODY_SET_LOOK, DEFAULT_FAMILY_PALETTE, familiesWithPalette, familyColorOf, osculatingEllipseInto, validateBodySet, type BodySetLayer } from "../src/app/bodySet";
+import { DEFAULT_BODY_SET_LOOK, DEFAULT_FAMILY_PALETTE, familiesWithPalette, familyColorOf, validateBodySet, type BodySetLayer } from "../src/app/bodySet";
+import { osculatingPeriodS } from "../src/core/orbitPeriod";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { OrbitSetView, ORBIT_REFRESH_MS, ORBIT_SET_SAMPLES, ORBITS_PER_FRAME } from "../src/app/OrbitSetView";
+import { OrbitSetView, ORBIT_SET_SAMPLES } from "../src/app/OrbitSetView";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { defaultDistance, focusLimits, MEMBER_MIN_DISTANCE } from "../src/app/sceneFraming";
 import { bodySetMemberAbsolute } from "../src/app/sceneTargets";
@@ -32,6 +33,8 @@ const fake = {
     reads += 1;
     bodies.forEach((id, i) => out.set(circular(id as "alpha" | "beta", timeUtcMs).p, 3 * i));
   },
+  // Five days of history are loaded: alpha's whole period (2.6 days), only part of beta's (9.6 days).
+  loadedFromUtcMs: () => T0 - 5 * 86_400_000,
   stateOf(id: string, timeUtcMs: number) {
     const { p, v } = circular(id as "alpha" | "beta", timeUtcMs);
     return createState({ body: id, center: "jupiter", timeUtcMs, frame: EQJ, positionKm: p, velocityKmS: v, orientation: null });
@@ -91,23 +94,11 @@ describe("body set checks and colours", () => {
   });
 });
 
-describe("osculating ellipse", () => {
-  it("is the circle for a circular state, and passes through the body for an eccentric one", () => {
-    const out = new Float64Array(3 * 64);
+describe("osculating period", () => {
+  it("is the Kepler period for a bound state and Infinity for an unbound one", () => {
     const r = 100_000;
-    expect(osculatingEllipseInto([r, 0, 0], [0, Math.sqrt(GM / r), 0], GM, 64, out)).toBeCloseTo(r, 6);
-    for (let i = 0; i < 64; i += 1) expect(Math.hypot(out[3 * i], out[3 * i + 1], out[3 * i + 2])).toBeCloseTo(r, 3);
-    // Faster than circular at 100,000 km, tilted: an ellipse with e about 0.44, periapsis at the body.
-    const v = [0, 1.2 * Math.sqrt(GM / r) * Math.cos(0.3), 1.2 * Math.sqrt(GM / r) * Math.sin(0.3)];
-    const a = osculatingEllipseInto([r, 0, 0], v, GM, 64, out);
-    expect(a).toBeCloseTo(1 / (2 / r - (1.44 * GM) / r / GM), 3);
-    expect(Math.hypot(out[0] - r, out[1], out[2])).toBeLessThan(1e-6);
-  });
-
-  it("draws nothing for an unbound state", () => {
-    const out = new Float64Array(3 * 8).fill(7);
-    expect(osculatingEllipseInto([1e5, 0, 0], [0, 10, 0], GM, 8, out)).toBe(0);
-    expect(Array.from(out).every((value) => value === 0)).toBe(true);
+    expect(osculatingPeriodS([r, 0, 0], [0, Math.sqrt(GM / r), 0], GM)).toBeCloseTo(2 * Math.PI * Math.sqrt(r ** 3 / GM), 3);
+    expect(osculatingPeriodS([r, 0, 0], [0, 10, 0], GM)).toBe(Number.POSITIVE_INFINITY);
   });
 });
 
@@ -157,22 +148,42 @@ describe("body set dots and balls", () => {
 });
 
 describe("body set orbit lines", () => {
-  it("computes every ellipse at the first sync, then the stale ones a few per frame in turn, and colours by family from the live look", () => {
+  it("draws each body's own path over one period ending now (shorter where the loaded data begin later), the body at its head", () => {
     const orbits = new OrbitSetView(layer, 32);
     orbits.sync(T0, placement, trueScale, true);
     expect(orbits.computed).toBe(2);
-    expect(orbits.semiMajorKm(1)).toBeCloseTo(RADII_KM.beta, 3);
-    const p = orbits.pointKm(0, 0);
-    expect(Math.hypot(...p)).toBeCloseTo(RADII_KM.alpha, 3);
-    // A minute on, nothing is stale yet; past the refresh time each ellipse is recomputed, a few per frame.
-    orbits.sync(T0 + 60_000, placement, trueScale, true);
+    const alphaPeriodMs = 1000 * 2 * Math.PI * Math.sqrt(RADII_KM.alpha ** 3 / GM);
+    expect(orbits.spanMs(0)).toBeCloseTo(alphaPeriodMs, -1);
+    expect(orbits.spanMs(1)).toBe(5 * 86_400_000);
+    for (const [m, id] of [[0, "alpha"], [1, "beta"]] as const) {
+      expect(orbits.pointKm(m, 31).map((v, k) => v - circular(id, T0).p[k]).every((d) => Math.abs(d) < 1e-9)).toBe(true);
+      expect(orbits.pointKm(m, 0).map((v, k) => v - circular(id, Math.round(T0 - orbits.spanMs(m))).p[k]).every((d) => Math.abs(d) < 1e-6)).toBe(true);
+    }
+    // Less than a sample step on, nothing is re-sampled (the head segment reaches the body); past a step, the stale path is.
+    const alphaStep = Math.round(orbits.spanMs(0) / 31);
+    orbits.sync(T0 + Math.round(0.5 * alphaStep), placement, trueScale, true);
     expect(orbits.computed).toBe(2);
-    orbits.sync(T0 + ORBIT_REFRESH_MS + 60_000, placement, trueScale, true);
-    expect(orbits.computed).toBe(2 + Math.min(ORBITS_PER_FRAME, 2));
+    expect(orbits.headKm(0)).toEqual(circular("alpha", T0 + Math.round(0.5 * alphaStep)).p);
+    orbits.sync(T0 + Math.round(1.01 * alphaStep), placement, trueScale, true);
+    expect(orbits.computed).toBe(3);
     orbits.place(new FloatingOrigin(), { ...DEFAULT_BODY_SET_LOOK, familyColors: { near: "#ff0000" } }, true);
     expect(orbits.colorOfFamily(0)).toBe("#ff0000");
     expect(orbits.colorOfFamily(1)).toBe(DEFAULT_FAMILY_PALETTE[1]);
     expect(ORBIT_SET_SAMPLES).toBeGreaterThanOrEqual(64);
+  });
+
+  it("reports each body in view on its own line on screen", () => {
+    const orbits = new OrbitSetView(layer, 64);
+    orbits.sync(T0, placement, trueScale, true);
+    const origin = new FloatingOrigin();
+    orbits.place(origin, DEFAULT_BODY_SET_LOOK, true);
+    const beta = eqjToRenderVector(trueScale.mapPosition(circular("beta", T0).p));
+    const cam = camera([beta[0], beta[1] + 30, beta[2] + 5], [beta[0], beta[1], beta[2]]);
+    const gaps = orbits.gapReadout(cam, 1280, 800);
+    const betaGap = gaps.find((gap) => gap.id === "beta")!;
+    expect(betaGap.gapPx).toBeLessThan(0.5);
+    expect(betaGap.pathGapPx).toBeLessThan(0.5);
+    expect(betaGap.lineSpanPx).toBeGreaterThan(50);
   });
 
   it("adds the orbit lines of bodies drawn elsewhere to the same batch, with their families", () => {
@@ -181,7 +192,7 @@ describe("body set orbit lines", () => {
     const orbits = new OrbitSetView(withExtra, 16);
     expect(orbits.count).toBe(3);
     orbits.sync(T0, placement, trueScale, true);
-    expect(orbits.semiMajorKm(2)).toBeCloseTo(RADII_KM.beta, 3);
+    expect(orbits.pointKm(2, 15)).toEqual(orbits.pointKm(1, 15));
     expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: ["nowhere"] } })).toThrow(/unknown family/);
     expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: [] } })).toThrow(/one family per body/);
   });

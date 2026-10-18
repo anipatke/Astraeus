@@ -22,10 +22,17 @@ export const JUPITER_WINDOW = { startUtcMs: Date.UTC(2016, 10, 4), endUtcMs: Dat
 const WINDOW = JUPITER_WINDOW;
 
 /**
- * The fit chunks this build ships: the window's year only (one file per moon per year), served as files and fetched only for this
+ * The fit chunks this build ships: the window's year (one file per moon per year), served as files and fetched only for this
  * experience. A window in another year needs its year here; `chunksNeeded` refuses a window whose chunks are not shipped.
  */
-const SHIPPED_CHUNKS = import.meta.glob("../../../data/ephemerides/jupiter-moons/*/2016.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
+const SHIPPED_CHUNKS = {
+  ...import.meta.glob("../../../data/ephemerides/jupiter-moons/*/2016.bin", { query: "?url", import: "default", eager: true }),
+  // The two years before, for the moons whose orbit takes longer than the window's year has had (the orbit line is the moon's own fitted
+  // path over one period ending now): every moon but the inner and big four, whose periods are days, and Jupiter's own series (the centre).
+  ...import.meta.glob(["../../../data/ephemerides/jupiter-moons/*/{2014,2015}.bin", "!**/{metis,adrastea,amalthea,thebe,io,europa,ganymede,callisto}/*"], { query: "?url", import: "default", eager: true }),
+} as Record<string, string>;
+/** How far back an orbit line may reach: the slowest moons take under three years. */
+const ORBIT_HISTORY_MS = 3 * 365.25 * 86_400_000;
 export const JUPITER_CHUNK_URLS: Readonly<Record<string, string>> = Object.fromEntries(Object.entries(SHIPPED_CHUNKS).map(([path, url]) => [path.replace(/^.*jupiter-moons\//, ""), url]));
 
 const JUPITER_NO_TEXTURE = "Jupiter is drawn flat in one colour, without cloud bands: the donor's Jupiter map has no recorded source or licence, so no texture is used.";
@@ -65,7 +72,7 @@ export const jupiterSmallMoons: BodySetLayer = {
       sourceType: "ephemeris",
       sources: [JUPITER_MOON_FIT_SOURCE, "Moon list, families and radii: data/moons/jupiter.json (T-097)"],
       accuracy: "Positions reproduce Horizons to within 1 m (T-096). Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.",
-      notes: "Each orbit line is the moon's osculating ellipse about Jupiter at the shown moment: it passes through the moon, but the real path of a moon perturbed by the Sun wanders from it over months.",
+      notes: "Each orbit line is the moon's own path from these positions over about one orbit, ending where the moon is now; for a moon perturbed by the Sun the line does not close exactly, so its oldest end fades out.",
     }),
   }),
   members: SMALL_MOONS.map((moon) => ({ id: moon.id, label: moon.name, radiusKm: moon.meanRadiusKm, family: moon.family })),
@@ -73,7 +80,7 @@ export const jupiterSmallMoons: BodySetLayer = {
   bodyFamilies: Object.fromEntries(MAPPED_MOONS.map((moon) => [moon.id, moon.family])),
   // Europa's, Ganymede's and Callisto's orbit lines join the batch; Io keeps its own loop (the composition's path).
   extraOrbits: {
-    group: createEphemerisGroup({ id: "jupiter-mapped-moon-orbits", center: "jupiter", ephemeris: jupiterMoonEphemeris, members: BATCHED_MAPPED.map((moon) => moon.id), bounds: WINDOW, provenance: createProvenance({ sourceType: "ephemeris", sources: [JUPITER_MOON_FIT_SOURCE], accuracy: "As each moon's own record.", notes: "Orbit lines only: osculating ellipses about Jupiter at the shown moment." }) }),
+    group: createEphemerisGroup({ id: "jupiter-mapped-moon-orbits", center: "jupiter", ephemeris: jupiterMoonEphemeris, members: BATCHED_MAPPED.map((moon) => moon.id), bounds: WINDOW, provenance: createProvenance({ sourceType: "ephemeris", sources: [JUPITER_MOON_FIT_SOURCE], accuracy: "As each moon's own record.", notes: "Orbit lines only: each moon's own path over about one orbit, ending where it is now." }) }),
     families: BATCHED_MAPPED.map((moon) => moon.family),
   },
   centreGmKm3S2: JUPITER.gmKm3S2!,
@@ -112,6 +119,6 @@ export const jupiterIoExplorer: ExperienceDefinition = {
   camera: { maxFocusDistance: 20_000, far: 80_000 },
   scaleChoices: ["true-scale"],
   trackedBodies: [],
-  prepare: async () => { await loadJupiterMoons({ window: WINDOW, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS }); },
+  prepare: async () => { await loadJupiterMoons({ window: WINDOW, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS, history: { bodies: JUPITER_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
   createMetrics: ({ resolver }) => bodyMetrics(resolver, jupiterMoonsSystem.bodies),
 };

@@ -1,0 +1,19 @@
+{
+  "label": "before-default",
+  "experience": "jupiter-io",
+  "view": null,
+  "throttle": 4,
+  "seconds": 8,
+  "viewport": "390x844 @1x, touch",
+  "loadMs": 1615,
+  "frames": 333,
+  "meanMs": 24.1,
+  "p50Ms": 16.7,
+  "p95Ms": 33.4,
+  "maxMs": 50.1,
+  "fps": 41.5,
+  "bodies": "jupiter,io,europa,ganymede,callisto",
+  "bodySetMembers": null,
+  "at": "2026-10-18T08:00:31.394Z",
+  "errors": []
+}

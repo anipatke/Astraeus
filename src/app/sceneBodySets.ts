@@ -1,5 +1,6 @@
 // Readouts of the body sets on the canvas for the browser checks: members held and drawn, a few members' places on screen (so a check can
 // point at a dot), the orbit colour per family, and whether a ball is wider than its dot.
+import type { Camera } from "three";
 import type { BodySetView } from "./BodySetView";
 import { familyColorOf, type BodySetLook } from "./bodySet";
 import type { OrbitSetView } from "./OrbitSetView";
@@ -12,7 +13,7 @@ const SAMPLE_SIZE = 6;
 const PUBLISH_EVERY_FRAMES = 10;
 const frames = new WeakMap<HTMLCanvasElement, number>();
 
-export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodySetView[], orbits: readonly OrbitSetView[], look: BodySetLook): void {
+export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodySetView[], orbits: readonly OrbitSetView[], look: BodySetLook, camera: Camera, widthPx: number, heightPx: number): void {
   if (views.length === 0) return;
   const frame = (frames.get(canvas) ?? 0) + 1;
   frames.set(canvas, frame);
@@ -38,4 +39,6 @@ export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodyS
   const colours: Record<string, string> = {};
   for (const view of views) for (const family of view.layer.families) colours[family.id] = familyColorOf(view.layer, look, family.id);
   data.bodySetFamilyColors = JSON.stringify(colours);
+  // Each in-view body's on-screen distance from its own orbit line (the nearest dozen to the camera).
+  data.bodySetOrbitGaps = JSON.stringify(look.orbitsOn ? orbits.flatMap((view) => view.gapReadout(camera, widthPx, heightPx)) : []);
 }
