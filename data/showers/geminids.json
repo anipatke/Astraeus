@@ -32,12 +32,12 @@
     },
     "accuracy": {
       "classification": "indicative",
-      "statement": "Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. It is unperturbed two-body motion from osculating elements: no planetary perturbations and no non-gravitational forces (the fit carries a small transverse non-gravitational term that this model leaves out). The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date; see docs/ASTRONOMY_VALIDATION.md.",
-      "validFromUtc": "2020-12-14T00:00:00Z",
+      "statement": "Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. It is unperturbed two-body motion from osculating elements: no planetary perturbations and no non-gravitational forces (the fit carries a small transverse non-gravitational term that this model leaves out). The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date; see docs/ASTRONOMY_VALIDATION.md. It was also compared at six dates across the Showers demo's year, 21 September 2019 to 20 September 2020 (Horizons solution JPL#1019, fetched 2026-10-18): the largest difference there is 365,665 km (0.16% of its distance from the Sun, 2020-09-20), within the figure above.",
+      "validFromUtc": "2019-09-21T00:00:00Z",
       "validToUtc": "2032-12-14T00:00:00Z",
       "limitations": [
-        "Horizons integrates the same orbit fit with the planets' pull and the non-gravitational term, so the two drift apart; the largest difference over 2020 to 2032 is stated in the position accuracy.",
-        "Positions before 2020-12-14 or after 2032-12-14 were not compared with Horizons.",
+        "Horizons integrates the same orbit fit with the planets' pull and the non-gravitational term, so the two drift apart; the largest difference over 2019 to 2032 is stated in the position accuracy.",
+        "Positions before 2019-09-21 or after 2032-12-14 were not compared with Horizons, nor any date between 2020-09-20 and 2020-12-14.",
         "The body's size is the effective diameter of a 6 km body; no shape, spin or orientation is modelled."
       ]
     }
@@ -97,6 +97,7 @@
   },
   "timeline": {
     "span": "year",
+    "yearStartUtc": "2019-09-21T00:00:00Z",
     "rateSecondsPerSecond": 604800
   },
   "look": {
@@ -116,17 +117,17 @@
     "panels": "data/stories/geminids/panels.json"
   },
   "activity": {
-    "startUtc": "2026-12-04T00:00:00Z",
-    "endUtc": "2026-12-18T00:00:00Z",
-    "peakUtc": "2026-12-13T23:31:44Z",
-    "peakPublishedNight": "Dec 13-14, 2026",
+    "startUtc": "2019-12-04T00:00:00Z",
+    "endUtc": "2019-12-18T00:00:00Z",
+    "peakUtc": "2019-12-14T04:33:33Z",
+    "peakPublishedNight": "Dec 13-14, 2019",
     "peakRate": 150,
     "rateUnit": "meteors per hour (ZHR)",
     "fallOffPerDay": 0.1,
     "source": {
-      "name": "American Meteor Society, Meteor Shower Calendar 2026: Geminids active Dec 4-17, peak night Dec 13-14, ZHR 150, parent 3200 Phaethon (not the IMO figure; IMO site not consulted). The peak instant (I-027) is the moment the Sun's geometric longitude in the J2000.0 ecliptic and equinox is 261.6 deg, the IAU MDC peak solar longitude (\"All records on J2000\"; radiant.peakSolarLongitudeDeg), found by bisection on the engine ephemeris with no general precession added: 2026-12-13T23:31:44Z. The rate profile is the same peakRate and fallOffPerDay about that instant",
-      "url": "https://www.amsmeteors.org/calendar/",
-      "accessed": "2026-10-16"
+      "name": "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18), ed. J. Rendtel), Geminids: active December 4-17, maximum December 14 (solar longitude 262.2, J2000), the peak period expected between solar longitude 261.5 and 262.4, which corresponds to 2019 December 14 between 02h and 23h UT, so the peak night is December 13-14; archived copy of imo.net/files/meteor-shower/cal2019.pdf, SHA-256 b0c4b8bccc6c4801ed02d4128f56133c9135a386f4e7933fa876eee8783fd02e. The demo's year runs from 21 September 2019 (owner decision, O-024). Peak rate ZHR 150: the American Meteor Society calendar figure, as before (IMO lists 140 for 2019). The peak instant (I-027) is the moment the Sun's geometric longitude in the J2000.0 ecliptic and equinox is 261.6 deg, the IAU MDC peak solar longitude (radiant.peakSolarLongitudeDeg), found by bisection on the engine ephemeris with no general precession added: 2019-12-14T04:33:33Z, inside IMO's peak period. The rate profile is the same peakRate and fallOffPerDay about that instant",
+      "url": "https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf",
+      "accessed": "2026-10-18"
     }
   },
   "radiant": {

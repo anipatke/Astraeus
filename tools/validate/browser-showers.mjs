@@ -230,7 +230,7 @@ async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
   }
   await choose("sun", "overview");
   const box = await canvas.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 900);
   await page.waitForTimeout(1200);
   out.tanPixels = await planetOrbitPixels(page);
@@ -293,7 +293,8 @@ async function checkSunEarth(page, label, shot, canvas) {
       // At the peak the Overview framing puts the orbit's line under the dense stream and the Sun's glow, so the peak is not asserted here: checkWholeOrbit asserts the orbit is drawn at the peak (Whole orbit preset, scene only).
       assert.ok(whole.orbit > 100, `${label}/${name}: the comet's whole orbit is drawn in the Overview, scene only (${whole.orbit} orbit-coloured pixels)`);
       const boxN = await canvas.boundingBox();
-      await page.mouse.move(boxN.x + boxN.width / 2, boxN.y + boxN.height / 2);
+      // Over empty sky, not the canvas centre: in the Showers year (O-024 T-092) Earth's and Mercury's labels sit by the Sun at the start and a wheel over a label does not reach the scene.
+      await page.mouse.move(boxN.x + boxN.width / 4, boxN.y + boxN.height / 4);
       for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
       await page.waitForTimeout(1200);
       const without = await pathPixels(page);
@@ -302,7 +303,7 @@ async function checkSunEarth(page, label, shot, canvas) {
     }
     await choose("sun", "overview");
     const box0 = await canvas.boundingBox();
-    await page.mouse.move(box0.x + box0.width / 2, box0.y + box0.height / 2);
+    await page.mouse.move(box0.x + box0.width / 4, box0.y + box0.height / 4);
     let overview = whole;
     let wheels = 0;
     while (overview.blue <= 100 && wheels < 60) {
@@ -333,7 +334,7 @@ async function checkSunEarth(page, label, shot, canvas) {
   // Solar-system scale: Earth becomes visible, and its info panel states the factor.
   await choose("earth", "focus-earth");
   const box = await canvas.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   for (let i = 0; i < 6; i += 1) await page.mouse.wheel(0, 600);
   await page.waitForTimeout(800);
   const trueCount = (await pathPixels(page)).bright;
@@ -417,12 +418,12 @@ async function checkBodies(page, label, shot, canvas) {
   await ui.chooseCamera(page, "overview");
   await page.waitForTimeout(1200);
   const box = await canvas.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   const seen = new Map();
   const markerSets = [];
   // The scenario is stated at true scale, so choose it (an earlier check leaves the solar-system scale on; with a close Overview an enlarged giant planet is a body, not a marker).
   await chooseScale(page, "True");
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   // T-055: a shower whose parent orbits inside Jupiter's (no wide-ranging comet) frames a smaller Overview that can leave the outer planets off screen: start the sweep from
   // farther out (the camera is held at its settings' reach), so every body is in view at the start whatever the parent.
   for (let out = 0; out < 8; out += 1) { await page.mouse.wheel(0, 500); await page.waitForTimeout(250); }
@@ -475,7 +476,7 @@ async function checkBodies(page, label, shot, canvas) {
   await chooseScale(page, "Solar system");
   await page.waitForTimeout(1500);
   const box2 = await canvas.boundingBox();
-  await page.mouse.move(box2.x + box2.width / 2, box2.y + box2.height / 2);
+  await page.mouse.move(box2.x + box2.width / 4, box2.y + box2.height / 4);
   const bodySteps = [];
   for (let step = 0; step < 40; step += 1) {
     await page.mouse.wheel(0, -500);
@@ -710,12 +711,15 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
     await p.waitForSelector("canvas");
     await ui.waitForShell(p);
     await ui.pausePlayback(p);
+    // The tilt is read at the shower's peak: the fit is of the drawn path's pixels, and at the start of the Showers year (O-024 T-092) Earth's marker and labels sit on the
+    // path where they pulled the Perseids' reading under 8 deg (7.8; it was 8.55 at the old start). At the peak it reads 10.7 deg. The flat case keeps the start (7.5 deg at the Geminid peak).
+    if (!expectFlat) { await ui.goToWindowPeak(p); await p.waitForTimeout(500); await ui.closeAllPanelsNow(p); }
     await ui.pickBody(p, "sun");
     await ui.closeInfo(p);
     await ui.chooseCamera(p, "overview");
     await p.waitForTimeout(1500);
     const box = await p.getByTestId("earth-moon-canvas").boundingBox();
-    await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await p.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
     let shape = await pathShape(p);
     for (let k = 0; k < 160 && !(shape.n > 300 && shape.width > 0.3 * shape.canvasWidth && shape.width < 0.97 * shape.canvasWidth); k += 1) {
       await p.mouse.wheel(0, -120);
@@ -736,7 +740,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   }
 }
 
-// Whole-year timeline (owner, 2026-10-16: "can we make this run for a whole year?"): the timeline spans about 365 days with the peak in the middle, the activity window and
+// Whole-year timeline (owner, 2026-10-16: "can we make this run for a whole year?"): the timeline spans about 365 days, from the settings' year start (O-024 T-092) or with the peak in the middle, the activity window and
 // the peak stay marked, the rate reads "outside the activity window" away from it, the default playback rate is a week per second, and at the start, middle and end of the year the
 // dots and Earth are drawn. ?span=activity gives the activity window alone.
 async function checkYear(page, label, canvas) {
@@ -746,7 +750,12 @@ async function checkYear(page, label, canvas) {
   out.spanDays = Number(days.toFixed(3));
   assert.ok(Math.abs(days - 365.25) < 1, `${label}: the timeline spans about a year (${days.toFixed(2)} days)`);
   const peak = Date.parse(settingsFile.activity.peakUtc);
-  assert.ok(Math.abs((peak - min) / (max - min) - 0.5) < 0.005, `${label}: the peak is mid-timeline`);
+  // O-024 T-092: a settings file may start the year on a given date (the Showers demo: 21 September 2019); without one the year is centred on the peak.
+  const yearStart = settingsFile.timeline.yearStartUtc;
+  out.yearStartUtc = yearStart ?? null;
+  if (yearStart !== undefined) assert.ok(Math.abs(min - Date.parse(yearStart)) < 1000, `${label}: the timeline starts at the settings' year start ${yearStart} (${new Date(min).toISOString()})`);
+  else assert.ok(Math.abs((peak - min) / (max - min) - 0.5) < 0.005, `${label}: the peak is mid-timeline`);
+  assert.ok(peak > min && peak < max, `${label}: the peak lies inside the year`);
   assert.equal(await ui.glowCount(page), 1, `${label}: the activity glow is still drawn`);
   assert.equal(await ui.windowPeak(page).count(), 1, `${label}: the peak is still marked`);
   out.playbackRate = await ui.speed(page);
@@ -898,7 +907,7 @@ async function checkSwitch(label, viewport) {
   // A dev-server module request for a picture or data address (`?import`, how the bundler learns its url) is not a download of that file.
   page.on("request", (request) => { const address = new URL(request.url()); if (!address.searchParams.has("import")) requested.push(address.pathname); });
   try {
-    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&view=sun,100,40,250000&t=2027-01-01T00:00:00Z`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&view=sun,100,40,250000&t=2020-01-01T00:00:00Z`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     const state = await ui.experienceSwitchState(page);
@@ -982,9 +991,12 @@ async function run(label, viewport) {
     const gradient = (await ui.glowGradients(page)).ahead;
     const stops = [...gradient.matchAll(/rgba\([^)]*, ([\d.]+)\) ([\d.]+)%/g)].map((m) => ({ alpha: Number(m[1]), at: Number(m[2]) }));
     const brightest = stops.reduce((a, b) => (b.alpha > a.alpha ? b : a));
-    assert.ok(stops.length > 200 && Math.abs(brightest.at - 50) < 1, `${label}: the glow is smooth and brightest at the peak, mid-timeline (${stops.length} stops, brightest at ${brightest.at}%)`);
+    // Where the peak sits along the track: mid-timeline for a year centred on the peak, elsewhere for a year with its own start (O-024 T-092).
+    const track = await ui.seekRange(page);
+    const peakPct = (100 * (Date.parse(settingsFile.activity.peakUtc) - track.min)) / (track.max - track.min);
+    assert.ok(stops.length > 200 && Math.abs(brightest.at - peakPct) < 1, `${label}: the glow is smooth and brightest at the peak, ${peakPct.toFixed(1)}% along the timeline (${stops.length} stops, brightest at ${brightest.at}%)`);
     assert.ok(stops[0].alpha > 0 && stops[0].alpha < brightest.alpha / 3, `${label}: the quiet track is fainter but visible`);
-    assert.match(await ui.glowTooltipAt(page, 0.5), /meteors per hour/, `${label}: hovering the peak night gives its rate`);
+    assert.match(await ui.glowTooltipAt(page, peakPct / 100), /meteors per hour/, `${label}: hovering the peak night gives its rate`);
     // The glow's numbers are live settings (owner rule): lifting the quiet brightness lifts the quiet stops, and the played part follows the playhead.
     await ui.openDeveloper(page);
     await ui.dragSlider(page, "glow-quiet", 0.6);
@@ -1038,7 +1050,7 @@ async function run(label, viewport) {
     // Zoomed far out the stream and Earth are in one view.
     await focusStream();
     const box = await canvas.boundingBox();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
     for (let i = 0; i < 8; i += 1) await page.mouse.wheel(0, 600);
     await page.waitForTimeout(800);
     results[label].zoomedOutLit = await litPixels(page);

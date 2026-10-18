@@ -486,7 +486,63 @@ describe("the timeline span", () => {
   it("names the field for a bad span or rate", () => {
     expect(broken((s) => { s.timeline = { span: "decade" }; })).toThrow(/timeline\.span/);
     expect(broken((s) => { s.timeline = { span: "year", rateSecondsPerSecond: 0 }; })).toThrow(/timeline\.rateSecondsPerSecond/);
-    expect(parseShowerSettings(perseidsFile).timeline).toEqual({ span: "year", rateSecondsPerSecond: 604_800 });
+    expect(parseShowerSettings(perseidsFile).timeline).toEqual({ span: "year", rateSecondsPerSecond: 604_800, yearStartUtc: "2019-09-21T00:00:00Z" });
+  });
+
+  // O-024 T-092: a year that starts on a given date instead of being centred on the peak (made-up settings: the capability is generic).
+  it("starts the year at the settings' year start when given: the clock, the timeline and the stream all begin there", () => {
+    const yearly = clone();
+    yearly.timeline = { span: "year", rateSecondsPerSecond: 604_800, yearStartUtc: "2030-01-15T00:00:00Z" };
+    const parsed = parseShowerSettings(yearly);
+    const startUtcMs = Date.parse("2030-01-15T00:00:00Z");
+    const endUtcMs = startUtcMs + Math.round(365.256363 * DAY_MS);
+    expect(timelineBoundsOf(parsed)).toEqual({ startUtcMs, endUtcMs });
+    const definition = buildShowerDefinition(parsed, { kind: "loaded", orbits: madeUpOrbits(999, 50) });
+    expect(definition.experience.window).toEqual({ startUtcMs, endUtcMs });
+    expect(definition.clock).toEqual({ startUtcMs, rate: 604_800 });
+    expect(groupsOf(definition)[0].group.bounds).toEqual({ startUtcMs, endUtcMs });
+    // The narrowed view still spans the activity window, whatever the year start.
+    const narrowed = parseShowerSettings({ ...yearly, timeline: { ...yearly.timeline, span: "activity" } });
+    expect(timelineBoundsOf(narrowed)).toEqual({ startUtcMs: Date.parse(narrowed.activity.startUtc), endUtcMs: Date.parse(narrowed.activity.endUtc) });
+  });
+
+  it.each([
+    ["a year start after the activity begins", "2030-03-02T00:00:00Z"],
+    ["a year that ends before the activity ends", "2029-03-01T00:00:00Z"],
+    ["a year start that is not a UTC time", "2030-01-15"],
+  ])("names the field for %s", (_what, yearStartUtc) => {
+    expect(broken((s) => { s.timeline = { span: "year", yearStartUtc }; })).toThrow(/timeline\.yearStartUtc/);
+  });
+
+  it.each([
+    ["Perseids", perseidsFile],
+    ["Geminids", geminidsFile],
+  ])("%s: the year runs from 21 September 2019 with the peak inside it, and the narrowed view is the 2019-2020 activity window", (_name, file) => {
+    const parsed = parseShowerSettings(file);
+    const { startUtcMs, endUtcMs } = timelineBoundsOf(parsed);
+    expect(new Date(startUtcMs).toISOString()).toBe("2019-09-21T00:00:00.000Z");
+    expect(new Date(endUtcMs).toISOString()).toBe("2020-09-20T06:09:09.763Z");
+    expect(buildShowerDefinition(parsed, { kind: "absent" }).clock.startUtcMs).toBe(startUtcMs);
+    const peak = Date.parse(parsed.activity.peakUtc);
+    expect(peak).toBeGreaterThan(startUtcMs);
+    expect(peak).toBeLessThan(endUtcMs);
+    const narrowed = buildShowerDefinition(parseShowerSettings({ ...file, timeline: { ...file.timeline, span: "activity" } }), { kind: "absent" });
+    expect(narrowed.experience.window).toEqual({ startUtcMs: Date.parse(parsed.activity.startUtc), endUtcMs: Date.parse(parsed.activity.endUtc) });
+    expect(narrowed.clock.startUtcMs).toBe(Date.parse(parsed.activity.startUtc));
+  });
+
+  it("pins the published 2019-2020 values: Geminids 4-17 December 2019 (IMO 2019), Perseids 17 July - 24 August 2020 (IMO 2020), peaks at the IAU MDC solar longitudes", () => {
+    const gem = parseShowerSettings(geminidsFile).activity;
+    const per = parseShowerSettings(perseidsFile).activity;
+    expect([gem.startUtc, gem.endUtc, gem.peakUtc]).toEqual(["2019-12-04T00:00:00Z", "2019-12-18T00:00:00Z", "2019-12-14T04:33:33Z"]);
+    expect([per.startUtc, per.endUtc, per.peakUtc]).toEqual(["2020-07-17T00:00:00Z", "2020-08-25T00:00:00Z", "2020-08-12T15:41:56Z"]);
+    expect(gem.source.name).toMatch(/2019 Meteor Shower Calendar/);
+    expect(per.source.name).toMatch(/2020 Meteor Shower Calendar/);
+    // Inside IMO's published peak periods: 2019 December 14 02h-23h UT; 2020 August 12 13h-16h UT.
+    expect(Date.parse(gem.peakUtc)).toBeGreaterThanOrEqual(Date.parse("2019-12-14T02:00:00Z"));
+    expect(Date.parse(gem.peakUtc)).toBeLessThanOrEqual(Date.parse("2019-12-14T23:00:00Z"));
+    expect(Date.parse(per.peakUtc)).toBeGreaterThanOrEqual(Date.parse("2020-08-12T13:00:00Z"));
+    expect(Date.parse(per.peakUtc)).toBeLessThanOrEqual(Date.parse("2020-08-12T16:00:00Z"));
   });
 });
 

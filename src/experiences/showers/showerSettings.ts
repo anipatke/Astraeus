@@ -96,10 +96,11 @@ export interface ShowerSettings {
     };
   };
   /**
-   * What the timeline spans. "activity" is the activity window itself. "year" is one year (365.256363 days) centred on the peak, so the
-   * peak is mid-timeline, the activity window is marked inside it, Earth makes one full turn and crosses the stream once.
+   * What the timeline spans. "activity" is the activity window itself. "year" is one year (365.256363 days), so the activity window is marked
+   * inside it, Earth makes one full turn and crosses the stream once. The year starts at `yearStartUtc` when the file gives one (the activity
+   * window must then lie inside that year), else it is centred on the peak.
    */
-  readonly timeline: { readonly span: TimelineSpan; readonly rateSecondsPerSecond: number };
+  readonly timeline: { readonly span: TimelineSpan; readonly rateSecondsPerSecond: number; readonly yearStartUtc?: string };
   /** Objects whose label the scene may hide: id (a catalogued body or the stream) to whether it is shown at the start. Anything not listed is always shown. */
   readonly labels: Readonly<Record<string, boolean>>;
   readonly look: ShowerLook;
@@ -132,6 +133,9 @@ export interface ShowerSettings {
 }
 
 export type TimelineSpan = "activity" | "year";
+
+/** The length of the "year" timeline in days (one sidereal year); the timeline bounds use the same figure. */
+export const YEAR_DAYS = 365.256363;
 
 export class ShowerSettingsError extends TypeError {
   override readonly name = "ShowerSettingsError";
@@ -236,7 +240,7 @@ function timeline(input: unknown): ShowerSettings["timeline"] {
   const span = raw.span ?? "activity";
   if (span !== "activity" && span !== "year") fail("timeline.span", `must be "activity" or "year", got ${String(span)}`);
   const rate = raw.rateSecondsPerSecond === undefined ? 86_400 : positive(raw, "rateSecondsPerSecond", "timeline");
-  return { span, rateSecondsPerSecond: rate };
+  return { span, rateSecondsPerSecond: rate, ...(raw.yearStartUtc === undefined ? {} : { yearStartUtc: instant(raw, "yearStartUtc", "timeline") }) };
 }
 
 function startViewOf(value: unknown): StartView {
@@ -337,6 +341,11 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
   const [startMs, endMs, peakMs] = [startUtc, endUtc, peakUtc].map(Date.parse);
   if (endMs <= startMs) fail("activity.endUtc", "must be after activity.startUtc");
   if (peakMs < startMs || peakMs > endMs) fail("activity.peakUtc", "must lie inside the activity window");
+  const timelineSettings = timeline(root.timeline);
+  if (timelineSettings.yearStartUtc !== undefined) {
+    const yearStartMs = Date.parse(timelineSettings.yearStartUtc);
+    if (startMs < yearStartMs || endMs > yearStartMs + Math.round(YEAR_DAYS * 86_400_000)) fail("timeline.yearStartUtc", `must start a year (${YEAR_DAYS} days) that holds the whole activity window, got ${timelineSettings.yearStartUtc}`);
+  }
   const peakRate = nonNegative(activity, "peakRate", "activity");
   if (peakRate === 0) fail("activity.peakRate", "must be above zero");
 
@@ -358,7 +367,7 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
     orbit: { elements: orbitElementsOf(orbit, parentElements), source: source(orbit, "source", "orbit") },
     stream: { iauCode, sources: orbitSources(stream), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) },
     labels: labels(root.labels),
-    timeline: timeline(root.timeline),
+    timeline: timelineSettings,
     look: look(record(root.look, "look")),
     ...(root.story === undefined ? {} : { story: story(root.story) }),
     activity: {

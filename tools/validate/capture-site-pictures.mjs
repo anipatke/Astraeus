@@ -76,7 +76,7 @@ const PERSEIDS_VIEW = "sun,100,40,250000";
 const APOLLO_VIEW = "earth,0,70,130";
 /** The same picture for a portrait phone: focus on the Moon with Earth above, so the whole path sits between the toolbars and the timeline. */
 const APOLLO_PHONE_VIEW = "moon,270,50,214";
-const PERSEIDS_PEAK_UTC = "2027-08-12T12:00:00Z";
+const PERSEIDS_PEAK_UTC = "2020-08-12T12:00:00Z";
 const APOLLO_TOUCHDOWN_UTC = "1969-07-20T20:17:39Z";
 const APOLLO_PANEL_ID = "touchdown";
 const JPEG_QUALITY = { "apollo-moon": 6, "apollo-provenance": 6, "apollo-phone": 4, "perseids-gmn": 9 }; // ffmpeg -q:v (2 best, 31 worst)

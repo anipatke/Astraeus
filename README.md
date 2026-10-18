@@ -44,12 +44,12 @@ The Geminids are one JSON file, [`data/showers/geminids.json`](data/showers/gemi
   "label": "Geminids",
   "parentBody": "3200 Phaethon",
   "stream": { "iauCode": 4, "seed": 20261214 },
-  "timeline": { "span": "year", "rateSecondsPerSecond": 604800 },
+  "timeline": { "span": "year", "yearStartUtc": "2019-09-21T00:00:00Z", "rateSecondsPerSecond": 604800 },
   "activity": {
-    "peakUtc": "2026-12-13T23:31:44Z",
+    "peakUtc": "2019-12-14T04:33:33Z",
     "peakRate": 150,
     "rateUnit": "meteors per hour (ZHR)",
-    "source": { "name": "American Meteor Society, Meteor Shower Calendar 2026" }
+    "source": { "name": "International Meteor Organization, 2019 Meteor Shower Calendar" }
   },
   "radiant": { "raDeg": 113.0, "decDeg": 32.4, "equinox": "J2000" }
 }
