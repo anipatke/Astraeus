@@ -74,3 +74,7 @@ The launch line-up changed (G-005 Launch Definition of Done): three demos (Apoll
 5. Owner look: pending (laptop and phone, preview then live).
 
 **Drift Notes.** (a) Chromium blocks a local app framed by another origin (local-network access); the check launches with `--disable-features=LocalNetworkAccessChecks,...`; the live portfolio is not affected. (b) The stand-in page needs a viewport meta, else a mobile context lays the frame out at 980 px (as the real portfolio does). (c) The portfolio still links `shower-perseids`/`shower-geminids` addresses that differ from `?experience=showers`; those fixed addresses are T-093's concern. (d) Design.md updated here, so no deferred notes remain for T-079 to T-090.
+
+## Owner Look — 2026-10-18
+
+On the preview: full screen on laptop and phone "Looks good", with the phone timeline to slim further ("quite a bit of space above the pause play buttons same below the timeline", phone only); after the slimming (ab1fcb2): "looks good". The embedded look is judged again in the live portfolio after the launch update. Owner validation met; the Task is marked done after its Quick Check on the batch full run.
