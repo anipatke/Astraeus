@@ -15,54 +15,24 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 const errors = [];
 page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
 page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
-const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${name}.png` }); };
-// Count bright pixels in a screenshot of the canvas: the belt is visible when dots are drawn.
-const litPixels = async (target = page) => {
-  const png = (await target.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let lit = 0;
-    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 120) lit += 1;
-    return lit;
-  }, png);
-};
+// T-102: the belt is visible when its dots are in view, from the scene's point readout (members in front of the camera and inside the view).
+const litPixels = () => ui.sceneDotsInView(page);
 const lit = {};
 const sunCentred = {};
 const compositionCounts = {};
 
-// T-041: the Sun and two paths. Pixel families on the canvas, by colour: Sun marker (pale yellow), Earth's path (blue),
-// the made-up far path (purple), belt dots (amber). Counted from a canvas screenshot, so they are relative evidence.
+// T-041: the Sun and two paths, read from the scene (T-102; they were pixel families by colour): the Sun as a drawn body in view, Earth's path and the made-up far path as
+// drawn lines with vertices in view, the belt as dots in view.
 const colourCounts = async (target) => {
-  // Hide the text labels while counting so only drawn geometry is measured.
-  await ui.hideSceneLabels(target);
-  const png = (await target.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await ui.showSceneLabels(target);
-  return target.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const px = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    const counts = { sun: 0, earthPath: 0, farPath: 0, belt: 0 };
-    for (let i = 0; i < px.length; i += 4) {
-      const [r, g, b] = [px[i], px[i + 1], px[i + 2]];
-      if (r > 235 && g > 225 && b > 140 && b < 215) counts.sun += 1;
-      else if (b > 90 && b - r > 25 && g >= r && b > g) counts.earthPath += 1;
-      else if (b > 90 && r > g + 8 && b - g > 20) counts.farPath += 1;
-      else if (r > 170 && g > 140 && b < 190 && r - b > 35) counts.belt += 1;
-    }
-    return counts;
-  }, png);
+  const sun = await ui.sceneBody(target, "sun");
+  const earthPath = await ui.scenePath(target, "earth-path");
+  const farPath = await ui.scenePath(target, "far-marker-path");
+  return {
+    sun: sun?.inView && sun.as !== "none" ? 1 : 0,
+    earthPath: earthPath?.visible ? earthPath.inView : 0,
+    farPath: farPath?.visible ? farPath.inView : 0,
+    belt: await ui.sceneDotsInView(target),
+  };
 };
 
 try {
@@ -81,7 +51,6 @@ try {
     await ui.chooseCamera(page, "focus-belt");
     await page.waitForTimeout(1500);
     lit[`${scale}-focus`] = await litPixels();
-    await shot(`belt-${scale.toLowerCase()}-focus`);
     assert.ok(lit[`${scale}-focus`] > 50, `${scale}: belt dots are visible after focusing`);
     // Zoom far out with the wheel: the declared reach lets the camera keep going.
     const box = await canvas.boundingBox();
@@ -89,11 +58,9 @@ try {
     for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 600);
     await page.waitForTimeout(800);
     lit[`${scale}-zoomed-out`] = await litPixels();
-    await shot(`belt-${scale.toLowerCase()}-zoomed-out`);
     assert.ok(lit[`${scale}-zoomed-out`] > 50, `${scale}: belt still visible zoomed out`);
     for (let i = 0; i < 30; i += 1) await page.mouse.wheel(0, -600);
     await page.waitForTimeout(800);
-    await shot(`belt-${scale.toLowerCase()}-zoomed-in`);
   }
   await ui.playPlayback(page);
   await page.waitForTimeout(800);
@@ -109,34 +76,17 @@ try {
     await ui.ensurePaused(target);
     const closeInfo = () => ui.closeInfo(target);
     const pickPreset = (presetId) => ui.chooseCamera(target, presetId);
-    // Counts of pixels within `radius` px of the canvas centre: the camera orbits the focused body, so what sits at the centre is that body.
+    // T-102: what stands at the centre of the view (the camera orbits the focused body), from the scene's readouts: a body drawn within `radius` px of the middle, and whether Earth's path line
+    // passes through the middle (its vertices' box in view contains it). They replace colour counts in a window about the centre.
     const nearCentre = async (radius) => {
-      await ui.hideSceneLabels(target);
-      const png = (await targetCanvas.screenshot()).toString("base64");
-      await ui.showSceneLabels(target);
-      return target.evaluate(async ([data, r]) => {
-        const image = new Image();
-        image.src = `data:image/png;base64,${data}`;
-        await image.decode();
-        const copy = document.createElement("canvas");
-        copy.width = image.width; copy.height = image.height;
-        const ctx = copy.getContext("2d");
-        ctx.drawImage(image, 0, 0);
-        const cx = Math.round(image.width / 2);
-        const cy = Math.round(image.height / 2);
-        const px = ctx.getImageData(cx - r, cy - r, 2 * r + 1, 2 * r + 1).data;
-        const counts = { sun: 0, path: 0, lit: 0 };
-        for (let i = 0; i < px.length; i += 4) {
-          const [red, green, blue] = [px[i], px[i + 1], px[i + 2]];
-          if (red + green + blue > 45) counts.lit += 1;
-          // T-038: the Sun is now an emissive sphere with a halo and its marker dot, so its pixels are bright warm white (it was a dot reading (227, 222, 196)
-          // in the canvas); the earlier colour window no longer matches by design, and the textured disc is orange, so the predicate is warm-bright. Same assertion (the Sun stands at the scene's zero), new predicate.
-          // Close in, the camera stops outside the Sun's sphere and the middle is its textured disc (orange), or the halo (white): any bright warm pixel counts.
-          if (red > 170 && green > 60 && red - blue > 30 && red + green + blue > 300) counts.sun += 1;
-          else if (blue > 60 && blue - red > 25) counts.path += 1;
-        }
-        return counts;
-      }, [png, radius]);
+      const box = await targetCanvas.boundingBox();
+      const atMiddle = (body) => body?.inView && body.as !== "none" && Math.hypot((body.x - 0.5) * box.width, (body.y - 0.5) * box.height) <= radius;
+      const earthPath = await ui.scenePath(target, "earth-path");
+      return {
+        sun: atMiddle(await ui.sceneBody(target, "sun")) ? 1 : 0,
+        earth: atMiddle(await ui.sceneBody(target, "earth")) ? 1 : 0,
+        path: earthPath?.visible && earthPath.lineMinX !== null && earthPath.lineMinX < 0.5 && earthPath.lineMaxX > 0.5 && earthPath.lineMinY < 0.5 && earthPath.lineMaxY > 0.5 ? 1 : 0,
+      };
     };
     const seekTo = async (utc) => {
       await ui.seekTo(target, utc);
@@ -158,7 +108,7 @@ try {
         await target.waitForTimeout(1200);
         const sun = await nearCentre(8);
         compositionCounts[`${label}-${scale}-${when}-sun`] = sun;
-        assert.ok(sun.sun > 20, `${label}/${scale}/${when}: the Sun marker sits at the scene's zero (${sun.sun})`);
+        assert.ok(sun.sun > 0, `${label}/${scale}/${when}: the Sun marker sits at the scene's zero (${JSON.stringify(sun)})`);
         // Earth is a drawn body: focused, it fills the view; pulled back, the path line passes through it.
         await ui.pickBody(target, "earth");
         await closeInfo();
@@ -166,15 +116,14 @@ try {
         await target.waitForTimeout(1800);
         const near = await nearCentre(8);
         compositionCounts[`${label}-${scale}-${when}-earth-near`] = near;
-        assert.ok(near.lit > 100, `${label}/${scale}/${when}: Earth is drawn where the camera focuses (${JSON.stringify(near)})`);
+        assert.ok(near.earth > 0, `${label}/${scale}/${when}: Earth is drawn where the camera focuses (${JSON.stringify(near)})`);
         const box = await targetCanvas.boundingBox();
         await target.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
         for (let i = 0; i < 6; i += 1) await target.mouse.wheel(0, 600);
         await target.waitForTimeout(1200);
         const far = await nearCentre(8);
         compositionCounts[`${label}-${scale}-${when}-earth-far`] = far;
-        assert.ok(far.path > 3, `${label}/${scale}/${when}: Earth's path line passes through Earth (${JSON.stringify(far)})`);
-        if (outDir) await target.screenshot({ path: `${outDir}/${label}-${scale.toLowerCase()}-${when.replace(/ /g, "-")}-earth-on-path.png` });
+        assert.ok(far.path > 0 && far.earth > 0, `${label}/${scale}/${when}: Earth's path line passes through Earth (${JSON.stringify(far)})`);
       }
     }
   };
@@ -212,10 +161,9 @@ try {
       await target.waitForTimeout(1800);
       const counts = await colourCounts(target);
       sunCentred[`${label}-${scale}`] = counts;
-      if (outDir) await target.screenshot({ path: `${outDir}/${label}-${scale.toLowerCase()}-sun-view.png` });
-      assert.ok(counts.earthPath > 40, `${label}/${scale}: Earth's path is drawn (${counts.earthPath})`);
-      assert.ok(counts.farPath > 40, `${label}/${scale}: the made-up path is drawn (${counts.farPath})`);
-      assert.ok(counts.sun > 5, `${label}/${scale}: the Sun marker is drawn (${counts.sun})`);
+      assert.ok(counts.earthPath > 10, `${label}/${scale}: Earth's path is drawn (${counts.earthPath})`);
+      assert.ok(counts.farPath > 10, `${label}/${scale}: the made-up path is drawn (${counts.farPath})`);
+      assert.ok(counts.sun > 0, `${label}/${scale}: the Sun marker is drawn (${counts.sun})`);
       assert.ok(counts.belt > 100, `${label}/${scale}: the belt sits in the same view (${counts.belt})`);
       assert.equal((await ui.shownSceneLabelIds(target)).includes("sun"), true, `${label}/${scale}: the Sun is labelled`);
       // Each is selectable and its info says what it is and where it comes from.

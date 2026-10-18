@@ -1,6 +1,6 @@
 // Browser check for showers built from settings files. Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-showers.mjs [<shower name>]
-// With no name (and no ASTRAEUS_SHOWER) it runs over every data/showers/<name>.json, one run per shower, each with its own log and screenshots under
+// With no name (and no ASTRAEUS_SHOWER) it runs over every data/showers/<name>.json, one run per shower, each with its own log and results under
 // <evidence dir>/<name>/. A shower's own values (peak solar longitude, radiant, parent, window, rate unit, orbit-file code, clump settings, label) come
 // from its settings file and the local orbit-file header; nothing here belongs to one shower. Run with a name to check one shower.
 // T-055 scenario map: every scenario below is kept for every shower; only the figures that were Perseid values are now read from the settings file
@@ -25,7 +25,7 @@
 //   not fetched: the panel gives the GMN fetch command ................. checkNotFetched (blocks the local file and the shipped copy, asserts the --months command and no --source)
 //   ASTRAEUS_SHIPPED=1 checkShipped (public build) ......................... browser-public-showers.mjs (shipped copy requested, no data/local served, GMN credit, absent message)
 //   the owner's CAMS-vs-GMN comparison screenshots (compare/) ............... dropped: a one-off comparison for the owner's source choice in T-056; the before/after pictures of tools/validate/capture-experience-pictures.mjs cover the look
-// I-028 (new scenario, "plain load"): a load with no preset clicked and the sky on draws the stream (>50 stream-coloured pixels: the Geminid dots are 1.6 px aqua and read thin, 95 on the phone) and is not a Sun close-up (<30% lit).
+// I-028 (new scenario, "plain load"): a load with no preset clicked and the sky on draws the stream (T-102: over 50 stream dots in the scene's point readout; it was 50 stream-coloured pixels: the Geminid dots are 1.6 px aqua and read thin, 95 on the phone) and is not a Sun close-up (<30% lit).
 //   the comet "swift-tuttle" and "Focus comet" ................ the parent id (parentElements.id or parentBodyId) and the generic "Focus parent" preset
 //   the mounted bodies (seven) ................................ the built-in Sun-circling bodies, plus the parent when the settings define it
 // O-016 T-063 (a shower may now declare look.startView, the Perseids open on sun,100,40,250000): scenarios that measure on-screen geometry no longer rely on the opening camera.
@@ -124,65 +124,11 @@ async function openPage(viewport) {
   return page;
 }
 
-// Stream-coloured pixels on the canvas (amber dots, not the grey orbit lines, white text or blue Earth): the stream is visible when its dots are drawn.
+// T-102: the stream's dots in view, from the scene's point readout (members in front of the camera and inside the view, an even sample scaled up): the stream is visible when its dots are drawn.
+// This replaces the count of stream-coloured canvas pixels; the group is picked by id, so no colour filter is needed.
 const litPixels = async (page) => {
-  const png = (await ui.sceneCanvasPng(page)).toString("base64");
-  return page.evaluate(async ({ data, colour }) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    // T-055: the stream's colour is the settings file's (it was a fixed amber), so a pixel counts when its hue is within 25 degrees of the stream colour's and it is bright and saturated.
-    const hueOf = (r, g, b) => {
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      if (max === min) return null;
-      const d = max - min;
-      const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-      return (h * 60 + 360) % 360;
-    };
-    const target = hueOf(parseInt(colour.slice(1, 3), 16), parseInt(colour.slice(3, 5), 16), parseInt(colour.slice(5, 7), 16));
-    let lit = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
-      const max = Math.max(r, g, b);
-      if (max <= 150 || (max - Math.min(r, g, b)) / max < 0.35) continue;
-      const hue = hueOf(r, g, b);
-      const gap = Math.abs(hue - target);
-      if (Math.min(gap, 360 - gap) < 25) lit += 1;
-    }
-    return lit;
-  }, { data: png, colour: settingsFile.look.streamColor });
-};
-
-// Pixels in the colours of Earth's path (blue) and the parent's orbit (violet); Earth itself is invisible at true scale, so these are the lines.
-const pathPixels = async (page) => {
-  const png = (await ui.sceneCanvasPng(page)).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    const half = Math.floor(copy.width / 2);
-    const count = { blue: 0, violet: 0, orbit: 0, left: 0, right: 0, bright: 0 };
-    for (let i = 0; i < pixels.length; i += 4) {
-      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
-      const x = (i / 4) % copy.width;
-      if (b > 90 && b - r > 35 && b - g > 15 && g >= r) { count.blue += 1; if (x < half) count.left += 1; else count.right += 1; }
-      if (b > 110 && r - g > 15 && b - r > 25) count.violet += 1;
-      if (r >= 70 && r - g >= 15 && r - g <= 48 && b - g >= 8 && b - g <= 42 && Math.abs(b - r) <= 25) count.orbit += 1; // the orbit line as the I-035 look draws it: lavender, red and blue both above green (213,180,199 at full brightness, 108,92,119 where it fades); the stream is amber, planets tan, Earth's path blue
-      if (r + g + b > 60) count.bright += 1;
-    }
-    return count;
-  }, png);
+  const group = await ui.scenePointGroup(page, `${shower}-stream`);
+  return group?.drawn ? group.inView : 0;
 };
 
 const seek = async (page, timeUtcMs) => {
@@ -190,30 +136,8 @@ const seek = async (page, timeUtcMs) => {
   await page.waitForTimeout(500);
 };
 
-// Planet orbit lines are drawn in the planets' own tan material colours at 70% opacity (about 150,120,90): not the blue of Earth's path,
-// the violet of the parent's orbit or the amber of the stream.
-const planetOrbitPixels = async (page) => {
-  const png = (await ui.sceneCanvasPng(page)).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let tan = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
-      if (r > 110 && r < 200 && r - g > 15 && r - g < 45 && g - b > 15 && g - b < 50 && r - b > 40) tan += 1;
-    }
-    return tan;
-  }, png);
-};
-
 // T-049: the four planet orbits are items with provenance, and their lines are drawn around the Sun.
-async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
+async function checkPlanetOrbits(page, label, canvas, choose, closeInfo) {
   const out = (results[label].planetOrbits = {});
   for (const id of ["mercury", "venus", "mars", "jupiter"]) {
     await selectOrbit(page, id, `${id}-orbit`);
@@ -233,13 +157,17 @@ async function checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo) {
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 900);
   await page.waitForTimeout(1200);
-  out.tanPixels = await planetOrbitPixels(page);
-  assert.ok(out.tanPixels > 150, `${label}: the planets' orbit lines are drawn around the Sun (${out.tanPixels})`);
-  await shot("planet-orbits");
+  // T-102: from the scene's path readout (each planet's orbit line visible, with vertices in view), not tan-coloured pixels.
+  out.planetOrbitReadouts = {};
+  for (const id of ["mercury", "venus", "mars", "jupiter"]) {
+    const line = await ui.scenePath(page, `${id}-orbit`);
+    out.planetOrbitReadouts[id] = line;
+    assert.ok(line?.visible && line.inView > 0, `${label}: ${id}'s orbit line is drawn around the Sun (path readout ${JSON.stringify(line)})`);
+  }
 }
 
 // The Sun-Earth composition: the Sun is the scene's zero, Earth moves on its drawn path, no Moon exists, and the solar-system scale shows Earth.
-async function checkSunEarth(page, label, shot, canvas) {
+async function checkSunEarth(page, label, canvas) {
   const out = (results[label].sunEarth = {});
   assert.equal(await canvas.getAttribute("data-scene-center"), "sun", `${label}: the Sun is the scene centre`);
   assert.equal(await canvas.getAttribute("data-bodies"), mountedBodies.join(","), `${label}: the mounted bodies are the Sun, Earth, the four planets and the parent (and no other shower's parent)`);
@@ -273,21 +201,18 @@ async function checkSunEarth(page, label, shot, canvas) {
   const start = (await ui.seekRange(page)).min;
   const peak = await ui.windowPeakTimeMs(page);
   out.path = {};
-  await checkPlanetOrbits(page, label, shot, canvas, choose, closeInfo);
+  await checkPlanetOrbits(page, label, canvas, choose, closeInfo);
   // Earth on its path at the start and at the peak: overview shows the blue path; following Earth keeps the line passing both sides of it.
   for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); await closeInfo(); }]]) {
     await move();
     await choose("sun", "overview");
-    await ui.closeAllPanelsNow(page); // a story or information panel lies over the canvas and its text would be counted as scene pixels (I-037)
+    await ui.closeAllPanelsNow(page); // a story or information panel lies over the canvas
     await page.waitForTimeout(300);
     // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
     // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
-    const whole = await pathPixels(page);
     // I-040: the comet's whole orbit is drawn in the Overview, proved from the line itself: the scene's path readout (driver.scenePath) says the line is visible, has its vertices and that they
-    // lie in the view, with labels on or off. (I-037 moved a colour count off the timeline strip; the orbit's label, in the same colour, then supplied most of that count, so the colour count
-    // is recorded below but no longer asserted.) Negative probe: the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view, must read fewer
+    // lie in the view, with labels on or off. Negative probe: the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view, must read fewer
     // vertices in view (a short orbit such as the Geminids' keeps its near-Sun end in view, so the bar is 60%, not a quarter) (Focus Earth is no probe: the comet's orbit passes close by Earth).
-    out.path[`${name}WholeOrbitPixels`] = whole.orbit; // recorded only
     const orbitLine = await ui.scenePath(page, `${parent}-orbit`);
     out.path[`${name}WholeOrbitReadout`] = orbitLine;
     assert.ok(orbitLine?.visible, `${label}/${name}: the comet's orbit line is drawn (visible in the scene's path readout; the scene's paths: ${JSON.stringify(await ui.scenePaths(page))})`);
@@ -303,19 +228,21 @@ async function checkSunEarth(page, label, shot, canvas) {
       assert.ok(without.inView < orbitLine.inView * 0.6, `${label}/${name}: the path readout finds the line only when it is in view (${without.inView} vertices in view with it out of view, ${orbitLine.inView} in the Overview)`);
     }
     await choose("sun", "overview");
-    const box0 = await canvas.boundingBox();
-    await page.mouse.move(box0.x + box0.width / 2, box0.y + box0.height / 2);
-    let overview = whole;
+    // T-102: a point where the canvas is on top (at the peak the story marker sits over the middle, where a wheel never reached the camera; the old pixel count passed without zooming).
+    const free0 = (await ui.freeCanvasPoint(page)) ?? { x: 10, y: 10 };
+    await page.mouse.move(free0.x, free0.y);
+    // T-102: Earth's path as the scene reports it (the line's own vertices in view and the share of the view they span; it replaces a count of blue pixels).
+    const pathBig = (line) => line?.visible && line.inView >= 0.9 * line.vertices && Math.max(line.spanX * line.aspect, line.spanY) > 0.1;
+    let overview = await ui.scenePath(page, "earth-path");
     let wheels = 0;
-    while (overview.blue <= 100 && wheels < 60) {
+    while (!pathBig(overview) && wheels < 60) {
       await page.mouse.wheel(0, -400);
       wheels += 1;
       await page.waitForTimeout(350);
-      overview = await pathPixels(page);
+      overview = await ui.scenePath(page, "earth-path");
     }
     out.path[`${name}Wheels`] = wheels;
-    assert.ok(overview.blue > 100, `${label}/${name}: Earth's path is drawn once the camera is brought in (${overview.blue} after ${wheels} wheel steps)`);
-    await shot(`sun-overview-${name}`);
+    assert.ok(pathBig(overview), `${label}/${name}: Earth's path is drawn once the camera is brought in (${JSON.stringify(overview)} after ${wheels} wheel steps)`);
     await choose("earth", "focus-earth");
     // Frame Earth with the path in view: pull back a little from the close framing.
     const box = await canvas.boundingBox();
@@ -326,10 +253,10 @@ async function checkSunEarth(page, label, shot, canvas) {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 90, { steps: 6 });
     await page.mouse.up();
     await page.waitForTimeout(800);
-    const near = await pathPixels(page);
+    const near = await ui.scenePath(page, "earth-path");
     out.path[name] = { overview, near };
-    assert.ok(near.left > 20 && near.right > 20, `${label}/${name}: the path runs on both sides of Earth (${near.left}/${near.right})`);
-    await shot(`earth-on-path-${name}`);
+    // Earth is the focus, so it is at the middle of the view: the drawn line (the segments between vertices) runs on both sides of it.
+    assert.ok(near?.visible && near.lineMinX !== null && near.lineMinX < 0.45 && near.lineMaxX > 0.55, `${label}/${name}: the path runs on both sides of Earth (path readout ${JSON.stringify(near)})`);
   }
 
   // Solar-system scale: Earth becomes visible, and its info panel states the factor.
@@ -338,13 +265,13 @@ async function checkSunEarth(page, label, shot, canvas) {
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   for (let i = 0; i < 6; i += 1) await page.mouse.wheel(0, 600);
   await page.waitForTimeout(800);
-  const trueCount = (await pathPixels(page)).bright;
+  // T-102: Earth's drawn size from the scene's body readout (it replaces a bright-pixel count): enlarged under the solar-system scale, and in view as a sphere.
+  const trueEarth = await ui.sceneBody(page, "earth");
   await chooseScale(page, "Solar system");
   await page.waitForTimeout(1200);
-  const solarCount = (await pathPixels(page)).bright;
-  out.brightPixels = { trueScale: trueCount, solarSystem: solarCount };
-  assert.ok(solarCount > trueCount + 150, `${label}: Earth is visible in the solar-system scale (${trueCount} -> ${solarCount})`);
-  await shot("earth-solar-system");
+  const solarEarth = await ui.sceneBody(page, "earth");
+  out.earthDrawn = { trueScale: trueEarth, solarSystem: solarEarth };
+  assert.ok(solarEarth?.inView && solarEarth.radiusPx > Math.max(2, 3 * trueEarth.radiusPx), `${label}: Earth is visible in the solar-system scale (radius ${trueEarth?.radiusPx} px -> ${solarEarth?.radiusPx} px)`);
   await ui.openInfo(page, "Earth");
   const earthPanel = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
   assert.match(earthPanel, /Earth/, `${label}: Earth's info panel opens`);
@@ -357,58 +284,36 @@ async function checkSunEarth(page, label, shot, canvas) {
   // Follow Earth through the activity window under the solar-system scale.
   await choose("earth", "follow-earth");
   const end = (await ui.seekRange(page)).max;
-  const sizes = [];
+  const followed = [];
   for (const time of [start, start + (end - start) / 2, end]) {
     await seek(page, time);
     await page.waitForTimeout(600);
-    sizes.push((await pathPixels(page)).bright);
+    followed.push(await ui.sceneBody(page, "earth"));
   }
-  out.followBright = sizes;
-  assert.ok(sizes.every((count) => count > 500), `${label}: Earth stays in view while followed (${sizes})`);
-  await shot("follow-earth-end");
+  out.followedEarth = followed;
+  assert.ok(followed.every((body) => body?.inView && body.as !== "none" && Math.abs(body.x - 0.5) < 0.15), `${label}: Earth stays in view, near the middle, while followed (${JSON.stringify(followed)})`);
   void peak;
 }
 
 // Labels that are shown right now, by object id.
 const shownLabels = (page) => page.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => el.dataset.labelId));
 
-// Bright pixels within `radius` of a canvas-relative point.
-const brightNear = async (page, x, y, radius = 6) => {
-  const png = (await ui.sceneCanvasPng(page)).toString("base64");
-  return page.evaluate(async ({ data, x, y, radius }) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let count = 0;
-    for (let py = Math.max(0, Math.floor(y - radius)); py < Math.min(copy.height, Math.ceil(y + radius)); py += 1) {
-      for (let px = Math.max(0, Math.floor(x - radius)); px < Math.min(copy.width, Math.ceil(x + radius)); px += 1) {
-        const i = 4 * (py * copy.width + px);
-        if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 200) count += 1;
-      }
-    }
-    return count;
-  }, { data: png, x, y, radius });
-};
-
-// A body's marker sits beside its label: 8 px to the label's left, right or below it. Returns the best bright-pixel count over those spots.
+// T-102: a body's marker sits beside its label (8 px to the label's left or right, or below it). From the scene's body readout: returns 1 when the scene draws the body (a marker or a sphere,
+// in view) and its centre lies within 24 px of one of those spots, else 0. It replaces a count of bright canvas pixels near the label.
 async function markerBesideLabel(page, id) {
+  const body = await ui.sceneBody(page, id);
+  if (!body?.inView || body.as === "none") return 0;
   const box = await page.getByTestId("earth-moon-canvas").boundingBox();
   const rect = await page.locator(`[data-label-id="${id}"]`).evaluate((el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; });
   const centreY = (rect.top + rect.bottom) / 2 - box.y;
   const spots = [[rect.left - 8 - box.x, centreY], [rect.right + 8 - box.x, centreY], [(rect.left + rect.right) / 2 - box.x, rect.bottom + 12 - box.y]];
-  let best = 0;
-  for (const [x, y] of spots) best = Math.max(best, await brightNear(page, x, y));
-  return best;
+  const [bx, by] = [body.x * box.width, body.y * box.height];
+  return spots.some(([x, y]) => Math.hypot(bx - x, by - y) <= 24) ? 1 : 0;
 }
 
 // The comet and the planets are visible with labels: a zoom sweep from the whole-system Overview in to the close view shows every body's label, with a marker beside it, at some zoom;
 // at true scale Earth and the planets draw as markers, and under the solar-system scale at least one planet draws as a body instead.
-async function checkBodies(page, label, shot, canvas) {
+async function checkBodies(page, label, canvas) {
   const out = (results[label].bodies = {});
   // The settings file turns the Sun's label off (owner: "we can probably turn off the sun label"): it must never be shown here, yet the Sun stays in the Object menu.
   const sunLabelOff = settingsFile.labels?.sun === false;
@@ -437,11 +342,10 @@ async function checkBodies(page, label, shot, canvas) {
     markerSets.push((await page.locator("canvas").first().getAttribute("data-marker-bodies")) ?? "");
     for (const id of bodies) {
       // The first zoom at which the label is shown and a marker is found beside it (the label can show while its marker is under a control on a small screen).
-      if (labels.includes(id) && !(seen.get(id)?.markerPixels > 3)) seen.set(id, { step, markerPixels: await markerBesideLabel(page, id) });
+      if (labels.includes(id) && !(seen.get(id)?.markerPixels > 0)) seen.set(id, { step, markerPixels: await markerBesideLabel(page, id) });
     }
-    if (bodies.every((id) => seen.get(id)?.markerPixels > 3)) break;
+    if (bodies.every((id) => seen.get(id)?.markerPixels > 0)) break;
   }
-  await shot("bodies-sweep");
   out.sweepSteps = sweepSteps;
   out.labelsSeenAtZoomStep = Object.fromEntries(seen);
   if (sunLabelOff) {
@@ -457,15 +361,14 @@ async function checkBodies(page, label, shot, canvas) {
     assert.ok(["mercury", "venus", "mars", "jupiter"].filter((id) => seen.has(id)).length >= 2, `${label}: at least two planet labels are shown (${out.labelsNeverShown} never)`);
   }
   // The comet's marker is checked in its own framing below (at the whole-system Overview it can sit under the controls on a small screen).
-  for (const id of bodies.filter((body) => body !== parent && seen.has(body))) assert.ok(seen.get(id).markerPixels > 3, `${label}: ${id} has a bright marker beside its label (${seen.get(id).markerPixels})`);
+  for (const id of bodies.filter((body) => body !== parent && seen.has(body))) assert.ok(seen.get(id).markerPixels > 0, `${label}: ${id} has a marker beside its label in the scene readout (${seen.get(id).markerPixels})`);
   await ui.pickBody(page, parent);
   await closeInfo();
   await ui.chooseCamera(page, "focus-parent");
   await page.waitForTimeout(2000);
   assert.ok((await shownLabels(page)).includes(parent), `${label}: the parent's label is shown when it is focused`);
   out.cometMarkerPixels = await markerBesideLabel(page, parent);
-  assert.ok(out.cometMarkerPixels > 3, `${label}: the comet has a bright marker beside its label (${out.cometMarkerPixels})`);
-  await shot("comet-focus");
+  assert.ok(out.cometMarkerPixels > 0, `${label}: the comet has a marker beside its label in the scene readout (${out.cometMarkerPixels})`);
   const trueMarkers = new Set(markerSets.flatMap((set) => set.split(",")));
   for (const id of ["earth", "mercury", "venus", "mars", "jupiter"]) assert.ok(trueMarkers.has(id), `${label}: ${id} draws as a marker at true scale`);
   out.trueScaleMarkerBodies = [...trueMarkers].filter(Boolean);
@@ -490,25 +393,21 @@ async function checkBodies(page, label, shot, canvas) {
   const asBodyAtSomeZoom = new Set(bodySteps.flatMap((entry) => entry.asBodies));
   out.solarSystemBodySet = [...asBodyAtSomeZoom];
   assert.ok(asBodyAtSomeZoom.has("earth") && asBodyAtSomeZoom.size >= 3, `${label}: under the solar-system scale Earth and other planets draw as bodies at some zoom (${[...asBodyAtSomeZoom]})`);
-  await shot("bodies-solar-system");
   await chooseScale(page, "True");
   await page.waitForTimeout(800);
 }
 
 // The comet's whole orbit is drawn and the "Whole orbit" preset frames it: the violet line spans most of the canvas in both directions.
-async function checkWholeOrbit(page, label, shot, canvas) {
+async function checkWholeOrbit(page, label, canvas) {
   const out = (results[label].wholeOrbit = {});
   await selectOrbit(page, parent, `${parent}-orbit`);
   await ui.closeInfo(page);
   await ui.chooseCamera(page, "whole-orbit");
   await ui.closeAllPanelsNow(page);
   await page.waitForTimeout(2500);
-  await shot("whole-orbit"); // before the assertions, so a failure leaves the picture
-  // I-040: proved from the line itself (the scene's path readout), not from orbit-coloured pixels, which the orbit's same-coloured label used to supply. The preset must frame the whole line.
+  // I-040: proved from the line itself (the scene's path readout) (it replaced an orbit-coloured pixel count, which the orbit's same-coloured label used to supply). The preset must frame the whole line.
   const line = await ui.scenePath(page, `${parent}-orbit`);
   out.readout = line;
-  const scene = await pathPixels(page); // recorded only
-  out.sceneOrbitPixels = scene.orbit;
   assert.ok(line?.visible, `${label}: the comet's orbit line is drawn at the peak (visible in the path readout)`);
   assert.ok(line.inView >= 0.9 * line.vertices, `${label}: the Whole orbit preset has the whole line in view (${line.inView} of ${line.vertices} vertices)`);
   assert.ok(Math.max(line.spanX, line.spanY) > 0.2, `${label}: the Whole orbit preset frames the orbit, a substantial part of the view (over 20% in one direction: the line's own vertices, measured 0.25 for the Perseids' 113-degree orbit seen nearly end-on, where the old violet-pixel box read over 30%) (${line.spanX} x ${line.spanY})`);
@@ -580,7 +479,6 @@ async function checkNotFetched() {
     assert.match(text, new RegExp(`node tools/data/fetch-meteoroid-orbits\\.mjs ${settingsFile.stream.iauCode} --months ${gmnSettings.months.join(",")}`), "not fetched: the panel gives the GMN fetch command");
     assert.ok(!text.includes("--source"), "not fetched: the command has no removed --source flag");
     results.notFetched = { panel: text.slice(0, 400) };
-    if (outDir) await page.screenshot({ path: `${outDir}/not-fetched.png` });
     // The rest of the scene is still there.
     assert.equal(await canvas.getAttribute("data-bodies"), mountedBodies.join(","), "not fetched: the bodies are still drawn");
   } finally {
@@ -600,7 +498,7 @@ async function checkFrameRate(page, label) {
   assert.ok(Number.isFinite(fps) && fps > 0, `${label}: the Developer counter reads a frame rate (${fps})`);
 }
 
-// Frames the stream with its Focus preset, so the amber pixels are its dots.
+// Frames the stream with its Focus preset, so its dots are in view.
 async function frameStream(page) {
   await ui.pickBody(page, `${shower}-stream`);
   await ui.closeInfo(page);
@@ -629,7 +527,7 @@ async function checkLoop(page, label, canvas) {
   assert.ok(seen.every((t) => t >= min - 86_400_000 && t <= max + 86_400_000), `${label}: the time stays inside the window while looping (to within one frame, under a day at this rate; ${out.times.join(' ')})`);
   out.litAfterWrap = await litPixels(page);
   logLit(`${label}/after-wrap`, out.litAfterWrap);
-  assert.ok(out.litAfterWrap > 150, `${label}: dots are still drawn after the wrap (${out.litAfterWrap})`);
+  assert.ok(out.litAfterWrap > 150, `${label}: dots are still drawn after the wrap (${out.litAfterWrap} in view)`);
   assert.equal(await canvas.getAttribute("data-point-groups"), "1", `${label}: the stream group is still mounted after the wrap`);
 }
 
@@ -652,7 +550,7 @@ async function checkLoopOff() {
     results.loopOff = { time: new Date(t).toISOString(), pastEnd: t > max, litAtEnd, lit: await litPixels(page) };
     assert.ok(t > max, "loop off: the time runs past the end of the window");
     logLit("loop-off/at-end", litAtEnd); logLit("loop-off/past-end", results.loopOff.lit);
-    assert.ok(litAtEnd > 150 && results.loopOff.lit < 0.7 * litAtEnd, `loop off: the stream dots are gone past the end (${litAtEnd} lit pixels at the end, ${results.loopOff.lit} past it; orbit lines remain)`);
+    assert.ok(litAtEnd > 150 && results.loopOff.lit < 0.7 * litAtEnd, `loop off: the stream dots are gone past the end (${litAtEnd} dots in view at the end, ${results.loopOff.lit} past it; orbit lines remain)`);
   } finally {
     await page.close();
   }
@@ -660,31 +558,12 @@ async function checkLoopOff() {
 
 // Ecliptic-up view (owner, 2026-10-15: "ours seems to be on a different plane to meteorshowers"): Earth's path, a circle in the ecliptic, is a flat ellipse whose
 // major axis is horizontal (its minor axis vertical) within 8 degrees, and its height is under half its width. With ?up=equatorial it is tilted by the obliquity.
+// T-102: Earth's path as the scene reports it (the path readout's vertices in view, their box and major-axis angle on screen), not a fit to blue pixels.
 const pathShape = async (page) => {
-  const png = (await ui.sceneCanvasPng(page)).toString("base64");
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let [n, sx, sy, sxx, syy, sxy, minX, maxX, minY, maxY] = [0, 0, 0, 0, 0, 0, copy.width, 0, copy.height, 0];
-    for (let i = 0; i < pixels.length; i += 4) {
-      const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
-      if (b > 90 && b - r > 35 && b - g > 15 && g >= r) {
-        const x = (i / 4) % copy.width; const y = Math.floor(i / 4 / copy.width);
-        n += 1; sx += x; sy += y; sxx += x * x; syy += y * y; sxy += x * y;
-        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-      }
-    }
-    const [mx, my] = [sx / n, sy / n];
-    const [cxx, cyy, cxy] = [sxx / n - mx * mx, syy / n - my * my, sxy / n - mx * my];
-    const angle = (0.5 * Math.atan2(2 * cxy, cxx - cyy) * 180) / Math.PI; // major axis angle from horizontal
-    return { n, angleDeg: angle, width: maxX - minX, height: maxY - minY, canvasWidth: copy.width };
-  }, png);
+  const line = await ui.scenePath(page, "earth-path");
+  if (!line?.visible || line.inView < 3) return { n: 0, angleDeg: 0, width: 0, height: 0, canvasWidth: 1, vertices: line?.vertices ?? 0 };
+  // Widths in screen proportions: the box shares times the view's aspect for x, so width and height compare as pixels would.
+  return { n: line.inView, angleDeg: line.axisDeg, width: line.spanX * line.aspect, height: line.spanY, canvasWidth: line.aspect, vertices: line.vertices };
 };
 
 async function checkEclipticFlat(page, label, query, expectFlat) {
@@ -702,20 +581,19 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
     const box = await p.getByTestId("earth-moon-canvas").boundingBox();
     await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     let shape = await pathShape(p);
-    for (let k = 0; k < 160 && !(shape.n > 300 && shape.width > 0.3 * shape.canvasWidth && shape.width < 0.97 * shape.canvasWidth); k += 1) {
+    for (let k = 0; k < 160 && !(shape.n >= 0.98 * shape.vertices && shape.width > 0.3 * shape.canvasWidth && shape.width < 0.97 * shape.canvasWidth); k += 1) {
       await p.mouse.wheel(0, -120);
       await p.waitForTimeout(250);
       shape = await pathShape(p);
     }
     out[query || "default"] = shape;
-    assert.ok(shape.n > 250, `${label}${query}: Earth's path is found (${shape.n} blue pixels)`);
+    assert.ok(shape.n >= 0.98 * shape.vertices && shape.vertices > 0, `${label}${query}: Earth's whole path is found in view (${shape.n} of ${shape.vertices} vertices)`);
     if (expectFlat) {
       assert.ok(Math.abs(shape.angleDeg) < 8, `${label}${query}: the path's major axis is horizontal within 8 deg (${shape.angleDeg.toFixed(1)})`);
-      assert.ok(shape.height < 0.5 * shape.width, `${label}${query}: the path is a flat ellipse (${shape.width} x ${shape.height})`);
+      assert.ok(shape.height < 0.5 * shape.width, `${label}${query}: the path is a flat ellipse (${shape.width.toFixed(3)} x ${shape.height.toFixed(3)} of the view)`);
     } else {
       assert.ok(Math.abs(shape.angleDeg) > 8 || shape.height > 0.5 * shape.width, `${label}${query}: with celestial-north up the path is tilted (${shape.angleDeg.toFixed(1)} deg)`);
     }
-    if (outDir) await p.screenshot({ path: `${outDir}/${label}-ecliptic-flat${query.replace(/\W/g, "-")}.png` });
   } finally {
     await p.close();
   }
@@ -748,10 +626,11 @@ async function checkYear(page, label, canvas) {
     logLit(`${label}/year-${name}`, lit);
     assert.ok(lit > litFloor, `${label}/year-${name}: dots are drawn (${lit}, floor ${litFloor})`);
     const labels = await shownLabels(page);
-    // Earth: its label (it is a selected-by-priority item at every zoom of this framing) or, failing that, its blue path.
-    const earthPath = (await pathPixels(page)).blue;
-    out.instants[name] = { lit, earthLabel: labels.includes("earth"), earthPathPixels: earthPath };
-    assert.ok(labels.includes("earth") || earthPath > 100, `${label}/year-${name}: Earth is drawn (label ${labels.includes("earth")}, path pixels ${earthPath})`);
+    // Earth: its label (it is a selected-by-priority item at every zoom of this framing) or, failing that, its path (the scene's path readout).
+    const earthLine = await ui.scenePath(page, "earth-path");
+    const earthPath = earthLine?.visible ? earthLine.inView : 0;
+    out.instants[name] = { lit, earthLabel: labels.includes("earth"), earthPathVerticesInView: earthPath };
+    assert.ok(labels.includes("earth") || earthPath > 10, `${label}/year-${name}: Earth is drawn (label ${labels.includes("earth")}, path vertices in view ${earthPath})`);
     if (name === "start") {
       await ui.openInfo(page, streamButtonName);
       const text = (await ui.infoPanel(page).innerText()).replace(/\s+/g, " ");
@@ -812,7 +691,6 @@ async function checkQuality() {
       assert.ok(sentence.includes(gmnSettings.ruleNote) && sentence.endsWith("GMN has no double-entry flag."), `orbits=${set}: the GMN rule note and the no-double-entry statement are given`);
       assert.match(detail, new RegExp(`${counts[set]} orbits drawn`), `orbits=${set}: the provenance counts the orbits drawn`);
       assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", `orbits=${set}: the stream is drawn`);
-      if (outDir) await page.screenshot({ path: `${outDir}/quality-${set}.png` });
     }
     // The live switch: Developer > Display settings, choosing the other set reloads with it.
     await page.goto(`${base}?experience=showers&shower=${shower}&sky=off`);
@@ -914,7 +792,6 @@ const streamId = (name) => `${name}-stream`;
 async function run(label, viewport) {
   const phoneOnce = label === "phone" || lightRun;
   const page = await openPage(viewport);
-  const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${label}-${name}.png` }); };
   const streamId = `${shower}-stream`;
   try {
     // I-028: a plain load (no preset clicked, sky on) opens on the experience's overview: the stream is drawn and the Sun's disc does not cover the canvas.
@@ -926,10 +803,11 @@ async function run(label, viewport) {
       await ui.waitForShell(plain);
       await plain.waitForTimeout(2500);
       const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
-      const plainArea = viewport.width * viewport.height;
-      assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} stream-coloured pixels)`);
-      assert.ok(plainLit < 0.3 * plainArea, `${label}: a plain load is not a close-up of the Sun (${plainLit} of ${plainArea} pixels are stream-coloured)`);
-      if (outDir) await plain.screenshot({ path: `${outDir}/${label}-plain-load.png` });
+      assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} dots in view)`);
+      // T-102: "not a close-up of the Sun" from the scene's body readout: the Sun's drawn radius is under a quarter of the view's height (it was: stream-coloured pixels under 30% of the area).
+      const plainSun = await ui.sceneBody(plain, "sun");
+      logLit(`${label}/plain-sun-radius-px`, plainSun?.radiusPx);
+      assert.ok(plainSun !== undefined && plainSun.radiusPx < 0.25 * viewport.height, `${label}: a plain load is not a close-up of the Sun (its radius is ${plainSun?.radiusPx} px in a view ${viewport.height} px high)`);
       // T-063: a shower that declares look.startView opens on it.
       const declared = settingsFile.look?.startView;
       if (declared !== undefined) {
@@ -1012,13 +890,11 @@ async function run(label, viewport) {
       await focusStream();
       const lit = await litPixels(page);
       logLit(`${label}/${name}`, lit);
-      assert.ok(lit > 150, `${label}/${name}: stream dots are visible (${lit})`);
-      await shot(`${name}-focus`);
+      assert.ok(lit > 150, `${label}/${name}: stream dots are visible (${lit} in view)`);
       await openDetails();
       const text = await panel.innerText();
       assert.match(text, /Activity rate/, `${label}/${name}: rate readout is shown`);
       results[label].readings[name] = { lit, panel: text.replace(/\s+/g, " ").slice(0, 900) };
-      await shot(name);
     }
     // Zoomed far out the stream and Earth are in one view.
     await focusStream();
@@ -1028,7 +904,6 @@ async function run(label, viewport) {
     await page.waitForTimeout(800);
     results[label].zoomedOutLit = await litPixels(page);
     assert.ok(results[label].zoomedOutLit > 150, `${label}: stream visible zoomed out (${results[label].zoomedOutLit})`);
-    await shot("zoomed-out");
     await openDetails();
     // The readout rises to the peak and falls again.
     const rateOf = (name) => Number(results[label].readings[name].panel.match(/Activity rate\D*([\d.]+)/)?.[1]);
@@ -1061,7 +936,6 @@ async function run(label, viewport) {
     const counted = Number(panelText.match(/(\d+) measured meteoroid orbits/)?.[1] ?? Number.NaN);
     assert.equal(counted, fetched.counts.kept, `${label}: the stream's description counts every measured orbit drawn`);
     results[label].members = counted;
-    await shot("stream-details");
 
     // The window's own details name the published night and the modelled shape.
     await ui.goToWindowPeak(page); // the peak mark opens the window's details (the clickable band above the timeline is gone, T-084)
@@ -1069,12 +943,11 @@ async function run(label, viewport) {
     const windowPanel = await ui.infoPanel(page).innerText();
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
-    await shot("window-details");
     await checkSwitch(label, viewport);
     if (phoneOnce) return; // the phone layout is checked once, through the scenarios above; the rest repeat the desktop's geometry
-    await checkSunEarth(page, label, shot, canvas);
-    await checkBodies(page, label, shot, canvas);
-    await checkWholeOrbit(page, label, shot, canvas);
+    await checkSunEarth(page, label, canvas);
+    await checkBodies(page, label, canvas);
+    await checkWholeOrbit(page, label, canvas);
     await checkCrossing(page, label);
     await checkYear(page, label, canvas);
     await checkLoop(page, label, canvas);

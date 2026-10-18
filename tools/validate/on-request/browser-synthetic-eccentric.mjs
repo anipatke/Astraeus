@@ -5,7 +5,7 @@
 //   4. precision of a vertex of that orbit 50 AU from the Sun, by the same method as browser-precision.mjs.
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-synthetic-eccentric.mjs
-// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (screenshots and eccentric.json; use a new directory).
+// Options: ASTRAEUS_URL (default http://localhost:5199/app.html), ASTRAEUS_EVIDENCE_DIR (eccentric.json; use a new directory).
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chooseScale } from "../driver.mjs";
@@ -50,7 +50,6 @@ const open = async (query, viewport) => {
   await ui.pausePlayback(page);
   return page;
 };
-const shot = async (page, name) => { if (outDir) await page.screenshot({ path: `${outDir}/${name}.png` }); };
 const closeInfo = (page) => ui.closeInfo(page);
 const pickPreset = (page, presetId) => ui.chooseCamera(page, presetId);
 // The scene writes its state onto the <canvas> element itself.
@@ -61,66 +60,18 @@ const wheel = async (page, clicks, delta) => {
   for (let i = 0; i < clicks; i += 1) await page.mouse.wheel(0, delta);
   await page.waitForTimeout(1200);
 };
-// Where Earth's marker stands on screen (CSS px) and how many near-white pixels surround it, read from a canvas screenshot with labels hidden.
+// T-102: Earth's marker from the scene's body readout (how Earth is drawn and where), not a probe of the scene graph plus near-white pixels round it: drawn is true when Earth is in view
+// drawn as a marker (a sphere is not a marker).
 const earthMarkerProbe = async (page) => {
-  const at = await page.evaluate((colour) => {
-    const { scene, camera } = window.__probe;
-    let found = null;
-    scene.traverse((o) => {
-      if (found || !o.isPoints || o.material?.color?.getHexString?.() !== colour) return;
-      for (let p = o; p; p = p.parent) if (!p.visible) return;
-      const v = o.getWorldPosition(new o.position.constructor()).project(camera);
-      found = { x: (v.x * 0.5 + 0.5) * window.innerWidth, y: (1 - (v.y * 0.5 + 0.5)) * window.innerHeight, inFront: v.z < 1 };
-    });
-    return found;
-  }, EARTH_MARKER);
-  if (at === null) return { drawn: false, bright: 0 };
-  await ui.hideSceneLabels(page);
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await ui.showSceneLabels(page);
-  const bright = await page.evaluate(async ([data, x, y]) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const box = document.querySelector('[data-testid="earth-moon-canvas"]').getBoundingClientRect();
-    const cx = Math.round(x - box.left), cy = Math.round(y - box.top), r = 6;
-    if (cx < r || cy < r || cx > image.width - r || cy > image.height - r) return -1;
-    const px = ctx.getImageData(cx - r, cy - r, 2 * r + 1, 2 * r + 1).data;
-    let lit = 0;
-    for (let i = 0; i < px.length; i += 4) if (px[i] > 190 && px[i + 1] > 190 && px[i + 2] > 190) lit += 1;
-    return lit;
-  }, [png, at.x, at.y]);
-  return { drawn: true, inFront: at.inFront, bright };
+  const body = await ui.sceneBody(page, "earth");
+  return { drawn: Boolean(body?.inView && body.as === "marker"), as: body?.as ?? "none", radiusPx: body?.radiusPx ?? 0 };
 };
-// Bounding box, in canvas px, and count of the eccentric orbit's pink pixels.
+// The eccentric orbit as the scene's path readout reports it, in canvas px: its vertices in view (of all its vertices) and the box they cover.
 const pinkExtent = async (page) => {
-  await ui.hideSceneLabels(page);
-  const png = (await page.getByTestId("earth-moon-canvas").screenshot()).toString("base64");
-  await ui.showSceneLabels(page);
-  return page.evaluate(async (data) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${data}`;
-    await image.decode();
-    const copy = document.createElement("canvas");
-    copy.width = image.width; copy.height = image.height;
-    const ctx = copy.getContext("2d");
-    ctx.drawImage(image, 0, 0);
-    const px = ctx.getImageData(0, 0, copy.width, copy.height).data;
-    let minX = Infinity, minY = Infinity, maxX = -1, maxY = -1, count = 0;
-    for (let i = 0; i < px.length; i += 4) {
-      // The line is #ff9fd0 at 0.7 opacity over black: roughly (178, 111, 146).
-      if (px[i] > 120 && px[i] > px[i + 1] + 30 && px[i + 2] > px[i + 1] + 15) {
-        const k = i / 4;
-        const x = k % copy.width, y = Math.floor(k / copy.width);
-        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); count += 1;
-      }
-    }
-    return { count, minX, minY, maxX, maxY, width: copy.width, height: copy.height };
-  }, png);
+  const line = await ui.scenePath(page, "eccentric-path");
+  const box = await page.getByTestId("earth-moon-canvas").boundingBox();
+  if (!line?.visible || line.inView === 0) return { count: 0, vertices: line?.vertices ?? 0, minX: Infinity, minY: Infinity, maxX: -1, maxY: -1, width: box.width, height: box.height };
+  return { count: line.inView, vertices: line.vertices, minX: line.minX * box.width, minY: line.minY * box.height, maxX: line.maxX * box.width, maxY: line.maxY * box.height, width: box.width, height: box.height };
 };
 
 // --- 1 and 2: the marker rule, and the solar-system scale -------------------------------------------------------------------------
@@ -138,19 +89,16 @@ const markerRule = async (query, label) => {
     await page.waitForTimeout(6000);
     const entry = { threshold: await page.locator("canvas").first().getAttribute("data-marker-px") };
     entry.earthClose = await swapped(page);
-    await shot(page, `${label}-earth-close`);
     await wheel(page, 12, 600);
     await page.waitForTimeout(2500);
     entry.earthPulledBack = await swapped(page);
     // Pulled back, Earth is at the centre of the view and alone: its marker, if drawn, is the near-white dot there.
     entry.earthPulledBackProbe = await earthMarkerProbe(page);
-    await shot(page, `${label}-earth-pulled-back`);
     await ui.pickBody(page, "sun");
     await closeInfo(page);
     await pickPreset(page, "sun-view");
     await page.waitForTimeout(2500);
     entry.sunViewTrue = await swapped(page);
-    await shot(page, `${label}-sun-view-true`);
     return { page, entry };
   } catch (error) {
     await page.close();
@@ -165,7 +113,7 @@ const markerRule = async (query, label) => {
     assert.equal(entry.earthClose, "", "Earth close up is a sphere");
     assert.equal(entry.earthPulledBack, "earth", "Earth pulled back is a marker");
     assert.equal(entry.sunViewTrue, "earth", "Earth seen from the Sun, one AU away, is a marker");
-    assert.ok(entry.earthPulledBackProbe.drawn && entry.earthPulledBackProbe.bright > 10, `the marker is visible at Earth's place (${JSON.stringify(entry.earthPulledBackProbe)})`);
+    assert.ok(entry.earthPulledBackProbe.drawn, `the marker is visible at Earth's place (${JSON.stringify(entry.earthPulledBackProbe)})`);
     result.markerRule.default = entry;
 
     // Solar-system scale: Earth is enlarged 200 times. With the camera right beside the Sun, Earth is 1 AU (23,500 Earth radii) away:
@@ -182,16 +130,13 @@ const markerRule = async (query, label) => {
     };
     const enlarged = {};
     enlarged.nearSunTrue = await nearSun("True");
-    await shot(page, "true-scale-camera-at-sun");
     enlarged.nearSunSolarSystem = await nearSun("Solar system");
-    await shot(page, "solar-system-camera-at-sun");
     assert.equal(enlarged.nearSunTrue, "earth", "true scale, camera at the Sun: Earth 1 AU away is a marker");
     assert.equal(enlarged.nearSunSolarSystem, "", "solar-system scale, camera at the Sun: the enlarged Earth is a sphere");
     // Pulled far enough back, even the enlarged Earth is too small to show as a sphere.
     await wheel(page, 120, 600);
     await page.waitForTimeout(2000);
     enlarged.pulledFarBack = await swapped(page);
-    await shot(page, "solar-system-pulled-far-back");
     assert.equal(enlarged.pulledFarBack, "earth", "pulled far enough back even the enlarged Earth becomes a marker");
     result.solarSystemScale = enlarged;
   } finally {
@@ -205,7 +150,7 @@ const markerRule = async (query, label) => {
     assert.equal(entry.threshold, "0", "?markerpx=0 is read");
     assert.equal(entry.earthPulledBack, "", "with the threshold at 0 Earth is never a marker");
     assert.equal(entry.sunViewTrue, "", "with the threshold at 0 Earth in the Sun view stays a (sub-pixel) sphere");
-    assert.ok(!entry.earthPulledBackProbe.drawn || entry.earthPulledBackProbe.bright <= 3, `no marker is drawn when the threshold is 0 (${JSON.stringify(entry.earthPulledBackProbe)})`);
+    assert.ok(!entry.earthPulledBackProbe.drawn, `no marker is drawn when the threshold is 0 (${JSON.stringify(entry.earthPulledBackProbe)})`);
     result.markerRule.threshold0 = entry;
   } finally {
     await page.close();
@@ -233,9 +178,8 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
     await pickPreset(page, "focus-eccentric");
     await page.waitForTimeout(4000);
     const extent = await pinkExtent(page);
-    await shot(page, `${label}-long-orbit-framed`);
     const margin = 2;
-    assert.ok(extent.count > 200, `${label}: the orbit is drawn (${extent.count} px)`);
+    assert.ok(extent.count >= 0.99 * extent.vertices && extent.vertices > 0, `${label}: the whole orbit is drawn in view (${extent.count} of ${extent.vertices} vertices)`);
     assert.ok(extent.minX >= margin && extent.minY >= margin && extent.maxX <= extent.width - 1 - margin && extent.maxY <= extent.height - 1 - margin, `${label}: the whole orbit is inside the view (${JSON.stringify(extent)})`);
     const spanFraction = Math.max((extent.maxX - extent.minX) / extent.width, (extent.maxY - extent.minY) / extent.height);
     assert.ok(spanFraction > 0.3, `${label}: the orbit fills a good part of the view (${spanFraction.toFixed(2)})`);
@@ -243,7 +187,7 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
     // Zoom out as far as the declared reach allows: the orbit stays drawn, with no error.
     await wheel(page, 40, 600);
     const far = await pinkExtent(page);
-    assert.ok(far.count > 20, `${label}: the orbit is still drawn at the farthest zoom (${far.count} px)`);
+    assert.ok(far.count > 5, `${label}: the orbit is still drawn at the farthest zoom (${far.count} vertices in view)`);
     result.framing[`${label}-zoomed-out`] = far;
   } finally {
     await page.close();
@@ -305,7 +249,6 @@ for (const [label, viewport] of [["desktop", { width: 1280, height: 800 }], ["ph
     }
     assert.ok(settled, "the camera settled");
     const installed = await install();
-    await shot(page, "precision-50au-aphelion-in-view");
     const frames = (n) => page.evaluate(async (count) => {
       const out = [];
       for (let i = 0; i < count; i += 1) { await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); out.push(window.__sample()); }

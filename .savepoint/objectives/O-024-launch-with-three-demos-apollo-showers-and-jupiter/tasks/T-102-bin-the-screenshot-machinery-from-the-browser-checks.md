@@ -2,7 +2,8 @@
 id: T-102
 title: Bin the screenshot machinery from the browser checks
 objective: O-024
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}

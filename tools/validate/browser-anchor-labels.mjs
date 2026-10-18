@@ -5,14 +5,14 @@
 // committed evidence (historical evidence rule); pass a docs/evidence/ path deliberately to keep a run.
 //
 // Sizes (I-023): the scenario runs at 1280x800 (desktop) and again at 390x844 (phone) with the same assertions and expected values;
-// the phone run writes its screenshots and results with a `-phone` suffix. The only difference is how the Follow preset is chosen:
+// the phone run writes its results with a `-phone` suffix. The only difference is how the Follow preset is chosen:
 // the phone shell shows a native "Camera mode" select instead of the camera buttons, so the option with the same label is picked.
 //   desktop assertion                                  phone counterpart
 //   layer hidden initially, zero visible labels ........ same
 //   toggle reports on, 40 labels created ............... same 40 label elements; on screen: all 40 on desktop, and on the phone
 //                                                        only those whose projection lies inside the narrower view (AnchorLabels hides
 //                                                        an off-screen anchor), so the phone asserts 1 to 40 on screen
-//   follow Columbia with labels on (screenshot) ........ same, via the camera select
+//   follow Columbia with labels on ........ same, via the camera select
 //   second click hides the layer, aria-pressed false ... same
 //   zero console and page errors ....................... same
 import assert from "node:assert/strict";
@@ -71,15 +71,11 @@ async function run(label, viewport) {
   assert.equal(await ui.anchorLabelCount(page), 40, "all labelled source anchors are created when enabled");
   if (label === "desktop") assert.equal(countWhenOn, 40, "all 40 anchor labels are on screen in the desktop overview");
   else assert.ok(countWhenOn > 0 && countWhenOn <= 40, "the anchor labels inside the phone view are shown (the rest are off screen)");
-  const overviewScreenshot = `${out}/labels-on-overview${suffix}.png`;
-  await page.screenshot({ path: overviewScreenshot });
 
   await ui.pickBody(page, "columbia");
   await closeInfo();
   await choosePreset("follow-columbia");
   await page.waitForTimeout(1_500);
-  const followScreenshot = `${out}/labels-on-follow${suffix}.png`;
-  await page.screenshot({ path: followScreenshot });
 
   await ui.pressToggle(page, "anchor-labels");
   await ui.waitForAnchorLayer(page, true);
@@ -97,7 +93,6 @@ async function run(label, viewport) {
     countWhenOn,
     pressedOff,
     hiddenAfterToggle: await ui.anchorLayerHidden(page),
-    screenshots: [overviewScreenshot, followScreenshot],
     errors,
   };
   writeFileSync(`${out}/browser-anchor-labels-results${suffix}.json`, JSON.stringify(result, null, 2));

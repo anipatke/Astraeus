@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3, type Camera } from "three";
+import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3, type Camera, type PerspectiveCamera } from "three";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
@@ -33,6 +33,17 @@ export interface PathScreenReadout {
   readonly maxX: number;
   readonly minY: number;
   readonly maxY: number;
+  /** The box the drawn line itself covers in the view, shares of the view: the segments between vertices are clipped to the view, so a line with no vertex in view still reads; each segment is clipped to the view exactly; min above max when no part of it is in view. */
+  readonly lineMinX: number;
+  readonly lineMaxX: number;
+  readonly lineMinY: number;
+  readonly lineMaxY: number;
+  /** Angle of the in-view vertices' major axis from horizontal, in degrees (-90 to 90; screen y points down, so a line rising to the right reads negative); 0 when fewer than 3 are in view. The view's aspect (width over height) is applied, so it is the angle on the screen. */
+  readonly axisDeg: number;
+  /** The view's width over its height, to turn the shares above into pixel proportions. */
+  readonly aspect: number;
+  /** The orbit look in force as drawn (null for a plain line): which layers are shown, the ring's opacity now (zoom brightening included) and the arc's peak opacity. */
+  readonly look: { readonly ring: boolean; readonly arc: boolean; readonly endFade: boolean; readonly zoomBrighten: boolean; readonly ringOpacity: number; readonly arcPeak: number } | null;
 }
 
 /** Steps each arc segment is cut into, as the donor's ring slices (8). */
@@ -461,6 +472,8 @@ export class PathView {
     const point = new Vector3();
     let inView = 0;
     let [minX, maxX, minY, maxY] = [1, 0, 1, 0];
+    const aspect = (camera as PerspectiveCamera).aspect ?? 1;
+    let [sx, sy, sxx, syy, sxy] = [0, 0, 0, 0, 0];
     for (let i = 0; i < count; i += 1) {
       point.set(a[3 * i], a[3 * i + 1], a[3 * i + 2]).applyMatrix4(camera.matrixWorldInverse);
       if (point.z >= 0) continue;
@@ -469,9 +482,44 @@ export class PathView {
       const x = (point.x + 1) / 2;
       const y = (1 - point.y) / 2;
       inView += 1;
+      const px = x * aspect;
+      sx += px; sy += y; sxx += px * px; syy += y * y; sxy += px * y;
       minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     }
-    return { id: this.id, visible, vertices: count, inView, minX, maxX, minY, maxY };
+    // The line between the vertices: each segment whose ends are both in front of the camera is a straight line on the screen, clipped to the view (Liang-Barsky).
+    let [lineMinX, lineMaxX, lineMinY, lineMaxY] = [1, 0, 1, 0];
+    const from = new Vector3();
+    const to = new Vector3();
+    for (let i = 0; i + 1 < count; i += 1) {
+      from.set(a[3 * i], a[3 * i + 1], a[3 * i + 2]).applyMatrix4(camera.matrixWorldInverse);
+      to.set(a[3 * i + 3], a[3 * i + 4], a[3 * i + 5]).applyMatrix4(camera.matrixWorldInverse);
+      if (from.z >= 0 || to.z >= 0) continue;
+      from.applyMatrix4(camera.projectionMatrix);
+      to.applyMatrix4(camera.projectionMatrix);
+      const [dx, dy] = [to.x - from.x, to.y - from.y];
+      let [t0, t1] = [0, 1];
+      for (const [p, q] of [[-dx, from.x + 1], [dx, 1 - from.x], [-dy, from.y + 1], [dy, 1 - from.y]]) {
+        if (p === 0) { if (q < 0) { t0 = 2; break; } continue; }
+        const r = q / p;
+        if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+      }
+      if (t0 > t1) continue;
+      for (const t of [t0, t1]) {
+        const x = (from.x + t * dx + 1) / 2;
+        const y = (1 - (from.y + t * dy)) / 2;
+        lineMinX = Math.min(lineMinX, x); lineMaxX = Math.max(lineMaxX, x); lineMinY = Math.min(lineMinY, y); lineMaxY = Math.max(lineMaxY, y);
+      }
+    }
+    let axisDeg = 0;
+    if (inView >= 3) {
+      const [mx, my] = [sx / inView, sy / inView];
+      axisDeg = (0.5 * Math.atan2(2 * (sxy / inView - mx * my), sxx / inView - mx * mx - (syy / inView - my * my)) * 180) / Math.PI;
+    }
+    const look = this.#look;
+    const ring = this.#ring;
+    const drawnLook = look === null || ring === null || this.#arc === null ? null
+      : { ring: ring.visible, arc: this.#arc.visible, endFade: look.endFadeOn, zoomBrighten: look.zoomOn, ringOpacity: (ring.material as LineBasicMaterial).opacity, arcPeak: look.arcPeak };
+    return { id: this.id, visible, vertices: count, inView, minX, maxX, minY, maxY, lineMinX, lineMaxX, lineMinY, lineMaxY, axisDeg, aspect, look: drawnLook };
   }
 
   /** The centre of the drawn line, so a focused path sits in the middle of the view. */

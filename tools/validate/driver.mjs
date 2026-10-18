@@ -248,10 +248,6 @@ export const waitForClock = (page, target, timeout = 5000) => page.waitForFuncti
 
 /** The timeline bar's box on the page. */
 export const timelineBox = (page) => page.locator(".timeline-bar").boundingBox();
-/** A picture of the scene canvas with the timeline bar blacked out: the canvas lies behind the bar, so a pixel count must not count the bar's own colours (T-084; the old purple strip was once counted as the comet's orbit). */
-export const sceneCanvasPng = (page) => page.getByTestId("earth-moon-canvas").screenshot({ mask: [page.locator(".timeline-bar")], maskColor: "#000000" });
-/** The scene alone, for brightness sums: the first canvas with every interface layer over it blacked out (top bar, drawers, timeline, developer panel, labels stay as drawn). */
-export const sceneOnlyPng = (page) => page.locator("canvas").first().screenshot({ mask: [page.locator(".top-bar"), page.locator(".controls-drawer"), page.locator(".timeline-bar"), page.locator(".developer-tools")], maskColor: "#000000" });
 /** The activity window's peak marker (a button on the timeline line). */
 export const windowPeak = (page) => page.locator(HOOK.windowPeak);
 /** The activity glow drawn inside the timeline track (T-084): how many there are (0 or 1), its text equivalent, and its gradient. */
@@ -749,6 +745,57 @@ export async function scenePaths(page) {
 /** One path's readout by id (for example `earth-path`, `1p-orbit`), or undefined when the scene draws no such path. */
 export async function scenePath(page, id) {
   return (await scenePaths(page)).find((path) => path.id === id);
+}
+/**
+ * Each point group as the scene reports it (`data-points`, T-102): { id, drawn, members, inView, spanX, spanY }, where drawn means inside its time bounds and shown, inView is the number of
+ * members in front of the camera and inside the view (an even sample scaled up), and spanX/spanY are the share of the view they cover. It describes the dots, never a picture of them.
+ */
+export async function scenePoints(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-points")) ?? "[]");
+}
+/** One point group's readout by id, or undefined when the scene has no such group. */
+export async function scenePointGroup(page, id) {
+  return (await scenePoints(page)).find((group) => group.id === id);
+}
+/** The dots drawn in view across every group: the sum of `inView` over the groups that are drawn. */
+export async function sceneDotsInView(page) {
+  return (await scenePoints(page)).reduce((sum, group) => sum + (group.drawn ? group.inView : 0), 0);
+}
+/**
+ * Each body as the scene reports it (`data-body-screen`, T-102): { id, as: "sphere" | "marker" | "none", radiusPx, x, y, inView }, with x and y the centre as shares of the view (0 to 1, y down)
+ * and radiusPx the drawn sphere's radius in pixels (the size the marker rule judges).
+ */
+export async function sceneBodies(page) {
+  return JSON.parse((await page.locator("canvas").first().getAttribute("data-body-screen")) ?? "[]");
+}
+/** One body's readout by id, or undefined when the scene does not draw it. */
+export async function sceneBody(page, id) {
+  return (await sceneBodies(page)).find((body) => body.id === id);
+}
+/** The sky as the scene reports it: star count, the star and Milky Way brightness in force, and whether the picture is on and shown. Stars is 0 when the scene has no sky. */
+export async function sceneSky(page) {
+  const data = await page.locator("canvas").first().evaluate((canvas) => ({ ...canvas.dataset }));
+  return {
+    stars: Number(data.skyStars ?? 0),
+    starBrightness: data.skyStarBrightness === undefined ? null : Number(data.skyStarBrightness),
+    milkyWayBrightness: data.skyMilkyWayBrightness === undefined ? null : Number(data.skyMilkyWayBrightness),
+    picture: data.skyPicture === "on",
+    pictureShown: data.skyPictureShown === "true",
+  };
+}
+/** Whether the scene draws anything: some body as a sphere or marker in view, point group members in view, a path line in view, or the sky's stars. The readout form of "the canvas is not blank". */
+export async function sceneDrawsSomething(page) {
+  const bodies = (await sceneBodies(page)).filter((body) => body.as !== "none" && body.inView).length;
+  return { bodies, dots: await sceneDotsInView(page), paths: (await scenePaths(page)).filter((path) => path.visible && path.inView > 0).length, stars: (await sceneSky(page)).stars };
+}
+/** A point on the scene canvas where the canvas itself is on top (no story marker, label or panel over it), the middle first: where a wheel or drag reaches the camera. Null when nothing is free. */
+export async function freeCanvasPoint(page) {
+  const box = await page.getByTestId("earth-moon-canvas").boundingBox();
+  for (const [fx, fy] of [[0.5, 0.5], [0.5, 0.4], [0.4, 0.5], [0.6, 0.5], [0.5, 0.6], [0.3, 0.3], [0.7, 0.3], [0.3, 0.6]]) {
+    const point = { x: box.x + box.width * fx, y: box.y + box.height * fy };
+    if (await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName === "CANVAS", point)) return point;
+  }
+  return null;
 }
 /** The anchor-label layer: whether it is hidden, how many labels it holds, how many are on screen. */
 export const anchorLayerHidden = async (page) => (await page.locator(HOOK.anchorLabels).getAttribute("hidden")) !== null;
