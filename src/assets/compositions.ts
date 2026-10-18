@@ -83,3 +83,14 @@ export const jupiterIoSystem: SystemComposition = createComposition(catalogue, {
   // Io's orbit is Keplerian and closes exactly (a gap of 0 km), so its ring needs no end fade; the arc and zoom brightening stay.
   paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
 });
+
+/**
+ * Jupiter and its four mapped moons, about Jupiter (positions from the core curve fits). Io keeps its loop and look; the other three moons'
+ * orbit lines are drawn with the small moons' batch (one draw for all), so the experience declares them there.
+ */
+export const jupiterMoonsSystem: SystemComposition = createComposition(catalogue, {
+  id: "jupiter-moons",
+  bodies: ["jupiter", "io", "europa", "ganymede", "callisto"],
+  defaultCenter: "jupiter",
+  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
+});

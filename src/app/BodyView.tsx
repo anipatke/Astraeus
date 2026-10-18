@@ -7,6 +7,8 @@ import type { ScalePolicy } from "../core/scalePolicy";
 import { AtmosphereGlow } from "./AtmosphereGlow";
 import { BodyMesh } from "./BodyMesh";
 import { useFrame } from "@react-three/fiber";
+import { ringBandsWithLook, type RingLook } from "../assets/rings";
+import { RingView } from "./RingView";
 import { applyGlowLook, createGlow, createMarker, describeBody, DEFAULT_BODY_MARKER, DEFAULT_GLOW_SCALE, type GlowLook } from "./bodyDraw";
 
 /** The two ways a sphere body can show; the scene switches between them each frame by the marker rule. Absent for a body that is always a marker. */
@@ -31,13 +33,15 @@ interface BodyViewProps {
   readonly orientRef?: React.Ref<Group>;
   /** Hands the scene the sphere and its stand-in marker (null when unmounted) so the marker rule can swap them. */
   readonly onParts?: (parts: BodyParts | null) => void;
+  /** The live ring settings, read each frame, for a body whose visual has rings. */
+  readonly ringLookOf?: () => RingLook | undefined;
 }
 
 /**
  * Draws any catalogued body from its visual record: a sphere or spheroid with an optional atmosphere, or a marker. A sphere also carries a
  * hidden marker at the same place; the scene shows it instead of the sphere when the sphere would be smaller than a few pixels.
  */
-export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, groupRef, orientRef, onParts }: BodyViewProps) {
+export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, groupRef, orientRef, onParts, ringLookOf }: BodyViewProps) {
   const plan = describeBody(asset, policy);
   // A body with a halo draws no marker dot: the halo is its marker.
   const marker = useMemo(() => (plan.kind === "marker" && asset.visual.glow === undefined ? createMarker(asset, layer).group : null), [asset, plan.kind, layer]);
@@ -53,6 +57,17 @@ export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT
       viewportHeightPx: size.height,
       bodyRadiusUnits: plan.radii.equatorial,
     });
+  });
+  const rings = asset.visual.rings;
+  const equatorialKm = asset.definition.equatorialRadiusKm ?? asset.definition.radiusKm;
+  const ringView = useMemo(() => (rings === undefined || plan.kind !== "sphere" ? null : new RingView(rings.bands, plan.radii.equatorial / equatorialKm, layer)), [rings, plan.kind, plan.radii.equatorial, equatorialKm, layer]);
+  useEffect(() => () => ringView?.dispose(), [ringView]);
+  useFrame(({ gl }) => {
+    if (ringView === null || rings === undefined) return;
+    ringView.setBands(ringBandsWithLook(rings, ringLookOf?.()));
+    // Readout for the browser checks (`data-ring-bands`), only when it changes.
+    const text = JSON.stringify(ringView.readout());
+    if (gl.domElement.dataset.ringBands !== text) gl.domElement.dataset.ringBands = text;
   });
   const sphereRef = useRef<Group>(null);
   useEffect(() => {
@@ -80,6 +95,7 @@ export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT
           {plan.atmosphere !== undefined && <AtmosphereGlow radius={plan.radii.equatorial} atmosphere={plan.atmosphere} layer={layer} />}
         </group>
         {standIn !== null && <primitive object={standIn} />}
+        {ringView !== null && <primitive object={ringView.mesh} />}
       </group>
     </group>
   );

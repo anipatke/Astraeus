@@ -82,3 +82,14 @@ Nothing else was dropped. `capture-site-pictures.mjs` stays (it makes the site a
 ## Unit test moved out of the default run
 
 The 30,000-member frame-time assertions in `tests/listedOrbitGroup.test.ts` flaked twice under load. They run only with `ASTRAEUS_PERF=1 npm test -- listedOrbitGroup`; the fill itself (30,000 finite positions) and the bit-identical output test still run by default.
+
+## Jupiter and its moons (O-025 T-098)
+
+`browser-jupiter-io.mjs` now opens Jupiter with its four mapped moons and the 111 small moons. Changed scenarios and where each prior assertion went:
+
+| Before | Now | Where the prior assertion is |
+|--------|-----|------------------------------|
+| Mounted bodies `jupiter,io`, one composition loop, object list Jupiter, Io, sky | `jupiter,io,europa,ganymede,callisto`, Io's loop as before plus 114 batched orbit lines (`data-body-set-orbits`), those five and the sky | same script |
+| Io's details state the mean-element figure (9,388 km), "approximate demonstration" and the source's warning | Io's details state Horizons and the fits' 0.0994 m | the mean-element record and its 9,388 km figure: `tests/jupiterIo.test.ts` ("kept as the record: the mean-element model ..."); Io against Horizons through the resolver: same file ("is placed where Horizons puts it") |
+
+New (driver: `bodySetReadout`, `pointAtScene`, `tapScene`, `bodySetNameShown`, `bodySetNamesShown`, toggle `moon-orbits`, sliders `ring-*-opacity`): every catalogued moon drawn (111 + 4), no names before asking, a dot's name on hover (desktop) or tap (phone), the smallest moon a ball far wider than its dot and named up close, the four ring bands drawn at the NSSDC radii in the donor's look and taking the live opacity (`data-ring-bands`, driver `ringReadout`; desktop), one distinct orbit colour per family. Owner, 2026-10-18: no pictures; the script now reads the scene (`data-marker-bodies`, labels on screen) where it counted lit pixels before (overview and the four presets). Phone-class frame time: `on-request/probe-phone-frames.mjs` (CPU throttled through DevTools).

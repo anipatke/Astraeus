@@ -13,6 +13,7 @@ import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 import type { SkySettings } from "../assets/sky";
+import { validateBodySet, type BodySetLayer } from "./bodySet";
 
 /** Generic scene parts an experience opts into. Nothing here names a mission. */
 export type SceneLayerId = "tracked-bodies" | "points" | "sun-centred";
@@ -188,6 +189,17 @@ export interface ExperienceDefinition {
   readonly startView?: import("./viewLink").StartView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
+  /** Many small bodies drawn as batches (dots with a pixel floor, balls close up, names on demand, orbit lines by family). Absent: none. */
+  readonly bodySets?: readonly BodySetLayer[];
+  /** Data to load before the scene mounts (for example the curve-fit chunks of the window). The entry awaits it once. */
+  readonly prepare?: () => Promise<void>;
+}
+
+/** The body sets the scene draws, validated; empty when the experience declares none. */
+export function bodySetsOf(definition: ExperienceDefinition): readonly BodySetLayer[] {
+  const layers = definition.bodySets ?? [];
+  if (new Set(layers.map((layer) => layer.id)).size !== layers.length) throw new RangeError("body set ids must be unique");
+  return layers.map(validateBodySet);
 }
 
 /** The product name the page heading starts with, before any experience opens. */

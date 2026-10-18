@@ -6,7 +6,7 @@ import { SimulationClock } from "../core/clock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
-import { cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
@@ -25,6 +25,8 @@ import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
+import { BODY_SET_LOOK_LIMITS, DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLook } from "./bodySet";
+import { ringBandsWithLook, type RingLook } from "../assets/rings";
 import { baseGlowOf, GLOW_LIMITS, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
@@ -84,6 +86,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),
+      bodySets: bodySetsOf(definition),
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
       sky: skySettingsOf(definition),
@@ -158,6 +161,20 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     setOrbitShown({ ...orbitDefault, ...controls.current.orbitLook });
   };
   const resetOrbit = () => { delete controls.current.orbitLook; setOrbitShown(orbitDefault); };
+  const bodySets = runtime.bodySets;
+  const [setLook, setSetLook] = useState<BodySetLook>(DEFAULT_BODY_SET_LOOK);
+  const changeSetLook = (change: Partial<BodySetLook>) => {
+    const next = { ...(controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK), ...change };
+    controls.current.bodySetLook = next;
+    setSetLook(next);
+  };
+  const ringSystems = useMemo(() => runtime.bodies.flatMap((id) => { const rings = runtime.overrides.get(id)?.rings ?? runtime.catalogue.get(id).visual.rings; return rings === undefined ? [] : [rings]; }), [runtime]);
+  const [ringLook, setRingLook] = useState<RingLook>({});
+  const changeRing = (band: string, change: { color?: string; opacity?: number }) => {
+    const next = { ...ringLook, [band]: { ...ringLook[band], ...change } };
+    controls.current.ringLook = next;
+    setRingLook(next);
+  };
   const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
@@ -359,6 +376,48 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
           <SettingButtons>
             <button onClick={resetOrbit}>Reset orbit lines</button>
           </SettingButtons>
+        </>
+      ),
+    },
+    bodySets.length === 0 && ringSystems.length === 0 ? null : {
+      id: "moons-rings", title: "Moons and rings",
+      body: (
+        <>
+          {bodySets.length > 0 && (
+            <SettingGroup id="body-set-dots" title="Small moons">
+              <SettingSlider label="Dot size (px)" ariaLabel="Small moon dot size" testId="body-set-dot-px" display={setLook.dotPx.toFixed(1)} min={BODY_SET_LOOK_LIMITS.dotPx.min} max={BODY_SET_LOOK_LIMITS.dotPx.max} step={0.5} value={setLook.dotPx} onChange={(dotPx) => changeSetLook({ dotPx })} />
+              <SettingColor label="Dot colour" ariaLabel="Small moon dot colour" testId="body-set-dot-color" value={setLook.dotColor} onChange={(dotColor) => changeSetLook({ dotColor })} />
+              <SettingSlider label="Name when ball is (px)" ariaLabel="Small moon name distance" testId="body-set-label-px" display={setLook.labelNearPx.toFixed(0)} min={BODY_SET_LOOK_LIMITS.labelNearPx.min} max={BODY_SET_LOOK_LIMITS.labelNearPx.max} step={1} value={setLook.labelNearPx} onChange={(labelNearPx) => changeSetLook({ labelNearPx })} />
+            </SettingGroup>
+          )}
+          {bodySets.length > 0 && (
+            <SettingGroup id="body-set-orbits" title="Moon orbits by family">
+              <SettingButtons>
+                <button aria-pressed={setLook.orbitsOn} onClick={() => changeSetLook({ orbitsOn: !setLook.orbitsOn })}>Moon orbits</button>
+              </SettingButtons>
+              <SettingSlider label="Orbit opacity" ariaLabel="Moon orbit opacity" testId="body-set-orbit-opacity" display={setLook.orbitOpacity.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitOpacity.min} max={BODY_SET_LOOK_LIMITS.orbitOpacity.max} step={0.01} value={setLook.orbitOpacity} onChange={(orbitOpacity) => changeSetLook({ orbitOpacity })} />
+              <SettingSlider label="Zoom boost" ariaLabel="Moon orbit zoom boost" testId="body-set-orbit-boost" display={setLook.orbitZoomBoost.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitZoomBoost.min} max={BODY_SET_LOOK_LIMITS.orbitZoomBoost.max} step={0.01} value={setLook.orbitZoomBoost} onChange={(orbitZoomBoost) => changeSetLook({ orbitZoomBoost })} />
+              {bodySets.flatMap((layer) => layer.families.map((family) => (
+                <SettingColor key={`${layer.id}-${family.id}`} label={family.label} ariaLabel={`${family.label} orbit colour`} testId={`body-set-family-${family.id}`} value={familyColorOf(layer, setLook, family.id)} onChange={(color) => changeSetLook({ familyColors: { ...setLook.familyColors, [family.id]: color } })} />
+              )))}
+              <SettingButtons>
+                <button onClick={() => { delete controls.current.bodySetLook; setSetLook(DEFAULT_BODY_SET_LOOK); }}>Reset moons</button>
+              </SettingButtons>
+            </SettingGroup>
+          )}
+          {ringSystems.map((rings) => (
+            <SettingGroup key={rings.body} id={`rings-${rings.body}`} title="Rings">
+              {ringBandsWithLook(rings, ringLook).map((band) => (
+                <div key={band.id}>
+                  <SettingColor label={band.label} ariaLabel={`${band.label} colour`} testId={`ring-${band.id}-color`} value={band.color} onChange={(color) => changeRing(band.id, { color })} />
+                  <SettingSlider label={`${band.label} opacity`} ariaLabel={`${band.label}: opacity`} testId={`ring-${band.id}-opacity`} display={band.opacity.toFixed(3)} min={0} max={1} step={0.005} value={band.opacity} onChange={(opacity) => changeRing(band.id, { opacity })} />
+                </div>
+              ))}
+              <SettingButtons>
+                <button onClick={() => { delete controls.current.ringLook; setRingLook({}); }}>Reset rings</button>
+              </SettingButtons>
+            </SettingGroup>
+          ))}
         </>
       ),
     },

@@ -1,0 +1,18 @@
+OK load 5.82
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop: the main ring sits at 1.72 Jupiter radii in the scene
+    at moons (file:///home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:119:12)
+    at async run (file:///home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:210:5)
+    at async file:///home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:217:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

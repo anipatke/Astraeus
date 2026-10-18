@@ -1,0 +1,32 @@
+OK load 5.64
+lite browser check: 12 experiences (apollo11, earth-moon, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, showers, showers-geminids, showers-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    5.6s {"title":"Apollo 11 · Astraeus","litPixels":43997,"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     5.5s {"title":"Apollo 11 · Astraeus","litPixels":19074,"object":"moon","panel":"tli-cutoff"}
+ok   earth-moon                 1440x900    7.9s {"title":"Earth–Moon · Astraeus","litPixels":43593,"object":"moon","panel":"same-face"}
+ok   earth-moon                 390x844     6.5s {"title":"Earth–Moon · Astraeus","litPixels":19461,"object":"moon","panel":"same-face"}
+ok   jupiter-io                 1440x900    7.2s {"title":"Jupiter and Io · Astraeus","litPixels":80318,"object":"io","panel":"volcanoes"}
+ok   jupiter-io                 390x844     5.4s {"title":"Jupiter and Io · Astraeus","litPixels":25586,"object":"io","panel":"volcanoes"}
+ok   synthetic                  1440x900    5.6s {"title":"Astraeus","litPixels":33976,"object":"moon"}
+ok   synthetic                  390x844     7.5s {"title":"Astraeus","litPixels":15092,"object":"moon"}
+ok   synthetic-bare             1440x900    3.4s {"title":"Astraeus","litPixels":31935,"object":"sky"}
+ok   synthetic-bare             390x844       4s {"title":"Astraeus","litPixels":14173,"object":"sky"}
+ok   synthetic-ring             1440x900    6.2s {"title":"Astraeus","litPixels":106342,"object":"moon"}
+ok   synthetic-ring             390x844       6s {"title":"Astraeus","litPixels":55142,"object":"moon"}
+ok   synthetic-belt             1440x900    4.4s {"title":"Astraeus","litPixels":84595,"object":"dust-belt"}
+ok   synthetic-belt             390x844     6.5s {"title":"Astraeus","litPixels":53064,"object":"dust-belt"}
+ok   synthetic-listed           1440x900    5.8s {"title":"Astraeus","litPixels":71230,"object":"listed-orbits"}
+ok   synthetic-listed           390x844     6.2s {"title":"Astraeus","litPixels":41893,"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900      4s {"title":"Astraeus","litPixels":44564,"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     4.7s {"title":"Astraeus","litPixels":21022,"object":"dust-belt"}
+ok   showers                    1440x900      7s {"title":"Perseids · Astraeus","litPixels":117359,"object":"earth","panel":"stream-shape"}
+ok   showers                    390x844     9.7s {"title":"Perseids · Astraeus","litPixels":27762,"object":"earth","panel":"stream-shape"}
+ok   showers-geminids           1440x900    7.2s {"title":"Geminids · Astraeus","litPixels":46671,"object":"earth","panel":"phaethon"}
+ok   showers-geminids           390x844     9.4s {"title":"Geminids · Astraeus","litPixels":22911,"object":"earth","panel":"phaethon"}
+ok   showers-perseids           1440x900    6.4s {"title":"Perseids · Astraeus","litPixels":128817,"object":"earth","panel":"stream-shape"}
+ok   showers-perseids           390x844     7.4s {"title":"Perseids · Astraeus","litPixels":37017,"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900    3.5s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   index-page                 390x844     1.7s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=earth-moon","app.html?experience=jupiter-io"]}
+ok   assets-page                1440x900    1.7s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+ok   assets-page                390x844     1.9s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+
+28/28 loads passed; results and screenshots in /home/user/code/astraeus-t098/docs/evidence/o025-t098-20261018/lite

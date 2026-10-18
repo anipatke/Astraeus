@@ -2,19 +2,23 @@ import { describe, expect, it } from "vitest";
 import ioFixture from "./fixtures/io-horizons.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES, JUPITER, MARS, MERCURY } from "../src/core/bodies";
-import { IO, IO_DIAMETER_KM, IO_EPOCH_UTC_MS, IO_MAX_ERROR_KM, IO_MEAN_ELEMENTS, IO_PERIOD_DAYS, createIoTrajectory, siderealPeriodDays, trueAnomalyFromMean } from "../src/core/bodies/io";
+import { IO, IO_DIAMETER_KM, IO_EPHEMERIS_LIMITATIONS, IO_EPOCH_UTC_MS, IO_MAX_ERROR_KM, IO_MEAN_ELEMENTS, IO_PERIOD_DAYS, createIoTrajectory, siderealPeriodDays, trueAnomalyFromMean } from "../src/core/bodies/io";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
 import { createProvenance } from "../src/core/provenance";
 import { createStateResolver } from "../src/core/stateResolver";
 import { createTwoBodyTrajectory, fullTurnSpanMs } from "../src/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { catalogue } from "../src/assets/catalogue";
+import moonFixture from "./fixtures/jupiter-moons-horizons.json";
 import { jupiterIoSystem } from "../src/assets/compositions";
 import { bodyLightDirections } from "../src/app/lighting";
 
 const adapter = createOrbAstronomyAdapter();
 const resolver = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, adapter);
 const samples = ioFixture.bodies.io.samples;
+// Horizons' own Jupiter-centred vectors for Io in 2016 (T-096 fixture), the year the test setup loads the fits for.
+const rows2016 = (moonFixture as { bodies: Record<string, { rows: { utc: string; positionKm: number[] }[] }> }).bodies.io.rows
+  .filter((row) => row.utc.startsWith("2016")).map((row) => ({ utcMs: Date.parse(row.utc), positionKm: row.positionKm }));
 
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180 / Math.PI;
@@ -26,8 +30,10 @@ describe("Io about Jupiter", () => {
     expect(IO.radiusKm).toBe(ioFixture.bodies.io.meanRadiusKm);
     expect(IO.gmKm3S2).toBe(ioFixture.bodies.io.gmKm3S2);
     expect(IO.radiusKm * 2).toBeCloseTo(IO_DIAMETER_KM, 1);
-    expect(IO.accuracy.position.sourceType).toBe("reconstructed");
-    expect(IO.accuracy.position.sources.join(" ")).toContain("ssd.jpl.nasa.gov/sats/elem");
+    // Since O-025 (T-098) Io's position is JPL Horizons' through the core curve fits, not the mean elements.
+    expect(IO.accuracy.position.sourceType).toBe("ephemeris");
+    expect(IO.accuracy.position.sources.join(" ")).toContain("ssd.jpl.nasa.gov/api/horizons.api");
+    expect(IO.accuracy.validUtc.startUtcMs).toBeGreaterThanOrEqual(Date.UTC(2010, 0, 1));
     expect(JUPITER.gmKm3S2).toBe(126_686_531.9);
   });
 
@@ -56,30 +62,26 @@ describe("Io about Jupiter", () => {
     expect(() => io.stateAt(samples[0].utcMs, "sun")).toThrow(/Jupiter-centred/);
   });
 
-  it("compares with JPL Horizons at six dates and classifies by the one-Io-diameter line", () => {
+  it("kept as the record: the mean-element model compared with JPL Horizons at six dates is an approximate demonstration", () => {
     expect(samples.length).toBeGreaterThanOrEqual(6);
-    const errors = samples.map((sample) => distance(resolver.stateOf("io", sample.utcMs, "jupiter").positionKm, sample.positionKm));
+    const io = createIoTrajectory();
+    const errors = samples.map((sample) => distance(io.stateAt(sample.utcMs, "jupiter").positionKm, sample.positionKm));
     const max = Math.max(...errors);
-    console.info(`IO-HORIZONS errors km: ${errors.map((e) => e.toFixed(1)).join(", ")}; max ${max.toFixed(2)}`);
-    // The recorded figure is the measured one, rounded up to the km.
+    // The recorded figure is the measured one, rounded up to the km; outside one Io diameter, so only a demonstration.
     expect(Math.ceil(max)).toBe(IO_MAX_ERROR_KM);
-    const outside = max > IO_DIAMETER_KM;
-    const record = IO.accuracy.position;
-    expect(record.accuracy).toContain(IO_MAX_ERROR_KM.toLocaleString("en-US"));
-    if (outside) {
-      // Outside one Io diameter: approximate demonstration, with the figure in the known limitations.
-      expect(record.accuracy).toMatch(/approximate demonstration/);
-      expect(IO.accuracy.orientationLimitations.join(" ")).toContain(IO_MAX_ERROR_KM.toLocaleString("en-US"));
-      expect(record.sourceType).toBe("reconstructed");
-    } else {
-      expect(record.accuracy).toMatch(/ephemeris-tier approximate/);
-    }
+    expect(max).toBeGreaterThan(IO_DIAMETER_KM);
+    expect(IO_EPHEMERIS_LIMITATIONS.join(" ")).toContain(IO_MAX_ERROR_KM.toLocaleString("en-US"));
     // Nearest the epoch the elements hold at: the J2000 sample is within a few thousand km.
     expect(errors[samples.findIndex((sample) => sample.jdUtc === 2451545)]).toBeLessThan(IO_DIAMETER_KM);
   });
 
+  it("is placed where Horizons puts it: the resolver's Io is within 2 m of Horizons at the 2016 fixture dates", () => {
+    expect(rows2016.length).toBeGreaterThanOrEqual(3);
+    for (const row of rows2016) expect(distance(resolver.stateOf("io", row.utcMs, "jupiter").positionKm, row.positionKm) * 1000).toBeLessThan(2);
+  });
+
   it("composes: Io from the Sun is Jupiter from the Sun plus Io from Jupiter, and Io from Io is zero", () => {
-    for (const sample of samples) {
+    for (const sample of rows2016) {
       const ioSun = resolver.stateOf("io", sample.utcMs, "sun").positionKm;
       const jupiterSun = resolver.stateOf("jupiter", sample.utcMs, "sun").positionKm;
       const ioJupiter = resolver.stateOf("io", sample.utcMs, "jupiter").positionKm;
@@ -91,7 +93,7 @@ describe("Io about Jupiter", () => {
   });
 
   it("keeps its near side towards Jupiter", () => {
-    const state = resolver.stateOf("io", samples[3].utcMs, "jupiter");
+    const state = resolver.stateOf("io", rows2016[1].utcMs, "jupiter");
     const [x, y, z, w] = state.orientation!;
     const axis = [1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w)];
     const toJupiter = state.positionKm.map((c) => -c);
@@ -143,7 +145,7 @@ describe("a centre that is neither Earth nor the Sun, through the same contracts
 });
 
 describe("lighting over any composition", () => {
-  const t = Date.UTC(2000, 0, 1, 12);
+  const t = Date.UTC(2016, 10, 4, 12);
 
   it("lights Jupiter and Io each along its own Sun direction", () => {
     const directions = bodyLightDirections(jupiterIoSystem.bodies, resolver, t);

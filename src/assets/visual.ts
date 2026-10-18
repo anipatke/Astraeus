@@ -1,4 +1,5 @@
 import type { TextureRef } from "./licence";
+import type { RingSystem } from "./rings";
 
 export interface BodyMaterialConfig {
   readonly color: string;
@@ -39,6 +40,8 @@ export interface BodyVisual {
   readonly glow?: { readonly sizePx: number; readonly brightness: number; readonly scale?: number };
   /** Marker kind: the screen size of the dot. */
   readonly marker?: { readonly sizePx: number };
+  /** Flat ring bands in the body's equator plane, at their real radii; an experience opts in through its visual overrides. */
+  readonly rings?: RingSystem;
   /** This body's own lights in its render pass. */
   readonly light?: { readonly ambient: number; readonly directional: number };
 }

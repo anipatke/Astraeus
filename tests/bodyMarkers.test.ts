@@ -80,7 +80,8 @@ describe("the marker rule: a sphere under the threshold is a marker, at it a sph
 
 describe("the marker never changes State or metrics", () => {
   const resolver = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, createOrbAstronomyAdapter());
-  const t = Date.UTC(2026, 7, 13, 12);
+  // In 2016, the year whose Jupiter moon fits the test setup loads (vitest.setup.ts).
+  const t = Date.UTC(2016, 7, 13, 12);
 
   it("takes no State as input, and every state is equal before and after the rule runs under any setting", () => {
     const before = BUILT_IN_BODIES.map((body) => resolver.stateOf(body.id, t, "sun"));

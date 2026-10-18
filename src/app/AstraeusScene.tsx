@@ -47,6 +47,10 @@ import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
+import { BodySetLabelLayer } from "./BodySetLabels";
+import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
+import { publishBodySets } from "./sceneBodySets";
+import type { RingLook } from "../assets/rings";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
 import { hideBootLoader } from "../shell/bootLoader";
 import type { ExperienceObject } from "../shell/experience";
@@ -74,6 +78,8 @@ export interface SceneRuntime {
   readonly trackedBodies: readonly TrackedBody[];
   /** Groups the `points` layer draws as dots; empty when the experience has none. */
   readonly groups: readonly GroupLayer[];
+  /** Body sets drawn as batches of dots, balls and orbit lines; absent or empty when the experience has none. */
+  readonly bodySets?: readonly BodySetLayer[];
   /** The Sun's shell item, if the experience declares one; the Sun itself is the catalogue's. */
   readonly sun?: SunBody;
   /** The experience's per-body presentation overrides, laid over the catalogue's records. */
@@ -110,6 +116,10 @@ export interface SceneControls {
   glowLook?: GlowLook;
   /** Presentation only: live changes to the orbit look of every composition path, over each path's own settings (Developer > Display settings). */
   orbitLook?: Partial<OrbitLook>;
+  /** Presentation only: the live look of the body sets (dots, names, orbit lines and family colours). Absent: the defaults. */
+  bodySetLook?: BodySetLook;
+  /** Presentation only: live colour and opacity per ring band, over the data's own. */
+  ringLook?: RingLook;
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
@@ -164,6 +174,7 @@ export function AstraeusScene(props: Props) {
       data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
+      data-rings={runtime.bodies.map((id) => (runtime.overrides?.get(id)?.rings ?? catalogue.get(id).visual.rings)?.bands.length ?? 0).reduce((sum, n) => sum + n, 0)}
     >
       <SceneContents {...props} layers={layers} />
       <LayeredRender lightLayers={lightLayers} />
@@ -193,6 +204,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     else partsRefs.current.set(id, parts);
   }] as const)), [runtime.bodies]);
 
+  const ringLookOf = useMemo(() => () => controls.ringLook, [controls]);
   const bodyRefs: BodyRefs = { groups: groupRefs.current, orients: orientRefs.current, parts: partsRefs.current };
 
   const origin = useMemo(() => new FloatingOrigin(), []);
@@ -206,12 +218,22 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
   const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
 
-  const { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView } = useSceneViews(runtime, gl);
+  const { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, bodySetViews, orbitSetViews } = useSceneViews(runtime, gl);
+  const bodySetLabels = useRef<BodySetLabelLayer[]>([]);
+  // Families of catalogued bodies drawn outside the sets (their own orbit lines take the family colour).
+  const bodyFamilies = useMemo(() => (runtime.bodySets ?? []).flatMap((layer) => Object.entries(layer.bodyFamilies ?? {}).map(([body, family]) => ({ layer, body, family }))), [runtime.bodySets]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
 
   useSkyStars(gl.domElement, skyView);
+  useEffect(() => {
+    const host = gl.domElement.parentElement;
+    if (host === null) return undefined;
+    const layers = bodySetViews.map((view) => new BodySetLabelLayer(host, gl.domElement, view, (memberId) => { controls.cameraRequest = { kind: "focus", target: memberId }; }));
+    bodySetLabels.current = layers;
+    return () => { for (const layer of layers) layer.dispose(); bodySetLabels.current = []; };
+  }, [gl, bodySetViews, controls]);
   useHostLayer(gl.domElement, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [gl, trackedViews]);
   useHostLayer(gl.domElement, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects), [gl, controls.labelObjects]);
   useHostLayer(gl.domElement, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [gl, controls]);
@@ -241,10 +263,15 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const camState = orbit.current;
     for (const view of groupViews) view.sync(t, placement, policy);
     for (const view of sunCentredViews) view.sync(t, placement, policy);
+    const setLook = controls.bodySetLook ?? DEFAULT_BODY_SET_LOOK;
     for (const view of compositionPaths) {
       if (view.defaultLook !== null) view.setLook({ ...view.defaultLook, ...controls.orbitLook });
+      const owned = bodyFamilies.find((entry) => `${entry.body}-orbit` === view.id);
+      if (owned !== undefined) view.setColor(familyColorOf(owned.layer, setLook, owned.family));
       view.sync(t, placement, policy);
     }
+    for (const view of bodySetViews) view.sync(t, placement, policy, resolver);
+    for (const view of orbitSetViews) view.sync(t, placement, policy, setLook.orbitsOn);
     recordFrameStats(controls.frameStats, controls.groupFills, groupViews);
     // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
     const composed = placeComposition(runtime.bodies, placement, policy, t);
@@ -256,8 +283,12 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       lastPolicyId.current = policy.id;
     }
     spanScaled.current = span;
-    const frame: SceneFrame = { centre: sceneCenter, span, bodies: catalogue };
-    const targets: SceneTargets = { bodyIdFor, placed: composed.absolutes, absoluteOf, groupViews, sunCentredViews, trackedViews, timeUtcMs: t, policy, placement };
+    const memberRadius = (id: string): number | null => {
+      for (const view of bodySetViews) { const r = view.memberRadiusUnits(id); if (r !== null) return r; }
+      return null;
+    };
+    const frame: SceneFrame = { centre: sceneCenter, span, bodies: catalogue, memberRadius };
+    const targets: SceneTargets = { bodyIdFor, placed: composed.absolutes, absoluteOf, groupViews, sunCentredViews, trackedViews, bodySetViews, timeUtcMs: t, policy, placement };
 
     const firstFrame = !started.current;
     started.current = true;
@@ -276,6 +307,11 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of sunCentredViews) view.place(origin);
     for (const view of compositionPaths) view.place(origin, { fovDeg: (camera as PerspectiveCamera).fov, viewportHeightPx: size.height });
     publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
+    const trueScale = policy.id === "true-scale";
+    for (const view of bodySetViews) view.place(origin, camera as PerspectiveCamera, size.width, size.height, setLook, trueScale);
+    for (const view of orbitSetViews) view.place(origin, setLook, trueScale);
+    for (const layer of bodySetLabels.current) layer.update(setLook);
+    publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
@@ -292,7 +328,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
         const light = asset.visual.light;
         return (
           <group key={id}>
-            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
+            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
             {light !== undefined && (
               <>
                 <ambientLight layers={layer} intensity={light.ambient} />
@@ -314,6 +350,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
       {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
+      {bodySetViews.map((view) => <primitive key={view.id} object={view.group} />)}
+      {orbitSetViews.map((view) => <primitive key={view.id} object={view.group} />)}
     </group>
   );
 }

@@ -36,7 +36,15 @@ export interface SceneFrame {
   readonly span: number;
   /** Where body radii and kinds are read from; the built-in catalogue when omitted. */
   readonly bodies?: BodyCatalogue;
+  /** Drawn radius (scaled units) of a target that is not a catalogued body but is drawn as a ball (a body-set member); null for none. */
+  readonly memberRadius?: (id: string) => number | null;
 }
+
+/**
+ * The closest a camera may come to a body-set member, scaled units: just beyond the camera's nearest clipping distance (0.001 units in
+ * `poseCamera`), so even a 1 km moon's ball is drawn rather than cut away.
+ */
+export const MEMBER_MIN_DISTANCE = 0.0015;
 
 /** The drawn radius of a catalogued sphere (or emissive marker-kind body) in scaled units, or null for a plain marker, a tracked body or any other id. */
 function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue): number | null {
@@ -49,6 +57,8 @@ function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue)
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
 export function focusLimits(focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): { min: number; max: number } {
   const max = declared.maxFocusDistance ?? Math.max(30, frame.span * 3.5);
+  const member = frame.memberRadius?.(focus) ?? null;
+  if (member !== null) return { min: Math.max(MEMBER_MIN_DISTANCE, member * BODY_MIN_FACTOR), max };
   const radius = sphereRadius(focus, policy, frame.bodies ?? catalogue);
   if (radius === null) return { min: TRACKED_MIN_DISTANCE, max };
   return { min: radius * (focus === frame.centre ? CENTRE_MIN_FACTOR : BODY_MIN_FACTOR), max };
@@ -67,6 +77,8 @@ export function startsInsideFocus(startDistance: number, focus: BodyId, frame: S
 
 /** Default camera distance on focus: the centre body shows the whole scene, any other sphere fills the view, a point stays close. */
 export function defaultDistance(focus: BodyId, frame: SceneFrame, policy: ScalePolicy): number {
+  const member = frame.memberRadius?.(focus) ?? null;
+  if (member !== null) return Math.max(2 * MEMBER_MIN_DISTANCE, member * BODY_FRAMING_FACTOR);
   const radius = sphereRadius(focus, policy, frame.bodies ?? catalogue);
   if (radius === null) return TRACKED_DEFAULT_DISTANCE;
   return focus === frame.centre ? Math.max(3.2, frame.span * 2.4) : radius * BODY_FRAMING_FACTOR;
