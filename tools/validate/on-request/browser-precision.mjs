@@ -40,7 +40,6 @@ await page.addInitScript(() => {
   });
 });
 
-const photograph = (name) => (outDir ? page.screenshot({ path: `${outDir}/${name}.png` }) : Promise.resolve());
 
 // Runs in the page: finds Earth's sphere and Earth's path line, and returns a function-free sampler installed on window.
 const install = () => page.evaluate(() => {
@@ -187,7 +186,6 @@ try {
     assert.ok(settled, `${label}: the camera settled`);
     const installed = await install();
     assert.ok(installed.ok, `${label}: Earth's sphere and path are in the scene (${JSON.stringify(installed)})`);
-    await photograph(`precision-${label}`);
     const still = await frames(FRAMES);
     await page.mouse.move(centre.x, centre.y);
     await page.mouse.down();

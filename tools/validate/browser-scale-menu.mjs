@@ -11,7 +11,6 @@ assert.equal(await ui.isOpen(), false);
 await ui.open(); assert.equal(await ui.isOpen(), true);
 assert.equal(await ui.expanded(), "true");
 assert.equal(await ui.focusedScale(), "true-scale", "focus on current");
-if (process.env.ASTRAEUS_EVIDENCE_DIR) await p.screenshot({ path: `${process.env.ASTRAEUS_EVIDENCE_DIR}/scale-menu-open.png` });
 await ui.key("ArrowDown"); assert.equal(await ui.focusedScale(), "readable-scale");
 await ui.key("End"); assert.equal(await ui.focusedScale(), "solar-system");
 await ui.key("ArrowDown"); assert.equal(await ui.focusedScale(), "true-scale", "wraps");

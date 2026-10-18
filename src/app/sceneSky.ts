@@ -18,6 +18,8 @@ export function updateSky(sky: SkyView, camera: PerspectiveCamera, canvas: HTMLE
   sky.setMilkyWayBrightness(look.milkyWayBrightness);
   setDatum(canvas, "skyStarBrightness", String(look.starBrightness));
   setDatum(canvas, "skyPicture", look.showMilkyWay ? "on" : "off");
+  setDatum(canvas, "skyMilkyWayBrightness", String(look.milkyWayBrightness));
+  setDatum(canvas, "skyPictureShown", String(sky.pictureVisible));
   // Developer mode reads the sky back (orientation in, screen position out).
   if (probe) canvas.dataset.skyProbe = JSON.stringify(sky.probe(camera));
 }

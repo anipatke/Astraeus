@@ -96,7 +96,6 @@ for (const size of SIZES) {
     await ui.closeDeveloper(frame);
     assert.equal(await ui.developerOpen(frame), false, `${label}: and closes it`);
 
-    if (outDir !== undefined) await framed.page.screenshot({ path: `${outDir}/${demo.name}-${size.name}-framed.png` });
     results.push({ label, alone: { controlHeight: aloneLook.controlHeight, topBar: aloneLook.topBar?.height, timeline: aloneLook.timeline.height }, framed: { controlHeight: look.controlHeight, topBar: look.topBar?.height, timeline: look.timeline.height } });
     note(`ok ${label}: controls ${aloneLook.controlHeight} -> ${look.controlHeight}, bar ${aloneLook.topBar?.height} -> ${look.topBar?.height}, timeline ${aloneLook.timeline.height} -> ${look.timeline.height}`);
     await framed.context.close();

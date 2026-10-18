@@ -2,7 +2,7 @@
 // PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-synthetic-ring.mjs
 //
 // Sizes (I-023): the scenario runs at 1280x800 (desktop) and again at 390x844 (phone) in one browser, with the same assertions;
-// screenshots of the phone run carry a `phone-` prefix. Every desktop assertion is unchanged and has a phone counterpart with the same
+// Every desktop assertion is unchanged and has a phone counterpart with the same
 // expected value, because each reads data attributes, option lists, panel text or the frame-rate counter rather than layout:
 //   points layer mounted, one group listed, no Apollo objects .... same
 //   group panel: Illustrative badge, "Made up", two-body ......... same (panel is a bottom sheet on the phone)
@@ -34,7 +34,6 @@ const readCounter = async (counter, groupId) => ({
   over: await counter.locator("[data-frame-over]").innerText(),
   fills: groupId === null ? null : Number(await counter.locator(`[data-fill-count="${groupId}"]`).innerText()),
 });
-const shot = async (name) => { if (outDir) await page.screenshot({ path: `${outDir}/${prefix}${name}.png` }); };
 const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
 
 async function run(label, viewport) {
@@ -69,13 +68,10 @@ async function run(label, viewport) {
   // Focus and follow work at true scale; capture the ring.
   await choosePreset("overview");
   await page.waitForTimeout(1000);
-  await shot("ring-true-overview");
   await choosePreset("focus-ring");
   await page.waitForTimeout(1200);
-  await shot("ring-true-focus");
   await choosePreset("follow-ring");
   await page.waitForTimeout(1200);
-  await shot("ring-true-follow");
 
   // Scale switches leave the group's information (its State-derived content) unchanged.
   await chooseScale(page, "Readable");
@@ -85,10 +81,8 @@ async function run(label, viewport) {
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is identical under True and Readable");
   await choosePreset("overview");
   await page.waitForTimeout(1000);
-  await shot("ring-readable-overview");
   await choosePreset("focus-ring");
   await page.waitForTimeout(1200);
-  await shot("ring-readable-focus");
   await chooseScale(page, "True");
   await page.waitForTimeout(600);
   assert.equal(await panel.innerText(), infoUnderTrue, "group information is unchanged after switching back");
@@ -120,7 +114,6 @@ async function run(label, viewport) {
   await counter.getByTestId("fps-graph").waitFor({ timeout: 10000 });
   await ui.waitForFrameGraphLine(page, { state: "attached", timeout: 10000 });
   assert.match(await counter.getByTestId("fps-graph").textContent(), /frames per second[\s\S]*s ago[\s\S]*now \(/, "graph is labelled");
-  await shot("ring-counter-on");
   await ui.toggleDeveloper(page);
   assert.equal(await counter.count(), 0, "counter gone when Developer mode is turned off");
 
@@ -130,7 +123,6 @@ async function run(label, viewport) {
   await page.getByTestId("frame-rate").locator("[data-frame-fps]").waitFor({ timeout: 10000 });
   counterReadings[label].apollo = await readCounter(page.getByTestId("frame-rate"), null);
   assert.ok(counterReadings[label].apollo.fps > 0, "Apollo fps is positive");
-  await shot("apollo-counter-on");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "0");
   assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
   assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 0);

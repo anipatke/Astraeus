@@ -99,10 +99,6 @@ async function checkWindow(label, size) {
   assert.ok(Math.abs((clicked - lo) / (hi - lo) - (30 + 180 * 0.25) / 480) < 0.02, `${label}: seeking inside the window lands at that point`);
   await ui.goToNamedWindowPeak(page, "Contact window");
   await ui.waitForInfo(page);
-  if (outDir) {
-    mkdirSync(outDir, { recursive: true });
-    await page.screenshot({ path: `${outDir}/synthetic-window-${label}.png` });
-  }
 }
 
 try {
@@ -122,10 +118,6 @@ try {
   await ui.chooseCamera(page, "focus-marker");
   await ui.chooseCamera(page, "follow-marker");
   await page.waitForTimeout(1500);
-  if (outDir) {
-    mkdirSync(outDir, { recursive: true });
-    await page.screenshot({ path: `${outDir}/synthetic.png` });
-  }
   // Without a composition (data-bodies is empty; it replaces the retired data-earth-moon flag) the canvas still mounts and the marker is still available.
   await page.goto(`${base}?experience=synthetic-bare`);
   await page.waitForSelector("canvas");
@@ -134,7 +126,6 @@ try {
   await ui.pickBody(page, "survey-marker");
   await ui.chooseCamera(page, "follow-marker");
   await page.waitForTimeout(1500);
-  if (outDir) await page.screenshot({ path: `${outDir}/synthetic-bare.png` });
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");

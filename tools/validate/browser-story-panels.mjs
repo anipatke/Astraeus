@@ -1,7 +1,7 @@
 // Story panels (O-015 / T-059): auto-open on forward playback, brief pause, one at a time, markers, settings, phone sheet; T-089 adds the Geminids, Earth–Moon and Jupiter–Io stories.
 // Run the app, then:
 //   PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_URL=http://localhost:5401/app.html ASTRAEUS_OUT=docs/evidence/o015-t059-<UTC stamp> node tools/validate/browser-story-panels.mjs
-// Writes screenshots and results.json into ASTRAEUS_OUT, which must not already hold files (historical evidence is never overwritten).
+// Writes results.json into ASTRAEUS_OUT, which must not already hold files (historical evidence is never overwritten).
 import assert from "node:assert/strict";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
@@ -83,7 +83,6 @@ try {
   await page.waitForTimeout(600); // the panel slides in; measure it at rest
   const box = await panel.boundingBox();
   assert.ok(box.x > 1440 / 2 && box.x + box.width <= 1440, "desktop side panel sits on the right");
-  await page.screenshot({ path: `${out}/desktop-panel-open.png` });
   note("forward playback opens the first panel and holds playback", "side panel at right");
 
   // Resumes on its own after the pause length (6 s default).
@@ -142,7 +141,6 @@ try {
   await ui.storyPanel(page, "touchdown").waitFor({ timeout: 5000 }); // the panel renders after the click; under load the first read came back empty (T-071)
   assert.deepEqual(await openPanelIds(page), ["touchdown"]);
   assert.equal(await ui.sceneStoryMarkerPressed(page, "touchdown"), true);
-  await page.screenshot({ path: `${out}/desktop-scene-marker-panel.png` });
   for (const id of eaglePanels.filter((entry) => entry !== "touchdown")) {
     await ui.pressSceneStoryMarker(page, id);
     assert.deepEqual(await openPanelIds(page), [id], `${id} opens from the shared Eagle marker`);
@@ -170,7 +168,6 @@ try {
     await ui.openStorySources(page);
     assert.deepEqual(await ui.storyPanelDetailsShown(page), panel.details ?? [], `${panel.id} details show in the opened section`);
     await ui.closeStorySources(page);
-    await page.screenshot({ path: `${out}/apollo-desktop-${panel.id}.png` });
     await ui.closeStoryPanel(page);
   }
   assert.deepEqual(opened, ordered.map((panel) => panel.id), "panels opened one at a time, in time order");
@@ -179,7 +176,6 @@ try {
   // Settings: live controls in Developer > Display settings.
   await ui.toggleDeveloper(page);
   await ui.storySettings(page).waitFor();
-  await page.screenshot({ path: `${out}/desktop-developer-story-settings.png` });
   await ui.dragSlider(page, "story-panel-pause", 0);
   assert.equal(await ui.sliderReadout(page, "story-panel-pause"), "off");
   await seekTo(page, TLI - 60_000);
@@ -237,7 +233,6 @@ try {
   assert.ok(sbox.height <= 844 / 2 + 1, "sheet is at most half the screen");
   const scrollWidth = await p.evaluate(() => document.documentElement.scrollWidth);
   assert.ok(scrollWidth <= 390, `no horizontal scroll, got ${scrollWidth}`);
-  await p.screenshot({ path: `${out}/phone-sheet-open.png` });
   note("phone shows a bottom sheet with a handle", `${Math.round(sbox.height)} px tall`);
 
   const cdp = await phone.context.newCDPSession(p);
@@ -245,7 +240,6 @@ try {
   const startY = sbox.y + 14;
   await touch("touchStart", startY);
   for (let dy = 20; dy <= 140; dy += 20) await touch("touchMove", startY + dy);
-  await p.screenshot({ path: `${out}/phone-sheet-mid-swipe.png` });
   await touch("touchEnd", startY + 140);
   await p.waitForTimeout(300);
   assert.equal((await openPanelIds(p)).length, 0, "a swipe down dismisses the sheet");
@@ -260,7 +254,6 @@ try {
   await touch("touchEnd", b2.y + 40);
   await p.waitForTimeout(200);
   assert.deepEqual(await openPanelIds(p), ["touchdown"], "a short drag keeps the sheet");
-  await p.screenshot({ path: `${out}/phone-sheet-touchdown.png` });
   note("a short drag keeps the sheet open");
   await phone.context.close();
 
@@ -270,7 +263,6 @@ try {
     await ui.openStoryPanel(apolloPhone.page, id, { force: true });
     await ui.storyPanel(apolloPhone.page, id).waitFor();
     await apolloPhone.page.waitForTimeout(300);
-    await apolloPhone.page.screenshot({ path: `${out}/apollo-phone-${id}.png` });
     await ui.closeStoryPanel(apolloPhone.page);
   }
   note("phone sheets for two Apollo panels captured");
@@ -300,7 +292,6 @@ try {
     assert.deepEqual(await ui.storyPanelDetailsShown(pp), panel.details ?? [], `${panel.id} details show in the opened section`);
     await ui.closeStorySources(pp);
     await pp.waitForTimeout(600);
-    await pp.screenshot({ path: `${out}/perseids-desktop-${panel.id}.png` });
   }
   assert.deepEqual(perseidsOpened, perseidsPanels.map((panel) => panel.id), "Perseids panels open in order on playback");
   note("Perseids panels open in order on playback", perseidsOpened.join(" > "));
@@ -316,7 +307,6 @@ try {
     await ui.openStoryPanel(pq, id, { force: true });
     await ui.storyPanel(pq, id).waitFor();
     await pq.waitForTimeout(500);
-    await pq.screenshot({ path: `${out}/perseids-phone-${id}.png` });
     await ui.closeStoryPanel(pq);
   }
   note("phone sheets for two Perseids panels captured");
@@ -357,7 +347,6 @@ try {
       assert.ok((await ui.storyPanelDetails(page)).length >= 1, `${panel.id}: details sit in the folded section`);
       await ui.closeStorySources(page);
       await page.waitForTimeout(600);
-      await page.screenshot({ path: `${out}/${story.experience}-desktop-${panel.id}.png` });
       await ui.closeStoryPanel(page);
     }
     assert.deepEqual(storyOpened, story.panels.map((panel) => panel.id), `${story.name} panels open in order on playback`);

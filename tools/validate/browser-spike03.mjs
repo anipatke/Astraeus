@@ -19,7 +19,6 @@ const errors = [];
 page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
 page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
 
-const screenshots = [];
 const setViewport = async (width, height) => {
   await page.setViewportSize({ width, height });
   await page.waitForTimeout(250);
@@ -44,9 +43,6 @@ const capture = async (name) => {
   // Apollo 11 offers True scale only (no control), so every picture here is at True scale.
   assert.equal(await ui.hasScaleControl(page), false, `${name}: Apollo 11 has the one True scale`);
   await page.waitForTimeout(350);
-  const path = `${out}/${name}.png`;
-  await page.screenshot({ path });
-  screenshots.push({ name, path, viewport: page.viewportSize() });
 };
 const visibleBounds = () => ui.shellBounds(page);
 const assertFitsViewport = async (label, { sheetAboveTimeline = false } = {}) => {
@@ -160,7 +156,7 @@ try {
   }
   await ui.toggleDeveloper(page);
 
-  // Laptop, tablet and mobile screenshots show the same shell at the target sizes.
+  // Laptop, tablet and mobile show the same shell at the target sizes.
   await setViewport(1280, 800);
   await camera("earth", "overview");
   await capture("laptop-1280x800");
@@ -237,7 +233,6 @@ try {
   assert.deepEqual(errors, [], "browser console and page errors are empty");
   const result = {
     url,
-    screenshots,
     viewports: ["1440x900", "1280x800", "768x1024", "390x844"],
     scaleReadoutsIdentical: true,
     cameraReadoutsUnchanged: true,
@@ -249,7 +244,7 @@ try {
     errors,
   };
   writeFileSync(`${out}/browser-results.json`, JSON.stringify(result, null, 2));
-  console.log(JSON.stringify({ screenshots: screenshots.map(({ path }) => path), viewports: result.viewports, scaleReadoutsIdentical: true, cameraReadoutsUnchanged: true, errors }, null, 2));
+  console.log(JSON.stringify({ viewports: result.viewports, scaleReadoutsIdentical: true, cameraReadoutsUnchanged: true, errors }, null, 2));
 } finally {
   await browser.close();
 }

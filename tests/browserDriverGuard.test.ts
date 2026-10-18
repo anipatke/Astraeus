@@ -26,13 +26,15 @@ describe("browser scripts use the shared interface driver", () => {
       'document.querySelector(".timeline-time")',
       'await page.waitForSelector("#info-panel");',
       "await button.evaluate((element) => element.click());",
+      'await page.screenshot({ path: "out.png" });',
+      'await page.getByTestId("earth-moon-canvas").screenshot();',
     ];
     for (const line of bad) expect(violationsIn(line), line).not.toHaveLength(0);
   });
 
   it("allows the scene canvas, test ids, data-attribute readouts and a comment", () => {
     const good = [
-      'await page.getByTestId("earth-moon-canvas").screenshot();',
+      'await page.getByTestId("earth-moon-canvas").boundingBox();',
       'await page.locator("canvas").first().getAttribute("data-sky-stars");',
       'await page.locator(`[data-label-id="${id}"]`).evaluate((el) => el.hidden);',
       'await counter.locator("[data-frame-fps]").innerText();',

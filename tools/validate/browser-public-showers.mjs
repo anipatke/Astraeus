@@ -4,7 +4,7 @@
 // and the GMN credit: licence, months, counts and both citations), no data/local file is served, the removed ?source=cams address is ignored (the shipped stream is still
 // drawn and no CAMS file is requested), the Developer panel offers no source switch (GMN is the only source), and with the shipped file blocked the stream's panel says
 // in plain words that the build has no orbits (no fetch command). The GMN credit and the shipped-copy checks of the removed browser-showers-gmn.mjs (checkShipped) live here (T-067).
-// Zero console errors. Screenshots go to <dir>/<shower>-*.png.
+// Zero console errors. Results go to <dir>.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
 import * as ui from "./driver.mjs";
@@ -61,7 +61,6 @@ for (const name of names) {
       assert.ok(!requests.some((q) => q.url.includes("/data/local/") && q.status === 200), `${name}/${tag}: no data/local file is served`);
       assert.ok(!requests.some((q) => /cams-iau/.test(q.url) && q.status === 200), `${name}/${tag}: no CAMS file is served`);
       assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", `${name}/${tag}: one stream group is drawn`);
-      await page.screenshot({ path: `${outDir}/${name}-${tag}.png` }); // the scene alone, before any panel is opened
       const panel = await streamPanel(page, name, settings.label);
       assert.match(panel.description, new RegExp(`${kept} measured meteoroid orbits`), `${name}/${tag}: the panel counts the shipped orbits`);
       for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida", "506(4)", "491(2)", `Read from ${months}`, `${kept} bound orbits kept`]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
@@ -70,7 +69,6 @@ for (const name of names) {
       await ui.toggleDeveloper(page);
       assert.equal(await ui.orbitSourceButtons(page).count(), 0, `${name}/${tag}: no source switch is offered`);
       assert.ok(await ui.orbitSetButtons(page).count() >= 2, `${name}/${tag}: the orbit-set switch is still offered`);
-      await page.screenshot({ path: `${outDir}/${name}-${tag}-panels.png` });
       r[tag] = { requests: fromShipped, description: panel.description.slice(0, 200) };
     } finally {
       await page.close();
@@ -83,7 +81,6 @@ for (const name of names) {
     const panel = await streamPanel(page, name, settings.label);
     assert.match(panel.description, new RegExp(`This build does not include measured orbits for the ${settings.label}, so no stream is drawn`), `${name}/absent: the panel says so`);
     assert.ok(!/fetch-meteoroid-orbits|Run "/.test(panel.description), `${name}/absent: no fetch command in a public build`);
-    await page.screenshot({ path: `${outDir}/${name}-absent.png` });
     r.absent = panel.description.slice(0, 300);
   } finally {
     await page.close();

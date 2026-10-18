@@ -43,6 +43,8 @@ export function useSkyStars(canvas: HTMLCanvasElement, skyView: SkyView | null):
       delete canvas.dataset.skyStars;
       delete canvas.dataset.skyPicture;
       delete canvas.dataset.skyStarBrightness;
+      delete canvas.dataset.skyMilkyWayBrightness;
+      delete canvas.dataset.skyPictureShown;
       skyView.dispose();
     };
   }, [canvas, skyView]);

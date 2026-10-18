@@ -44,7 +44,6 @@ async function openPage(size, query, extra = {}) {
   await page.waitForTimeout(1500);
   return { context, page };
 }
-const shot = async (page, name) => { if (outDir !== undefined) await page.screenshot({ path: `${outDir}/${name}.png` }); };
 
 function assertSafeAreaInStylesheet() {
   const css = readFileSync(new URL("../../src/shell/phone.css", import.meta.url), "utf8");
@@ -82,7 +81,6 @@ async function checkControlsDrawer(label, page) {
   await page.waitForTimeout(400);
   assert.equal((await ui.drawerStates(page)).controls, true, `${label}: tapping the object list leaves the top drawer open`);
   await checkTouchTargets(`${label} top drawer`, page);
-  await shot(page, `${label}-controls-open`);
   const boxes = await ui.phoneBoxes(page);
   assert.ok(boxes.drawer.bottom < page.viewportSize().height * 0.7, `${label}: the top drawer leaves part of the scene (${Math.round(boxes.drawer.bottom)} px)`);
   await ui.tapControlsHandle(page);
@@ -117,7 +115,6 @@ async function checkTimelineDrawer(label, page) {
   assert.match(await ui.eventListText(page), /Up next/, `${label}: and shows with the drawer open`);
   assert.ok(!(await ui.scrollsSideways(page)), `${label}: no horizontal scroll with the drawer open`);
   await checkTouchTargets(`${label} timeline drawer`, page);
-  await shot(page, `${label}-timeline-open`);
   // The speed slider drives the speed picker.
   await ui.setSpeedSlider(page, 1);
   const speedAfterSlider = await ui.speed(page);
@@ -173,12 +170,10 @@ async function checkInfoSheet(label, page) {
   assert.ok(sheet.top > 52, `${label}: the sheet leaves the top row clear`);
   assert.equal(await ui.infoSourcesClosed(page), true, `${label}: Sources start closed`);
   assert.ok((await ui.sourceLines(page)).length > 0, `${label}: the sources are in the page, closed`);
-  await shot(page, `${label}-info-sheet-sources-closed`);
   await ui.openSources(page);
   assert.equal(await ui.sourcesOpen(page), true, `${label}: one tap opens Sources`);
   assert.ok(await ui.infoSourceLinesShown(page), `${label}: the opened sources show`);
   await checkTouchTargets(`${label} info sheet`, page);
-  await shot(page, `${label}-info-sheet-sources-open`);
   await ui.swipeInfoSheetDown(page);
   await ui.waitForInfoClosed(page);
   assert.equal(await ui.infoOpen(page), false, `${label}: a swipe down dismisses the sheet`);
@@ -199,7 +194,6 @@ async function checkStoryPanel(label, page) {
   await ui.waitForDrawer(page, "timeline", false);
   await ui.openStorySources(page);
   assert.equal(await ui.storySourcesOpen(page), true, `${label}: one tap opens the story Sources`);
-  await shot(page, `${label}-story-sources-open`);
   await ui.closeStoryPanel(page);
 }
 
@@ -239,7 +233,7 @@ for (const experience of EXPERIENCES) {
   for (const size of SIZES) {
     const label = `${experience.name} ${size.name}`;
     const { context, page } = await openPage(size, experience.query);
-    await attempt(`${label}: layout`, async () => { await checkLayout(label, page); await shot(page, `${label}-closed`); });
+    await attempt(`${label}: layout`, async () => { await checkLayout(label, page); });
     await attempt(`${label}: top drawer`, () => checkControlsDrawer(label, page));
     await attempt(`${label}: timeline drawer`, () => checkTimelineDrawer(label, page));
     await attempt(`${label}: scene drag`, () => checkSceneDrag(label, page));
