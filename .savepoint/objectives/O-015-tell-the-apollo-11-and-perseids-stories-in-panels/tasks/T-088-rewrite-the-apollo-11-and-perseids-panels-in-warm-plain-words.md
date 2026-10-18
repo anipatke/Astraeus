@@ -2,10 +2,9 @@
 id: T-088
 title: Rewrite the Apollo 11 and Perseids panels in warm, plain words
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-087, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-069, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
 ---
 
@@ -76,3 +75,7 @@ Extra reads (logged): `src/app/StoryMarkers.ts`, `src/app/App.tsx`, `src/app/Ast
 Limitations: the owner's read on the preview (Done When 7) has not happened. The test counts sentences and numbers but cannot judge warmth; that is the owner's call. "For the first time, people have landed on another world", "a huge lump of ice and rock" and "sheds a little more dust" are plain general statements with no new source line. No Check run here; the lane has not been merged.
 
 Drift notes: none architectural. Scene markers now group by object (one marker, several panels): a shell-adapter behaviour change worth a line in Design.md's story-panel notes at the O-015 integration. A shared marker's press rule (the panel the clock has reached, then the next) is not shown to the person beyond the tooltip and label that list every panel title.
+
+## Owner Completion — 2026-10-18
+
+Owner read the stories on the preview ("3 good"; the Apollo panel was offered as part of item 3) and was told this Task would be counted done once its Check came back clear unless the owner said otherwise. Quick Task Check C-069 CLEAR.

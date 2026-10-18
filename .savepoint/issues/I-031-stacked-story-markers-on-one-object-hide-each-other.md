@@ -3,6 +3,7 @@ id: I-031
 title: Story markers on the same object stack and hide each other
 type: defect
 status: open
+checks: [C-069]
 source:
   kind: report
   actor: {role: checker, session: o011-orchestrator-check-20261016-night}
