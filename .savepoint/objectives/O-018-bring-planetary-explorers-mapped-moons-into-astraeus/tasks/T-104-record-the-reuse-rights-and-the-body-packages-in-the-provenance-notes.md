@@ -2,7 +2,8 @@
 id: T-104
 title: Record the reuse rights and the body packages in the provenance notes
 objective: O-018
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o018-o019-rescope-20261018}
@@ -52,7 +53,14 @@ Configured gates; evaluated under `agent-skills/references/check-method.md` with
 
 ## Technical Evidence
 
-Pending execution.
+Executor session 009b0116-b8b7-4912-9273-91d589baf044, main checkout `o018-o019`, 2026-10-18. Extra reads: none outside the Context Files.
+
+Per criterion:
+1. **Met.** `docs/DONOR_PROVENANCE.md`: the Spike 03 sentence "Code licence unresolved; any adapted donor code stays local-use only" is now "Reuse rights (updated 2026-10-17)" with the owner's decision (O-018 Owner Decision 3, "thats right"), naming PROV-02 and that no texture decision changes. The same unresolved-licence claim appeared three more times (the no-LICENSE paragraph, the T-020 section, the shell-adaptation section near the end); each now points to the decision, so no "unresolved" or "local-use" line remains (`grep -c -i -E "unresolved|local-use"` → 0). Same file and same outcome as criterion 1, so within the Boundaries.
+2. **Met.** New closing section "Body packages (O-018, T-077)": 24 packages plus `catalogue.json` and `README.md`, copied at donor commit `84f8d3e` by `tools/import/planetary-explorer.mjs`, locations exact, maps not copied; the eight bodies with no donor README source (earth, moon, jupiter, uranus, neptune, pluto, charon, ceres) sourced from `tools/import/planetary-explorer-map-sources.json` (nine keys: `_note` and those eight, read); Ceres's donor colour file must not be shipped (`donorFileShippable: false`).
+3. **Met.** `npx tsc --noEmit` exit 0; `npx vitest run` 74 files, 1103 passed, 1 skipped; `npm run build` exit 0. Documentation only: no code, data or Design changed.
+
+Files changed: `docs/DONOR_PROVENANCE.md`, this Task, O-018 status (planned → in_progress), router (O-018/T-104). Limitations: none known.
 
 ## Drift Notes
 

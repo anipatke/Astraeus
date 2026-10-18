@@ -23,7 +23,7 @@ The donor's Earth and Moon textures (`earth-2k.jpg`, `moon-orig-2k.jpg`) had no 
 
 Both replace the donor files at the same registration (near side centred on longitude 0; Earth with the Greenwich meridian at the image centre), so `textureYawRad` is unchanged. Earlier history of the donor files, for the record: the donor never documented them; a 2026-10-06 history check found `earth-2k.jpg` (donor commit `e65e305`, noted as "NASA Blue Marble") and `moon-orig-2k.jpg` (first donor commit `dab0c05`, origin never recorded). The 4k Moon texture (~15 MB, also unattributed) was not copied.
 
-No `LICENSE*` file was found at the donor checkout root, and a grep of its `package.json` found no `license` field. No redistribution rights are claimed for donor code either.
+No `LICENSE*` file was found at the donor checkout root, and a grep of its `package.json` found no `license` field. No redistribution rights are claimed for donor code either. **Superseded 2026-10-17:** Planetary Explorer is the owner's own work; its data, maps and code may be reused and published in Astraeus (owner, 2026-10-17, O-018 Owner Decision 3: "thats right"). Third-party map and fact sources inside it keep their own credits (PROV-02), and no texture decision above changes.
 
 ## Texture orientation
 
@@ -31,7 +31,7 @@ The equirectangular Three.js sphere puts texture-centre longitude 0 on mesh +X, 
 
 ## Spike 03 — UI shell extraction candidates (T-016, 2026-10-07)
 
-Source audit: `docs/PLANETARY_EXPLORER_UI_AUDIT.md`. The donor remains read only. **Code licence unresolved; any adapted donor code stays local-use only.** This audit does not establish redistribution rights or change the earlier texture decisions. No donor code or new assets were copied in T-016. The following sources are selected for pattern adaptation in later Tasks; this is not yet a ledger of completed code adaptations.
+Source audit: `docs/PLANETARY_EXPLORER_UI_AUDIT.md`. The donor remains read only. **Reuse rights (updated 2026-10-17):** Planetary Explorer is the owner's own work; its data, maps and code may be reused and published in Astraeus (owner, 2026-10-17, O-018 Owner Decision 3: "thats right"). Third-party map and fact sources inside it keep their own credits (PROV-02), and no texture decision above changes. This audit does not establish redistribution rights or change the earlier texture decisions. No donor code or new assets were copied in T-016. The following sources are selected for pattern adaptation in later Tasks; this is not yet a ledger of completed code adaptations.
 
 All donor paths below are relative to `/home/user/code/planetary-explorer`.
 
@@ -53,7 +53,7 @@ Tailwind, zustand and drei are not adopted for this spike. Font names are visual
 
 ## Spike 03 — implemented pattern adaptations (T-020, 2026-10-10)
 
-The following records the patterns used by the Astraeus shell. They are interaction and layout adaptations informed by the source audit, not copied donor components or cleared third-party code. The donor remains read only; code licence remains unresolved and any future adapted donor code remains local-use only.
+The following records the patterns used by the Astraeus shell. They are interaction and layout adaptations informed by the source audit, not copied donor components or cleared third-party code. The donor remains read only. Its code may be reused and published (owner, 2026-10-17; see Reuse rights above).
 
 | Audited donor pattern | Astraeus adaptation | Astraeus files |
 |---|---|---|
@@ -127,7 +127,7 @@ What the tool does: reads `starmap_2020_{4k,8k,16k,32k}.exr` (linear half-float,
 
 ## Spike 04 — story panels: SidePanel, BottomSheet, HotspotMarker and Badge ports (T-059, 2026-10-16)
 
-Planetary Explorer (`/home/user/code/planetary-explorer/src/`, read only) was read for the look and behaviour of four parts, then re-written for Astraeus's React, plain-CSS shell. Its Tailwind classes, Zustand store and drei/three-fiber code were not copied; what carries over is the interaction, the numbers noted below and the visual idea. As with T-020, this is an adaptation record, not copied or cleared donor code: the donor's code licence stays unresolved, this does not grant publication rights, and the parts are local-use adaptations until the owner resolves that.
+Planetary Explorer (`/home/user/code/planetary-explorer/src/`, read only) was read for the look and behaviour of four parts, then re-written for Astraeus's React, plain-CSS shell. Its Tailwind classes, Zustand store and drei/three-fiber code were not copied; what carries over is the interaction, the numbers noted below and the visual idea. As with T-020, this is an adaptation record, not copied donor code. The owner has since resolved the rights (2026-10-17; see Reuse rights above): the parts may be published.
 
 | Donor part | Astraeus port | Astraeus files | What carried over | What changed |
 |---|---|---|---|---|
@@ -137,3 +137,9 @@ Planetary Explorer (`/home/user/code/planetary-explorer/src/`, read only) was re
 | `shared/components/Badge.tsx` | `StoryBadge` | `src/shell/StoryPanelView.tsx`, `src/shell/style.css` (`.story-badge`) | Small monospace uppercase pill with a tinted border | Three fixed kinds, observed (green), modelled (purple) and illustrative (orange), with Astraeus's own shell colours, not the donor's accent, muted and warning variants |
 
 No Planetary Explorer file or asset was copied in T-059. The panel data (ids, times, text, badges, sources) is story data in `data/stories/<story>/panels.json`, never donor content.
+
+## Body packages (O-018, T-077)
+
+`data/bodies/` holds one package per Planetary Explorer body (24, plus `catalogue.json` and `README.md`): features, categories, overview and map records. They are data copied from Planetary Explorer at commit `84f8d3e` (84f8d3ee77aff47f2f36f157b62b97dce7176b95) by `tools/import/planetary-explorer.mjs`, with every location exactly as the donor holds it; the donor was read only. Map images are not copied: each `map.json` records the donor's texture variants and their sources, and a map is shipped only through its own asset licence record (PROV-02).
+
+The donor's texture README names no source for eight bodies: earth, moon, jupiter, uranus, neptune, pluto, charon and ceres. Their sources come from Astraeus's own trace records in `tools/import/planetary-explorer-map-sources.json` (citing `docs/DONOR_TEXTURE_INVENTORY.md` section C and this file), not from the donor README. Earth and Moon point to the NASA maps Astraeus ships instead of the donor's unsourced files. **Ceres's donor colour file (`ceres-2k.jpg`) must not be shipped:** its geometry matches the USGS/DLR Dawn mosaic, but its colour and polar fill come from an unknown source (`donorFileShippable: false`).
