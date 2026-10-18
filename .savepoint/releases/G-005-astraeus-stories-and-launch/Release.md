@@ -26,6 +26,8 @@ Also in the launch (owner chose all three): the interface work finished (O-020),
 
 Earth–Moon is dropped (covered by Apollo); its three new stories are dropped with it (owner chose; the text stays in history). The old addresses `?experience=shower-perseids`, `shower-geminids` and `earth-moon` are not redirected: they stop working and the owner updates the portfolio links at launch (owner chose "Let them break, update the portfolio").
 
+**Last action of the launch** (owner, 2026-10-18: "Can we add updating the portfolio pages as the last action of our definition of done"): update the owner's portfolio site (`/home/user/code/main-portfolio`, Next.js; the demo list in `components/astraeus/AstraeusBridge.tsx`, plus the Astraeus page and hero tiles) to the three demos and their new addresses, build and look at it locally, and ask the owner before pushing (a push puts it live).
+
 Not in the launch: the zodiac demo (G-006), and moons and orbits for other planets (O-018 and O-019 beyond what Jupiter needs).
 
 ## Success Conditions
