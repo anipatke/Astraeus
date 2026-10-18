@@ -1,7 +1,7 @@
 ---
 id: O-025
 title: Show Jupiter with all its known moons
-status: planned
+status: in_progress
 depends_on: [O-020]
 release: G-005
 ---
