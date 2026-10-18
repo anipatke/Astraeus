@@ -1,0 +1,15 @@
+{
+  "url": "http://localhost:5631/app.html",
+  "viewport": "1280x800",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 40,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "screenshots": [
+    "docs/evidence/o024-t094-full-20261018T0236Z/anchor-labels/labels-on-overview.png",
+    "docs/evidence/o024-t094-full-20261018T0236Z/anchor-labels/labels-on-follow.png"
+  ],
+  "errors": []
+}

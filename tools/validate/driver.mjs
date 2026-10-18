@@ -41,6 +41,7 @@ const HOOK = {
   infoToggle: ".object-info-toggle",
   sceneLabels: ".scene-labels",
   anchorLabels: ".anchor-labels",
+  bootLoader: "#boot",
 };
 
 const squash = (text) => text.replace(/\s+/g, " ");
@@ -956,3 +957,21 @@ export async function chooseSwitchOption(page, value) {
   await page.waitForSelector("canvas");
   await waitForShell(page);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Loading screen (T-094): app.html carries a loader (#boot) that shows from the first paint and is removed after the scene's first drawn frame.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** Call before `goto`: records whether the loader was in the page, in its loading state, as soon as the document had it (before any script could end it). */
+export const watchLoader = (page) => page.addInitScript((selector) => {
+  window.__loaderSeen = false;
+  const look = () => { if (document.querySelector(selector)?.getAttribute("data-state") === "loading") window.__loaderSeen = true; };
+  new MutationObserver(look).observe(document, { childList: true, subtree: true });
+  look();
+}, HOOK.bootLoader);
+/** Whether the loader was seen loading at the start (needs `watchLoader`). */
+export const loaderWasSeen = (page) => page.evaluate(() => window.__loaderSeen === true);
+/** The loader's state now: "loading", "failed", "done" (fading out) or "absent" (removed). */
+export const loaderState = (page) => page.evaluate((selector) => document.querySelector(selector)?.getAttribute("data-state") ?? "absent", HOOK.bootLoader);
+/** Waits until the loader has been removed from the page. */
+export const waitForLoaderGone = (page, options) => page.waitForSelector(HOOK.bootLoader, { state: "detached", ...options });

@@ -48,6 +48,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
+import { hideBootLoader } from "../shell/bootLoader";
 import type { ExperienceObject } from "../shell/experience";
 
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
@@ -265,6 +266,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     resolveCamera(camState, focusAbsoluteOf(targets, camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
     placeBodies(assets, composed.states, bodyRefs, policy, origin);
     poseCamera(camera as PerspectiveCamera, camState, focusRadius(focusBody, policy, catalogue), origin, runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR, viewUp);
+    if (firstFrame) requestAnimationFrame(hideBootLoader);
     controls.viewReadout = viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
     const markerBodies = swapSmallBodiesToMarkers(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.bodyMarker);
     publishSceneData(gl.domElement, { markerBodies, viewUp, markerMinSpherePx: controls.bodyMarker.minSpherePx });

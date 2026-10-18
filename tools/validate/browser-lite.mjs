@@ -103,6 +103,7 @@ async function load(label, url, size, checks) {
   page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
   const shotName = `${label}-${size.name}.png`;
   try {
+    if (checks.watchesLoader === true) await ui.watchLoader(page);
     await page.goto(url, { waitUntil: "load", timeout: 60000 });
     await checks(page, check, detail);
     await page.waitForTimeout(300);
@@ -123,7 +124,7 @@ async function load(label, url, size, checks) {
 
 // ---- Experience checks ----
 function experienceChecks(experience) {
-  return async (page, check, detail) => {
+  const run = async (page, check, detail) => {
     await check("canvas present", () => page.waitForSelector("canvas", { timeout: 60000 }));
     await check("page heading names the experience once it is open", async () => {
       const served = await page.request.get(appUrl.split("?")[0]);
@@ -133,6 +134,11 @@ function experienceChecks(experience) {
       if (/spike/i.test(title)) throw new Error(`the title still says spike: ${title}`);
       const made = experience.id.startsWith("synthetic");
       if (made ? title !== "Astraeus" : !/^.+ \u00b7 Astraeus$/.test(title)) throw new Error(`unexpected page title "${title}"`);
+    });
+    await check("loading screen was shown from the first paint and is gone once the scene is ready", async () => {
+      if (!(await ui.loaderWasSeen(page))) throw new Error("the loader was not in the page, loading, at first paint");
+      await ui.waitForLoaderGone(page, { timeout: 15000 });
+      if ((await ui.loaderState(page)) !== "absent") throw new Error("the loader is still in the page");
     });
     await check("timeline/shell present", () => ui.waitForShell(page, { timeout: 60000 }));
     // Hold playback still so the scene and any auto-opening panel settle; a story panel's own hold may already have paused it.
@@ -166,6 +172,8 @@ function experienceChecks(experience) {
       });
     }
   };
+  run.watchesLoader = true;
+  return run;
 }
 
 // ---- Site page checks ----
