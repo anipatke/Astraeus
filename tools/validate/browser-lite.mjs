@@ -185,6 +185,20 @@ const siteChecks = async (page, check, detail) => {
   detail.title = await page.title().catch(() => "");
 };
 
+/** The catalogue page lists Jupiter's moons by family (O-025 T-097): the families that the core data names, each with its moons, 115 in all. */
+const assetsChecks = async (page, check, detail) => {
+  await siteChecks(page, check, detail);
+  await check("catalogue page lists Jupiter's moons by family", async () => {
+    const families = await ui.catalogueMoonFamilies(page);
+    const data = JSON.parse(readFileSync(new URL("data/moons/jupiter.json", root), "utf8"));
+    const ids = families.flatMap((family) => family.moons);
+    if (families.length !== data.families.length) throw new Error(`${families.length} families on the page, ${data.families.length} in the data`);
+    if (ids.length !== data.moons.length || new Set(ids).size !== ids.length) throw new Error(`${ids.length} moons listed, ${data.moons.length} in the data`);
+    for (const family of families) if (family.count !== family.moons.length) throw new Error(`${family.family}: count ${family.count} but ${family.moons.length} listed`);
+    detail.moonFamilies = Object.fromEntries(families.map((family) => [family.family, family.count]));
+  });
+};
+
 /** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
 const FOUR_ADDRESSES = ["app.html", "app.html?experience=showers", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
 const indexChecks = async (page, check, detail) => {
@@ -205,7 +219,7 @@ try {
     for (const size of VIEWPORTS) await load(experience.id, `${appUrl}${experience.query}`, size, experienceChecks(experience));
   }
   for (const page of ["index.html", "assets.html"]) {
-    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : siteChecks);
+    for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : assetsChecks);
   }
 } finally {
   await browser.close();

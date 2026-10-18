@@ -986,3 +986,14 @@ export function trackRequests(page, pattern) {
   page.on("request", (request) => { if (pattern.test(request.url())) urls.push(request.url()); });
   return urls;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The catalogue page's Jupiter moon families (O-025 T-097)
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The catalogue page's moon families: `[{family, count, moons: [id, ...]}]`, in page order (reads `data-` hooks only). */
+export const catalogueMoonFamilies = (page) => page.locator("[data-moon-family]").evaluateAll((families) => families.map((family) => ({
+  family: family.getAttribute("data-moon-family"),
+  count: Number(family.getAttribute("data-count")),
+  moons: [...family.querySelectorAll("[data-moon]")].map((moon) => moon.getAttribute("data-moon")),
+})));
