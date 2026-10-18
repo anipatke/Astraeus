@@ -16,6 +16,10 @@ Astraeus can take any body Planetary Explorer has already built (its surface map
 
 Owner, 2026-10-17: "we have each moon already mapped built and tagged with interesting features (and the means to do so) as part of planetary explorer. this was effort, I want to re-use this anytime", and "update the catalogue". Planetary Explorer (the owner's own earlier project) holds, per body: a map with a recorded source (`public/textures/README.md`, `CREDITS.md`), a feature list of 8 to 32 named places with latitude, longitude, type, category, description, tags and details (`data/<body>-features.json`, coordinates from the USGS Gazetteer of Planetary Nomenclature), category colours and camera settings (`src/entities/<body>.ts`), overview facts with sources (`data/body-overviews.json`), each map's coordinate convention and control checks (the README notes), and the hotspot interface that places, filters and opens them (`src/features/hotspots/`). Rebuilding any of it would repeat that effort.
 
+## Post-launch Direction (owner, 2026-10-18)
+
+"We will do the same for the other planets, but post launch is ok": after the launch, every other planet gets the Jupiter treatment from O-025 — all known moons as core package data with exact JPL Horizons positions over a wide span, the mapped moons textured with their tagged places, the rest as grey dots named on hover, tap or zoom, a moon-families panel, and rings from Planetary Explorer at real distances. O-025 builds the pattern for Jupiter first; this Objective reuses it.
+
 ## Success Conditions
 
 1. **Reuse rights recorded.** The owner's statement that Planetary Explorer is their own work and that its data, maps and code may be reused and published in Astraeus is recorded (owner decision, below) in `docs/DONOR_PROVENANCE.md`, replacing the "code licence unresolved; local use only" note for what this Objective uses. Third-party map and fact sources keep their own credits (PROV-02).

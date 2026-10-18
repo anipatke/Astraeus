@@ -16,6 +16,10 @@ Every moon brought in by O-018 sits at its real position on its real orbit aroun
 
 Owner, 2026-10-17: "what it doesnt probably have is orbits, correct positions etc. which we need to enrich", and the launch waits for orbits. Planetary Explorer's moons move on circular display orbits at arbitrary speeds with no epoch (donor `docs/astraeus-extraction-audit.md` §3); Astraeus already places Io from published elements checked against JPL Horizons, so the same path can enrich every moon.
 
+## Post-launch Direction (owner, 2026-10-18)
+
+"We will do the same for the other planets, but post launch is ok": after the launch, every other planet gets the Jupiter treatment from O-025 — all known moons as core package data with exact JPL Horizons positions over a wide span, the mapped moons textured with their tagged places, the rest as grey dots named on hover, tap or zoom, a moon-families panel, and rings from Planetary Explorer at real distances. O-025 builds the pattern for Jupiter first; this Objective reuses it.
+
 ## Success Conditions
 
 1. **Each moon has a real state source.** Published mean orbital elements (JPL Solar System Dynamics planetary satellite mean elements, with their epoch and reference plane) propagated about the parent's mass through the existing two-body provider, or a better published source where two-body is not good enough; each source cited (PROV-01). One state source per body, defined once (ARCH-05).
