@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desktop/start: the comet's whole orbit is drawn in the Overview, scene only (5 orbit-coloured pixels)
+    at checkSunEarth (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:294:14)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:1091:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-showers.mjs:1107:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
