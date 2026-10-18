@@ -2,8 +2,7 @@
 id: T-097
 title: Add Jupiter's moon list and families to the core data, with the four mapped moons
 objective: O-025
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-096, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -60,3 +59,4 @@ Configured gates; catalogue page through the shared driver. Evaluated under `age
 - Tests: `tests/jupiterMoonCatalogue.test.ts` (entry for every fit and back, families cover all, sources resolve, four links, no story wording, page lists every moon once).
 - Gates: tsc clean; vitest 70 files pass (1066 passed, 1 skipped); npm run build ok; driver guard ok; browser-lite 28/28 (evidence `docs/evidence/t097-lite-20261018`). Full run deferred to the orchestrator's batch run.
 - Drift Notes: (1) family membership read from Wikipedia's "Moons of Jupiter" table (which cites Sheppard); Sheppard's own page has the table as an image, so it was not re-derived. (2) Carpo group (2 moons) kept as its own family, so loners are only Themisto and Valetudo; owner brief listed Carpo as a loner. (3) Lite browser run started while other lanes' headless chrome was running (load 5.2).
+- Owner decision 2026-10-18 (session 009b0116): family lists kept as read from Wikipedia's compilation (citing Sheppard), not transcribed from Sheppard's image table; Carpo kept as its own two-moon family (Drift Note 2), so the loners are Themisto and Valetudo. Coordinator to spot-check the recently discovered moons against Sheppard's table.
