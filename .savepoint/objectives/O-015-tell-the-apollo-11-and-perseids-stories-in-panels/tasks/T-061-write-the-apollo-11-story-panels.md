@@ -2,10 +2,9 @@
 id: T-061
 title: Write the Apollo 11 story panels
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-059, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-040, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o015-plan-20261016}
 ---
 
@@ -67,3 +66,7 @@ Not done by me: set done, commit, router writes, optional Task Check.
 ## Drift Notes
 
 None yet.
+
+## Owner Completion — 2026-10-18
+
+Accepted with the rewritten copy, as recorded in O-015 Decision 8, after the owner read the stories on the preview ("3 good"). Quick Task Check C-040 CLEAR. The copy this Task wrote was later rewritten in plain words by T-088 (C-069).

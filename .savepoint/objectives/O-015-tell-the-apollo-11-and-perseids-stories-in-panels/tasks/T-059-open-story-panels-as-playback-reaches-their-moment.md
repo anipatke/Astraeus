@@ -2,10 +2,9 @@
 id: T-059
 title: Open story panels as playback reaches their moment
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-038, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o015-plan-20261016}
 ---
 
@@ -81,3 +80,7 @@ Limitations: scene markers have no far-side test (a marker on a body behind the 
 ## Drift Notes
 
 New generic shell surface to reflect in Design.md at the O-015 integration Task: `ExperienceConfig.storyPanels`, `parseStoryPanels` and `CrossingTracker` (src/shell/storyPanels.ts), `StoryPanelView`, `useStoryPanels`, `StoryMarkerLayer` (src/app/StoryMarkers.ts) and the `SceneControls.storyMarkers` hook. The integration Task that accounts for these (reflected in Design.md, or non-architectural, with a reason) is not yet named; the planner should name it (T-063 per the plan, to confirm).
+
+## Owner Completion — 2026-10-18
+
+Accepted with the rewritten copy, as recorded in O-015 Decision 8, after the owner read the stories on the preview ("3 good"). Quick Task Check C-038 CLEAR. The copy this Task wrote was later rewritten in plain words by T-088 (C-069).

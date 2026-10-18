@@ -2,10 +2,9 @@
 id: T-062
 title: Write the Perseids story panels
 objective: O-015
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-059, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-041, accepted_by: {role: owner, session: owner-chat-20261018}}
 planned_by: {role: planner, session: o015-plan-20261016}
 ---
 
@@ -70,3 +69,7 @@ Not done by me: set done, commit, router writes, optional Task Check.
 
 - Design.md: shower settings gain optional `story.panels` (path or inline), read in `showerDefinition.ts`. Belongs in the Experience definitions / shower settings notes; name the integration Task that reflects it before the Full Objective Check.
 - Capability gap for the owner: scene markers for several panels on one object stack at one point, so only the top one is clickable (T-059 capability; not patched, per Boundaries).
+
+## Owner Completion — 2026-10-18
+
+Accepted with the rewritten copy, as recorded in O-015 Decision 8, after the owner read the stories on the preview ("3 good"). Quick Task Check C-041 CLEAR. The copy this Task wrote was later rewritten in plain words by T-088 (C-069).
