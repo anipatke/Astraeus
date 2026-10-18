@@ -12,7 +12,7 @@ planned_by: {role: planner, session: o017-orchestrator-check-20261017}
 
 ## Outcome
 
-When the app runs inside another page (the owner's portfolio), its bar is as slim as the "Inside the portfolio" mock-up; the five public experience addresses are locked by a check; the new layout's pictures become the baseline after the owner's look.
+When the app runs inside another page (the owner's portfolio), its bar is as slim as the "Inside the portfolio" mock-up; its controls stay reachable inside the frame.
 
 ## User Check
 
@@ -20,12 +20,13 @@ Open the portfolio's Astraeus section: the app's bar sits slim under the story b
 
 ## Done When
 
+Revised 2026-10-18 at start, per the Planning Note (the launch line-up moved the address lock and the new picture baseline to O-024 T-093):
+
 1. Embedded look per the approved mock-up (O-020 Decision 5): detected when the page is framed (or an address flag, decided here and recorded), slimmer bar and timeline; full screen unchanged.
-2. A browser check opens `app.html`, `?experience=shower-perseids`, `shower-geminids`, `earth-moon` and `jupiter-io` (the portfolio's addresses) inside a test frame and alone, and asserts each opens its experience with zero console errors; added to `run-full.sh`.
-3. Every experience at desktop and phone sizes compared with the O-017 baseline; each difference listed as an intended layout change; after the owner's look, a new baseline directory is approved and `run-full.sh` points to it.
-4. Design.md shell section reconciled with T-079 to T-082 Drift Notes; `docs/BROWSER_CHECKS.md` updated.
-5. Gates and the full run on the final tree.
-6. Owner validation: the owner looks on a laptop and a phone (the live site after merge, or a preview).
+2. A browser check opens each demo inside a test frame (as the portfolio's `components/astraeus/AstraeusBridge.tsx` embeds it, read-only reference) and alone, and asserts the embedded look, the shared controls still reachable, and zero console errors; added to `run-full.sh`.
+3. Design.md shell section reconciled with the T-079, T-080, T-081, T-083, T-084, T-085, T-086 and T-090 Drift Notes (each reflected or recorded as non-architectural with a reason); `docs/BROWSER_CHECKS.md` updated.
+4. Gates and the full run on the final tree.
+5. Owner validation: the owner looks at every demo on a laptop and a phone (preview now, and the live site after merge).
 
 ## Context Files
 
