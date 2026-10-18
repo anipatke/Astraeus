@@ -145,3 +145,4 @@ Causes: every re-sample slid all 128 sample times with the clock, so each chord 
 - `browser-jupiter-io.mjs` (`jupiter-io-steady-20261018T081642Z/`): exit 0, zero console errors; `offLinePx` desktop 0.004-0.059, phone 0.001-0.070. (First run, `jupiter-io-steady-20261018T081236Z.log`, failed on the old `pathGapPx` assertion, 5.2 px, before the readout change.)
 - `browser-lite.mjs` (`lite-steady-20261018T081310Z/`): 28/28.
 - Phone probe (`probe-steady/`), lane `o025-t098` as before against this change, mean/p50/p95 ms: default before 23.5/16.7/33.4 and 25.2/16.8/33.4, after 26.5/33.3/33.4 and 24.2/16.7/33.4; close on Himalia (`himalia,30,20,5`) before 18.6/16.7/33.3, after 17.3/16.7/16.8. No difference beyond run-to-run noise. Owner look pending.
+- Owner decision 2026-10-18 (session 009b0116): Ganymede's 180 degree texture turn accepted ("That's ok at some point we'll redo the tagged location"); tagged locations to be redone under T-103.

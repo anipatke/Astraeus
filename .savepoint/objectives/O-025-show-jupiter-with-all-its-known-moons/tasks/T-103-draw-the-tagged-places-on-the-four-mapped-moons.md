@@ -43,6 +43,7 @@ ARCH-01, PROV-01, TEST-01, TEST-03.
 
 1. Feature-marker layer from the package convention; positions test.
 2. Names, info panel, checks, owner look.
+- Owner, 2026-10-18: Ganymede's texture stays turned 180 degrees (T-098, `GANYMEDE_VISUAL` yaw pi, from the I-032 trace); the tagged locations will be redone here, so place Ganymede's features against the turned picture and confirm Tros (about 11 N, 27 W) and Osiris (about 38 S, 166.5 W) land on their craters.
 
 ## Boundaries
 
