@@ -33,4 +33,4 @@
 /* A phone-sized frame keeps its pill, drawers and 44 px targets; only the margins and the timeline's padding tighten. */
 [data-embedded="true"][data-phone="true"] .controls-pill { top: calc(4px + var(--safe-top)); left: calc(4px + var(--safe-left)); }
 [data-embedded="true"][data-phone="true"] .developer-mode-toggle { top: calc(4px + var(--safe-top)); right: calc(4px + var(--safe-right)); }
-[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(4px + var(--safe-right)); bottom: calc(4px + var(--safe-bottom)); left: calc(4px + var(--safe-left)); padding: 20px 8px 4px; }
+[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(4px + var(--safe-right)); bottom: calc(4px + var(--safe-bottom)); left: calc(4px + var(--safe-left)); padding: 14px 8px 1px; }
