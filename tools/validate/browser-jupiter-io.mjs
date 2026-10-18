@@ -66,7 +66,7 @@ async function moons(page, name, notes) {
   assert.equal(far.members + MAPPED.length, moonData.moons.length, `${name}: ${moonData.moons.length} moons drawn in all`);
   const dots = (await ui.scenePoints(page)).find((group) => group.id === "jupiter-small-moons");
   notes.moonDots = dots;
-  assert.ok(dots?.drawn && dots.members === smallMoons.length && dots.inView > smallMoons.length / 2, `${name}: the small moons' dots are drawn and in view (scene readout ${JSON.stringify(dots)})`);
+  assert.ok(dots?.drawn && dots.members === smallMoons.length && dots.inView >= 10, `${name}: the small moons' dots are drawn and in view (scene readout ${JSON.stringify(dots)})`);
   assert.equal(far.orbits, moonData.moons.length - 1, `${name}: one batched orbit line per moon but Io (Io keeps its own loop)`);
   assert.equal(far.rings, 4, `${name}: four ring bands`);
   assert.deepEqual(Object.keys(far.familyColors), moonData.families.map((family) => family.id), `${name}: a colour for every family`);

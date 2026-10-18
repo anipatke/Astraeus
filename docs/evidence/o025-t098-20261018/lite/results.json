@@ -1,6 +1,6 @@
 {
   "tier": "lite (I-033)",
-  "at": "2026-10-18T06:33:20.003Z",
+  "at": "2026-10-18T07:35:54.380Z",
   "appUrl": "http://localhost:5690/app.html",
   "experiences": [
     "apollo11",
@@ -25,11 +25,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html",
       "ok": true,
-      "seconds": 5.6,
-      "screenshot": "apollo11-desktop.png",
+      "seconds": 5.3,
       "detail": {
         "title": "Apollo 11 · Astraeus",
-        "litPixels": 43997,
+        "drawn": {
+          "bodies": 2,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon",
         "panel": "tli-cutoff"
       },
@@ -41,11 +45,15 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html",
       "ok": true,
-      "seconds": 5.5,
-      "screenshot": "apollo11-phone.png",
+      "seconds": 5.3,
       "detail": {
         "title": "Apollo 11 · Astraeus",
-        "litPixels": 19074,
+        "drawn": {
+          "bodies": 1,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon",
         "panel": "tli-cutoff"
       },
@@ -57,11 +65,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=earth-moon",
       "ok": true,
-      "seconds": 7.9,
-      "screenshot": "earth-moon-desktop.png",
+      "seconds": 7.4,
       "detail": {
         "title": "Earth–Moon · Astraeus",
-        "litPixels": 43593,
+        "drawn": {
+          "bodies": 2,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon",
         "panel": "same-face"
       },
@@ -73,11 +85,15 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=earth-moon",
       "ok": true,
-      "seconds": 6.5,
-      "screenshot": "earth-moon-phone.png",
+      "seconds": 6.4,
       "detail": {
         "title": "Earth–Moon · Astraeus",
-        "litPixels": 19461,
+        "drawn": {
+          "bodies": 2,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon",
         "panel": "same-face"
       },
@@ -89,11 +105,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=jupiter-io",
       "ok": true,
-      "seconds": 7.2,
-      "screenshot": "jupiter-io-desktop.png",
+      "seconds": 6.5,
       "detail": {
         "title": "Jupiter and Io · Astraeus",
-        "litPixels": 80318,
+        "drawn": {
+          "bodies": 3,
+          "dots": 14,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "io",
         "panel": "volcanoes"
       },
@@ -105,11 +125,15 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=jupiter-io",
       "ok": true,
-      "seconds": 5.4,
-      "screenshot": "jupiter-io-phone.png",
+      "seconds": 5.3,
       "detail": {
         "title": "Jupiter and Io · Astraeus",
-        "litPixels": 25586,
+        "drawn": {
+          "bodies": 3,
+          "dots": 6,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "io",
         "panel": "volcanoes"
       },
@@ -121,11 +145,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=synthetic",
       "ok": true,
-      "seconds": 5.6,
-      "screenshot": "synthetic-desktop.png",
+      "seconds": 5.3,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 33976,
+        "drawn": {
+          "bodies": 1,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon"
       },
       "failures": []
@@ -136,11 +164,15 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=synthetic",
       "ok": true,
-      "seconds": 7.5,
-      "screenshot": "synthetic-phone.png",
+      "seconds": 5.4,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 15092,
+        "drawn": {
+          "bodies": 1,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon"
       },
       "failures": []
@@ -151,11 +183,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=synthetic-bare",
       "ok": true,
-      "seconds": 3.4,
-      "screenshot": "synthetic-bare-desktop.png",
+      "seconds": 4.8,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 31935,
+        "drawn": {
+          "bodies": 0,
+          "dots": 0,
+          "paths": 0,
+          "stars": 8920
+        },
         "object": "sky"
       },
       "failures": []
@@ -166,11 +202,15 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=synthetic-bare",
       "ok": true,
-      "seconds": 4,
-      "screenshot": "synthetic-bare-phone.png",
+      "seconds": 3.9,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 14173,
+        "drawn": {
+          "bodies": 0,
+          "dots": 0,
+          "paths": 0,
+          "stars": 8920
+        },
         "object": "sky"
       },
       "failures": []
@@ -181,11 +221,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=synthetic-ring",
       "ok": true,
-      "seconds": 6.2,
-      "screenshot": "synthetic-ring-desktop.png",
+      "seconds": 5.6,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 106342,
+        "drawn": {
+          "bodies": 1,
+          "dots": 10000,
+          "paths": 1,
+          "stars": 8920
+        },
         "object": "moon"
       },
       "failures": []
@@ -195,42 +239,54 @@
       "size": "phone",
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=synthetic-ring",
+      "ok": true,
+      "seconds": 5.9,
+      "detail": {
+        "title": "Astraeus",
+        "drawn": {
+          "bodies": 1,
+          "dots": 5522,
+          "paths": 1,
+          "stars": 8920
+        },
+        "object": "moon"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5690/app.html?experience=synthetic-belt",
+      "ok": true,
+      "seconds": 4.1,
+      "detail": {
+        "title": "Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 10000,
+          "paths": 2,
+          "stars": 8920
+        },
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5690/app.html?experience=synthetic-belt",
       "ok": true,
       "seconds": 6,
-      "screenshot": "synthetic-ring-phone.png",
       "detail": {
         "title": "Astraeus",
-        "litPixels": 55142,
-        "object": "moon"
-      },
-      "failures": []
-    },
-    {
-      "label": "synthetic-belt",
-      "size": "desktop",
-      "viewport": "1440x900",
-      "url": "http://localhost:5690/app.html?experience=synthetic-belt",
-      "ok": true,
-      "seconds": 4.4,
-      "screenshot": "synthetic-belt-desktop.png",
-      "detail": {
-        "title": "Astraeus",
-        "litPixels": 84595,
-        "object": "dust-belt"
-      },
-      "failures": []
-    },
-    {
-      "label": "synthetic-belt",
-      "size": "phone",
-      "viewport": "390x844",
-      "url": "http://localhost:5690/app.html?experience=synthetic-belt",
-      "ok": true,
-      "seconds": 6.5,
-      "screenshot": "synthetic-belt-phone.png",
-      "detail": {
-        "title": "Astraeus",
-        "litPixels": 53064,
+        "drawn": {
+          "bodies": 2,
+          "dots": 9450,
+          "paths": 2,
+          "stars": 8920
+        },
         "object": "dust-belt"
       },
       "failures": []
@@ -241,11 +297,15 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/app.html?experience=synthetic-listed",
       "ok": true,
-      "seconds": 5.8,
-      "screenshot": "synthetic-listed-desktop.png",
+      "seconds": 3.7,
       "detail": {
         "title": "Astraeus",
-        "litPixels": 71230,
+        "drawn": {
+          "bodies": 2,
+          "dots": 3000,
+          "paths": 2,
+          "stars": 8920
+        },
         "object": "listed-orbits"
       },
       "failures": []
@@ -255,137 +315,173 @@
       "size": "phone",
       "viewport": "390x844",
       "url": "http://localhost:5690/app.html?experience=synthetic-listed",
-      "ok": true,
-      "seconds": 6.2,
-      "screenshot": "synthetic-listed-phone.png",
-      "detail": {
-        "title": "Astraeus",
-        "litPixels": 41893,
-        "object": "listed-orbits"
-      },
-      "failures": []
-    },
-    {
-      "label": "synthetic-eccentric",
-      "size": "desktop",
-      "viewport": "1440x900",
-      "url": "http://localhost:5690/app.html?experience=synthetic-eccentric",
-      "ok": true,
-      "seconds": 4,
-      "screenshot": "synthetic-eccentric-desktop.png",
-      "detail": {
-        "title": "Astraeus",
-        "litPixels": 44564,
-        "object": "dust-belt"
-      },
-      "failures": []
-    },
-    {
-      "label": "synthetic-eccentric",
-      "size": "phone",
-      "viewport": "390x844",
-      "url": "http://localhost:5690/app.html?experience=synthetic-eccentric",
-      "ok": true,
-      "seconds": 4.7,
-      "screenshot": "synthetic-eccentric-phone.png",
-      "detail": {
-        "title": "Astraeus",
-        "litPixels": 21022,
-        "object": "dust-belt"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers",
-      "size": "desktop",
-      "viewport": "1440x900",
-      "url": "http://localhost:5690/app.html?experience=showers",
-      "ok": true,
-      "seconds": 7,
-      "screenshot": "showers-desktop.png",
-      "detail": {
-        "title": "Perseids · Astraeus",
-        "litPixels": 117359,
-        "object": "earth",
-        "panel": "stream-shape"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers",
-      "size": "phone",
-      "viewport": "390x844",
-      "url": "http://localhost:5690/app.html?experience=showers",
-      "ok": true,
-      "seconds": 9.7,
-      "screenshot": "showers-phone.png",
-      "detail": {
-        "title": "Perseids · Astraeus",
-        "litPixels": 27762,
-        "object": "earth",
-        "panel": "stream-shape"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers-geminids",
-      "size": "desktop",
-      "viewport": "1440x900",
-      "url": "http://localhost:5690/app.html?experience=showers&shower=geminids",
-      "ok": true,
-      "seconds": 7.2,
-      "screenshot": "showers-geminids-desktop.png",
-      "detail": {
-        "title": "Geminids · Astraeus",
-        "litPixels": 46671,
-        "object": "earth",
-        "panel": "phaethon"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers-geminids",
-      "size": "phone",
-      "viewport": "390x844",
-      "url": "http://localhost:5690/app.html?experience=showers&shower=geminids",
-      "ok": true,
-      "seconds": 9.4,
-      "screenshot": "showers-geminids-phone.png",
-      "detail": {
-        "title": "Geminids · Astraeus",
-        "litPixels": 22911,
-        "object": "earth",
-        "panel": "phaethon"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers-perseids",
-      "size": "desktop",
-      "viewport": "1440x900",
-      "url": "http://localhost:5690/app.html?experience=showers&shower=perseids",
-      "ok": true,
-      "seconds": 6.4,
-      "screenshot": "showers-perseids-desktop.png",
-      "detail": {
-        "title": "Perseids · Astraeus",
-        "litPixels": 128817,
-        "object": "earth",
-        "panel": "stream-shape"
-      },
-      "failures": []
-    },
-    {
-      "label": "showers-perseids",
-      "size": "phone",
-      "viewport": "390x844",
-      "url": "http://localhost:5690/app.html?experience=showers&shower=perseids",
       "ok": true,
       "seconds": 7.4,
-      "screenshot": "showers-perseids-phone.png",
+      "detail": {
+        "title": "Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 2465,
+          "paths": 2,
+          "stars": 8920
+        },
+        "object": "listed-orbits"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5690/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 4.1,
+      "detail": {
+        "title": "Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 10000,
+          "paths": 2,
+          "stars": 8920
+        },
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-eccentric",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5690/app.html?experience=synthetic-eccentric",
+      "ok": true,
+      "seconds": 4.6,
+      "detail": {
+        "title": "Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 10000,
+          "paths": 2,
+          "stars": 8920
+        },
+        "object": "dust-belt"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5690/app.html?experience=showers",
+      "ok": true,
+      "seconds": 6,
       "detail": {
         "title": "Perseids · Astraeus",
-        "litPixels": 37017,
+        "drawn": {
+          "bodies": 7,
+          "dots": 24071,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5690/app.html?experience=showers",
+      "ok": true,
+      "seconds": 7.4,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 5,
+          "dots": 6116,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5690/app.html?experience=showers&shower=geminids",
+      "ok": true,
+      "seconds": 8.4,
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 51115,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5690/app.html?experience=showers&shower=geminids",
+      "ok": true,
+      "seconds": 8.8,
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 49632,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5690/app.html?experience=showers&shower=perseids",
+      "ok": true,
+      "seconds": 6.2,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 24071,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5690/app.html?experience=showers&shower=perseids",
+      "ok": true,
+      "seconds": 7,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 5,
+          "dots": 6165,
+          "paths": 6,
+          "stars": 8920
+        },
         "object": "earth",
         "panel": "stream-shape"
       },
@@ -397,8 +493,7 @@
       "viewport": "1440x900",
       "url": "http://localhost:5690/index.html",
       "ok": true,
-      "seconds": 3.5,
-      "screenshot": "index-page-desktop.png",
+      "seconds": 1.8,
       "detail": {
         "title": "Astraeus",
         "demoLinks": [
@@ -416,8 +511,7 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/index.html",
       "ok": true,
-      "seconds": 1.7,
-      "screenshot": "index-page-phone.png",
+      "seconds": 1.8,
       "detail": {
         "title": "Astraeus",
         "demoLinks": [
@@ -436,7 +530,6 @@
       "url": "http://localhost:5690/assets.html",
       "ok": true,
       "seconds": 1.7,
-      "screenshot": "assets-page-desktop.png",
       "detail": {
         "title": "Astraeus Assets",
         "moonFamilies": {
@@ -458,8 +551,7 @@
       "viewport": "390x844",
       "url": "http://localhost:5690/assets.html",
       "ok": true,
-      "seconds": 1.9,
-      "screenshot": "assets-page-phone.png",
+      "seconds": 1.7,
       "detail": {
         "title": "Astraeus Assets",
         "moonFamilies": {

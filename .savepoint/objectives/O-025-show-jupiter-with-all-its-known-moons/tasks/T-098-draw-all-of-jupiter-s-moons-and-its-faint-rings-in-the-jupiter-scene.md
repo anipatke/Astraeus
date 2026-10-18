@@ -3,7 +3,7 @@ id: T-098
 title: Draw all of Jupiter's moons and its faint rings in the Jupiter scene
 objective: O-025
 status: in_progress
-stage: build
+stage: audit
 depends_on: [{task: T-096, requires: clear}, {task: T-097, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -53,3 +53,76 @@ Drawing only; the families panel, the demo's date and stories are later Tasks.
 ## Technical Verification
 
 Configured gates, Jupiter script, throttled frame-time probe, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (lane o025-t098, builder session t098-builder-lane-20261018)
+
+Base `75b57dd`; lane commits `71bf248` (work), `475949b` (merge of o018-o019 with T-102: no screenshots, scene readouts), then this handoff. Evidence: `docs/evidence/o025-t098-20261018/` (`lite/results.json`, `jupiter-io/results.json`, `probe/*.json`, logs). No screenshots kept (owner, 2026-10-18).
+
+### How it is drawn
+
+- **Positions.** Every moon from the T-096 core fits. `src/core/bodies/jupiterMoons.ts` holds the one loaded set, loads the index and only the chunks a window needs (`loadJupiterMoons`, `chunksNeeded` refuses a window whose chunks the build does not ship), decodes in 8 ms slices, and gives Io, Europa, Ganymede and Callisto their core bindings (fitted position and velocity, tidal-lock orientation from the fitted velocity, so no chunk outside the window is read). Io's core binding moved from the mean elements to the fits (Decision 3); the mean-element model stays as the T-078 record. `ExperienceDefinition.prepare` (new, generic) lets the entry await the load.
+- **Small moons (111).** `src/core/ephemerisGroup.ts` (generic point group over a fit set) feeds `src/app/BodySetView.ts`: one `Points` draw for the dots (3 px floor, grey, live settings) and one `InstancedMesh` draw for the balls at true radius (lit along Jupiter's Sun direction like Io), positions camera-relative in Float64 each frame (0.05 ms for all 115 at 4x, T-096). The ball covers its dot by the depth test once wider. Names only on hover (mouse), tap (touch; a second tap on a named dot focuses it) or near zoom (ball ≥ 6 px across, nearest 8): `src/app/BodySetLabels.ts`. Members are focus targets with radius-aware limits (`sceneFraming.ts`, `MEMBER_MIN_DISTANCE` 0.0015 units, beyond the camera's 0.001 near plane).
+- **Orbits.** `src/app/OrbitSetView.ts`: one `LineSegments` draw for 114 orbit lines (the 111 small moons plus Europa, Ganymede, Callisto through `extraOrbits`); Io keeps its I-035 composition loop as today, recoloured to its family colour. Each line is the moon's osculating ellipse about Jupiter at the clock time (128 points; passes through the moon; stale ellipses recomputed, at most 16 a frame, once the clock has moved 30 simulated minutes). Faint I-035 ring look per vertex in the shader: opacity 0.18, +0.45 brightening by 4 orbit sizes (donor values). Colours are shader uniforms per family. Palette (live settings, Developer > Moons and rings): galilean #f0e6da (the existing orbit cream), inner #f0e442, himalia #e69f00, ananke #56b4e9, carme #cc79a7, pasiphae #009e73, carpo #d55e00, loner #bbbbbb: Okabe-Ito without its black and dark blue. Simulated (Machado 2009, full severity) minimum pairwise CIE76 ΔE: normal 17.4, protan 16.8, deutan 14.6, tritan 13.3; lowest lightness L* 47. `familyGains` uniforms are ready for T-099's highlight. Orbit labels: none added.
+- **Rings.** `data/rings/jupiter.json` (core data) read through `src/core/bodies/jupiterData.ts`, parsed in `src/assets/rings.ts`, drawn by `src/app/RingView.ts` (donor `SaturnRingMesh.tsx` copied: 2048 px radial canvas texture, 6 % soft edges, 256-segment ring, transparent, double-sided, no depth write) in Jupiter's oriented group (its equator). Donor colours and opacities as-is; radii from NASA NSSDC Jupiter Rings Fact Sheet (halo 89,400-123,000 km, main 123,000-128,940, Amalthea gossamer 128,940-181,350, Thebe gossamer 181,350-221,900). Opt-in per experience (`visualOverrides.jupiter.rings`); colour and opacity per band are live settings.
+- **Mapped moons.** Europa, Ganymede, Callisto added to the core catalogue with the donor's 2K maps copied byte for byte (SHA-256 equal to their `map.json`), donor materials, Io's lighting. No Jupiter names in engine or shell code (name check passes; Jupiter names only in `src/core/bodies/`, `src/assets/bodies/`, compositions and the experience).
+
+### Window
+
+The January 2000 window was outside the fits (2010-2030), so the demo now starts 2016-11-04 with the same two-week span (Drift Note). The build ships and the page fetches only the 2016 chunks (116 files; one per moon plus Jupiter's series): `import.meta.glob(".../*/2016.bin")` in the experience; small chunks are inlined by Vite, 14 emitted as files. Unit test: the window's needed chunks are exactly the shipped 116.
+
+### Phone performance (Done When 6)
+
+`tools/validate/on-request/probe-phone-frames.mjs`: 390x844 touch, CPU throttled 4x through DevTools, 8 s of animation frames while playing, headless Chromium with SwiftShader (absolute numbers far above a real phone; compare only). Baseline is the base commit `75b57dd` served from a scratch copy on port 5691. Final run 2026-10-18 about 07:36-07:45Z, each launched only with no headless Chromium running and load under 6.
+
+| Run | Mean ms | p50 | p95 | fps |
+|---|---|---|---|---|
+| Baseline Jupiter-Io, default opening | 21.3 | 16.7 | 33.4 | 46.9 |
+| T-098, default opening (all moons, orbits, rings) | 23.0 | 16.7 | 33.4 | 43.5 |
+| T-098, whole swarm in view (`jupiter,30,30,6000`) | 22.2 | 16.7 | 33.4 | 45.0 |
+| T-098, close over the rings (`jupiter,0,80,120`) | 27.4 | 33.3 | 33.4 | 36.6 |
+| Baseline, Jupiter and Io from 1000 units | 17.1 | 16.7 | 16.8 | 58.4 |
+
+Stated margin: the default view is within 10 % of today's mean with the same p50 and p95 (measured +8 %). Close over the rings is about 29 % slower than today's default view (the ring disc fills much of the screen). The first build measured 33.5 ms at the default view; profiling showed three extra composition loops (per-frame trajectory arcs) and per-frame ellipse rebuilds, fixed by batching the three moons' orbits, the 30-minute refresh and a linear-scale fast path.
+
+### Per-criterion outcomes
+
+1. Decisions 2, 7, 9 — **Met.** One batch of dots with a 3 px floor, balls at true size close up (smallest moon S/2010 J 2, 0.5 km: 25 px radius ball against a 3 px dot at 0.003 units), names only on hover, tap or near zoom (0 or 1 names before asking).
+2. Mapped moons — **Partly met.** Io draws as today (texture, lighting, loop); Europa, Ganymede and Callisto now draw the same way. Tagged places are not drawn: Astraeus draws no package features for any body today (no code reads `features.json`), so "as today" has none to carry. Drift Note.
+3. Rings — **Met.** Donor bands at NSSDC radii, flat in Jupiter's equator, live colour and opacity.
+4. Family-coloured orbits — **Met.** Batched, faint I-035 ring look, palette above as live settings, dots grey, no orbit labels, per-family gains for T-099.
+5. Positions from the T-096 provider, generic code, experience chooses bodies — **Met.** ARCH-03: `tests/bodySet.test.ts` proves the body-set layer with a made-up two-body set.
+6. Phone performance — **Met with the stated margin** (above).
+7. Browser checks through the shared driver — **Met for the lane tier.** Full run deferred to the orchestrator's batch run. Owner look pending.
+
+### Commands run (lane)
+
+- `npx tsc --noEmit` — exit 0. `npx vitest run` — 72 files, 1089 passed, 1 skipped. `npm run build` — exit 0 (existing chunk-size warning). `node tools/validate/driver-guard.mjs` — passes.
+- Public build `ASTRAEUS_PUBLIC_BUILD=1 npx vite build` + `node tools/validate/load-budget.mjs <dir>`: jupiter-io page 6,918,077 B raw / 4,404,908 B gzip (limits raised to 7,270,000 / 4,630,000, measured + 5 %; the page set now lists the three moon maps, the index chunk and the fetched 2016 chunks via a new `fetchedFiles` entry); whole build 24,474,635 / 16,576,626 (limit raised to 25,700,000 / 17,410,000). `assets.html` is over its limit by 815 B, as on the base commit (T-097's catalogue section, not this Task).
+- `node tools/validate/browser-lite.mjs` (port 5690, 07:33-07:35Z) — 28/28.
+- `node tools/validate/browser-jupiter-io.mjs` (07:31-07:33Z) — exit 0, zero console errors; readouts in `jupiter-io/results.json`.
+- `node tools/validate/on-request/probe-phone-frames.mjs` — the table above.
+- Full run deferred to the orchestrator's batch run.
+
+### Files
+
+Read (Context Files): all listed. Extra reads (logged): T-096 and T-097 Task evidence (inputs); `src/core/chebyshevEphemeris.ts`, `chebyshevSeries.ts` (exports), `pointGroup.ts`, `body.ts`, `provenance.ts`, `state.ts` (createState), `scalePolicy.ts` (mapping), `bodyOrientation.ts` (signature), `bodies/index.ts`, `bodies/io.ts`, `bodies/jupiter.ts`, `planetSeries.ts` (load pattern); `src/app/experienceDefinition.ts`, `sceneHooks.ts`, `sceneTargets.ts`, `sceneFraming.ts`, `sceneCamera.ts`, `CameraController.tsx` (near plane), `LayeredRender.tsx`, `sceneLights.ts`, `lighting.ts`, `sceneLayout.ts`, `PathView.ts`, `BodyView.tsx`, `BodyMesh.tsx`, `SceneLabels.ts`, `App.tsx`, `SettingControls.tsx`, `orbitLook.ts`, `visual.ts`, `licence.ts`, `src/main.tsx`; `data/bodies/README.md`, the four moons' `map.json`, `data/stories/jupiter-io/panels.json`; donor `jupiter.ts`, `europa.ts`, `ganymede.ts`, `callisto.ts`, `SaturnRingMesh.tsx`, `public/textures/README.md`; tests that broke (`jupiterIo`, `assets`, `planets`, `stateResolver`, `textureLicence`, `bodyMarkers`, `layerRule`, `nameCheck`), `vitest.setup.ts`, `tools/validate/load-budget.mjs`, `driver-guard.mjs`, `public-build-assets.mjs` (head), `docs/BROWSER_CHECKS.md`; NASA NSSDC Jupiter Rings Fact Sheet (web).
+Changed: new `src/core/ephemerisGroup.ts`, `src/core/bodies/jupiterMoons.ts`, `src/core/bodies/jupiterData.ts`, `src/assets/moonCatalogue.ts`, `src/assets/rings.ts`, `src/assets/bodies/{galileanMoons,jupiterMoonCatalogue,jupiterRings}.ts`, `src/assets/textures/{europa,ganymede,callisto}-2k.jpg`, `src/app/{bodySet,BodySetView,BodySetLabels,OrbitSetView,RingView,sceneBodySets}.ts`, `data/rings/jupiter.json`, `tests/{bodySet,jupiterMoonsScene}.test.ts`, `tools/validate/on-request/probe-phone-frames.mjs`; changed `src/core/bodies/{index,io}.ts`, `src/assets/{catalogue,compositions,visual}.ts`, `src/app/{App.tsx,AstraeusScene.tsx,BodyView.tsx,PathView.ts,experienceDefinition.ts,sceneDebug.ts,sceneFraming.ts,sceneHooks.ts,sceneTargets.ts}`, `src/main.tsx`, `src/experiences/jupiter-io/jupiterIo.ts`, `data/stories/jupiter-io/panels.json`, `vitest.setup.ts`, tests (`assets`, `bodyMarkers`, `jupiterIo`, `planets`, `stateResolver`, `textureLicence`), `tools/validate/{driver.mjs,browser-jupiter-io.mjs,load-budget.mjs}`, `docs/BROWSER_CHECKS.md`, this Task.
+
+### Limitations
+
+- Owner look not done (owner_validation required). Headless frame times are SwiftShader numbers, not a phone's.
+- Orbit lines are osculating ellipses at the clock time, not the fitted paths; for the Sun-perturbed irregular moons the real path wanders from the ellipse over months (stated in the set's provenance).
+- Orbit vertices are float32 relative to Jupiter, so at the closest framing of a far small moon its line may sit a few km off its ball.
+- Small moons have no information panel or list entry yet (T-099); a dot is reached by hover, tap, near zoom or a view link (`?view=<moon id>,...`).
+- Ganymede's map licence rests on the donor's credits list ("USGS / NASA, Public Domain"); its README entry has no licence line. Ganymede's texture is turned 180 degrees to undo the donor's recentring (owner look should confirm).
+- The default opening now frames to Callisto (the farthest drawn body), so Jupiter opens small; T-100 sets the start view.
+
+### Drift Notes
+
+- **Window (temporary):** the Jupiter demo starts 2016-11-04 for two weeks (was 2000-01-01): the old window was outside the fits. Story panel times moved by the same offset and three date-bound sentences reworded truthfully (Galileo "in late 1999"; positions from Horizons; Europa and Ganymede now drawn). T-100 owns the year-long window and the stories. Note for T-100: the slowest moons' "2016" chunks start on 9 February 2016 (segment grid), so a year from 4 Nov 2016 needs the 2017 chunks and possibly 2018 for long-segment moons; extend the glob in `jupiterIo.ts`.
+- **Tagged places:** no Astraeus code draws body-package features, so the mapped moons' tagged places (Done When 2, Success Condition 3) are not drawn; needs a planned Task.
+- **Io's core binding changed** from mean elements to the fits; Io is now valid 2010-2030 only. Tests depending on Io in 2000 moved to 2016 (test setup loads the 2016 fits, as it loads the planet series).
+- **Load budget:** jupiter-io page and whole-build limits raised on purpose (above); `assets.html` over by 815 B on the base already (T-097).
+- **Stale wording found, not changed:** the experience's Jupiter limitation says Jupiter is "drawn flat in one colour", but the catalogue's Jupiter has a CC BY 4.0 texture and draws it; the browser check still asserts that sentence.
+- **Design reconciliation (deferred to the O-025 integration Task):** Design.md should gain the body-set layer (dots, balls, names on demand, batched family orbits), the curve-fit-backed moon bindings and their loader, `ExperienceDefinition.prepare` and `bodySets`, ring systems as opt-in visual data, and the `fetchedFiles` load-budget entry.
+- Lane rules: no router edit; no Task, Check or Issue created.
