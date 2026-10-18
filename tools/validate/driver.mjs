@@ -986,3 +986,54 @@ export function trackRequests(page, pattern) {
   page.on("request", (request) => { if (pattern.test(request.url())) urls.push(request.url()); });
   return urls;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Inside another page (T-082, O-020 Decision 5): the owner's portfolio shows the app in an iframe under its own story buttons.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The size of the portfolio's iframe (`components/astraeus/AstraeusBridge.tsx`, read-only reference): full width and 660 px (>= 1024 wide), 580 px (>= 768), 460 px on a phone. */
+export const PORTFOLIO_FRAME_HEIGHT = (viewportWidth) => (viewportWidth >= 1024 ? 660 : viewportWidth >= 768 ? 580 : 460);
+
+/** Browser flags that let a stand-in page frame the local app (a recent Chromium blocks a local address framed by another origin as a local-network request; the portfolio live is public to public, so no such block exists there). */
+export const FRAMING_BROWSER_ARGS = ["--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessForNavigations,BlockInsecurePrivateNetworkRequests"];
+
+/** The stand-in page's address: the app's own port under another host name (`127.0.0.1` for `localhost`), so it is another origin like the portfolio is, yet the browser allows the frame (it blocks a local app framed by a public-looking host). Answered by a route; the server never sees it. */
+const standInAddress = (appUrl) => { const url = new URL(appUrl); url.hostname = url.hostname === "localhost" ? "127.0.0.1" : "localhost"; url.pathname = "/portfolio-stand-in"; url.search = ""; return url.href; };
+
+/**
+ * Opens a stand-in for the portfolio page at a made-up address and puts the app in a full-width iframe of the portfolio's height; returns the
+ * frame, which every driver function accepts in place of a page (a frame has the same locators), after the shell has appeared in it.
+ * The caller makes the page (so it can attach its error listeners first) and passes the app's address.
+ */
+export async function openInPortfolioFrame(page, appUrl, options) {
+  const height = PORTFOLIO_FRAME_HEIGHT(page.viewportSize().width);
+  await page.route(standInAddress(appUrl), (route) => route.fulfill({
+    contentType: "text/html",
+    body: `<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1"><title>Portfolio stand-in</title><body style="margin:0;background:#050507"><iframe id="astraeus" src="${appUrl}" title="Astraeus" allow="fullscreen; accelerometer; gyroscope" style="display:block;width:100%;height:${height}px;border:0"></iframe></body>`,
+  }));
+  await page.goto(standInAddress(appUrl), { waitUntil: "load" });
+  const handle = await page.locator("iframe#astraeus").elementHandle();
+  const frame = await handle.contentFrame();
+  await waitForShell(frame, options);
+  return frame;
+}
+
+/** What the page shows of the embedded look: the shell's flag, the control height, the bars' heights and their gaps to the frame's edges. */
+export const embeddedLook = (page) => page.evaluate(() => {
+  const shell = document.querySelector(".astraeus-shell");
+  const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height }; };
+  const timeline = box(".timeline-bar");
+  const bar = box(".controls-pill") ?? box(".top-bar");
+  const button = document.querySelector(".timeline-play");
+  return {
+    embedded: shell?.getAttribute("data-embedded") ?? null,
+    phone: shell?.getAttribute("data-phone") ?? null,
+    controlHeight: button === null ? null : button.getBoundingClientRect().height,
+    topBar: bar,
+    timeline,
+    timelineBottomGap: timeline === null ? null : window.innerHeight - timeline.bottom,
+    topGap: bar === null ? null : bar.top,
+    viewport: { width: window.innerWidth, height: window.innerHeight },
+    scrollsHorizontally: document.documentElement.scrollWidth > window.innerWidth + 1,
+  };
+});
