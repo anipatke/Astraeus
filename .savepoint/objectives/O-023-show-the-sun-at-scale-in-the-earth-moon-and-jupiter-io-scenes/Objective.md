@@ -18,7 +18,7 @@ Owner, 2026-10-18: "Can we add the sun at scale to the Jupiter io and earth moon
 
 ## Launch Note (owner, 2026-10-18)
 
-In the launch (G-005 Launch Definition of Done). Earth–Moon is dropped, so this applies to the Jupiter demo (with all its moons, O-025) and, if the owner wants, Apollo 11; the "Apollo 11 too?" question stays open for planning.
+In the launch (G-005 Launch Definition of Done). Earth–Moon is dropped, so this applies to the Jupiter demo (with all its moons, O-025) and Apollo 11 (owner, 2026-10-18: "yes" to Apollo too).
 
 ## Success Conditions
 
@@ -31,7 +31,6 @@ In the launch (G-005 Launch Definition of Done). Earth–Moon is dropped, so thi
 ## Open Questions (to settle when this Objective is planned)
 
 - At Readable scale, where does the Sun go (a fixed far distance in the true direction, or hidden)?
-- Apollo 11 too?
 - Should the Sun be selectable to focus (and a tap target under O-022)?
 
 ## Architectural Considerations

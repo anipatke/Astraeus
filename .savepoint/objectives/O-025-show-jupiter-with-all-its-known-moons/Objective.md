@@ -31,10 +31,11 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 5. Data size within the public load budget (tables compressed or streamed); scene performance on a phone holds (one chunk of work per frame, as the showers do).
 6. Browser checks through the shared driver; full run passes; owner look.
 
+4. **Date window** (owner, 2026-10-18, "yes"): keep January 2000 as the start (the Io stories fit) and extend the window to a year so the outer moons' orbits show.
+5. **Name** (owner, "yes"): "Jupiter and its moons".
+
 ## Open Questions (to settle when this Objective is planned)
 
-- The demo's date window: the Io stories sit in January 2000 (Galileo's flyby); the outer moons take one to two years to go round. Proposed: keep January 2000 as the start and extend the window to a year so the outer orbits show.
-- The demo's name ("Jupiter and its moons").
 - Which of the four big moons' orbits and stories change (the Io stories stay).
 
 ## Boundaries
