@@ -582,7 +582,7 @@ async function checkNotFetched() {
     const app = (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>app</title>" });
     await page.route("**/data/local/gmn-iau-*.json", app);
     await page.route((url) => url.pathname.startsWith("/data/stories/") && url.pathname.endsWith(".json") && url.search === "", app);
-    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -652,7 +652,7 @@ async function checkLoop(page, label, canvas) {
 async function checkLoopOff() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&sky=off&loop=off`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&loop=off`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     await ui.pausePlayback(page);
@@ -706,7 +706,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
   const out = (results[label].eclipticFlat ??= {});
   const p = await openPage(page.viewportSize());
   try {
-    await p.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
+    await p.goto(`${base}?experience=showers&shower=${shower}&sky=off${ENGINE_DEFAULT_VIEW}${query}`);
     await p.waitForSelector("canvas");
     await ui.waitForShell(p);
     await ui.pausePlayback(p);
@@ -779,7 +779,7 @@ async function checkYear(page, label, canvas) {
 async function checkSpanActivity() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
-    await page.goto(`${base}?experience=shower-${shower}&sky=off&span=activity`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&span=activity`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     const spanRange = await ui.seekRange(page);
@@ -806,7 +806,7 @@ async function checkQuality() {
   const page = await openPage({ width: 1280, height: 800 });
   try {
     for (const set of ["all", "reliable"]) {
-      await page.goto(`${base}?experience=shower-${shower}&sky=off&orbits=${set}`);
+      await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&orbits=${set}`);
       await page.waitForSelector("canvas");
       await ui.waitForShell(page);
       await ui.pausePlayback(page);
@@ -830,7 +830,7 @@ async function checkQuality() {
       if (outDir) await page.screenshot({ path: `${outDir}/quality-${set}.png` });
     }
     // The live switch: Developer > Display settings, choosing the other set reloads with it.
-    await page.goto(`${base}?experience=shower-${shower}&sky=off`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off`);
     await page.waitForSelector("canvas");
     await ui.toggleDeveloper(page);
     assert.equal(await ui.orbitSetPressed(page, "all"), true, "the default set is all orbits");
@@ -850,7 +850,7 @@ async function checkRemovedSwitches() {
   const requests = [];
   page.on("request", (request) => requests.push(request.url()));
   try {
-    await page.goto(`${base}?experience=shower-${shower}&source=cams&stars=yale&sky=off`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&source=cams&stars=yale&sky=off`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     await page.waitForTimeout(2500);
@@ -886,6 +886,46 @@ async function checkUpToggle(page, label) {
   await ui.toggleDeveloper(page);
 }
 
+// T-091: the Showers switch. Every shower opens at ?experience=showers&shower=<name>; the top bar (the phone drawer) offers a button per shower; choosing another opens that
+// shower (its own stream and parent, the old view and time dropped) and only the chosen shower's orbit file is requested; choosing back returns here (both directions across the two runs).
+async function checkSwitch(label, viewport) {
+  const others = readdirSync(showersDir).filter((file) => file.endsWith(".json")).map((file) => file.slice(0, -".json".length)).filter((name) => name !== shower);
+  assert.ok(others.length > 0, `${label}: a second shower to switch to`);
+  const other = others[0];
+  const otherSettings = JSON.parse(readFileSync(new URL(`${other}.json`, showersDir), "utf8"));
+  const page = await openPage(viewport);
+  const requested = [];
+  // A dev-server module request for a picture or data address (`?import`, how the bundler learns its url) is not a download of that file.
+  page.on("request", (request) => { const address = new URL(request.url()); if (!address.searchParams.has("import")) requested.push(address.pathname); });
+  try {
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off&view=sun,100,40,250000&t=2027-01-01T00:00:00Z`);
+    await page.waitForSelector("canvas");
+    await ui.waitForShell(page);
+    const state = await ui.experienceSwitchState(page);
+    assert.ok(state !== null, `${label}: the Showers experience offers a switch`);
+    assert.equal(state.name, "Shower", `${label}: the switch is named Shower`);
+    assert.deepEqual(state.options.filter((option) => option.active).map((option) => option.value), [shower], `${label}: the switch shows ${shower} as chosen`);
+    assert.ok(state.options.some((option) => option.value === other && option.label === otherSettings.label), `${label}: the switch offers ${otherSettings.label}`);
+    assert.ok(!requested.some((path) => new RegExp(`/gmn-iau-${otherSettings.stream.iauCode}[^/]*\\.json$`).test(path)), `${label}: ${other}'s orbit file was not requested for ${shower} (${requested.filter((path) => path.includes("gmn-iau"))})`);
+    await ui.chooseSwitchOption(page, other);
+    const there = new URL(page.url()).searchParams;
+    assert.equal(there.get("experience"), "showers", `${label}: switching keeps the experience`);
+    assert.ok(!there.has("view") && !there.has("t"), `${label}: switching drops the old view and time`);
+    assert.equal(there.get("sky"), "off", `${label}: switching keeps the other settings`);
+    assert.equal(await ui.bodyOptionCount(page, `${other}-stream`), 1, `${label}: ${other}'s stream is listed after switching`);
+    assert.equal(await ui.bodyOptionCount(page, streamId(shower)), 0, `${label}: ${shower}'s stream is gone after switching`);
+    assert.ok((await ui.experienceSwitchState(page)).options.find((option) => option.value === other).active, `${label}: the switch shows ${other} as chosen`);
+    assert.ok(requested.some((path) => new RegExp(`/gmn-iau-${otherSettings.stream.iauCode}[^/]*\\.json$`).test(path)), `${label}: ${other}'s orbit file is requested once chosen`);
+    await ui.chooseSwitchOption(page, shower);
+    assert.equal(await ui.bodyOptionCount(page, streamId(shower)), 1, `${label}: switching back returns to ${shower}`);
+    assert.equal(await ui.bodyOptionCount(page, `${other}-stream`), 0, `${label}: ${other}'s stream is gone after switching back`);
+    results[label].switch = { name: state.name, options: state.options.map((option) => option.value) };
+  } finally {
+    await page.close();
+  }
+}
+const streamId = (name) => `${name}-stream`;
+
 async function run(label, viewport) {
   const phoneOnce = label === "phone" || lightRun;
   const page = await openPage(viewport);
@@ -896,7 +936,7 @@ async function run(label, viewport) {
     let startViewRead;
     const plain = await openPage(viewport);
     try {
-      await plain.goto(`${base}?experience=shower-${shower}`);
+      await plain.goto(`${base}?experience=showers&shower=${shower}`);
       await plain.waitForSelector("canvas");
       await ui.waitForShell(plain);
       await plain.waitForTimeout(2500);
@@ -921,7 +961,7 @@ async function run(label, viewport) {
     } finally {
       await plain.close();
     }
-    await page.goto(`${base}?experience=shower-${shower}&sky=off${ENGINE_DEFAULT_VIEW}`);
+    await page.goto(`${base}?experience=showers&shower=${shower}&sky=off${ENGINE_DEFAULT_VIEW}`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
     const canvas = page.getByTestId("earth-moon-canvas");
@@ -1045,6 +1085,7 @@ async function run(label, viewport) {
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
     await shot("window-details");
+    await checkSwitch(label, viewport);
     if (phoneOnce) return; // the phone layout is checked once, through the scenarios above; the rest repeat the desktop's geometry
     await checkSunEarth(page, label, shot, canvas);
     await checkBodies(page, label, shot, canvas);
@@ -1074,6 +1115,22 @@ try {
   await page.goto(base);
   await page.waitForSelector("canvas");
   assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, "Apollo is still the default");
+  // T-091: the old per-shower addresses are removed with no redirect (they open the default experience); the plain Showers address opens the default shower with the switch.
+  for (const old of readdirSync(showersDir).filter((file) => file.endsWith(".json")).map((file) => `shower-${file.slice(0, -".json".length)}`)) {
+    await page.goto(`${base}?experience=${old}`);
+    await page.waitForSelector("canvas");
+    assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, `?experience=${old} is removed: it opens the default experience`);
+  }
+  await page.goto(`${base}?experience=showers`);
+  await page.waitForSelector("canvas");
+  await ui.waitForShell(page);
+  const plainShowers = await ui.experienceSwitchState(page);
+  assert.equal(plainShowers.options.filter((option) => option.active).length, 1, "the plain Showers address opens one shower");
+  assert.equal(plainShowers.options.find((option) => option.active).value, plainShowers.options[0].value, "the plain Showers address opens the first shower of the switch");
+  await page.goto(`${base}?experience=showers&shower=no-such-shower`);
+  await page.waitForSelector("canvas");
+  await ui.waitForShell(page);
+  assert.equal((await ui.experienceSwitchState(page)).options[0].active, true, "an unknown shower opens the first shower");
   await page.goto(`${base}?experience=synthetic-ring`);
   await page.waitForSelector("canvas");
   assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1, "synthetic-ring still mounts");

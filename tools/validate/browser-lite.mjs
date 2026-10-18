@@ -10,7 +10,7 @@
 // Also loads the site pages index.html and assets.html at both sizes: no console errors, no horizontal scroll.
 //
 // Experiences are discovered, not listed by hand: Apollo is the default (no ?experience=), the named ones are the keys of DEFINITIONS in src/main.tsx,
-// and every data/showers/<name>.json is ?experience=shower-<name>.
+// and every data/showers/<name>.json is ?experience=showers&shower=<name> (plus the plain ?experience=showers address).
 //
 // Deliberately does NOT cover (run the full set for those: every tools/validate/browser-*.mjs, for Full Objective Checks and before a release or merge):
 //   exact numbers and readouts (browser-shell, browser-precision), camera presets and labels (browser-anchor-labels, browser-earth-moon, browser-jupiter-io),
@@ -55,7 +55,8 @@ const hasPanels = (storyName) => existsSync(new URL(`data/stories/${storyName}/p
 const experiences = [
   { id: "apollo11", query: "", panelStory: hasPanels("apollo11") ? "apollo11" : undefined },
   ...named.map((name) => ({ id: name, query: `?experience=${name}`, panelStory: hasPanels(name) ? name : undefined })),
-  ...showers.map((name) => ({ id: `shower-${name}`, query: `?experience=shower-${name}`, panelStory: hasPanels(name) ? name : undefined })),
+  { id: "showers", query: "?experience=showers", panelStory: showers.length > 0 && hasPanels(showers[0]) ? showers[0] : undefined },
+  ...showers.map((name) => ({ id: `showers-${name}`, query: `?experience=showers&shower=${name}`, panelStory: hasPanels(name) ? name : undefined })),
 ];
 if (named.length === 0) throw new Error("found no named experiences in src/main.tsx");
 
@@ -177,12 +178,12 @@ const siteChecks = async (page, check, detail) => {
 };
 
 /** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
-const FIVE_ADDRESSES = ["app.html", "app.html?experience=shower-perseids", "app.html?experience=shower-geminids", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
+const FOUR_ADDRESSES = ["app.html", "app.html?experience=showers", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
 const indexChecks = async (page, check, detail) => {
   await siteChecks(page, check, detail);
-  await check("home page links all five experience addresses", async () => {
+  await check("home page links all four experience addresses", async () => {
     const hrefs = await ui.homeDemoLinks(page);
-    const missing = FIVE_ADDRESSES.filter((address) => !hrefs.includes(address));
+    const missing = FOUR_ADDRESSES.filter((address) => !hrefs.includes(address));
     if (missing.length > 0) throw new Error(`the home page does not link ${missing.join(", ")}`);
     const broken = await ui.homeBrokenPictures(page);
     if (broken.length > 0) throw new Error(`card pictures did not load: ${broken.join(", ")}`);

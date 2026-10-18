@@ -1,0 +1,10 @@
+
+  VITE v8.3.2  ready in 129 ms
+
+  ➜  Local:   http://localhost:5601/
+  ➜  Network: use --host to expose
+12:40:49 PM [vite] (client) page reload docs/evidence/o024-t091-full-20261018T013907Z/contact-sheet.html
+12:47:06 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+12:47:06 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+12:49:40 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+12:49:40 PM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2

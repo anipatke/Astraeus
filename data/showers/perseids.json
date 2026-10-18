@@ -1,6 +1,7 @@
 {
   "id": "perseids",
   "label": "Perseids",
+  "order": 1,
   "parentBody": "109P/Swift-Tuttle",
   "parentBodyId": "swift-tuttle",
   "orbit": {

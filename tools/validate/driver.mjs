@@ -930,3 +930,29 @@ export const infoSourceLinesShown = (page) => sourcesSection(page).locator("li")
 export const PHONE_LAYOUT_SLIDERS = ["Phone drawer animation", "Phone top drawer height", "Phone timeline drawer height", "Phone sheet height", "Phone swipe distance"];
 export const phoneSettingShown = (page, name) => page.getByRole("slider", { name }).isVisible();
 export const setPhoneSetting = (page, name, value) => page.getByRole("slider", { name }).fill(String(value));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The experience switch (O-024 T-091): a group of buttons in the top bar (the phone drawer) that opens another version of the experience
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+const experienceSwitch = (page) => page.locator("[data-switch-param]");
+/** Whether the experience offers a switch. */
+export const hasExperienceSwitch = async (page) => (await experienceSwitch(page).count()) > 0;
+/** The switch's accessible name, its address parameter and its options (value, label, active). Null when there is no switch. */
+export async function experienceSwitchState(page) {
+  if (!(await hasExperienceSwitch(page))) return null;
+  await reveal(page, experienceSwitch(page));
+  return experienceSwitch(page).evaluate((group) => ({
+    name: group.getAttribute("aria-label"),
+    param: group.getAttribute("data-switch-param"),
+    options: [...group.querySelectorAll("[data-switch-value]")].map((button) => ({ value: button.getAttribute("data-switch-value"), label: button.textContent.trim(), active: button.getAttribute("aria-pressed") === "true" })),
+  }));
+}
+/** Presses a switch option by its value and waits for the experience to open again (the address changes, the shell comes back). */
+export async function chooseSwitchOption(page, value) {
+  const param = await experienceSwitch(page).getAttribute("data-switch-param");
+  const button = (await reveal(page, experienceSwitch(page).locator(`[data-switch-value="${value}"]`))).first();
+  await Promise.all([page.waitForURL((address) => new URL(address).searchParams.get(param) === value), button.click()]);
+  await page.waitForSelector("canvas");
+  await waitForShell(page);
+}

@@ -1,6 +1,7 @@
 {
   "id": "geminids",
   "label": "Geminids",
+  "order": 2,
   "parentBody": "3200 Phaethon",
   "parentElements": {
     "id": "phaethon",

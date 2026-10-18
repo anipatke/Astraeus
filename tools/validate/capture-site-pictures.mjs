@@ -182,7 +182,7 @@ try {
   }
 
   // ---- Perseids still: the stream at the August peak, scene and labels only ----
-  const perseidsQuery = `experience=shower-perseids&view=${PERSEIDS_VIEW}&scale=true-scale&up=ecliptic`;
+  const perseidsQuery = `experience=showers&view=${PERSEIDS_VIEW}&scale=true-scale&up=ecliptic`;
   if (want("perseids")) {
     const viewport = { width: 1200, height: 675 };
     const page = await open(viewport, perseidsQuery, { css: HIDE_CHROME });

@@ -24,11 +24,11 @@ const apolloTime = (panel) => panel.at.anchor !== undefined ? anchorTimes.get(pa
 const geminidsPeak = Date.parse(readJson("data/showers/geminids.json").activity.peakUtc);
 const utcOr = (events) => (panel) => panel.at.utc !== undefined ? Date.parse(panel.at.utc) : events[panel.at.event];
 const moreStories = [
-  { name: "Geminids", experience: "shower-geminids", time: utcOr({ "geminids-peak": geminidsPeak }), file: "data/stories/geminids/panels.json" },
+  { name: "Geminids", experience: "showers&shower=geminids", time: utcOr({ "geminids-peak": geminidsPeak }), file: "data/stories/geminids/panels.json" },
   { name: "Earth–Moon", experience: "earth-moon", time: utcOr({}), file: "data/stories/earth-moon/panels.json" },
   { name: "Jupiter–Io", experience: "jupiter-io", time: utcOr({}), file: "data/stories/jupiter-io/panels.json" },
 ].map((story) => ({ ...story, panels: [...readJson(story.file).panels].sort((a, b) => story.time(a) - story.time(b)) }));
-const perseidsUrl =process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=shower-perseids`;
+const perseidsUrl =process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=showers`;
 const TLI = -14542676800; // anchor A-02
 const LANDING = -14182940100; // anchor A-LND
 const results = [];
@@ -372,7 +372,7 @@ try {
 
   // The Geminids' shower-only view (span=activity) keeps the two December panels and leaves out the September one.
   {
-    const { context, page } = await openStory("shower-geminids&span=activity");
+    const { context, page } = await openStory("showers&shower=geminids&span=activity");
     assert.equal(await ui.storyMarkers(page).count(), 2, "Geminids activity view: two markers");
     assert.equal(await ui.storyMarkers(page, "phaethon").count(), 0, "Geminids activity view: the September panel is left out");
     note("Geminids activity view keeps the two December panels");

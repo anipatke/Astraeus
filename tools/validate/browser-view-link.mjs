@@ -28,7 +28,7 @@ const readView = async (page) => {
 };
 const angleGap = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 
-for (const [name, query] of [["perseids", "?experience=shower-perseids"], ["default", ""]]) {
+for (const [name, query] of [["perseids", "?experience=showers"], ["default", ""]]) {
   const context = await browser.newContext({ permissions: ["clipboard-read", "clipboard-write"] });
   const page = await open(query, context);
   // Move the camera by hand: drag, then zoom.

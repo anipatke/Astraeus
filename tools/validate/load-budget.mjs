@@ -26,8 +26,8 @@ export const PAGES = [
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
   { id: "app.html?experience=earth-moon", files: [...APP_SHARED, "panels.js", "earthMoonExplorer.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 3_860_000, gzipLimit: 2_740_000 },
   { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg"], rawLimit: 4_000_000, gzipLimit: 1_990_000 },
-  { id: "app.html?experience=shower-perseids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
-  { id: "app.html?experience=shower-geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
+  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
+  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
 ];
 /** Every file of the build together (also the net for a file no page set lists). */
 export const BUILD_LIMIT = { id: "whole build", rawLimit: 22_500_000, gzipLimit: 14_860_000 };
