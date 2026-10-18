@@ -2,7 +2,8 @@
 id: T-097
 title: Add Jupiter's moon list and families to the core data, with the four mapped moons
 objective: O-025
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-096, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -50,3 +51,12 @@ Catalogue data and page; drawing is the next Task.
 ## Technical Verification
 
 Configured gates; catalogue page through the shared driver. Evaluated under `agent-skills/references/check-method.md`.
+
+## Evidence (executor, 2026-10-18, lane o025-t097)
+
+- Data: `data/moons/jupiter.json` (format `astraeus.moon-catalogue/1`), built by `tools/import/jupiter-moon-catalogue.mjs` from the T-096 index. 115 moons: galilean 4, inner 4, himalia 11, ananke 29, carme 41, pasiphae 22, carpo 2, loner 2 (Themisto, Valetudo). Per moon: name, designation, NAIF id, family, mean radius with basis (measured 20, estimate 95), discovery year, ephemeris set/body (chunk index = the T-096 index entry), per-moon source ids (list, family, familyBasis, radius, discovery); source table with URLs.
+- Four mapped moons: `bodyPackage: data/bodies/<moon>` links only; no package file touched (`tests/bodyPackages.test.ts` green).
+- Catalogue page: generated "Jupiter's moons" section in `assets.html` (collapsible per family, count, source line, every moon with `data-moon`); driver function `catalogueMoonFamilies`; lite check "catalogue page lists Jupiter's moons by family".
+- Tests: `tests/jupiterMoonCatalogue.test.ts` (entry for every fit and back, families cover all, sources resolve, four links, no story wording, page lists every moon once).
+- Gates: tsc clean; vitest 70 files pass (1066 passed, 1 skipped); npm run build ok; driver guard ok; browser-lite 28/28 (evidence `docs/evidence/t097-lite-20261018`). Full run deferred to the orchestrator's batch run.
+- Drift Notes: (1) family membership read from Wikipedia's "Moons of Jupiter" table (which cites Sheppard); Sheppard's own page has the table as an image, so it was not re-derived. (2) Carpo group (2 moons) kept as its own family, so loners are only Themisto and Valetudo; owner brief listed Carpo as a loner. (3) Lite browser run started while other lanes' headless chrome was running (load 5.2).
