@@ -1,0 +1,26 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: apollo-desktop: no Milky Way request with the picture off
++ actual - expected
+
++ [
++   'http://localhost:5641/src/assets/textures/milky-way-left.jpg?import',
++   'http://localhost:5641/src/assets/textures/milky-way-right.jpg?import'
++ ]
+- []
+
+    at file:///home/user/code/astraeus-t095/tools/validate/browser-sky.mjs:155:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'http://localhost:5641/src/assets/textures/milky-way-left.jpg?import',
+    'http://localhost:5641/src/assets/textures/milky-way-right.jpg?import'
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

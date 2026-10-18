@@ -975,3 +975,10 @@ export const loaderWasSeen = (page) => page.evaluate(() => window.__loaderSeen =
 export const loaderState = (page) => page.evaluate((selector) => document.querySelector(selector)?.getAttribute("data-state") ?? "absent", HOOK.bootLoader);
 /** Waits until the loader has been removed from the page. */
 export const waitForLoaderGone = (page, options) => page.waitForSelector(HOOK.bootLoader, { state: "detached", ...options });
+
+/** Starts counting the page's requests whose address matches the pattern (call before the page loads); returns the live list of addresses. */
+export function trackRequests(page, pattern) {
+  const urls = [];
+  page.on("request", (request) => { if (pattern.test(request.url())) urls.push(request.url()); });
+  return urls;
+}
