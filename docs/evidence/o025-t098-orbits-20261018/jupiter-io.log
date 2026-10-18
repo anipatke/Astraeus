@@ -1,0 +1,15 @@
+OK load 5.86
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForSelector: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('canvas') to be visible[22m
+
+    at Module.loadAddress (/home/user/code/astraeus-t098/tools/validate/driver.mjs:690:14)
+    at async moons (/home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:107:5)
+    at async run (/home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:227:5)
+    at async file:///home/user/code/astraeus-t098/tools/validate/browser-jupiter-io.mjs:235:3
+
+Node.js v24.16.0

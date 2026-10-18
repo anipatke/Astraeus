@@ -1083,6 +1083,7 @@ export const bodySetReadout = (page) => page.locator("canvas").first().evaluate(
     dotPx: Number(data.bodySetDotPx ?? 0),
     orbits: Number(data.bodySetOrbits ?? 0),
     familyColors: json(data.bodySetFamilyColors, {}),
+    orbitGaps: json(data.bodySetOrbitGaps, []),
     hover: data.bodySetHover ?? "",
     named: Number(data.bodySetNamed ?? 0),
     rings: Number(canvas.closest("[data-rings]")?.getAttribute("data-rings") ?? 0),

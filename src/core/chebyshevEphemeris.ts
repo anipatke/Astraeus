@@ -241,6 +241,29 @@ export class ChebyshevEphemeris {
     });
   }
 
+  /** The start (TDB s) of the run of loaded chunks of `body` that covers `tdbS`, or null when the chunk covering it is not loaded. */
+  #loadedRunStart(body: LoadedBody, tdbS: number): number | null {
+    const { entry } = body;
+    let index = -1;
+    for (let i = 0; i < entry.chunks.length; i += 1) if (entry.chunks[i].startTdbS <= tdbS) index = i;
+    if (index < 0 || body.chunks[index] === null) return null;
+    while (index > 0 && body.chunks[index - 1] !== null) index -= 1;
+    return entry.chunks[index].startTdbS;
+  }
+
+  /**
+   * The earliest UTC time from which a body's centre-relative position can be asked for continuously up to `timeUtcMs` with the chunks
+   * loaded now (its own and the centre's), or null when `timeUtcMs` itself is not covered. For drawing a body's recent path.
+   */
+  loadedFromUtcMs(bodyId: BodyId, timeUtcMs: number): number | null {
+    assertUtcUnixMs(timeUtcMs);
+    const tdbS = utcMsToTdbSeconds(this.index.timeScale, timeUtcMs);
+    const own = this.#loadedRunStart(this.#body(bodyId), tdbS);
+    const centre = this.#loadedRunStart(this.#centre, tdbS);
+    if (own === null || centre === null) return null;
+    return utcMsForTdb(this.index.timeScale, Math.max(own, centre), "up");
+  }
+
   #chunkAt(body: LoadedBody, tdbS: number, timeUtcMs: number): SeriesChunk {
     if (body.last !== null && chunkCovers(body.last, tdbS)) return body.last;
     const { entry } = body;

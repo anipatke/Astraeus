@@ -311,7 +311,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of bodySetViews) view.place(origin, camera as PerspectiveCamera, size.width, size.height, setLook, trueScale);
     for (const view of orbitSetViews) view.place(origin, setLook, trueScale);
     for (const layer of bodySetLabels.current) layer.update(setLook);
-    publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook);
+    publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook, camera, size.width, size.height);
     publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
     publishPointsData(gl.domElement, groupViews, camera, bodySetViews);
     publishBodyData(gl.domElement, bodyScreenReadouts(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.glowLook));

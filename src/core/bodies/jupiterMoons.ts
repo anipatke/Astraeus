@@ -9,6 +9,8 @@ import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { createProvenance } from "../provenance";
 import { assertUtcUnixMs, createState, type State } from "../state";
 import type { TimeBounds, Trajectory } from "../trajectory";
+import { osculatingPeriodS } from "../orbitPeriod";
+import { JUPITER } from "./jupiter";
 
 /** The span the committed fits cover (T-096: 2010-01-01 to 2030-01-01 TDB, chunked per calendar year). */
 export const JUPITER_MOON_FIT_SPAN: TimeBounds = Object.freeze({ startUtcMs: Date.UTC(2010, 0, 1, 0, 2), endUtcMs: Date.UTC(2029, 11, 31, 23, 58) });
@@ -38,7 +40,22 @@ export interface JupiterMoonLoad {
   /** The chunk files the build ships, by path relative to the index (`<body>/<year>.bin`), to the URL they are served at. */
   readonly chunkUrls: Readonly<Record<string, string>>;
   readonly fetchBytes?: (url: string) => Promise<Uint8Array>;
+  /**
+   * Also load, for these bodies, the shipped chunks covering about one orbital period before the window starts (at most `maxMs`), so each
+   * moon's orbit line can be drawn from its own fitted path. Chunks the build does not ship are skipped; the line then starts where the
+   * loaded chunks start.
+   */
+  readonly history?: { readonly bodies: readonly BodyId[]; readonly maxMs: number };
 }
+
+/** One osculating orbital period (ms) of a body at `timeUtcMs` about Jupiter, from its fitted state; Infinity when unbound. */
+export function osculatingPeriodMs(ephemeris: ChebyshevEphemeris, body: BodyId, timeUtcMs: number): number {
+  const state = ephemeris.stateOf(body, timeUtcMs);
+  return 1000 * osculatingPeriodS(state.positionKm, state.velocityKmS!, JUPITER.gmKm3S2!);
+}
+
+/** The fraction of one period of history loaded beyond the period itself (so a line of one period always has its samples). */
+const HISTORY_MARGIN = 1.05;
 
 const fetchBytesOf = async (url: string): Promise<Uint8Array> => {
   const response = await fetch(url);
@@ -75,6 +92,29 @@ export function loadJupiterMoons(load: JupiterMoonLoad): Promise<ChebyshevEpheme
       if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
         await new Promise((resolve) => setTimeout(resolve, 0));
         sliceStarted = performance.now();
+      }
+    }
+    if (load.history !== undefined) {
+      const loaded = new Set(needed.map(({ path }) => path));
+      const start = load.window.startUtcMs;
+      const extra: { body: BodyId; path: string }[] = [];
+      for (const body of load.history.bodies) {
+        const lookback = Math.min(load.history.maxMs, HISTORY_MARGIN * osculatingPeriodMs(ephemeris, body, start));
+        const from = Math.floor(Math.max(start - lookback, JUPITER_MOON_FIT_SPAN.startUtcMs));
+        for (const chunk of ephemeris.chunksFor([body], from, start)) {
+          if (loaded.has(chunk.path) || load.chunkUrls[chunk.path] === undefined) continue;
+          loaded.add(chunk.path);
+          extra.push(chunk);
+        }
+      }
+      const extraBytes = await Promise.all(extra.map(({ path }) => fetchBytes(load.chunkUrls[path]!)));
+      sliceStarted = performance.now();
+      for (let i = 0; i < extra.length; i += 1) {
+        ephemeris.addChunk(extra[i].body, extra[i].path, extraBytes[i]);
+        if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          sliceStarted = performance.now();
+        }
       }
     }
     installed = ephemeris;

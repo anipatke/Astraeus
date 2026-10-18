@@ -5,7 +5,7 @@ import { JUPITER_RINGS } from "../src/assets/bodies/jupiterRings";
 import { catalogue } from "../src/assets/catalogue";
 import { parseRingSystem, ringBandsWithLook } from "../src/assets/rings";
 import { ringExtentKm } from "../src/app/RingView";
-import { chunksNeeded, jupiterMoonEphemeris, JUPITER_MOON_FIT_SPAN } from "../src/core/bodies/jupiterMoons";
+import { chunksNeeded, jupiterMoonEphemeris, JUPITER_MOON_FIT_SPAN, osculatingPeriodMs } from "../src/core/bodies/jupiterMoons";
 import { JUPITER_CHUNK_URLS, JUPITER_MOON_IDS, JUPITER_WINDOW, jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 
 // O-025 T-098: the Jupiter scene draws every catalogued moon, ships and fetches only its window's fit chunks, and draws the rings at the
@@ -29,15 +29,25 @@ describe("Jupiter's moons in the Jupiter scene", () => {
     for (const id of ["io", "europa", "ganymede", "callisto"]) expect(catalogue.get(id).visual.texture?.licence?.licence, id).toBe("public domain");
   });
 
-  it("keeps its window inside the fits and ships exactly the chunk year the window needs", () => {
+  it("keeps its window inside the fits, needs only its year's chunks, and ships the two years before for the slow moons' orbit lines", () => {
     expect(JUPITER_WINDOW.startUtcMs).toBeGreaterThanOrEqual(JUPITER_MOON_FIT_SPAN.startUtcMs);
     expect(JUPITER_WINDOW.endUtcMs).toBeLessThanOrEqual(JUPITER_MOON_FIT_SPAN.endUtcMs);
     const needed = chunksNeeded(jupiterMoonEphemeris(), { window: JUPITER_WINDOW, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS });
-    // One chunk per moon plus Jupiter's own series, all from 2016, and the build ships no other year.
+    // One chunk per moon plus Jupiter's own series, all from 2016.
     expect(needed.length).toBe(116);
     expect(needed.every(({ path }) => path.endsWith("/2016.bin"))).toBe(true);
-    expect(Object.keys(JUPITER_CHUNK_URLS).length).toBe(116);
-    expect(Object.keys(JUPITER_CHUNK_URLS).every((path) => path.endsWith("/2016.bin"))).toBe(true);
+    const shipped = Object.keys(JUPITER_CHUNK_URLS);
+    const fast = ["metis", "adrastea", "amalthea", "thebe", "io", "europa", "ganymede", "callisto"];
+    expect(shipped.filter((path) => path.endsWith("/2016.bin")).length).toBe(116);
+    // 2014 and 2015 for every moon but the eight whose periods are days, and for Jupiter (the centre).
+    for (const year of [2014, 2015]) expect(shipped.filter((path) => path.endsWith(`/${year}.bin`)).length).toBe(116 - fast.length);
+    expect(shipped.every((path) => /\/(2014|2015|2016)\.bin$/.test(path))).toBe(true);
+    expect(shipped.some((path) => fast.some((id) => path.startsWith(`${id}/201`) && !path.endsWith("2016.bin")))).toBe(false);
+    // One period of S/2021 J 7's path before the window is covered by shipped chunks (the orbit line the owner checked).
+    const period = osculatingPeriodMs(jupiterMoonEphemeris(), "s2021-j7", JUPITER_WINDOW.startUtcMs);
+    expect(period).toBeGreaterThan(300 * 86_400_000);
+    const history = jupiterMoonEphemeris().chunksFor(["s2021-j7"], Math.floor(JUPITER_WINDOW.startUtcMs - period), JUPITER_WINDOW.startUtcMs);
+    expect(history.every(({ path }) => JUPITER_CHUNK_URLS[path] !== undefined)).toBe(true);
     expect(() => chunksNeeded(jupiterMoonEphemeris(), { window: { startUtcMs: Date.UTC(2018, 0, 1), endUtcMs: Date.UTC(2018, 0, 2) }, bodies: ["io"], chunkUrls: JUPITER_CHUNK_URLS })).toThrow(/does not ship/);
   });
 
