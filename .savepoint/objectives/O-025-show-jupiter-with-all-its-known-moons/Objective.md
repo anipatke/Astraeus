@@ -31,12 +31,13 @@ Owner, 2026-10-18 (G-005 Launch Definition of Done): "we expand Jupiter to ALL i
 5. Data size within the public load budget (tables compressed or streamed); scene performance on a phone holds (one chunk of work per frame, as the showers do).
 6. Browser checks through the shared driver; full run passes; owner look.
 
-4. **Date window** (owner, 2026-10-18, "yes"): keep January 2000 as the start (the Io stories fit) and extend the window to a year so the outer moons' orbits show.
+4. **Date window** (owner, 2026-10-18): the demo starts on **4 November 2016** ("Actually, 4 Nov 2016, the day my son was born"), replacing the January 2000 start; the window runs a year so the outer moons' orbits show.
 5. **Name** (owner, "yes"): "Jupiter and its moons".
 
 ## Open Questions (to settle when this Objective is planned)
 
-- Which of the four big moons' orbits and stories change (the Io stories stay).
+- The three Io stories are pinned to January 2000 and must move into the new window; "The most volcanic world we know" refers to Galileo's flyby "a few weeks before this scene" and needs new wording. NASA's Juno was in orbit around Jupiter on 4 November 2016 (arrived July 2016), a possible story tie-in.
+- Moons discovered after 2016 still have Horizons positions for 2016 (computed from their orbits); their larger uncertainty goes in the details.
 
 ## Boundaries
 
