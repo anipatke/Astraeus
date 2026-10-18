@@ -56,3 +56,7 @@ Configured gates, lite, the address check, pictures, full run. Evaluated under `
 ## Owner Notes — 2026-10-18
 
 On the local preview the owner checked the phone layout on a real phone ("2 good") and will test again on the live site after the merge ("will test in live as well later after merge").
+
+## Planning Note — 2026-10-18
+
+The launch line-up changed (G-005 Launch Definition of Done): three demos (Apollo, Showers, Jupiter), Earth–Moon dropped, and the old shower and Earth–Moon addresses deliberately left to break (owner). Locking the five public addresses and the new picture baseline therefore move to O-024, which sets the final addresses; when T-082 is started, its Done When is revised to the portfolio slim view and the owner's laptop-and-phone look only.

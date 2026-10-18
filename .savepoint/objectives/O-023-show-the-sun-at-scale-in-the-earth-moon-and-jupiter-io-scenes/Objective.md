@@ -16,6 +16,10 @@ The Earth–Moon and Jupiter–Io demos (and Apollo 11, which shares the Earth�
 
 Owner, 2026-10-18: "Can we add the sun at scale to the Jupiter io and earth moon demos? Would be cool to be looking at io and Jupiter and see the sun in the distance".
 
+## Launch Note (owner, 2026-10-18)
+
+In the launch (G-005 Launch Definition of Done). Earth–Moon is dropped, so this applies to the Jupiter demo (with all its moons, O-025) and, if the owner wants, Apollo 11; the "Apollo 11 too?" question stays open for planning.
+
 ## Success Conditions
 
 1. At True scale the Sun is drawn at its real distance and size (about 0.1 degrees across seen from Jupiter, about 0.5 degrees from Earth), in the same direction as the scene's lighting.
