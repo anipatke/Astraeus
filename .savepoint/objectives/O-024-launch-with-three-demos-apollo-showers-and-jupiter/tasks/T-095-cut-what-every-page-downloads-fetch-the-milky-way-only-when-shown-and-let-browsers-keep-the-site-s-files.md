@@ -2,7 +2,8 @@
 id: T-095
 title: Cut what every page downloads — fetch the Milky Way only when shown, and let browsers keep the site's files
 objective: O-024
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o020-orchestrator-20261018}
@@ -50,3 +51,11 @@ The Milky Way loading and the caching headers only; picture quality unchanged.
 ## Technical Verification
 
 Configured gates, sky script, full run. Evaluated under `agent-skills/references/check-method.md`.
+
+## Context Log
+
+- 2026-10-18 builder (lane o024-t095). Finding: the Milky Way tiles were already lazy at runtime (sceneHooks.ts builds SkyView with picture: null; sceneSky.ts calls requestPicture only when shown; tests/skyPicture.test.ts covers it), and the load-budget page sets already exclude them. So Done When 1 needed no engine change; the browser check now proves it (driver trackRequests): no request with the picture off, two with it on or ?milkyway=on.
+- Done When 2: vercel.json headers rule /assets/(.*) -> Cache-Control public, max-age=31536000, immutable; no rule for HTML. Unit test in tests/publicBuild.test.ts reads vercel.json.
+- Done When 3: no per-page reduction exists to take (measurements 4.08/3.72/3.85/10.71/13.19 MB vs limits already measurement+5%); limits left unchanged, none raised.
+- Gates: tsc, vitest, build pass. Full run: docs/evidence/o024-t095-full-20261018T033437Z (first run docs/evidence/o024-t095-full-20261018T032044Z failed sky on a dev-server ?import module request matched by the tracker, and lite on a transient socket hang up; tracker narrowed to the .jpg, rerun passed every step, error-lines 0).
+- Extra read: src/app/sceneHooks.ts, sceneSky.ts (to find the actual load path).

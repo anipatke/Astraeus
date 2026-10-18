@@ -42,6 +42,7 @@ const open = async (viewport, query, deviceScaleFactor = 1) => {
   const page = await browser.newPage({ viewport, deviceScaleFactor });
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  page.milkyRequests = ui.trackRequests(page, /milky-way[^?]*\.jpg$/);
   await page.goto(`${base}?${query}`);
   await page.waitForSelector("canvas");
   // The sky's attribute appears once the scene has mounted; with ?sky=off it never does, so wait for the canvas to settle instead.
@@ -150,10 +151,14 @@ try {
       await ui.toggleDeveloper(noPicture);
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-picture"), "off", `${label}: the picture is off by default`);
       out.fpsPictureOff = await fpsOf(noPicture);
+      // T-095: nothing of the Milky Way is fetched while the picture is off; switching it on fetches the two tiles, once.
+      assert.deepEqual(noPicture.milkyRequests, [], `${label}: no Milky Way request with the picture off`);
 
       assert.equal(String(await ui.toggleOn(noPicture, "milky-way-picture")), "false", `${label}: the button shows the picture off`);
       await ui.pressToggleNow(noPicture, "milky-way-picture");
       await noPicture.waitForFunction(() => document.querySelector("canvas")?.dataset.skyPicture === "on", null, { timeout: 5000 });
+      await noPicture.waitForTimeout(1500);
+      assert.equal(noPicture.milkyRequests.length, 2, `${label}: switching the picture on fetches its two tiles (${noPicture.milkyRequests.length})`);
       // The brightness sliders change the star uniform in place: the canvas attribute follows the slider, with no rebuild.
       assert.equal(await noPicture.locator("canvas").getAttribute("data-sky-star-brightness"), "1", `${label}: star brightness starts at 1`);
       await ui.setSlider(noPicture, "star-brightness", "1.5");
@@ -168,6 +173,7 @@ try {
       await urlGain.close();
       const forcedOn = await open(viewport, [query, "milkyway=on"].filter(Boolean).join("&"));
       assert.ok((await brightPixels(forcedOn)).lit > noPicturePixels.lit, `${label}: ?milkyway=on draws the picture`);
+      assert.equal(forcedOn.milkyRequests.length, 2, `${label}: ?milkyway=on fetches the two tiles`);
       await forcedOn.close();
 
       // The panel's Sky item.

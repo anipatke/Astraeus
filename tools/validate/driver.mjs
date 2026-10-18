@@ -956,3 +956,10 @@ export async function chooseSwitchOption(page, value) {
   await page.waitForSelector("canvas");
   await waitForShell(page);
 }
+
+/** Starts counting the page's requests whose address matches the pattern (call before the page loads); returns the live list of addresses. */
+export function trackRequests(page, pattern) {
+  const urls = [];
+  page.on("request", (request) => { if (pattern.test(request.url())) urls.push(request.url()); });
+  return urls;
+}

@@ -1,0 +1,61 @@
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 246 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../tmp/tmp.DCcFkeDxIk/public/app.html                                    0.46 kB │ gzip:     0.28 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-ZZcaZtl5.json                 4.48 kB │ gzip:     1.90 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-D27vtcuQ.json                 5.89 kB │ gzip:     2.38 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-DqX3TmeC.json                 6.00 kB │ gzip:     2.13 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-BM4CZYf9.json                 6.44 kB │ gzip:     2.59 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-milky-way-BpzDL6CS.jpg             7.56 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-BC7WTtsQ.json                 9.45 kB │ gzip:     2.74 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-mars-2k-C1F1cZqq.jpg              19.68 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-io-2k-BOLMOZ6N.jpg                21.06 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-mercury-2k-YI6CwAf2.jpg           21.77 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-jupiter-2k-H6qj4EOG.jpg           21.81 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/apollo-moon-B9vmKP4Q.jpg            23.16 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-moon-lroc-urh6biVR.jpg            23.91 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/index.html                                 24.84 kB │ gzip:     7.95 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-earth-bmng-Dj1tZINx.jpg           26.40 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-venus-2k-CaKlBPYD.jpg             30.54 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets.html                                32.32 kB │ gzip:    10.01 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/jupiter-io-BdhMVOli.jpg             37.83 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/t-sun-2k-06TFWV66.jpg               39.65 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/earth-moon-B40zWqqp.jpg             51.33 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/perseids-gmn-L67HtRpo.jpg          101.20 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/hyg-v42-naked-eye-DIEj4sz2.json    284.31 kB │ gzip:   119.03 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/io-2k-CG7hitww.jpg                 364.82 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/mars-2k-CmcQf1fB.jpg               429.76 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/jupiter-2k-CEiO5JSj.jpg            498.97 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/moon-lroc-2k-z9MmovVg.jpg          565.97 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/sun-2k-BfaUCBxs.jpg                822.42 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/mercury-2k-lhhbYhEJ.jpg            872.55 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/venus-2k-B7XKoL-0.jpg              885.07 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/earth-bmng-july-4k-BJxMI6UV.jpg  1,559.34 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/milky-way-left-BVH6yQ3I.jpg      1,751.81 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/milky-way-right-CiMp2gkm.jpg     1,951.62 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/gmn-iau-7-BeRRPk6y.json          2,596.95 kB │ gzip: 1,006.04 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/gmn-iau-4-Bsd20Dtd.json          5,081.42 kB │ gzip: 1,863.25 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/app-B9p0KW6O.css                    37.53 kB │ gzip:     7.81 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/ephemerisProvenance-8hkXtKNM.js      0.02 kB │ gzip:     0.04 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/earthMoonExplorer-CQ4cdeUw.js        1.31 kB │ gzip:     0.72 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/jupiterIo-Ccd2_YXS.js                1.54 kB │ gzip:     0.83 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/scales-ACmYmfpM.js                   2.15 kB │ gzip:     0.97 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/catalogueItem-BTYt3lyn.js            3.57 kB │ gzip:     1.57 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/measuredOrbits-Cz89nxEj.js           4.61 kB │ gzip:     2.00 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-Dppu2VS0.js                   5.28 kB │ gzip:     2.33 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-Cc30hIHK.js                   5.37 kB │ gzip:     2.09 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/showerSettings-BPFAFSif.js           7.71 kB │ gzip:     2.94 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/panels-B0fKtoVJ.js                   8.04 kB │ gzip:     2.68 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/showerDefinition-C88Xr9P9.js        32.07 kB │ gzip:    12.28 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/apollo11Definition-CQty2FWo.js     362.95 kB │ gzip:   118.65 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/app-60rXnjoc.js                  1,260.25 kB │ gzip:   369.93 kB
+../../../../tmp/tmp.DCcFkeDxIk/public/assets/planetModels-D00aBqo3.js         1,391.80 kB │ gzip:   560.54 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 440ms
