@@ -2,7 +2,6 @@ import { hasEarthMoon } from "./scenePlacement";
 import appHtml from "../app.html?raw";
 import { describe, expect, it } from "vitest";
 import perseidsFile from "../data/showers/perseids.json";
-import { earthMoonExplorer } from "../src/experiences/earth-moon/earthMoonExplorer";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
@@ -168,7 +167,7 @@ describe("the page heading", () => {
 
   it("is taken from each real experience's definition, so the shell names none", () => {
     const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
-    const titles = [apollo11Definition, earthMoonExplorer, jupiterIoExplorer, perseids].map(pageTitleOf);
-    expect(titles).toEqual(["Apollo 11 \u00b7 Astraeus", "Earth\u2013Moon \u00b7 Astraeus", "Jupiter and Io \u00b7 Astraeus", "Perseids \u00b7 Astraeus"]);
+    const titles = [apollo11Definition, jupiterIoExplorer, perseids].map(pageTitleOf);
+    expect(titles).toEqual(["Apollo 11 \u00b7 Astraeus", "Jupiter and Io \u00b7 Astraeus", "Perseids \u00b7 Astraeus"]);
   });
 });

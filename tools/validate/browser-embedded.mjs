@@ -28,7 +28,6 @@ const DEMOS = [
   { name: "apollo11", query: "", events: true },
   { name: "showers", query: "?experience=showers" },
   { name: "geminids", query: "?experience=showers&shower=geminids" },
-  { name: "earth-moon", query: "?experience=earth-moon" },
   { name: "jupiter-io", query: "?experience=jupiter-io" },
 ];
 

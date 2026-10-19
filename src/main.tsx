@@ -12,7 +12,7 @@ import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("Astraeus entry element #app is missing");
-// The entry chooses the experience: Apollo by default, the Earth–Moon Explorer with ?experience=earth-moon, Jupiter and Io with ?experience=jupiter-io, the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-bare, without Earth and Moon; synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit).
+// The entry chooses the experience: Apollo by default, Jupiter and Io with ?experience=jupiter-io, the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-bare, without Earth and Moon; synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit).
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = __PUBLIC_BUILD__ ? {} : {
@@ -24,7 +24,6 @@ const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> =
   "synthetic-eccentric": async () => (await import("./synthetic/syntheticEccentricDefinition")).syntheticEccentricDefinition,
 };
 const DEFINITIONS: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = {
-  "earth-moon": async () => (await import("./experiences/earth-moon/earthMoonExplorer")).earthMoonExplorer,
   "jupiter-io": async () => (await import("./experiences/jupiter-io/jupiterIo")).jupiterIoExplorer,
   ...SYNTHETIC,
 };

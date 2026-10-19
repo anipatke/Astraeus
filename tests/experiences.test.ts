@@ -25,7 +25,6 @@ import type { StateResolver } from "../src/core/stateResolver";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
-import { earthMoonExplorer } from "../src/experiences/earth-moon/earthMoonExplorer";
 import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "../src/experiences/showers/showerDefinition";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
@@ -44,7 +43,6 @@ const start = Date.parse(settings.activity.startUtc);
 
 describe("every experience names a composition", () => {
   it.each([
-    ["the Earth–Moon Explorer", earthMoonExplorer, earthMoonSystem],
     ["Apollo", apollo11Definition, earthMoonSystem],
     ["Perseids", perseids, showerComposition(settings)],
     ["the synthetic marker", syntheticDefinition, earthMoonSystem],
@@ -60,33 +58,16 @@ describe("every experience names a composition", () => {
   });
 
   it("no longer offers an earth-moon scene layer", () => {
-    for (const definition of [earthMoonExplorer, apollo11Definition, perseids, syntheticDefinition, syntheticRingDefinition, syntheticBeltDefinition]) {
+    for (const definition of [apollo11Definition, perseids, syntheticDefinition, syntheticRingDefinition, syntheticBeltDefinition]) {
       expect(definition.sceneLayers as readonly string[]).not.toContain("earth-moon");
     }
   });
 });
 
-describe("the Earth–Moon Explorer", () => {
-  it("is Earth and the Moon with the timeline and four camera presets, and nothing mission-shaped", () => {
-    expect(mountedBodiesOf(earthMoonExplorer)).toEqual(["earth", "moon"]);
-    expect(earthMoonExplorer.trackedBodies).toEqual([]);
-    expect(earthMoonExplorer.experience.objects.map((object) => object.id)).toEqual(["earth", "moon"]);
-    expect(earthMoonExplorer.experience.cameraPresets.map((preset) => preset.id)).toEqual(["overview", "focus-earth", "focus-moon", "follow-moon"]);
-    expect(earthMoonExplorer.experience.events).toEqual([]);
-    expect(earthMoonExplorer.developerSections).toBeUndefined();
-    expect(earthMoonExplorer.clock.startUtcMs).toBe(earthMoonExplorer.experience.window.startUtcMs);
-  });
-
-  it("takes its labels and provenance from the catalogue", () => {
-    const [earth, moon] = earthMoonExplorer.experience.objects;
-    expect(earth.label).toBe(catalogue.get("earth").definition.label);
-    expect(earth.provenance).toBe(catalogue.get("earth").definition.accuracy.position);
-    expect(moon.provenance).toBe(catalogue.get("moon").definition.accuracy.position);
-  });
-
+describe("the Earth and Moon readouts", () => {
   it("reports the Moon's distance, phase and position and Earth's distance to the Moon", () => {
-    const metrics = earthMoonExplorer.createMetrics({ clock: undefined as never, resolver, catalogue });
-    const t = earthMoonExplorer.clock.startUtcMs;
+    const metrics = bodyMetrics(resolver, earthMoonSystem.bodies);
+    const t = Date.UTC(2025, 0, 1);
     expect(metrics("moon", t).map((metric) => metric.kind)).toEqual(["distance", "phase", "coordinates"]);
     expect(metrics("earth", t).map((metric) => metric.label)).toEqual(["Distance to Moon"]);
     const distance = metrics("moon", t)[0];
@@ -226,7 +207,7 @@ describe("a Moon-free experience never reads the Moon", () => {
 });
 
 describe("visual overrides and scale choices", () => {
-  const withOverrides = (visualOverrides: ExperienceDefinition["visualOverrides"]): ExperienceDefinition => ({ ...earthMoonExplorer, ...(visualOverrides === undefined ? {} : { visualOverrides }) });
+  const withOverrides = (visualOverrides: ExperienceDefinition["visualOverrides"]): ExperienceDefinition => ({ ...syntheticDefinition, ...(visualOverrides === undefined ? {} : { visualOverrides }) });
 
   it("lays an override over the record without touching the catalogue", () => {
     const sun = catalogue.get("sun");
@@ -256,11 +237,11 @@ describe("visual overrides and scale choices", () => {
   });
 
   it("validates the scale choices an experience offers", () => {
-    expect(scaleChoiceIdsOf(earthMoonExplorer)).toEqual(["true-scale", "readable-scale"]);
+    expect(scaleChoiceIdsOf(apollo11Definition)).toEqual(["true-scale"]);
     expect(scaleChoiceIdsOf(syntheticBeltDefinition)).toBeUndefined();
-    expect(() => scaleChoiceIdsOf({ ...earthMoonExplorer, scaleChoices: [] })).toThrow(/at least one/);
-    expect(() => scaleChoiceIdsOf({ ...earthMoonExplorer, scaleChoices: ["true-scale", "true-scale"] })).toThrow(/twice/);
-    expect(() => scaleChoiceIdsOf({ ...earthMoonExplorer, scaleChoices: ["huge"] })).toThrow(/unknown scale choice/);
+    expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: [] })).toThrow(/at least one/);
+    expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: ["true-scale", "true-scale"] })).toThrow(/twice/);
+    expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: ["huge"] })).toThrow(/unknown scale choice/);
     expect(scaleChoicesFor(["true-scale", "solar-system"]).map((choice) => choice.label)).toEqual(["True", "Solar system"]);
   });
 });
@@ -279,9 +260,9 @@ describe("default selection and camera focus come from the experience, not from 
   const moonAlone = createComposition(catalogue, { id: "moon-alone", bodies: ["moon"], defaultCenter: "moon" });
   const sunAlone = createComposition(catalogue, { id: "sun-alone", bodies: ["sun"], defaultCenter: "sun" });
   const around = (composition: typeof moonAlone, objects: ExperienceDefinition["experience"]["objects"]): ExperienceDefinition => ({
-    ...earthMoonExplorer,
+    ...syntheticDefinition,
     composition,
-    experience: { ...earthMoonExplorer.experience, objects },
+    experience: { ...syntheticDefinition.experience, objects },
   });
 
   it.each([
@@ -303,13 +284,13 @@ describe("default selection and camera focus come from the experience, not from 
   });
 
   it("keeps the three experiences starting where they did: on their own centre", () => {
-    expect(initialObjectIdOf(earthMoonExplorer)).toBe("earth");
+    expect(initialObjectIdOf(syntheticDefinition)).toBe("earth");
     expect(initialObjectIdOf(apollo11Definition)).toBe("earth");
     expect(initialObjectIdOf(perseids)).toBe("sun");
   });
 
   it("measures a developer-readout pair only where a satellite and its planet are both mounted", () => {
-    expect(readoutPairOf(mountedBodiesOf(earthMoonExplorer))).toEqual({ parent: "earth", child: "moon" });
+    expect(readoutPairOf(mountedBodiesOf(apollo11Definition))).toEqual({ parent: "earth", child: "moon" });
     expect(readoutPairOf(mountedBodiesOf(perseids))).toBeNull();
     expect(readoutPairOf(mountedBodiesOf(around(moonAlone, [catalogueItem("moon")])))).toBeNull();
   });

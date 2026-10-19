@@ -144,7 +144,7 @@ try {
   await urlOn.close();
 
   // No stray Sun elsewhere.
-  for (const [name, query] of [["earth-moon", "experience=earth-moon"], ["jupiter-io", "experience=jupiter-io"], ["apollo", ""]]) {
+  for (const [name, query] of [["jupiter-io", "experience=jupiter-io"], ["apollo", ""]]) {
     const page = await open(query);
     const bodies = await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies");
     results[`${name}Bodies`] = bodies;

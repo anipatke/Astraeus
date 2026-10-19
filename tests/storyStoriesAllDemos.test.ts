@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { earthMoonExplorer } from "../src/experiences/earth-moon/earthMoonExplorer";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
@@ -15,7 +14,6 @@ const geminids = (span?: "activity") => {
 
 const stories: readonly [string, ExperienceConfig, readonly (readonly [string, string, string | undefined])[]][] = [
   ["Geminids", geminids(), [["phaethon", "modelled", "phaethon"], ["best-shower", "observed", "geminids-stream"], ["earth-crossing", "observed", "earth"]]],
-  ["Earth–Moon", earthMoonExplorer.experience, [["same-face", "observed", "moon"], ["drifting-away", "observed", undefined], ["red-moon", "observed", "earth"]]],
   ["Jupiter–Io", jupiterIoExplorer.experience, [["volcanoes", "observed", "io"], ["squeezed", "modelled", "jupiter"], ["rhythm", "observed", undefined]]],
 ];
 
@@ -44,16 +42,6 @@ describe("short stories for the three demos without one (T-089)", () => {
       expect(body, panel.id).not.toMatch(/\d{1,2}:\d{2}/);
       expect(body, panel.id).not.toMatch(/°|\bUTC\b|\bAU\b/);
     }
-  });
-
-  it("opens the eclipse panel at greatest eclipse in NASA's table, and the Earth–Moon full Moon at NASA's phase time", () => {
-    const panels = earthMoonExplorer.experience.storyPanels!.panels;
-    // I-039: NASA's catalogue time is Terrestrial Dynamical Time; UT = TD - Delta T (75 s in 2025).
-    const catalogueTd = Date.parse("2025-03-14T06:59:56Z");
-    const deltaTSeconds = 75;
-    expect(panels.find((panel) => panel.id === "red-moon")!.timeUtcMs).toBe(catalogueTd - deltaTSeconds * 1000);
-    expect(panels.find((panel) => panel.id === "red-moon")!.details.join(" ")).toMatch(/06:58:41 UT/);
-    expect(panels.find((panel) => panel.id === "drifting-away")!.timeUtcMs).toBe(Date.parse("2025-01-13T22:27:00Z"));
   });
 
   it("opens the Geminids Earth panel at the shower's peak, and keeps the two December panels in the narrowed (activity) view", () => {

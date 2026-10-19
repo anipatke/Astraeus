@@ -130,12 +130,12 @@ try {
   assert.equal(await ui.hasScaleExplanation(page), false, "Apollo 11 has no scale explanation button");
   assert.equal(await currentScale(page), null);
   await chooseScale(page, "True");
-  // T-085 move: the scenario that switched Apollo to Readable (toggle name, readouts identical under both scales, tooltip wording) now runs on Earth–Moon, which keeps both.
+  // T-085 move: the scenario that switched Apollo to Readable (toggle name, readouts identical under both scales, tooltip wording) now runs on the made-up test experience (experience=synthetic: Earth and the Moon, both scales), since Earth–Moon is gone (O-024 T-093).
   {
     const emPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-    emPage.on("pageerror", (error) => errors.push(`earth-moon pageerror: ${error.message}`));
-    emPage.on("console", (message) => { if (message.type() === "error") errors.push(`earth-moon console: ${message.text()}`); });
-    await emPage.goto(`${url}${url.includes("?") ? "&" : "?"}experience=earth-moon`);
+    emPage.on("pageerror", (error) => errors.push(`synthetic pageerror: ${error.message}`));
+    emPage.on("console", (message) => { if (message.type() === "error") errors.push(`synthetic console: ${message.text()}`); });
+    await emPage.goto(`${url}${url.includes("?") ? "&" : "?"}experience=synthetic`);
     await emPage.waitForSelector("canvas");
     await ui.waitForShell(emPage);
     await ui.pausePlayback(emPage);

@@ -1,0 +1,102 @@
+{
+  "distDir": "/tmp/tmp.ISmEUVtRVi/public",
+  "loadBudget": {
+    "ok": true,
+    "pages": [
+      {
+        "id": "index.html",
+        "files": 13,
+        "raw": 398615,
+        "gzip": 363576,
+        "rawLimit": 600000,
+        "gzipLimit": 530000,
+        "problems": []
+      },
+      {
+        "id": "assets.html",
+        "files": 10,
+        "raw": 260815,
+        "gzip": 223821,
+        "rawLimit": 274000,
+        "gzipLimit": 240000,
+        "problems": []
+      },
+      {
+        "id": "app.html (Apollo 11)",
+        "files": 11,
+        "raw": 4140107,
+        "gzip": 2752544,
+        "rawLimit": 4250000,
+        "gzipLimit": 2860000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=jupiter-io",
+        "files": 42,
+        "raw": 7721636,
+        "gzip": 4963164,
+        "rawLimit": 8110000,
+        "gzipLimit": 5220000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers",
+        "files": 19,
+        "raw": 10759513,
+        "gzip": 7107059,
+        "rawLimit": 11190000,
+        "gzipLimit": 7430000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers&shower=geminids",
+        "files": 19,
+        "raw": 13243986,
+        "gzip": 7913269,
+        "rawLimit": 13790000,
+        "gzipLimit": 8280000,
+        "problems": []
+      },
+      {
+        "id": "whole build",
+        "files": 76,
+        "raw": 25221267,
+        "gzip": 17088723,
+        "rawLimit": 25700000,
+        "gzipLimit": 17410000,
+        "problems": []
+      }
+    ]
+  },
+  "budgetSelfProof": true,
+  "localDataFilesChecked": 0,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html"
+  ],
+  "missingPages": [],
+  "starAsset": {
+    "ok": true,
+    "problems": [],
+    "file": "src/assets/stars/hyg-v42-naked-eye.json",
+    "sha256": "f4076d268d53f2781cb8f4beaafe63abbf9c89366f641ff080d02af4ef54f540",
+    "bytes": 284317
+  },
+  "synthetic": {
+    "ok": true,
+    "modules": [
+      "syntheticDefinition",
+      "syntheticEccentricDefinition",
+      "syntheticListedDefinition",
+      "syntheticRingDefinition"
+    ],
+    "matches": []
+  },
+  "syntheticSelfProof": true,
+  "selfProof": true,
+  "ok": true,
+  "checked": 76,
+  "sources": [],
+  "matches": []
+}

@@ -61,7 +61,7 @@ The full run takes no pictures (T-102): there is no baseline, comparison or cont
 |--------|--------|-----|-----|
 | `browser-showers.mjs` (Perseids, Geminids) | every scenario at desktop and phone | desktop runs everything; phone runs the plain load, the peak (stream drawn, details, GMN credit, member count, clump and not-shown statements), zoomed-out and window details | phone start and end stream drawn, rate rising to the peak, Sun-Earth, bodies and labels, whole orbit, crossing, year sweep, loop, ecliptic flat: desktop run (same scene geometry; the phone layout is the part that differs, and it is checked once) |
 | `browser-showers.mjs`, `-public-showers`, `-lite`, `-story-panels`, `-view-link`, `-controls`, `-sky` addresses (O-024 T-091) | `?experience=shower-perseids` and `?experience=shower-geminids` | `?experience=showers` (the Perseids) and `?experience=showers&shower=geminids`; the old addresses are removed with no redirect and open the default experience (asserted at the end of `browser-showers`) | every prior scenario unchanged, per shower. New: `checkSwitch` (both sizes, each shower in turn, so both directions): the top-bar switch named Shower, its options, switching opens the other shower with the old view and time dropped and only the chosen shower's orbit file requested, and switching back; the plain address opens the first shower, an unknown one the same. Driver: `experienceSwitchState`, `chooseSwitchOption` |
-| `browser-sky.mjs` | Apollo, Earth-Moon, Perseids at both sizes (6 combinations) | Apollo at both sizes (2 combinations) | Earth-Moon and Perseids sky (any size): one shared sky component (`SkyView`), covered by the Apollo runs; canvas drawing on the phone by `browser-lite` (the scene reports something drawn) |
+| `browser-sky.mjs` | Apollo, Perseids at both sizes (6 combinations; Earth-Moon removed in O-024 T-093) | Apollo at both sizes (2 combinations) | Perseids sky (any size): one shared sky component (`SkyView`), covered by the Apollo runs; canvas drawing on the phone by `browser-lite` (the scene reports something drawn) |
 
 ## Moved to on request (`tools/validate/on-request/`)
 
@@ -106,7 +106,7 @@ Every assertion that counted pixels, and what reads it now. A threshold was kept
 | Script and scenario | Was | Now |
 |------|------|------|
 | `browser-lite` canvas draws | more than 200 non-black pixels | `sceneDrawsSomething`: a body, dots or a path in view |
-| `browser-earth-moon`, `browser-jupiter-io` four presets each frame something drawn | more than 300 non-black pixels | `sceneDrawsSomething`: a body or path in view |
+| `browser-jupiter-io` four presets each frame something drawn | more than 300 non-black pixels | `sceneDrawsSomething`: a body or path in view |
 | `browser-jupiter-io` Jupiter is drawn in the overview | more than 800 non-black pixels | `sceneBody("jupiter")`: a sphere in view of more than 5 px radius |
 | `browser-orbit-look` each toggle changes the picture; a brighter ring lights more | sums of canvas brightness | `scenePath(...).look`: the layer reads on, then off, then on; the ring's opacity rises with the slider |
 | `browser-sky` stars drawn against `?sky=off`; the picture lights pixels the stars do not; `?milkyway=on` draws it | bright and lit pixel counts, five comparisons | `sceneSky`: `?sky=off` reports no stars; the default reports every star at a brightness above zero; the picture reads shown with it on and not shown with it off |
@@ -137,3 +137,19 @@ Screenshots taken only to keep a picture (every other `screenshot` call in the s
 | Io's details state the mean-element figure (9,388 km), "approximate demonstration" and the source's warning | Io's details state Horizons and the fits' 0.0994 m | the mean-element record and its 9,388 km figure: `tests/jupiterIo.test.ts` ("kept as the record: the mean-element model ..."); Io against Horizons through the resolver: same file ("is placed where Horizons puts it") |
 
 New (driver: `bodySetReadout`, `pointAtScene`, `tapScene`, `bodySetNameShown`, `bodySetNamesShown`, toggle `moon-orbits`, sliders `ring-*-opacity`): every catalogued moon drawn (111 + 4), no names before asking, a dot's name on hover (desktop) or tap (phone), the smallest moon a ball far wider than its dot and named up close, the four ring bands drawn at the NSSDC radii in the donor's look and taking the live opacity (`data-ring-bands`, driver `ringReadout`; desktop), one distinct orbit colour per family, and (owner defect, 2026-10-18) five irregular moons including S/2021 J 7 each on its own orbit line at a close view (`data-body-set-orbit-gaps`: on-screen distance from each in-view moon to its own drawn line). Phone-class frame time: `on-request/probe-phone-frames.mjs` (CPU throttled through DevTools).
+
+## Earth–Moon removed (O-024 T-093, TEST-03)
+
+The Earth–Moon demo, its story file and `browser-earth-moon.mjs` are gone (owner, 2026-10-18: "Drop earth and moon, it's covered by Apollo"). Where each scenario now lives:
+
+| Scenario that used `?experience=earth-moon` | Now asserted in |
+|------|------|
+| Scale toggle name, readouts identical under True and Readable, toggle tooltip, the ⓘ explanation | `browser-shell.mjs`, on `?experience=synthetic` (made-up demo: Earth, Moon, both scales; dev server only) |
+| Orbit-look toggles and ring opacity, desktop True and Readable, phone | `browser-orbit-look.mjs`, on `?experience=synthetic` |
+| Orbit motion (head gap, arc segment) | `browser-orbit-motion.mjs`: Jupiter–Io and `?experience=synthetic` |
+| Four camera presets each frame something drawn; Earth/Moon info panels, Moon phase readout | `browser-jupiter-io.mjs` (presets); Apollo's Earth and Moon rows in `browser-spike02.mjs` and `browser-shell.mjs`; `tests/experiences.test.ts` (Earth and Moon readouts) |
+| Embedded in the portfolio frame | `browser-embedded.mjs`: Apollo 11, Perseids, Geminids, Jupiter–Io |
+| Story panels (3) | removed with the story; `browser-story-panels.mjs` covers the remaining stories |
+| Sky; no stray Sun; marker rule | `browser-sky.mjs` (Apollo, Perseids); `on-request/browser-sun.mjs`, `on-request/browser-marker-existing.mjs` without Earth–Moon |
+| Home page links | `browser-lite.mjs` and `tests/homePage.test.ts` now expect three addresses |
+| Page-size limit for the address | removed from `load-budget.mjs` and the README table |

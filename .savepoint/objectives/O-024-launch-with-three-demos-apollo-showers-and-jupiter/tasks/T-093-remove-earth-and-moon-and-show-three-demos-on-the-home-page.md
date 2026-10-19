@@ -2,10 +2,19 @@
 id: T-093
 title: Remove Earth and Moon and show three demos on the home page
 objective: O-024
-status: planned
+status: done
 depends_on: [{task: T-091, requires: clear}, {task: T-092, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+    required: true
+    accepted_check: ""
 planned_by: {role: planner, session: o020-orchestrator-20261018}
+check_waiver:
+    task: T-093
+    reason: Owner completed this Task via the board without requesting a Task Check.
+    actor:
+        role: owner
+        session: board-owner
+    recorded_at: "2026-10-19T10:16:15Z"
 ---
 
 # Remove Earth and Moon and show three demos on the home page
@@ -55,3 +64,24 @@ Configured gates, lite, full run, contact sheet. Evaluated under `agent-skills/r
 ## Planning Note — 2026-10-18
 
 Owner: "can we bin the whole screenshots thing" (chose "All of it"). Done When 5 (new picture baseline and contact sheet) is withdrawn; T-102 removes the picture machinery. When T-093 starts, its Done When is revised accordingly.
+
+## Evidence — 2026-10-19 (executor)
+
+**Done When 5 revised on start** (per the Planning Note and T-102): withdrawn, no new picture baseline or contact sheet. Replaced by: the three demos are covered by readout-based checks only.
+
+**Per criterion**
+1. Earth–Moon removed: `src/experiences/earth-moon/`, `data/stories/earth-moon/`, `tools/validate/browser-earth-moon.mjs`, `site/earth-moon.jpg`, its entry in `src/main.tsx`, its run-full step and its page-size limit. Engine parts (composition, catalogue, textures) stay. No redirect. Met.
+2. Home page has three cards (Apollo 11, Showers, Jupiter–Io); share text, intro and README (table, URLs, size table, folder note) updated. `tools/validate/public-addresses.mjs danglingLinks` scans the built pages for retired addresses; run in run-full against the public build (`public-addresses | exit=0`) and in `tests/homePage.test.ts`. Met. The Jupiter card picture is still the existing one (placeholder until O-025).
+3. Addresses listed in one place, `tools/validate/public-addresses.mjs` (`DEMO_ADDRESSES`), read by `browser-lite.mjs` and `tests/homePage.test.ts`; run-full checks them. Met.
+4. Scenarios moved (TEST-03), mapped in `docs/BROWSER_CHECKS.md` "Earth–Moon removed": scale toggle/ⓘ and orbit-look to `?experience=synthetic` (Earth, Moon, both scales; dev server only), orbit-motion to Jupiter–Io plus synthetic, embedded/sky/sun/marker/story-panels drop the entry. Unit tests that used the Explorer as a fixture now use `syntheticDefinition`/`apollo11Definition`; the Earth–Moon readout and illumination tests kept. Met. Limitation: the scale scenarios run on a dev-only made-up experience, since no shipped demo offers Readable.
+5. Withdrawn (see above).
+6. Full run passed (below). Owner validation of the home page and each demo: pending.
+
+**Commands run**
+- `npm run typecheck` ok; `npm run build` ok; `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml`: 74 files, 1097 passed, 1 skipped (run before the addresses module was added); then `npx vitest run tests/homePage.test.ts tests/browserDriverGuard.test.ts`: 8 passed.
+- `tools/validate/run-full.sh docs/evidence/o024-t093-full-20261019T094037Z` (20:40–20:53 local, 741 s): all 22 steps `exit=0`, `error-lines=0` (summary.txt in that folder). Includes lite, shell, orbit-look, orbit-motion, embedded, story-panels, sky, public-addresses.
+
+**Files read:** the Context Files listed, plus extra reads (reason: find every user of Earth–Moon): `src/shell/scaleModel.ts`, `src/synthetic/syntheticDefinition.ts`, the other browser scripts/tests that named `earth-moon` (`browser-shell/-sky/-embedded/-lite/-orbit-motion/-spike03`, `on-request/*`, `tests/experiences/experienceDefinition/storyStoriesAllDemos/homePage/publicBuild`), `src/assets/compositions.ts`.
+**Files changed:** the above plus `index.html`, `README.md`, `docs/BROWSER_CHECKS.md`, `tools/validate/load-budget.mjs`, `tools/validate/run-full.sh`, new `tools/validate/public-addresses.mjs`.
+
+**Limitations:** README whole-build size row not re-measured (limit still holds); `data/stories/earth-moon` text lives only in git history; historical docs under `docs/` and old evidence still mention Earth–Moon on purpose.

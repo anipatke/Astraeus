@@ -25,7 +25,7 @@ for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
-  await loadAddress(page, `${base}?experience=earth-moon&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`); // throws when the scale is not offered or not in force (I-036)
+  await loadAddress(page, `${base}?experience=synthetic&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`); // throws when the scale is not offered or not in force (I-036)
   await page.waitForTimeout(3000);
   await ensurePaused(page);
   await openDeveloper(page);

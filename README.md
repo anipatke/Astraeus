@@ -69,7 +69,7 @@ flowchart LR
 - `src/core/` is the scientific core: time, state vectors, orientation, scale policies and trajectories, with no Three.js or React.
 - `src/app/` draws it: floating origin, camera, paths, sky and labels.
 - `src/shell/` holds the reusable timeline, event list, story panels and info panel.
-- `src/experiences/` holds each story: Apollo 11, the Earth-Moon explorer, Jupiter and Io, and the showers.
+- `src/experiences/` holds each story: Apollo 11, Jupiter and Io, and the showers.
 
 ## Run it locally
 
@@ -89,7 +89,6 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Apollo 11 (default) | `/app.html` |
 | Meteor showers: the Perseids (default) | `/app.html?experience=showers` |
 | Meteor showers: the Geminids | `/app.html?experience=showers&shower=geminids` |
-| Earth and Moon | `/app.html?experience=earth-moon` |
 | Jupiter and Io | `/app.html?experience=jupiter-io` |
 
 Data:
@@ -115,7 +114,6 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 | `index.html` | 567,702 B | 600,000 B | 503,261 B | 530,000 B |
 | `assets.html` | 244,750 B | 260,000 B | 220,942 B | 240,000 B |
 | `app.html` (Apollo 11) | 4,038,691 B | 4,250,000 B | 2,720,311 B | 2,860,000 B |
-| `app.html?experience=earth-moon` | 3,671,629 B | 3,860,000 B | 2,601,663 B | 2,740,000 B |
 | `app.html?experience=jupiter-io` | 3,802,109 B | 4,000,000 B | 1,894,220 B | 1,990,000 B |
 | `app.html?experience=showers` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
 | `app.html?experience=showers&shower=geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |

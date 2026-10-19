@@ -10,7 +10,7 @@ const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
 const out = {};
-for (const experience of ["jupiter-io", "earth-moon"]) {
+for (const experience of ["jupiter-io", "synthetic"]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   page.on("pageerror", (error) => errors.push(`${experience} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${experience} console: ${message.text()}`); });

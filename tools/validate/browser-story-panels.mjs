@@ -25,7 +25,6 @@ const geminidsPeak = Date.parse(readJson("data/showers/geminids.json").activity.
 const utcOr = (events) => (panel) => panel.at.utc !== undefined ? Date.parse(panel.at.utc) : events[panel.at.event];
 const moreStories = [
   { name: "Geminids", experience: "showers&shower=geminids", time: utcOr({ "geminids-peak": geminidsPeak }), file: "data/stories/geminids/panels.json" },
-  { name: "Earth–Moon", experience: "earth-moon", time: utcOr({}), file: "data/stories/earth-moon/panels.json" },
   { name: "Jupiter–Io", experience: "jupiter-io", time: utcOr({}), file: "data/stories/jupiter-io/panels.json" },
 ].map((story) => ({ ...story, panels: [...readJson(story.file).panels].sort((a, b) => story.time(a) - story.time(b)) }));
 const perseidsUrl =process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=showers`;

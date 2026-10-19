@@ -29,8 +29,8 @@ const errors = [];
 const results = { starSource: "hyg", starCount, runs: {} };
 
 // T-071 (trim): the sky is one component behind every experience, so a sample covers it. Apollo runs at both sizes (the phone once); the
-// Earth-Moon Explorer and the Perseids are not run (their sky is the same component, behind the shower scenes: browser-showers.mjs asserts the stream with ?sky=off and on). Every other experience's sky is seen in the before/after pictures and its canvas drawing in browser-lite.mjs.
-const EXPERIENCES = [["apollo", ""], ["earth-moon", "experience=earth-moon"], ["perseids", "experience=showers"]];
+// Perseids are not run (their sky is the same component, behind the shower scenes: browser-showers.mjs asserts the stream with ?sky=off and on). Every other experience's sky is seen in the before/after pictures and its canvas drawing in browser-lite.mjs.
+const EXPERIENCES = [["apollo", ""], ["perseids", "experience=showers"]];
 const SIZES = [["desktop", { width: 1280, height: 800 }], ["mobile", { width: 390, height: 844 }]];
 const SAMPLED = new Set(["apollo-desktop", "apollo-mobile"]);
 // Must equal SKY_PROBE_DIRECTION in src/app/SkyView.ts (render frame).

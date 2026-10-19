@@ -50,8 +50,8 @@ laneA() {
 }
 laneB() {
   run public-build-assets node tools/validate/public-build-assets.mjs "$SCRATCH/public"
+  run public-addresses node tools/validate/public-addresses.mjs "$SCRATCH/public"
   run public-showers env ASTRAEUS_URL=$PUB ASTRAEUS_EVIDENCE_DIR="$B/public-showers" node tools/validate/browser-public-showers.mjs
-  dev earth-moon browser-earth-moon.mjs
   dev jupiter-io browser-jupiter-io.mjs
   dev embedded browser-embedded.mjs
   dev orbit-motion browser-orbit-motion.mjs

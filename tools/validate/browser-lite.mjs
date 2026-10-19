@@ -13,7 +13,7 @@
 // and every data/showers/<name>.json is ?experience=showers&shower=<name> (plus the plain ?experience=showers address).
 //
 // Deliberately does NOT cover (run the full set for those: every tools/validate/browser-*.mjs, for Full Objective Checks and before a release or merge):
-//   exact numbers and readouts (browser-shell, browser-precision), camera presets and labels (browser-anchor-labels, browser-earth-moon, browser-jupiter-io),
+//   exact numbers and readouts (browser-shell, browser-precision), camera presets and labels (browser-anchor-labels, browser-jupiter-io),
 //   the Sun (browser-sun), the sky (browser-sky), shower streams, sources and orbits
 //   (browser-showers, browser-public-showers), the made-up experiences' own behaviour (browser-synthetic*), story panel timing, auto-open
 //   and settings (browser-story-panels), view links (browser-view-link), and the spike scripts. A pass here is a smoke result, not a substitute for those.
@@ -26,6 +26,7 @@
 // ASTRAEUS_EVIDENCE_DIR is required and must be new or empty, so evidence never overwrites an earlier run. Exit code is non-zero if any load fails.
 import { mkdirSync, readdirSync, readFileSync, existsSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { DEMO_ADDRESSES } from "./public-addresses.mjs";
 
 const root = new URL("../../", import.meta.url);
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
@@ -179,12 +180,12 @@ const assetsChecks = async (page, check, detail) => {
 };
 
 /** The home page opens every real experience (T-074): each address the owner's portfolio embeds (O-020 Decision 5) is a link on it. */
-const FOUR_ADDRESSES = ["app.html", "app.html?experience=showers", "app.html?experience=earth-moon", "app.html?experience=jupiter-io"];
+const THREE_ADDRESSES = DEMO_ADDRESSES;
 const indexChecks = async (page, check, detail) => {
   await siteChecks(page, check, detail);
-  await check("home page links all four experience addresses", async () => {
+  await check("home page links all three experience addresses", async () => {
     const hrefs = await ui.homeDemoLinks(page);
-    const missing = FOUR_ADDRESSES.filter((address) => !hrefs.includes(address));
+    const missing = THREE_ADDRESSES.filter((address) => !hrefs.includes(address));
     if (missing.length > 0) throw new Error(`the home page does not link ${missing.join(", ")}`);
     const broken = await ui.homeBrokenPictures(page);
     if (broken.length > 0) throw new Error(`card pictures did not load: ${broken.join(", ")}`);

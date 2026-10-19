@@ -109,7 +109,7 @@ try {
   const panel = ui.infoPanel(page);
   await panel.waitFor();
   assert.ok(await ui.infoMetricCount(page) > 0, "Columbia information includes Metric Visuals");
-  // T-085: Apollo 11 offers True scale only; the "identical under True and Readable" check moved to browser-shell.mjs on Earth–Moon (Moon metrics under both scales).
+  // T-085: Apollo 11 offers True scale only; the "identical under True and Readable" check moved to browser-shell.mjs on the made-up synthetic experience (Moon metrics under both scales).
   assert.equal(await ui.hasScaleControl(page), false, "Apollo 11 has no scale control (one scale)");
   assert.equal(await currentScale(page), null);
   await page.waitForTimeout(250);
