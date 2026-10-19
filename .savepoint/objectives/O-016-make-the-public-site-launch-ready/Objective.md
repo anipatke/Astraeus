@@ -28,6 +28,14 @@ The star data is an asset with a licence record (PROV-02). The star file ships u
 
 ## Boundaries
 
-**In scope:** the HYG star asset, the public-build switch, and re-shooting the site images.
+**In scope:** the HYG star asset, the public-build switch, re-shooting the site images, and fixes and wording on the portfolio's Astraeus page (https://anipatke.com/astraeus, `/home/user/code/main-portfolio/components/astraeus/AstraeusBridge.tsx`).
 
-**Out of scope:** deployment, DNS and the merge to main (all owner actions).
+**Out of scope:** deployment, DNS and the merge to main (all owner actions); committing or deploying the portfolio repository (owner); a layout redesign of the portfolio page.
+
+## Planned Decisions
+
+Owner decisions, 2026-10-20 (structured questions in the planning session):
+
+- The portfolio Astraeus page belongs to O-016 ("Should be part of O-16"). Scope is "fixes and wording both": broken links, wrong facts, a plain-words pass; no redesign ("Yes, write it up").
+- The Earth & Moon card is removed, since the Earth-Moon experience left the app in O-024 T-093 ("Remove the card"). The portfolio cards match the demos on the app's own front page.
+- The five Tasks T-057, T-058, T-060, T-063 and T-064 were closed by the owner on their CLEAR Task Checks ("Close five, plan portfolio"); the Full Objective Check still covers them.

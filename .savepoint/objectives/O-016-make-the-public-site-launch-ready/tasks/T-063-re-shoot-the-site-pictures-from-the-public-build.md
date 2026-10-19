@@ -2,8 +2,7 @@
 id: T-063
 title: Re-shoot the site pictures from the public build
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-060, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o016-plan-20261016}
@@ -74,3 +73,5 @@ None yet.
 - Browser regression (Perseids look.startView sun,100,40,250000 broke checkEclipticFlat, -10.4 deg desktop, -21.5 phone): tools/validate/browser-showers.mjs now puts `&view=sun,216,14.32,3007000` (ENGINE_DEFAULT_VIEW, the camera the assertion was written for) on the geometry scenarios' URLs, assertions unchanged, mapping in its header; new plain-load assertion that a shower declaring look.startView opens within 1.5 deg / 2% of it (read from the Developer view readout; passes desktop and phone, results.startView in the log).
 - Ran against a private dev server (a HEAD snapshot plus my startView edits, port 5407; the production build only offers shipped sources so ?source=cams needs dev), 2026-10-16: browser-showers perseids exit 0 (desktop and phone), browser-showers geminids exit 0, browser-view-link exit 0, in docs/evidence/o016-t063-20261016T123619Z-showers/. docs/evidence/o016-t063-20261016T123522Z-showers/ is an interrupted earlier attempt (run against a production build that offered no CAMS source, failed at the member count; kept, not evidence of the final state). Servers stopped.
 
+
+Owner closed this Task on 2026-10-20 (structured question in the agent session: "Close five, plan portfolio"), on its CLEAR Task Check. The O-016 Full Objective Check still covers it.

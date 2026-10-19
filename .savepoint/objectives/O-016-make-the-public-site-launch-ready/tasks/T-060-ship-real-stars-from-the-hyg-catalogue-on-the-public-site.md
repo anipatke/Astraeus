@@ -2,8 +2,7 @@
 id: T-060
 title: Ship real stars from the HYG catalogue on the public site
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o016-plan-20261016}
@@ -82,3 +81,5 @@ Executed 2026-10-16 by a builder session (no router writes; no commit; no Task C
 
 - Design.md (Sky and assets) still describes the Yale file as the star source; the HYG default, the `?stars=` option and the `checkStarAsset` rule need reflecting there by the integration Task or explicitly marking non-architectural.
 - `tools/validate/browser-sky.mjs` now closes the Apollo story panel; the story-panels builder should confirm `.story-panel-close` stays the selector.
+
+Owner closed this Task on 2026-10-20 (structured question in the agent session: "Close five, plan portfolio"), on its CLEAR Task Check. The O-016 Full Objective Check still covers it.

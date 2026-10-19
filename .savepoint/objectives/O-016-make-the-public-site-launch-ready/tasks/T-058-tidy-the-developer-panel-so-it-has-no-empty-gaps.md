@@ -2,8 +2,7 @@
 id: T-058
 title: Tidy the Developer panel so it has no empty gaps
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-038, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o011-orchestrator-check-20261013}
@@ -72,3 +71,5 @@ Moved from O-011 to O-016 on the owner's direction (structured question: "Move t
 ## Drift Notes
 
 None expected.
+
+Owner closed this Task on 2026-10-20 (structured question in the agent session: "Close five, plan portfolio"), on its CLEAR Task Check. The O-016 Full Objective Check still covers it.

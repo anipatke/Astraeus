@@ -2,8 +2,7 @@
 id: T-064
 title: Update the site pages to describe what landed tonight
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-063, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o016-plan-20261016}
@@ -72,3 +71,5 @@ Limitations: the full vitest run was not repeated after the final test edit (onl
 ## Drift Notes
 
 None yet.
+
+Owner closed this Task on 2026-10-20 (structured question in the agent session: "Close five, plan portfolio"), on its CLEAR Task Check. The O-016 Full Objective Check still covers it.

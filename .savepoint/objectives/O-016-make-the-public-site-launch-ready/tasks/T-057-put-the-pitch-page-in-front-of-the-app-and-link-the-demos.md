@@ -2,8 +2,7 @@
 id: T-057
 title: Put the pitch page in front of the app and link the demos
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-038, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o011-orchestrator-check-20261013}
@@ -74,3 +73,5 @@ Moved from O-011 to O-016 on the owner's direction (structured question: "Move t
 ## Drift Notes
 
 For Design: the site/app page split.
+
+Owner closed this Task on 2026-10-20 (structured question in the agent session: "Close five, plan portfolio"), on its CLEAR Task Check. The O-016 Full Objective Check still covers it.
