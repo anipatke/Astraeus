@@ -1,6 +1,6 @@
 import { catalogue } from "../../assets/catalogue";
-import { moonFacts, type MoonRecord } from "../../assets/moonCatalogue";
-import { moonListDateText, moonListSummary, type MoonFamilyList } from "../../shell/moonFamilies";
+import { moonFacts, moonSourceTitles, type MoonRecord } from "../../assets/moonCatalogue";
+import { moonListSummary, type MoonFamilyList } from "../../shell/moonFamilies";
 import { bodyMetrics } from "../../app/bodyMetrics";
 import { familiesWithPalette, type BodySetLayer } from "../../app/bodySet";
 import { catalogueItem } from "../../app/catalogueItem";
@@ -12,7 +12,7 @@ import { JUPITER } from "../../core/bodies/jupiter";
 import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, jupiterMoonEphemeris, loadJupiterMoons } from "../../core/bodies/jupiterMoons";
 import { createEphemerisGroup } from "../../core/ephemerisGroup";
 import { createEvents } from "../../core/events";
-import { createProvenance } from "../../core/provenance";
+import { createProvenance, type Provenance } from "../../core/provenance";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import { parseStoryPanels } from "../../shell/storyPanels";
 import panelsFile from "../../../data/stories/jupiter-io/panels.json";
@@ -47,8 +47,7 @@ const SHIPPED_CHUNKS = {
 const ORBIT_HISTORY_MS = 3 * 365.25 * 86_400_000;
 export const JUPITER_CHUNK_URLS: Readonly<Record<string, string>> = Object.fromEntries(Object.entries(SHIPPED_CHUNKS).map(([path, url]) => [path.replace(/^.*jupiter-moons\//, ""), url]));
 
-const JUPITER_NO_TEXTURE = "Jupiter is drawn flat in one colour, without cloud bands: the donor's Jupiter map has no recorded source or licence, so no texture is used.";
-const FITTED = "Its position comes from NASA JPL's Horizons system, stored as curve fits that reproduce it to within a few centimetres.";
+const JUPITER_NO_TEXTURE = "Jupiter is drawn flat in one colour, without cloud bands: Planetary Explorer's Jupiter map has no recorded source or licence, so no texture is used.";
 
 /** Moons drawn as full bodies (the four with mapped pictures); every other moon in the catalogue is a dot in the set. */
 const MAPPED = new Set(jupiterMoonsSystem.bodies);
@@ -60,6 +59,13 @@ export const JUPITER_MOON_IDS = JUPITER_MOON_CATALOGUE.moons.map((moon) => moon.
 
 const moonRecord = (id: string): MoonRecord => JUPITER_MOON_CATALOGUE.moons.find((moon) => moon.id === id)!;
 const factsOf = (id: string) => moonFacts(JUPITER_MOON_CATALOGUE, moonRecord(id));
+/** A moon's provenance: the given one with the sources of its family, size and discovery year added to its sources, so the panel has one list. */
+const withCatalogueSources = (provenance: Provenance, id: string): Provenance =>
+  createProvenance({ ...provenance, sources: [...provenance.sources, ...moonSourceTitles(JUPITER_MOON_CATALOGUE, moonRecord(id))] });
+const mappedMoon = (id: string, own: Parameters<typeof catalogueItem>[1]): ExperienceObject => {
+  const item = catalogueItem(id, own);
+  return { ...item, provenance: withCatalogueSources(item.provenance!, id) };
+};
 
 /** The Horizons list the moons come from: its date is the catalogue's asOf and its count is the moons the data holds (never typed in). */
 const MOON_LIST_SOURCE = "JPL Horizons";
@@ -68,8 +74,8 @@ const MOON_LIST_SUMMARY = moonListSummary(JUPITER_MOON_CATALOGUE.moons.length, M
 /** Where each small moon's position comes from, for its information panel. */
 const SMALL_MOON_PROVENANCE = createProvenance({
   sourceType: "ephemeris",
-  sources: [JUPITER_MOON_FIT_SOURCE, `Moon list, families and radii: data/moons/jupiter.json (T-097); the list was fetched from ${MOON_LIST_SOURCE} on ${moonListDateText(JUPITER_MOON_CATALOGUE.asOf)}`],
-  accuracy: "Positions reproduce Horizons to within 1 m (T-096). Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.",
+  sources: [JUPITER_MOON_FIT_SOURCE],
+  accuracy: "Positions reproduce Horizons to within 1 m. Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.",
   notes: "Each orbit line is the moon's own path from these positions over about one orbit, ending where the moon is now; for a moon perturbed by the Sun the line does not close exactly, so its oldest end fades out.",
 });
 
@@ -81,18 +87,18 @@ const objects: ExperienceObject[] = [
     description: "The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances.",
     knownLimitations: [JUPITER_NO_TEXTURE, "The surface drawn is the 1-bar cloud-top level, not a solid surface.", "The rings are drawn as flat bands in Planetary Explorer's colours; their brightness is a look, not a measurement."],
   }),
-  catalogueItem("io", { facts: factsOf("io"), labelPriority: 90, labelMaxDistance: 3_000, description: `The innermost large moon of Jupiter, always turning the same face towards it. ${FITTED}`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
-  catalogueItem("europa", { facts: factsOf("europa"), labelPriority: 80, labelMaxDistance: 3_000, description: `The second large moon, an ice shell over a hidden ocean. ${FITTED}`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
-  catalogueItem("ganymede", { facts: factsOf("ganymede"), labelPriority: 80, labelMaxDistance: 3_000, description: `The largest moon in the solar system, bigger than Mercury. ${FITTED}`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
-  catalogueItem("callisto", { facts: factsOf("callisto"), labelPriority: 80, labelMaxDistance: 3_000, description: `The outermost large moon, the most heavily cratered surface known. ${FITTED}`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
+  mappedMoon("io", { facts: factsOf("io"), labelPriority: 90, labelMaxDistance: 3_000, description: `The innermost large moon of Jupiter, always turning the same face towards it.`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
+  mappedMoon("europa", { facts: factsOf("europa"), labelPriority: 80, labelMaxDistance: 3_000, description: `The second large moon, an ice shell over a hidden ocean.`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
+  mappedMoon("ganymede", { facts: factsOf("ganymede"), labelPriority: 80, labelMaxDistance: 3_000, description: `The largest moon in the solar system, bigger than Mercury.`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
+  mappedMoon("callisto", { facts: factsOf("callisto"), labelPriority: 80, labelMaxDistance: 3_000, description: `The outermost large moon, the most heavily cratered surface known.`, knownLimitations: [FITTED_MOON_TIDAL_LOCK] }),
   // The other moons: not in the Object list (111 names would bury it) but selectable, so the moon panel can focus one and open its information.
   ...SMALL_MOONS.map((moon): ExperienceObject => ({
     id: moon.id,
     label: moon.name,
     listed: false,
-    description: `A small moon of Jupiter in the ${JUPITER_MOON_CATALOGUE.families.find((family) => family.id === moon.family)!.label}. ${FITTED}`,
-    facts: [...factsOf(moon.id), { label: "Moon list fetched", value: `${MOON_LIST_SOURCE}, ${moonListDateText(JUPITER_MOON_CATALOGUE.asOf)}` }],
-    provenance: SMALL_MOON_PROVENANCE,
+    description: `A small moon of Jupiter in the ${JUPITER_MOON_CATALOGUE.families.find((family) => family.id === moon.family)!.label}.`,
+    facts: factsOf(moon.id),
+    provenance: withCatalogueSources(SMALL_MOON_PROVENANCE, moon.id),
   })),
 ];
 
@@ -143,9 +149,9 @@ export const jupiterSmallMoons: BodySetLayer = {
  */
 const FEATURE_PROVENANCE = createProvenance({
   sourceType: "reconstructed",
-  sources: ["Place names, kinds, descriptions and coordinates: Planetary Explorer's feature lists (data/bodies/<moon>/features.json, donor commit 84f8d3e)", "Map pictures: USGS Astrogeology and NASA mission mosaics (credits in the sources list)"],
-  accuracy: "Each place is drawn where the owner checked it against the map picture by eye, not at a surveyed position; a marker can sit a few degrees from the feature's centre, and a polar entry is a representative anchor, not a feature centre.",
-  notes: "Markers hide on the far side of the moon and when the moon is drawn small. The Jupiter and Io scene shows these places on the map picture only; they carry no measurement.",
+  sources: ["Place names, kinds, descriptions and coordinates: Planetary Explorer's feature lists", "Map pictures: USGS Astrogeology and NASA mission mosaics"],
+  accuracy: "Each place is drawn where it was checked against the map picture by eye, not at a surveyed position; a marker can sit a few degrees from the feature's centre, and a polar entry is a representative anchor, not a feature centre.",
+  notes: "Markers hide on the far side of the moon and when the moon is drawn small.",
 });
 const bodyFeatures = [
   bodyFeatureSet({ bodyId: "io", bodyLabel: "Io", features: ioFeatures, categories: ioCategories, provenance: FEATURE_PROVENANCE }),
@@ -188,6 +194,8 @@ export const jupiterIoExplorer: ExperienceDefinition = {
   // The outermost moons reach about 30 million km (4,700 Earth radii) from Jupiter.
   camera: { maxFocusDistance: 20_000, far: 80_000 },
   scaleChoices: ["true-scale"],
+  // Opens on Jupiter, large, a little above the equator, with Io's orbit (about 66 Earth radii out) in view (owner decision, 2026-10-20, O-025: "open on Jupiter").
+  startView: { focus: "jupiter", azimuthDeg: 0, elevationDeg: 15, distance: 200 },
   trackedBodies: [],
   prepare: async () => { await loadJupiterMoons({ window: WINDOW, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS, history: { bodies: JUPITER_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
   createMetrics: ({ resolver }) => bodyMetrics(resolver, jupiterMoonsSystem.bodies),

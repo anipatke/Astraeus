@@ -12,27 +12,30 @@ import { gzipSync } from "node:zlib";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
-const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json"];
+const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
+/** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
+const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js"]);
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerDefinition.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /**
  * One limit per page set, in bytes, raw and gzipped. Each is the measurement of 2026-10-17 (lossless stream trim; textures kept at their original quality by owner decision; the index page and the whole build re-measured with the three new demo-card pictures, T-074) plus 5% headroom, rounded up to the next 10,000 bytes.
+ * The four app pages and the whole build were re-measured 2026-10-20 after planets became curve fits (T-101; planetModels shrank 6.5x), plus 5%, rounded up to the next 10,000 bytes (owner decision). The page sets also list the shared chunks the build now splits out (elementsBody, timeScale, bodyMetrics, events, orbitGroup, listedOrbitGroup, spacecraftMetrics).
  * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
 export const PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 274_000, gzipLimit: 240_000 },
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_250_000, gzipLimit: 2_860_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
-  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Measured 2026-10-18 on the public build plus 5%.
-  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin", "2014.bin", "2015.bin"], rawLimit: 8_110_000, gzipLimit: 5_220_000 },
-  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 11_190_000, gzipLimit: 7_430_000 },
-  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 13_790_000, gzipLimit: 8_280_000 },
+  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
+  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "bodyMetrics.js", "events.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin", "2014.bin", "2015.bin"], rawLimit: 6_960_000, gzipLimit: 4_810_000 },
+  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },
+  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 12_700_000, gzipLimit: 7_900_000 },
 ];
 /** Every file of the build together (also the net for a file no page set lists). */
-// T-098 raised it for the Jupiter moons (three moon pictures, the fit index and the 2016 fit chunks): measured 2026-10-18 plus 5%.
-export const BUILD_LIMIT = { id: "whole build", rawLimit: 25_700_000, gzipLimit: 17_410_000 };
+// T-098 raised it for the Jupiter moons (three moon pictures, the fit index and the 2016 fit chunks); re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
+export const BUILD_LIMIT = { id: "whole build", rawLimit: 25_360_000, gzipLimit: 17_560_000 };
 
 function* walk(directory) {
   for (const name of readdirSync(directory)) {
@@ -102,7 +105,7 @@ export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIM
       const severalEntries = [];
       for (const entry of page.files) {
         const found = findFiles(names, entry);
-        if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
+        if (found.length === 0) { if (!SPLIT_CHUNKS.has(entry)) problems.push(`${entry} is not in the build (the page set is out of date)`); }
         else if (found.length === 1) files.push(found[0]);
         else { severalEntries.push([entry, found]); for (const name of found) several.add(name); }
       }

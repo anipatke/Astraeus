@@ -27,7 +27,8 @@ export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonl
   const { concentration } = settings.stream;
   const status = concentration.status === "cited" ? `cited; basis: ${concentration.basis}` : `illustrative defaults: ${concentration.basis}`;
   return [
-    ...(orbitSet === undefined ? [] : [gmnSourceSentence(settings, orbitSet.provenance), orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
+    // The source, licence and counts are in the provenance (sources and notes), not repeated here.
+    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
     `The clump near ${settings.parentBody} is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}.`,
     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",

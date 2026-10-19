@@ -931,7 +931,7 @@ async function run(label, viewport) {
     assert.match(await ui.provenanceBadgeText(page), /^Illustrative/, `${label}: the stream is marked illustrative`);
     await ui.openProvenance(page);
     const detail = await ui.provenanceDetailRaw(page);
-    for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", `Read from ${gmnSettings.months.join(" and ")}`, `${fetched.counts.kept} bound orbits kept`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
+    for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", ...gmnSettings.months, `${fetched.counts.kept} bound orbits in the file`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
     // The published rule's quote (a citation of the 2025 papers) still says the papers applied it "to the CAMS v3.0 database"; that is their wording, not a data source here.
     assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(detail), `${label}: the panel cites no CAMS data source`);
     assert.match(detail, new RegExp(`${fetched.counts.kept} orbits drawn`), `${label}: the member count equals the fetched file's (${fetched.counts.kept})`);

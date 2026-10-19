@@ -292,7 +292,7 @@ describe("Apollo 11 reconstruction pipeline", () => {
       expect(data.segments.filter((s: { rawMissKm?: number }) => s.rawMissKm !== undefined).length)
         .toBe(coasts.filter((s) => s.vehicle === vehicle).length);
     }
-    expect(JSON.parse(columbiaText).provenance.accuracy).toMatch(/rawMissKm/);
+    expect(JSON.parse(columbiaText).provenance.accuracy).toMatch(/spread smoothly/);
   });
 
   // Both sides of a join share one sample: the modelled burn cutoff or the converted anchor state.

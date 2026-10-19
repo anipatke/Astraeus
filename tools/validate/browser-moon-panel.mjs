@@ -153,8 +153,12 @@ async function run(name, viewport) {
     assert.match(info, /Himalia group/, `${name}: the information names the family`);
     assert.match(info, /km across/, `${name}: the information gives the size`);
     assert.match(info, new RegExp(String(himalia.discoveryYear)), `${name}: the information gives the discovery year`);
-    assert.match(info, /JPL/, `${name}: the information names its sources`);
-    assert.ok(info.includes(listDate), `${name}: a small moon's information names the date the list was fetched`);
+    // The sources are one list in the provenance, opened from the panel.
+    await ui.openProvenance(page);
+    const sourcesText = await ui.provenanceDetailRaw(page);
+    assert.match(sourcesText, /JPL/, `${name}: the information names its sources`);
+    assert.ok(sourcesText.includes(data.asOf), `${name}: a small moon's information names the date the list was fetched`);
+    assert.ok(sourcesText.includes(String(data.moons.length)), `${name}: a small moon's information names the moon total`);
     await ui.closeInfoStrict(page);
 
     // A big-four moon takes the same path.

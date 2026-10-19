@@ -90,7 +90,12 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
   return Object.freeze({ parent: text(record.parent, "parent"), asOf: text(record.asOf, "asOf"), families: Object.freeze(families), moons: Object.freeze(moons), sources: Object.freeze(sources) });
 }
 
-/** The info-panel facts for one moon: its family, size, discovery year and where each comes from (O-025 Decision 6). */
+/** The titles of the sources for one moon's family, size and discovery year, for its provenance sources list. */
+export function moonSourceTitles(catalogue: MoonCatalogue, moon: MoonRecord): readonly string[] {
+  return moon.sourceIds.map((id) => catalogue.sources[id].title);
+}
+
+/** The info-panel facts for one moon: its family, size and discovery year. Their sources are listed in the provenance (see `moonSourceTitles`). */
 export function moonFacts(catalogue: MoonCatalogue, moon: MoonRecord): readonly { readonly label: string; readonly value: string }[] {
   const family = catalogue.families.find((candidate) => candidate.id === moon.family);
   const diameter = Math.round(2 * moon.meanRadiusKm * 10) / 10;
@@ -98,6 +103,5 @@ export function moonFacts(catalogue: MoonCatalogue, moon: MoonRecord): readonly 
     { label: "Family", value: family?.label ?? moon.family },
     { label: "Size", value: `${diameter.toLocaleString("en-GB")} km across${moon.radiusBasis === "estimate" ? " (estimated from brightness)" : ""}` },
     ...(moon.discoveryYear === undefined ? [] : [{ label: "Found", value: String(moon.discoveryYear) }]),
-    { label: "Sources", value: moon.sourceIds.map((id) => catalogue.sources[id].title).join("; ") },
   ];
 }

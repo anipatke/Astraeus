@@ -1,0 +1,29 @@
+lite browser check: 11 experiences (apollo11, jupiter-io, synthetic, synthetic-bare, synthetic-ring, synthetic-belt, synthetic-listed, synthetic-eccentric, showers, showers-geminids, showers-perseids) + 2 site pages, 2 sizes
+ok   apollo11                   1440x900    6.8s {"title":"Apollo 11 · Astraeus","drawn":{"bodies":2,"dots":0,"paths":1,"stars":8920},"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844       7s {"title":"Apollo 11 · Astraeus","drawn":{"bodies":1,"dots":0,"paths":1,"stars":8920},"object":"moon","panel":"tli-cutoff"}
+ok   jupiter-io                 1440x900    8.4s {"title":"Jupiter and Io · Astraeus","drawn":{"bodies":4,"dots":16,"paths":1,"stars":8920},"object":"io","panel":"volcanoes"}
+ok   jupiter-io                 390x844     8.6s {"title":"Jupiter and Io · Astraeus","drawn":{"bodies":2,"dots":6,"paths":1,"stars":8920},"object":"io","panel":"volcanoes"}
+ok   synthetic                  1440x900    6.7s {"title":"Astraeus","drawn":{"bodies":1,"dots":0,"paths":1,"stars":8920},"object":"moon"}
+ok   synthetic                  390x844     7.1s {"title":"Astraeus","drawn":{"bodies":1,"dots":0,"paths":1,"stars":8920},"object":"moon"}
+ok   synthetic-bare             1440x900      4s {"title":"Astraeus","drawn":{"bodies":0,"dots":0,"paths":0,"stars":8920},"object":"sky"}
+ok   synthetic-bare             390x844     4.4s {"title":"Astraeus","drawn":{"bodies":0,"dots":0,"paths":0,"stars":8920},"object":"sky"}
+ok   synthetic-ring             1440x900    7.3s {"title":"Astraeus","drawn":{"bodies":1,"dots":10000,"paths":1,"stars":8920},"object":"moon"}
+ok   synthetic-ring             390x844     7.5s {"title":"Astraeus","drawn":{"bodies":1,"dots":5465,"paths":1,"stars":8920},"object":"moon"}
+ok   synthetic-belt             1440x900    5.6s {"title":"Astraeus","drawn":{"bodies":2,"dots":10000,"paths":2,"stars":8920},"object":"dust-belt"}
+ok   synthetic-belt             390x844     6.9s {"title":"Astraeus","drawn":{"bodies":2,"dots":9450,"paths":2,"stars":8920},"object":"dust-belt"}
+ok   synthetic-listed           1440x900    5.3s {"title":"Astraeus","drawn":{"bodies":2,"dots":3000,"paths":2,"stars":8920},"object":"listed-orbits"}
+ok   synthetic-listed           390x844     6.8s {"title":"Astraeus","drawn":{"bodies":2,"dots":2465,"paths":2,"stars":8920},"object":"listed-orbits"}
+ok   synthetic-eccentric        1440x900    5.4s {"title":"Astraeus","drawn":{"bodies":2,"dots":10000,"paths":2,"stars":8920},"object":"dust-belt"}
+ok   synthetic-eccentric        390x844     4.9s {"title":"Astraeus","drawn":{"bodies":2,"dots":10000,"paths":2,"stars":8920},"object":"dust-belt"}
+ok   showers                    1440x900    7.3s {"title":"Perseids · Astraeus","drawn":{"bodies":7,"dots":24218,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers                    390x844     8.4s {"title":"Perseids · Astraeus","drawn":{"bodies":5,"dots":7388,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers-geminids           1440x900    8.7s {"title":"Geminids · Astraeus","drawn":{"bodies":7,"dots":51115,"paths":6,"stars":8920},"object":"earth","panel":"phaethon"}
+ok   showers-geminids           390x844    10.2s {"title":"Geminids · Astraeus","drawn":{"bodies":7,"dots":49533,"paths":6,"stars":8920},"object":"earth","panel":"phaethon"}
+ok   showers-perseids           1440x900    7.4s {"title":"Perseids · Astraeus","drawn":{"bodies":7,"dots":24218,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers-perseids           390x844     8.5s {"title":"Perseids · Astraeus","drawn":{"bodies":5,"dots":7388,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   index-page                 1440x900    1.8s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=jupiter-io"]}
+ok   index-page                 390x844     1.7s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=jupiter-io"]}
+ok   assets-page                1440x900    1.8s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+ok   assets-page                390x844     1.8s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+
+26/26 loads passed; results in docs/evidence/o025-final-20261019T192256Z/full/lite

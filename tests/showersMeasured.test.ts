@@ -74,9 +74,11 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     expect(reliable.count).toBe(counts.reliable);
     console.info(`${letters} GMN SETS ${JSON.stringify(counts)}`);
     const panel = streamLimitations(settings, { set: "all", counts, provenance: orbits.provenance }).join(" ");
-    expect(panel).toContain("Global Meteor Network");
-    expect(panel).toContain("CC BY 4.0");
-    expect(panel).toContain(`${file.provenance.counts.kept} bound orbits kept`);
+    const sourced = `${group.provenance.sources.join(" ")} ${group.provenance.notes}`;
+    expect(sourced).toContain("Global Meteor Network");
+    expect(sourced).toContain("CC BY 4.0");
+    expect(sourced).toContain(`${file.provenance.counts.kept} bound orbits in the file`);
+    expect(panel).not.toContain("CC BY 4.0");
     expect(panel).toContain("Qc");
     expect(panel).not.toContain("double entries are kept");
   });

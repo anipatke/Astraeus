@@ -48,7 +48,6 @@ for (const name of names) {
   const settings = JSON.parse(readFileSync(new URL(`${name}.json`, showersDir), "utf8"));
   const iau = settings.stream.iauCode;
   const kept = JSON.parse(readFileSync(new URL(`../../data/stories/${name}/gmn-iau-${iau}.json`, import.meta.url), "utf8")).provenance.counts.kept;
-  const months = settings.stream.sources.gmn.months.join(" and ");
   const shipped = new RegExp(`/gmn-iau-${iau}[^/]*\\.json$`);
   const r = (results[name] = { kept });
   // 1. plain load, and the removed ?source=cams address, both draw the shipped GMN stream.
@@ -63,7 +62,7 @@ for (const name of names) {
       assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", `${name}/${tag}: one stream group is drawn`);
       const panel = await streamPanel(page, name, settings.label);
       assert.match(panel.description, new RegExp(`${kept} measured meteoroid orbits`), `${name}/${tag}: the panel counts the shipped orbits`);
-      for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida", "506(4)", "491(2)", `Read from ${months}`, `${kept} bound orbits kept`]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
+      for (const text of ["Global Meteor Network", "CC BY 4.0", "Vida", "506(4)", "491(2)", ...settings.stream.sources.gmn.months, `${kept} bound orbits in the file`]) assert.ok(panel.detail.includes(text), `${name}/${tag}: credits "${text}"`);
       assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(panel.detail), `${name}/${tag}: the panel cites no CAMS data source`);
       assert.ok(!/not fetched|does not include/.test(panel.description), `${name}/${tag}: no absence message`);
       await ui.toggleDeveloper(page);

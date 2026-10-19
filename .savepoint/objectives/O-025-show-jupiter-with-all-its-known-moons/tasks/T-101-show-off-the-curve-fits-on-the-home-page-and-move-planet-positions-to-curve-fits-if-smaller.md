@@ -2,8 +2,7 @@
 id: T-101
 title: Show off the curve fits on the home page, and move planet positions to curve fits if smaller
 objective: O-025
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-096, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}

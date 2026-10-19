@@ -12,7 +12,7 @@ export const EARTH_EPHEMERIS: EphemerisRecord = {
       "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
       "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry",
     ],
-    accuracy: "Earth is the centre every position here is measured from. Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; sample maxima are in docs/ASTRONOMY_VALIDATION.md and are not a guaranteed bound for every date.",
+    accuracy: "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
     notes: "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
   }),
   knownLimitations: ["Earth's orientation leaves out polar motion."],

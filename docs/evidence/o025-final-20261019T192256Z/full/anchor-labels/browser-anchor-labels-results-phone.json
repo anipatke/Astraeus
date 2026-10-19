@@ -1,0 +1,11 @@
+{
+  "url": "http://localhost:5479/app.html",
+  "viewport": "390x844",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 10,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "errors": []
+}

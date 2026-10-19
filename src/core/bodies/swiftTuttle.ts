@@ -69,8 +69,8 @@ export const SWIFT_TUTTLE_SAMPLING: EccentricSampling = Object.freeze({
 
 export const SWIFT_TUTTLE_LIMITATIONS: readonly string[] = Object.freeze([
   "Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.",
-  "Horizons applies perturbations from a fit to the same observations, so the two drift apart; the largest difference over 1990 to 2030 is stated in the position accuracy.",
-  "Positions before 1990 or after 2030 were not compared with Horizons, and a two-body orbit that reaches 51 AU does not account for the planets' pull on its 133-year period.",
+  "Horizons applies perturbations from a fit to the same observations, so the two drift apart.",
+  "Positions before 1990 or after 2030 were not compared with Horizons; the orbit reaches 51 AU and takes 133 years, a long span for two-body motion.",
   "The comet's size is the nucleus alone (a 26 km body); the coma and tail are not modelled. No velocity or orientation is modelled.",
 ]);
 
@@ -109,9 +109,9 @@ export const SWIFT_TUTTLE: CelestialBodyDefinition = Object.freeze({
     }),
     position: createProvenance({
       sourceType: "reconstructed",
-      sources: [SWIFT_TUTTLE_ELEMENTS.citation, "Unperturbed two-body motion about the Sun's GM (catalogue)", "Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF"],
-      accuracy: `Position was compared with JPL Horizons at eight dates from 1990 to 2030: the largest Sun-centred difference is about ${SWIFT_TUTTLE_MAX_ERROR_KM.toLocaleString("en-US")} km (${(SWIFT_TUTTLE_MAX_ERROR_FRACTION * 100).toFixed(2)}% of its distance from the Sun at that date), so this is an approximate position for drawing the orbit and the comet's place on it, not an ephemeris. Sample maximum, not a bound for every date; see docs/ASTRONOMY_VALIDATION.md.`,
-      notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch; there are no perturbations or non-gravitational forces.",
+      sources: [SWIFT_TUTTLE_ELEMENTS.citation, "Two-body motion about the Sun's gravitational parameter (catalogue)", "Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF"],
+      accuracy: `Position was compared with JPL Horizons at eight dates from 1990 to 2030: the largest Sun-centred difference is about ${SWIFT_TUTTLE_MAX_ERROR_KM.toLocaleString("en-US")} km (${(SWIFT_TUTTLE_MAX_ERROR_FRACTION * 100).toFixed(2)}% of its distance from the Sun at that date), so this is an approximate position for drawing the orbit and the comet's place on it, not an ephemeris. This is the largest difference at the eight dates compared, not a bound for every date.`,
+      notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch.",
     }),
     validUtc: COMPARED_UTC,
     orientationLimitations: SWIFT_TUTTLE_LIMITATIONS,

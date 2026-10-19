@@ -20,7 +20,7 @@
     "sources": {
       "gmn": {
         "source": {
-          "name": "Global Meteor Network, monthly trajectory summary files (traj_summary_monthly_YYYYMM.txt), IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); fetched by tools/data/fetch-meteoroid-orbits.mjs; a copy ships under data/stories/perseids/",
+          "name": "Global Meteor Network, monthly trajectory summary files (traj_summary_monthly_YYYYMM.txt), IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2)",
           "url": "https://globalmeteornetwork.org/data/",
           "accessed": "2026-10-16"
         },
@@ -87,7 +87,9 @@
     "rateUnit": "meteors per hour (ZHR)",
     "fallOffPerDay": 0.1,
     "source": {
-      "name": "International Meteor Organization, 2020 Meteor Shower Calendar (IMO_INFO(2-19), ed. J. Rendtel), Perseids: active July 17 - August 24, maximum August 12, 13h to 16h UT (node at solar longitude 140.0 to 140.1, J2000), the traditional broad maximum varying between 2020 August 12 08h and 21h UT; archived copy of imo.net/files/meteor-shower/cal2020.pdf, SHA-256 56927b2d2d312c584fb2c9d84b05bca0ab9d6bcc5356e2edf43c75bb0e739493. The demo's year runs from 21 September 2019 (owner decision, O-024). Peak rate ZHR 100: the American Meteor Society calendar figure, as before (IMO gives 110 in the shower's entry and 100 in its working list). The peak instant (I-027) is the moment the Sun's geometric longitude in the J2000.0 ecliptic and equinox is 140.1 deg, the IAU MDC peak solar longitude (radiant.peakSolarLongitudeDeg), found by bisection on the engine ephemeris with no general precession added: 2020-08-12T15:41:56Z, inside IMO's 13h to 16h UT. The rate profile is the same peakRate and fallOffPerDay about that instant",
+      "name": "International Meteor Organization, 2020 Meteor Shower Calendar (ed. J. Rendtel), the Perseids entry: active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy",
+      "note": "The peak rate is 100 meteors per hour (ZHR), the American Meteor Society calendar figure; the IMO entry gives 110. The peak instant is when the Sun reaches the IAU Meteor Data Center peak solar longitude of 140.1 degrees, which falls inside the IMO's 13h to 16h UT maximum. The rate curve falls off from that instant.",
+      "archiveSha256": "56927b2d2d312c584fb2c9d84b05bca0ab9d6bcc5356e2edf43c75bb0e739493",
       "url": "https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf",
       "accessed": "2026-10-18"
     }

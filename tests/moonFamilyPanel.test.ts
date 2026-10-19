@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_BODY_SET_LOOK, familyGainOf } from "../src/app/bodySet";
 import { JUPITER_MOON_CATALOGUE } from "../src/assets/bodies/jupiterMoonCatalogue";
-import { moonFacts } from "../src/assets/moonCatalogue";
+import { moonFacts, moonSourceTitles } from "../src/assets/moonCatalogue";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 import { infoView } from "../src/shell/infoModel";
 import { moonCountText, moonFamilyListSummary, moonListDateText, searchMoons, splitNamed } from "../src/shell/moonFamilies";
@@ -32,8 +32,9 @@ describe("moon panel model", () => {
     expect(fact.value).toContain(`${total} moons`);
     expect(fact.value).toContain(date);
     const small = jupiterIoExplorer.experience.objects.find((object) => object.id === "himalia")!;
-    expect(small.provenance!.sources.join(" ")).toContain(date);
-    expect(small.facts!.find((entry) => entry.label === "Moon list fetched")!.value).toContain(date);
+    const sources = small.provenance!.sources.join(" ");
+    expect(sources).toContain(String(total));
+    expect(sources).toContain(JUPITER_MOON_CATALOGUE.asOf);
     expect(moonListDateText("not a date")).toBe("not a date");
   });
 
@@ -58,7 +59,7 @@ describe("moon panel model", () => {
     for (const family of list.families) for (const moon of family.moons) expect(objects.some((object) => object.id === moon.id), moon.id).toBe(true);
     const view = infoView(jupiterIoExplorer.experience, { kind: "object", id: "himalia" })!;
     const labels = view.facts!.map((fact) => fact.label);
-    expect(labels).toEqual(["Family", "Size", "Found", "Sources", "Moon list fetched"]);
+    expect(labels).toEqual(["Family", "Size", "Found"]);
     expect(view.facts![0].value).toMatch(/Himalia group/);
     expect(view.provenance).not.toBeNull();
     const io = infoView(jupiterIoExplorer.experience, { kind: "object", id: "io" })!;
@@ -69,7 +70,11 @@ describe("moon panel model", () => {
     const himalia = JUPITER_MOON_CATALOGUE.moons.find((moon) => moon.id === "himalia")!;
     const facts = moonFacts(JUPITER_MOON_CATALOGUE, himalia);
     expect(facts.find((fact) => fact.label === "Found")!.value).toBe(String(himalia.discoveryYear));
-    expect(facts.find((fact) => fact.label === "Sources")!.value).toMatch(/JPL/);
+    expect(facts.some((fact) => fact.label === "Sources")).toBe(false);
+    expect(moonSourceTitles(JUPITER_MOON_CATALOGUE, himalia).join(" ")).toMatch(/JPL/);
+    const info = infoView(jupiterIoExplorer.experience, { kind: "object", id: "himalia" })!;
+    expect(info.provenance!.sources.join(" ")).toMatch(/JPL/);
+    expect(info.provenance!.sources.join(" ")).not.toMatch(/data\/moons|T-09/);
   });
 });
 

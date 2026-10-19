@@ -18,7 +18,7 @@ export const SUN: CelestialBodyDefinition = Object.freeze({
     position: createProvenance({
       sourceType: "ephemeris",
       sources: ["@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"],
-      accuracy: "The Sun is the origin of the catalogue; its position from any other body is derived through the parent chain. The geocentric direction was checked against JPL Horizons (DE441) samples (docs/ASTRONOMY_VALIDATION.md).",
+      accuracy: "The geocentric direction was checked against JPL Horizons (DE441) samples.",
       notes: "Stated EPV00 model validity is 1900–2100.",
     }),
     validUtc: Object.freeze({ startUtcMs: Date.UTC(1900, 0, 1), endUtcMs: Date.UTC(2100, 0, 1) }),

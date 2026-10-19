@@ -16,7 +16,7 @@ import { JUPITER } from "./jupiter";
 export const JUPITER_MOON_FIT_SPAN: TimeBounds = Object.freeze({ startUtcMs: Date.UTC(2010, 0, 1, 0, 2), endUtcMs: Date.UTC(2029, 11, 31, 23, 58) });
 
 export const JUPITER_MOON_FIT_SOURCE =
-  "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter system barycentre, ICRF, TDB, fitted as piecewise Chebyshev series (data/ephemerides/jupiter-moons/, T-096); US Government work, credit NASA/JPL-Caltech Solar System Dynamics";
+  "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter system barycentre, ICRF, TDB, fitted as piecewise Chebyshev series; US Government work, credit NASA/JPL-Caltech Solar System Dynamics";
 
 let installed: ChebyshevEphemeris | null = null;
 let loading: Promise<ChebyshevEphemeris> | null = null;
@@ -153,7 +153,7 @@ export function fittedMoonPosition(label: string, worstM: number) {
   return createProvenance({
     sourceType: "ephemeris",
     sources: [JUPITER_MOON_FIT_SOURCE],
-    accuracy: `${label}'s position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within ${worstM} m at 1,001 checked dates 2010-2030 (T-096). Horizons' own uncertainty is not stated in its output.`,
+    accuracy: `${label}'s position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within ${worstM} m at 1,001 checked dates 2010-2030. Horizons' own uncertainty is not stated in its output.`,
     notes: "Geometric position about Jupiter's centre; no light-time. Valid 2010-2030, the span of the committed fits.",
   });
 }
@@ -169,7 +169,7 @@ function mappedMoon(id: BodyId, label: string, radiusKm: number, gmKm3S2: number
     accuracy: Object.freeze({
       dimensions: createProvenance({
         sourceType: "observed",
-        sources: [`JPL Horizons satellite physical properties for ${label} (header in data/ephemerides/jupiter-moons/index.json): ${header}`],
+        sources: [`JPL Horizons satellite physical properties for ${label} (Horizons header): ${header}`],
         accuracy: `Mean radius ${radiusKm} km and GM ${gmKm3S2} km^3/s^2 as printed in the Horizons header; ${label} is drawn as a sphere.`,
         notes: "Gravitational parameter in km^3/s^2.",
       }),

@@ -20,11 +20,10 @@
     "sourceType": "reconstructed",
     "sources": [
       "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 7-II, Table 7-VII, Table 5-IV, Table 3-I",
-      "docs/APOLLO11_SOURCES.md (conventions)",
       "Astraeus Moon state (@lizard-isana/orb) for Moon-to-Earth normalisation"
     ],
-    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Ordinary burns are integrated offline from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant EQJ acceleration fitted to the cutoff velocity; each cutoff position and velocity residual and runtime peak speed are published. The following coast starts from the modelled cutoff state. Coasts integrate the same gravity model; each remaining miss at its next anchor is published as rawMissKm/rawMissMs and spread smoothly along that coast (smoothstep blend of forward and backward propagations), so joins have no steps. The correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial (EQJ) north, adopted from data consistency rather than a printed definition. A-05, A-33 and A-34 use owner-approved inferred overrides. Not navigation grade.",
-    "notes": "Reconstruction of the Apollo 11 flight path from sparse NASA postflight anchor states; not the exact flight path. Ordinary burns use a constant-acceleration physical segment fitted to cutoff velocity; this is not guidance. Powered descent and ascent remain two-anchor interpolations."
+    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Burns are integrated from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant acceleration fitted to the cutoff velocity, and the coast after each starts from the modelled cutoff state. Coasts use the same gravity; the miss that remains at the next anchor is spread smoothly along the coast, so joins have no steps. That correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial north, adopted from data consistency rather than a printed definition. Three anchor states use inferred values. Not navigation grade.",
+    "notes": "A reconstruction from sparse NASA postflight anchor states, not the exact flight path. The burn model is not guidance. Powered descent and ascent are interpolated between two anchors."
   },
   "segments": [
     {"id":"A-15>A-18","method":"coast-nbody-smoothed","startUtcMs":-14192160000,"endUtcMs":-14187106000,"intervalS":300,"firstSampleIndex":0,"sampleCount":17,"smoothedAbout":"moon","rawMissKm":456.409,"rawMissMs":118.963,"maxCorrectionKm":456.409,"maxCorrectionMs":376.62},

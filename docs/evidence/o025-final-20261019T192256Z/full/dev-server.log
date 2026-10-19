@@ -1,0 +1,9 @@
+
+  VITE v8.3.2  ready in 133 ms
+
+  ➜  Local:   http://localhost:5479/
+  ➜  Network: use --host to expose
+6:28:08 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+6:28:08 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+6:30:10 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+6:30:10 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2

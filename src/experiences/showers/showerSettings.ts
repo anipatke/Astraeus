@@ -8,6 +8,8 @@ export interface ShowerSource {
   readonly name: string;
   readonly url: string;
   readonly accessed: string;
+  /** Plain words shown with the source: how a value was taken from it. The file may also keep fields the viewer does not show (an archive checksum). */
+  readonly note?: string;
 }
 
 /** The parent body's published orbit size and shape; only what the whole-orbit path needs. Its place in the sky is the catalogue's. */
@@ -156,7 +158,7 @@ function nonNegative(parent: Raw, key: string, path: string): number {
 function source(parent: Raw, key: string, path: string): ShowerSource {
   const raw = record(parent[key], `${path}.${key}`);
   const here = `${path}.${key}`;
-  return { name: text(raw, "name", here), url: text(raw, "url", here), accessed: text(raw, "accessed", here) };
+  return { name: text(raw, "name", here), url: text(raw, "url", here), accessed: text(raw, "accessed", here), ...(raw.note === undefined ? {} : { note: text(raw, "note", here) }) };
 }
 
 function orbitSources(stream: Raw): ShowerSettings["stream"]["sources"] {

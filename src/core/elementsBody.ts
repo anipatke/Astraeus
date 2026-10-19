@@ -245,9 +245,9 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
       }),
       position: createProvenance({
         sourceType: "reconstructed",
-        sources: [citation, `Unperturbed two-body motion about the GM of "${centre.id}" (catalogue)`],
+        sources: [citation, `Two-body motion about the gravitational parameter of "${centre.id}" (catalogue)`],
         accuracy: `${body.accuracy.classification}: ${body.accuracy.statement}`,
-        notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch; there are no perturbations or non-gravitational forces.",
+        notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch.",
       }),
       validUtc: Object.freeze({ startUtcMs: Date.parse(body.accuracy.validFromUtc), endUtcMs: Date.parse(body.accuracy.validToUtc) }),
       orientationLimitations: Object.freeze([

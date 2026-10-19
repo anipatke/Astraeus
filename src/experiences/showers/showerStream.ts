@@ -16,7 +16,7 @@ function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, sh
     sourceType: "observed",
     sources: [...(provenance.citations ?? [provenance.citation]), sourceLine(citedSourceOf(settings))],
     accuracy: "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element.",
-    notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.${provenance.licence === undefined ? "" : ` Licence ${provenance.licence}.`}`,
+    notes: `${provenance.database}, IAU shower ${provenance.iauCode}: ${counts.members} records, ${counts.unbound} unbound or incomplete records dropped, ${counts.kept} bound orbits in the file, ${shown} orbits drawn (${set === "reliable" ? "reliable set" : "all orbits"}). Fetched ${provenance.fetchedAt}.${provenance.licence === undefined ? "" : ` Licence ${provenance.licence} (${settings.stream.sources.gmn.licenceUrl}), credit the Global Meteor Network.`}`,
   });
 }
 

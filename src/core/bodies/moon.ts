@@ -8,7 +8,7 @@ export const MOON_EPHEMERIS: EphemerisRecord = {
   provenance: createProvenance({
     sourceType: "ephemeris",
     sources: ["@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"],
-    accuracy: "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets; targets and sample maxima are in docs/ASTRONOMY_VALIDATION.md. They are not a guaranteed bound for every date.",
+    accuracy: "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
     notes: "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
   }),
   knownLimitations: [

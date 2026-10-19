@@ -2,8 +2,7 @@
 id: T-103
 title: Draw the tagged places on the four mapped moons
 objective: O-025
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-098, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o020-orchestrator-20261018}

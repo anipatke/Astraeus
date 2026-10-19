@@ -15,9 +15,9 @@ export function planetEphemeris(label: string, measured: string, extraLimitation
     provenance: createProvenance({
       sourceType: "ephemeris",
       sources: [
-        "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to EQJ",
+        "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000",
       ],
-      accuracy: `${label} position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: ${measured}. Sample maxima, not a bound for every date; see docs/ASTRONOMY_VALIDATION.md.`,
+      accuracy: `${label} position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: ${measured}. Sample maxima, not a bound for every date.`,
       notes: "Geometric position about the Sun's centre; no light-time or aberration.",
     }),
     knownLimitations: ["No velocity is modelled for planets, so they have no speed readout.", ...extraLimitations],

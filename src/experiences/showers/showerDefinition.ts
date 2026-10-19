@@ -105,7 +105,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
       sourceType: "observed",
       sources: [sourceLine(settings.activity.source)],
       accuracy: "Activity dates as published; the peak instant is chosen inside the published night.",
-      notes: "",
+      notes: settings.activity.source.note ?? "",
     }),
   };
   return {

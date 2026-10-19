@@ -105,7 +105,7 @@ export const syntheticSun: SunBody = {
     provenance: createProvenance({
       sourceType: "ephemeris",
       sources: EARTH_EPHEMERIS.provenance.sources,
-      accuracy: "Position from the engine's Earth–Sun geometry, the same source that lights Earth and the Moon; checked samples are in docs/ASTRONOMY_VALIDATION.md.",
+      accuracy: "Position from the engine's Earth–Sun geometry, the same source that lights Earth and the Moon.",
       notes: "Only the position is modelled. The drawn size is not a physical radius.",
     }),
     knownLimitations: ["The marker is drawn at a fixed screen size, not to scale."],
