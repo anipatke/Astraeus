@@ -1,17 +1,54 @@
-import { Jupiter, Mars, Mercury, Venus } from "@lizard-isana/orb/src/orb-planet.js";
-import { registerVSOP87A } from "@lizard-isana/orb/src/orb-vsop87a-registry.js";
-import { JUPITER_FULL_COEF } from "@lizard-isana/orb/vsop87a/jupiter";
-import { MARS_FULL_COEF } from "@lizard-isana/orb/vsop87a/mars";
-import { MERCURY_FULL_COEF } from "@lizard-isana/orb/vsop87a/mercury";
-import { VENUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/venus";
-import type { PlanetModels } from "./planetSeries";
+import fits from "../../data/ephemerides/planets/planets.json";
+import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
+import type { PlanetId, PlanetModel, PlanetModels } from "./planetSeries";
+import { assertTimeScaleTable, ttMinusUtcSeconds, type TimeScaleTable } from "./timeScale";
 
-/** Registers the full VSOP87A series and builds the planet models. Only planetSeries.ts imports this, lazily. */
+/** The astronomical unit in km that the astronomy adapter multiplies the model's au by; the fits are stored in km with the same value. */
+const AU_KM = 149_597_870.7;
+const J2000_UNIX_MS = Date.UTC(2000, 0, 1, 12);
+
+interface StoredPlanet {
+  readonly startS: number;
+  readonly segmentSeconds: number;
+  readonly segmentCount: number;
+  readonly coefficientCount: number;
+  readonly quantumKm: number;
+  readonly data: string;
+}
+
+function decodeBase64(text: string): Uint8Array {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function planetModel(chunk: SeriesChunk, table: TimeScaleTable): PlanetModel {
+  const km = new Float64Array(3);
+  return {
+    xyz(date: Date) {
+      const utcMs = date.getTime();
+      const tt = (utcMs - J2000_UNIX_MS) / 1000 + ttMinusUtcSeconds(table, utcMs);
+      if (!chunkCovers(chunk, tt)) throw new RangeError(`the planet curve fits do not cover ${date.toISOString()}`);
+      chunkPositionInto(chunk, tt, km, 0);
+      return { x: km[0] / AU_KM, y: km[1] / AU_KM, z: km[2] / AU_KM, coordinate_keywords: "ecliptic rectangular j2000", unit_keywords: "au" };
+    },
+  };
+}
+
+/**
+ * The four planet models from the stored curve fits (`data/ephemerides/planets/`, O-025 T-101): heliocentric ecliptic-J2000 positions as piecewise
+ * Chebyshev series in TT, refitted from Orb's full VSOP87A series within 1 km (tools/import/planet-fits.mjs). UTC to TT uses the table stored
+ * beside them. Dates outside the fitted span (1969 to 2045) throw rather than extrapolate. Only planetSeries.ts imports this, lazily.
+ */
 export function createPlanetModels(): PlanetModels {
-  registerVSOP87A("Mercury", MERCURY_FULL_COEF);
-  registerVSOP87A("Venus", VENUS_FULL_COEF);
-  registerVSOP87A("Mars", MARS_FULL_COEF);
-  registerVSOP87A("Jupiter", JUPITER_FULL_COEF);
-  const full = { vsop87a: "full" } as const;
-  return { mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full) };
+  const table = fits.timeScale as TimeScaleTable;
+  assertTimeScaleTable(table);
+  const planets = fits.planets as Record<PlanetId, StoredPlanet>;
+  const model = (id: PlanetId): PlanetModel => {
+    const p = planets[id];
+    const chunk = decodeChunk(decodeBase64(p.data), { startTdbS: p.startS, segmentSeconds: p.segmentSeconds, segmentCount: p.segmentCount, coefficientCount: p.coefficientCount, quantumKm: p.quantumKm });
+    return planetModel(chunk, table);
+  };
+  return { mercury: model("mercury"), venus: model("venus"), mars: model("mars"), jupiter: model("jupiter") };
 }

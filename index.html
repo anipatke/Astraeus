@@ -144,6 +144,31 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 footer a { color: var(--muted); }
 footer a:hover { color: var(--ink); }
 
+/* Curve fits: how positions are stored (O-025 T-101). Phone first: one column, the picture as wide as the screen, a 44px slider; two columns from 760px. */
+.fit-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.fit-panel { margin: 0; min-width: 0; border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); padding: 14px; overflow: hidden; }
+.fit-panel svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.fit-panel figcaption { margin-top: 10px; font-size: 0.88rem; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.fit-panel figcaption b { display: block; color: var(--ink); font-weight: 600; font-size: 0.98rem; margin-bottom: 2px; }
+.fit-dots { fill: none; stroke: rgba(207, 220, 255, 0.55); stroke-width: 2.2; stroke-linecap: round; }
+.fit-curve { fill: none; stroke: #ffd59a; stroke-width: 1.6; }
+.fit-join { fill: #07070a; stroke: #ffd59a; stroke-width: 1.4; }
+.fit-orbit { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+.fit-planet { fill: #c9a37a; }
+.fit-mark { fill: #fff; stroke: #07070a; stroke-width: 1.2; }
+.fit-ring { fill: none; stroke: #fff; stroke-width: 1.6; }
+.fit-row { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.fit-row label { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.fit-row input[type=range] { width: 100%; min-height: 44px; margin: 0; accent-color: #ffd59a; background: transparent; touch-action: pan-y; }
+.fit-row input[type=range]:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; border-radius: 6px; }
+.fit-read { font-family: var(--mono); font-size: 0.78rem; line-height: 1.6; color: var(--body); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.fit-stats { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 18px 24px; }
+.fit-stats li { min-width: 0; border-top: 1px dashed var(--rule-strong); padding-top: 12px; }
+.fit-stats b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(1.9rem, 6vw, 2.8rem); line-height: 1; letter-spacing: -0.04em; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fit-stats span { display: block; margin-top: 8px; font-size: 0.88rem; line-height: 1.5; color: var(--muted); }
+.fit-note { margin-top: 16px; font-size: 0.8rem; line-height: 1.5; color: var(--faint); overflow-wrap: anywhere; }
+@media (min-width: 760px) { .fit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
   .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; }
@@ -224,6 +249,36 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
         <li><span class="n">03 · DRAWING</span><h3>Safe at any scale</h3><p>True or readable scale, a floating origin so 51 AU stays steady, paths, labels, light and a real star sky.</p><div class="tags"><span class="tag">floating origin</span><span class="tag">markers</span><span class="tag">sky</span></div></li>
         <li><span class="n">04 · STORY</span><h3>Time you can play</h3><p>Timelines, events, focus and follow, story panels that open as playback reaches their moment, and an info panel that shows what's measured and what's filled in.</p><div class="tags"><span class="tag">observed</span><span class="tag">modelled</span><span class="tag">illustrative</span></div></li>
       </ol>
+    </div>
+  </section>
+
+  <section class="band" id="curve-fits" aria-labelledby="fit-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="fit-title">Photos, or <span class="spec">a recipe.</span></h2>
+        <p>Where is Io, a moon of Jupiter? One way is a table with a position for every few minutes: a photo album of the orbit. The other keeps a short recipe, a few numbers that rebuild the path at any moment. Astraeus stores positions as recipes.</p>
+      </div>
+      <div class="fit-grid">
+        <figure class="fit-panel">
+          <svg id="fit-photos" viewBox="0 0 300 300" role="img" aria-label="Io's orbit around Jupiter drawn as many separate dots, one for every few minutes."></svg>
+          <figcaption><b>Photos: <span data-fit="rows">324</span> rows</b>One position every <span data-fit="step">10</span> minutes, so a table stays within a metre. The ring is the row nearest the slider.</figcaption>
+        </figure>
+        <figure class="fit-panel">
+          <svg id="fit-recipe" viewBox="0 0 300 300" role="img" aria-label="The same orbit drawn as a smooth curve made of two short pieces, with a marker that moves with the slider."></svg>
+          <figcaption><b>Recipe: <span data-fit="pieces">2</span> pieces</b><span data-fit="numbers">96</span> numbers rebuild the same path, and the position at any moment, not only at a row.</figcaption>
+        </figure>
+      </div>
+      <div class="fit-row">
+        <label for="fit-time">Move through two and a quarter days of Io's orbit</label>
+        <input id="fit-time" type="range" min="0" max="3240" step="1" value="0" data-fit-slider>
+        <p class="fit-read" aria-live="off" data-fit-readout>Hour 0.0 · Io is 421,000 km from Jupiter's centre</p>
+      </div>
+      <ul class="fit-stats" aria-label="What the recipes save, and how close they are">
+        <li><b data-fit="ratio">47×</b><span>smaller than the table for Io alone: <span data-fit="ioFit">1.1 MB</span> instead of <span data-fit="ioTable">50.5 MB</span> for <span data-fit="years">20</span> years.</span></li>
+        <li><b data-fit="accuracy">3.5 cm</b><span>Io's worst difference from NASA's Horizons over those years. All <span data-fit="bodies">115</span> moons of Jupiter stay within <span data-fit="worstAll">1 m</span>.</span></li>
+        <li><b data-fit="planets">6×</b><span>smaller planet positions: <span data-fit="planetsAfter">0.21 MB</span> instead of <span data-fit="planetsBefore">1.4 MB</span>, within 1 km of the series they replace, for 1969 to 2045.</span></li>
+      </ul>
+      <p class="fit-note">The dots and the curve are drawn from the real fitted data, two of Io's pieces (96 numbers) and one of Jupiter's (48, to put Io about Jupiter's centre), starting 4 November 2016. Data: JPL Horizons, NASA/JPL-Caltech Solar System Dynamics. Size figures are measured, not estimated. The table sizes count six 8-byte numbers per row.</p>
     </div>
   </section>
 
@@ -355,5 +410,78 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
 })();
 </script>
 
+<!-- fit-data:start -->
+<script type="application/json" id="fit-data">{"source":"data/ephemerides/jupiter-moons/ (JPL Horizons, fitted in O-025 T-096); NASA/JPL-Caltech SSD","startTdbS":531446400,"pieceSeconds":97200,"jupiterPieceSeconds":194400,"coefficients":16,"io":[29707.8694,-465921.25684,-86245.63712,103446.42311,8646.01994,-5532.79553,-361.35153,125.77598,10.99642,-1.05057,-0.31501,-0.02238,0.00716,0.00117,-0.00008,-0.00003,82078.63728,129517.43636,-256073.59057,-29453.53233,24401.61817,1745.51716,-827.37399,-58.4495,12.42418,1.70331,0.00489,-0.04496,-0.00539,0.00082,0.0002,0,39566.34582,54236.56826,-123339.20332,-12374.02847,11759.98403,742.88472,-399.82982,-25.82699,6.09303,0.79444,-0.0027,-0.02177,-0.00245,0.00041,0.00009,0,52982.87748,411943.91415,-158437.07334,-91128.09042,15393.20979,4791.60923,-568.81412,-100.11851,12.32625,0.30498,-0.2076,0.03855,0.00232,-0.00123,0.00004,0.00002,-73193.56752,231250.17306,227599.66025,-51828.36541,-21522.81704,2889.45563,703.91574,-78.53299,-8.56138,1.47532,-0.10784,-0.02238,0.00691,0.00008,-0.00015,0.00002,-34013.43475,116723.49603,105866.415,-26141.10291,-10004.60833,1452.75838,326.16097,-39.0033,-3.88049,0.70752,-0.05468,-0.01004,0.00333,0.00002,-0.00007,0.00001],"jupiter":[-7.35268,-34.44695,-18.33908,2.3355,10.22354,-0.68941,-1.90125,0.08725,0.17308,-0.00793,-0.01227,0.00078,0.00111,-0.00003,-0.0002,-0.00007,72.87329,21.98756,-4.62645,-13.97335,1.23903,4.49379,-0.22704,-0.55075,0.02283,0.04175,-0.00221,-0.00316,0.00017,0.00034,0.00006,-0.0001,34.22975,10.08543,-2.4197,-6.58717,0.74911,2.12702,-0.13836,-0.26083,0.01363,0.01976,-0.00125,-0.00149,0.0001,0.00016,0.00003,-0.00005],"plane":{"e1":[0.755487,-0.596111,-0.271831],"e2":[0.655005,0.678083,0.333423]},"tableStepMinutes":10,"ioPeriodDays":1.77,"figures":{"ioTableBytes":50492208,"ioFitBytes":1077981,"ioWorstM":0.0354,"setTableBytes":899542176,"setFitBytes":21859447,"bodies":116,"span":["2010-01-01","2030-01-01"],"worstOfAllM":0.9892,"planets":{"beforeBytes":1391805,"afterBytes":214459,"worstFitErrorKm":0.7973,"span":["1969-01-01","2045-01-01"]}}}</script>
+<!-- fit-data:end -->
+<script>
+(() => {
+  const dataNode = document.getElementById("fit-data");
+  const photos = document.getElementById("fit-photos");
+  const recipe = document.getElementById("fit-recipe");
+  const slider = document.querySelector("[data-fit-slider]");
+  const readout = document.querySelector("[data-fit-readout]");
+  if (!dataNode || !photos || !recipe || !slider || !readout) return;
+  const d = JSON.parse(dataNode.textContent);
+  if (!d.io) return;
+  const NS = "http://www.w3.org/2000/svg";
+  const n = d.coefficients;
+  const windowS = d.jupiterPieceSeconds;
+  // Clenshaw sum of c[o + k] * T_k(x), the same sum the engine runs.
+  const cheb = (c, o, x) => { let b1 = 0, b2 = 0; for (let k = n - 1; k >= 1; k--) { const b0 = 2 * x * b1 - b2 + c[o + k]; b2 = b1; b1 = b0; } return x * b1 - b2 + c[o]; };
+  const place = (t) => { // Io about Jupiter in the orbit plane, km, t seconds into the window
+    const piece = Math.min(1, Math.floor(t / d.pieceSeconds));
+    const x = 2 * (t / d.pieceSeconds - piece) - 1;
+    const xj = 2 * (t / windowS) - 1;
+    const rel = [0, 1, 2].map((a) => cheb(d.io, piece * 3 * n + a * n, x) - cheb(d.jupiter, a * n, xj));
+    const dot = (e) => rel[0] * e[0] + rel[1] * e[1] + rel[2] * e[2];
+    return [dot(d.plane.e1), dot(d.plane.e2)];
+  };
+  const R = 421800 * 1.12, C = 150, S = 138 / R;
+  const px = (p) => [C + p[0] * S, C - p[1] * S];
+  const el = (parent, tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const stepS = d.tableStepMinutes * 60;
+  const rows = Math.round(windowS / stepS);
+  const dots = []; for (let i = 0; i <= rows; i++) dots.push(px(place(i * stepS)));
+  const curve = []; for (let i = 0; i <= 240; i++) curve.push(px(place((windowS * i) / 240)));
+  const planetR = 71492 * S;
+  for (const svg of [photos, recipe]) {
+    el(svg, "circle", { cx: C, cy: C, r: 421800 * S, class: "fit-orbit" });
+    el(svg, "circle", { cx: C, cy: C, r: planetR, class: "fit-planet" });
+  }
+  el(photos, "path", { class: "fit-dots", d: dots.map((p) => "M" + p[0].toFixed(1) + " " + p[1].toFixed(1) + "h0").join("") });
+  el(recipe, "path", { class: "fit-curve", d: "M" + curve.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") });
+  for (const t of [0, d.pieceSeconds, windowS]) { const p = px(place(t)); el(recipe, "circle", { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.2, class: "fit-join" }); }
+  const ring = el(photos, "circle", { r: 5, class: "fit-ring" });
+  const mark = el(recipe, "circle", { r: 4.2, class: "fit-mark" });
+  const root = slider.closest(".fit-row");
+  const fmt = (v) => Math.round(v).toLocaleString("en-US");
+  function show() {
+    const t = Number(slider.value) * 60;
+    const p = place(t), q = px(p);
+    mark.setAttribute("cx", q[0].toFixed(1)); mark.setAttribute("cy", q[1].toFixed(1));
+    const near = dots[Math.min(rows, Math.round(t / stepS))];
+    ring.setAttribute("cx", near[0].toFixed(1)); ring.setAttribute("cy", near[1].toFixed(1));
+    const km = Math.hypot(p[0], p[1]);
+    const hours = t / 3600;
+    readout.textContent = "Hour " + hours.toFixed(1) + " \u00b7 Io is " + fmt(km) + " km from Jupiter's centre";
+    root.dataset.fitHours = hours.toFixed(2);
+    root.dataset.fitKm = String(Math.round(km));
+    root.dataset.fitMarkX = q[0].toFixed(1);
+    root.dataset.fitMarkY = q[1].toFixed(1);
+  }
+  root.dataset.fitDots = String(dots.length);
+  root.dataset.fitPieces = "2";
+  slider.addEventListener("input", show);
+  show();
+  // Figures, from the measured data.
+  const f = d.figures, mb = (b, k) => (b / 1e6).toFixed(k === undefined ? 1 : k) + " MB";
+  const set = (key, text) => document.querySelectorAll('[data-fit="' + key + '"]').forEach((e) => { e.textContent = text; });
+  set("rows", String(dots.length)); set("step", String(d.tableStepMinutes)); set("pieces", "2"); set("numbers", String(2 * 3 * n));
+  set("ratio", Math.round(f.ioTableBytes / f.ioFitBytes) + "\u00d7"); set("ioFit", mb(f.ioFitBytes)); set("ioTable", mb(f.ioTableBytes));
+  set("years", String(Number(f.span[1].slice(0, 4)) - Number(f.span[0].slice(0, 4))));
+  set("accuracy", (f.ioWorstM * 100).toFixed(1) + " cm"); set("bodies", String(f.bodies - 1)); set("worstAll", f.worstOfAllM < 1 ? "1 m" : f.worstOfAllM.toFixed(1) + " m");
+  if (f.planets) { set("planets", Math.round(f.planets.beforeBytes / f.planets.afterBytes) + "\u00d7"); set("planetsAfter", mb(f.planets.afterBytes, 2)); set("planetsBefore", mb(f.planets.beforeBytes)); }
+})();
+</script>
 </body>
 </html>

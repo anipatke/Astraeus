@@ -53,7 +53,7 @@ The full run takes no pictures (T-102): there is no baseline, comparison or cont
 
 ## In the full run
 
-`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
+`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `browser-home-curve-fits`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
 
 ## Trimmed in place
 
@@ -153,3 +153,7 @@ The Earth–Moon demo, its story file and `browser-earth-moon.mjs` are gone (own
 | Sky; no stray Sun; marker rule | `browser-sky.mjs` (Apollo, Perseids); `on-request/browser-sun.mjs`, `on-request/browser-marker-existing.mjs` without Earth–Moon |
 | Home page links | `browser-lite.mjs` and `tests/homePage.test.ts` now expect three addresses |
 | Page-size limit for the address | removed from `load-budget.mjs` and the README table |
+
+## The home page's curve-fit section (O-025 T-101)
+
+New script `browser-home-curve-fits.mjs`, in the full run (lane B, dev server, `index.html`). **Written but not yet run** (owner, 2026-10-19: browser checks deferred to the Full Objective Check). It opens the home page at a phone (375x700, touch), a small phone (320x640) and a laptop (1280x800), each also with reduced motion, and asserts: 325 table dots and 2 fitted pieces are drawn from the real data; moving the slider to 0, 27 and 54 hours changes the hours readout, keeps Io 400,000 to 445,000 km from Jupiter's centre and moves the recipe marker; and the phone-first rules: no sideways scroll, nothing past the screen edge, a slider at least 44 px tall, text at least 12 px, one panel column on the phones and two on the laptop, no piece of the section overlapping another, and no overlap with the sections above and below. Zero console and page errors. Driver additions: `openHomeCurveFits`, `curveFitSetMinutes`, `curveFitReadout`, `curveFitLayout`. No existing scenario was removed or changed. The look (colours, whether the dots and curve read well) is the owner's call on the preview.

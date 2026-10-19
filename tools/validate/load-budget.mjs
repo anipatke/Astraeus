@@ -12,7 +12,7 @@ import { gzipSync } from "node:zlib";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
-const APP_SHARED = ["app.html", "app.js", "app.css", "scales.js", "catalogueItem.js", "hyg-v42-naked-eye.json"];
+const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json"];
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
 const SHOWER_COMMON = ["showerDefinition.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
