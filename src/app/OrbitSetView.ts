@@ -8,7 +8,7 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineSegments, ShaderMaterial, Vector3, type Camera } from "three";
 import { osculatingPeriodS } from "../core/orbitPeriod";
 import type { ScalePolicy } from "../core/scalePolicy";
-import { familyColorOf, MAX_BODY_SET_FAMILIES, type BodySetLayer, type BodySetLook } from "./bodySet";
+import { familyColorOf, familyGainOf, MAX_BODY_SET_FAMILIES, type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
@@ -410,8 +410,8 @@ export class OrbitSetView {
     uniforms.uBoost.value = look.orbitZoomBoost;
     uniforms.uFar.value = look.orbitZoomFarRatio;
     this.layer.families.forEach((family, index) => {
-      (uniforms.uColors.value as Color[])[index].set(familyColorOf(this.layer, look, family.id));
-      (uniforms.uGains.value as number[])[index] = look.familyGains[family.id] ?? 1;
+      (uniforms.uColors.value as Color[])[index].set(look.highlightFamily === family.id ? look.highlightColor : familyColorOf(this.layer, look, family.id));
+      (uniforms.uGains.value as number[])[index] = familyGainOf(look, family.id);
     });
     this.#material.depthTest = trueScale;
   }

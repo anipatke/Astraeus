@@ -53,7 +53,7 @@ The full run takes no pictures (T-102): there is no baseline, comparison or cont
 
 ## In the full run
 
-`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
+`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-moon-panel`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
 
 ## Trimmed in place
 
@@ -153,3 +153,18 @@ The Earth–Moon demo, its story file and `browser-earth-moon.mjs` are gone (own
 | Sky; no stray Sun; marker rule | `browser-sky.mjs` (Apollo, Perseids); `on-request/browser-sun.mjs`, `on-request/browser-marker-existing.mjs` without Earth–Moon |
 | Home page links | `browser-lite.mjs` and `tests/homePage.test.ts` now expect three addresses |
 | Page-size limit for the address | removed from `load-budget.mjs` and the README table |
+
+## The moon panel (O-025 T-099)
+
+`browser-moon-panel.mjs` is new; no earlier scenario moved. It runs on `?experience=jupiter-io` at desktop and phone size, only through the shared driver (`openMoonPanel`, `tapMoonFamily`, `chooseMoon`, `searchMoons` and their readouts), with no pictures. Assertions and where each is read:
+
+| Scenario | Readout |
+|---|---|
+| Every family listed in the data's order, each heading carrying the live count; four pictures on the big four | `moonFamilies` (headings), `featuredMoonPictures` |
+| A family's section shows the data's plain description; named moons first, the rest folded under "+N unnamed" | `moonFamilyDescription`, `moonRows`, `unnamedMoonsHeading` |
+| Opening a family lights exactly its moons in the scene; opening another moves the light; closing clears it | `bodySetReadout` (`highlight`, `lit` from `data-body-set-highlight` and `-lit`) and `moonPanelHighlight` |
+| Tapping a moon (small or one of the big four) focuses the camera on it and opens its information with family, size, discovery year and sources | `focusedOn` (the Focus button pressed), `infoPanelFor`, `infoText` |
+| Search finds a moon by name and by designation as it is typed, and nothing for a name that does not exist | `searchMoons`, `moonSearchResults` |
+| Phone: every moon row is at least 44 px tall | `moonRows` heights |
+
+Written 2026-10-19 and not run: the owner deferred browser checks to the Full Objective Check of O-025. `tools/validate/run-full.sh` runs it after `browser-jupiter-io`.

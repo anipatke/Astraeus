@@ -59,6 +59,12 @@ export interface BodySetLook {
   readonly familyColors: Readonly<Record<string, string>>;
   /** Family id to brightness multiplier (a highlight brightens one family); 1 when absent. */
   readonly familyGains: Readonly<Record<string, number>>;
+  /** The family lit up now (the moon panel's choice), or null: its dots, balls and orbit lines take the highlight look. */
+  readonly highlightFamily: string | null;
+  /** Dot and ball colour of the lit family, #rrggbb. */
+  readonly highlightColor: string;
+  /** Orbit-line brightness multiplier for the lit family. */
+  readonly highlightOrbitGain: number;
 }
 
 /**
@@ -78,6 +84,9 @@ export const DEFAULT_BODY_SET_LOOK: BodySetLook = Object.freeze({
   orbitZoomFarRatio: 4,
   familyColors: Object.freeze({}),
   familyGains: Object.freeze({}),
+  highlightFamily: null,
+  highlightColor: "#fc6323",
+  highlightOrbitGain: 4,
 });
 
 export const BODY_SET_LOOK_LIMITS = Object.freeze({
@@ -86,7 +95,13 @@ export const BODY_SET_LOOK_LIMITS = Object.freeze({
   orbitOpacity: { min: 0, max: 1 },
   orbitZoomBoost: { min: 0, max: 1 },
   orbitZoomFarRatio: { min: 1.5, max: 20 },
+  highlightOrbitGain: { min: 1, max: 12 },
 });
+
+/** The orbit brightness multiplier of a family now: its own gain, else the highlight's when it is the lit one. */
+export function familyGainOf(look: BodySetLook, family: string): number {
+  return look.familyGains[family] ?? (look.highlightFamily === family ? look.highlightOrbitGain : 1);
+}
 
 /** Families in data order with the default palette's colours, cycling past its end. */
 export function familiesWithPalette(families: readonly { readonly id: string; readonly label: string }[], palette: readonly string[] = DEFAULT_FAMILY_PALETTE): readonly BodySetFamily[] {

@@ -2,6 +2,7 @@ import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimelineWindow } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
+import type { MoonFamilyList } from "./moonFamilies";
 import type { StoryPanelSet } from "./storyPanels";
 
 export interface ExperienceObject {
@@ -30,6 +31,8 @@ export interface ExperienceObject {
   readonly description?: string;
   /** Where this object's data comes from. Anything reconstructed or illustrative must carry one. */
   readonly provenance?: Provenance;
+  /** Labelled values for the info panel (a moon's family, size, discovery and sources). */
+  readonly facts?: readonly { readonly label: string; readonly value: string }[];
   /** Published limitations, shown with the provenance. Figures come from the experience's own data. */
   readonly knownLimitations?: readonly string[];
 }
@@ -55,6 +58,8 @@ export interface ExperienceConfig {
   readonly rates: readonly number[];
   /** Short story panels that open as playback reaches their time; see `parseStoryPanels`. Omit for an experience with none. */
   readonly storyPanels?: StoryPanelSet;
+  /** A planet's moons by family for the sliding moon panel; omit for an experience with none. Every moon listed must also be an object. */
+  readonly moonFamilies?: MoonFamilyList;
   /** Where the event times come from, shown with every event. */
   readonly eventProvenance?: Provenance;
 }

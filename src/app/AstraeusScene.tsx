@@ -267,7 +267,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     for (const view of compositionPaths) {
       if (view.defaultLook !== null) view.setLook({ ...view.defaultLook, ...controls.orbitLook });
       const owned = bodyFamilies.find((entry) => `${entry.body}-orbit` === view.id);
-      if (owned !== undefined) view.setColor(familyColorOf(owned.layer, setLook, owned.family));
+      if (owned !== undefined) view.setColor(setLook.highlightFamily === owned.family ? setLook.highlightColor : familyColorOf(owned.layer, setLook, owned.family));
       view.sync(t, placement, policy);
     }
     for (const view of bodySetViews) view.sync(t, placement, policy, resolver);

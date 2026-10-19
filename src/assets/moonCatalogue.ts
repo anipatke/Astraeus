@@ -19,6 +19,16 @@ export interface MoonRecord {
   readonly radiusBasis: string;
   /** Present for a moon with a mapped body package; such a moon is drawn as a full body. */
   readonly bodyPackage?: string;
+  /** False for a provisional designation such as "S/2003 J 19" that has no name yet. */
+  readonly named: boolean;
+  readonly discoveryYear?: number;
+  /** Ids into the catalogue's `sources`: the list, the family, the size and the discovery. */
+  readonly sourceIds: readonly string[];
+}
+
+export interface MoonSource {
+  readonly title: string;
+  readonly url: string;
 }
 
 export interface MoonCatalogue {
@@ -26,6 +36,7 @@ export interface MoonCatalogue {
   readonly asOf: string;
   readonly families: readonly MoonFamily[];
   readonly moons: readonly MoonRecord[];
+  readonly sources: Readonly<Record<string, MoonSource>>;
 }
 
 export class MoonCatalogueError extends TypeError {
@@ -58,7 +69,12 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
     if (!familyIds.has(family)) throw new MoonCatalogueError(`${where}.family "${family}" is not a listed family`);
     const radius = moon.meanRadiusKm;
     if (typeof radius !== "number" || !(radius > 0)) throw new MoonCatalogueError(`${where}.meanRadiusKm must be positive`);
+    const sources = (moon.sources ?? {}) as Record<string, unknown>;
+    const sourceIds = [...new Set([sources.list, sources.family, sources.radius, sources.discovery].filter((id): id is string => typeof id === "string"))];
     return Object.freeze({
+      named: moon.named !== false,
+      ...(typeof moon.discoveryYear === "number" ? { discoveryYear: moon.discoveryYear } : {}),
+      sourceIds: Object.freeze(sourceIds),
       id: text(moon.id, `${where}.id`),
       name: text(moon.name, `${where}.name`),
       family,
@@ -68,5 +84,20 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
     });
   });
   if (new Set(moons.map((moon) => moon.id)).size !== moons.length) throw new MoonCatalogueError("moon catalogue moon ids must be unique");
-  return Object.freeze({ parent: text(record.parent, "parent"), asOf: text(record.asOf, "asOf"), families: Object.freeze(families), moons: Object.freeze(moons) });
+  const sources: Record<string, MoonSource> = {};
+  for (const [id, source] of Object.entries((record.sources ?? {}) as Record<string, Record<string, unknown>>)) sources[id] = Object.freeze({ title: text(source.title, `sources.${id}.title`), url: text(source.url, `sources.${id}.url`) });
+  for (const moon of moons) for (const id of moon.sourceIds) if (sources[id] === undefined) throw new MoonCatalogueError(`moon "${moon.id}" cites unknown source "${id}"`);
+  return Object.freeze({ parent: text(record.parent, "parent"), asOf: text(record.asOf, "asOf"), families: Object.freeze(families), moons: Object.freeze(moons), sources: Object.freeze(sources) });
+}
+
+/** The info-panel facts for one moon: its family, size, discovery year and where each comes from (O-025 Decision 6). */
+export function moonFacts(catalogue: MoonCatalogue, moon: MoonRecord): readonly { readonly label: string; readonly value: string }[] {
+  const family = catalogue.families.find((candidate) => candidate.id === moon.family);
+  const diameter = Math.round(2 * moon.meanRadiusKm * 10) / 10;
+  return [
+    { label: "Family", value: family?.label ?? moon.family },
+    { label: "Size", value: `${diameter.toLocaleString("en-GB")} km across${moon.radiusBasis === "estimate" ? " (estimated from brightness)" : ""}` },
+    ...(moon.discoveryYear === undefined ? [] : [{ label: "Found", value: String(moon.discoveryYear) }]),
+    { label: "Sources", value: moon.sourceIds.map((id) => catalogue.sources[id].title).join("; ") },
+  ];
 }

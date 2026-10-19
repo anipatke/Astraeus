@@ -1086,6 +1086,8 @@ export const bodySetReadout = (page) => page.locator("canvas").first().evaluate(
     orbitGaps: json(data.bodySetOrbitGaps, []),
     hover: data.bodySetHover ?? "",
     named: Number(data.bodySetNamed ?? 0),
+    highlight: data.bodySetHighlight ?? "",
+    lit: Number(data.bodySetLit ?? 0),
     rings: Number(canvas.closest("[data-rings]")?.getAttribute("data-rings") ?? 0),
   };
 });
@@ -1105,6 +1107,67 @@ export async function tapScene(page, x, y) {
 export const bodySetNameShown = (page, id) => page.locator(`[data-body-set-label="${id}"]`).evaluate((element) => !element.hidden);
 /** The ids of every body-set member whose name is showing. */
 export const bodySetNamesShown = (page) => page.locator("[data-body-set-label]").evaluateAll((elements) => elements.filter((element) => !element.hidden).map((element) => element.getAttribute("data-body-set-label")));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The moon panel (O-025 T-099): a planet's moons by family, a sliding panel on a wide screen and a section of the top drawer on a phone.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+const MOON_SHEET = ".moons-sheet";
+const moonFamily = (page, id) => page.locator(`[data-moon-family="${id}"]`);
+/** The panel itself (a labelled region). */
+export const moonPanel = (page) => page.getByRole("region", { name: /'s moons$/ });
+/** Opens the moon panel: the toggle button on a wide screen, the top drawer on a phone. */
+export async function openMoonPanel(page) {
+  if (await isPhoneLayout(page)) { await openControlsDrawer(page); await drawersSettled(page); return; }
+  const toggle = page.getByRole("button", { name: /moons$/ });
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+  await page.locator(`${MOON_SHEET}[data-open="true"]`).waitFor();
+  await page.waitForFunction((hook) => document.querySelector(hook).getAnimations().every((animation) => animation.playState !== "running"), MOON_SHEET);
+}
+/** Closes the moon panel (its toggle on a wide screen; the drawer's handle on a phone). */
+export async function closeMoonPanel(page) {
+  if (await isPhoneLayout(page)) { await closeControlsDrawer(page); return; }
+  const toggle = page.getByRole("button", { name: /moons$/ });
+  if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
+  await page.locator(`${MOON_SHEET}[data-open="false"]`).waitFor({ state: "attached" });
+}
+export const moonPanelShown = (page) => moonPanel(page).isVisible();
+/** The families the panel lists, in order: id, whether it is the lit one, and the heading text (label and count). */
+export const moonFamilies = (page) => page.locator("[data-moon-family]").evaluateAll((elements) => elements.map((element) => ({
+  id: element.getAttribute("data-moon-family"),
+  lit: element.getAttribute("data-lit") === "true",
+  heading: (element.querySelector("button")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+})));
+/** The family the panel says is lit now (empty when none). */
+export const moonPanelHighlight = (page) => moonPanel(page).getAttribute("data-highlight");
+/** Taps a family's heading: opens or closes its fold (the featured family's heading lights it up directly). */
+export async function tapMoonFamily(page, id) {
+  const fold = page.locator(`[data-fold-toggle="moons-${id}"]`);
+  if ((await fold.count()) > 0) await fold.click();
+  else await page.locator(`[data-moon-light="${id}"]`).click();
+}
+export const moonFamilyFoldOpen = async (page, id) => (await page.locator(`[data-fold-toggle="moons-${id}"]`).getAttribute("aria-expanded")) === "true";
+/** Opens the "+N unnamed" fold of a family. */
+export const openUnnamedMoons = (page, id) => page.locator(`[data-fold-toggle="moons-${id}-unnamed"]`).click();
+export const unnamedMoonsHeading = (page, id) => page.locator(`[data-fold-toggle="moons-${id}-unnamed"]`).innerText();
+/** The moons showing in a family's section, in order: id, label, and the height of the row in CSS px. */
+export const moonRows = (page, id) => moonFamily(page, id).locator("[data-moon]").evaluateAll((elements) => elements.filter((element) => element.checkVisibility({ checkVisibilityCSS: true })).map((element) => ({
+  id: element.getAttribute("data-moon"), label: element.textContent.replace(/\s+/g, " ").trim(), heightPx: element.getBoundingClientRect().height,
+})));
+/** Whether a family's section shows its one-line description. */
+export const moonFamilyDescription = (page, id) => moonFamily(page, id).locator(".moon-note").first().innerText();
+/** The big four's pictures showing in the featured family. */
+export const featuredMoonPictures = (page, id) => moonFamily(page, id).locator(".moon-disc").count();
+/** Taps a moon in the panel (the shell flies to it and opens its information). */
+export const chooseMoon = (page, id) => moonPanel(page).locator(`[data-moon="${id}"]:visible`).first().click();
+/** Types in the panel's search box, as a viewer does. */
+export const searchMoons = (page, text) => page.getByRole("searchbox", { name: "Find a moon" }).fill(text);
+/** The moons the search lists now: id and the family each is listed with. */
+export const moonSearchResults = (page) => page.locator(".moon-results [data-moon]").evaluateAll((elements) => elements.map((element) => ({ id: element.getAttribute("data-moon"), text: element.textContent.replace(/\s+/g, " ").trim() })));
+/** Whether the camera is on a body: its Focus button is the pressed camera choice. */
+export const focusedOn = async (page, id) => (await reveal(page, page.locator(`[data-camera-preset="focus-${id}"]`)).then((locator) => locator.getAttribute("aria-pressed"))) === "true";
+/** The id the information panel is about (empty when it is closed). */
+export const infoTargetId = async (page) => ((await infoOpen(page)) ? page.locator(HOOK.infoPanel).getAttribute("data-info-id") : "");
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Inside another page (T-082, O-020 Decision 5): the owner's portfolio shows the app in an iframe under its own story buttons.

@@ -90,3 +90,19 @@
   .astraeus-shell button,
   .astraeus-shell select { transition: none !important; }
 }
+
+/* Text and search inputs share one look with the buttons (T-099). */
+.astraeus-shell input[type="search"],
+.astraeus-shell input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-height);
+  padding: 0 var(--control-pad-x);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-bg);
+  color: var(--control-color);
+  font-size: var(--control-font-size);
+}
+.astraeus-shell input[type="search"]:hover,
+.astraeus-shell input[type="text"]:hover { border-color: var(--control-border-hover); }

@@ -68,6 +68,7 @@ export function infoView(experience: ExperienceConfig, target: InfoTarget, timeU
       target,
       title: object.label,
       ...(object.description === undefined ? {} : { description: object.description }),
+      ...(object.facts === undefined ? {} : { facts: object.facts }),
       provenance: object.provenance === undefined ? null : provenanceView(object.provenance, object.knownLimitations),
     };
   }

@@ -38,6 +38,8 @@ export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodyS
   data.bodySetOrbits = String(orbits.reduce((sum, view) => sum + (look.orbitsOn ? view.count : 0), 0));
   const colours: Record<string, string> = {};
   for (const view of views) for (const family of view.layer.families) colours[family.id] = familyColorOf(view.layer, look, family.id);
+  data.bodySetHighlight = look.highlightFamily ?? "";
+  data.bodySetLit = String(views.reduce((sum, view) => sum + view.litCount(look), 0));
   data.bodySetFamilyColors = JSON.stringify(colours);
   // Each in-view body's on-screen distance from its own orbit line (the nearest dozen to the camera).
   data.bodySetOrbitGaps = JSON.stringify(look.orbitsOn ? orbits.flatMap((view) => view.gapReadout(camera, widthPx, heightPx)) : []);

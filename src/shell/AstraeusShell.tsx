@@ -10,13 +10,14 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
+import { MoonFamilyPanel } from "./MoonFamilyPanel";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
-import { availableObjectById, findCameraPreset, firstAvailableObject, isObjectAvailable } from "./objectModel";
+import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable } from "./objectModel";
 import "./controls.css";
 import "./style.css";
 import "./phone.css";
@@ -61,6 +62,9 @@ interface Props {
   readonly timelineGlow?: TimelineGlowLook;
   /** The phone layout's live numbers (drawer heights, animation, swipe distance); absent: the defaults. */
   readonly phoneLayout?: PhoneLayoutSettings;
+  /** The family of moons lit up in the scene now (the moon panel's choice), or null; the app draws it. */
+  readonly highlightedFamily?: string | null;
+  readonly onHighlightFamily?: (familyId: string | null) => void;
   /** Starts or holds playback; the shell uses it to pause while a panel opens by itself. */
   readonly onSetPlaying?: (playing: boolean) => void;
   /** Asks the shell to open a panel (a scene marker was pressed); a new `serial` asks again. */
@@ -90,6 +94,8 @@ export function AstraeusShell({
   storyPanelSettings,
   timelineGlow,
   phoneLayout = DEFAULT_PHONE_LAYOUT,
+  highlightedFamily = null,
+  onHighlightFamily,
   onSetPlaying,
   panelRequest,
   onOpenPanelChange,
@@ -170,6 +176,15 @@ export function AstraeusShell({
     }
   }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs]);
 
+  const [moonsOpen, setMoonsOpen] = useState(false);
+  /** A moon chosen in the moon panel: flies to it (the same focus as the object picker) and opens its information. */
+  const chooseMoon = (id: string) => {
+    const object = availableObjectById(experience, id, snapshot.timeUtcMs);
+    if (object === undefined) return;
+    activatePreset(focusPresetFor(experience, object));
+    setInfo({ kind: "object" });
+  };
+
   const selectObject = (id: string) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
@@ -235,14 +250,28 @@ export function AstraeusShell({
     />
   );
 
+  const moonPanel = experience.moonFamilies === undefined ? null : (
+    <MoonFamilyPanel list={experience.moonFamilies} highlightedFamily={highlightedFamily} onHighlight={(id) => onHighlightFamily?.(id)} onSelectMoon={chooseMoon} />
+  );
+
   return (
     <main className="astraeus-shell" ref={root} data-phone={phone} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
       <div className="shell-canvas">{children}</div>
-      {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}</ControlsDrawer>}
+      {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">
         {!phone && topBar}
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>
+      {!phone && moonPanel !== null && (
+        <>
+          <button type="button" className="moons-toggle ui-pill" aria-expanded={moonsOpen} aria-controls="moons-panel" onClick={() => setMoonsOpen(!moonsOpen)}>
+            {experience.moonFamilies?.planetLabel} moons
+          </button>
+          <aside id="moons-panel" className="moons-sheet" data-open={moonsOpen} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") setMoonsOpen(false); }}>
+            {moonPanel}
+          </aside>
+        </>
+      )}
       {story.openPanel !== null && (
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
       )}

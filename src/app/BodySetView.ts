@@ -5,8 +5,10 @@ import {
   AmbientLight,
   BufferAttribute,
   BufferGeometry,
+  Color,
   DirectionalLight,
   Group,
+  InstancedBufferAttribute,
   InstancedMesh,
   Matrix4,
   MeshLambertMaterial,
@@ -50,6 +52,9 @@ export class BodySetView {
   readonly screen: MemberScreen[];
   readonly #km: Float64Array;
   readonly #positions: BufferAttribute;
+  readonly #colours: BufferAttribute;
+  readonly #dotColour = new Color();
+  readonly #litColour = new Color();
   readonly #points: Points;
   readonly #pointMaterial: PointsMaterial;
   readonly #balls: InstancedMesh;
@@ -74,7 +79,10 @@ export class BodySetView {
     const geometry = new BufferGeometry();
     this.#positions = new BufferAttribute(new Float32Array(3 * n), 3);
     geometry.setAttribute("position", this.#positions);
-    this.#pointMaterial = new PointsMaterial({ size: 3, sizeAttenuation: false, depthWrite: true });
+    // Each dot and ball carries its own colour, so a lit family can differ from the rest; the material colour stays white.
+    this.#colours = new BufferAttribute(new Float32Array(3 * n), 3);
+    geometry.setAttribute("color", this.#colours);
+    this.#pointMaterial = new PointsMaterial({ size: 3, sizeAttenuation: false, depthWrite: true, vertexColors: true });
     this.#points = new Points(geometry, this.#pointMaterial);
     this.#points.frustumCulled = false;
     this.#points.layers.set(TRACK_LAYER);
@@ -82,6 +90,7 @@ export class BodySetView {
     this.#ballMaterial = new MeshLambertMaterial();
     this.#balls = new InstancedMesh(new SphereGeometry(1, 16, 12), this.#ballMaterial, n);
     this.#balls.frustumCulled = false;
+    this.#balls.instanceColor = new InstancedBufferAttribute(new Float32Array(3 * n), 3);
     this.#balls.layers.set(TRACK_LAYER);
     this.#balls.name = `${layer.id}-balls`;
     this.#sun = new DirectionalLight(0xffffff, BALL_LIGHT.directional);
@@ -189,10 +198,24 @@ export class BodySetView {
     this.#positions.needsUpdate = true;
     this.#balls.instanceMatrix.needsUpdate = true;
     this.#pointMaterial.size = look.dotPx;
-    this.#pointMaterial.color.set(look.dotColor);
-    this.#ballMaterial.color.set(look.dotColor);
+    this.#dotColour.set(look.dotColor);
+    this.#litColour.set(look.highlightColor);
+    const colours = this.#colours.array as Float32Array;
+    const ballColours = this.#balls.instanceColor!;
+    this.layer.members.forEach((member, i) => {
+      const colour = look.highlightFamily === member.family ? this.#litColour : this.#dotColour;
+      colours[3 * i] = colour.r; colours[3 * i + 1] = colour.g; colours[3 * i + 2] = colour.b;
+      ballColours.setXYZ(i, colour.r, colour.g, colour.b);
+    });
+    this.#colours.needsUpdate = true;
+    ballColours.needsUpdate = true;
     // Mapped positions and radii agree only at true scale, so only there may a ball or a body hide a dot.
     this.#pointMaterial.depthTest = trueScale;
+  }
+
+  /** How many members of the lit family are drawn (the dot readout the browser check reads); 0 when none is lit. */
+  litCount(look: BodySetLook): number {
+    return this.#drawn && look.highlightFamily !== null ? this.layer.members.filter((member) => member.family === look.highlightFamily).length : 0;
   }
 
   /** The dots as the scene's point readout reports a point group (`data-points`): drawn, members, members in view and the box they cover (shares of the view). */

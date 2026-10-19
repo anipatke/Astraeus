@@ -168,6 +168,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     controls.current.bodySetLook = next;
     setSetLook(next);
   };
+  const highlightFamily = (family: string | null) => changeSetLook({ highlightFamily: family });
   const ringSystems = useMemo(() => runtime.bodies.flatMap((id) => { const rings = runtime.overrides.get(id)?.rings ?? runtime.catalogue.get(id).visual.rings; return rings === undefined ? [] : [rings]; }), [runtime]);
   const [ringLook, setRingLook] = useState<RingLook>({});
   const changeRing = (band: string, change: { color?: string; opacity?: number }) => {
@@ -397,6 +398,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               </SettingButtons>
               <SettingSlider label="Orbit opacity" ariaLabel="Moon orbit opacity" testId="body-set-orbit-opacity" display={setLook.orbitOpacity.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitOpacity.min} max={BODY_SET_LOOK_LIMITS.orbitOpacity.max} step={0.01} value={setLook.orbitOpacity} onChange={(orbitOpacity) => changeSetLook({ orbitOpacity })} />
               <SettingSlider label="Zoom boost" ariaLabel="Moon orbit zoom boost" testId="body-set-orbit-boost" display={setLook.orbitZoomBoost.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitZoomBoost.min} max={BODY_SET_LOOK_LIMITS.orbitZoomBoost.max} step={0.01} value={setLook.orbitZoomBoost} onChange={(orbitZoomBoost) => changeSetLook({ orbitZoomBoost })} />
+              <SettingColor label="Highlight colour" ariaLabel="Moon family highlight colour" testId="body-set-highlight-color" value={setLook.highlightColor} onChange={(highlightColor) => changeSetLook({ highlightColor })} />
+              <SettingSlider label="Highlight orbit brightness" ariaLabel="Moon family highlight orbit brightness" testId="body-set-highlight-gain" display={setLook.highlightOrbitGain.toFixed(1)} min={BODY_SET_LOOK_LIMITS.highlightOrbitGain.min} max={BODY_SET_LOOK_LIMITS.highlightOrbitGain.max} step={0.5} value={setLook.highlightOrbitGain} onChange={(highlightOrbitGain) => changeSetLook({ highlightOrbitGain })} />
               {bodySets.flatMap((layer) => layer.families.map((family) => (
                 <SettingColor key={`${layer.id}-${family.id}`} label={family.label} ariaLabel={`${family.label} orbit colour`} testId={`body-set-family-${family.id}`} value={familyColorOf(layer, setLook, family.id)} onChange={(color) => changeSetLook({ familyColors: { ...setLook.familyColors, [family.id]: color } })} />
               )))}
@@ -563,6 +566,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
       timelineGlow={timelineGlow}
       phoneLayout={phoneLayout}
+      highlightedFamily={setLook.highlightFamily}
+      onHighlightFamily={highlightFamily}
       onSetPlaying={setPlaying}
       panelRequest={panelRequest}
       onOpenPanelChange={markOpenPanel}
