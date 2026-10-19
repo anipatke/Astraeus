@@ -1219,3 +1219,58 @@ export const embeddedLook = (page) => page.evaluate(() => {
     scrollsHorizontally: document.documentElement.scrollWidth > window.innerWidth + 1,
   };
 });
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Tagged places on a body (O-025 T-103): a ringed marker on each place of a mapped moon, named on hover, opened in the information panel on a press.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The scene's feature-marker readout (`data-feature-markers`): `total` markers held and `shown` ones on screen as `{key, x, y}` fractions of the canvas, key being `<body>:<place>`. */
+export const sceneFeatures = (page) => page.locator("canvas").first().evaluate((canvas) => (canvas.dataset.featureMarkers ? JSON.parse(canvas.dataset.featureMarkers) : { total: 0, shown: [] }));
+/** The keys of the markers on screen now. */
+export const shownFeatureKeys = async (page) => (await sceneFeatures(page)).shown.map((marker) => marker.key);
+/** A place's marker as the viewer sees it: its screen point in CSS px from the page's top left, its name, whether it reads as selected; null while it is not shown. */
+export const featureMarker = (page, key) => page.locator(`[data-feature-key="${key}"]`).evaluate((element) => {
+  if (element.hidden) return null;
+  const box = element.getBoundingClientRect();
+  return { x: box.left + box.width / 2, y: box.top + box.height / 2, width: box.width, name: element.getAttribute("aria-label"), pressed: element.getAttribute("aria-pressed") === "true" };
+});
+/** Presses (taps) a place's marker, which opens its information. */
+export const pressFeature = (page, key) => page.locator(`[data-feature-key="${key}"]`).click();
+/** Points the mouse at a place's marker, as a viewer hovering it. */
+export async function hoverFeature(page, key) {
+  await page.locator(`[data-feature-key="${key}"]`).hover();
+}
+/** Whether a place's name is showing beside its marker (the hover or focus label). */
+export const featureNameShown = (page, key) => page.locator(`[data-feature-key="${key}"]`).evaluate((element) => Number(getComputedStyle(element, "::after").opacity) > 0.5);
+/** The text of the information panel when it shows this place, or null when another or none is open. */
+export async function featureInfoText(page, key) {
+  const panel = page.locator(`${HOOK.infoPanel}[data-info-kind="feature"][data-info-id="${key}"]`);
+  if ((await panel.count()) === 0) return null;
+  return squash(await panel.innerText());
+}
+/** Waits for a place's information to open. */
+export const waitForFeatureInfo = (page, key, options) => page.locator(`${HOOK.infoPanel}[data-info-kind="feature"][data-info-id="${key}"]`).waitFor(options);
+
+/** The markers on screen that overlap a shell panel (information panel, moons sheet or button, timeline, top bar, story panel, drawers): `[{key, over}]`; empty when every panel owns its own area. */
+export const featureCollisions = (page) => page.evaluate(() => {
+  const panels = [...document.querySelectorAll(".info-panel, .moons-sheet, .moons-toggle, .timeline-bar, .shell-toolbar, .story-panel, .controls-drawer, .controls-pill, .timeline-drawer, .developer-mode-toggle")]
+    .map((element) => ({ name: element.className.toString().split(" ")[0], box: element.getBoundingClientRect() })).filter(({ box }) => box.width > 0 && box.height > 0);
+  return [...document.querySelectorAll("[data-feature-key]")].filter((marker) => !marker.hidden).flatMap((marker) => {
+    const box = marker.getBoundingClientRect();
+    const over = panels.find((panel) => box.left < panel.box.right && box.right > panel.box.left && box.top < panel.box.bottom && box.bottom > panel.box.top);
+    return over === undefined ? [] : [{ key: marker.getAttribute("data-feature-key"), over: over.name }];
+  });
+});
+/** A place's tap target in CSS px: the hit area drawn around the marker; `{width, height}`. */
+export const featureTapTarget = (page, key) => page.locator(`[data-feature-key="${key}"]`).evaluate((element) => {
+  const hit = getComputedStyle(element, "::before");
+  return { width: parseFloat(hit.width), height: parseFloat(hit.height) };
+});
+/** The place's name label stays inside the viewport: its box from the marker and the label's CSS side, true when it fits. */
+export const featureNameFits = (page, key) => page.locator(`[data-feature-key="${key}"]`).evaluate((element) => {
+  const box = element.getBoundingClientRect();
+  const label = getComputedStyle(element, "::after");
+  const width = Math.min(parseFloat(label.width) || 0, window.innerWidth);
+  const left = element.dataset.edgeX === "left" ? box.left : element.dataset.edgeX === "right" ? box.right - width : box.left + box.width / 2 - width / 2;
+  return left >= 0 && left + width <= window.innerWidth;
+});

@@ -269,6 +269,63 @@
 .story-marker[hidden] { display: none !important; }
 
 
+/* Tagged places on a body: the donor's HotspotMarker look (10 px ringed dot in the category colour; 14 px and filled when its information is open). */
+.feature-markers { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
+.feature-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 10px;
+  height: 10px;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 1.5px solid var(--feature-color, #fff) !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, .55) !important;
+  opacity: .85;
+  box-shadow: 0 0 4px color-mix(in srgb, var(--feature-color, #fff) 27%, transparent);
+  cursor: pointer;
+  outline: none;
+  pointer-events: auto;
+  touch-action: none;
+  transition: width 150ms ease, height 150ms ease, opacity 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+/* 44 px square around the 10 px dot. */
+.feature-marker::before { position: absolute; inset: -19px; content: ""; }
+.feature-marker:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
+.feature-marker[aria-pressed="true"] {
+  width: 14px;
+  height: 14px;
+  opacity: 1;
+  background: var(--feature-color, #fff) !important;
+  box-shadow: 0 0 8px var(--feature-color, #fff), 0 0 16px color-mix(in srgb, var(--feature-color, #fff) 40%, transparent);
+}
+/* The place's name on hover or keyboard focus (a tap opens its information, which is headed by the name). */
+.feature-marker::after {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .8);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  content: attr(data-name);
+  opacity: 0;
+  pointer-events: none;
+}
+/* Near the left, right or top edge the name flips inward so it never spills off the screen. */
+.feature-marker[data-edge-x="left"]::after { left: 0; transform: none; }
+.feature-marker[data-edge-x="right"]::after { right: 0; left: auto; transform: none; }
+.feature-marker[data-edge-y="top"]::after { top: 120%; bottom: auto; }
+.feature-marker::after { max-width: min(220px, 60vw); overflow: hidden; text-overflow: ellipsis; }
+.feature-marker:hover::after, .feature-marker:focus-visible::after { opacity: 1; }
+.feature-marker[hidden] { display: none !important; }
+
 /* On a wide screen the diagnostics step left of an open story panel instead of covering it. */
 @media (min-width: 701px) {
   .astraeus-shell:not([data-phone="true"]):has(.story-panel) .developer-tools { right: 364px; width: min(860px, calc(100vw - 388px)); }

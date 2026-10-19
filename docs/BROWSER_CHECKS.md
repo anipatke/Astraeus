@@ -168,3 +168,18 @@ The Earth–Moon demo, its story file and `browser-earth-moon.mjs` are gone (own
 | Phone: every moon row is at least 44 px tall | `moonRows` heights |
 
 Written 2026-10-19 and not run: the owner deferred browser checks to the Full Objective Check of O-025. `tools/validate/run-full.sh` runs it after `browser-jupiter-io`.
+
+## Tagged places on the four mapped moons (O-025 T-103)
+
+`browser-jupiter-io.mjs` gains `places()` (after `moons()`), and now also runs at 375x667 (`small-phone`) and 1280x720 (`short-laptop`) so panels are checked on the smallest screens. No earlier scenario moved; no pictures. New driver functions: `sceneFeatures` / `shownFeatureKeys` (`data-feature-markers`: `total` and the shown markers as canvas fractions), `featureMarker`, `pressFeature`, `hoverFeature`, `featureNameShown`, `featureInfoText`, `waitForFeatureInfo`, `featureCollisions`, `featureTapTarget`, `featureNameFits`.
+
+| Scenario | Readout |
+|---|---|
+| The scene holds all 78 places of the four moons; each moon shows only its own, never all at once (far side hidden) | `sceneFeatures` total and shown keys over six sides per moon |
+| Every place within 75 degrees of the equator is shown from at least one side | union of `shown` keys against `data/bodies/<moon>/features.json` |
+| Loki Patera, Galileo Regio, Tros, Osiris and a Europa and a Callisto place are shown when their side faces the camera, named by their package name | `featureMarker` |
+| Hover names a place (wide screen); a press opens its name, description, first two details and the provenance status | `featureNameShown`, `featureInfoText` (`data-info-kind="feature"`) |
+| The pressed marker reads as selected | `featureMarker().pressed` |
+| Collisions: no marker overlaps the information panel, moons sheet or button, timeline, top bar, story panel or drawers; name labels stay on screen; tap target at least 44 px | `featureCollisions`, `featureNameFits`, `featureTapTarget` |
+
+Positions are proven by `tests/featureMarkers.test.ts` and `tests/bodyPackages.test.ts`, not the browser. Written 2026-10-19 and not run: browser checks deferred to the Full Objective Check (owner, 2026-10-19). `run-full.sh` already runs `browser-jupiter-io`.

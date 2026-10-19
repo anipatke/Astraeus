@@ -18,6 +18,7 @@ import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineG
 import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
+import { featureMarkerSpecs, featureMinBodyPxFromSearch } from "./FeatureMarkers";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
@@ -140,6 +141,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     hiddenLabels: hiddenLabelsFrom(window.location.search, experience.objects),
     labelObjects: experience.objects,
     storyMarkers: storyMarkerSpecs,
+    featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
+    featureMinBodyPx: featureMinBodyPxFromSearch(window.location.search),
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
     groupFills: [],
@@ -188,6 +191,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
   const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
+  const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
@@ -198,6 +202,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
+  const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
+  const markOpenFeature = useCallback((key: string | null) => { controls.current.openFeatureKey = key; }, []);
   const markOpenPanel = useCallback((id: string | null) => { controls.current.openStoryPanelId = id; }, []);
   const setPlaying = useCallback((playing: boolean) => {
     if (playing) runtime.clock.play();
@@ -205,6 +211,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
   controls.current.onStoryMarker = requestPanel;
+  controls.current.onFeatureMarker = requestFeature;
   const updateSelectedObject = useCallback((objectId: string) => {
     controls.current.selectedObjectId = objectId;
   }, []);
@@ -571,6 +578,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       onSetPlaying={setPlaying}
       panelRequest={panelRequest}
       onOpenPanelChange={markOpenPanel}
+      featureRequest={featureRequest}
+      onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
         <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />

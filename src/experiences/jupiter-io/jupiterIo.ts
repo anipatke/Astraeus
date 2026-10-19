@@ -16,6 +16,15 @@ import { createProvenance } from "../../core/provenance";
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import { parseStoryPanels } from "../../shell/storyPanels";
 import panelsFile from "../../../data/stories/jupiter-io/panels.json";
+import { bodyFeatureSet } from "../../shell/bodyFeatures";
+import ioFeatures from "../../../data/bodies/io/features.json";
+import ioCategories from "../../../data/bodies/io/categories.json";
+import europaFeatures from "../../../data/bodies/europa/features.json";
+import europaCategories from "../../../data/bodies/europa/categories.json";
+import ganymedeFeatures from "../../../data/bodies/ganymede/features.json";
+import ganymedeCategories from "../../../data/bodies/ganymede/categories.json";
+import callistoFeatures from "../../../data/bodies/callisto/features.json";
+import callistoCategories from "../../../data/bodies/callisto/categories.json";
 
 /**
  * The window must sit inside the core moon fits (2010-2030). Temporarily (T-098) it starts on 4 November 2016, the date T-100 adopts, and
@@ -121,6 +130,23 @@ export const jupiterSmallMoons: BodySetLayer = {
   centreGmKm3S2: JUPITER.gmKm3S2!,
 };
 
+/**
+ * The tagged places on the four mapped moons come from their body packages (data/bodies/<moon>/features.json, imported from Planetary Explorer
+ * at one commit): latitude and longitude exactly as the owner verified them there, never rounded or corrected.
+ */
+const FEATURE_PROVENANCE = createProvenance({
+  sourceType: "reconstructed",
+  sources: ["Place names, kinds, descriptions and coordinates: Planetary Explorer's feature lists (data/bodies/<moon>/features.json, donor commit 84f8d3e)", "Map pictures: USGS Astrogeology and NASA mission mosaics (credits in the sources list)"],
+  accuracy: "Each place is drawn where the owner checked it against the map picture by eye, not at a surveyed position; a marker can sit a few degrees from the feature's centre, and a polar entry is a representative anchor, not a feature centre.",
+  notes: "Markers hide on the far side of the moon and when the moon is drawn small. The Jupiter and Io scene shows these places on the map picture only; they carry no measurement.",
+});
+const bodyFeatures = [
+  bodyFeatureSet({ bodyId: "io", bodyLabel: "Io", features: ioFeatures, categories: ioCategories, provenance: FEATURE_PROVENANCE }),
+  bodyFeatureSet({ bodyId: "europa", bodyLabel: "Europa", features: europaFeatures, categories: europaCategories, provenance: FEATURE_PROVENANCE }),
+  bodyFeatureSet({ bodyId: "ganymede", bodyLabel: "Ganymede", features: ganymedeFeatures, categories: ganymedeCategories, provenance: FEATURE_PROVENANCE }),
+  bodyFeatureSet({ bodyId: "callisto", bodyLabel: "Callisto", features: callistoFeatures, categories: callistoCategories, provenance: FEATURE_PROVENANCE }),
+];
+
 const events = createEvents([]);
 
 const experience: ExperienceConfig = {
@@ -134,6 +160,7 @@ const experience: ExperienceConfig = {
   events,
   window: WINDOW,
   moonFamilies,
+  bodyFeatures,
   // The story's panels are story data (data/stories/<story>/panels.json), checked against this experience's objects and window.
   storyPanels: parseStoryPanels(panelsFile, { events, objectIds: objects.map((object) => object.id), window: WINDOW }),
   rates: [60, 3_600, 21_600, 86_400],

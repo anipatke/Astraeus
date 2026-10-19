@@ -11,7 +11,7 @@ import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
-import type { BodyMarkerSettings, GlowLook } from "./bodyDraw";
+import { drawnRadii, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
 import type { OrbitLook } from "../assets/orbitLook";
 import {
   attachOrbitGestures,
@@ -52,6 +52,7 @@ import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLo
 import { publishBodySets } from "./sceneBodySets";
 import type { RingLook } from "../assets/rings";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
+import { DEFAULT_FEATURE_MIN_BODY_PX, FeatureMarkerLayer, type FeatureHost, type FeatureMarkerSpec } from "./FeatureMarkers";
 import { hideBootLoader } from "../shell/bootLoader";
 import type { ExperienceObject } from "../shell/experience";
 
@@ -136,6 +137,14 @@ export interface SceneControls {
   onStoryMarker?: (panelId: string) => void;
   /** The story panel now open, so its marker reads as pressed. */
   openStoryPanelId?: string | null;
+  /** Tagged places on bodies (a body package's features); each gets a marker drawn on its body that opens the place's information. */
+  readonly featureMarkers?: readonly FeatureMarkerSpec[];
+  /** Called with the place's key when a feature marker is pressed. */
+  onFeatureMarker?: (key: string) => void;
+  /** The place whose information is open, so its marker reads as selected. */
+  openFeatureKey?: string | null;
+  /** Presentation only: a body narrower than this many screen pixels shows no feature markers. Absent: `DEFAULT_FEATURE_MIN_BODY_PX`. */
+  featureMinBodyPx?: number;
   selectedObjectId: string;
   /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
   frameStats: FrameStats | null;
@@ -148,6 +157,13 @@ export interface SceneControls {
 }
 
 export type SceneReadout = DebugReadout;
+
+/** A mounted body's drawn sphere and radius for the feature markers, or null when the body is not drawn as a sphere. */
+function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<BodyId, BodyParts>, id: string, policy: ScalePolicy): FeatureHost | null {
+  const sphere = parts.get(id as BodyId)?.sphere;
+  const asset = assets.find((candidate) => candidate.definition.id === id);
+  return sphere === undefined || asset === undefined ? null : { sphere, radius: drawnRadii(asset.definition, policy).equatorial };
+}
 
 interface Props {
   readonly runtime: SceneRuntime;
@@ -225,6 +241,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
+  const featureMarkers = useRef<FeatureMarkerLayer | null>(null);
 
   useSkyStars(gl.domElement, skyView);
   useEffect(() => {
@@ -237,6 +254,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   useHostLayer(gl.domElement, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [gl, trackedViews]);
   useHostLayer(gl.domElement, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects), [gl, controls.labelObjects]);
   useHostLayer(gl.domElement, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [gl, controls]);
+
+  useHostLayer(gl.domElement, featureMarkers, (host) => (controls.featureMarkers === undefined || controls.featureMarkers.length === 0 ? null : new FeatureMarkerLayer(host, controls.featureMarkers, (key) => controls.onFeatureMarker?.(key))), [gl, controls]);
 
   /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
   const bodyIdFor = (id: string): BodyId | null => {
@@ -319,6 +338,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
     storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
+    const featureReadout = featureMarkers.current?.update((id) => featureHostOf(assets, partsRefs.current, id, policy), camera, (camera as PerspectiveCamera).fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
+    if (featureReadout !== null && featureReadout !== undefined) gl.domElement.dataset.featureMarkers = JSON.stringify(featureReadout);
     placeBodyLights(assets, lightRefs.current, resolver, t);
     readout.current = buildFrameReadout({ pair: readoutPair, pairLabels, clock, resolver, absoluteOf, timeUtcMs: t, policy, origin });
   });

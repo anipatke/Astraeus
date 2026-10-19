@@ -71,6 +71,10 @@ interface Props {
   readonly panelRequest?: { readonly id: string; readonly serial: number } | null;
   /** Called when the open panel changes, so the app can mark its scene marker. */
   readonly onOpenPanelChange?: (panelId: string | null) => void;
+  /** Asks the shell to open a tagged place's information (a place marker was pressed); a new `serial` asks again. */
+  readonly featureRequest?: { readonly key: string; readonly serial: number } | null;
+  /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
+  readonly onOpenFeatureChange?: (key: string | null) => void;
   readonly children: ReactNode;
 }
 
@@ -99,6 +103,8 @@ export function AstraeusShell({
   onSetPlaying,
   panelRequest,
   onOpenPanelChange,
+  featureRequest,
+  onOpenFeatureChange,
   children,
 }: Props) {
   const [selectedObjectId, setSelectedObjectId] = useState(() =>
@@ -122,7 +128,7 @@ export function AstraeusShell({
   useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   /** The object panel follows the selected object; an event panel names its event. */
-  const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | null>(null);
+  const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null>(null);
 
   const storySet = experience.storyPanels;
   const storyPanels = storySet?.panels ?? [];
@@ -140,6 +146,14 @@ export function AstraeusShell({
     // Only a new request opens a panel; the open function is stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedSerial]);
+  const requestedFeatureSerial = featureRequest?.serial;
+  useEffect(() => {
+    if (featureRequest !== null && featureRequest !== undefined) setInfo({ kind: "feature", id: featureRequest.key });
+    // Only a new request opens a place.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedFeatureSerial]);
+  const openFeatureKey = info?.kind === "feature" ? info.id : null;
+  useEffect(() => { onOpenFeatureChange?.(openFeatureKey); }, [onOpenFeatureChange, openFeatureKey]);
   /** Every time change a person makes goes through here, so a seek is never mistaken for playback crossing a panel. */
   const seek = (timeUtcMs: number) => {
     story.noteSeek(timeUtcMs);

@@ -1,6 +1,7 @@
 import type { Provenance, ProvenanceSourceType } from "../core/provenance";
 import type { ExperienceConfig } from "./experience";
 import { provenanceAt, rateAt } from "../core/timeWindow";
+import { findFeature } from "./bodyFeatures";
 import { formatUtcTimestamp, formatWindowRate } from "./timelineModel";
 
 /** The badge text for each provenance status. The status is always written, never shown by colour alone. */
@@ -19,7 +20,9 @@ export interface ProvenanceView extends Provenance {
 export type InfoTarget =
   | { readonly kind: "object"; readonly id: string }
   | { readonly kind: "event"; readonly id: string }
-  | { readonly kind: "window"; readonly id: string };
+  | { readonly kind: "window"; readonly id: string }
+  /** A tagged place on a body; `id` is its key (`<body>:<place>`). */
+  | { readonly kind: "feature"; readonly id: string };
 
 export interface InfoFact {
   readonly label: string;
@@ -60,6 +63,19 @@ export function infoView(experience: ExperienceConfig, target: InfoTarget, timeU
       facts.push({ label: "Rate now", value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit) });
     }
     return { target, title: window.label, facts, provenance: source === undefined ? null : provenanceView(source) };
+  }
+  if (target.kind === "feature") {
+    const found = findFeature(experience.bodyFeatures, target.id);
+    if (found === null) return null;
+    const { set, feature } = found;
+    return {
+      target,
+      title: feature.name,
+      subtitle: `${feature.featureType} on ${set.bodyLabel}`,
+      description: feature.description,
+      ...(feature.details.length === 0 ? {} : { facts: feature.details }),
+      provenance: provenanceView(set.provenance, set.knownLimitations),
+    };
   }
   if (target.kind === "object") {
     const object = experience.objects.find((candidate) => candidate.id === target.id);

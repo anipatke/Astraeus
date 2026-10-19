@@ -7,7 +7,9 @@
 // and there are no console errors. Since T-098 (O-025) also: every catalogued moon is drawn (111 small moons in one batch plus the four
 // mapped ones), no names show until asked for, a dot's name shows on hover (desktop) or tap (phone), the smallest moon is a ball wider than
 // its dot up close and is named there, the four ring bands are drawn at the published radii in the donor's look and take the live
-// opacity, and each family has its own orbit colour; all from scene readouts. The look is the owner's.
+// opacity, and each family has its own orbit colour; all from scene readouts. Since T-103 (O-025) also: the tagged places on the four mapped moons
+// (feature markers: all shown from some side, only the facing side at once, named on hover, opened on a press with description and details, selected
+// while open). The look is the owner's.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { scaleOptions } from "./driver.mjs";
@@ -23,6 +25,9 @@ const errors = [];
 const results = {};
 const moonData = JSON.parse(readFileSync(new URL("../../data/moons/jupiter.json", import.meta.url), "utf8"));
 const MAPPED = ["io", "europa", "ganymede", "callisto"];
+const packageFeatures = Object.fromEntries(MAPPED.map((id) => [id, JSON.parse(readFileSync(new URL(`../../data/bodies/${id}/features.json`, import.meta.url), "utf8")).features]));
+const featureKeyOf = (body, id) => `${body}:${id}`;
+const MOON_RADIUS_UNITS = { io: 1821.49, europa: 1560.8, ganymede: 2631.2, callisto: 2410.3 }; // km; views are in Earth radii (6,371 km)
 const smallMoons = moonData.moons.filter((moon) => !MAPPED.includes(moon.id));
 const smallest = smallMoons.reduce((a, b) => (b.meanRadiusKm < a.meanRadiusKm ? b : a));
 const EARTH_RADIUS_KM = 6371.0084; // only for choosing a close-up distance
@@ -53,7 +58,7 @@ const openPanel = async (page, objectId, label) => {
 
 /** T-098: every moon drawn, names on demand, a ball up close, the rings, one orbit colour per family. */
 async function moons(page, name, notes) {
-  const phone = name === "phone";
+  const phone = name === "phone" || name === "small-phone";
   // A far view of the whole swarm, the sky off so only the scene's own pixels count.
   await ui.loadAddress(page, `${base}?experience=jupiter-io&view=jupiter,30,30,6000&sky=off`);
   await ui.waitForShell(page);
@@ -145,6 +150,90 @@ async function moons(page, name, notes) {
   }
 }
 
+/**
+ * T-103: the tagged places on the four mapped moons, all from the scene's feature-marker readout and the information panel text. Each moon is seen
+ * from several sides close up; every place of the package with a latitude inside 75 degrees is shown from at least one side, only places facing
+ * the camera are ever shown (never all of a moon's at once), hover names a place on a wide screen, a press opens its description and details, and the
+ * known places the owner checked (Io's Loki Patera, Ganymede's Galileo Regio, Tros and Osiris) are among them. Where a marker sits on the picture is
+ * the owner's look; positions are proven by `tests/featureMarkers.test.ts` and `tests/bodyPackages.test.ts`.
+ */
+async function places(page, name, notes) {
+  const phone = name === "phone" || name === "small-phone";
+  notes.places = {};
+  const sides = [[0, 10], [90, 10], [180, 10], [270, 10], [0, 70], [0, -70]];
+  for (const moon of MAPPED) {
+    const wanted = packageFeatures[moon];
+    const distance = (MOON_RADIUS_UNITS[moon] / 6371.0084) * 3.2;
+    const seen = new Set();
+    let mostAtOnce = 0;
+    let total = 0;
+    for (const [azimuth, elevation] of sides) {
+      await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${moon},${azimuth},${elevation},${distance}&sky=off`);
+      await ui.waitForShell(page);
+      await ui.ensurePaused(page);
+      await page.waitForTimeout(1500);
+      const readout = await ui.sceneFeatures(page);
+      total = readout.total;
+      mostAtOnce = Math.max(mostAtOnce, readout.shown.length);
+      for (const marker of readout.shown) {
+        assert.ok(marker.key.startsWith(`${moon}:`) , `${name}: only ${moon}'s own places are shown in its view (${marker.key})`);
+        seen.add(marker.key);
+      }
+    }
+    const missing = wanted.filter((feature) => Math.abs(feature.latitude) <= 75 && !seen.has(featureKeyOf(moon, feature.id))).map((feature) => feature.id);
+    notes.places[moon] = { packaged: wanted.length, seenFromSomeSide: seen.size, mostAtOnce, missing };
+    assert.deepEqual(missing, [], `${name}: every place of ${moon} within 75 degrees of the equator is shown from some side`);
+    assert.ok(total === MAPPED.reduce((sum, id) => sum + packageFeatures[id].length, 0), `${name}: the scene holds every place of the four moons (${total})`);
+    assert.ok(mostAtOnce > 0 && mostAtOnce < wanted.length, `${name}: ${moon} shows the places facing the camera, never every one at once (${mostAtOnce} of ${wanted.length})`);
+  }
+
+  // A press opens a place; a hover names it (wide screen). Known places the owner checked, each found by turning the moon until it shows.
+  const known = [["io", "loki-patera"], ["ganymede", "galileo-regio"], ["ganymede", "tros"], ["ganymede", "osiris"], ["europa", packageFeatures.europa[0].id], ["callisto", packageFeatures.callisto[0].id]];
+  for (const [moon, id] of known) {
+    const feature = packageFeatures[moon].find((candidate) => candidate.id === id);
+    assert.ok(feature, `${name}: ${moon} has a place called ${id} in its package`);
+    const key = featureKeyOf(moon, id);
+    const distance = (MOON_RADIUS_UNITS[moon] / 6371.0084) * 3.2;
+    let found = null;
+    for (const azimuth of [0, 60, 120, 180, 240, 300]) {
+      await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${moon},${azimuth},${feature.latitude > 0 ? 10 : -10},${distance}&sky=off`);
+      await ui.waitForShell(page);
+      await ui.ensurePaused(page);
+      await page.waitForTimeout(1200);
+      found = await ui.featureMarker(page, key);
+      if (found !== null) break;
+    }
+    assert.ok(found, `${name}: ${key} is shown when its side faces the camera`);
+    assert.equal(found.name, feature.name, `${name}: ${key}'s marker is named ${feature.name}`);
+    const target = await ui.featureTapTarget(page, key);
+    assert.ok(target.width >= 44 && target.height >= 44, `${name}: ${key}'s tap target is at least 44 px (${JSON.stringify(target)})`);
+    assert.ok(await ui.featureNameFits(page, key), `${name}: ${key}'s name stays on screen`);
+    assert.deepEqual(await ui.featureCollisions(page), [], `${name}: no marker overlaps a panel (information, moons sheet, timeline, top bar, drawers)`);
+    if (!phone) {
+      await ui.hoverFeature(page, key);
+      await page.waitForTimeout(300);
+      assert.ok(await ui.featureNameShown(page, key), `${name}: hovering ${feature.name} shows its name`);
+    }
+    await ui.pressFeature(page, key);
+    await ui.waitForFeatureInfo(page, key);
+    const text = await ui.featureInfoText(page, key);
+    notes.places[`${moon}/${id}`] = text.slice(0, 200);
+    assert.ok(text.includes(feature.name), `${name}: ${key}'s information is headed by its name`);
+    assert.ok(text.includes(feature.description.slice(0, 40)), `${name}: ${key}'s description is shown`);
+    for (const detail of feature.details.slice(0, 2)) assert.ok(text.includes(detail.label) && text.includes(detail.value.slice(0, 20)), `${name}: ${key}'s detail "${detail.label}" is shown`);
+    assert.deepEqual(await ui.featureCollisions(page), [], `${name}: with ${key}'s information open, no marker overlaps it or any other panel`);
+    assert.match(text, /Reconstructed/, `${name}: the information states what kind of data a place is`);
+    assert.ok((await ui.featureMarker(page, key))?.pressed, `${name}: ${key}'s marker reads as selected while its information is open`);
+    await ui.closeInfoStrict(page);
+  }
+
+  // The moons panel owns its own area too: with it open (the sheet on a wide screen, the top drawer on a phone) no marker shows under it.
+  await ui.openMoonPanel(page);
+  await page.waitForTimeout(500);
+  assert.deepEqual(await ui.featureCollisions(page), [], `${name}: with the moons panel open no marker overlaps it, its button or the timeline`);
+  await ui.closeMoonPanel(page);
+}
+
 async function run(name, viewport) {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
@@ -226,6 +315,7 @@ async function run(name, viewport) {
     notes.ioDetail = ioDetail.slice(0, 600);
     await ui.closeInfoStrict(page);
     await moons(page, name, notes);
+    await places(page, name, notes);
   } finally {
     await page.close();
   }
@@ -234,6 +324,9 @@ async function run(name, viewport) {
 try {
   await run("desktop", { width: 1280, height: 800 });
   await run("phone", { width: 390, height: 844 });
+  // O-025 T-103 owner rule: panels avoid collisions and work on the smallest screens (a small phone and a short laptop).
+  await run("small-phone", { width: 375, height: 667 });
+  await run("short-laptop", { width: 1280, height: 720 });
 } finally {
   await browser.close();
 }

@@ -2,6 +2,7 @@ import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimelineWindow } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
+import type { BodyFeatureSet } from "./bodyFeatures";
 import type { MoonFamilyList } from "./moonFamilies";
 import type { StoryPanelSet } from "./storyPanels";
 
@@ -60,6 +61,8 @@ export interface ExperienceConfig {
   readonly storyPanels?: StoryPanelSet;
   /** A planet's moons by family for the sliding moon panel; omit for an experience with none. Every moon listed must also be an object. */
   readonly moonFamilies?: MoonFamilyList;
+  /** Tagged places on bodies (a body package's features): drawn as markers on the body and opened in the information panel. Omit for an experience with none. */
+  readonly bodyFeatures?: readonly BodyFeatureSet[];
   /** Where the event times come from, shown with every event. */
   readonly eventProvenance?: Provenance;
 }
