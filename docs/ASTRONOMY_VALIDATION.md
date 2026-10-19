@@ -113,6 +113,8 @@ Measured maxima over the six samples (Orb 3.1.1, full VSOP87A, `tests/planets.te
 | Mars 499 | 0.092 arcsec | 3.5 km | 95.8 km | under 120 km, 0.5 arcsec |
 | Jupiter 599 | 0.325 arcsec | 166.9 km | 1269.4 km | under 1500 km, 0.5 arcsec |
 
+**Curve fits (O-025 T-101).** The planet models the adapter reads are now piecewise Chebyshev fits of this same full VSOP87A series (`data/ephemerides/planets/planets.json`, made by `tools/import/planet-fits.mjs`), not the series itself: heliocentric ecliptic-J2000 km in TT, UTC to TT from the table stored beside them (leap seconds from 1972, a drifting piece before). Worst difference from the series at independent dates is 0.80 km (Mars; Mercury 0.71, Venus 0.63, Jupiter 0.57), against the model errors in the table below (30 km to 1,269 km), so the Horizons maxima there are unchanged by that much; `tests/planets.test.ts` runs on the fits and passes, and `tests/planetFits.test.ts` compares the fits with the series. The span is 1969-01-01 to 2045-01-01; a date outside it throws instead of being extrapolated. Before 1972 Orb steps its TT - UTC once a month (about 0.1 s) where the fits follow the table's smooth line; the fits differ from Orb by under 8 km there (Mercury, the fastest). The planetModels chunk of the public build went from 1,391,805 to 214,459 bytes (gzip 560,550 to 148,907).
+
 These are sample maxima, not bounds for every date. They are recorded in each definition's `accuracy.position`, with the sampled range (1969-07-21 to 2030-06-01) as `accuracy.validUtc`; outside it the series is extrapolated without a measurement. Geometric positions only (no light time or aberration). No velocity is modelled for planets.
 
 ### Orientation

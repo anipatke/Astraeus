@@ -1289,3 +1289,47 @@ export const featureNameFits = (page, key) => page.locator(`[data-feature-key="$
   const left = element.dataset.edgeX === "left" ? box.left : element.dataset.edgeX === "right" ? box.right - width : box.left + box.width / 2 - width / 2;
   return left >= 0 && left + width <= window.innerWidth;
 });
+
+// ---- The home page's curve-fit section (O-025 T-101): "Photos, or a recipe" with Io's orbit drawn as table dots and as fitted pieces, and a time slider.
+
+const HOME_FIT = { section: "#curve-fits", slider: "[data-fit-slider]", row: ".fit-row", panels: ".fit-panel", readout: "[data-fit-readout]", stats: ".fit-stats li" };
+
+/** Opens the home page (index.html) and brings the curve-fit section into view. */
+export async function openHomeCurveFits(page, url) {
+  await page.goto(url, { waitUntil: "load", timeout: 60000 });
+  await page.locator(HOME_FIT.section).scrollIntoViewIfNeeded();
+  await page.locator(HOME_FIT.slider).waitFor({ timeout: 15000 });
+}
+
+/** Moves the section's time slider to `minutes` into the two-and-a-quarter-day window. */
+export const curveFitSetMinutes = (page, minutes) => page.locator(HOME_FIT.slider).fill(String(minutes));
+
+/** What the section reports: the slider's hours, Io's distance, the marker, the dots and pieces drawn, and the readout text. */
+export const curveFitReadout = (page) => page.locator(HOME_FIT.row).evaluate((row) => ({
+  hours: Number(row.dataset.fitHours), km: Number(row.dataset.fitKm), markX: Number(row.dataset.fitMarkX), markY: Number(row.dataset.fitMarkY),
+  dots: Number(row.dataset.fitDots), pieces: Number(row.dataset.fitPieces), text: row.querySelector("[data-fit-readout]")?.textContent ?? "",
+  sliderMax: Number(row.querySelector("[data-fit-slider]")?.max ?? 0),
+}));
+
+/** The section's layout: sideways scroll, the slider's target size, how far the panels and figures reach, the smallest text, and whether it overlaps the sections around it. */
+export const curveFitLayout = (page) => page.evaluate(({ section, slider, panels, stats }) => {
+  const root = document.querySelector(section);
+  const rect = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY, width: r.width, height: r.height }; };
+  const own = rect(root);
+  const neighbours = [root.previousElementSibling, root.nextElementSibling].filter(Boolean).map(rect);
+  const overlaps = neighbours.filter((n) => n.top < own.bottom - 0.5 && n.bottom > own.top + 0.5).length;
+  let smallest = 99;
+  for (const element of root.querySelectorAll("*")) {
+    if ([...element.childNodes].some((node) => node.nodeType === 3 && node.textContent.trim() !== "")) smallest = Math.min(smallest, parseFloat(getComputedStyle(element).fontSize));
+  }
+  const spill = (selector) => Math.max(0, ...[...root.querySelectorAll(selector)].map((e) => rect(e).right - innerWidth));
+  const columns = new Set([...root.querySelectorAll(panels)].map((e) => Math.round(rect(e).left))).size;
+  const intersecting = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+  const pieces = [...root.querySelectorAll(`${panels}, .fit-row, ${stats}, .fit-note`)].map(rect);
+  let collisions = 0;
+  for (let i = 0; i < pieces.length; i += 1) for (let j = i + 1; j < pieces.length; j += 1) if (intersecting(pieces[i], pieces[j])) collisions += 1;
+  return {
+    pageScrollWidth: document.documentElement.scrollWidth, innerWidth, sliderHeight: rect(root.querySelector(slider)).height, sliderWidth: rect(root.querySelector(slider)).width,
+    reach: spill("*"), panelSpill: spill(panels), smallestFontPx: smallest, overlapsNeighbours: overlaps, columns, collisions,
+  };
+}, HOME_FIT);

@@ -53,7 +53,7 @@ The full run takes no pictures (T-102): there is no baseline, comparison or cont
 
 ## In the full run
 
-`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-moon-panel`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
+`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `browser-home-curve-fits`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-moon-panel`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
 
 ## Trimmed in place
 
@@ -183,3 +183,7 @@ Written 2026-10-19 and not run: the owner deferred browser checks to the Full Ob
 | Collisions: no marker overlaps the information panel, moons sheet or button, timeline, top bar, story panel or drawers; name labels stay on screen; tap target at least 44 px | `featureCollisions`, `featureNameFits`, `featureTapTarget` |
 
 Positions are proven by `tests/featureMarkers.test.ts` and `tests/bodyPackages.test.ts`, not the browser. Written 2026-10-19 and not run: browser checks deferred to the Full Objective Check (owner, 2026-10-19). `run-full.sh` already runs `browser-jupiter-io`.
+
+## The home page's curve-fit section (O-025 T-101)
+
+New script `browser-home-curve-fits.mjs`, in the full run (lane B, dev server, `index.html`). **Written but not yet run** (owner, 2026-10-19: browser checks deferred to the Full Objective Check). It opens the home page at a phone (375x700, touch), a small phone (320x640) and a laptop (1280x800), each also with reduced motion, and asserts: 325 table dots and 2 fitted pieces are drawn from the real data; moving the slider to 0, 27 and 54 hours changes the hours readout, keeps Io 400,000 to 445,000 km from Jupiter's centre and moves the recipe marker; and the phone-first rules: no sideways scroll, nothing past the screen edge, a slider at least 44 px tall, text at least 12 px, one panel column on the phones and two on the laptop, no piece of the section overlapping another, and no overlap with the sections above and below. Zero console and page errors. Driver additions: `openHomeCurveFits`, `curveFitSetMinutes`, `curveFitReadout`, `curveFitLayout`. No existing scenario was removed or changed. The look (colours, whether the dots and curve read well) is the owner's call on the preview.

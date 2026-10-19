@@ -1,0 +1,6 @@
+{
+  "measured": "2026-10-19, ASTRAEUS_PUBLIC_BUILD=1 npx vite build, the planetModels chunk (gzip -9)",
+  "before": { "file": "planetModels-TIIaCVh8.js", "rawBytes": 1391805, "gzipBytes": 560550, "what": "Orb planet classes + full VSOP87A series (commit 4b62ea9)" },
+  "after": { "file": "planetModels-D3OK2wcb.js", "rawBytes": 214459, "gzipBytes": 148907, "what": "four curve fits (1969-2045) as base64 in JSON + decoder" },
+  "figures": { "beforeBytes": 1391805, "afterBytes": 214459, "worstFitErrorKm": 0.7973, "span": ["1969-01-01", "2045-01-01"] }
+}

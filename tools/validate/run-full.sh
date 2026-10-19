@@ -55,6 +55,7 @@ laneB() {
   dev jupiter-io browser-jupiter-io.mjs
   dev moon-panel browser-moon-panel.mjs
   dev embedded browser-embedded.mjs
+  dev home-curve-fits browser-home-curve-fits.mjs
   dev orbit-motion browser-orbit-motion.mjs
   dev orbit-look browser-orbit-look.mjs
   dev spike03 browser-spike03.mjs
