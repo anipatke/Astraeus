@@ -4,7 +4,7 @@ import { JUPITER_MOON_CATALOGUE } from "../src/assets/bodies/jupiterMoonCatalogu
 import { moonFacts } from "../src/assets/moonCatalogue";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 import { infoView } from "../src/shell/infoModel";
-import { moonCountText, searchMoons, splitNamed } from "../src/shell/moonFamilies";
+import { moonCountText, moonFamilyListSummary, moonListDateText, searchMoons, splitNamed } from "../src/shell/moonFamilies";
 
 // O-025 T-099: the moon panel's model (families, counts, named first, search), the moon facts, the highlight and the panel's links to the scene.
 const list = jupiterIoExplorer.experience.moonFamilies!;
@@ -17,6 +17,24 @@ describe("moon panel model", () => {
     expect(list.families[0].moons.every((moon) => moon.pictureUrl !== undefined)).toBe(true);
     expect(moonCountText(1)).toBe("1 moon");
     expect(moonCountText(41)).toBe("41 moons");
+  });
+
+  it("states the total and the Horizons list date from the data, in the panel, Jupiter's information and a small moon's sources (I-045)", () => {
+    const total = JUPITER_MOON_CATALOGUE.moons.length;
+    const date = moonListDateText(JUPITER_MOON_CATALOGUE.asOf);
+    expect(date).toMatch(/^\d{1,2} [A-Z][a-z]+ \d{4}$/);
+    expect(list.listDate).toBe(JUPITER_MOON_CATALOGUE.asOf);
+    const summary = moonFamilyListSummary(list);
+    expect(summary).toContain(`${total} moons`);
+    expect(summary).toContain(date);
+    const jupiter = jupiterIoExplorer.experience.objects.find((object) => object.id === "jupiter")!;
+    const fact = jupiter.facts!.find((entry) => entry.label === "Known moons")!;
+    expect(fact.value).toContain(`${total} moons`);
+    expect(fact.value).toContain(date);
+    const small = jupiterIoExplorer.experience.objects.find((object) => object.id === "himalia")!;
+    expect(small.provenance!.sources.join(" ")).toContain(date);
+    expect(small.facts!.find((entry) => entry.label === "Moon list fetched")!.value).toContain(date);
+    expect(moonListDateText("not a date")).toBe("not a date");
   });
 
   it("puts named moons first and folds provisional designations apart", () => {
@@ -40,7 +58,7 @@ describe("moon panel model", () => {
     for (const family of list.families) for (const moon of family.moons) expect(objects.some((object) => object.id === moon.id), moon.id).toBe(true);
     const view = infoView(jupiterIoExplorer.experience, { kind: "object", id: "himalia" })!;
     const labels = view.facts!.map((fact) => fact.label);
-    expect(labels).toEqual(["Family", "Size", "Found", "Sources"]);
+    expect(labels).toEqual(["Family", "Size", "Found", "Sources", "Moon list fetched"]);
     expect(view.facts![0].value).toMatch(/Himalia group/);
     expect(view.provenance).not.toBeNull();
     const io = infoView(jupiterIoExplorer.experience, { kind: "object", id: "io" })!;

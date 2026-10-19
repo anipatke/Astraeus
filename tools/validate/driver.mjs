@@ -428,6 +428,8 @@ export const showSceneLabels = (page) => page.evaluate((hook) => { for (const el
 // The developer drawer
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+/** The developer panel's own folds only (never the moons panel's, which share the fold control). */
+const devFolds = (page) => page.locator("[data-developer-panel] [data-fold-toggle]");
 const developerButton = (page) => page.getByRole("button", { name: "Developer mode" });
 
 /**
@@ -435,27 +437,27 @@ const developerButton = (page) => page.getByRole("button", { name: "Developer mo
  * left them). Scripts reach a control by name; the driver opens the groups first so no script has to know the panel's layout.
  */
 export async function expandDeveloperGroups(page) {
-  const closed = page.locator('[data-fold-toggle][aria-expanded="false"]');
-  await page.locator("[data-fold-toggle]").first().waitFor({ timeout: 10000 });
+  const closed = page.locator('[data-developer-panel] [data-fold-toggle][aria-expanded="false"]');
+  await devFolds(page).first().waitFor({ timeout: 10000 });
   for (let guard = 0; guard < 30 && (await closed.count()) > 0; guard++) await closed.first().evaluate((element) => element.click());
 }
 /** Whether a group (fold) of the developer panel is open, by its id ("demo", "camera", "timeline", "orbit-lines", "orbit-fine-tune", "sky-sun", "labels", "phone-layout", "under-the-hood"). */
-export const developerGroupOpen = async (page, id) => (await page.locator(`[data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) === "true";
+export const developerGroupOpen = async (page, id) => (await page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) === "true";
 /** The ids of the developer panel's groups, in order, with whether each is open. */
-export const developerGroups = (page) => page.locator("[data-fold-toggle]").evaluateAll((els) => els.map((el) => ({ id: el.dataset.foldToggle, open: el.getAttribute("aria-expanded") === "true", label: el.textContent.trim(), height: el.getBoundingClientRect().height })));
+export const developerGroups = (page) => devFolds(page).evaluateAll((els) => els.map((el) => ({ id: el.dataset.foldToggle, open: el.getAttribute("aria-expanded") === "true", label: el.textContent.trim(), height: el.getBoundingClientRect().height })));
 /** Opens or closes the developer drawer; an opened drawer has all its groups opened. */
 export async function toggleDeveloper(page, { expand = true } = {}) {
   await developerButton(page).click();
   if (await developerOpen(page)) {
     if (expand) await expandDeveloperGroups(page);
-    else await page.locator("[data-fold-toggle]").first().waitFor({ timeout: 10000 });
+    else await devFolds(page).first().waitFor({ timeout: 10000 });
   }
 }
 /** Opens or closes one group of the developer panel (by id) the way a viewer would: one press on its heading. */
-export const toggleDeveloperGroup = (page, id) => page.locator(`[data-fold-toggle="${id}"]`).click();
+export const toggleDeveloperGroup = (page, id) => page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).click();
 /** Opens one group of the developer panel (by id) unless it is already open. */
 export async function openDeveloperGroup(page, id) {
-  if ((await page.locator(`[data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) !== "true") await toggleDeveloperGroup(page, id);
+  if ((await page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) !== "true") await toggleDeveloperGroup(page, id);
 }
 export const developerButtonCount = (page) => developerButton(page).count();
 export const developerOpen = async (page) => (await developerButton(page).getAttribute("aria-pressed")) === "true";
@@ -1119,7 +1121,7 @@ export const moonPanel = (page) => page.getByRole("region", { name: /'s moons$/ 
 /** Opens the moon panel: the toggle button on a wide screen, the top drawer on a phone. */
 export async function openMoonPanel(page) {
   if (await isPhoneLayout(page)) { await openControlsDrawer(page); await drawersSettled(page); return; }
-  const toggle = page.getByRole("button", { name: /moons$/ });
+  const toggle = page.locator('button[aria-controls="moons-panel"]');
   if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="true"]`).waitFor();
   await page.waitForFunction((hook) => document.querySelector(hook).getAnimations().every((animation) => animation.playState !== "running"), MOON_SHEET);
@@ -1127,7 +1129,7 @@ export async function openMoonPanel(page) {
 /** Closes the moon panel (its toggle on a wide screen; the drawer's handle on a phone). */
 export async function closeMoonPanel(page) {
   if (await isPhoneLayout(page)) { await closeControlsDrawer(page); return; }
-  const toggle = page.getByRole("button", { name: /moons$/ });
+  const toggle = page.locator('button[aria-controls="moons-panel"]');
   if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="false"]`).waitFor({ state: "attached" });
 }
@@ -1153,6 +1155,8 @@ export const moonFamilies = (page) => page.locator("[data-moon-family]").evaluat
   lit: element.getAttribute("data-lit") === "true",
   heading: (element.querySelector("button")?.textContent ?? "").replace(/\s+/g, " ").trim(),
 })));
+/** The moon list's summary line ("115 moons in the JPL Horizons list of 18 October 2026"), empty when the panel has none. */
+export const moonListSummaryText = async (page) => (await page.locator("[data-moon-summary]").first().getAttribute("data-moon-summary")) ?? "";
 /** The family the panel says is lit now (empty when none). */
 export const moonPanelHighlight = (page) => moonPanel(page).getAttribute("data-highlight");
 /** Taps a family's heading: opens or closes its fold (the featured family's heading lights it up directly). */
@@ -1180,7 +1184,8 @@ export const searchMoons = (page, text) => page.getByRole("searchbox", { name: "
 /** The moons the search lists now: id and the family each is listed with. */
 export const moonSearchResults = (page) => page.locator(".moon-results [data-moon]").evaluateAll((elements) => elements.map((element) => ({ id: element.getAttribute("data-moon"), text: element.textContent.replace(/\s+/g, " ").trim() })));
 /** Whether the camera is on a body: its Focus button is the pressed camera choice. */
-export const focusedOn = async (page, id) => (await reveal(page, page.locator(`[data-camera-preset="focus-${id}"]`)).then((locator) => locator.getAttribute("aria-pressed"))) === "true";
+// Read in place, not revealed: on a phone revealing opens the controls drawer, which closes the information sheet the caller is about to read.
+export const focusedOn = async (page, id) => (await page.locator(`[data-camera-preset="focus-${id}"]`).first().getAttribute("aria-pressed")) === "true";
 /** The id the information panel is about (empty when it is closed). */
 export const infoTargetId = async (page) => ((await infoOpen(page)) ? page.locator(HOOK.infoPanel).getAttribute("data-info-id") : "");
 
@@ -1267,7 +1272,13 @@ export async function featureInfoText(page, key) {
 export const waitForFeatureInfo = (page, key, options) => page.locator(`${HOOK.infoPanel}[data-info-kind="feature"][data-info-id="${key}"]`).waitFor(options);
 
 /** The markers on screen that overlap a shell panel (information panel, moons sheet or button, timeline, top bar, story panel, drawers): `[{key, over}]`; empty when every panel owns its own area. */
-export const featureCollisions = (page) => page.evaluate(() => {
+export async function featureCollisions(page) {
+  // Markers re-test the panels a few times a second and a panel slides in, so a collision counts only when it persists for 2 s.
+  let found = await featureCollisionsNow(page);
+  for (let waited = 0; found.length > 0 && waited < 2000; waited += 200) { await page.waitForTimeout(200); found = await featureCollisionsNow(page); }
+  return found;
+}
+const featureCollisionsNow = (page) => page.evaluate(() => {
   const panels = [...document.querySelectorAll(".info-panel, .moons-sheet, .moons-toggle, .timeline-bar, .shell-toolbar, .story-panel, .controls-drawer, .controls-pill, .timeline-drawer, .developer-mode-toggle")]
     .map((element) => ({ name: element.className.toString().split(" ")[0], box: element.getBoundingClientRect() })).filter(({ box }) => box.width > 0 && box.height > 0);
   return [...document.querySelectorAll("[data-feature-key]")].filter((marker) => !marker.hidden).flatMap((marker) => {
@@ -1276,6 +1287,8 @@ export const featureCollisions = (page) => page.evaluate(() => {
     return over === undefined ? [] : [{ key: marker.getAttribute("data-feature-key"), over: over.name }];
   });
 });
+/** Whether a place's marker is marked selected (read even while the marker is hidden under an open sheet, which is the collision rule). */
+export const featureMarkerPressed = async (page, key) => (await page.locator(`[data-feature-key="${key}"]`).getAttribute("aria-pressed")) === "true";
 /** A place's tap target in CSS px: the hit area drawn around the marker; `{width, height}`. */
 export const featureTapTarget = (page, key) => page.locator(`[data-feature-key="${key}"]`).evaluate((element) => {
   const hit = getComputedStyle(element, "::before");

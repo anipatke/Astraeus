@@ -1,0 +1,18 @@
+ok apollo11/laptop: controls 36 -> 30, bar 50 -> 38, timeline 52 -> 38
+ok showers/laptop: controls 36 -> 30, bar 50 -> 38, timeline 52 -> 38
+ok geminids/laptop: controls 36 -> 30, bar 50 -> 38, timeline 52 -> 38
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('[data-fold-toggle]').first() to be visible[22m
+[2m    22 × locator resolved to hidden <button type="button" id=":r5:-toggle" aria-expanded="false" aria-controls=":r5:-body" data-fold-toggle="moons-inner" class="ui-row collapsible-toggle">…</button>[22m
+
+    at Module.toggleDeveloper (/home/user/code/Astraeus/tools/validate/driver.mjs:451:59)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-embedded.mjs:93:5 {
+  name: 'TimeoutError'
+}
+
+Node.js v24.16.0

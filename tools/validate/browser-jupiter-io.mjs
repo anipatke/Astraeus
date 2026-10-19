@@ -160,7 +160,8 @@ async function moons(page, name, notes) {
 async function places(page, name, notes) {
   const phone = name === "phone" || name === "small-phone";
   notes.places = {};
-  const sides = [[0, 10], [90, 10], [180, 10], [270, 10], [0, 70], [0, -70]];
+  // A portrait phone's view is narrow, so at this distance the limbs are cropped and places there are off screen (correctly hidden): turn the moon in 45 degree steps, from above and below, there so every place sits near the centre from some side.
+  const sides = [...(phone ? [0, 45, 90, 135, 180, 225, 270, 315] : [0, 90, 180, 270]).flatMap((azimuth) => (phone ? [[azimuth, 10], [azimuth, -30]] : [[azimuth, 10]])), [0, 70], [0, -70]];
   for (const moon of MAPPED) {
     const wanted = packageFeatures[moon];
     const distance = (MOON_RADIUS_UNITS[moon] / 6371.0084) * 3.2;
@@ -195,13 +196,17 @@ async function places(page, name, notes) {
     const key = featureKeyOf(moon, id);
     const distance = (MOON_RADIUS_UNITS[moon] / 6371.0084) * 3.2;
     let found = null;
-    for (const azimuth of [0, 60, 120, 180, 240, 300]) {
-      await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${moon},${azimuth},${feature.latitude > 0 ? 10 : -10},${distance}&sky=off`);
+    const lean = feature.latitude > 0 ? 10 : -10;
+    // A phone's narrow view crops the limbs, so it turns in 30 degree steps and also looks steeply toward the place's pole (a small phone's timeline covers the lower third, so a southern place must be lifted to the middle).
+    const views = (phone ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].flatMap((azimuth) => [[azimuth, lean], [azimuth, 4 * lean]]) : [0, 60, 120, 180, 240, 300].map((azimuth) => [azimuth, lean]));
+    for (const [azimuth, elevation] of views) {
+      await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${moon},${azimuth},${elevation},${distance}&sky=off`);
       await ui.waitForShell(page);
       await ui.ensurePaused(page);
       await page.waitForTimeout(1200);
       found = await ui.featureMarker(page, key);
-      if (found !== null) break;
+      // The first side that shows the place with its whole name on screen (on a phone a place near the limb has its name cut by the screen edge).
+      if (found !== null && (!phone || (await ui.featureNameFits(page, key)))) break;
     }
     assert.ok(found, `${name}: ${key} is shown when its side faces the camera`);
     assert.equal(found.name, feature.name, `${name}: ${key}'s marker is named ${feature.name}`);
@@ -223,7 +228,7 @@ async function places(page, name, notes) {
     for (const detail of feature.details.slice(0, 2)) assert.ok(text.includes(detail.label) && text.includes(detail.value.slice(0, 20)), `${name}: ${key}'s detail "${detail.label}" is shown`);
     assert.deepEqual(await ui.featureCollisions(page), [], `${name}: with ${key}'s information open, no marker overlaps it or any other panel`);
     assert.match(text, /Reconstructed/, `${name}: the information states what kind of data a place is`);
-    assert.ok((await ui.featureMarker(page, key))?.pressed, `${name}: ${key}'s marker reads as selected while its information is open`);
+    assert.ok(await ui.featureMarkerPressed(page, key), `${name}: ${key}'s marker reads as selected while its information is open`);
     await ui.closeInfoStrict(page);
   }
 

@@ -1,0 +1,12 @@
+
+  VITE v8.3.2  ready in 141 ms
+
+  ➜  Local:   http://localhost:5479/
+  ➜  Network: use --host to expose
+10:42:36 PM [vite] (client) page reload src/experiences/jupiter-io/jupiterIo.ts
+10:49:44 PM [vite] (client) page reload src/experiences/jupiter-io/jupiterIo.ts
+10:49:44 PM [vite] (client) page reload src/shell/MoonFamilyPanel.tsx
+10:49:44 PM [vite] (client) page reload src/shell/moonFamilies.ts
+10:49:44 PM [vite] (client) hmr update /src/shell/phone.css
+10:49:44 PM [vite] (client) page reload src/shell/AstraeusShell.tsx
+Killed

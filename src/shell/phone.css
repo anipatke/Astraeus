@@ -45,7 +45,8 @@
   box-sizing: border-box;
   max-height: var(--controls-drawer-max, 60dvh);
   overflow: visible;
-  padding: calc(8px + var(--safe-top)) calc(12px + var(--safe-right)) 28px calc(12px + var(--safe-left));
+  /* The right edge reserves the Developer button's column (8 px gap + 44 px target + 8 px gap) so the button never sits over the controls (I-044). */
+  padding: calc(8px + var(--safe-top)) calc(60px + var(--safe-right)) 28px calc(12px + var(--safe-left));
   border-bottom: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
   border-radius: 0 0 20px 20px;
   background: var(--panel-bg);

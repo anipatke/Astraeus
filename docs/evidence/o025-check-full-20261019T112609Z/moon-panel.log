@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone 375x667, moons open: top-bar and developer-mode-toggle overlap ({"name":"top-bar","left":12,"top":8,"right":363,"bottom":104} / {"name":"developer-mode-toggle","left":323,"top":8,"right":367,"bottom":52})
+    at assertNoOverlap (file:///home/user/code/Astraeus/tools/validate/browser-moon-panel.mjs:49:14)
+    at async layoutAt (file:///home/user/code/Astraeus/tools/validate/browser-moon-panel.mjs:70:22)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-moon-panel.mjs:185:70 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

@@ -45,6 +45,8 @@ async function assertNoOverlap(page, label) {
       const a = boxes[i];
       const b = boxes[j];
       if (held.has(a.name) && held.has(b.name)) continue;
+      // The Developer button sits in the open controls drawer's right-hand gutter, which the drawer reserves (phone.css, I-044); its content (the top bar) is checked apart from the button.
+      if ([a.name, b.name].sort().join() === "controls-drawer,developer-mode-toggle") continue;
       const apart = a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1;
       assert.ok(apart, `${label}: ${a.name} and ${b.name} overlap (${JSON.stringify(a)} / ${JSON.stringify(b)})`);
     }
@@ -108,6 +110,11 @@ async function run(name, viewport) {
       const count = inFamily(family.id).length;
       assert.ok(family.heading.includes(String(count)), `${name}: ${family.id}'s heading shows its count ${count} ("${family.heading}")`);
     }
+    // The total and the Horizons list date come from the data (I-045), never typed here.
+    const listDate = new Date(`${data.asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+    const summary = await ui.moonListSummaryText(page);
+    notes.summary = summary;
+    assert.ok(summary.includes(`${data.moons.length} moons`) && summary.includes(listDate), `${name}: the moons panel states the total ${data.moons.length} and the list date ${listDate} ("${summary}")`);
     assert.equal(await ui.featuredMoonPictures(page, "galilean"), 4, `${name}: the big four show four pictures`);
 
     // Open Carme: description, named moons first, the rest folded; the family lights up in the scene.
@@ -147,6 +154,7 @@ async function run(name, viewport) {
     assert.match(info, /km across/, `${name}: the information gives the size`);
     assert.match(info, new RegExp(String(himalia.discoveryYear)), `${name}: the information gives the discovery year`);
     assert.match(info, /JPL/, `${name}: the information names its sources`);
+    assert.ok(info.includes(listDate), `${name}: a small moon's information names the date the list was fetched`);
     await ui.closeInfoStrict(page);
 
     // A big-four moon takes the same path.
@@ -174,6 +182,13 @@ async function run(name, viewport) {
     assert.deepEqual(await ui.moonSearchResults(page), [], `${name}: a name nothing matches lists nothing`);
     await ui.searchMoons(page, "");
     await ui.closeMoonPanel(page);
+    // Jupiter's own information states the same total and date, and a small moon's sources name the fetch date.
+    await ui.pickBody(page, "jupiter");
+    await ui.openInfo(page, "Jupiter");
+    await ui.infoPanelFor(page, "jupiter").waitFor();
+    const jupiterInfo = await ui.infoText(page);
+    assert.ok(jupiterInfo.includes(`${data.moons.length} moons`) && jupiterInfo.includes(listDate), `${name}: Jupiter's information states the total and the list date`);
+    await ui.closeInfoStrict(page);
     notes.mapped = MAPPED;
   } finally {
     await page.close();

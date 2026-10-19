@@ -1,6 +1,6 @@
 import { catalogue } from "../../assets/catalogue";
 import { moonFacts, type MoonRecord } from "../../assets/moonCatalogue";
-import type { MoonFamilyList } from "../../shell/moonFamilies";
+import { moonListDateText, moonListSummary, type MoonFamilyList } from "../../shell/moonFamilies";
 import { bodyMetrics } from "../../app/bodyMetrics";
 import { familiesWithPalette, type BodySetLayer } from "../../app/bodySet";
 import { catalogueItem } from "../../app/catalogueItem";
@@ -61,10 +61,14 @@ export const JUPITER_MOON_IDS = JUPITER_MOON_CATALOGUE.moons.map((moon) => moon.
 const moonRecord = (id: string): MoonRecord => JUPITER_MOON_CATALOGUE.moons.find((moon) => moon.id === id)!;
 const factsOf = (id: string) => moonFacts(JUPITER_MOON_CATALOGUE, moonRecord(id));
 
+/** The Horizons list the moons come from: its date is the catalogue's asOf and its count is the moons the data holds (never typed in). */
+const MOON_LIST_SOURCE = "JPL Horizons";
+const MOON_LIST_SUMMARY = moonListSummary(JUPITER_MOON_CATALOGUE.moons.length, MOON_LIST_SOURCE, JUPITER_MOON_CATALOGUE.asOf);
+
 /** Where each small moon's position comes from, for its information panel. */
 const SMALL_MOON_PROVENANCE = createProvenance({
   sourceType: "ephemeris",
-  sources: [JUPITER_MOON_FIT_SOURCE, "Moon list, families and radii: data/moons/jupiter.json (T-097)"],
+  sources: [JUPITER_MOON_FIT_SOURCE, `Moon list, families and radii: data/moons/jupiter.json (T-097); the list was fetched from ${MOON_LIST_SOURCE} on ${moonListDateText(JUPITER_MOON_CATALOGUE.asOf)}`],
   accuracy: "Positions reproduce Horizons to within 1 m (T-096). Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.",
   notes: "Each orbit line is the moon's own path from these positions over about one orbit, ending where the moon is now; for a moon perturbed by the Sun the line does not close exactly, so its oldest end fades out.",
 });
@@ -73,6 +77,7 @@ const objects: ExperienceObject[] = [
   catalogueItem("jupiter", {
     labelPriority: 100,
     labelMaxDistance: 30_000,
+    facts: [{ label: "Known moons", value: MOON_LIST_SUMMARY }],
     description: "The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances.",
     knownLimitations: [JUPITER_NO_TEXTURE, "The surface drawn is the 1-bar cloud-top level, not a solid surface.", "The rings are drawn as flat bands in Planetary Explorer's colours; their brightness is a look, not a measurement."],
   }),
@@ -86,7 +91,7 @@ const objects: ExperienceObject[] = [
     label: moon.name,
     listed: false,
     description: `A small moon of Jupiter in the ${JUPITER_MOON_CATALOGUE.families.find((family) => family.id === moon.family)!.label}. ${FITTED}`,
-    facts: factsOf(moon.id),
+    facts: [...factsOf(moon.id), { label: "Moon list fetched", value: `${MOON_LIST_SOURCE}, ${moonListDateText(JUPITER_MOON_CATALOGUE.asOf)}` }],
     provenance: SMALL_MOON_PROVENANCE,
   })),
 ];
@@ -94,6 +99,8 @@ const objects: ExperienceObject[] = [
 /** The moon panel's list: the families from the core data, the big four first with their pictures. */
 const moonFamilies: MoonFamilyList = {
   planetLabel: "Jupiter",
+  listSource: MOON_LIST_SOURCE,
+  listDate: JUPITER_MOON_CATALOGUE.asOf,
   featuredFamilyId: "galilean",
   families: JUPITER_MOON_CATALOGUE.families.map((family) => ({
     id: family.id,

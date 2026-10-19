@@ -304,7 +304,7 @@ export function AstraeusShell({
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
       )}
       <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} />
-      <aside className="developer-tools" id="developer-tools" aria-label="Developer diagnostics" hidden={!developerMode}>
+      <aside className="developer-tools" id="developer-tools" data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
         {developerMode ? developerTools : null}
       </aside>
       <TimelineBar

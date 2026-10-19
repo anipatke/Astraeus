@@ -1,0 +1,27 @@
+> astraeus@0.1.0 typecheck
+> tsc --noEmit
+
+TC=0
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 76 passed (77)
+      Tests  1 failed | 1121 passed | 1 skipped (1123)
+   Start at  01:17:55
+   Duration  30.32s (tests 70%, transform 16%, import 9%, setup 6%)
+
+DC=0
+2026-10-19T14:18:25Z
+
+
+ Test Files  77 passed (77)
+      Tests  1122 passed | 1 skipped (1123)
+   Start at  01:19:02
+   Duration  30.01s (tests 69%, transform 17%, import 9%, setup 5%)
+
+DC=0
+2026-10-19T14:19:33Z

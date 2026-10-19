@@ -1,0 +1,11 @@
+{
+  "viewports": [
+    "1440x900",
+    "1280x800",
+    "768x1024",
+    "390x844"
+  ],
+  "scaleReadoutsIdentical": true,
+  "cameraReadoutsUnchanged": true,
+  "errors": []
+}

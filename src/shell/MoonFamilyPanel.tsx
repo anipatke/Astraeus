@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { Collapsible } from "./Collapsible";
-import { moonCountText, searchMoons, splitNamed, type MoonFamilyList, type MoonFamilyListing, type MoonListing } from "./moonFamilies";
+import { moonCountText, moonFamilyListSummary, searchMoons, splitNamed, type MoonFamilyList, type MoonFamilyListing, type MoonListing } from "./moonFamilies";
 
 interface Props {
   readonly list: MoonFamilyList;
@@ -37,6 +37,7 @@ export function MoonFamilyPanel({ list, highlightedFamily, onHighlight, onSelect
   const folded = list.families.filter((family) => family !== featured);
   return (
     <section className="moon-panel" aria-label={`${list.planetLabel}'s moons`} data-highlight={highlightedFamily ?? ""}>
+      <p className="moon-note moon-summary" data-moon-summary={moonFamilyListSummary(list)}>{moonFamilyListSummary(list)}</p>
       <label className="moon-search" htmlFor={searchId}>
         <span className="moon-search-label">Find a moon</span>
         <input id={searchId} type="search" className="moon-search-input" value={query} placeholder="Name or designation" autoComplete="off" spellCheck={false} onChange={(event) => setQuery(event.target.value)} />
