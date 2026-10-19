@@ -3,3 +3,21 @@ public-addresses | exit=0 | 21:18:30-21:18:30 | 0s | error-lines=0
 public-showers | exit=0 | 21:18:30-21:19:12 | 42s | error-lines=0
 lite | exit=0 | 21:18:28-21:21:22 | 174s | error-lines=0
 jupiter-io | exit=0 | 21:19:12-21:21:39 | 147s | error-lines=0
+phone | exit=0 | 21:21:22-21:23:28 | 126s | error-lines=0
+embedded | exit=0 | 21:21:39-21:23:34 | 115s | error-lines=0
+showers-perseids | exit=0 | 21:18:28-21:23:37 | 309s | error-lines=0
+orbit-motion | exit=0 | 21:23:34-21:24:03 | 29s | error-lines=0
+controls | exit=0 | 21:23:28-21:24:20 | 52s | error-lines=0
+orbit-look | exit=0 | 21:24:03-21:24:44 | 41s | error-lines=0
+showers-geminids | exit=0 | 21:23:37-21:25:57 | 140s | error-lines=0
+spike03 | exit=0 | 21:24:44-21:26:01 | 77s | error-lines=0
+view-link | exit=0 | 21:26:01-21:26:37 | 36s | error-lines=0
+spike02 | exit=0 | 21:24:20-21:27:45 | 205s | error-lines=0
+shell | exit=0 | 21:27:45-21:28:14 | 29s | error-lines=0
+sky | exit=0 | 21:26:37-21:28:24 | 107s | error-lines=0
+anchor-labels | exit=0 | 21:28:14-21:28:32 | 18s | error-lines=0
+synthetic | exit=0 | 21:28:32-21:29:01 | 29s | error-lines=0
+synthetic-ring | exit=0 | 21:29:01-21:29:51 | 50s | error-lines=0
+synthetic-listed | exit=0 | 21:29:51-21:30:22 | 31s | error-lines=0
+story-panels | exit=0 | 21:28:24-21:31:42 | 198s | error-lines=0
+total 796s (servers and public build included)

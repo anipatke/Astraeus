@@ -1,0 +1,22 @@
+{
+  "url": "http://localhost:5701/app.html",
+  "viewport": "1280x800",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 40,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "errors": []
+}
+{
+  "url": "http://localhost:5701/app.html",
+  "viewport": "390x844",
+  "hiddenInitially": true,
+  "countWhenOff": 0,
+  "pressedOn": "true",
+  "countWhenOn": 10,
+  "pressedOff": "false",
+  "hiddenAfterToggle": true,
+  "errors": []
+}

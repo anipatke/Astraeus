@@ -1,9 +1,10 @@
 ---
 id: O-024
 title: Launch with three demos — Apollo, Showers and Jupiter
-status: in_progress
+status: done
 depends_on: [O-020]
 release: G-005
+exception: {requirements: [design-reconciliation], reason: 'Owner accepted the two-sentence Design.md fix for I-042 without a further independent re-check ("no mark it checked, it was two lines, we arent doing the whole thing over again"). Recorded by the agent on direct instruction; not a technical CLEAR.', owner: owner-chat-20261019, recorded_at: '2026-10-19T11:10:00Z', check: C-082}
 ---
 
 # O-024: Launch with three demos — Apollo, Showers and Jupiter

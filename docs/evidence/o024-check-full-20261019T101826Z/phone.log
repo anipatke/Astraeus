@@ -24,3 +24,10 @@ ok   jupiter-io portrait: scene drag
 ok   jupiter-io portrait: information sheet
   jupiter-io landscape: pill 92x44, bar 112 px tall, chrome 40% of the height
 ok   jupiter-io landscape: layout
+ok   jupiter-io landscape: top drawer
+ok   jupiter-io landscape: timeline drawer
+ok   jupiter-io landscape: scene drag
+ok   jupiter-io landscape: information sheet
+ok   reduced motion
+console and page problems: 0
+phone layout check passed
