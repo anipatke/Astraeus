@@ -1,0 +1,255 @@
+{
+  "at": "2026-10-17T11:49:58.781Z",
+  "base": "http://localhost:5531/app.html",
+  "failures": [],
+  "report": [
+    {
+      "label": "apollo11 desktop 1440x900",
+      "state": "start",
+      "controls": 10,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "apollo11 desktop 1440x900",
+      "state": "start (again)",
+      "controls": 10,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "apollo11 desktop 1440x900",
+      "state": "information panel",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "apollo11 desktop 1440x900",
+      "state": "information panel, Sources open",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "apollo11 desktop 1440x900",
+      "state": "story panel",
+      "controls": 12,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "start",
+      "controls": 7,
+      "dropdowns": 1,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "top drawer open",
+      "controls": 11,
+      "dropdowns": 2,
+      "rows": 3,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "timeline drawer open",
+      "controls": 12,
+      "dropdowns": 1,
+      "rows": 7,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "information panel",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "information panel, Sources open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "apollo11 phone 390x844",
+      "state": "story panel",
+      "controls": 9,
+      "dropdowns": 1,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io desktop 1440x900",
+      "state": "start",
+      "controls": 10,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io desktop 1440x900",
+      "state": "start (again)",
+      "controls": 10,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io desktop 1440x900",
+      "state": "information panel",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io desktop 1440x900",
+      "state": "information panel, Sources open",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io phone 390x844",
+      "state": "start",
+      "controls": 7,
+      "dropdowns": 1,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io phone 390x844",
+      "state": "top drawer open",
+      "controls": 11,
+      "dropdowns": 2,
+      "rows": 3,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io phone 390x844",
+      "state": "timeline drawer open",
+      "controls": 7,
+      "dropdowns": 1,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io phone 390x844",
+      "state": "information panel",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "jupiter-io phone 390x844",
+      "state": "information panel, Sources open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids desktop 1440x900",
+      "state": "start",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids desktop 1440x900",
+      "state": "start (again)",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids desktop 1440x900",
+      "state": "information panel",
+      "controls": 16,
+      "dropdowns": 2,
+      "rows": 7,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids desktop 1440x900",
+      "state": "information panel, Sources open",
+      "controls": 16,
+      "dropdowns": 2,
+      "rows": 7,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids desktop 1440x900",
+      "state": "story panel",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "start",
+      "controls": 7,
+      "dropdowns": 1,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "top drawer open",
+      "controls": 12,
+      "dropdowns": 2,
+      "rows": 3,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "timeline drawer open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "information panel",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "information panel, Sources open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "shower-perseids phone 390x844",
+      "state": "story panel",
+      "controls": 9,
+      "dropdowns": 1,
+      "rows": 4,
+      "problems": []
+    }
+  ]
+}

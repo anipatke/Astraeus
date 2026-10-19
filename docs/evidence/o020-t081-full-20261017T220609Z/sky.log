@@ -1,0 +1,59 @@
+{
+  "starSource": "hyg",
+  "starCount": "8920",
+  "runs": {
+    "apollo-desktop": {
+      "fpsWithoutSky": 32.9,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 6225,
+          "lit": 480450,
+          "total": 1024000
+        },
+        "off": {
+          "bright": 4302,
+          "lit": 92581,
+          "total": 1024000
+        },
+        "noPicture": {
+          "bright": 5337,
+          "lit": 101385,
+          "total": 1024000
+        }
+      },
+      "fpsPictureOff": 22.6,
+      "panel": "Observed ⓘ : data source and known limitations Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Accuracy Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is the ESO photograph",
+      "fpsWithSky": 21,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    },
+    "apollo-mobile": {
+      "fpsWithoutSky": 48.5,
+      "stars": 8920,
+      "pixels": {
+        "on": {
+          "bright": 2891,
+          "lit": 130475,
+          "total": 329160
+        },
+        "off": {
+          "bright": 2554,
+          "lit": 54356,
+          "total": 329160
+        },
+        "noPicture": {
+          "bright": 2801,
+          "lit": 56226,
+          "total": 329160
+        }
+      },
+      "fpsPictureOff": 29.8,
+      "panel": "Observed ⓘ : data source and known limitations Known limitations Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock. Stars are tinted from the B-V colour index and sized by magnitude; they are not photometrically exact. Accuracy Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is the ESO photograph",
+      "fpsWithSky": 36.7,
+      "probeChecks": 3,
+      "dragSkipped": "the developer panel covers the whole canvas at this size"
+    }
+  },
+  "errors": 0
+}

@@ -1,0 +1,20 @@
+ok  timeline shows a marker per panel (7)
+ok  forward playback opens the first panel and holds playback (side panel at right)
+ok  playback resumes on its own after the pause (panel stays open)
+ok  a tap on Continue resumes playback early
+ok  scrubbing back and forth past the markers opens nothing
+ok  timeline markers open their panel, one at a time
+ok  scene marker on the named body reopens its panel
+ok  Escape closes the panel
+locator.click: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for getByRole('button', { name: 'Close story panel' })[22m
+[2m    - locator resolved to <button type="button" aria-label="Close story panel" class="story-panel-close ui-icon">×</button>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+
+    at Module.closeStoryPanel (/home/user/code/astraeus-t081/tools/validate/driver.mjs:573:98)
+    at /home/user/code/astraeus-t081/tools/validate/browser-story-panels.mjs:140:14

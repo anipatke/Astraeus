@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: mobile 390x844: primary controls are present
+    at assertTouchTargets (file:///home/user/code/astraeus-t081/tools/validate/browser-spike03.mjs:78:10)
+    at async file:///home/user/code/astraeus-t081/tools/validate/browser-spike03.mjs:179:25 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

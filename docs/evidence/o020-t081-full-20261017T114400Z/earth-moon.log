@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone: one tap shows what True and Readable mean
+    at run (file:///home/user/code/astraeus-t081/tools/validate/browser-earth-moon.mjs:78:12)
+    at async file:///home/user/code/astraeus-t081/tools/validate/browser-earth-moon.mjs:122:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: /real proportion[\s\S]*closer together/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

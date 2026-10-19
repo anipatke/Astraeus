@@ -1,0 +1,69 @@
+{
+ "jupiter-io": {
+  "load-first-second": {
+   "frames": 44,
+   "readings": 44,
+   "maxGap": 0,
+   "maxSegment": 0.009753180961489567
+  },
+  "after-seek": {
+   "frames": 33,
+   "readings": 33,
+   "maxGap": 0,
+   "maxSegment": 0.00979101320149389
+  },
+  "after-second-seek": {
+   "frames": 47,
+   "readings": 47,
+   "maxGap": 0,
+   "maxSegment": 0.00979695754310555
+  },
+  "fast-playback": {
+   "frames": 155,
+   "readings": 155,
+   "maxGap": 0,
+   "maxSegment": 0.009797776025064502
+  },
+  "seek-mid-play": {
+   "frames": 59,
+   "readings": 59,
+   "maxGap": 0,
+   "maxSegment": 0.00979776585804713
+  },
+  "rate": "604800"
+ },
+ "earth-moon": {
+  "load-first-second": {
+   "frames": 29,
+   "readings": 29,
+   "maxGap": 0,
+   "maxSegment": 0.009636891815114356
+  },
+  "after-seek": {
+   "frames": 29,
+   "readings": 29,
+   "maxGap": 0,
+   "maxSegment": 0.00956902061472147
+  },
+  "after-second-seek": {
+   "frames": 27,
+   "readings": 27,
+   "maxGap": 0,
+   "maxSegment": 0.009727078818626795
+  },
+  "fast-playback": {
+   "frames": 122,
+   "readings": 122,
+   "maxGap": 0,
+   "maxSegment": 0.009950455686578135
+  },
+  "seek-mid-play": {
+   "frames": 53,
+   "readings": 53,
+   "maxGap": 0,
+   "maxSegment": 0.009938754061248625
+  },
+  "rate": "604800"
+ }
+}
+orbit arc motion: ok

@@ -1,0 +1,11 @@
+8:33:51 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+
+  VITE v8.3.2  ready in 151 ms
+
+  ➜  Local:   http://localhost:5531/
+  ➜  Network: use --host to expose
+8:35:31 AM [vite] (client) page reload docs/evidence/o020-t081-full-20261017T213351Z/contact-sheet.html
+8:40:50 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+8:40:50 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+8:42:42 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2
+8:42:42 AM [vite] (client) [console.warn] ?stars=yale ignored: the value must be a number from 0 to 2

@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^Illustrative ⓘ/. Input:
+
+'Illustrative\nⓘ\n: data source and known limitations'
+
+    at run (file:///home/user/code/astraeus-t081/tools/validate/browser-synthetic-listed.mjs:68:12)
+    at async file:///home/user/code/astraeus-t081/tools/validate/browser-synthetic-listed.mjs:121:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'Illustrative\nⓘ\n: data source and known limitations',
+  expected: /^Illustrative ⓘ/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
