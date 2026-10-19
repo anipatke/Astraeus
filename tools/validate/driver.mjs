@@ -1131,6 +1131,21 @@ export async function closeMoonPanel(page) {
   if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="false"]`).waitFor({ state: "attached" });
 }
+/**
+ * The shell panels on screen and their boxes, for the overlap check (O-025 T-099 collision repair): `[{name, left, top, right, bottom}]` for the moons
+ * button and sheet, the information panel, story panel, timeline bar and drawer, top bar, controls drawer and its pill and handles; only those showing.
+ */
+export const shellPanelBoxes = (page) => page.evaluate(() => {
+  const named = { "moons-toggle": ".moons-toggle", "moons-sheet": ".moons-sheet", "info-panel": ".info-panel", "story-panel": ".story-panel", "timeline-bar": ".timeline-bar", "timeline-drawer": ".timeline-drawer", "top-bar": ".shell-toolbar", "controls-drawer": ".controls-drawer", "controls-pill": ".controls-pill", "developer-mode-toggle": ".developer-mode-toggle" };
+  return Object.entries(named).flatMap(([name, selector]) => [...document.querySelectorAll(selector)].flatMap((element) => {
+    const style = getComputedStyle(element);
+    const box = element.getBoundingClientRect();
+    if (style.display === "none" || style.visibility === "hidden" || box.width === 0 || box.height === 0) return [];
+    return [{ name, left: box.left, top: box.top, right: box.right, bottom: box.bottom }];
+  }));
+});
+/** The viewport size in CSS px: `{width, height}`. */
+export const viewportSize = (page) => page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
 export const moonPanelShown = (page) => moonPanel(page).isVisible();
 /** The families the panel lists, in order: id, whether it is the lit one, and the heading text (label and count). */
 export const moonFamilies = (page) => page.locator("[data-moon-family]").evaluateAll((elements) => elements.map((element) => ({

@@ -338,22 +338,15 @@
   .story-panel { animation: none; }
 }
 
-/* ---- The moon panel (O-025 T-099): a planet's moons by family. Wide screens: a sheet that slides in from the left over a toggle; phones: inside the top drawer. ---- */
-.moons-toggle {
-  position: absolute;
-  z-index: 6;
-  bottom: 96px;
-  left: 12px;
-}
+/* ---- The moon panel (O-025 T-099): a planet's moons by family. Wide screens: a button and a sheet in the shell-top column (under the toolbar, in the information panel's
+   area, so the two never overlap and opening one closes the other); phones: a section of the top drawer. ---- */
+.moons-toggle { flex: 0 0 auto; min-height: 44px; }
 .moons-sheet {
-  position: absolute;
-  z-index: 6;
-  bottom: 144px;
-  left: 12px;
-  display: flex;
+  display: none;
+  flex: 0 1 auto;
   flex-direction: column;
   width: min(340px, calc(100vw - 24px));
-  max-height: min(60dvh, calc(100% - 220px));
+  min-height: 0;
   overflow: auto;
   padding: 10px;
   border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
@@ -362,11 +355,9 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, .42);
   box-sizing: border-box;
   backdrop-filter: blur(12px);
-  transform: translateX(calc(-100% - 24px));
-  visibility: hidden;
-  transition: transform var(--drawer-ms, 240ms) ease, visibility 0s linear var(--drawer-ms, 240ms);
 }
-.moons-sheet[data-open="true"] { transform: none; visibility: visible; transition: transform var(--drawer-ms, 240ms) ease, visibility 0s; }
+.moons-sheet[data-open="true"] { display: flex; animation: moons-sheet-in var(--drawer-ms, 240ms) ease; }
+@keyframes moons-sheet-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .moon-panel { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .moon-panel ul { margin: 0; padding: 0; list-style: none; }
 .moon-panel h3, .moon-panel h4 { margin: 0; font-size: 14px; }
@@ -381,5 +372,5 @@
 .moon-disc { width: 44px; height: 44px; border-radius: 50%; background-color: #222; background-repeat: no-repeat; background-size: 300% 100%; background-position: 50% 50%; }
 .moon-family[data-lit="true"], .moon-featured[data-lit="true"] { border-radius: 10px; box-shadow: inset 3px 0 0 var(--ui-accent, #fc6323); }
 .moon-panel .collapsible-body { padding-left: 4px; }
-[data-phone="true"] .moon-panel { max-height: 36dvh; overflow-y: auto; margin-top: 8px; }
-@media (prefers-reduced-motion: reduce) { .moons-sheet { transition: none; } }
+[data-phone="true"] .moon-panel { max-height: max(120px, calc(var(--controls-drawer-max, 60dvh) - 270px)); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .moons-sheet { animation: none !important; } }

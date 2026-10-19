@@ -117,7 +117,14 @@ export function AstraeusShell({
   const [controlsOpen, setControlsOpen] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
   /** The two drawers share the screen, so opening one closes the other. */
-  const openControls = (open: boolean) => { setControlsOpen(open); if (open) setTimelineOpen(false); };
+  const openControls = (open: boolean) => {
+    setControlsOpen(open);
+    if (open) {
+      setTimelineOpen(false);
+      // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
+      if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
+    }
+  };
   const openTimeline = (open: boolean) => { setTimelineOpen(open); if (open) setControlsOpen(false); };
   useEffect(() => {
     if (!phone || (!controlsOpen && !timelineOpen)) return undefined;
@@ -246,6 +253,13 @@ export function AstraeusShell({
     : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, snapshot.timeUtcMs);
   const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, snapshot.timeUtcMs) : [];
 
+  // On a wide screen the moons sheet and the information panel share the left column under the toolbar: opening one closes the other.
+  const toggleMoons = () => {
+    if (!moonsOpen) setInfo(null);
+    setMoonsOpen(!moonsOpen);
+  };
+  useEffect(() => { if (info !== null) setMoonsOpen(false); }, [info]);
+
   const selectedLabel = experience.objects.find((object) => object.id === selectedObjectId)?.label ?? "Controls";
   const topBar = (
     <TopBar
@@ -274,18 +288,18 @@ export function AstraeusShell({
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">
         {!phone && topBar}
+        {!phone && moonPanel !== null && (
+          <>
+            <button type="button" className="moons-toggle ui-pill" aria-expanded={moonsOpen} aria-controls="moons-panel" onClick={toggleMoons}>
+              {experience.moonFamilies?.planetLabel} moons
+            </button>
+            <aside id="moons-panel" className="moons-sheet" data-open={moonsOpen} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") setMoonsOpen(false); }}>
+              {moonPanel}
+            </aside>
+          </>
+        )}
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>
-      {!phone && moonPanel !== null && (
-        <>
-          <button type="button" className="moons-toggle ui-pill" aria-expanded={moonsOpen} aria-controls="moons-panel" onClick={() => setMoonsOpen(!moonsOpen)}>
-            {experience.moonFamilies?.planetLabel} moons
-          </button>
-          <aside id="moons-panel" className="moons-sheet" data-open={moonsOpen} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") setMoonsOpen(false); }}>
-            {moonPanel}
-          </aside>
-        </>
-      )}
       {story.openPanel !== null && (
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
       )}
