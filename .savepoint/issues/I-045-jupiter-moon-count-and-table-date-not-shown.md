@@ -2,15 +2,21 @@
 id: I-045
 title: The Jupiter demo does not show how many moons there are or when NASA's list was taken
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-083
   actor: {role: checker, session: o025-orchestrator-20261019}
   at: '2026-10-19T11:40:00Z'
 tasks: [T-098, T-099]
-checks: [C-083]
+checks: [C-083, C-084]
 guardrail_ids: [PROV-01]
+resolution:
+  disposition: verified
+  check: C-084
+  actor: {role: checker, session: o025-orchestrator-20261019}
+  at: '2026-10-19T14:58:00Z'
+  reason: 'Moons panel, Jupiter information and small-moon facts and sources state the live total (115) and the Horizons list date (18 October 2026) from the data; unit test and browser assertions pass. Proven by C-084 (CLEAR).'
 history:
   - at: '2026-10-19T11:40:00Z'
     actor: {role: checker, session: o025-orchestrator-20261019}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o025-repair-20261019}
     kind: repair_attempted
     note: "Added optional listSource/listDate to MoonFamilyList; MoonFamilyPanel shows a summary line ('115 moons in the JPL Horizons list of 18 October 2026', count summed live from the families, date from the catalogue asOf) with a data-moon-summary hook; Jupiter's information panel has a 'Known moons' fact with the same text; each small moon has a 'Moon list fetched' fact and its provenance source names the fetch date (src/shell/moonFamilies.ts, MoonFamilyPanel.tsx, src/experiences/jupiter-io/jupiterIo.ts). Unit test in tests/moonFamilyPanel.test.ts reads count and date from the data; driver moonListSummaryText plus assertions in browser-moon-panel.mjs (panel, Jupiter information, small-moon information) pass on desktop and phone. typecheck, tests (1122 passed), git diff --check clean. Evidence docs/evidence/o025-repair-20261019T114109Z/. Awaiting independent Check."
+  - at: '2026-10-19T14:58:00Z'
+    actor: {role: checker, session: o025-orchestrator-20261019}
+    kind: rechecked
+    note: 'Moons panel, Jupiter information and small-moon facts and sources state the live total (115) and the Horizons list date (18 October 2026) from the data; unit test and browser assertions pass. Proven by C-084 (CLEAR).'
+    check: C-084
 ---
 
 # I-045: The Jupiter demo does not show the moon count or NASA's list date

@@ -2,15 +2,21 @@
 id: I-043
 title: The browser driver treats the moons panel's folds as Developer groups, so the Jupiter checks time out
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-083
   actor: {role: checker, session: o025-orchestrator-20261019}
   at: '2026-10-19T11:40:00Z'
 tasks: [T-099]
-checks: [C-083]
+checks: [C-083, C-084]
 guardrail_ids: [TEST-01, TEST-03]
+resolution:
+  disposition: verified
+  check: C-084
+  actor: {role: checker, session: o025-orchestrator-20261019}
+  at: '2026-10-19T14:58:00Z'
+  reason: 'Developer helpers scoped to [data-developer-panel] in tools/validate/driver.mjs; jupiter-io and embedded pass with zero console errors in the C-084 full run; driver guard test passes. Proven by C-084 (CLEAR).'
 history:
   - at: '2026-10-19T11:40:00Z'
     actor: {role: checker, session: o025-orchestrator-20261019}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o025-repair-20261019}
     kind: repair_attempted
     note: "Developer helpers in tools/validate/driver.mjs (expandDeveloperGroups, developerGroupOpen, developerGroups, toggleDeveloper, toggleDeveloperGroup, openDeveloperGroup) now scope to [data-developer-panel] (new hook on the shell's developer aside, src/shell/AstraeusShell.tsx). Also fixed in the driver: moon toggle selected by aria-controls (was ambiguous), focusedOn no longer opens the phone controls drawer (it closed the info sheet), featureCollisions waits up to 2 s for panels to settle, new featureMarkerPressed readout. browser-jupiter-io.mjs phone/small-phone coverage views adjusted (narrow view crops limbs; timeline covers lower third). Results: browser-jupiter-io.mjs exit 0, browser-embedded.mjs exit 0, zero console errors; npm run typecheck, npm test (1122 passed, 1 skipped) and git diff --check clean. Evidence docs/evidence/o025-repair-20261019T114109Z/. Awaiting independent Check."
+  - at: '2026-10-19T14:58:00Z'
+    actor: {role: checker, session: o025-orchestrator-20261019}
+    kind: rechecked
+    note: 'Developer helpers scoped to [data-developer-panel] in tools/validate/driver.mjs; jupiter-io and embedded pass with zero console errors in the C-084 full run; driver guard test passes. Proven by C-084 (CLEAR).'
+    check: C-084
 ---
 
 # I-043: The browser driver treats the moons panel's folds as Developer groups

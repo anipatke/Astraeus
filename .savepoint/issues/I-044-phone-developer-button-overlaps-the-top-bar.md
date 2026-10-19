@@ -2,15 +2,21 @@
 id: I-044
 title: On a phone the Developer button overlaps the top bar
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-083
   actor: {role: checker, session: o025-orchestrator-20261019}
   at: '2026-10-19T11:40:00Z'
 tasks: [T-099]
-checks: [C-083]
+checks: [C-083, C-084]
 guardrail_ids: []
+resolution:
+  disposition: verified
+  check: C-084
+  actor: {role: checker, session: o025-orchestrator-20261019}
+  at: '2026-10-19T14:58:00Z'
+  reason: 'The open phone drawer reserves the Developer button column (phone.css right padding 60 px plus safe area); top bar still checked against the button; browser-moon-panel passes at 375x667, 390x844, 1280x720 and 1440x900 plus search, highlight and focus. Proven by C-084 (CLEAR).'
 history:
   - at: '2026-10-19T11:40:00Z'
     actor: {role: checker, session: o025-orchestrator-20261019}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o025-repair-20261019}
     kind: repair_attempted
     note: "Phone controls drawer now reserves the Developer button's column (right padding 60px + safe area, src/shell/phone.css), so the top bar no longer sits under the 44px button. browser-moon-panel.mjs treats the open controls drawer and the button as one area (the button sits in the drawer's reserved gutter) while the top bar is still checked against the button. Results: browser-moon-panel.mjs exit 0 end to end (375x667, 390x844, 1280x720, 1440x900 layouts, then desktop and phone search, highlight, focus), zero console errors; typecheck, tests, git diff --check clean. Evidence docs/evidence/o025-repair-20261019T114109Z/. Awaiting independent Check."
+  - at: '2026-10-19T14:58:00Z'
+    actor: {role: checker, session: o025-orchestrator-20261019}
+    kind: rechecked
+    note: 'The open phone drawer reserves the Developer button column (phone.css right padding 60 px plus safe area); top bar still checked against the button; browser-moon-panel passes at 375x667, 390x844, 1280x720 and 1440x900 plus search, highlight and focus. Proven by C-084 (CLEAR).'
+    check: C-084
 ---
 
 # I-044: On a phone the Developer button overlaps the top bar
