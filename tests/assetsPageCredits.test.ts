@@ -4,6 +4,10 @@ import type { AssetLicence } from "../src/assets/licence";
 import { HYG_STAR_LICENCE, MILKY_WAY_LICENCE } from "../src/assets/sky";
 import html from "../assets.html?raw";
 import starFileText from "../src/assets/stars/hyg-v42-naked-eye.json?raw";
+import apolloPanels from "../data/stories/apollo11/panels.json";
+import geminidsPanels from "../data/stories/geminids/panels.json";
+import jupiterIoPanels from "../data/stories/jupiter-io/panels.json";
+import perseidsPanels from "../data/stories/perseids/panels.json";
 
 /**
  * T-064: every credit on the assets page is checked against the AssetLicence record it describes (PROV-02), so a record
@@ -98,5 +102,18 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
       const expected = licence === "public domain" && (id === "earth" || id === "moon") ? "NASA" : licence;
       expect(chip.toLowerCase(), id).toBe(expected.toLowerCase());
     }
+  });
+
+  // I-046: the Story panels row counted the badges by hand twice and drifted; it is now counted from the panel files.
+  it("the Story panels row gives the panel total and badge counts the story files hold", () => {
+    const files: readonly { readonly panels: readonly { readonly badge: string }[] }[] = [apolloPanels, geminidsPanels, jupiterIoPanels, perseidsPanels];
+    const panels = files.flatMap((file) => file.panels);
+    const count = (badge: string): number => panels.filter((panel) => panel.badge === badge).length;
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+    const row = decode(html.slice(html.indexOf("<h3>Story panels</h3>"), html.indexOf("</div>", html.indexOf('<span class="num">', html.indexOf("<h3>Story panels</h3>")))));
+    expect(row).toContain(`<span class="num">${panels.length}<small>panels</small>`);
+    const sentence = `${words[count("observed")]} panels are marked observed, ${words[count("modelled")]} modelled and ${words[count("illustrative")]} illustrative`;
+    expect(row.toLowerCase()).toContain(sentence);
+    expect(count("observed") + count("modelled") + count("illustrative")).toBe(panels.length);
   });
 });

@@ -1,0 +1,11 @@
+O-016 targeted re-check (C-087), 2026-10-19T21:35Z, HEAD 92e7068 + uncommitted I-046 repair
+mutation: "Twelve"->"Thirteen" in assets.html: tests/assetsPageCredits.test.ts exit 1 (1 failed, 10 passed); restored, sha256 matches pre-mutation (assets.sha256), test exit 0 (11 passed)
+npm run typecheck: exit 0
+npm run build: exit 0
+npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml: exit 0, 77 files, 1123 passed, 1 skipped
+git diff --check: exit 0, clean
+ASTRAEUS_PUBLIC_BUILD=1 npm run build: exit 0
+node tools/validate/public-build-assets.mjs: exit 0, ok true, matches [], missingPages [], loadBudget ok
+npm run build (plain, restores dist/): exit 0
+savepoint health check O-016: sha256:1bf3cbd405021be77a358b08083bd37bbffa3a25852fc3a1b019cf66d1ed155b (created), does not block clearance
+browser: none run (Touched areas tier; page text and a unit test only); C-086 runs in docs/evidence/o016-recheck-20261019T212040Z reused

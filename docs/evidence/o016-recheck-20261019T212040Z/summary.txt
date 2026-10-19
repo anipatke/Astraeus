@@ -1,0 +1,7 @@
+lite | exit=0 | 21:22:04-21:24:18 UTC | 134s | error-lines=0
+shell | exit=0 | 21:24:18-21:24:43 UTC | 25s | error-lines=0
+phone | exit=0 | 21:24:43-21:26:10 UTC | 87s | error-lines=0
+sky | exit=0 | 21:26:10-21:27:49 UTC | 99s | error-lines=0
+home-curve-fits | exit=0 | 21:27:49-21:27:53 UTC | 4s | error-lines=0
+embedded | exit=0 | 21:27:53-21:29:05 UTC | 72s | error-lines=0
+total 424s

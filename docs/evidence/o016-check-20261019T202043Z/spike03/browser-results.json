@@ -1,0 +1,188 @@
+{
+  "url": "http://localhost:5479/app.html",
+  "viewports": [
+    "1440x900",
+    "1280x800",
+    "768x1024",
+    "390x844"
+  ],
+  "scaleReadoutsIdentical": true,
+  "cameraReadoutsUnchanged": true,
+  "cameraPresetsChecked": [
+    "focus-earth",
+    "focus-moon",
+    "follow-columbia",
+    "follow-eagle",
+    "overview"
+  ],
+  "tabletTouchTargets": [
+    {
+      "selector": ".object-controls button",
+      "label": "Information about Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Focus Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Earth–Moon overview",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls select",
+      "label": "Select object",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Play playback",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Previous event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Next event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-speed select",
+      "label": "Playback speed",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-event-list summary",
+      "label": "Events (30)",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-track input[type=\"range\"]",
+      "label": "Seek timeline",
+      "height": 44
+    }
+  ],
+  "mobileTouchTargets": [
+    {
+      "selector": ".object-controls button",
+      "label": "Information about Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Focus Earth",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls button",
+      "label": "Earth–Moon overview",
+      "height": 44
+    },
+    {
+      "selector": ".object-controls select",
+      "label": "Select object",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Play playback",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Previous event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-transport button",
+      "label": "Next event",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-speed select",
+      "label": "Playback speed",
+      "height": 44
+    },
+    {
+      "selector": ".timeline-track input[type=\"range\"]",
+      "label": "Seek timeline",
+      "height": 44
+    }
+  ],
+  "developerPanels": [
+    {
+      "width": 390,
+      "height": 844,
+      "infoOpen": false,
+      "samples": 390,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "infoOpen": true,
+      "samples": 390,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 390,
+      "height": 640,
+      "infoOpen": false,
+      "samples": 270,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 390,
+      "height": 640,
+      "infoOpen": true,
+      "samples": 270,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "infoOpen": false,
+      "samples": 780,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "infoOpen": true,
+      "samples": 780,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "infoOpen": false,
+      "samples": 735,
+      "covered": [],
+      "scrolledToEnd": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "infoOpen": true,
+      "samples": 735,
+      "covered": [],
+      "scrolledToEnd": true
+    }
+  ],
+  "keyboardFocus": {
+    "outlineStyle": "solid",
+    "outlineWidth": "2px"
+  },
+  "errors": []
+}

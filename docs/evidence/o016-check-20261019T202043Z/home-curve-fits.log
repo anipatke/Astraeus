@@ -1,0 +1,7 @@
+phone/no-preference: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+phone-small/no-preference: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+laptop/no-preference: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+phone/reduce: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+phone-small/reduce: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+laptop/reduce: ok (dots 325, km 423087/420056/422657, slider 44px, smallest text 12.48px)
+zero console errors

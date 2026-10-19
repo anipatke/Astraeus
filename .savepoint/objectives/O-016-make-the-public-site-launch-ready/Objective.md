@@ -1,7 +1,7 @@
 ---
 id: O-016
 title: Make the public site launch-ready
-status: in_progress
+status: done
 depends_on: []
 release: G-005
 ---
@@ -39,3 +39,5 @@ Owner decisions, 2026-10-20 (structured questions in the planning session):
 - The portfolio Astraeus page belongs to O-016 ("Should be part of O-16"). Scope is "fixes and wording both": broken links, wrong facts, a plain-words pass; no redesign ("Yes, write it up").
 - The Earth & Moon card is removed, since the Earth-Moon experience left the app in O-024 T-093 ("Remove the card"). The portfolio cards match the demos on the app's own front page.
 - The five Tasks T-057, T-058, T-060, T-063 and T-064 were closed by the owner on their CLEAR Task Checks ("Close five, plan portfolio"); the Full Objective Check still covers them.
+
+Owner closed O-016 on 2026-10-20 ("Close"), on C-087 CLEAR (supersedes C-086, C-085).

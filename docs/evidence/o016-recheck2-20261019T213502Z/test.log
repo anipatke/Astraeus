@@ -1,0 +1,231 @@
+
+> astraeus@0.1.0 test
+> vitest run --reporter=default --reporter=junit --outputFile.junit=junit.xml
+
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ✓ tests/bodyPackages.test.ts (8 tests) 415ms
+ ✓ tests/planetFits.test.ts (4 tests) 868ms
+   ✓ planet curve fits (4)
+     ✓ stay within 1 km of the full VSOP87A series from 1972 to 2045 (UTC, leap seconds included) 765ms
+stdout | tests/keplerShader.test.ts > the shader's structure > solves Kepler's equation to the 32-bit floor for every eccentricity up to 0.99 with the stated steps
+kepler solve worst, of a sqrt((1+e)/(1-e)) 2.7801170501097414e-7
+
+ ✓ tests/pointsKepler.test.ts (7 tests) 793ms
+   ✓ a large two-body group under a scaling policy is placed by the shader (7)
+     ✓ keeps the focus point and extent from exact fills, at a few of them rather than one per frame 597ms
+ ✓ tests/syntheticRing.test.ts (11 tests) 537ms
+ ✓ tests/viewLink.test.ts (6 tests) 292ms
+ ✓ tests/storyPanels.test.ts (50 tests) 339ms
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > holds the files the settings name, CC BY 4.0, with the two citations, hashes and the counts, and parses as the builder's input
+PER GMN COUNTS {"members":32234,"unbound":6619,"badSemiMajorAxis":0,"incomplete":27,"dropped":6646,"pairsFlagged":0,"rowsScanned":214156,"perMonth":{"202507":1896,"202508":30338},"kept":25588}
+
+ ✓ tests/jupiterMoonsEphemeris.test.ts (5 tests) 290ms
+ ✓ tests/listedOrbitGroup.test.ts (21 tests | 1 skipped) 898ms
+   ✓ listed orbit group performance (T-052 Done When 4) (3)
+     ✓ gives bit-identical output for the same input 427ms
+ ✓ tests/orbitLook.test.ts (15 tests) 2141ms
+   ✓ a composition path's orbit look (12)
+     ✓ draws an arc of the true path right after a clock jump, at load and mid-play 1549ms
+ ✓ tests/storyMarkers.test.ts (5 tests) 178ms
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's
+PER GMN SETS {"all":25588,"reliable":23335,"cut":2253}
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(i), all orbits: the median geocentric velocity is within 1 km/s of the MDC's 58.8
+[all] PER GMN median Vgeo = 58.63 km/s over 25588 orbits (MDC 58.8)
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(i), reliable orbits: the median geocentric velocity is within 1 km/s of the MDC's 58.8
+[reliable] PER GMN median Vgeo = 58.64 km/s over 23335 orbits (MDC 58.8)
+
+ ✓ tests/showersYearHorizons.test.ts (5 tests) 132ms
+ ✓ tests/sunCentred.test.ts (29 tests) 155ms
+ ✓ tests/paths.test.ts (36 tests) 2347ms
+   ✓ a tracked body's path is a relative trail (5)
+     ✓ draws the same vertices as the formula it replaced (centre moon, three times) 1518ms
+     ✓ draws the same vertices as the formula it replaced (centre sun, three times) 560ms
+stdout | tests/keplerShader.test.ts > shader twin against the group's own positions > matches a made-up group with eccentricities up to 0.99 across two years
+made-up e<=0.99 {"maxKm":186.49956158952116,"maxOfOrbit":1.6851721024669537e-7,"maxPx":0.01640520350550481,"worst":753}
+
+ ✓ tests/pointsGpuBlend.test.ts (2 tests) 112ms
+ ✓ tests/missionScene.test.ts (29 tests) 106ms
+ ✓ tests/jupiterIo.test.ts (12 tests) 104ms
+ ✓ tests/experiences.test.ts (34 tests) 133ms
+ ✓ tests/showers.test.ts (100 tests) 1450ms
+ ✓ tests/sceneTransforms.test.ts (23 tests) 97ms
+ ✓ tests/metricVisuals.test.ts (27 tests) 76ms
+ ✓ tests/swiftTuttle.test.ts (16 tests) 142ms
+ ✓ tests/sky.test.ts (21 tests) 77ms
+ ✓ tests/orbitGroup.test.ts (18 tests) 68ms
+ ✓ tests/pointsLayer.test.ts (26 tests) 73ms
+ ✓ tests/stateResolver.test.ts (21 tests) 50ms
+ ✓ tests/publicBuild.test.ts (18 tests) 73ms
+stdout | tests/pointsBlendCorner.test.ts > Geminids members near the Sun, half way between two fills > are drawn on their orbits by the shader and cut the corner under the blend
+near-Sun members checked 6424 blend km 3481918 px 5.24 shader km 43 px 0.0001
+
+ ✓ tests/pointsBlendCorner.test.ts (1 test) 3419ms
+   ✓ Geminids members near the Sun, half way between two fills (1)
+     ✓ are drawn on their orbits by the shader and cut the corner under the blend 3417ms
+ ✓ tests/longOrbitPaths.test.ts (13 tests) 55ms
+ ✓ tests/chebyshevEphemeris.test.ts (22 tests) 31ms
+ ✓ tests/pointsLookAheadShowers.test.ts (4 tests) 3597ms
+   ✓ Perseids fill look-ahead (1)
+     ✓ draws the same positions as whole fills and makes the later fills ahead of time 1354ms
+   ✓ Geminids fill look-ahead (1)
+     ✓ draws the same positions as whole fills and makes the later fills ahead of time 2238ms
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(ii), all orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 140.1 (J2000)
+[all] PER GMN busiest solar-longitude bin: 0.5 deg bin 140.0-140.5 (5747 orbits, centre 140.25); 1 deg bin 140-141 (6416); MDC 140.1
+
+ ✓ tests/hygStars.test.ts (8 tests) 57ms
+ ✓ tests/skyPicture.test.ts (4 tests) 46ms
+ ✓ tests/featureMarkers.test.ts (8 tests) 83ms
+ ✓ tests/storyStoriesAllDemos.test.ts (5 tests) 113ms
+ ✓ tests/homePage.test.ts (9 tests) 34ms
+ ✓ tests/moonOrbits.test.ts (10 tests) 53ms
+ ✓ tests/core.test.ts (15 tests) 34ms
+ ✓ tests/controls.test.ts (31 tests) 46ms
+ ✓ tests/jupiterMoonCatalogue.test.ts (6 tests) 41ms
+ ✓ tests/infoProvenance.test.ts (13 tests) 23ms
+ ✓ tests/experienceDefinition.test.ts (37 tests) 280ms
+ ✓ tests/iauRotation.test.ts (9 tests) 26ms
+ ✓ tests/orientationIllumination.test.ts (5 tests) 26ms
+stdout | tests/frameStats.test.ts > FrameStats > costs little per frame
+frameStats cost: tick 0.014 us/frame, snapshot 1.503 us/read (window 120)
+
+ ✓ tests/frameStats.test.ts (12 tests) 24ms
+ ✓ tests/experiencePlugIn.test.ts (16 tests) 68ms
+ ✓ tests/bodySet.test.ts (14 tests) 37ms
+ ✓ tests/browserDriverGuard.test.ts (4 tests) 21ms
+ ✓ tests/chebyshevFit.test.ts (11 tests) 18ms
+ ✓ tests/assets.test.ts (7 tests) 16ms
+ ✓ tests/fetchMeteoroidOrbits.test.ts (9 tests) 27ms
+stdout | tests/keplerShader.test.ts > Perseids shipped set > matches every member across the timeline
+perseids 25588 {"maxKm":3931074.9818218374,"maxOfOrbit":2.4893918882641624e-7,"maxPx":0.011732746934519629,"worst":7703}
+
+ ✓ tests/sampledTrajectory.test.ts (13 tests) 15ms
+ ✓ tests/compositions.test.ts (31 tests) 4184ms
+   ✓ tracked data and groups follow the scene centre (3)
+     ✓ a relative trail is drawn from each sample's own-time offset, and unchanged when the scene is Earth-centred 644ms
+   ✓ State is untouched by how a scene presents it (design E step 3) (3)
+     ✓ (i) is byte-identical for every body, time and centre whatever the scene centre, scale or camera 3443ms
+ ✓ tests/elementsBody.test.ts (44 tests) 25ms
+ ✓ tests/planets.test.ts (11 tests) 21ms
+ ✓ tests/viewUp.test.ts (6 tests) 11ms
+ ✓ tests/timeWindow.test.ts (21 tests) 15ms
+ ✓ tests/bodyMarkers.test.ts (12 tests) 22ms
+ ✓ tests/nameCheck.test.ts (5 tests) 12ms
+ ✓ tests/collapsible.test.ts (4 tests) 11ms
+ ✓ tests/sunLook.test.ts (8 tests) 11ms
+ ✓ tests/bootLoader.test.ts (4 tests) 11ms
+ ✓ tests/solarLongitudeConvention.test.ts (3 tests) 9ms
+ ✓ tests/phoneLayout.test.ts (6 tests) 6ms
+ ✓ tests/timeline.test.ts (19 tests) 15ms
+ ✓ tests/assetsPageCredits.test.ts (11 tests) 11ms
+ ✓ tests/showerChoice.test.ts (4 tests) 5ms
+ ✓ tests/layerRule.test.ts (3 tests) 5ms
+ ✓ tests/focusPreset.test.ts (2 tests) 4ms
+ ✓ tests/browserDriverScale.test.ts (3 tests) 5ms
+ ✓ tests/textureLicence.test.ts (3 tests) 5ms
+ ✓ tests/startCamera.test.ts (3 tests) 2ms
+ ✓ tests/moonFamilyPanel.test.ts (7 tests) 8ms
+ ✓ tests/jupiterMoonsScene.test.ts (5 tests) 10ms
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(ii), reliable orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 140.1 (J2000)
+[reliable] PER GMN busiest solar-longitude bin: 0.5 deg bin 140.0-140.5 (5225 orbits, centre 140.25); 1 deg bin 140-141 (5830); MDC 140.1
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(iii), all orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak
+[all] PER GMN DW3 mean distance of the 100 nearest ellipses smallest on 2020-08-12 (0.00005 AU), fitted minimum 2020-08-12T13:23:16.562Z, -0.10 days from the published peak 2020-08-12T15:41:56.305Z
+[all] PER GMN DW3 most ellipses within 0.01 AU of Earth (6886) on 2020-08-12; nearest single ellipse 0.000018 AU
+[all] PER GMN DW3 daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 08-06 134.3 0.00046 853 | 08-07 135.3 0.00031 899 | 08-08 136.3 0.00022 838 | 08-09 137.2 0.00014 1226 | 08-10 138.2 0.00012 1818 | 08-11 139.1 0.00008 3304 | 08-12 140.1 0.00005 6886 | 08-13 141.1 0.00010 2724 | 08-14 142.0 0.00012 1980 | 08-15 143.0 0.00013 1092 | 08-16 143.9 0.00025 809 | 08-17 144.9 0.00039 532 | 08-18 145.9 0.00043 405
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(iii), reliable orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak
+[reliable] PER GMN DW3 mean distance of the 100 nearest ellipses smallest on 2020-08-12 (0.00005 AU), fitted minimum 2020-08-12T14:24:16.097Z, -0.05 days from the published peak 2020-08-12T15:41:56.305Z
+[reliable] PER GMN DW3 most ellipses within 0.01 AU of Earth (6279) on 2020-08-12; nearest single ellipse 0.000018 AU
+[reliable] PER GMN DW3 daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 08-06 134.3 0.00055 786 | 08-07 135.3 0.00039 830 | 08-08 136.3 0.00024 785 | 08-09 137.2 0.00016 1142 | 08-10 138.2 0.00012 1665 | 08-11 139.1 0.00010 2945 | 08-12 140.1 0.00005 6279 | 08-13 141.1 0.00011 2432 | 08-14 142.0 0.00013 1826 | 08-15 143.0 0.00015 995 | 08-16 143.9 0.00025 753 | 08-17 144.9 0.00041 490 | 08-18 145.9 0.00049 372
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(iv), all orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant
+[all] PER GMN DW3 11251 members within 0.02 AU of Earth at 2020-08-12T15:41:56.305Z; radiant RA 47.82 Dec 57.85, geocentric speed median 58.76 km/s; separation 0.06 deg from RA 47.9 Dec 57.9
+
+stdout | tests/showersMeasured.test.ts > Perseids from the shipped GMN orbits > DW3(iv), reliable orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant
+[reliable] PER GMN DW3 10118 members within 0.02 AU of Earth at 2020-08-12T15:41:56.305Z; radiant RA 47.82 Dec 57.86, geocentric speed median 58.77 km/s; separation 0.06 deg from RA 47.9 Dec 57.9
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > holds the files the settings name, CC BY 4.0, with the two citations, hashes and the counts, and parses as the builder's input
+GEM GMN COUNTS {"members":51156,"unbound":0,"badSemiMajorAxis":0,"incomplete":41,"dropped":41,"pairsFlagged":0,"rowsScanned":207384,"perMonth":{"202412":13814,"202512":37342},"kept":51115}
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's
+GEM GMN SETS {"all":51115,"reliable":46828,"cut":4287}
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(i), all orbits: the median geocentric velocity is within 1 km/s of the MDC's 33.8
+[all] GEM GMN median Vgeo = 33.84 km/s over 51115 orbits (MDC 33.8)
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(i), reliable orbits: the median geocentric velocity is within 1 km/s of the MDC's 33.8
+[reliable] GEM GMN median Vgeo = 33.84 km/s over 46828 orbits (MDC 33.8)
+
+stdout | tests/keplerShader.test.ts > Geminids shipped set > matches every member across the timeline
+geminids 51115 {"maxKm":103.13234921957962,"maxOfOrbit":1.1186849552701965e-7,"maxPx":0.0017571977641139375,"worst":50944}
+
+ ✓ tests/keplerShader.test.ts (6 tests) 7789ms
+   ✓ the 64-bit fill from the elements (1)
+     ✓ reproduces the group's own positions to a part in 10^9, on a made-up group and both shipped sets 1532ms
+   ✓ shader twin against the group's own positions (1)
+     ✓ matches a made-up group with eccentricities up to 0.99 across two years 427ms
+   ✓ Perseids shipped set (1)
+     ✓ matches every member across the timeline 2500ms
+   ✓ Geminids shipped set (1)
+     ✓ matches every member across the timeline 3263ms
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(ii), all orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 261.6 (J2000)
+[all] GEM GMN busiest solar-longitude bin: 0.5 deg bin 261.5-262.0 (12563 orbits, centre 261.75); 1 deg bin 261-262 (20028); MDC 261.6
+
+ ✓ tests/pointsLookAhead.test.ts (11 tests) 11216ms
+   ✓ fill look-ahead on a large group (11)
+     ✓ plays forward with the same positions as whole fills, making only the first two fills whole 2608ms
+     ✓ plays backward with the same positions, making only the first two fills whole 2167ms
+     ✓ never draws a half-finished fill: positions at every frame equal whole fills while a slice is mid-way 1503ms
+     ✓ drops the work and keeps exact positions when the clock turns round 2351ms
+     ✓ matches whole fills across a scale change mid-fill 1664ms
+     ✓ stops at the end of the bounds without a fill past it 395ms
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(ii), reliable orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 261.6 (J2000)
+[reliable] GEM GMN busiest solar-longitude bin: 0.5 deg bin 261.5-262.0 (11406 orbits, centre 261.75); 1 deg bin 261-262 (18273); MDC 261.6
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(iii), all orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak
+[all] GEM GMN DW3 mean distance of the 100 nearest ellipses smallest on 2019-12-15 (0.00003 AU), fitted minimum 2019-12-14T17:05:22.202Z, 0.52 days from the published peak 2019-12-14T04:33:32.693Z
+[all] GEM GMN DW3 most ellipses within 0.01 AU of Earth (26754) on 2019-12-14; nearest single ellipse 0.000005 AU
+[all] GEM GMN DW3 daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 12-08 255.5 0.00192 331 | 12-09 256.5 0.00086 619 | 12-10 257.5 0.00065 1145 | 12-11 258.6 0.00021 2177 | 12-12 259.6 0.00015 3816 | 12-13 260.6 0.00011 10971 | 12-14 261.6 0.00005 26754 | 12-15 262.6 0.00003 18571 | 12-16 263.6 0.00115 1385 | 12-17 264.7 0.00364 212 | 12-18 265.7 0.00945 48 | 12-19 266.7 0.02132 13 | 12-20 267.7 0.03672 0
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(iii), reliable orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak
+[reliable] GEM GMN DW3 mean distance of the 100 nearest ellipses smallest on 2019-12-15 (0.00003 AU), fitted minimum 2019-12-14T17:07:38.782Z, 0.52 days from the published peak 2019-12-14T04:33:32.693Z
+[reliable] GEM GMN DW3 most ellipses within 0.01 AU of Earth (24476) on 2019-12-14; nearest single ellipse 0.000005 AU
+[reliable] GEM GMN DW3 daily table (UTC date, solar longitude, mean of 100 nearest AU, ellipses within 0.01 AU): 12-08 255.5 0.00204 290 | 12-09 256.5 0.00092 566 | 12-10 257.5 0.00068 1071 | 12-11 258.6 0.00026 2051 | 12-12 259.6 0.00016 3542 | 12-13 260.6 0.00013 10144 | 12-14 261.6 0.00006 24476 | 12-15 262.6 0.00003 16943 | 12-16 263.6 0.00128 1257 | 12-17 264.7 0.00386 202 | 12-18 265.7 0.00992 45 | 12-19 266.7 0.02193 12 | 12-20 267.7 0.03733 0
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(iv), all orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant
+[all] GEM GMN DW3 41310 members within 0.02 AU of Earth at 2019-12-14T04:33:32.693Z; radiant RA 113.17 Dec 32.40, geocentric speed median 33.93 km/s; separation 0.14 deg from RA 113 Dec 32.4
+
+stdout | tests/showersMeasured.test.ts > Geminids from the shipped GMN orbits > DW3(iv), reliable orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant
+[reliable] GEM GMN DW3 37774 members within 0.02 AU of Earth at 2019-12-14T04:33:32.693Z; radiant RA 113.16 Dec 32.41, geocentric speed median 33.92 km/s; separation 0.14 deg from RA 113 Dec 32.4
+
+stdout | tests/showersMeasured.test.ts > Perseids: the member records, the clump and the drawing > puts a stated share of the dots at the parent's orbital phase and the rest evenly round their orbits
+CLUMP illustrative fraction=0.3 widthDeg=20 nearShare=0.3778 cometMeanAnomalyDeg=74.73
+
+stdout | tests/showersMeasured.test.ts > Perseids: the member records, the clump and the drawing > fills every dot quickly enough to draw them all (an indication only; the frame rate on the owner's machine is the owner's to measure)
+FILL 25588 members: 22.0 ms per exact fill
+
+ ✓ tests/showersMeasured.test.ts (27 tests) 15596ms
+   ✓ Perseids from the shipped GMN orbits (10)
+     ✓ is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's 584ms
+     ✓ DW3(ii), all orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 140.1 (J2000) 1954ms
+     ✓ DW3(ii), reliable orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 140.1 (J2000) 1651ms
+     ✓ DW3(iii), all orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak 845ms
+     ✓ DW3(iii), reliable orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak 817ms
+   ✓ Geminids from the shipped GMN orbits (10)
+     ✓ is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's 386ms
+     ✓ DW3(ii), all orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 261.6 (J2000) 2261ms
+     ✓ DW3(ii), reliable orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's 261.6 (J2000) 2003ms
+     ✓ DW3(iii), all orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak 2119ms
+     ✓ DW3(iii), reliable orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak 1918ms
+ ✓ tests/apollo11Reconstruction.test.ts (30 tests) 30571ms
+
+ Test Files  77 passed (77)
+      Tests  1123 passed | 1 skipped (1124)
+   Start at  08:35:11
+   Duration  31.30s (tests 68%, transform 17%, import 9%, setup 6%)
+
+JUNIT report written to /home/user/code/Astraeus/junit.xml

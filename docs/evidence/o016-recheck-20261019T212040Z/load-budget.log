@@ -1,0 +1,7 @@
+ok   index.html: 13 files, 410463 B raw (limit 600000), 367851 B gzip (limit 530000)
+ok   assets.html: 10 files, 260783 B raw (limit 274000), 223816 B gzip (limit 240000)
+ok   app.html (Apollo 11): 10 files, 4152896 B raw (limit 4370000), 2755737 B gzip (limit 2900000)
+ok   app.html?experience=jupiter-io: 41 files, 6616656 B raw (limit 6960000), 4576702 B gzip (limit 4810000)
+ok   app.html?experience=showers: 18 files, 9595799 B raw (limit 10090000), 6704599 B gzip (limit 7050000)
+ok   app.html?experience=showers&shower=geminids: 18 files, 12080272 B raw (limit 12700000), 7510809 B gzip (limit 7900000)
+ok   whole build: 75 files, 24127498 B raw (limit 25360000), 16706251 B gzip (limit 17560000)

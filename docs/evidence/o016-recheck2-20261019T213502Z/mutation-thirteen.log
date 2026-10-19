@@ -1,0 +1,36 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ❯ tests/assetsPageCredits.test.ts (11 tests | 1 failed) 13ms
+   ❯ assets page credits match the AssetLicence records (T-064) (11)
+     × the Story panels row gives the panel total and badge counts the story files hold 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/assetsPageCredits.test.ts > assets page credits match the AssetLicence records (T-064) > the Story panels row gives the panel total and badge counts the story files hold
+AssertionError: expected '<h3>story panels</h3><span class="sub…' to contain 'twelve panels are marked observed, th…'
+
+- Expected
++ Received
+
+- twelve panels are marked observed, three modelled and one illustrative
++ <h3>story panels</h3><span class="sub">apollo 11 · perseids · geminids · jupiter and io · written for these demos</span></div>
++           <p>seven panels for apollo 11 and three each for the perseids, the geminids and jupiter and io. each opens when playback reaches its moment, wears one of the three badges, and lists its sources. thirteen panels are marked observed, three modelled and one illustrative.</p>
++           <div><span class="num">16<small>panels</small></span>
+
+ ❯ tests/assetsPageCredits.test.ts:116:31
+    114|     expect(row).toContain(`<span class="num">${panels.length}<small>pa…
+    115|     const sentence = `${words[count("observed")]} panels are marked ob…
+    116|     expect(row.toLowerCase()).toContain(sentence);
+       |                               ^
+    117|     expect(count("observed") + count("modelled") + count("illustrative…
+    118|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  08:35:02
+   Duration  491ms (transform 76%, setup 12%, import 8%, tests 3%, worker 1%)
+

@@ -2,8 +2,7 @@
 id: T-106
 title: Fix the links and wording on the portfolio's Astraeus page
 objective: O-016
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o016-portfolio-planning-20261020}

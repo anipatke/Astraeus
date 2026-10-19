@@ -14,9 +14,9 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 
 | | |
 |---|---|
-| ![Apollo 11's free-return path from above, Earth and the Moon with the touchdown story panel open](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
+| ![Apollo 11's free-return path from above, Earth and the Moon](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
 | **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. Seven story panels. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. Three story panels. |
-| [Try it](https://astraeus.curiouscode.ai/app.html) (going live soon) | [Try it](https://astraeus.curiouscode.ai/app.html?experience=showers) (going live soon) |
+| [Try it](https://astraeus.anipatke.com/app.html) (going live soon) | [Try it](https://astraeus.anipatke.com/app.html?experience=showers) (going live soon) |
 
 <sub>Perseids image: orbits from the Global Meteor Network, CC BY 4.0.</sub>
 
@@ -36,7 +36,7 @@ A story can list short panels in a JSON file: [Apollo 11 has seven](data/stories
 
 ## A shower is a settings file
 
-The Geminids are one JSON file, [`data/showers/geminids.json`](data/showers/geminids.json). The code has no Geminid-specific lines. A new file in that folder becomes `?experience=shower-<name>`.
+The Geminids are one JSON file, [`data/showers/geminids.json`](data/showers/geminids.json). The code has no Geminid-specific lines. A new file in that folder becomes `?experience=showers&shower=<name>`; `?experience=showers` opens the first shower.
 
 ```json
 {
@@ -107,17 +107,17 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 
 `ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node tools/validate/public-build-assets.mjs` then checks that none of them, and nothing from `data/local/`, is in `dist/`.
 
-**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-17 (the index page and whole-build rows re-measured after the three new home-page demo pictures, T-074), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"). Each limit is the measurement plus 5%, rounded up to the next 10 kB; a change that makes a page heavier raises its limit on purpose, with the new measurement.
+**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-20 (after planets became curve fits), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"). The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. A change that makes a page heavier raises its limit on purpose, with the new measurement.
 
 | Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
 |---|---|---|---|---|
-| `index.html` | 567,702 B | 600,000 B | 503,261 B | 530,000 B |
-| `assets.html` | 244,750 B | 260,000 B | 220,942 B | 240,000 B |
-| `app.html` (Apollo 11) | 4,038,691 B | 4,250,000 B | 2,720,311 B | 2,860,000 B |
-| `app.html?experience=jupiter-io` | 3,802,109 B | 4,000,000 B | 1,894,220 B | 1,990,000 B |
-| `app.html?experience=showers` | 10,648,446 B | 11,190,000 B | 7,072,612 B | 7,430,000 B |
-| `app.html?experience=showers&shower=geminids` | 13,132,919 B | 13,790,000 B | 7,878,822 B | 8,280,000 B |
-| whole build | 21,427,066 B | 22,500,000 B | 14,148,373 B | 14,860,000 B |
+| `index.html` | 410,463 B | 600,000 B | 367,851 B | 530,000 B |
+| `assets.html` | 260,783 B | 274,000 B | 223,816 B | 240,000 B |
+| `app.html` (Apollo 11) | 4,152,896 B | 4,370,000 B | 2,755,737 B | 2,900,000 B |
+| `app.html?experience=jupiter-io` | 6,616,656 B | 6,960,000 B | 4,576,702 B | 4,810,000 B |
+| `app.html?experience=showers` | 9,595,799 B | 10,090,000 B | 6,704,599 B | 7,050,000 B |
+| `app.html?experience=showers&shower=geminids` | 12,080,272 B | 12,700,000 B | 7,510,809 B | 7,900,000 B |
+| whole build | 24,127,498 B | 25,360,000 B | 16,706,251 B | 17,560,000 B |
 
 The browser checks in `tools/validate/` drive the app in headless Chromium through `playwright-core`, which `npm install` adds. Install the browser once with `npx playwright-core install chromium`, start `npm run dev -- --port 5199`, then run for example `node tools/validate/browser-shell.mjs`. Set `ASTRAEUS_URL` to point a script at another address and `PLAYWRIGHT_CORE` to use another copy of the library.
 
@@ -125,7 +125,7 @@ Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/AST
 
 ## Assets, science and credits
 
-Everything the demos draw, with its source, licence and whether it can go public. The same list, with pictures, is on the [assets page](https://astraeus.curiouscode.ai/assets.html).
+Everything the demos draw, with its source, licence and whether it can go public. The same list, with pictures, is on the [assets page](https://astraeus.anipatke.com/assets.html).
 
 **The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
 
@@ -174,7 +174,7 @@ Astraeus is an experiment, built in spikes. Each spike tests one claim about the
 - Story panels in the Apollo 11 and Perseids demos, and shareable view links.
 
 **Next**
-- Put the demos live at astraeus.curiouscode.ai.
+- Put the demos live at astraeus.anipatke.com.
 
 **Later**
 - Package the engine so others can build a story on it.
