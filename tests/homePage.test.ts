@@ -31,7 +31,7 @@ describe("home page demo cards (O-017 T-074)", () => {
 
   it("names all three in the share text", () => {
     const share = /<meta property="og:description" content="([^"]+)">/.exec(html)?.[1] ?? "";
-    for (const name of ["Apollo 11", "meteor showers", "Jupiter and Io"]) expect(share).toContain(name);
+    for (const name of ["Apollo 11", "meteor showers", "the planets with their moons"]) expect(share).toContain(name);
   });
 });
 

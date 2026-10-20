@@ -7,7 +7,7 @@
 <link rel="canonical" href="https://astraeus.anipatke.com/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Astraeus">
-<meta property="og:description" content="Real space data you can fly through, in three demos on one engine: Apollo 11, the meteor showers, and Jupiter and Io.">
+<meta property="og:description" content="Real space data you can fly through, in three demos on one engine: Apollo 11, the meteor showers, and the planets with their moons.">
 <meta property="og:url" content="https://astraeus.anipatke.com/">
 <meta property="og:image" content="https://astraeus.anipatke.com/share/apollo-moon.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -93,7 +93,7 @@ h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
 .tag { font-family: var(--mono); font-size: 0.68rem; color: var(--body); border: 1px solid var(--rule-strong); border-radius: 999px; padding: 2px 9px; }
 
 /* Asset shelf */
-.globes { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+.globes { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 14px; }
 .globe { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; text-align: center; }
 .ball { width: 100%; max-width: 104px; aspect-ratio: 1; border-radius: 50%; background-size: 200% 100%; background-position: 30% 50%; position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
 .ball::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,0.18), transparent 40%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.55), transparent 62%); }
@@ -103,6 +103,8 @@ h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
 .ball.pending { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 6px, transparent 6px 12px), #0d0d11; box-shadow: 0 0 0 1px dashed var(--rule-strong); border: 1px dashed var(--rule-strong); }
 .globe b { font-size: 0.88rem; color: var(--ink); font-weight: 500; }
 .globe span { font-family: var(--mono); font-size: 0.64rem; color: var(--faint); letter-spacing: 0.04em; }
+.globe a.moons { font-family: var(--mono); font-size: 0.68rem; color: var(--body); border-bottom: 1px solid var(--rule-strong); padding: 4px 0; letter-spacing: 0.02em; }
+.globe a.moons:hover { color: var(--ink); border-color: var(--ink); }
 .shelf2 { margin-top: 26px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
 .tile { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); overflow: hidden; min-width: 0; display: flex; flex-direction: column; }
 .tile img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; background: #050507; }
@@ -174,7 +176,7 @@ footer a:hover { color: var(--ink); }
   .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; }
   .layers li + li { border-left: 0; padding-left: 0; }
   .layers li:nth-child(even) { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
-  .globes { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 22px; }
+  .globes { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 22px; }
   .shelf2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .shelf2 .tile:first-child { grid-column: 1 / -1; }
   .demos { grid-template-columns: minmax(0, 1fr); }
@@ -185,6 +187,7 @@ footer a:hover { color: var(--ink); }
   .layers { grid-template-columns: minmax(0, 1fr); }
   .layers li:nth-child(even) { border-left: 0; padding-left: 0; }
   .shelf2 { grid-template-columns: minmax(0, 1fr); }
+  .globes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .demo { grid-template-columns: minmax(0, 1fr); }
   .shot { aspect-ratio: 16 / 9; min-height: 0; }
   .proof li { padding-inline: 14px 0; }
@@ -288,15 +291,17 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
         <h2>The shelf, <span class="spec">ready to use.</span></h2>
         <p>Bodies, sky and data that ship with the engine's demos, each with its source and licence on record.</p>
       </div>
-      <div class="globes" aria-label="Bodies">
+      <div class="globes" aria-label="The Sun and the nine planets">
         <div class="globe"><div class="ball sun" style="background-image:url(site/t-sun-2k.jpg)"></div><b>Sun</b><span>CC BY 4.0</span></div>
         <div class="globe"><div class="ball" style="background-image:url(site/t-mercury-2k.jpg)"></div><b>Mercury</b><span>CC BY 4.0</span></div>
         <div class="globe"><div class="ball" style="background-image:url(site/t-venus-2k.jpg)"></div><b>Venus</b><span>CC BY 4.0</span></div>
-        <div class="globe"><div class="ball" style="background-image:url(site/t-earth-bmng.jpg)"></div><b>Earth</b><span>NASA Earth Observatory</span></div>
-        <div class="globe"><div class="ball" style="background-image:url(site/t-moon-lroc.jpg)"></div><b>Moon</b><span>NASA SVS</span></div>
-        <div class="globe"><div class="ball" style="background-image:url(site/t-mars-2k.jpg)"></div><b>Mars</b><span>CC BY 4.0</span></div>
-        <div class="globe"><div class="ball" style="background-image:url(site/t-jupiter-2k.jpg)"></div><b>Jupiter</b><span>CC BY 4.0</span></div>
-        <div class="globe"><div class="ball" style="background-image:url(site/t-io-2k.jpg)"></div><b>Io</b><span>public domain</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-earth-bmng.jpg)"></div><b>Earth</b><span>NASA Earth Observatory</span><a class="moons" href="assets.html#pic-moon">+1 moon</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-mars-2k.jpg)"></div><b>Mars</b><span>CC BY 4.0</span><a class="moons" href="assets.html#moons-mars">+2 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-jupiter-2k.jpg)"></div><b>Jupiter</b><span>CC BY 4.0</span><a class="moons" href="assets.html#moons-jupiter">+115 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-saturn-2k.jpg)"></div><b>Saturn</b><span>CC BY 4.0</span><a class="moons" href="assets.html#moons-saturn">+292 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-uranus-2k.jpg)"></div><b>Uranus</b><span>CC BY 4.0</span><a class="moons" href="assets.html#moons-uranus">+28 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-neptune-2k.jpg)"></div><b>Neptune</b><span>CC BY 4.0</span><a class="moons" href="assets.html#moons-neptune">+16 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(site/t-pluto-4k.jpg)"></div><b>Pluto</b><span>NASA/JPL</span><a class="moons" href="assets.html#moons-pluto">+5 moons</a></div>
       </div>
       <div class="shelf2">
         <a class="tile" href="assets.html"><img src="site/t-milky-way.jpg" alt="The ESO Milky Way panorama"><div class="tile-body"><small>SKY</small><b>Real stars and the Milky Way</b><p>8,920 naked-eye stars from the HYG catalogue, and ESO's panorama in the same frame.</p></div></a>
@@ -311,7 +316,7 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
     <div class="wrap">
       <div class="head">
         <h2>Built with it.</h2>
-        <p>Three experiences, from a Moon landing to two meteor showers to a pair of worlds, on the same engine with no special cases. Open Developer mode in any of them to see what's underneath, or to copy a link to the exact view on screen.</p>
+        <p>Three experiences, from a Moon landing to two meteor showers to every planet and its moons, on the same engine with no special cases. Open Developer mode in any of them to see what's underneath, or to copy a link to the exact view on screen.</p>
       </div>
       <div class="demos">
         <a class="demo" href="app.html">
@@ -334,13 +339,13 @@ moon.<span class="g">stateAt</span>(Date.<span class="g">parse</span>(<span clas
             <span class="go">Open</span>
           </div>
         </a>
-        <a class="demo" href="app.html?experience=jupiter-io">
+        <a class="demo" href="app.html?experience=planets">
           <div class="shot"><img src="site/jupiter-io.jpg" alt="Jupiter's banded clouds half in sunlight, with Io in front on its orbit, its volcanic surface mapped, over the real star sky."></div>
           <div class="demo-body">
             <span class="eyebrow">November 2016</span>
-            <h3>Jupiter and Io</h3>
-            <p>Jupiter and its moons, a centre that is neither Earth nor the Sun. The view opens on Jupiter and lists its 115 known moons by family, with Io, Europa, Ganymede and Callisto mapped. Io goes round in about 42 hours, and its position comes from the JPL Horizons curve fits described above.</p>
-            <div class="uses"><span class="tag">catalogue only</span><span class="tag">true scale</span><span class="tag">moon of another planet</span></div>
+            <h3>The planets and their moons</h3>
+            <p>A switch in the top bar picks any planet from Mercury to Pluto, and the view opens centred on it with its tagged places. Every known moon sits on its real orbit: 14 as mapped globes, the rest as dots in family colours, and Saturn, Uranus and Neptune carry their rings. Jupiter keeps its story panels, and Io's position comes from the JPL Horizons curve fits described above.</p>
+            <div class="uses"><span class="tag">nine planets</span><span class="tag">every known moon</span><span class="tag">true scale</span></div>
             <span class="go">Open</span>
           </div>
         </a>

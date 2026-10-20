@@ -24,8 +24,10 @@ const SHOWER_COMMON = ["showerDefinition.js", "bodyMetrics.js", "events.js", "li
  * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
 export const PAGES = [
+  // T-120 (O-033): index.html measured 399,236 B raw / 352,149 B gzip (14 files) on 2026-10-21, against 410,463 / 367,851 (13 files) before: the four new planet thumbnails (36,448 B) replace the Moon and Io ones, so the page got lighter and the standing limit is left as it was.
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
-  { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 274_000, gzipLimit: 240_000 },
+  // T-120 (O-033), raised on purpose: assets.html grew from the old limit to 629,684 B raw / 493,085 B gzip (22 files) measured 2026-10-21 with its 13 new body thumbnails (site/t-*.jpg, about 300 KB, lazy-loaded), the generated moon lists for five planets (343 moons) and the tagged-places list (403 places). New limit: that measurement plus 5%, rounded up to the next 10,000 bytes.
+  { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).

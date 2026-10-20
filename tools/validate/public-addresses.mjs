@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export const DEMO_ADDRESSES = ["app.html", "app.html?experience=showers", "app.html?experience=jupiter-io"];
+export const DEMO_ADDRESSES = ["app.html", "app.html?experience=showers", "app.html?experience=planets"];
 /** Addresses that no page may link any more. */
 export const RETIRED_ADDRESSES = ["experience=earth-moon", "experience=shower-perseids", "experience=shower-geminids"];
 

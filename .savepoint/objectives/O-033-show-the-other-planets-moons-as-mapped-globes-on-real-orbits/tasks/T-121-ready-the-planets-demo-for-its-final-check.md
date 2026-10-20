@@ -2,7 +2,8 @@
 id: T-121
 title: Ready the planets demo for its final check
 objective: O-033
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-120, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o033-planning-20261020}

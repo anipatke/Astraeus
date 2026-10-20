@@ -28,6 +28,15 @@ const bodyRecord = (id: string): AssetLicence => {
   if (licence === undefined) throw new Error(`${id} has no texture licence`);
   return licence;
 };
+/** The short label a row or card shows for a full licence string in a record; a record with any other licence fails the test. */
+const SHORT_LICENCE: Readonly<Record<string, string>> = {
+  "NASA/JPL image use policy: credit required (donor credits list: NASA/JPL, attribution required)": "NASA/JPL",
+  "USGS use constraint: please cite authors": "Cite authors",
+};
+const shortLicence = (licence: string): string => {
+  if (!/^(CC BY|public domain)/i.test(licence) && SHORT_LICENCE[licence] === undefined) throw new Error(`no short label for the licence "${licence}"`);
+  return SHORT_LICENCE[licence] ?? licence;
+};
 const stripUrl = (url: string): string => url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
 
 interface Claim {
@@ -46,6 +55,12 @@ const claims: readonly Claim[] = [
   { row: "Sun, Mercury, Venus, Mars, Jupiter maps", records: ["sun", "mercury", "venus", "mars", "jupiter"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
   { row: "Io map", records: [bodyRecord("io")], credit: ["USGS Astrogeology Science Center", "NASA/JPL Galileo and Voyager missions"], linked: false },
   { row: "Earth map", records: [bodyRecord("earth")], credit: ["NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli)"], linked: true },
+  // T-120: the maps added by O-033. Each row's short licence label stands for the full record string, named in SHORT_LICENCE.
+  { row: "Saturn, Uranus, Neptune maps", records: ["saturn", "uranus", "neptune"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
+  { row: "Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus maps", records: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"].map(bodyRecord), credit: ["NASA/JPL-Caltech/Space Science Institute"], linked: false },
+  { row: "Triton map", records: [bodyRecord("triton")], credit: ["NASA/JPL-Caltech/Lunar & Planetary Institute"], linked: false },
+  { row: "Pluto map", records: [bodyRecord("pluto")], credit: ["NASA/JHUAPL/SwRI"], linked: true },
+  { row: "Charon map", records: [bodyRecord("charon")], credit: ["USGS Astrogeology"], linked: false },
   { row: "Moon map", records: [bodyRecord("moon")], credit: ["NASA's Scientific Visualization Studio"], linked: true },
   { row: "Bright stars", records: [HYG_STAR_LICENCE], credit: ["HYG database v4.2", "astronexus"], linked: true },
 ];
@@ -61,7 +76,7 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
       const row = rows.get(claim.row);
       if (row === undefined) throw new Error(`no credit row "${claim.row}"`);
       for (const record of claim.records) {
-        expect(row.licence.toLowerCase(), record.source).toBe(record.licence.toLowerCase());
+        expect(row.licence.toLowerCase(), record.source).toBe(shortLicence(record.licence).toLowerCase());
         for (const words of claim.credit) {
           expect(record.attribution ?? "", `record for ${claim.row} lacks "${words}"`).toContain(words);
           expect(row.text, `page row ${claim.row} lacks "${words}"`).toContain(words);
@@ -95,9 +110,9 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
     const pictures = html.slice(html.indexOf("<h2>Surface pictures</h2>"), html.indexOf("<h2>Where things are</h2>"));
     const cards = new Map<string, string>();
     for (const m of pictures.matchAll(/<h3>(\w+)<\/h3>.*?<div class="meta"><span>(.*?)<\/span>/g)) cards.set(m[1].toLowerCase(), decode(m[2]));
-    expect([...cards.keys()]).toEqual(["sun", "mercury", "venus", "earth", "moon", "mars", "jupiter", "io"]);
+    expect([...cards.keys()]).toEqual(["sun", "mercury", "venus", "earth", "moon", "mars", "jupiter", "io", "saturn", "uranus", "neptune", "pluto", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     for (const [id, chip] of cards) {
-      const licence = bodyRecord(id).licence;
+      const licence = shortLicence(bodyRecord(id).licence);
       // The NASA maps carry the short label "NASA" for their public-domain record.
       const expected = licence === "public domain" && (id === "earth" || id === "moon") ? "NASA" : licence;
       expect(chip.toLowerCase(), id).toBe(expected.toLowerCase());
