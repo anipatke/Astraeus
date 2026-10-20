@@ -1,0 +1,8 @@
+smoke | scene=planets (Jupiter) + catalogue page | exit=0 | 14:00:52-14:01:11 | 19s | error-lines=0
+jupiter-io | scene=? | exit=0 | 14:01:11-14:03:39 | 148s | error-lines=0
+moon-panel | scene=? | exit=0 | 14:03:39-14:04:28 | 49s | error-lines=0
+jupiter-tap | scene=? | exit=0 | 14:04:28-14:04:38 | 10s | error-lines=0
+story-panels | scene=? | exit=0 | 14:04:38-14:04:55 | 17s | error-lines=0
+outer-planets | scene=planets: Saturn, Uranus, Pluto (desktop and phone) | exit=1 | 14:04:55-14:04:57 | 3s | error-lines=0
+planet-switch | scene=planets: Mercury to Mars (desktop and phone) | exit=0 | 14:04:57-14:05:11 | 14s | error-lines=0
+total 260s (servers and public build included)

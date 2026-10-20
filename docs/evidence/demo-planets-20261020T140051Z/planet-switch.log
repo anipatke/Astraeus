@@ -1,0 +1,43 @@
+{
+  "results": {
+    "planet-switch laptop": {
+      "switchOptions": [
+        "mercury",
+        "venus",
+        "earth",
+        "mars",
+        "jupiter",
+        "saturn",
+        "uranus",
+        "neptune",
+        "pluto"
+      ],
+      "marsBodies": [
+        "mars",
+        "phobos",
+        "deimos"
+      ],
+      "place": "mars:olympus-mons"
+    },
+    "planet-switch phone": {
+      "switchOptions": [
+        "mercury",
+        "venus",
+        "earth",
+        "mars",
+        "jupiter",
+        "saturn",
+        "uranus",
+        "neptune",
+        "pluto"
+      ],
+      "marsBodies": [
+        "mars",
+        "phobos",
+        "deimos"
+      ],
+      "place": "mars:olympus-mons"
+    }
+  },
+  "errors": []
+}

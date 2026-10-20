@@ -1,0 +1,18 @@
+{
+  "url": "http://localhost:5479/app.html?experience=synthetic",
+  "viewports": [
+    "1280x800",
+    "390x844"
+  ],
+  "infoProvenance": [
+    "survey-marker"
+  ],
+  "events": 2,
+  "cameraModes": [
+    "overview",
+    "focus",
+    "follow"
+  ],
+  "labels": 2,
+  "errors": []
+}

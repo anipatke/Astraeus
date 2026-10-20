@@ -1,0 +1,174 @@
+{
+  "distDir": "/tmp/astraeus-check-tnIr6X/public",
+  "loadBudget": {
+    "ok": true,
+    "pages": [
+      {
+        "id": "index.html",
+        "files": 14,
+        "raw": 399236,
+        "gzip": 352149,
+        "rawLimit": 600000,
+        "gzipLimit": 530000,
+        "problems": []
+      },
+      {
+        "id": "assets.html",
+        "files": 22,
+        "raw": 629684,
+        "gzip": 493085,
+        "rawLimit": 670000,
+        "gzipLimit": 520000,
+        "problems": []
+      },
+      {
+        "id": "app.html (Apollo 11)",
+        "files": 11,
+        "raw": 4195338,
+        "gzip": 2766075,
+        "rawLimit": 4370000,
+        "gzipLimit": 2900000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=jupiter",
+        "files": 44,
+        "raw": 6781196,
+        "gzip": 4659946,
+        "rawLimit": 7130000,
+        "gzipLimit": 4900000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=saturn",
+        "files": 53,
+        "raw": 23317280,
+        "gzip": 20240166,
+        "rawLimit": 24490000,
+        "gzipLimit": 21260000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=uranus",
+        "files": 39,
+        "raw": 4090623,
+        "gzip": 2396574,
+        "rawLimit": 4300000,
+        "gzipLimit": 2520000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=neptune",
+        "files": 28,
+        "raw": 4383685,
+        "gzip": 2783384,
+        "rawLimit": 4610000,
+        "gzipLimit": 2930000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=pluto",
+        "files": 21,
+        "raw": 3822413,
+        "gzip": 2289674,
+        "rawLimit": 4020000,
+        "gzipLimit": 2410000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=mercury",
+        "files": 12,
+        "raw": 2929628,
+        "gzip": 1625051,
+        "rawLimit": 3080000,
+        "gzipLimit": 1710000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=venus",
+        "files": 12,
+        "raw": 2944392,
+        "gzip": 1638186,
+        "rawLimit": 3100000,
+        "gzipLimit": 1730000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=earth",
+        "files": 13,
+        "raw": 4203236,
+        "gzip": 2882001,
+        "rawLimit": 4420000,
+        "gzipLimit": 3030000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=mars",
+        "files": 16,
+        "raw": 2787041,
+        "gzip": 1446944,
+        "rawLimit": 2930000,
+        "gzipLimit": 1520000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers",
+        "files": 23,
+        "raw": 9759411,
+        "gzip": 6789054,
+        "rawLimit": 10090000,
+        "gzipLimit": 7050000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers&shower=geminids",
+        "files": 23,
+        "raw": 12243884,
+        "gzip": 7595264,
+        "rawLimit": 12700000,
+        "gzipLimit": 7900000,
+        "problems": []
+      },
+      {
+        "id": "whole build",
+        "files": 201,
+        "raw": 52007323,
+        "gzip": 42021287,
+        "rawLimit": 54610000,
+        "gzipLimit": 44130000,
+        "problems": []
+      }
+    ]
+  },
+  "budgetSelfProof": true,
+  "localDataFilesChecked": 0,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html"
+  ],
+  "missingPages": [],
+  "starAsset": {
+    "ok": true,
+    "problems": [],
+    "file": "src/assets/stars/hyg-v42-naked-eye.json",
+    "sha256": "f4076d268d53f2781cb8f4beaafe63abbf9c89366f641ff080d02af4ef54f540",
+    "bytes": 284317
+  },
+  "synthetic": {
+    "ok": true,
+    "modules": [
+      "syntheticDefinition",
+      "syntheticEccentricDefinition",
+      "syntheticListedDefinition",
+      "syntheticRingDefinition"
+    ],
+    "matches": []
+  },
+  "syntheticSelfProof": true,
+  "selfProof": true,
+  "ok": true,
+  "checked": 201,
+  "sources": [],
+  "matches": []
+}

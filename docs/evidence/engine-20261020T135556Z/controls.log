@@ -1,0 +1,13 @@
+ok   made-up scene desktop 1440x900 / start: 12 controls, 2 dropdown(s), 2 row(s)
+ok   made-up scene desktop 1440x900 / start (again): 12 controls, 2 dropdown(s), 2 row(s)
+ok   made-up scene desktop 1440x900 / information panel: 16 controls, 2 dropdown(s), 5 row(s)
+ok   made-up scene desktop 1440x900 / information panel, Sources open: 16 controls, 2 dropdown(s), 5 row(s)
+ok   made-up scene desktop 1440x900 / story panel: 15 controls, 2 dropdown(s), 4 row(s)
+ok   made-up scene phone 390x844 / start: 7 controls, 1 dropdown(s), 2 row(s)
+ok   made-up scene phone 390x844 / top drawer open: 13 controls, 2 dropdown(s), 4 row(s)
+ok   made-up scene phone 390x844 / timeline drawer open: 10 controls, 1 dropdown(s), 5 row(s)
+ok   made-up scene phone 390x844 / information panel: 10 controls, 1 dropdown(s), 5 row(s)
+ok   made-up scene phone 390x844 / information panel, Sources open: 10 controls, 1 dropdown(s), 5 row(s)
+ok   made-up scene phone 390x844 / story panel: 9 controls, 1 dropdown(s), 4 row(s)
+console and page problems: 0
+shared control look check passed

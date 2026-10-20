@@ -1,0 +1,28 @@
+{
+  "framePacingMs": {
+    "desktop": {
+      "frames": 124,
+      "median": 33.3,
+      "p95": 33.4,
+      "max": 50.1,
+      "over33ms": 17
+    }
+  },
+  "counterReadings": {
+    "desktop": {
+      "ring": {
+        "fps": 28.6,
+        "longestMs": 46.1,
+        "over": "14 of 22",
+        "fills": 2
+      },
+      "marker": {
+        "fps": 6,
+        "longestMs": 535.9,
+        "over": "2 of 4",
+        "fills": null
+      }
+    }
+  },
+  "errors": []
+}

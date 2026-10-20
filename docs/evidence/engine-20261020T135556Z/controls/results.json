@@ -1,0 +1,95 @@
+{
+  "at": "2026-10-20T13:57:54.641Z",
+  "base": "http://localhost:5479/app.html",
+  "failures": [],
+  "report": [
+    {
+      "label": "made-up scene desktop 1440x900",
+      "state": "start",
+      "controls": 12,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "made-up scene desktop 1440x900",
+      "state": "start (again)",
+      "controls": 12,
+      "dropdowns": 2,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "made-up scene desktop 1440x900",
+      "state": "information panel",
+      "controls": 16,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "made-up scene desktop 1440x900",
+      "state": "information panel, Sources open",
+      "controls": 16,
+      "dropdowns": 2,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "made-up scene desktop 1440x900",
+      "state": "story panel",
+      "controls": 15,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "start",
+      "controls": 7,
+      "dropdowns": 1,
+      "rows": 2,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "top drawer open",
+      "controls": 13,
+      "dropdowns": 2,
+      "rows": 4,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "timeline drawer open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "information panel",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "information panel, Sources open",
+      "controls": 10,
+      "dropdowns": 1,
+      "rows": 5,
+      "problems": []
+    },
+    {
+      "label": "made-up scene phone 390x844",
+      "state": "story panel",
+      "controls": 9,
+      "dropdowns": 1,
+      "rows": 4,
+      "problems": []
+    }
+  ]
+}

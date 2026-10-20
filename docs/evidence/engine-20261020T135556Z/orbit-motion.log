@@ -1,0 +1,36 @@
+{
+ "synthetic": {
+  "load-first-second": {
+   "frames": 47,
+   "readings": 47,
+   "maxGap": 0,
+   "maxSegment": 0.010016380045060667
+  },
+  "after-seek": {
+   "frames": 52,
+   "readings": 52,
+   "maxGap": 0,
+   "maxSegment": 0.010024361443179457
+  },
+  "after-second-seek": {
+   "frames": 59,
+   "readings": 59,
+   "maxGap": 0,
+   "maxSegment": 0.010018972137838209
+  },
+  "fast-playback": {
+   "frames": 217,
+   "readings": 217,
+   "maxGap": 0,
+   "maxSegment": 0.010114440702674575
+  },
+  "seek-mid-play": {
+   "frames": 87,
+   "readings": 87,
+   "maxGap": 0,
+   "maxSegment": 0.010041029070715468
+  },
+  "rate": "604800"
+ }
+}
+orbit arc motion: ok

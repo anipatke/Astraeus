@@ -1,0 +1,17 @@
+shell | scene=synthetic | exit=0 | 13:55:59-13:56:15 | 16s | error-lines=0
+synthetic | scene=synthetic, synthetic-bare, synthetic-ring | exit=0 | 13:56:15-13:56:37 | 22s | error-lines=0
+synthetic-ring | scene=synthetic-ring, synthetic | exit=0 | 13:56:37-13:56:59 | 22s | error-lines=0
+synthetic-listed | scene=synthetic-listed, synthetic | exit=0 | 13:56:59-13:57:11 | 12s | error-lines=0
+orbit-look | scene=synthetic (Earth-Moon, readable scale) | exit=0 | 13:57:11-13:57:44 | 33s | error-lines=0
+controls | scene=synthetic | exit=0 | 13:57:44-13:57:54 | 10s | error-lines=0
+phone | scene=synthetic | exit=0 | 13:57:54-13:58:40 | 46s | error-lines=0
+layout | scene=synthetic | exit=0 | 13:58:40-13:59:00 | 19s | error-lines=0
+embedded | scene=synthetic | exit=0 | 13:59:00-13:59:16 | 16s | error-lines=0
+anchor-labels | scene=synthetic | exit=0 | 13:59:16-13:59:29 | 14s | error-lines=0
+tap-focus | scene=synthetic | exit=0 | 13:59:29-13:59:52 | 22s | error-lines=0
+view-link | scene=synthetic | exit=0 | 13:59:52-14:00:13 | 21s | error-lines=0
+orbit-motion | scene=synthetic | exit=0 | 14:00:13-14:00:28 | 15s | error-lines=0
+scale-menu | scene=harness page (no experience) | exit=0 | 14:00:28-14:00:28 | 1s | error-lines=0
+public-build-assets | scene=none (files only) | exit=0 | 14:00:28-14:00:31 | 2s | error-lines=0
+public-addresses | scene=none (files only) | exit=0 | 14:00:31-14:00:31 | 0s | error-lines=0
+total 275s (servers and public build included)

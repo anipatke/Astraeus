@@ -1,0 +1,345 @@
+{
+ "desktop-true": {
+  "toggles": {
+   "Orbit ring": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": false,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Fade ring ends": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": false,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Trailing arc": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": false,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Brighten when zoomed out": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": false,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "ringOpacityBefore": 0.18,
+   "ringOpacityAfter": 0.8
+  }
+ },
+ "desktop-readable": {
+  "toggles": {
+   "Orbit ring": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": false,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Fade ring ends": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": false,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Trailing arc": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": false,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Brighten when zoomed out": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": false,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "ringOpacityBefore": 0.18,
+   "ringOpacityAfter": 0.8
+  }
+ },
+ "phone": {
+  "toggles": {
+   "Orbit ring": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": false,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Fade ring ends": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": false,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Trailing arc": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": false,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   },
+   "Brighten when zoomed out": {
+    "on": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "off": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": false,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    },
+    "back": {
+     "ring": true,
+     "arc": true,
+     "endFade": true,
+     "zoomBrighten": true,
+     "ringOpacity": 0.18,
+     "arcPeak": 0.65
+    }
+   }
+  },
+  "slider": {
+   "before": "0.18",
+   "set": "0.80",
+   "ringOpacityBefore": 0.18,
+   "ringOpacityAfter": 0.8
+  }
+ }
+}
+orbit look controls: ok

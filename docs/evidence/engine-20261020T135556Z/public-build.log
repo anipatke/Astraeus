@@ -1,0 +1,212 @@
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 1597 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../tmp/astraeus-check-tnIr6X/public/app.html                                    1.73 kB │ gzip:     0.91 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-B8auBu8L.bin                    4.10 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CDDLvAHD.bin                    4.50 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BnQhEON7.bin                    4.87 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-DlJyzxMT.bin                    4.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-neptune-2k-BStN9tK2.jpg            4.98 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-CxHQH6cj.bin                    5.21 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BONVg8wv.bin                    5.26 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Dbq-bPBw.bin                    5.41 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-C4eCbZtM.bin                    5.43 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-CEosm9V8.bin                    5.60 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-VXzma6K-.bin                    5.63 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-CGAn6JhW.json                 5.97 kB │ gzip:     2.13 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-CUTGdKYK.bin                    6.04 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DW1pHNvU.bin                    6.24 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-BH0S2vy1.json                 6.31 kB │ gzip:     2.56 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-CyCe5ZbZ.bin                    6.46 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DVhE2QsH.bin                    6.51 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-saturn-2k-l2E8L1aX.jpg             6.78 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DKYJ5nJU.bin                    6.81 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-n2QKhh_U.bin                    6.86 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BF9mPcln.bin                    6.88 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-ZSejOm3r.bin                    6.92 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-milky-way-BpzDL6CS.jpg             7.56 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-WTaaeeZZ.bin                    7.87 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BnlOsL3Q.bin                    8.05 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Bp-InQmE.bin                    8.24 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-7FRXILSg.json                 8.45 kB │ gzip:     3.30 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-BC7WTtsQ.json                 9.45 kB │ gzip:     2.74 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CCKKrxZQ.bin                    9.82 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BJT0fqJK.bin                   10.05 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-0n-KDOMQ.bin                   10.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-BomFUYkK.bin                   10.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BobQs0sg.bin                   10.71 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DHVd5W7y.bin                   10.89 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BLYQgi1C.bin                   10.99 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-ZOdYoIOJ.bin                   11.01 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Ctkc-Ujd.bin                   11.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BCIVwpyr.bin                   11.14 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-FRJE2U45.bin                   11.71 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DIXw4aOK.bin                   12.57 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-h2TRVAR_.bin                   12.62 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-DCwsvExO.bin                   12.76 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BVBuyeKO.bin                   13.48 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CfCTerD0.bin                   13.86 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-P3UaB3Xv.bin                   14.19 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-triton-4k-ZOVvkLqz.jpg            14.19 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-charon-2k-BEBoADg7.jpg            15.59 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-DnVnDzib.bin                   17.46 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-D3JyyUuS.bin                   17.53 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DK0P6ig0.bin                   17.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-CHuykHOS.bin                   17.57 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-pluto-4k-Co5M7Sey.jpg             17.62 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DO6DkmJ8.bin                   18.06 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DbmdGSFv.bin                   18.65 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DxbdzG8R.bin                   18.74 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-mars-2k-C1F1cZqq.jpg              19.68 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-wNh0bizL.bin                   20.74 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-BXLGECub.bin                   21.00 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-io-2k-BOLMOZ6N.jpg                21.06 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-CXvZ1DX-.bin                   21.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-ApLKcS8M.bin                   21.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-titan-4k-C2LEcasw.jpg             21.42 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-mercury-2k-YI6CwAf2.jpg           21.77 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-jupiter-2k-H6qj4EOG.jpg           21.81 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-iapetus-4k-BwfO833V.jpg           22.51 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2015-xbiasdDz.bin                   22.53 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DgMvxrlC.bin                   22.54 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2014-CSvW7WwL.bin                   22.67 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-6gG8cgo0.bin                   22.68 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/apollo-moon-B9vmKP4Q.jpg            23.16 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-moon-lroc-urh6biVR.jpg            23.91 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-dione-4k-Bkb0pHgY.jpg             26.29 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-earth-bmng-Dj1tZINx.jpg           26.40 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BmqdF5d9.bin                   26.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-enceladus-4k-C5ZSdRjB.jpg         26.90 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-venus-2k-CaKlBPYD.jpg             30.54 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-qdAhKqwJ.bin                   30.67 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-rhea-4k-ByxnfVgK.jpg              32.14 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-mimas-4k-BrGHSFG8.jpg             32.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-tethys-4k-Yq3Me1IS.jpg            33.29 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-e8YiWoVC.bin                   34.10 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Cie5YHa0.bin                   34.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DLlcbYcu.bin                   35.02 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-eHbztZct.bin                   35.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-ByLkV1Ow.bin                   35.30 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/jupiter-io-BdhMVOli.jpg             37.83 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DHMDARQ9.bin                   38.21 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/t-sun-2k-06TFWV66.jpg               39.65 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CWmguC99.bin                   39.90 kB
+../../../../tmp/astraeus-check-tnIr6X/public/index.html                                 40.20 kB │ gzip:    13.01 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CaIadbB-.bin                   40.77 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Bz0euaRD.bin                   40.81 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Cn_N0Obm.bin                   47.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-i6qs6cUE.bin                   53.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-IO7pM4Un.bin                   55.52 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DH94YS6E.bin                   59.66 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DOGMCwLs.bin                   65.25 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-sBu1J4UN.bin                   67.33 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-vzG-o9NI.bin                   68.92 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/charon-2k-CgaBaLAC.jpg              69.35 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DREWXAdS.bin                   76.74 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Dkigoa2m.bin                   77.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-C0aAhWdR.bin                   77.64 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/uranus-2k-QU9XKwEw.jpg              77.75 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DzVs71hP.bin                   81.86 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Bn-wWlcZ.bin                   82.17 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Djh2j4aI.bin                   83.02 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Ds-bAYdw.bin                   83.34 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-kFVfe1gE.bin                   85.16 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-D3QuEf6F.bin                   86.67 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DdCEhMb5.bin                   87.38 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-C2TGxqev.bin                   87.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DUOAkEWK.bin                   87.72 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-wUWxdhfj.bin                   89.69 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-2YxxFtYc.bin                   90.07 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CG5ep3RQ.bin                   90.40 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-i0kPMRu6.bin                   94.00 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BkO3tJlM.bin                   98.64 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/perseids-gmn-L67HtRpo.jpg          101.20 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-nk7mVwdx.bin                  102.72 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-HtAaPJ2M.bin                  103.91 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Dv1IaKWU.bin                  111.19 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-B4sKgQCm.bin                  116.39 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CadaXVwU.bin                  118.28 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-h7Ao9Hey.bin                  119.57 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-B0dxS7wu.bin                  122.68 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-B2fbdS2r.bin                  129.47 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BzWyFg0x.bin                  138.36 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-hWCwrv-O.bin                  142.59 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BJoaby3_.bin                  145.78 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DommlcUq.bin                  154.50 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-D46I7g7l.bin                  162.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets.html                               162.52 kB │ gzip:    29.31 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-D33nj24L.bin                  163.49 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/saturn-2k-B1fuhtuB.jpg             164.48 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-Bp1p9CMi.bin                  180.37 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-BnvPIQ0h.bin                  187.56 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-DGt0GBjM.bin                  188.26 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/2016-CXFkPr-q.bin                  217.52 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/neptune-2k-CRPHsRry.jpg            241.58 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/hyg-v42-naked-eye-DIEj4sz2.json    284.31 kB │ gzip:   119.03 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/io-2k-CG7hitww.jpg                 364.82 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/ganymede-2k-D5JpxMXD.jpg           417.75 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/callisto-2k-JXgmFet-.jpg           422.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mars-2k-CmcQf1fB.jpg               429.76 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/jupiter-2k-CEiO5JSj.jpg            498.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/europa-2k-CXjWUx3S.jpg             552.76 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/moon-lroc-2k-z9MmovVg.jpg          565.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/sun-2k-BfaUCBxs.jpg                822.42 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mercury-2k-lhhbYhEJ.jpg            872.55 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/venus-2k-B7XKoL-0.jpg              885.07 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/triton-4k-ajrZasrB.jpg             922.02 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/pluto-4k-Bhc4SU1r.jpg            1,424.08 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/titan-4k-CtWzCPIW.jpg            1,477.41 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/earth-bmng-july-4k-BJxMI6UV.jpg  1,559.34 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mimas-4k-Cexg9i3S.jpg            1,605.64 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/iapetus-4k-1vJixJsL.jpg          1,635.34 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/milky-way-left-BVH6yQ3I.jpg      1,751.81 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/milky-way-right-CiMp2gkm.jpg     1,951.62 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/dione-4k-B1AmiZSD.jpg            2,508.46 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/tethys-4k-hN6wsNsD.jpg           2,567.47 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/gmn-iau-7-BeRRPk6y.json          2,596.95 kB │ gzip: 1,006.04 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/rhea-4k-CsBFPjnq.jpg             3,013.41 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/enceladus-4k-izi13YYD.jpg        3,656.61 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/gmn-iau-4-Bsd20Dtd.json          5,081.42 kB │ gzip: 1,863.25 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/app-DbvCzScu.css                    43.57 kB │ gzip:     8.72 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/ephemerisProvenance-C4T8bcC6.js      0.02 kB │ gzip:     0.04 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-C-PxO9lt.js                   0.06 kB │ gzip:     0.08 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/compositions-zSY07tBS.js             2.01 kB │ gzip:     0.81 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/catalogueItem-BE2TA8Gl.js            2.15 kB │ gzip:     1.07 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/moonCatalogue-CUfXia35.js            2.40 kB │ gzip:     1.05 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/planetSettings-C7zxk6t1.js           3.99 kB │ gzip:     1.69 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/measuredOrbits-ByOKgfO-.js           4.69 kB │ gzip:     2.08 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-BXIBHZ7c.js                   5.34 kB │ gzip:     2.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-DJ26NfsS.js                   5.66 kB │ gzip:     2.52 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/planetDefinition-DVjfgBNo.js         7.68 kB │ gzip:     2.95 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-Cv07prxK.js                   7.76 kB │ gzip:     3.25 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/showerSettings-DzZViid9.js           8.07 kB │ gzip:     3.09 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/panels-C2ZcH_5u.js                   8.16 kB │ gzip:     2.76 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mercury-BQIf-Lp2.js                 11.26 kB │ gzip:     3.89 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/venus-DjL3SHXA.js                   13.51 kB │ gzip:     4.47 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mars-moons-BW0UORSn.js              13.93 kB │ gzip:     3.69 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/pluto-BbQ2mYfL.js                   14.23 kB │ gzip:     5.15 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/showerDefinition-BkDUuOVh.js        22.78 kB │ gzip:     8.74 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/mars-C56KZQuJ.js                    23.14 kB │ gzip:     7.97 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/pluto-moons-B7pZ0jmI.js             27.67 kB │ gzip:     4.84 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/neptune-bGbxL3eq.js                 30.39 kB │ gzip:    17.06 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/earth-CBYy-Z50.js                   32.10 kB │ gzip:    10.98 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/uranus-CBCI_z5k.js                  43.50 kB │ gzip:    28.59 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/neptune-moons-DN2e7fkC.js           65.94 kB │ gzip:     9.26 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/uranus-moons-DKfndOSo.js           109.24 kB │ gzip:    13.80 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/planetSystemParts-DyJhz0NX.js      154.40 kB │ gzip:    14.82 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/planetModels-DA-XyzNT.js           329.77 kB │ gzip:   219.02 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/apollo11Definition-Bi57h4Ot.js     359.87 kB │ gzip:   117.15 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/jupiter-moons-BoMm8-wF.js          374.76 kB │ gzip:    37.31 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/saturn-moons-DL83Xxa-.js           908.10 kB │ gzip:    76.12 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/jupiter-DJ8Ef7pe.js              1,113.83 kB │ gzip:   715.17 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/app-CfY5F7N_.js                  1,368.15 kB │ gzip:   402.58 kB
+../../../../tmp/astraeus-check-tnIr6X/public/assets/saturn-f9jhtpOD.js               2,016.66 kB │ gzip: 1,343.91 kB
+
+✓ built in 756ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
