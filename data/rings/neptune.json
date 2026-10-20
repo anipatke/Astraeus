@@ -1,0 +1,73 @@
+{
+  "format": "astraeus.ring-system/1",
+  "kind": "ring-system",
+  "body": "neptune",
+  "note": "Facts plus a look. The fact sheet prints one radius and a width for each ring, not edges: a band is the printed radius plus or minus half the printed width, taken literally (so the Lassell plateau, printed as about 53,200 km and about 4,000 km wide, is centred there and the narrow Le Verrier ring lies inside it). A ring narrower than the 2048-pixel ring texture can show (about 60 km a pixel here) is drawn 250 km wide, centred on its printed radius (drawnWidthKm); the printed values are kept on the band. The Adams ring's five arcs (Courage, Liberte, Egalite 1 and 2, Fraternite) share the Adams radius and are drawn as part of the complete ring; the unnamed indistinct ring at 61,953 km has no printed width and is not drawn. Colours and opacities are Planetary Explorer's five Neptune ring bands (donor src/entities/neptune.ts), matched by order. Brightness is a look, not a measurement.",
+  "asOf": "2026-10-21",
+  "sources": {
+    "radii": {
+      "title": "NASA NSSDC, Neptune Rings Fact Sheet (radii in km; Neptune's equatorial radius 24,766 km)",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/nepringfact.html",
+      "accessed": "2026-10-21"
+    },
+    "look": {
+      "title": "Planetary Explorer src/entities/neptune.ts ringSystem bands (colours and opacities; owner's own project)",
+      "donorCommit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+    }
+  },
+  "bands": [
+    {
+      "id": "galle",
+      "label": "Galle ring",
+      "innerKm": 40900.0,
+      "outerKm": 42900.0,
+      "color": "#4a3a3a",
+      "opacity": 0.08,
+      "printedRadiusKm": 41900,
+      "printedWidthKm": 2000
+    },
+    {
+      "id": "lassell",
+      "label": "Lassell ring",
+      "innerKm": 51200.0,
+      "outerKm": 55200.0,
+      "color": "#4a3a3a",
+      "opacity": 0.05,
+      "printedRadiusKm": 53200,
+      "printedWidthKm": 4000
+    },
+    {
+      "id": "leverrier",
+      "label": "Le Verrier ring",
+      "innerKm": 53075.0,
+      "outerKm": 53325.0,
+      "color": "#5a4a4a",
+      "opacity": 0.25,
+      "printedRadiusKm": 53200,
+      "printedWidthKm": "under 100",
+      "drawnWidthKm": 250
+    },
+    {
+      "id": "arago",
+      "label": "Arago ring",
+      "innerKm": 57075.0,
+      "outerKm": 57325.0,
+      "color": "#5a4a4a",
+      "opacity": 0.15,
+      "printedRadiusKm": 57200,
+      "printedWidthKm": "under 100",
+      "drawnWidthKm": 250
+    },
+    {
+      "id": "adams",
+      "label": "Adams ring",
+      "innerKm": 62808.0,
+      "outerKm": 63058.0,
+      "color": "#6a5a5a",
+      "opacity": 0.35,
+      "printedRadiusKm": 62933,
+      "printedWidthKm": 15,
+      "drawnWidthKm": 250
+    }
+  ]
+}

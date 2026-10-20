@@ -72,10 +72,10 @@ function planetMoonLayer(settings: PlanetSettings, system: PlanetSystem): BodySe
     families: familiesWithPalette(system.catalogue.families),
     bodyFamilies: Object.fromEntries(mappedMoons.map((moon) => [moon.id, moon.family])),
     // The mapped moons without their own path join the batch for their orbit lines; a moon with a path in the composition keeps its own loop.
-    extraOrbits: {
+    ...(batched.length === 0 ? {} : { extraOrbits: {
       group: createEphemerisGroup({ id: `${settings.id}-mapped-moon-orbits`, center: settings.centre.id, ephemeris: system.ephemeris, members: batched.map((moon) => moon.id), bounds: window, provenance: createProvenance({ sourceType: "ephemeris", sources: [system.fitSource], accuracy: "As each moon's own record.", notes: "Orbit lines only: each moon's own path over about one orbit, ending where it is now." }) }),
       families: batched.map((moon) => moon.family),
-    },
+    } }),
     centreGmKm3S2: system.centreGmKm3S2,
   };
 }
@@ -160,14 +160,15 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
 
   const events = createEvents([]);
   const follow = settings.moons.follow;
-  const followLabel = moonRecord(follow).name;
   const experience: ExperienceConfig = {
     objects,
     cameraPresets: [
       { id: "overview", label: "Overview", request: { kind: "overview" } },
       { id: `focus-${settings.centre.id}`, label: `Focus ${settings.label}`, request: { kind: "focus", target: settings.centre.id } },
-      { id: `focus-${follow}`, label: `Focus ${followLabel}`, request: { kind: "focus", target: follow } },
-      { id: `follow-${follow}`, label: `Follow ${followLabel}`, request: { kind: "follow", target: follow } },
+      ...(follow === undefined ? [] : [
+        { id: `focus-${follow}`, label: `Focus ${moonRecord(follow).name}`, request: { kind: "focus", target: follow } },
+        { id: `follow-${follow}`, label: `Follow ${moonRecord(follow).name}`, request: { kind: "follow", target: follow } },
+      ] as const),
     ],
     events,
     window,

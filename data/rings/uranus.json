@@ -1,0 +1,80 @@
+{
+  "format": "astraeus.ring-system/1",
+  "kind": "ring-system",
+  "body": "uranus",
+  "note": "Facts plus a look. The fact sheet prints one radius and a width for each ring, not edges: a band is the printed radius plus or minus half the printed width (the middle of a printed range); the inner group runs from ring 6 to ring 4 and the middle group from alpha to lambda, drawn as the donor draws them (the gaps between those rings are not drawn). A ring narrower than the 2048-pixel ring texture can show (about 100 km a pixel here) is drawn 400 km wide, centred on its printed radius (drawnWidthKm); the printed values are kept on the band. Colours and opacities are Planetary Explorer's five Uranus ring bands (donor src/entities/uranus.ts), matched to the fact sheet's rings by order. Brightness is a look, not a measurement.",
+  "asOf": "2026-10-21",
+  "sources": {
+    "radii": {
+      "title": "NASA NSSDC, Uranus Rings Fact Sheet (radii in km; Uranus's equatorial radius 25,559 km)",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranringfact.html",
+      "accessed": "2026-10-21"
+    },
+    "look": {
+      "title": "Planetary Explorer src/entities/uranus.ts ringSystem bands (colours and opacities; owner's own project)",
+      "donorCommit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+    }
+  },
+  "bands": [
+    {
+      "id": "inner",
+      "label": "Rings 6, 5 and 4",
+      "innerKm": 41836.2,
+      "outerKm": 42572,
+      "color": "#3a3a3a",
+      "opacity": 0.15,
+      "printedRadiiKm": [
+        41837,
+        42234,
+        42571
+      ]
+    },
+    {
+      "id": "middle",
+      "label": "Alpha to lambda rings",
+      "innerKm": 44714.5,
+      "outerKm": 50025,
+      "color": "#2a2a2a",
+      "opacity": 0.35,
+      "printedRadiiKm": [
+        44718,
+        45661,
+        47176,
+        47627,
+        48300,
+        50024
+      ]
+    },
+    {
+      "id": "epsilon",
+      "label": "Epsilon ring",
+      "innerKm": 50949.0,
+      "outerKm": 51349.0,
+      "color": "#5a5a5a",
+      "opacity": 0.65,
+      "printedRadiusKm": 51149,
+      "printedWidthKm": "20-96",
+      "drawnWidthKm": 400
+    },
+    {
+      "id": "u2",
+      "label": "R/2003 U 2",
+      "innerKm": 65400.0,
+      "outerKm": 69200.0,
+      "color": "#6a3a3a",
+      "opacity": 0.12,
+      "printedRadiusKm": 67300,
+      "printedWidthKm": 3800
+    },
+    {
+      "id": "u1",
+      "label": "R/2003 U 1",
+      "innerKm": 89200.0,
+      "outerKm": 106200.0,
+      "color": "#3a4a6a",
+      "opacity": 0.08,
+      "printedRadiusKm": 97700,
+      "printedWidthKm": 17000
+    }
+  ]
+}

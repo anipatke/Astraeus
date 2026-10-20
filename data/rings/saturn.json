@@ -1,0 +1,69 @@
+{
+  "format": "astraeus.ring-system/1",
+  "kind": "ring-system",
+  "body": "saturn",
+  "note": "Facts plus a look. Radii are the NSSDC fact sheet's printed edges (km, about Saturn's centre, in its equator plane). Colours and opacities are Planetary Explorer's Saturn ring bands (donor src/entities/saturn.ts), one per ring: where the donor splits a ring into steps (C ring 0.20-0.24, B ring 0.78-0.90, A ring 0.55-0.68) the middle value is used. The fact sheet lists the Titan ringlet, the Maxwell, Encke and Keeler gaps and the F ring as single radii with no width, so they are not drawn (the donor's thin gaps and F ring are left out); the Cassini Division is drawn as the donor's dark translucent band. The diffuse E ring (180,000-480,000 km) is not drawn: it would shrink the main rings to a few pixels in the one 2048-pixel ring texture. The G ring has no donor band; its look is Astraeus's (faint dust). Brightness is a look, not a measurement.",
+  "asOf": "2026-10-21",
+  "sources": {
+    "radii": {
+      "title": "NASA NSSDC, Saturn Rings Fact Sheet (radii in km; Saturn's equatorial radius 60,268 km)",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/satringfact.html",
+      "accessed": "2026-10-21"
+    },
+    "look": {
+      "title": "Planetary Explorer src/entities/saturn.ts ringSystem bands (colours and opacities; owner's own project)",
+      "donorCommit": "84f8d3ee77aff47f2f36f157b62b97dce7176b95"
+    }
+  },
+  "bands": [
+    {
+      "id": "d",
+      "label": "D ring",
+      "innerKm": 66900,
+      "outerKm": 74510,
+      "color": "#b09070",
+      "opacity": 0.08
+    },
+    {
+      "id": "c",
+      "label": "C ring",
+      "innerKm": 74658,
+      "outerKm": 91975,
+      "color": "#c0a878",
+      "opacity": 0.22
+    },
+    {
+      "id": "b",
+      "label": "B ring",
+      "innerKm": 91975,
+      "outerKm": 117507,
+      "color": "#e8d8b0",
+      "opacity": 0.83
+    },
+    {
+      "id": "cassini",
+      "label": "Cassini Division",
+      "innerKm": 117507,
+      "outerKm": 122340,
+      "color": "#604030",
+      "opacity": 0.08
+    },
+    {
+      "id": "a",
+      "label": "A ring",
+      "innerKm": 122340,
+      "outerKm": 136780,
+      "color": "#dcc89a",
+      "opacity": 0.65
+    },
+    {
+      "id": "g",
+      "label": "G ring",
+      "innerKm": 166000,
+      "outerKm": 173000,
+      "color": "#a89c88",
+      "opacity": 0.03,
+      "lookNote": "no donor band; Astraeus look, faint dust"
+    }
+  ]
+}

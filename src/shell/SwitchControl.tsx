@@ -4,14 +4,16 @@ export interface ExperienceSwitch {
   readonly label: string;
   /** The address parameter that carries the choice. */
   readonly param: string;
+  /** Address parameters the switch carries over to the new version (the clock's `t`, for versions that share one timeline); the camera `view` and the rest are dropped. */
+  readonly keep?: readonly string[];
   readonly options: readonly { readonly label: string; readonly value: string; readonly active: boolean }[];
 }
 
-/** The address a choice leads to: the current one with the parameter set, and the camera view and time dropped (each version opens on its own). */
-export function switchAddress(href: string, param: string, value: string): string {
+/** The address a choice leads to: the current one with the parameter set, and the camera view and time dropped (each version opens on its own) unless `keep` names the time. */
+export function switchAddress(href: string, param: string, value: string, keep: readonly string[] = []): string {
   const url = new URL(href);
   url.searchParams.set(param, value);
-  for (const own of ["view", "t"]) url.searchParams.delete(own);
+  for (const own of ["view", "t"]) if (!keep.includes(own)) url.searchParams.delete(own);
   return url.toString();
 }
 
@@ -27,7 +29,7 @@ export function SwitchControl({ choice }: { readonly choice: ExperienceSwitch })
           className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`}
           aria-pressed={option.active}
           data-switch-value={option.value}
-          onClick={() => { if (!option.active) window.location.assign(switchAddress(window.location.href, choice.param, option.value)); }}
+          onClick={() => { if (!option.active) window.location.assign(switchAddress(window.location.href, choice.param, option.value, choice.keep)); }}
         >
           <span>{option.label}</span>
         </button>

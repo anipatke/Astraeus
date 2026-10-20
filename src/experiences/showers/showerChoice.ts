@@ -14,13 +14,13 @@ export interface ShowerEntry {
 }
 
 /** The entry to open (the requested one when it exists, else `preferred`, else the first by `order`, then name) and the switch listing every entry. Undefined when there are none. Shared by the experiences that offer such a switch. */
-export function chooseSwitch<T extends ShowerEntry>(entries: readonly T[], requested: string | null, switchOf: { readonly label: string; readonly param: string }, preferred?: string): { readonly name: string; readonly switcher: ExperienceSwitch } | undefined {
+export function chooseSwitch<T extends ShowerEntry>(entries: readonly T[], requested: string | null, switchOf: { readonly label: string; readonly param: string; readonly keep?: readonly string[] }, preferred?: string): { readonly name: string; readonly switcher: ExperienceSwitch } | undefined {
   const sorted = [...entries].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
   const chosen = sorted.find((entry) => entry.name === requested) ?? sorted.find((entry) => entry.name === preferred) ?? sorted[0];
   if (chosen === undefined) return undefined;
   return {
     name: chosen.name,
-    switcher: { label: switchOf.label, param: switchOf.param, options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })) },
+    switcher: { label: switchOf.label, param: switchOf.param, ...(switchOf.keep === undefined ? {} : { keep: switchOf.keep }), options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })) },
   };
 }
 

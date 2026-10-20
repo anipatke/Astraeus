@@ -94,3 +94,22 @@ export const jupiterMoonsSystem: SystemComposition = createComposition(catalogue
   defaultCenter: "jupiter",
   paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
 });
+
+/**
+ * Saturn and its seven mapped moons, about Saturn (positions from the core curve fits, O-033 T-118). The moons' orbit lines are drawn with the
+ * small moons' batch (one draw for all), so the experience declares them there; no moon has its own loop.
+ */
+export const saturnMoonsSystem: SystemComposition = createComposition(catalogue, {
+  id: "saturn-moons",
+  bodies: ["saturn", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"],
+  defaultCenter: "saturn",
+});
+
+/** Uranus alone, about Uranus: none of its 28 moons has a map, so all of them are dots. */
+export const uranusMoonsSystem: SystemComposition = createComposition(catalogue, { id: "uranus-moons", bodies: ["uranus"], defaultCenter: "uranus" });
+
+/** Neptune and Triton, about Neptune. */
+export const neptuneMoonsSystem: SystemComposition = createComposition(catalogue, { id: "neptune-moons", bodies: ["neptune", "triton"], defaultCenter: "neptune" });
+
+/** Pluto and Charon, about Pluto (Pluto sits at its own centre only once its system's fits are loaded, which the view does before its first frame). */
+export const plutoMoonsSystem: SystemComposition = createComposition(catalogue, { id: "pluto-moons", bodies: ["pluto", "charon"], defaultCenter: "pluto" });

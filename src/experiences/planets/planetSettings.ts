@@ -35,8 +35,8 @@ export interface PlanetSettings {
   readonly moons: {
     readonly listSource: string;
     readonly featuredFamilyId: string;
-    /** The mapped moon the camera presets focus and follow. */
-    readonly follow: string;
+    /** The mapped moon the camera presets focus and follow. Absent for a planet with no mapped moon (Uranus). */
+    readonly follow?: string;
     readonly mapped: readonly PlanetMappedMoon[];
   };
   /** The mapped moons whose tagged places show. */
@@ -114,11 +114,11 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
   const moons = record(root.moons, "moons");
   only(moons, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
   const mapped = list(moons, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
-  if (mapped.length === 0) fail("moons.mapped", "must list at least one mapped moon");
   const mappedIds = mapped.map((moon) => moon.id);
   if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
-  const follow = words(moons, "follow", "moons");
-  if (!mappedIds.includes(follow)) fail("moons.follow", `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
+  // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
+  const follow = mapped.length === 0 && moons.follow === undefined ? undefined : words(moons, "follow", "moons");
+  if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
 
   const bodyFeatures = textList(root, "bodyFeatures", "settings", 0);
   for (const id of bodyFeatures) if (!mappedIds.includes(id)) fail("settings.bodyFeatures", `names "${id}", which is not a mapped moon`);
@@ -146,7 +146,7 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
     clockRate: positive(root, "clockRate", "settings"),
     rates: rates as number[],
     centre: { id: words(centre, "id", "centre"), labelPriority: finite(centre, "labelPriority", "centre"), labelMaxDistance: positive(centre, "labelMaxDistance", "centre"), description: text(centre, "description", "centre"), knownLimitations: textList(centre, "knownLimitations", "centre", 0) },
-    moons: { listSource: text(moons, "listSource", "moons"), featuredFamilyId: words(moons, "featuredFamilyId", "moons"), follow, mapped },
+    moons: { listSource: text(moons, "listSource", "moons"), featuredFamilyId: words(moons, "featuredFamilyId", "moons"), ...(follow === undefined ? {} : { follow }), mapped },
     bodyFeatures,
     story: { panels },
     camera: { maxFocusDistance: positive(camera, "maxFocusDistance", "camera"), far: positive(camera, "far", "camera") },

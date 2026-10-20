@@ -4,3 +4,4 @@ export declare const readJson: (path: string) => unknown;
 export declare const runImporter: (importer: string, out: string) => void;
 export declare const scratchDir: () => string;
 export declare const readBytes: (path: string) => Uint8Array;
+export declare const gzipSize: (bytes: Uint8Array) => number;

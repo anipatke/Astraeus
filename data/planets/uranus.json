@@ -1,0 +1,50 @@
+{
+  "id": "uranus",
+  "label": "Uranus",
+  "order": 7,
+  "default": false,
+  "system": "uranus",
+  "experienceLabel": "Uranus and its moons",
+  "window": {
+    "startUtc": "2016-11-04T00:00:00Z",
+    "endUtc": "2016-11-18T00:00:00Z"
+  },
+  "clockRate": 3600,
+  "rates": [
+    60,
+    3600,
+    21600,
+    86400
+  ],
+  "centre": {
+    "id": "uranus",
+    "labelPriority": 100,
+    "labelMaxDistance": 30000,
+    "description": "An ice giant that spins on its side, with thin dark rings.",
+    "knownLimitations": [
+      "Uranus's picture is a Solar System Scope map (CC BY 4.0) based on NASA imagery; the planet is nearly featureless in visible light.",
+      "The surface drawn is the 1-bar cloud-top level, not a solid surface.",
+      "The rings are drawn as flat bands in Planetary Explorer's colours; the nine narrow inner rings are grouped as the donor draws them, and a ring narrower than the picture can show is drawn wider than it is. Brightness is a look, not a measurement.",
+      "None of Uranus's moons has a map picture here: all 28 are shown as dots in family colours."
+    ]
+  },
+  "moons": {
+    "listSource": "JPL Horizons",
+    "featuredFamilyId": "major",
+    "mapped": []
+  },
+  "bodyFeatures": [],
+  "story": {
+    "panels": "data/stories/no-panels/panels.json"
+  },
+  "camera": {
+    "maxFocusDistance": 20000,
+    "far": 80000
+  },
+  "startView": {
+    "focus": "uranus",
+    "azimuthDeg": 0,
+    "elevationDeg": 20,
+    "distance": 60
+  }
+}
