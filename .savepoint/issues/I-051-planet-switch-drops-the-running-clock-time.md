@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-033 Full Objective Check C-091 at HEAD 9d1707bc by reading the switch path; the planets browser set''s clock scenario could not show it (it compares against the address time, and it failed earlier on timing, see I-052).'
     check: C-091
+  - at: '2026-10-21T01:20:00Z'
+    actor: {role: executor, session: o033-repair-builder-20261021}
+    kind: repair_attempted
+    note: 'Repaired: ExperienceSwitch gains optional currentTimeUtcMs; App.tsx passes the runtime clock''s time when it hands the switcher to the shell; SwitchControl passes it to switchAddress, which sets t (whole seconds, as the view link writes it) when the switch keeps t. Showers keep no t and are unchanged. Test: tests/planetSystems.test.ts ''the switch carries the clock''s time now'' (address with an old t, and with none, gets the later time; non-keeping switch drops t). Browser scenario in browser-outer-planets.mjs (see I-052), not run. Scene, camera and controls code unchanged; shell/App UI code touched.'
 ---
 
 # I-051: The planet switch keeps only the address's time, not the clock's

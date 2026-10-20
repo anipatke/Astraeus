@@ -33,7 +33,9 @@
     "featuredFamilyId": "major",
     "mapped": []
   },
-  "bodyFeatures": [],
+  "bodyFeatures": [
+    "uranus"
+  ],
   "story": {
     "panels": "data/stories/no-panels/panels.json"
   },

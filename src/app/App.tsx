@@ -574,7 +574,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={definition.switcher}
+      switcher={definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs }}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-033 Full Objective Check C-091 at HEAD 9d1707bc: the planets builder shows centre places (Mercury, Venus, Earth, Mars do), but the four outer planet settings files list only their mapped moons in bodyFeatures, so none of the four planets'' own package places is shown.'
     check: C-091
+  - at: '2026-10-21T01:20:00Z'
+    actor: {role: executor, session: o033-repair-builder-20261021}
+    kind: repair_attempted
+    note: 'Repaired: the planet places rule is one function (src/experiences/planets/surfacePlace.mjs, isSurfacePlace: has latitude and longitude, no ringRadius/moonRadius) used by the builder''s placement in planetDefinition.ts (extends T-119''s skip-without-position rule). Saturn, Uranus, Neptune and Pluto now list their centre in bodyFeatures (settings) and load its package (systems). Shown counts: Saturn 3, Uranus 9, Neptune 9, Pluto 12; Jupiter unchanged. Tests: tests/planetSystems.test.ts per-planet own-places test (centre listed, ids equal the rule over the package, counts), tests/planetDefinition.test.ts made-up planet with ring, inner-moon and position-less entries; tests/planetSwitchInner.test.ts and the Jupiter view-equality test still pass. tools/validate/browser-outer-planets.mjs presses Pluto''s Sputnik Planitia (not run, per owner rule: the recheck runs the planets set once). Gates: typecheck, build, npm test 87 files 1246 passed. Browser steps unverified.'
 ---
 
 # I-048: Saturn, Uranus, Neptune and Pluto open without their own tagged places

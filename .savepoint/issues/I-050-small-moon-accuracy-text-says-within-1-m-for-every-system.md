@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-033 Full Objective Check C-091 at HEAD 9d1707bc. The sentence was true for Jupiter (worst 0.99 m) and was carried into the generic builder for every system.'
     check: C-091
+  - at: '2026-10-21T01:20:00Z'
+    actor: {role: executor, session: o033-repair-builder-20261021}
+    kind: repair_attempted
+    note: 'Repaired: data/moons/fit-errors/<planet>.json (generated from each fit index by tools/import/moon-fit-errors.mjs: worst of the span, demo window and planet-centred figures per moon) is imported by the five non-Jupiter systems as fitErrorsM; the builder states each dot moon''s own figure (rounded up to 0.1 m, never below 1 m; a figure above 1 m adds that it includes the planet-centred check, part of which is Horizons'' own kernel difference) and throws if a moon has no figure. The group record states the worst of its dots. Jupiter''s system gives none and keeps its existing text. Tests: tests/planetSystems.test.ts ''states each dot moon''s own measured error, never less than the fit index''s worst figure'' (all four outer planets); tests/planetFitErrors.test.ts (files equal the indexes). Gates pass.'
 ---
 
 # I-050: Small-moon accuracy text says "within 1 m" for every system

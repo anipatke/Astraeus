@@ -22,6 +22,8 @@ const EARTH_RADIUS_KM = 6371.0084; // views are in Earth radii
 const PLACES = [
   { planet: "saturn", moon: "titan", id: "kraken-mare", radiusKm: 2575.5 },
   { planet: "pluto", moon: "charon", id: "mordor-macula", radiusKm: 606 },
+  // Pluto's own place (I-048): the planet places rule shows its surface places.
+  { planet: "pluto", moon: "pluto", id: "sputnik-planitia", radiusKm: 1188.3 },
 ];
 
 async function placeOnMoon(page, name, { planet, moon, id, radiusKm }, notes) {
@@ -63,11 +65,23 @@ async function run(name, size) {
     assert.ok(state, `${name}: the planets experience offers a switch`);
     const values = state.options.map((option) => option.value);
     for (const planet of ["jupiter", "saturn", "uranus", "neptune", "pluto"]) assert.ok(values.includes(planet), `${name}: the switch offers ${planet} (${values.join(", ")})`);
+    // The clock runs from the first frame (3600x), so the opening time is read after pausing and seeking back to it, never raced.
+    await ui.seekTo(page, Date.parse(wanted));
     const before = await ui.clockMs(page);
-    assert.equal(before, Date.parse(wanted), `${name}: Jupiter opens at the requested time`);
+    assert.equal(before, Date.parse(wanted), `${name}: Jupiter is at the requested time once paused there`);
+
+    // I-051: advance the clock away from the time the address was opened with (the address is never rewritten), pause there, switch: the new planet opens at that later time.
+    const DAY = 86_400_000;
+    const later = Date.parse(wanted) + 5 * DAY;
+    await ui.seekTo(page, later);
+    await ui.waitForClock(page, new Date(later).toISOString());
     await ui.chooseSwitchOption(page, "saturn");
+    await ui.waitForShell(page);
     await ui.ensurePaused(page);
-    assert.equal(await ui.clockMs(page), before, `${name}: switching to Saturn keeps the clock time`);
+    const carried = await ui.clockMs(page);
+    // The new page plays from its first frame until paused (about a second at 3600x), so compare within a day: far nearer the clock's time than the opening time.
+    assert.ok(Math.abs(carried - later) < DAY, `${name}: switching to Saturn keeps the clock's time now (${new Date(carried).toISOString()} vs ${new Date(later).toISOString()})`);
+    assert.ok(carried - Date.parse(wanted) > 4 * DAY, `${name}: the switch does not fall back to the time the address was opened with`);
     notes.switchKeptTime = await ui.clockIso(page);
 
     // Saturn: its rings at the fact sheet's radii, its moons by family.

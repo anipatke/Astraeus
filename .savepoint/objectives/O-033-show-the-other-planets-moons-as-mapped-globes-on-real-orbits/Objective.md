@@ -35,6 +35,7 @@ Owner, 2026-10-18: "We will do the same for the other planets, but post launch i
 - **One settings file per planet** feeds one experience builder (the Showers pattern); a planet is data, not code. The existing `ExperienceDefinition.switcher` and `SwitchControl` carry the switch. The old `?experience=jupiter-io` address keeps opening Jupiter.
 - **Facing:** synchronous moons face their planet through the IAU rotation records T-078 saved, behind one generic tidal-lock wrapper (Design's "lift when a third moon arrives").
 - **Rings:** Saturn, Uranus and Neptune from the NASA NSSDC ring fact sheets through `RingView`, labelled in provenance.
+- **Planet places rule (coordinator, 2026-10-21, for I-048):** a planet shows every package entry that has a surface position. Entries carrying the donor's ring-plane fields (`ringRadius`, `moonRadius`: rings, ring gaps, inner and small moons, held at 0/0) are not surface places and stay out until rings get place markers; counts as measured: Saturn 3 of 20 shown, Uranus 9 of 19, Neptune 9 of 19, Pluto 12 of 16. Jupiter's own places stay out under Success Condition 6 (Jupiter unchanged), reported to the owner.
 
 ## Success Conditions
 

@@ -10,6 +10,7 @@ import type { PlanetSystem } from "../planetDefinition";
 import marsMoons from "../../../../data/moons/mars.json";
 import marsFeatures from "../../../../data/bodies/mars/features.json";
 import marsCategories from "../../../../data/bodies/mars/categories.json";
+import marsFitErrors from "../../../../data/moons/fit-errors/mars.json";
 
 /** The fit chunks this build ships for Mars: the window's year (one file per body per year), fetched only for this planet. A window in another year needs its year here. */
 const SHIPPED_CHUNKS = import.meta.glob("../../../../data/ephemerides/mars-moons/*/2016.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
@@ -33,6 +34,7 @@ export const marsSystem: PlanetSystem = {
   fitSource: moonFitSource("Mars"),
   tidalLockNote: MARS_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: MARS.gmKm3S2!,
+  fitErrorsM: marsFitErrors,
   packages: { mars: { features: marsFeatures, categories: marsCategories } },
   load: async (window) => { await MARS_MOON_SYSTEM.load({ window, bodies: MARS_MOON_IDS, chunkUrls: MARS_CHUNK_URLS, history: { bodies: MARS_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
 };

@@ -5,9 +5,10 @@ import { saturnMoonsSystem } from "../../../assets/compositions";
 import { SATURN_MOON_SYSTEM } from "../../../core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
+import saturnFitErrors from "../../../../data/moons/fit-errors/saturn.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../data/bodies/{mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Saturn: the window's year for every body, and the years before it only for the moons whose orbit line reaches back into them (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {
@@ -28,6 +29,7 @@ export const saturnSystem: PlanetSystem = {
   tidalLockNote: SATURN_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: SATURN_MOON_SYSTEM.config.centreGmKm3S2,
   rings: SATURN_RINGS,
-  packages: packagesOf(PACKAGES, ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
+  fitErrorsM: saturnFitErrors,
+  packages: packagesOf(PACKAGES, ["saturn", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
   load: async (window) => { await SATURN_MOON_SYSTEM.load({ window, bodies: SATURN_MOON_IDS, chunkUrls: SATURN_CHUNK_URLS, history: { bodies: SATURN_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
 };

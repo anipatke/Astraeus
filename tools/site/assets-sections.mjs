@@ -2,6 +2,7 @@
 // `node tools/site/assets-sections.mjs` rewrites the marked blocks in assets.html; tests/assetsSections.test.ts fails when the page differs from this output.
 // Jupiter's own section stays with tools/import/jupiter-moon-catalogue.mjs. Same markup and styles as that section (details.moon-family, ul.moon-list).
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { isSurfacePlace } from "../../src/experiences/planets/surfacePlace.mjs";
 
 const root = new URL("../../", import.meta.url);
 const readJson = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"));
@@ -31,20 +32,21 @@ function moonSection(planet) {
   return html;
 }
 
-/** Bodies the planets demo draws: each planet's own settings file, plus every moon those files list. */
-function shownInApp() {
-  const shown = new Set();
+/** The places each planet's view draws, by body: the bodies its settings file lists in `bodyFeatures`, with the surface places of each (the builder's own rule, so the page cannot disagree with the app). */
+function shownPlaces() {
+  const shown = new Map();
   for (const file of readdirSync(new URL("data/planets/", root))) {
-    const planet = readJson(`data/planets/${file}`);
-    shown.add(planet.id);
-    for (const moon of planet.moons?.mapped ?? []) shown.add(moon.id);
+    for (const body of readJson(`data/planets/${file}`).bodyFeatures ?? []) {
+      const list = readJson(`data/bodies/${body}/features.json`).features;
+      shown.set(body, list.filter(isSurfacePlace).length);
+    }
   }
   return shown;
 }
 
 function placesSection() {
   const index = readJson("data/bodies/catalogue.json");
-  const shown = shownInApp();
+  const shown = shownPlaces();
   let total = 0;
   let body = "";
   for (const entry of index.bodies) {
@@ -57,8 +59,9 @@ function placesSection() {
     const used = categories.map((category) => ({ category, n: list.filter((f) => f.category === category.key).length })).filter((c) => c.n > 0);
     const sources = overview.sources.map((s) => `<a href="${esc(s.url)}">${esc(s.label)}</a>`).join("; ");
     const inApp = shown.has(entry.body);
-    body += `      <details class="moon-family" data-places-body="${entry.body}" data-count="${list.length}" data-shown="${inApp ? "yes" : "no"}">\n        <summary><h3>${esc(features.name)} <span class="sub">${list.length}</span></h3></summary>\n`;
-    body += `        <p class="fam-note">${list.length} places in ${used.length} categories (${used.map((c) => `${esc(c.category.label)} ${c.n}`).join(", ")}). ${inApp ? "Shown in the app." : "Not in the app yet."} Sources: ${sources || "none recorded"}.</p>\n        <ul class="moon-list">\n`;
+    const shownCount = shown.get(entry.body);
+    body += `      <details class="moon-family" data-places-body="${entry.body}" data-count="${list.length}" data-shown="${inApp ? "yes" : "no"}"${inApp ? ` data-shown-count="${shownCount}"` : ""}>\n        <summary><h3>${esc(features.name)} <span class="sub">${list.length}</span></h3></summary>\n`;
+    body += `        <p class="fam-note">${list.length} places in ${used.length} categories (${used.map((c) => `${esc(c.category.label)} ${c.n}`).join(", ")}). ${!inApp ? "Not in the app yet." : shownCount === list.length ? "Shown in the app." : `Shown in the app: ${shownCount} of ${list.length} (the rest are ring or moon entries without a surface position).`} Sources: ${sources || "none recorded"}.</p>\n        <ul class="moon-list">\n`;
     for (const feature of list) body += `          <li data-place="${entry.body}/${esc(feature.id)}"><b>${esc(feature.name)}</b> <span>${esc(feature.featureType)} · ${esc(label(feature.category))}</span></li>\n`;
     body += `        </ul>\n      </details>\n`;
   }

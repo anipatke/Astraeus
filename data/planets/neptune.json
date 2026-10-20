@@ -41,6 +41,7 @@
     ]
   },
   "bodyFeatures": [
+    "neptune",
     "triton"
   ],
   "story": {

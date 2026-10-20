@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-033 Full Objective Check C-091 at HEAD 9d1707bc. The generator decides "shown in the app" from planet ids and mapped moons, not from what each planet''s bodyFeatures shows.'
     check: C-091
+  - at: '2026-10-21T01:20:00Z'
+    actor: {role: executor, session: o033-repair-builder-20261021}
+    kind: repair_attempted
+    note: 'Repaired: tools/site/assets-sections.mjs takes shown from the planet settings'' bodyFeatures and counts surface places with the same isSurfacePlace rule as the builder; assets.html regenerated (Jupiter data-shown=no; Mars 30 of 32, Saturn 3 of 20, Uranus 9 of 19, Neptune 9 of 19, Pluto 12 of 16, with a note and data-shown-count). Test: tests/assetsSections.test.ts ''marks a body shown only when some planet''s settings list it'' (fails on a wrong mark or count); the generated-block and credits tests pass. Wording for Jupiter reads ''Not in the app yet'', not a note that Jupiter''s own places are deliberately out (Success Condition 6); noted for the checker.'
 ---
 
 # I-049: The assets catalogue says five bodies' places are shown in the app when they are not

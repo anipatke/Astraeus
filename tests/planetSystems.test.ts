@@ -29,6 +29,9 @@ const VIEWS = [
   { name: "pluto", file: plutoFile, system: plutoSystem, urls: PLUTO_CHUNK_URLS, moonSystem: PLUTO_MOON_SYSTEM },
 ] as const;
 
+/** Surface places each planet shows of its own package (the planet places rule; Saturn 3 of 20, Uranus 9 of 19, Neptune 9 of 19, Pluto 12 of 16). */
+const OWN_PLACES: Record<string, number> = { saturn: 3, uranus: 9, neptune: 9, pluto: 12 };
+
 afterEach(() => { vi.unstubAllGlobals(); for (const view of VIEWS) view.moonSystem.install(null); });
 
 describe("the outer planets in the planet switch (T-118)", () => {
@@ -41,6 +44,15 @@ describe("the outer planets in the planet switch (T-118)", () => {
         expect(definition.composition!.defaultCenter).toBe(settings.centre.id);
         expect(definition.bodySets![0]!.members.length + definition.composition!.bodies.length - 1).toBe(view.system.catalogue!.moons.length);
         expect(definition.experience.bodyFeatures!.map((set) => set.bodyId)).toEqual(settings.bodyFeatures);
+      });
+
+      it("shows its own surface places by the planet places rule (centre listed, no ring or moon entry)", () => {
+        const sets = buildPlanetDefinition(settings, view.system as PlanetSystem, noPanels).experience.bodyFeatures!;
+        expect(settings.bodyFeatures).toContain(settings.centre.id);
+        const own = sets.find((set) => set.bodyId === settings.centre.id)!;
+        const source = (readJson(`${ROOT}data/bodies/${settings.centre.id}/features.json`) as { features: { id: string; ringRadius?: number; moonRadius?: number; latitude?: number }[] }).features;
+        expect(own.features.map((feature) => feature.id)).toEqual(source.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).map((f) => f.id));
+        expect(own.features).toHaveLength(OWN_PLACES[view.name]!);
       });
 
       it("loads exactly the chunks it ships, within its stated limit", async () => {
@@ -91,6 +103,32 @@ describe("the outer planets in the planet switch (T-118)", () => {
     expect(next.searchParams.has("view")).toBe(false);
     const chosen = choosePlanet([{ name: "jupiter", label: "Jupiter", order: 5, isDefault: true }, { name: "saturn", label: "Saturn", order: 6, isDefault: false }], "jupiter")!;
     expect(chosen.switcher.keep).toEqual(["t"]);
+  });
+
+  it("the switch carries the clock's time now, not the time the address was opened with (I-051)", () => {
+    const opened = "http://x/app.html?experience=planets&planet=jupiter&t=2016-11-10T12:00:00Z";
+    const later = Date.UTC(2016, 10, 12, 3, 4, 5, 600);
+    expect(new URL(switchAddress(opened, "planet", "saturn", PLANET_SWITCH_KEEPS, later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    expect(new URL(switchAddress("http://x/app.html?experience=planets&planet=jupiter", "planet", "saturn", PLANET_SWITCH_KEEPS, later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    // A switch that does not keep the time (the showers') drops it whatever the clock says.
+    expect(new URL(switchAddress(opened, "shower", "b", [], later)).searchParams.has("t")).toBe(false);
+  });
+
+  it("states each dot moon's own measured error, never less than the fit index's worst figure (I-050)", () => {
+    for (const view of VIEWS) {
+      const index = readJson(`${ROOT}data/ephemerides/${view.name}-moons/index.json`) as { bodies: { id: string; accuracy?: Record<string, { worstM?: number }> }[] };
+      const definition = buildPlanetDefinition(parsePlanetSettings(view.file), view.system as PlanetSystem, noPanels);
+      const stated = new Map(definition.experience.objects.map((object) => [object.id, object.provenance?.accuracy ?? ""]));
+      let checked = 0;
+      for (const body of index.bodies) {
+        const worst = Math.max(0, ...Object.values(body.accuracy ?? {}).map((entry) => entry.worstM ?? 0));
+        const text = stated.get(body.id);
+        if (text === undefined || !text.startsWith("Positions reproduce Horizons to within ")) continue;
+        checked += 1;
+        expect(Number(/within ([\d.]+) m/.exec(text)![1]), `${view.name}/${body.id}`).toBeGreaterThanOrEqual(worst);
+      }
+      expect(checked, view.name).toBeGreaterThan(0);
+    }
   });
 
   it("a planet with no mapped moon (Uranus) builds with only the planet's presets", () => {

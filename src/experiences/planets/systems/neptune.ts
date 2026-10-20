@@ -5,9 +5,10 @@ import { neptuneMoonsSystem } from "../../../assets/compositions";
 import { NEPTUNE_MOON_SYSTEM } from "../../../core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
+import neptuneFitErrors from "../../../../data/moons/fit-errors/neptune.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../data/bodies/triton/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../data/bodies/{neptune,triton}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Neptune: the window's year for every body, and the years before it only for the moons whose orbit line reaches back into them (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {
@@ -28,6 +29,7 @@ export const neptuneSystem: PlanetSystem = {
   tidalLockNote: NEPTUNE_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: NEPTUNE_MOON_SYSTEM.config.centreGmKm3S2,
   rings: NEPTUNE_RINGS,
-  packages: packagesOf(PACKAGES, ["triton"]),
+  fitErrorsM: neptuneFitErrors,
+  packages: packagesOf(PACKAGES, ["neptune", "triton"]),
   load: async (window) => { await NEPTUNE_MOON_SYSTEM.load({ window, bodies: NEPTUNE_MOON_IDS, chunkUrls: NEPTUNE_CHUNK_URLS, history: { bodies: NEPTUNE_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
 };

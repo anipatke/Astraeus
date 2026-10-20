@@ -17,17 +17,18 @@ import { bodyFeatureSet, type BodyFeature, type BodyFeatureCategory } from "../.
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import { parseStoryPanels } from "../../shell/storyPanels";
 import type { PlanetSettings } from "./planetSettings";
+import { isSurfacePlace } from "./surfacePlace.mjs";
 
 /**
  * A tagged place as the body package stores it: some entries have no details (Earth), and a package may list a moon of the body without a position
  * (Mars's Phobos and Deimos carry an orbit ring, not a latitude and longitude). Only entries with a position become markers.
  */
-export type PackageFeature = Omit<BodyFeature, "latitude" | "longitude" | "details"> & { readonly latitude?: number; readonly longitude?: number; readonly details?: BodyFeature["details"] };
+export type PackageFeature = Omit<BodyFeature, "latitude" | "longitude" | "details"> & { readonly latitude?: number; readonly longitude?: number; readonly details?: BodyFeature["details"]; readonly ringRadius?: unknown; readonly moonRadius?: unknown };
 
-/** The places of a package that have a position, each with its details (none when the package gives none); latitude and longitude exactly as stored. */
+/** The surface places of a package (the planet places rule: a position, no ring-plane fields), each with its details (none when the package gives none); latitude and longitude exactly as stored. */
 function placedFeatures(features: readonly PackageFeature[]): { readonly features: readonly BodyFeature[] } {
   return {
-    features: features.flatMap((feature) => feature.latitude === undefined || feature.longitude === undefined ? [] : [{ ...feature, latitude: feature.latitude, longitude: feature.longitude, details: feature.details ?? [] }]),
+    features: features.flatMap((feature) => !isSurfacePlace(feature) ? [] : [{ ...feature, latitude: feature.latitude!, longitude: feature.longitude!, details: feature.details ?? [] }]),
   };
 }
 
@@ -46,6 +47,8 @@ export interface PlanetSystem {
   /** Said of every mapped moon whose face is held towards the planet. */
   readonly tidalLockNote?: string;
   readonly centreGmKm3S2?: number;
+  /** Each moon's worst measured error against Horizons (m), from its fit index. When given, a dot moon's accuracy text states its own figure; when not, the text states the fit target (1 m). */
+  readonly fitErrorsM?: Readonly<Record<string, number>>;
   readonly rings?: NonNullable<VisualOverride["rings"]>;
   /** The tagged places of each mapped moon, as the body package stores them. */
   readonly packages: Readonly<Record<string, { readonly features: { readonly features: readonly PackageFeature[] }; readonly categories: { readonly categories: readonly BodyFeatureCategory[] } }>>;
@@ -65,11 +68,14 @@ const FEATURE_PROVENANCE = createProvenance({
   notes: "Markers hide on the far side of the moon and when the moon is drawn small.",
 });
 
+/** A measured error as stated: rounded up to a tenth of a metre, never below the 1 m target the text has always given. */
+const stated = (worstM: number): string => String(Math.max(1, Math.ceil(worstM * 10) / 10));
+
 /** Where each dot moon's position comes from, for its information panel. */
-const dotMoonProvenance = (fitSource: string): Provenance => createProvenance({
+const dotMoonProvenance = (fitSource: string, worstM?: number): Provenance => createProvenance({
   sourceType: "ephemeris",
   sources: [fitSource],
-  accuracy: "Positions reproduce Horizons to within 1 m. Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.",
+  accuracy: `Positions reproduce Horizons to within ${worstM === undefined ? "1" : stated(worstM)} m${worstM !== undefined && worstM > 1 ? " (this moon's own worst error in the fit's checks, including the check against Horizons about the planet, where part of the gap is Horizons' own kernel difference)" : ""}. Horizons' own uncertainty is far larger for the recently discovered moons and is not stated in its output. Radii marked estimate are brightness-based sizes.`,
   notes: "Each orbit line is the moon's own path from these positions over about one orbit, ending where the moon is now; for a moon perturbed by the Sun the line does not close exactly, so its oldest end fades out.",
 });
 
@@ -96,7 +102,7 @@ function moonListOf(settings: PlanetSettings, system: PlanetSystem): MoonListPar
 }
 
 /** The planet's dot moons as one body set: the layer the scene draws in one batch. Undefined when there is no dot moon and no mapped moon to batch an orbit line for. */
-function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<PlanetSystem, "composition">): BodySetLayer | undefined {
+function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<PlanetSystem, "composition" | "fitErrorsM">): BodySetLayer | undefined {
   const mapped = new Set(system.composition.bodies);
   const dots = system.catalogue.moons.filter((moon) => !mapped.has(moon.id));
   const mappedMoons = system.catalogue.moons.filter((moon) => mapped.has(moon.id));
@@ -104,7 +110,8 @@ function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<
   const batched = mappedMoons.filter((moon) => !ownPath.has(moon.id));
   if (dots.length === 0 && batched.length === 0) return undefined;
   const window = settings.window;
-  const provenance = dotMoonProvenance(system.fitSource);
+  const fitErrors = system.fitErrorsM;
+  const provenance = dotMoonProvenance(system.fitSource, fitErrors === undefined ? undefined : Math.max(0, ...dots.map((moon) => fitErrors[moon.id] ?? Infinity)));
   return {
     id: `${settings.id}-small-moons`,
     group: createEphemerisGroup({ id: `${settings.id}-small-moons`, center: settings.centre.id, ephemeris: system.ephemeris, members: dots.map((moon) => moon.id), bounds: window, provenance }),
@@ -146,12 +153,19 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
   if (!system.composition.bodies.includes(settings.centre.id)) throw new PlanetBuildError(`planet "${settings.id}" centres on "${settings.centre.id}", which its system does not draw`);
   if (moonList !== undefined && !moonList.families.some((family) => family.id === settings.moons!.featuredFamilyId)) throw new PlanetBuildError(`planet "${settings.id}" features the family "${settings.moons!.featuredFamilyId}", which its moon list lacks`);
 
-  const layer = list === undefined ? undefined : planetMoonLayer(settings, { ...list, composition: system.composition });
+  const layer = list === undefined ? undefined : planetMoonLayer(settings, { ...list, composition: system.composition, fitErrorsM: system.fitErrorsM });
   const dots = moonList === undefined ? [] : moonList.moons.filter((moon) => !mappedIds.has(moon.id));
 
   // The Horizons list the moons come from: its date is the list's asOf and its count is the moons the data holds (never typed in).
   const listSummary = moonList === undefined ? undefined : moonListSummary(moonList.moons.length, settings.moons!.listSource!, moonList.asOf);
-  const dotProvenance = list === undefined ? undefined : dotMoonProvenance(list.fitSource);
+  /** A dot moon's accuracy record: its own measured figure when the system has them (a moon with none is an error, not a default). */
+  const dotProvenanceOf = (id: string): Provenance => {
+    const figures = system.fitErrorsM;
+    if (figures === undefined) return dotMoonProvenance(list!.fitSource);
+    const worst = figures[id];
+    if (worst === undefined) throw new PlanetBuildError(`planet "${settings.id}" has no measured fit error for the moon "${id}"`);
+    return dotMoonProvenance(list!.fitSource, worst);
+  };
   const familyLabel = (id: string) => moonList!.families.find((family) => family.id === id)!.label;
 
   const objects: ExperienceObject[] = [
@@ -175,7 +189,7 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
       listed: false,
       description: `A small moon of ${settings.label} in the ${familyLabel(moon.family)}.`,
       facts: factsOf(moon.id),
-      provenance: withCatalogueSources(dotProvenance!, moon.id),
+      provenance: withCatalogueSources(dotProvenanceOf(moon.id), moon.id),
     })),
   ];
 

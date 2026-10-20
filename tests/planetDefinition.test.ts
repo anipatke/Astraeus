@@ -112,3 +112,15 @@ describe("planet choice (T-117)", () => {
     expect(choosePlanet([], null)).toBeUndefined();
   });
 });
+
+describe("the planet places rule (I-048)", () => {
+  const place = (id: string, extra: Record<string, unknown>) => ({ id, name: id, featureType: "crater", category: "craters", description: "Made up.", ...extra });
+  const package_ = {
+    features: { features: [place("surface", { latitude: 10, longitude: 20 }), place("ring-gap", { latitude: 0, longitude: 0, ringRadius: 2.9 }), place("inner-moon", { latitude: 0, longitude: 0, moonRadius: 1.5 }), place("no-position", {})] },
+    categories: { categories: [{ key: "craters", label: "Craters", color: "#ffffff", isFilterable: true }] },
+  };
+  it("shows the centre's surface places only: no ring or inner-moon entry, no entry without a position", () => {
+    const definition = buildPlanetDefinition(parsePlanetSettings({ ...madeUpFile, bodyFeatures: ["mars"] }), { ...madeUpSystem, packages: { mars: package_ } } as unknown as PlanetSystem, madeUpPanels);
+    expect(definition.experience.bodyFeatures!.map((set) => [set.bodyId, set.features.map((feature) => feature.id)])).toEqual([["mars", ["surface"]]]);
+  });
+});

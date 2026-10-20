@@ -38,9 +38,21 @@ describe("assets page sections follow the data (T-120)", () => {
     }
   });
 
-  it("shows every body with a package in the app except Ceres", () => {
-    const notShown = [...assets.matchAll(/data-places-body="([^"]+)"[^>]*data-shown="no"/g)].map((m) => m[1]);
-    expect(notShown).toEqual(["ceres"]);
+  it("marks a body shown only when some planet's settings list it, with the count the app draws (I-049)", () => {
+    const listed = new Map<string, number>();
+    for (const file of ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]) {
+      for (const body of (readJson(`${ROOT}data/planets/${file}.json`) as { bodyFeatures: string[] }).bodyFeatures) {
+        const list = (readJson(`${ROOT}data/bodies/${body}/features.json`) as { features: { latitude?: number; ringRadius?: number; moonRadius?: number }[] }).features;
+        listed.set(body, list.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).length);
+      }
+    }
+    for (const entry of bodies) {
+      const tag = new RegExp(`data-places-body="${entry.body}"[^>]*data-shown="(yes|no)"(?: data-shown-count="(\\d+)")?`).exec(assets)!;
+      expect(tag[1], entry.body).toBe(listed.has(entry.body) ? "yes" : "no");
+      if (listed.has(entry.body)) expect(Number(tag[2]), entry.body).toBe(listed.get(entry.body));
+    }
+    expect(assets).toMatch(/data-places-body="jupiter"[^>]*data-shown="no"/);
+    expect(listed.get("pluto")).toBe(12);
   });
 });
 

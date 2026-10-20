@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the one planets demo run of the O-033 Full Objective Check C-091 (docs/evidence/demo-planets-20261020T140051Z). Not rerun, by the owner rule (one run per set per change).'
     check: C-091
+  - at: '2026-10-21T01:20:00Z'
+    actor: {role: executor, session: o033-repair-builder-20261021}
+    kind: repair_attempted
+    note: 'Repaired: tools/validate/browser-outer-planets.mjs no longer compares an exact value on a running clock: after pausing it seeks to the requested time through the driver and then reads it; a new scenario seeks Jupiter five days later, switches to Saturn, pauses and checks the clock is within a day of that later time and more than four days past the opening time (so it fails under I-051). Driver calls only. Syntax checked; not run (owner rule: the recheck runs the planets set once). Unverified until that run.'
 ---
 
 # I-052: The outer-planets browser check fails on its first clock read
