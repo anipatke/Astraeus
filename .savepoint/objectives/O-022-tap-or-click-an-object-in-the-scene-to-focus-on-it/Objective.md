@@ -30,6 +30,19 @@ Owner, 2026-10-18: "at the moment you can only focus on objects through the top 
 2. **Planets, moons and the Sun only** ("lets make it planets moons sun only"): spacecraft (Columbia, Eagle), comets, asteroids, meteor streams and catalogue points are not tap targets.
 3. **Hover highlight on laptops** (owner chose "both"): over a tappable body or its label the cursor becomes a pointing hand and the body's label brightens gently; the brightening amount is a live setting (owner rule). Phones have no hover.
 
+## Confirmed Decisions (owner, 2026-10-20, planning)
+
+4. **One tap flies for set members too** (owner chose "One tap flies"): Jupiter's body-set moons drop O-025's two-tap rule (first tap names, second flies); one tap or click focuses them like every other body. Laptop hover still names a dot first.
+5. **Design and three-step split confirmed** ("Yes, plan it"): tap-to-focus, then hover hint, then browser checks with Design reconciliation, in one sequential lane.
+
+## Planned Technical Decisions (planner, 2026-10-20)
+
+- *What a tap does:* the same as the moon panel's `chooseMoon` without opening information: the shell activates `focusPresetFor(experience, object)` for an available object, which selects it in the picker. A scene tap reaches the shell through a controls callback (like `onStoryMarker`), never by writing `cameraRequest` directly, so the picker always shows the tapped object. Today's body-set path (`BodySetLabelLayer` writing `cameraRequest`) moves to the same callback.
+- *What can be tapped:* objects whose id resolves to a catalogued body (`bodyIdFor`), which are natural bodies only (spacecraft are tracked subjects outside the catalogue), plus body-set members. No new field on `ExperienceObject`.
+- *Hit test:* one pure, generic picking module over screen-space candidates: a body's projected disc plus a minimum tolerance (larger for touch), and its shown label's rectangle. Labels stay `pointer-events: none`; the canvas handler hit-tests label rectangles, so drags that start over a label still turn the view. Nearest wins; the existing story and feature marker taps keep priority.
+- *Tap versus drag:* one rule shared with the orbit gestures: one pointer, movement under the slop, no second pointer during the press (a pinch is never a tap).
+- *Readouts:* the scene exposes the hovered and last picked target as `data-*` readouts on the canvas for the browser driver; no screenshots.
+
 ## Architectural Considerations
 
 Picking belongs to the presentation layer (ARCH-02) and reuses the existing camera focus presets; it never changes state or positions. It must respect the floating origin and both scales.
