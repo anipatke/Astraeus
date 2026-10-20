@@ -4,7 +4,8 @@ import type { IauRotationElements } from "../src/core/iauRotation";
 import positionFixture from "./fixtures/planets-horizons.json";
 import rotationFixture from "./fixtures/planets-rotation-horizons.json";
 
-export const PLANETS: readonly PlanetId[] = ["mercury", "venus", "mars", "jupiter"];
+/** The four planets with catalogue bodies and archived Horizons vectors in planets-horizons.json (the outer planets: outer-planets-horizons.json). */
+export const PLANETS = ["mercury", "venus", "mars", "jupiter"] as const satisfies readonly PlanetId[];
 export { positionFixture, rotationFixture };
 
 interface PckLine { readonly kernel: string; readonly body: number; readonly key: string; readonly values: number[] }

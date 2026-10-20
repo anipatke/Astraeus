@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { Jupiter, Mars, Mercury, Venus } from "@lizard-isana/orb/src/orb-planet.js";
+import { Jupiter, Mars, Mercury, Neptune, Saturn, Uranus, Venus } from "@lizard-isana/orb/src/orb-planet.js";
 import { registerVSOP87A } from "@lizard-isana/orb/src/orb-vsop87a-registry.js";
 import { JUPITER_FULL_COEF } from "@lizard-isana/orb/vsop87a/jupiter";
 import { MARS_FULL_COEF } from "@lizard-isana/orb/vsop87a/mars";
+import { NEPTUNE_FULL_COEF } from "@lizard-isana/orb/vsop87a/neptune";
+import { SATURN_FULL_COEF } from "@lizard-isana/orb/vsop87a/saturn";
+import { URANUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/uranus";
 import { MERCURY_FULL_COEF } from "@lizard-isana/orb/vsop87a/mercury";
 import { VENUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/venus";
 import fits from "../data/ephemerides/planets/planets.json";
@@ -15,14 +18,22 @@ registerVSOP87A("Mercury", MERCURY_FULL_COEF);
 registerVSOP87A("Venus", VENUS_FULL_COEF);
 registerVSOP87A("Mars", MARS_FULL_COEF);
 registerVSOP87A("Jupiter", JUPITER_FULL_COEF);
+registerVSOP87A("Saturn", SATURN_FULL_COEF);
+registerVSOP87A("Uranus", URANUS_FULL_COEF);
+registerVSOP87A("Neptune", NEPTUNE_FULL_COEF);
 const full = { vsop87a: "full" } as const;
-const references = { mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full) };
+const references = {
+  mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full),
+  saturn: new Saturn(full), uranus: new Uranus(full), neptune: new Neptune(full),
+};
+/** Pluto has no VSOP87 series; its fit is against Horizons (tests/outerPlanetFits.test.ts). */
+const vsopIds = PLANET_IDS.filter((id): id is keyof typeof references => id in references);
 const AU_KM = 149_597_870.7;
 const models = createPlanetModels();
 
 describe("planet curve fits", () => {
   it("stay within 1 km of the full VSOP87A series from 1972 to 2045 (UTC, leap seconds included)", () => {
-    for (const id of PLANET_IDS) {
+    for (const id of vsopIds) {
       let worst = 0;
       for (let ms = Date.UTC(1972, 0, 1) + 7_654_321; ms < Date.UTC(2045, 0, 1); ms += 13 * 86_400_000 + 3_333_333) {
         const a = models[id].xyz(new Date(ms));
@@ -34,7 +45,7 @@ describe("planet curve fits", () => {
   });
 
   it("stay within 1 km of the series from 1969 to the end of 1971, apart from Orb's own pre-1972 step in TT - UTC", () => {
-    for (const id of PLANET_IDS) {
+    for (const id of vsopIds) {
       let worst = 0;
       for (let ms = Date.UTC(1969, 0, 1) + 7_654_321; ms < Date.UTC(1972, 0, 1); ms += 5 * 86_400_000 + 3_333_333) {
         const a = models[id].xyz(new Date(ms));
@@ -54,8 +65,8 @@ describe("planet curve fits", () => {
     expect(() => models.mars.xyz(new Date(Date.UTC(2050, 0, 1)))).toThrow(RangeError);
   });
 
-  it("is small: all four planets' coefficients take under 250 KB as stored", () => {
+  it("is small: all eight planets' coefficients take under 520 KB as stored", () => {
     const stored = Object.values(fits.planets).reduce((sum, p) => sum + p.data.length, 0);
-    expect(stored).toBeLessThan(250_000);
+    expect(stored).toBeLessThan(520_000);
   });
 });

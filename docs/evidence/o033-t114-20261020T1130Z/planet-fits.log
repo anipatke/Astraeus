@@ -1,0 +1,10 @@
+mercury {"segmentDays":48,"coefficientsPerAxis":24,"segments":579,"bytes":99050,"base64Bytes":132068,"worstErrorKm":0.7114}
+venus {"segmentDays":192,"coefficientsPerAxis":26,"segments":145,"bytes":25504,"base64Bytes":34008,"worstErrorKm":0.6251}
+mars {"segmentDays":192,"coefficientsPerAxis":21,"segments":145,"bytes":18861,"base64Bytes":25148,"worstErrorKm":0.7973}
+jupiter {"segmentDays":256,"coefficientsPerAxis":30,"segments":109,"bytes":14914,"base64Bytes":19888,"worstErrorKm":0.5707}
+saturn {"segmentDays":128,"coefficientsPerAxis":21,"segments":217,"bytes":21565,"base64Bytes":28756,"worstErrorKm":0.5314}
+uranus {"segmentDays":128,"coefficientsPerAxis":22,"segments":217,"bytes":21793,"base64Bytes":29060,"worstErrorKm":0.5434}
+neptune {"segmentDays":96,"coefficientsPerAxis":25,"segments":290,"bytes":31357,"base64Bytes":41812,"worstErrorKm":0.631}
+pluto {"segmentDays":32,"coefficientsPerAxis":29,"segments":868,"bytes":150021,"base64Bytes":200028,"worstErrorKm":0.6684}
+total raw 383065 bytes, gzip 323574, as base64 510756
+wrote /home/user/code/Astraeus/data/ephemerides/planets/planets.json

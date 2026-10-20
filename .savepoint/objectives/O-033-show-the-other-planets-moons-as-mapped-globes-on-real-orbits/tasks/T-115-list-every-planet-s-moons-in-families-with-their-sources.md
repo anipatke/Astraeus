@@ -2,7 +2,8 @@
 id: T-115
 title: List every planet's moons in families with their sources
 objective: O-033
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-114, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o033-planning-20261020}

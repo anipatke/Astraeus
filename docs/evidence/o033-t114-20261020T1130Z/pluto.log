@@ -1,0 +1,10 @@
+Horizons moons importer: span 2010-01-01 to 2030-01-01, cache tools/import/.horizons-cache
+  5 moons listed for Pluto (major-body list fetched 2026-10-20T11:05:47.672Z)
+  time scale: 4 pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to 5.6 us
+  pluto          seg 12.0000 d deg 20 step 180 min | span worst 0.0422 m rms 0.0205 m | demo worst 0.039 m | 138754 B | 11 s
+  charon         seg 8.0000 d deg 15 step 360 min | span worst 0.6939 m rms 0.1792 m | demo worst 0.4686 m | 158655 B | 12 s
+  nix            seg 3.0000 d deg 25 step 160 min | span worst 0.3657 m rms 0.0751 m | demo worst 0.2771 m | 350688 B | 15 s
+  hydra          seg 4.0000 d deg 26 step 180 min | span worst 0.0905 m rms 0.0188 m | demo worst 0.0617 m | 278482 B | 15 s
+  kerberos       seg 4.0000 d deg 26 step 180 min | span worst 0.1552 m rms 0.0301 m | demo worst 0.1121 m | 284337 B | 18 s
+  styx           seg 1.0000 d deg  8 step 160 min | span worst 0.4875 m rms 0.0312 m | demo worst 0.099 m | 530026 B | 14 s
+Done: 6 bodies, 46 Horizons requests this run.

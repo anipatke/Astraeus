@@ -71,7 +71,11 @@ export function detectGrid(samples, stepS) {
   const scores = candidates.map((value) => explained(value))
   const bestScore = Math.max(...scores)
   if (bestScore < 0.8) return null
-  const lengthS = candidates[scores.findIndex((score) => score >= bestScore - 0.05)]
+  const detectedS = candidates[scores.findIndex((score) => score >= bestScore - 0.05)]
+  // Every source record length seen is a whole number of half hours; at a one-minute probe a gap can land a minute off (Deimos: 721 min
+  // for 720), which no segment length would then align with. Snap to the half hour when the detection is within two steps of it.
+  const halfHours = Math.round(detectedS / 1800) * 1800
+  const lengthS = halfHours > 0 && Math.abs(halfHours - detectedS) <= 2 * stepS ? halfHours : detectedS
   const regular = explained(lengthS)
   const offsets = centres.map((centre) => {
     const r = ((centre - centres[0]) % lengthS + lengthS) % lengthS

@@ -1,0 +1,197 @@
+{
+ "span": [
+  "2010-01-01",
+  "2030-01-01"
+ ],
+ "moonCount": 5,
+ "listFetched": "2026-10-20T11:05:47.672Z",
+ "requests": 46,
+ "timeScaleCheck": {
+  "samples": 1201,
+  "worstResidualAfter1972S": 0.00000558453197641029,
+  "note": "Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050"
+ },
+ "bodies": [
+  {
+   "id": "pluto",
+   "naifId": 999,
+   "ephemeris": "plu060_merged",
+   "periodDays": 6.387,
+   "segmentDays": 12,
+   "calibratedSegmentDays": 12,
+   "degree": 20,
+   "calibratedDegree": 20,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 180,
+   "samples": 58561,
+   "chunkBytes": 138754,
+   "span": {
+    "worstM": 0.0422,
+    "worstAt": "2011-05-20 08:18:00.000 TDB",
+    "rmsM": 0.0205,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.039,
+    "worstAt": "2017-01-09 16:30:00.000 TDB",
+    "rmsM": 0.0205,
+    "count": 3408
+   }
+  },
+  {
+   "id": "charon",
+   "naifId": 901,
+   "ephemeris": "plu060_merged",
+   "periodDays": 5.69098,
+   "segmentDays": 8,
+   "calibratedSegmentDays": 8,
+   "degree": 15,
+   "calibratedDegree": 15,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 360,
+   "samples": 29249,
+   "chunkBytes": 158655,
+   "span": {
+    "worstM": 0.6939,
+    "worstAt": "2011-04-26 23:46:00.000 TDB",
+    "rmsM": 0.1792,
+    "count": 9981
+   },
+   "demo": {
+    "worstM": 0.4686,
+    "worstAt": "2016-11-10 01:30:00.000 TDB",
+    "rmsM": 0.1798,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.6237,
+    "rmsM": 0.1759,
+    "count": 1001
+   }
+  },
+  {
+   "id": "nix",
+   "naifId": 902,
+   "ephemeris": "plu060_merged",
+   "periodDays": 26.4377,
+   "segmentDays": 3,
+   "calibratedSegmentDays": 6,
+   "degree": 25,
+   "calibratedDegree": 25,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 160,
+   "samples": 65773,
+   "chunkBytes": 350688,
+   "span": {
+    "worstM": 0.3657,
+    "worstAt": "2014-07-04 02:51:00.000 TDB",
+    "rmsM": 0.0751,
+    "count": 9947
+   },
+   "demo": {
+    "worstM": 0.2771,
+    "worstAt": "2016-10-09 04:30:00.000 TDB",
+    "rmsM": 0.0735,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3406,
+    "rmsM": 0.0778,
+    "count": 1001
+   }
+  },
+  {
+   "id": "hydra",
+   "naifId": 903,
+   "ephemeris": "plu060_merged",
+   "periodDays": 40.3708,
+   "segmentDays": 4,
+   "calibratedSegmentDays": 8,
+   "degree": 26,
+   "calibratedDegree": 26,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 278482,
+   "span": {
+    "worstM": 0.0905,
+    "worstAt": "2027-03-25 03:28:00.000 TDB",
+    "rmsM": 0.0188,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.0617,
+    "worstAt": "2017-07-27 04:30:00.000 TDB",
+    "rmsM": 0.0185,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.069,
+    "rmsM": 0.0279,
+    "count": 1001
+   }
+  },
+  {
+   "id": "kerberos",
+   "naifId": 904,
+   "ephemeris": "plu060_merged",
+   "periodDays": 34.1319,
+   "segmentDays": 4,
+   "calibratedSegmentDays": 8,
+   "degree": 26,
+   "calibratedDegree": 26,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 180,
+   "samples": 58465,
+   "chunkBytes": 284337,
+   "span": {
+    "worstM": 0.1552,
+    "worstAt": "2021-01-19 03:27:00.000 TDB",
+    "rmsM": 0.0301,
+    "count": 9953
+   },
+   "demo": {
+    "worstM": 0.1121,
+    "worstAt": "2016-10-17 04:30:00.000 TDB",
+    "rmsM": 0.0271,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.1025,
+    "rmsM": 0.0356,
+    "count": 1001
+   }
+  },
+  {
+   "id": "styx",
+   "naifId": 905,
+   "ephemeris": "plu060_merged",
+   "periodDays": 21.3331,
+   "segmentDays": 1,
+   "calibratedSegmentDays": 1,
+   "degree": 8,
+   "calibratedDegree": 7,
+   "sourceGridDays": null,
+   "sampleStepMinutes": 160,
+   "samples": 65746,
+   "chunkBytes": 530026,
+   "span": {
+    "worstM": 0.4875,
+    "worstAt": "2023-10-27 00:02:00.000 TDB",
+    "rmsM": 0.0312,
+    "count": 9947
+   },
+   "demo": {
+    "worstM": 0.099,
+    "worstAt": "2017-03-31 13:30:00.000 TDB",
+    "rmsM": 0.0167,
+    "count": 3408
+   },
+   "endToEnd": {
+    "worstM": 0.3439,
+    "rmsM": 0.0386,
+    "count": 1001
+   }
+  }
+ ]
+}

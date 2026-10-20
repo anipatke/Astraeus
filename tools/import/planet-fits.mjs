@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// Refits the four planet position series (Orb's full VSOP87A: Mercury, Venus, Mars, Jupiter) as piecewise Chebyshev curve fits (O-025 T-101,
-// Decision 11), in the same chunk format as the Jupiter moons (src/core/chebyshevSeries.ts), and measures size and accuracy.
+// Refits the planet position series (Orb's full VSOP87A: Mercury, Venus, Mars, Jupiter, and from O-033 T-114 Saturn, Uranus, Neptune) as piecewise
+// Chebyshev curve fits (O-025 T-101, Decision 11), in the same chunk format as the Jupiter moons (src/core/chebyshevSeries.ts), and measures size
+// and accuracy. Pluto has no VSOP87 series: its heliocentric position is fitted to JPL Horizons states (body 999 about the Sun, 6-hourly, ICRF
+// turned into Orb's ecliptic J2000 by Orb's own frame transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms).
 //
 //   node tools/import/planet-fits.mjs [--write] [--report <file>]
 //
@@ -13,11 +15,17 @@ import { register } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import { makeState, transform } from "@lizard-isana/orb/frames";
+import { AstroInstant } from "@lizard-isana/orb/time";
+import { gridSamples, horizonsText, labelOfSeconds, MAX_ROWS, vectorParams } from "./horizons-client.mjs";
 import { Time } from "@lizard-isana/orb/src/orb-time.js";
-import { Jupiter, Mars, Mercury, Venus } from "@lizard-isana/orb/src/orb-planet.js";
+import { Jupiter, Mars, Mercury, Neptune, Saturn, Uranus, Venus } from "@lizard-isana/orb/src/orb-planet.js";
 import { registerVSOP87A } from "@lizard-isana/orb/src/orb-vsop87a-registry.js";
 import { JUPITER_FULL_COEF } from "@lizard-isana/orb/vsop87a/jupiter";
 import { MARS_FULL_COEF } from "@lizard-isana/orb/vsop87a/mars";
+import { NEPTUNE_FULL_COEF } from "@lizard-isana/orb/vsop87a/neptune";
+import { SATURN_FULL_COEF } from "@lizard-isana/orb/vsop87a/saturn";
+import { URANUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/uranus";
 import { MERCURY_FULL_COEF } from "@lizard-isana/orb/vsop87a/mercury";
 import { VENUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/venus";
 
@@ -41,8 +49,15 @@ registerVSOP87A("Mercury", MERCURY_FULL_COEF);
 registerVSOP87A("Venus", VENUS_FULL_COEF);
 registerVSOP87A("Mars", MARS_FULL_COEF);
 registerVSOP87A("Jupiter", JUPITER_FULL_COEF);
+registerVSOP87A("Saturn", SATURN_FULL_COEF);
+registerVSOP87A("Uranus", URANUS_FULL_COEF);
+registerVSOP87A("Neptune", NEPTUNE_FULL_COEF);
 const full = { vsop87a: "full" };
-const MODELS = { mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full) };
+const MODELS = {
+  mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full),
+  saturn: new Saturn(full), uranus: new Uranus(full), neptune: new Neptune(full),
+  pluto: { horizons: true },
+};
 
 // Time. Orb turns the UTC date it is given into TT by adding leap seconds (a step at each one) and, before 1972, a polynomial; a fit of that
 // directly would have to fit every step. So the fitted argument is TT seconds from J2000 (smooth): the series' value at TT, with TT - UTC from
@@ -65,6 +80,7 @@ function orbDateForTt(tt) {
   return new Date(Math.round(ms));
 }
 function truth(model, tt) {
+  if (model.horizons) return model.at(tt);
   const v = model.xyz(orbDateForTt(tt));
   return [v.x * AU_KM, v.y * AU_KM, v.z * AU_KM];
 }
@@ -110,6 +126,48 @@ function worstError(model, coefficients, startS, lengthS, count, dates) {
 
 const START_S = ttSecondsOf(FROM_MS);
 const SPAN_S = ttSecondsOf(TO_MS - 1) - START_S;
+
+/**
+ * Pluto's heliocentric ecliptic-J2000 km from Horizons (body 999 about the Sun) every 6 hours over the span plus margin, as a function of TT seconds
+ * by 12-point Lagrange interpolation (a 6.4-day wobble about the system barycentre is sampled 26 times a period; the interpolation error is far
+ * under a metre). The fit is therefore against Horizons itself, with the cache the moon importer uses.
+ */
+async function plutoFromHorizons() {
+  const cacheDir = join(dirname(fileURLToPath(import.meta.url)), ".horizons-cache");
+  const stepS = 21_600;
+  const firstS = Math.floor(START_S / stepS) * stepS - 10 * stepS;
+  // The last segment of a fit reaches past the span by up to its length (365 days at most): sample that far too, never extrapolate.
+  const count = Math.ceil((START_S + SPAN_S + 400 * DAY_S - firstS) / stepS) + 12;
+  const perRequest = MAX_ROWS - 1;
+  const samples = [];
+  for (let i = 0; i < count; i += perRequest) {
+    const rows = Math.min(perRequest, count - i);
+    const start = firstS + i * stepS;
+    const text = await horizonsText(vectorParams({ command: "999", center: "500@10", start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
+    samples.push(...gridSamples(text, start, stepS, rows));
+  }
+  // ICRF (Horizons) -> ecliptic J2000 with Orb's own transform; the frame is fixed, so one state gives the rotation.
+  const instant = AstroInstant.fromUnixMs(J2000_MS);
+  const toEcliptic = (r) => transform(makeState({ t: instant, frame: "equatorial-j2000", center: "sun", r }), { frame: "ecliptic-j2000" }).r;
+  const ecliptic = samples.map((sample) => Array.from(toEcliptic(sample.positionKm)));
+  const POINTS = 12;
+  return {
+    horizons: true,
+    sampleCount: samples.length,
+    at(tt) {
+      const centre = Math.floor((tt - firstS) / stepS);
+      const from = Math.min(Math.max(centre - POINTS / 2 + 1, 0), samples.length - POINTS);
+      const out = [0, 0, 0];
+      for (let j = from; j < from + POINTS; j += 1) {
+        let weight = 1;
+        for (let m = from; m < from + POINTS; m += 1) if (m !== j) weight *= (tt - samples[m].tdbS) / (samples[j].tdbS - samples[m].tdbS);
+        for (let axis = 0; axis < 3; axis += 1) out[axis] += weight * ecliptic[j][axis];
+      }
+      return out;
+    },
+  };
+}
+MODELS.pluto = await plutoFromHorizons();
 /** Independent dates: every 7.31 days plus a slightly irrational offset, never a segment node. */
 function testDates(startS, endS, step) {
   const dates = [];
@@ -153,7 +211,9 @@ const report = { span: [new Date(FROM_MS).toISOString(), new Date(TO_MS).toISOSt
 const out = { format: "astraeus.planet-fits/1", frame: "ecliptic J2000, heliocentric", unit: "km", argument: "TT seconds from J2000.0 (2000-01-01T12:00Z UTC-scale origin); TT = UTC + the table", timeScale: TIME_TABLE, planets: {} };
 let totalBytes = 0;
 let totalGzip = 0;
+const onlyIds = process.argv.includes("--only") ? process.argv[process.argv.indexOf("--only") + 1].split(",") : null;
 for (const id of Object.keys(MODELS)) {
+  if (onlyIds !== null && !onlyIds.includes(id)) continue;
   const model = MODELS[id];
   const pick = choose(model);
   let attempt = pick;
@@ -164,6 +224,7 @@ for (const id of Object.keys(MODELS)) {
     fit = fitWhole(model, attempt.lengthDays, attempt.count);
     worst = worstError(model, fit.coefficients, START_S, fit.lengthS, attempt.count, testDates(START_S, START_S + SPAN_S, 3.0137 * DAY_S));
     if (worst <= TARGET_KM) break;
+    if (attempt.count > 60) throw new Error(`${id}: no degree up to 60 reaches ${TARGET_KM} km (segment ${attempt.lengthDays} d, worst ${worst} km)`);
     attempt = { ...attempt, count: attempt.count + 1 };
   }
   const bytes = encodeChunk({ startTdbS: START_S, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, coefficients: fit.coefficients });
@@ -178,6 +239,7 @@ report.totalGzipBytes = totalGzip;
 console.log(`total raw ${totalBytes} bytes, gzip ${totalGzip}, as base64 ${Math.ceil(totalBytes / 3) * 4}`);
 
 const args = process.argv.slice(2);
+if (args.includes("--write") && onlyIds !== null) throw new Error("--only is for trials; it cannot be combined with --write (planets.json holds all eight)");
 if (args.includes("--write")) {
   const dir = join(REPO, "data", "ephemerides", "planets");
   mkdirSync(dir, { recursive: true });

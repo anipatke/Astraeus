@@ -54,7 +54,7 @@ describe("planet positions against JPL Horizons (DE441, six dates 1969 to 2030)"
     expect(ranges[1]).toBeGreaterThan(0.71); expect(ranges[1]).toBeLessThan(0.73);
     expect(ranges[2]).toBeGreaterThan(1.38); expect(ranges[2]).toBeLessThan(1.67);
     expect(ranges[3]).toBeGreaterThan(4.9); expect(ranges[3]).toBeLessThan(5.5);
-    expect(() => adapter.planetPositionFromSunKm("saturn" as never, t)).toThrow(/no model/);
+    expect(() => adapter.planetPositionFromSunKm("earth" as never, t)).toThrow(/no model/);
     expect(() => adapter.planetPositionFromSunKm("toString" as never, t)).toThrow(/no model/);
     expect(() => adapter.planetPositionFromSunKm("mars", 1.5)).toThrow(/integer/);
   });

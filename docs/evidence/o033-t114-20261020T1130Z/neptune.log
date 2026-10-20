@@ -1,0 +1,21 @@
+Horizons moons importer: span 2010-01-01 to 2030-01-01, cache tools/import/.horizons-cache
+  16 moons listed for Neptune (major-body list fetched 2026-10-20T11:05:47.672Z)
+  time scale: 4 pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to 5.6 us
+  neptune        seg 2.0000 d deg 10 step 180 min | span worst 0.0034 m rms 0.0012 m | demo worst 0.0028 m | 350582 B | 0 s
+  triton         seg 8.0000 d deg 24 step 180 min | span worst 0.5737 m rms 0.1825 m | demo worst 0.4747 m | 218186 B | 0 s
+  nereid         seg 8.0000 d deg 39 step 180 min | span worst 0.2423 m rms 0.028 m | demo worst 0.1251 m | 163918 B | 2 s
+  naiad          seg 0.4000 d deg 19 step 12 min | span worst 0.3894 m rms 0.0878 m | demo worst 0.4249 m | 3758023 B | 74 s
+  thalassa       seg 0.6000 d deg 29 step 6 min | span worst 0.4338 m rms 0.0427 m | demo worst 0.4568 m | 3263409 B | 157 s
+  despina        seg 0.6000 d deg 22 step 12 min | span worst 0.4153 m rms 0.1017 m | demo worst 0.4815 m | 2913882 B | 83 s
+  galatea        seg 0.8000 d deg 25 step 12 min | span worst 0.3025 m rms 0.0822 m | demo worst 0.321 m | 2325362 B | 95 s
+  larissa        seg 0.8000 d deg 21 step 18 min | span worst 0.4067 m rms 0.0959 m | demo worst 0.3706 m | 2052448 B | 62 s
+  proteus        seg 1.6000 d deg 30 step 18 min | span worst 0.4612 m rms 0.1204 m | demo worst 0.4528 m | 1189380 B | 73 s
+  halimede       seg 64.0000 d deg  7 step 5760 min | span worst 0.4182 m rms 0.0843 m | demo worst 0.4183 m | 10637 B | 10 s
+  psamathe       seg 64.0000 d deg  5 step 11520 min | span worst 0.0589 m rms 0.0165 m | demo worst 0.0276 m | 8766 B | 9 s
+  sao            seg 64.0000 d deg  6 step 11520 min | span worst 0.1221 m rms 0.0252 m | demo worst 0.0649 m | 9698 B | 11 s
+  laomedeia      seg 64.0000 d deg  7 step 11520 min | span worst 0.4911 m rms 0.0628 m | demo worst 0.0222 m | 10206 B | 8 s
+  neso           seg 32.0000 d deg  5 step 7680 min | span worst 0.8446 m rms 0.1076 m | demo worst 0.0179 m | 15551 B | 8 s
+  hippocamp      seg 1.6000 d deg 36 step 18 min | span worst 0.4703 m rms 0.0702 m | demo worst 0.4895 m | 1342576 B | 86 s
+  s2002-n5       seg 32.0000 d deg  7 step 5760 min | span worst 0.1431 m rms 0.0202 m | demo worst 0.0214 m | 18462 B | 9 s
+  s2021-n1       seg 64.0000 d deg  6 step 11520 min | span worst 0.032 m rms 0.01 m | demo worst 0.0323 m | 9193 B | 7 s
+Done: 17 bodies, 184 Horizons requests this run.

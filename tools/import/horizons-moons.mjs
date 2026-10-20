@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Jupiter's moons as piecewise Chebyshev fits of JPL Horizons state vectors (O-025 T-096).
+// A planet's moons as piecewise Chebyshev fits of JPL Horizons state vectors (O-025 T-096; every system in SYSTEMS, O-033 T-114).
 //
-// Every moon Horizons lists for Jupiter (its major-body list: 501-5xx and the provisional 555xx designations) and Jupiter
-// itself are fetched relative to the Jupiter system barycentre (NAIF 5), geometric, ICRF (Astraeus's EQJ), km and km/s, in
-// TDB. Storing each body about the barycentre keeps the outer moons smooth (about Jupiter's centre they carry Jupiter's
-// own wobble of about 100 km at the Galilean periods); the provider subtracts Jupiter's series to give Jupiter-centred states.
+// Every moon Horizons lists for the planet (its major-body list: N01-Nxx and the provisional N5xxx designations, N the system
+// barycentre's NAIF id) and the planet itself are fetched relative to the system barycentre, geometric, ICRF (Astraeus's EQJ),
+// km and km/s, in TDB. Storing each body about the barycentre keeps the outer moons smooth (about the planet's centre they carry
+// its own wobble, about 100 km at the Galilean periods for Jupiter); the provider subtracts the planet's series to give
+// planet-centred states.
 //
 // Steps, all resumable (every Horizons response is cached gzipped under --cache; rerunning never asks twice):
 //   1. list       the Horizons major-body list -> the moons, with names and designations
@@ -15,8 +16,8 @@
 //   5. verify     per body, independent samples (never fit nodes) over the span and the demo window, and Jupiter-centred
 //                 UT samples through the provider itself -> worst and typical error, written to the index and the report
 //
-// Usage: node tools/import/horizons-moons.mjs [--from 2010-01-01] [--to 2030-01-01] [--only 501,516] [--offline]
-//          [--cache tools/import/.horizons-cache] [--out data/ephemerides/jupiter-moons] [--report <dir>] [--recalibrate]
+// Usage: node tools/import/horizons-moons.mjs [--system jupiter|mars|saturn|uranus|neptune|pluto] [--from 2010-01-01] [--to 2030-01-01] [--only 501,516] [--offline]
+//          [--cache tools/import/.horizons-cache] [--out data/ephemerides/<system>-moons] [--report <dir>] [--recalibrate]
 // Needs Node with built-in TypeScript type stripping (22.18+ or 24) to load the shared fitting and provider code.
 
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -39,13 +40,20 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO = resolve(HERE, '..', '..')
 const DAY_S = 86_400
 const J2000_NOON_UNIX_MS = 946_728_000_000
-const ORIGIN = '500@5'
-const CENTRE_COMMAND = '599'
-const CENTRE_ID = 'jupiter'
-/** Jupiter's GM (km^3/s^2), Horizons physical data as recorded in data/orbits/io.json; only used to guess a period from a distance. */
-const JUPITER_GM = 126686531.9
-/** Jupiter's motion about the barycentre follows the Galilean moons; Io's period (days) is the fastest of them. */
-const CENTRE_PERIOD_DAYS = 1.769
+/**
+ * The systems this importer can build. barycentre: NAIF id of the system barycentre; centre: the planet's NAIF id and slug;
+ * gm: the planet's GM (km^3/s^2, Horizons physical data), only used to guess a period from a distance; centrePeriodDays:
+ * the fastest period that drives the planet's wobble about the barycentre (it sets the planet's calibration step).
+ * Jupiter's entry reproduces the O-025 T-096 data byte for byte (`provisional` keeps that index's wording of the designation range).
+ */
+export const SYSTEMS = {
+  jupiter: { name: 'Jupiter', provisional: '555xx', barycentre: 5, centre: '599', gm: 126686531.9, centrePeriodDays: 1.769 },
+  mars: { name: 'Mars', barycentre: 4, centre: '499', gm: 42828.375, centrePeriodDays: 0.319 },
+  saturn: { name: 'Saturn', barycentre: 6, centre: '699', gm: 37931207.8, centrePeriodDays: 0.942 },
+  uranus: { name: 'Uranus', barycentre: 7, centre: '799', gm: 5793951.3, centrePeriodDays: 1.413 },
+  neptune: { name: 'Neptune', barycentre: 8, centre: '899', gm: 6835099.97, centrePeriodDays: 5.877 },
+  pluto: { name: 'Pluto', barycentre: 9, centre: '999', gm: 869.6, centrePeriodDays: 6.387 },
+}
 /** The demo window (O-025 Decision 4: 4 Nov 2016 for a year) with a month either side; calibration and the dense check use it. */
 const CALIBRATION_WINDOW = ['2016-10-01', '2017-12-01']
 /** Fit target, km: metre level for every body (one metre is under a pixel even at the closest view of a one-kilometre moon). */
@@ -58,12 +66,13 @@ const LICENCE = 'JPL Horizons output is produced by NASA/JPL (a US Government-fu
 
 function parseArgs(argv) {
   const opts = {
-    from: '2010-01-01', to: '2030-01-01', only: null, offline: false, recalibrate: false,
-    cache: join(HERE, '.horizons-cache'), out: join(REPO, 'data', 'ephemerides', 'jupiter-moons'), report: null,
+    system: 'jupiter', from: '2010-01-01', to: '2030-01-01', only: null, offline: false, recalibrate: false,
+    cache: join(HERE, '.horizons-cache'), out: null, report: null,
   }
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]
-    if (arg === '--from') opts.from = argv[++i]
+    if (arg === '--system') opts.system = argv[++i]
+    else if (arg === '--from') opts.from = argv[++i]
     else if (arg === '--to') opts.to = argv[++i]
     else if (arg === '--only') opts.only = new Set(argv[++i].split(','))
     else if (arg === '--offline') opts.offline = true
@@ -73,6 +82,8 @@ function parseArgs(argv) {
     else if (arg === '--report') opts.report = resolve(argv[++i])
     else throw new Error(`Unknown argument: ${arg}`)
   }
+  if (!(opts.system in SYSTEMS)) throw new Error(`Unknown system ${opts.system}; one of ${Object.keys(SYSTEMS).join(', ')}`)
+  opts.out ??= join(REPO, 'data', 'ephemerides', `${opts.system}-moons`)
   return opts
 }
 
@@ -82,7 +93,7 @@ const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
 
 // ---------- 1. list ----------
 
-/** Jupiter's moons from the Horizons major-body list, by its fixed-width columns. */
+/** The system's moons from the Horizons major-body list, by its fixed-width columns. */
 async function listMoons(opts) {
   const params = { COMMAND: "'MB'" }
   const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline })
@@ -94,7 +105,7 @@ async function listMoons(opts) {
   const moons = []
   for (const line of lines.slice(ruler + 1)) {
     const id = cell(line, 0)
-    if (!/^(5\d\d|55\d{3})$/.test(id) || id === '599') continue
+    if (!MOON_ID.test(id) || id === SYSTEM.centre) continue
     moons.push({ naifId: Number(id), name: cell(line, 1) || null, designation: cell(line, 2) || null, aliases: cell(line, 3) || null })
   }
   const version = text.match(/API VERSION:\s*(\S+)/)?.[1] ?? null
@@ -135,26 +146,37 @@ async function timeScale(opts, fromS, toS) {
   return {
     table: { pieces: kept, validToUtcMs: Math.min(samples.at(-1).utcMs, Math.max(toMs, kept[0].fromUtcMs + 1)) },
     check: { samples: samples.length, worstResidualAfter1972S: worstResidual, note: 'Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050' },
-    source: `JPL Horizons API, COMMAND=599 CENTER=500@5 VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01 (${headerOf(text).generated ?? 'time not printed'})`,
+    source: `JPL Horizons API, COMMAND=${CENTRE_COMMAND} CENTER=${ORIGIN} VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01 (${headerOf(text).generated ?? 'time not printed'})`,
   }
 }
 
 // ---------- 3. calibrate ----------
 
 function periodDaysOf(header, firstRow, command) {
-  if (command === CENTRE_COMMAND) return CENTRE_PERIOD_DAYS
+  if (command === CENTRE_COMMAND) return SYSTEM.centrePeriodDays
   const stated = header.notes.join(' ').match(/Orbital period\s*[=~]\s*([\d.]+)\s*d/)
   if (stated) return Number(stated[1])
   const r = Math.hypot(firstRow.positionKm[0], firstRow.positionKm[1], firstRow.positionKm[2])
-  return (2 * Math.PI * Math.sqrt((r ** 3) / JUPITER_GM)) / DAY_S
+  return (2 * Math.PI * Math.sqrt((r ** 3) / SYSTEM.gm)) / DAY_S
 }
 
 async function calibrationData(opts, command) {
   const [from, to] = CALIBRATION_WINDOW.map(secondsOfDate)
-  const fetchGrid = async (startS, stepMin, count) => gridSamples(
-    await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(startS), stop: labelOfSeconds(startS + (count - 1) * stepMin * 60), step: `${stepMin}m` }), { cacheDir: opts.cache, offline: opts.offline }),
-    startS, stepMin * 60, count,
-  )
+  // One request when the table fits Horizons' row limit (the Jupiter cache's keys), else pieces that share their end rows.
+  const fetchGrid = async (startS, stepMin, count) => {
+    const samples = []
+    for (let done = 0; done < count; done += MAX_ROWS - 1) {
+      const rows = Math.min(MAX_ROWS, count - done)
+      const start = startS + done * stepMin * 60
+      const piece = gridSamples(
+        await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepMin * 60), step: `${stepMin}m` }), { cacheDir: opts.cache, offline: opts.offline }),
+        start, stepMin * 60, rows,
+      )
+      samples.push(...(samples.length > 0 ? piece.slice(1) : piece))
+      if (done + rows >= count) break
+    }
+    return samples
+  }
   // A first look at the body (one day) gives its header and a period estimate.
   const peekText = await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(from), stop: labelOfSeconds(from + DAY_S), step: '1d' }), { cacheDir: opts.cache, offline: opts.offline })
   const header = headerOf(peekText)
@@ -166,17 +188,33 @@ async function calibrationData(opts, command) {
   const grid = detectGrid(probe, probeStepMin * 60)
   // The calibration year: at most period / 40, and at most a 24th of the record grid so a record can take a high degree.
   const gridLimitMin = grid === null ? Infinity : grid.lengthS / 60 / 24
-  const stepMin = CALIBRATION_STEPS.filter((step) => step <= Math.min(calibrationStepMinutes(periodDays), gridLimitMin)).at(-1) ?? CALIBRATION_STEPS[0]
+  // The step divides the record grid so samples land on its boundaries; the listed steps divide a multiple of 9 hours, and a
+  // grid of another length (Titan: 73 h) takes the largest whole-minute divisor of the grid instead.
+  const limitMin = Math.min(calibrationStepMinutes(periodDays), gridLimitMin)
+  const gridMin = grid === null ? null : grid.lengthS / 60
+  const dividesGrid = (step) => gridMin === null || Math.abs(gridMin / step - Math.round(gridMin / step)) < 1e-9
+  let stepMin = CALIBRATION_STEPS.filter((step) => step <= limitMin && dividesGrid(step)).at(-1)
+  if (stepMin === undefined) {
+    for (let step = Math.floor(limitMin); step >= 1 && stepMin === undefined; step -= 1) if (Number.isInteger(gridMin) && gridMin % step === 0) stepMin = step
+    stepMin ??= CALIBRATION_STEPS[0]
+  }
   const stepS = stepMin * 60
-  const count = Math.floor((to - from) / stepS) + 1
-  const samples = await fetchGrid(from, stepMin, count)
-  const tests = await fetchGrid(from + stepS / 2, stepMin, count - 1)
+  // ... and the calibration window starts on a sample point that is on the grid (the window start itself when it already is).
+  const alignedFrom = grid === null ? from : grid.phaseS + Math.ceil((from - grid.phaseS) / stepS - 1e-9) * stepS
+  const count = Math.floor((to - alignedFrom) / stepS) + 1
+  const samples = await fetchGrid(alignedFrom, stepMin, count)
+  const tests = await fetchGrid(alignedFrom + stepS / 2, stepMin, count - 1)
   return { header, periodDays, stepS, samples, tests, grid, probeStepS: probeStepMin * 60 }
 }
 
 async function calibrate(opts, command, targetKm) {
   const { header, periodDays, stepS, samples, tests, grid, probeStepS } = await calibrationData(opts, command)
-  const policy = choosePolicy({ samples, tests, stepS, grid, periodDays, targetKm })
+  let policy
+  try {
+    policy = choosePolicy({ samples, tests, stepS, grid, periodDays, targetKm })
+  } catch (error) {
+    throw new Error(`${command}: ${error.message} (period ${periodDays.toFixed(4)} d, calibration step ${stepS / 60} min, probe step ${probeStepS / 60} min, record grid ${grid === null ? 'not found' : `${grid.lengthS / 86_400} d`})`)
+  }
   return {
     periodDays: Number(periodDays.toPrecision(6)),
     calibrationStepMinutes: stepS / 60,
@@ -311,7 +349,7 @@ async function endToEndSamples(opts, command, fromS, toS) {
   const startMs = J2000_NOON_UNIX_MS + fromS * 1000 + 3 * 3600 * 1000
   const count = Math.floor(((toS - fromS) * 1000 - 3 * 3600 * 1000) / (stepMin * 60_000)) + 1
   const label = (ms) => new Date(ms).toISOString().replace('T', ' ').replace('Z', '')
-  const text = await horizonsText(vectorParams({ command, center: '500@599', start: label(startMs), stop: label(startMs + (count - 1) * stepMin * 60_000), step: `${stepMin}m`, timeType: 'UT' }), { cacheDir: opts.cache, offline: opts.offline })
+  const text = await horizonsText(vectorParams({ command, center: `500@${CENTRE_COMMAND}`, start: label(startMs), stop: label(startMs + (count - 1) * stepMin * 60_000), step: `${stepMin}m`, timeType: 'UT' }), { cacheDir: opts.cache, offline: opts.offline })
   const rows = rowsOf(text)
   if (rows.length !== count) throw new Error(`end-to-end: expected ${count} rows, got ${rows.length}`)
   return rows.map((row, index) => ({ utcMs: startMs + index * stepMin * 60_000, positionKm: [row[1], row[2], row[3]] }))
@@ -327,6 +365,12 @@ function indexText(index) {
 // ---------- main ----------
 
 const opts = parseArgs(process.argv.slice(2))
+const SYSTEM = SYSTEMS[opts.system]
+const ORIGIN = `500@${SYSTEM.barycentre}`
+const CENTRE_COMMAND = SYSTEM.centre
+const CENTRE_ID = opts.system
+const CENTRE_NAME = SYSTEM.name
+const MOON_ID = new RegExp(`^(${SYSTEM.barycentre}\\d\\d|${SYSTEM.barycentre}5\\d{3})$`)
 const fromS = secondsOfDate(opts.from)
 const toS = secondsOfDate(opts.to)
 const fromYear = Number(opts.from.slice(0, 4))
@@ -336,12 +380,12 @@ const policies = existsSync(policyPath) && !opts.recalibrate ? readJson(policyPa
 
 log(`Horizons moons importer: span ${opts.from} to ${opts.to}, cache ${relative(REPO, opts.cache)}`)
 const list = await listMoons(opts)
-log(`  ${list.moons.length} moons listed for Jupiter (major-body list fetched ${list.fetchedUtc})`)
+log(`  ${list.moons.length} moons listed for ${CENTRE_NAME} (major-body list fetched ${list.fetchedUtc})`)
 const scale = await timeScale(opts, fromS, toS)
 log(`  time scale: ${scale.table.pieces.length} pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to ${(scale.check.worstResidualAfter1972S * 1e6).toFixed(1)} us`)
 
 const targets = [
-  { command: CENTRE_COMMAND, id: CENTRE_ID, label: 'Jupiter', naifId: 599, designation: null, aliases: null, role: 'centre' },
+  { command: CENTRE_COMMAND, id: CENTRE_ID, label: CENTRE_NAME, naifId: Number(CENTRE_COMMAND), designation: null, aliases: null, role: 'centre' },
   ...list.moons.map((moon) => ({ command: String(moon.naifId), id: slug(moon.name ?? moon.designation), label: moon.name ?? moon.designation, naifId: moon.naifId, designation: moon.designation, aliases: moon.aliases, role: 'moon' })),
 ]
 const ids = new Set()
@@ -354,6 +398,16 @@ const previousIndexPath = join(opts.out, 'index.json')
 const previous = existsSync(previousIndexPath) ? readJson(previousIndexPath) : null
 const bodies = []
 const report = []
+const unavailable = []
+const NO_EPHEMERIS = /No ephemeris for target/
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+/** The limit of a body's Horizons coverage from the refusal text ("No ephemeris for target ... after A.D. 2018-JAN-17 00:00:00.0000 TDB"), or null. */
+function coverageLimit(message) {
+  const match = message.match(/No ephemeris for target.*?(after|prior to) A\.D\. (\d{4})-([A-Z]{3})-(\d\d) (\d\d:\d\d:\d\d)/)
+  if (match === null) return null
+  const iso = `${match[2]}-${String(MONTHS.indexOf(match[3]) + 1).padStart(2, '0')}-${match[4]}T${match[5]}Z`
+  return { after: match[1] === 'after', seconds: secondsOfDate(iso) }
+}
 for (const target of targets) {
   if (opts.only !== null && !opts.only.has(target.command) && target.role !== 'centre') {
     const kept = previous?.bodies.find((body) => body.id === target.id)
@@ -363,13 +417,36 @@ for (const target of targets) {
   const started = Date.now()
   const targetKm = target.role === 'centre' ? CENTRE_TARGET_KM : TARGET_KM
   if (!policies[target.command]) {
-    policies[target.command] = await calibrate(opts, target.command, targetKm)
+    try {
+      policies[target.command] = await calibrate(opts, target.command, targetKm)
+    } catch (error) {
+      if (!NO_EPHEMERIS.test(error.message)) throw error
+      unavailable.push({ id: target.id, naifId: target.naifId, reason: error.message.replace(/^.*?No ephemeris/, 'No ephemeris') })
+      log(`  ${target.id.padEnd(14)} not built: ${unavailable.at(-1).reason}`)
+      continue
+    }
     writeFileSync(policyPath, `${JSON.stringify(policies, null, 1)}\n`)
   }
   const policy = policies[target.command]
   // Fit the span; if the independent span check misses the target (the calibration year cannot show every orbit's sharpest
   // turn), first raise the degree twice, then halve the segment (rounded down to whole source records) at the calibrated degree.
-  const tests = await spanTests(opts, target.command, fromS, toS)
+  // Horizons may hold a small moon's ephemeris for only part of the span (Cassini-era moons end in 2018): the series then covers what
+  // Horizons has, less one segment so no sample is asked for outside it, and the body's span says so.
+  let bodyFromS = fromS
+  let bodyToS = toS
+  let tests
+  let truncated = null
+  for (let tries = 0; tests === undefined; tries += 1) {
+    try {
+      tests = await spanTests(opts, target.command, bodyFromS, bodyToS)
+    } catch (error) {
+      const limit = coverageLimit(error.message)
+      if (limit === null || tries >= 2) throw error
+      truncated = error.message.replace(/^.*?No ephemeris/, 'No ephemeris')
+      if (limit.after) bodyToS = Math.min(bodyToS, limit.seconds - 2 * policy.segmentSeconds)
+      else bodyFromS = Math.max(bodyFromS, limit.seconds + 2 * policy.segmentSeconds)
+    }
+  }
   let lengthS = policy.segmentSeconds
   let degree = policy.degree
   let stepS = policy.sampleStepS
@@ -377,7 +454,7 @@ for (const target of targets) {
   let built
   let span
   for (let attempt = 0, raised = 0; ; attempt += 1) {
-    production = await productionSamples(opts, target.command, { ...policy, segmentSeconds: lengthS }, stepS, fromS, toS)
+    production = await productionSamples(opts, target.command, { ...policy, segmentSeconds: lengthS }, stepS, bodyFromS, bodyToS)
     const blocks = fitSeries(production.samples, production.firstS, lengthS, degree, production.segmentCount)
     built = buildChunks(target.id, lengthS, degree, targetKm * QUANTUM_PER_TARGET, production.firstS, blocks, fromYear, toYear)
     span = chunkError(built.decoded, tests, production.firstS, production.stepS)
@@ -425,32 +502,33 @@ for (const target of targets) {
     provenance: {
       sourceType: 'ephemeris',
       sources: [
-        `JPL Horizons API ${list.version ?? ''} (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=${target.command} CENTER=500@5, VECTORS geometric ICRF km km/s TDB; ephemeris ${header.targetSource}; fetched ${header.generated ?? 'see cache'}`.replace(/\s+/g, ' '),
+        `JPL Horizons API ${list.version ?? ''} (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=${target.command} CENTER=${ORIGIN}, VECTORS geometric ICRF km km/s TDB; ephemeris ${header.targetSource}; fetched ${header.generated ?? 'see cache'}`.replace(/\s+/g, ' '),
         LICENCE,
       ],
       accuracy: `Piecewise Chebyshev fit of Horizons states: worst ${span.worstM} m, typical (rms) ${span.rmsM} m at ${span.count} independent dates ${opts.from} to ${opts.to}; worst ${demo.worstM} m at ${demo.count} dates in the demo window. Horizons' own ephemeris uncertainty is not part of this figure and is not stated in its output.`,
-      notes: `${recent ? 'Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. ' : ''}Horizons header: ${header.notes.join(' / ')}`,
+      notes: `${truncated === null ? '' : `Horizons has this body's ephemeris for only part of ${opts.from} to ${opts.to}, so the series covers ${labelOfSeconds(bodyFromS)} to ${labelOfSeconds(bodyToS)} TDB (${truncated}). `}${recent ? 'Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. ' : ''}Horizons header: ${header.notes.join(' / ')}`,
     },
   })
-  report.push({ id: target.id, naifId: target.naifId, ephemeris: header.targetSource, periodDays: policy.periodDays, segmentDays: lengthS / DAY_S, calibratedSegmentDays: policy.segmentSeconds / DAY_S, degree, calibratedDegree: policy.degree, sourceGridDays: policy.sourceGrid ? policy.sourceGrid.lengthS / DAY_S : null, sampleStepMinutes: production.stepS / 60, samples: production.samples.length, chunkBytes: bytes, span, demo })
+  report.push({ bodyFromS, bodyToS, id: target.id, naifId: target.naifId, ephemeris: header.targetSource, periodDays: policy.periodDays, segmentDays: lengthS / DAY_S, calibratedSegmentDays: policy.segmentSeconds / DAY_S, degree, calibratedDegree: policy.degree, sourceGridDays: policy.sourceGrid ? policy.sourceGrid.lengthS / DAY_S : null, sampleStepMinutes: production.stepS / 60, samples: production.samples.length, chunkBytes: bytes, span, demo })
   log(`  ${target.id.padEnd(14)} seg ${(lengthS / DAY_S).toFixed(4)} d deg ${String(degree).padStart(2)} step ${production.stepS / 60} min | span worst ${span.worstM} m rms ${span.rmsM} m | demo worst ${demo.worstM} m | ${bytes} B | ${((Date.now() - started) / 1000).toFixed(0)} s`)
 }
 
 const index = {
   format: 'astraeus.chebyshev-ephemeris/1',
-  id: 'jupiter-moons',
-  label: "Jupiter's moons (JPL Horizons, piecewise Chebyshev fits)",
+  id: `${opts.system}-moons`,
+  label: `${CENTRE_NAME}'s moons (JPL Horizons, piecewise Chebyshev fits)`,
   frame: 'EQJ',
   units: { position: 'km', velocity: 'km/s', time: 'TDB seconds from J2000 (2000-01-01 12:00 TDB)' },
-  origin: { naifId: 5, label: 'Jupiter system barycentre', note: 'Every series is relative to the barycentre; centre-relative states subtract the centre series.' },
+  origin: { naifId: SYSTEM.barycentre, label: `${CENTRE_NAME} system barycentre`, note: 'Every series is relative to the barycentre; centre-relative states subtract the centre series.' },
   centre: CENTRE_ID,
   span: { fromUtc: opts.from, toUtc: opts.to, chunk: 'one file per body per calendar year (TDB), <body>/<year>.bin' },
   source: {
     title: 'JPL Horizons On-Line Ephemeris System, API',
     url: 'https://ssd.jpl.nasa.gov/api/horizons.api',
     apiVersion: list.version,
-    bodyList: `Horizons major-body list (COMMAND=MB), fetched ${list.fetchedUtc}: ${list.moons.length} moons of Jupiter (NAIF 501-5xx and provisional 555xx)`,
+    bodyList: `Horizons major-body list (COMMAND=MB), fetched ${list.fetchedUtc}: ${list.moons.length} moons of ${CENTRE_NAME} (NAIF ${SYSTEM.barycentre}01-${SYSTEM.barycentre}xx and provisional ${SYSTEM.provisional ?? `${SYSTEM.barycentre}5xxx`})`,
     moonCount: list.moons.length,
+    ...(unavailable.length > 0 ? { unavailable } : {}),
     licence: LICENCE,
     importer: 'tools/import/horizons-moons.mjs',
   },
@@ -466,7 +544,7 @@ const ephemeris = new ChebyshevEphemeris(parsed)
 for (const body of parsed.bodies) for (const chunk of body.chunks) ephemeris.addChunk(body.id, chunk.path, new Uint8Array(readFileSync(join(opts.out, chunk.path))))
 for (const entry of report) {
   if (entry.id === CENTRE_ID) continue
-  const samples = await endToEndSamples(opts, String(entry.naifId), fromS, toS)
+  const samples = await endToEndSamples(opts, String(entry.naifId), entry.bodyFromS, entry.bodyToS)
   let worst = 0
   let sumSquares = 0
   for (const sample of samples) {
@@ -477,7 +555,7 @@ for (const entry of report) {
   }
   entry.endToEnd = { worstM: Number((worst * 1000).toFixed(4)), rmsM: Number((Math.sqrt(sumSquares / samples.length) * 1000).toFixed(4)), count: samples.length }
   const body = index.bodies.find((candidate) => candidate.id === entry.id)
-  body.accuracy.jupiterCentredUtc = entry.endToEnd
+  body.accuracy[`${CENTRE_ID}CentredUtc`] = entry.endToEnd
 }
 writeFileSync(previousIndexPath, indexText(index))
 if (opts.report !== null) {

@@ -1,7 +1,7 @@
-/** Planets the astronomy adapter has a heliocentric model for. */
-export type PlanetId = "mercury" | "venus" | "mars" | "jupiter";
+/** Planets the astronomy adapter has a heliocentric model for (Saturn to Pluto added by O-033 T-114). */
+export type PlanetId = "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 
-export const PLANET_IDS: readonly PlanetId[] = Object.freeze(["mercury", "venus", "mars", "jupiter"]);
+export const PLANET_IDS: readonly PlanetId[] = Object.freeze(["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
 
 export function isPlanetId(id: string): id is PlanetId {
   return (PLANET_IDS as readonly string[]).includes(id);
@@ -24,7 +24,7 @@ let loading: Promise<void> | undefined;
 let models: PlanetModels | undefined;
 
 /**
- * Builds the four planet models, once, from the stored curve fits of the full VSOP87A series (O-025 T-101; the library's compact
+ * Builds the planet models, once, from the stored curve fits of the full VSOP87A series (Pluto: of JPL Horizons states) (O-025 T-101, O-033 T-114; the library's compact
  * default tables are off by tens of thousands of km, docs/ASTRONOMY_VALIDATION.md, and its full series were about 0.8 MB of code).
  * The fits are a separate chunk fetched only when a mounted composition contains a planet; an experience without one never
  * downloads them (I-022).

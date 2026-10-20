@@ -1,6 +1,6 @@
 import fits from "../../data/ephemerides/planets/planets.json";
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
-import type { PlanetId, PlanetModel, PlanetModels } from "./planetSeries";
+import { PLANET_IDS, type PlanetId, type PlanetModel, type PlanetModels } from "./planetSeries";
 import { assertTimeScaleTable, ttMinusUtcSeconds, type TimeScaleTable } from "./timeScale";
 
 /** The astronomical unit in km that the astronomy adapter multiplies the model's au by; the fits are stored in km with the same value. */
@@ -37,8 +37,8 @@ function planetModel(chunk: SeriesChunk, table: TimeScaleTable): PlanetModel {
 }
 
 /**
- * The four planet models from the stored curve fits (`data/ephemerides/planets/`, O-025 T-101): heliocentric ecliptic-J2000 positions as piecewise
- * Chebyshev series in TT, refitted from Orb's full VSOP87A series within 1 km (tools/import/planet-fits.mjs). UTC to TT uses the table stored
+ * The planet models from the stored curve fits (`data/ephemerides/planets/`, O-025 T-101): heliocentric ecliptic-J2000 positions as piecewise
+ * Chebyshev series in TT, refitted from Orb's full VSOP87A series within 1 km (Pluto: fitted to Horizons states; tools/import/planet-fits.mjs). UTC to TT uses the table stored
  * beside them. Dates outside the fitted span (1969 to 2045) throw rather than extrapolate. Only planetSeries.ts imports this, lazily.
  */
 export function createPlanetModels(): PlanetModels {
@@ -50,5 +50,5 @@ export function createPlanetModels(): PlanetModels {
     const chunk = decodeChunk(decodeBase64(p.data), { startTdbS: p.startS, segmentSeconds: p.segmentSeconds, segmentCount: p.segmentCount, coefficientCount: p.coefficientCount, quantumKm: p.quantumKm });
     return planetModel(chunk, table);
   };
-  return { mercury: model("mercury"), venus: model("venus"), mars: model("mars"), jupiter: model("jupiter") };
+  return Object.fromEntries(PLANET_IDS.map((id) => [id, model(id)])) as PlanetModels;
 }

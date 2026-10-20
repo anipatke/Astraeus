@@ -1,0 +1,33 @@
+Horizons moons importer: span 2010-01-01 to 2030-01-01, cache tools/import/.horizons-cache
+  28 moons listed for Uranus (major-body list fetched 2026-10-20T11:05:47.672Z)
+  time scale: 4 pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to 5.6 us
+  uranus         seg 4.0000 d deg 15 step 360 min | span worst 0.0039 m rms 0.0014 m | demo worst 0.0035 m | 253019 B | 0 s
+  ariel          seg 1.5000 d deg 12 step 90 min | span worst 0.0327 m rms 0.0129 m | demo worst 0.0312 m | 698771 B | 0 s
+  umbriel        seg 1.5000 d deg 11 step 180 min | span worst 0.037 m rms 0.0125 m | demo worst 0.0312 m | 611935 B | 0 s
+  titania        seg 2.0000 d deg 10 step 180 min | span worst 0.0326 m rms 0.0121 m | demo worst 0.0308 m | 414252 B | 0 s
+  oberon         seg 2.0000 d deg  8 step 180 min | span worst 0.0281 m rms 0.0109 m | demo worst 0.0256 m | 360268 B | 0 s
+  miranda        seg 1.0000 d deg 13 step 90 min | span worst 0.0345 m rms 0.0135 m | demo worst 0.0361 m | 1108506 B | 0 s
+  cordelia       seg 0.6000 d deg 21 step 12 min | span worst 0.4057 m rms 0.1516 m | demo worst 0.4486 m | 2846401 B | 96 s
+  ophelia        seg 0.6000 d deg 26 step 12 min | span worst 0.6302 m rms 0.0909 m | demo worst 0.4597 m | 3236044 B | 92 s
+  bianca         seg 0.8000 d deg 27 step 12 min | span worst 0.4291 m rms 0.1303 m | demo worst 0.3409 m | 2587098 B | 97 s
+  cressida       seg 0.8000 d deg 25 step 12 min | span worst 0.2676 m rms 0.0965 m | demo worst 0.2812 m | 2389971 B | 86 s
+  desdemona      seg 0.8000 d deg 26 step 12 min | span worst 0.2388 m rms 0.0889 m | demo worst 0.2463 m | 2451355 B | 89 s
+  juliet         seg 0.8000 d deg 25 step 12 min | span worst 0.2438 m rms 0.0864 m | demo worst 0.2448 m | 2363751 B | 84 s
+  portia         seg 0.8000 d deg 23 step 18 min | span worst 0.3764 m rms 0.0723 m | demo worst 0.3742 m | 2223660 B | 69 s
+  rosalind       seg 0.8000 d deg 21 step 18 min | span worst 0.3965 m rms 0.1219 m | demo worst 0.3869 m | 2075787 B | 69 s
+  belinda        seg 1.2000 d deg 26 step 18 min | span worst 0.4244 m rms 0.0959 m | demo worst 0.4236 m | 1662854 B | 70 s
+  puck           seg 1.2000 d deg 26 step 18 min | span worst 0.2769 m rms 0.0818 m | demo worst 0.2953 m | 1633612 B | 70 s
+  caliban        seg 24.0000 d deg 16 step 1080 min | span worst 0.5184 m rms 0.0589 m | demo worst 0.471 m | 35078 B | 12 s
+  sycorax        seg 16.0000 d deg  7 step 2880 min | span worst 0.8814 m rms 0.0454 m | demo worst 0.0234 m | 35911 B | 16 s
+  prospero       seg 64.0000 d deg  8 step 5760 min | span worst 0.3666 m rms 0.0587 m | demo worst 0.3078 m | 11071 B | 7 s
+  setebos        seg 32.0000 d deg  7 step 5760 min | span worst 0.6642 m rms 0.0412 m | demo worst 0.0205 m | 18951 B | 11 s
+  stephano       seg 16.0000 d deg 13 step 720 min | span worst 0.4782 m rms 0.0532 m | demo worst 0.3929 m | 46245 B | 10 s
+  trinculo       seg 48.0000 d deg 13 step 2880 min | span worst 0.6382 m rms 0.0902 m | demo worst 0.4209 m | 17987 B | 9 s
+  francisco      seg 4.0000 d deg  5 step 720 min | span worst 0.1071 m rms 0.0273 m | demo worst 0.1072 m | 124153 B | 10 s
+  margaret       seg 2.0000 d deg  7 step 360 min | span worst 0.0224 m rms 0.0082 m | demo worst 0.0182 m | 227684 B | 28 s
+  ferdinand      seg 64.0000 d deg  7 step 11520 min | span worst 0.6215 m rms 0.0644 m | demo worst 0.021 m | 10274 B | 7 s
+  perdita        seg 1.2000 d deg 27 step 12 min | span worst 0.556 m rms 0.149 m | demo worst 0.4804 m | 1744968 B | 89 s
+  mab            seg 1.6000 d deg 29 step 24 min | span worst 0.4923 m rms 0.083 m | demo worst 0.4377 m | 1302404 B | 67 s
+  cupid          seg 1.2000 d deg 30 step 12 min | span worst 0.305 m rms 0.0936 m | demo worst 0.2957 m | 1875189 B | 89 s
+  2023u1         seg 24.0000 d deg  9 step 3456 min | span worst 0.5977 m rms 0.052 m | demo worst 0.1886 m | 28693 B | 11 s
+Done: 29 bodies, 320 Horizons requests this run.
