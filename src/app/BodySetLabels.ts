@@ -71,12 +71,13 @@ export class BodySetLabelLayer {
     return this.#hovered === null ? null : this.view.layer.members[this.#hovered].id;
   }
 
-  update(look: BodySetLook): void {
+  update(look: BodySetLook, hoverGain = 1): void {
     const named = new Set(this.view.drawn ? membersToName(this.view, look, this.#hovered) : []);
     this.#labels.forEach((element, index) => {
       const show = named.has(index);
       if (element.hidden === !show && !show) return;
       element.hidden = !show;
+      element.style.filter = index === this.#hovered && hoverGain !== 1 ? `brightness(${hoverGain})` : "";
       if (show) {
         const screen = this.view.screen[index];
         element.style.transform = `translate(${screen.x + Math.max(6, screen.radiusPx + 4)}px, ${screen.y}px) translate(0, -50%)`;

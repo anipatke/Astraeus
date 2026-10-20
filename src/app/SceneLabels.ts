@@ -40,6 +40,11 @@ export class SceneLabelLayer {
     return this.#shown;
   }
 
+  /** Brightens the name of the hovered object by `gain` (1 leaves it alone); null clears it. */
+  setHover(id: string | null, gain: number): void {
+    for (const entry of this.#entries) entry.element.style.filter = entry.object.id === id && gain !== 1 ? `brightness(${gain})` : "";
+  }
+
   update(
     positionFor: (objectId: string) => RenderVector | null,
     camera: Camera,

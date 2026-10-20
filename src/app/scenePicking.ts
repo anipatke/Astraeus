@@ -48,6 +48,19 @@ export function pickTarget(candidates: readonly PickCandidate[], x: number, y: n
   return best;
 }
 
+/** A mouse hovering a target brightens its name by this factor (a live setting, Developer > Labels); touch never hovers. */
+export const HOVER_BRIGHTNESS_DEFAULT = 1.4;
+export const HOVER_BRIGHTNESS_LIMITS = Object.freeze({ min: 1, max: 3 });
+
+export function clampHoverBrightness(value: number): number {
+  return Number.isFinite(value) ? Math.min(HOVER_BRIGHTNESS_LIMITS.max, Math.max(HOVER_BRIGHTNESS_LIMITS.min, value)) : HOVER_BRIGHTNESS_DEFAULT;
+}
+
+/** The id a hovering pointer is over: the same hit rule as a tap, mouse only (any other pointer type yields no hover). */
+export function hoverTarget(candidates: readonly PickCandidate[], x: number, y: number, pointerType: string): string | null {
+  return pointerType === "mouse" ? pickTarget(candidates, x, y, "mouse") : null;
+}
+
 /**
  * The tap rule: exactly one pointer, moved no further than the slop, and no second pointer at any time during the press (a pinch is never
  * a tap). Feed it the pointer events; `up` returns where the tap landed, or null when the press was a drag, a pinch or unknown.

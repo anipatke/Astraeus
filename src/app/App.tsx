@@ -22,6 +22,7 @@ import { featureMarkerSpecs, featureMinBodyPxFromSearch } from "./FeatureMarkers
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
+import { HOVER_BRIGHTNESS_DEFAULT, HOVER_BRIGHTNESS_LIMITS } from "./scenePicking";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
@@ -184,6 +185,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
   const [upChoice, setUpChoice] = useState<ViewUp>(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial"));
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
+  const [hoverBrightness, setHoverBrightness] = useState(HOVER_BRIGHTNESS_DEFAULT);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
   const [loadFade, setLoadFade] = useState(() => bootFadeSeconds());
@@ -462,11 +464,13 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
         </>
       ),
     },
-    !(labelToggles.length > 0 || runtime.trackedBodies.length > 0) ? null : {
+    {
       id: "labels", title: "Labels",
       body: (
         <>
-          <SettingButtons>
+          <SettingSlider label="Hover name brightness" ariaLabel="Hover name brightness" testId="hover-brightness-value" display={hoverBrightness.toFixed(2)} min={HOVER_BRIGHTNESS_LIMITS.min} max={HOVER_BRIGHTNESS_LIMITS.max} step={0.05} value={hoverBrightness}
+            onChange={(value) => { controls.current.hoverBrightness = value; setHoverBrightness(value); }} />
+          {(labelToggles.length > 0 || runtime.trackedBodies.length > 0) && <SettingButtons>
             {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
             {labelToggles.map((object) => (
               <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
@@ -477,7 +481,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
                 setHiddenLabels(new Set(hidden));
               }}>{`${object.label} label`}</button>
             ))}
-          </SettingButtons>
+          </SettingButtons>}
         
         </>
       ),

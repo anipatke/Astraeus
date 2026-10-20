@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MOUSE_TOLERANCE_PX, pickCandidatesOf, pickTarget, TapTracker, TOUCH_TAP_SLOP_PX, TOUCH_TOLERANCE_PX, type PickCandidate } from "../src/app/scenePicking";
+import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, HOVER_BRIGHTNESS_LIMITS, hoverTarget, MOUSE_TOLERANCE_PX, pickCandidatesOf, pickTarget, TapTracker, TOUCH_TAP_SLOP_PX, TOUCH_TOLERANCE_PX, type PickCandidate } from "../src/app/scenePicking";
 
 // Made-up candidates: the module is generic, so no experience or body name matters here (ARCH-01).
 const big: PickCandidate = { id: "big", x: 200, y: 200, radiusPx: 40 };
@@ -97,5 +97,26 @@ describe("pickCandidatesOf", () => {
     expect(pickTarget(candidates, 400, 100, "mouse")).toBe("alpha");
     expect(pickTarget(candidates, 80, 360, "touch")).toBe("beta-star");
     expect(candidates.some((c) => c.id === "probe" || c.id === "orbit-line" || c.id === "offscreen")).toBe(false);
+  });
+});
+
+describe("hover", () => {
+  const all = [big, tiny, named];
+  it("resolves the same target as a tap at the same point", () => {
+    for (const [x, y] of [[220, 210], [404, 100], [160, 300], [600, 600]] as const) {
+      expect(hoverTarget(all, x, y, "mouse")).toBe(pickTarget(all, x, y, "mouse"));
+    }
+  });
+  it("gives no hover for touch or pen", () => {
+    expect(hoverTarget(all, 220, 210, "touch")).toBeNull();
+    expect(hoverTarget(all, 220, 210, "pen")).toBeNull();
+  });
+  it("keeps the brightness setting in its limits", () => {
+    expect(HOVER_BRIGHTNESS_DEFAULT).toBeGreaterThanOrEqual(HOVER_BRIGHTNESS_LIMITS.min);
+    expect(HOVER_BRIGHTNESS_DEFAULT).toBeLessThanOrEqual(HOVER_BRIGHTNESS_LIMITS.max);
+    expect(clampHoverBrightness(0.2)).toBe(HOVER_BRIGHTNESS_LIMITS.min);
+    expect(clampHoverBrightness(9)).toBe(HOVER_BRIGHTNESS_LIMITS.max);
+    expect(clampHoverBrightness(Number.NaN)).toBe(HOVER_BRIGHTNESS_DEFAULT);
+    expect(clampHoverBrightness(1.7)).toBe(1.7);
   });
 });

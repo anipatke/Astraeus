@@ -48,7 +48,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { BodySetLabelLayer } from "./BodySetLabels";
-import { pickCandidatesOf, pickTarget, type PickCandidate } from "./scenePicking";
+import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, pickTarget, type PickCandidate } from "./scenePicking";
 import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
 import { publishBodySets } from "./sceneBodySets";
 import type { RingLook } from "../assets/rings";
@@ -120,6 +120,8 @@ export interface SceneControls {
   orbitLook?: Partial<OrbitLook>;
   /** Presentation only: the live look of the body sets (dots, names, orbit lines and family colours). Absent: the defaults. */
   bodySetLook?: BodySetLook;
+  /** Presentation only: how much a name brightens under a hovering mouse, 1 to 3 (Developer > Labels). Absent: the default. */
+  hoverBrightness?: number;
   /** Presentation only: live colour and opacity per ring band, over the data's own. */
   ringLook?: RingLook;
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
@@ -247,6 +249,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const featureMarkers = useRef<FeatureMarkerLayer | null>(null);
   /** What a tap can select this frame (see `scenePicking.ts`), rebuilt every frame from the same projections the labels use. */
   const pickables = useRef<readonly PickCandidate[]>([]);
+  /** The mouse's place over the canvas in CSS px while it hovers with no button down; null for touch, a drag or outside. */
+  const hoverPoint = useRef<{ x: number; y: number } | null>(null);
 
   useSkyStars(gl.domElement, skyView);
   useEffect(() => {
@@ -276,7 +280,23 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       gl.domElement.dataset.pickTarget = id;
       controls.onPickObject?.(id);
     };
-    return attachOrbitGestures(gl.domElement, orbit.current, limits, onTap);
+    const canvas = gl.domElement;
+    const onHoverMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") { hoverPoint.current = null; return; }
+      const box = canvas.getBoundingClientRect();
+      hoverPoint.current = event.buttons === 0 ? { x: event.clientX - box.left, y: event.clientY - box.top } : null;
+    };
+    const onHoverLeave = () => { hoverPoint.current = null; };
+    canvas.addEventListener("pointermove", onHoverMove);
+    canvas.addEventListener("pointerleave", onHoverLeave);
+    const detach = attachOrbitGestures(canvas, orbit.current, limits, onTap);
+    return () => {
+      detach();
+      canvas.removeEventListener("pointermove", onHoverMove);
+      canvas.removeEventListener("pointerleave", onHoverLeave);
+      canvas.style.cursor = "";
+      delete canvas.dataset.pickHover;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, controls]);
 
@@ -340,7 +360,8 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const trueScale = policy.id === "true-scale";
     for (const view of bodySetViews) view.place(origin, camera as PerspectiveCamera, size.width, size.height, setLook, trueScale);
     for (const view of orbitSetViews) view.place(origin, setLook, trueScale);
-    for (const layer of bodySetLabels.current) layer.update(setLook);
+    const hoverGain = clampHoverBrightness(controls.hoverBrightness ?? HOVER_BRIGHTNESS_DEFAULT);
+    for (const layer of bodySetLabels.current) layer.update(setLook, hoverGain);
     publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook, camera, size.width, size.height);
     publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
     publishPointsData(gl.domElement, groupViews, camera, bodySetViews);
@@ -350,6 +371,10 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
     pickables.current = pickCandidatesOf({ objects: controls.labelObjects, bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: sceneLabels.current?.shownRects, canvas: gl.domElement, bodySetViews });
+    const hover = hoverPoint.current === null ? null : hoverTarget(pickables.current, hoverPoint.current.x, hoverPoint.current.y, "mouse");
+    gl.domElement.style.cursor = hover === null ? "" : "pointer";
+    gl.domElement.dataset.pickHover = hover ?? "";
+    sceneLabels.current?.setHover(hover, hoverGain);
     storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
     const featureReadout = featureMarkers.current?.update((id) => featureHostOf(assets, partsRefs.current, id, policy), camera, (camera as PerspectiveCamera).fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
     if (featureReadout !== null && featureReadout !== undefined) gl.domElement.dataset.featureMarkers = JSON.stringify(featureReadout);

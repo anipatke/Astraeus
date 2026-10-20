@@ -2,7 +2,12 @@
 id: T-108
 title: Show a pointing hand and brighter name on laptop hover
 objective: O-022
-status: planned
+status: done
+check_waiver:
+  task: T-108
+  reason: Owner skips per-Task checks for O-022; one Full Objective Check at the end.
+  actor: {role: owner, session: o022-run-20261020}
+  recorded_at: '2026-10-20T07:30:27Z'
 depends_on: [{task: T-107, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o022-planning-20261020}
@@ -57,8 +62,19 @@ Focused unit tests while iterating; at handoff the configured gates plus the lit
 
 ## Technical Evidence
 
-Pending execution.
+Built: `scenePicking.ts` gains `hoverTarget` (same `pickTarget` rule, mouse only), `HOVER_BRIGHTNESS_DEFAULT` 1.4, `HOVER_BRIGHTNESS_LIMITS` 1 to 3, `clampHoverBrightness`. `AstraeusScene` records the mouse point on `pointermove` (null for touch, a pressed button, or leaving), resolves the hover once per frame against the same candidates, sets the canvas cursor `pointer` and `data-pick-hover`. `SceneLabelLayer.setHover` and `BodySetLabelLayer.update(look, gain)` apply `filter: brightness()`. Slider "Hover name brightness" (testId `hover-brightness-value`) is the first control in Developer > Labels (section now always present; toggles shown only when there are any).
+- Criteria 1-5: met by the above; unit tests in `tests/scenePicking.test.ts` (hover equals tap, touch/pen none, setting limits and default).
+- Gates: `npm run typecheck` clean; `npm run build` ok; `npm test` 78 files, 1138 passed, 1 skipped.
+- Check waiver: Owner skips per-Task checks for O-022; one Full Objective Check at the end (owner, session o022-run-20261020, 2026-10-20T07:30:27Z).
+- Browser checks deferred to the O-022 Full Objective Check by owner decision 2026-10-20 (lite not run at handoff). Criterion 6's lite check is therefore not run; layout at 375x667 and 1280x720 is unverified (slider sits in the existing Developer panel).
+- Files touched match planned writes except none extra; `src/shell/style.css` unchanged (inline filter, cursor set on the canvas).
 
 ## Drift Notes
 
-Record Design deltas here for reconciliation by T-109.
+Design deltas for reconciliation by T-109:
+- Setting: `SceneControls.hoverBrightness` (default `HOVER_BRIGHTNESS_DEFAULT` 1.4, limits 1 to 3 in `scenePicking.ts`), slider in Developer > Labels; name brightening is an inline `filter: brightness(x)` on the label element.
+- Canvas readout `data-pick-hover` (hovered id or empty). Cursor rule: canvas `style.cursor = pointer` over a pick target, empty otherwise; hover is mouse only and cleared while a button is down or the pointer leaves.
+- Hover resolves through `hoverTarget` (same `pickTarget` rule as a tap). Body-set member name brightening follows the layer's own `pickMember` hover, the cursor follows the shared pick.
+- `browser-moon-panel.mjs` and driver may want a `data-pick-hover` readout (T-109).
+
+Owner closed this Task on 2026-10-20T07:30:48Z through the coordinator (structured question: "Yes, mark them done", owner authorised marking each O-022 step done once its build and tests pass). No Task Check by owner waiver; the O-022 Full Objective Check covers it.

@@ -2,8 +2,7 @@
 id: T-107
 title: Tap a planet, moon or the Sun to fly to it
 objective: O-022
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver:
@@ -91,3 +90,5 @@ Design deltas for reconciliation by T-109:
 - Design (Components, Interfaces): new `src/app/scenePicking.ts` (pure picking and the shared tap rule); `SceneControls.onPickObject`, shell `pickRequest` prop; `SceneLabelLayer.shownRects`; canvas readout `data-pick-target`.
 - Body-set members that are not listed objects (small outer moons) fly through `onCameraRequest` directly, so the picker keeps its previous selection (it cannot list them). Design should decide whether that is acceptable.
 - O-025 two-tap rule removed from `BodySetLabelLayer`; `membersToName` no longer takes a tapped member (tapped names gone; hover and near-zoom naming remain). `browser-moon-panel.mjs` may assert the two-tap rule: T-109 to update.
+
+Owner closed this Task on 2026-10-20T07:28:29Z through the coordinator (structured question: "Yes, mark them done", owner authorised marking each O-022 step done once its build and tests pass). No Task Check by owner waiver; the O-022 Full Objective Check covers it.
