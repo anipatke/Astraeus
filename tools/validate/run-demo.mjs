@@ -5,16 +5,9 @@ import { runSet } from "./runner.mjs";
 const DEMOS = {
   apollo: [
     { name: "lite", script: "browser-lite.mjs" },
-    { name: "phone", script: "browser-phone.mjs" },
-    { name: "controls", script: "browser-controls.mjs" },
+    { name: "apollo-shell", script: "browser-apollo-shell.mjs" },
     { name: "spike02", script: "browser-spike02.mjs" },
-    { name: "spike03", script: "browser-spike03.mjs" },
-    { name: "anchor-labels", script: "browser-anchor-labels.mjs" },
-    { name: "tap-focus", script: "browser-tap-focus.mjs" },
-    { name: "view-link", script: "browser-view-link.mjs" },
-    { name: "embedded", script: "browser-embedded.mjs" },
     { name: "home-curve-fits", script: "browser-home-curve-fits.mjs" },
-    { name: "sky", script: "browser-sky.mjs" },
   ],
   showers: [
     { name: "showers-perseids", script: "browser-showers.mjs", args: ["perseids"] },
@@ -25,7 +18,7 @@ const DEMOS = {
   jupiter: [
     { name: "jupiter-io", script: "browser-jupiter-io.mjs" },
     { name: "moon-panel", script: "browser-moon-panel.mjs" },
-    { name: "orbit-motion", script: "browser-orbit-motion.mjs" },
+    { name: "jupiter-tap", script: "browser-jupiter-tap.mjs" },
   ],
 };
 

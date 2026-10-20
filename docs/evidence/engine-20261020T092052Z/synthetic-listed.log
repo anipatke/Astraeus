@@ -1,0 +1,9 @@
+{
+  "results": {
+    "desktop": {
+      "dotsInViewTrueFocus": 3000,
+      "dotsInViewReadableFocus": 3000
+    }
+  },
+  "errors": []
+}

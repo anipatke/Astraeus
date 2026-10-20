@@ -1,4 +1,4 @@
-// Browser check that an orbit's trailing arc stays on its body while time plays fast (I-035): Jupiter-Io at the fastest playback rate, every frame
+// Browser check that an orbit's trailing arc stays on its body while time plays fast (I-035): the made-up scene at the fastest playback rate, every frame
 // the arc head's distance from the body's drawn position (`data-orbit-head-gap`, a share of the orbit's size; 1 px is under 0.002 of a 600 px orbit)
 // must stay tiny, with zero console errors. PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html node tools/validate/browser-orbit-motion.mjs
 import assert from "node:assert/strict";
@@ -10,11 +10,11 @@ const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
 const out = {};
-for (const experience of ["jupiter-io", "synthetic"]) {
+for (const experience of ["synthetic"]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   page.on("pageerror", (error) => errors.push(`${experience} pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${experience} console: ${message.text()}`); });
-  await page.goto(`${base}?experience=${experience}&view=${experience === "jupiter-io" ? "jupiter" : "earth"},0,89,330&scale=true-scale`);
+  await page.goto(`${base}?experience=${experience}&view=earth,0,89,330&scale=true-scale`);
   await page.waitForSelector("canvas");
   // Under load the first readings can take longer than the first watch; wait for them to be published.
   await page.waitForFunction(() => Number.isFinite(Number(document.querySelector("canvas")?.dataset.orbitHeadGap)), undefined, { timeout: 30000 });

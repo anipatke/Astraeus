@@ -25,10 +25,7 @@ const SIZES = [
   { name: "phone", viewport: { width: 390, height: 844 }, phone: true, touch: true },
 ];
 const DEMOS = [
-  { name: "apollo11", query: "", events: true },
-  { name: "showers", query: "?experience=showers" },
-  { name: "geminids", query: "?experience=showers&shower=geminids" },
-  { name: "jupiter-io", query: "?experience=jupiter-io" },
+  { name: "made-up scene", query: "?experience=synthetic", events: true },
 ];
 
 async function open(size, demo, framed) {

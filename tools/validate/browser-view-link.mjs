@@ -28,9 +28,10 @@ const readView = async (page) => {
 };
 const angleGap = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 
-for (const [name, query] of [["perseids", "?experience=showers"], ["default", ""]]) {
+for (const [name, query] of [["made-up scene", "?experience=synthetic"]]) {
   const context = await browser.newContext({ permissions: ["clipboard-read", "clipboard-write"] });
   const page = await open(query, context);
+  const start = await readView(page);
   // Move the camera by hand: drag, then zoom.
   await page.mouse.move(300, 400);
   await page.mouse.down();
@@ -49,7 +50,7 @@ for (const [name, query] of [["perseids", "?experience=showers"], ["default", ""
   assert.equal(clip, link, `${name}: the link is on the clipboard`);
   assert.equal(new URL(page.url()).searchParams.get("view"), new URL(link).searchParams.get("view"), `${name}: the address holds the view`);
   const copied = await readView(page);
-  assert.ok(angleGap(copied.az, 216) > 5 && Math.abs(copied.el - 14.32) > 2, `${name}: the drag moved the camera (${copied.az}, ${copied.el})`);
+  assert.ok(angleGap(copied.az, start.az) > 5 && Math.abs(copied.el - start.el) > 2, `${name}: the drag moved the camera (${copied.az}, ${copied.el})`);
   await page.waitForTimeout(0);
   const second = await open(new URL(link).search, await browser.newContext());
   const restored = await readView(second);
@@ -64,7 +65,7 @@ for (const [name, query] of [["perseids", "?experience=showers"], ["default", ""
 // Clipboard refused: the link shows in a selectable field.
 {
   const context = await browser.newContext();
-  const page = await open("", context);
+  const page = await open("?experience=synthetic", context);
   await page.evaluate(() => { Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true }); });
   await ui.copyViewLink(page);
   await page.waitForTimeout(300);
@@ -75,7 +76,7 @@ for (const [name, query] of [["perseids", "?experience=showers"], ["default", ""
 
 // A malformed link opens the experience as usual.
 {
-  const page = await open("?view=nonsense", await browser.newContext());
+  const page = await open("?experience=synthetic&view=nonsense", await browser.newContext());
   await readView(page);
   results.badLink = "opened normally";
 }

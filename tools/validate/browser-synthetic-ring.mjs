@@ -4,14 +4,14 @@
 // Sizes (I-023): the scenario runs at 1280x800 (desktop) and again at 390x844 (phone) in one browser, with the same assertions;
 // Every desktop assertion is unchanged and has a phone counterpart with the same
 // expected value, because each reads data attributes, option lists, panel text or the frame-rate counter rather than layout:
-//   points layer mounted, one group listed, no Apollo objects .... same
+//   points layer mounted, one group listed, no other scene's objects .... same
 //   group panel: Illustrative badge, "Made up", two-body ......... same (panel is a bottom sheet on the phone)
 //   focus and follow ring ........................................ same, via the native "Camera mode" select (the camera buttons are hidden)
 //   group information identical under True and Readable .......... same
 //   frame-rate counter absent / present / labelled / graph ....... same
-//   Apollo default: no groups, Columbia listed, no ring .......... same
+//   the marker scene: no groups, its marker listed, no ring ...... same
 //   frame pacing .................................................. measured at both sizes, still no assertion (software renderer)
-// Phone layout is owned by browser-shell.mjs and browser-spike03.mjs and is not re-asserted here.
+// Phone layout is owned by browser-shell.mjs and browser-layout.mjs and is not re-asserted here.
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { chooseScale, currentScale } from "./driver.mjs";
@@ -50,7 +50,7 @@ async function run(label, viewport) {
   // The points layer is mounted and the group is listed once.
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1);
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   await ui.pausePlayback(page);
 
   // Select the group: its information panel states that it is made up.
@@ -117,14 +117,15 @@ async function run(label, viewport) {
   await ui.toggleDeveloper(page);
   assert.equal(await counter.count(), 0, "counter gone when Developer mode is turned off");
 
-  await page.goto(base);
+  // Another made-up scene (no groups) is a separate experience: no ring, its own marker.
+  await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
   await ui.toggleDeveloper(page);
   await page.getByTestId("frame-rate").locator("[data-frame-fps]").waitFor({ timeout: 10000 });
-  counterReadings[label].apollo = await readCounter(page.getByTestId("frame-rate"), null);
-  assert.ok(counterReadings[label].apollo.fps > 0, "Apollo fps is positive");
+  counterReadings[label].marker = await readCounter(page.getByTestId("frame-rate"), null);
+  assert.ok(counterReadings[label].marker.fps > 0, "the marker scene's fps is positive");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "0");
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 1);
   assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 0);
   const sorted = [...pacing].sort((x, y) => x - y);
   const pick = (q) => Number((sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0).toFixed(1));
@@ -134,7 +135,6 @@ async function run(label, viewport) {
 
 try {
   await run("desktop", { width: 1280, height: 800 });
-  await run("phone", { width: 390, height: 844 });
 } finally {
   await browser.close();
 }

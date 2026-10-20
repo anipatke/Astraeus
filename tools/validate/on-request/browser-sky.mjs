@@ -1,7 +1,7 @@
 // Browser check for the sky behind every experience (T-053). Run the app on port 5199, then:
-// PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/browser-sky.mjs
+// PLAYWRIGHT_CORE=<path to playwright-core> ASTRAEUS_EVIDENCE_DIR=<fresh dir> node tools/validate/on-request/browser-sky.mjs
 //
-// Scenarios, each run for a sample (T-071): Apollo (the default) at 1280x800 and 390x844:
+// Scenarios, each run for a sample (T-071; moved onto the made-up scene by O-034 T-111): the made-up scene at 1280x800 and 390x844:
 //   stars are drawn ........................ the <canvas> element's data-sky-stars is the star count (8920 from the committed HYG file, the only star catalogue
 //                                            since O-017 T-067 removed Yale); the scene reports the stars and their brightness; ?sky=off reports none
 //   the sky is fixed under a centre change .. Developer mode reads back a probe direction (orientation in, screen position out). After each
@@ -15,24 +15,24 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import * as ui from "./driver.mjs";
+import * as ui from "../driver.mjs";
 
-import { pw } from "./playwright.mjs";
+import { pw } from "../playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 // The stars come from the committed HYG file (public and local builds alike), so the star file is always there.
-const starCount = String(JSON.parse(readFileSync(new URL("../../src/assets/stars/hyg-v42-naked-eye.json", import.meta.url), "utf8")).stars.length);
+const starCount = String(JSON.parse(readFileSync(new URL("../../../src/assets/stars/hyg-v42-naked-eye.json", import.meta.url), "utf8")).stars.length);
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const errors = [];
 const results = { starSource: "hyg", starCount, runs: {} };
 
 // T-071 (trim): the sky is one component behind every experience, so a sample covers it. Apollo runs at both sizes (the phone once); the
 // Perseids are not run (their sky is the same component, behind the shower scenes: browser-showers.mjs asserts the stream with ?sky=off and on). Every other experience's sky is seen in the before/after pictures and its canvas drawing in browser-lite.mjs.
-const EXPERIENCES = [["apollo", ""], ["perseids", "experience=showers"]];
+const EXPERIENCES = [["synthetic", "experience=synthetic"]];
 const SIZES = [["desktop", { width: 1280, height: 800 }], ["mobile", { width: 390, height: 844 }]];
-const SAMPLED = new Set(["apollo-desktop", "apollo-mobile"]);
+const SAMPLED = new Set(["synthetic-desktop"]); // the sky is one component; a phone size adds no sky case (O-034 T-111 keeps the engine set under 300 s)
 // Must equal SKY_PROBE_DIRECTION in src/app/SkyView.ts (render frame).
 const PROBE = (() => { const v = [0.62, 0.35, -0.7]; const n = Math.hypot(...v); return v.map((x) => x / n); })();
 const FOV_DEG = 45;
@@ -204,7 +204,7 @@ try {
   }
   // A high-DPI screen: the stars are drawn at the device pixel ratio without errors.
   {
-    const page = await open({ width: 1280, height: 800 }, "milkyway=off", 2);
+    const page = await open({ width: 1280, height: 800 }, "experience=synthetic&milkyway=off", 2);
     assert.equal(await page.locator("canvas").getAttribute("data-sky-stars"), starCount, "dpr2: every star is drawn");
     await page.close();
   }

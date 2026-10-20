@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-20T09:23:35.682Z",
+  "base": "http://localhost:5479/app.html",
+  "failures": [],
+  "log": [
+    "  made-up scene portrait: pill 84x44, bar 112 px tall, chrome 18% of the height",
+    "ok   made-up scene portrait: layout",
+    "ok   made-up scene portrait: top drawer",
+    "ok   made-up scene portrait: timeline drawer",
+    "ok   made-up scene portrait: scene drag",
+    "ok   made-up scene portrait: information sheet",
+    "ok   made-up scene portrait: story panel",
+    "ok   made-up scene portrait: developer groups",
+    "ok   made-up scene portrait: settings",
+    "  made-up scene landscape: pill 84x44, bar 112 px tall, chrome 40% of the height",
+    "ok   made-up scene landscape: layout",
+    "ok   made-up scene landscape: top drawer",
+    "ok   made-up scene landscape: timeline drawer",
+    "ok   made-up scene landscape: scene drag",
+    "ok   made-up scene landscape: information sheet",
+    "ok   made-up scene landscape: story panel",
+    "ok   made-up scene landscape: developer groups",
+    "ok   made-up scene landscape: settings",
+    "ok   reduced motion",
+    "console and page problems: 0"
+  ]
+}

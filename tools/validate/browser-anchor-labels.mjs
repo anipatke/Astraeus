@@ -1,4 +1,4 @@
-// Spike 01 anchor-label regression against the current shell and Developer mode.
+// Anchor-label layer on the made-up scene (twelve invented marks along the marker's loop; moved off Apollo by O-034 T-111).
 // Run the app on port 5199, then:
 // PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-anchor-labels.mjs
 // Output directory (I-040): the first argument, else ASTRAEUS_EVIDENCE_DIR, else a fresh timestamped directory under the system temp directory. A plain call never writes into
@@ -9,10 +9,10 @@
 // the phone shell shows a native "Camera mode" select instead of the camera buttons, so the option with the same label is picked.
 //   desktop assertion                                  phone counterpart
 //   layer hidden initially, zero visible labels ........ same
-//   toggle reports on, 40 labels created ............... same 40 label elements; on screen: all 40 on desktop, and on the phone
+//   toggle reports on, 12 labels created ............... same 12 label elements; on screen: all 12 on desktop, and on the phone
 //                                                        only those whose projection lies inside the narrower view (AnchorLabels hides
-//                                                        an off-screen anchor), so the phone asserts 1 to 40 on screen
-//   follow Columbia with labels on ........ same, via the camera select
+//                                                        an off-screen anchor), so the phone asserts 1 to 12 on screen
+//   follow the marker with labels on ....... same, via the camera select
 //   second click hides the layer, aria-pressed false ... same
 //   zero console and page errors ....................... same
 import assert from "node:assert/strict";
@@ -23,7 +23,7 @@ import * as ui from "./driver.mjs";
 
 import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
-const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
+const url = `${process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html"}?experience=synthetic`;
 const out = process.argv[2] ?? process.env.ASTRAEUS_EVIDENCE_DIR ?? join(tmpdir(), `astraeus-anchor-labels-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 mkdirSync(out, { recursive: true });
 
@@ -31,8 +31,8 @@ const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable
 let page;
 const errors = [];
 
-const seek = async (utc) => {
-  await ui.seekToUtcText(page, utc);
+const seek = async (fraction) => {
+  await ui.seekToFraction(page, fraction);
   await page.waitForTimeout(200);
 };
 const closeInfo = async () => {
@@ -52,9 +52,8 @@ async function run(label, viewport) {
   await page.goto(url);
   await page.waitForSelector("canvas");
   await ui.toggleDeveloper(page);
-  await ui.waitForUtcField(page);
   await ui.ensurePaused(page);
-  await seek("1969-07-22 20:30:00");
+  await seek(0.5);
   await choosePreset("overview");
   await page.waitForTimeout(1_500);
 
@@ -68,13 +67,13 @@ async function run(label, viewport) {
   const pressedOn = String(await ui.toggleOn(page, "anchor-labels"));
   const countWhenOn = await visibleAnchorCount();
   assert.equal(pressedOn, "true", "anchor-label toggle reports on");
-  assert.equal(await ui.anchorLabelCount(page), 40, "all labelled source anchors are created when enabled");
-  if (label === "desktop") assert.equal(countWhenOn, 40, "all 40 anchor labels are on screen in the desktop overview");
-  else assert.ok(countWhenOn > 0 && countWhenOn <= 40, "the anchor labels inside the phone view are shown (the rest are off screen)");
+  assert.equal(await ui.anchorLabelCount(page), 12, "all labelled source anchors are created when enabled");
+  if (label === "desktop") assert.equal(countWhenOn, 12, "all 12 anchor labels are on screen in the desktop overview");
+  else assert.ok(countWhenOn > 0 && countWhenOn <= 12, "the anchor labels inside the phone view are shown (the rest are off screen)");
 
-  await ui.pickBody(page, "columbia");
+  await ui.pickBody(page, "survey-marker");
   await closeInfo();
-  await choosePreset("follow-columbia");
+  await choosePreset("follow-marker");
   await page.waitForTimeout(1_500);
 
   await ui.pressToggle(page, "anchor-labels");

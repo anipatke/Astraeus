@@ -2,7 +2,7 @@
 // log each to a fresh evidence directory, print a one-line summary per script and a total, stop the servers, and set a non-zero exit code on any failure or console error.
 // No script takes or saves a picture; the evidence directory holds logs and summary.txt only.
 //
-// A step is { name, script, args?, env?, public? }. `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
+// A step is { name, script, scene?, args?, env?, public? } (`scene` is the experience the step opens, printed in the summary). `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
 // script gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, appendFileSync } from "node:fs";
@@ -38,7 +38,7 @@ function runStep(step, ctx) {
   ctx.write(`${step.name}.log`, log);
   const errors = log.split("\n").filter((l) => /console error|pageerror|page error/i.test(l) && !/zero console errors/i.test(l)).length;
   const seconds = Math.round((Date.now() - started) / 1000);
-  const line = `${step.name} | exit=${run.status} | ${clock(started)}-${clock(Date.now())} | ${seconds}s | error-lines=${errors}`;
+  const line = `${step.name} | scene=${step.scene ?? (step.noBrowser ? "none (files only)" : "?")} | exit=${run.status} | ${clock(started)}-${clock(Date.now())} | ${seconds}s | error-lines=${errors}`;
   console.log(line);
   appendFileSync(join(ctx.evidence, "summary.txt"), `${line}\n`);
   return run.status === 0 && errors === 0;

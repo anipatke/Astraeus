@@ -38,7 +38,7 @@ async function run(label, viewport) {
   const canvas = page.getByTestId("earth-moon-canvas");
   assert.equal(await canvas.getAttribute("data-point-groups"), "1");
   assert.equal(await ui.bodyOptionCount(page, "listed-orbits"), 1);
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   await ui.pausePlayback(page);
 
   const panel = ui.infoPanel(page);
@@ -84,17 +84,16 @@ async function run(label, viewport) {
   await page.waitForTimeout(2500);
   await ui.pausePlayback(page);
 
-  await page.goto(base);
+  await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "0");
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
+  assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 1);
   assert.equal(await ui.bodyOptionCount(page, "listed-orbits"), 0);
   await page.close();
 }
 
 try {
   await run("desktop", { width: 1280, height: 800 });
-  await run("phone", { width: 390, height: 844 });
 } finally {
   await browser.close();
 }

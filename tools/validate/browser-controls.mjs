@@ -24,10 +24,9 @@ const SIZES = [
   { name: "desktop 1440x900", viewport: { width: 1440, height: 900 }, mobile: false, height: "36px" },
   { name: "phone 390x844", viewport: { width: 390, height: 844 }, mobile: true, height: "44px" },
 ];
+// The made-up scene has the object list, the playback speed, an information panel with Sources and (since O-034 T-111) a story panel.
 const EXPERIENCES = [
-  { name: "apollo11", query: "", panels: true },
-  { name: "jupiter-io", query: "?experience=jupiter-io", panels: false },
-  { name: "shower-perseids", query: "?experience=showers", panels: true },
+  { name: "made-up scene", query: "?experience=synthetic", panels: true },
 ];
 
 /** Compares controls of one kind and variant; returns the differences found. */
@@ -119,7 +118,8 @@ for (const experience of EXPERIENCES) {
       } else {
         assert.equal(await inState(label, size, page, "start (again)"), 2, "the object list and the playback speed are both showing");
       }
-      await ui.openInfo(page, /^Information about /);
+      await ui.pickBody(page, "survey-marker"); // the catalogue bodies carry no Sources in the made-up scene; the marker does
+      if (!(await ui.infoOpen(page))) await ui.openInfo(page, /^Information about /);
       await ui.waitForInfo(page);
       await inState(label, size, page, "information panel");
       await ui.openSources(page);

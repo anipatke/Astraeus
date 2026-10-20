@@ -1,0 +1,52 @@
+{
+  "results": {
+    "made-up laptop": {
+      "drag": "earth",
+      "emptySpot": {
+        "x": 128,
+        "y": 144
+      },
+      "hover": "moon",
+      "bodyTap": "moon",
+      "labels": []
+    },
+    "made-up phone": {
+      "drag": "earth",
+      "pinch": true,
+      "emptySpot": {
+        "x": 37.5,
+        "y": 133.4
+      },
+      "bodyTap": "earth",
+      "labels": [
+        "moon"
+      ],
+      "labelTap": "moon"
+    },
+    "made-up-ring laptop": {
+      "drag": "earth",
+      "emptySpot": {
+        "x": 128,
+        "y": 144
+      },
+      "hover": "moon",
+      "bodyTap": "moon",
+      "labels": []
+    },
+    "made-up-ring phone": {
+      "drag": "earth",
+      "pinch": true,
+      "emptySpot": {
+        "x": 37.5,
+        "y": 133.4
+      },
+      "bodyTap": "earth",
+      "labels": [
+        "moon",
+        "debris-ring"
+      ],
+      "labelTap": "moon"
+    }
+  },
+  "errors": []
+}

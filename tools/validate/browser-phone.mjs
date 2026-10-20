@@ -1,5 +1,4 @@
-// Browser check for the phone layout (T-081, O-020 Done When 2, 3, 4, 8): at phone sizes, portrait (390x844) and landscape (844x390), for an
-// experience with story panels (Apollo 11, the default) and one with moons (Jupiter-Io):
+// Browser check for the phone layout (T-081, O-020 Done When 2, 3, 4, 8): at phone sizes, portrait (390x844) and landscape (844x390), on the made-up scene (story panels included):
 //   - the scene fills the screen: only the name pill, the cog and the two-line timeline show; no horizontal scroll;
 //   - the top drawer opens and closes by a tap on the pill and the handle, and by a swipe down and a swipe up;
 //   - the timeline drawer opens and closes by a tap on its handle and by swipes; its speed slider drives the speed;
@@ -28,9 +27,9 @@ const SIZES = [
   { name: "portrait", viewport: { width: 390, height: 844 } },
   { name: "landscape", viewport: { width: 844, height: 390 } },
 ];
+// The made-up scene has events, object list, information panel with Sources and a story panel (O-034 T-111).
 const EXPERIENCES = [
-  { name: "apollo11", query: "", hasPanels: true },
-  { name: "jupiter-io", query: "?experience=jupiter-io", hasPanels: false },
+  { name: "made-up scene", query: "?experience=synthetic", hasPanels: true },
 ];
 
 async function openPage(size, query, extra = {}) {
@@ -156,8 +155,7 @@ async function checkSceneDrag(label, page) {
 async function checkInfoSheet(label, page) {
   const picked = await ui.firstPickableBody(page);
   assert.ok(picked !== null);
-  const second = (await ui.pickableBodies(page))[1]?.value ?? picked;
-  await ui.pickBody(page, second);
+  await ui.pickBody(page, "survey-marker"); // the catalogue bodies carry no Sources in the made-up scene; the marker does
   assert.ok((await ui.controlsPillName(page)) !== null, `${label}: the pill follows the pick`);
   await ui.openInfo(page, /^Information about /);
   await ui.waitForInfo(page);
@@ -239,14 +237,14 @@ for (const experience of EXPERIENCES) {
     await attempt(`${label}: scene drag`, () => checkSceneDrag(label, page));
     await attempt(`${label}: information sheet`, () => checkInfoSheet(label, page));
     if (experience.hasPanels) await attempt(`${label}: story panel`, () => checkStoryPanel(label, page));
-    if (experience.name === "apollo11") await attempt(`${label}: developer groups`, () => checkDeveloperGroups(label, page));
-    if (experience.name === "apollo11") await attempt(`${label}: settings`, () => checkSettings(label, page));
+    if (experience.hasPanels) await attempt(`${label}: developer groups`, () => checkDeveloperGroups(label, page));
+    if (experience.hasPanels) await attempt(`${label}: settings`, () => checkSettings(label, page));
     await context.close();
   }
 }
 // Reduced motion: the drawers move at once.
 {
-  const { context, page } = await openPage(SIZES[0], "", { reducedMotion: "reduce" });
+  const { context, page } = await openPage(SIZES[0], "?experience=synthetic", { reducedMotion: "reduce" });
   await attempt("reduced motion", async () => {
     assert.equal(await ui.drawerTransition(page), "0s", "no drawer animation under reduced motion");
     await ui.tapPill(page);

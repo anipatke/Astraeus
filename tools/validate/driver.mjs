@@ -236,7 +236,7 @@ export const eventContextText = (page) => page.locator(HOOK.eventContext).innerT
 /** The "Inside: window" line (needs the Events list open). */
 export const insideText = (page) => page.locator(".timeline-window-current").innerText();
 /** Presses the "Just happened" line, which opens that event's information. */
-export const openCurrentEventInfo = async (page) => (await reveal(page, page.locator(HOOK.currentEventButton))).click();
+export const openCurrentEventInfo = async (page) => (await reveal(page, page.locator(HOOK.currentEventButton).first())).click();
 /** Chooses an event in the developer panel's "Mission event" list by value. */
 export const missionEventOptions = (page) => page.getByLabel("Mission event").locator("option").evaluateAll((options) => options.map((option) => ({
   value: option.value,

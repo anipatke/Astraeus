@@ -2,7 +2,7 @@
 // empty space and non-targets do nothing; the information sheet stays shut; a mouse hover sets the scene's hover readout and the pointer shape, touch does not.
 // Run the app on port 5199, then: PLAYWRIGHT_CORE=<path to playwright-core> node tools/validate/browser-tap-focus.mjs
 //
-// Three demos (Apollo 11, Showers, Jupiter-Io) at 1280x720 with a mouse and at 375x667 with touch. Everything goes through the shared driver and the scene's own
+// The made-up marker scene (moved off the demos by O-034 T-111) at 1280x720 with a mouse and at 375x667 with touch. Everything goes through the shared driver and the scene's own
 // readouts (`data-body-screen`, `data-pick-target`, `data-pick-hover`, `[data-label-id]`, the Object list); no pictures. Targets are found from the readouts, not
 // hard-coded, so the check follows whatever the demo shows. The contract (hit tolerance, nearest wins, the tap rule) is proved by tests/scenePicking.test.ts.
 import assert from "node:assert/strict";
@@ -16,9 +16,7 @@ const errors = [];
 const results = {};
 
 const DEMOS = [
-  { id: "apollo", query: "" },
-  { id: "showers", query: "?experience=showers" },
-  { id: "jupiter-io", query: "?experience=jupiter-io&sky=off", moons: true },
+  { id: "made-up", query: "?experience=synthetic" },
 ];
 const SIZES = [
   { id: "laptop", viewport: { width: 1280, height: 720 }, touch: false },
@@ -137,28 +135,6 @@ async function run(demo, size) {
       assert.equal(await ui.infoOpen(page), false, `${name}: tapping ${tag}'s name tag does not open the information sheet`);
       notes.labelTap = tag;
     }
-
-    // Jupiter: a small outer moon (a body-set dot) takes one tap; the picker shows it when it is listed and keeps its choice when it is not.
-    if (demo.moons === true) {
-      await ui.loadAddress(page, `${base}${demo.query}&view=jupiter,30,30,6000`);
-      await ui.waitForShell(page);
-      await ui.ensurePaused(page);
-      await ui.waitForBodyPicker(page);
-      await page.waitForTimeout(1500);
-      const dot = await ui.tappableSetMember(page);
-      assert.ok(dot, `${name}: a small moon's dot in view to tap`);
-      const before = await snapshot();
-      await ui.tapScenePoint(page, dot.x, dot.y);
-      await page.waitForTimeout(500);
-      assert.equal(await ui.pickTarget(page), dot.id, `${name}: the first tap on ${dot.id} picks it`);
-      // A listed moon is focused through the picker like any body; an unlisted one flies there and the list keeps its choice.
-      const listed = (await ui.pickableBodies(page)).some((option) => option.value === dot.id);
-      if (listed) await ui.waitForPicked(page, dot.id);
-      else assert.equal(await ui.pickedBody(page), before.picked, `${name}: ${dot.id} is not in the Object list, so the list keeps its choice`);
-      notes.setMoonListed = listed;
-      assert.equal(await ui.infoOpen(page), false, `${name}: the small moon's tap does not open the information sheet`);
-      notes.setMoon = dot.id;
-    }
   } finally {
     await context.close();
   }
@@ -167,9 +143,9 @@ async function run(demo, size) {
 try {
   for (const demo of DEMOS) for (const size of SIZES) await run(demo, size);
   const skipped = Object.entries(results).filter(([, notes]) => notes.emptySpot === null).map(([name]) => name);
-  assert.ok(Object.keys(results).length - skipped.length >= 4, `empty-space taps ran on at least four demo-and-size pairs (skipped: ${skipped.join(", ") || "none"})`);
+  assert.ok(Object.keys(results).length - skipped.length >= 2, `empty-space taps ran on at least two scene-and-size pairs (skipped: ${skipped.join(", ") || "none"})`);
   const labelRuns = Object.values(results).filter((notes) => notes.labelTap !== undefined).length;
-  assert.ok(labelRuns >= 2, `a name tag was tapped on at least two demo-and-size pairs (${labelRuns})`);
+  assert.ok(labelRuns >= 1, `a name tag was tapped on at least one scene-and-size pair (${labelRuns})`);
 } finally {
   await browser.close();
 }

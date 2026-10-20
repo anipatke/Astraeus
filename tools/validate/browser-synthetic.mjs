@@ -109,7 +109,7 @@ try {
   await page.waitForSelector("canvas");
   await ui.waitForShell(page);
   assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 1);
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 0);
+  assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 0);
   await ui.pausePlayback(page);
   await ui.toggleEventList(page);
   assert.equal(await ui.eventRowCount(page), 2);
@@ -129,25 +129,24 @@ try {
   await page.goto(`${base}?experience=synthetic`);
   await page.waitForSelector("canvas");
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
-  // Apollo stays the default.
-  await page.goto(base);
+  // A made-up scene with no activity window (the ring) is a separate experience: its own objects, no marker.
+  await page.goto(`${base}?experience=synthetic-ring`);
   await page.waitForSelector("canvas");
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1);
   assert.equal(await ui.bodyOptionCount(page, "survey-marker"), 0);
   assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-bodies"), "earth,moon");
-  // T-086: Apollo has no rate, so the same glow draws evenly (the plain track is gone). Scenario map: "no activity glow, the plain track" -> one glow, all stops one
+  // T-086: a scene with no rate (the ring), so the same glow draws evenly (the plain track is gone). Scenario map: "no activity glow, the plain track" -> one glow, all stops one
   // brightness, no text equivalent and no tooltip (nothing to report); "scrubber height unchanged" -> kept; steady brightness is a live setting.
-  assert.equal(await ui.glowCount(page), 1, "Apollo: the standard glow is drawn");
-  assert.equal(await ui.glowText(page), null, "Apollo: no activity to describe, so no text equivalent");
-  assert.equal(await ui.glowTooltipAt(page, 0.5), null, "Apollo: no activity tooltip");
+  assert.equal(await ui.glowCount(page), 1, "no-rate scene: the standard glow is drawn");
+  assert.equal(await ui.glowText(page), null, "no-rate scene: no activity to describe, so no text equivalent");
+  assert.equal(await ui.glowTooltipAt(page, 0.5), null, "no-rate scene: no activity tooltip");
   const evenAlphas = async (part) => [...(await ui.glowGradients(page))[part].matchAll(/rgba\([^)]*, ([\d.]+)\) /g)].map((m) => Number(m[1]));
   const ahead = await evenAlphas("ahead");
-  assert.ok(ahead.length >= 2 && ahead.every((a) => a === ahead[0]) && ahead[0] > 0, `Apollo: the glow is even (${ahead.join(",")})`);
+  assert.ok(ahead.length >= 2 && ahead.every((a) => a === ahead[0]) && ahead[0] > 0, `no-rate scene: the glow is even (${ahead.join(",")})`);
   await ui.openDeveloper(page);
   await ui.dragSlider(page, "glow-steady", 0.8);
-  assert.ok((await evenAlphas("ahead"))[0] >= 0.79, "Apollo: the steady brightness setting changes the glow live");
+  assert.ok((await evenAlphas("ahead"))[0] >= 0.79, "no-rate scene: the steady brightness setting changes the glow live");
   await ui.closeDeveloper(page);
-  assert.ok((await ui.windowParts(page).scrubber.boundingBox()).height < 50, "Apollo: scrubber height unchanged");
+  assert.ok((await ui.windowParts(page).scrubber.boundingBox()).height < 50, "no-rate scene: scrubber height unchanged");
 } finally {
   await browser.close();
 }

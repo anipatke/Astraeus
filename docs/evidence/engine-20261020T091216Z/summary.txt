@@ -1,0 +1,18 @@
+shell | exit=0 | 09:12:18-09:12:31 | 12s | error-lines=0
+synthetic | exit=0 | 09:12:31-09:12:52 | 21s | error-lines=0
+synthetic-ring | exit=0 | 09:12:52-09:13:37 | 45s | error-lines=0
+synthetic-listed | exit=0 | 09:13:37-09:14:07 | 31s | error-lines=0
+orbit-look | exit=0 | 09:14:07-09:14:42 | 34s | error-lines=0
+controls | exit=0 | 09:14:42-09:14:52 | 10s | error-lines=0
+phone | exit=0 | 09:14:52-09:15:39 | 47s | error-lines=0
+layout | exit=0 | 09:15:39-09:16:03 | 24s | error-lines=0
+embedded | exit=0 | 09:16:03-09:16:15 | 12s | error-lines=0
+anchor-labels | exit=0 | 09:16:15-09:16:31 | 16s | error-lines=0
+tap-focus | exit=0 | 09:16:31-09:17:15 | 44s | error-lines=0
+view-link | exit=0 | 09:17:15-09:17:38 | 23s | error-lines=0
+orbit-motion | exit=0 | 09:17:38-09:17:51 | 13s | error-lines=0
+scale-menu | exit=0 | 09:17:51-09:17:51 | 1s | error-lines=0
+sky | exit=0 | 09:17:51-09:18:53 | 61s | error-lines=0
+public-build-assets | exit=0 | 09:18:53-09:18:54 | 1s | error-lines=0
+public-addresses | exit=0 | 09:18:54-09:18:54 | 0s | error-lines=0
+total 398s (servers and public build included)

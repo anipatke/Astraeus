@@ -1,0 +1,14 @@
+{
+  "viewports": [
+    "1440x900",
+    "1280x800",
+    "768x1024",
+    "390x844"
+  ],
+  "developerPanels": 8,
+  "keyboardFocus": {
+    "outlineStyle": "solid",
+    "outlineWidth": "2px"
+  },
+  "errors": []
+}

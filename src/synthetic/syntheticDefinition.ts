@@ -9,6 +9,7 @@ import { SampledTrajectory } from "../core/sampledTrajectory";
 import { createWindows, rateAt } from "../core/timeWindow";
 import type { Metric, RateMetric } from "../shell/metrics";
 import type { ExperienceConfig } from "../shell/experience";
+import { parseStoryPanels } from "../shell/storyPanels";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
 const MINUTE_MS = 60_000;
@@ -35,6 +36,10 @@ const samples = Array.from({ length: SAMPLE_COUNT }, (_, index) => {
   };
 });
 
+/** Made-up marks along the loop, one every 40 minutes, labelled "mark-1" and on; they give the anchor-label layer something to show. */
+const ANCHOR_COUNT = 12;
+const anchorTimes = Array.from({ length: ANCHOR_COUNT }, (_, index) => START_UTC_MS + (index + 1) * 40 * MINUTE_MS);
+
 const trajectory = new SampledTrajectory({ body: "survey-marker", center: "earth", samples, provenance });
 const bounds = trajectory.bounds;
 
@@ -44,7 +49,8 @@ const marker: TrackedBody = {
   color: "#ffb347",
   trajectory,
   pathTimesUtcMs: samples.map((sample) => sample.timeUtcMs),
-  anchorTimesUtcMs: [],
+  anchorTimesUtcMs: anchorTimes,
+  anchorLabels: anchorTimes.map((_, index) => `mark-${index + 1}`),
   provenance,
 };
 
@@ -52,6 +58,34 @@ const events = createEvents([
   { id: "marker-start", label: "Marker starts its loop", timeUtcMs: bounds.startUtcMs },
   { id: "marker-quarter", label: "Marker passes a quarter turn", timeUtcMs: START_UTC_MS + 120 * MINUTE_MS },
 ]);
+
+/** Two made-up story panels (one about the marker, one about nothing in particular) so the story-panel checks run without a real story. */
+const storyPanels = parseStoryPanels(
+  {
+    pauseSeconds: 2,
+    panels: [
+      {
+        id: "marker-loop",
+        at: { utc: new Date(START_UTC_MS + 60 * MINUTE_MS).toISOString() },
+        title: "The marker's loop",
+        body: ["The survey marker goes round a made-up circle.", "Nothing here is a real object."],
+        details: ["The loop radius and speed were chosen for this fixture."],
+        badge: "illustrative",
+        sources: ["Made up for the story-panel test; not a real source"],
+        object: "survey-marker",
+      },
+      {
+        id: "marker-late",
+        at: { utc: new Date(START_UTC_MS + 300 * MINUTE_MS).toISOString() },
+        title: "A later note",
+        body: ["A second made-up panel, further along the timeline."],
+        badge: "modelled",
+        sources: ["Made up for the story-panel test; not a real source"],
+      },
+    ],
+  },
+  { events, anchors: new Map(), objectIds: ["earth", "moon", marker.id], window: bounds },
+);
 
 const at = (minutes: number) => START_UTC_MS + minutes * MINUTE_MS;
 
@@ -145,6 +179,7 @@ const experience: ExperienceConfig = {
   events,
   windows,
   window: bounds,
+  storyPanels,
   rates: [60, 600, 3_600],
 };
 

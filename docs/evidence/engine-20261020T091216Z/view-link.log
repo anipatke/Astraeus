@@ -1,0 +1,20 @@
+{
+  "made-up scene": {
+    "link": "http://localhost:5479/app.html?experience=synthetic&view=earth,261,-7.28,22.933&scale=true-scale&up=equatorial&t=2030-01-01T00:57:00.000Z",
+    "copied": {
+      "focus": "earth",
+      "az": 261,
+      "el": -7.28,
+      "dist": 22.933
+    },
+    "restored": {
+      "focus": "earth",
+      "az": 261,
+      "el": -7.28,
+      "dist": 22.933
+    }
+  },
+  "fallback": "field shown",
+  "badLink": "opened normally",
+  "errors": []
+}
