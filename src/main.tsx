@@ -3,16 +3,18 @@ import { createRoot } from "react-dom/client";
 import { App } from "./app/App";
 import { needsPlanetSeries } from "./app/planetNeeds";
 import { isPlanetId, loadPlanetSeries } from "./core/planetSeries";
+import { choosePlanet, type PlanetEntry } from "./experiences/planets/planetChoice";
 import { chooseShower, type ShowerEntry } from "./experiences/showers/showerChoice";
 import { showerEntryName } from "./experiences/showers/showerEntry";
 import type { ShowerSettings } from "./experiences/showers/showerSettings";
 import type { ExperienceDefinition } from "./app/experienceDefinition";
+import type { PlanetSystem } from "./experiences/planets/planetDefinition";
 import { failBootLoader } from "./shell/bootLoader";
 import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("Astraeus entry element #app is missing");
-// The entry chooses the experience: Apollo by default, Jupiter and Io with ?experience=jupiter-io, the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-bare, without Earth and Moon; synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit).
+// The entry chooses the experience: Apollo by default, the planets with ?experience=planets (&planet=<name> picks one; ?experience=jupiter-io still opens Jupiter), the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-bare, without Earth and Moon; synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit).
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = __PUBLIC_BUILD__ ? {} : {
@@ -24,17 +26,29 @@ const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> =
   "synthetic-eccentric": async () => (await import("./synthetic/syntheticEccentricDefinition")).syntheticEccentricDefinition,
 };
 const DEFINITIONS: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = {
-  "jupiter-io": async () => (await import("./experiences/jupiter-io/jupiterIo")).jupiterIoExplorer,
   ...SYNTHETIC,
 };
 // Every data/showers/<name>.json is a shower of the one Showers experience, ?experience=showers&shower=<name> (the lowest "order" opens by default); a new file needs no change here.
 // The settings files are small and already in the entry; the measured orbits (the large data) are fetched only for the chosen shower.
 const SHOWER_FILES = import.meta.glob<{ readonly label: string; readonly order?: number }>("../data/showers/*.json", { eager: true, import: "default" });
 const showerEntries: ShowerEntry[] = Object.entries(SHOWER_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order ?? 0 }));
+// Every data/planets/<name>.json is a planet of the one Planets experience (the old ?experience=jupiter-io address too); a new file needs no change here.
+// The settings files are small and already in the entry; a planet's system (moon list, positions, pictures) and story are fetched only for the chosen one.
+const PLANET_FILES = import.meta.glob<{ readonly label: string; readonly order: number; readonly default?: boolean }>("../data/planets/*.json", { eager: true, import: "default" });
+const PLANET_SYSTEMS = import.meta.glob<Record<string, PlanetSystem>>("./experiences/planets/systems/*.ts");
+const STORY_PANELS = import.meta.glob<unknown>("../data/stories/*/panels.json", { import: "default" });
+const planetEntries: PlanetEntry[] = Object.entries(PLANET_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order, isDefault: json.default === true }));
 const requested = new URLSearchParams(window.location.search).get("experience") ?? "";
+const planetChoice = requested === "planets" || requested === "jupiter-io" ? choosePlanet(planetEntries, new URLSearchParams(window.location.search).get("planet")) : undefined;
 const showerChoice = requested === "showers" ? chooseShower(showerEntries, new URLSearchParams(window.location.search).get("shower")) : undefined;
 // A shower's measured orbits are the GMN file (a local fetch in development, the shipped copy in a build), so a shower is built once that has been looked for.
 async function chooseDefinition(): Promise<ExperienceDefinition> {
+  if (planetChoice !== undefined) {
+    const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("./experiences/planets/planetSettings"), import("./experiences/planets/planetDefinition")]);
+    const settings = parsePlanetSettings(PLANET_FILES[`../data/planets/${planetChoice.name}.json`]);
+    const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[`./experiences/planets/systems/${settings.system}.ts`]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
+    return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
+  }
   if (showerChoice !== undefined) {
     const [{ parseShowerSettings }, { buildShowerDefinition, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
       import("./experiences/showers/showerSettings"),
