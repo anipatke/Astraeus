@@ -1,7 +1,7 @@
 ---
 id: O-022
 title: Tap or click an object in the scene to focus on it
-status: in_progress
+status: done
 depends_on: [O-020]
 release: G-005
 ---
@@ -52,3 +52,5 @@ Picking belongs to the presentation layer (ARCH-02) and reuses the existing came
 **In scope:** tap and click to focus bodies and labels; tap-versus-drag; hit tolerance; checks.
 
 **Out of scope:** opening the information sheet on tap; spacecraft, comets and asteroids as targets; multi-select, tapping single meteor or catalogue points, and tapping story markers (already covered by O-015).
+
+Owner closed O-022 on 2026-10-20T08:35:09Z ("looked at it, all works, close it"), on C-088 CLEAR (Full Objective Check). Owner skipped browser-jupiter-io.mjs for this change; next: plan the browser-check slim-down (owner, 2026-10-20).

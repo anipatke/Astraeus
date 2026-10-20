@@ -1,0 +1,71 @@
+{
+  "results": {
+    "apollo laptop": {
+      "drag": "earth",
+      "emptySpot": {
+        "x": 128,
+        "y": 144
+      },
+      "hover": "earth",
+      "bodyTap": "earth",
+      "labels": [
+        "moon"
+      ],
+      "labelTap": "moon"
+    },
+    "apollo phone": {
+      "closeView": "earth at 12",
+      "drag": "earth",
+      "pinch": true,
+      "emptySpot": null,
+      "bodyTap": "earth",
+      "labels": []
+    },
+    "showers laptop": {
+      "drag": "jupiter",
+      "emptySpot": {
+        "x": 128,
+        "y": 144
+      },
+      "hover": "jupiter",
+      "bodyTap": "jupiter",
+      "labels": []
+    },
+    "showers phone": {
+      "drag": "mars",
+      "pinch": true,
+      "emptySpot": {
+        "x": 37.5,
+        "y": 133.4
+      },
+      "bodyTap": "venus",
+      "labels": []
+    },
+    "jupiter-io laptop": {
+      "drag": "jupiter",
+      "emptySpot": {
+        "x": 128,
+        "y": 144
+      },
+      "hover": "europa",
+      "bodyTap": "europa",
+      "labels": [],
+      "setMoonListed": true,
+      "setMoon": "pasiphae"
+    },
+    "jupiter-io phone": {
+      "drag": "jupiter",
+      "pinch": true,
+      "emptySpot": null,
+      "bodyTap": "jupiter",
+      "labels": [
+        "europa",
+        "ganymede"
+      ],
+      "labelTap": "europa",
+      "setMoonListed": true,
+      "setMoon": "pasiphae"
+    }
+  },
+  "errors": []
+}

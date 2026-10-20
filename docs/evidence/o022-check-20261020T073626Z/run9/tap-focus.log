@@ -1,0 +1,10 @@
+file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:100
+      await ui.waitForPickHover(page, body.id).catch(async () => { throw new Error(name + ": hovering " + body.id + " at (" + Math.round(body.x) + ", " + Math.round(body.y) + ") reported '" + (await ui.pickHover(page)) + "'"); });
+                                                                         ^
+
+Error: apollo laptop: hovering earth at (640, 360) reported ''
+    at file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:100:74
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:100:7)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:153:55
+
+Node.js v24.16.0

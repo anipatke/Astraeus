@@ -17,6 +17,8 @@ export interface PickCandidate {
   readonly y: number;
   readonly radiusPx: number;
   readonly label?: PickRect | null;
+  /** Only the label answers: the body is not drawn in view (too small or off screen) while its name still shows. */
+  readonly labelOnly?: boolean;
 }
 
 export type PickPointer = "mouse" | "touch";
@@ -37,7 +39,7 @@ export function pickTarget(candidates: readonly PickCandidate[], x: number, y: n
   let best: string | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
   for (const candidate of candidates) {
-    const toDisc = Math.hypot(candidate.x - x, candidate.y - y);
+    const toDisc = candidate.labelOnly === true ? Number.POSITIVE_INFINITY : Math.hypot(candidate.x - x, candidate.y - y);
     let distance = toDisc <= Math.max(candidate.radiusPx, tolerance) ? toDisc : Number.POSITIVE_INFINITY;
     const label = candidate.label;
     if (label !== undefined && label !== null && x >= label.left && x <= label.right && y >= label.top && y <= label.bottom) {
@@ -117,16 +119,17 @@ export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
   const out: PickCandidate[] = [];
   for (const object of frame.objects) {
     const body = frame.bodyIdFor(object.id);
-    const screen = body === null ? undefined : frame.bodyScreens.find((candidate) => candidate.id === body);
-    if (screen === undefined || !screen.inView || screen.as === "none") continue;
+    if (body === null) continue;
+    const screen = frame.bodyScreens.find((candidate) => candidate.id === body);
     const rect = frame.labelRects?.get(object.id);
-    out.push({
-      id: object.id,
-      x: screen.x * frame.widthPx,
-      y: screen.y * frame.heightPx,
-      radiusPx: screen.radiusPx,
-      label: rect === undefined ? null : { left: rect.left - box.left, top: rect.top - box.top, right: rect.right - box.left, bottom: rect.bottom - box.top },
-    });
+    const label = rect === undefined ? null : { left: rect.left - box.left, top: rect.top - box.top, right: rect.right - box.left, bottom: rect.bottom - box.top };
+    const drawn = screen !== undefined && screen.inView && screen.as !== "none";
+    // A body not drawn in view can still show its name: the name stays a target.
+    if (!drawn) {
+      if (label !== null) out.push({ id: object.id, x: (label.left + label.right) / 2, y: (label.top + label.bottom) / 2, radiusPx: 0, label, labelOnly: true });
+      continue;
+    }
+    out.push({ id: object.id, x: screen.x * frame.widthPx, y: screen.y * frame.heightPx, radiusPx: screen.radiusPx, label });
   }
   for (const view of frame.bodySetViews) {
     view.layer.members.forEach((member, index) => {

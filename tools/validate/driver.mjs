@@ -1105,6 +1105,211 @@ export async function tapScene(page, x, y) {
   const box = await page.locator("canvas").first().boundingBox();
   await page.mouse.click(box.x + x, box.y + y);
 }
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Tap or click an object in the scene to focus on it (O-022 T-109): the pointer actions and the scene's pick readouts.
+// A touch page (a context made with `hasTouch`) sends real touch events through the DevTools protocol, so the app sees pointerType "touch";
+// any other page sends the mouse. Positions given to these functions are CSS px from the canvas's top left unless the name says "page".
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** "touch" on a page made with touch support, otherwise "mouse". */
+export const scenePointer = async (page) => ((await page.evaluate(() => navigator.maxTouchPoints > 0)) ? "touch" : "mouse");
+const sceneBox = (page) => page.locator("canvas").first().boundingBox();
+
+/** One or more fingers moving in a straight line each (`paths`: `{from, to}` in page px), with real touch events. A path with from equal to to is a tap. */
+async function touchGesture(page, paths, steps = 8) {
+  const client = await page.context().newCDPSession(page);
+  const at = (i) => paths.map((p, n) => {
+    const f = steps === 0 ? 0 : i / steps;
+    return { x: p.from.x + (p.to.x - p.from.x) * f, y: p.from.y + (p.to.y - p.from.y) * f, id: n + 1 };
+  });
+  await client.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: at(0) });
+  for (let i = 1; i <= steps; i += 1) await client.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: at(i) });
+  await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await client.detach();
+}
+/** A tap (touch) or click (mouse) at a point of the page. */
+async function tapPagePoint(page, x, y) {
+  if ((await scenePointer(page)) === "touch") await touchGesture(page, [{ from: { x, y }, to: { x, y } }], 0);
+  else { await page.mouse.move(x, y); await page.mouse.click(x, y); }
+  await page.waitForTimeout(150);
+}
+/** A one-finger or mouse-button drag from a page point to a page point. */
+async function dragPagePoints(page, from, to) {
+  if ((await scenePointer(page)) === "touch") { await touchGesture(page, [{ from, to }]); return; }
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  for (let i = 1; i <= 8; i += 1) await page.mouse.move(from.x + ((to.x - from.x) * i) / 8, from.y + ((to.y - from.y) * i) / 8);
+  await page.mouse.up();
+}
+/** Reads a point until it stops moving (the camera is still flying after a tap), then returns it. */
+async function settledPoint(read) {
+  let last = await read();
+  for (let i = 0; i < 40; i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const now = await read();
+    if (last !== null && now !== null && Math.hypot(now.x - last.x, now.y - last.y) < 0.5) return now;
+    last = now;
+  }
+  return last;
+}
+/** Whether the scene canvas itself is the topmost thing at a page point (no panel, marker or control over it): where a tap reaches the scene. */
+const canvasTopAt = (page, x, y) => page.evaluate(({ px, py }) => document.elementFromPoint(px, py)?.tagName === "CANVAS", { px: x, py: y });
+/** Like canvasTopAt, and (touch pages only) no button, link or control within a fingertip (22 px) of the point: a touch is adjusted to the nearest control there, so a story marker beside a body takes the tap. */
+const sceneReachableAt = async (page, x, y) => page.evaluate(({ px, py, touch }) => {
+  const control = (el) => el !== null && el.closest("button, a, select, input, textarea, [role='button']") !== null;
+  if (document.elementFromPoint(px, py)?.tagName !== "CANVAS") return false;
+  for (const r of touch ? [11, 22] : []) for (let a = 0; a < 8; a += 1) if (control(document.elementFromPoint(px + Math.cos((a * Math.PI) / 4) * r, py + Math.sin((a * Math.PI) / 4) * r))) return false;
+  return true;
+}, { px: x, py: y, touch: (await scenePointer(page)) === "touch" });
+
+/** A body's centre in canvas px from the scene's own readout (`data-body-screen`), or null when it is not in view. */
+export async function bodyScreenPoint(page, id) {
+  const [body, box] = await Promise.all([sceneBody(page, id), sceneBox(page)]);
+  return body === undefined || !body.inView || body.as === "none" ? null : { x: body.x * box.width, y: body.y * box.height };
+}
+/** The last object the scene reported a tap on (`data-pick-target`); empty before any tap landed on a target. */
+export const pickTarget = (page) => page.locator("canvas").first().evaluate((canvas) => canvas.dataset.pickTarget ?? "");
+/** The object the mouse is over (`data-pick-hover`); empty when none, and always empty for touch. */
+export const pickHover = (page) => page.locator("canvas").first().evaluate((canvas) => canvas.dataset.pickHover ?? "");
+/** The pointer shape over the scene (`pointer` over a target, empty otherwise). */
+export const sceneCursor = (page) => page.locator("canvas").first().evaluate((canvas) => canvas.style.cursor);
+/** Waits until the Object list holds this id (a tap flew to it and the picker shows it). */
+export const waitForPicked = (page, id, timeout = 8000) => page.waitForFunction((wanted) => document.querySelector('select[aria-label="Select object"]')?.value === wanted, id, { timeout });
+/** Waits until the scene reports a tap on this id (`data-pick-target`); meaningful even when the picker already showed it. */
+export const waitForPickTarget = (page, id, timeout = 8000) => page.waitForFunction((wanted) => (document.querySelector("canvas")?.dataset.pickTarget ?? "") === wanted, id, { timeout });
+/** Waits until the scene reports the mouse over this id (empty string: over nothing). */
+export const waitForPickHover = (page, id, timeout = 5000) => page.waitForFunction((wanted) => (document.querySelector("canvas")?.dataset.pickHover ?? "") === wanted, id, { timeout });
+
+/** A canvas point on a body's disc with the canvas on top (a story marker, panel or control can sit over the centre): the centre first, then points inside the disc. Null when the whole disc is covered. */
+async function clearBodyPoint(page, point, radiusPx) {
+  const box = await sceneBox(page);
+  const reach = Math.max(0, Math.min(radiusPx ?? 0, 60) * 0.7);
+  const offsets = [[0, 0]];
+  if (reach >= 4) for (const f of [0.5, 1]) for (let a = 0; a < 8; a += 1) offsets.push([Math.cos((a * Math.PI) / 4) * reach * f, Math.sin((a * Math.PI) / 4) * reach * f]);
+  for (const [dx, dy] of offsets) {
+    const x = point.x + dx, y = point.y + dy;
+    if (x < 0 || y < 0 || x > box.width || y > box.height) continue;
+    if (await sceneReachableAt(page, box.x + x, box.y + y)) return { x, y };
+  }
+  return null;
+}
+/** Taps (touch) or clicks (mouse) a body once the camera has settled: at its centre, or at a point on its disc when something covers the centre. Throws when the whole disc is covered. Returns the point. */
+export async function tapBody(page, id) {
+  const settled = await settledPoint(() => bodyScreenPoint(page, id));
+  if (settled === null) throw new Error(`driver: ${id} is not in view to tap`);
+  const body = await sceneBody(page, id);
+  const point = await clearBodyPoint(page, settled, body?.radiusPx);
+  if (point === null) throw new Error(`driver: ${id} is covered by a panel, marker or control at (${Math.round(settled.x)}, ${Math.round(settled.y)}), so a tap would not reach the scene`);
+  const box = await sceneBox(page);
+  await tapPagePoint(page, box.x + point.x, box.y + point.y);
+  return point;
+}
+/** Taps a shown name tag at its centre. Throws unless the tag is showing and the canvas is under that point. */
+export async function tapLabel(page, id) {
+  const read = () => page.locator(`[data-label-id="${id}"]`).evaluate((element) => {
+    if (element.hidden) return null;
+    const r = element.getBoundingClientRect();
+    return r.width === 0 ? null : { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+  });
+  const point = await settledPoint(read);
+  if (point === null) throw new Error(`driver: ${id}'s name tag is not showing to tap`);
+  await tapPagePoint(page, point.x, point.y);
+  return point;
+}
+/** Taps a point of the scene in canvas px with the page's own pointer (touch or mouse). */
+export async function tapScenePoint(page, x, y) {
+  const box = await sceneBox(page);
+  await tapPagePoint(page, box.x + x, box.y + y);
+}
+/** Drags across a body: presses on its centre and moves 110 px sideways (towards the middle of the view), then releases. */
+export async function dragAcross(page, id) {
+  const point = await settledPoint(() => bodyScreenPoint(page, id));
+  if (point === null) throw new Error(`driver: ${id} is not in view to drag`);
+  const box = await sceneBox(page);
+  const dx = point.x > box.width / 2 ? -110 : 110;
+  await dragPagePoints(page, { x: box.x + point.x, y: box.y + point.y }, { x: box.x + point.x + dx, y: box.y + point.y });
+}
+/** A two-finger pinch spreading apart around a canvas point (touch pages only). */
+export async function pinchAt(page, x, y) {
+  if ((await scenePointer(page)) !== "touch") throw new Error("driver: a pinch needs a touch page");
+  const box = await sceneBox(page);
+  const cx = box.x + x, cy = box.y + y;
+  await touchGesture(page, [{ from: { x: cx - 20, y: cy }, to: { x: cx - 80, y: cy } }, { from: { x: cx + 20, y: cy }, to: { x: cx + 80, y: cy } }]);
+  await page.waitForTimeout(150);
+}
+/** Moves the mouse onto a body's centre (hover). */
+export async function hoverBody(page, id) {
+  const settled = await settledPoint(() => bodyScreenPoint(page, id));
+  if (settled === null) throw new Error(`driver: ${id} is not in view to hover`);
+  const point = await clearBodyPoint(page, settled, (await sceneBody(page, id))?.radiusPx);
+  if (point === null) throw new Error(`driver: ${id} is covered by a panel, marker or control, so the mouse cannot reach it`);
+  // Come in from a pixel away so the scene always hears a move, even when the mouse already rests on the point.
+  await pointAtScene(page, point.x + 1, point.y);
+  await pointAtScene(page, point.x, point.y);
+  return point;
+}
+/** Moves the mouse to a canvas point. */
+export const hoverScenePoint = (page, x, y) => pointAtScene(page, x, y);
+
+/** The bodies a tap can reach right now: in view, listed and available in the Object list, the canvas on top of the point, and no other body within 40 px. Largest first. `{id, x, y, radiusPx}` in canvas px. */
+export async function tappableBodies(page, exclude = []) {
+  const [bodies, box, options] = await Promise.all([sceneBodies(page), sceneBox(page), pickableBodies(page)]);
+  const listed = new Set(options.map((option) => option.value));
+  const inView = bodies.filter((body) => body.inView && body.as !== "none").map((body) => ({ id: body.id, x: body.x * box.width, y: body.y * box.height, radiusPx: body.radiusPx }));
+  const out = [];
+  for (const body of inView) {
+    if (!listed.has(body.id) || exclude.includes(body.id)) continue;
+    if (body.x < 30 || body.y < 30 || body.x > box.width - 30 || body.y > box.height - 30) continue;
+    if (inView.some((other) => other.id !== body.id && Math.hypot(other.x - body.x, other.y - body.y) < 40)) continue;
+    if ((await clearBodyPoint(page, body, body.radiusPx)) === null) continue;
+    out.push(body);
+  }
+  return out.sort((a, b) => b.radiusPx - a.radiusPx);
+}
+/** Ids of the shown name tags of listed, available objects whose centre has the canvas under it and is not over another object's disc, so a tap there reaches the scene as this tag's object. */
+export async function tappableLabelIds(page, exclude = []) {
+  const [pickable, bodies, box] = await Promise.all([pickableBodies(page), sceneBodies(page), sceneBox(page)]);
+  const options = new Set(pickable.map((option) => option.value));
+  const discs = bodies.filter((body) => body.inView && body.as !== "none").map((body) => ({ id: body.id, x: box.x + body.x * box.width, y: box.y + body.y * box.height, r: body.radiusPx }));
+  const centres = await page.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => {
+    const r = el.getBoundingClientRect();
+    return { id: el.dataset.labelId, x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2, width: r.width };
+  }));
+  const out = [];
+  for (const c of centres) if (c.width > 0 && options.has(c.id) && !exclude.includes(c.id) && !discs.some((d) => d.id !== c.id && Math.hypot(d.x - c.x, d.y - c.y) < d.r + 10) && (await sceneReachableAt(page, c.x, c.y))) out.push(c.id);
+  return out;
+}
+/** A canvas point at least `gap` px from every body in view, every sampled body-set dot and every shown name tag, with the canvas on top; null when the view has none. */
+export async function emptySceneSpot(page, gap = 120) {
+  const [bodies, box, set, tags] = await Promise.all([sceneBodies(page), sceneBox(page), bodySetReadout(page), page.evaluate(() => [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden).map((el) => {
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  }))]);
+  const marks = bodies.filter((body) => body.inView && body.as !== "none").map((body) => ({ x: body.x * box.width, y: body.y * box.height, r: body.radiusPx })).concat(set.sample.map((dot) => ({ x: dot.x, y: dot.y, r: 0 })));
+  for (let fy = 0.2; fy <= 0.81; fy += 0.1) {
+    for (let fx = 0.1; fx <= 0.91; fx += 0.1) {
+      const x = box.width * fx, y = box.height * fy;
+      if (marks.some((mark) => Math.hypot(mark.x - x, mark.y - y) < gap + mark.r)) continue;
+      const px = box.x + x, py = box.y + y;
+      if (tags.some((tag) => px > tag.left - gap / 2 && px < tag.right + gap / 2 && py > tag.top - gap / 2 && py < tag.bottom + gap / 2)) continue;
+      if (await canvasTopAt(page, px, py)) return { x, y };
+    }
+  }
+  return null;
+}
+/** A sampled body-set dot (small moon) a tap can reach: the canvas on top, no other dot or body within 30 px. `{id, x, y}` in canvas px, or null. */
+export async function tappableSetMember(page) {
+  const [set, bodies, box] = await Promise.all([bodySetReadout(page), sceneBodies(page), sceneBox(page)]);
+  const others = bodies.filter((body) => body.inView && body.as !== "none").map((body) => ({ x: body.x * box.width, y: body.y * box.height }));
+  for (const dot of set.sample) {
+    if (dot.x < 30 || dot.y < 30 || dot.x > box.width - 30 || dot.y > box.height - 30) continue;
+    if (others.some((o) => Math.hypot(o.x - dot.x, o.y - dot.y) < 30)) continue;
+    if (set.sample.some((o) => o.id !== dot.id && Math.hypot(o.x - dot.x, o.y - dot.y) < 30)) continue;
+    if (await canvasTopAt(page, box.x + dot.x, box.y + dot.y)) return { id: dot.id, x: dot.x, y: dot.y };
+  }
+  return null;
+}
+
 /** Whether a body-set member's name is showing. */
 export const bodySetNameShown = (page, id) => page.locator(`[data-body-set-label="${id}"]`).evaluate((element) => !element.hidden);
 /** The ids of every body-set member whose name is showing. */

@@ -1,0 +1,10 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at places (/home/user/code/Astraeus/tools/validate/browser-jupiter-io.mjs:213:18)
+    at async run (/home/user/code/Astraeus/tools/validate/browser-jupiter-io.mjs:330:5)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-jupiter-io.mjs:338:3
+
+Node.js v24.16.0

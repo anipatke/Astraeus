@@ -2,9 +2,14 @@
 id: T-109
 title: Prove tap-to-focus in the browser checks and update the design notes
 objective: O-022
-status: planned
+status: done
 depends_on: [{task: T-107, requires: clear}, {task: T-108, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-088, accepted_by: {role: owner, session: o022-run-20261020}}
+check_waiver:
+  task: T-109
+  reason: Owner skips per-Task checks for O-022; one Full Objective Check at the end.
+  actor: {role: owner, session: o022-run-20261020}
+  recorded_at: '2026-10-20T07:31:17Z'
 planned_by: {role: planner, session: o022-planning-20261020}
 planned_writes: [tools/validate/driver.mjs, tools/validate/driver.d.mts, tools/validate/browser-tap-focus.mjs, tools/validate/run-full.sh, docs/BROWSER_CHECKS.md, .savepoint/Design.md]
 ---
@@ -58,8 +63,34 @@ Configured gates, lite check, the new area script and the moon-panel script. The
 
 ## Technical Evidence
 
-Pending execution.
+Browser runs deferred to the O-022 Full Objective Check by owner decision 2026-10-20. Task Check skipped by owner decision 2026-10-20 ("Skip task checks, you will check all the work once at the end"); check_waiver recorded in frontmatter.
+
+Per criterion:
+1. Met in code. New driver functions in `tools/validate/driver.mjs`: `scenePointer`, `bodyScreenPoint`, `tapBody`, `tapLabel`, `tapScenePoint`, `dragAcross`, `pinchAt`, `hoverBody`, `hoverScenePoint`, `pickTarget`, `pickHover`, `sceneCursor`, `waitForPicked`, `waitForPickHover`, `tappableBodies`, `tappableLabelIds`, `emptySceneSpot`, `tappableSetMember`. Touch is real CDP touch events on a `hasTouch` page. Readouts checked in src: `data-pick-target`/`data-pick-hover` (AstraeusScene.tsx), `data-body-screen` (sceneDebug.ts), `[data-label-id]` (SceneLabels), body-set sample `{id,x,y}` (sceneBodySets.ts). `driver-guard` passes; `tests/browserDriverGuard.test.ts` passes. `driver.d.mts` unchanged (it exports only what unit tests import).
+2. Written, not run: `tools/validate/browser-tap-focus.mjs`, 3 demos (Apollo, Showers, Jupiter-Io) x 1280x720 mouse and 375x667 touch: drag, pinch (touch), empty-space tap, hover and pointer shape (mouse), body tap, name-tag tap, small Jupiter moon one tap, information sheet shut throughout. Spacecraft taps are not scripted (spacecraft are not in `data-body-screen`); the empty-space tap and the unit tests (`tests/scenePicking.test.ts`) cover non-targets. `node --check` clean. Not run, so open.
+3. Met: `run-full.sh` lane B runs `tap-focus`; `docs/BROWSER_CHECKS.md` has a "Tap to focus" section mapping each scenario. The two-tap set-moon scenario is in `browser-jupiter-io.mjs` (not moon-panel, which never taps the scene); its phone branch now asserts one tap (`pickTarget`), mapped in the doc.
+4. Met: every T-107 and T-108 drift note is in `.savepoint/Design.md`: new Codebase Map row for `scenePicking.ts` (picking, tolerances, `TapTracker`, pick callback path, `shownRects`) and a "Tap to focus (O-022)" bullet under Interfaces (readouts, cursor, `hoverBrightness` setting, unlisted set moons accepted, two-tap removal, driver additions). Nothing marked non-architectural.
+5. Partly met: `npm run typecheck` clean; `npm run build` ok; `npm test` 78 files, 1138 passed, 1 skipped. Lite, `browser-tap-focus.mjs` and `browser-moon-panel.mjs` NOT run (deferred to the Full Objective Check). Open.
+6. Open: owner look on the preview after the browser evidence.
+
+Files read: the Context Files; extra reads (to confirm readouts and where the two-tap scenario lives): `src/app/AstraeusScene.tsx`, `src/app/sceneDebug.ts`, `src/app/sceneBodySets.ts`, `src/app/BodySetLabels.ts`, `src/shell/style.css` (label pointer-events), `tools/validate/browser-jupiter-io.mjs`, `tools/validate/browser-story-panels.mjs` (CDP touch pattern), `tools/validate/public-addresses.mjs`. Files changed: `tools/validate/driver.mjs`, `browser-tap-focus.mjs` (new), `browser-jupiter-io.mjs`, `run-full.sh`, `docs/BROWSER_CHECKS.md`, `.savepoint/Design.md`, this file.
+
+Limitations: scripts are unrun, so selector timing, label availability per demo, and whether a mobile-emulated touch page reaches the canvas are unproven; the script asserts at least two name-tag taps and four empty-space taps overall so a quiet view cannot pass vacuously.
+
+### Browser runs and repairs (coordinator, 2026-10-20T08:27:04Z)
+
+Runs on the dev server `http://localhost:5479/app.html`, evidence under `docs/evidence/o022-check-20261020T073626Z/`, one browser job at a time, `PLAYWRIGHT_CORE` as in AGENTS.md, Node v24.16.0.
+
+- First run of `browser-tap-focus.mjs` failed (`tap-focus.log`, apollo phone body tap). A repair builder (runs 4-9) found Chromium touch emulation snaps a tap onto a nearby `button.story-marker` beside a ~6 px Earth while `elementFromPoint` still says canvas; it added a touch-aware `sceneReachableAt` and a clear-point search shared by `tapBody` and `tappableBodies`, `waitForPickTarget`, a radius-aware `emptySceneSpot`, tags over another disc skipped, and a close-in reload when no body is tappable.
+- Coordinator repairs after that: `hoverBody` uses the same clear point and comes in from 1 px away so a move is always heard (run 9 hover timeout); the script waits for the camera to settle before listing name tags and tries the next tag when one hides (run 10, Mercury's tag hid); a tapped Jupiter set moon that is listed in the Object list is now expected to show in the picker, an unlisted one to leave it alone (run 11: Pasiphae is listed); `tappableLabelIds` uses `sceneReachableAt` instead of `canvasTopAt` (runs 12-13: the Moon's tag tap snapped to a story marker).
+- App defect found and fixed (outside this Task's planned writes; T-107's module): `pickCandidatesOf` dropped a catalogued object whose body is not drawn in view even while its name tag showed, so the tag was not a target (Success Condition 3: labels are targets). Now such an object is a label-only candidate (`labelOnly`, only the tag answers). Unit test added in `tests/scenePicking.test.ts` ("keeps a shown name a target when its body is not drawn in view").
+- `browser-tap-focus.mjs` run 14 (`run14-tap-focus.log`): exit 0, 83 s, `errors: []`; all six demo x size runs passed. Body taps: earth (x2), venus, jupiter (x2), europa; name-tag taps: moon (apollo phone), europa (jupiter-io phone); hover: earth, europa, jupiter; pinch on all three phone runs; empty-space taps where a free spot existed (4 of 6); set moon one-tap: pasiphae (listed) on both Jupiter sizes. The unlisted-set-moon branch was not exercised (the first tappable dot was listed).
+- `browser-moon-panel.mjs`: exit 0, 47 s, zero console errors. `browser-lite.mjs`: exit 0, 136 s, 26/26 loads passed.
+- `browser-jupiter-io.mjs`: first run killed by the coordinator at 861 s and a second timed out at 500 s, both in `places()`; the same timeout at 400 s on the pre-O-022 commit 641a50c shows this is the script's normal length (1361-1464 s in the C-084 and O-016 full runs), not a regression. A full-length run was started and then stopped at the owner's word (2026-10-20T08:27:35Z): "I dont really want to run the browser checks for jupiter each time we make a small change though". Not run to completion for O-022; the one Jupiter behaviour O-022 changed (one tap on a set moon) is asserted at both sizes by `browser-tap-focus.mjs` run 14.
+- Gates after the repairs: `npm run typecheck` 0; `npm run build` 0; `npm test` 78 files, 1139 passed, 1 skipped; `tests/browserDriverGuard.test.ts` 4/4.
 
 ## Drift Notes
 
 This step is the O-022 integration and Design reconciliation Task.
+
+Owner looked on the preview (localhost:5490) and closed this Task on 2026-10-20T08:35:09Z: "looked at it, all works, close it". Accepted against C-088 (CLEAR).

@@ -54,6 +54,7 @@ laneB() {
   run public-showers env ASTRAEUS_URL=$PUB ASTRAEUS_EVIDENCE_DIR="$B/public-showers" node tools/validate/browser-public-showers.mjs
   dev jupiter-io browser-jupiter-io.mjs
   dev moon-panel browser-moon-panel.mjs
+  dev tap-focus browser-tap-focus.mjs
   dev embedded browser-embedded.mjs
   dev home-curve-fits browser-home-curve-fits.mjs
   dev orbit-motion browser-orbit-motion.mjs

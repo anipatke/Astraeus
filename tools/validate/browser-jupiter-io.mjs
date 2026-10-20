@@ -78,16 +78,23 @@ async function moons(page, name, notes) {
   assert.equal(new Set(Object.values(far.familyColors)).size, moonData.families.length, `${name}: one distinct orbit colour per family`);
   assert.ok(far.named <= 1, `${name}: no wall of names before asking (${far.named} named)`);
 
-  // A dot's name: hover on desktop, tap on a phone.
+  // A dot's name: hover on desktop. On a phone a tap no longer names the dot first and focuses it second (the O-025 two-tap rule): one tap focuses it (O-022 T-107),
+  // read from the scene's pick readout; the full tap-to-focus scenarios are in browser-tap-focus.mjs.
   const dot = far.sample[0];
   assert.ok(dot, `${name}: a dot on screen to point at`);
-  if (phone) await ui.tapScene(page, dot.x, dot.y);
-  else await ui.pointAtScene(page, dot.x, dot.y);
-  await page.waitForTimeout(400);
-  assert.ok(await ui.bodySetNameShown(page, dot.id), `${name}: ${dot.id}'s name shows on ${phone ? "tap" : "hover"}`);
-  const shown = await ui.bodySetNamesShown(page);
-  notes.nameOnDemand = { dot: dot.id, shown };
-  assert.ok(shown.length <= 2, `${name}: only the asked-for name shows (${shown.join(", ")})`);
+  if (phone) {
+    await ui.tapScene(page, dot.x, dot.y);
+    await page.waitForTimeout(400);
+    assert.equal(await ui.pickTarget(page), dot.id, `${name}: one tap on ${dot.id}'s dot picks it`);
+    notes.nameOnDemand = { dot: dot.id, tapped: await ui.pickTarget(page) };
+  } else {
+    await ui.pointAtScene(page, dot.x, dot.y);
+    await page.waitForTimeout(400);
+    assert.ok(await ui.bodySetNameShown(page, dot.id), `${name}: ${dot.id}'s name shows on hover`);
+    const shown = await ui.bodySetNamesShown(page);
+    notes.nameOnDemand = { dot: dot.id, shown };
+    assert.ok(shown.length <= 2, `${name}: only the asked-for name shows (${shown.join(", ")})`);
+  }
 
   // Every moon sits on its own orbit line (owner, 2026-10-18: S/2021 J 7 was off its line when the lines were osculating ellipses). Views
   // of irregular moons, S/2021 J 7 among them, from 500 units out. The head's last chord always ends on the body, so the readout gives how

@@ -98,6 +98,13 @@ describe("pickCandidatesOf", () => {
     expect(pickTarget(candidates, 80, 360, "touch")).toBe("beta-star");
     expect(candidates.some((c) => c.id === "probe" || c.id === "orbit-line" || c.id === "offscreen")).toBe(false);
   });
+  it("keeps a shown name a target when its body is not drawn in view, and only the name answers", () => {
+    const hidden = { ...frame, objects: [...frame.objects, { id: "gamma" }], bodyIdFor: (id: string) => (id === "gamma" ? "gone" : frame.bodyIdFor(id)) };
+    expect(pickCandidatesOf(hidden).some((c) => c.id === "gamma")).toBe(false);
+    const named = pickCandidatesOf({ ...hidden, labelRects: new Map([...frame.labelRects, ["gamma", { left: 610, top: 300, right: 660, bottom: 316 }]]) });
+    expect(pickTarget(named, 625, 288, "touch")).toBe("gamma");
+    expect(pickTarget(named, 400, 180, "touch")).toBeNull();
+  });
 });
 
 describe("hover", () => {

@@ -1,0 +1,10 @@
+file:///home/user/code/Astraeus/tools/validate/driver.mjs:1215
+  if (point === null) throw new Error(`driver: ${id}'s name tag is not showing to tap`);
+                            ^
+
+Error: driver: mercury's name tag is not showing to tap
+    at Module.tapLabel (file:///home/user/code/Astraeus/tools/validate/driver.mjs:1215:29)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:122:7)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:153:55
+
+Node.js v24.16.0

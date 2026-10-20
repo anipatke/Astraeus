@@ -51,9 +51,25 @@ The full run takes no pictures (T-102): there is no baseline, comparison or cont
 
 **The app inside another page (T-082, O-020 Decision 5).** New script `browser-embedded.mjs`, in the full run (lane B). It opens a stand-in for the portfolio page (driver `openInPortfolioFrame`: an iframe of the portfolio's size, as `main-portfolio/components/astraeus/AstraeusBridge.tsx` embeds it: full width, 660 px high from 1024 px wide, 580 from 768, 460 on a phone) and each demo alone, at a laptop (1280x800) and a phone (390x844): Apollo 11, Showers (Perseids default and `&shower=geminids`), Earth-Moon (until T-093 removes it) and Jupiter-Io. Asserts: framed the shell is flagged embedded and alone it is not; framed desktop controls are 30 px against 36 alone, the top bar and timeline are slimmer and closer to the edge; a phone frame keeps 44 px targets and a slimmer timeline; Play and Pause, the speed picker, the object list, the Events list (Apollo) and the Developer cog all work inside the frame; no sideways scroll; zero console errors. The stand-in is served by a route on the app's own port under `127.0.0.1` (another origin), and the browser is launched with `FRAMING_BROWSER_ARGS` because current Chromium blocks a local app framed by another origin as a local-network request. Driver additions: `openInPortfolioFrame`, `embeddedLook`, `PORTFOLIO_FRAME_HEIGHT`, `FRAMING_BROWSER_ARGS`. No existing scenario was removed or changed.
 
+## Tap to focus (O-022 T-109)
+
+New script `browser-tap-focus.mjs`, in the full run (lane B) and run by Full Objective Checks when controls or tap-to-focus changed. Apollo 11, Showers and Jupiter-Io at 1280x720 (mouse) and 375x667 (touch, real touch events through the driver). Driver additions: `scenePointer`, `bodyScreenPoint`, `tapBody`, `tapLabel`, `tapScenePoint`, `dragAcross`, `pinchAt`, `hoverBody`, `hoverScenePoint`, `pickTarget` (`data-pick-target`), `pickHover` (`data-pick-hover`), `sceneCursor`, `waitForPicked`, `waitForPickHover`, and the finders `tappableBodies`, `tappableLabelIds`, `emptySceneSpot`, `tappableSetMember`.
+
+| Scenario | Assertion |
+|----------|-----------|
+| A tap or click on a body focuses it and the picker shows it | `tapBody`, then `waitForPicked`; `pickTarget` equals the body |
+| A tap on a shown name tag focuses its object | `tapLabel`, `waitForPicked`, `pickTarget` (at least two demo-and-size pairs; a view with no tappable tag is noted, not failed) |
+| A small Jupiter moon takes one tap | `tappableSetMember` + `tapScenePoint`: `pickTarget` equals the moon on the first tap, the Object list keeps its choice |
+| A drag, and a pinch (touch), select nothing | `dragAcross`, `pinchAt`: picker, `pickTarget` and the information sheet unchanged |
+| Empty space and non-targets do nothing | `emptySceneSpot` + `tapScenePoint`: unchanged (skipped and noted when a crowded view has no free spot; at least four pairs must run it) |
+| The information sheet stays shut | `infoOpen` is false after every tap |
+| A mouse hover sets the readout and the hand; touch does not | `hoverBody`: `pickHover` and `sceneCursor` = `pointer`, then empty off the body; on touch `pickHover` is empty after a tap |
+
+**Moved scenario (regression maintenance).** O-025's two-tap set-moon scenario (a first tap on a dot names it, a second focuses it) lives in `browser-jupiter-io.mjs` ("A dot's name"), not in `browser-moon-panel.mjs`, which chooses moons from its panel and never taps the scene. The phone branch there now asserts the one-tap rule (`pickTarget` equals the dot after a single tap); the desktop hover-names branch is unchanged. Tapped names are gone by design (O-022 Decision 4); hover and near-zoom naming remain asserted in the same script.
+
 ## In the full run
 
-`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `browser-home-curve-fits`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-moon-panel`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
+`browser-lite`, `browser-phone`, `browser-controls`, `browser-embedded`, `browser-home-curve-fits`, `public-build-assets` (the licence and shipped-data gate), `browser-public-showers`, `browser-spike02` (Apollo telemetry numbers), `browser-spike03`, `browser-shell`, `browser-anchor-labels`, `browser-synthetic`, `-ring`, `-listed`, `browser-view-link`, `browser-earth-moon`, `browser-jupiter-io`, `browser-moon-panel`, `browser-tap-focus`, `browser-orbit-motion` (arc head stays on its body through seeks and fast playback, no chords), `browser-orbit-look` (orbit-line toggles, slider and reset change the look the scene reports), `browser-story-panels`, and the two trimmed scripts below. Last measured run: see the Task T-071 evidence.
 
 ## Trimmed in place
 

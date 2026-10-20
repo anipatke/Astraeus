@@ -1,0 +1,12 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 5000ms exceeded.
+    at Module.waitForPickHover (/home/user/code/Astraeus/tools/validate/driver.mjs:1181:68)
+    at run (/home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:100:16)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:153:55 {
+  name: 'TimeoutError'
+}
+
+Node.js v24.16.0

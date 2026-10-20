@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: apollo phone: a body in view to drag across
+    at run (file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:69:12)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:150:55 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: apollo phone: a tap on empty space reports no tap target
+
+'earth' !== ''
+
+    at unchanged (file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:40:12)
+    at async run (file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:90:7)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-tap-focus.mjs:153:55 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'earth',
+  expected: '',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0
