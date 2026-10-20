@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { currentScale, ensurePaused, loadAddress, scenePaths, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
 
-const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;

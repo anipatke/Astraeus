@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { chooseScale, currentScale } from "./driver.mjs";
 import * as ui from "./driver.mjs";
 
-const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });

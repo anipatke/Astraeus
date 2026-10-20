@@ -44,7 +44,7 @@ Elements are found by accessible name or role, by a stable `data-*` attribute (`
 | Tier | When | Command | Time |
 |------|------|---------|------|
 | Lite | Task handoff, Quick Task Checks | `node tools/validate/browser-lite.mjs` (dev server, fresh `ASTRAEUS_EVIDENCE_DIR`), plus the area's own script if you touched one | about 1.5 min |
-| Full | Full Objective Checks, before a release or merge | `tools/validate/run-full.sh` (starts its own servers and evidence directory; three lanes; no picture steps) | see the last run below |
+| Full | Full Objective Checks, before a release or merge | `npm run check:engine` plus `npm run check:demo -- <demo>` (replace the removed `run-full.sh`, O-034 T-110; to be rewritten in T-113) | see the last run below |
 | On request | Changing the code the script measures | `node tools/validate/on-request/<script>.mjs` | each 1 to 2 min |
 
 The full run takes no pictures (T-102): there is no baseline, comparison or contact sheet. The owner looks at the preview.
@@ -183,7 +183,7 @@ The Earth–Moon demo, its story file and `browser-earth-moon.mjs` are gone (own
 | Search finds a moon by name and by designation as it is typed, and nothing for a name that does not exist | `searchMoons`, `moonSearchResults` |
 | Phone: every moon row is at least 44 px tall | `moonRows` heights |
 
-Written 2026-10-19 and not run: the owner deferred browser checks to the Full Objective Check of O-025. `tools/validate/run-full.sh` runs it after `browser-jupiter-io`.
+Written 2026-10-19 and not run: the owner deferred browser checks to the Full Objective Check of O-025. `npm run check:demo -- jupiter` runs it after `browser-jupiter-io`.
 
 ## Tagged places on the four mapped moons (O-025 T-103)
 
@@ -198,7 +198,7 @@ Written 2026-10-19 and not run: the owner deferred browser checks to the Full Ob
 | The pressed marker reads as selected | `featureMarker().pressed` |
 | Collisions: no marker overlaps the information panel, moons sheet or button, timeline, top bar, story panel or drawers; name labels stay on screen; tap target at least 44 px | `featureCollisions`, `featureNameFits`, `featureTapTarget` |
 
-Positions are proven by `tests/featureMarkers.test.ts` and `tests/bodyPackages.test.ts`, not the browser. Written 2026-10-19 and not run: browser checks deferred to the Full Objective Check (owner, 2026-10-19). `run-full.sh` already runs `browser-jupiter-io`.
+Positions are proven by `tests/featureMarkers.test.ts` and `tests/bodyPackages.test.ts`, not the browser. Written 2026-10-19 and not run: browser checks deferred to the Full Objective Check (owner, 2026-10-19). `check:demo` already runs `browser-jupiter-io`.
 
 ## The home page's curve-fit section (O-025 T-101)
 

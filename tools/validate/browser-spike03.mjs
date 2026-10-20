@@ -7,7 +7,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { currentScale } from "./driver.mjs";
 import * as ui from "./driver.mjs";
 
-const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.env.ASTRAEUS_EVIDENCE_DIR ?? "docs/evidence/spike03";

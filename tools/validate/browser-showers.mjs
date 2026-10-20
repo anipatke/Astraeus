@@ -13,7 +13,7 @@
 // O-017 T-071 (trim): the phone run checks the phone layout once, so it keeps the plain load, the peak (stream drawn, details, credits, member count, the clump and
 // not-shown statements) and the window details, and no longer repeats: start and end stream drawn and the rate rising to the peak (desktop asserts both), the zoomed-out sweep
 // (kept, desktop and phone), checkSunEarth, checkBodies, checkWholeOrbit, checkCrossing, checkYear, checkLoop and checkEclipticFlat (desktop only; they measure the same
-// scene geometry, not a layout). The zoomed-out and credits steps still run on both sizes. The full run (run-full.sh) runs Perseids in full and Geminids with ASTRAEUS_LIGHT=1
+// scene geometry, not a layout). The zoomed-out and credits steps still run on both sizes. The full run (`npm run check:demo -- showers`) runs Perseids in full and Geminids with ASTRAEUS_LIGHT=1
 // (both sizes light): Geminids' own settings figures, credits, counts, quality sets and span are asserted; the geometry scenarios are the same code and ran for Perseids.
 // O-017 T-067 (CAMS and Yale removed; GMN is the only orbit source): the stream is the committed GMN copy data/stories/<shower>/gmn-iau-<code>.json, so no URL pins a source any more
 // and the figures that were read from the local CAMS file (kept count, orbit sets, rows) are read from that copy. browser-showers-gmn.mjs is removed and each of its scenarios is mapped:
@@ -72,7 +72,7 @@ import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
 import { chooseScale, scaleOptions, selectOrbit } from "./driver.mjs";
 import * as ui from "./driver.mjs";
 
-const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const shower = process.argv[2] ?? process.env.ASTRAEUS_SHOWER;

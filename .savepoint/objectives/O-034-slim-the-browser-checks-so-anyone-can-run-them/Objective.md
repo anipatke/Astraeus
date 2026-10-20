@@ -1,7 +1,7 @@
 ---
 id: O-034
 title: Slim the browser checks so anyone can run them
-status: planned
+status: in_progress
 depends_on: []
 release: G-007
 ---

@@ -40,7 +40,7 @@ if (readdirSync(outDir).length > 0) {
   process.exit(2);
 }
 
-const pw = await import(process.env.PLAYWRIGHT_CORE ?? "playwright-core");
+import { pw } from "./playwright.mjs";
 const chromium = pw.chromium ?? pw.default.chromium;
 const appUrl = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const siteUrl = (name) => new URL(name, appUrl).href;

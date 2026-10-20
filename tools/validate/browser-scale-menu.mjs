@@ -4,7 +4,8 @@
 //   ASTRAEUS_URL=http://localhost:5491/app.html PLAYWRIGHT_CORE=... node tools/validate/browser-scale-menu.mjs
 import assert from "node:assert/strict";
 import { scaleMenu } from "./driver.mjs";
-const pw = await import(process.env.PLAYWRIGHT_CORE); const chromium = (pw.default ?? pw).chromium;
+import { pw } from "./playwright.mjs";
+const chromium = (pw.default ?? pw).chromium;
 const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 600, height: 400 } });
 await p.goto(new URL("/tools/validate/harness/scale-menu.html", process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html").href); const ui = scaleMenu(p); await ui.waitForTrigger();
 assert.equal(await ui.isOpen(), false);
