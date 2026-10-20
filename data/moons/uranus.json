@@ -1,0 +1,825 @@
+{
+ "format": "astraeus.moon-catalogue/1",
+ "kind": "moon-catalogue",
+ "parent": "uranus",
+ "note": "Facts only. 28 moons: JPL Horizons' list. Radius basis 'measured' is a published measurement, 'estimate' is brightness-based. Moons with a bodyPackage use the O-018 packages unchanged (none for Uranus's moons).",
+ "asOf": "2026-10-20",
+ "ephemeris": {
+  "path": "data/ephemerides/uranus-moons/index.json",
+  "moonCount": 28
+ },
+ "sources": {
+  "horizons-moon-list": {
+   "title": "JPL Horizons On-Line Ephemeris System, major-body list for Uranus (28 moons, fetched 2026-10-20)",
+   "url": "https://ssd.jpl.nasa.gov/horizons/"
+  },
+  "jpl-sat-elem": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+   "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+  },
+  "jpl-sat-phys": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters (mean radius)",
+   "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+  },
+  "jpl-sat-discovery": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Discovery Circumstances (data last updated 2023-May-23)",
+   "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+  },
+  "wikipedia-moons-of-uranus": {
+   "title": "Moons of Uranus (Wikipedia), read 2026-10-20: the table that lists each moon's group, diameter and discovery year and the notes on where the diameters come from (Karkoschka 2001 and Showalter & Lissauer 2006 for the inner moons, Sheppard's website and Farkas-Takacs et al. 2017 for the irregular moons). A compilation, used because the primary papers do not tabulate every moon; group membership was not re-derived.",
+   "url": "https://en.wikipedia.org/wiki/Moons_of_Uranus"
+  },
+  "sheppard-2005": {
+   "title": "Sheppard, Jewitt & Kleyna 2005, An Ultradeep Survey for Irregular Satellites of Uranus: Limits to Completeness, Astronomical Journal 129, 518-525",
+   "url": "https://doi.org/10.1086/426329"
+  },
+  "brozovic-2022": {
+   "title": "Brozovic & Jacobson 2022, Orbits of the Irregular Satellites of Uranus and Neptune, Astronomical Journal 163, 241 (the groups)",
+   "url": "https://doi.org/10.3847/1538-3881/ac617f"
+  },
+  "jewitt-haghighipour-2007": {
+   "title": "Jewitt & Haghighipour 2007, Irregular Satellites of the Planets: Products of Capture in the Early Solar System, Annual Review of Astronomy and Astrophysics 45, 261-295",
+   "url": "https://doi.org/10.1146/annurev.astro.44.051905.092459"
+  },
+  "karkoschka-2001": {
+   "title": "Karkoschka 2001, Voyager's Eleventh Discovery of a Satellite of Uranus and Photometry and the First Size Measurements of Nine Satellites, Icarus 151, 69-77 (sizes of the inner moons)",
+   "url": "https://doi.org/10.1006/icar.2001.6597"
+  }
+ },
+ "families": [
+  {
+   "id": "major",
+   "label": "The five big moons",
+   "description": "Miranda, Ariel, Umbriel, Titania and Oberon: the round moons, found 1787 to 1948.",
+   "sources": [
+    "jpl-sat-elem",
+    "wikipedia-moons-of-uranus"
+   ]
+  },
+  {
+   "id": "inner",
+   "label": "Inner moons",
+   "description": "Thirteen small dark moons inside Miranda's orbit, among Uranus's rings (ring shepherds Cordelia and Ophelia, the Portia and Belinda groups, Puck, and Mab, the source of the mu ring).",
+   "sources": [
+    "jpl-sat-elem",
+    "karkoschka-2001",
+    "wikipedia-moons-of-uranus"
+   ]
+  },
+  {
+   "id": "caliban",
+   "label": "Caliban group",
+   "description": "Irregular moons on retrograde orbits with similar distances and inclinations (Caliban, Stephano and S/2023 U 1).",
+   "sources": [
+    "sheppard-2005",
+    "brozovic-2022",
+    "jewitt-haghighipour-2007",
+    "wikipedia-moons-of-uranus"
+   ]
+  },
+  {
+   "id": "retrograde",
+   "label": "Other retrograde irregular moons",
+   "description": "Six irregular moons on retrograde orbits that fit no group: Sycorax, Prospero, Setebos, Trinculo, Francisco and Ferdinand.",
+   "sources": [
+    "sheppard-2005",
+    "brozovic-2022",
+    "wikipedia-moons-of-uranus"
+   ]
+  },
+  {
+   "id": "loner",
+   "label": "Loners",
+   "description": "Margaret, the only known irregular moon of Uranus on a prograde orbit; in no group.",
+   "sources": [
+    "sheppard-2005",
+    "wikipedia-moons-of-uranus"
+   ]
+  }
+ ],
+ "moons": [
+  {
+   "id": "ariel",
+   "name": "Ariel",
+   "named": true,
+   "designation": null,
+   "naifId": 701,
+   "family": "major",
+   "meanRadiusKm": 578.9,
+   "radiusBasis": "measured",
+   "discoveryYear": 1851,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "ariel"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "umbriel",
+   "name": "Umbriel",
+   "named": true,
+   "designation": null,
+   "naifId": 702,
+   "family": "major",
+   "meanRadiusKm": 584.7,
+   "radiusBasis": "measured",
+   "discoveryYear": 1851,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "umbriel"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "titania",
+   "name": "Titania",
+   "named": true,
+   "designation": null,
+   "naifId": 703,
+   "family": "major",
+   "meanRadiusKm": 788.9,
+   "radiusBasis": "measured",
+   "discoveryYear": 1787,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "titania"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "oberon",
+   "name": "Oberon",
+   "named": true,
+   "designation": null,
+   "naifId": 704,
+   "family": "major",
+   "meanRadiusKm": 761.4,
+   "radiusBasis": "measured",
+   "discoveryYear": 1787,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "oberon"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "miranda",
+   "name": "Miranda",
+   "named": true,
+   "designation": null,
+   "naifId": 705,
+   "family": "major",
+   "meanRadiusKm": 235.8,
+   "radiusBasis": "measured",
+   "discoveryYear": 1948,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "miranda"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "cordelia",
+   "name": "Cordelia",
+   "named": true,
+   "designation": null,
+   "naifId": 706,
+   "family": "inner",
+   "meanRadiusKm": 19.8,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "cordelia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "ophelia",
+   "name": "Ophelia",
+   "named": true,
+   "designation": null,
+   "naifId": 707,
+   "family": "inner",
+   "meanRadiusKm": 21.65,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "ophelia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "bianca",
+   "name": "Bianca",
+   "named": true,
+   "designation": null,
+   "naifId": 708,
+   "family": "inner",
+   "meanRadiusKm": 25.45,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "bianca"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "cressida",
+   "name": "Cressida",
+   "named": true,
+   "designation": null,
+   "naifId": 709,
+   "family": "inner",
+   "meanRadiusKm": 39.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "cressida"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "desdemona",
+   "name": "Desdemona",
+   "named": true,
+   "designation": null,
+   "naifId": 710,
+   "family": "inner",
+   "meanRadiusKm": 32.15,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "desdemona"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "juliet",
+   "name": "Juliet",
+   "named": true,
+   "designation": null,
+   "naifId": 711,
+   "family": "inner",
+   "meanRadiusKm": 47.2,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "juliet"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "portia",
+   "name": "Portia",
+   "named": true,
+   "designation": null,
+   "naifId": 712,
+   "family": "inner",
+   "meanRadiusKm": 67.45,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "portia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "rosalind",
+   "name": "Rosalind",
+   "named": true,
+   "designation": null,
+   "naifId": 713,
+   "family": "inner",
+   "meanRadiusKm": 36,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "rosalind"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "belinda",
+   "name": "Belinda",
+   "named": true,
+   "designation": null,
+   "naifId": 714,
+   "family": "inner",
+   "meanRadiusKm": 40.1,
+   "radiusBasis": "measured",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "belinda"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "puck",
+   "name": "Puck",
+   "named": true,
+   "designation": null,
+   "naifId": 715,
+   "family": "inner",
+   "meanRadiusKm": 81,
+   "radiusBasis": "measured",
+   "discoveryYear": 1985,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "puck"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "caliban",
+   "name": "Caliban",
+   "named": true,
+   "designation": null,
+   "naifId": 716,
+   "family": "caliban",
+   "meanRadiusKm": 21,
+   "radiusBasis": "measured",
+   "discoveryYear": 1997,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "caliban"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "sycorax",
+   "name": "Sycorax",
+   "named": true,
+   "designation": null,
+   "naifId": 717,
+   "family": "retrograde",
+   "meanRadiusKm": 78.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 1997,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "sycorax"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "prospero",
+   "name": "Prospero",
+   "named": true,
+   "designation": "S/1999 U 3",
+   "naifId": 718,
+   "family": "retrograde",
+   "meanRadiusKm": 25,
+   "radiusBasis": "estimate",
+   "discoveryYear": 1999,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "prospero"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "setebos",
+   "name": "Setebos",
+   "named": true,
+   "designation": "S/1999 U 1",
+   "naifId": 719,
+   "family": "retrograde",
+   "meanRadiusKm": 23.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 1999,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "setebos"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "stephano",
+   "name": "Stephano",
+   "named": true,
+   "designation": "S/1999 U 2",
+   "naifId": 720,
+   "family": "caliban",
+   "meanRadiusKm": 16,
+   "radiusBasis": "estimate",
+   "discoveryYear": 1999,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "stephano"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "trinculo",
+   "name": "Trinculo",
+   "named": true,
+   "designation": "S/2001 U 1",
+   "naifId": 721,
+   "family": "retrograde",
+   "meanRadiusKm": 9,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "trinculo"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "francisco",
+   "name": "Francisco",
+   "named": true,
+   "designation": "S/2001 U 3",
+   "naifId": 722,
+   "family": "retrograde",
+   "meanRadiusKm": 11,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "francisco"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "margaret",
+   "name": "Margaret",
+   "named": true,
+   "designation": "S/2003 U 3",
+   "naifId": 723,
+   "family": "loner",
+   "meanRadiusKm": 10,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "margaret"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "ferdinand",
+   "name": "Ferdinand",
+   "named": true,
+   "designation": "S/2001 U 2",
+   "naifId": 724,
+   "family": "retrograde",
+   "meanRadiusKm": 10.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2001,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "ferdinand"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "perdita",
+   "name": "Perdita",
+   "named": true,
+   "designation": "S/1986 U 10",
+   "naifId": 725,
+   "family": "inner",
+   "meanRadiusKm": 13.3,
+   "radiusBasis": "estimate",
+   "discoveryYear": 1986,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "perdita"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "mab",
+   "name": "Mab",
+   "named": true,
+   "designation": "S/2003 U 1",
+   "naifId": 726,
+   "family": "inner",
+   "meanRadiusKm": 6,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "mab"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "cupid",
+   "name": "Cupid",
+   "named": true,
+   "designation": "S/2003 U 2",
+   "naifId": 727,
+   "family": "inner",
+   "meanRadiusKm": 8.9,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "cupid"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2001"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "2023u1",
+   "name": "S/2023 U 1",
+   "named": false,
+   "designation": null,
+   "naifId": 75051,
+   "family": "caliban",
+   "meanRadiusKm": 4,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2023,
+   "ephemeris": {
+    "set": "uranus-moons",
+    "body": "2023u1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-uranus",
+    "familyBasis": [
+     "sheppard-2005",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-uranus",
+    "discovery": "jpl-sat-discovery"
+   }
+  }
+ ]
+}

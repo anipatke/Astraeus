@@ -1,0 +1,517 @@
+{
+ "format": "astraeus.moon-catalogue/1",
+ "kind": "moon-catalogue",
+ "parent": "neptune",
+ "note": "Facts only. 16 moons: JPL Horizons' list. Radius basis 'measured' is a published measurement, 'estimate' is brightness-based. Moons with a bodyPackage use the O-018 packages unchanged.",
+ "asOf": "2026-10-20",
+ "ephemeris": {
+  "path": "data/ephemerides/neptune-moons/index.json",
+  "moonCount": 16
+ },
+ "sources": {
+  "horizons-moon-list": {
+   "title": "JPL Horizons On-Line Ephemeris System, major-body list for Neptune (16 moons, fetched 2026-10-20)",
+   "url": "https://ssd.jpl.nasa.gov/horizons/"
+  },
+  "jpl-sat-elem": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+   "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+  },
+  "jpl-sat-phys": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters (mean radius)",
+   "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+  },
+  "jpl-sat-discovery": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Discovery Circumstances (data last updated 2023-May-23)",
+   "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+  },
+  "wikipedia-moons-of-neptune": {
+   "title": "Moons of Neptune (Wikipedia), read 2026-10-20: the table that lists each moon's group, diameter and discovery year and the notes on where the diameters come from (Karkoschka 2003 for the inner moons, Showalter et al. 2019 for Hippocamp, Sheppard's website for the irregular moons). A compilation, used because the primary papers do not tabulate every moon; group membership was not re-derived.",
+   "url": "https://en.wikipedia.org/wiki/Moons_of_Neptune"
+  },
+  "holman-2004": {
+   "title": "Holman et al. 2004, Discovery of five irregular moons of Neptune, Nature 430, 865-867 (the Sao and Neso groups)",
+   "url": "https://doi.org/10.1038/nature02832"
+  },
+  "sheppard-2006": {
+   "title": "Sheppard, Jewitt & Kleyna 2006, A Survey for 'Normal' Irregular Satellites around Neptune: Limits to Completeness, Astronomical Journal 132, 171-176",
+   "url": "https://doi.org/10.1086/504799"
+  },
+  "brozovic-2022": {
+   "title": "Brozovic & Jacobson 2022, Orbits of the Irregular Satellites of Uranus and Neptune, Astronomical Journal 163, 241 (the groups)",
+   "url": "https://doi.org/10.3847/1538-3881/ac617f"
+  },
+  "karkoschka-2003": {
+   "title": "Karkoschka 2003, Sizes, shapes, and albedos of the inner satellites of Neptune, Icarus 162, 400-407",
+   "url": "https://doi.org/10.1016/S0019-1035(03)00002-2"
+  }
+ },
+ "families": [
+  {
+   "id": "triton",
+   "label": "Triton",
+   "description": "By far the largest moon of Neptune, on a retrograde orbit; most likely a captured dwarf planet. It has a Planetary Explorer map.",
+   "sources": [
+    "jpl-sat-elem",
+    "wikipedia-moons-of-neptune"
+   ]
+  },
+  {
+   "id": "inner",
+   "label": "Inner moons",
+   "description": "Seven small regular moons close to Neptune on near-circular orbits inside Triton's (Naiad to Proteus, with Hippocamp).",
+   "sources": [
+    "jpl-sat-elem",
+    "karkoschka-2003",
+    "wikipedia-moons-of-neptune"
+   ]
+  },
+  {
+   "id": "sao",
+   "label": "Sao group",
+   "description": "Three irregular moons on prograde orbits at similar distances, Sao, Laomedeia and S/2002 N 5.",
+   "sources": [
+    "holman-2004",
+    "brozovic-2022",
+    "wikipedia-moons-of-neptune"
+   ]
+  },
+  {
+   "id": "neso",
+   "label": "Neso group",
+   "description": "Three irregular moons on retrograde orbits at similar distances, Psamathe, Neso and S/2021 N 1; Neso has the widest orbit of any moon in the solar system.",
+   "sources": [
+    "holman-2004",
+    "brozovic-2022",
+    "wikipedia-moons-of-neptune"
+   ]
+  },
+  {
+   "id": "loner",
+   "label": "Loners",
+   "description": "Nereid, a large prograde moon on a very elongated orbit, and Halimede, a retrograde irregular moon: in no published group.",
+   "sources": [
+    "holman-2004",
+    "sheppard-2006",
+    "wikipedia-moons-of-neptune"
+   ]
+  }
+ ],
+ "moons": [
+  {
+   "id": "triton",
+   "name": "Triton",
+   "named": true,
+   "designation": null,
+   "naifId": 801,
+   "family": "triton",
+   "meanRadiusKm": 1352.6,
+   "radiusBasis": "measured",
+   "discoveryYear": 1846,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "triton"
+   },
+   "bodyPackage": "data/bodies/triton",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "nereid",
+   "name": "Nereid",
+   "named": true,
+   "designation": null,
+   "naifId": 802,
+   "family": "loner",
+   "meanRadiusKm": 170,
+   "radiusBasis": "measured",
+   "discoveryYear": 1949,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "nereid"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "naiad",
+   "name": "Naiad",
+   "named": true,
+   "designation": null,
+   "naifId": 803,
+   "family": "inner",
+   "meanRadiusKm": 29,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "naiad"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "thalassa",
+   "name": "Thalassa",
+   "named": true,
+   "designation": null,
+   "naifId": 804,
+   "family": "inner",
+   "meanRadiusKm": 40,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "thalassa"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "despina",
+   "name": "Despina",
+   "named": true,
+   "designation": null,
+   "naifId": 805,
+   "family": "inner",
+   "meanRadiusKm": 74,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "despina"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "galatea",
+   "name": "Galatea",
+   "named": true,
+   "designation": null,
+   "naifId": 806,
+   "family": "inner",
+   "meanRadiusKm": 79,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "galatea"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "larissa",
+   "name": "Larissa",
+   "named": true,
+   "designation": null,
+   "naifId": 807,
+   "family": "inner",
+   "meanRadiusKm": 96,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "larissa"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "proteus",
+   "name": "Proteus",
+   "named": true,
+   "designation": null,
+   "naifId": 808,
+   "family": "inner",
+   "meanRadiusKm": 208,
+   "radiusBasis": "measured",
+   "discoveryYear": 1989,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "proteus"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "halimede",
+   "name": "Halimede",
+   "named": true,
+   "designation": "S/2002 N 1",
+   "naifId": 809,
+   "family": "loner",
+   "meanRadiusKm": 30.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "halimede"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "psamathe",
+   "name": "Psamathe",
+   "named": true,
+   "designation": "S/2003 N 1",
+   "naifId": 810,
+   "family": "neso",
+   "meanRadiusKm": 19,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2003,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "psamathe"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "sao",
+   "name": "Sao",
+   "named": true,
+   "designation": "S/2002 N 2",
+   "naifId": 811,
+   "family": "sao",
+   "meanRadiusKm": 20,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "sao"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "laomedeia",
+   "name": "Laomedeia",
+   "named": true,
+   "designation": "S/2002 N 3",
+   "naifId": 812,
+   "family": "sao",
+   "meanRadiusKm": 20,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "laomedeia"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "neso",
+   "name": "Neso",
+   "named": true,
+   "designation": "S/2002 N 4",
+   "naifId": 813,
+   "family": "neso",
+   "meanRadiusKm": 30,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "neso"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "hippocamp",
+   "name": "Hippocamp",
+   "named": true,
+   "designation": "S/2004 N 1",
+   "naifId": 814,
+   "family": "inner",
+   "meanRadiusKm": 17.4,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2013,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "hippocamp"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "karkoschka-2003"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2002-n5",
+   "name": "S/2002 N 5",
+   "named": false,
+   "designation": null,
+   "naifId": 85051,
+   "family": "sao",
+   "meanRadiusKm": 19,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2002,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "s2002-n5"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "s2021-n1",
+   "name": "S/2021 N 1",
+   "named": false,
+   "designation": null,
+   "naifId": 85052,
+   "family": "neso",
+   "meanRadiusKm": 12.5,
+   "radiusBasis": "estimate",
+   "discoveryYear": 2021,
+   "ephemeris": {
+    "set": "neptune-moons",
+    "body": "s2021-n1"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-neptune",
+    "familyBasis": [
+     "holman-2004",
+     "brozovic-2022"
+    ],
+    "radius": "wikipedia-moons-of-neptune",
+    "discovery": "jpl-sat-discovery"
+   }
+  }
+ ]
+}

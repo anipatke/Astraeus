@@ -1,0 +1,189 @@
+{
+ "format": "astraeus.moon-catalogue/1",
+ "kind": "moon-catalogue",
+ "parent": "pluto",
+ "note": "Facts only. Pluto's index also holds Pluto itself as the centre series; the list is its five moons. Sizes are JPL's published mean radii. Charon has a Planetary Explorer map.",
+ "asOf": "2026-10-20",
+ "ephemeris": {
+  "path": "data/ephemerides/pluto-moons/index.json",
+  "moonCount": 5
+ },
+ "sources": {
+  "horizons-moon-list": {
+   "title": "JPL Horizons On-Line Ephemeris System, major-body list for Pluto (5 moons, fetched 2026-10-20)",
+   "url": "https://ssd.jpl.nasa.gov/horizons/"
+  },
+  "jpl-sat-elem": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+   "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+  },
+  "jpl-sat-phys": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters (mean radius)",
+   "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+  },
+  "jpl-sat-discovery": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Discovery Circumstances (data last updated 2023-May-23)",
+   "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+  },
+  "wikipedia-moons-of-pluto": {
+   "title": "Moons of Pluto (Wikipedia), read 2026-10-20: the table of the five moons with their sizes and discovery years. A compilation, used because the primary papers do not tabulate every moon; group membership was not re-derived.",
+   "url": "https://en.wikipedia.org/wiki/Moons_of_Pluto"
+  },
+  "stern-2006": {
+   "title": "Stern et al. 2006, Characteristics and Origin of the Quadruple System at Pluto (the four small moons)",
+   "url": "https://arxiv.org/abs/astro-ph/0512599"
+  }
+ },
+ "families": [
+  {
+   "id": "charon",
+   "label": "Charon",
+   "description": "Pluto's big companion, half Pluto's width; the two circle a point between them. It has a Planetary Explorer map.",
+   "sources": [
+    "jpl-sat-elem",
+    "wikipedia-moons-of-pluto"
+   ]
+  },
+  {
+   "id": "small",
+   "label": "The four small moons",
+   "description": "Styx, Nix, Kerberos and Hydra: small irregular moons circling Pluto and Charon together, in near-resonance with Charon's orbit, perhaps made from the debris of the impact that formed Charon.",
+   "sources": [
+    "jpl-sat-elem",
+    "stern-2006",
+    "wikipedia-moons-of-pluto"
+   ]
+  }
+ ],
+ "moons": [
+  {
+   "id": "charon",
+   "name": "Charon",
+   "named": true,
+   "designation": null,
+   "naifId": 901,
+   "family": "charon",
+   "meanRadiusKm": 606,
+   "radiusBasis": "measured",
+   "discoveryYear": 1978,
+   "ephemeris": {
+    "set": "pluto-moons",
+    "body": "charon"
+   },
+   "bodyPackage": "data/bodies/charon",
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "nix",
+   "name": "Nix",
+   "named": true,
+   "designation": null,
+   "naifId": 902,
+   "family": "small",
+   "meanRadiusKm": 18,
+   "radiusBasis": "measured",
+   "discoveryYear": 2005,
+   "ephemeris": {
+    "set": "pluto-moons",
+    "body": "nix"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-pluto",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "stern-2006"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "hydra",
+   "name": "Hydra",
+   "named": true,
+   "designation": null,
+   "naifId": 903,
+   "family": "small",
+   "meanRadiusKm": 18.5,
+   "radiusBasis": "measured",
+   "discoveryYear": 2005,
+   "ephemeris": {
+    "set": "pluto-moons",
+    "body": "hydra"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-pluto",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "stern-2006"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "kerberos",
+   "name": "Kerberos",
+   "named": true,
+   "designation": "S/2011 P 1",
+   "naifId": 904,
+   "family": "small",
+   "meanRadiusKm": 6,
+   "radiusBasis": "measured",
+   "discoveryYear": 2011,
+   "ephemeris": {
+    "set": "pluto-moons",
+    "body": "kerberos"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-pluto",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "stern-2006"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "styx",
+   "name": "Styx",
+   "named": true,
+   "designation": "S/2012 P 1",
+   "naifId": 905,
+   "family": "small",
+   "meanRadiusKm": 5.2,
+   "radiusBasis": "measured",
+   "discoveryYear": 2012,
+   "ephemeris": {
+    "set": "pluto-moons",
+    "body": "styx"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "wikipedia-moons-of-pluto",
+    "familyBasis": [
+     "jpl-sat-elem",
+     "stern-2006"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  }
+ ]
+}

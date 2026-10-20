@@ -2,7 +2,8 @@
 id: T-116
 title: Add the outer planets and the mapped moons as real bodies
 objective: O-033
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-114, requires: clear}, {task: T-115, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o033-planning-20261020}

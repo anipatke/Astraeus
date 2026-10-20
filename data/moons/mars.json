@@ -1,0 +1,96 @@
+{
+ "format": "astraeus.moon-catalogue/1",
+ "kind": "moon-catalogue",
+ "parent": "mars",
+ "note": "Mars has two moons, both small and irregularly shaped, one family. Sizes are JPL's published mean radii.",
+ "asOf": "2026-10-20",
+ "ephemeris": {
+  "path": "data/ephemerides/mars-moons/index.json",
+  "moonCount": 2
+ },
+ "sources": {
+  "horizons-moon-list": {
+   "title": "JPL Horizons On-Line Ephemeris System, major-body list for Mars (2 moons, fetched 2026-10-20)",
+   "url": "https://ssd.jpl.nasa.gov/horizons/"
+  },
+  "jpl-sat-elem": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Mean Elements",
+   "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+  },
+  "jpl-sat-phys": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters (mean radius)",
+   "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+  },
+  "jpl-sat-discovery": {
+   "title": "JPL Solar System Dynamics, Planetary Satellite Discovery Circumstances (data last updated 2023-May-23)",
+   "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+  },
+  "wikipedia-moons-of-mars": {
+   "title": "Moons of Mars (Wikipedia), read 2026-10-20: the table of Phobos and Deimos with their sizes and discovery. A compilation, used because the primary papers do not tabulate every moon; group membership was not re-derived.",
+   "url": "https://en.wikipedia.org/wiki/Moons_of_Mars"
+  }
+ },
+ "families": [
+  {
+   "id": "mars-moons",
+   "label": "Phobos and Deimos",
+   "description": "The two small moons of Mars, found by Asaph Hall in 1877: irregular lumps close to Mars on nearly circular orbits.",
+   "sources": [
+    "jpl-sat-elem",
+    "wikipedia-moons-of-mars"
+   ]
+  }
+ ],
+ "moons": [
+  {
+   "id": "phobos",
+   "name": "Phobos",
+   "named": true,
+   "designation": null,
+   "naifId": 401,
+   "family": "mars-moons",
+   "meanRadiusKm": 11.08,
+   "radiusBasis": "measured",
+   "discoveryYear": 1877,
+   "ephemeris": {
+    "set": "mars-moons",
+    "body": "phobos"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  },
+  {
+   "id": "deimos",
+   "name": "Deimos",
+   "named": true,
+   "designation": null,
+   "naifId": 402,
+   "family": "mars-moons",
+   "meanRadiusKm": 6.2,
+   "radiusBasis": "measured",
+   "discoveryYear": 1877,
+   "ephemeris": {
+    "set": "mars-moons",
+    "body": "deimos"
+   },
+   "bodyPackage": null,
+   "sources": {
+    "list": "horizons-moon-list",
+    "family": "jpl-sat-elem",
+    "familyBasis": [
+     "jpl-sat-elem"
+    ],
+    "radius": "jpl-sat-phys",
+    "discovery": "jpl-sat-discovery"
+   }
+  }
+ ]
+}
