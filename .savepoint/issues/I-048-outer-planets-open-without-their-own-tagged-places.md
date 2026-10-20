@@ -2,16 +2,21 @@
 id: I-048
 title: Saturn, Uranus, Neptune and Pluto open without their own tagged places
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-091
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:03:15Z'
 tasks: [T-118]
-checks: [C-091, C-092]
+checks: [C-091, C-092, C-093]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-093
+  actor: {role: checker, session: o033-targeted-recheck-20261020}
+  at: '2026-10-20T14:36:30Z'
 history:
   - at: '2026-10-20T14:03:15Z'
     actor: {role: checker, session: o033-full-check-20261020}
@@ -27,6 +32,11 @@ history:
     kind: rechecked
     note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed met. Independent count over the packages (entries away from 0/0) equals the isSurfacePlace rule for every planet: Saturn 3 of 20, Uranus 9 of 19, Neptune 9 of 19, Pluto 12 of 16, Mars 30 of 32; Jupiter unchanged (its own places out under SC6, recorded on the Objective as the Planet places rule). Tests pass (87 files, 1,246 passed). Browser: the planets set run (docs/evidence/demo-planets-20261020T141653Z) pressed Pluto''s Sputnik Planitia at desktop and phone without failure. Left open only because C-092 is NEEDS WORK (I-053); verified closure needs a CLEAR Check.'
     check: C-092
+  - at: '2026-10-20T14:36:30Z'
+    actor: {role: checker, session: o033-targeted-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-093 (CLEAR) at HEAD 5a68b0a4: code unchanged since C-092, where Proof Needed was met; the outer-planets browser script pressed Pluto Sputnik Planitia again at desktop and phone (docs/evidence/demo-planets-outer-20261020T143138Z, exit 0). Verified.'
+    check: C-093
 ---
 
 # I-048: Saturn, Uranus, Neptune and Pluto open without their own tagged places

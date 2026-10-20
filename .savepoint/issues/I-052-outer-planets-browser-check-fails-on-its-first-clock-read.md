@@ -2,16 +2,21 @@
 id: I-052
 title: The outer-planets browser check fails on its first clock read, so none of its outer-planet scenarios has run
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-091
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:06:14Z'
 tasks: [T-118, T-121]
-checks: [C-091, C-092]
+checks: [C-091, C-092, C-093]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-093
+  actor: {role: checker, session: o033-targeted-recheck-20261020}
+  at: '2026-10-20T14:36:30Z'
 history:
   - at: '2026-10-20T14:06:14Z'
     actor: {role: checker, session: o033-full-check-20261020}
@@ -31,6 +36,11 @@ history:
     actor: {role: executor, session: o033-repair-i053-20261021}
     kind: repair_attempted
     note: 'Note: the phone Pluto failure that stopped the recheck run is the separate I-053, repaired in settings (Pluto distance 20) and tested without a browser. I-052 remaining proof is unchanged: one clean planets run, every step exit 0.'
+  - at: '2026-10-20T14:36:30Z'
+    actor: {role: checker, session: o033-targeted-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-093 (CLEAR) at HEAD 5a68b0a4: Proof Needed 2 met. outer-planets rerun once (14:31:44Z-14:33:49Z, 125 s, exit 0, 0 error lines, docs/evidence/demo-planets-outer-20261020T143138Z), every desktop and phone scenario including phone Uranus; the other six planets-set steps passed at C-092 on code the repair cannot reach (owner rule: reuse). Verified.'
+    check: C-093
 ---
 
 # I-052: The outer-planets browser check fails on its first clock read

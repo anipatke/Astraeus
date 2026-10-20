@@ -1,0 +1,35 @@
+{
+  "results": {
+    "desktop": {
+      "switchKeptTime": "2016-11-15T13:14:45.960Z",
+      "saturnFamilies": [
+        "major",
+        "small-regular",
+        "inuit",
+        "gallic",
+        "norse"
+      ],
+      "places": {
+        "titan:kraken-mare": "Kraken Mare Close methane sea on Titan Reconstructed ⓘ : data source and known limitations Sources · 2 Titan's largest sea sprawls across the north polar region as a branching body of liquid methane a",
+        "charon:mordor-macula": "Mordor Macula Close dark polar region on Charon Reconstructed ⓘ : data source and known limitations Sources · 2 Mordor Macula is Charon's striking reddish-brown northern polar cap — one of the most un",
+        "pluto:sputnik-planitia": "Sputnik Planitia Close nitrogen-ice plain on Pluto Reconstructed ⓘ : data source and known limitations Sources · 2 Sputnik Planitia is the bright western lobe of Pluto's famous heart-shaped region, a "
+      }
+    },
+    "phone": {
+      "switchKeptTime": "2016-11-15T13:04:42.240Z",
+      "saturnFamilies": [
+        "major",
+        "small-regular",
+        "inuit",
+        "gallic",
+        "norse"
+      ],
+      "places": {
+        "titan:kraken-mare": "Kraken Mare Close methane sea on Titan Reconstructed ⓘ : data source and known limitations Sources · 2 Titan's largest sea sprawls across the north polar region as a branching body of liquid methane a",
+        "charon:mordor-macula": "Mordor Macula Close dark polar region on Charon Reconstructed ⓘ : data source and known limitations Sources · 2 Mordor Macula is Charon's striking reddish-brown northern polar cap — one of the most un",
+        "pluto:sputnik-planitia": "Sputnik Planitia Close nitrogen-ice plain on Pluto Reconstructed ⓘ : data source and known limitations Sources · 2 Sputnik Planitia is the bright western lobe of Pluto's famous heart-shaped region, a "
+      }
+    }
+  },
+  "errors": []
+}

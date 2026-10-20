@@ -2,16 +2,21 @@
 id: I-049
 title: The assets catalogue says Jupiter, Saturn, Uranus, Neptune and Pluto's places are shown in the app when they are not
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-091
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:03:15Z'
 tasks: [T-120]
-checks: [C-091, C-092]
+checks: [C-091, C-092, C-093]
 guardrail_ids: [PROV-01, TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-093
+  actor: {role: checker, session: o033-targeted-recheck-20261020}
+  at: '2026-10-20T14:36:30Z'
 history:
   - at: '2026-10-20T14:03:15Z'
     actor: {role: checker, session: o033-full-check-20261020}
@@ -27,6 +32,11 @@ history:
     kind: rechecked
     note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed met. assets.html marks shown only bodies some planet''s bodyFeatures lists (Jupiter and Ceres no; Mars 30 of 32, Saturn 3, Uranus 9, Neptune 9, Pluto 12) with data-shown-count from the shared rule; tests/assetsSections.test.ts fails on a wrong mark or count; tests/assetsPageCredits.test.ts passes. Jupiter''s wording ''Not in the app yet'' is an owner wording question, not a defect. Left open only because C-092 is NEEDS WORK; verified closure needs a CLEAR Check.'
     check: C-092
+  - at: '2026-10-20T14:36:30Z'
+    actor: {role: checker, session: o033-targeted-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-093 (CLEAR) at HEAD 5a68b0a4: generator, assets.html and tests unchanged since C-092, where Proof Needed was met; tests pass (88 files, 1,250 passed). Verified.'
+    check: C-093
 ---
 
 # I-049: The assets catalogue says five bodies' places are shown in the app when they are not

@@ -2,16 +2,21 @@
 id: I-053
 title: Pluto's view opens on a phone with Charon at the left edge, out of view, so the planets browser set fails
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-092
   actor: {role: checker, session: o033-full-recheck-20261020}
   at: '2026-10-20T14:25:30Z'
 tasks: [T-118, T-121]
-checks: [C-092]
+checks: [C-092, C-093]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-093
+  actor: {role: checker, session: o033-targeted-recheck-20261020}
+  at: '2026-10-20T14:36:30Z'
 history:
   - at: '2026-10-20T14:25:30Z'
     actor: {role: checker, session: o033-full-recheck-20261020}
@@ -22,6 +27,11 @@ history:
     actor: {role: executor, session: o033-repair-i053-20261021}
     kind: repair_attempted
     note: 'Repaired: data/planets/pluto.json startView distance 12 to 20 (settings only; azimuth and elevation unchanged; no scene, camera, controls or UI code changed; Jupiter untouched). New tests/planetOpeningFraming.test.ts is pure geometry (45 deg vertical fov, worst case over all directions of Charon at 19,596 km, radius 606 km, from Pluto): Charon uses 1.43 of the half-width at 390x844 with distance 12 (out of view, the failure) and 0.84 at distance 20 (0.24 at 1280x800); Pluto itself stays centred. Saturn (160, rings to 140,180 km), Uranus (60, epsilon ring) and Neptune (80, Adams ring) pass the same test at both aspects unchanged. Gates: typecheck, build, npm test (88 files, 1250 passed, 1 skipped) pass. No browser script run. Proof Needed 1 and 2 met by settings and test; Proof Needed 3 (one clean planets run) is for the recheck. Issue left open.'
+  - at: '2026-10-20T14:36:30Z'
+    actor: {role: checker, session: o033-targeted-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-093 (CLEAR) at HEAD 5a68b0a4: Proof Needed 1-3 met. Pluto distance 20 in settings, Jupiter unchanged; tests/planetOpeningFraming.test.ts fails at the old distance (independent recompute 1.430 of half-width at phone, 0.839 now); outer-planets browser run passed Pluto and Charon in view at 390x844 and 1280x800 (docs/evidence/demo-planets-outer-20261020T143138Z, exit 0). Verified.'
+    check: C-093
 ---
 
 # I-053: Pluto opens on a phone with Charon off the left edge

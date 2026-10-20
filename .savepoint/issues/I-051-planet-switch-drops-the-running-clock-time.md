@@ -2,16 +2,21 @@
 id: I-051
 title: The planet switch keeps only the time written in the address, not the clock's current time
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-091
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:06:14Z'
 tasks: [T-117, T-118]
-checks: [C-091, C-092]
+checks: [C-091, C-092, C-093]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-093
+  actor: {role: checker, session: o033-targeted-recheck-20261020}
+  at: '2026-10-20T14:36:30Z'
 history:
   - at: '2026-10-20T14:06:14Z'
     actor: {role: checker, session: o033-full-check-20261020}
@@ -27,6 +32,11 @@ history:
     kind: rechecked
     note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed met. App.tsx passes runtime.clock time to the switch; switchAddress sets t from it when keep names t; unit test covers an old t, no t, and a non-keeping switch. Browser: outer-planets seeks Jupiter five days on, switches to Saturn and reads that later time back; passed at desktop and phone in the one planets-set run (docs/evidence/demo-planets-20261020T141653Z). Left open only because C-092 is NEEDS WORK; verified closure needs a CLEAR Check.'
     check: C-092
+  - at: '2026-10-20T14:36:30Z'
+    actor: {role: checker, session: o033-targeted-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-093 (CLEAR) at HEAD 5a68b0a4: code unchanged since C-092; the switch scenario passed again at desktop and phone (kept 2016-11-15 times; docs/evidence/demo-planets-outer-20261020T143138Z). Verified.'
+    check: C-093
 ---
 
 # I-051: The planet switch keeps only the address's time, not the clock's
