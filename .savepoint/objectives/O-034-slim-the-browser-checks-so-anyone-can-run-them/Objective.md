@@ -1,7 +1,7 @@
 ---
 id: O-034
 title: Slim the browser checks so anyone can run them
-status: in_progress
+status: done
 depends_on: []
 release: G-007
 ---
@@ -53,3 +53,5 @@ Checks and tooling only. The made-up scenes are test experiences already left ou
 ## Amendments
 
 - 2026-10-20T10:36:35Z, owner (structured question, "Accept it as is"): Success Condition 3 per-demo time targets: Apollo 227 s, Jupiter 248 s and Showers 390 s are accepted, since demo sets run only when that demo changes or before a release. The Full Objective Check reuses the T-112 handoff demo runs rather than rerunning them (owner: "Didnt we say we WOULDNT run these checks").
+
+Owner closed O-034 on 2026-10-20T10:46:03Z on C-090 CLEAR (supersedes C-089; I-047 verified). Next, by owner order ("Slim-down, then moons"): O-033 under G-009.

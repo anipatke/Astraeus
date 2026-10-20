@@ -119,7 +119,17 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 | `app.html?experience=showers&shower=geminids` | 12,080,272 B | 12,700,000 B | 7,510,809 B | 7,900,000 B |
 | whole build | 24,127,498 B | 25,360,000 B | 16,706,251 B | 17,560,000 B |
 
-The browser checks in `tools/validate/` drive the app in headless Chromium through `playwright-core`, which `npm install` adds. Install the browser once with `npx playwright-core install chromium`, start `npm run dev -- --port 5199`, then run for example `node tools/validate/browser-shell.mjs`. Set `ASTRAEUS_URL` to point a script at another address and `PLAYWRIGHT_CORE` to use another copy of the library.
+## Running the checks
+
+```
+npm install
+npx playwright-core install chromium   # once
+npm test                               # unit tests
+npm run check:engine                   # browser checks for the engine, about 5 minutes
+npm run check:demo -- apollo           # optional: one demo's checks (apollo, showers or jupiter)
+```
+
+The engine set runs on made-up scenes and needs no demo. Each run writes logs to a new folder under `docs/evidence/`. What each script asserts is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
 
 Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
 
