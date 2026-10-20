@@ -49,7 +49,7 @@ describe("the outer planets in the planet switch (T-118)", () => {
       it("builds its view from its settings file and system alone", () => {
         const definition = buildPlanetDefinition(settings, view.system as PlanetSystem, noPanels);
         expect(definition.composition!.defaultCenter).toBe(settings.centre.id);
-        expect(definition.bodySets![0]!.members.length + definition.composition!.bodies.length - 1).toBe(view.system.catalogue.moons.length);
+        expect(definition.bodySets![0]!.members.length + definition.composition!.bodies.length - 1).toBe(view.system.catalogue!.moons.length);
         expect(definition.experience.bodyFeatures!.map((set) => set.bodyId)).toEqual(settings.bodyFeatures);
       });
 

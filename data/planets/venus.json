@@ -1,0 +1,42 @@
+{
+  "id": "venus",
+  "label": "Venus",
+  "order": 2,
+  "default": false,
+  "system": "venus",
+  "experienceLabel": "Venus",
+  "window": {
+    "startUtc": "2016-11-04T00:00:00Z",
+    "endUtc": "2016-11-18T00:00:00Z"
+  },
+  "clockRate": 3600,
+  "rates": [
+    60,
+    3600,
+    21600,
+    86400
+  ],
+  "centre": {
+    "id": "venus",
+    "labelPriority": 100,
+    "labelMaxDistance": 300,
+    "description": "The hottest planet, wrapped in thick cloud, with no moon.",
+    "knownLimitations": []
+  },
+  "bodyFeatures": [
+    "venus"
+  ],
+  "story": {
+    "panels": "data/stories/venus/panels.json"
+  },
+  "camera": {
+    "maxFocusDistance": 2000,
+    "far": 20000
+  },
+  "startView": {
+    "focus": "venus",
+    "azimuthDeg": 0,
+    "elevationDeg": 15,
+    "distance": 8
+  }
+}

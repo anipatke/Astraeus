@@ -1,0 +1,61 @@
+{
+  "id": "mars",
+  "label": "Mars",
+  "order": 4,
+  "default": false,
+  "system": "mars",
+  "experienceLabel": "Mars, Phobos and Deimos",
+  "window": {
+    "startUtc": "2016-11-04T00:00:00Z",
+    "endUtc": "2016-11-18T00:00:00Z"
+  },
+  "clockRate": 3600,
+  "rates": [
+    60,
+    3600,
+    21600,
+    86400
+  ],
+  "centre": {
+    "id": "mars",
+    "labelPriority": 100,
+    "labelMaxDistance": 300,
+    "description": "The red planet, with two small moons that orbit close above it.",
+    "knownLimitations": []
+  },
+  "moons": {
+    "listSource": "JPL Horizons",
+    "featuredFamilyId": "mars-moons",
+    "follow": "phobos",
+    "mapped": [
+      {
+        "id": "phobos",
+        "labelPriority": 80,
+        "labelMaxDistance": 100,
+        "description": "The larger and inner of Mars's two moons, circling Mars in about 7.7 hours."
+      },
+      {
+        "id": "deimos",
+        "labelPriority": 70,
+        "labelMaxDistance": 100,
+        "description": "The smaller, outer moon of Mars, circling it in about 30 hours."
+      }
+    ]
+  },
+  "bodyFeatures": [
+    "mars"
+  ],
+  "story": {
+    "panels": "data/stories/mars/panels.json"
+  },
+  "camera": {
+    "maxFocusDistance": 2000,
+    "far": 20000
+  },
+  "startView": {
+    "focus": "mars",
+    "azimuthDeg": 0,
+    "elevationDeg": 15,
+    "distance": 12
+  }
+}

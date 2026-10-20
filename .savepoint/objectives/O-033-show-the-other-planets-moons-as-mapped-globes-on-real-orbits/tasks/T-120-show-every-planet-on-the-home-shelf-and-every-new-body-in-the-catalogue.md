@@ -2,7 +2,8 @@
 id: T-120
 title: Show every planet on the home shelf and every new body in the catalogue
 objective: O-033
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-118, requires: clear}, {task: T-119, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o033-planning-20261020}

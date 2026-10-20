@@ -32,14 +32,16 @@ export interface PlanetSettings {
     readonly description: string;
     readonly knownLimitations: readonly string[];
   };
-  readonly moons: {
-    readonly listSource: string;
-    readonly featuredFamilyId: string;
+  /** Absent for a planet with no moon to draw (Mercury, Venus). */
+  readonly moons?: {
+    /** The moon list's source and the family the moon panel opens on; both present exactly when the planet's system has a moon list. */
+    readonly listSource?: string;
+    readonly featuredFamilyId?: string;
     /** The mapped moon the camera presets focus and follow. Absent for a planet with no mapped moon (Uranus). */
     readonly follow?: string;
     readonly mapped: readonly PlanetMappedMoon[];
   };
-  /** The mapped moons whose tagged places show. */
+  /** The bodies (the centre or a mapped moon) whose tagged places show. */
   readonly bodyFeatures: readonly string[];
   /** Repo-relative path of the story's panels file (`data/stories/<story>/panels.json`). */
   readonly story: { readonly panels: string };
@@ -111,17 +113,24 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
 
   const centre = record(root.centre, "centre");
   only(centre, ["id", "labelPriority", "labelMaxDistance", "description", "knownLimitations"], "centre");
-  const moons = record(root.moons, "moons");
-  only(moons, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
-  const mapped = list(moons, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
-  const mappedIds = mapped.map((moon) => moon.id);
-  if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
-  // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
-  const follow = mapped.length === 0 && moons.follow === undefined ? undefined : words(moons, "follow", "moons");
-  if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
+  let moons: PlanetSettings["moons"];
+  const mappedIds: string[] = [];
+  if (root.moons !== undefined) {
+    const raw = record(root.moons, "moons");
+    only(raw, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
+    const mapped = list(raw, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
+    mappedIds.push(...mapped.map((moon) => moon.id));
+    if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
+    // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
+    const follow = mapped.length === 0 && raw.follow === undefined ? undefined : words(raw, "follow", "moons");
+    if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
+    if ((raw.listSource === undefined) !== (raw.featuredFamilyId === undefined)) fail("moons.listSource", "and moons.featuredFamilyId go together: give both or neither");
+    moons = { ...(raw.listSource === undefined ? {} : { listSource: text(raw, "listSource", "moons"), featuredFamilyId: words(raw, "featuredFamilyId", "moons") }), ...(follow === undefined ? {} : { follow }), mapped };
+  }
 
   const bodyFeatures = textList(root, "bodyFeatures", "settings", 0);
-  for (const id of bodyFeatures) if (!mappedIds.includes(id)) fail("settings.bodyFeatures", `names "${id}", which is not a mapped moon`);
+  const centreId = words(centre, "id", "centre");
+  for (const id of bodyFeatures) if (id !== centreId && !mappedIds.includes(id)) fail("settings.bodyFeatures", `names "${id}", which is neither the centre nor a mapped moon`);
 
   const story = record(root.story, "story");
   only(story, ["panels"], "story");
@@ -145,8 +154,8 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
     window: { startUtcMs, endUtcMs },
     clockRate: positive(root, "clockRate", "settings"),
     rates: rates as number[],
-    centre: { id: words(centre, "id", "centre"), labelPriority: finite(centre, "labelPriority", "centre"), labelMaxDistance: positive(centre, "labelMaxDistance", "centre"), description: text(centre, "description", "centre"), knownLimitations: textList(centre, "knownLimitations", "centre", 0) },
-    moons: { listSource: text(moons, "listSource", "moons"), featuredFamilyId: words(moons, "featuredFamilyId", "moons"), ...(follow === undefined ? {} : { follow }), mapped },
+    centre: { id: centreId, labelPriority: finite(centre, "labelPriority", "centre"), labelMaxDistance: positive(centre, "labelMaxDistance", "centre"), description: text(centre, "description", "centre"), knownLimitations: textList(centre, "knownLimitations", "centre", 0) },
+    ...(moons === undefined ? {} : { moons }),
     bodyFeatures,
     story: { panels },
     camera: { maxFocusDistance: positive(camera, "maxFocusDistance", "camera"), far: positive(camera, "far", "camera") },
