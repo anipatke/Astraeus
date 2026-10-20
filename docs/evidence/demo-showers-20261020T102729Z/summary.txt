@@ -1,0 +1,6 @@
+smoke | scene=showers, perseids, geminids | exit=0 | 10:27:31-10:28:17 | 45s | error-lines=0
+showers-perseids | scene=? | exit=0 | 10:28:17-10:31:23 | 186s | error-lines=0
+showers-geminids | scene=? | exit=0 | 10:31:23-10:32:00 | 37s | error-lines=0
+public-showers | scene=? | exit=0 | 10:32:00-10:32:31 | 31s | error-lines=0
+story-panels | scene=? | exit=0 | 10:32:31-10:33:59 | 87s | error-lines=0
+total 390s (servers and public build included)

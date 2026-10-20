@@ -1,0 +1,9 @@
+lite browser check: 3 experiences (showers, showers-geminids, showers-perseids) + 0 site pages, 2 sizes
+ok   showers                    1440x900    9.5s {"title":"Perseids · Astraeus","drawn":{"bodies":7,"dots":24218,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers                    390x844     6.4s {"title":"Perseids · Astraeus","drawn":{"bodies":5,"dots":7437,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers-geminids           1440x900    6.8s {"title":"Geminids · Astraeus","drawn":{"bodies":7,"dots":51115,"paths":6,"stars":8920},"object":"earth","panel":"phaethon"}
+ok   showers-geminids           390x844     7.3s {"title":"Geminids · Astraeus","drawn":{"bodies":7,"dots":49533,"paths":6,"stars":8920},"object":"earth","panel":"phaethon"}
+ok   showers-perseids           1440x900      6s {"title":"Perseids · Astraeus","drawn":{"bodies":7,"dots":24218,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+ok   showers-perseids           390x844     9.2s {"title":"Perseids · Astraeus","drawn":{"bodies":5,"dots":7437,"paths":6,"stars":8920},"object":"earth","panel":"stream-shape"}
+
+6/6 loads passed; results in /home/user/code/Astraeus/docs/evidence/demo-showers-20261020T102729Z/smoke

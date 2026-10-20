@@ -1,0 +1,7 @@
+lite browser check: 1 experiences (jupiter-io) + 1 site pages, 2 sizes
+ok   jupiter-io                 1440x900    6.3s {"title":"Jupiter and Io · Astraeus","drawn":{"bodies":4,"dots":16,"paths":1,"stars":8920},"object":"io","panel":"volcanoes"}
+ok   jupiter-io                 390x844     6.3s {"title":"Jupiter and Io · Astraeus","drawn":{"bodies":2,"dots":6,"paths":1,"stars":8920},"object":"io","panel":"volcanoes"}
+ok   assets-page                1440x900    1.7s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+ok   assets-page                390x844     1.6s {"title":"Astraeus Assets","moonFamilies":{"galilean":4,"inner":4,"himalia":11,"ananke":29,"carme":41,"pasiphae":22,"carpo":2,"loner":2}}
+
+4/4 loads passed; results in /home/user/code/Astraeus/docs/evidence/demo-jupiter-20261020T101926Z/smoke

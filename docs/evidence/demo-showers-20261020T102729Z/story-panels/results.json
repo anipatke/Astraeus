@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "command": "node tools/validate/browser-story-panels.mjs",
+  "url": "http://localhost:5479/app.html",
+  "at": "2026-10-20T10:33:59.121Z",
+  "results": [
+    {
+      "name": "Perseids panels open in order on playback",
+      "detail": "stream-shape > earth-crossing > swift-tuttle"
+    },
+    {
+      "name": "phone sheets for two Perseids panels captured",
+      "detail": ""
+    },
+    {
+      "name": "Geminids panels open in order on playback; a marker reopens one",
+      "detail": "phaethon > best-shower > earth-crossing"
+    },
+    {
+      "name": "Geminids activity view keeps the two December panels",
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

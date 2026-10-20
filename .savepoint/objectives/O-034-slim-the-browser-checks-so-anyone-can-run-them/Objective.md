@@ -49,3 +49,7 @@ Checks and tooling only. The made-up scenes are test experiences already left ou
 **In scope:** `tools/validate/`, `src/synthetic/` test scenes, `package.json` scripts, `docs/BROWSER_CHECKS.md`, the AGENTS.md project rules on browser checks, a reuser note, Design reconciliation.
 
 **Out of scope:** making the demos optional in the package or the public build (O-035); app or engine behaviour; screenshots (still banned); unit-test rewrites beyond what a moved assertion needs.
+
+## Amendments
+
+- 2026-10-20T10:36:35Z, owner (structured question, "Accept it as is"): Success Condition 3 per-demo time targets: Apollo 227 s, Jupiter 248 s and Showers 390 s are accepted, since demo sets run only when that demo changes or before a release. The Full Objective Check reuses the T-112 handoff demo runs rather than rerunning them (owner: "Didnt we say we WOULDNT run these checks").

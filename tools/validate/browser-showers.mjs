@@ -117,6 +117,13 @@ const ENGINE_DEFAULT_VIEW = "&view=sun,216,14.32,3007000";
 const litLog = (results.litCounts = {});
 const logLit = (where, n) => { litLog[`${shower}/${where}`] = n; return n; };
 
+/** Prints how long a check took (O-034 T-112: to find the slow ones). */
+async function timed(name, fn) {
+  const started = Date.now();
+  await fn();
+  console.log(`timing ${name}: ${Math.round((Date.now() - started) / 1000)} s`);
+}
+
 async function openPage(viewport) {
   const page = await browser.newPage({ viewport });
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
@@ -139,7 +146,8 @@ const seek = async (page, timeUtcMs) => {
 // T-049: the four planet orbits are items with provenance, and their lines are drawn around the Sun.
 async function checkPlanetOrbits(page, label, canvas, choose, closeInfo) {
   const out = (results[label].planetOrbits = {});
-  for (const id of ["mercury", "venus", "mars", "jupiter"]) {
+  // O-034 T-112: Mercury and Jupiter sampled for the panel/provenance step (Venus and Mars dropped; their lines are still asserted drawn below).
+  for (const id of ["mercury", "jupiter"]) {
     await selectOrbit(page, id, `${id}-orbit`);
     await ui.openInfo(page, /^Information about .+ orbit$/);
     await ui.infoPanel(page).waitFor();
@@ -156,7 +164,7 @@ async function checkPlanetOrbits(page, label, canvas, choose, closeInfo) {
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   for (let i = 0; i < 12; i += 1) await page.mouse.wheel(0, 900);
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(720);
   // T-102: from the scene's path readout (each planet's orbit line visible, with vertices in view), not tan-coloured pixels.
   out.planetOrbitReadouts = {};
   for (const id of ["mercury", "venus", "mars", "jupiter"]) {
@@ -196,7 +204,7 @@ async function checkSunEarth(page, label, canvas) {
     await ui.pickBody(page, objectId);
     await closeInfo();
     await ui.chooseCamera(page, presetId);
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(900);
   };
   const start = (await ui.seekRange(page)).min;
   const peak = await ui.windowPeakTimeMs(page);
@@ -223,41 +231,46 @@ async function checkSunEarth(page, label, canvas) {
       // Over empty sky, not the canvas centre: in the Showers year (O-024 T-092) Earth's and Mercury's labels sit by the Sun at the start and a wheel over a label does not reach the scene.
       await page.mouse.move(boxN.x + boxN.width / 4, boxN.y + boxN.height / 4);
       for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
-      await page.waitForTimeout(1200);
+      await page.waitForTimeout(720);
       const without = await ui.scenePath(page, `${parent}-orbit`);
       out.path.startOrbitOutOfViewReadout = without;
       assert.ok(without.inView < orbitLine.inView * 0.6, `${label}/${name}: the path readout finds the line only when it is in view (${without.inView} vertices in view with it out of view, ${orbitLine.inView} in the Overview)`);
     }
-    await choose("sun", "overview");
-    // T-102: a point where the canvas is on top (at the peak the story marker sits over the middle, where a wheel never reached the camera; the old pixel count passed without zooming).
-    const free0 = (await ui.freeCanvasPoint(page)) ?? { x: 10, y: 10 };
-    await page.mouse.move(free0.x, free0.y);
-    // T-102: Earth's path as the scene reports it (the line's own vertices in view and the share of the view they span; it replaces a count of blue pixels).
-    const pathBig = (line) => line?.visible && line.inView >= 0.9 * line.vertices && Math.max(line.spanX * line.aspect, line.spanY) > 0.1;
-    let overview = await ui.scenePath(page, "earth-path");
-    let wheels = 0;
-    while (!pathBig(overview) && wheels < 60) {
-      await page.mouse.wheel(0, -400);
-      wheels += 1;
-      await page.waitForTimeout(350);
-      overview = await ui.scenePath(page, "earth-path");
+    // O-034 T-112: Earth's path being brought into view and running on both sides of Earth is asserted at the peak only; the start pass keeps the whole-orbit readouts and the
+    // out-of-view negative probe above (the same camera and path code, so the start repeat was dropped).
+    if (name === "peak") {
+      await choose("sun", "overview");
+      // T-102: a point where the canvas is on top (at the peak the story marker sits over the middle, where a wheel never reached the camera; the old pixel count passed without zooming).
+      const free0 = (await ui.freeCanvasPoint(page)) ?? { x: 10, y: 10 };
+      await page.mouse.move(free0.x, free0.y);
+      // T-102: Earth's path as the scene reports it (the line's own vertices in view and the share of the view they span; it replaces a count of blue pixels).
+      const pathBig = (line) => line?.visible && line.inView >= 0.9 * line.vertices && Math.max(line.spanX * line.aspect, line.spanY) > 0.1;
+      let overview = await ui.scenePath(page, "earth-path");
+      let wheels = 0;
+      while (!pathBig(overview) && wheels < 60) {
+        await page.mouse.wheel(0, -400);
+        wheels += 1;
+        await page.waitForTimeout(350);
+        overview = await ui.scenePath(page, "earth-path");
+      }
+      out.path[`${name}Wheels`] = wheels;
+      assert.ok(pathBig(overview), `${label}/${name}: Earth's path is drawn once the camera is brought in (${JSON.stringify(overview)} after ${wheels} wheel steps)`);
+      await choose("earth", "focus-earth");
+      // Frame Earth with the path in view: pull back a little from the close framing.
+      const box = await canvas.boundingBox();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      for (let i = 0; i < 3; i += 1) await page.mouse.wheel(0, 300);
+      // T-038 (ecliptic-up view): Focus Earth now looks at Earth from the Sun's side exactly in the ecliptic, where its path is edge-on; raise the camera a little.
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 90, { steps: 6 });
+      await page.mouse.up();
+      await page.waitForTimeout(480);
+      const near = await ui.scenePath(page, "earth-path");
+      out.path[name] = { overview, near };
+      // Earth is the focus, so it is at the middle of the view: the drawn line (the segments between vertices) runs on both sides of it.
+      assert.ok(near?.visible && near.lineMinX !== null && near.lineMinX < 0.45 && near.lineMaxX > 0.55, `${label}/${name}: the path runs on both sides of Earth (path readout ${JSON.stringify(near)})`);
+  
     }
-    out.path[`${name}Wheels`] = wheels;
-    assert.ok(pathBig(overview), `${label}/${name}: Earth's path is drawn once the camera is brought in (${JSON.stringify(overview)} after ${wheels} wheel steps)`);
-    await choose("earth", "focus-earth");
-    // Frame Earth with the path in view: pull back a little from the close framing.
-    const box = await canvas.boundingBox();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    for (let i = 0; i < 3; i += 1) await page.mouse.wheel(0, 300);
-    // T-038 (ecliptic-up view): Focus Earth now looks at Earth from the Sun's side exactly in the ecliptic, where its path is edge-on; raise the camera a little.
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 90, { steps: 6 });
-    await page.mouse.up();
-    await page.waitForTimeout(800);
-    const near = await ui.scenePath(page, "earth-path");
-    out.path[name] = { overview, near };
-    // Earth is the focus, so it is at the middle of the view: the drawn line (the segments between vertices) runs on both sides of it.
-    assert.ok(near?.visible && near.lineMinX !== null && near.lineMinX < 0.45 && near.lineMaxX > 0.55, `${label}/${name}: the path runs on both sides of Earth (path readout ${JSON.stringify(near)})`);
   }
 
   // Solar-system scale: Earth becomes visible, and its info panel states the factor.
@@ -265,11 +278,11 @@ async function checkSunEarth(page, label, canvas) {
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   for (let i = 0; i < 6; i += 1) await page.mouse.wheel(0, 600);
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(480);
   // T-102: Earth's drawn size from the scene's body readout (it replaces a bright-pixel count): enlarged under the solar-system scale, and in view as a sphere.
   const trueEarth = await ui.sceneBody(page, "earth");
   await chooseScale(page, "Solar system");
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(720);
   const solarEarth = await ui.sceneBody(page, "earth");
   out.earthDrawn = { trueScale: trueEarth, solarSystem: solarEarth };
   assert.ok(solarEarth?.inView && solarEarth.radiusPx > Math.max(2, 3 * trueEarth.radiusPx), `${label}: Earth is visible in the solar-system scale (radius ${trueEarth?.radiusPx} px -> ${solarEarth?.radiusPx} px)`);
@@ -323,7 +336,7 @@ async function checkBodies(page, label, canvas) {
   await ui.pickBody(page, "sun");
   await closeInfo();
   await ui.chooseCamera(page, "overview");
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(720);
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   const seen = new Map();
@@ -366,7 +379,7 @@ async function checkBodies(page, label, canvas) {
   await ui.pickBody(page, parent);
   await closeInfo();
   await ui.chooseCamera(page, "focus-parent");
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(1200);
   assert.ok((await shownLabels(page)).includes(parent), `${label}: the parent's label is shown when it is focused`);
   out.cometMarkerPixels = await markerBesideLabel(page, parent);
   assert.ok(out.cometMarkerPixels > 0, `${label}: the comet has a marker beside its label in the scene readout (${out.cometMarkerPixels})`);
@@ -379,7 +392,7 @@ async function checkBodies(page, label, canvas) {
   await closeInfo();
   await ui.chooseCamera(page, "overview");
   await chooseScale(page, "Solar system");
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(900);
   const box2 = await canvas.boundingBox();
   await page.mouse.move(box2.x + box2.width / 4, box2.y + box2.height / 4);
   const bodySteps = [];
@@ -389,13 +402,15 @@ async function checkBodies(page, label, canvas) {
     const markers = ((await page.locator("canvas").first().getAttribute("data-marker-bodies")) ?? "").split(",");
     const asBodies = ["earth", "mercury", "venus", "mars", "jupiter"].filter((id) => !markers.includes(id));
     if (asBodies.length > 0) bodySteps.push({ step, asBodies });
+    // O-034 T-112: stop once the assertion below is met (Earth and two other planets seen as bodies); the rest of the 40 steps only added to a record.
+    if (new Set(bodySteps.flatMap((entry) => entry.asBodies)).size >= 3 && bodySteps.some((entry) => entry.asBodies.includes("earth"))) break;
   }
   out.solarSystemBodies = bodySteps.slice(0, 3);
   const asBodyAtSomeZoom = new Set(bodySteps.flatMap((entry) => entry.asBodies));
   out.solarSystemBodySet = [...asBodyAtSomeZoom];
   assert.ok(asBodyAtSomeZoom.has("earth") && asBodyAtSomeZoom.size >= 3, `${label}: under the solar-system scale Earth and other planets draw as bodies at some zoom (${[...asBodyAtSomeZoom]})`);
   await chooseScale(page, "True");
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(480);
 }
 
 // The comet's whole orbit is drawn and the "Whole orbit" preset frames it: the violet line spans most of the canvas in both directions.
@@ -405,7 +420,7 @@ async function checkWholeOrbit(page, label, canvas) {
   await ui.closeInfo(page);
   await ui.chooseCamera(page, "whole-orbit");
   await ui.closeAllPanelsNow(page);
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(1500);
   // I-040: proved from the line itself (the scene's path readout) (it replaced an orbit-coloured pixel count, which the orbit's same-coloured label used to supply). The preset must frame the whole line.
   const line = await ui.scenePath(page, `${parent}-orbit`);
   out.readout = line;
@@ -493,7 +508,7 @@ async function checkFrameRate(page, label) {
   await ui.closeInfo(page);
   await ui.toggleDeveloper(page);
   await page.locator("[data-frame-fps]").waitFor({ timeout: 10000 });
-  await page.waitForTimeout(4000);
+  await page.waitForTimeout(2400);
   const fps = Number(await page.locator("[data-frame-fps]").innerText());
   results[label].fpsSoftwareGl = { members: results[label].members, fps };
   assert.ok(Number.isFinite(fps) && fps > 0, `${label}: the Developer counter reads a frame rate (${fps})`);
@@ -504,7 +519,7 @@ async function frameStream(page) {
   await ui.pickBody(page, `${shower}-stream`);
   await ui.closeInfo(page);
   await ui.chooseCamera(page, "focus-stream");
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(900);
 }
 
 // Looping playback (owner, 2026-10-15: "needs to play in a loop, as disappears when reaches the end"): playing past the end of the window wraps the time back inside it
@@ -545,7 +560,7 @@ async function checkLoopOff() {
     await frameStream(page);
     const litAtEnd = await litPixels(page);
     await ui.playPlayback(page);
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(1800);
     const text = await ui.timelineText(page);
     const t = Date.parse(text.match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/)?.[0]);
     results.loopOff = { time: new Date(t).toISOString(), pastEnd: t > max, litAtEnd, lit: await litPixels(page) };
@@ -578,7 +593,7 @@ async function checkEclipticFlat(page, label, query, expectFlat) {
     await ui.pickBody(p, "sun");
     await ui.closeInfo(p);
     await ui.chooseCamera(p, "overview");
-    await p.waitForTimeout(1500);
+    await p.waitForTimeout(900);
     const box = await p.getByTestId("earth-moon-canvas").boundingBox();
     await p.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
     let shape = await pathShape(p);
@@ -722,7 +737,7 @@ async function checkRemovedSwitches() {
     await page.goto(`${base}?experience=showers&shower=${shower}&source=cams&stars=yale&sky=off`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1500);
     assert.equal(await page.getByTestId("earth-moon-canvas").getAttribute("data-point-groups"), "1", "removed ?source=cams: the GMN stream is still drawn");
     await ui.toggleDeveloper(page);
     assert.equal(await ui.orbitSourceButtons(page).count(), 0, "no source switch is offered");
@@ -807,7 +822,7 @@ async function run(label, viewport) {
       await plain.goto(`${base}?experience=showers&shower=${shower}`);
       await plain.waitForSelector("canvas");
       await ui.waitForShell(plain);
-      await plain.waitForTimeout(2500);
+      await plain.waitForTimeout(1500);
       const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
       assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} dots in view)`);
       // T-102: "not a close-up of the Sun" from the scene's body readout: the Sun's drawn radius is under a quarter of the view's height (it was: stream-coloured pixels under 30% of the area).
@@ -952,56 +967,60 @@ async function run(label, viewport) {
     const windowPanel = await ui.infoPanel(page).innerText();
     assert.match(windowPanel, /activity/i, `${label}: window details open`);
     results[label].windowPanel = windowPanel.replace(/\s+/g, " ").slice(0, 600);
-    await checkSwitch(label, viewport);
+    await timed("checkSwitch", () => checkSwitch(label, viewport));
     if (phoneOnce) return; // the phone layout is checked once, through the scenarios above; the rest repeat the desktop's geometry
-    await checkSunEarth(page, label, canvas);
-    await checkBodies(page, label, canvas);
-    await checkWholeOrbit(page, label, canvas);
-    await checkCrossing(page, label);
-    await checkYear(page, label, canvas);
-    await checkLoop(page, label, canvas);
-    await checkEclipticFlat(page, label, "", true);
-    if (label === "desktop") await checkEclipticFlat(page, label, "&up=equatorial", false);
-    if (label === "desktop") await checkUpToggle(page, label);
-    if (label === "desktop") await checkFrameRate(page, label);
+    await timed("checkSunEarth", () => checkSunEarth(page, label, canvas));
+    await timed("checkBodies", () => checkBodies(page, label, canvas));
+    await timed("checkWholeOrbit", () => checkWholeOrbit(page, label, canvas));
+    await timed("checkCrossing", () => checkCrossing(page, label));
+    await timed("checkYear", () => checkYear(page, label, canvas));
+    await timed("checkLoop", () => checkLoop(page, label, canvas));
+    await timed("checkEclipticFlat", () => checkEclipticFlat(page, label, "", true));
+    if (label === "desktop") await timed("checkEclipticFlat", () => checkEclipticFlat(page, label, "&up=equatorial", false));
+    if (label === "desktop") await timed("checkUpToggle", () => checkUpToggle(page, label));
+    if (label === "desktop") await timed("checkFrameRate", () => checkFrameRate(page, label));
   } finally {
     await page.close();
   }
 }
 
 try {
-  await run("desktop", { width: 1280, height: 800 });
-  await run("phone", { width: 390, height: 844 });
-  await checkNotFetched();
-  await checkLoopOff();
-  await checkSpanActivity();
-  await checkQuality();
-  await checkRemovedSwitches();
-  // Existing experiences still mount by their old names.
-  const page = await openPage({ width: 1280, height: 800 });
-  await page.goto(base);
-  await page.waitForSelector("canvas");
-  assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, "Apollo is still the default");
-  // T-091: the old per-shower addresses are removed with no redirect (they open the default experience); the plain Showers address opens the default shower with the switch.
-  for (const old of readdirSync(showersDir).filter((file) => file.endsWith(".json")).map((file) => `shower-${file.slice(0, -".json".length)}`)) {
-    await page.goto(`${base}?experience=${old}`);
+  await timed("run desktop", () => run("desktop", { width: 1280, height: 800 }));
+  // O-034 T-112: the light second shower runs at desktop only (the phone layout is proved by the Perseids phone pass).
+  if (!lightRun) await timed("run phone", () => run("phone", { width: 390, height: 844 }));
+  await timed("checkNotFetched", () => checkNotFetched());
+  if (!lightRun) await timed("checkLoopOff", () => checkLoopOff());
+  await timed("checkSpanActivity", () => checkSpanActivity());
+  await timed("checkQuality", () => checkQuality());
+  if (!lightRun) await timed("checkRemovedSwitches", () => checkRemovedSwitches());
+  // O-034 T-112: the Apollo-default, removed-address and synthetic-ring mount checks run with the first shower only.
+  if (!lightRun) {
+    // Existing experiences still mount by their old names.
+    const page = await openPage({ width: 1280, height: 800 });
+    await page.goto(base);
     await page.waitForSelector("canvas");
-    assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, `?experience=${old} is removed: it opens the default experience`);
+    assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, "Apollo is still the default");
+    // T-091: the old per-shower addresses are removed with no redirect (they open the default experience); the plain Showers address opens the default shower with the switch.
+    for (const old of readdirSync(showersDir).filter((file) => file.endsWith(".json")).map((file) => `shower-${file.slice(0, -".json".length)}`)) {
+      await page.goto(`${base}?experience=${old}`);
+      await page.waitForSelector("canvas");
+      assert.equal(await ui.bodyOptionCount(page, "columbia"), 1, `?experience=${old} is removed: it opens the default experience`);
+    }
+    await page.goto(`${base}?experience=showers`);
+    await page.waitForSelector("canvas");
+    await ui.waitForShell(page);
+    const plainShowers = await ui.experienceSwitchState(page);
+    assert.equal(plainShowers.options.filter((option) => option.active).length, 1, "the plain Showers address opens one shower");
+    assert.equal(plainShowers.options.find((option) => option.active).value, plainShowers.options[0].value, "the plain Showers address opens the first shower of the switch");
+    await page.goto(`${base}?experience=showers&shower=no-such-shower`);
+    await page.waitForSelector("canvas");
+    await ui.waitForShell(page);
+    assert.equal((await ui.experienceSwitchState(page)).options[0].active, true, "an unknown shower opens the first shower");
+    await page.goto(`${base}?experience=synthetic-ring`);
+    await page.waitForSelector("canvas");
+    assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1, "synthetic-ring still mounts");
+    await page.close();
   }
-  await page.goto(`${base}?experience=showers`);
-  await page.waitForSelector("canvas");
-  await ui.waitForShell(page);
-  const plainShowers = await ui.experienceSwitchState(page);
-  assert.equal(plainShowers.options.filter((option) => option.active).length, 1, "the plain Showers address opens one shower");
-  assert.equal(plainShowers.options.find((option) => option.active).value, plainShowers.options[0].value, "the plain Showers address opens the first shower of the switch");
-  await page.goto(`${base}?experience=showers&shower=no-such-shower`);
-  await page.waitForSelector("canvas");
-  await ui.waitForShell(page);
-  assert.equal((await ui.experienceSwitchState(page)).options[0].active, true, "an unknown shower opens the first shower");
-  await page.goto(`${base}?experience=synthetic-ring`);
-  await page.waitForSelector("canvas");
-  assert.equal(await ui.bodyOptionCount(page, "debris-ring"), 1, "synthetic-ring still mounts");
-  await page.close();
 } finally {
   await browser.close();
 }

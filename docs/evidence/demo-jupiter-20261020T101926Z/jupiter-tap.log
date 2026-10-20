@@ -1,0 +1,13 @@
+{
+  "results": {
+    "jupiter-io laptop": {
+      "setMoon": "pasiphae",
+      "listed": true
+    },
+    "jupiter-io phone": {
+      "setMoon": "pasiphae",
+      "listed": true
+    }
+  },
+  "errors": []
+}

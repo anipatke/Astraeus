@@ -1,0 +1,86 @@
+{
+  "tier": "lite (I-033)",
+  "at": "2026-10-20T10:23:55.790Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "experiences": [
+    "apollo11"
+  ],
+  "loads": 4,
+  "failed": 0,
+  "results": [
+    {
+      "label": "apollo11",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/app.html",
+      "ok": true,
+      "seconds": 5.6,
+      "detail": {
+        "title": "Apollo 11 · Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "apollo11",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/app.html",
+      "ok": true,
+      "seconds": 4.7,
+      "detail": {
+        "title": "Apollo 11 · Astraeus",
+        "drawn": {
+          "bodies": 1,
+          "dots": 0,
+          "paths": 1,
+          "stars": 8920
+        },
+        "object": "moon",
+        "panel": "tli-cutoff"
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/index.html",
+      "ok": true,
+      "seconds": 1.7,
+      "detail": {
+        "title": "Astraeus",
+        "demoLinks": [
+          "app.html",
+          "app.html?experience=showers",
+          "app.html?experience=jupiter-io"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/index.html",
+      "ok": true,
+      "seconds": 1.7,
+      "detail": {
+        "title": "Astraeus",
+        "demoLinks": [
+          "app.html",
+          "app.html?experience=showers",
+          "app.html?experience=jupiter-io"
+        ]
+      },
+      "failures": []
+    }
+  ]
+}

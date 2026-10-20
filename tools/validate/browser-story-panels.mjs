@@ -30,6 +30,9 @@ const moreStories = [
 const perseidsUrl =process.env.ASTRAEUS_PERSEIDS_URL ?? `${url}?experience=showers`;
 const TLI = -14542676800; // anchor A-02
 const LANDING = -14182940100; // anchor A-LND
+// O-034 T-112: STORY_ONLY=apollo|showers|jupiter limits the run to one demo's stories (each demo's set runs its own); unset runs all of them.
+const storyOnly = process.env.STORY_ONLY;
+const want = (demo) => storyOnly === undefined || storyOnly === demo;
 const results = [];
 const errors = [];
 const note = (name, detail = "") => { results.push({ name, detail }); console.log(`ok  ${name}${detail === "" ? "" : ` (${detail})`}`); };
@@ -53,6 +56,7 @@ const openPanelIds = ui.openStoryPanelIds;
 
 try {
   // ---- Desktop ----
+  if (want("apollo")) {
   const { context, page } = await open({ width: 1440, height: 900 });
   assert.equal(await ui.storyMarkers(page).count(), apolloPanels.length, "a timeline marker per panel");
   note("timeline shows a marker per panel", String(apolloPanels.length));
@@ -267,6 +271,9 @@ try {
   note("phone sheets for two Apollo panels captured");
   await apolloPhone.context.close();
 
+  }
+
+  if (want("showers")) {
   // ---- Perseids (T-062): the same panel capability, carried by the shower settings file ----
   const per = await (async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -311,6 +318,8 @@ try {
   note("phone sheets for two Perseids panels captured");
   await perPhone.close();
 
+  }
+
   // ---- T-089: the Geminids, Earth–Moon and Jupiter–Io stories, through the same generic panel path ----
   // Each panel: seek to half a second of playback before it, play, and it must open by itself, in time order, with its badge,
   // a source line, and one folded section, closed by default, that holds its details.
@@ -324,7 +333,7 @@ try {
     await ui.waitForShell(page);
     return { context, page };
   };
-  for (const story of moreStories) {
+  for (const story of moreStories.filter((entry) => want(entry.name === "Jupiter–Io" ? "jupiter" : "showers"))) {
     const { context, page } = await openStory(story.experience);
     assert.equal(await ui.storyMarkers(page).count(), story.panels.length, `${story.name}: a timeline marker per panel`);
     const rate = Number(await ui.speed(page));
@@ -359,7 +368,7 @@ try {
   }
 
   // The Geminids' shower-only view (span=activity) keeps the two December panels and leaves out the Phaethon one (1 November 2019, outside the activity window).
-  {
+  if (want("showers")) {
     const { context, page } = await openStory("showers&shower=geminids&span=activity");
     assert.equal(await ui.storyMarkers(page).count(), 2, "Geminids activity view: two markers");
     assert.equal(await ui.storyMarkers(page, "phaethon").count(), 0, "Geminids activity view: the Phaethon panel is left out");

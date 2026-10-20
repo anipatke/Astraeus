@@ -60,6 +60,12 @@ const experiences = [
   ...showers.map((name) => ({ id: `showers-${name}`, query: `?experience=showers&shower=${name}`, panelStory: hasPanels(name) ? name : undefined })),
 ];
 if (named.length === 0) throw new Error("found no named experiences in src/main.tsx");
+// O-034 T-112: each demo's set runs this as its load smoke test, limited to its own experiences and site pages:
+// LITE_ONLY=apollo11,showers LITE_PAGES=index node browser-lite.mjs. With neither set, every experience and both pages load, as before.
+const only = (process.env.LITE_ONLY ?? "").split(",").filter(Boolean);
+const wantedPages = (process.env.LITE_PAGES ?? "index,assets").split(",").filter(Boolean);
+const chosen = only.length === 0 ? experiences : experiences.filter((e) => only.some((id) => e.id === id || (id.endsWith("*") && e.id.startsWith(id.slice(0, -1)))));
+if (chosen.length === 0) throw new Error(`LITE_ONLY=${only.join(",")} matches no experience`);
 
 const VIEWPORTS = [
   { name: "desktop", viewport: { width: 1440, height: 900 }, mobile: false },
@@ -194,11 +200,11 @@ const indexChecks = async (page, check, detail) => {
 };
 
 try {
-  console.log(`lite browser check: ${experiences.length} experiences (${experiences.map((e) => e.id).join(", ")}) + 2 site pages, ${VIEWPORTS.length} sizes`);
-  for (const experience of experiences) {
+  console.log(`lite browser check: ${chosen.length} experiences (${chosen.map((e) => e.id).join(", ")}) + ${wantedPages.length} site pages, ${VIEWPORTS.length} sizes`);
+  for (const experience of chosen) {
     for (const size of VIEWPORTS) await load(experience.id, `${appUrl}${experience.query}`, size, experienceChecks(experience));
   }
-  for (const page of ["index.html", "assets.html"]) {
+  for (const page of wantedPages.map((name) => `${name}.html`)) {
     for (const size of VIEWPORTS) await load(page.replace(/\.html$/, "-page"), siteUrl(page), size, page === "index.html" ? indexChecks : assetsChecks);
   }
 } finally {
@@ -206,7 +212,7 @@ try {
 }
 
 const failed = results.filter((result) => !result.ok);
-writeFileSync(`${outDir}/results.json`, JSON.stringify({ tier: "lite (I-033)", at: new Date().toISOString(), appUrl, experiences: experiences.map((e) => e.id), loads: results.length, failed: failed.length, results }, null, 2));
+writeFileSync(`${outDir}/results.json`, JSON.stringify({ tier: "lite (I-033)", at: new Date().toISOString(), appUrl, experiences: chosen.map((e) => e.id), loads: results.length, failed: failed.length, results }, null, 2));
 console.log(`\n${results.length - failed.length}/${results.length} loads passed; results in ${outDir}`);
 if (failed.length > 0) {
   console.log("FAILED:");

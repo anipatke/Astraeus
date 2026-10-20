@@ -14,7 +14,7 @@
 //   30 events in Developer mode, same list as the timeline, each
 //     jump lands on the event's UTC ................................ same
 //   four playback rates measure within 0.5x to 1.5x ................ same
-//   100x follow track: numeric, monotonic, continuous range ........ same
+//   speed readout at three known simulation times vs the range's rate of change, with a negative probe (O-034 T-112; was a 100x follow track) ... desktop only
 //   four USNO phases within 1 percentage point ..................... same
 //   zero console and page errors ................................... same (one error list across both sizes)
 // Phone-only layout assertions are not added here; browser-shell.mjs and browser-spike03.mjs own phone layout.
@@ -127,6 +127,15 @@ async function run(label, viewport) {
     cameraStates.push(state);
   }
 
+  // O-034 T-112: the phone pass keeps the six phases and the camera presets (the phone's native Camera select is the only path that differs); the event jumps, playback rates,
+  // speed-at-known-time checks and USNO phases assert telemetry and time, not layout, so they run once, at desktop.
+  if (label !== "desktop") {
+    assert.deepEqual(errors, [], `${label}: console and page errors are empty`);
+    results.push({ label, scalePairs: scalePairs.length, cameraPresets: cameraStates.length, skipped: "events, rates, speed, usno (desktop only)" });
+    await page.close();
+    return;
+  }
+
   // Each developer event selector entry seeks to that event's timeline timestamp.
   await pause();
   const timelineEvents = await ui.eventRows(page);
@@ -168,34 +177,32 @@ async function run(label, viewport) {
     rates.push({ rate, measuredRate, simulationSeconds, wallSeconds });
   }
 
-  // Follow through lunar orbit at 100× and sample consecutive physical range/speed values.
+  // O-034 T-112: the speed readout is read at known simulation times with playback paused (no wall-clock waits, so machine load cannot move it). At each time the readout must
+  // match the speed implied by the range readout one simulated minute later (the radial rate of change; these three times are translunar and return coast, where Columbia moves
+  // almost straight along the line from Earth), within 8 percent. The old 100x follow track (30 samples over 12 s of wall time, bounded by the speed readout itself) is replaced by this.
   await pause();
-  await seek("1969-07-20 17:00:00");
   await chooseCamera("columbia", "follow-columbia");
-  await ui.setSpeed(page, 100);
-  await ui.playPlayback(page);
-  const track = [];
-  const rangeReadout = page.locator('[data-metric="columbia-range"] .metric-value');
-  const speedReadout = page.locator('[data-metric="columbia-speed"] .metric-value');
-  for (let index = 0; index < 30; index += 1) {
-    await page.waitForTimeout(400);
-    const time = Date.parse(await readTime());
-    const rangeKm = Number((await rangeReadout.textContent()).replaceAll(",", ""));
-    const speedKmS = Number((await speedReadout.textContent()).replaceAll(",", ""));
-    // The readouts are read one after another while playback runs (T-071: under load the gap grew until the bound below failed once), so the range is bounded by the
-    // simulated time from the previous sample's first read to this sample's last read, not by the gap between the two time reads alone.
-    const timeAfter = Date.parse(await readTime());
-    assert.ok(Number.isFinite(time) && Number.isFinite(rangeKm) && Number.isFinite(speedKmS), "follow telemetry stays numeric");
-    if (track.length > 0) {
-      const previous = track.at(-1);
-      const elapsedSeconds = (time - previous.time) / 1_000;
-      assert.ok(elapsedSeconds > 0, "follow time advances monotonically");
-      assert.ok(Math.abs(rangeKm - previous.rangeKm) <= Math.max(5, Math.max(speedKmS, previous.speedKmS) * ((timeAfter - previous.time) / 1_000) * 1.5), "range changes continuously within the speed bound");
-    }
-    track.push({ time, rangeKm, speedKmS });
+  const readSpeedAndRange = async () => ({
+    rangeKm: Number((await page.locator('[data-metric="columbia-range"] .metric-value').textContent()).replaceAll(",", "")),
+    speedKmS: Number((await page.locator('[data-metric="columbia-speed"] .metric-value').textContent()).replaceAll(",", "")),
+  });
+  const speedChecks = [];
+  for (const utc of ["1969-07-17 12:00:00", "1969-07-19 12:00:00", "1969-07-23 12:00:00"]) {
+    await seek(utc);
+    await page.waitForTimeout(600);
+    const first = await readSpeedAndRange();
+    await seek(new Date(Date.parse(`${utc.replace(" ", "T")}Z`) + 60_000).toISOString().slice(0, 19).replace("T", " "));
+    await page.waitForTimeout(600);
+    const second = await readSpeedAndRange();
+    speedChecks.push({ utc, firstSpeedKmS: first.speedKmS, impliedKmS: Math.abs(second.rangeKm - first.rangeKm) / 60 });
   }
-  await pause();
-  assert.ok(track.at(-1).time - track[0].time >= 5 * 60_000, "the 100× track spans several simulated minutes");
+  const speedMatches = (check, expected) => Math.abs(check.firstSpeedKmS - expected) <= 0.08 * expected;
+  for (const check of speedChecks) {
+    assert.ok(Number.isFinite(check.firstSpeedKmS) && check.firstSpeedKmS > 0, `${check.utc}: speed is a number`);
+    assert.ok(speedMatches(check, check.impliedKmS), `${check.utc}: speed ${check.firstSpeedKmS} km/s matches the range's rate of change ${check.impliedKmS.toFixed(3)} km/s`);
+    // Negative probe: an expected speed that is wrong by half again must fail the same comparison.
+    assert.ok(!speedMatches(check, check.impliedKmS * 1.5), `${check.utc}: a deliberately wrong expected speed (1.5x) is rejected`);
+  }
 
   // Spike 01 USNO phase dates remain visible through the current developer instrumentation.
   await pause();
@@ -227,7 +234,7 @@ async function run(label, viewport) {
     cameraStates: cameraStates.map(({ preset, time }) => ({ preset, time })),
     eventJumps,
     rates,
-    followTrack: { samples: track.length, start: track[0], end: track.at(-1) },
+    speedChecks,
     usno,
     errors,
   };
@@ -238,7 +245,7 @@ async function run(label, viewport) {
     cameraPresets: cameraStates.length,
     eventJumps: eventJumps.length,
     rates,
-    followSamples: track.length,
+    speedChecks: speedChecks.length,
     usno,
   });
   await page.close();

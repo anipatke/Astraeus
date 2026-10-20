@@ -1,0 +1,190 @@
+{
+  "at": "2026-10-20T10:23:07.300Z",
+  "results": {
+    "layout phone 375x667": {
+      "closed": [
+        "timeline-bar",
+        "controls-pill",
+        "developer-mode-toggle"
+      ],
+      "moonsOpen": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ],
+      "carmeOpen": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ],
+      "info": [
+        "info-panel",
+        "timeline-bar",
+        "controls-pill",
+        "developer-mode-toggle"
+      ],
+      "moonsAgain": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ]
+    },
+    "layout phone 390x844": {
+      "closed": [
+        "timeline-bar",
+        "controls-pill",
+        "developer-mode-toggle"
+      ],
+      "moonsOpen": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ],
+      "carmeOpen": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ],
+      "info": [
+        "info-panel",
+        "timeline-bar",
+        "controls-pill",
+        "developer-mode-toggle"
+      ],
+      "moonsAgain": [
+        "timeline-bar",
+        "top-bar",
+        "controls-drawer",
+        "developer-mode-toggle"
+      ]
+    },
+    "layout laptop 1280x720": {
+      "closed": [
+        "moons-toggle",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "moonsOpen": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "carmeOpen": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "info": [
+        "moons-toggle",
+        "info-panel",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "moonsAgain": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ]
+    },
+    "layout laptop 1440x900": {
+      "closed": [
+        "moons-toggle",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "moonsOpen": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "carmeOpen": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "info": [
+        "moons-toggle",
+        "info-panel",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ],
+      "moonsAgain": [
+        "moons-toggle",
+        "moons-sheet",
+        "timeline-bar",
+        "top-bar",
+        "developer-mode-toggle"
+      ]
+    },
+    "desktop": {
+      "families": [
+        "The big four (Galilean moons)4 moons",
+        "Inner moons (Amalthea group) (4)",
+        "Himalia group (11)",
+        "Ananke group (28)",
+        "Carme group (41)",
+        "Pasiphae group (23)",
+        "Carpo group (2)",
+        "Loners (2)"
+      ],
+      "summary": "115 moons in the JPL Horizons list of 18 October 2026",
+      "carmeLit": {
+        "highlight": "carme",
+        "lit": 41,
+        "panel": "carme"
+      },
+      "info": "Himalia Close Ephemeris ⓘ : data source and known limitations Sources · 5 A small moon of Jupiter in the Himalia group. Family Himalia group Size 170 km across Found 1904",
+      "mapped": [
+        "io",
+        "europa",
+        "ganymede",
+        "callisto"
+      ]
+    },
+    "phone": {
+      "families": [
+        "The big four (Galilean moons)4 moons",
+        "Inner moons (Amalthea group) (4)",
+        "Himalia group (11)",
+        "Ananke group (28)",
+        "Carme group (41)",
+        "Pasiphae group (23)",
+        "Carpo group (2)",
+        "Loners (2)"
+      ],
+      "summary": "115 moons in the JPL Horizons list of 18 October 2026",
+      "carmeLit": {
+        "highlight": "carme",
+        "lit": 41,
+        "panel": "carme"
+      },
+      "info": "Himalia Close Ephemeris ⓘ : data source and known limitations Sources · 5 A small moon of Jupiter in the Himalia group. Family Himalia group Size 170 km across Found 1904",
+      "mapped": [
+        "io",
+        "europa",
+        "ganymede",
+        "callisto"
+      ]
+    }
+  },
+  "errors": []
+}

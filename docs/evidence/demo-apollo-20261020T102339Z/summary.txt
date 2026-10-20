@@ -1,0 +1,6 @@
+smoke | scene=apollo11 + home page | exit=0 | 10:23:41-10:23:55 | 14s | error-lines=0
+apollo-shell | scene=? | exit=0 | 10:23:55-10:24:20 | 25s | error-lines=0
+spike02 | scene=? | exit=0 | 10:24:20-10:25:52 | 92s | error-lines=0
+home-curve-fits | scene=? | exit=0 | 10:25:52-10:25:56 | 4s | error-lines=0
+story-panels | scene=? | exit=0 | 10:25:56-10:27:26 | 90s | error-lines=0
+total 227s (servers and public build included)

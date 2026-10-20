@@ -1,0 +1,282 @@
+{
+  "at": "2026-10-20T10:22:23.148Z",
+  "results": {
+    "desktop": {
+      "overviewJupiter": {
+        "id": "jupiter",
+        "as": "sphere",
+        "radiusPx": 15.368,
+        "x": 0.5,
+        "y": 0.5,
+        "inView": true,
+        "glow": null
+      },
+      "ioLabel": {
+        "t0": [
+          704,
+          351
+        ],
+        "sixHours": [
+          631,
+          349
+        ]
+      },
+      "lit": {
+        "overview": {
+          "bodies": 5,
+          "dots": 20,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-jupiter": {
+          "bodies": 5,
+          "dots": 20,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-io": {
+          "bodies": 1,
+          "dots": 15,
+          "paths": 1,
+          "stars": 8920
+        },
+        "follow-io": {
+          "bodies": 1,
+          "dots": 15,
+          "paths": 1,
+          "stars": 8920
+        }
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances. Known moons 115 moons in the JPL Horizons list of 18 October 2026 Distance to Io 420,468 km centre to centre · EQJ Di",
+      "ioDetail": "Ephemeris ⓘ : data source and known limitations Known limitations The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration. Accuracy Io's position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within 0.0994 m at 1,001 checked dates 2010-2030. Horizons' own uncertainty is not stated in its output. Notes Geometric position about Jupiter's centre; no light-time. Valid 2010-2030, the span of the committed fits. Sources · 5 JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter system ba",
+      "moons": {
+        "members": 111,
+        "drawn": 111,
+        "orbits": 114,
+        "rings": 4,
+        "named": 0,
+        "familyColors": {
+          "galilean": "#f0e6da",
+          "inner": "#f0e442",
+          "himalia": "#e69f00",
+          "ananke": "#56b4e9",
+          "carme": "#cc79a7",
+          "pasiphae": "#009e73",
+          "carpo": "#d55e00",
+          "loner": "#bbbbbb"
+        }
+      },
+      "moonDots": {
+        "id": "jupiter-small-moons",
+        "drawn": true,
+        "members": 111,
+        "inView": 84,
+        "spanX": 0.925,
+        "spanY": 0.965
+      },
+      "nameOnDemand": {
+        "dot": "pasiphae",
+        "shown": [
+          "pasiphae"
+        ]
+      },
+      "onOwnLine": {
+        "s2021-j7": {
+          "id": "s2021-j7",
+          "gapPx": 0,
+          "pathGapPx": 5.212,
+          "offLinePx": 0.056,
+          "lineSpanPx": 32427
+        },
+        "sinope": {
+          "id": "sinope",
+          "gapPx": 0,
+          "pathGapPx": 4.4,
+          "offLinePx": 0.004,
+          "lineSpanPx": 35336
+        },
+        "carme": {
+          "id": "carme",
+          "gapPx": 0,
+          "pathGapPx": 6.743,
+          "offLinePx": 0.039,
+          "lineSpanPx": 75935
+        },
+        "ananke": {
+          "id": "ananke",
+          "gapPx": 0,
+          "pathGapPx": 20.832,
+          "offLinePx": 0.017,
+          "lineSpanPx": 32085
+        },
+        "himalia": {
+          "id": "himalia",
+          "gapPx": 0,
+          "pathGapPx": 3.186,
+          "offLinePx": 0.01,
+          "lineSpanPx": 4089
+        }
+      },
+      "closeUp": {
+        "moon": "s2010-j2",
+        "radiusKm": 0.5,
+        "distanceUnits": 0.003,
+        "azimuth": 0,
+        "widest": {
+          "id": "s2010-j2",
+          "radiusPx": 25.262528776306016
+        },
+        "dotPx": 3,
+        "named": true
+      },
+      "rings": {
+        "before": [
+          0.105,
+          0.28,
+          0.065,
+          0.026
+        ],
+        "after": [
+          0.105,
+          0.5,
+          0.065,
+          0.026
+        ]
+      },
+      "places": {
+        "io": {
+          "packaged": 12,
+          "seenFromSomeSide": 7,
+          "mostAtOnce": 4
+        },
+        "ganymede": {
+          "packaged": 25,
+          "seenFromSomeSide": 17,
+          "mostAtOnce": 10
+        },
+        "callisto": {
+          "packaged": 22,
+          "seenFromSomeSide": 14,
+          "mostAtOnce": 12
+        },
+        "io/loki-patera": "Loki Patera Close patera on Io Reconstructed ⓘ : data source and known limitations Sources · 2 Loki Patera is Io's most powerful volcanic feature by heat output: a huge, dark, horseshoe-shaped lava la",
+        "ganymede/galileo-regio": "Galileo Regio Close dark region on Ganymede Reconstructed ⓘ : data source and known limitations Sources · 2 Galileo Regio is Ganymede's largest named dark terrain province and one of the oldest recogn"
+      }
+    },
+    "phone": {
+      "overviewJupiter": {
+        "id": "jupiter",
+        "as": "sphere",
+        "radiusPx": 16.217,
+        "x": 0.5,
+        "y": 0.5,
+        "inView": true,
+        "glow": null
+      },
+      "ioLabel": {
+        "t0": [
+          261,
+          371
+        ],
+        "sixHours": [
+          184,
+          368
+        ]
+      },
+      "lit": {
+        "overview": {
+          "bodies": 4,
+          "dots": 9,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-jupiter": {
+          "bodies": 4,
+          "dots": 9,
+          "paths": 1,
+          "stars": 8920
+        },
+        "focus-io": {
+          "bodies": 1,
+          "dots": 4,
+          "paths": 1,
+          "stars": 8920
+        },
+        "follow-io": {
+          "bodies": 1,
+          "dots": 4,
+          "paths": 1,
+          "stars": 8920
+        }
+      },
+      "jupiterPanel": "Jupiter Close Ephemeris ⓘ : data source and known limitations Sources · 1 The largest planet, flattened by its fast spin, with four faint rings of dust drawn at their real distances. Known moons 115 moons in the JPL Horizons list of 18 October 2026 Distance to Io 420,468 km centre to centre · EQJ Di",
+      "ioDetail": "Ephemeris ⓘ : data source and known limitations Known limitations The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration. Accuracy Io's position is JPL Horizons' (ephemeris jup365_merged), reproduced by curve fits to within 0.0994 m at 1,001 checked dates 2010-2030. Horizons' own uncertainty is not stated in its output. Notes Geometric position about Jupiter's centre; no light-time. Valid 2010-2030, the span of the committed fits. Sources · 5 JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Jupiter system ba",
+      "moons": {
+        "members": 111,
+        "drawn": 111,
+        "orbits": 114,
+        "rings": 4,
+        "named": 0,
+        "familyColors": {
+          "galilean": "#f0e6da",
+          "inner": "#f0e442",
+          "himalia": "#e69f00",
+          "ananke": "#56b4e9",
+          "carme": "#cc79a7",
+          "pasiphae": "#009e73",
+          "carpo": "#d55e00",
+          "loner": "#bbbbbb"
+        }
+      },
+      "moonDots": {
+        "id": "jupiter-small-moons",
+        "drawn": true,
+        "members": 111,
+        "inView": 21,
+        "spanX": 0.905,
+        "spanY": 0.909
+      },
+      "nameOnDemand": {
+        "dot": "pasiphae",
+        "tapped": "pasiphae"
+      },
+      "onOwnLine": {
+        "s2021-j7": {
+          "id": "s2021-j7",
+          "gapPx": 0,
+          "pathGapPx": 6.033,
+          "offLinePx": 0.066,
+          "lineSpanPx": 34363
+        },
+        "himalia": {
+          "id": "himalia",
+          "gapPx": 0,
+          "pathGapPx": 20.606,
+          "offLinePx": 0.11,
+          "lineSpanPx": 4314
+        }
+      },
+      "closeUp": {
+        "moon": "s2010-j2",
+        "radiusKm": 0.5,
+        "distanceUnits": 0.003,
+        "azimuth": 0,
+        "widest": {
+          "id": "s2010-j2",
+          "radiusPx": 26.65196785900285
+        },
+        "dotPx": 3,
+        "named": true
+      },
+      "places": {
+        "io": {
+          "packaged": 12,
+          "seenFromSomeSide": 6,
+          "mostAtOnce": 2
+        },
+        "io/loki-patera": "Loki Patera Close patera on Io Reconstructed ⓘ : data source and known limitations Sources · 2 Loki Patera is Io's most powerful volcanic feature by heat output: a huge, dark, horseshoe-shaped lava la"
+      }
+    }
+  },
+  "errors": []
+}

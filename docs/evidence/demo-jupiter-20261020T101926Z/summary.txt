@@ -1,0 +1,6 @@
+smoke | scene=jupiter-io + catalogue page | exit=0 | 10:19:28-10:19:45 | 16s | error-lines=0
+jupiter-io | scene=? | exit=0 | 10:19:45-10:22:23 | 158s | error-lines=0
+moon-panel | scene=? | exit=0 | 10:22:23-10:23:07 | 44s | error-lines=0
+jupiter-tap | scene=? | exit=0 | 10:23:07-10:23:16 | 9s | error-lines=0
+story-panels | scene=? | exit=0 | 10:23:16-10:23:34 | 18s | error-lines=0
+total 248s (servers and public build included)

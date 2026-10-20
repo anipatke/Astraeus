@@ -1,0 +1,7 @@
+lite browser check: 1 experiences (apollo11) + 1 site pages, 2 sizes
+ok   apollo11                   1440x900    5.6s {"title":"Apollo 11 · Astraeus","drawn":{"bodies":2,"dots":0,"paths":1,"stars":8920},"object":"moon","panel":"tli-cutoff"}
+ok   apollo11                   390x844     4.7s {"title":"Apollo 11 · Astraeus","drawn":{"bodies":1,"dots":0,"paths":1,"stars":8920},"object":"moon","panel":"tli-cutoff"}
+ok   index-page                 1440x900    1.7s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=jupiter-io"]}
+ok   index-page                 390x844     1.7s {"title":"Astraeus","demoLinks":["app.html","app.html?experience=showers","app.html?experience=jupiter-io"]}
+
+4/4 loads passed; results in /home/user/code/Astraeus/docs/evidence/demo-apollo-20261020T102339Z/smoke

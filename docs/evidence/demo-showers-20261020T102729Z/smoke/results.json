@@ -1,0 +1,134 @@
+{
+  "tier": "lite (I-033)",
+  "at": "2026-10-20T10:28:17.207Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "experiences": [
+    "showers",
+    "showers-geminids",
+    "showers-perseids"
+  ],
+  "loads": 6,
+  "failed": 0,
+  "results": [
+    {
+      "label": "showers",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/app.html?experience=showers",
+      "ok": true,
+      "seconds": 9.5,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 24218,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/app.html?experience=showers",
+      "ok": true,
+      "seconds": 6.4,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 5,
+          "dots": 7437,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/app.html?experience=showers&shower=geminids",
+      "ok": true,
+      "seconds": 6.8,
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 51115,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/app.html?experience=showers&shower=geminids",
+      "ok": true,
+      "seconds": 7.3,
+      "detail": {
+        "title": "Geminids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 49533,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "phaethon"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/app.html?experience=showers&shower=perseids",
+      "ok": true,
+      "seconds": 6,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 7,
+          "dots": 24218,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/app.html?experience=showers&shower=perseids",
+      "ok": true,
+      "seconds": 9.2,
+      "detail": {
+        "title": "Perseids · Astraeus",
+        "drawn": {
+          "bodies": 5,
+          "dots": 7437,
+          "paths": 6,
+          "stars": 8920
+        },
+        "object": "earth",
+        "panel": "stream-shape"
+      },
+      "failures": []
+    }
+  ]
+}

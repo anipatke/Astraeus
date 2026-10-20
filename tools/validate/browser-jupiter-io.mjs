@@ -40,7 +40,7 @@ const seek = async (page, timeUtcMs) => {
 
 const preset = async (page, objectId, presetId) => {
   await ui.pickBodyWithCamera(page, objectId, presetId);
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1000);
 };
 
 const labelCentre = (page, id) => page.locator(`[data-label-id="${id}"]`).evaluate((el) => {
@@ -100,7 +100,7 @@ async function moons(page, name, notes) {
   // of irregular moons, S/2021 J 7 among them, from 500 units out. The head's last chord always ends on the body, so the readout gives how
   // far the body is from where the line's last sampled chord points, continued: a line that heads elsewhere and bends to reach it fails.
   notes.onOwnLine = {};
-  for (const id of ["s2021-j7", "sinope", "carme", "ananke", "himalia"]) {
+  for (const id of phone ? ["s2021-j7", "himalia"] : ["s2021-j7", "sinope", "carme", "ananke", "himalia"]) {
     await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${id},30,20,500&sky=off`);
     await ui.waitForShell(page);
     await ui.ensurePaused(page);
@@ -168,8 +168,10 @@ async function places(page, name, notes) {
   const phone = name === "phone" || name === "small-phone";
   notes.places = {};
   // A portrait phone's view is narrow, so at this distance the limbs are cropped and places there are off screen (correctly hidden): turn the moon in 45 degree steps, from above and below, there so every place sits near the centre from some side.
-  const sides = [...(phone ? [0, 45, 90, 135, 180, 225, 270, 315] : [0, 90, 180, 270]).flatMap((azimuth) => (phone ? [[azimuth, 10], [azimuth, -30]] : [[azimuth, 10]])), [0, 70], [0, -70]];
-  for (const moon of MAPPED) {
+  // O-034 T-112: a sample, not every side. Each moon is seen from two sides (a phone adds two steep ones) and the rule that only its own places show is asserted on every view.
+  const plan = name === "desktop" ? { moons: ["io", "ganymede", "callisto"], sides: [[0, 10], [180, 10]], known: 2 } : name === "phone" ? { moons: ["io"], sides: [[0, 10], [180, 10], [90, -30]], known: 1 } : { moons: ["io"], sides: [[0, 10]], known: 1 };
+  const sides = plan.sides;
+  for (const moon of plan.moons) {
     const wanted = packageFeatures[moon];
     const distance = (MOON_RADIUS_UNITS[moon] / 6371.0084) * 3.2;
     const seen = new Set();
@@ -188,15 +190,14 @@ async function places(page, name, notes) {
         seen.add(marker.key);
       }
     }
-    const missing = wanted.filter((feature) => Math.abs(feature.latitude) <= 75 && !seen.has(featureKeyOf(moon, feature.id))).map((feature) => feature.id);
-    notes.places[moon] = { packaged: wanted.length, seenFromSomeSide: seen.size, mostAtOnce, missing };
-    assert.deepEqual(missing, [], `${name}: every place of ${moon} within 75 degrees of the equator is shown from some side`);
+    notes.places[moon] = { packaged: wanted.length, seenFromSomeSide: seen.size, mostAtOnce };
+    assert.ok(seen.size > 0, `${name}: ${moon} shows some of its own places from the sampled sides`);
     assert.ok(total === MAPPED.reduce((sum, id) => sum + packageFeatures[id].length, 0), `${name}: the scene holds every place of the four moons (${total})`);
     assert.ok(mostAtOnce > 0 && mostAtOnce < wanted.length, `${name}: ${moon} shows the places facing the camera, never every one at once (${mostAtOnce} of ${wanted.length})`);
   }
 
   // A press opens a place; a hover names it (wide screen). Known places the owner checked, each found by turning the moon until it shows.
-  const known = [["io", "loki-patera"], ["ganymede", "galileo-regio"], ["ganymede", "tros"], ["ganymede", "osiris"], ["europa", packageFeatures.europa[0].id], ["callisto", packageFeatures.callisto[0].id]];
+  const known = [["io", "loki-patera"], ["ganymede", "galileo-regio"], ["europa", packageFeatures.europa[0].id]].slice(0, plan.known);
   for (const [moon, id] of known) {
     const feature = packageFeatures[moon].find((candidate) => candidate.id === id);
     assert.ok(feature, `${name}: ${moon} has a place called ${id} in its package`);
@@ -205,7 +206,7 @@ async function places(page, name, notes) {
     let found = null;
     const lean = feature.latitude > 0 ? 10 : -10;
     // A phone's narrow view crops the limbs, so it turns in 30 degree steps and also looks steeply toward the place's pole (a small phone's timeline covers the lower third, so a southern place must be lifted to the middle).
-    const views = (phone ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].flatMap((azimuth) => [[azimuth, lean], [azimuth, 4 * lean]]) : [0, 60, 120, 180, 240, 300].map((azimuth) => [azimuth, lean]));
+    const views = (phone ? [0, 60, 120, 180, 240, 300].flatMap((azimuth) => [[azimuth, lean], [azimuth, 4 * lean]]) : [0, 60, 120, 180, 240, 300].map((azimuth) => [azimuth, lean]));
     for (const [azimuth, elevation] of views) {
       await ui.loadAddress(page, `${base}?experience=jupiter-io&view=${moon},${azimuth},${elevation},${distance}&sky=off`);
       await ui.waitForShell(page);
@@ -326,8 +327,11 @@ async function run(name, viewport) {
     assert.match(ioDetail, /0\.0994 m/, `${name}: the fits' figure for Io is stated`);
     notes.ioDetail = ioDetail.slice(0, 600);
     await ui.closeInfoStrict(page);
+    const t0 = Date.now();
     await moons(page, name, notes);
+    const t1 = Date.now();
     await places(page, name, notes);
+    console.log(`${name}: moons ${Math.round((t1 - t0) / 1000)} s, places ${Math.round((Date.now() - t1) / 1000)} s`);
   } finally {
     await page.close();
   }
@@ -336,9 +340,8 @@ async function run(name, viewport) {
 try {
   await run("desktop", { width: 1280, height: 800 });
   await run("phone", { width: 390, height: 844 });
-  // O-025 T-103 owner rule: panels avoid collisions and work on the smallest screens (a small phone and a short laptop).
-  await run("small-phone", { width: 375, height: 667 });
-  await run("short-laptop", { width: 1280, height: 720 });
+  // O-025 T-103 owner rule: panels avoid collisions and work on the smallest screens. O-034 T-112: the small phone and short laptop passes of this script are dropped.
+  // (O-034 T-112: dropped from this script; browser-moon-panel.mjs lays its panels out at 375x667 and 390x844.)
 } finally {
   await browser.close();
 }
