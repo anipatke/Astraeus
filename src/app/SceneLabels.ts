@@ -22,6 +22,7 @@ export class SceneLabelLayer {
   readonly #root = document.createElement("div");
   readonly #entries: readonly ProjectedEntry[];
   readonly #local = new Vector3();
+  readonly #shown = new Map<string, Rect>();
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[]) {
     this.#root.className = "scene-labels";
@@ -34,6 +35,11 @@ export class SceneLabelLayer {
     host.appendChild(this.#root);
   }
 
+  /** The page rectangles of the labels shown after the latest update, by object id: the targets a tap on a name can hit. */
+  get shownRects(): ReadonlyMap<string, Rect> {
+    return this.#shown;
+  }
+
   update(
     positionFor: (objectId: string) => RenderVector | null,
     camera: Camera,
@@ -44,6 +50,7 @@ export class SceneLabelLayer {
     hiddenIds?: ReadonlySet<string>,
   ): void {
     camera.updateMatrixWorld(true);
+    this.#shown.clear();
     const candidates = this.#entries.flatMap((entry) => {
       if (hiddenIds?.has(entry.object.id) === true) {
         entry.element.hidden = true;
@@ -82,6 +89,7 @@ export class SceneLabelLayer {
         candidate.element.hidden = true;
       } else {
         occupied.push(placed);
+        this.#shown.set(candidate.object.id, placed);
       }
     }
   }

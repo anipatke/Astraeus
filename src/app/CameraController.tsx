@@ -4,6 +4,7 @@
 import { PerspectiveCamera } from "three";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
+import { TapTracker, type PickPointer } from "./scenePicking";
 import { EQUATORIAL_UP, orbitBasis } from "./viewUp";
 
 /** The id of a catalogued body, or of any tracked trajectory body, group or path. */
@@ -61,22 +62,37 @@ export function clampDistance(distance: number, limits: DistanceLimits): number 
   return Math.min(limits.max, Math.max(limits.min, distance));
 }
 
-/** Pointer, wheel and pinch handlers: camera-only. `limits` is read at event time. */
+/**
+ * Pointer, wheel and pinch handlers: camera-only. `limits` is read at event time. `onTap` hears a press that was a tap and not a drag or pinch
+ * (the shared `TapTracker` rule), with its position in CSS px from the element's top left.
+ */
 export function attachOrbitGestures(
   element: HTMLElement,
   state: OrbitCameraState,
   getLimits: () => DistanceLimits,
+  onTap?: (x: number, y: number, pointer: PickPointer) => void,
 ): () => void {
   const pointers = new Map<number, { x: number; y: number }>();
+  const taps = new TapTracker();
   let pinchDistance: number | null = null;
+  const pointerKind = (event: PointerEvent): PickPointer => (event.pointerType === "mouse" ? "mouse" : "touch");
+  const at = (event: PointerEvent) => {
+    const box = element.getBoundingClientRect();
+    return { x: event.clientX - box.left, y: event.clientY - box.top };
+  };
 
   const onPointerDown = (event: PointerEvent) => {
     element.setPointerCapture(event.pointerId);
+    // Only the main mouse button can tap: a secondary press starts at NaN, which no release is ever within the slop of.
+    const { x, y } = at(event);
+    const primary = event.pointerType !== "mouse" || event.button === 0;
+    taps.down(event.pointerId, primary ? x : Number.NaN, primary ? y : Number.NaN, pointerKind(event));
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointers.size === 2) pinchDistance = pointerSpread(pointers);
   };
 
   const onPointerMove = (event: PointerEvent) => {
+    taps.move(event.pointerId, at(event).x, at(event).y);
     const previous = pointers.get(event.pointerId);
     if (!previous) return;
     const next = { x: event.clientX, y: event.clientY };
@@ -103,6 +119,16 @@ export function attachOrbitGestures(
     pointers.delete(event.pointerId);
     if (pointers.size < 2) pinchDistance = null;
   };
+  const onPointerUp = (event: PointerEvent) => {
+    const { x, y } = at(event);
+    const tap = taps.up(event.pointerId, x, y);
+    onPointerEnd(event);
+    if (tap !== null) onTap?.(tap.x, tap.y, pointerKind(event));
+  };
+  const onPointerCancel = (event: PointerEvent) => {
+    taps.cancel(event.pointerId);
+    onPointerEnd(event);
+  };
 
   const onWheel = (event: WheelEvent) => {
     event.preventDefault();
@@ -112,14 +138,14 @@ export function attachOrbitGestures(
 
   element.addEventListener("pointerdown", onPointerDown);
   element.addEventListener("pointermove", onPointerMove);
-  element.addEventListener("pointerup", onPointerEnd);
-  element.addEventListener("pointercancel", onPointerEnd);
+  element.addEventListener("pointerup", onPointerUp);
+  element.addEventListener("pointercancel", onPointerCancel);
   element.addEventListener("wheel", onWheel, { passive: false });
   return () => {
     element.removeEventListener("pointerdown", onPointerDown);
     element.removeEventListener("pointermove", onPointerMove);
-    element.removeEventListener("pointerup", onPointerEnd);
-    element.removeEventListener("pointercancel", onPointerEnd);
+    element.removeEventListener("pointerup", onPointerUp);
+    element.removeEventListener("pointercancel", onPointerCancel);
     element.removeEventListener("wheel", onWheel);
   };
 }

@@ -75,6 +75,8 @@ interface Props {
   readonly featureRequest?: { readonly key: string; readonly serial: number } | null;
   /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
   readonly onOpenFeatureChange?: (key: string | null) => void;
+  /** Asks the shell to fly to an object a tap or click picked in the scene (focus only, no information); a new `serial` asks again. */
+  readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
   readonly children: ReactNode;
 }
 
@@ -105,6 +107,7 @@ export function AstraeusShell({
   onOpenPanelChange,
   featureRequest,
   onOpenFeatureChange,
+  pickRequest,
   children,
 }: Props) {
   const [selectedObjectId, setSelectedObjectId] = useState(() =>
@@ -205,6 +208,19 @@ export function AstraeusShell({
     activatePreset(focusPresetFor(experience, object));
     setInfo({ kind: "object" });
   };
+
+  /** An object tapped or clicked in the scene: the picker's focus, without opening information. A tapped body-set member that is no listed object just flies there. */
+  const pickObject = (id: string) => {
+    const object = availableObjectById(experience, id, snapshot.timeUtcMs);
+    if (object !== undefined) activatePreset(focusPresetFor(experience, object));
+    else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
+  };
+  const requestedPickSerial = pickRequest?.serial;
+  useEffect(() => {
+    if (pickRequest !== null && pickRequest !== undefined) pickObject(pickRequest.id);
+    // Only a new request flies; the handler reads the current time and experience.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedPickSerial]);
 
   const selectObject = (id: string) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);

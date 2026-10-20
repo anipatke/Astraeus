@@ -135,7 +135,7 @@ describe("body set dots and balls", () => {
     expect(betaScreen.radiusPx).toBeGreaterThan(DEFAULT_BODY_SET_LOOK.dotPx);
     expect(alpha.radiusPx).toBeLessThan(1);
     // Names: the near ball (beta) is named, the distant dot (alpha) is not unless hovered.
-    expect(membersToName(view, DEFAULT_BODY_SET_LOOK, null, null)).toEqual([1]);
+    expect(membersToName(view, DEFAULT_BODY_SET_LOOK, null)).toEqual([1]);
     expect(pickMember(view, 642, 401)).toBe(1);
     expect(pickMember(view, 100, 100)).toBeNull();
   });

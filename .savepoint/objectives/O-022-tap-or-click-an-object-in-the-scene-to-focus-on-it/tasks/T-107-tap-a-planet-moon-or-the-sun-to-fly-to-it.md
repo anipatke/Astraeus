@@ -2,9 +2,15 @@
 id: T-107
 title: Tap a planet, moon or the Sun to fly to it
 objective: O-022
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
+check_waiver:
+  task: T-107
+  reason: Owner skips per-Task checks for O-022; one Full Objective Check at the end.
+  actor: {role: owner, session: o022-run-20261020}
+  recorded_at: '2026-10-20T07:24:11Z'
 planned_by: {role: planner, session: o022-planning-20261020}
 planned_writes: [src/app/scenePicking.ts, tests/scenePicking.test.ts, src/app/CameraController.tsx, src/app/BodySetLabels.ts, src/app/SceneLabels.ts, src/app/AstraeusScene.tsx, src/app/sceneCamera.ts, src/app/App.tsx, src/shell/AstraeusShell.tsx, tests/bodySet.test.ts, tests/focusPreset.test.ts]
 ---
@@ -60,8 +66,28 @@ Focused unit tests while iterating; at handoff the configured gates plus the lit
 
 ## Technical Evidence
 
-Pending execution.
+Owner Task-check waiver: Task T-107, reason "owner skips per-Task checks for O-022; one Full Objective Check at the end", actor owner, time 2026-10-20T07:24:11Z.
+
+Browser checks deferred to the O-022 Full Objective Check by owner decision 2026-10-20 (browser-moon-panel not run at handoff). Disclosure: the lite check (`browser-lite.mjs`) had already finished before that decision arrived: 26/26 loads passed, zero failures (scratchpad run directory `lite-20261020T072118`); it is a smoke result, not a tap test. `browser-moon-panel.mjs` was not run; it may assert O-025's two-tap rule, which Decision 4 removes (T-109 owns browser scripts).
+
+Commands: `npm run typecheck` clean; `npm run build` ok (chunk-size warning only); `npm test` 78 files, 1135 passed, 1 skipped.
+
+Per criterion:
+1. `src/app/scenePicking.ts` `pickTarget` (disc plus tolerance 10 px mouse / 22 px touch, label rectangles, nearest wins); `tests/scenePicking.test.ts` covers disc, tolerance, label, hidden label, overlap, miss.
+2. `TapTracker` (slop 6 mouse / 10 touch, single pointer, pinch never a tap) is used by `attachOrbitGestures` (`onTap`); tests: small move, large move, pinch, cancel, mouse and touch.
+3. `pickCandidatesOf` takes listed objects whose id resolves through `bodyIdFor` plus body-set members; no `ExperienceObject` change; a synthetic-composition test shows a non-Apollo body tappable and tracked, orbit and off-screen objects not.
+4. `SceneControls.onPickObject` -> App `pickRequest` -> shell `pickObject` -> `focusPresetFor` via `activatePreset` (no information opened). `BodySetLabelLayer` lost its tap, `onFocus` and `cameraRequest` write; hover naming stays. Story and feature markers are buttons that stop pointerdown, so a canvas tap never reaches a body behind them.
+5. Positions come from `bodyScreenReadouts` and the label layer's rectangles (same projections as labels); not browser-verified at both scales.
+6. Canvas `data-pick-target` holds the last picked id.
+7. Gates above pass; browser gate deferred.
+
+Extra reads: `src/app/experienceDefinition.ts` (experienceWithGroups, to see whether set members are objects) and the heads of `tests/focusPreset.test.ts`.
+Files changed: src/app/scenePicking.ts (new), tests/scenePicking.test.ts (new), src/app/CameraController.tsx, src/app/SceneLabels.ts, src/app/BodySetLabels.ts, src/app/AstraeusScene.tsx, src/app/App.tsx, src/shell/AstraeusShell.tsx, tests/bodySet.test.ts.
+Limitations: no pointer-event or in-browser tap test; shell wiring verified by typecheck only.
 
 ## Drift Notes
 
-Record Design deltas here for reconciliation by T-109 (browser checks and Design reconciliation).
+Design deltas for reconciliation by T-109:
+- Design (Components, Interfaces): new `src/app/scenePicking.ts` (pure picking and the shared tap rule); `SceneControls.onPickObject`, shell `pickRequest` prop; `SceneLabelLayer.shownRects`; canvas readout `data-pick-target`.
+- Body-set members that are not listed objects (small outer moons) fly through `onCameraRequest` directly, so the picker keeps its previous selection (it cannot list them). Design should decide whether that is acceptable.
+- O-025 two-tap rule removed from `BodySetLabelLayer`; `membersToName` no longer takes a tapped member (tapped names gone; hover and near-zoom naming remain). `browser-moon-panel.mjs` may assert the two-tap rule: T-109 to update.

@@ -48,6 +48,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { BodySetLabelLayer } from "./BodySetLabels";
+import { pickCandidatesOf, pickTarget, type PickCandidate } from "./scenePicking";
 import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
 import { publishBodySets } from "./sceneBodySets";
 import type { RingLook } from "../assets/rings";
@@ -137,6 +138,8 @@ export interface SceneControls {
   onStoryMarker?: (panelId: string) => void;
   /** The story panel now open, so its marker reads as pressed. */
   openStoryPanelId?: string | null;
+  /** Called with an object's id when a tap or click lands on a body, a body-set member or a shown name. The shell flies to it like its picker does. */
+  onPickObject?: (id: string) => void;
   /** Tagged places on bodies (a body package's features); each gets a marker drawn on its body that opens the place's information. */
   readonly featureMarkers?: readonly FeatureMarkerSpec[];
   /** Called with the place's key when a feature marker is pressed. */
@@ -242,12 +245,14 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
   const featureMarkers = useRef<FeatureMarkerLayer | null>(null);
+  /** What a tap can select this frame (see `scenePicking.ts`), rebuilt every frame from the same projections the labels use. */
+  const pickables = useRef<readonly PickCandidate[]>([]);
 
   useSkyStars(gl.domElement, skyView);
   useEffect(() => {
     const host = gl.domElement.parentElement;
     if (host === null) return undefined;
-    const layers = bodySetViews.map((view) => new BodySetLabelLayer(host, gl.domElement, view, (memberId) => { controls.cameraRequest = { kind: "focus", target: memberId }; }));
+    const layers = bodySetViews.map((view) => new BodySetLabelLayer(host, gl.domElement, view));
     bodySetLabels.current = layers;
     return () => { for (const layer of layers) layer.dispose(); bodySetLabels.current = []; };
   }, [gl, bodySetViews, controls]);
@@ -265,7 +270,13 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
 
   useEffect(() => {
     const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: spanScaled.current, bodies: catalogue }, controls.policy, runtime.cameraReach);
-    return attachOrbitGestures(gl.domElement, orbit.current, limits);
+    const onTap = (x: number, y: number, pointer: "mouse" | "touch") => {
+      const id = pickTarget(pickables.current, x, y, pointer);
+      if (id === null) return;
+      gl.domElement.dataset.pickTarget = id;
+      controls.onPickObject?.(id);
+    };
+    return attachOrbitGestures(gl.domElement, orbit.current, limits, onTap);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, controls]);
 
@@ -333,10 +344,12 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
     publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook, camera, size.width, size.height);
     publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
     publishPointsData(gl.domElement, groupViews, camera, bodySetViews);
-    publishBodyData(gl.domElement, bodyScreenReadouts(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.glowLook));
+    const bodyScreens = bodyScreenReadouts(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.glowLook);
+    publishBodyData(gl.domElement, bodyScreens);
     anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
     const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
     sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
+    pickables.current = pickCandidatesOf({ objects: controls.labelObjects, bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: sceneLabels.current?.shownRects, canvas: gl.domElement, bodySetViews });
     storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
     const featureReadout = featureMarkers.current?.update((id) => featureHostOf(assets, partsRefs.current, id, policy), camera, (camera as PerspectiveCamera).fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
     if (featureReadout !== null && featureReadout !== undefined) gl.domElement.dataset.featureMarkers = JSON.stringify(featureReadout);

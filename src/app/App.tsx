@@ -191,6 +191,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
   const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
+  const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
@@ -202,6 +203,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
+  const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
   const markOpenFeature = useCallback((key: string | null) => { controls.current.openFeatureKey = key; }, []);
   const markOpenPanel = useCallback((id: string | null) => { controls.current.openStoryPanelId = id; }, []);
@@ -212,6 +214,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   }, [runtime]);
   controls.current.onStoryMarker = requestPanel;
   controls.current.onFeatureMarker = requestFeature;
+  controls.current.onPickObject = requestPick;
   const updateSelectedObject = useCallback((objectId: string) => {
     controls.current.selectedObjectId = objectId;
   }, []);
@@ -579,6 +582,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       panelRequest={panelRequest}
       onOpenPanelChange={markOpenPanel}
       featureRequest={featureRequest}
+      pickRequest={pickRequest}
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">

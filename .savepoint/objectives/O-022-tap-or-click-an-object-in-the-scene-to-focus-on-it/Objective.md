@@ -1,7 +1,7 @@
 ---
 id: O-022
 title: Tap or click an object in the scene to focus on it
-status: planned
+status: in_progress
 depends_on: [O-020]
 release: G-005
 ---

@@ -1,14 +1,12 @@
-// Names for a body set's members, only on demand (O-025 Decision 2): the dot under the pointer (hover), the dot last tapped, and members
-// close enough that their ball is several pixels across (near zoom, the nearest few). No wall of labels. A second tap on a named dot asks
-// the camera to go to it.
+// Names for a body set's members, only on demand (O-025 Decision 2): the dot under the pointer (hover) and members close enough that their
+// ball is several pixels across (near zoom, the nearest few). No wall of labels. A tap on a dot flies to it through the scene's one picking
+// path (`scenePicking.ts`, O-022); this layer only names.
 import { createLabelElement } from "../shell/Label";
 import type { BodySetView } from "./BodySetView";
 import type { BodySetLook } from "./bodySet";
 
 /** A dot answers the pointer within this many CSS px. */
 export const PICK_RADIUS_PX = 12;
-/** A press that moves less than this is a tap, not a drag of the camera. */
-const TAP_SLOP_PX = 6;
 
 /** The member nearest `(x, y)` on screen within `radiusPx`, among visible members; null for none. */
 export function pickMember(view: Pick<BodySetView, "screen">, x: number, y: number, radiusPx = PICK_RADIUS_PX): number | null {
@@ -22,11 +20,10 @@ export function pickMember(view: Pick<BodySetView, "screen">, x: number, y: numb
   return best;
 }
 
-/** Members to name this frame: hovered, tapped, then the nearest whose ball is at least `labelNearPx` across, up to `labelNearMax`. */
-export function membersToName(view: Pick<BodySetView, "screen">, look: Pick<BodySetLook, "labelNearPx" | "labelNearMax">, hovered: number | null, tapped: number | null): number[] {
+/** Members to name this frame: hovered, then the nearest whose ball is at least `labelNearPx` across, up to `labelNearMax`. */
+export function membersToName(view: Pick<BodySetView, "screen">, look: Pick<BodySetLook, "labelNearPx" | "labelNearMax">, hovered: number | null): number[] {
   const named = new Set<number>();
   if (hovered !== null && view.screen[hovered]?.visible) named.add(hovered);
-  if (tapped !== null && view.screen[tapped]?.visible) named.add(tapped);
   const near = view.screen
     .map((screen, index) => ({ screen, index }))
     .filter(({ screen, index }) => screen.visible && 2 * screen.radiusPx >= look.labelNearPx && !named.has(index))
@@ -41,11 +38,9 @@ export class BodySetLabelLayer {
   readonly #labels: HTMLSpanElement[];
   readonly #canvas: HTMLCanvasElement;
   #hovered: number | null = null;
-  #tapped: number | null = null;
-  #press: { x: number; y: number } | null = null;
   readonly #listeners: [string, (event: PointerEvent) => void][];
 
-  constructor(host: HTMLElement, canvas: HTMLCanvasElement, readonly view: BodySetView, onFocus: (memberId: string) => void) {
+  constructor(host: HTMLElement, canvas: HTMLCanvasElement, readonly view: BodySetView) {
     this.#canvas = canvas;
     this.#root.className = "scene-labels body-set-labels";
     this.#labels = view.layer.members.map((member) => {
@@ -67,17 +62,6 @@ export class BodySetLabelLayer {
         this.#hovered = pickMember(view, x, y);
       }],
       ["pointerleave", () => { this.#hovered = null; }],
-      ["pointerdown", (event) => { this.#press = at(event); }],
-      ["pointerup", (event) => {
-        const press = this.#press;
-        this.#press = null;
-        if (press === null) return;
-        const { x, y } = at(event);
-        if (Math.hypot(x - press.x, y - press.y) > TAP_SLOP_PX) return;
-        const picked = pickMember(view, x, y, event.pointerType === "mouse" ? PICK_RADIUS_PX : 2 * PICK_RADIUS_PX);
-        if (picked !== null && picked === this.#tapped) onFocus(view.layer.members[picked].id);
-        this.#tapped = picked;
-      }],
     ];
     for (const [type, listener] of this.#listeners) canvas.addEventListener(type, listener as EventListener);
   }
@@ -88,7 +72,7 @@ export class BodySetLabelLayer {
   }
 
   update(look: BodySetLook): void {
-    const named = new Set(this.view.drawn ? membersToName(this.view, look, this.#hovered, this.#tapped) : []);
+    const named = new Set(this.view.drawn ? membersToName(this.view, look, this.#hovered) : []);
     this.#labels.forEach((element, index) => {
       const show = named.has(index);
       if (element.hidden === !show && !show) return;
