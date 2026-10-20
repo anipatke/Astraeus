@@ -65,8 +65,8 @@ describe("planet curve fits", () => {
     expect(() => models.mars.xyz(new Date(Date.UTC(2050, 0, 1)))).toThrow(RangeError);
   });
 
-  it("is small: all eight planets' coefficients take under 520 KB as stored", () => {
+  it("is small: all eight planets' coefficients take under 340 KB as stored (329 KB; Pluto's barycentre fit is 15 KB, not the 200 KB of its centre, T-116)", () => {
     const stored = Object.values(fits.planets).reduce((sum, p) => sum + p.data.length, 0);
-    expect(stored).toBeLessThan(520_000);
+    expect(stored).toBeLessThan(340_000);
   });
 });

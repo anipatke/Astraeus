@@ -3,16 +3,16 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { isPlanetId, PLANET_IDS } from "../src/core/planetSeries";
 import fixture from "./fixtures/outer-planets-horizons.json";
 
-// Saturn, Uranus, Neptune (VSOP87A curve fits) and Pluto (a curve fit of Horizons states), O-033 T-114, against JPL Horizons heliocentric
+// Saturn, Uranus, Neptune (VSOP87A curve fits) and Pluto (the system barycentre, a curve fit of Horizons states), O-033 T-114, against JPL Horizons heliocentric
 // ICRF vectors archived at the six dates of tests/planets.test.ts (fetched 2026-10-20, tests/fixtures/outer-planets-horizons-source.txt).
 const adapter = createOrbAstronomyAdapter();
 const OUTER = ["saturn", "uranus", "neptune", "pluto"] as const;
 /**
  * Worst allowed vector distance from Horizons (km) and separation (arcsec). VSOP87A's own error against DE441 is the limit for the first three
  * (measured at fit time: Saturn 2,256 km and 0.32", Uranus 19,070 km and 1.36", Neptune 36,192 km and 1.62", all VSOP87A model error, not fit
- * error: the fits are within 1 km of VSOP87A); Pluto is a fit of Horizons itself (measured 0.3 km, 0.004").
+ * error: the fits are within 1 km of VSOP87A); Pluto's planet fit is the Pluto system barycentre (Horizons body 9, within 1 km of it), so it differs from Pluto's centre by Pluto's own offset, up to about 2,130 km (0.075 arcsec); tests/planetMoonSystems.test.ts holds the placement with the offset to a kilometre.
  */
-const targets = { saturn: [3000, 0.4], uranus: [21000, 1.5], neptune: [40000, 1.8], pluto: [1, 0.01] } as const;
+const targets = { saturn: [3000, 0.4], uranus: [21000, 1.5], neptune: [40000, 1.8], pluto: [2200, 0.12] } as const;
 
 describe("outer planet curve fits against JPL Horizons (six dates 1969 to 2030)", () => {
   for (const planet of OUTER) {

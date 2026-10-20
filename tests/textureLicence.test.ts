@@ -23,7 +23,7 @@ describe("texture rights (PROV-02)", () => {
       const texture = catalogue.get(id).visual.texture;
       if (texture !== undefined) textures.push([id, texture]);
     }
-    expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto"]);
+    expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     // The Sun's map is from the same Solar System Scope set, so it is licensed like the planets'.
     for (const [id, texture] of [textures[0], ...textures.slice(3, 7)]) {
       expect(textureRightsProblem(texture), id).toBeNull();

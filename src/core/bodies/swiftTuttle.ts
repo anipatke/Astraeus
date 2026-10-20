@@ -3,7 +3,7 @@ import { createProvenance } from "../provenance";
 import { createTwoBodyTrajectory, type EccentricSampling } from "../sunCentredSources";
 import type { Trajectory } from "../trajectory";
 import { createOrbTwoBodyAdapter } from "../twoBodyAdapter";
-import { trueAnomalyFromMean } from "./io";
+import { trueAnomalyFromMean } from "../keplerAnomaly";
 import { SUN } from "./sun";
 
 const AU_KM = 149_597_870.7;

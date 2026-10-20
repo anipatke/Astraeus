@@ -5,7 +5,7 @@ import { rootBodyId } from "../../assets/catalogue";
 import { createOrbAstronomyAdapter } from "../../core/astronomyAdapter";
 import { createEarthSunTrajectory, fullTurnSpanMs, type EccentricSampling } from "../../core/sunCentredSources";
 import type { Trajectory } from "../../core/trajectory";
-import { DAY_MS, LABEL_PRIORITY, YEAR_MS, showerCatalogue } from "./showerBasics";
+import { BEYOND_SHOWER_VIEWS, DAY_MS, LABEL_PRIORITY, YEAR_MS, showerCatalogue } from "./showerBasics";
 import type { ShowerSettings } from "./showerSettings";
 
 const AU_KM = 149_597_870.7;
@@ -48,7 +48,7 @@ export function createPlanetOrbitPathLayers(settings: ShowerSettings): PathLayer
   const adapter = createOrbAstronomyAdapter();
   const root = rootBodyId();
   return catalogue.ids()
-    .filter((id) => catalogue.get(id).definition.parentId === root && catalogue.get(id).visual.kind === "sphere" && id !== "earth" && id !== settings.parentBodyId)
+    .filter((id) => catalogue.get(id).definition.parentId === root && catalogue.get(id).visual.kind === "sphere" && !BEYOND_SHOWER_VIEWS.includes(id) && id !== "earth" && id !== settings.parentBodyId)
     .flatMap((id): PathLayer[] => {
       const { definition, source, visual } = catalogue.get(id);
       const trajectory = source!.create(adapter);

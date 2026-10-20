@@ -28,7 +28,7 @@ const accuracy = {
 
 describe("built-in catalogue", () => {
   it("defines each body once with its parent, orientation model and accuracy record", () => {
-    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
+    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon", "swift-tuttle"]);
     expect([SUN.parentId, EARTH.parentId, MOON.parentId]).toEqual([undefined, "sun", "earth"]);
     expect([SUN.orientation, EARTH.orientation, MOON.orientation]).toEqual(["none", "ecef", "tidal-lock"]);
     for (const body of BUILT_IN_BODIES) {
@@ -38,7 +38,7 @@ describe("built-in catalogue", () => {
     }
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/254 km.*8\.4°/);
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/no libration/);
-    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
+    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "io", "europa", "ganymede", "callisto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon", "swift-tuttle"]);
   });
 
   it("carries gravitational parameters equal to the library's own table", () => {

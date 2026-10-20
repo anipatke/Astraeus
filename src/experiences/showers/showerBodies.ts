@@ -5,7 +5,7 @@ import type { BodyId } from "../../core/body";
 import { rootBodyId } from "../../assets/catalogue";
 import { createComposition, type SystemComposition } from "../../assets/compositions";
 import type { ExperienceObject } from "../../shell/experience";
-import { LABEL_PRIORITY, showerCatalogue } from "./showerBasics";
+import { BEYOND_SHOWER_VIEWS, LABEL_PRIORITY, showerCatalogue } from "./showerBasics";
 import type { ShowerSettings } from "./showerSettings";
 
 /** The Sun, the catalogue's planets (Earth included) and this shower's parent, as the catalogue holds them. */
@@ -18,7 +18,7 @@ export function showerComposition(settings: ShowerSettings): SystemComposition {
   }
   // The Sun, the planets and this shower's own parent. A "planet" is a Sun-circling body drawn as a sphere (the catalogue has no category field; a marker body is a
   // comet or asteroid), so another shower's parent is never mounted here.
-  const around = circling.filter((id) => id === settings.parentBodyId || catalogue.get(id).visual.kind === "sphere");
+  const around = circling.filter((id) => id === settings.parentBodyId || (catalogue.get(id).visual.kind === "sphere" && !BEYOND_SHOWER_VIEWS.includes(id)));
   return createComposition(catalogue, { id: `${settings.id}-sun-system`, bodies: [root, ...around], defaultCenter: root });
 }
 

@@ -8,6 +8,7 @@ import { JUPITER_ENTRY } from "./bodies/jupiter";
 import { MARS_ENTRY } from "./bodies/mars";
 import { MERCURY_ENTRY } from "./bodies/mercury";
 import { MOON_ENTRY } from "./bodies/moon";
+import { PLANET_SYSTEM_ENTRIES } from "./bodies/planetSystemMaps";
 import { SUN_ENTRY } from "./bodies/sun";
 import { SWIFT_TUTTLE_ENTRY } from "./bodies/swiftTuttle";
 import { VENUS_ENTRY } from "./bodies/venus";
@@ -129,4 +130,4 @@ export function rootBodyId(source: BodyCatalogue = catalogue): BodyId {
 }
 
 /** Explicit, import-built, no discovery. */
-export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY, MERCURY_ENTRY, VENUS_ENTRY, MARS_ENTRY, JUPITER_ENTRY, IO_ENTRY, ...GALILEAN_ENTRIES, SWIFT_TUTTLE_ENTRY]);
+export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY, MERCURY_ENTRY, VENUS_ENTRY, MARS_ENTRY, JUPITER_ENTRY, IO_ENTRY, ...GALILEAN_ENTRIES, ...PLANET_SYSTEM_ENTRIES, SWIFT_TUTTLE_ENTRY]);

@@ -97,7 +97,8 @@ describe("Io about Jupiter", () => {
     const [x, y, z, w] = state.orientation!;
     const axis = [1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w)];
     const toJupiter = state.positionKm.map((c) => -c);
-    expect(angleDeg(axis, toJupiter)).toBeLessThan(1e-4);
+    // The prime meridian is the IAU linear model (data/orbits/io.json, T-116): the near side on average, not the fitted instant. Io is within 0.8 degrees of the direction to Jupiter here; the limit is 1.
+    expect(angleDeg(axis, toJupiter)).toBeLessThan(1);
   });
 
   it("is mounted by a composition with Jupiter as the natural centre and a loop of one period", () => {

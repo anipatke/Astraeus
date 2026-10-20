@@ -316,6 +316,19 @@ export class ChebyshevEphemeris {
     }
   }
 
+  /**
+   * The centre's own EQJ position about the set's origin (the system barycentre), km: what a planet placed by its barycentre needs added to be placed
+   * by its centre (the planet's wobble about the barycentre). Needs the centre's chunk for the time.
+   */
+  centreOffsetKm(timeUtcMs: number): Float64Array {
+    assertUtcUnixMs(timeUtcMs);
+    const tdbS = utcMsToTdbSeconds(this.index.timeScale, timeUtcMs);
+    this.#checkSpan(this.#centre, tdbS, timeUtcMs);
+    const out = new Float64Array(3);
+    chunkPositionInto(this.#chunkAt(this.#centre, tdbS, timeUtcMs), tdbS, out, 0);
+    return out;
+  }
+
   /** One body's centre-relative State (position and velocity). */
   stateOf(bodyId: BodyId, timeUtcMs: number): State {
     assertUtcUnixMs(timeUtcMs);

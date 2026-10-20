@@ -41,3 +41,6 @@ export function yearBoundsOf(settings: ShowerSettings): { readonly startUtcMs: n
 /** The stream's id in the shell: also what the camera presets target. */
 export const streamIdOf = (settings: ShowerSettings): string => `${settings.id}-stream`;
 export const windowIdOf = (settings: ShowerSettings): string => `${settings.id}-activity`;
+
+/** The planets the shower views leave out: their overview and scales were made for planets out to Jupiter, and the outer planets joined the catalogue later (O-033 T-116). */
+export const BEYOND_SHOWER_VIEWS: readonly string[] = ["saturn", "uranus", "neptune", "pluto"];

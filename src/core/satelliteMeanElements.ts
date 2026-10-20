@@ -1,5 +1,5 @@
 import type { CenterId } from "./body";
-import { trueAnomalyFromMean } from "./bodies/io";
+import { trueAnomalyFromMean } from "./keplerAnomaly";
 import { assertUtcUnixMs } from "./state";
 import { createTwoBodyTrajectory } from "./sunCentredSources";
 import type { Trajectory } from "./trajectory";

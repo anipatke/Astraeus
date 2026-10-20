@@ -22,13 +22,13 @@ const binding = (body: string): StateSourceBinding => ({ body, create: () => { t
 
 describe("body catalogue", () => {
   it("builds from the built-in records and hands the resolver exactly its inputs", () => {
-    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "swift-tuttle"]);
+    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon", "swift-tuttle"]);
     expect(catalogue.definitions()).toEqual(BUILT_IN_BODIES);
     expect(catalogue.sources()).toEqual(BUILT_IN_BINDINGS);
     expect(catalogue.get("sun").source).toBeUndefined();
     expect(catalogue.get("moon").source?.body).toBe("moon");
-    expect(catalogue.has("saturn")).toBe(false);
-    expect(() => catalogue.get("saturn")).toThrow(/unknown body/);
+    expect(catalogue.has("ceres")).toBe(false);
+    expect(() => catalogue.get("ceres")).toThrow(/unknown body/);
     const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
     expect(resolver.stateOf("moon", Date.UTC(2026, 3, 1), "earth").positionKm.length).toBe(3);
   });

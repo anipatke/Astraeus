@@ -1,5 +1,5 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "./body";
-import { trueAnomalyFromMean } from "./bodies/io";
+import { trueAnomalyFromMean } from "./keplerAnomaly";
 import { fieldReaders, type Raw } from "./fieldReaders";
 import { createProvenance } from "./provenance";
 import { createTwoBodyTrajectory, type EccentricSampling } from "./sunCentredSources";

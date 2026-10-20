@@ -2,7 +2,8 @@
 id: T-118
 title: Put Saturn, Uranus, Neptune and Pluto in the planet switch
 objective: O-033
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-116, requires: clear}, {task: T-117, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o033-planning-20261020}

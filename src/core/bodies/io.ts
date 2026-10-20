@@ -7,31 +7,36 @@ import { createTwoBodyTrajectory } from "../sunCentredSources";
 import type { Trajectory } from "../trajectory";
 import { createOrbTwoBodyAdapter } from "../twoBodyAdapter";
 import { JUPITER } from "./jupiter";
-import { createFittedMoonTrajectory, fittedMoonPosition, JUPITER_MOON_FIT_SPAN } from "./jupiterMoons";
+import { trueAnomalyFromMean } from "../keplerAnomaly";
+import { fittedMoonPosition, IO_FITTED_BINDING, JUPITER_MOON_FIT_SPAN } from "./jupiterMoons";
+import ioRecord from "../../../data/orbits/io.json";
+
+export { trueAnomalyFromMean };
 
 const DEGREES = Math.PI / 180;
 const ORIENTATION_SAMPLE_SECONDS = 1800;
 
 /**
  * Io's mean orbital elements about Jupiter, J2000 epoch (2000-01-01 12:00 TDB), referred to the local Laplace plane, from the JPL Solar
- * System Dynamics "Planetary Satellite Mean Elements" table (https://ssd.jpl.nasa.gov/sats/elem/, ephemeris JUP365, row for Io 501,
- * read 2026-10-12). The table's own warning: these are "not intended for ephemeris computation".
+ * System Dynamics "Planetary Satellite Mean Elements" table (https://ssd.jpl.nasa.gov/sats/elem/, ephemeris JUP365, row for Io 501): read from
+ * `data/orbits/io.json`, the one record (T-078; T-116 removed the copy of these numbers that lived here). The table's own warning: these are "not
+ * intended for ephemeris computation".
  */
 export const IO_MEAN_ELEMENTS = Object.freeze({
-  epochTdb: "2000-01-01.5",
-  semiMajorAxisKm: 421800,
-  eccentricity: 0.004,
-  argumentOfPeriapsisDeg: 49.1,
-  meanAnomalyDeg: 330.9,
-  inclinationDeg: 0.0,
-  nodeDeg: 0.0,
-  periodDays: 1.762732,
+  epochTdb: ioRecord.epoch.tdb,
+  semiMajorAxisKm: ioRecord.elements.semiMajorAxisKm,
+  eccentricity: ioRecord.elements.eccentricity,
+  argumentOfPeriapsisDeg: ioRecord.elements.argumentOfPeriapsisDeg,
+  meanAnomalyDeg: ioRecord.elements.meanAnomalyDeg,
+  inclinationDeg: ioRecord.elements.inclinationDeg,
+  nodeDeg: ioRecord.elements.nodeDeg,
+  periodDays: ioRecord.elements.periodDays,
   /** The table's period of the apsides (years); the table's P is the anomalistic period, the time for M to advance 360 degrees. */
-  apsisPeriodYears: 1.333,
+  apsisPeriodYears: ioRecord.elements.apsisPeriodYears,
   /** Pole of the Laplace plane, degrees: the table's R.A. and Dec. columns. Tilt to Jupiter's equator is 0.0. */
-  laplacePoleRaDeg: 268.1,
-  laplacePoleDecDeg: 64.5,
-  citation: "JPL SSD Planetary Satellite Mean Elements (https://ssd.jpl.nasa.gov/sats/elem/), Io, JUP365 (R. A. Jacobson 2021), Laplace frame, read 2026-10-12",
+  laplacePoleRaDeg: ioRecord.plane.poleRaDeg,
+  laplacePoleDecDeg: ioRecord.plane.poleDecDeg,
+  citation: `${ioRecord.source.title} (${ioRecord.source.url}), Io, ${ioRecord.source.ephemeris}, Laplace frame, read ${ioRecord.source.accessed}`,
 });
 
 /** J2000 (2000-01-01 12:00 TDB) in UTC: TDB is taken as TT, and TT - UTC was 64.184 s then. A 64 s error would move Io about 1100 km. */
@@ -39,18 +44,6 @@ export const IO_EPOCH_UTC_MS = Date.UTC(2000, 0, 1, 12, 0, 0) - 64_184;
 
 /** Io's period about Jupiter, days: the sidereal period the mean elements give (about 1.769). */
 export const IO_PERIOD_DAYS = siderealPeriodDays(IO_MEAN_ELEMENTS.periodDays, IO_MEAN_ELEMENTS.apsisPeriodYears);
-
-/** Solves Kepler's equation for the true anomaly (radians) from the mean anomaly (radians). */
-export function trueAnomalyFromMean(meanRad: number, eccentricity: number): number {
-  let eccentric = meanRad + eccentricity * Math.sin(meanRad);
-  for (let step = 0; step < 50; step += 1) {
-    eccentric -= (eccentric - eccentricity * Math.sin(eccentric) - meanRad) / (1 - eccentricity * Math.cos(eccentric));
-  }
-  return 2 * Math.atan2(
-    Math.sqrt(1 + eccentricity) * Math.sin(eccentric / 2),
-    Math.sqrt(1 - eccentricity) * Math.cos(eccentric / 2),
-  );
-}
 
 /**
  * The sidereal period, days. The table's P is anomalistic (M advances 360 degrees in it) and its periapsis moves once round per
@@ -144,4 +137,4 @@ export const IO: CelestialBodyDefinition = Object.freeze({
 });
 
 /** Io's position comes from the core curve fits (JPL Horizons, O-025 Decision 3); the mean-element model above is kept as the record T-078 measured. */
-export const IO_BINDING: StateSourceBinding = Object.freeze({ body: IO.id, create: () => createFittedMoonTrajectory(IO.id) });
+export const IO_BINDING: StateSourceBinding = IO_FITTED_BINDING;

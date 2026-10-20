@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Refits the planet position series (Orb's full VSOP87A: Mercury, Venus, Mars, Jupiter, and from O-033 T-114 Saturn, Uranus, Neptune) as piecewise
 // Chebyshev curve fits (O-025 T-101, Decision 11), in the same chunk format as the Jupiter moons (src/core/chebyshevSeries.ts), and measures size
-// and accuracy. Pluto has no VSOP87 series: its heliocentric position is fitted to JPL Horizons states (body 999 about the Sun, 6-hourly, ICRF
+// and accuracy. Pluto has no VSOP87 series: the Pluto system barycentre's heliocentric position is fitted to JPL Horizons states (body 9 about the Sun, 6-hourly, ICRF
 // turned into Orb's ecliptic J2000 by Orb's own frame transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms).
 //
 //   node tools/import/planet-fits.mjs [--write] [--report <file>]
@@ -128,9 +128,9 @@ const START_S = ttSecondsOf(FROM_MS);
 const SPAN_S = ttSecondsOf(TO_MS - 1) - START_S;
 
 /**
- * Pluto's heliocentric ecliptic-J2000 km from Horizons (body 999 about the Sun) every 6 hours over the span plus margin, as a function of TT seconds
- * by 12-point Lagrange interpolation (a 6.4-day wobble about the system barycentre is sampled 26 times a period; the interpolation error is far
- * under a metre). The fit is therefore against Horizons itself, with the cache the moon importer uses.
+ * The Pluto system barycentre's heliocentric ecliptic-J2000 km from Horizons (body 9 about the Sun) every 6 hours over the span plus margin, as a
+ * function of TT seconds by 12-point Lagrange interpolation. The barycentre moves smoothly (Pluto's own 6.4-day wobble about it, up to about 2,100 km,
+ * is left out on purpose: it is the centre series of data/ephemerides/pluto-moons, added at run time; fitting body 999 grew this file by 300 KB, T-116). The fit is therefore against Horizons itself, with the cache the moon importer uses.
  */
 async function plutoFromHorizons() {
   const cacheDir = join(dirname(fileURLToPath(import.meta.url)), ".horizons-cache");
@@ -143,7 +143,7 @@ async function plutoFromHorizons() {
   for (let i = 0; i < count; i += perRequest) {
     const rows = Math.min(perRequest, count - i);
     const start = firstS + i * stepS;
-    const text = await horizonsText(vectorParams({ command: "999", center: "500@10", start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
+    const text = await horizonsText(vectorParams({ command: "9", center: "500@10", start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
     samples.push(...gridSamples(text, start, stepS, rows));
   }
   // ICRF (Horizons) -> ecliptic J2000 with Orb's own transform; the frame is fixed, so one state gives the rotation.
