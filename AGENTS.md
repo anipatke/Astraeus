@@ -168,7 +168,7 @@ Project-owned rules outside the Savepoint-managed block (added by the G-002 retr
 - **Commit at Objective close.** The owner commits after closing each Objective so that Checks have a real diff baseline; an untracked tree makes `git diff` evidence vacuous.
 - **Browser checks (owner decisions 2026-10-17 to 2026-10-20; map in `docs/BROWSER_CHECKS.md`).**
   - The engine set, `npm run check:engine`, runs at the Full Objective Check when scene, camera, controls or UI code changed.
-  - A demo's set, `npm run check:demo -- <apollo|showers|jupiter>`, runs only when that demo or its checks changed, or before a release.
+  - A demo's set, `npm run check:demo -- <apollo|showers|planets>`, runs only when that demo or its checks changed, or before a release.
   - Never run the same set twice for one change; a later check reuses the earlier run (owner, 2026-10-20: "Didnt we say we WOULDNT run these checks isnt that the point of this objective").
   - No per-Task browser runs unless the Task builds the checks.
   - Headless runs never replace the owner's visual judgement where an Objective requires it.

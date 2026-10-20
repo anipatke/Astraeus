@@ -56,6 +56,8 @@ const hasPanels = (storyName) => existsSync(new URL(`data/stories/${storyName}/p
 const experiences = [
   { id: "apollo11", query: "", panelStory: hasPanels("apollo11") ? "apollo11" : undefined },
   ...named.map((name) => ({ id: name, query: `?experience=${name}`, panelStory: hasPanels(name) ? name : undefined })),
+  // O-033 T-121: the planets experience (Jupiter opens by default; the other eight planets are the same code, switched by &planet=<name>), the set the planets demo's smoke step loads.
+  { id: "planets", query: "?experience=planets", panelStory: hasPanels("jupiter-io") ? "jupiter-io" : undefined },
   { id: "showers", query: "?experience=showers", panelStory: showers.length > 0 && hasPanels(showers[0]) ? showers[0] : undefined },
   ...showers.map((name) => ({ id: `showers-${name}`, query: `?experience=showers&shower=${name}`, panelStory: hasPanels(name) ? name : undefined })),
 ];

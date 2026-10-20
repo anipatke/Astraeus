@@ -27,7 +27,7 @@
     "venus"
   ],
   "story": {
-    "panels": "data/stories/venus/panels.json"
+    "panels": "data/stories/no-panels/panels.json"
   },
   "camera": {
     "maxFocusDistance": 2000,

@@ -1,0 +1,7 @@
+{
+  "note": "The stated load limit of each outer planet's view, one source for tests/planetSystems.test.ts and tools/validate/load-budget.mjs (T-118, T-121): chunkBytes is the bytes of the fit chunks (the window's year plus the orbit-history years the load reaches back into); the index is the moon index it fetches (gzipped and raw). Measured 2026-10-21: Saturn 2.96 MB (799 chunks) with a 962 KB index (71 KB gzipped), Uranus 1.69 MB, Neptune 0.94 MB, Pluto 87 KB; each limit is about 10% over its measured figure, Saturn's equal to Jupiter's (about 3.3 MB of chunks, a 36 KB index).",
+  "saturn": { "chunkBytes": 3379200, "indexGzipBytes": 81920, "indexRawBytes": 1024000 },
+  "uranus": { "chunkBytes": 1894400, "indexGzipBytes": 16384, "indexRawBytes": 133120 },
+  "neptune": { "chunkBytes": 1054720, "indexGzipBytes": 12288, "indexRawBytes": 81920 },
+  "pluto": { "chunkBytes": 102400, "indexGzipBytes": 6144, "indexRawBytes": 35840 }
+}

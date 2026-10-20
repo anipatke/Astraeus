@@ -46,7 +46,7 @@
     "mars"
   ],
   "story": {
-    "panels": "data/stories/mars/panels.json"
+    "panels": "data/stories/no-panels/panels.json"
   },
   "camera": {
     "maxFocusDistance": 2000,

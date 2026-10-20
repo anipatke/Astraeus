@@ -15,12 +15,23 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
 const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js"]);
+const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+
+/** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
+const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
+  id: `app.html?experience=planets&planet=${name}`,
+  files: [...APP_SHARED, "planetSettings.js", "planetDefinition.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
+  namedBy: [`${name}.js`],
+  ...(VIEW_LIMITS[name] ? { indexLimit: VIEW_LIMITS[name].indexRawBytes } : {}),
+  ...limits,
+});
 
 /**
  * One limit per page set, in bytes, raw and gzipped. Each is the measurement of 2026-10-17 (lossless stream trim; textures kept at their original quality by owner decision; the index page and the whole build re-measured with the three new demo-card pictures, T-074) plus 5% headroom, rounded up to the next 10,000 bytes.
  * The four app pages and the whole build were re-measured 2026-10-20 after planets became curve fits (T-101; planetModels shrank 6.5x), plus 5%, rounded up to the next 10,000 bytes (owner decision). The page sets also list the shared chunks the build now splits out (elementsBody, timeScale, bodyMetrics, events, orbitGroup, listedOrbitGroup, spacecraftMetrics).
+ * The Apollo and showers sets also list `compositions.js`, the chunk split out when the planets experience shared it (T-121).
  * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
 export const PAGES = [
@@ -28,16 +39,26 @@ export const PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   // T-120 (O-033), raised on purpose: assets.html grew from the old limit to 629,684 B raw / 493,085 B gzip (22 files) measured 2026-10-21 with its 13 new body thumbnails (site/t-*.jpg, about 300 KB, lazy-loaded), the generated moon lists for five planets (343 moons) and the tagged-places list (403 places). New limit: that measurement plus 5%, rounded up to the next 10,000 bytes.
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "compositions.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
-  { id: "app.html?experience=jupiter-io", files: [...APP_SHARED, "panels.js", "jupiterIo.js", "bodyMetrics.js", "events.js", "planetModels.js", "io-2k.jpg", "jupiter-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg", "jupiter-moons.js"], fetchedFiles: ["2016.bin", "2014.bin", "2015.bin"], rawLimit: 6_960_000, gzipLimit: 4_810_000 },
+  // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's). Figures measured on the public build of 2026-10-21 plus 5%, rounded up to the next 10,000 bytes.
+  // Each outer planet's moon index chunk is also held to the stated limit in `src/experiences/planets/viewLimits.json`, the file tests/planetSystems.test.ts takes its fit-chunk and index limits from.
+  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 7_130_000, gzipLimit: 4_900_000 }),
+  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { parts: true, rawLimit: 24_490_000, gzipLimit: 21_260_000 }),
+  planetView("uranus", ["uranus-2k.jpg"], { parts: true, rawLimit: 4_300_000, gzipLimit: 2_520_000 }),
+  planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_610_000, gzipLimit: 2_930_000 }),
+  planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 4_020_000, gzipLimit: 2_410_000 }),
+  planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 3_080_000, gzipLimit: 1_710_000 }),
+  planetView("venus", ["venus-2k.jpg"], { moons: false, rawLimit: 3_100_000, gzipLimit: 1_730_000 }),
+  planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 4_420_000, gzipLimit: 3_030_000 }),
+  planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },
   { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 12_700_000, gzipLimit: 7_900_000 },
 ];
 /** Every file of the build together (also the net for a file no page set lists). */
-// T-098 raised it for the Jupiter moons (three moon pictures, the fit index and the 2016 fit chunks); re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
-export const BUILD_LIMIT = { id: "whole build", rawLimit: 25_360_000, gzipLimit: 17_560_000 };
+// T-098 raised it for the Jupiter moons; T-121 (O-033) raised it on purpose for the nine planet views' pictures (the outer planets' 4k moon maps) and fit chunks: re-measured 2026-10-21 on the public build, plus 5%, rounded up to the next 10,000 bytes.
+export const BUILD_LIMIT = { id: "whole build", rawLimit: 54_610_000, gzipLimit: 44_130_000 };
 
 function* walk(directory) {
   for (const name of readdirSync(directory)) {
@@ -126,6 +147,14 @@ export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIM
         if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
         files.push(...found.filter((name) => !files.includes(name)));
       }
+      // Files a listed script names by URL (the fit chunks and pictures a planet's system script ships): every one of them counts.
+      for (const entry of page.namedBy ?? []) {
+        for (const script of findFiles(names, entry)) {
+          for (const match of readFileSync(join(distDir, script), "latin1").matchAll(/\/?(assets\/[A-Za-z0-9_.-]+)/g)) {
+            if (names.includes(match[1]) && !files.includes(match[1])) files.push(match[1]);
+          }
+        }
+      }
       for (const [entry, found] of severalEntries) {
         if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
       }
@@ -140,6 +169,13 @@ export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIM
     const sizes = sizesOf(distDir, files);
     if (sizes.raw > page.rawLimit) problems.push(`${sizes.raw} bytes raw is over the limit of ${page.rawLimit}`);
     if (sizes.gzip > page.gzipLimit) problems.push(`${sizes.gzip} bytes gzipped is over the limit of ${page.gzipLimit}`);
+    if (page.indexLimit !== undefined) {
+      // The moon index is one chunk of the build (its JSON as a script), so the stated index limit holds it too. The fit chunks' stated limit is held by tests/planetSystems.test.ts, which measures them as served (the build inlines the small ones as text, which is bigger).
+      for (const file of files.filter((name) => (page.namedBy ?? []).some((entry) => findFiles(names, entry.replace(/\.js$/, "-moons.js")).includes(name)))) {
+        const bytes = statSync(join(distDir, file)).size;
+        if (bytes > page.indexLimit) problems.push(`the moon index chunk is ${bytes} bytes, over the view's stated limit of ${page.indexLimit}`);
+      }
+    }
     results.push({ id: page.id, ...sizes, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems });
   }
   const whole = sizesOf(distDir, names);

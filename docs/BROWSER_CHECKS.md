@@ -4,7 +4,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 ## Running them
 
-`npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|jupiter>` (one demo's set). Each writes logs and `summary.txt` to a fresh `docs/evidence/<set>-<UTC time>/`. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
+`npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|planets>` (one demo's set). Each writes logs and `summary.txt` to a fresh `docs/evidence/<set>-<UTC time>/`. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
 
 ## Engine set (`npm run check:engine`, 16 steps, 275 s)
 
@@ -34,7 +34,7 @@ Each starts with a `smoke` step (`browser-lite`, one demo, desktop and phone). R
 |------|-------|------|-----|
 | apollo | smoke, `browser-apollo-shell` (provenance wording, 30 events, mission metrics, no scale control), `browser-spike02` (True/Readable telemetry pairs, camera invariance, event jumps, USNO phases), `browser-home-curve-fits`, `browser-story-panels` (Apollo) | 227 s | `demo-apollo-20261020T102339Z` |
 | showers | smoke, `browser-showers` Perseids (orbits, Earth path, bodies, year) and Geminids (light, desktop), `browser-public-showers`, `browser-story-panels` (showers) | 390 s | `demo-showers-20261020T102729Z` |
-| jupiter | smoke, `browser-jupiter-io` (presets, places, orbit lines), `browser-moon-panel`, `browser-jupiter-tap` (small-moon dots), `browser-story-panels` (Jupiter) | 248 s | `demo-jupiter-20261020T101926Z` |
+| planets (was jupiter; `jupiter` still works as an alias) | smoke (Jupiter view + catalogue page), `browser-jupiter-io` (presets, places, orbit lines), `browser-moon-panel`, `browser-jupiter-tap` (small-moon dots), `browser-story-panels` (Jupiter), then O-033: `browser-outer-planets` (switch from Jupiter keeps the clock, Saturn rings and moons panel, a place on Titan and on Charon, Pluto and Charon drawn, Uranus rings and no mapped moon; desktop and phone), `browser-planet-switch` (Mercury to Mars in the switch, Phobos and Deimos in the Object list, a Mars place pressed; desktop and phone) | 248 s before O-033; not yet measured with the two new scripts | `demo-jupiter-20261020T101926Z` (old set) |
 
 ## On request (`tools/validate/on-request/`)
 
@@ -57,7 +57,7 @@ Dropped to bring the sets under about 5 minutes. The generic code is covered by 
 - Showers: Perseids start-pass Earth-path checks; Venus and Mars panel and provenance; Geminids phone pass, loop-off, removed-switch and tail checks (Perseids owns them); long waits scaled to 60 percent.
 - Smoke no longer loads every experience, only the set's own.
 - Earlier trims (O-017, O-024, O-025): screenshots, contact sheet and `browser-earth-moon` (owner, 2026-10-18); older one-off tools are in `tools/archive/validate/`.
-- Not cut yet: Showers (390 s) and Jupiter (248 s) are over the 240 s aim; owner accepted them as they are.
+- Not cut yet: Showers (390 s) and the planets set (248 s before O-033's two scripts) are over the 240 s aim; owner accepted them as they are.
 
 ## The interface driver (`tools/validate/driver.mjs`)
 

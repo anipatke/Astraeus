@@ -27,7 +27,7 @@
     "mercury"
   ],
   "story": {
-    "panels": "data/stories/mercury/panels.json"
+    "panels": "data/stories/no-panels/panels.json"
   },
   "camera": {
     "maxFocusDistance": 2000,

@@ -69,7 +69,7 @@ flowchart LR
 - `src/core/` is the scientific core: time, state vectors, orientation, scale policies and trajectories, with no Three.js or React.
 - `src/app/` draws it: floating origin, camera, paths, sky and labels.
 - `src/shell/` holds the reusable timeline, event list, story panels and info panel.
-- `src/experiences/` holds each story: Apollo 11, Jupiter and Io, and the showers.
+- `src/experiences/` holds each story: Apollo 11, the planets (Mercury to Pluto with their mapped moons), and the showers.
 
 ## Run it locally
 
@@ -89,7 +89,7 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Apollo 11 (default) | `/app.html` |
 | Meteor showers: the Perseids (default) | `/app.html?experience=showers` |
 | Meteor showers: the Geminids | `/app.html?experience=showers&shower=geminids` |
-| Jupiter and Io | `/app.html?experience=jupiter-io` |
+| The planets: Jupiter (default), Saturn, Uranus, Neptune, Pluto, Mercury, Venus, Earth, Mars, with a planet switch | `/app.html?experience=planets&planet=jupiter` (`?experience=jupiter-io` still opens Jupiter) |
 
 Data:
 
@@ -107,17 +107,25 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 
 `ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node tools/validate/public-build-assets.mjs` then checks that none of them, and nothing from `data/local/`, is in `dist/`.
 
-**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-20 (after planets became curve fits), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"). The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. A change that makes a page heavier raises its limit on purpose, with the new measurement.
+**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-21 (nine planet views added, O-033), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"), so Saturn, with seven 4k moon maps, is the heavy view. The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. Each outer planet's moon-index and fit-chunk limits are in `src/experiences/planets/viewLimits.json`, checked by `tests/planetSystems.test.ts` and, for the index, by the validator. A change that makes a page heavier raises its limit on purpose, with the new measurement.
 
 | Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
 |---|---|---|---|---|
-| `index.html` | 410,463 B | 600,000 B | 367,851 B | 530,000 B |
-| `assets.html` | 260,783 B | 274,000 B | 223,816 B | 240,000 B |
-| `app.html` (Apollo 11) | 4,152,896 B | 4,370,000 B | 2,755,737 B | 2,900,000 B |
-| `app.html?experience=jupiter-io` | 6,616,656 B | 6,960,000 B | 4,576,702 B | 4,810,000 B |
-| `app.html?experience=showers` | 9,595,799 B | 10,090,000 B | 6,704,599 B | 7,050,000 B |
-| `app.html?experience=showers&shower=geminids` | 12,080,272 B | 12,700,000 B | 7,510,809 B | 7,900,000 B |
-| whole build | 24,127,498 B | 25,360,000 B | 16,706,251 B | 17,560,000 B |
+| `index.html` | 399,236 B | 600,000 B | 352,149 B | 530,000 B |
+| `assets.html` | 629,684 B | 670,000 B | 493,085 B | 520,000 B |
+| `app.html` (Apollo 11) | 4,195,338 B | 4,370,000 B | 2,766,075 B | 2,900,000 B |
+| `app.html?experience=planets&planet=jupiter` | 6,781,196 B | 7,130,000 B | 4,659,946 B | 4,900,000 B |
+| `...&planet=saturn` | 23,317,280 B | 24,490,000 B | 20,240,166 B | 21,260,000 B |
+| `...&planet=uranus` | 4,090,623 B | 4,300,000 B | 2,396,574 B | 2,520,000 B |
+| `...&planet=neptune` | 4,383,685 B | 4,610,000 B | 2,783,384 B | 2,930,000 B |
+| `...&planet=pluto` | 3,822,413 B | 4,020,000 B | 2,289,674 B | 2,410,000 B |
+| `...&planet=mercury` | 2,929,628 B | 3,080,000 B | 1,625,051 B | 1,710,000 B |
+| `...&planet=venus` | 2,944,392 B | 3,100,000 B | 1,638,186 B | 1,730,000 B |
+| `...&planet=earth` | 4,203,236 B | 4,420,000 B | 2,882,001 B | 3,030,000 B |
+| `...&planet=mars` | 2,787,041 B | 2,930,000 B | 1,446,944 B | 1,520,000 B |
+| `app.html?experience=showers` | 9,759,411 B | 10,090,000 B | 6,789,054 B | 7,050,000 B |
+| `app.html?experience=showers&shower=geminids` | 12,243,884 B | 12,700,000 B | 7,595,264 B | 7,900,000 B |
+| whole build | 52,007,323 B | 54,610,000 B | 42,021,287 B | 44,130,000 B |
 
 ## Running the checks
 
@@ -126,7 +134,7 @@ npm install
 npx playwright-core install chromium   # once
 npm test                               # unit tests
 npm run check:engine                   # browser checks for the engine, about 5 minutes
-npm run check:demo -- apollo           # optional: one demo's checks (apollo, showers or jupiter)
+npm run check:demo -- apollo           # optional: one demo's checks (apollo, showers or planets)
 ```
 
 The engine set runs on made-up scenes and needs no demo. Each run writes logs to a new folder under `docs/evidence/`. What each script asserts is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.

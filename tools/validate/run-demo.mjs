@@ -1,4 +1,4 @@
-// One demo's optional browser checks (O-034 T-110): `npm run check:demo -- <apollo|showers|jupiter>`. Same behaviour as run-engine.mjs, into docs/evidence/demo-<name>-<UTC stamp>/.
+// One demo's optional browser checks (O-034 T-110): `npm run check:demo -- <apollo|showers|planets>`. Same behaviour as run-engine.mjs, into docs/evidence/demo-<name>-<UTC stamp>/.
 import { runSet } from "./runner.mjs";
 
 /** Set membership per demo: edit here. */
@@ -17,19 +17,24 @@ const DEMOS = {
     { name: "public-showers", script: "browser-public-showers.mjs", public: true },
     { name: "story-panels", script: "browser-story-panels.mjs", env: { STORY_ONLY: "showers" } },
   ],
-  jupiter: [
-    { name: "smoke", script: "browser-lite.mjs", scene: "jupiter-io + catalogue page", env: { LITE_ONLY: "jupiter-io", LITE_PAGES: "assets" } },
+  // The planets demo (O-033 T-121; was the jupiter set): Jupiter's own scenarios, then the planet switch (outer planets, inner planets). `jupiter` stays as an alias.
+  planets: [
+    { name: "smoke", script: "browser-lite.mjs", scene: "planets (Jupiter) + catalogue page", env: { LITE_ONLY: "planets", LITE_PAGES: "assets" } },
     { name: "jupiter-io", script: "browser-jupiter-io.mjs" },
     { name: "moon-panel", script: "browser-moon-panel.mjs" },
     { name: "jupiter-tap", script: "browser-jupiter-tap.mjs" },
     { name: "story-panels", script: "browser-story-panels.mjs", env: { STORY_ONLY: "jupiter" } },
+    { name: "outer-planets", script: "browser-outer-planets.mjs", scene: "planets: Saturn, Uranus, Pluto (desktop and phone)" },
+    { name: "planet-switch", script: "browser-planet-switch.mjs", scene: "planets: Mercury to Mars (desktop and phone)" },
   ],
 };
+DEMOS.jupiter = DEMOS.planets;
 
 const demo = process.argv[2];
+const setName = demo === "jupiter" ? "planets" : demo;
 if (!Object.hasOwn(DEMOS, demo ?? "")) {
-  console.error(`usage: npm run check:demo -- <${Object.keys(DEMOS).join("|")}>`);
+  console.error(`usage: npm run check:demo -- <apollo|showers|planets>`);
   process.exitCode = 2;
 } else {
-  process.exitCode = await runSet(`demo-${demo}`, DEMOS[demo]);
+  process.exitCode = await runSet(`demo-${setName}`, DEMOS[setName]);
 }

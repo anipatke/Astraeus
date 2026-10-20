@@ -14,23 +14,13 @@ import saturnFile from "../data/planets/saturn.json";
 import uranusFile from "../data/planets/uranus.json";
 import neptuneFile from "../data/planets/neptune.json";
 import plutoFile from "../data/planets/pluto.json";
+import viewLimits from "../src/experiences/planets/viewLimits.json";
 import noPanels from "../data/stories/no-panels/panels.json";
 
 const ROOT = new URL("..", import.meta.url).pathname;
-const KB = 1024;
 
-/**
- * The stated load limit of each planet's view (T-118): the bytes its fit chunks add (the window's year plus the orbit-history years the load reaches
- * back into) and the moon index it fetches, as served (index gzipped). Jupiter's view, the reference, is about 3.3 MB of chunks and a 36 KB index.
- * Measured 2026-10-21: Saturn 2.96 MB (799 chunks) with a 962 KB index (71 KB gzipped: 292 moons at the same 3.4 KB each as Jupiter's 115, so it is
- * not trimmed), Uranus 1.69 MB, Neptune 0.94 MB, Pluto 87 KB; each limit is about 10% over its measured figure, Saturn's equal to Jupiter's.
- */
-const LIMITS: Record<string, { chunkBytes: number; indexGzipBytes: number; indexRawBytes: number }> = {
-  saturn: { chunkBytes: 3_300 * KB, indexGzipBytes: 80 * KB, indexRawBytes: 1_000 * KB },
-  uranus: { chunkBytes: 1_850 * KB, indexGzipBytes: 16 * KB, indexRawBytes: 130 * KB },
-  neptune: { chunkBytes: 1_030 * KB, indexGzipBytes: 12 * KB, indexRawBytes: 80 * KB },
-  pluto: { chunkBytes: 100 * KB, indexGzipBytes: 6 * KB, indexRawBytes: 35 * KB },
-};
+/** The stated load limit of each outer planet's view: one source, shared with tools/validate/load-budget.mjs (see the note in the file). */
+const LIMITS = viewLimits as unknown as Record<string, { chunkBytes: number; indexGzipBytes: number; indexRawBytes: number }>;
 
 const VIEWS = [
   { name: "saturn", file: saturnFile, system: saturnSystem, urls: SATURN_CHUNK_URLS, moonSystem: SATURN_MOON_SYSTEM },
