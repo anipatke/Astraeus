@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:03:15Z'
 tasks: [T-117, T-118]
-checks: [C-091]
+checks: [C-091, C-092]
 guardrail_ids: [PROV-01]
 severity: low
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o033-repair-builder-20261021}
     kind: repair_attempted
     note: 'Repaired: data/moons/fit-errors/<planet>.json (generated from each fit index by tools/import/moon-fit-errors.mjs: worst of the span, demo window and planet-centred figures per moon) is imported by the five non-Jupiter systems as fitErrorsM; the builder states each dot moon''s own figure (rounded up to 0.1 m, never below 1 m; a figure above 1 m adds that it includes the planet-centred check, part of which is Horizons'' own kernel difference) and throws if a moon has no figure. The group record states the worst of its dots. Jupiter''s system gives none and keeps its existing text. Tests: tests/planetSystems.test.ts ''states each dot moon''s own measured error, never less than the fit index''s worst figure'' (all four outer planets); tests/planetFitErrors.test.ts (files equal the indexes). Gates pass.'
+  - at: '2026-10-20T14:26:00Z'
+    actor: {role: checker, session: o033-full-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed met. Independent recursive scan of every worstM in each fit index: data/moons/fit-errors/<planet>.json covers every body (mars 3, saturn 293, uranus 29, neptune 17, pluto 6) and is never below the body''s worst figure (Daphnis 26.18 m, Neptune irregulars 61.43 m); tests/planetSystems.test.ts fails when a shown figure is below the index worst. Left open only because C-092 is NEEDS WORK; verified closure needs a CLEAR Check.'
+    check: C-092
 ---
 
 # I-050: Small-moon accuracy text says "within 1 m" for every system

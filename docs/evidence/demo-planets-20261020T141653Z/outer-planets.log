@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: phone: charon is drawn as a sphere in view ({"id":"charon","as":"sphere","radiusPx":8.972,"x":-0.001,"y":0.702,"inView":false,"glow":null})
+    at run (file:///home/user/code/Astraeus/tools/validate/browser-outer-planets.mjs:117:14)
+    at async file:///home/user/code/Astraeus/tools/validate/browser-outer-planets.mjs:136:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

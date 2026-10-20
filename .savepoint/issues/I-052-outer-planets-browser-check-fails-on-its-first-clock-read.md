@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:06:14Z'
 tasks: [T-118, T-121]
-checks: [C-091]
+checks: [C-091, C-092]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o033-repair-builder-20261021}
     kind: repair_attempted
     note: 'Repaired: tools/validate/browser-outer-planets.mjs no longer compares an exact value on a running clock: after pausing it seeks to the requested time through the driver and then reads it; a new scenario seeks Jupiter five days later, switches to Saturn, pauses and checks the clock is within a day of that later time and more than four days past the opening time (so it fails under I-051). Driver calls only. Syntax checked; not run (owner rule: the recheck runs the planets set once). Unverified until that run.'
+  - at: '2026-10-20T14:26:00Z'
+    actor: {role: checker, session: o033-full-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed 1 met (the clock is paused and sought before reading; desktop and phone clock and switch scenarios passed, driver only). Proof Needed 2 not met: the one planets-set run (14:16:53Z-14:23:18Z, 384 s, docs/evidence/demo-planets-20261020T141653Z) FAILED on outer-planets (exit 1, 121 s) at the phone Pluto view, Charon out of view (I-053); the phone Uranus scenario did not run. Stays open until one clean planets-set run.'
+    check: C-092
 ---
 
 # I-052: The outer-planets browser check fails on its first clock read

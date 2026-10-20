@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o033-full-check-20261020}
   at: '2026-10-20T14:03:15Z'
 tasks: [T-118]
-checks: [C-091]
+checks: [C-091, C-092]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o033-repair-builder-20261021}
     kind: repair_attempted
     note: 'Repaired: the planet places rule is one function (src/experiences/planets/surfacePlace.mjs, isSurfacePlace: has latitude and longitude, no ringRadius/moonRadius) used by the builder''s placement in planetDefinition.ts (extends T-119''s skip-without-position rule). Saturn, Uranus, Neptune and Pluto now list their centre in bodyFeatures (settings) and load its package (systems). Shown counts: Saturn 3, Uranus 9, Neptune 9, Pluto 12; Jupiter unchanged. Tests: tests/planetSystems.test.ts per-planet own-places test (centre listed, ids equal the rule over the package, counts), tests/planetDefinition.test.ts made-up planet with ring, inner-moon and position-less entries; tests/planetSwitchInner.test.ts and the Jupiter view-equality test still pass. tools/validate/browser-outer-planets.mjs presses Pluto''s Sputnik Planitia (not run, per owner rule: the recheck runs the planets set once). Gates: typecheck, build, npm test 87 files 1246 passed. Browser steps unverified.'
+  - at: '2026-10-20T14:26:00Z'
+    actor: {role: checker, session: o033-full-recheck-20261020}
+    kind: rechecked
+    note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed met. Independent count over the packages (entries away from 0/0) equals the isSurfacePlace rule for every planet: Saturn 3 of 20, Uranus 9 of 19, Neptune 9 of 19, Pluto 12 of 16, Mars 30 of 32; Jupiter unchanged (its own places out under SC6, recorded on the Objective as the Planet places rule). Tests pass (87 files, 1,246 passed). Browser: the planets set run (docs/evidence/demo-planets-20261020T141653Z) pressed Pluto''s Sputnik Planitia at desktop and phone without failure. Left open only because C-092 is NEEDS WORK (I-053); verified closure needs a CLEAR Check.'
+    check: C-092
 ---
 
 # I-048: Saturn, Uranus, Neptune and Pluto open without their own tagged places

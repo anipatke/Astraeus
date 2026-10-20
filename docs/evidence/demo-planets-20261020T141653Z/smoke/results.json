@@ -1,0 +1,96 @@
+{
+  "tier": "lite (I-033)",
+  "at": "2026-10-20T14:17:17.985Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "experiences": [
+    "planets"
+  ],
+  "loads": 4,
+  "failed": 0,
+  "results": [
+    {
+      "label": "planets",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/app.html?experience=planets",
+      "ok": true,
+      "seconds": 9.4,
+      "detail": {
+        "title": "Jupiter and Io · Astraeus",
+        "drawn": {
+          "bodies": 4,
+          "dots": 16,
+          "paths": 1,
+          "stars": 8920
+        },
+        "object": "io",
+        "panel": "volcanoes"
+      },
+      "failures": []
+    },
+    {
+      "label": "planets",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/app.html?experience=planets",
+      "ok": true,
+      "seconds": 6.8,
+      "detail": {
+        "title": "Jupiter and Io · Astraeus",
+        "drawn": {
+          "bodies": 2,
+          "dots": 6,
+          "paths": 1,
+          "stars": 8920
+        },
+        "object": "io",
+        "panel": "volcanoes"
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "desktop",
+      "viewport": "1440x900",
+      "url": "http://localhost:5479/assets.html",
+      "ok": true,
+      "seconds": 1.7,
+      "detail": {
+        "title": "Astraeus Assets",
+        "moonFamilies": {
+          "galilean": 4,
+          "inner": 4,
+          "himalia": 11,
+          "ananke": 29,
+          "carme": 41,
+          "pasiphae": 22,
+          "carpo": 2,
+          "loner": 2
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "phone",
+      "viewport": "390x844",
+      "url": "http://localhost:5479/assets.html",
+      "ok": true,
+      "seconds": 1.6,
+      "detail": {
+        "title": "Astraeus Assets",
+        "moonFamilies": {
+          "galilean": 4,
+          "inner": 4,
+          "himalia": 11,
+          "ananke": 29,
+          "carme": 41,
+          "pasiphae": 22,
+          "carpo": 2,
+          "loner": 2
+        }
+      },
+      "failures": []
+    }
+  ]
+}
