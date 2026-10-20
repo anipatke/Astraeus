@@ -27,6 +27,10 @@ history:
     kind: rechecked
     note: 'Recheck C-092 at HEAD ff1d8d80: Proof Needed 1 met (the clock is paused and sought before reading; desktop and phone clock and switch scenarios passed, driver only). Proof Needed 2 not met: the one planets-set run (14:16:53Z-14:23:18Z, 384 s, docs/evidence/demo-planets-20261020T141653Z) FAILED on outer-planets (exit 1, 121 s) at the phone Pluto view, Charon out of view (I-053); the phone Uranus scenario did not run. Stays open until one clean planets-set run.'
     check: C-092
+  - at: '2026-10-20T14:29:59Z'
+    actor: {role: executor, session: o033-repair-i053-20261021}
+    kind: repair_attempted
+    note: 'Note: the phone Pluto failure that stopped the recheck run is the separate I-053, repaired in settings (Pluto distance 20) and tested without a browser. I-052 remaining proof is unchanged: one clean planets run, every step exit 0.'
 ---
 
 # I-052: The outer-planets browser check fails on its first clock read
