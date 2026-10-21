@@ -3,17 +3,15 @@
 // must stay tiny, with zero console errors. PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=http://localhost:5493/app.html node tools/validate/browser-orbit-motion.mjs
 import assert from "node:assert/strict";
 import { seekToFraction, setFastestSpeed, ensurePlaying } from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const out = {};
 for (const experience of ["synthetic"]) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  page.on("pageerror", (error) => errors.push(`${experience} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${experience} console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport: { width: 1440, height: 900 } });
+  watchErrors(page, errors, experience);
   await page.goto(`${base}?experience=${experience}&view=earth,0,89,330&scale=true-scale`);
   await page.waitForSelector("canvas");
   // Under load the first readings can take longer than the first watch; wait for them to be published.

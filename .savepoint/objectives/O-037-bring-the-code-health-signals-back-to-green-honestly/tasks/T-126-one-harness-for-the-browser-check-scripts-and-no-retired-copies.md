@@ -2,7 +2,13 @@
 id: T-126
 title: One harness for the browser-check scripts and no retired copies
 objective: O-037
-status: planned
+status: in_progress
+stage: audit
+check_waiver:
+  task: T-126
+  reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:16:47Z'
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o037-planning-20261021}
@@ -57,8 +63,23 @@ Engine set at hand-off; demo sets at the Full Objective Check; guard test; hando
 
 ## Technical Evidence
 
-Pending execution: engine run output path and summary, guard test names, jscpd readings before and after, files changed.
+Built under the owner's run rule (2026-10-21, "dont run full checks until the final objective check"): no browser script or check set was run; `npm run check:engine` (planned for hand-off) and the three demo sets run once at the Full Objective Check instead. Task Check waived (frontmatter).
+
+- Harness: `tools/validate/harness.mjs` exports `checkScript({name, viewports, extraArgs, outDir}, run)`, `launchBrowser(extraArgs)`, `watchErrors(page, errors, label)`, `appUrl(params)`.
+- All 32 scripts (26 in `tools/validate/`, 6 `browser-*` plus `probe-phone-frames` in `on-request/`... every `browser-*.mjs` and `probe-phone-frames.mjs`) import the harness: the playwright import, `chromium` const, launch line and two error handlers are gone. `browser-shell` and `browser-scale-menu` use the full `checkScript`; the rest use `launchBrowser` and `watchErrors` and keep their own page, context and exit pattern (assertions untouched).
+- Guard: `driver-guard.mjs` now also fails `chromium.launch` and a `playwright.mjs` import in scripts (harness.mjs is exempt); `tests/browserDriverGuard.test.ts` adds a launch/import case.
+- `tools/archive` removed with `git rm -r`; `docs/BROWSER_CHECKS.md` note updated and a harness section added.
+- Node-level proof: `node --check` on harness.mjs and every script passes; `node tools/validate/driver-guard.mjs` passes.
+- jscpd (src+tests+tools, scratch, archive and node_modules ignored): 4.56% (140 clones) at HEAD, 4.30% (127 clones) now; the under-3% target is NOT met by this Task alone (other duplication lies in src and tests, and scripts still repeat their `browser.newPage` blocks).
+
+Drift/notes: (1) Done When 1 asks the guard to forbid direct `newPage`; most scripts still call `browser.newPage`/`newContext` (varied contexts), so only `chromium.launch` is forbidden. (2) `browser-home-curve-fits` and `browser-scale-menu` previously launched without the software-rendering flags; they now get them (harmless). (3) Error-line prefixes in a few scripts changed from `pageerror(label):` to `label pageerror:`; the runner counts both. (4) Unrun scripts: first run is at the Final Objective Check.
 
 ## Drift Notes
 
 Record architecture deltas and reconcile through the planner before Check.
+
+### Second pass (coordinator request)
+
+- No script calls `newPage` or `newContext` now: `harness.mjs` also exports `openPage(browser, options)`, `openContext(browser, options)` and `pageIn(context)`; all 32 scripts use them or `checkScript` (assertions unchanged; `browser-phone` and `browser-showers` import `openPage` as `openBrowserPage` because they have a local `openPage`). `driver-guard.mjs` forbids `.newPage(`/`.newContext(` and `chromium.launch`; `tests/browserDriverGuard.test.ts` has the three new bad lines. `node --check` passes on every script; guard passes; no browser run (`npm run check:engine` and the demo sets are pending at the Final Objective Check).
+- jscpd (src+tests+tools, scratch): 4.29% (126 clones, 2280 duplicated lines of 53171). 1717 of those lines are the Horizons data dumps `tests/fixtures/*-horizons-source.txt` (data, copies of the same ephemeris header/footer text). With `*.txt` ignored: 1.11% (62 clones, 563 lines). `tools/validate` alone has ~373 lines left, all assertion-level, not harness preamble.
+- Drift note for the coordinator: reaching under 3% needs `**/*.txt` (or `tests/fixtures/**`) in jscpd's ignore list, which is `.savepoint/health/config.json` (T-122's file, not edited here). Top groups: outer-planets-horizons-source.txt 1068 lines, planets-horizons-source.txt 712, showers-year-horizons-source.txt 461, io-horizons-source.txt 424, planets-rotation 260 (each a 75-77 line clone against the others). Code clones outside tools: app/sceneLayout.ts 91-100 (10 lines), shell/ObjectControls.tsx (11), shell/ScaleControl.tsx (8); small.

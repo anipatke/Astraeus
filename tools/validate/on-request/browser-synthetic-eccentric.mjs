@@ -10,22 +10,20 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chooseScale } from "../driver.mjs";
 import * as ui from "../driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "../harness.mjs";
 
-import { pw } from "../playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 const FRAMES = 60;
 const PINK = "ff9fd0";
 const EARTH_MARKER = "e8e8e8";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const result = { markerRule: {}, solarSystemScale: {}, framing: {}, precisionAt50Au: {} };
 
 const watch = (page, label) => {
-  page.on("pageerror", (error) => errors.push(`pageerror(${label}): ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console(${label}): ${message.text()}`); });
+  watchErrors(page, errors, label);
 };
 const hook = () => {
   const events = new EventTarget();
@@ -41,7 +39,7 @@ const hook = () => {
   });
 };
 const open = async (query, viewport) => {
-  const page = await browser.newPage({ viewport });
+  const page = await openPage(browser, { viewport });
   watch(page, `${query}@${viewport.width}`);
   await page.addInitScript(hook);
   await page.goto(`${base}?experience=synthetic-eccentric&sky=off${query}`);

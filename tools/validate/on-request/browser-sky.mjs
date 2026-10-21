@@ -16,15 +16,14 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import * as ui from "../driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "../harness.mjs";
 
-import { pw } from "../playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
 // The stars come from the committed HYG file (public and local builds alike), so the star file is always there.
 const starCount = String(JSON.parse(readFileSync(new URL("../../../src/assets/stars/hyg-v42-naked-eye.json", import.meta.url), "utf8")).stars.length);
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = { starSource: "hyg", starCount, runs: {} };
 
@@ -38,9 +37,8 @@ const PROBE = (() => { const v = [0.62, 0.35, -0.7]; const n = Math.hypot(...v);
 const FOV_DEG = 45;
 
 const open = async (viewport, query, deviceScaleFactor = 1) => {
-  const page = await browser.newPage({ viewport, deviceScaleFactor });
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport, deviceScaleFactor });
+  watchErrors(page, errors);
   page.milkyRequests = ui.trackRequests(page, /milky-way[^?]*\.jpg$/);
   await page.goto(`${base}?${query}`);
   await page.waitForSelector("canvas");

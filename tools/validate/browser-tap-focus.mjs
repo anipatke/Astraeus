@@ -7,11 +7,10 @@
 // hard-coded, so the check follows whatever the demo shows. The contract (hit tolerance, nearest wins, the tap rule) is proved by tests/scenePicking.test.ts.
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 
@@ -25,10 +24,9 @@ const SIZES = [
 
 async function run(demo, size) {
   const name = `${demo.id} ${size.id}`;
-  const context = await browser.newContext({ viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
-  const page = await context.newPage();
-  page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
+  const context = await openContext(browser, { viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
+  const page = await pageIn(context);
+  watchErrors(page, errors, name);
   const notes = {};
   results[name] = notes;
   /** Nothing changed since `before`: the picker, the last tap target, and the information sheet. */

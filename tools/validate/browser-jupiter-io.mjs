@@ -14,13 +14,12 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { scaleOptions } from "./driver.mjs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 const moonData = JSON.parse(readFileSync(new URL("../../data/moons/jupiter.json", import.meta.url), "utf8"));
@@ -248,9 +247,8 @@ async function places(page, name, notes) {
 }
 
 async function run(name, viewport) {
-  const page = await browser.newPage({ viewport });
-  page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport });
+  watchErrors(page, errors, name);
   const notes = {};
   results[name] = notes;
   try {

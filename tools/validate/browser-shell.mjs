@@ -4,18 +4,10 @@
 import assert from "node:assert/strict";
 import { chooseScale, currentScale } from "./driver.mjs";
 import * as ui from "./driver.mjs";
+import { appUrl, checkScript } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
-const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const url = `${base}${base.includes("?") ? "&" : "?"}experience=synthetic`;
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-const errors = [];
-page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
-
-try {
+const url = appUrl("experience=synthetic");
+await checkScript({ name: "shell" }, async (page, { errors }) => {
   await page.goto(url);
   await page.waitForSelector("canvas");
   await ui.waitForShell(page);
@@ -138,7 +130,5 @@ try {
   await ui.advancedReadouts(page).list.waitFor();
   assert.equal(await ui.advancedReadouts(page).list.count(), 1);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ url, viewports: ["1280x800", "390x844"], infoProvenance: Object.keys(provenanceText), events: await ui.eventRowCount(page), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length, errors }, null, 2));
-} finally {
-  await browser.close();
-}
+  return { url, viewports: ["1280x800", "390x844"], infoProvenance: Object.keys(provenanceText), events: await ui.eventRowCount(page), cameraModes: ["overview", "focus", "follow"], labels: visibleLabels.length };
+});

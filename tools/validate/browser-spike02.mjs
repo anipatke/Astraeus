@@ -22,14 +22,13 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chooseScale as chooseScaleByLabel, hasScaleControl } from "./driver.mjs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.env.ASTRAEUS_EVIDENCE_DIR ?? "docs/evidence/regression-spike01-02";
 mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 let page;
 const errors = [];
 const sizes = [["desktop", { width: 1280, height: 800 }], ["phone", { width: 390, height: 844 }]];
@@ -71,9 +70,8 @@ const chooseCamera = async (objectId, presetId) => {
 };
 
 async function run(label, viewport) {
-  page = await browser.newPage({ viewport });
-  page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
+  page = await openPage(browser, { viewport });
+  watchErrors(page, errors, label);
   await page.goto(url);
   await page.waitForSelector("canvas");
   await ui.toggleDeveloper(page);

@@ -8,23 +8,21 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5405/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (!outDir) throw new Error("set ASTRAEUS_EVIDENCE_DIR to a fresh folder");
 mkdirSync(outDir, { recursive: true });
 const showersDir = new URL("../../data/showers/", import.meta.url);
 const names = readdirSync(showersDir).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5)).sort();
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 
 async function open(name, query, route) {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(`console: ${m.text()}`); });
+  const page = await openPage(browser, { viewport: { width: 1280, height: 800 } });
+  watchErrors(page, errors);
   const requests = [];
   page.on("response", (r) => requests.push({ url: r.url(), status: r.status() }));
   if (route) await route(page);

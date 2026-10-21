@@ -4,17 +4,15 @@ import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { chooseScale } from "../driver.mjs";
 import * as ui from "../driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "../harness.mjs";
 
-import { pw } from "../playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const browser = await launchBrowser();
+const page = await openPage(browser, { viewport: { width: 1280, height: 800 } });
 const errors = [];
-page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+watchErrors(page, errors);
 // T-102: the belt is visible when its dots are in view, from the scene's point readout (members in front of the camera and inside the view).
 const litPixels = () => ui.sceneDotsInView(page);
 const lit = {};
@@ -128,9 +126,8 @@ try {
     }
   };
   await composition(page, "desktop-composition");
-  const phoneComposition = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  phoneComposition.on("pageerror", (error) => errors.push(`pageerror(phone composition): ${error.message}`));
-  phoneComposition.on("console", (message) => { if (message.type() === "error") errors.push(`console(phone composition): ${message.text()}`); });
+  const phoneComposition = await openPage(browser, { viewport: { width: 390, height: 844 } });
+  watchErrors(phoneComposition, errors, "phone composition");
   try {
     await phoneComposition.goto(`${base}?experience=synthetic-belt`);
     await phoneComposition.waitForSelector("canvas");
@@ -191,9 +188,8 @@ try {
   };
   await checkSunCentred(page, "desktop");
 
-  const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  phone.on("pageerror", (error) => errors.push(`pageerror(phone): ${error.message}`));
-  phone.on("console", (message) => { if (message.type() === "error") errors.push(`console(phone): ${message.text()}`); });
+  const phone = await openPage(browser, { viewport: { width: 390, height: 844 } });
+  watchErrors(phone, errors, "phone");
   try {
     await phone.goto(`${base}?experience=synthetic-belt`);
     await phone.waitForSelector("canvas");

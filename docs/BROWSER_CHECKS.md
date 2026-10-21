@@ -56,8 +56,12 @@ Dropped to bring the sets under about 5 minutes. The generic code is covered by 
 - spike02: phone event jumps, playback rates, speed, USNO phases (desktop only); the 30-sample 100x follow track became a speed read at 3 paused times with a negative probe.
 - Showers: Perseids start-pass Earth-path checks; Venus and Mars panel and provenance; Geminids phone pass, loop-off, removed-switch and tail checks (Perseids owns them); long waits scaled to 60 percent.
 - Smoke no longer loads every experience, only the set's own.
-- Earlier trims (O-017, O-024, O-025): screenshots, contact sheet and `browser-earth-moon` (owner, 2026-10-18); older one-off tools are in `tools/archive/validate/`.
+- Earlier trims (O-017, O-024, O-025): screenshots, contact sheet and `browser-earth-moon` (owner, 2026-10-18); the older one-off tools (`tools/archive/validate/`) were deleted in O-037 and live in git history.
 - Not cut yet: Showers (390 s) and the planets set (248 s before O-033's two scripts) are over the 240 s aim; owner accepted them as they are.
+
+## The harness (`tools/validate/harness.mjs`)
+
+Every script gets its browser from the harness, never from `chromium.launch` (the guard fails it): `launchBrowser()` (software-rendering flags), `watchErrors(page, errors, label)` (page and console errors, the lines the runner counts) and `checkScript({ name, viewports }, run)` (launch, one page per viewport, error collection, close, `results.json`, non-zero exit). `browser-shell` and `browser-scale-menu` use `checkScript`; the other scripts use the two helpers and keep their own page pattern.
 
 ## The interface driver (`tools/validate/driver.mjs`)
 

@@ -8,11 +8,10 @@
 //   PLAYWRIGHT_CORE=<path> ASTRAEUS_HOME_URL=<index.html url> [ASTRAEUS_URL=<app.html url on the same server>] node tools/validate/browser-home-curve-fits.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const home = process.env.ASTRAEUS_HOME_URL ?? (process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html").replace(/app\.html.*$/, "index.html");
-const browser = await chromium.launch();
+const browser = await launchBrowser();
 const errors = [];
 
 const CASES = [
@@ -24,10 +23,9 @@ const CASES = [
 for (const motion of ["no-preference", "reduce"]) {
   for (const c of CASES) {
     const label = `${c.name}/${motion}`;
-    const context = await browser.newContext({ viewport: c.viewport, isMobile: c.touch, hasTouch: c.touch, reducedMotion: motion });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
+    const context = await openContext(browser, { viewport: c.viewport, isMobile: c.touch, hasTouch: c.touch, reducedMotion: motion });
+    const page = await pageIn(context);
+    watchErrors(page, errors, label);
     await ui.openHomeCurveFits(page, home);
 
     const first = await ui.curveFitReadout(page);

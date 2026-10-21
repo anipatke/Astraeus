@@ -3,11 +3,10 @@
 // npm run check:demo -- jupiter runs this; alone: ASTRAEUS_URL=<app.html url> node tools/validate/browser-jupiter-tap.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 const SIZES = [
@@ -18,10 +17,9 @@ const SIZES = [
 try {
   for (const size of SIZES) {
     const name = `jupiter-io ${size.id}`;
-    const context = await browser.newContext({ viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
+    const context = await openContext(browser, { viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
+    const page = await pageIn(context);
+    watchErrors(page, errors, name);
     try {
       await ui.loadAddress(page, `${base}?experience=jupiter-io&sky=off&view=jupiter,30,30,6000`);
       await ui.waitForShell(page);

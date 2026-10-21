@@ -7,6 +7,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import * as ui from "../driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "../harness.mjs";
 
 const arg = (name, fallback) => {
   const at = process.argv.indexOf(`--${name}`);
@@ -19,16 +20,13 @@ const view = arg("view", null);
 const label = arg("label", experience);
 const out = arg("out", null);
 
-import { pw } from "../playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5690/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 let result;
 try {
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+  watchErrors(page, errors);
   const search = new URLSearchParams({ experience });
   if (view !== null) search.set("view", view);
   const loadStarted = Date.now();

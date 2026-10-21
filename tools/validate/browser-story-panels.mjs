@@ -5,9 +5,8 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const out = process.env.ASTRAEUS_OUT;
 if (out === undefined) throw new Error("set ASTRAEUS_OUT to a fresh evidence directory");
@@ -37,13 +36,12 @@ const results = [];
 const errors = [];
 const note = (name, detail = "") => { results.push({ name, detail }); console.log(`ok  ${name}${detail === "" ? "" : ` (${detail})`}`); };
 
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 
 async function open(viewport, extra = {}) {
-  const context = await browser.newContext({ viewport, ...extra });
-  const page = await context.newPage();
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const context = await openContext(browser, { viewport, ...extra });
+  const page = await pageIn(context);
+  watchErrors(page, errors);
   await page.goto(url);
   await page.waitForSelector("canvas");
   await ui.waitForShell(page);
@@ -276,10 +274,9 @@ try {
   if (want("showers")) {
   // ---- Perseids (T-062): the same panel capability, carried by the shower settings file ----
   const per = await (async () => {
-    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+    const context = await openContext(browser, { viewport: { width: 1440, height: 900 } });
+    const page = await pageIn(context);
+    watchErrors(page, errors);
     await page.goto(perseidsUrl);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
@@ -303,10 +300,9 @@ try {
   note("Perseids panels open in order on playback", perseidsOpened.join(" > "));
   await per.context.close();
 
-  const perPhone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
-  const pq = await perPhone.newPage();
-  pq.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  pq.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const perPhone = await openContext(browser, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
+  const pq = await pageIn(perPhone);
+  watchErrors(pq, errors);
   await pq.goto(perseidsUrl);
   await pq.waitForSelector("canvas");
   for (const id of ["stream-shape", "earth-crossing"]) {
@@ -324,10 +320,9 @@ try {
   // Each panel: seek to half a second of playback before it, play, and it must open by itself, in time order, with its badge,
   // a source line, and one folded section, closed by default, that holds its details.
   const openStory = async (experience) => {
-    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+    const context = await openContext(browser, { viewport: { width: 1440, height: 900 } });
+    const page = await pageIn(context);
+    watchErrors(page, errors);
     await page.goto(`${url}?experience=${experience}`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);

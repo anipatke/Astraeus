@@ -7,22 +7,20 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chooseScale, offersScale } from "../driver.mjs";
 import * as ui from "../driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "../harness.mjs";
 
-import { pw } from "../playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const result = {};
 const experiences = [["apollo", ""], ["jupiter-io", "experience=jupiter-io"], ["perseids", "experience=showers"]];
 try {
   for (const [name, query] of experiences) {
     for (const [rule, extra] of [["rule-on", ""], ["rule-off", "markerpx=0"]]) {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-      page.on("pageerror", (error) => errors.push(`pageerror(${name}/${rule}): ${error.message}`));
-      page.on("console", (message) => { if (message.type() === "error") errors.push(`console(${name}/${rule}): ${message.text()}`); });
+      const page = await openPage(browser, { viewport: { width: 1280, height: 800 } });
+      watchErrors(page, errors, `${name}/${rule}`);
       try {
         await page.goto(`${base}?${[query, extra, "sky=off"].filter(Boolean).join("&")}`);
         await page.waitForSelector("canvas");

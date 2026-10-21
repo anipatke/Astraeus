@@ -9,13 +9,12 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir !== undefined) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...ui.FRAMING_BROWSER_ARGS] });
+const browser = await launchBrowser(ui.FRAMING_BROWSER_ARGS);
 const errors = [];
 const results = [];
 const note = (text) => console.log(text);
@@ -29,10 +28,9 @@ const DEMOS = [
 ];
 
 async function open(size, demo, framed) {
-  const context = await browser.newContext({ viewport: size.viewport, isMobile: size.touch === true, hasTouch: size.touch === true });
-  const page = await context.newPage();
-  page.on("pageerror", (error) => errors.push(`${demo.name}/${size.name}/${framed ? "framed" : "alone"} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${demo.name}/${size.name}/${framed ? "framed" : "alone"} console: ${message.text()}`); });
+  const context = await openContext(browser, { viewport: size.viewport, isMobile: size.touch === true, hasTouch: size.touch === true });
+  const page = await pageIn(context);
+  watchErrors(page, errors, `${demo.name}/${size.name}/${framed ? "framed" : "alone"}`);
   const url = `${base}${demo.query}`;
   let target = page;
   if (framed) target = await ui.openInPortfolioFrame(page, url, { timeout: 60000 });

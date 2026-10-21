@@ -4,13 +4,12 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { currentScale, ensurePaused, loadAddress, scenePaths, openDeveloper, waitForOrbitLines, toggleOn, pressToggle, sliderReadout, dragSlider, resetOrbitLines } from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 
@@ -22,9 +21,8 @@ const lookNow = async (page) => {
 };
 
 for (const [label, viewport, scale] of [["desktop-true", { width: 1440, height: 900 }, "true-scale"], ["desktop-readable", { width: 1440, height: 900 }, "readable-scale"], ["phone", { width: 390, height: 844 }, "true-scale"]]) {
-  const page = await browser.newPage({ viewport });
-  page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport });
+  watchErrors(page, errors, label);
   await loadAddress(page, `${base}?experience=synthetic&view=earth,0,89,330&scale=${scale}&t=2026-10-17T00:00:00Z`); // throws when the scale is not offered or not in force (I-036)
   await page.waitForTimeout(3000);
   await ensurePaused(page);

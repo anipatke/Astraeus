@@ -71,9 +71,8 @@ import { fileURLToPath } from "node:url";
 import { rowsOfFile } from "../data/fetch-meteoroid-orbits.mjs";
 import { chooseScale, scaleOptions, selectOrbit } from "./driver.mjs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage as openBrowserPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const shower = process.argv[2] ?? process.env.ASTRAEUS_SHOWER;
 // ASTRAEUS_LIGHT=1: a second shower in the full run. Both sizes run only the settings-driven scenarios (plain load, peak, details, credits, counts, window), not the scene geometry the first shower already proved.
@@ -108,7 +107,7 @@ const streamButtonName = new RegExp(`^Information about ${settingsFile.label} st
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 /** The engine default camera (Sun, azimuth 216, elevation 14.32, Overview distance) that the geometry assertions were written for, independent of any look.startView. */
@@ -125,9 +124,8 @@ async function timed(name, fn) {
 }
 
 async function openPage(viewport) {
-  const page = await browser.newPage({ viewport });
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const page = await openBrowserPage(browser, { viewport });
+  watchErrors(page, errors);
   return page;
 }
 

@@ -3,16 +3,14 @@
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const browser = await launchBrowser();
+const page = await openPage(browser, { viewport: { width: 1280, height: 800 } });
 const errors = [];
-page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+watchErrors(page, errors);
 
 // The made-up contact window: glow, peak, stops, "Inside" line, source change and rate readout.
 async function checkWindow(label, size) {

@@ -3,15 +3,13 @@
 import assert from "node:assert/strict";
 import { chooseScale, currentScale } from "./driver.mjs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const url = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const browser = await launchBrowser();
+const page = await openPage(browser, { viewport: { width: 1280, height: 800 } });
 const errors = [];
-page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+watchErrors(page, errors);
 
 try {
   await page.goto(url);
@@ -132,9 +130,8 @@ try {
   await chooseScale(page, "True");
   // T-085 move: the scenario that switched Apollo to Readable (toggle name, readouts identical under both scales, tooltip wording) now runs on the made-up test experience (experience=synthetic: Earth and the Moon, both scales), since Earth–Moon is gone (O-024 T-093).
   {
-    const emPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-    emPage.on("pageerror", (error) => errors.push(`synthetic pageerror: ${error.message}`));
-    emPage.on("console", (message) => { if (message.type() === "error") errors.push(`synthetic console: ${message.text()}`); });
+    const emPage = await openPage(browser, { viewport: { width: 1280, height: 800 } });
+    watchErrors(emPage, errors, "synthetic");
     await emPage.goto(`${url}${url.includes("?") ? "&" : "?"}experience=synthetic`);
     await emPage.waitForSelector("canvas");
     await ui.waitForShell(emPage);

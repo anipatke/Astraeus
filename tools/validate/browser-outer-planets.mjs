@@ -7,13 +7,12 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
-import { pw } from "./playwright.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 const json = (path) => JSON.parse(readFileSync(new URL(`../../${path}`, import.meta.url), "utf8"));
@@ -51,9 +50,8 @@ async function placeOnMoon(page, name, { planet, moon, id, radiusKm }, notes) {
 }
 
 async function run(name, size) {
-  const page = await browser.newPage({ viewport: size });
-  page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
+  const page = await openPage(browser, { viewport: size });
+  watchErrors(page, errors, name);
   const notes = (results[name] = {});
   try {
     // The switch keeps the clock time: open Jupiter at a chosen time, switch to Saturn, read the clock.

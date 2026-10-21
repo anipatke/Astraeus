@@ -2,17 +2,15 @@
 // PLAYWRIGHT_CORE=<path> ASTRAEUS_URL=<app.html url> node tools/validate/browser-view-link.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 const open = async (query, context) => {
-  const page = await context.newPage();
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-  page.on("pageerror", (e) => errors.push(e.message));
+  const page = await pageIn(context);
+  watchErrors(page, errors);
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto(`${base}${query}`);
   await page.waitForTimeout(3000);
@@ -29,7 +27,7 @@ const readView = async (page) => {
 const angleGap = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 
 for (const [name, query] of [["made-up scene", "?experience=synthetic"]]) {
-  const context = await browser.newContext({ permissions: ["clipboard-read", "clipboard-write"] });
+  const context = await openContext(browser, { permissions: ["clipboard-read", "clipboard-write"] });
   const page = await open(query, context);
   const start = await readView(page);
   // Move the camera by hand: drag, then zoom.
@@ -52,7 +50,7 @@ for (const [name, query] of [["made-up scene", "?experience=synthetic"]]) {
   const copied = await readView(page);
   assert.ok(angleGap(copied.az, start.az) > 5 && Math.abs(copied.el - start.el) > 2, `${name}: the drag moved the camera (${copied.az}, ${copied.el})`);
   await page.waitForTimeout(0);
-  const second = await open(new URL(link).search, await browser.newContext());
+  const second = await open(new URL(link).search, await openContext(browser));
   const restored = await readView(second);
   assert.equal(restored.focus, copied.focus, `${name}: same focus`);
   assert.ok(angleGap(restored.az, copied.az) < 1.5, `${name}: azimuth ${restored.az} vs ${copied.az}`);
@@ -64,7 +62,7 @@ for (const [name, query] of [["made-up scene", "?experience=synthetic"]]) {
 
 // Clipboard refused: the link shows in a selectable field.
 {
-  const context = await browser.newContext();
+  const context = await openContext(browser);
   const page = await open("?experience=synthetic", context);
   await page.evaluate(() => { Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true }); });
   await ui.copyViewLink(page);
@@ -76,7 +74,7 @@ for (const [name, query] of [["made-up scene", "?experience=synthetic"]]) {
 
 // A malformed link opens the experience as usual.
 {
-  const page = await open("?experience=synthetic&view=nonsense", await browser.newContext());
+  const page = await open("?experience=synthetic&view=nonsense", await openContext(browser));
   await readView(page);
   results.badLink = "opened normally";
 }

@@ -5,14 +5,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const marsPlaces = JSON.parse(readFileSync(new URL("../../data/bodies/mars/features.json", import.meta.url), "utf8")).features.filter((feature) => typeof feature.latitude === "number");
 const INNER = ["mercury", "venus", "earth", "mars"];
 const MARS_DISTANCE = (3389.5 / 6371.0084) * 3.2;
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const results = {};
 const SIZES = [
@@ -23,10 +22,9 @@ const SIZES = [
 try {
   for (const size of SIZES) {
     const name = `planet-switch ${size.id}`;
-    const context = await browser.newContext({ viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(`${name} pageerror: ${error.message}`));
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`${name} console: ${message.text()}`); });
+    const context = await openContext(browser, { viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
+    const page = await pageIn(context);
+    watchErrors(page, errors, name);
     try {
       await ui.loadAddress(page, `${base}?experience=planets&planet=mercury&sky=off`);
       await ui.waitForShell(page);

@@ -12,13 +12,12 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const base = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
 if (outDir !== undefined) mkdirSync(outDir, { recursive: true });
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const errors = [];
 const log = [];
 const note = (text) => { log.push(text); console.log(text); };
@@ -33,10 +32,9 @@ const EXPERIENCES = [
 ];
 
 async function openPage(size, query, extra = {}) {
-  const context = await browser.newContext({ viewport: size.viewport, isMobile: true, hasTouch: true, ...extra });
-  const page = await context.newPage();
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const context = await openContext(browser, { viewport: size.viewport, isMobile: true, hasTouch: true, ...extra });
+  const page = await pageIn(context);
+  watchErrors(page, errors);
   await page.goto(`${base}${query}`, { waitUntil: "load", timeout: 60000 });
   await ui.waitForShell(page, { timeout: 60000 });
   await ui.ensurePausedQuietly(page);

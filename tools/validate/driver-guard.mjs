@@ -6,6 +6,7 @@
 //   - call getByRole, getByText, getByLabel, getByPlaceholder, getByTitle or getByAltText;
 //   - call click, dblclick, fill, selectOption, check, uncheck, press, focus, hover or tap on anything, or use `keyboard.`;
 //   - call locator(...), querySelector(...) or querySelectorAll(...) with any selector other than the exceptions below, or with a selector it builds at run time.
+//   - launch a browser (`chromium.launch`), open a page or context (`newPage`, `newContext`) or load `playwright.mjs` itself: `harness.mjs` is the one place that does (`launchBrowser`, `openPage`, `openContext`, `pageIn`, `watchErrors`, `checkScript`; O-037 T-126);
 //   - take or save a screenshot (`.screenshot(`): browser checks never take or save pictures; the owner judges looks on the preview, and every check reads the scene's own readouts (data-paths, data-points, data-body-screen, the sky and frame data) instead (T-102).
 // EXCEPTIONS (reads, never operation of a shell control):
 //   - the scene canvas: `canvas`, and `getByTestId(...)` (a stable test id the app sets for tests);
@@ -20,12 +21,13 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 /** Files that are the driver or its guard, and so may do what scripts may not. */
-const OWN_FILES = new Set(["driver.mjs", "driver-guard.mjs"]);
+const OWN_FILES = new Set(["driver.mjs", "driver-guard.mjs", "harness.mjs"]);
 /** Scripts allowed to bypass the rule, with the reason. Empty. */
 export const OPT_OUT = new Map();
 
 const OPERATIONS = /\.(click|dblclick|selectOption|check|uncheck|press|focus|hover|tap)\s*\(|\.fill\s*\((?!\s*0\s*\))/;
 const SCREENSHOT = /\.screenshot\s*\(/;
+const LAUNCH = /\bchromium\.launch\s*\(|\.(newPage|newContext)\s*\(|\bfrom\s+["'][./]*playwright\.mjs["']/;
 const KEYBOARD = /\bkeyboard\./;
 const BY_TEXT = /\.(getByRole|getByText|getByLabel|getByPlaceholder|getByTitle|getByAltText)\s*\(/;
 const SELECTOR_CALL = /\.(locator|querySelector|querySelectorAll|waitForSelector|\$|\$\$)\s*\(\s*(?:(["'`])((?:\\.|(?!\2).)*)\2|([^)]{0,40}))/g;
@@ -54,6 +56,7 @@ export function violationsIn(text) {
     const problems = [];
     if (OPERATIONS.test(line)) problems.push("operates an element directly");
     if (SCREENSHOT.test(line)) problems.push("takes a screenshot (checks read the scene's readouts; looks are judged on the preview)");
+    if (LAUNCH.test(line)) problems.push("launches a browser or opens a page itself (use the harness: launchBrowser, openPage, openContext, pageIn or checkScript)");
     if (KEYBOARD.test(line)) problems.push("presses keys directly");
     if (BY_TEXT.test(line)) problems.push("finds an element by role, label or text");
     for (const match of line.matchAll(SELECTOR_CALL)) {

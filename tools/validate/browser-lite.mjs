@@ -27,6 +27,7 @@
 import { mkdirSync, readdirSync, readFileSync, existsSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
 import { DEMO_ADDRESSES } from "./public-addresses.mjs";
+import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
 const root = new URL("../../", import.meta.url);
 const outDir = process.env.ASTRAEUS_EVIDENCE_DIR;
@@ -40,8 +41,6 @@ if (readdirSync(outDir).length > 0) {
   process.exit(2);
 }
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const appUrl = process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html";
 const siteUrl = (name) => new URL(name, appUrl).href;
 
@@ -74,7 +73,7 @@ const VIEWPORTS = [
   { name: "phone", viewport: { width: 390, height: 844 }, mobile: true },
 ];
 
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 const results = [];
 
 const hasHorizontalScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
@@ -88,10 +87,9 @@ async function load(label, url, size, checks) {
     try { await fn(); } catch (error) { failures.push(`${what}: ${String(error?.message ?? error).split("\n")[0]}`); }
   };
   const started = Date.now();
-  const context = await browser.newContext({ viewport: size.viewport, ...(size.mobile ? { isMobile: true, hasTouch: true } : {}) });
-  const page = await context.newPage();
-  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+  const context = await openContext(browser, { viewport: size.viewport, ...(size.mobile ? { isMobile: true, hasTouch: true } : {}) });
+  const page = await pageIn(context);
+  watchErrors(page, errors);
   try {
     if (checks.watchesLoader === true) await ui.watchLoader(page);
     await page.goto(url, { waitUntil: "load", timeout: 60000 });

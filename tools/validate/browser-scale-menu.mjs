@@ -4,9 +4,8 @@
 //   ASTRAEUS_URL=http://localhost:5491/app.html PLAYWRIGHT_CORE=... node tools/validate/browser-scale-menu.mjs
 import assert from "node:assert/strict";
 import { scaleMenu } from "./driver.mjs";
-import { pw } from "./playwright.mjs";
-const chromium = (pw.default ?? pw).chromium;
-const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 600, height: 400 } });
+import { checkScript } from "./harness.mjs";
+await checkScript({ name: "scale-menu", viewports: [{ width: 600, height: 400 }] }, async (p) => {
 await p.goto(new URL("/tools/validate/harness/scale-menu.html", process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html").href); const ui = scaleMenu(p); await ui.waitForTrigger();
 assert.equal(await ui.isOpen(), false);
 await ui.open(); assert.equal(await ui.isOpen(), true);
@@ -25,4 +24,5 @@ assert.equal(await ui.triggerName(), "Scale: Readable, choose another");
 await ui.open(); await ui.pressOutside(); assert.equal(await ui.isOpen(), false, "outside click closes");
 await ui.open(); await ui.chooseItem("Solar system");
 assert.equal(await ui.chosenLabel(), "Solar system");
-console.log("scale menu ok"); await b.close();
+console.log("scale menu ok");
+});

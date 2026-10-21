@@ -20,14 +20,13 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as ui from "./driver.mjs";
+import { launchBrowser, openPage, watchErrors } from "./harness.mjs";
 
-import { pw } from "./playwright.mjs";
-const chromium = pw.chromium ?? pw.default.chromium;
 const url = `${process.env.ASTRAEUS_URL ?? "http://localhost:5199/app.html"}?experience=synthetic`;
 const out = process.argv[2] ?? process.env.ASTRAEUS_EVIDENCE_DIR ?? join(tmpdir(), `astraeus-anchor-labels-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch({ args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const browser = await launchBrowser();
 let page;
 const errors = [];
 
@@ -46,9 +45,8 @@ const choosePreset = (presetId) => ui.chooseCamera(page, presetId);
 
 async function run(label, viewport) {
   const suffix = label === "desktop" ? "" : `-${label}`;
-  page = await browser.newPage({ viewport });
-  page.on("pageerror", (error) => errors.push(`${label} pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${label} console: ${message.text()}`); });
+  page = await openPage(browser, { viewport });
+  watchErrors(page, errors, label);
   await page.goto(url);
   await page.waitForSelector("canvas");
   await ui.toggleDeveloper(page);

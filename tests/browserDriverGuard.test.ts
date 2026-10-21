@@ -12,6 +12,7 @@ describe("browser scripts use the shared interface driver", () => {
     expect(names).toContain("browser-lite.mjs");
     expect(names).toContain("on-request/browser-sun.mjs");
     expect(names).not.toContain("driver.mjs");
+    expect(names).not.toContain("harness.mjs");
   });
 
   it("catches each way of reaching around the driver", () => {
@@ -26,6 +27,11 @@ describe("browser scripts use the shared interface driver", () => {
       'document.querySelector(".timeline-time")',
       'await page.waitForSelector("#info-panel");',
       "await button.evaluate((element) => element.click());",
+      'const browser = await chromium.launch({ args: [] });',
+      'const page = await browser.newPage({ viewport });',
+      'const context = await browser.newContext();',
+      'const page = await context.newPage();',
+      'import { pw } from "./playwright.mjs";',
       'await page.screenshot({ path: "out.png" });',
       'await page.getByTestId("earth-moon-canvas").screenshot();',
     ];
