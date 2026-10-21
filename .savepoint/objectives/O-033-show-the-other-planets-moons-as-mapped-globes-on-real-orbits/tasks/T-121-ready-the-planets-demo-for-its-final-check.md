@@ -2,8 +2,7 @@
 id: T-121
 title: Ready the planets demo for its final check
 objective: O-033
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-120, requires: clear}]
 owner_validation: {required: true}
 check_waiver:

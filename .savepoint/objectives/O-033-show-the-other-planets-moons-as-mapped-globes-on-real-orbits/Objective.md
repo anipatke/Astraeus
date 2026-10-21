@@ -1,7 +1,7 @@
 ---
 id: O-033
 title: Turn the Jupiter demo into a planets demo with every planet and its moons
-status: in_progress
+status: done
 depends_on: [O-018, O-019, O-025]
 release: G-009
 lanes:
