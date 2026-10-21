@@ -3,8 +3,12 @@ dist/
 coverage/
 junit.xml
 
-# Browser-run screenshots stay local; results JSON and logs are still committed as evidence.
+# Browser runs commit summary.txt and results files only (O-037 T-123); screenshots and logs stay out as a backstop.
 docs/evidence/**/*.png
+docs/evidence/**/*.log
+docs/evidence/**/*.err
+docs/evidence/**/*.out
+docs/evidence/**/*.mjs
 
 # Local-only data fetched by tools/data/* (never committed, never in a public build).
 data/local/

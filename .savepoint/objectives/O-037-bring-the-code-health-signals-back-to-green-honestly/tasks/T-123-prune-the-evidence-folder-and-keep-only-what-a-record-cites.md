@@ -2,9 +2,15 @@
 id: T-123
 title: Prune the evidence folder and keep only what a record cites
 objective: O-037
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
+check_waiver:
+  task: T-123
+  reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:40:00Z'
 planned_by: {role: planner, session: o037-planning-20261021}
 planned_reads: [docs/evidence, .savepoint/checks, .savepoint/objectives, .savepoint/issues, .savepoint/Design.md, tools/validate/runner.mjs, .gitignore, AGENTS.md, docs/BROWSER_CHECKS.md]
 planned_writes: [docs/evidence, tools/validate/runner.mjs, .gitignore, AGENTS.md, docs/BROWSER_CHECKS.md]
@@ -59,7 +65,14 @@ The saved cited-path list and a post-deletion existence check over it; the engin
 
 ## Technical Evidence
 
-Pending execution: cited-path list, counts before and after (folders, tracked files, bytes), the engine run's output path, commands and times.
+Built 2026-10-21 by the T-123 builder; deletion run by the owner (owner action, 2026-10-21) with scratchpad prune-evidence.sh --apply from the builder's lists.
+- Cited-path list: `docs/evidence/T-123-cited-paths.txt` is NOT written (a write into docs/evidence was denied in the builder session); the lists are `keep2.txt` (267) and `del2.txt` (24) in the session scratchpad. Matching: name in any record/`docs/*.md`/AGENTS.md, glob citations (c052-*, o017-t068-*-...Z, o020-t084-*, o019-t078-*, spike02*, ...), truncated-prefix citations, and test/src references (tests/homePage.test.ts, tests/moonOrbits.test.ts).
+- Before: 291 entries, 2.6 GB, 4,045 tracked files, 16,090 pictures (23 tracked). Delete list: 24 uncited entries (85 MB, 166 tracked files). After: 260 entries, 35 MB, 3,861 tracked files, 4 .gif files remain (o016-t063-20261016T120425Z old/new/rev2 and o016-t063-capture-20261016T161406Z/pictures/readme), left for the owner to decide, since the script missed .gif and deleting is outside this step's authority. `map-audit-20261021/` added by the coordinator and kept.
+- Criterion 1/2: 24 uncited removed, all pictures removed (O-037 Confirmed Decision 1). Post-deletion existence check over the keep list: 8 cited names are gone because they held only pictures: o015-t062-20261016T121016Z, o016-t064-20261016T161100Z, o017-cards-v2-20261017, o017-t067-public-showers-20261016T220609Z, o017-t067-showers-20261016T215051Z, o017-t074-card-sources-20261017, o020-repair-showers-053144-d, o020-repair-showers-053144-e. About 21 picture links in `.savepoint` records no longer resolve (accepted by Confirmed Decision 1; no Check record edited).
+- Criterion 3: `tools/validate/runner.mjs` writes step logs, dev-server/preview-server/public-build logs to `mkdtemp(os.tmpdir()/astraeus-check-logs-*)`; summary.txt carries `logs: <path>` and the per-step error-line count; results files still go to the evidence folder. Node-level proof: `runSet("t123-dryrun", [])` printed the logs path, left only summary.txt in the run folder (that dry-run folder was then removed). No browser set ran; first real run is the Full Objective Check.
+- Criterion 4: `.gitignore` ignores docs/evidence/**/*.log, *.err, *.out, *.mjs. Criterion 5: AGENTS.md retention rule added and preservation rule reworded; docs/BROWSER_CHECKS.md Running section updated.
+- Criterion 6: gates below; the engine run is deferred to the Full Objective Check per the owner's run rule.
+
 
 ## Drift Notes
 

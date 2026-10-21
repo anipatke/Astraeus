@@ -4,7 +4,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 ## Running them
 
-`npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|planets>` (one demo's set). Each writes logs and `summary.txt` to a fresh `docs/evidence/<set>-<UTC time>/`. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
+`npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|planets>` (one demo's set). Each writes `summary.txt` and each step's results files to a fresh `docs/evidence/<set>-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
 
 ## Engine set (`npm run check:engine`, 16 steps, 275 s)
 

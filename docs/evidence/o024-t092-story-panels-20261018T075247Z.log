@@ -1,8 +1,0 @@
-page.goto: Timeout 30000ms exceeded.
-Call log:
-[2m  - navigating to "http://localhost:5610/app.html", waiting until "load"[22m
-
-    at open (/home/user/code/astraeus-t092/tools/validate/browser-story-panels.mjs:45:14)
-    at async file:///home/user/code/astraeus-t092/tools/validate/browser-story-panels.mjs:57:29 {
-  name: 'TimeoutError'
-}
