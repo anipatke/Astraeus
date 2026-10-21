@@ -40,5 +40,17 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     clearMocks: true,
     setupFiles: ["./vitest.setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["json", "text-summary"],
+      include: [
+        "src/**/*.{ts,tsx}",
+        "tools/apollo11/**/*.ts",
+        "tools/import/**/*.{ts,mjs}",
+        "tools/data/**/*.mjs",
+        "tools/site/**/*.mjs",
+      ],
+      exclude: ["src/main.tsx", "**/*.d.ts", "**/*.d.mts"],
+    },
   },
 });

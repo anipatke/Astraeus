@@ -14,6 +14,7 @@
     "check:engine": "node tools/validate/run-engine.mjs",
     "check:demo": "node tools/validate/run-demo.mjs",
     "test": "vitest run",
+    "test:full": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml",
     "apollo11:reconstruct": "node tools/apollo11/run.mjs"
   },
   "dependencies": {

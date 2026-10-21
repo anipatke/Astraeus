@@ -2,7 +2,12 @@
 id: T-122
 title: Point the health scanners at the code and keep coverage fresh
 objective: O-037
-status: planned
+status: done
+check_waiver:
+  task: T-122
+  reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:15:32Z'
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o037-planning-20261021}
@@ -59,8 +64,21 @@ Scratch scanner runs before and after; `npm run test:full` output; handoff gates
 
 ## Technical Evidence
 
-Pending execution: before and after scanner totals, the coverage baseline, files changed, commands and times.
+Built 2026-10-21 by builder session; Task Check waived by owner (see `check_waiver`); evidence routes to the Full Objective Check.
+
+1. Scanner config (`.savepoint/health/config.json`): complexity and duplication gain the seven exclusions in both `exclusions` and args (`-x '*/docs/evidence/*'` etc. for lizard, extended `--ignore` for jscpd). Scratch runs with the config's own args into the scratchpad (no repo writes):
+   - jscpd before: 3881 sources, 6437 clones, 270495 duplicated lines, 46.16%. After: 442 sources, 86 clones, 1023 duplicated lines, 1.63% (1.25% of tokens).
+   - lizard before: 5872 CSV rows. After: 5500; no row under docs/evidence, tests/fixtures, data or tools/archive; remaining rows are src (1534), tests (2446), tools (1502), config files and 11 under `.claude` (not excluded; not in the plan).
+2. `vite.config.ts` `test.coverage`: provider v8, reporters json + text-summary, include and exclude lists exactly as specified.
+3. `package.json` `test:full` = `vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml`; `test` unchanged.
+4. AGENTS.md Build section: full-gate line and one-line scanner scope line added.
+5. Coverage scope proof only (owner run rule: no full coverage gate before the final check): `vitest run --coverage --coverage.reportsDirectory=<scratch> tests/sceneCamera.test.ts` passed and reported over the new include scope (11018 statements, 8906 lines across src and the non-browser tools; 7.06% lines from one test file). The full-suite baseline figure, the ten least-covered files and the first `npm run test:full` (writing `coverage/coverage-final.json` and `junit.xml`) are deferred to the Full Objective Check, where `savepoint health check` also takes the official snapshot (not run here).
+6. Gates: `npm run typecheck` clean; `npm run build` ok (chunk-size warning only); `npm test` with junit: 92 files, 1282 passed, 1 skipped.
+
+Files changed: .savepoint/health/config.json, vite.config.ts, package.json, AGENTS.md, this Task file.
 
 ## Drift Notes
 
 Record architecture deltas and reconcile through the planner before Check.
+
+Coordinator, 2026-10-21: marked done on the owner's instruction ("Mark tasks done as you progress") after typecheck, build and test passed. The first npm run test:full and the official health snapshot are owed at the O-037 Full Objective Check.

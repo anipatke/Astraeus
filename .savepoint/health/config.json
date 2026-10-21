@@ -34,6 +34,20 @@
         "*_generated.*",
         "-x",
         "*.min.js",
+        "-x",
+        "*/coverage/*",
+        "-x",
+        "*/tools/import/.horizons-cache/*",
+        "-x",
+        "*/tools/import/*.json",
+        "-x",
+        "*/tools/archive/*",
+        "-x",
+        "*/data/*",
+        "-x",
+        "*/tests/fixtures/*",
+        "-x",
+        "*/docs/evidence/*",
         "."
       ],
       "report": ".savepoint/health/reports/root-lizard.csv",
@@ -43,7 +57,14 @@
         ".savepoint/**",
         "**/*.pb.go",
         "**/*_generated.*",
-        "**/*.min.js"
+        "**/*.min.js",
+        "docs/evidence/**",
+        "tests/fixtures/**",
+        "data/**",
+        "tools/archive/**",
+        "tools/import/*.json",
+        "tools/import/.horizons-cache/**",
+        "coverage/**"
       ]
     },
     {
@@ -58,7 +79,7 @@
         "--workers",
         "1",
         "--ignore",
-        "node_modules/**,dist/**,.savepoint/**,**/*.pb.go,**/*_generated.*,**/*.min.js,**/testdata/**,**/.git/**",
+        "node_modules/**,dist/**,.savepoint/**,**/*.pb.go,**/*_generated.*,**/*.min.js,**/testdata/**,**/.git/**,docs/evidence/**,tests/fixtures/**,data/**,tools/archive/**,tools/import/*.json,tools/import/.horizons-cache/**,coverage/**",
         "."
       ],
       "report": ".savepoint/health/reports/root/jscpd-report.json",
@@ -69,7 +90,14 @@
         "**/*.pb.go",
         "**/*_generated.*",
         "**/*.min.js",
-        "**/testdata/**"
+        "**/testdata/**",
+        "docs/evidence/**",
+        "tests/fixtures/**",
+        "data/**",
+        "tools/archive/**",
+        "tools/import/*.json",
+        "tools/import/.horizons-cache/**",
+        "coverage/**"
       ]
     },
     {
