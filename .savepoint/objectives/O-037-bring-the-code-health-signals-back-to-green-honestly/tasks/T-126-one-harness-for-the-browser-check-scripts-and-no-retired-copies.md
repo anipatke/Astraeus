@@ -2,8 +2,7 @@
 id: T-126
 title: One harness for the browser-check scripts and no retired copies
 objective: O-037
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-126
   reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
