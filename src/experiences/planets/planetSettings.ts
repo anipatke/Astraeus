@@ -1,6 +1,7 @@
 // Planet settings: the settings types and their strict validation from a planet file (data/planets/<planet>.json), the Showers pattern.
 import { validateStartView, type StartView } from "../../app/viewLink";
-import { fieldReaders, type Raw } from "../../core/fieldReaders";
+import type { Raw } from "../../core/fieldReaders";
+import { settingsFields } from "../settingsFields";
 
 /** A moon drawn as a full body: its words and when its label shows. The moon's facts come from the moon list. */
 export interface PlanetMappedMoon {
@@ -57,7 +58,7 @@ function fail(path: string, problem: string): never {
   throw new PlanetSettingsError(`planet settings ${path} ${problem}`);
 }
 
-const { record, text, finite, instant } = fieldReaders(fail);
+const { record, text, finite, instant, positive } = settingsFields(fail);
 
 const WORDS = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const PLANET_PANELS_PATH = /^data\/stories\/[a-z0-9]+(-[a-z0-9]+)*\/panels\.json$/;
@@ -70,12 +71,6 @@ function only(raw: Raw, keys: readonly string[], path: string): void {
 function words(parent: Raw, key: string, path: string): string {
   const value = text(parent, key, path);
   if (!WORDS.test(value)) fail(`${path}.${key}`, `must be lower-case words joined by hyphens, got "${value}"`);
-  return value;
-}
-
-function positive(parent: Raw, key: string, path: string): number {
-  const value = finite(parent, key, path);
-  if (!(value > 0)) fail(`${path}.${key}`, `must be above zero, got ${value}`);
   return value;
 }
 

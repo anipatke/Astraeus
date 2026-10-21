@@ -1,23 +1,20 @@
-import { EQUATORIAL_UP } from "./viewUp";
+import { bodiesMounted, createFrameState, runFrame, type FrameLayers, type FrameState } from "./sceneFrame";
+import { attachScenePointer } from "./scenePointer";
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group, PerspectiveCamera } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
-import type { PathView } from "./PathView";
 import type { StateResolver } from "../core/stateResolver";
 import { AnchorLabelLayer } from "./AnchorLabels";
 import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
-import { drawnRadii, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
+import { type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
 import type { OrbitLook } from "../assets/orbitLook";
 import {
-  attachOrbitGestures,
   createOrbitCameraState,
-  poseCamera,
-  resolveCamera,
   type CameraRequest,
   type OrbitCameraState,
 } from "./CameraController";
@@ -27,38 +24,25 @@ import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLaye
 import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
-import { rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
-import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
-import { bodyAbsolute, placeComposition, readoutPairOf, type ScenePlacement } from "./sceneLayout";
-import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
-import { placeBodyLights } from "./sceneLights";
+import { readoutPairOf, type ScenePlacement } from "./sceneLayout";
+import type { BodyRefs } from "./sceneBodies";
 import { useHostLayer, useSceneViews, useSkyStars } from "./sceneHooks";
-import { updateSky } from "./sceneSky";
-import { focusAbsoluteOf, labelPositionOf, type SceneTargets } from "./sceneTargets";
-import { viewFromAngles, type StartView } from "./viewLink";
+import type { StartView } from "./viewLink";
 import {
   assignBodyLayers,
   focusLimits,
-  focusRadius,
   START_CAMERA_DISTANCE,
-  type SceneFrame,
 } from "./sceneFraming";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { SceneLabelLayer } from "./SceneLabels";
 import { BodySetLabelLayer } from "./BodySetLabels";
-import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, pickTarget, type PickCandidate } from "./scenePicking";
-import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
-import { publishBodySets } from "./sceneBodySets";
+import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { RingLook } from "../assets/rings";
 import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
-import { DEFAULT_FEATURE_MIN_BODY_PX, FeatureMarkerLayer, type FeatureHost, type FeatureMarkerSpec } from "./FeatureMarkers";
-import { hideBootLoader } from "../shell/bootLoader";
+import { FeatureMarkerLayer, type FeatureMarkerSpec } from "./FeatureMarkers";
 import type { ExperienceObject } from "../shell/experience";
-
-/** Floating-origin rebase threshold in scaled units (Earth radii). */
-const REBASE_THRESHOLD = 1;
 
 export interface SceneRuntime {
   /** The render-frame up vector the camera orbits about (default celestial north; see `viewUp.ts`). */
@@ -92,17 +76,6 @@ export interface SceneRuntime {
   readonly cameraReach: CameraReach;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
   readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
-}
-
-/** Diagnostic for the browser checks: how far the first orbit arc's head is from its body's drawn position, as a share of the orbit's size (`data-orbit-head-gap`) and its longest segment as a share of the same (`data-orbit-arc-segment`). */
-function publishOrbitHeadGap(canvas: HTMLCanvasElement, views: readonly PathView[], absoluteOf: (id: BodyId) => RenderVector, policy: ScalePolicy): void {
-  const view = views.find((candidate) => candidate.arcHeadAbsolute() !== null);
-  const head = view?.arcHeadAbsolute() ?? null;
-  if (view === undefined || head === null) return;
-  const body = absoluteOf(view.layer.source.body as BodyId);
-  const extent = view.extentUnits(policy);
-  canvas.dataset.orbitArcSegment = String(extent > 0 ? view.arcLongestSegment() / extent : 0);
-  canvas.dataset.orbitHeadGap = String(extent > 0 ? Math.hypot(head[0] - body[0], head[1] - body[1], head[2] - body[2]) / extent : 0);
 }
 
 export interface SceneControls {
@@ -162,13 +135,6 @@ export interface SceneControls {
 }
 
 export type SceneReadout = DebugReadout;
-
-/** A mounted body's drawn sphere and radius for the feature markers, or null when the body is not drawn as a sphere. */
-function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<BodyId, BodyParts>, id: string, policy: ScalePolicy): FeatureHost | null {
-  const sphere = parts.get(id as BodyId)?.sphere;
-  const asset = assets.find((candidate) => candidate.definition.id === id);
-  return sphere === undefined || asset === undefined ? null : { sphere, radius: drawnRadii(asset.definition, policy).equatorial };
-}
 
 interface Props {
   readonly runtime: SceneRuntime;
@@ -230,16 +196,14 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
 
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
-  const started = useRef(false);
-  const spanScaled = useRef(6);
-  const lastPolicyId = useRef(controls.policy.id);
-  const lastUp = useRef<RenderVector | null>(null);
+  const frameState = useRef<FrameState>(createFrameState(controls.policy.id));
   const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
   const readoutPair = useMemo(() => readoutPairOf(runtime.bodies, catalogue), [runtime.bodies, catalogue]);
   const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
   const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
 
-  const { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, bodySetViews, orbitSetViews } = useSceneViews(runtime, gl);
+  const views = useSceneViews(runtime, gl);
+  const { trackedViews, groupViews, compositionPaths, skyView, bodySetViews, orbitSetViews, sunCentredViews } = views;
   const bodySetLabels = useRef<BodySetLabelLayer[]>([]);
   // Families of catalogued bodies drawn outside the sets (their own orbit lines take the family colour).
   const bodyFamilies = useMemo(() => (runtime.bodySets ?? []).flatMap((layer) => Object.entries(layer.bodyFamilies ?? {}).map(([body, family]) => ({ layer, body, family }))), [runtime.bodySets]);
@@ -247,11 +211,6 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
   const storyMarkers = useRef<StoryMarkerLayer | null>(null);
   const featureMarkers = useRef<FeatureMarkerLayer | null>(null);
-  /** What a tap can select this frame (see `scenePicking.ts`), rebuilt every frame from the same projections the labels use. */
-  const pickables = useRef<readonly PickCandidate[]>([]);
-  /** The mouse's place over the canvas in CSS px while it hovers with no button down; null for touch, a drag or outside. */
-  const hoverPoint = useRef<{ x: number; y: number } | null>(null);
-
   useSkyStars(gl.domElement, skyView);
   useEffect(() => {
     const host = gl.domElement.parentElement;
@@ -273,113 +232,15 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   };
 
   useEffect(() => {
-    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: spanScaled.current, bodies: catalogue }, controls.policy, runtime.cameraReach);
-    const onTap = (x: number, y: number, pointer: "mouse" | "touch") => {
-      const id = pickTarget(pickables.current, x, y, pointer);
-      if (id === null) return;
-      gl.domElement.dataset.pickTarget = id;
-      controls.onPickObject?.(id);
-    };
-    const canvas = gl.domElement;
-    const onHoverMove = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") { hoverPoint.current = null; return; }
-      const box = canvas.getBoundingClientRect();
-      hoverPoint.current = event.buttons === 0 ? { x: event.clientX - box.left, y: event.clientY - box.top } : null;
-    };
-    const onHoverLeave = () => { hoverPoint.current = null; };
-    canvas.addEventListener("pointermove", onHoverMove);
-    canvas.addEventListener("pointerleave", onHoverLeave);
-    const detach = attachOrbitGestures(canvas, orbit.current, limits, onTap);
-    return () => {
-      detach();
-      canvas.removeEventListener("pointermove", onHoverMove);
-      canvas.removeEventListener("pointerleave", onHoverLeave);
-      canvas.style.cursor = "";
-      delete canvas.dataset.pickHover;
-    };
+    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: frameState.current.spanScaled, bodies: catalogue }, controls.policy, runtime.cameraReach);
+    return attachScenePointer(gl.domElement, orbit.current, frameState.current, limits, (id) => controls.onPickObject?.(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, controls]);
 
+  const layerRefs: FrameLayers = { bodySetLabels, anchorLabels, sceneLabels, storyMarkers, featureMarkers };
   useFrame((_state, delta) => {
-    const root = rootRef.current;
-    if (!root) return;
-    const { clock, resolver, sceneCenter } = runtime;
-    const viewUp = controls.up ?? runtime.up ?? EQUATORIAL_UP;
-    for (const id of runtime.bodies) if (!groupRefs.current.has(id) || !orientRefs.current.has(id)) return;
-
-    const policy = controls.policy;
-    if (controls.loop === true && runtime.loopWindow !== undefined) clock.wrapWithin(runtime.loopWindow);
-    const t = clock.now();
-    const camState = orbit.current;
-    for (const view of groupViews) view.sync(t, placement, policy);
-    for (const view of sunCentredViews) view.sync(t, placement, policy);
-    const setLook = controls.bodySetLook ?? DEFAULT_BODY_SET_LOOK;
-    for (const view of compositionPaths) {
-      if (view.defaultLook !== null) view.setLook({ ...view.defaultLook, ...controls.orbitLook });
-      const owned = bodyFamilies.find((entry) => `${entry.body}-orbit` === view.id);
-      if (owned !== undefined) view.setColor(setLook.highlightFamily === owned.family ? setLook.highlightColor : familyColorOf(owned.layer, setLook, owned.family));
-      view.sync(t, placement, policy);
-    }
-    for (const view of bodySetViews) view.sync(t, placement, policy, resolver);
-    for (const view of orbitSetViews) view.sync(t, placement, policy, setLook.orbitsOn);
-    recordFrameStats(controls.frameStats, controls.groupFills, groupViews);
-    // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
-    const composed = placeComposition(runtime.bodies, placement, policy, t);
-    const absoluteOf = (id: BodyId): RenderVector =>
-      composed.absolutes.get(id) ?? bodyAbsolute(resolver.stateOf(id, t, sceneCenter).positionKm, policy);
-    const span = composed.span;
-    if (policy.id !== lastPolicyId.current) {
-      rescaleCameraForPolicy(camState, sceneCenter, span / spanScaled.current);
-      lastPolicyId.current = policy.id;
-    }
-    spanScaled.current = span;
-    const memberRadius = (id: string): number | null => {
-      for (const view of bodySetViews) { const r = view.memberRadiusUnits(id); if (r !== null) return r; }
-      return null;
-    };
-    const frame: SceneFrame = { centre: sceneCenter, span, bodies: catalogue, memberRadius };
-    const targets: SceneTargets = { bodyIdFor, placed: composed.absolutes, absoluteOf, groupViews, sunCentredViews, trackedViews, bodySetViews, timeUtcMs: t, policy, placement };
-
-    const firstFrame = !started.current;
-    started.current = true;
-    const focusBody = stepCameraTarget({ camState, controls, targets, frame, catalogue, reach: runtime.cameraReach, fovDeg: (camera as PerspectiveCamera).fov, viewUp, firstFrame, previousUp: lastUp.current });
-    lastUp.current = viewUp;
-    resolveCamera(camState, focusAbsoluteOf(targets, camState.focus), origin, delta, REBASE_THRESHOLD, viewUp);
-    placeBodies(assets, composed.states, bodyRefs, policy, origin);
-    poseCamera(camera as PerspectiveCamera, camState, focusRadius(focusBody, policy, catalogue), origin, runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR, viewUp);
-    if (firstFrame) requestAnimationFrame(hideBootLoader);
-    controls.viewReadout = viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
-    const markerBodies = swapSmallBodiesToMarkers(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.bodyMarker);
-    publishSceneData(gl.domElement, { markerBodies, viewUp, markerMinSpherePx: controls.bodyMarker.minSpherePx });
-    if (skyView !== null) updateSky(skyView, camera as PerspectiveCamera, gl.domElement, controls, controls.frameStats !== null);
-    for (const view of trackedViews) view.update(t, policy, origin, camera, placement);
-    for (const view of groupViews) view.place(origin);
-    for (const view of sunCentredViews) view.place(origin);
-    for (const view of compositionPaths) view.place(origin, { fovDeg: (camera as PerspectiveCamera).fov, viewportHeightPx: size.height });
-    publishOrbitHeadGap(gl.domElement, compositionPaths, absoluteOf, policy);
-    const trueScale = policy.id === "true-scale";
-    for (const view of bodySetViews) view.place(origin, camera as PerspectiveCamera, size.width, size.height, setLook, trueScale);
-    for (const view of orbitSetViews) view.place(origin, setLook, trueScale);
-    const hoverGain = clampHoverBrightness(controls.hoverBrightness ?? HOVER_BRIGHTNESS_DEFAULT);
-    for (const layer of bodySetLabels.current) layer.update(setLook, hoverGain);
-    publishBodySets(gl.domElement, bodySetViews, orbitSetViews, setLook, camera, size.width, size.height);
-    publishPathData(gl.domElement, [...sunCentredViews, ...compositionPaths], camera);
-    publishPointsData(gl.domElement, groupViews, camera, bodySetViews);
-    const bodyScreens = bodyScreenReadouts(assets, bodyRefs, camera, (camera as PerspectiveCamera).fov, size.height, policy, controls.glowLook);
-    publishBodyData(gl.domElement, bodyScreens);
-    anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
-    const positionFor = (id: string): RenderVector | null => labelPositionOf(targets, id);
-    sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
-    pickables.current = pickCandidatesOf({ objects: controls.labelObjects, bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: sceneLabels.current?.shownRects, canvas: gl.domElement, bodySetViews });
-    const hover = hoverPoint.current === null ? null : hoverTarget(pickables.current, hoverPoint.current.x, hoverPoint.current.y, "mouse");
-    gl.domElement.style.cursor = hover === null ? "" : "pointer";
-    gl.domElement.dataset.pickHover = hover ?? "";
-    sceneLabels.current?.setHover(hover, hoverGain);
-    storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
-    const featureReadout = featureMarkers.current?.update((id) => featureHostOf(assets, partsRefs.current, id, policy), camera, (camera as PerspectiveCamera).fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
-    if (featureReadout !== null && featureReadout !== undefined) gl.domElement.dataset.featureMarkers = JSON.stringify(featureReadout);
-    placeBodyLights(assets, lightRefs.current, resolver, t);
-    readout.current = buildFrameReadout({ pair: readoutPair, pairLabels, clock, resolver, absoluteOf, timeUtcMs: t, policy, origin });
+    if (!rootRef.current || !bodiesMounted(runtime, bodyRefs)) return;
+    runFrame({ runtime, controls, readout, catalogue, camera: camera as PerspectiveCamera, canvas: gl.domElement, size, origin, orbit: orbit.current, state: frameState.current, delta, assets, bodyRefs, lightRefs: lightRefs.current, placement, views, layers: layerRefs, bodyFamilies, bodyIdFor, readoutPair, pairLabels });
   });
 
   return (

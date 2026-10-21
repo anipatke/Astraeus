@@ -2,9 +2,14 @@
 id: T-125
 title: Split the four other tangled engine functions along their seams
 objective: O-037
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver:
+  task: T-125
+  reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:13:56Z'
 planned_by: {role: planner, session: o037-planning-20261021}
 planned_reads: [src/experiences/showers/showerSettings.ts, src/experiences/planets/planetDefinition.ts, src/app/OrbitSetView.ts, src/shell/AstraeusShell.tsx, src/experiences/planets/planetSettings.ts]
 planned_writes: [src/experiences/showers/showerSettings.ts, src/experiences/planets/planetDefinition.ts, src/app/OrbitSetView.ts, src/shell/AstraeusShell.tsx, src/shell/useDrawers.ts, src/experiences/settingsFields.ts, src/experiences/planets/planetSettings.ts]
@@ -58,7 +63,23 @@ Named existing tests per function; handoff gates per AGENTS.md's Verification Po
 
 ## Technical Evidence
 
-Pending execution: per-function readings before and after, test names and results, files changed.
+Complexity before (Task's lizard figures) and after (lizard CCN, this session; ESLint `complexity` not measured here, the rule arrives with T-127):
+
+| Function | Before | After |
+|---|---|---|
+| `parseShowerSettings` | 24 | 2 (helpers: `parseParent` 5, `parseStream` 6, `parseActivity` 8, `parseRadiant` 7) |
+| `buildPlanetDefinition` | 20 | 11 (`validatePlanetSystem` 9) |
+| `OrbitSetView.sync` | 21 | 16 (`#stepFor`, `#refreshNeeded` extracted) |
+| `AstraeusShell` | 21 | 9 (`useDrawers` hook, plus `MoonsSheet`, `initialObjectId`, `ownStorySettings` helpers) |
+
+1. Done: `parseShowerSettings` composes `parseParent`, `parseStream`, `parseActivity`, `parseRadiant`; messages untouched. Proof: `tests/showers.test.ts`, `tests/showersMeasured.test.ts`, `tests/showersYearHorizons.test.ts`, `tests/showerChoice.test.ts` (136 tests pass).
+2. Done: `validatePlanetSystem(settings, system, moonList)` holds the mapped-moon, centre and featured-family throws. Proof: `tests/planetDefinition.test.ts`, `tests/planetSystems.test.ts`, `tests/planetFitErrors.test.ts`, `tests/planetMoonSystems.test.ts` and the rest of `tests/planet*.test.ts`.
+3. Done: `#stepFor` and `#refreshNeeded` in `src/app/OrbitSetView.ts`; the per-frame budget loop stays. Proof: `tests/bodySet.test.ts` (the only test importing `OrbitSetView`), `tests/longOrbitPaths.test.ts`, `tests/moonOrbits.test.ts`, `tests/listedOrbitGroup.test.ts`.
+4. Done: `src/shell/useDrawers.ts` holds both drawers' open, close and Escape handling. Proof: `tests/phoneLayout.test.ts`, `tests/controls.test.ts` (no test renders `AstraeusShell`; its drawer behaviour is covered by the browser phone checks, pending for the Full Objective Check).
+5. Done: `src/experiences/settingsFields.ts` (`settingsFields(fail)`) holds the shared `positive` reader used by `planetSettings.ts` and `showerSettings.ts`. In `src/core/sunCentredSources.ts` the repeated span and count check of the two path-time functions is now `assertPathSpan`. The repeat between the synthetic listed and ring definitions was not touched: not in this Task's planned writes; recorded as accepted for now.
+6. Lizard readings above; each function is under 20. ESLint reading deferred to T-127.
+7. Existing tests relied on, 365 in the focused run: `tests/bodySet.test.ts`, `tests/phoneLayout.test.ts`, `tests/controls.test.ts`, `tests/planet*.test.ts`, `tests/showers*.test.ts`, `tests/showerChoice.test.ts`, `tests/sunCentred.test.ts`, `tests/paths.test.ts`, `tests/longOrbitPaths.test.ts`. Gates at handoff: build passes; full `npm test`: 89 files, 1259 passed, 1 skipped. `npm run typecheck` passed on rerun (a first run hit a transient error in the parallel T-124 builder's `tests/sceneFrame.test.ts`). No browser run; the Showers and planets phone checks are pending for the Full Objective Check.
+8. Error ordering: where a settings file has several faults at once, `parseShowerSettings` may now report a different one first (the sections run parent, stream, activity, radiant); each single-fault message and path is unchanged.
 
 ## Drift Notes
 

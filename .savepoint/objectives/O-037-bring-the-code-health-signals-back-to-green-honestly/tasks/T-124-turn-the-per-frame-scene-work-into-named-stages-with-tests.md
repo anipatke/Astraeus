@@ -2,9 +2,14 @@
 id: T-124
 title: Turn the per-frame scene work into named stages with tests
 objective: O-037
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: true}
+check_waiver:
+  task: T-124
+  reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:13:48Z'
 planned_by: {role: planner, session: o037-planning-20261021}
 planned_reads: [src/app/AstraeusScene.tsx, src/app/sceneCamera.ts, src/app/sceneTargets.ts, src/app/sceneBodies.ts, src/app/sceneBodySets.ts, src/app/sceneDebug.ts, src/app/sceneHooks.ts, src/app/scenePicking.ts, src/app/CameraController.tsx, tests/scenePlacement.ts]
 planned_writes: [src/app/AstraeusScene.tsx, src/app/sceneFrame.ts, src/app/scenePointer.ts, tests/sceneFrame.test.ts, tests/sceneCamera.test.ts, tests/sceneTargets.test.ts, tests/sceneBodies.test.ts]
@@ -58,8 +63,18 @@ Named existing tests plus the new stage and module tests; handoff gates per AGEN
 
 ## Technical Evidence
 
-Pending execution: stage list, test names and results, complexity readings before and after, files read and changed.
+Stages in `src/app/sceneFrame.ts` (frame order, one `FrameContext`, `runFrame` calls them): `frameTime` (loop wrap only with `loop` and a loop window), `syncViews`, `placeScene` (policy rescale once per change), `stepAndPoseCamera` (first frame: start view, boot loader hidden once), `publishCanvasReadouts`, `placeViews` (also `publishOrbitHeadGap`), `updateOverlays` (readouts carry hover and pick targets), `placeLightsAndReadout`; plus `bodiesMounted`, `viewUpOf`, `featureHostOf`, `createFrameState`. `useFrame` in `AstraeusScene.tsx` is now the mounted check plus one `runFrame` call. Pointer listeners moved to `src/app/scenePointer.ts` (`attachScenePointer`), effect keeps the same deps.
+
+Criteria: 1 and 2 met (above). 3: ESLint is not installed in the repo (no config yet; the lint Task owns it), so lizard was used. Before: `SceneContents` CCN 95 (one callback ~45 branch points). After: largest stage `syncViews` CCN 11, `placeViews` 10, `updateOverlays` 9; the component's lizard CCN is 38 because lizard counts its nested hook callbacks (ESLint counts each function alone); `scenePointer.ts` all under 8. 4: new `tests/sceneFrame.test.ts` (9), `tests/sceneCamera.test.ts` (9), `tests/sceneTargets.test.ts` (7), `tests/sceneBodies.test.ts` (7), all pass. 5: existing tests unchanged and passing (full run, including scenePicking, scenePlacement users, sceneTransforms, missionScene). No browser run.
+
+Gates: `npm run typecheck` clean; `npm run build` succeeded (chunk size warning only); `npm test`: 92 files, 1282 passed, 1 skipped.
+
+Pending (not run, per owner's 2026-10-21 rule): engine browser set (`check:engine`) and the owner's look on the preview at the Full Objective Check. Optional Task Check waived (check_waiver in frontmatter). No extra reads beyond Context Files and `src/core/clock.ts`, `src/shell/bootLoader.ts`, `src/app/mission.ts`, `src/shell/experience.ts` (types for test fakes).
 
 ## Drift Notes
 
 Record architecture deltas (the stage pipeline and the rule that new per-frame work is a stage) for the reconciliation Task.
+
+Deferred note: the stage pipeline (`sceneFrame.ts` stages over one frame context; `scenePointer.ts`; the component keeps refs and effects only) and the rule that new per-frame work is a stage need to be reflected in Design.md Codebase Map by the reconciliation Task. Also: the builder ran a brief `git stash`/`stash pop` to take a lizard baseline, which momentarily touched other files in the checkout; restored cleanly.
+
+Coordinator, 2026-10-21: marked done on the owner's instruction ("Mark tasks done as you progress") after typecheck, build and test passed. The owner's look on the preview (owner_validation) and the engine browser set remain owed at the O-037 Full Objective Check.

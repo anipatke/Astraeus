@@ -3,6 +3,7 @@ import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
 import { StoryPanelView } from "./StoryPanelView";
+import { useDrawers } from "./useDrawers";
 import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
@@ -36,6 +37,30 @@ function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone:
     window.addEventListener("resize", measure);
     return () => { observer.disconnect(); window.removeEventListener("resize", measure); shell.style.removeProperty("--timeline-space"); };
   }, [root, phone]);
+}
+
+/** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
+function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
+  return firstAvailableObject(experience, timeUtcMs)?.id ?? experience.objects[0]?.id ?? "";
+}
+
+/** The story-panel settings the experience carries itself, used when the app gives none live. */
+function ownStorySettings(storySet: ExperienceConfig["storyPanels"]): StoryPanelSettings {
+  return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
+}
+
+/** The wide-screen moons toggle and the sheet it opens under the toolbar. */
+function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly onToggle: () => void; readonly onClose: () => void; readonly children: ReactNode }) {
+  return (
+    <>
+      <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls="moons-panel" onClick={onToggle}>
+        {planetLabel} moons
+      </button>
+      <aside id="moons-panel" className="moons-sheet" data-open={open} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+        {children}
+      </aside>
+    </>
+  );
 }
 
 interface Props {
@@ -110,31 +135,15 @@ export function AstraeusShell({
   pickRequest,
   children,
 }: Props) {
-  const [selectedObjectId, setSelectedObjectId] = useState(() =>
-    firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? experience.objects[0]?.id ?? "",
-  );
+  const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
   const phone = usePhone();
   /** Fixed for the page: a frame does not appear or vanish while the app runs. */
   const [embedded] = useState(isEmbedded);
   const root = useRef<HTMLElement | null>(null);
-  const [controlsOpen, setControlsOpen] = useState(false);
-  const [timelineOpen, setTimelineOpen] = useState(false);
-  /** The two drawers share the screen, so opening one closes the other. */
-  const openControls = (open: boolean) => {
-    setControlsOpen(open);
-    if (open) {
-      setTimelineOpen(false);
-      // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
-      if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
-    }
-  };
-  const openTimeline = (open: boolean) => { setTimelineOpen(open); if (open) setControlsOpen(false); };
-  useEffect(() => {
-    if (!phone || (!controlsOpen && !timelineOpen)) return undefined;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setControlsOpen(false); setTimelineOpen(false); } };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [phone, controlsOpen, timelineOpen]);
+  // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
+  const { controlsOpen, timelineOpen, openControls, openTimeline } = useDrawers(phone, () => {
+    if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
+  });
   useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   /** The object panel follows the selected object; an event panel names its event. */
@@ -142,12 +151,7 @@ export function AstraeusShell({
 
   const storySet = experience.storyPanels;
   const storyPanels = storySet?.panels ?? [];
-  const story = useStoryPanels(
-    storyPanels,
-    storyPanelSettings ?? { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 },
-    snapshot,
-    onSetPlaying,
-  );
+  const story = useStoryPanels(storyPanels, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
   const openPanelId = story.openPanel?.id ?? null;
   useEffect(() => { onOpenPanelChange?.(openPanelId); }, [onOpenPanelChange, openPanelId]);
   const requestedSerial = panelRequest?.serial;
@@ -304,16 +308,7 @@ export function AstraeusShell({
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">
         {!phone && topBar}
-        {!phone && moonPanel !== null && (
-          <>
-            <button type="button" className="moons-toggle ui-pill" aria-expanded={moonsOpen} aria-controls="moons-panel" onClick={toggleMoons}>
-              {experience.moonFamilies?.planetLabel} moons
-            </button>
-            <aside id="moons-panel" className="moons-sheet" data-open={moonsOpen} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") setMoonsOpen(false); }}>
-              {moonPanel}
-            </aside>
-          </>
-        )}
+        {!phone && moonPanel !== null && <MoonsSheet planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} onToggle={toggleMoons} onClose={() => setMoonsOpen(false)}>{moonPanel}</MoonsSheet>}
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
       </div>
       {story.openPanel !== null && (

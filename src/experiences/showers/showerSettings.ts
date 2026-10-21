@@ -1,6 +1,7 @@
 // Shower settings: the settings types and their strict validation from a shower file.
 import { validateStartView, type StartView } from "../../app/viewLink";
-import { fieldReaders, type Raw } from "../../core/fieldReaders";
+import type { Raw } from "../../core/fieldReaders";
+import { settingsFields } from "../settingsFields";
 import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../core/elementsBody";
 
 /** A cited fact: where a value was read, and when. */
@@ -147,7 +148,7 @@ function fail(path: string, problem: string): never {
   throw new ShowerSettingsError(`shower settings ${path} ${problem}`);
 }
 
-const { record, text, finite, instant } = fieldReaders(fail);
+const { record, text, finite, instant, positive } = settingsFields(fail);
 
 function nonNegative(parent: Raw, key: string, path: string): number {
   const value = finite(parent, key, path);
@@ -205,12 +206,6 @@ function orbitElementsOf(orbit: Raw, parent: ElementsBodyRecord | undefined): Sh
     }
   }
   return elements;
-}
-
-function positive(parent: Raw, key: string, path: string): number {
-  const value = finite(parent, key, path);
-  if (!(value > 0)) fail(`${path}.${key}`, `must be above zero, got ${value}`);
-  return value;
 }
 
 function colour(parent: Raw, key: string, path: string): string {
@@ -316,9 +311,10 @@ function story(input: unknown): ShowerSettings["story"] {
   return { panels: inline };
 }
 
-/** Checks a settings object field by field and returns it typed. Every error names the field. */
-export function parseShowerSettings(input: unknown): ShowerSettings {
-  const root = record(input, "settings");
+type Parent = Pick<ShowerSettings, "id" | "label" | "parentBody" | "parentBodyId" | "orbit"> & { readonly parentElements?: ElementsBodyRecord };
+
+/** The shower's id, its parent body (catalogued or defined in the file) and that parent's orbit. */
+function parseParent(root: Raw): Parent {
   const id = text(root, "id", "settings");
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail("settings.id", `must be lower-case words joined by hyphens, got "${id}"`);
 
@@ -329,13 +325,28 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
   const parentBodyId = parentElements === undefined ? text(root, "parentBodyId", "settings") : parentElements.id;
 
   const orbit = record(root.orbit, "orbit");
+  return {
+    id,
+    label: text(root, "label", "settings"),
+    parentBody: text(root, "parentBody", "settings"),
+    parentBodyId,
+    ...(parentElements === undefined ? {} : { parentElements }),
+    orbit: { elements: orbitElementsOf(orbit, parentElements), source: source(orbit, "source", "orbit") },
+  };
+}
 
+/** The measured-orbit stream: its IAU code, seed, source, quality rule and concentration. */
+function parseStream(root: Raw): ShowerSettings["stream"] {
   const stream = record(root.stream, "stream");
   const iauCode = finite(stream, "iauCode", "stream");
   if (!Number.isSafeInteger(iauCode) || iauCode <= 0) fail("stream.iauCode", `must be a positive whole number (the IAU shower number), got ${iauCode}`);
   const seed = finite(stream, "seed", "stream");
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) fail("stream.seed", `must be an unsigned 32-bit whole number, got ${seed}`);
+  return { iauCode, sources: orbitSources(stream), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) };
+}
 
+/** The activity window, its peak and rate; the timeline year, when given, must hold the whole window. */
+function parseActivity(root: Raw, timelineSettings: ShowerSettings["timeline"]): ShowerSettings["activity"] {
   const activity = record(root.activity, "activity");
   const startUtc = instant(activity, "startUtc", "activity");
   const endUtc = instant(activity, "endUtc", "activity");
@@ -343,14 +354,26 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
   const [startMs, endMs, peakMs] = [startUtc, endUtc, peakUtc].map(Date.parse);
   if (endMs <= startMs) fail("activity.endUtc", "must be after activity.startUtc");
   if (peakMs < startMs || peakMs > endMs) fail("activity.peakUtc", "must lie inside the activity window");
-  const timelineSettings = timeline(root.timeline);
   if (timelineSettings.yearStartUtc !== undefined) {
     const yearStartMs = Date.parse(timelineSettings.yearStartUtc);
     if (startMs < yearStartMs || endMs > yearStartMs + Math.round(YEAR_DAYS * 86_400_000)) fail("timeline.yearStartUtc", `must start a year (${YEAR_DAYS} days) that holds the whole activity window, got ${timelineSettings.yearStartUtc}`);
   }
   const peakRate = nonNegative(activity, "peakRate", "activity");
   if (peakRate === 0) fail("activity.peakRate", "must be above zero");
+  return {
+    startUtc,
+    endUtc,
+    peakUtc,
+    peakPublishedNight: text(activity, "peakPublishedNight", "activity"),
+    peakRate,
+    rateUnit: text(activity, "rateUnit", "activity"),
+    fallOffPerDay: nonNegative(activity, "fallOffPerDay", "activity"),
+    source: source(activity, "source", "activity"),
+  };
+}
 
+/** The published radiant and the solar longitude of the peak. */
+function parseRadiant(root: Raw): ShowerSettings["radiant"] {
   const radiant = record(root.radiant, "radiant");
   const raDeg = finite(radiant, "raDeg", "radiant");
   const decDeg = finite(radiant, "decDeg", "radiant");
@@ -359,29 +382,25 @@ export function parseShowerSettings(input: unknown): ShowerSettings {
 
   const peakSolarLongitudeDeg = finite(radiant, "peakSolarLongitudeDeg", "radiant");
   if (peakSolarLongitudeDeg < 0 || peakSolarLongitudeDeg >= 360) fail("radiant.peakSolarLongitudeDeg", `must be at least 0 and below 360, got ${peakSolarLongitudeDeg}`);
+  return { raDeg, decDeg, equinox: text(radiant, "equinox", "radiant"), peakSolarLongitudeDeg, source: source(radiant, "source", "radiant") };
+}
 
+/** Checks a settings object field by field and returns it typed. Every error names the field. */
+export function parseShowerSettings(input: unknown): ShowerSettings {
+  const root = record(input, "settings");
+  const parent = parseParent(root);
+  const stream = parseStream(root);
+  const timelineSettings = timeline(root.timeline);
+  const activity = parseActivity(root, timelineSettings);
+  const radiant = parseRadiant(root);
   return {
-    id,
-    label: text(root, "label", "settings"),
-    parentBody: text(root, "parentBody", "settings"),
-    parentBodyId,
-    ...(parentElements === undefined ? {} : { parentElements }),
-    orbit: { elements: orbitElementsOf(orbit, parentElements), source: source(orbit, "source", "orbit") },
-    stream: { iauCode, sources: orbitSources(stream), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) },
+    ...parent,
+    stream,
     labels: labels(root.labels),
     timeline: timelineSettings,
     look: look(record(root.look, "look")),
     ...(root.story === undefined ? {} : { story: story(root.story) }),
-    activity: {
-      startUtc,
-      endUtc,
-      peakUtc,
-      peakPublishedNight: text(activity, "peakPublishedNight", "activity"),
-      peakRate,
-      rateUnit: text(activity, "rateUnit", "activity"),
-      fallOffPerDay: nonNegative(activity, "fallOffPerDay", "activity"),
-      source: source(activity, "source", "activity"),
-    },
-    radiant: { raDeg, decDeg, equinox: text(radiant, "equinox", "radiant"), peakSolarLongitudeDeg, source: source(radiant, "source", "radiant") },
+    activity,
+    radiant,
   };
 }

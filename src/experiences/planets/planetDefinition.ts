@@ -127,6 +127,17 @@ function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<
   };
 }
 
+/** Every way the settings and the system can disagree, as a `PlanetBuildError` naming the setting; returns when they agree. */
+function validatePlanetSystem(settings: PlanetSettings, system: PlanetSystem, moonList: MoonCatalogue | undefined): void {
+  const mappedIds = new Set(system.composition.bodies.filter((id) => id !== settings.centre.id));
+  const wanted = (settings.moons?.mapped ?? []).map((moon) => moon.id);
+  for (const id of wanted) if (!mappedIds.has(id)) throw new PlanetBuildError(`planet "${settings.id}" describes the mapped moon "${id}", which its system does not draw as a body`);
+  // With a moon list, a listed moon the system draws as a body needs words; without one, every body drawn about the centre does.
+  for (const id of mappedIds) if ((moonList === undefined || moonList.moons.some((moon) => moon.id === id)) && !wanted.includes(id)) throw new PlanetBuildError(`planet "${settings.id}" has no words for the mapped moon "${id}"`);
+  if (!system.composition.bodies.includes(settings.centre.id)) throw new PlanetBuildError(`planet "${settings.id}" centres on "${settings.centre.id}", which its system does not draw`);
+  if (moonList !== undefined && !moonList.families.some((family) => family.id === settings.moons!.featuredFamilyId)) throw new PlanetBuildError(`planet "${settings.id}" features the family "${settings.moons!.featuredFamilyId}", which its moon list lacks`);
+}
+
 /** Builds one planet's view. Throws a `PlanetBuildError` naming the setting when the settings and the system disagree. */
 export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSystem, panelsFile: unknown): ExperienceDefinition {
   const list = moonListOf(settings, system);
@@ -146,12 +157,7 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
 
   const mappedIds = new Set(system.composition.bodies.filter((id) => id !== settings.centre.id));
   const mappedMoons = settings.moons?.mapped ?? [];
-  const wanted = mappedMoons.map((moon) => moon.id);
-  for (const id of wanted) if (!mappedIds.has(id)) throw new PlanetBuildError(`planet "${settings.id}" describes the mapped moon "${id}", which its system does not draw as a body`);
-  // With a moon list, a listed moon the system draws as a body needs words; without one, every body drawn about the centre does.
-  for (const id of mappedIds) if ((moonList === undefined || moonList.moons.some((moon) => moon.id === id)) && !wanted.includes(id)) throw new PlanetBuildError(`planet "${settings.id}" has no words for the mapped moon "${id}"`);
-  if (!system.composition.bodies.includes(settings.centre.id)) throw new PlanetBuildError(`planet "${settings.id}" centres on "${settings.centre.id}", which its system does not draw`);
-  if (moonList !== undefined && !moonList.families.some((family) => family.id === settings.moons!.featuredFamilyId)) throw new PlanetBuildError(`planet "${settings.id}" features the family "${settings.moons!.featuredFamilyId}", which its moon list lacks`);
+  validatePlanetSystem(settings, system, moonList);
 
   const layer = list === undefined ? undefined : planetMoonLayer(settings, { ...list, composition: system.composition, fitErrorsM: system.fitErrorsM });
   const dots = moonList === undefined ? [] : moonList.moons.filter((moon) => !mappedIds.has(moon.id));

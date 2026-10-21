@@ -83,12 +83,17 @@ export function createEarthSunTrajectory(adapter: AstronomyAdapter): Trajectory 
   });
 }
 
-/** A path's sample times: `count` evenly spaced from the span's start to its end inclusive, rounded to whole milliseconds. */
-export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {
+/** A path needs at least two samples over a span that ends after it starts, both ends valid instants. */
+function assertPathSpan(span: TimeBounds, count: number): void {
   if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);
   assertUtcUnixMs(span.startUtcMs);
   assertUtcUnixMs(span.endUtcMs);
   if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError("a path span must end after it starts");
+}
+
+/** A path's sample times: `count` evenly spaced from the span's start to its end inclusive, rounded to whole milliseconds. */
+export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {
+  assertPathSpan(span, count);
   const times: number[] = [];
   for (let k = 0; k < count; k += 1) times.push(Math.round(span.startUtcMs + ((span.endUtcMs - span.startUtcMs) * k) / (count - 1)));
   return times;
@@ -124,10 +129,7 @@ export function eccentricAnomalyFromMean(meanRad: number, eccentricity: number):
  * still asked for its own state at every time, so the line passes through the source's positions.
  */
 export function eccentricPathTimesUtcMs(span: TimeBounds, count: number, orbit: EccentricSampling): number[] {
-  if (!Number.isInteger(count) || count < 2) throw new RangeError(`a path needs at least 2 samples, got ${count}`);
-  assertUtcUnixMs(span.startUtcMs);
-  assertUtcUnixMs(span.endUtcMs);
-  if (!(span.endUtcMs > span.startUtcMs)) throw new RangeError("a path span must end after it starts");
+  assertPathSpan(span, count);
   const { eccentricity, periodMs, periapsisUtcMs } = orbit;
   if (!(eccentricity >= 0 && eccentricity < 1)) throw new RangeError("sampling by eccentric anomaly needs an eccentricity of at least 0 and below 1");
   if (!(periodMs > 0) || !Number.isFinite(periodMs)) throw new RangeError("sampling by eccentric anomaly needs a positive finite period");

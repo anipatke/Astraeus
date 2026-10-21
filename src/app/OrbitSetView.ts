@@ -255,13 +255,8 @@ export class OrbitSetView {
     const start = this.#cursor;
     for (let k = 0; k < n; k += 1) {
       const m = (start + k) % n;
-      if (Number.isNaN(this.#stepMs[m])) {
-        const period = this.#sources[m].periodMs(timeUtcMs);
-        this.#stepMs[m] = Number.isFinite(period) && period > 0 ? Math.max(period / (this.samples - 1), MIN_STEP_MS) : MIN_STEP_MS;
-      }
-      const moved = Math.floor(timeUtcMs / this.#stepMs[m]) - this.#builtStep[m];
-      const jumped = !(moved >= 0 && moved <= JUMP_SHARE * (this.samples - 1));
-      if (whole || jumped) {
+      const moved = Math.floor(timeUtcMs / this.#stepFor(m, timeUtcMs)) - this.#builtStep[m];
+      if (this.#refreshNeeded(moved, whole)) {
         this.#sample(m, timeUtcMs, policy);
       } else if (budget > 0 && moved >= 1) {
         this.#sample(m, timeUtcMs, policy);
@@ -270,6 +265,20 @@ export class OrbitSetView {
       }
     }
     for (let m = 0; m < n; m += 1) this.#syncHead(m, timeUtcMs);
+  }
+
+  /** Path `m`'s fixed sample step (ms), worked out from the body's period the first time it is asked for. */
+  #stepFor(m: number, timeUtcMs: number): number {
+    if (Number.isNaN(this.#stepMs[m])) {
+      const period = this.#sources[m].periodMs(timeUtcMs);
+      this.#stepMs[m] = Number.isFinite(period) && period > 0 ? Math.max(period / (this.samples - 1), MIN_STEP_MS) : MIN_STEP_MS;
+    }
+    return this.#stepMs[m];
+  }
+
+  /** Whether a path is re-sampled at once, whatever the per-frame budget: the scale changed (`whole`) or the clock jumped (`moved` steps is outside a quarter of its span, or backwards). */
+  #refreshNeeded(moved: number, whole: boolean): boolean {
+    return whole || !(moved >= 0 && moved <= JUMP_SHARE * (this.samples - 1));
   }
 
   /** A sample time on path `m`'s grid, kept inside the loaded data and not past the clock. */
