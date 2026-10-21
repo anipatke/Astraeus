@@ -76,7 +76,8 @@ If a rule can block a Check's verdict or require remediation, it must be defined
 
 | ID | Severity | Rule |
 |---|---|---|
-| CODE-01 | Guideline | **Complexity** — bring a Watch signal back to its watch line; the aim is not a target. |
+| CODE-01 | Guideline | **Complexity** — no function over cyclomatic complexity 20 as `npm run lint` measures it (ESLint `complexity`); a Task that must exceed it records why in its evidence. Bring a Watch signal back to its watch line; the aim is not a target. |
+| CODE-02 | Guideline | **Per-frame scene work is a stage** — new per-frame work is a named stage function in `src/app/sceneFrame.ts` with a node test in `tests/sceneFrame.test.ts`, never inline in the React component. |
 
 ## Savepoint Check Enforcement
 

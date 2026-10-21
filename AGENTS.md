@@ -133,9 +133,14 @@ Code style is project-owned policy: the `STYLE` rules in `.savepoint/Guardrails.
 
 List the project's gate commands here when they differ from, or add to, `quality_gates` in `.savepoint/config.yml` — for example a slower full gate for migration, platform-sensitive work, and Full Objective Checks.
 
+- Hand-off gates (`quality_gates` in `.savepoint/config.yml`): `npm run lint`, `npm run typecheck`, `npm run build` and `npm test` (with the junit reporter). Run the build under the shared build lock when other sessions run.
 - Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
-- Lint gate: `npm run lint` (ESLint `complexity` at 20 over `src`, `tests`, `tools`) runs at every Task hand-off alongside typecheck, build and test.
-- Health scanners (`.savepoint/health/config.json`): jscpd measures duplicated lines and lizard measures function complexity, both over code only (they skip `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`); coverage counts `src` and the non-browser `tools` only.
+- Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `src`, `tests` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
+- Browser gates: `npm run check:engine` and `npm run check:demo -- <apollo|showers|planets>` as the Astraeus Project Rules say; scripts share `tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
+- Health scanners (`.savepoint/health/config.json`), one line each:
+  - jscpd measures duplicated lines over code only; it skips `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`.
+  - lizard measures function complexity over the same code; same skips. `.claude` hooks are not skipped (11 rows of about 5500; left as measured, the owner may add the exclusion).
+  - coverage counts `src` and the non-browser `tools` only (`test.coverage` in `vite.config.ts`), refreshed by `npm run test:full` at each Full Objective Check before `savepoint health check`.
 
 See Verification Policy for gate evidence and reuse requirements.
 
@@ -143,6 +148,16 @@ See Verification Policy for gate evidence and reuse requirements.
 
 | Module | Purpose |
 |--------|---------|
+| `src/core/` | Scientific core: clock, frames, bodies, providers and curve-fit state; no presentation, no experience names (ARCH-01, ARCH-02) |
+| `src/assets/` | Body catalogue, compositions, visuals, licences, rings and sky |
+| `src/app/` | Scene and app adapter; `sceneFrame.ts` holds the per-frame stages, `scenePointer.ts` the pointer listeners (CODE-02) |
+| `src/shell/` | Generic UI: shell, top bar, timeline, drawers (`useDrawers.ts`), info panel, story panels |
+| `src/experiences/` | The three demos (Apollo 11, Showers, Planets) built from data; `settingsFields.ts` is the shared settings reader |
+| `src/synthetic/` | Made-up experiences that prove the plug-in contract and feed the engine browser set |
+| `data/` | Committed core and demo data: bodies, ephemerides, orbits, planets, showers, stories |
+| `tools/` | Importers, site generators, `tools/lint/` (TypeScript 6 parser shim) and `tools/validate/` (browser checks over `harness.mjs` and `driver.mjs`) |
+| `tests/` | Vitest suites, fixtures and the browser-driver guard |
+| `docs/` | Design notes, `BROWSER_CHECKS.md` and `docs/evidence/` (only what a record cites) |
 
 ## Context Budget
 

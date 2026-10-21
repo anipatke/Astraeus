@@ -3,11 +3,16 @@ id: T-128
 title: Fill the agent guide, make the complexity rule concrete and reconcile Design
 objective: O-037
 status: in_progress
-stage: build
+stage: audit
 depends_on: [{task: T-122, requires: clear}, {task: T-123, requires: clear}, {task: T-124, requires: clear}, {task: T-125, requires: clear}, {task: T-126, requires: clear}, {task: T-127, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o037-planning-20261021}
 planned_reads: [AGENTS.md, .savepoint/Guardrails.md, .savepoint/Design.md, .savepoint/health/config.json, agent-skills/references/check-method.md, agent-skills/references/issue-capture.md]
+check_waiver:
+  task: T-128
+  reason: "Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it."
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-21T10:46:01Z'
 planned_writes: [AGENTS.md, .savepoint/Guardrails.md, .savepoint/Design.md, .savepoint/issues]
 ---
 
@@ -58,8 +63,16 @@ No edits under `agent-skills/`; no code changes; no change to the health config 
 
 ## Technical Evidence
 
-Pending execution: sections written, Drift Notes accounted for, the Issue's ID, gate results.
+Built 2026-10-21 by the T-128 builder; Task Check waived by the owner (`check_waiver`); evidence routes to the Full Objective Check.
+
+1. AGENTS.md Build: hand-off gates (lint, typecheck, build, test), `npm run test:full` as the full gate, the lint gate with the TypeScript 6 shim, the browser gates, and one line per scanner (jscpd, lizard, coverage). Codebase Map: ten rows (src/core, assets, app, shell, experiences, synthetic, data, tools, tests, docs). Decision recorded: the 11 lizard rows from `.claude` hooks are not excluded (boundary: no health config change here); the line says so and the owner may add the exclusion.
+2. Guardrails: CODE-01 now reads no function over complexity 20 as `npm run lint` measures it, with the evidence-exception wording; CODE-02 (Guideline) added: per-frame scene work is a stage in `src/app/sceneFrame.ts` with a node test.
+3. Design: `src/app/scene*.ts` row names `runFrame`, the stage order, `scenePointer.ts` and CODE-02; `tools/validate/` row names the harness, the guard and the runner's retention; a Current Technical State paragraph (O-037) records scanner scope, coverage definition, before/after figures, the lint gate and an account of every O-037 Drift Note as reflected or non-architectural with a reason. T-124's deferred note, T-126's notes and T-123's rule are reflected; T-125 and T-127 splits are non-architectural. Nothing about I-054 to I-058.
+4. Issue I-059 (type other, open, addressed to the Savepoint package) holds the three skill suggestions: stale coverage reads unknown and the Full Objective Check refreshes it before the health check; mostly-outside-scope signals reported as a measurement-scope observation; trend only across fresh instances. `agent-skills/` untouched.
+5. Gates 2026-10-21: `npm run lint` 0 errors; `npm run typecheck` clean; `npm run build` ok (chunk warning only, under the build lock); `npm test` with junit 92 files, 1282 passed, 1 skipped. `savepoint resume` loads.
+
+Files read: Context Files plus the Technical Evidence of T-122 to T-127 and Issue I-010/I-058 as templates (extra reads for wording). Files changed: AGENTS.md, .savepoint/Guardrails.md, .savepoint/Design.md, .savepoint/issues/I-059-*.md, this Task. Not verified: no browser, test:full or health run (owed at the Full Objective Check); health figures are T-122's scratch figures, not a fresh snapshot.
 
 ## Drift Notes
 
-None expected: this Task is the reconciliation.
+None: this Task is the reconciliation.
