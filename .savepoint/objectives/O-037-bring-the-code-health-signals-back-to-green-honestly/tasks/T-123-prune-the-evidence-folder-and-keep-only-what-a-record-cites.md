@@ -2,8 +2,7 @@
 id: T-123
 title: Prune the evidence folder and keep only what a record cites
 objective: O-037
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver:
@@ -77,3 +76,5 @@ Built 2026-10-21 by the T-123 builder; deletion run by the owner (owner action, 
 ## Drift Notes
 
 Record architecture deltas and reconcile through the planner before Check.
+
+Owner, 2026-10-21, in the coordinator session: "You mark". Coordinator set status done on that instruction after lint, typecheck, build and test passed; browser proof is owed at the O-037 Full Objective Check.

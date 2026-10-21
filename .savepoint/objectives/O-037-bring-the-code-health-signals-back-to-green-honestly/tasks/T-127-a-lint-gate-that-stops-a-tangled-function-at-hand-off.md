@@ -2,8 +2,7 @@
 id: T-127
 title: A lint gate that stops a tangled function at hand-off
 objective: O-037
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-124, requires: clear}, {task: T-125, requires: clear}]
 owner_validation: {required: false}
 check_waiver:
@@ -100,3 +99,5 @@ Full: `npm test -- --reporter=default` 92 files, 1282 passed, 1 skipped.
 ## Drift Notes
 
 Record architecture deltas and reconcile through the planner before Check.
+
+Owner, 2026-10-21, in the coordinator session: "You mark". Coordinator set status done on that instruction after lint, typecheck, build and test passed; browser proof is owed at the O-037 Full Objective Check.

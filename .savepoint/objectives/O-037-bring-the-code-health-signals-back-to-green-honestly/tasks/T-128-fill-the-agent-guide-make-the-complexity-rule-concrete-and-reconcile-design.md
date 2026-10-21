@@ -2,7 +2,8 @@
 id: T-128
 title: Fill the agent guide, make the complexity rule concrete and reconcile Design
 objective: O-037
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-122, requires: clear}, {task: T-123, requires: clear}, {task: T-124, requires: clear}, {task: T-125, requires: clear}, {task: T-126, requires: clear}, {task: T-127, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o037-planning-20261021}
