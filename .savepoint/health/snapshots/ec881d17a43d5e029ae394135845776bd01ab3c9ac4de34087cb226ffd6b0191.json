@@ -1,0 +1,477 @@
+{
+  "version": 1,
+  "id": "sha256:ec881d17a43d5e029ae394135845776bd01ab3c9ac4de34087cb226ffd6b0191",
+  "origin": "official",
+  "retention": "permanent",
+  "created_at": "2026-10-21T10:51:11Z",
+  "repository": {
+    "commit": "1b2072dee02545b80150ac889af233f17ff560df",
+    "dirty": false,
+    "input_fingerprint": "sha256:de2478d7d5b34803e917206e400de3134ca37b4efbb3d61d3fb2616fcf8806cc"
+  },
+  "results": [
+    {
+      "capability": "complexity",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-21T10:51:08Z",
+      "provenance": {
+        "provider": "lizard-csv",
+        "provider_version": "unknown",
+        "measurement_definition": "highest cyclomatic complexity (CCN) of any function"
+      },
+      "config_digest": "sha256:eb74eceb9d42ae95aebb5d9394552eb8f9bff12e19285c87621bc59a8223871a",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "coverage/**",
+        "data/**",
+        "dist/**",
+        "docs/evidence/**",
+        "node_modules/**",
+        "tests/fixtures/**",
+        "tools/archive/**",
+        "tools/import/*.json",
+        "tools/import/.horizons-cache/**"
+      ],
+      "value": {
+        "number": 38,
+        "unit": "ccn"
+      },
+      "reason": "Lizard's CSV does not state its version",
+      "details": [
+        {
+          "key": "average_ccn",
+          "number": 1.8048384184870916
+        },
+        {
+          "key": "functions",
+          "number": 5539
+        },
+        {
+          "key": "functions_over_10",
+          "number": 61
+        },
+        {
+          "key": "functions_over_20",
+          "number": 2
+        }
+      ],
+      "evidence": [
+        {
+          "path": "src/app/AstraeusScene.tsx",
+          "line": 147,
+          "note": "AstraeusScene has complexity 38"
+        },
+        {
+          "path": "src/app/OrbitSetView.ts",
+          "line": 240,
+          "note": "sync has complexity 16"
+        },
+        {
+          "path": "src/app/PathView.ts",
+          "line": 141,
+          "note": "constructor has complexity 20"
+        },
+        {
+          "path": "src/app/bodyMetrics.ts",
+          "line": 80,
+          "note": "(anonymous) has complexity 14"
+        },
+        {
+          "path": "src/app/bodySet.ts",
+          "line": 113,
+          "note": "validateBodySet has complexity 15"
+        },
+        {
+          "path": "src/app/sceneBodies.ts",
+          "line": 65,
+          "note": "bodyScreenReadouts has complexity 17"
+        },
+        {
+          "path": "src/assets/catalogue.ts",
+          "line": 44,
+          "note": "createCatalogue has complexity 18"
+        },
+        {
+          "path": "src/assets/compositions.ts",
+          "line": 36,
+          "note": "createComposition has complexity 17"
+        },
+        {
+          "path": "src/core/chebyshevEphemeris.ts",
+          "line": 200,
+          "note": "chunksFor has complexity 15"
+        },
+        {
+          "path": "src/experiences/showers/measuredOrbits.ts",
+          "line": 116,
+          "note": "parseMeasuredOrbits has complexity 19"
+        },
+        {
+          "path": "tests/apollo11Reconstruction.test.ts",
+          "line": 165,
+          "note": "sameWithin has complexity 17"
+        },
+        {
+          "path": "tools/import/horizons-client.mjs",
+          "line": 91,
+          "note": "headerOf has complexity 20"
+        },
+        {
+          "path": "tools/import/horizons-moons-measure.mjs",
+          "line": 176,
+          "note": "browserSpeed has complexity 15"
+        },
+        {
+          "path": "tools/import/horizons-moons.mjs",
+          "line": 155,
+          "note": "periodDaysOf has complexity 16"
+        },
+        {
+          "path": "tools/import/jupiter-moon-catalogue.mjs",
+          "line": 72,
+          "note": "(anonymous) has complexity 17"
+        },
+        {
+          "path": "tools/validate/browser-moon-panel.mjs",
+          "line": 33,
+          "note": "assertNoOverlap has complexity 15"
+        },
+        {
+          "path": "tools/validate/driver.mjs",
+          "line": 969,
+          "note": "(anonymous) has complexity 16"
+        },
+        {
+          "path": "tools/validate/driver.mjs",
+          "line": 1077,
+          "note": "(anonymous) has complexity 20"
+        },
+        {
+          "path": "tools/validate/on-request/browser-sky.mjs",
+          "line": 39,
+          "note": "open has complexity 19"
+        },
+        {
+          "path": "tools/validate/runner.mjs",
+          "line": 28,
+          "note": "runStep has complexity 27"
+        }
+      ]
+    },
+    {
+      "capability": "coverage",
+      "outcome": "absent",
+      "freshness": "unknown",
+      "collected_at": "2026-10-21T10:51:11Z",
+      "provenance": {
+        "provider": "vitest-v8-coverage"
+      },
+      "config_digest": "sha256:4fe9e969d32d636c07b00cbbedda1b3494c711f8c4dec8db16cf592e8f79265a",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "reason": "no report at coverage/coverage-final.json"
+    },
+    {
+      "capability": "dependency_vulnerabilities",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-21T10:51:11Z",
+      "provenance": {
+        "provider": "osv-scanner-json",
+        "provider_version": "unknown",
+        "measurement_definition": "vulnerability groups per package, bucketed by CVSS"
+      },
+      "config_digest": "sha256:2cda3da7e8294ce5825bf297cb75d799ba0925aee672f8dac8d3bd78c4684ac4",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 3,
+        "unit": "count"
+      },
+      "reason": "Vulnerability database was queried at collection time; its snapshot is unknown.",
+      "details": [
+        {
+          "key": "critical",
+          "number": 0
+        },
+        {
+          "key": "high",
+          "number": 1
+        },
+        {
+          "key": "low",
+          "number": 0
+        },
+        {
+          "key": "medium",
+          "number": 2
+        },
+        {
+          "key": "unknown",
+          "number": 0
+        }
+      ],
+      "evidence": [
+        {
+          "path": "package-lock.json",
+          "note": "vite 8.3.2: GHSA-587h-7wmj-h5pm"
+        },
+        {
+          "path": "package-lock.json",
+          "note": "vite 8.3.2: GHSA-698v-4r3x-3vcv"
+        },
+        {
+          "path": "package-lock.json",
+          "note": "vite 8.3.2: GHSA-r825-w8mm-5pxw"
+        }
+      ]
+    },
+    {
+      "capability": "duplication",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-21T10:51:09Z",
+      "provenance": {
+        "provider": "jscpd-json",
+        "provider_version": "unknown",
+        "measurement_definition": "share of lines that are part of a repeated block"
+      },
+      "config_digest": "sha256:e46261c66f803cb1c4f8712a9f1bd3598c878ca1bec900ff9b9cd27ae4fb0d09",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/testdata/**",
+        ".savepoint/**",
+        "coverage/**",
+        "data/**",
+        "dist/**",
+        "docs/evidence/**",
+        "node_modules/**",
+        "tests/fixtures/**",
+        "tools/archive/**",
+        "tools/import/*.json",
+        "tools/import/.horizons-cache/**"
+      ],
+      "value": {
+        "number": 1.4305072218287087,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "clones",
+          "number": 74
+        },
+        {
+          "key": "duplicated_lines",
+          "number": 929
+        },
+        {
+          "key": "sources",
+          "number": 446
+        },
+        {
+          "key": "total_lines",
+          "number": 64942
+        }
+      ],
+      "evidence": [
+        {
+          "path": ".claude/hooks/guard.cjs",
+          "line": 9,
+          "note": "187 lines repeated at .claude/hooks/guard.js:9"
+        },
+        {
+          "path": ".claude/hooks/savepoint-find.cjs",
+          "line": 4,
+          "note": "33 lines repeated at .claude/hooks/savepoint-find.js:4"
+        },
+        {
+          "path": ".claude/hooks/session-start.cjs",
+          "line": 9,
+          "note": "44 lines repeated at .claude/hooks/session-start.js:9"
+        },
+        {
+          "path": "assets.html",
+          "line": 12,
+          "note": "11 lines repeated at index.html:18"
+        },
+        {
+          "path": "assets.html",
+          "line": 122,
+          "note": "11 lines repeated at index.html:197"
+        },
+        {
+          "path": "assets.html",
+          "line": 178,
+          "note": "11 lines repeated at assets.html:263"
+        },
+        {
+          "path": "assets.html",
+          "line": 178,
+          "note": "11 lines repeated at assets.html:286"
+        },
+        {
+          "path": "licenses/orbjs-MIT.txt",
+          "line": 5,
+          "note": "17 lines repeated at licenses/python-sgp4.txt:4"
+        },
+        {
+          "path": "package-lock.json",
+          "line": 10,
+          "note": "22 lines repeated at package.json:20"
+        },
+        {
+          "path": "src/shell/ObjectControls.tsx",
+          "line": 3,
+          "note": "11 lines repeated at src/shell/TopBar.tsx:7"
+        },
+        {
+          "path": "tests/core.test.ts",
+          "line": 96,
+          "note": "11 lines repeated at tests/core.test.ts:116"
+        },
+        {
+          "path": "tests/experiencePlugIn.test.ts",
+          "line": 31,
+          "note": "13 lines repeated at tests/syntheticRing.test.ts:32"
+        },
+        {
+          "path": "tests/pointsGpuBlend.test.ts",
+          "line": 10,
+          "note": "12 lines repeated at tests/pointsLookAhead.test.ts:8"
+        },
+        {
+          "path": "tools/validate/browser-apollo-shell.mjs",
+          "line": 173,
+          "note": "13 lines repeated at tools/validate/browser-shell.mjs:111"
+        },
+        {
+          "path": "tools/validate/browser-jupiter-io.mjs",
+          "line": 15,
+          "note": "11 lines repeated at tools/validate/browser-moon-panel.mjs:12"
+        },
+        {
+          "path": "tools/validate/browser-jupiter-io.mjs",
+          "line": 332,
+          "note": "17 lines repeated at tools/validate/browser-outer-planets.mjs:126"
+        },
+        {
+          "path": "tools/validate/browser-jupiter-tap.mjs",
+          "line": 8,
+          "note": "12 lines repeated at tools/validate/browser-planet-switch.mjs:13"
+        },
+        {
+          "path": "tools/validate/browser-moon-panel.mjs",
+          "line": 11,
+          "note": "12 lines repeated at tools/validate/browser-outer-planets.mjs:7"
+        },
+        {
+          "path": "tools/validate/browser-synthetic-listed.mjs",
+          "line": 12,
+          "note": "11 lines repeated at tools/validate/browser-synthetic-ring.mjs:15"
+        },
+        {
+          "path": "tools/validate/on-request/browser-precision.mjs",
+          "line": 117,
+          "note": "18 lines repeated at tools/validate/on-request/browser-synthetic-eccentric.mjs:271"
+        }
+      ]
+    },
+    {
+      "capability": "tests",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-21T10:51:07Z",
+      "provenance": {
+        "provider": "vitest-junit",
+        "provider_version": "unknown",
+        "measurement_definition": "failed tests plus errored tests"
+      },
+      "config_digest": "sha256:0aff58554fee731cddc805e5d92799b4aa35067c0a3da27650abfe7b055b66cd",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 1,
+        "unit": "count"
+      },
+      "details": [
+        {
+          "key": "errors",
+          "number": 0
+        },
+        {
+          "key": "skipped_tests",
+          "number": 1
+        },
+        {
+          "key": "total_tests",
+          "number": 1283
+        }
+      ],
+      "evidence": [
+        {
+          "path": "tests/compositions.test.ts",
+          "note": "test State is untouched by how a scene presents it (design E step 3) \u003e (i) is byte-identical for eve…"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "overall": "needs_attention",
+    "capabilities": [
+      {
+        "capability": "complexity",
+        "provider": "lizard-csv",
+        "classification": "needs_attention",
+        "explanation": "Highest complexity 38 is beyond the watch range. Not enough comparable official history for a recent range yet. 25 earlier official results not compared."
+      },
+      {
+        "capability": "coverage",
+        "provider": "vitest-v8-coverage",
+        "classification": "unknown",
+        "explanation": "No report was found, so health is unknown."
+      },
+      {
+        "capability": "dependency_vulnerabilities",
+        "provider": "osv-scanner-json",
+        "classification": "needs_attention",
+        "explanation": "1 high and 0 critical vulnerabilities; these always need attention. Recent range 0 to 3 over 5 official checks, declining."
+      },
+      {
+        "capability": "duplication",
+        "provider": "jscpd-json",
+        "classification": "watch",
+        "explanation": "Duplication 1.4% meets the good threshold. Not enough comparable official history for a recent range yet. 25 earlier official results not compared. Good needs three comparable official checks."
+      },
+      {
+        "capability": "tests",
+        "provider": "vitest-junit",
+        "classification": "needs_attention",
+        "explanation": "1 failing; failing tests always need attention. Recent range 0 to 1 over 5 official checks, declining."
+      }
+    ]
+  }
+}

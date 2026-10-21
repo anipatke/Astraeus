@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "command": "node tools/validate/browser-story-panels.mjs",
+  "url": "http://localhost:5479/app.html",
+  "at": "2026-10-21T11:00:44.470Z",
+  "results": [
+    {
+      "name": "Jupiter–Io panels open in order on playback; a marker reopens one",
+      "detail": "volcanoes > squeezed > rhythm"
+    },
+    {
+      "name": "zero console errors",
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,34 @@
+---
+id: I-062
+title: Complexity still reads Needs attention on the scene component
+type: verification
+status: open
+source:
+  kind: check
+  check: C-094
+  actor: {role: checker, session: o037-full-check-20261021}
+  at: '2026-10-21T11:10:00Z'
+tasks: [T-124, T-127]
+checks: [C-094]
+guardrail_ids: [CODE-01]
+history:
+  - at: '2026-10-21T11:10:00Z'
+    actor: {role: checker, session: o037-full-check-20261021}
+    kind: observed
+    check: C-094
+    note: Found by the O-037 Full Objective Check.
+---
+
+# I-062: Complexity still reads Needs attention on the scene component
+
+## Summary
+
+Success Condition 8 asks the health report after O-037 to show complexity at Watch or better. The official snapshot reports highest complexity 38 (Needs attention; watch line 20) for `src/app/AstraeusScene.tsx:147` `AstraeusScene`, one more lizard function over 20 (2 in total). ESLint's `complexity` rule (SC3) passes because it counts each nested callback alone; lizard cannot bound functions in JSX and counts the component with its hook callbacks, as T-124's evidence already noted (CCN 38). SC3 is met; SC8's complexity clause is not.
+
+## Evidence
+
+C-094 snapshot sha256:ec881d17a43d5e029ae394135845776bd01ab3c9ac4de34087cb226ffd6b0191: complexity 38 ccn, functions_over_20 = 2, average 1.80, classification needs_attention. `npm run lint` exit 0 at 2026-10-21T10:50:38Z.
+
+## Proof Needed
+
+An owner decision either way: reduce what lizard counts in `AstraeusScene.tsx` (and the second function over 20) until the next official snapshot reads Watch or better, or accept the lizard reading as a known mis-measure with SC3 (ESLint) as the governing figure.

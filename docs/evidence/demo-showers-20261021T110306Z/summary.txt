@@ -1,0 +1,4 @@
+logs: /tmp/astraeus-check-logs-Slnzkb
+smoke | scene=showers, perseids, geminids | exit=0 | 11:03:09-11:03:50 | 41s | error-lines=0
+showers-perseids | scene=? | exit=0 | 11:03:50-11:06:55 | 185s | error-lines=0
+showers-geminids | scene=? | exit=1 | 11:06:55-11:07:20 | 26s | error-lines=0

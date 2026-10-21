@@ -1,0 +1,9 @@
+logs: /tmp/astraeus-check-logs-Yz0TEc
+smoke | scene=planets (Jupiter) + catalogue page | exit=0 | 10:56:07-10:56:25 | 18s | error-lines=0
+jupiter-io | scene=? | exit=1 | 10:56:25-10:59:32 | 187s | error-lines=0
+moon-panel | scene=? | exit=0 | 10:59:32-11:00:19 | 47s | error-lines=0
+jupiter-tap | scene=? | exit=0 | 11:00:19-11:00:29 | 10s | error-lines=0
+story-panels | scene=? | exit=0 | 11:00:29-11:00:44 | 15s | error-lines=0
+outer-planets | scene=planets: Saturn, Uranus, Pluto (desktop and phone) | exit=0 | 11:00:44-11:02:52 | 128s | error-lines=0
+planet-switch | scene=planets: Mercury to Mars (desktop and phone) | exit=0 | 11:02:52-11:03:06 | 14s | error-lines=0
+total 421s (servers and public build included)
