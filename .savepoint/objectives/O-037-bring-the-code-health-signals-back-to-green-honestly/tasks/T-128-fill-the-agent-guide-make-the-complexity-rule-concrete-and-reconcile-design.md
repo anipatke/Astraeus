@@ -2,8 +2,7 @@
 id: T-128
 title: Fill the agent guide, make the complexity rule concrete and reconcile Design
 objective: O-037
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-122, requires: clear}, {task: T-123, requires: clear}, {task: T-124, requires: clear}, {task: T-125, requires: clear}, {task: T-126, requires: clear}, {task: T-127, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o037-planning-20261021}
@@ -76,3 +75,5 @@ Files read: Context Files plus the Technical Evidence of T-122 to T-127 and Issu
 ## Drift Notes
 
 None: this Task is the reconciliation.
+
+Owner, 2026-10-21, in the coordinator session, asked whether to mark T-128 done and start the final check: "Yes, mark it and run the check (Recommended)". Coordinator set status done on that answer after lint, typecheck, build and test passed.
