@@ -1,0 +1,45 @@
+---
+id: O-038
+title: Cut the browser checks to a few minutes
+status: planned
+depends_on: [O-037]
+release: G-007
+priority: high
+---
+
+# O-038: Cut the browser checks to a few minutes
+
+## Outcome
+
+Proving Astraeus in a real browser takes a few minutes, not tens: one quick smoke check that opens every page and confirms it loads with no errors, plus two or three journey checks for what matters most. Everything the old browser scripts proved that is logic (what is placed, shown, hidden or read out) is proven by fast node tests instead, and the remaining browser scripts are retired (git history keeps them). Looks stay with the owner on the preview.
+
+## Why
+
+Owner, 2026-10-21, after the O-037 Full Objective Check spent most of its 22 minutes in browser sets and failed one on what may be timing: "There has to be a better way than 90.mins of t3sts", "Even this feels long", then "this is not a big project, this amount of browser testing seems over the top? Is this really best practice?" and "yes plan that as an objective under G-007".
+
+The tree is an inverted test pyramid at the top: 26 browser scripts in the engine and demo sets plus 7 on request, each rendering 3D in software (3 to 4 cores, minutes per script, timing failures under load). On 2026-10-21 the engine set took 272 s (16 steps), the planets set 421 s (7 steps; jupiter-io alone 187 s), showers over 4 minutes before it was stopped, Apollo untimed. The fast suite (about 1,280 tests) runs in under a minute. O-034 split the scripts into sets but did not reduce them; every Objective since has added scripts as its proof and none were retired. O-037 made per-frame scene work plain, testable stages (`src/app/sceneFrame.ts`), so browser-only proofs can now move to node tests.
+
+## Success Conditions
+
+1. One browser command (for example `npm run check:browser`) runs the smoke check and the journey checks in about 3 minutes or less on this machine, one browser at a time; the time is recorded.
+2. The smoke check opens every public page and demo view once (desktop and phone size) and fails on any page or console error or a page that does not draw.
+3. Two or three journey checks, chosen with the owner when this Objective is planned in detail (candidates: switch planets and open a place card on a phone; play and seek a shower's timeline; open the Apollo story), each pass reliably three runs in a row.
+4. Every scenario of the retired scripts is mapped in `docs/BROWSER_CHECKS.md` to the node test that now proves it, the smoke or journey check that covers it, or "the owner's look on the preview", with nothing left unmapped.
+5. AGENTS.md's browser-check rules, the Full Objective Check routine and `check-method` usage say: run the one browser command once at a Full Objective Check; no per-Task browser runs; no demo sets.
+6. The fast test gate stays under about a minute; typecheck, build, lint and test pass.
+
+## Architectural Considerations
+
+Logic proofs move to node tests against the plain modules (`sceneFrame.ts` stages, feature-marker visibility, layout and panel rules, catalogue and settings builders); where a proof needs the DOM, decide at planning between a light DOM test environment and keeping it in the journey checks (O-037 left DOM testing out of scope). Browser checks keep using `tools/validate/harness.mjs` and `driver.mjs`, read the scene's own readouts and never take screenshots. The public-build file checks (`public-build-assets`, `public-addresses`) need no browser and can stay as node tests.
+
+## Boundaries
+
+**In scope:**
+- A smoke check and two or three journey checks; retiring the other browser scripts and runner sets
+- Node tests that take over the logic the retired scripts proved
+- `docs/BROWSER_CHECKS.md`, AGENTS.md browser rules, package scripts
+
+**Out of scope:**
+- Any change to what visitors see (G-007 boundary)
+- The owner-reported defects I-054 to I-058 (their own repair Objective)
+- Visual regression or screenshot testing (owner rule: no screenshots)
