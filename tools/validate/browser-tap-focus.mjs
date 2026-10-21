@@ -22,6 +22,33 @@ const SIZES = [
   { id: "phone", viewport: { width: 375, height: 667 }, touch: true },
 ];
 
+/** Tap or click a name tag: a different object, focused through its tag. `body` is the body just tapped. */
+async function tapNameTag(page, name, body, notes) {
+  // Tap or click a name tag: a different object, focused through its tag.
+  // The camera is still flying to the tapped body; let it arrive so the tags stop moving and hiding.
+  for (let i = 0, last = null; i < 40; i += 1) {
+    const now = await ui.bodyScreenPoint(page, body.id);
+    if (last !== null && now !== null && Math.hypot(now.x - last.x, now.y - last.y) < 0.5) break;
+    last = now;
+    await page.waitForTimeout(250);
+  }
+  const tagIds = await ui.tappableLabelIds(page, [await ui.pickedBody(page)]);
+  notes.labels = tagIds;
+  // A tag can still hide as the labels make room for each other; try the next one, and fail only when none can be tapped.
+  let tag = null;
+  for (const candidate of tagIds) {
+    try { await ui.tapLabel(page, candidate); tag = candidate; break; } catch (error) { if (!String(error.message).includes("not showing")) throw error; }
+  }
+  if (tagIds.length > 0) {
+    assert.ok(tag !== null, `${name}: one of the name tags ${tagIds.join(", ")} stays showing to tap`);
+    await ui.waitForPickTarget(page, tag).catch(() => undefined);
+    assert.equal(await ui.pickTarget(page), tag, `${name}: the scene reports a tap on ${tag}'s name tag`);
+    await ui.waitForPicked(page, tag);
+    assert.equal(await ui.infoOpen(page), false, `${name}: tapping ${tag}'s name tag does not open the information sheet`);
+    notes.labelTap = tag;
+  }
+}
+
 async function run(demo, size) {
   const name = `${demo.id} ${size.id}`;
   const context = await openContext(browser, { viewport: size.viewport, ...(size.touch ? { isMobile: true, hasTouch: true } : {}) });
@@ -110,29 +137,7 @@ async function run(demo, size) {
     if (size.touch) assert.equal(await ui.pickHover(page), "", `${name}: touch sets no hover`);
     notes.bodyTap = body.id;
 
-    // Tap or click a name tag: a different object, focused through its tag.
-    // The camera is still flying to the tapped body; let it arrive so the tags stop moving and hiding.
-    for (let i = 0, last = null; i < 40; i += 1) {
-      const now = await ui.bodyScreenPoint(page, body.id);
-      if (last !== null && now !== null && Math.hypot(now.x - last.x, now.y - last.y) < 0.5) break;
-      last = now;
-      await page.waitForTimeout(250);
-    }
-    const tagIds = await ui.tappableLabelIds(page, [await ui.pickedBody(page)]);
-    notes.labels = tagIds;
-    // A tag can still hide as the labels make room for each other; try the next one, and fail only when none can be tapped.
-    let tag = null;
-    for (const candidate of tagIds) {
-      try { await ui.tapLabel(page, candidate); tag = candidate; break; } catch (error) { if (!String(error.message).includes("not showing")) throw error; }
-    }
-    if (tagIds.length > 0) {
-      assert.ok(tag !== null, `${name}: one of the name tags ${tagIds.join(", ")} stays showing to tap`);
-      await ui.waitForPickTarget(page, tag).catch(() => undefined);
-      assert.equal(await ui.pickTarget(page), tag, `${name}: the scene reports a tap on ${tag}'s name tag`);
-      await ui.waitForPicked(page, tag);
-      assert.equal(await ui.infoOpen(page), false, `${name}: tapping ${tag}'s name tag does not open the information sheet`);
-      notes.labelTap = tag;
-    }
+    await tapNameTag(page, name, body, notes);
   } finally {
     await context.close();
   }

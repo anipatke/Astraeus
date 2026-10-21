@@ -49,45 +49,55 @@ export function provenanceView(provenance: Provenance, knownLimitations: readonl
  * A window's rate and source depend on `timeUtcMs`, the clock.
  */
 export function infoView(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
-  if (target.kind === "window") {
-    const window = experience.windows?.find((candidate) => candidate.id === target.id);
-    if (window === undefined) return null;
-    const rate = timeUtcMs === undefined ? null : rateAt(window, timeUtcMs);
-    const source = (timeUtcMs === undefined ? null : provenanceAt(window, timeUtcMs)) ?? experience.eventProvenance;
-    const facts: InfoFact[] = [
-      { label: "Starts", value: formatUtcTimestamp(window.startUtcMs) },
-      { label: "Ends", value: formatUtcTimestamp(window.endUtcMs) },
-    ];
-    if (window.peakUtcMs !== undefined) facts.push({ label: "Peak", value: formatUtcTimestamp(window.peakUtcMs) });
-    if (window.rate !== undefined) {
-      facts.push({ label: "Rate now", value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit) });
-    }
-    return { target, title: window.label, facts, provenance: source === undefined ? null : provenanceView(source) };
+  if (target.kind === "window") return windowInfo(experience, target, timeUtcMs);
+  if (target.kind === "feature") return featureInfo(experience, target);
+  if (target.kind === "object") return objectInfo(experience, target);
+  return eventInfo(experience, target);
+}
+
+function windowInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
+  const window = experience.windows?.find((candidate) => candidate.id === target.id);
+  if (window === undefined) return null;
+  const rate = timeUtcMs === undefined ? null : rateAt(window, timeUtcMs);
+  const source = (timeUtcMs === undefined ? null : provenanceAt(window, timeUtcMs)) ?? experience.eventProvenance;
+  const facts: InfoFact[] = [
+    { label: "Starts", value: formatUtcTimestamp(window.startUtcMs) },
+    { label: "Ends", value: formatUtcTimestamp(window.endUtcMs) },
+  ];
+  if (window.peakUtcMs !== undefined) facts.push({ label: "Peak", value: formatUtcTimestamp(window.peakUtcMs) });
+  if (window.rate !== undefined) {
+    facts.push({ label: "Rate now", value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit) });
   }
-  if (target.kind === "feature") {
-    const found = findFeature(experience.bodyFeatures, target.id);
-    if (found === null) return null;
-    const { set, feature } = found;
-    return {
-      target,
-      title: feature.name,
-      subtitle: `${feature.featureType} on ${set.bodyLabel}`,
-      description: feature.description,
-      ...(feature.details.length === 0 ? {} : { facts: feature.details }),
-      provenance: provenanceView(set.provenance, set.knownLimitations),
-    };
-  }
-  if (target.kind === "object") {
-    const object = experience.objects.find((candidate) => candidate.id === target.id);
-    if (object === undefined) return null;
-    return {
-      target,
-      title: object.label,
-      ...(object.description === undefined ? {} : { description: object.description }),
-      ...(object.facts === undefined ? {} : { facts: object.facts }),
-      provenance: object.provenance === undefined ? null : provenanceView(object.provenance, object.knownLimitations),
-    };
-  }
+  return { target, title: window.label, facts, provenance: source === undefined ? null : provenanceView(source) };
+}
+
+function featureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
+  const found = findFeature(experience.bodyFeatures, target.id);
+  if (found === null) return null;
+  const { set, feature } = found;
+  return {
+    target,
+    title: feature.name,
+    subtitle: `${feature.featureType} on ${set.bodyLabel}`,
+    description: feature.description,
+    ...(feature.details.length === 0 ? {} : { facts: feature.details }),
+    provenance: provenanceView(set.provenance, set.knownLimitations),
+  };
+}
+
+function objectInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
+  const object = experience.objects.find((candidate) => candidate.id === target.id);
+  if (object === undefined) return null;
+  return {
+    target,
+    title: object.label,
+    ...(object.description === undefined ? {} : { description: object.description }),
+    ...(object.facts === undefined ? {} : { facts: object.facts }),
+    provenance: object.provenance === undefined ? null : provenanceView(object.provenance, object.knownLimitations),
+  };
+}
+
+function eventInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
   const event = experience.events.find((candidate) => candidate.id === target.id);
   if (event === undefined) return null;
   return {

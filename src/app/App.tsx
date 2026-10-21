@@ -5,31 +5,31 @@ import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { SimulationClock } from "../core/clock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
-import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
+import type { DebugReadout } from "./DebugOverlay";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { formatView, scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
+import { scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
 import { Collapsible } from "../shell/Collapsible";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
+import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./DeveloperSettings";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
-import { MAX_PANEL_PAUSE_SECONDS } from "../shell/storyPanels";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
 import { featureMarkerSpecs, featureMinBodyPxFromSearch } from "./FeatureMarkers";
-import { FrameRateSection, type GroupFill } from "./FrameRateSection";
+import type { GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
-import { HOVER_BRIGHTNESS_DEFAULT, HOVER_BRIGHTNESS_LIMITS } from "./scenePicking";
+import { HOVER_BRIGHTNESS_DEFAULT } from "./scenePicking";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
-import { BODY_SET_LOOK_LIMITS, DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLook } from "./bodySet";
-import { ringBandsWithLook, type RingLook } from "../assets/rings";
-import { baseGlowOf, GLOW_LIMITS, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
+import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
+import type { RingLook } from "../assets/rings";
+import { baseGlowOf, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -62,12 +62,29 @@ export function loopFromSearch(search: string, fallback: boolean): boolean {
   return value === "on" ? true : value === "off" ? false : fallback;
 }
 
-export function App({ definition }: { readonly definition: ExperienceDefinition }) {
-  // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
-  useEffect(() => {
-    document.title = pageTitleOf(definition);
-  }, [definition]);
-  const runtime = useMemo(() => {
+function copyOfGlow(look: GlowLook | undefined): GlowLook | null {
+  return look === undefined ? null : { ...look };
+}
+
+function orbitPathsOf(runtime: Runtime) {
+  return runtime.composition?.paths ?? [];
+}
+
+/** The up direction at the start: `?up=` in the address, else the experience's own, else the equatorial pole. */
+function startViewUp(definition: ExperienceDefinition): ViewUp {
+  return viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial");
+}
+
+function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"]) {
+  return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
+}
+
+function switcherOf(definition: ExperienceDefinition, runtime: Runtime) {
+  return definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs };
+}
+
+/** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
+function buildRuntime(definition: ExperienceDefinition) {
     const adapter = createOrbAstronomyAdapter();
     const clock = new SimulationClock(definition.clock.startUtcMs);
     clock.setRate(definition.clock.rate);
@@ -93,9 +110,59 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       cameraReach: cameraReachOf(definition),
       sky: skySettingsOf(definition),
       loopWindow: definition.experience.window,
-      up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
+      up: viewUpVector(startViewUp(definition)),
     };
+}
+
+type Runtime = ReturnType<typeof buildRuntime>;
+
+/** Whether the experience has anything the Display controls (markers, labels, timeline, phone layout) act on. */
+function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, orbitPathCount: number, storyMarkerCount: number): boolean {
+  return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
+    || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
+}
+
+/** The scene's live controls at mount: the address overrides the experience's own start values. */
+function initialSceneControls(
+  definition: ExperienceDefinition,
+  runtime: Runtime,
+  experience: ReturnType<typeof experienceWithGroups>,
+  startScale: ScaleId,
+  glowBase: ReturnType<typeof baseGlowOf>,
+  storyMarkers: readonly StoryMarkerSpec[],
+  suppliedPolicies: readonly ScalePolicy[],
+): SceneControls {
+  const search = window.location.search;
+  const startView = viewFromSearch(search) ?? definition.startView;
+  return {
+    policy: scalePolicyFor(startScale, suppliedPolicies),
+    cameraRequest: null,
+    showAnchorLabels: false,
+    loop: loopFromSearch(search, definition.loop === true),
+    up: viewUpVector(startViewUp(definition)),
+    showMilkyWay: runtime.sky.milkyWay,
+    bodyMarker: markerSettingsFromSearch(search),
+    ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(search, glowBase) }),
+    starBrightness: runtime.sky.starBrightness,
+    milkyWayBrightness: runtime.sky.milkyWayBrightness,
+    hiddenLabels: hiddenLabelsFrom(search, experience.objects),
+    labelObjects: experience.objects,
+    storyMarkers,
+    featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
+    featureMinBodyPx: featureMinBodyPxFromSearch(search),
+    selectedObjectId: initialObjectIdOf(definition),
+    frameStats: null,
+    groupFills: [],
+    ...(startView === undefined ? {} : { startView }),
+  };
+}
+
+export function App({ definition }: { readonly definition: ExperienceDefinition }) {
+  // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
+  useEffect(() => {
+    document.title = pageTitleOf(definition);
   }, [definition]);
+  const runtime = useMemo(() => buildRuntime(definition), [definition]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -128,27 +195,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }])),
     [storySet],
   );
-  const controls = useRef<SceneControls>({
-    policy: scalePolicyFor(startScale, suppliedPolicies),
-    cameraRequest: null,
-    showAnchorLabels: false,
-    loop: loopFromSearch(window.location.search, definition.loop === true),
-    up: viewUpVector(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial")),
-    showMilkyWay: runtime.sky.milkyWay,
-    bodyMarker: markerSettingsFromSearch(window.location.search),
-    ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(window.location.search, glowBase) }),
-    starBrightness: runtime.sky.starBrightness,
-    milkyWayBrightness: runtime.sky.milkyWayBrightness,
-    hiddenLabels: hiddenLabelsFrom(window.location.search, experience.objects),
-    labelObjects: experience.objects,
-    storyMarkers: storyMarkerSpecs,
-    featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
-    featureMinBodyPx: featureMinBodyPxFromSearch(window.location.search),
-    selectedObjectId: initialObjectIdOf(definition),
-    frameStats: null,
-    groupFills: [],
-    ...((viewFromSearch(window.location.search) ?? definition.startView) === undefined ? {} : { startView: (viewFromSearch(window.location.search) ?? definition.startView)! }),
-  });
+  const controls = useRef<SceneControls>(initialSceneControls(definition, runtime, experience, startScale, glowBase, storyMarkerSpecs, suppliedPolicies));
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
   const [scale, setScale] = useState<ScaleId>(startScale);
@@ -156,8 +203,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
   const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
   const [anchorLabels, setAnchorLabels] = useState(false);
-  const [glowShown, setGlowShown] = useState<GlowLook | null>(controls.current.glowLook === undefined ? null : { ...controls.current.glowLook });
-  const orbitPaths = runtime.composition?.paths ?? [];
+  const [glowShown, setGlowShown] = useState<GlowLook | null>(copyOfGlow(controls.current.glowLook));
+  const orbitPaths = orbitPathsOf(runtime);
   const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
   const [orbitShown, setOrbitShown] = useState<OrbitLook>(orbitDefault);
   const setOrbit = (change: Partial<OrbitLook>) => {
@@ -183,15 +230,15 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
-  const [upChoice, setUpChoice] = useState<ViewUp>(viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial"));
+  const [upChoice, setUpChoice] = useState<ViewUp>(startViewUp(definition));
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [hoverBrightness, setHoverBrightness] = useState(HOVER_BRIGHTNESS_DEFAULT);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
   const [loadFade, setLoadFade] = useState(() => bootFadeSeconds());
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
-  const [storyAutoOpen, setStoryAutoOpen] = useState(storySet?.autoOpen ?? false);
-  const [storyPauseSeconds, setStoryPauseSeconds] = useState(storySet?.pauseSeconds ?? 0);
+  const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
+  const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);
   const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
@@ -272,8 +319,8 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       {section.render(experienceRuntime)}
     </section>
   );
-  const showDisplay = orbitPaths.length > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerSpecs.length > 0 || (storySet?.panels.length ?? 0) > 0 || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
-  const hasAlternates = (definition.alternates ?? []).length > 0;
+  const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
+  const showDisplay = showsDisplayControls(definition, runtime, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
   const orbitSliders = {
     main: [
@@ -323,13 +370,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
           <SettingButtons label="Camera view">
             <button onClick={() => void copyViewLink()}>Copy view link</button>
           </SettingButtons>
-          {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
-          {viewLink !== null && (
-            <p className="view-link-field">
-              <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />
-              <span>{viewLink.copied ? "Copied to the clipboard." : "Clipboard unavailable: select the link above and copy it."}</span>
-            </p>
-          )}
+          <ViewLinkReadout viewNow={viewNow} viewLink={viewLink} scale={scale} upChoice={upChoice} />
         </div>
         <SettingButtons>
           <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
@@ -360,15 +401,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
               <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
             </SettingButtons>
           </SettingGroup>
-          {storySet !== undefined && storySet.panels.length > 0 && (
-            <SettingGroup id="story-panels" title="Story panels">
-              <SettingButtons>
-                <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
-              </SettingButtons>
-              <SettingSlider label="Pause when a panel opens (s)" ariaLabel="Story panel pause" testId="story-pause-value" display={storyPauseSeconds === 0 ? "off" : storyPauseSeconds.toFixed(1)} min={0} max={MAX_PANEL_PAUSE_SECONDS} step={0.5} value={storyPauseSeconds}
-                onChange={setStoryPauseSeconds} />
-            </SettingGroup>
-          )}
+          {hasStoryPanels && <StoryPanelSettings storyAutoOpen={storyAutoOpen} setStoryAutoOpen={setStoryAutoOpen} storyPauseSeconds={storyPauseSeconds} setStoryPauseSeconds={setStoryPauseSeconds} />}
         </>
       ),
     },
@@ -395,95 +428,19 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     bodySets.length === 0 && ringSystems.length === 0 ? null : {
       id: "moons-rings", title: "Moons and rings",
       body: (
-        <>
-          {bodySets.length > 0 && (
-            <SettingGroup id="body-set-dots" title="Small moons">
-              <SettingSlider label="Dot size (px)" ariaLabel="Small moon dot size" testId="body-set-dot-px" display={setLook.dotPx.toFixed(1)} min={BODY_SET_LOOK_LIMITS.dotPx.min} max={BODY_SET_LOOK_LIMITS.dotPx.max} step={0.5} value={setLook.dotPx} onChange={(dotPx) => changeSetLook({ dotPx })} />
-              <SettingColor label="Dot colour" ariaLabel="Small moon dot colour" testId="body-set-dot-color" value={setLook.dotColor} onChange={(dotColor) => changeSetLook({ dotColor })} />
-              <SettingSlider label="Name when ball is (px)" ariaLabel="Small moon name distance" testId="body-set-label-px" display={setLook.labelNearPx.toFixed(0)} min={BODY_SET_LOOK_LIMITS.labelNearPx.min} max={BODY_SET_LOOK_LIMITS.labelNearPx.max} step={1} value={setLook.labelNearPx} onChange={(labelNearPx) => changeSetLook({ labelNearPx })} />
-            </SettingGroup>
-          )}
-          {bodySets.length > 0 && (
-            <SettingGroup id="body-set-orbits" title="Moon orbits by family">
-              <SettingButtons>
-                <button aria-pressed={setLook.orbitsOn} onClick={() => changeSetLook({ orbitsOn: !setLook.orbitsOn })}>Moon orbits</button>
-              </SettingButtons>
-              <SettingSlider label="Orbit opacity" ariaLabel="Moon orbit opacity" testId="body-set-orbit-opacity" display={setLook.orbitOpacity.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitOpacity.min} max={BODY_SET_LOOK_LIMITS.orbitOpacity.max} step={0.01} value={setLook.orbitOpacity} onChange={(orbitOpacity) => changeSetLook({ orbitOpacity })} />
-              <SettingSlider label="Zoom boost" ariaLabel="Moon orbit zoom boost" testId="body-set-orbit-boost" display={setLook.orbitZoomBoost.toFixed(2)} min={BODY_SET_LOOK_LIMITS.orbitZoomBoost.min} max={BODY_SET_LOOK_LIMITS.orbitZoomBoost.max} step={0.01} value={setLook.orbitZoomBoost} onChange={(orbitZoomBoost) => changeSetLook({ orbitZoomBoost })} />
-              <SettingColor label="Highlight colour" ariaLabel="Moon family highlight colour" testId="body-set-highlight-color" value={setLook.highlightColor} onChange={(highlightColor) => changeSetLook({ highlightColor })} />
-              <SettingSlider label="Highlight orbit brightness" ariaLabel="Moon family highlight orbit brightness" testId="body-set-highlight-gain" display={setLook.highlightOrbitGain.toFixed(1)} min={BODY_SET_LOOK_LIMITS.highlightOrbitGain.min} max={BODY_SET_LOOK_LIMITS.highlightOrbitGain.max} step={0.5} value={setLook.highlightOrbitGain} onChange={(highlightOrbitGain) => changeSetLook({ highlightOrbitGain })} />
-              {bodySets.flatMap((layer) => layer.families.map((family) => (
-                <SettingColor key={`${layer.id}-${family.id}`} label={family.label} ariaLabel={`${family.label} orbit colour`} testId={`body-set-family-${family.id}`} value={familyColorOf(layer, setLook, family.id)} onChange={(color) => changeSetLook({ familyColors: { ...setLook.familyColors, [family.id]: color } })} />
-              )))}
-              <SettingButtons>
-                <button onClick={() => { delete controls.current.bodySetLook; setSetLook(DEFAULT_BODY_SET_LOOK); }}>Reset moons</button>
-              </SettingButtons>
-            </SettingGroup>
-          )}
-          {ringSystems.map((rings) => (
-            <SettingGroup key={rings.body} id={`rings-${rings.body}`} title="Rings">
-              {ringBandsWithLook(rings, ringLook).map((band) => (
-                <div key={band.id}>
-                  <SettingColor label={band.label} ariaLabel={`${band.label} colour`} testId={`ring-${band.id}-color`} value={band.color} onChange={(color) => changeRing(band.id, { color })} />
-                  <SettingSlider label={`${band.label} opacity`} ariaLabel={`${band.label}: opacity`} testId={`ring-${band.id}-opacity`} display={band.opacity.toFixed(3)} min={0} max={1} step={0.005} value={band.opacity} onChange={(opacity) => changeRing(band.id, { opacity })} />
-                </div>
-              ))}
-              <SettingButtons>
-                <button onClick={() => { delete controls.current.ringLook; setRingLook({}); }}>Reset rings</button>
-              </SettingButtons>
-            </SettingGroup>
-          ))}
-        </>
+        <MoonsAndRingsSettings bodySets={bodySets} ringSystems={ringSystems} setLook={setLook} changeSetLook={changeSetLook} ringLook={ringLook} changeRing={changeRing} controls={controls} setSetLook={setSetLook} setRingLook={setRingLook} />
       ),
     },
     !(runtime.sky.visible || glowShown !== null) ? null : {
       id: "sky-sun", title: "Sky and Sun",
       body: (
-        <>
-          {runtime.sky.visible && (
-            <SettingGroup id="sky" title="Sky">
-              <SettingButtons>
-                <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>
-              </SettingButtons>
-              <SettingSlider label="Star brightness" ariaLabel="Star brightness" testId="star-brightness-value" display={starBrightness.toFixed(2)} min={0} max={2} step={0.05} value={starBrightness}
-                onChange={(value) => { controls.current.starBrightness = value; setStarBrightness(value); }} />
-              <SettingSlider label="Milky Way brightness" ariaLabel="Milky Way brightness" testId="milky-way-brightness-value" display={milkyWayBrightness.toFixed(2)} min={0} max={2} step={0.05} value={milkyWayBrightness}
-                onChange={(value) => { controls.current.milkyWayBrightness = value; setMilkyWayBrightness(value); }} />
-            </SettingGroup>
-          )}
-          {glowShown !== null && (
-            <SettingGroup id="glow" title="Sun glow">
-              <SettingSlider label="Glow size (px)" ariaLabel="Sun glow size" testId="sun-glow-size-value" display={glowShown.sizePx.toFixed(0)} min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx}
-                onChange={(value) => { controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-              <SettingSlider label="Glow brightness" ariaLabel="Sun glow brightness" testId="sun-glow-brightness-value" display={glowShown.brightness.toFixed(2)} min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness}
-                onChange={(value) => { controls.current.glowLook!.brightness = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-              <SettingSlider label="Glow reach (× disc)" ariaLabel="Sun glow reach" testId="sun-glow-scale-value" display={glowShown.scale.toFixed(1)} min={GLOW_LIMITS.scale.min} max={GLOW_LIMITS.scale.max} step={0.1} value={glowShown.scale}
-                onChange={(value) => { controls.current.glowLook!.scale = value; setGlowShown({ ...controls.current.glowLook! }); }} />
-            </SettingGroup>
-          )}
-        </>
+        <SkyAndSunSettings visible={runtime.sky.visible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
       ),
     },
     {
       id: "labels", title: "Labels",
       body: (
-        <>
-          <SettingSlider label="Hover name brightness" ariaLabel="Hover name brightness" testId="hover-brightness-value" display={hoverBrightness.toFixed(2)} min={HOVER_BRIGHTNESS_LIMITS.min} max={HOVER_BRIGHTNESS_LIMITS.max} step={0.05} value={hoverBrightness}
-            onChange={(value) => { controls.current.hoverBrightness = value; setHoverBrightness(value); }} />
-          {(labelToggles.length > 0 || runtime.trackedBodies.length > 0) && <SettingButtons>
-            {runtime.trackedBodies.length > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
-            {labelToggles.map((object) => (
-              <button key={object.id} aria-pressed={!hiddenLabels.has(object.id)} onClick={() => {
-                const hidden = controls.current.hiddenLabels ?? new Set<string>();
-                if (hidden.has(object.id)) hidden.delete(object.id);
-                else hidden.add(object.id);
-                controls.current.hiddenLabels = hidden;
-                setHiddenLabels(new Set(hidden));
-              }}>{`${object.label} label`}</button>
-            ))}
-          </SettingButtons>}
-        
-        </>
+        <LabelSettings controls={controls} hoverBrightness={hoverBrightness} setHoverBrightness={setHoverBrightness} labelToggles={labelToggles} trackedCount={runtime.trackedBodies.length} anchorLabels={anchorLabels} setAnchorLabels={setAnchorLabels} hiddenLabels={hiddenLabels} setHiddenLabels={setHiddenLabels} />
       ),
     },
     !showDisplay ? null : {
@@ -510,28 +467,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     {
       id: "under-the-hood", title: "Under the hood",
       body: (
-        <>
-          {hud !== null && (
-            <section className="hud-section" aria-labelledby="developer-scene-heading">
-              <h4 id="developer-scene-heading">Scene instrumentation</h4>
-              <DebugOverlay readout={hud} />
-            </section>
-          )}
-          <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-          {showDisplay && hasAlternates && (
-            <SettingGroup id="data" title="Data">
-              <SettingButtons>
-                {(definition.alternates ?? []).map((alternate) => (
-                  <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set(alternate.param, alternate.value);
-                    window.location.assign(url.toString());
-                  }}>{alternate.label}</button>
-                ))}
-              </SettingButtons>
-            </SettingGroup>
-          )}
-        </>
+        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} alternates={showDisplay ? definition.alternates : undefined} />
       ),
     },
   ];
@@ -574,7 +510,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs }}
+      switcher={switcherOf(definition, runtime)}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

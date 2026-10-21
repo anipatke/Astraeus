@@ -328,62 +328,80 @@ export function metricReadings(metric: Metric): readonly MetricReading[] {
   }
 }
 
+type MetricOf<K extends Metric["kind"]> = Extract<Metric, { readonly kind: K }>;
+const note = (value: number, digits: number) => formatMetricNumber(value, digits);
+
+function speedNotes(metric: MetricOf<"speed">): readonly string[] {
+  const gauge = speedGauge(metric);
+  if (gauge === null || metric.range === undefined) return [];
+  const { min, max, basis, digits = metric.digits } = metric.range;
+  return [`${note(min, digits)}–${note(max, digits)} ${metric.unit}${gauge.outside ? " · value outside this range" : ""}`, basis];
+}
+
+function rateNotes(metric: MetricOf<"rate">): readonly string[] {
+  const { range, value } = metric;
+  const limits = range === undefined || value === null || !(range.max > range.min)
+    ? []
+    : [`${note(range.min, range.digits ?? metric.digits)}–${note(range.max, range.digits ?? metric.digits)} ${metric.unit}${value < range.min || value > range.max ? " · value outside this range" : ""}`, range.basis];
+  const peak = metric.peak === undefined || value === null ? [] : [`${metric.peak.label} ${note(metric.peak.value, metric.digits)} ${metric.unit}`];
+  return [...limits, ...peak];
+}
+
+function distanceNotes(metric: MetricOf<"distance">): readonly string[] {
+  const scale = distanceScale(metric);
+  const origin = metric.origin === undefined ? [] : [`from ${metric.origin}`];
+  if (scale === null) return origin;
+  return [...origin, ...scale.markers.map((m) => `${m.label} ${note(m.value, metric.digits)} ${metric.unit}`)];
+}
+
+function relativeDistanceNotes(metric: MetricOf<"relative-distance">): readonly string[] {
+  const glyph = relationGlyph(metric);
+  const between = `${metric.from} → ${metric.to}`;
+  return glyph === null ? [between] : [between, `${note(glyph.radii, 1)} × ${metric.to} radius`];
+}
+
+function altitudeNotes(metric: MetricOf<"altitude">): readonly string[] {
+  if (metric.value === null) return [];
+  const side = metric.value < 0 ? "below" : "above";
+  const radius = metric.bodyRadius === undefined ? "" : ` (${note(metric.bodyRadius, 1)} ${metric.unit})`;
+  return [`${side} ${metric.body} ${metric.datum}${radius}`];
+}
+
+function progressNotes(metric: MetricOf<"progress">): readonly string[] {
+  if (metric.value === null) return [];
+  const ends = metric.startLabel !== undefined && metric.endLabel !== undefined ? ` · ${metric.startLabel} → ${metric.endLabel}` : "";
+  return [`${note(metric.value, metric.digits)} of ${note(metric.total, metric.digits)} ${metric.unit}${ends}`];
+}
+
+function uncertaintyNotes(metric: MetricOf<"uncertainty">): readonly string[] {
+  if (uncertaintyBand(metric) === null || metric.scale === undefined) return [];
+  return [`largest ±${note(metric.scale.max, metric.digits)} ${metric.unit} · ${metric.scale.basis}`];
+}
+
+function coordinatesNotes(metric: MetricOf<"coordinates">): readonly string[] {
+  const system = `${SYSTEM_NAMES[metric.system]} · ${metric.frame} · from ${metric.origin}`;
+  const views = planViews(metric);
+  if (views === null) return [system];
+  const references = metric.planViews?.references.map((r) => r.label).join(", ");
+  return [
+    system,
+    `round: top view x–y · tick: z · rim ±${formatMetricNumber(views.halfSpan, 0)} ${views.unit}${references ? ` · lavender: ${references}` : ""}`,
+  ];
+}
+
 /** Caption lines naming the reference the visual is drawn against, in the order they are shown. */
 export function metricNotes(metric: Metric): readonly string[] {
-  const n = (value: number, digits: number) => formatMetricNumber(value, digits);
   switch (metric.kind) {
-    case "speed": {
-      const gauge = speedGauge(metric);
-      if (gauge === null || metric.range === undefined) return [];
-      const { min, max, basis, digits = metric.digits } = metric.range;
-      return [`${n(min, digits)}–${n(max, digits)} ${metric.unit}${gauge.outside ? " · value outside this range" : ""}`, basis];
-    }
-    case "rate": {
-      const { range, value } = metric;
-      const limits = range === undefined || value === null || !(range.max > range.min)
-        ? []
-        : [`${n(range.min, range.digits ?? metric.digits)}–${n(range.max, range.digits ?? metric.digits)} ${metric.unit}${value < range.min || value > range.max ? " · value outside this range" : ""}`, range.basis];
-      const peak = metric.peak === undefined || value === null ? [] : [`${metric.peak.label} ${n(metric.peak.value, metric.digits)} ${metric.unit}`];
-      return [...limits, ...peak];
-    }
-    case "distance": {
-      const scale = distanceScale(metric);
-      const origin = metric.origin === undefined ? [] : [`from ${metric.origin}`];
-      if (scale === null) return origin;
-      return [...origin, ...scale.markers.map((m) => `${m.label} ${n(m.value, metric.digits)} ${metric.unit}`)];
-    }
-    case "relative-distance": {
-      const glyph = relationGlyph(metric);
-      const between = `${metric.from} → ${metric.to}`;
-      return glyph === null ? [between] : [between, `${n(glyph.radii, 1)} × ${metric.to} radius`];
-    }
-    case "altitude": {
-      if (metric.value === null) return [];
-      const side = metric.value < 0 ? "below" : "above";
-      const radius = metric.bodyRadius === undefined ? "" : ` (${n(metric.bodyRadius, 1)} ${metric.unit})`;
-      return [`${side} ${metric.body} ${metric.datum}${radius}`];
-    }
-    case "progress": {
-      if (metric.value === null) return [];
-      const ends = metric.startLabel !== undefined && metric.endLabel !== undefined ? ` · ${metric.startLabel} → ${metric.endLabel}` : "";
-      return [`${n(metric.value, metric.digits)} of ${n(metric.total, metric.digits)} ${metric.unit}${ends}`];
-    }
-    case "uncertainty": {
-      if (uncertaintyBand(metric) === null || metric.scale === undefined) return [];
-      return [`largest ±${n(metric.scale.max, metric.digits)} ${metric.unit} · ${metric.scale.basis}`];
-    }
+    case "speed": return speedNotes(metric);
+    case "rate": return rateNotes(metric);
+    case "distance": return distanceNotes(metric);
+    case "relative-distance": return relativeDistanceNotes(metric);
+    case "altitude": return altitudeNotes(metric);
+    case "progress": return progressNotes(metric);
+    case "uncertainty": return uncertaintyNotes(metric);
     case "phase":
       return metric.fraction !== null && metric.litLimb !== undefined ? [`lit on the ${metric.litLimb}`] : [];
-    case "coordinates": {
-      const system = `${SYSTEM_NAMES[metric.system]} · ${metric.frame} · from ${metric.origin}`;
-      const views = planViews(metric);
-      if (views === null) return [system];
-      const references = metric.planViews?.references.map((r) => r.label).join(", ");
-      return [
-        system,
-        `round: top view x–y · tick: z · rim ±${formatMetricNumber(views.halfSpan, 0)} ${views.unit}${references ? ` · lavender: ${references}` : ""}`,
-      ];
-    }
+    case "coordinates": return coordinatesNotes(metric);
   }
 }
 

@@ -108,76 +108,111 @@ const sizesOf = (distDir, files) => {
   return { files: files.length, raw, gzip };
 };
 
+/** The files of a page set that lists an HTML page: the site files of that page, or a problem when it is not in the build. */
+function htmlPageFiles(distDir, names, page, problems) {
+  if (names.includes(page.htmlPage)) return siteFiles(distDir, names, page.htmlPage);
+  problems.push(`${page.htmlPage} is not in the build`);
+  return [];
+}
+
+/** Adds to `files` the chunks of a stem that names several files, when a listed script imports them at load, followed through the chain. */
+function followSplitChunks(distDir, files, several) {
+  for (let queue = files.filter((name) => name.endsWith(".js")); queue.length > 0;) {
+    const next = [];
+    for (const file of queue) {
+      for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
+        if (several.has(imported) && !files.includes(imported)) { files.push(imported); next.push(imported); }
+      }
+    }
+    queue = next;
+  }
+}
+
+/** Files the page fetches by URL rather than imports (a window's curve-fit chunks): every file with the stem counts. */
+function addFetchedFiles(names, page, files, problems) {
+  for (const entry of page.fetchedFiles ?? []) {
+    const found = findFiles(names, entry);
+    if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
+    files.push(...found.filter((name) => !files.includes(name)));
+  }
+}
+
+/** Files a listed script names by URL (the fit chunks and pictures a planet's system script ships): every one of them counts. */
+function addNamedFiles(distDir, names, page, files) {
+  for (const entry of page.namedBy ?? []) {
+    for (const script of findFiles(names, entry)) {
+      for (const match of readFileSync(join(distDir, script), "latin1").matchAll(/\/?(assets\/[A-Za-z0-9_.-]+)/g)) {
+        if (names.includes(match[1]) && !files.includes(match[1])) files.push(match[1]);
+      }
+    }
+  }
+}
+
+/** A problem for every script in `files` that imports a script the page set does not list. */
+function unlistedImportProblems(distDir, files) {
+  const listed = new Set(files);
+  const problems = [];
+  for (const file of files.filter((name) => name.endsWith(".js"))) {
+    for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
+      if (!listed.has(imported)) problems.push(`${file} imports ${imported}, which the page set does not list`);
+    }
+  }
+  return problems;
+}
+
+/**
+ * The files of a page set that lists stems. A stem that names one file lists it. A stem that names several (same-named modules split per importer) lists only those a listed
+ * script imports at load, followed through the chain: the page fetches those and no others, and an unrelated new chunk still fails.
+ */
+function stemPageFiles(distDir, names, page, problems) {
+  let files = [];
+  const several = new Set();
+  const severalEntries = [];
+  for (const entry of page.files) {
+    const found = findFiles(names, entry);
+    if (found.length === 0) { if (!SPLIT_CHUNKS.has(entry)) problems.push(`${entry} is not in the build (the page set is out of date)`); }
+    else if (found.length === 1) files.push(found[0]);
+    else { severalEntries.push([entry, found]); for (const name of found) several.add(name); }
+  }
+  followSplitChunks(distDir, files, several);
+  addFetchedFiles(names, page, files, problems);
+  addNamedFiles(distDir, names, page, files);
+  for (const [entry, found] of severalEntries) {
+    if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
+  }
+  files = [...new Set(files)];
+  problems.push(...unlistedImportProblems(distDir, files));
+  return files;
+}
+
+/** The moon index is one chunk of the build (its JSON as a script), so the stated index limit holds it too. The fit chunks' stated limit is held by tests/planetSystems.test.ts, which measures them as served (the build inlines the small ones as text, which is bigger). */
+function moonIndexProblems(distDir, names, page, files) {
+  const problems = [];
+  for (const file of files.filter((name) => (page.namedBy ?? []).some((entry) => findFiles(names, entry.replace(/\.js$/, "-moons.js")).includes(name)))) {
+    const bytes = statSync(join(distDir, file)).size;
+    if (bytes > page.indexLimit) problems.push(`the moon index chunk is ${bytes} bytes, over the view's stated limit of ${page.indexLimit}`);
+  }
+  return problems;
+}
+
+/** The problems of one page set and its measured sizes. */
+function checkPage(distDir, names, page) {
+  const problems = [];
+  const files = page.htmlPage !== undefined ? htmlPageFiles(distDir, names, page, problems) : stemPageFiles(distDir, names, page, problems);
+  const sizes = sizesOf(distDir, files);
+  if (sizes.raw > page.rawLimit) problems.push(`${sizes.raw} bytes raw is over the limit of ${page.rawLimit}`);
+  if (sizes.gzip > page.gzipLimit) problems.push(`${sizes.gzip} bytes gzipped is over the limit of ${page.gzipLimit}`);
+  if (page.indexLimit !== undefined) problems.push(...moonIndexProblems(distDir, names, page, files));
+  return { id: page.id, ...sizes, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems };
+}
+
 /**
  * Measures every page set of a build and compares it with its limit. Returns { ok, pages: [{ id, files, raw, gzip, rawLimit, gzipLimit, problems }], problems }.
  * `pages` and `buildLimit` default to the real table; tests pass their own.
  */
 export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIMIT }) {
   const names = [...walk(distDir)].map((path) => relativeTo(distDir, path));
-  const results = [];
-  for (const page of pages) {
-    const problems = [];
-    let files = [];
-    if (page.htmlPage !== undefined) {
-      if (names.includes(page.htmlPage)) files = siteFiles(distDir, names, page.htmlPage);
-      else problems.push(`${page.htmlPage} is not in the build`);
-    } else {
-      // A stem that names one file lists it. A stem that names several (same-named modules split per importer) lists only those a listed
-      // script imports at load, followed through the chain: the page fetches those and no others, and an unrelated new chunk still fails.
-      const several = new Set();
-      const severalEntries = [];
-      for (const entry of page.files) {
-        const found = findFiles(names, entry);
-        if (found.length === 0) { if (!SPLIT_CHUNKS.has(entry)) problems.push(`${entry} is not in the build (the page set is out of date)`); }
-        else if (found.length === 1) files.push(found[0]);
-        else { severalEntries.push([entry, found]); for (const name of found) several.add(name); }
-      }
-      for (let queue = files.filter((name) => name.endsWith(".js")); queue.length > 0;) {
-        const next = [];
-        for (const file of queue) {
-          for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
-            if (several.has(imported) && !files.includes(imported)) { files.push(imported); next.push(imported); }
-          }
-        }
-        queue = next;
-      }
-      // Files the page fetches by URL rather than imports (a window's curve-fit chunks): every file with the stem counts.
-      for (const entry of page.fetchedFiles ?? []) {
-        const found = findFiles(names, entry);
-        if (found.length === 0) problems.push(`${entry} is not in the build (the page set is out of date)`);
-        files.push(...found.filter((name) => !files.includes(name)));
-      }
-      // Files a listed script names by URL (the fit chunks and pictures a planet's system script ships): every one of them counts.
-      for (const entry of page.namedBy ?? []) {
-        for (const script of findFiles(names, entry)) {
-          for (const match of readFileSync(join(distDir, script), "latin1").matchAll(/\/?(assets\/[A-Za-z0-9_.-]+)/g)) {
-            if (names.includes(match[1]) && !files.includes(match[1])) files.push(match[1]);
-          }
-        }
-      }
-      for (const [entry, found] of severalEntries) {
-        if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
-      }
-      files = [...new Set(files)];
-      const listed = new Set(files);
-      for (const file of files.filter((name) => name.endsWith(".js"))) {
-        for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
-          if (!listed.has(imported)) problems.push(`${file} imports ${imported}, which the page set does not list`);
-        }
-      }
-    }
-    const sizes = sizesOf(distDir, files);
-    if (sizes.raw > page.rawLimit) problems.push(`${sizes.raw} bytes raw is over the limit of ${page.rawLimit}`);
-    if (sizes.gzip > page.gzipLimit) problems.push(`${sizes.gzip} bytes gzipped is over the limit of ${page.gzipLimit}`);
-    if (page.indexLimit !== undefined) {
-      // The moon index is one chunk of the build (its JSON as a script), so the stated index limit holds it too. The fit chunks' stated limit is held by tests/planetSystems.test.ts, which measures them as served (the build inlines the small ones as text, which is bigger).
-      for (const file of files.filter((name) => (page.namedBy ?? []).some((entry) => findFiles(names, entry.replace(/\.js$/, "-moons.js")).includes(name)))) {
-        const bytes = statSync(join(distDir, file)).size;
-        if (bytes > page.indexLimit) problems.push(`the moon index chunk is ${bytes} bytes, over the view's stated limit of ${page.indexLimit}`);
-      }
-    }
-    results.push({ id: page.id, ...sizes, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems });
-  }
+  const results = pages.map((page) => checkPage(distDir, names, page));
   const whole = sizesOf(distDir, names);
   const wholeProblems = [];
   if (whole.raw > buildLimit.rawLimit) wholeProblems.push(`${whole.raw} bytes raw is over the limit of ${buildLimit.rawLimit}`);

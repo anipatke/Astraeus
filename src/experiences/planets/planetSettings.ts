@@ -93,6 +93,25 @@ function mappedMoon(input: unknown, path: string): PlanetMappedMoon {
   return { id: words(raw, "id", path), labelPriority: finite(raw, "labelPriority", path), labelMaxDistance: positive(raw, "labelMaxDistance", path), description: text(raw, "description", path) };
 }
 
+/** The optional `moons` block: its settings and the ids of the mapped moons (empty when the block is absent). */
+function parseMoons(root: Raw): { readonly moons: PlanetSettings["moons"]; readonly mappedIds: readonly string[] } {
+  let moons: PlanetSettings["moons"];
+  const mappedIds: string[] = [];
+  if (root.moons !== undefined) {
+    const raw = record(root.moons, "moons");
+    only(raw, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
+    const mapped = list(raw, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
+    mappedIds.push(...mapped.map((moon) => moon.id));
+    if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
+    // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
+    const follow = mapped.length === 0 && raw.follow === undefined ? undefined : words(raw, "follow", "moons");
+    if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
+    if ((raw.listSource === undefined) !== (raw.featuredFamilyId === undefined)) fail("moons.listSource", "and moons.featuredFamilyId go together: give both or neither");
+    moons = { ...(raw.listSource === undefined ? {} : { listSource: text(raw, "listSource", "moons"), featuredFamilyId: words(raw, "featuredFamilyId", "moons") }), ...(follow === undefined ? {} : { follow }), mapped };
+  }
+  return { moons, mappedIds };
+}
+
 /** Checks a settings object field by field and returns it typed. Every error names the field. */
 export function parsePlanetSettings(input: unknown): PlanetSettings {
   const root = record(input, "settings");
@@ -108,20 +127,7 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
 
   const centre = record(root.centre, "centre");
   only(centre, ["id", "labelPriority", "labelMaxDistance", "description", "knownLimitations"], "centre");
-  let moons: PlanetSettings["moons"];
-  const mappedIds: string[] = [];
-  if (root.moons !== undefined) {
-    const raw = record(root.moons, "moons");
-    only(raw, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
-    const mapped = list(raw, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
-    mappedIds.push(...mapped.map((moon) => moon.id));
-    if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
-    // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
-    const follow = mapped.length === 0 && raw.follow === undefined ? undefined : words(raw, "follow", "moons");
-    if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
-    if ((raw.listSource === undefined) !== (raw.featuredFamilyId === undefined)) fail("moons.listSource", "and moons.featuredFamilyId go together: give both or neither");
-    moons = { ...(raw.listSource === undefined ? {} : { listSource: text(raw, "listSource", "moons"), featuredFamilyId: words(raw, "featuredFamilyId", "moons") }), ...(follow === undefined ? {} : { follow }), mapped };
-  }
+  const { moons, mappedIds } = parseMoons(root);
 
   const bodyFeatures = textList(root, "bodyFeatures", "settings", 0);
   const centreId = words(centre, "id", "centre");

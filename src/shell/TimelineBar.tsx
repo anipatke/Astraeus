@@ -34,6 +34,12 @@ interface Props {
   readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
 }
 
+/** The seek slider's spoken value: the time, with the activity window and its rate when one is running. */
+function seekValueText(timeUtcMs: number, activityNow: ReturnType<typeof activityAt>): string {
+  if (activityNow === null || activityNow.window.rate === undefined) return formatUtcTimestamp(timeUtcMs);
+  return `${formatUtcTimestamp(timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`;
+}
+
 export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
@@ -42,9 +48,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const playedPercent = timePositionPercent(clampToBounds(snapshot.timeUtcMs, experience.window), experience.window);
   const activityNow = activityAt(windows, snapshot.timeUtcMs);
-  const valueText = activityNow !== null && activityNow.window.rate !== undefined
-    ? `${formatUtcTimestamp(snapshot.timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`
-    : formatUtcTimestamp(snapshot.timeUtcMs);
+  const valueText = seekValueText(snapshot.timeUtcMs, activityNow);
   const moveOnTrack = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (profile === null) return;
     const box = event.currentTarget.getBoundingClientRect();

@@ -3,7 +3,7 @@
 schema_version: 2
 
 quality_gates:
-  lint: null
+  lint: "npm run lint"
   typecheck: "npm run typecheck"
   build: "npm run build"
   test: "npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml"

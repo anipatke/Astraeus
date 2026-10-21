@@ -134,6 +134,7 @@ Code style is project-owned policy: the `STYLE` rules in `.savepoint/Guardrails.
 List the project's gate commands here when they differ from, or add to, `quality_gates` in `.savepoint/config.yml` — for example a slower full gate for migration, platform-sensitive work, and Full Objective Checks.
 
 - Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
+- Lint gate: `npm run lint` (ESLint `complexity` at 20 over `src`, `tests`, `tools`) runs at every Task hand-off alongside typecheck, build and test.
 - Health scanners (`.savepoint/health/config.json`): jscpd measures duplicated lines and lizard measures function complexity, both over code only (they skip `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`); coverage counts `src` and the non-browser `tools` only.
 
 See Verification Policy for gate evidence and reuse requirements.

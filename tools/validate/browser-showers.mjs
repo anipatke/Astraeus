@@ -172,9 +172,8 @@ async function checkPlanetOrbits(page, label, canvas, choose, closeInfo) {
   }
 }
 
-// The Sun-Earth composition: the Sun is the scene's zero, Earth moves on its drawn path, no Moon exists, and the solar-system scale shows Earth.
-async function checkSunEarth(page, label, canvas) {
-  const out = (results[label].sunEarth = {});
+// The Sun-Earth composition asserted first: the scene centre, the mounted bodies, the Object list and the related orbit buttons, and the scale options.
+async function checkSunEarthComposition(page, label, canvas) {
   assert.equal(await canvas.getAttribute("data-scene-center"), "sun", `${label}: the Sun is the scene centre`);
   assert.equal(await canvas.getAttribute("data-bodies"), mountedBodies.join(","), `${label}: the mounted bodies are the Sun, Earth, the four planets and the parent (and no other shower's parent)`);
   if (parent !== "swift-tuttle") assert.ok(!(await canvas.getAttribute("data-bodies")).split(",").includes("swift-tuttle"), `${label}: another shower's parent (the catalogued comet) is not mounted in this shower`);
@@ -196,82 +195,73 @@ async function checkSunEarth(page, label, canvas) {
   const scales = await scaleOptions(page);
   assert.deepEqual(scales, ["true-scale", "solar-system"], `${label}: true and solar-system scale`);
 
-  // The Sun at the origin: with the Sun focused the camera is centred on it, so its marker is at the middle of the canvas.
-  const closeInfo = () => ui.closeInfo(page);
-  const choose = async (objectId, presetId) => {
-    await ui.pickBody(page, objectId);
-    await closeInfo();
-    await ui.chooseCamera(page, presetId);
-    await page.waitForTimeout(900);
-  };
-  const start = (await ui.seekRange(page)).min;
-  const peak = await ui.windowPeakTimeMs(page);
-  out.path = {};
-  await checkPlanetOrbits(page, label, canvas, choose, closeInfo);
-  // Earth on its path at the start and at the peak: overview shows the blue path; following Earth keeps the line passing both sides of it.
-  for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); await closeInfo(); }]]) {
-    await move();
-    await choose("sun", "overview");
-    await ui.closeAllPanelsNow(page); // a story or information panel lies over the canvas
-    await page.waitForTimeout(300);
-    // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
-    // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
-    // I-040: the comet's whole orbit is drawn in the Overview, proved from the line itself: the scene's path readout (driver.scenePath) says the line is visible, has its vertices and that they
-    // lie in the view, with labels on or off. Negative probe: the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view, must read fewer
-    // vertices in view (a short orbit such as the Geminids' keeps its near-Sun end in view, so the bar is 60%, not a quarter) (Focus Earth is no probe: the comet's orbit passes close by Earth).
-    const orbitLine = await ui.scenePath(page, `${parent}-orbit`);
-    out.path[`${name}WholeOrbitReadout`] = orbitLine;
-    assert.ok(orbitLine?.visible, `${label}/${name}: the comet's orbit line is drawn (visible in the scene's path readout; the scene's paths: ${JSON.stringify(await ui.scenePaths(page))})`);
-    assert.ok(orbitLine.vertices >= 500 && orbitLine.inView >= 0.9 * orbitLine.vertices, `${label}/${name}: the comet's whole orbit is in view in the Overview (${orbitLine.inView} of ${orbitLine.vertices} vertices)`);
-    assert.ok(Math.max(orbitLine.spanX, orbitLine.spanY) > 0.03, `${label}/${name}: the comet's orbit is a line with an extent in the view, not a point (${orbitLine.spanX} x ${orbitLine.spanY}; the Overview frames it small at some times, the Whole orbit preset is asserted to span over 30%)`);
-    if (name === "start") {
-      const boxN = await canvas.boundingBox();
-      // Over empty sky, not the canvas centre: in the Showers year (O-024 T-092) Earth's and Mercury's labels sit by the Sun at the start and a wheel over a label does not reach the scene.
-      await page.mouse.move(boxN.x + boxN.width / 4, boxN.y + boxN.height / 4);
-      for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
-      await page.waitForTimeout(720);
-      const without = await ui.scenePath(page, `${parent}-orbit`);
-      out.path.startOrbitOutOfViewReadout = without;
-      assert.ok(without.inView < orbitLine.inView * 0.6, `${label}/${name}: the path readout finds the line only when it is in view (${without.inView} vertices in view with it out of view, ${orbitLine.inView} in the Overview)`);
-    }
-    // O-034 T-112: Earth's path being brought into view and running on both sides of Earth is asserted at the peak only; the start pass keeps the whole-orbit readouts and the
-    // out-of-view negative probe above (the same camera and path code, so the start repeat was dropped).
-    if (name === "peak") {
-      await choose("sun", "overview");
-      // T-102: a point where the canvas is on top (at the peak the story marker sits over the middle, where a wheel never reached the camera; the old pixel count passed without zooming).
-      const free0 = (await ui.freeCanvasPoint(page)) ?? { x: 10, y: 10 };
-      await page.mouse.move(free0.x, free0.y);
-      // T-102: Earth's path as the scene reports it (the line's own vertices in view and the share of the view they span; it replaces a count of blue pixels).
-      const pathBig = (line) => line?.visible && line.inView >= 0.9 * line.vertices && Math.max(line.spanX * line.aspect, line.spanY) > 0.1;
-      let overview = await ui.scenePath(page, "earth-path");
-      let wheels = 0;
-      while (!pathBig(overview) && wheels < 60) {
-        await page.mouse.wheel(0, -400);
-        wheels += 1;
-        await page.waitForTimeout(350);
-        overview = await ui.scenePath(page, "earth-path");
-      }
-      out.path[`${name}Wheels`] = wheels;
-      assert.ok(pathBig(overview), `${label}/${name}: Earth's path is drawn once the camera is brought in (${JSON.stringify(overview)} after ${wheels} wheel steps)`);
-      await choose("earth", "focus-earth");
-      // Frame Earth with the path in view: pull back a little from the close framing.
-      const box = await canvas.boundingBox();
-      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-      for (let i = 0; i < 3; i += 1) await page.mouse.wheel(0, 300);
-      // T-038 (ecliptic-up view): Focus Earth now looks at Earth from the Sun's side exactly in the ecliptic, where its path is edge-on; raise the camera a little.
-      await page.mouse.down();
-      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 90, { steps: 6 });
-      await page.mouse.up();
-      await page.waitForTimeout(480);
-      const near = await ui.scenePath(page, "earth-path");
-      out.path[name] = { overview, near };
-      // Earth is the focus, so it is at the middle of the view: the drawn line (the segments between vertices) runs on both sides of it.
-      assert.ok(near?.visible && near.lineMinX !== null && near.lineMinX < 0.45 && near.lineMaxX > 0.55, `${label}/${name}: the path runs on both sides of Earth (path readout ${JSON.stringify(near)})`);
-  
-    }
-  }
+}
 
-  // Solar-system scale: Earth becomes visible, and its info panel states the factor.
+// The comet's whole orbit is in view in the Overview at `name` ("start" or "peak"), with the out-of-view negative probe at the start.
+async function checkCometOrbitInOverview({ page, label, canvas, out, choose }, name) {
+  await choose("sun", "overview");
+  await ui.closeAllPanelsNow(page); // a story or information panel lies over the canvas
+  await page.waitForTimeout(300);
+  // T-038: Overview now frames the comet's whole 51 AU orbit, so Earth's 1 AU path is a few pixels there. The comet's orbit is asserted at that framing,
+  // then the camera is brought in (the wheel) until Earth's path is the size it was in the earlier Overview, which is the earlier scenario's assertion.
+  // I-040: the comet's whole orbit is drawn in the Overview, proved from the line itself: the scene's path readout (driver.scenePath) says the line is visible, has its vertices and that they
+  // lie in the view, with labels on or off. Negative probe: the camera pulled in on the Sun (wheel), so the orbit, which lies far outside the frame, is out of view, must read fewer
+  // vertices in view (a short orbit such as the Geminids' keeps its near-Sun end in view, so the bar is 60%, not a quarter) (Focus Earth is no probe: the comet's orbit passes close by Earth).
+  const orbitLine = await ui.scenePath(page, `${parent}-orbit`);
+  out.path[`${name}WholeOrbitReadout`] = orbitLine;
+  assert.ok(orbitLine?.visible, `${label}/${name}: the comet's orbit line is drawn (visible in the scene's path readout; the scene's paths: ${JSON.stringify(await ui.scenePaths(page))})`);
+  assert.ok(orbitLine.vertices >= 500 && orbitLine.inView >= 0.9 * orbitLine.vertices, `${label}/${name}: the comet's whole orbit is in view in the Overview (${orbitLine.inView} of ${orbitLine.vertices} vertices)`);
+  assert.ok(Math.max(orbitLine.spanX, orbitLine.spanY) > 0.03, `${label}/${name}: the comet's orbit is a line with an extent in the view, not a point (${orbitLine.spanX} x ${orbitLine.spanY}; the Overview frames it small at some times, the Whole orbit preset is asserted to span over 30%)`);
+  if (name === "start") {
+    const boxN = await canvas.boundingBox();
+    // Over empty sky, not the canvas centre: in the Showers year (O-024 T-092) Earth's and Mercury's labels sit by the Sun at the start and a wheel over a label does not reach the scene.
+    await page.mouse.move(boxN.x + boxN.width / 4, boxN.y + boxN.height / 4);
+    for (let i = 0; i < 25; i += 1) await page.mouse.wheel(0, -400);
+    await page.waitForTimeout(720);
+    const without = await ui.scenePath(page, `${parent}-orbit`);
+    out.path.startOrbitOutOfViewReadout = without;
+    assert.ok(without.inView < orbitLine.inView * 0.6, `${label}/${name}: the path readout finds the line only when it is in view (${without.inView} vertices in view with it out of view, ${orbitLine.inView} in the Overview)`);
+  }
+  // O-034 T-112: Earth's path being brought into view and running on both sides of Earth is asserted at the peak only; the start pass keeps the whole-orbit readouts and the
+  // out-of-view negative probe above (the same camera and path code, so the start repeat was dropped).
+}
+
+// Earth's path at the peak: brought into view by the wheel and running on both sides of Earth when it is the focus.
+async function checkEarthPathAtPeak({ page, label, canvas, out, choose }, name) {
+  await choose("sun", "overview");
+  // T-102: a point where the canvas is on top (at the peak the story marker sits over the middle, where a wheel never reached the camera; the old pixel count passed without zooming).
+  const free0 = (await ui.freeCanvasPoint(page)) ?? { x: 10, y: 10 };
+  await page.mouse.move(free0.x, free0.y);
+  // T-102: Earth's path as the scene reports it (the line's own vertices in view and the share of the view they span; it replaces a count of blue pixels).
+  const pathBig = (line) => line?.visible && line.inView >= 0.9 * line.vertices && Math.max(line.spanX * line.aspect, line.spanY) > 0.1;
+  let overview = await ui.scenePath(page, "earth-path");
+  let wheels = 0;
+  while (!pathBig(overview) && wheels < 60) {
+    await page.mouse.wheel(0, -400);
+    wheels += 1;
+    await page.waitForTimeout(350);
+    overview = await ui.scenePath(page, "earth-path");
+  }
+  out.path[`${name}Wheels`] = wheels;
+  assert.ok(pathBig(overview), `${label}/${name}: Earth's path is drawn once the camera is brought in (${JSON.stringify(overview)} after ${wheels} wheel steps)`);
+  await choose("earth", "focus-earth");
+  // Frame Earth with the path in view: pull back a little from the close framing.
+  const box = await canvas.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < 3; i += 1) await page.mouse.wheel(0, 300);
+  // T-038 (ecliptic-up view): Focus Earth now looks at Earth from the Sun's side exactly in the ecliptic, where its path is edge-on; raise the camera a little.
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 90, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(480);
+  const near = await ui.scenePath(page, "earth-path");
+  out.path[name] = { overview, near };
+  // Earth is the focus, so it is at the middle of the view: the drawn line (the segments between vertices) runs on both sides of it.
+  assert.ok(near?.visible && near.lineMinX !== null && near.lineMinX < 0.45 && near.lineMaxX > 0.55, `${label}/${name}: the path runs on both sides of Earth (path readout ${JSON.stringify(near)})`);
+}
+
+// Solar-system scale: Earth becomes visible, and its info panel states the factor.
+async function checkSolarScaleEarth({ page, label, canvas, out, choose, closeInfo }) {
   await choose("earth", "focus-earth");
   const box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
@@ -292,8 +282,10 @@ async function checkSunEarth(page, label, canvas) {
   assert.match(earthDetail, /400 times larger than life/, `${label}: Earth's factor is stated`);
   out.earthFactor = earthDetail.match(/[^.]*400 times larger[^.]*\./)?.[0] ?? null;
   await closeInfo();
+}
 
-  // Follow Earth through the activity window under the solar-system scale.
+// Follow Earth through the activity window under the solar-system scale.
+async function checkFollowEarth({ page, label, canvas, out, choose }, start) {
   await choose("earth", "follow-earth");
   const end = (await ui.seekRange(page)).max;
   const followed = [];
@@ -304,6 +296,34 @@ async function checkSunEarth(page, label, canvas) {
   }
   out.followedEarth = followed;
   assert.ok(followed.every((body) => body?.inView && body.as !== "none" && Math.abs(body.x - 0.5) < 0.15), `${label}: Earth stays in view, near the middle, while followed (${JSON.stringify(followed)})`);
+}
+
+// The Sun-Earth composition: the Sun is the scene's zero, Earth moves on its drawn path, no Moon exists, and the solar-system scale shows Earth.
+async function checkSunEarth(page, label, canvas) {
+  const out = (results[label].sunEarth = {});
+  await checkSunEarthComposition(page, label, canvas);
+  // The Sun at the origin: with the Sun focused the camera is centred on it, so its marker is at the middle of the canvas.
+  const closeInfo = () => ui.closeInfo(page);
+  const choose = async (objectId, presetId) => {
+    await ui.pickBody(page, objectId);
+    await closeInfo();
+    await ui.chooseCamera(page, presetId);
+    await page.waitForTimeout(900);
+  };
+  const start = (await ui.seekRange(page)).min;
+  const peak = await ui.windowPeakTimeMs(page);
+  out.path = {};
+  const ctx = { page, label, canvas, out, choose, closeInfo };
+  await checkPlanetOrbits(page, label, canvas, choose, closeInfo);
+  // Earth on its path at the start and at the peak: overview shows the blue path; following Earth keeps the line passing both sides of it.
+  for (const [name, move] of [["start", () => seek(page, start)], ["peak", async () => { await ui.goToWindowPeak(page); await page.waitForTimeout(500); await closeInfo(); }]]) {
+    await move();
+    await checkCometOrbitInOverview(ctx, name);
+    if (name === "peak") await checkEarthPathAtPeak(ctx, name);
+  }
+
+  await checkSolarScaleEarth(ctx);
+  await checkFollowEarth(ctx, start);
   void peak;
 }
 
@@ -325,23 +345,10 @@ async function markerBesideLabel(page, id) {
 
 // The comet and the planets are visible with labels: a zoom sweep from the whole-system Overview in to the close view shows every body's label, with a marker beside it, at some zoom;
 // at true scale Earth and the planets draw as markers, and under the solar-system scale at least one planet draws as a body instead.
-async function checkBodies(page, label, canvas) {
-  const out = (results[label].bodies = {});
-  // The settings file turns the Sun's label off (owner: "we can probably turn off the sun label"): it must never be shown here, yet the Sun stays in the Object menu.
-  const sunLabelOff = settingsFile.labels?.sun === false;
-  const bodies = ["sun", "earth", "mercury", "venus", "mars", "jupiter", parent].filter((id) => !(sunLabelOff && id === "sun"));
-  const closeInfo = () => ui.closeInfo(page);
-  await ui.pickBody(page, "sun");
-  await closeInfo();
-  await ui.chooseCamera(page, "overview");
-  await page.waitForTimeout(720);
-  const box = await canvas.boundingBox();
-  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
+/** The zoom sweep: wheel in from far out until every body has shown its label with a marker beside it. Returns { seen, markerSets, sweepSteps }. */
+async function sweepBodyLabels(page, bodies) {
   const seen = new Map();
   const markerSets = [];
-  // The scenario is stated at true scale, so choose it (an earlier check leaves the solar-system scale on; with a close Overview an enlarged giant planet is a body, not a marker).
-  await chooseScale(page, "True");
-  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
   // T-055: a shower whose parent orbits inside Jupiter's (no wide-ranging comet) frames a smaller Overview that can leave the outer planets off screen: start the sweep from
   // farther out (the camera is held at its settings' reach), so every body is in view at the start whatever the parent.
   for (let out = 0; out < 8; out += 1) { await page.mouse.wheel(0, 500); await page.waitForTimeout(250); }
@@ -358,8 +365,11 @@ async function checkBodies(page, label, canvas) {
     }
     if (bodies.every((id) => seen.get(id)?.markerPixels > 0)) break;
   }
-  out.sweepSteps = sweepSteps;
-  out.labelsSeenAtZoomStep = Object.fromEntries(seen);
+  return { seen, markerSets, sweepSteps };
+}
+
+/** The label assertions of the sweep: the Sun stays off, the desktop shows every label, the phone the Sun, Earth, the comet and two planets, and each has a marker beside it. */
+async function assertBodyLabels(page, label, out, { bodies, seen, sunLabelOff }) {
   if (sunLabelOff) {
     assert.ok(!(await shownLabels(page)).includes("sun"), `${label}: the Sun's label is off by the settings`);
     assert.equal(await ui.bodyOptionCount(page, "sun"), 1, `${label}: the Sun is still in the Object menu`);
@@ -374,6 +384,47 @@ async function checkBodies(page, label, canvas) {
   }
   // The comet's marker is checked in its own framing below (at the whole-system Overview it can sit under the controls on a small screen).
   for (const id of bodies.filter((body) => body !== parent && seen.has(body))) assert.ok(seen.get(id).markerPixels > 0, `${label}: ${id} has a marker beside its label in the scene readout (${seen.get(id).markerPixels})`);
+}
+
+/** Under the solar-system scale the planets are enlarged: from the whole-system Overview, zoom in until Earth and two other planets draw as bodies, not markers. */
+async function checkPlanetsDrawAsBodies(page, label, canvas, out) {
+  const box2 = await canvas.boundingBox();
+  await page.mouse.move(box2.x + box2.width / 4, box2.y + box2.height / 4);
+  const bodySteps = [];
+  for (let step = 0; step < 40; step += 1) {
+    await page.mouse.wheel(0, -500);
+    await page.waitForTimeout(500);
+    const markers = ((await page.locator("canvas").first().getAttribute("data-marker-bodies")) ?? "").split(",");
+    const asBodies = ["earth", "mercury", "venus", "mars", "jupiter"].filter((id) => !markers.includes(id));
+    if (asBodies.length > 0) bodySteps.push({ step, asBodies });
+    // O-034 T-112: stop once the assertion below is met (Earth and two other planets seen as bodies); the rest of the 40 steps only added to a record.
+    if (new Set(bodySteps.flatMap((entry) => entry.asBodies)).size >= 3 && bodySteps.some((entry) => entry.asBodies.includes("earth"))) break;
+  }
+  out.solarSystemBodies = bodySteps.slice(0, 3);
+  const asBodyAtSomeZoom = new Set(bodySteps.flatMap((entry) => entry.asBodies));
+  out.solarSystemBodySet = [...asBodyAtSomeZoom];
+  assert.ok(asBodyAtSomeZoom.has("earth") && asBodyAtSomeZoom.size >= 3, `${label}: under the solar-system scale Earth and other planets draw as bodies at some zoom (${[...asBodyAtSomeZoom]})`);
+}
+
+async function checkBodies(page, label, canvas) {
+  const out = (results[label].bodies = {});
+  // The settings file turns the Sun's label off (owner: "we can probably turn off the sun label"): it must never be shown here, yet the Sun stays in the Object menu.
+  const sunLabelOff = settingsFile.labels?.sun === false;
+  const bodies = ["sun", "earth", "mercury", "venus", "mars", "jupiter", parent].filter((id) => !(sunLabelOff && id === "sun"));
+  const closeInfo = () => ui.closeInfo(page);
+  await ui.pickBody(page, "sun");
+  await closeInfo();
+  await ui.chooseCamera(page, "overview");
+  await page.waitForTimeout(720);
+  const box = await canvas.boundingBox();
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
+  // The scenario is stated at true scale, so choose it (an earlier check leaves the solar-system scale on; with a close Overview an enlarged giant planet is a body, not a marker).
+  await chooseScale(page, "True");
+  await page.mouse.move(box.x + box.width / 4, box.y + box.height / 4);
+  const { seen, markerSets, sweepSteps } = await sweepBodyLabels(page, bodies);
+  out.sweepSteps = sweepSteps;
+  out.labelsSeenAtZoomStep = Object.fromEntries(seen);
+  await assertBodyLabels(page, label, out, { bodies, seen, sunLabelOff });
   await ui.pickBody(page, parent);
   await closeInfo();
   await ui.chooseCamera(page, "focus-parent");
@@ -391,22 +442,7 @@ async function checkBodies(page, label, canvas) {
   await ui.chooseCamera(page, "overview");
   await chooseScale(page, "Solar system");
   await page.waitForTimeout(900);
-  const box2 = await canvas.boundingBox();
-  await page.mouse.move(box2.x + box2.width / 4, box2.y + box2.height / 4);
-  const bodySteps = [];
-  for (let step = 0; step < 40; step += 1) {
-    await page.mouse.wheel(0, -500);
-    await page.waitForTimeout(500);
-    const markers = ((await page.locator("canvas").first().getAttribute("data-marker-bodies")) ?? "").split(",");
-    const asBodies = ["earth", "mercury", "venus", "mars", "jupiter"].filter((id) => !markers.includes(id));
-    if (asBodies.length > 0) bodySteps.push({ step, asBodies });
-    // O-034 T-112: stop once the assertion below is met (Earth and two other planets seen as bodies); the rest of the 40 steps only added to a record.
-    if (new Set(bodySteps.flatMap((entry) => entry.asBodies)).size >= 3 && bodySteps.some((entry) => entry.asBodies.includes("earth"))) break;
-  }
-  out.solarSystemBodies = bodySteps.slice(0, 3);
-  const asBodyAtSomeZoom = new Set(bodySteps.flatMap((entry) => entry.asBodies));
-  out.solarSystemBodySet = [...asBodyAtSomeZoom];
-  assert.ok(asBodyAtSomeZoom.has("earth") && asBodyAtSomeZoom.size >= 3, `${label}: under the solar-system scale Earth and other planets draw as bodies at some zoom (${[...asBodyAtSomeZoom]})`);
+  await checkPlanetsDrawAsBodies(page, label, canvas, out);
   await chooseScale(page, "True");
   await page.waitForTimeout(480);
 }
@@ -808,41 +844,76 @@ async function checkSwitch(label, viewport) {
 }
 const streamId = (name) => `${name}-stream`;
 
+// I-028 and T-063: a plain load opens on the experience's overview (the stream drawn, the Sun not a close-up) and on look.startView when the shower declares one.
+// Returns the start-view reading, or undefined.
+async function checkPlainLoad(label, viewport) {
+  // I-028: a plain load (no preset clicked, sky on) opens on the experience's overview: the stream is drawn and the Sun's disc does not cover the canvas.
+  let startViewRead;
+  const plain = await openPage(viewport);
+  try {
+    await plain.goto(`${base}?experience=showers&shower=${shower}`);
+    await plain.waitForSelector("canvas");
+    await ui.waitForShell(plain);
+    await plain.waitForTimeout(1500);
+    const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
+    assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} dots in view)`);
+    // T-102: "not a close-up of the Sun" from the scene's body readout: the Sun's drawn radius is under a quarter of the view's height (it was: stream-coloured pixels under 30% of the area).
+    const plainSun = await ui.sceneBody(plain, "sun");
+    logLit(`${label}/plain-sun-radius-px`, plainSun?.radiusPx);
+    assert.ok(plainSun !== undefined && plainSun.radiusPx < 0.25 * viewport.height, `${label}: a plain load is not a close-up of the Sun (its radius is ${plainSun?.radiusPx} px in a view ${viewport.height} px high)`);
+    // T-063: a shower that declares look.startView opens on it.
+    const declared = settingsFile.look?.startView;
+    if (declared !== undefined) {
+      await ui.toggleDeveloper(plain);
+      const text = await plain.getByTestId("view-values").innerText();
+      const match = /View: ([^,]+),([\d.-]+),([\d.-]+),([\d.-]+)/.exec(text);
+      assert.ok(match, `${label}: the view readout reads (${text})`);
+      const [focus, az, el, dist] = [match[1], Number(match[2]), Number(match[3]), Number(match[4])];
+      const gap = Math.abs(((az - declared.azimuthDeg + 540) % 360) - 180);
+      startViewRead = { declared, read: { focus, az, el, dist } };
+      assert.equal(focus, declared.focus, `${label}: a plain load opens on the declared focus`);
+      assert.ok(gap < 1.5 && Math.abs(el - declared.elevationDeg) < 1.5 && Math.abs(dist - declared.distance) / declared.distance < 0.02, `${label}: a plain load opens at look.startView (read ${az}, ${el}, ${dist}; declared ${declared.azimuthDeg}, ${declared.elevationDeg}, ${declared.distance})`);
+    }
+  } finally {
+    await plain.close();
+  }
+  return startViewRead;
+}
+
+// The stream's details: the radiant, the illustrative marking, the credited source, the member count and the stated clump model.
+async function checkStreamDetails(page, label, panel) {
+  // The radiant and the published/modelled split are visible in the stream's details.
+  const text = await panel.innerText();
+  assert.match(text, /Radiant/, `${label}: radiant readout`);
+  assert.match(text, new RegExp(`RA ${settingsFile.radiant.raDeg.toFixed(1)}`), `${label}: radiant right ascension (${settingsFile.radiant.raDeg})`);
+  assert.match(text, new RegExp(`Dec \\+?${settingsFile.radiant.decDeg.toFixed(1)}`), `${label}: radiant declination (${settingsFile.radiant.decDeg})`);
+  assert.match(text, /J2000/, `${label}: the radiant frame is stated`);
+  assert.ok(text.includes(settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()), `${label}: the radiant cites its source (${settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()})`);
+  assert.match(await ui.provenanceBadgeText(page), /^Illustrative/, `${label}: the stream is marked illustrative`);
+  await ui.openProvenance(page);
+  const detail = await ui.provenanceDetailRaw(page);
+  for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", ...gmnSettings.months, `${fetched.counts.kept} bound orbits in the file`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
+  // The published rule's quote (a citation of the 2025 papers) still says the papers applied it "to the CAMS v3.0 database"; that is their wording, not a data source here.
+  assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(detail), `${label}: the panel cites no CAMS data source`);
+  assert.match(detail, new RegExp(`${fetched.counts.kept} orbits drawn`), `${label}: the member count equals the fetched file's (${fetched.counts.kept})`);
+  assert.match(detail, /position of each dot along its orbit is illustrative/i, `${label}: the position along each orbit is stated illustrative`);
+  const clump = settingsFile.stream.concentration;
+  assert.match(detail, new RegExp(`clump near ${escapeRegExp(settingsFile.parentBody)} is a model: ${Math.round(clump.fraction * 100)}% of the dots are placed within ±${clump.widthDeg}° of ${escapeRegExp(settingsFile.parentBody)}'s orbital phase \\(${clump.status === "cited" ? "cited" : "illustrative defaults"}`, "i"), `${label}: the clump is a stated model with its fraction, width and status`);
+  assert.match(detail, new RegExp(`band at ${escapeRegExp(settingsFile.parentBody)}'s phase, not a blob on ${escapeRegExp(settingsFile.parentBody)}`, "i"), `${label}: the clump is described as a band at the parent's phase`);
+  assert.match(detail, /Parts of the stream that miss Earth are not shown/i, `${label}: the unseen parts of the stream are stated`);
+  assert.doesNotMatch(detail, /invented|Modelled spread/i, `${label}: no invented stream remains`);
+  const panelText = (await panel.innerText()).replace(/\s+/g, " ");
+  const counted = Number(panelText.match(/(\d+) measured meteoroid orbits/)?.[1] ?? Number.NaN);
+  assert.equal(counted, fetched.counts.kept, `${label}: the stream's description counts every measured orbit drawn`);
+  results[label].members = counted;
+}
+
 async function run(label, viewport) {
   const phoneOnce = label === "phone" || lightRun;
   const page = await openPage(viewport);
   const streamId = `${shower}-stream`;
   try {
-    // I-028: a plain load (no preset clicked, sky on) opens on the experience's overview: the stream is drawn and the Sun's disc does not cover the canvas.
-    let startViewRead;
-    const plain = await openPage(viewport);
-    try {
-      await plain.goto(`${base}?experience=showers&shower=${shower}`);
-      await plain.waitForSelector("canvas");
-      await ui.waitForShell(plain);
-      await plain.waitForTimeout(1500);
-      const plainLit = logLit(`${label}/plain-load`, await litPixels(plain));
-      assert.ok(plainLit > 50, `${label}: a plain load shows the stream (${plainLit} dots in view)`);
-      // T-102: "not a close-up of the Sun" from the scene's body readout: the Sun's drawn radius is under a quarter of the view's height (it was: stream-coloured pixels under 30% of the area).
-      const plainSun = await ui.sceneBody(plain, "sun");
-      logLit(`${label}/plain-sun-radius-px`, plainSun?.radiusPx);
-      assert.ok(plainSun !== undefined && plainSun.radiusPx < 0.25 * viewport.height, `${label}: a plain load is not a close-up of the Sun (its radius is ${plainSun?.radiusPx} px in a view ${viewport.height} px high)`);
-      // T-063: a shower that declares look.startView opens on it.
-      const declared = settingsFile.look?.startView;
-      if (declared !== undefined) {
-        await ui.toggleDeveloper(plain);
-        const text = await plain.getByTestId("view-values").innerText();
-        const match = /View: ([^,]+),([\d.-]+),([\d.-]+),([\d.-]+)/.exec(text);
-        assert.ok(match, `${label}: the view readout reads (${text})`);
-        const [focus, az, el, dist] = [match[1], Number(match[2]), Number(match[3]), Number(match[4])];
-        const gap = Math.abs(((az - declared.azimuthDeg + 540) % 360) - 180);
-        startViewRead = { declared, read: { focus, az, el, dist } };
-        assert.equal(focus, declared.focus, `${label}: a plain load opens on the declared focus`);
-        assert.ok(gap < 1.5 && Math.abs(el - declared.elevationDeg) < 1.5 && Math.abs(dist - declared.distance) / declared.distance < 0.02, `${label}: a plain load opens at look.startView (read ${az}, ${el}, ${dist}; declared ${declared.azimuthDeg}, ${declared.elevationDeg}, ${declared.distance})`);
-      }
-    } finally {
-      await plain.close();
-    }
+    const startViewRead = await checkPlainLoad(label, viewport);
     await page.goto(`${base}?experience=showers&shower=${shower}&sky=off${ENGINE_DEFAULT_VIEW}`);
     await page.waitForSelector("canvas");
     await ui.waitForShell(page);
@@ -934,30 +1005,7 @@ async function run(label, viewport) {
       assert.ok(rateOf("peak") > rateOf("end"), `${label}: rate at the peak is above the end`);
     }
 
-    // The radiant and the published/modelled split are visible in the stream's details.
-    const text = await panel.innerText();
-    assert.match(text, /Radiant/, `${label}: radiant readout`);
-    assert.match(text, new RegExp(`RA ${settingsFile.radiant.raDeg.toFixed(1)}`), `${label}: radiant right ascension (${settingsFile.radiant.raDeg})`);
-    assert.match(text, new RegExp(`Dec \\+?${settingsFile.radiant.decDeg.toFixed(1)}`), `${label}: radiant declination (${settingsFile.radiant.decDeg})`);
-    assert.match(text, /J2000/, `${label}: the radiant frame is stated`);
-    assert.ok(text.includes(settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()), `${label}: the radiant cites its source (${settingsFile.radiant.source.name.split(/[,(:]/)[0].trim()})`);
-    assert.match(await ui.provenanceBadgeText(page), /^Illustrative/, `${label}: the stream is marked illustrative`);
-    await ui.openProvenance(page);
-    const detail = await ui.provenanceDetailRaw(page);
-    for (const text of ["Global Meteor Network", gmnSettings.licence, "Vida", "506(4)", "491(2)", ...gmnSettings.months, `${fetched.counts.kept} bound orbits in the file`]) assert.ok(detail.includes(text), `${label}: the measured source is credited ("${text}")`);
-    // The published rule's quote (a citation of the 2025 papers) still says the papers applied it "to the CAMS v3.0 database"; that is their wording, not a data source here.
-    assert.ok(!/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/.test(detail), `${label}: the panel cites no CAMS data source`);
-    assert.match(detail, new RegExp(`${fetched.counts.kept} orbits drawn`), `${label}: the member count equals the fetched file's (${fetched.counts.kept})`);
-    assert.match(detail, /position of each dot along its orbit is illustrative/i, `${label}: the position along each orbit is stated illustrative`);
-    const clump = settingsFile.stream.concentration;
-    assert.match(detail, new RegExp(`clump near ${escapeRegExp(settingsFile.parentBody)} is a model: ${Math.round(clump.fraction * 100)}% of the dots are placed within ±${clump.widthDeg}° of ${escapeRegExp(settingsFile.parentBody)}'s orbital phase \\(${clump.status === "cited" ? "cited" : "illustrative defaults"}`, "i"), `${label}: the clump is a stated model with its fraction, width and status`);
-    assert.match(detail, new RegExp(`band at ${escapeRegExp(settingsFile.parentBody)}'s phase, not a blob on ${escapeRegExp(settingsFile.parentBody)}`, "i"), `${label}: the clump is described as a band at the parent's phase`);
-    assert.match(detail, /Parts of the stream that miss Earth are not shown/i, `${label}: the unseen parts of the stream are stated`);
-    assert.doesNotMatch(detail, /invented|Modelled spread/i, `${label}: no invented stream remains`);
-    const panelText = (await panel.innerText()).replace(/\s+/g, " ");
-    const counted = Number(panelText.match(/(\d+) measured meteoroid orbits/)?.[1] ?? Number.NaN);
-    assert.equal(counted, fetched.counts.kept, `${label}: the stream's description counts every measured orbit drawn`);
-    results[label].members = counted;
+    await checkStreamDetails(page, label, panel);
 
     // The window's own details name the published night and the modelled shape.
     await ui.goToWindowPeak(page); // the peak mark opens the window's details (the clickable band above the timeline is gone, T-084)

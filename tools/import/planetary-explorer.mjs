@@ -146,118 +146,113 @@ function findOddities(features, categories, bodyId) {
   return oddities
 }
 
-async function main() {
-  const opts = parseArgs(process.argv.slice(2))
-  const { donor } = opts
-  if (!existsSync(join(donor, 'src/entities/planetRegistry.ts'))) throw new Error(`Not a Planetary Explorer checkout: ${donor}`)
-  const commit = execFileSync('git', ['-C', donor, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
-  register('./ts-resolve-hook.mjs', import.meta.url)
-
-  const overviews = readJson(join(donor, 'data/body-overviews.json'))
-  const sourceOverrides = readJson(join(HERE, 'planetary-explorer-map-sources.json'))
-  const conventions = readJson(join(HERE, 'planetary-explorer-conventions.json')).bodies
-  const blocks = readTextureBlocks(donor)
-  const notes = readReadmeNotes(donor)
-  const header = (id, name, parent, kind) => ({
+function headerFor(commit, id, name, parent, kind) {
+  return {
     format: FORMAT, kind, body: id, name, parent: parent ?? null,
     donor: { project: 'planetary-explorer', commit },
+  }
+}
+
+function textureVariants(donor, config, blocks) {
+  const id = config.id
+  return config.textures.variants.map((variant) => {
+    const file = basename(variant.src)
+    const path = join(donor, 'public', variant.src)
+    if (!existsSync(path)) throw new Error(`Texture missing for ${id}: ${path}`)
+    const bytes = readFileSync(path)
+    const block = blocks.find((b) => b.files.includes(file))
+    return {
+      src: variant.src,
+      ...(variant.minViewportWidth !== undefined ? { minViewportWidth: variant.minViewportWidth } : {}),
+      ...jpegSize(bytes, path),
+      bytes: bytes.length,
+      sha256: createHash('sha256').update(bytes).digest('hex'),
+      donorReadme: block ? block.lines : null,
+    }
   })
+}
 
-  const packages = []
-  const refused = []
-  for (const entry of readRegistry(donor)) {
-    const moduleExports = await import(pathToFileURL(join(donor, 'src/entities', `${entry.entityFile}.ts`)).href)
-    const config = moduleExports[entry.configVar]
-    const id = config.id
-    const features = readJson(join(donor, 'data', entry.featureData))
-    assertNoNegativeZero(features, entry.featureData)
-    const overview = overviews.find((o) => o.bodyId === id)
-    if (!overview) throw new Error(`No overview for ${id}`)
-
-    const variants = config.textures.variants.map((variant) => {
-      const file = basename(variant.src)
-      const path = join(donor, 'public', variant.src)
-      if (!existsSync(path)) throw new Error(`Texture missing for ${id}: ${path}`)
-      const bytes = readFileSync(path)
-      const block = blocks.find((b) => b.files.includes(file))
-      return {
-        src: variant.src,
-        ...(variant.minViewportWidth !== undefined ? { minViewportWidth: variant.minViewportWidth } : {}),
-        ...jpegSize(bytes, path),
-        bytes: bytes.length,
-        sha256: createHash('sha256').update(bytes).digest('hex'),
-        donorReadme: block ? block.lines : null,
-      }
-    })
-    const readmeHasSource = variants.some((v) => v.donorReadme?.some((l) => /^\s+- (Source|Derived)/.test(l)))
-    const override = sourceOverrides[id]
-    let source
-    if (readmeHasSource) {
-      const licenceLine = variants.flatMap((v) => v.donorReadme ?? []).find((l) => /^\s+- Licen[cs]e:/.test(l))
-      source = {
-        recordedBy: 'donor public/textures/README.md',
-        licence: licenceLine ? licenceLine.replace(/^\s+- Licen[cs]e:\s*/, '') : null,
-        creditsMd: creditGroups(donor, config.name),
-      }
-    } else if (override) {
-      source = {
-        recordedBy: 'astraeus tools/import/planetary-explorer-map-sources.json',
-        recordedIn: override.recordedIn,
-        donorFileSourced: override.donorFileSourced,
-        ...(override.donorFileShippable === false ? { donorFileShippable: false } : {}),
-        description: override.source,
-        sourcePage: override.sourcePage,
-        licence: override.licence,
-        credit: override.credit,
-        ...(override.registration ? { registration: override.registration } : {}),
-      }
-    } else {
-      refused.push(id)
-      continue
+/** The recorded map source of a body: from the donor README, else from the override file, else null (the body is refused). */
+function mapSourceOf(donor, config, variants, override) {
+  const readmeHasSource = variants.some((v) => v.donorReadme?.some((l) => /^\s+- (Source|Derived)/.test(l)))
+  if (readmeHasSource) {
+    const licenceLine = variants.flatMap((v) => v.donorReadme ?? []).find((l) => /^\s+- Licen[cs]e:/.test(l))
+    return {
+      recordedBy: 'donor public/textures/README.md',
+      licence: licenceLine ? licenceLine.replace(/^\s+- Licen[cs]e:\s*/, '') : null,
+      creditsMd: creditGroups(donor, config.name),
     }
-
-    const convention = conventions[id] ?? null
-    const map = {
-      ...header(id, config.name, config.parentPlanetId, 'map'),
-      textures: variants,
-      source,
-      coordinates: {
-        placement: 'latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs',
-        latitudeDegrees: 'north positive, -90 to 90',
-        longitudeDegrees: 'exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)',
-        longitudeRange: longitudeRange(features),
-        phiDeg: '90 - latitude (polar angle from +Y)',
-        thetaDeg: 'longitude + 90 (azimuth from +X toward +Z)',
-        position: '[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]',
-        phiOffsetDeg: 90,
-        thetaOffsetDeg: 90,
-        sourceLongitude: convention?.sourceLongitude ?? null,
-        markerLongitudeFromSource: convention ? convention.markerLongitudeFromSource : null,
-        textureRecentringDeg: convention?.textureRecentringDeg ?? 0,
-        ...(convention?.recentringEvidence ? { recentringEvidence: convention.recentringEvidence } : {}),
-        ...(convention?.note ? { conventionNote: convention.note } : {}),
-        donorReadmeNote: notes.get(id) ?? null,
-      },
-    }
-    const oddities = findOddities(features, config.categories, id)
-    packages.push({
-      id, name: config.name, oddities,
-      files: {
-        'features.json': { ...header(id, config.name, config.parentPlanetId, 'features'), featureCount: features.length, features },
-        'categories.json': { ...header(id, config.name, config.parentPlanetId, 'categories'), categories: config.categories },
-        'overview.json': { ...header(id, config.name, config.parentPlanetId, 'overview'), overview },
-        'map.json': map,
-      },
-    })
   }
-
-  if (refused.length > 0) {
-    console.error(`Refusing: no recorded map source for ${refused.join(', ')}. Add a README entry in the donor or a record in tools/import/planetary-explorer-map-sources.json.`)
-    process.exitCode = 1
-    return
+  if (!override) return null
+  return {
+    recordedBy: 'astraeus tools/import/planetary-explorer-map-sources.json',
+    recordedIn: override.recordedIn,
+    donorFileSourced: override.donorFileSourced,
+    ...(override.donorFileShippable === false ? { donorFileShippable: false } : {}),
+    description: override.source,
+    sourcePage: override.sourcePage,
+    licence: override.licence,
+    credit: override.credit,
+    ...(override.registration ? { registration: override.registration } : {}),
   }
+}
 
-  const catalogue = {
+function coordinatesOf(features, convention, note) {
+  return {
+    placement: 'latLonToXYZ in the donor src/entities/hotspot.ts, on Three.js SphereGeometry UVs',
+    latitudeDegrees: 'north positive, -90 to 90',
+    longitudeDegrees: 'exactly as stored in features.json, placed by latLonToXYZ whatever the range; the donor stores values already in its own marker frame (see longitudeRange, markerLongitudeFromSource and donorReadmeNote)',
+    longitudeRange: longitudeRange(features),
+    phiDeg: '90 - latitude (polar angle from +Y)',
+    thetaDeg: 'longitude + 90 (azimuth from +X toward +Z)',
+    position: '[radius * sin(phi) * sin(theta), radius * cos(phi), radius * sin(phi) * cos(theta)]',
+    phiOffsetDeg: 90,
+    thetaOffsetDeg: 90,
+    sourceLongitude: convention?.sourceLongitude ?? null,
+    markerLongitudeFromSource: convention ? convention.markerLongitudeFromSource : null,
+    textureRecentringDeg: convention?.textureRecentringDeg ?? 0,
+    ...(convention?.recentringEvidence ? { recentringEvidence: convention.recentringEvidence } : {}),
+    ...(convention?.note ? { conventionNote: convention.note } : {}),
+    donorReadmeNote: note ?? null,
+  }
+}
+
+/** One body's package, or { refused: id } when the body has no recorded map source. `ctx` holds the donor path, commit and the files read once. */
+async function packageFor(entry, ctx) {
+  const { donor, commit, overviews, sourceOverrides, conventions, blocks, notes } = ctx
+  const moduleExports = await import(pathToFileURL(join(donor, 'src/entities', `${entry.entityFile}.ts`)).href)
+  const config = moduleExports[entry.configVar]
+  const id = config.id
+  const features = readJson(join(donor, 'data', entry.featureData))
+  assertNoNegativeZero(features, entry.featureData)
+  const overview = overviews.find((o) => o.bodyId === id)
+  if (!overview) throw new Error(`No overview for ${id}`)
+
+  const variants = textureVariants(donor, config, blocks)
+  const source = mapSourceOf(donor, config, variants, sourceOverrides[id])
+  if (source === null) return { refused: id }
+
+  const header = (kind) => headerFor(commit, id, config.name, config.parentPlanetId, kind)
+  const map = {
+    ...header('map'),
+    textures: variants,
+    source,
+    coordinates: coordinatesOf(features, conventions[id] ?? null, notes.get(id)),
+  }
+  const oddities = findOddities(features, config.categories, id)
+  return {
+    id, name: config.name, oddities,
+    files: {
+      'features.json': { ...header('features'), featureCount: features.length, features },
+      'categories.json': { ...header('categories'), categories: config.categories },
+      'overview.json': { ...header('overview'), overview },
+      'map.json': map,
+    },
+  }
+}
+
+function catalogueOf(commit, packages) {
+  return {
     format: FORMAT,
     kind: 'catalogue',
     donor: { project: 'planetary-explorer', commit },
@@ -271,7 +266,9 @@ async function main() {
       donorOddities: p.oddities,
     })),
   }
+}
 
+function reportAndWrite(packages, opts) {
   for (const p of packages) {
     console.log(`${p.id}: ${p.files['features.json'].featureCount} features, ${p.files['categories.json'].categories.length} categories, map source ${p.files['map.json'].source.recordedBy}${p.oddities.length ? `, ${p.oddities.length} oddities` : ''}`)
     if (!opts.dryRun) {
@@ -282,6 +279,40 @@ async function main() {
       console.log(`  would write ${Object.keys(p.files).map((n) => `${p.id}/${n}`).join(', ')}`)
     }
   }
+}
+
+async function main() {
+  const opts = parseArgs(process.argv.slice(2))
+  const { donor } = opts
+  if (!existsSync(join(donor, 'src/entities/planetRegistry.ts'))) throw new Error(`Not a Planetary Explorer checkout: ${donor}`)
+  const commit = execFileSync('git', ['-C', donor, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+  register('./ts-resolve-hook.mjs', import.meta.url)
+
+  const ctx = {
+    donor, commit,
+    overviews: readJson(join(donor, 'data/body-overviews.json')),
+    sourceOverrides: readJson(join(HERE, 'planetary-explorer-map-sources.json')),
+    conventions: readJson(join(HERE, 'planetary-explorer-conventions.json')).bodies,
+    blocks: readTextureBlocks(donor),
+    notes: readReadmeNotes(donor),
+  }
+
+  const packages = []
+  const refused = []
+  for (const entry of readRegistry(donor)) {
+    const pkg = await packageFor(entry, ctx)
+    if (pkg.refused !== undefined) refused.push(pkg.refused)
+    else packages.push(pkg)
+  }
+
+  if (refused.length > 0) {
+    console.error(`Refusing: no recorded map source for ${refused.join(', ')}. Add a README entry in the donor or a record in tools/import/planetary-explorer-map-sources.json.`)
+    process.exitCode = 1
+    return
+  }
+
+  const catalogue = catalogueOf(commit, packages)
+  reportAndWrite(packages, opts)
   if (!opts.dryRun) {
     mkdirSync(opts.out, { recursive: true })
     writeFileSync(join(opts.out, 'catalogue.json'), json(catalogue))

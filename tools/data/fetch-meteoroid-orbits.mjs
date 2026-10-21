@@ -127,56 +127,79 @@ export function gmnEpochMs(text) {
   return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])) + Math.round(Number(`0.${m[7] ?? "0"}`) * 1000);
 }
 
+/** The row of one GMN data line: { id, epoch, v } with v the numeric elements, or null when the line is not a member of the shower. */
+function gmnMember(cells, layout, iauCode) {
+  if (Number(cells[layout.at.iauNumber]) !== iauCode) return null;
+  const num = (field) => Number(cells[layout.at[field]]);
+  const v = { a: num("a"), e: num("e"), i: num("i"), w: num("w"), node: num("node"), solarLongitude: num("solarLongitude"), q: num("q"), vg: num("vg"), vgSigma: Number(cells[layout.vgSigmaAt]) };
+  return { v, epoch: gmnEpochMs(cells[layout.at.utc]), id: cells[0].trim() };
+}
+
+/** Which count a dropped member goes to ("incomplete", "unbound", "badSemiMajorAxis"), or null when the member is kept. */
+function gmnDropReason({ id, epoch, v }) {
+  if (id === "" || !Number.isFinite(epoch) || !Object.values(v).every(Number.isFinite)) return "incomplete";
+  if (!(v.e < 1)) return "unbound";
+  if (!(v.a > 0)) return "badSemiMajorAxis";
+  return null;
+}
+
+/** Reads one monthly file's lines into `acc` ({ counts, rows, samples, codes }); returns the file's { members, layout }. */
+async function readGmnMonth({ month, lines }, iauCode, acc, onProgress) {
+  const { counts, rows, samples, codes } = acc;
+  let lineNumber = 0;
+  let layout = null;
+  let nameRow = null;
+  let unitRow = null;
+  let members = 0;
+  for await (const line of lines) {
+    lineNumber += 1;
+    if (line.startsWith("#")) {
+      if (/^#\s*Unique trajectory/.test(line)) nameRow = line;
+      else if (nameRow !== null && unitRow === null) unitRow = line;
+      continue;
+    }
+    if (line.trim() === "") continue;
+    if (layout === null) {
+      if (nameRow === null || unitRow === null) throw new Error(`${month}: the file has data before its two column-header rows: the layout changed`);
+      layout = gmnLayout(nameRow, unitRow);
+    }
+    counts.rowsScanned += 1;
+    if (onProgress !== undefined && counts.rowsScanned % 50_000 === 0) onProgress(counts.rowsScanned);
+    const cells = line.split(";");
+    if (cells.length !== layout.columns) throw new Error(`${month} line ${lineNumber}: ${cells.length} columns, the header has ${layout.columns}: the layout changed`);
+    const member = gmnMember(cells, layout, iauCode);
+    if (member === null) continue;
+    counts.members += 1;
+    members += 1;
+    codes.add(cells[layout.at.iauCode].trim());
+    const { v, epoch, id } = member;
+    const reason = gmnDropReason(member);
+    if (reason !== null) { counts[reason] += 1; counts.dropped += 1; continue; }
+    samples.push({ ...v, date: epoch, dateRepeat: epoch, time: 0, timeRepeat: 0, pairs: 0 });
+    rows.push([id, lineNumber, epoch, v.a, v.e, v.i, v.w, v.node, v.solarLongitude, v.q, v.vg, v.vgSigma, 0]);
+  }
+  if (layout === null) throw new Error(`${month}: no data rows found: the layout changed`);
+  return { members, layout };
+}
+
 /**
  * Reads one shower out of GMN monthly summary lines (any iterable or async iterable of lines). `files` are [{ month, lines }]; rows are
  * [trajectoryId, lineNumber, epochUtcMs, a, e, i, peri, node, solLon, Qc, Vgeo, sigmaVgeo, 0]; GMN has no double-entry flag, so the last column is 0.
  * The selection is the IAU shower NUMBER (column "IAU No"); the three-letter code the matching rows carry is recorded (it must be one code).
  */
 export async function extractGmn(files, iauCode, { onProgress } = {}) {
-  const counts = { members: 0, unbound: 0, badSemiMajorAxis: 0, incomplete: 0, dropped: 0, pairsFlagged: 0, rowsScanned: 0 };
+  const acc = {
+    counts: { members: 0, unbound: 0, badSemiMajorAxis: 0, incomplete: 0, dropped: 0, pairsFlagged: 0, rowsScanned: 0 },
+    rows: [],
+    samples: [],
+    codes: new Set(),
+  };
   const perFile = [];
-  const rows = [];
-  const samples = [];
-  const codes = new Set();
-  for (const { month, lines } of files) {
-    let lineNumber = 0;
-    let layout = null;
-    let nameRow = null;
-    let unitRow = null;
-    let members = 0;
-    for await (const line of lines) {
-      lineNumber += 1;
-      if (line.startsWith("#")) {
-        if (/^#\s*Unique trajectory/.test(line)) nameRow = line;
-        else if (nameRow !== null && unitRow === null) unitRow = line;
-        continue;
-      }
-      if (line.trim() === "") continue;
-      if (layout === null) {
-        if (nameRow === null || unitRow === null) throw new Error(`${month}: the file has data before its two column-header rows: the layout changed`);
-        layout = gmnLayout(nameRow, unitRow);
-      }
-      counts.rowsScanned += 1;
-      if (onProgress !== undefined && counts.rowsScanned % 50_000 === 0) onProgress(counts.rowsScanned);
-      const cells = line.split(";");
-      if (cells.length !== layout.columns) throw new Error(`${month} line ${lineNumber}: ${cells.length} columns, the header has ${layout.columns}: the layout changed`);
-      if (Number(cells[layout.at.iauNumber]) !== iauCode) continue;
-      counts.members += 1;
-      members += 1;
-      codes.add(cells[layout.at.iauCode].trim());
-      const num = (field) => Number(cells[layout.at[field]]);
-      const epoch = gmnEpochMs(cells[layout.at.utc]);
-      const v = { a: num("a"), e: num("e"), i: num("i"), w: num("w"), node: num("node"), solarLongitude: num("solarLongitude"), q: num("q"), vg: num("vg"), vgSigma: Number(cells[layout.vgSigmaAt]) };
-      const id = cells[0].trim();
-      if (id === "" || !Number.isFinite(epoch) || !Object.values(v).every(Number.isFinite)) { counts.incomplete += 1; counts.dropped += 1; continue; }
-      if (!(v.e < 1)) { counts.unbound += 1; counts.dropped += 1; continue; }
-      if (!(v.a > 0)) { counts.badSemiMajorAxis += 1; counts.dropped += 1; continue; }
-      samples.push({ ...v, date: epoch, dateRepeat: epoch, time: 0, timeRepeat: 0, pairs: 0 });
-      rows.push([id, lineNumber, epoch, v.a, v.e, v.i, v.w, v.node, v.solarLongitude, v.q, v.vg, v.vgSigma, 0]);
-    }
-    if (layout === null) throw new Error(`${month}: no data rows found: the layout changed`);
-    perFile.push({ month, members, columns: layout.columns, columnPositions: layout.at });
+  for (const file of files) {
+    const { members, layout } = await readGmnMonth(file, iauCode, acc, onProgress);
+    perFile.push({ month: file.month, members, columns: layout.columns, columnPositions: layout.at });
   }
+  const { counts, rows, samples, codes } = acc;
   if (codes.size > 1) throw new Error(`IAU number ${iauCode} carries more than one three-letter code (${[...codes].join(", ")}): the layout changed`);
   const failures = checkLayout(samples);
   if (failures.length > 0) throw new Error(`the data layout is not what this tool reads: ${failures.join("; ")}`);

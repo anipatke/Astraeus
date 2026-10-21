@@ -68,6 +68,37 @@ export interface PathStyle {
 }
 
 /**
+ * The box (as shares of the view, y down) covered by the line between the vertices: each segment whose ends are both in front of the camera is a
+ * straight line on the screen, clipped to the view (Liang-Barsky). Returns [minX, maxX, minY, maxY]; the empty box is [1, 0, 1, 0].
+ */
+function clippedLineBox(a: ArrayLike<number>, count: number, camera: Camera): [number, number, number, number] {
+  let [lineMinX, lineMaxX, lineMinY, lineMaxY] = [1, 0, 1, 0];
+  const from = new Vector3();
+  const to = new Vector3();
+  for (let i = 0; i + 1 < count; i += 1) {
+    from.set(a[3 * i], a[3 * i + 1], a[3 * i + 2]).applyMatrix4(camera.matrixWorldInverse);
+    to.set(a[3 * i + 3], a[3 * i + 4], a[3 * i + 5]).applyMatrix4(camera.matrixWorldInverse);
+    if (from.z >= 0 || to.z >= 0) continue;
+    from.applyMatrix4(camera.projectionMatrix);
+    to.applyMatrix4(camera.projectionMatrix);
+    const [dx, dy] = [to.x - from.x, to.y - from.y];
+    let [t0, t1] = [0, 1];
+    for (const [p, q] of [[-dx, from.x + 1], [dx, 1 - from.x], [-dy, from.y + 1], [dy, 1 - from.y]]) {
+      if (p === 0) { if (q < 0) { t0 = 2; break; } continue; }
+      const r = q / p;
+      if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+    }
+    if (t0 > t1) continue;
+    for (const t of [t0, t1]) {
+      const x = (from.x + t * dx + 1) / 2;
+      const y = (1 - (from.y + t * dy)) / 2;
+      lineMinX = Math.min(lineMinX, x); lineMaxX = Math.max(lineMaxX, x); lineMinY = Math.min(lineMinY, y); lineMaxY = Math.max(lineMaxY, y);
+    }
+  }
+  return [lineMinX, lineMaxX, lineMinY, lineMaxY];
+}
+
+/**
  * A path: a state source sampled over a span and drawn by one of three rules (`orbit`, relative `trail`, inertial `trail`; see
  * `pathRules.ts`). Each frame the vertices are expressed from the scene centre by the rule, then go through
  * ScalePolicy -> render axes -> floating origin like every other body. A rolling span is resampled around the clock time.
@@ -496,30 +527,7 @@ export class PathView {
       sx += px; sy += y; sxx += px * px; syy += y * y; sxy += px * y;
       minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     }
-    // The line between the vertices: each segment whose ends are both in front of the camera is a straight line on the screen, clipped to the view (Liang-Barsky).
-    let [lineMinX, lineMaxX, lineMinY, lineMaxY] = [1, 0, 1, 0];
-    const from = new Vector3();
-    const to = new Vector3();
-    for (let i = 0; i + 1 < count; i += 1) {
-      from.set(a[3 * i], a[3 * i + 1], a[3 * i + 2]).applyMatrix4(camera.matrixWorldInverse);
-      to.set(a[3 * i + 3], a[3 * i + 4], a[3 * i + 5]).applyMatrix4(camera.matrixWorldInverse);
-      if (from.z >= 0 || to.z >= 0) continue;
-      from.applyMatrix4(camera.projectionMatrix);
-      to.applyMatrix4(camera.projectionMatrix);
-      const [dx, dy] = [to.x - from.x, to.y - from.y];
-      let [t0, t1] = [0, 1];
-      for (const [p, q] of [[-dx, from.x + 1], [dx, 1 - from.x], [-dy, from.y + 1], [dy, 1 - from.y]]) {
-        if (p === 0) { if (q < 0) { t0 = 2; break; } continue; }
-        const r = q / p;
-        if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
-      }
-      if (t0 > t1) continue;
-      for (const t of [t0, t1]) {
-        const x = (from.x + t * dx + 1) / 2;
-        const y = (1 - (from.y + t * dy)) / 2;
-        lineMinX = Math.min(lineMinX, x); lineMaxX = Math.max(lineMaxX, x); lineMinY = Math.min(lineMinY, y); lineMaxY = Math.max(lineMaxY, y);
-      }
-    }
+    const [lineMinX, lineMaxX, lineMinY, lineMaxY] = clippedLineBox(a, count, camera);
     let axisDeg = 0;
     if (inView >= 3) {
       const [mx, my] = [sx / inView, sy / inView];

@@ -105,6 +105,31 @@ interface Props {
   readonly children: ReactNode;
 }
 
+/** What the information panel is about: the selected object, or an event, window or place by id; null: closed. */
+type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null;
+
+/** The serial of a request that is asked again by sending a new one; absent request: undefined. */
+function serialOf(request: { readonly serial: number } | null | undefined): number | undefined {
+  return request?.serial;
+}
+
+function panelsOf(storySet: ExperienceConfig["storyPanels"]) {
+  return storySet?.panels ?? [];
+}
+
+function objectLabelOr(experience: ExperienceConfig, objectId: string, fallback: string): string {
+  return experience.objects.find((object) => object.id === objectId)?.label ?? fallback;
+}
+
+/** The information panel's content and, for an object, its live measurements. */
+function infoContent(experience: ExperienceConfig, info: InfoState, selectedObjectId: string, timeUtcMs: number, metricsFor: Props["metricsFor"]) {
+  const view = info === null
+    ? null
+    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, timeUtcMs);
+  const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, timeUtcMs) : [];
+  return { view, metrics };
+}
+
 /** Canvas-first layout shared by astronomy experiences. Scene and diagnostics stay app-owned. */
 export function AstraeusShell({
   experience,
@@ -147,20 +172,20 @@ export function AstraeusShell({
   useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   /** The object panel follows the selected object; an event panel names its event. */
-  const [info, setInfo] = useState<{ readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null>(null);
+  const [info, setInfo] = useState<InfoState>(null);
 
   const storySet = experience.storyPanels;
-  const storyPanels = storySet?.panels ?? [];
+  const storyPanels = panelsOf(storySet);
   const story = useStoryPanels(storyPanels, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
   const openPanelId = story.openPanel?.id ?? null;
   useEffect(() => { onOpenPanelChange?.(openPanelId); }, [onOpenPanelChange, openPanelId]);
-  const requestedSerial = panelRequest?.serial;
+  const requestedSerial = serialOf(panelRequest);
   useEffect(() => {
     if (panelRequest !== null && panelRequest !== undefined) story.open(panelRequest.id);
     // Only a new request opens a panel; the open function is stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedSerial]);
-  const requestedFeatureSerial = featureRequest?.serial;
+  const requestedFeatureSerial = serialOf(featureRequest);
   useEffect(() => {
     if (featureRequest !== null && featureRequest !== undefined) setInfo({ kind: "feature", id: featureRequest.key });
     // Only a new request opens a place.
@@ -219,7 +244,7 @@ export function AstraeusShell({
     if (object !== undefined) activatePreset(focusPresetFor(experience, object));
     else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
   };
-  const requestedPickSerial = pickRequest?.serial;
+  const requestedPickSerial = serialOf(pickRequest);
   useEffect(() => {
     if (pickRequest !== null && pickRequest !== undefined) pickObject(pickRequest.id);
     // Only a new request flies; the handler reads the current time and experience.
@@ -268,10 +293,7 @@ export function AstraeusShell({
     if (info?.kind === "window") setInfo({ kind: "window", id: window.id });
   };
 
-  const view = info === null
-    ? null
-    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, snapshot.timeUtcMs);
-  const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, snapshot.timeUtcMs) : [];
+  const { view, metrics } = infoContent(experience, info, selectedObjectId, snapshot.timeUtcMs, metricsFor);
 
   // On a wide screen the moons sheet and the information panel share the left column under the toolbar: opening one closes the other.
   const toggleMoons = () => {
@@ -280,7 +302,7 @@ export function AstraeusShell({
   };
   useEffect(() => { if (info !== null) setMoonsOpen(false); }, [info]);
 
-  const selectedLabel = experience.objects.find((object) => object.id === selectedObjectId)?.label ?? "Controls";
+  const selectedLabel = objectLabelOr(experience, selectedObjectId, "Controls");
   const topBar = (
     <TopBar
       experience={experience}
