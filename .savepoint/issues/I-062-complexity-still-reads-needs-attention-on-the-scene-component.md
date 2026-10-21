@@ -17,6 +17,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-21T11:20:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: owner_decision
+    note: 'Owner chose "Slim the scene file so it reads under 20 (Recommended)" over accepting the lizard reading. Repair planned in T-129.'
 ---
 
 # I-062: Complexity still reads Needs attention on the scene component

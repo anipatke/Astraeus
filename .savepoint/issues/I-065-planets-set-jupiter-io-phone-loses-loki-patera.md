@@ -16,6 +16,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-21T11:22:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: deferred
+    note: 'Asked how to find out whether O-037 broke it, the owner asked "what failed?" and paused for the night ("we pause here for tognit, write up the task"). Answer: the phone pass of browser-jupiter-io asserts Loki Patera''s marker shows when its side faces the camera, and it did not; desktop passed. T-129 reads the code first and asks the owner how to prove it.'
 ---
 
 # I-065: Planets set: jupiter-io on a phone does not find Loki Patera
