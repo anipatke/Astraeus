@@ -5,6 +5,7 @@ status: in_progress
 depends_on: []
 release: G-007
 priority: medium
+exception: {requirements: [SC4-browser-proof, SC5-check-sets-exit-0, SC8-complexity-watch], reason: 'Owner cut the browser sets at the O-037 Check ("Nope nope nope we cut down browser chevks", "Tests and health only, you look (Recommended)") and judged the scene and Io on the preview instead ("both fine"); owner left tools/validate/runner.mjs at lizard 27 for O-038 ("Leave it for the cut-down (Recommended)"); then "yes record it, then close the tidy-up". Recorded by the agent on direct instruction; not a technical CLEAR.', owner: owner-chat-20261022, recorded_at: '2026-10-22T10:55:00Z', check: C-095}
 ---
 
 # O-037: Bring the code health signals back to green honestly

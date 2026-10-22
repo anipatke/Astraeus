@@ -2,7 +2,7 @@
 id: I-060
 title: The full gate fails under coverage and writes no coverage report
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-094
@@ -10,6 +10,11 @@ source:
   at: '2026-10-21T11:10:00Z'
 tasks: [T-122]
 checks: [C-094, C-095]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  at: '2026-10-22T10:55:00Z'
+  reason: 'Owner, 2026-10-22: "yes record it, then close the tidy-up" after C-095 (code repairs proven; browser proof replaced by the owner''s preview look; runner complexity left for O-038). Recorded by the agent on direct instruction; not a technical CLEAR.'
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -25,6 +30,10 @@ history:
     kind: rechecked
     check: C-095
     note: 'C-095 recheck: npm run test:full 10:16:43Z exit 0 (1287 passed, 1 skipped), coverage/coverage-final.json and junit.xml written; snapshot coverage fresh. Repair proven; not closed as verified because C-095 is NEEDS WORK on owner-held items (I-064, browser and runner.mjs decisions, I-066 health block).'
+  - at: '2026-10-22T10:55:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: owner_decision
+    note: 'Resolved as accepted on the owner''s instruction "yes record it, then close the tidy-up".'
 ---
 
 # I-060: The full gate fails under coverage and writes no coverage report

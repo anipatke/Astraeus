@@ -2,7 +2,7 @@
 id: I-065
 title: "Planets set: jupiter-io on a phone does not find Loki Patera"
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-094
@@ -10,6 +10,11 @@ source:
   at: '2026-10-21T11:10:00Z'
 tasks: [T-124, T-126]
 checks: [C-094, C-095]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  at: '2026-10-22T10:55:00Z'
+  reason: 'Owner, 2026-10-22: "yes record it, then close the tidy-up" after C-095 (code repairs proven; browser proof replaced by the owner''s preview look; runner complexity left for O-038). Recorded by the agent on direct instruction; not a technical CLEAR.'
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -33,6 +38,10 @@ history:
     kind: rechecked
     check: C-095
     note: 'C-095 recheck: no browser run (owner decision). Confirmed FeatureMarkers.ts unchanged by O-037 and T-129''s scene refactor leaves updateOverlays untouched. Owner''s phone-size look (2026-10-22) is owner evidence, not a run; owner may resolve as accepted.'
+  - at: '2026-10-22T10:55:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: owner_decision
+    note: 'Resolved as accepted on the owner''s instruction "yes record it, then close the tidy-up".'
 ---
 
 # I-065: Planets set: jupiter-io on a phone does not find Loki Patera

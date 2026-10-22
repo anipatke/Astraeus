@@ -2,7 +2,7 @@
 id: I-063
 title: Three frame stages have no node test
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-094
@@ -11,6 +11,11 @@ source:
 tasks: [T-124]
 checks: [C-094, C-095]
 guardrail_ids: [CODE-02, TEST-01]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  at: '2026-10-22T10:55:00Z'
+  reason: 'Owner, 2026-10-22: "yes record it, then close the tidy-up" after C-095 (code repairs proven; browser proof replaced by the owner''s preview look; runner complexity left for O-038). Recorded by the agent on direct instruction; not a technical CLEAR.'
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -26,6 +31,10 @@ history:
     kind: rechecked
     check: C-095
     note: 'C-095 recheck: syncViews, publishCanvasReadouts and placeViews now have node tests (tests/sceneFrame.test.ts:167-228); all eight stages covered; full gate green. Repair proven; not closed as verified because C-095 is NEEDS WORK on owner-held items.'
+  - at: '2026-10-22T10:55:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: owner_decision
+    note: 'Resolved as accepted on the owner''s instruction "yes record it, then close the tidy-up".'
 ---
 
 # I-063: Three frame stages have no node test

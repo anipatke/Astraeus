@@ -4,7 +4,7 @@ title: Turn the per-frame scene work into named stages with tests
 objective: O-037
 status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-095, scope: ["preview look 2026-10-22: 'both fine' (Io phone marker and the reworked scene)"], accepted_by: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}}
 check_waiver:
   task: T-124
   reason: Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the Full Objective Check covers it.
