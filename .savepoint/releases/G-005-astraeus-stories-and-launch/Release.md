@@ -22,7 +22,7 @@ The public site launches with three demos:
 2. **Showers** — one demo with a switch between the Perseids and the Geminids (O-024).
 3. **Jupiter and its moons** — every known moon: Io, Europa, Ganymede and Callisto with their pictures and tagged places from Planetary Explorer; the rest as small grey dots (a grey ball up close) whose names show on hover, tap or zoom (owner chose); every position exact from NASA JPL Horizons tables, not approximate published orbits (owner chose) (O-025).
 
-Also in the launch (owner chose all three): the interface work finished (O-020), tap a planet, moon or the Sun to focus (O-022), and the Sun at true scale in the distance (O-023). The story panels work (O-015) and the public-site work (O-016) close as well.
+Also in the launch (owner chose all three): the interface work finished (O-020), tap a planet, moon or the Sun to focus (O-022). The Sun at true scale in the distance (O-023) was dropped by the owner on 2026-10-23 ("lets can this one O-023"); git history keeps it. The story panels work (O-015) and the public-site work (O-016) close as well.
 
 Earth–Moon is dropped (covered by Apollo); its three new stories are dropped with it (owner chose; the text stays in history). The old addresses `?experience=shower-perseids`, `shower-geminids` and `earth-moon` are not redirected: they stop working and the owner updates the portfolio links at launch (owner chose "Let them break, update the portfolio").
 
