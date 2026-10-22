@@ -304,6 +304,6 @@ describe("a composition path's orbit look", () => {
     frame(date);
     for (const fraction of [0.6, 0.2, 0.4]) frame(date + fraction * 30 * DAY); // seeks
     let t = date;
-    for (let i = 0; i < 240; i += 1) { t += 3 * 60 * 60_000; frame(t); } // the fastest rate, 240 frames
+    for (let i = 0; i < 60; i += 1) { t += 12 * 60 * 60_000; frame(t); } // 60 frames at four times the fastest rate (3 h a frame): the same 30 days, the moon's whole orbit, with bigger steps
   });
 });

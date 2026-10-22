@@ -1,4 +1,4 @@
-// Shared by run-engine.mjs and run-demo.mjs (O-034 T-110): start the project's own dev server, run a set's scripts one after another (one browser job at a time),
+// Shared by the browser command, run-browser.mjs (O-034 T-110; O-038 retired run-engine.mjs and run-demo.mjs): start the project's own dev server, run a set's scripts one after another (one browser job at a time),
 // print a one-line summary per script and a total, stop the servers, and set a non-zero exit code on any failure or console error.
 // No script takes or saves a picture. The evidence directory holds summary.txt and each step's own results files only (O-037 T-123); step logs, dev-server.log and
 // preview-server.log go to a scratch folder under the OS temp directory whose path the summary prints.

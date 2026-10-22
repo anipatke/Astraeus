@@ -10,9 +10,10 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 One browser at a time:
 
-- `smoke` (`browser-smoke.mjs`): every public page and demo view at desktop and phone size. It fails on a page or console error, a missing shell, or a scene with no body, path or dot in view (stars alone do not count). The made-up scenes are not loaded.
+- `smoke` (`browser-smoke.mjs`): every public page and demo view at desktop and phone size. It fails on a page or console error, a missing shell, or a scene with no body, path or dot in view (stars alone do not count). Every showers view must also draw the meteor stream: dots in view from the scene's own readout (`stream-check.mjs`, proved to fail on zero dots by `tests/streamCheck.test.ts`). The made-up scenes are not loaded.
+- `smoke-public-showers` (the same script, `ASTRAEUS_VIEWS=showers`): the showers views again, on the scratch public build served by a preview, so the shipped stream copy is what loads and must be drawn.
 - `planets-phone` (`journey-planets-phone.mjs`): at 375x667 with touch, switch Mercury to Jupiter, focus Io from the moons panel, open a place card.
-- `meteor-shower` (`journey-meteor-shower.mjs`): Perseids at 1280x720, play, seek, a story panel opens.
+- `meteor-shower` (`journey-meteor-shower.mjs`): Perseids at 1280x720, play, seek (the stream dots must be in view), a story panel opens.
 - `public-build-assets` and `public-addresses`: no browser; run on a scratch public build (licence records, no made-up scenes, page size, no retired links).
 
 Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
@@ -49,7 +50,7 @@ O-038 T-147 deleted every other browser script, `run-engine.mjs`, `run-demo.mjs`
 | `browser-apollo-shell` | 30 events, Unavailable at start, one scale, labels, info wording, metric visuals | D `domApollo`, `missionScene`, `infoProvenance` ("Apollo known limitations ..."), `metricVisuals`, `experiences`; labels and follow fallback S |
 | `browser-spike02` | six phases, camera invariance, jumps, rates, speed against range, four USNO phases | D `domApollo`, `missionScene`, `core` (clock: "keeps same-time science fixed when playback rates differ"), `infoProvenance` |
 | `browser-home-curve-fits` | 325 dots, 2 pieces, slider, distance bound | D `homePage`; drawing S; phone layout O |
-| `browser-showers`, `browser-public-showers` | Sun-centred scene, Object list, scales, orbits, peak, year, quality sets, no CAMS, shower switch, shipped orbits | D `demoShowers`, `demoRules`, `showers`, `showersMeasured`, `showerChoice`, `viewUp` ("ecliptic-up view"), `startCamera` ("the start camera (I-028)"), `publicBuild`; the swap and the dots S, J |
+| `browser-showers`, `browser-public-showers` | Sun-centred scene, Object list, scales, orbits, peak, year, quality sets, no CAMS, shower switch, shipped orbits | D `demoShowers`, `demoRules`, `showers`, `showersMeasured`, `showerChoice`, `viewUp` ("ecliptic-up view"), `startCamera` ("the start camera (I-028)"), `publicBuild`; the swap S, J; the stream drawn (dots in view) S and J, on the public build too (`smoke-public-showers`) |
 | `browser-jupiter-io`, `-jupiter-tap` | Jupiter and four moons, 111 dots, rings, places, small-moon taps | D `demoPlanets`, `jupiterIo`, `jupiterMoonsScene`, `moonOrbits` ("measures every body against Horizons ..."), `featureMarkers`, `scenePicking`; drawing S |
 | `browser-moon-panel` | families, counts, big four, search, lit family, focus on a moon | D `domMoonPanel`, `moonFamilyPanel`; the moons sheet and information panel never together: D `domMoonPanel` "never show together on a wide screen"; the flight S; overlap O |
 | `browser-outer-planets`, `browser-planet-switch` | switch keeps the clock; Saturn rings; Titan and Charon places; Pluto; Uranus; Mars | D `planetChoice`, `planetSystems`, `planetSwitchInner`, `demoPlanets`, `plutoOrbitLines`; the switch on a phone J |

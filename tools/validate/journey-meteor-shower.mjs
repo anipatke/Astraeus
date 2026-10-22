@@ -3,6 +3,7 @@
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-meteor-shower.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
+import { assertStreamDrawn } from "./stream-check.mjs";
 import { appUrl, checkScript } from "./harness.mjs";
 
 const LAPTOP = { name: "laptop", width: 1280, height: 720 };
@@ -24,11 +25,12 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   const middle = await ui.clockMs(page);
   assert.ok(middle > start, "seeking to the middle of the timeline moves the clock later");
   const drawn = await ui.sceneDrawsSomething(page);
-  assert.ok(drawn.bodies + drawn.dots + drawn.paths > 0, `the scene draws the shower (${JSON.stringify(drawn)})`);
+  assert.ok(drawn.bodies + drawn.paths > 0, `the scene draws the shower (${JSON.stringify(drawn)})`);
+  assertStreamDrawn(drawn.dots, "the Perseids after the seek");
 
   assert.ok((await ui.storyMarkers(page).count()) > 0, "the timeline has story panel markers");
   const id = await ui.firstStoryMarkerId(page);
-  await ui.openStoryPanel(page, id, { force: true });
+  await ui.openStoryPanel(page, id, {});
   await ui.storyPanel(page, id).waitFor({ timeout: 10000 });
   return { panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
 });

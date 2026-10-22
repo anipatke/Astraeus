@@ -61,7 +61,7 @@ describe("the object list and camera presets (browser-shell: Camera presets)", (
     m = mountShell();
     const preset = (id: string) => m.container.querySelector<HTMLElement>(`[data-camera-preset="${id}"]`);
     expect(preset("overview")).not.toBeNull();
-    
+
     const selectMarker = $(m.container, "select.object-picker") as HTMLSelectElement;
     selectMarker.value = "survey-marker";
     selectMarker.dispatchEvent(new window.Event("change", { bubbles: true }));

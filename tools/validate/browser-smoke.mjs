@@ -2,9 +2,12 @@
 // Each load fails on any page or console error, a missing shell, or a scene with no body, orbit path or dot in view (the scene's own readouts; stars alone do not count; no picture). Nothing else is asserted.
 // Views are discovered as browser-lite does: Apollo (no query), the keys of DEFINITIONS in src/main.tsx, the planets and showers experiences, and every data/showers/<name>.json.
 // The made-up (synthetic) scenes are not public pages and are left to the DOM tests. Pages: index.html and assets.html beside app.html.
+// Shower views (id starting "showers") must also draw the meteor stream: dots in view, not just any body (I-071). ASTRAEUS_VIEWS=showers limits the run to those views
+// (the step against the scratch public build uses it, so the shipped stream copy is what loads).
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
+import { assertStreamDrawn } from "./stream-check.mjs";
 import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
 const root = new URL("../../", import.meta.url);
@@ -29,10 +32,11 @@ function discoverViews() {
   for (const name of new Set([...named, "planets", "showers"])) views.push({ id: name, url: `${appUrl}?experience=${name}`, scene: true });
   for (const name of showers) views.push({ id: `showers-${name}`, url: `${appUrl}?experience=showers&shower=${name}`, scene: true });
   for (const page of ["index", "assets"]) views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
-  return views;
+  const only = process.env.ASTRAEUS_VIEWS;
+  return only === undefined || only === "" ? views : views.filter((view) => view.id.startsWith(only));
 }
 
-async function drawsSomething(page) {
+async function drawsSomething(page, view) {
   const deadline = Date.now() + 10000;
   const content = (d) => d.bodies + d.dots + d.paths; // the experience's own content; stars alone do not count
   let drawn = await ui.sceneDrawsSomething(page);
@@ -41,6 +45,13 @@ async function drawsSomething(page) {
     drawn = await ui.sceneDrawsSomething(page);
   }
   if (content(drawn) === 0) throw new Error(`the scene shows no body, dot or path in view (${JSON.stringify(drawn)})`);
+  if (view.id.startsWith("showers")) {
+    while ((drawn.dots === 0) && Date.now() < deadline) {
+      await page.waitForTimeout(250);
+      drawn = await ui.sceneDrawsSomething(page);
+    }
+    assertStreamDrawn(drawn.dots, view.id);
+  }
   return drawn;
 }
 
@@ -56,7 +67,7 @@ async function load(browser, view, size) {
     await page.goto(view.url, { waitUntil: "load", timeout: 60000 });
     if (view.scene) {
       await ui.waitForShell(page, { timeout: 60000 });
-      drawn = await drawsSomething(page);
+      drawn = await drawsSomething(page, view);
     } else {
       await page.waitForTimeout(500);
     }
