@@ -10,7 +10,7 @@ import { exists, readJson } from "../tools/import/test-io.mjs";
  * (run `node tools/site/assets-sections.mjs` after a data change); the home shelf and the demo card are hand-written and checked here against the same data and records.
  */
 const ROOT = new URL("../", import.meta.url).pathname;
-interface Moon { id: string; bodyPackage: string | null }
+interface Moon { id: string; name: string; bodyPackage: string | null }
 const moonList = (planet: string): readonly Moon[] => (readJson(`${ROOT}data/moons/${planet}.json`) as { moons: Moon[] }).moons;
 const bodies = (readJson(`${ROOT}data/bodies/catalogue.json`) as { bodies: { body: string; parent: string | null; featureCount: number }[] }).bodies;
 
@@ -87,10 +87,14 @@ describe("home shelf and demo card (T-120)", () => {
     }
   });
 
-  it("points the demo card at the planets demo and counts the mapped moons from the records", () => {
+  it("points the demo card at the planets demo and names Jupiter's mapped moons from the records", () => {
     expect(index).toContain('<a class="demo" href="app.html?experience=planets">');
     expect(index).not.toContain("experience=jupiter-io");
-    const mapped = [...MOON_PLANETS, "jupiter"].flatMap((planet) => moonList(planet as string)).filter((moon) => moon.bodyPackage !== null).length + bodies.filter((b) => b.parent === "earth").length;
-    expect(index).toContain(`${mapped} as mapped globes`);
+    // The public planets demo shows Jupiter only (O-039 T-136), so the card names Jupiter's mapped moons and no other planet.
+    const mapped = moonList("jupiter").filter((moon) => moon.bodyPackage !== null);
+    expect(mapped.length).toBeGreaterThan(0);
+    for (const moon of mapped) expect(index).toContain(moon.name);
+    expect(index).toContain("as mapped globes");
+    expect(index).not.toContain("Mercury to Pluto");
   });
 });

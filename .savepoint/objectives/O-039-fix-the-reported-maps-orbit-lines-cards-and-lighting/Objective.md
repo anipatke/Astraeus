@@ -60,6 +60,7 @@ Owner, 2026-10-22: "Plan a new Objective under G-007 ... that repairs the five o
 7. Planned under G-007 although it changes what visitors see (owner, 2026-10-22).
 8. The public site's planets demo shows only Jupiter; locally every planet stays inspectable (owner, 2026-10-22: "for the demo on astraeus.anipatke.com we just leave Jupiter, but locally I want to be able to inspect them all"; added to this Objective: "Yes, add it as a step here"). Deploying is the owner's own action, outside this Objective.
 9. On desktop a click on a body also opens its information card; phones keep tap-to-focus only (owner, 2026-10-22, after clicking Halimede: "zooms on click doesnt open info, I have to click the top bar i button on desktop"; chose "Desktop opens the card; phone flies only"). This changes O-022's focus-only decision for desktop.
+10. The home page's demo card and intro talk only about Jupiter and Io; the planet shelf and assets page keep showing everything the engine carries (owner, 2026-10-22: "Maybe update the pulic page to only refer to Jupiter/IO"; chose "Demo wording only"). Done by the coordinator in `index.html` and `tests/assetsSections.test.ts`; recorded in T-137.
 
 ## Boundaries
 
