@@ -35,6 +35,7 @@ Planning, 2026-10-23, found two of the three already met: each demo's code is it
 2. **Trim limit**: "Only invisible cuts". Nothing visitors notice; larger ideas (a short wait the first time a panel opens, library swaps) are listed, not built.
 3. **Proof**: "Tests + your look on a phone": fast tests for the rule, the one browser command for stop-and-resume, the owner's look for nothing frozen or stale.
 4. **Plan** (owner, "Yes, write these steps"): three steps; idle redraw and trimming side by side, the owner look and Design notes last.
+5. **Trim outcome** (owner, 2026-10-23, "Drop the cut, keep the findings"): the only invisible cut (developer panel as its own chunk) saved about 6 kB gzip before first view but added about 3 kB per page in total, so it is not merged. Success Condition 3 is met by the measurement and the bigger-ideas list in T-150; no load-budget limit changes.
 
 ## Architectural Considerations
 
