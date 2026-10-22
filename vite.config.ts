@@ -15,6 +15,8 @@ export const LOCAL_ONLY_TEXTURES: readonly string[] = [];
 export const PLANETS_DEMO_ONLY_TEXTURES: readonly string[] = [
   "charon-2k.jpg", "dione-4k.jpg", "enceladus-4k.jpg", "iapetus-4k.jpg", "mimas-4k.jpg", "neptune-2k.jpg", "pluto-4k.jpg",
   "rhea-4k.jpg", "saturn-2k.jpg", "tethys-4k.jpg", "titan-4k.jpg", "triton-4k.jpg", "uranus-2k.jpg",
+  // Only the planets demo opts in to desktop variants (T-141), and the public planets demo is Jupiter only (owner, 2026-10-22).
+  "venus-8k-balanced.jpg",
 ];
 
 /** A 1x1 white image: under the material colour it draws the body in its flat colour. */

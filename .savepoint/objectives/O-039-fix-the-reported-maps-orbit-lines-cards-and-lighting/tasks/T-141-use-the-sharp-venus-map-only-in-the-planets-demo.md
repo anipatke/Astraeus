@@ -75,3 +75,5 @@ Built 2026-10-22 in lane lane-t141.
 ## Drift Notes
 
 Design note written in this Task.
+
+**Coordinator addition (2026-10-22, after merge):** owner, asked whether the public build should leave out the unused 14.5 MB `venus-8k-balanced.jpg`, chose "Leave it out of the public build". Added it to `PLANETS_DEMO_ONLY_TEXTURES` in `vite.config.ts` (aliased to the 1x1 placeholder in a public build) and removed it from the allowed-file exception in `tools/validate/load-budget.mjs` so `checkOnlyPublicPlanets` now fails if it ships. Public build (`ASTRAEUS_PUBLIC_BUILD=1 npx vite build --outDir <scratch>`): 26,020,165 B whole build (was 40,482,094), no `venus-8k` asset, `public-build-assets.mjs` ok. `tests/publicBuild.test.ts` and `tests/venusMap.test.ts` 29 passed; lint and typecheck clean.
