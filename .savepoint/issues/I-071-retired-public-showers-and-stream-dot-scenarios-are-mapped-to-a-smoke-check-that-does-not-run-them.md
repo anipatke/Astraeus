@@ -2,22 +2,33 @@
 id: I-071
 title: Retired public-showers and stream-dot scenarios are mapped to a smoke check that does not run them
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-098
   actor: {role: checker, session: o038-full-check-20261022}
   at: '2026-10-22T20:46:00Z'
 tasks: [T-145, T-146, T-147]
-checks: [C-098]
+checks: [C-098, C-099]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-099
+  actor: {role: checker, session: o038-full-recheck-20261022}
+  at: '2026-10-22T21:02:00Z'
+  reason: 'smoke-public-showers runs browser-smoke.mjs on the scratch public build (preview on 5480) and drew the shipped stream in 6/6 loads; smoke and the meteor journey require stream dots (stream-check.mjs, tests/streamCheck.test.ts); negative probe with both shipped gmn-iau files removed from a scratch public build failed 6/6 on 0 dots in view while bodies and paths were drawn; BROWSER_CHECKS.md rows updated. Run docs/evidence/browser-20261022T205738Z.'
 history:
   - at: '2026-10-22T20:46:00Z'
     actor: {role: checker, session: o038-full-check-20261022}
     kind: observed
     check: C-098
     note: Found by the O-038 Full Objective Check while spot-checking Success Condition 4 mappings against what browser-smoke.mjs and the runner actually do.
+  - at: '2026-10-22T21:02:00Z'
+    actor: {role: checker, session: o038-full-recheck-20261022}
+    kind: rechecked
+    check: C-099
+    note: 'smoke-public-showers runs browser-smoke.mjs on the scratch public build (preview on 5480) and drew the shipped stream in 6/6 loads; smoke and the meteor journey require stream dots (stream-check.mjs, tests/streamCheck.test.ts); negative probe with both shipped gmn-iau files removed from a scratch public build failed 6/6 on 0 dots in view while bodies and paths were drawn; BROWSER_CHECKS.md rows updated. Run docs/evidence/browser-20261022T205738Z.'
 ---
 
 # I-071: Retired public-showers and stream-dot scenarios are mapped to a smoke check that does not run them
