@@ -8,6 +8,15 @@ declare const process: { readonly env: Readonly<Record<string, string | undefine
  */
 export const LOCAL_ONLY_TEXTURES: readonly string[] = [];
 
+/**
+ * The maps only the planets demo's other eight planets draw (src/assets/bodies/planetSystemMaps.ts). The public build offers Jupiter alone (T-136), so it swaps these
+ * for the placeholder and their bytes stay out of the bundle; a local build keeps them. Not rights-restricted, so tests/publicBuild.test.ts keeps them apart from LOCAL_ONLY_TEXTURES.
+ */
+export const PLANETS_DEMO_ONLY_TEXTURES: readonly string[] = [
+  "charon-2k.jpg", "dione-4k.jpg", "enceladus-4k.jpg", "iapetus-4k.jpg", "mimas-4k.jpg", "neptune-2k.jpg", "pluto-4k.jpg",
+  "rhea-4k.jpg", "saturn-2k.jpg", "tethys-4k.jpg", "titan-4k.jpg", "triton-4k.jpg", "uranus-2k.jpg",
+];
+
 /** A 1x1 white image: under the material colour it draws the body in its flat colour. */
 const PLACEHOLDER = decodeURIComponent(new URL("./src/assets/textures/public-placeholder.png", import.meta.url).pathname);
 
@@ -17,7 +26,7 @@ const PLACEHOLDER = decodeURIComponent(new URL("./src/assets/textures/public-pla
  * licence (the Earth and Moon maps are public-domain NASA products, I-029).
  */
 export function publicBuildAliases(): readonly { readonly find: RegExp; readonly replacement: string }[] {
-  return LOCAL_ONLY_TEXTURES.map((file) => ({ find: new RegExp(`^.*/textures/${file.replace(/[.]/g, "\\.")}$`), replacement: PLACEHOLDER }));
+  return [...LOCAL_ONLY_TEXTURES, ...PLANETS_DEMO_ONLY_TEXTURES].map((file) => ({ find: new RegExp(`^.*/textures/${file.replace(/[.]/g, "\\.")}$`), replacement: PLACEHOLDER }));
 }
 
 // ASTRAEUS_PUBLIC_BUILD=1 swaps every local-only texture for the placeholder at its import (design C.3, output gate).

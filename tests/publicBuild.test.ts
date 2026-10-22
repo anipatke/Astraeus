@@ -1,9 +1,9 @@
 import vercelText from "../vercel.json?raw";
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
-import { LOCAL_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
-import { BUILD_LIMIT, PAGES, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
+import { LOCAL_ONLY_TEXTURES, PLANETS_DEMO_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
+import { proveOnlyPublicPlanets, proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
+import { BUILD_LIMIT, NON_PUBLIC_PLANET_FILES, PAGES, PUBLIC_PLANETS, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "../src/experiences/showers/measuredOrbits";
 
@@ -22,7 +22,7 @@ describe("public build texture exclusion (design C.3)", () => {
 
   it("matches the import specifiers the body records use, whatever the folder depth, and nothing else", () => {
     const aliases = publicBuildAliases();
-    expect(aliases).toHaveLength(LOCAL_ONLY_TEXTURES.length);
+    expect(aliases).toHaveLength(LOCAL_ONLY_TEXTURES.length + PLANETS_DEMO_ONLY_TEXTURES.length);
     for (const file of LOCAL_ONLY_TEXTURES) {
       expect(aliases.some((alias) => alias.find.test(`../textures/${file}`))).toBe(true);
       expect(aliases.some((alias) => alias.find.test(`../../textures/${file}`))).toBe(true);
@@ -139,7 +139,7 @@ describe("first-load size budget (T-070)", () => {
   it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {
     const ids = PAGES.map((page) => page.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual(["index.html", "assets.html", "app.html (Apollo 11)", ...["jupiter", "saturn", "uranus", "neptune", "pluto", "mercury", "venus", "earth", "mars"].map((planet) => `app.html?experience=planets&planet=${planet}`), "app.html?experience=showers", "app.html?experience=showers&shower=geminids"]);
+    expect(ids).toEqual(["index.html", "assets.html", "app.html (Apollo 11)", ...PUBLIC_PLANETS.map((planet: string) => `app.html?experience=planets&planet=${planet}`), "app.html?experience=showers", "app.html?experience=showers&shower=geminids"]);
     for (const limit of [...PAGES, BUILD_LIMIT]) {
       expect(limit.rawLimit).toBeGreaterThan(0);
       expect(limit.gzipLimit).toBeGreaterThan(0);
@@ -162,5 +162,29 @@ describe("site caching rule (O-024 T-095)", () => {
 
   it("sends no long-lived rule for anything outside /assets/, so the HTML pages revalidate", () => {
     expect(config.headers.map((entry) => entry.source)).toEqual(["/assets/(.*)"]);
+  });
+});
+
+describe("public planets demo offers Jupiter alone (T-136)", () => {
+  it("fails a public build holding another planet's map or settings, and passes a Jupiter-only one", () => {
+    const proof = proveOnlyPublicPlanets();
+    expect(proof.clean.ok).toBe(true);
+    expect(proof.map.ok).toBe(false);
+    expect(proof.map.matches[0].path).toMatch(/mars-2k/);
+    expect(proof.settings.ok).toBe(false);
+    expect(proof.settings.matches[0].how).toBe("settings of mars");
+  });
+
+  it("offers Jupiter only, and checks the other planets' maps and system chunks", () => {
+    expect(PUBLIC_PLANETS).toEqual(["jupiter"]);
+    expect(NON_PUBLIC_PLANET_FILES).toEqual(expect.arrayContaining(["saturn.js", "titan-4k.jpg", "saturn-2k.jpg", "pluto-4k.jpg"]));
+    expect(NON_PUBLIC_PLANET_FILES).not.toContain("jupiter-2k.jpg");
+    expect(NON_PUBLIC_PLANET_FILES).not.toContain("jupiter.js");
+  });
+
+  it("swaps the other planets' maps for the placeholder in a public build only, apart from the rights-restricted list", () => {
+    expect(publicBuildAliases().length).toBe(LOCAL_ONLY_TEXTURES.length + PLANETS_DEMO_ONLY_TEXTURES.length);
+    expect(PLANETS_DEMO_ONLY_TEXTURES.filter((file) => LOCAL_ONLY_TEXTURES.includes(file))).toEqual([]);
+    expect(PLANETS_DEMO_ONLY_TEXTURES).not.toContain("jupiter-2k.jpg");
   });
 });
