@@ -14,7 +14,7 @@ import type { Metric } from "./metrics";
 import { MoonFamilyPanel } from "./MoonFamilyPanel";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
-import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
+import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
@@ -238,11 +238,13 @@ export function AstraeusShell({
     setInfo({ kind: "object" });
   };
 
-  /** An object tapped or clicked in the scene: the picker's focus, without opening information. A tapped body-set member that is no listed object just flies there. */
+  /** An object tapped or clicked in the scene: the picker's focus; on a wide screen it also opens the card, on a phone it does not (T-138). A tapped body-set member that is no listed object just flies there. */
   const pickObject = (id: string) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
-    if (object !== undefined) activatePreset(focusPresetFor(experience, object));
-    else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
+    if (object !== undefined) {
+      activatePreset(focusPresetFor(experience, object));
+      if (pickOpensInfo(phone)) setInfo({ kind: "object" });
+    } else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
   };
   const requestedPickSerial = serialOf(pickRequest);
   useEffect(() => {

@@ -2,7 +2,8 @@
 id: T-138
 title: Open the information card when a body is clicked on desktop
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-138
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
@@ -61,7 +62,11 @@ Focused node test; configured gates at handoff; owner's look on the preview. Eva
 
 ## Technical Evidence
 
-Pending execution.
+- Added `pickOpensInfo(phone)` in `src/shell/phoneLayout.ts`; `pickObject` in `AstraeusShell.tsx` calls it and, when true, sets the object card open after the existing focus (selection path reused via `activatePreset`). Phone path unchanged. Comment updated.
+- Halimede and the other dot moons are objects with `listed: false` (planetDefinition.ts), so `availableObjectById` finds them and the card opens. A body-set member that is no object at all still only flies there.
+- Test: tests/clickOpensInfo.test.ts (desktop true, phone false). Gates: lint, typecheck, build, npm test (95 files, 1296 passed, 1 skipped) all pass.
+- No deviation from the plan.
+- Owner look on preview: pending. localhost:5490, Planets demo, desktop size: open Neptune, click Halimede; camera flies there and its card opens without the i button. At phone width a tap flies there and the card stays closed.
 
 ## Drift Notes
 
