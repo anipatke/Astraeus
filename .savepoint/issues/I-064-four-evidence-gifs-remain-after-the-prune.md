@@ -25,6 +25,10 @@ history:
     kind: rechecked
     check: C-095
     note: 'C-095 recheck: the four .gif files under docs/evidence/o016-t063-* are still tracked. Owner-run deletion still pending.'
+  - at: '2026-10-22T10:40:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: repair_attempted
+    note: 'The owner ran find docs/evidence -name *.gif -delete; the four tracked gifs under o016-t063-* are removed (0 gifs remain), committed by the coordinator.'
 ---
 
 # I-064: Four evidence GIFs remain after the prune
