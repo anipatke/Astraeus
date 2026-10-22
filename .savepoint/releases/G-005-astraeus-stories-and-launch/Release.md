@@ -1,7 +1,7 @@
 ---
 id: G-005
 title: Astraeus stories and launch
-status: planned
+status: done
 ---
 
 ## Outcome

@@ -156,8 +156,8 @@ Count: 54 scenario lines over the 13 scripts plus the retired probe; none left u
 
 Needed Issues or Tasks: none.
 
-## Drift Notes
-
 Marked done by the coordinator at 2026-10-22T20:13:55Z on the owner's authority (2026-10-23, asked "Should I mark each step finished as it passes its tests": "I mark them as they pass"). Merged to o038-browser-checks as 8b18c8af; focused re-run there: 4 files, 66 passed.
+
+## Drift Notes
 
 None expected.
