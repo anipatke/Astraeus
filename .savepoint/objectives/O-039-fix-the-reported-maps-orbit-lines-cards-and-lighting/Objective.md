@@ -12,6 +12,7 @@ lanes:
   - {key: cards, title: Place fact cards}
   - {key: light, title: Illuminate-all switch}
   - {key: public, title: Public site shows Jupiter only}
+  - {key: click, title: Click opens the card on desktop}
 ---
 
 # O-039: Fix the reported maps, orbit lines, cards and lighting
@@ -34,7 +35,8 @@ Owner, 2026-10-22: "Plan a new Objective under G-007 ... that repairs the five o
 6. **Illuminate all (I-055).** A switch in the settings drawer, phone and desktop layouts, with no overlaps at 375x667 and 1280x720, turns on a light from the camera for every body in every demo; off by default (true sunlight). A node test covers the light choice both ways.
 7. Design.md and `docs/DONOR_PROVENANCE.md` describe the result. The owner judges Venus, Iapetus, Titan, Ganymede, the Pluto view, the cards and the switch on the preview and records the verdict.
 8. **Public site shows only Jupiter.** In a public build (`ASTRAEUS_PUBLIC_BUILD=1`, `__PUBLIC_BUILD__`), the planets demo offers Jupiter alone: no planet switcher, and any `&planet=` address opens Jupiter. The other eight planets' settings, maps and moon data are not in the public bundle. A local build keeps the full Mercury-to-Pluto switcher. The public-build file check (`tools/validate/public-build-assets.mjs`, node only) fails if another planet's map or settings ship.
-9. The configured gates pass (lint, typecheck, build, test) and the Full Objective Check runs `npm run test:full`.
+9. **Click opens the card on desktop.** On a desktop layout, clicking or tapping a body in the scene (for example Halimede) flies to it and opens its information card; on the phone layout a tap still only flies there (O-022's focus-only rule kept for phones). A node test covers both layouts.
+10. The configured gates pass (lint, typecheck, build, test) and the Full Objective Check runs `npm run test:full`.
 
 ## Architectural Considerations
 
@@ -57,6 +59,7 @@ Owner, 2026-10-22: "Plan a new Objective under G-007 ... that repairs the five o
 6. No browser sets unless the owner asks, including at the Full Objective Check; the owner judges looks on the preview (owner, 2026-10-22: "no browser sets unless I ask, I judge looks on the preview"). This overrides, for this Objective, the project rule that the engine set runs at the Full Objective Check when scene, camera, controls or UI code changed.
 7. Planned under G-007 although it changes what visitors see (owner, 2026-10-22).
 8. The public site's planets demo shows only Jupiter; locally every planet stays inspectable (owner, 2026-10-22: "for the demo on astraeus.anipatke.com we just leave Jupiter, but locally I want to be able to inspect them all"; added to this Objective: "Yes, add it as a step here"). Deploying is the owner's own action, outside this Objective.
+9. On desktop a click on a body also opens its information card; phones keep tap-to-focus only (owner, 2026-10-22, after clicking Halimede: "zooms on click doesnt open info, I have to click the top bar i button on desktop"; chose "Desktop opens the card; phone flies only"). This changes O-022's focus-only decision for desktop.
 
 ## Boundaries
 
@@ -65,6 +68,7 @@ Owner, 2026-10-22: "Plan a new Objective under G-007 ... that repairs the five o
 - Node tests for each repair; Design.md and DONOR_PROVENANCE notes
 - A viewport-chosen desktop texture variant (Venus only) and an optional material emissive
 - Limiting the public build's planets demo to Jupiter
+- Opening the information card on a desktop click
 
 **Out of scope:**
 - Desktop variants for other bodies (Mars, Mercury 8k and the like), cloud or bump layers, atmosphere shells beyond today's
