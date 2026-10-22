@@ -5,6 +5,11 @@ import { useEffect, useState, type CSSProperties } from "react";
 /** Phone: a narrow screen, or a short touch screen (a phone turned sideways, which is wider than 700 px). */
 export const PHONE_QUERY = "(max-width: 700px), (max-height: 500px) and (pointer: coarse)";
 
+/** A body tapped or clicked in the scene opens its information card on a wide screen (T-138); on a phone the tap only flies there, so the card does not cover the view. */
+export function pickOpensInfo(phone: boolean): boolean {
+  return !phone;
+}
+
 /** How the phone drawers and sheets move and how tall they grow. */
 export interface PhoneLayoutSettings {
   /** How long a drawer or sheet takes to slide, in milliseconds; 0 for none. */
