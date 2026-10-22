@@ -8,6 +8,7 @@ source:
   check: C-094
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
+tasks: [T-142]
 checks: [C-094, C-096]
 history:
   - at: '2026-10-21T11:10:00Z'

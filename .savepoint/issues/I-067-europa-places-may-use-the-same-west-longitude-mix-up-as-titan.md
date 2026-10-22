@@ -7,7 +7,7 @@ source:
   kind: report
   actor: {role: executor, session: 8d73d3f8}
   at: '2026-10-22T12:00:00Z'
-tasks: [T-131, T-139]
+tasks: [T-131, T-139, T-140]
 checks: [C-096]
 severity: medium
 history:

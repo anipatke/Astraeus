@@ -2,7 +2,7 @@
 id: I-070
 title: The public build still holds the other planets' moon data
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-096
@@ -11,12 +11,21 @@ source:
 tasks: [T-136]
 checks: [C-096]
 severity: low
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: 8d73d3f8}
+  at: '2026-10-22T11:23:39Z'
+  reason: 'Owner accepted the unfetched moon data in the public build for now: "Accept it for now" (2026-10-22, coordinator question after C-096). Removing it needs a core change.'
 history:
   - at: '2026-10-22T11:19:28Z'
     actor: {role: checker, session: o039-full-check-20261022}
     kind: observed
     check: C-096
     note: Found by the O-039 Full Objective Check; the T-136 builder named it as a deviation left for the owner, and no owner decision is recorded.
+  - at: '2026-10-22T11:23:39Z'
+    actor: {role: executor, session: 8d73d3f8}
+    kind: owner_decision
+    note: 'Owner, asked after C-096 whether to accept, remove now, or defer the 1.1 MB of unfetched moon data: chose "Accept it for now". Recorded by the coordinator on the owner''s direct instruction.'
 ---
 
 # I-070: The public build still holds the other planets' moon data

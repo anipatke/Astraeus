@@ -18,6 +18,10 @@ history:
     kind: observed
     check: C-096
     note: Found by the O-039 Full Objective Check; listed as an open point in T-132 and T-137.
+  - at: '2026-10-22T11:23:39Z'
+    actor: {role: executor, session: 8d73d3f8}
+    kind: repair_attempted
+    note: 'site/t-venus-2k.jpg regenerated from src/assets/textures/venus-2k-balanced.jpg (480x240, quality 78, stripped), commit a8148d27 on lane-venus-thumb, merged 8d3b7c87. It was made while C-096 ran; the owner accepted merging it without a fresh check ("fine, accept it", 2026-10-22). Left open for the recheck to verify.'
 ---
 
 # I-069: The Venus site thumbnail is the old CC BY picture, now labelled public domain

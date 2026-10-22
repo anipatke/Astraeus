@@ -8,7 +8,7 @@ source:
   check: C-096
   actor: {role: checker, session: o039-full-check-20261022}
   at: '2026-10-22T11:19:28Z'
-tasks: [T-132]
+tasks: [T-132, T-141]
 checks: [C-096]
 severity: medium
 history:
