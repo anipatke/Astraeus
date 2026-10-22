@@ -2,8 +2,7 @@
 id: T-143
 title: Check the screen parts in fast tests with a pretend page
 objective: O-038
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o038-planning-20261023}
@@ -150,6 +149,8 @@ browser-story-panels.mjs, generic part (D `domStory` unless noted; Apollo, Perse
 (Counts: shell 13, controls 5, phone 20, layout 8, embedded 7, scale menu 7, view link 8, story 16 = 84.)
 
 **Not proven here, by design:** every O and S line above. Nothing is left unlisted. Browser scripts are untouched.
+
+Marked done by the coordinator at 2026-10-22T20:20:08Z on the owner's authority (2026-10-23, asked "Should I mark each step finished as it passes its tests": "I mark them as they pass"). Merged to o038-browser-checks as e36293f2 together with T-144; combined run there: typecheck pass, `npm test` 104 files, 1416 passed, 1 skipped, 34.5 s (37 s wall). Outside planned_writes (recorded above): `vitest.setup.ts` path fix and `shareViewLink` moved unchanged from `src/app/App.tsx` to `src/app/viewLink.ts`.
 
 ## Drift Notes
 
