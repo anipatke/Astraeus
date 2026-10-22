@@ -1,7 +1,7 @@
 ---
 id: O-037
 title: Bring the code health signals back to green honestly
-status: in_progress
+status: done
 depends_on: []
 release: G-007
 priority: medium
