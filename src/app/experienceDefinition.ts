@@ -155,6 +155,11 @@ export interface ExperienceDefinition {
   readonly catalogue?: BodyCatalogue;
   /** The catalogued body at the scene's zero. Presentation only; defaults to the composition's own centre, else Earth. */
   readonly sceneCenter?: BodyId;
+  /**
+   * Presentation only (default off): draw each body's larger desktop texture variant (see `textureUrlFor`) on wide viewports. Off, every
+   * viewport gets the base file, so a page that only shows a body in passing does not download the large map.
+   */
+  readonly desktopTextures?: boolean;
   /** Per-body presentation overrides; state is untouched. */
   readonly visualOverrides?: Readonly<Record<BodyId, VisualOverride>>;
   /** The scale choices offered, in order; the first is the starting one. Default: true and readable scale. */

@@ -51,7 +51,9 @@ const ALL_PAGES = [
   planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_610_000, gzipLimit: 2_930_000 }),
   planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 4_020_000, gzipLimit: 2_410_000 }),
   planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 3_080_000, gzipLimit: 1_710_000 }),
-  planetView("venus", ["venus-2k-balanced.jpg"], { moons: false, rawLimit: 3_100_000, gzipLimit: 1_730_000 }),
+  // T-141 (O-039, I-068), re-measured 2026-10-22 on a local build: the Venus view is the one page that opts in to desktop texture variants (`desktopTextures` on the planets definition), so a desktop window fetches `venus-8k-balanced.jpg` (14,474,577 B) instead of the 2k file (1,090,552 B).
+  // The set lists the 8k file, the heavier case: 16,543,654 B raw / 15,185,633 B gzip, plus 5%, rounded up to the next 10,000 bytes. A window under 768 px fetches the 2k file instead: 3,159,629 B raw / 1,848,065 B gzip (the earlier limit, 3,100,000 / 1,730,000, was already below that).
+  planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 17_380_000, gzipLimit: 15_950_000 }),
   planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 4_420_000, gzipLimit: 3_030_000 }),
   planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },
@@ -67,7 +69,7 @@ export const NON_PUBLIC_PLANET_FILES = (() => {
   const wanted = new Set(ALL_PAGES.filter((page) => page.planet !== undefined && !PUBLIC_PLANETS.includes(page.planet)).flatMap((page) => page.files));
   for (const page of ALL_PAGES) if (page.planet === undefined || PUBLIC_PLANETS.includes(page.planet)) for (const file of page.files) wanted.delete(file);
   // Left out of the list on purpose: the `<planet>-moons.js` indexes (core body records lazy-load them, so they stay in the build but are never fetched) and the inner planets' maps (the catalogue keeps those bodies).
-  return [...wanted].filter((file) => /\.(jpg|js|bin)$/.test(file) && !/-moons\.js$/.test(file) && !["mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg"].includes(file));
+  return [...wanted].filter((file) => /\.(jpg|js|bin)$/.test(file) && !/-moons\.js$/.test(file) && !["mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "venus-8k-balanced.jpg"].includes(file));
 })();
 export const PAGES = ALL_PAGES.filter((page) => page.planet === undefined || PUBLIC_PLANETS.includes(page.planet));
 /** Every file of the build together (also the net for a file no page set lists). */
