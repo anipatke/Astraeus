@@ -2,8 +2,7 @@
 id: T-139
 title: Put Europa's places on their terrain
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-139
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."

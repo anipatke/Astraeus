@@ -2,8 +2,7 @@
 id: T-133
 title: Draw each Pluto moon's orbit as one round lap
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-133
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."

@@ -2,8 +2,7 @@
 id: T-138
 title: Open the information card when a body is clicked on desktop
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-138
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
