@@ -52,7 +52,8 @@ interface Claim {
 
 const claims: readonly Claim[] = [
   { row: "Milky Way panorama", records: [MILKY_WAY_LICENCE], credit: ["ESO/S. Brunier"], linked: true },
-  { row: "Sun, Mercury, Venus, Mars, Jupiter maps", records: ["sun", "mercury", "venus", "mars", "jupiter"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
+  { row: "Sun, Mercury, Mars, Jupiter maps", records: ["sun", "mercury", "mars", "jupiter"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
+  { row: "Venus map", records: [bodyRecord("venus")], credit: ["USGS Astrogeology / NASA Magellan"], linked: true },
   { row: "Io map", records: [bodyRecord("io")], credit: ["USGS Astrogeology Science Center", "NASA/JPL Galileo and Voyager missions"], linked: false },
   { row: "Earth map", records: [bodyRecord("earth")], credit: ["NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli)"], linked: true },
   // T-120: the maps added by O-033. Each row's short licence label stands for the full record string, named in SHORT_LICENCE.

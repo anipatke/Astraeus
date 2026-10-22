@@ -99,8 +99,8 @@ describe("planets in the catalogue", () => {
 });
 
 describe("planet visuals", () => {
-  it("give Mercury, Venus and Mars a CC BY 4.0 texture with attribution, and no local-only declaration", () => {
-    for (const id of ["mercury", "venus", "mars"]) {
+  it("give Mercury and Mars a CC BY 4.0 texture with attribution, and no local-only declaration", () => {
+    for (const id of ["mercury", "mars"]) {
       const texture = catalogue.get(id).visual.texture!;
       expect(texture.localOnly).toBeUndefined();
       expect(texture.licence).toMatchObject({ licence: "CC BY 4.0", url: "https://www.solarsystemscope.com/textures/" });

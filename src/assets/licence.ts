@@ -24,6 +24,8 @@ export interface TextureRef {
   readonly url: string;
   readonly widthPx: number;
   readonly heightPx: number;
+  /** A larger file for wide viewports, chosen once at load by `textureUrlFor`. Same rights as the base file. */
+  readonly desktop?: { readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidth: number };
   /** Rights for public distribution. Required unless the texture is declared local-only. */
   readonly licence?: AssetLicence;
   readonly localOnly?: LocalOnlyDeclaration;
@@ -37,4 +39,13 @@ export function textureRightsProblem(texture: TextureRef): string | null {
   if (!hasLicence && !hasLocalOnly) return "has neither a licence nor a local-only declaration";
   if (texture.localOnly !== undefined && texture.localOnly.reason.trim() === "") return "local-only declaration has no reason";
   return null;
+}
+
+/**
+ * The file to load for a viewport width, as the donor's usePlanetTexture does: the desktop variant from its minimum width up, the base file
+ * below it. No width (no window) means the widest, as in the donor.
+ */
+export function textureUrlFor(texture: TextureRef, viewportWidth: number = Number.POSITIVE_INFINITY): string {
+  const { desktop } = texture;
+  return desktop !== undefined && viewportWidth >= desktop.minViewportWidth ? desktop.url : texture.url;
 }

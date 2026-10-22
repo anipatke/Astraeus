@@ -2,7 +2,8 @@
 id: T-132
 title: Give Venus Planetary Explorer's Magellan map and lighting
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-132
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
@@ -63,7 +64,16 @@ Focused node tests; configured gates at handoff; owner's look on the preview. Ev
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-22 in lane `lane-t132`.
+
+- Files: copied `venus-2k-balanced.jpg` and `venus-8k-balanced.jpg` from the donor byte for byte; SHA-256 `5ccac073...c237` and `4d0e991b...b0c9` match `data/bodies/venus/map.json` (tested). Old `venus-2k.jpg` removed; its only other users were `tools/validate/load-budget.mjs` (names updated).
+- `TextureRef.desktop` (url, size, `minViewportWidth`) and `textureUrlFor(texture, width)` in `src/assets/licence.ts`; `describeBody` picks the file from `window.innerWidth` (widest when there is no window, as the donor). `BodyMaterialConfig` gained optional `emissive`/`emissiveIntensity`, applied by `BodyMesh`'s lit textured material. Venus: ambient 0.24, directional 1.18, `#f6e1b9`, emissive `#4f2e16` at 0.04, roughness 0.9, metalness 0.04, yaw 0.
+- Tests: new `tests/venusMap.test.ts` (5): variant choice at 320/375/414/600/767 vs 768/1024/1920, `describeBody` with a stubbed 375 px window never returns the 8k URL, bodies without variant unchanged, hashes, material/light/licence. 
+- Gates (from the lane): lint, typecheck, build pass; `npm test` 94 files, 1296 passed, 1 skipped.
+- Deviations: (1) Licence is now public domain, so the credit text moved out of the Solar System Scope rows: edited `assets.html` (new Venus map credit row, Venus card chip), `index.html` shelf chip, `README.md` credit lines, and tests `assetsPageCredits`, `assetsSections`, `textureLicence`, `planets` that asserted CC BY 4.0 for Venus. (2) Licence `accessed` 2026-10-22; the USGS page was not opened, the licence is the donor's statement. (3) The site thumbnail `site/t-venus-2k.jpg` (home shelf and assets card) is still the old Solar System Scope picture; not regenerated. (4) `tools/validate/load-budget.mjs` Venus limits (3.1 MB raw) were not re-measured: the 2k file is about 200 KB larger than the old one and the browser/public-build gates were not run, so the limit may need raising at the Full Check. The 8k file (14.5 MB) ships in `dist` and loads only at 768 px or wider. (5) Venus-only material emissive in the flat (untextured) material was not added.
+- Design change (variant, emissive) deferred to T-137.
+
+Owner look on preview: pending. On localhost:5490 open the planets demo at Venus on a desktop-width window: Maxwell Montes on the bright highland near the top, Aphrodite Terra on the equatorial highland band, a warm tan Magellan radar look as in Planetary Explorer. Repeat in a phone-width window (under 768 px; reload after resizing): the same map, softer. In the network panel the phone should fetch only `venus-2k-balanced`, never `venus-8k-balanced`.
 
 ## Drift Notes
 
