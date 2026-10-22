@@ -94,6 +94,8 @@ export interface SceneControls {
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
+  /** Presentation only: light every body from the camera's side, keeping its shading (Developer > Sky and Sun). Off: true sunlight. */
+  illuminateAll: boolean;
   /** Looping playback is on (live; set from the experience, `?loop=` and Developer > Display settings). Needs `SceneRuntime.loopWindow`. */
   loop?: boolean;
   /** The render-frame up vector now in force (live; Developer > Display settings). Absent: the runtime's own. Switching it re-poses the camera in place. */

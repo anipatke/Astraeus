@@ -239,7 +239,8 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
 /** Stage 7: places each body's light and builds the frame readout the shell reads. */
 export function placeLightsAndReadout(ctx: FrameContext, t: number, placed: PlacedScene): void {
   const { runtime, controls } = ctx;
-  placeBodyLights(ctx.assets, ctx.lightRefs, runtime.resolver, t);
+  const { camera, origin } = ctx;
+  placeBodyLights(ctx.assets, ctx.lightRefs, runtime.resolver, t, { illuminateAll: controls.illuminateAll, cameraLocal: [camera.position.x, camera.position.y, camera.position.z], bodyLocalOf: (id) => origin.toLocal(placed.absoluteOf(id)) });
   ctx.readout.current = buildFrameReadout({ pair: ctx.readoutPair, pairLabels: ctx.pairLabels, clock: runtime.clock, resolver: runtime.resolver, absoluteOf: placed.absoluteOf, timeUtcMs: t, policy: controls.policy, origin: ctx.origin });
 }
 
