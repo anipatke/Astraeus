@@ -2,8 +2,7 @@
 id: T-149
 title: Stop drawing the scene when nothing moves
 objective: O-031
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o031-planning-20261023}
@@ -100,6 +99,8 @@ Open item for the owner's look (T-151): a texture that finishes loading more tha
 **Gates (lane, 2026-10-23).** `npm run lint` pass; `npm run typecheck` pass; `flock /tmp/astraeus-build.lock npm run build` pass; `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml`: 111 files, 1513 passed, 1 skipped. No `test:full`, no health check.
 
 **Browser (one `npm run check:browser`, passing run).** `docs/evidence/browser-20261022T215309Z`, 65 s total (smoke 33 s, smoke-public-showers 9 s, planets-phone 12 s, meteor-shower 9 s, files-only steps 1 s); all steps exit 0, 0 error lines. The earlier failing run (meteor-shower, driver readout bug above) was deleted. No screenshots. The probe servers I started were stopped; the owner's preview on 5490 was not touched.
+
+Marked done by the coordinator at 2026-10-22T21:55:55Z on the owner's authority (O-031 run, 2026-10-23: "Yes, same as O-038", whose rule was "I mark them as they pass"). Merged to o031-lighter-app as 1ae421a9; combined run there: typecheck pass, `npm test` 111 files, 1513 passed, 1 skipped.
 
 ## Drift Notes
 
