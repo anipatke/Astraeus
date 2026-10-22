@@ -174,6 +174,82 @@ describe("floating origin", () => {
   });
 });
 
+/**
+ * T-144: browser-precision.mjs and the 50 AU part of browser-synthetic-eccentric.mjs, as node tests. The renderer is given Float32 positions relative to the floating origin
+ * (`FloatingOrigin.toLocal`, narrowed to Float32 as the GPU buffer is); the check projects them in Float64 through the camera's own matrices and compares with the exact Float64 projection.
+ * The scripts' limit is one pixel, still and over a 60-frame sweep of a camera turning by about one mouse pixel per frame (1280x800, 45 degrees).
+ */
+describe("position precision far from the Sun (Float32 in, Float64 projection)", () => {
+  const AU_UNITS = 149_597_870.7 / 6371.0084;
+  const WIDTH = 1280;
+  const HEIGHT = 800;
+  const FRAMES = 60;
+  const STEP = 0.0035; // radians of camera turn per frame: about one mouse pixel of orbit drag
+
+  /** Pixel position of a point, given exactly or after the Float32 narrowing, for a camera at `distance` from the focus looking at it, turned by `azimuth`. */
+  function pixels(focus: number[], point: number[], distance: number, azimuth: number, narrow: boolean): { x: number; y: number } {
+    const origin = new FloatingOrigin();
+    origin.set(focus);
+    const camAbs = [focus[0] + distance * Math.sin(azimuth), focus[1] + distance * 0.4, focus[2] + distance * Math.cos(azimuth)];
+    const local = (p: number[]) => origin.toLocal(p).map((v) => (narrow ? Math.fround(v) : v));
+    const camera = new PerspectiveCamera(45, WIDTH / HEIGHT, 0.05, distance * 4);
+    camera.position.set(...(local(camAbs) as [number, number, number]));
+    camera.lookAt(...(origin.toLocal(focus) as [number, number, number]));
+    camera.updateMatrixWorld(true);
+    camera.updateProjectionMatrix();
+    const ndc = new Vector3(...(local(point) as [number, number, number])).project(camera);
+    return { x: (ndc.x * 0.5 + 0.5) * WIDTH, y: (0.5 - ndc.y * 0.5) * HEIGHT };
+  }
+
+  function worstError(focus: number[], point: number[], distance: number): { still: number; sweep: number } {
+    let sweep = 0;
+    for (let i = 0; i < FRAMES; i += 1) {
+      const exact = pixels(focus, point, distance, i * STEP, false);
+      const drawn = pixels(focus, point, distance, i * STEP, true);
+      sweep = Math.max(sweep, Math.hypot(drawn.x - exact.x, drawn.y - exact.y));
+    }
+    // Nothing changing for 60 frames: the same input gives the same pixels.
+    const first = pixels(focus, point, distance, 0, true);
+    let still = 0;
+    for (let i = 1; i < FRAMES; i += 1) { const again = pixels(focus, point, distance, 0, true); still = Math.max(still, Math.hypot(again.x - first.x, again.y - first.y)); }
+    return { still, sweep };
+  }
+
+  const sun = [0, 0, 0];
+  const earthAtOneAu = [AU_UNITS, 0, 0];
+  const aphelion = [51 * AU_UNITS * 0.97, 0.3 * AU_UNITS, 0]; // a vertex of the made-up 1 to 51 AU orbit, more than 50 AU out
+
+  it("keeps Earth one AU from the Sun within a pixel, with the Sun focused, close in and pulled back", () => {
+    expect(Math.hypot(...earthAtOneAu)).toBeGreaterThan(20_000);
+    for (const distance of [AU_UNITS * 0.5, AU_UNITS * 3, AU_UNITS * 9]) {
+      const { still, sweep } = worstError(sun, earthAtOneAu, distance);
+      expect(still).toBe(0);
+      expect(sweep).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("keeps a vertex of the orbit more than 50 AU from the Sun within a pixel, with the Sun focused", () => {
+    expect(Math.hypot(...aphelion) / AU_UNITS).toBeGreaterThan(49);
+    for (const distance of [AU_UNITS * 40, AU_UNITS * 80]) {
+      const { still, sweep } = worstError(sun, aphelion, distance);
+      expect(still).toBe(0);
+      expect(sweep).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("holds a focused Earth exactly at the GPU origin, so a close-up of it cannot jitter from Float32 placement", () => {
+    const { still, sweep } = worstError(earthAtOneAu, [AU_UNITS + 1, 0, 0], 4);
+    expect(still).toBe(0);
+    expect(sweep).toBeLessThanOrEqual(1);
+  });
+
+  it("would not hold without the floating origin: one AU out the Float32 grid is the figure that matters (about 0.002 units, the reason the origin exists)", () => {
+    const spacing = (x: number) => 2 ** (Math.floor(Math.log2(x)) - 23);
+    expect(spacing(AU_UNITS)).toBeCloseTo(2 ** -9, 12);
+    expect(Math.fround(AU_UNITS + 1e-4) - Math.fround(AU_UNITS)).not.toBeCloseTo(1e-4, 6);
+  });
+});
+
 /** The Moon's monthly window as the path layer samples it: times about the clock, positions about Earth. */
 function monthlySamples(centerUtcMs: number) {
   const timesUtcMs = windowTimesUtcMs(centerUtcMs, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);

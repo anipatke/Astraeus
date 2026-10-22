@@ -207,6 +207,23 @@ describe("publishCanvasReadouts", () => {
     expect(sky.probe).toHaveBeenCalledTimes(1);
     expect(ctx.canvas.dataset.skyProbe).toBe(JSON.stringify({ ok: true }));
   });
+
+  it("reports the Milky Way picture and the live brightness settings on the canvas, the picture only when it is switched on (browser-sky.mjs)", () => {
+    const { ctx } = makeContext({ controls: { showMilkyWay: false, starBrightness: 1.5, milkyWayBrightness: 0.5 } });
+    const sky = fakeSky();
+    const frame = (showMilkyWay: boolean) => ({ ...ctx, views: { ...ctx.views, skyView: sky }, controls: { ...ctx.controls, showMilkyWay } }) as unknown as FrameContext;
+    publishCanvasReadouts(frame(false));
+    expect(ctx.canvas.dataset).toMatchObject({ skyPicture: "off", skyStarBrightness: "1.5", skyMilkyWayBrightness: "0.5", skyPictureShown: "false" });
+    expect(sky.requestPicture).not.toHaveBeenCalled();
+    expect(sky.setStarBrightness).toHaveBeenCalledWith(1.5);
+    sky.pictureVisible = true;
+    publishCanvasReadouts(frame(true));
+    expect(ctx.canvas.dataset).toMatchObject({ skyPicture: "on", skyPictureShown: "true" });
+    expect(sky.requestPicture).toHaveBeenCalledTimes(1);
+    const none = makeContext();
+    publishCanvasReadouts(none.ctx);
+    expect(none.ctx.canvas.dataset.skyPicture).toBeUndefined(); // ?sky=off: no sky view, no sky readouts
+  });
 });
 
 describe("placeViews", () => {

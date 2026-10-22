@@ -99,4 +99,13 @@ describe("bodyScreenReadouts", () => {
     expect(off?.sizePx).toBe(0);
     expect(bodyScreenReadouts([earth], r, camera(), 45, 600, readableScale)[0].glow).toBeNull();
   });
+
+  it("reads the halo as over the stream dots from afar and behind the disc once the disc is big (browser-sun.mjs)", () => {
+    const { refs: r } = refs(true);
+    const glowing = { ...earth, visual: { ...earth.visual, glow: { sizePx: 100, brightness: 1 } } };
+    const at = (z: number) => { const cam = camera(); cam.position.set(0, 0, z); cam.updateMatrixWorld(); return bodyScreenReadouts([glowing], r, cam, 45, 600, readableScale)[0]; };
+    expect(at(200).glow?.overDots).toBe(true);
+    expect(at(3).glow?.overDots).toBe(false);
+    expect(at(3).radiusPx).toBeGreaterThan(at(200).radiusPx);
+  });
 });
