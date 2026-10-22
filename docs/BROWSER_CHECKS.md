@@ -6,7 +6,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 `npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `tools/validate/run-browser.mjs`.
 
-## What it runs (about 45 s)
+## What it runs (about 1 minute)
 
 One browser at a time:
 
@@ -16,7 +16,7 @@ One browser at a time:
 - `meteor-shower` (`journey-meteor-shower.mjs`): Perseids at 1280x720, play, seek (the stream dots must be in view), a story panel opens.
 - `public-build-assets` and `public-addresses`: no browser; run on a scratch public build (licence records, no made-up scenes, page size, no retired links).
 
-Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
+Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s. With the `smoke-public-showers` step added (T-148): `browser-20261022T205738Z` 58 s (recheck C-099).
 
 ## The fast tests that replaced the old sets
 

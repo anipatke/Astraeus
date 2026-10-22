@@ -136,7 +136,7 @@ List the project's gate commands here when they differ from, or add to, `quality
 - Hand-off gates (`quality_gates` in `.savepoint/config.yml`): `npm run lint`, `npm run typecheck`, `npm run build` and `npm test` (with the junit reporter). Run the build under the shared build lock when other sessions run.
 - Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
 - Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `src`, `tests` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
-- Browser gate: `npm run check:browser` (about 45 s) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
+- Browser gate: `npm run check:browser` (about 1 minute) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
 - Health scanners (`.savepoint/health/config.json`), one line each:
   - jscpd measures duplicated lines over code only; it skips `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`.
   - lizard measures function complexity over the same code; same skips. `.claude` hooks are not skipped (11 rows of about 5500; left as measured, the owner may add the exclusion).
