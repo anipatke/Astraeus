@@ -69,6 +69,7 @@ Owner, 2026-10-22: "Plan a new Objective under G-007 ... that repairs the five o
 - A viewport-chosen desktop texture variant (Venus only) and an optional material emissive
 - Limiting the public build's planets demo to Jupiter
 - Opening the information card on a desktop click
+- Europa's places on their terrain (I-067, owner 2026-10-22: "fix Europa too while I look")
 
 **Out of scope:**
 - Desktop variants for other bodies (Mars, Mercury 8k and the like), cloud or bump layers, atmosphere shells beyond today's
