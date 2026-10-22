@@ -2,8 +2,7 @@
 id: T-145
 title: Build one quick browser check with two journeys
 objective: O-038
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o038-planning-20261023}
@@ -74,6 +73,8 @@ Built in lane `lane-t145`.
 - Revision after the coordinator's note: smoke's draw check now requires the experience's own content in view (bodies + dots + path lines from the scene readouts, polled up to 10 s); stars alone no longer count. The first three timed runs (`browser-20261022T201927Z`, `...T202014Z`, `...T202056Z`, uncited) were deleted and replaced.
 - Three consecutive passing timed runs (dev port 5479, public 5480, nothing else running): 44 s `docs/evidence/browser-20261022T202311Z`, 45 s `docs/evidence/browser-20261022T202358Z`, 46 s `docs/evidence/browser-20261022T202444Z` (totals include servers and public build; smoke 27-28 s). `npm run lint` and `npm test` (incl. the driver guard) pass.
 - Optional Task Check waived (see check_waiver). No Tasks, Checks or Issues created. Old sets and scripts untouched.
+
+Marked done by the coordinator at 2026-10-22T20:27:18Z on the owner's authority (2026-10-23, asked "Should I mark each step finished as it passes its tests": "I mark them as they pass"). Merged to o038-browser-checks as c6a308db with T-143 and T-144; combined run there: lint pass, `npm test` 104 files, 1416 passed, 1 skipped, 31.5 s.
 
 ## Drift Notes
 
