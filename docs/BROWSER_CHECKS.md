@@ -8,7 +8,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 ## The quick check (`npm run check:browser`, O-038 T-145, about 45 s)
 
-One browser at a time into `docs/evidence/browser-<UTC time>/`: `smoke` (`browser-smoke.mjs`: every public page and demo view at desktop and phone size, fails on a page or console error, a missing shell or a scene reporting nothing in view; the made-up scenes are not loaded), `planets-phone` (`journey-planets-phone.mjs`: switch Mercury to Jupiter, focus Io from the moons panel, open a place card, at 375x667 touch), `meteor-shower` (`journey-meteor-shower.mjs`: Perseids play, seek, a story panel opens), then the no-browser `public-build-assets` and `public-addresses` on a scratch public build. Old sets below stay until the last step of O-038. Measured: `browser-20261022T201927Z` 46 s, `browser-20261022T202014Z` 42 s, `browser-20261022T202056Z` 41 s.
+One browser at a time into `docs/evidence/browser-<UTC time>/`: `smoke` (`browser-smoke.mjs`: every public page and demo view at desktop and phone size, fails on a page or console error, a missing shell or a scene with no body, path or dot in view (stars alone do not count); the made-up scenes are not loaded), `planets-phone` (`journey-planets-phone.mjs`: switch Mercury to Jupiter, focus Io from the moons panel, open a place card, at 375x667 touch), `meteor-shower` (`journey-meteor-shower.mjs`: Perseids play, seek, a story panel opens), then the no-browser `public-build-assets` and `public-addresses` on a scratch public build. Old sets below stay until the last step of O-038. Measured: `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
 
 ## Engine set (`npm run check:engine`, 16 steps, 275 s)
 

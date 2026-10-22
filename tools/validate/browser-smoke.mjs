@@ -1,5 +1,5 @@
 // The smoke step of `npm run check:browser` (O-038 T-145), grown out of browser-lite.mjs: open every public page and every demo view once at desktop and phone size.
-// Each load fails on any page or console error, a missing shell, or a scene that reports nothing drawn in view (the scene's own readouts, no picture). Nothing else is asserted.
+// Each load fails on any page or console error, a missing shell, or a scene with no body, orbit path or dot in view (the scene's own readouts; stars alone do not count; no picture). Nothing else is asserted.
 // Views are discovered as browser-lite does: Apollo (no query), the keys of DEFINITIONS in src/main.tsx, the planets and showers experiences, and every data/showers/<name>.json.
 // The made-up (synthetic) scenes are not public pages and are left to the DOM tests. Pages: index.html and assets.html beside app.html.
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
@@ -34,12 +34,13 @@ function discoverViews() {
 
 async function drawsSomething(page) {
   const deadline = Date.now() + 10000;
+  const content = (d) => d.bodies + d.dots + d.paths; // the experience's own content; stars alone do not count
   let drawn = await ui.sceneDrawsSomething(page);
-  while (drawn.bodies + drawn.dots + drawn.paths + drawn.stars === 0 && Date.now() < deadline) {
+  while (content(drawn) === 0 && Date.now() < deadline) {
     await page.waitForTimeout(250);
     drawn = await ui.sceneDrawsSomething(page);
   }
-  if (drawn.bodies + drawn.dots + drawn.paths + drawn.stars === 0) throw new Error(`the scene reports nothing drawn in view (${JSON.stringify(drawn)})`);
+  if (content(drawn) === 0) throw new Error(`the scene shows no body, dot or path in view (${JSON.stringify(drawn)})`);
   return drawn;
 }
 
