@@ -123,4 +123,15 @@ describe("the planet places rule (I-048)", () => {
     const definition = buildPlanetDefinition(parsePlanetSettings({ ...madeUpFile, bodyFeatures: ["mars"] }), { ...madeUpSystem, packages: { mars: package_ } } as unknown as PlanetSystem, madeUpPanels);
     expect(definition.experience.bodyFeatures!.map((set) => [set.bodyId, set.features.map((feature) => feature.id)])).toEqual([["mars", ["surface"]]]);
   });
+
+  it("converts stored west longitudes as the places load when the map record says they are west (T-131), and only then", () => {
+    const longitudeOf = (map: unknown) => {
+      const definition = buildPlanetDefinition(parsePlanetSettings({ ...madeUpFile, bodyFeatures: ["mars"] }), { ...madeUpSystem, packages: { mars: { ...package_, ...(map === undefined ? {} : { map }) } } } as unknown as PlanetSystem, madeUpPanels);
+      return definition.experience.bodyFeatures![0]!.features[0]!.longitude;
+    };
+    const west = { coordinates: { sourceLongitude: "IAU planetographic, positive-west, 0-360", markerLongitudeFromSource: { scale: 1, offsetDeg: 0 } } };
+    expect(longitudeOf(west)).toBe(160);
+    expect(longitudeOf({ coordinates: { sourceLongitude: "IAU planetographic, positive-west, 0-360", markerLongitudeFromSource: { scale: -1, offsetDeg: 180 } } })).toBe(20);
+    expect(longitudeOf(undefined)).toBe(20);
+  });
 });

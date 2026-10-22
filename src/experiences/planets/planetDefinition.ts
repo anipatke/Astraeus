@@ -18,7 +18,7 @@ import { bodyFeatureSet, type BodyFeature, type BodyFeatureCategory } from "../.
 import type { ExperienceConfig, ExperienceObject } from "../../shell/experience";
 import { parseStoryPanels } from "../../shell/storyPanels";
 import type { PlanetSettings } from "./planetSettings";
-import { isSurfacePlace } from "./surfacePlace.mjs";
+import { isSurfacePlace, shownLongitude } from "./surfacePlace.mjs";
 
 /**
  * A tagged place as the body package stores it: some entries have no details (Earth), and a package may list a moon of the body without a position
@@ -26,10 +26,13 @@ import { isSurfacePlace } from "./surfacePlace.mjs";
  */
 export type PackageFeature = Omit<BodyFeature, "latitude" | "longitude" | "details"> & { readonly latitude?: number; readonly longitude?: number; readonly details?: BodyFeature["details"]; readonly ringRadius?: unknown; readonly moonRadius?: unknown };
 
-/** The surface places of a package (the planet places rule: a position, no ring-plane fields), each with its details (none when the package gives none); latitude and longitude exactly as stored. */
-function placedFeatures(features: readonly PackageFeature[]): { readonly features: readonly BodyFeature[] } {
+/** The map record's longitude convention (`coordinates` of data/bodies/<body>/map.json), as far as the places need it. */
+export interface MapCoordinates { readonly sourceLongitude?: string | null; readonly markerLongitudeFromSource?: { readonly scale: number; readonly offsetDeg: number } | null }
+
+/** The surface places of a package (the planet places rule: a position, no ring-plane fields), each with its details (none when the package gives none); latitude as stored, longitude as stored unless the map record says the stored values are west longitudes (shownLongitude). */
+function placedFeatures(features: readonly PackageFeature[], coordinates: MapCoordinates | undefined): { readonly features: readonly BodyFeature[] } {
   return {
-    features: features.flatMap((feature) => !isSurfacePlace(feature) ? [] : [{ ...feature, latitude: feature.latitude!, longitude: feature.longitude!, details: feature.details ?? [] }]),
+    features: features.flatMap((feature) => !isSurfacePlace(feature) ? [] : [{ ...feature, latitude: feature.latitude!, longitude: shownLongitude(feature.longitude!, coordinates), details: feature.details ?? [] }]),
   };
 }
 
@@ -54,7 +57,7 @@ export interface PlanetSystem {
   readonly fitErrorsM?: Readonly<Record<string, number>>;
   readonly rings?: NonNullable<VisualOverride["rings"]>;
   /** The tagged places of each mapped moon, as the body package stores them. */
-  readonly packages: Readonly<Record<string, { readonly features: { readonly features: readonly PackageFeature[] }; readonly categories: { readonly categories: readonly BodyFeatureCategory[] } }>>;
+  readonly packages: Readonly<Record<string, { readonly features: { readonly features: readonly PackageFeature[] }; readonly categories: { readonly categories: readonly BodyFeatureCategory[] }; readonly map?: { readonly coordinates: MapCoordinates } }>>;
   /** Fetches the position data the window needs (and the history the orbit lines reach back over). */
   readonly load: (window: TimeBounds) => Promise<void>;
 }
@@ -222,11 +225,11 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
     })),
   };
 
-  // The tagged places on the centre and the mapped moons come from their body packages, latitude and longitude exactly as the owner verified them, never rounded or corrected.
+  // The tagged places on the centre and the mapped moons come from their body packages, latitude and longitude as the owner verified them, never rounded or corrected; a package whose map record declares west longitudes is converted as it loads (T-131).
   const bodyFeatures = settings.bodyFeatures.map((id) => {
     const body = system.packages[id];
     if (body === undefined) throw new PlanetBuildError(`planet "${settings.id}" lists tagged places for "${id}", which its system has no package for`);
-    return bodyFeatureSet({ bodyId: id, bodyLabel: nameOf(id), features: placedFeatures(body.features.features), categories: body.categories, provenance: FEATURE_PROVENANCE });
+    return bodyFeatureSet({ bodyId: id, bodyLabel: nameOf(id), features: placedFeatures(body.features.features, body.map?.coordinates), categories: body.categories, provenance: FEATURE_PROVENANCE });
   });
 
   const events = createEvents([]);

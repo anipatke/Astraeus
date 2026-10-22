@@ -8,7 +8,7 @@ import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts"
 import saturnFitErrors from "../../../../data/moons/fit-errors/saturn.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Saturn: the window's year for every body, and the years before it only for the moons whose orbit line reaches back into them (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {
