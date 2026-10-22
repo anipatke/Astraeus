@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkLoadBudget, proveLoadBudgetFails } from "./load-budget.mjs";
+import { checkLoadBudget, NON_PUBLIC_PLANET_FILES, proveLoadBudgetFails, PUBLIC_PLANETS } from "./load-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
 export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html"];
@@ -190,6 +190,50 @@ export function proveSyntheticCheck() {
   }
 }
 
+/**
+ * A public build offers Jupiter alone in the planets demo (T-136). Fails on a file whose name is one only another planet's view lists (its maps and system
+ * chunks, from the load-budget page sets), and on a text asset that holds another planet's settings (`system: "<planet>"`). Returns { ok, matches }.
+ */
+export function checkOnlyPublicPlanets({ distDir, rootDir = root, publicPlanets = PUBLIC_PLANETS, nonPublicFiles = NON_PUBLIC_PLANET_FILES }) {
+  const settingsDir = join(rootDir, "data", "planets");
+  const others = existsSync(settingsDir) ? readdirSync(settingsDir).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, "")).filter((name) => !publicPlanets.includes(name)) : [];
+  const stems = nonPublicFiles.map((file) => file.replace(/\.[^.]+$/, ""));
+  const matches = [];
+  for (const path of walk(distDir)) {
+    const name = path.slice(distDir.length + 1);
+    const base = name.slice(name.lastIndexOf("/") + 1);
+    const stem = base.replace(/-[A-Za-z0-9_]{8}(?=\.[^.]+$)/, "").replace(/\.[^.]+$/, "");
+    if (stems.includes(stem)) matches.push({ path: name, how: "another planet's file" });
+    else if (TEXT_EXTENSIONS.test(path)) {
+      const text = readFileSync(path, "latin1");
+      const planet = others.find((other) => new RegExp(`["']?system["']?\\s*:\\s*["']${other}["']`).test(text));
+      if (planet !== undefined) matches.push({ path: name, how: `settings of ${planet}` });
+    }
+  }
+  return { ok: matches.length === 0, others, matches };
+}
+
+/** Proves the planet check can fail: a build holding another planet's map, and one holding its settings, fail; a Jupiter-only one passes. */
+export function proveOnlyPublicPlanets() {
+  const temp = mkdtempSync(join(tmpdir(), "astraeus-planets-"));
+  try {
+    const root2 = join(temp, "root", "data", "planets");
+    mkdirSync(root2, { recursive: true });
+    for (const name of ["jupiter", "mars"]) writeFileSync(join(root2, `${name}.json`), "{}");
+    const [clean, map, settings] = ["clean", "map", "settings"].map((name) => join(temp, name, "assets"));
+    for (const directory of [clean, map, settings]) {
+      mkdirSync(directory, { recursive: true });
+      writeFileSync(join(directory, "app-AbCdEf12.js"), 'const a = { system: "jupiter" };');
+    }
+    writeFileSync(join(map, "mars-2k-AbCdEf12.jpg"), "x");
+    writeFileSync(join(settings, "app-AbCdEf12.js"), 'const a = { system: "mars", label: "Mars" };');
+    const options = { rootDir: join(temp, "root"), nonPublicFiles: ["mars-2k.jpg", "mars.js"] };
+    return { clean: checkOnlyPublicPlanets({ distDir: join(temp, "clean"), ...options }), map: checkOnlyPublicPlanets({ distDir: join(temp, "map"), ...options }), settings: checkOnlyPublicPlanets({ distDir: join(temp, "settings"), ...options }) };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
 /** Proves the check can fail: a fake unlicensed texture is found as a file and as base64, and a clean build passes. */
 export function proveItFails() {
   const temp = mkdtempSync(join(tmpdir(), "astraeus-public-build-"));
@@ -248,10 +292,13 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const synthetic = checkNoSyntheticExperiences({ distDir });
   const syntheticProof = proveSyntheticCheck();
   const syntheticSelfProof = syntheticProof.clean.ok && !syntheticProof.chunk.ok && !syntheticProof.key.ok;
+  const planets = checkOnlyPublicPlanets({ distDir });
+  const planetProof = proveOnlyPublicPlanets();
+  const planetSelfProof = planetProof.clean.ok && !planetProof.map.ok && !planetProof.settings.ok;
   const loadBudget = checkLoadBudget({ distDir });
   const budgetProof = proveLoadBudgetFails();
   const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
-  const result = { distDir, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok };
+  const result = { distDir, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, planets, planetSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok && planets.ok && planetSelfProof };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

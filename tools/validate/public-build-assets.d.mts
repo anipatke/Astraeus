@@ -52,3 +52,11 @@ export interface SyntheticResult {
 /** A public build holds no made-up (synthetic) experience: no chunk named for one and no entry key. */
 export function checkNoSyntheticExperiences(input: { readonly distDir: string; readonly rootDir?: string }): SyntheticResult;
 export function proveSyntheticCheck(): { readonly clean: SyntheticResult; readonly chunk: SyntheticResult; readonly key: SyntheticResult };
+export interface PublicPlanetsResult {
+  readonly ok: boolean;
+  readonly others: readonly string[];
+  readonly matches: readonly { readonly path: string; readonly how: string }[];
+}
+/** A public build offers Jupiter alone: no other planet's map or system chunk, and no other planet's settings (T-136). */
+export function checkOnlyPublicPlanets(input: { readonly distDir: string; readonly rootDir?: string; readonly publicPlanets?: readonly string[]; readonly nonPublicFiles?: readonly string[] }): PublicPlanetsResult;
+export function proveOnlyPublicPlanets(): { readonly clean: PublicPlanetsResult; readonly map: PublicPlanetsResult; readonly settings: PublicPlanetsResult };

@@ -21,6 +21,7 @@ const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
+  planet: name,
   id: `app.html?experience=planets&planet=${name}`,
   files: [...APP_SHARED, "planetSettings.js", "settingsFields.js", "planetDefinition.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
   namedBy: [`${name}.js`],
@@ -34,7 +35,7 @@ const planetView = (name, textures, { moons = true, parts = false, ...limits }) 
  * The Apollo and showers sets also list `compositions.js`, the chunk split out when the planets experience shared it (T-121).
  * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
-export const PAGES = [
+const ALL_PAGES = [
   // T-120 (O-033): index.html measured 399,236 B raw / 352,149 B gzip (14 files) on 2026-10-21, against 410,463 / 367,851 (13 files) before: the four new planet thumbnails (36,448 B) replace the Moon and Io ones, so the page got lighter and the standing limit is left as it was.
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   // T-120 (O-033), raised on purpose: assets.html grew from the old limit to 629,684 B raw / 493,085 B gzip (22 files) measured 2026-10-21 with its 13 new body thumbnails (site/t-*.jpg, about 300 KB, lazy-loaded), the generated moon lists for five planets (343 moons) and the tagged-places list (403 places). New limit: that measurement plus 5%, rounded up to the next 10,000 bytes.
@@ -56,6 +57,19 @@ export const PAGES = [
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },
   { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 12_700_000, gzipLimit: 7_900_000 },
 ];
+/**
+ * The planets a public build offers: Jupiter alone (owner, 2026-10-22; T-136). The other eight planet views exist only in a local build, so their page sets
+ * (still listed above, with their limits) are not held against a public build, which this check runs on.
+ */
+export const PUBLIC_PLANETS = ["jupiter"];
+/** The files only a local build's other planet views list (their maps and system chunks), by stem as the page sets name them; a public build must hold none (T-136). */
+export const NON_PUBLIC_PLANET_FILES = (() => {
+  const wanted = new Set(ALL_PAGES.filter((page) => page.planet !== undefined && !PUBLIC_PLANETS.includes(page.planet)).flatMap((page) => page.files));
+  for (const page of ALL_PAGES) if (page.planet === undefined || PUBLIC_PLANETS.includes(page.planet)) for (const file of page.files) wanted.delete(file);
+  // Left out of the list on purpose: the `<planet>-moons.js` indexes (core body records lazy-load them, so they stay in the build but are never fetched) and the inner planets' maps (the catalogue keeps those bodies).
+  return [...wanted].filter((file) => /\.(jpg|js|bin)$/.test(file) && !/-moons\.js$/.test(file) && !["mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg"].includes(file));
+})();
+export const PAGES = ALL_PAGES.filter((page) => page.planet === undefined || PUBLIC_PLANETS.includes(page.planet));
 /** Every file of the build together (also the net for a file no page set lists). */
 // T-098 raised it for the Jupiter moons; T-121 (O-033) raised it on purpose for the nine planet views' pictures (the outer planets' 4k moon maps) and fit chunks: re-measured 2026-10-21 on the public build, plus 5%, rounded up to the next 10,000 bytes.
 export const BUILD_LIMIT = { id: "whole build", rawLimit: 54_610_000, gzipLimit: 44_130_000 };

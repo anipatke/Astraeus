@@ -34,8 +34,14 @@ const SHOWER_FILES = import.meta.glob<{ readonly label: string; readonly order?:
 const showerEntries: ShowerEntry[] = Object.entries(SHOWER_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order ?? 0 }));
 // Every data/planets/<name>.json is a planet of the one Planets experience (the old ?experience=jupiter-io address too); a new file needs no change here.
 // The settings files are small and already in the entry; a planet's system (moon list, positions, pictures) and story are fetched only for the chosen one.
-const PLANET_FILES = import.meta.glob<{ readonly label: string; readonly order: number; readonly default?: boolean }>("../data/planets/*.json", { eager: true, import: "default" });
-const PLANET_SYSTEMS = import.meta.glob<Record<string, PlanetSystem>>("./experiences/planets/systems/*.ts");
+// The public build offers Jupiter alone (owner, 2026-10-22): its globs name only Jupiter's files, so Vite leaves the other eight planets' settings, systems and maps out of the bundle.
+type PlanetFile = { readonly label: string; readonly order: number; readonly default?: boolean };
+const PLANET_FILES = __PUBLIC_BUILD__
+  ? import.meta.glob<PlanetFile>("../data/planets/jupiter.json", { eager: true, import: "default" })
+  : import.meta.glob<PlanetFile>("../data/planets/*.json", { eager: true, import: "default" });
+const PLANET_SYSTEMS = __PUBLIC_BUILD__
+  ? import.meta.glob<Record<string, PlanetSystem>>("./experiences/planets/systems/jupiter.ts")
+  : import.meta.glob<Record<string, PlanetSystem>>("./experiences/planets/systems/*.ts");
 const STORY_PANELS = import.meta.glob<unknown>("../data/stories/*/panels.json", { import: "default" });
 const planetEntries: PlanetEntry[] = Object.entries(PLANET_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order, isDefault: json.default === true }));
 const requested = new URLSearchParams(window.location.search).get("experience") ?? "";
