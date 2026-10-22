@@ -6,6 +6,10 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 `npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|planets>` (one demo's set). Each writes `summary.txt` and each step's results files to a fresh `docs/evidence/<set>-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
 
+## The quick check (`npm run check:browser`, O-038 T-145, about 45 s)
+
+One browser at a time into `docs/evidence/browser-<UTC time>/`: `smoke` (`browser-smoke.mjs`: every public page and demo view at desktop and phone size, fails on a page or console error, a missing shell or a scene with no body, path or dot in view (stars alone do not count); the made-up scenes are not loaded), `planets-phone` (`journey-planets-phone.mjs`: switch Mercury to Jupiter, focus Io from the moons panel, open a place card, at 375x667 touch), `meteor-shower` (`journey-meteor-shower.mjs`: Perseids play, seek, a story panel opens), then the no-browser `public-build-assets` and `public-addresses` on a scratch public build. Old sets below stay until the last step of O-038. Measured: `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
+
 ## Engine set (`npm run check:engine`, 16 steps, 275 s)
 
 Runs on the made-up scenes (`?experience=synthetic`, `synthetic-ring`, `synthetic-listed`), so it needs no demo. Measured in `docs/evidence/engine-20261020T092052Z`.

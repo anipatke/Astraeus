@@ -12,6 +12,7 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "check:engine": "node tools/validate/run-engine.mjs",
+    "check:browser": "node tools/validate/run-browser.mjs",
     "check:demo": "node tools/validate/run-demo.mjs",
     "test": "vitest run",
     "test:full": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml",
