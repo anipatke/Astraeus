@@ -38,6 +38,7 @@ Logic proofs move to node tests against the plain modules (`sceneFrame.ts` stage
 - A smoke check and two or three journey checks; retiring the other browser scripts and runner sets
 - Node tests that take over the logic the retired scripts proved
 - `docs/BROWSER_CHECKS.md`, AGENTS.md browser rules, package scripts
+- `tools/validate/runner.mjs`, which reads 27 by lizard (owner, 2026-10-22: left for this Objective rather than split in O-037)
 
 **Out of scope:**
 - Any change to what visitors see (G-007 boundary)

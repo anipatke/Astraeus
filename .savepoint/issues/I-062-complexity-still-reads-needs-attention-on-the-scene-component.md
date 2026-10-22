@@ -25,6 +25,10 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: repair_attempted
     note: 'T-129: the scene callbacks moved into named hooks (src/app/sceneContentsHooks.ts) and a SceneBody component; scratch lizard on src/app/AstraeusScene.tsx reads highest CCN 13; npm run lint passes. Another lizard function over 20 remains elsewhere: tools/validate/runner.mjs 27 (not in this Task).'
+  - at: '2026-10-22T09:00:00Z'
+    actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: owner_decision
+    note: 'After T-129 (AstraeusScene 38 to 13 by lizard), tools/validate/runner.mjs still reads 27 by lizard (ESLint passes). Owner: "Leave it for the cut-down (Recommended)": O-038 rewrites or retires the runner; the health complexity reading may stay above target until then.'
 ---
 
 # I-062: Complexity still reads Needs attention on the scene component
