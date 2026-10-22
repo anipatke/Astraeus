@@ -50,9 +50,12 @@
     "phiOffsetDeg": 90,
     "thetaOffsetDeg": 90,
     "sourceLongitude": "IAU planetographic, positive-west, 0-360",
-    "markerLongitudeFromSource": null,
+    "markerLongitudeFromSource": {
+      "scale": 1,
+      "offsetDeg": 0
+    },
     "textureRecentringDeg": 0,
-    "conventionNote": "donor: the texture is positive-west 0-360 and matches the convention of europa-features.json; formula not stated",
+    "conventionNote": "donor: the texture is positive-west 0-360 and europa-features.json stores source west longitudes directly (checked against the USGS Gazetteer, O-039 T-139); formula not stated by the donor",
     "donorReadmeNote": "- The current Europa release uses the USGS/NASA global mosaic at `2K`; the source is simple-cylindrical, planetocentric, positive-west, and 0-360 longitude, matching the coordinate convention used by `data/europa-features.json`."
   }
 }
