@@ -2,8 +2,7 @@
 id: T-148
 title: Repair the public-build stream check and the arc-head test (C-098)
 objective: O-038
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-147, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o038-orchestration-20261023}
@@ -59,3 +58,6 @@ No change to what visitors see. No screenshots.
 - Tidy: `runner.mjs` line 1 comment; trailing space removed at `tests/domShell.test.ts:64`.
 - Gates (UTC 2026-10-22): lint pass, typecheck pass, build pass; `npm run test:full` 20:51:58 to 20:52:54 and 20:53:00 to 20:53:57, both 111 files, 1502 passed, 1 skipped. `npm run check:browser` 20:54:00 to 20:54:57 (57 s, all six steps exit 0, zero error lines): `docs/evidence/browser-20261022T205400Z`.
 - Task Check waived: owner "Fix both, short recheck". Stopped at stage audit.
+
+Marked done by the coordinator at 2026-10-22T20:55:30Z on the owner's authority (2026-10-23, asked "Should I mark each step finished as it passes its tests": "I mark them as they pass"); repair asked for by the owner ("Fix both, short recheck"). Issues I-071 and I-072 stay open for the recheck to verify.
+
