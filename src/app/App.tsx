@@ -14,6 +14,7 @@ import { scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type S
 import { Collapsible } from "../shell/Collapsible";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./DeveloperSettings";
+import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
@@ -145,6 +146,7 @@ function initialSceneControls(
     ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(search, glowBase) }),
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
+    illuminateAll: DEFAULT_ILLUMINATE_ALL,
     hiddenLabels: hiddenLabelsFrom(search, experience.objects),
     labelObjects: experience.objects,
     storyMarkers,
@@ -231,6 +233,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
   const [upChoice, setUpChoice] = useState<ViewUp>(startViewUp(definition));
+  const [illuminateAll, setIlluminateAll] = useState(controls.current.illuminateAll);
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [hoverBrightness, setHoverBrightness] = useState(HOVER_BRIGHTNESS_DEFAULT);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
@@ -434,7 +437,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
     !(runtime.sky.visible || glowShown !== null) ? null : {
       id: "sky-sun", title: "Sky and Sun",
       body: (
-        <SkyAndSunSettings visible={runtime.sky.visible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
+        <SkyAndSunSettings illuminateAll={illuminateAll} setIlluminateAll={setIlluminateAll} visible={runtime.sky.visible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
       ),
     },
     {

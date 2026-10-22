@@ -2,7 +2,8 @@
 id: T-135
 title: Add an illuminate-all switch to the settings
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-135
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
@@ -61,7 +62,16 @@ Focused node tests; configured gates at handoff; owner's look on the preview. Ev
 
 ## Technical Evidence
 
-Pending execution.
+Built in lane `lane-t135` (no browser, no screenshots).
+
+- `chooseLightDirection` (src/app/lighting.ts): pure; off returns the body's Sun direction, on returns the unit vector from the body to the camera (camera on the body keeps sunlight). `DEFAULT_ILLUMINATE_ALL = false`.
+- `placeBodyLights` (sceneLights.ts) takes a `LightViewpoint`; the lighting stage in `sceneFrame.ts` passes `controls.illuminateAll`, `camera.position` and each body's `origin.toLocal(absoluteOf(id))` (all floating-origin local axes, same as the lights).
+- `SceneControls.illuminateAll` (AstraeusScene.tsx), initialised in App.tsx from the default; "Illuminate all" aria-pressed button via `SettingButtons` in a new always-shown "Lighting" group at the top of `SkyAndSunSettings` (DeveloperSettings.tsx). No new CSS: it reuses the existing setting-buttons row, so the phone/desktop layout is the same as the existing toggles (Milky Way picture etc.), one short button on one row; no overlap or horizontal scroll expected at 375x667 or 1280x720 (reasoned, not run).
+- Strengths per body (ambient/directional) untouched.
+- Tests: tests/illuminateAll.test.ts, 4 tests (default off, off keeps sun, on gives unit camera-side direction, camera on body falls back).
+- Deviations: new "Lighting" group instead of the "Sky" group, because Sky is hidden when a demo has no sky; planned_writes did not include AstraeusScene.tsx or style.css (AstraeusScene.tsx touched for the control field; style.css not needed). Light-direction scope is the Developer settings drawer, like the other toggles.
+- Gates: lint, typecheck, build, test all pass (94 files, 1294 passed, 1 skipped).
+- Owner look on preview: pending. Open localhost:5490, any planet demo, settings (Developer) > Lighting > "Illuminate all": the face toward the camera should light up with shading kept (night-side places readable); off returns true sunlight and is the default. Check at 375x667 and 1280x720 that the button sits in its own row with no overlap.
 
 ## Drift Notes
 

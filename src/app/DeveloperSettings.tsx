@@ -88,7 +88,10 @@ export function MoonsAndRingsSettings({ bodySets, ringSystems, setLook, changeSe
   );
 }
 
-export function SkyAndSunSettings({ visible, glowShown, setGlowShown, controls, milkyWayOn, setMilkyWayOn, starBrightness, setStarBrightness, milkyWayBrightness, setMilkyWayBrightness }: {
+export function SkyAndSunSettings({ illuminateAll, setIlluminateAll, visible, glowShown, setGlowShown, controls, milkyWayOn, setMilkyWayOn, starBrightness, setStarBrightness, milkyWayBrightness, setMilkyWayBrightness }: {
+  /** Light every body from the camera's side, keeping its shading; off is true sunlight. */
+  readonly illuminateAll: boolean;
+  readonly setIlluminateAll: (on: boolean) => void;
   readonly visible: boolean;
   readonly glowShown: GlowLook | null;
   readonly setGlowShown: (look: GlowLook) => void;
@@ -102,6 +105,11 @@ export function SkyAndSunSettings({ visible, glowShown, setGlowShown, controls, 
 }) {
   return (
         <>
+          <SettingGroup id="lighting" title="Lighting">
+            <SettingButtons>
+              <button aria-pressed={illuminateAll} aria-label="Illuminate all" onClick={() => { controls.current.illuminateAll = !illuminateAll; setIlluminateAll(!illuminateAll); }}>Illuminate all</button>
+            </SettingButtons>
+          </SettingGroup>
           {visible && (
             <SettingGroup id="sky" title="Sky">
               <SettingButtons>
