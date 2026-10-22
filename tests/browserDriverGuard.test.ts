@@ -7,10 +7,10 @@ describe("browser scripts use the shared interface driver", () => {
     expect(findViolations()).toEqual([]);
   });
 
-  it("covers every script in tools/validate and tools/validate/on-request", () => {
+  it("covers every script in tools/validate", () => {
     const names = scriptFiles().map((file) => file.slice(file.lastIndexOf("validate/") + "validate/".length));
-    expect(names).toContain("browser-lite.mjs");
-    expect(names).toContain("on-request/browser-sun.mjs");
+    expect(names).toContain("browser-smoke.mjs");
+    expect(names).toContain("journey-planets-phone.mjs");
     expect(names).not.toContain("driver.mjs");
     expect(names).not.toContain("harness.mjs");
   });

@@ -2,7 +2,7 @@
 //   node tools/validate/driver-guard.mjs        exits 1 and lists every offending line
 //   tests/browserDriverGuard.test.ts            runs the same check in the unit tests
 //
-// THE RULE. A script in tools/validate/ or tools/validate/on-request/ reaches the interface only through `driver.mjs`. Outside the driver a script may NOT:
+// THE RULE. A script in tools/validate/ reaches the interface only through `driver.mjs`. Outside the driver a script may NOT:
 //   - call getByRole, getByText, getByLabel, getByPlaceholder, getByTitle or getByAltText;
 //   - call click, dblclick, fill, selectOption, check, uncheck, press, focus, hover or tap on anything, or use `keyboard.`;
 //   - call locator(...), querySelector(...) or querySelectorAll(...) with any selector other than the exceptions below, or with a selector it builds at run time.
@@ -71,7 +71,7 @@ export function violationsIn(text) {
 /** The browser scripts the rule covers. */
 export function scriptFiles(root = here) {
   const files = [];
-  for (const directory of [root, join(root, "on-request")]) {
+  for (const directory of [root]) {
     for (const name of readdirSync(directory)) if (name.endsWith(".mjs") && !OWN_FILES.has(name)) files.push(join(directory, name));
   }
   return files.filter((file) => !OPT_OUT.has(relative(root, file)));

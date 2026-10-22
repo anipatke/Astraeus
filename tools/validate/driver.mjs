@@ -721,25 +721,6 @@ export async function scaleExplanationText(page) {
   return (await panel.isVisible()) ? panel.innerText() : null;
 }
 
-/** The Scale menu on its own (the isolated harness page `harness/scale-menu.html`): open, read, move with the keyboard, close. */
-export function scaleMenu(page) {
-  const trigger = page.locator(".scale-menu-trigger");
-  return {
-    waitForTrigger: () => page.waitForSelector(".scale-menu-trigger"),
-    open: () => trigger.click(),
-    openByKey: (key) => trigger.press(key),
-    isOpen: () => page.locator(".scale-menu").isVisible(),
-    expanded: () => trigger.getAttribute("aria-expanded"),
-    chosenLabel: () => trigger.getAttribute("data-scale-label"),
-    triggerName: () => trigger.getAttribute("aria-label"),
-    focusedScale: () => page.evaluate(() => document.activeElement.dataset.scale),
-    triggerFocused: () => page.evaluate(() => document.activeElement.className.includes("scale-menu-trigger")),
-    key: (name) => page.keyboard.press(name),
-    chooseItem: (label) => page.getByRole("menuitemradio", { name: label, exact: true }).click(),
-    pressOutside: () => page.click("#outside"),
-  };
-}
-
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Scene readouts the driver does not hide: the canvas and its data attributes are read directly by scripts.
 // ---------------------------------------------------------------------------------------------------------------------------------------------

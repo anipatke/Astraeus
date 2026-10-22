@@ -1,71 +1,67 @@
 # Browser checks: the map
 
-Two rules shape these checks. The owner judges how things look, on the preview, so no check takes or compares a screenshot. Automation keeps only what eyes cannot judge: crashes and console errors, shipped-data and licence rules, and numbers, credits and behaviour.
+Two rules shape these checks. The owner judges how things look, on the preview, so no check takes or compares a screenshot. Automation keeps only what eyes cannot judge: crashes and console errors, shipped-data and licence rules, and numbers, credits and behaviour. Since O-038 most behaviour is proved in the fast test suite (`npm test`, about 30 s); one short browser command covers what only a real browser can show.
 
-## Running them
+## Running it
 
-`npm install`, then `npm run check:engine` (the engine set) or `npm run check:demo -- <apollo|showers|planets>` (one demo's set). Each writes `summary.txt` and each step's results files to a fresh `docs/evidence/<set>-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. Set membership is the list at the top of `tools/validate/run-engine.mjs` and `run-demo.mjs`.
+`npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `tools/validate/run-browser.mjs`.
 
-## The quick check (`npm run check:browser`, O-038 T-145, about 45 s)
+## What it runs (about 45 s)
 
-One browser at a time into `docs/evidence/browser-<UTC time>/`: `smoke` (`browser-smoke.mjs`: every public page and demo view at desktop and phone size, fails on a page or console error, a missing shell or a scene with no body, path or dot in view (stars alone do not count); the made-up scenes are not loaded), `planets-phone` (`journey-planets-phone.mjs`: switch Mercury to Jupiter, focus Io from the moons panel, open a place card, at 375x667 touch), `meteor-shower` (`journey-meteor-shower.mjs`: Perseids play, seek, a story panel opens), then the no-browser `public-build-assets` and `public-addresses` on a scratch public build. Old sets below stay until the last step of O-038. Measured: `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
+One browser at a time:
 
-## Engine set (`npm run check:engine`, 16 steps, 275 s)
+- `smoke` (`browser-smoke.mjs`): every public page and demo view at desktop and phone size. It fails on a page or console error, a missing shell, or a scene with no body, path or dot in view (stars alone do not count). The made-up scenes are not loaded.
+- `planets-phone` (`journey-planets-phone.mjs`): at 375x667 with touch, switch Mercury to Jupiter, focus Io from the moons panel, open a place card.
+- `meteor-shower` (`journey-meteor-shower.mjs`): Perseids at 1280x720, play, seek, a story panel opens.
+- `public-build-assets` and `public-addresses`: no browser; run on a scratch public build (licence records, no made-up scenes, page size, no retired links).
 
-Runs on the made-up scenes (`?experience=synthetic`, `synthetic-ring`, `synthetic-listed`), so it needs no demo. Measured in `docs/evidence/engine-20261020T092052Z`.
+Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s.
 
-| Script | Asserts |
-|--------|---------|
-| `browser-shell` | events list and next/previous, marker availability, camera presets, name tags not overlapping, information and provenance sections, both scales, drag and zoom, developer panel |
-| `browser-synthetic`, `-ring`, `-listed` | the made-up scene, its ring and its listed-bodies variants draw and behave; no console errors |
-| `browser-orbit-look` | orbit and trail layers switch and brighten (read from path readouts) |
-| `browser-controls` | drawers, information panel, Sources, story panel at laptop and phone size |
-| `browser-phone` | phone layout in portrait and landscape, drawers, information sheet, reduced motion |
-| `browser-layout` | viewport fit at three sizes, touch targets, info sheet clears the timeline, keyboard focus |
-| `browser-embedded` | the framed (embedded) page |
-| `browser-anchor-labels` | twelve labelled anchors, toggle, follow |
-| `browser-tap-focus` | drag, pinch, hover, body and name-tag taps (O-022) |
-| `browser-view-link` | copied view link restores the view; refused clipboard; bad link |
-| `browser-orbit-motion` | orbit arcs move with time |
-| `browser-scale-menu` | the scale menu on its own harness page |
-| `public-build-assets`, `public-addresses` | on a public build: licence records, no made-up scenes, page size, no retired links |
+## The fast tests that replaced the old sets
 
-## Demo sets (`npm run check:demo -- <name>`)
+Screen parts run in the fast suite on a pretend page (`happy-dom`, opted into per file with `// @vitest-environment happy-dom`; `tests/domSetup.ts` mounts the real `AstraeusShell` and offers `press`, `swipe`, `touchDrag`, `selectObject`, `advance`, `requestPanel`). Scene sums run as ordinary unit tests on the same objects the scene draws. A demo's own rules are tested against its real data files. Two things stay out of reach of a pretend page: what is drawn on the canvas (the smoke check) and how it looks (the owner, on the preview).
 
-Each starts with a `smoke` step (`browser-lite`, one demo, desktop and phone). Run one only when that demo or its checks changed, or before a release.
+## Retired scripts, and where each scenario went
 
-| Demo | Steps | Time | Run |
-|------|-------|------|-----|
-| apollo | smoke, `browser-apollo-shell` (provenance wording, 30 events, mission metrics, no scale control), `browser-spike02` (True/Readable telemetry pairs, camera invariance, event jumps, USNO phases), `browser-home-curve-fits`, `browser-story-panels` (Apollo) | 227 s | `demo-apollo-20261020T102339Z` |
-| showers | smoke, `browser-showers` Perseids (orbits, Earth path, bodies, year) and Geminids (light, desktop), `browser-public-showers`, `browser-story-panels` (showers) | 390 s | `demo-showers-20261020T102729Z` |
-| planets (was jupiter; `jupiter` still works as an alias) | smoke (Jupiter view + catalogue page), `browser-jupiter-io` (presets, places, orbit lines), `browser-moon-panel`, `browser-jupiter-tap` (small-moon dots), `browser-story-panels` (Jupiter), then O-033: `browser-outer-planets` (switch from Jupiter keeps the clock, Saturn rings and moons panel, a place on Titan and on Charon, Pluto and Charon drawn, Uranus rings and no mapped moon; desktop and phone), `browser-planet-switch` (Mercury to Mars in the switch, Phobos and Deimos in the Object list, a Mars place pressed; desktop and phone) | 248 s before O-033; not yet measured with the two new scripts | `demo-jupiter-20261020T101926Z` (old set) |
+O-038 T-147 deleted every other browser script, `run-engine.mjs`, `run-demo.mjs`, `tools/validate/on-request/` and the scale-menu harness page; git history keeps them. Code for each: **D** a fast test (file, then case); **S** the smoke check; **J** a journey; **O** the owner's look on the preview. The line-by-line maps, 84 lines from T-143, 54 from T-144 and about 120 from T-146, are in those Tasks' Technical Evidence (`.savepoint/objectives/O-038-*/tasks/`). Test files below are under `tests/`. Nothing is unmapped.
 
-## On request (`tools/validate/on-request/`)
+| Retired script | Scenarios | Now |
+|------|------|------|
+| `browser-shell` | events list and Next; marker through the timeline; camera presets; information, provenance, Sources; both scales; developer cog | D `domShell`; name tags, drag and zoom, the advanced readouts S; overlap O |
+| `browser-controls` | drawers, information panel, Sources, story panel; one look for controls, height, font, baseline | D `domPhone`, `domShell`; stylesheet sizes D `domEmbedded`; the computed look O |
+| `browser-phone` | pill, cog and timeline; both drawers; speed slider; sheet; story on a phone; developer folds; reduced motion; safe areas | D `domPhone`; chrome fit and reach O |
+| `browser-layout` | fit at three sizes, touch targets, focus ring, sheet clear of timeline | D `domShell` (Tab reaches buttons), `domEmbedded` (sizes, focus ring); fit and overlap O |
+| `browser-embedded` | framed flag, layout by frame width, slimmer bars, shared controls | D `domEmbedded` |
+| `browser-scale-menu` | menu open, keys, focus, Escape, outside press | D `domMenuAndLink` "the scale menu" |
+| `browser-view-link` | link contents, clipboard, refused clipboard, bad link, restore | D `domMenuAndLink` "Copy view link"; the camera landing S |
+| `browser-story-panels` (generic) | marker per panel, auto-open and pause, resume, Continue, scrub, Escape, folds, phone swipe | D `domStory`, `domPhone` "a story panel on a phone" |
+| `browser-story-panels` (demos) | Apollo seven panels and scene markers; Perseids, Geminids, Jupiter panels | D `domDemoStories`, `storyPanels`, `storyMarkers`, `storyStoriesAllDemos`; phone shots O |
+| `browser-synthetic`, `-ring`, `-listed` | glow, windows, rate readout, source wording, groups, panels, presets, name check, True and Readable parity | D `timeline`, `experiencePlugIn`, `syntheticRing`, `listedOrbitGroup`, `syntheticStoryAnchors`, `nameCheck`, `infoProvenance`, `sceneCamera`; frame rate `frameStats` (pacing was never asserted, O); drawing S |
+| `browser-orbit-look` | four layers, ring opacity, reset, scale-independent | D `orbitLook` "reports each layer ...", "switches each layer off and back on" |
+| `browser-orbit-motion` | arc head on its body, no chord, after seeks and fast play | D `orbitLook` "keeps the arc head on its body ..." |
+| `browser-anchor-labels` | twelve labels, toggle, follow, off-screen hiding | D `syntheticStoryAnchors` "labels every anchor", `missionScene` `projectToScreen`; layer on screen S |
+| `browser-tap-focus` | hit tolerance, nearest, drag or pinch selects nothing, hover | D `scenePicking` (pickTarget, TapTracker, hover), `sceneFrame`, `clickOpensInfo` "opens its information card on the desktop layout" and "only flies there on the phone layout"; taps S |
+| `on-request/browser-sky` | stars, Milky Way, brightness, fixed under camera moves | D `sky`, `skyPicture`, `sceneFrame` (sky readouts) |
+| `on-request/browser-sun` | halo, sliders, centred, camera outside the sphere | D `sunLook`, `sceneBodies` (halo order), `sceneCamera` |
+| `on-request/browser-precision` | Earth within one pixel at 1 AU, 60-frame sweep | D `sceneTransforms` "position precision far from the Sun" |
+| `on-request/browser-synthetic-belt`, `-eccentric`, `-marker-existing` | belt, Sun and paths, marker rule, whole 1 to 51 AU orbit framed | D `syntheticRing`, `sunCentred`, `bodyMarkers`, `longOrbitPaths`, `sceneTargets`, `demoRules` (marker rule on every demo) |
+| `on-request/probe-phone-frames` | throttled frame-time probe; asserted nothing | none; retired measurement (frame pacing: owner's look) |
+| `browser-apollo-shell` | 30 events, Unavailable at start, one scale, labels, info wording, metric visuals | D `domApollo`, `missionScene`, `infoProvenance` ("Apollo known limitations ..."), `metricVisuals`, `experiences`; labels and follow fallback S |
+| `browser-spike02` | six phases, camera invariance, jumps, rates, speed against range, four USNO phases | D `domApollo`, `missionScene`, `core` (clock: "keeps same-time science fixed when playback rates differ"), `infoProvenance` |
+| `browser-home-curve-fits` | 325 dots, 2 pieces, slider, distance bound | D `homePage`; drawing S; phone layout O |
+| `browser-showers`, `browser-public-showers` | Sun-centred scene, Object list, scales, orbits, peak, year, quality sets, no CAMS, shower switch, shipped orbits | D `demoShowers`, `demoRules`, `showers`, `showersMeasured`, `showerChoice`, `viewUp` ("ecliptic-up view"), `startCamera` ("the start camera (I-028)"), `publicBuild`; the swap and the dots S, J |
+| `browser-jupiter-io`, `-jupiter-tap` | Jupiter and four moons, 111 dots, rings, places, small-moon taps | D `demoPlanets`, `jupiterIo`, `jupiterMoonsScene`, `moonOrbits` ("measures every body against Horizons ..."), `featureMarkers`, `scenePicking`; drawing S |
+| `browser-moon-panel` | families, counts, big four, search, lit family, focus on a moon | D `domMoonPanel`, `moonFamilyPanel`; the moons sheet and information panel never together: D `domMoonPanel` "never show together on a wide screen"; the flight S; overlap O |
+| `browser-outer-planets`, `browser-planet-switch` | switch keeps the clock; Saturn rings; Titan and Charon places; Pluto; Uranus; Mars | D `planetChoice`, `planetSystems`, `planetSwitchInner`, `demoPlanets`, `plutoOrbitLines`; the switch on a phone J |
+| `browser-lite` (smoke) | every page and view loads, no errors | S (`browser-smoke.mjs`) |
 
-Run only when you change what they measure: `browser-sky` (stars and Milky Way; moved here 2026-10-20), `browser-precision`, `browser-sun`, `browser-synthetic-belt`, `browser-synthetic-eccentric`, `browser-marker-existing`, `probe-phone-frames`.
+Rows that name a file but not a case are covered by that file as a whole: `viewUp` (up direction, six cases), `startCamera` (three), `publicBuild` (public-build exclusion rules), `moonOrbits` (orbit sources and measured figures), `core` (the clock and providers), `frameStats` ("FrameStats", "FrameRateSection", "fps graph geometry"), `phoneLayout` ("phone layout settings", "Sources section"), `infoProvenance` ("provenance reachability", "window information").
 
-## Dropped, with reasons (O-034)
-
-Dropped to bring the sets under about 5 minutes. The generic code is covered by the engine set.
-
-- Phone, controls, embedded and tap-focus runs on Apollo, Showers and Jupiter-Io: the made-up scene runs the same code. Jupiter's small-moon dot case lives in `browser-jupiter-tap`.
-- `browser-spike03`: its generic cases became `browser-layout` and `browser-shell`; the Apollo-only ones are in `browser-apollo-shell`.
-- Kept, not dropped: the Apollo-only shell cases (30 events, Unavailable-at-start, Observed badge, mission readout stability, UTC field) are still asserted in `browser-apollo-shell` (Apollo set).
-- `browser-anchor-labels`: moved from Apollo's 40 anchors to the made-up scene's 12 (`?experience=synthetic`, desktop and phone). Apollo's own anchor labels are no longer checked; the labelling code is the same.
-- `browser-view-link`: the Perseids and default (Apollo) runs moved to the made-up scene; the link code is generic.
-- `browser-orbit-motion`: the Jupiter-Io run dropped; the made-up run exercises the same arc code.
-- `browser-sky`: the Apollo and Perseids runs and the phone-size pass dropped when it moved to on-request (owner, 2026-10-20); it now runs the made-up scene at desktop size, on request.
-- Repeats: tap-focus on `synthetic-ring`; phone-size passes of `-ring` and `-listed` (`browser-phone` owns phone layout).
-- Jupiter-Io: 375x667 and 1280x720 passes; "every place within 75 degrees shown from some side" became "some places seen" with 2 sides (3 on phone); known-place presses cut to Loki Patera and Galileo Regio; phone checks 2 of 5 moons.
-- spike02: phone event jumps, playback rates, speed, USNO phases (desktop only); the 30-sample 100x follow track became a speed read at 3 paused times with a negative probe.
-- Showers: Perseids start-pass Earth-path checks; Venus and Mars panel and provenance; Geminids phone pass, loop-off, removed-switch and tail checks (Perseids owns them); long waits scaled to 60 percent.
-- Smoke no longer loads every experience, only the set's own.
-- Earlier trims (O-017, O-024, O-025): screenshots, contact sheet and `browser-earth-moon` (owner, 2026-10-18); the older one-off tools (`tools/archive/validate/`) were deleted in O-037 and live in git history.
-- Not cut yet: Showers (390 s) and the planets set (248 s before O-033's two scripts) are over the 240 s aim; owner accepted them as they are.
+The old "dropped, with reasons" list of O-034 is history: its dropped cases are now either a fast test above or the owner's look.
 
 ## The harness (`tools/validate/harness.mjs`)
 
-Every script gets its browser from the harness, never from `chromium.launch` (the guard fails it): `launchBrowser()` (software-rendering flags), `watchErrors(page, errors, label)` (page and console errors, the lines the runner counts) and `checkScript({ name, viewports }, run)` (launch, one page per viewport, error collection, close, `results.json`, non-zero exit). `browser-shell` and `browser-scale-menu` use `checkScript`; the other scripts use the two helpers and keep their own page pattern.
+Every script gets its browser from the harness, never from `chromium.launch` (the guard fails it): `launchBrowser()` (software-rendering flags), `watchErrors(page, errors, label)` (page and console errors, the lines the runner counts) and `checkScript({ name, viewports }, run)` (launch, one page per viewport, error collection, close, `results.json`, non-zero exit). The two journeys use `checkScript`; the smoke check uses the two helpers and keeps its own page pattern.
 
 ## The interface driver (`tools/validate/driver.mjs`)
 
@@ -79,7 +75,7 @@ Scripts never find or operate controls themselves. Each user action and readout 
 | Camera | `chooseCamera(page, presetId)` (for example `"overview"`, `"focus-columbia"`, `"follow-moon"`, `"whole-orbit"`), `pickBodyWithCamera`, `cameraOffered`, `cameraActive` |
 | Drawer | `toggleDeveloper`, `openDeveloper`, `closeDeveloper`, `developerOpen`, `pressToggle(id)`, `toggleOn(id)`, `setSlider(id)`, `dragSlider(id)`, `sliderReadout(id)`, `missionPanel`, `metric`, `copyViewLink`, `frameRate` |
 | Story panels | `storyPanel`, `storyMarkers`, `openStoryPanel`, `closeStoryPanel`, `pressSceneStoryMarker`, `openStoryPanelIds` |
-| Scale | `chooseScale`, `currentScale`, `scaleOptions`, `offersScale`, `scaleMenu` (the isolated menu harness) |
+| Scale | `chooseScale`, `currentScale`, `scaleOptions`, `offersScale` |
 
 
 Elements are found by accessible name or role, by a stable `data-*` attribute (`data-camera-preset`, `data-related-object`, `data-scale-current`) or `data-testid`; the few controls with none of those (the Events summary, the information panel, a few readout containers) are named once, in the `HOOK` table at the top of the driver. Camera, toggle and slider arguments are logical ids, not labels, so a renamed label changes one table.
