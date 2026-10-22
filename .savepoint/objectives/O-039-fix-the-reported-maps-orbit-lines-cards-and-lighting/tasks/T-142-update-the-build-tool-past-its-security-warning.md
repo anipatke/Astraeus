@@ -2,8 +2,7 @@
 id: T-142
 title: Update the build tool past its security warning
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-142
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the recheck of C-096 covers it."

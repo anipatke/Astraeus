@@ -2,8 +2,7 @@
 id: T-140
 title: Pass Europa's map record into the Jupiter view
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-140
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the recheck of C-096 covers it."

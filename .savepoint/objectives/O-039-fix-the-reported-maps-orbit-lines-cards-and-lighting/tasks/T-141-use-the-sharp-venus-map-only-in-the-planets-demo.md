@@ -2,8 +2,7 @@
 id: T-141
 title: Use the sharp Venus map only in the planets demo
 objective: O-039
-status: in_progress
-stage: audit
+status: done
 check_waiver:
   task: T-141
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the recheck of C-096 covers it."
