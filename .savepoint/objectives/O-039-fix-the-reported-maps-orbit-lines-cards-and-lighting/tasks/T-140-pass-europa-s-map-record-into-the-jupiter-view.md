@@ -71,3 +71,5 @@ Owner look on preview: pending. Open localhost:5490 Jupiter, focus Europa: Tyre 
 ## Drift Notes
 
 None expected.
+
+Owner look, 2026-10-23, on the localhost:5490 preview (Jupiter view, Europa focused; Tyre on its ringed scar, Pwyll on its rayed crater): "europa fine". Recorded by the coordinator on the owner's word.
