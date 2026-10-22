@@ -46,10 +46,35 @@ export interface FrameState {
   pickables: readonly PickCandidate[];
   /** The mouse's place over the canvas in CSS px while it hovers with no button down; null for touch, a drag or outside. */
   hoverPoint: { x: number; y: number } | null;
+  /** Whether the renderer should draw this frame (`decideDraw`). True until the first frame has decided. */
+  drawThisFrame: boolean;
+  /** Frames the renderer has drawn since mount (`data-frames-drawn`). */
+  framesDrawn: number;
+  /** Bumped by anything that can change the picture without the clock, camera or controls moving (a finished load, a restored context, a React render). */
+  wakes: number;
+  /** What the last drawn frame looked like, for `decideDraw`. */
+  readonly drawn: DrawnMemo;
+}
+
+/** What `decideDraw` remembers from frame to frame. */
+export interface DrawnMemo {
+  timeUtcMs: number;
+  /** Camera pose of the last frame the camera moved in: position, rotation, field of view and clipping planes. */
+  pose: number[];
+  size: string;
+  controls: Map<string, unknown>;
+  wakes: number;
+  mounted: number;
+  /** Frames since anything last asked for a draw. */
+  quietFrames: number;
 }
 
 export function createFrameState(policyId: ScalePolicy["id"]): FrameState {
-  return { started: false, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null };
+  return {
+    started: false, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
+    drawThisFrame: true, framesDrawn: 0, wakes: 0,
+    drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
+  };
 }
 
 /** The DOM layers the frame updates; each is absent until its host mounts it. */
@@ -244,6 +269,103 @@ export function placeLightsAndReadout(ctx: FrameContext, t: number, placed: Plac
   ctx.readout.current = buildFrameReadout({ pair: ctx.readoutPair, pairLabels: ctx.pairLabels, clock: runtime.clock, resolver: runtime.resolver, absoluteOf: placed.absoluteOf, timeUtcMs: t, policy: controls.policy, origin: ctx.origin });
 }
 
+/** Frames the scene keeps drawing after the last thing that moved: slow loads, a late React render and fades settle inside it. About half a second at 60 fps. */
+export const IDLE_GRACE_FRAMES = 30;
+/** The camera counts as still when it is within this of the last drawn pose (far below a pixel) and its tweens are within it of their targets. */
+const POSE_TOLERANCE = 1e-6;
+/** Controls fields that change every frame by themselves and say nothing about the picture. */
+const CONTROLS_IGNORED = new Set(["viewReadout"]);
+
+/** The plain facts `shouldDrawFrame` decides from. */
+export interface DrawInputs {
+  /** The clock is playing: time moves every frame. */
+  readonly clockPlaying: boolean;
+  /** The clock now reads a different time than at the last frame (a seek or a step). */
+  readonly timeChanged: boolean;
+  /** The camera moved since the last drawn pose, or is still tweening to its target (a flight, damping). */
+  readonly cameraMoving: boolean;
+  /** A setting, a size, a body mount or a wake changed since the last frame. */
+  readonly inputChanged: boolean;
+  /** Frames since any of the above was last true. */
+  readonly quietFrames: number;
+}
+
+/** The rule: draw while anything moves or changed, and for a short grace after; stop only when paused and idle. */
+export function shouldDrawFrame(inputs: DrawInputs): boolean {
+  const active = inputs.clockPlaying || inputs.timeChanged || inputs.cameraMoving || inputs.inputChanged;
+  return active || inputs.quietFrames < IDLE_GRACE_FRAMES;
+}
+
+/** Whether the camera's tweens have reached their targets. */
+export function cameraSettled(orbit: OrbitCameraState): boolean {
+  const turn = Math.atan2(Math.sin(orbit.targetAzimuth - orbit.azimuth), Math.cos(orbit.targetAzimuth - orbit.azimuth));
+  return Math.abs(orbit.targetDistance - orbit.distance) <= POSE_TOLERANCE * Math.max(1, orbit.distance)
+    && Math.abs(orbit.targetElevation - orbit.elevation) <= POSE_TOLERANCE
+    && Math.abs(turn) <= POSE_TOLERANCE
+    && orbit.transition.every((v) => Math.abs(v) <= POSE_TOLERANCE);
+}
+
+function poseOf(camera: PerspectiveCamera): number[] {
+  const { position: p, quaternion: q } = camera;
+  return [p.x, p.y, p.z, q.x, q.y, q.z, q.w, camera.fov, camera.near, camera.far];
+}
+
+function poseMoved(from: readonly number[], to: readonly number[]): boolean {
+  return from.length !== to.length || to.some((v, i) => Math.abs(v - from[i]) > POSE_TOLERANCE * Math.max(1, Math.abs(v)));
+}
+
+/** A flat settings object (a look) is read by value, because the Developer panel edits some in place; everything else by identity. */
+function isFlatObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+function shallowEqual(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
+}
+
+/** Whether any control differs from the last frame; remembers the new values. */
+function controlsChanged(controls: SceneControls, seen: Map<string, unknown>): boolean {
+  let changed = false;
+  const live = controls as unknown as Record<string, unknown>;
+  for (const key in live) {
+    if (CONTROLS_IGNORED.has(key)) continue;
+    const value = live[key];
+    const before = seen.get(key);
+    if (isFlatObject(value) && isFlatObject(before) && shallowEqual(value, before)) continue;
+    if (!isFlatObject(value) && before === value && seen.has(key)) continue;
+    seen.set(key, isFlatObject(value) ? { ...value } : value);
+    changed = true;
+  }
+  return changed;
+}
+
+/** Stage 8: reads the plain inputs of the draw rule from this frame and updates what is remembered. */
+export function readDrawInputs(ctx: FrameContext, t: number): DrawInputs {
+  const { state, camera, orbit, controls } = ctx;
+  const memo = state.drawn;
+  const pose = poseOf(camera);
+  const cameraMoving = !cameraSettled(orbit) || poseMoved(memo.pose, pose);
+  if (cameraMoving) memo.pose = pose;
+  const size = `${ctx.size.width}x${ctx.size.height}@${globalThis.devicePixelRatio ?? 1}`;
+  const mounted = ctx.bodyRefs.parts.size;
+  const inputChanged = controlsChanged(controls, memo.controls) || size !== memo.size || state.wakes !== memo.wakes || mounted !== memo.mounted;
+  memo.size = size;
+  memo.wakes = state.wakes;
+  memo.mounted = mounted;
+  const timeChanged = t !== memo.timeUtcMs;
+  memo.timeUtcMs = t;
+  const clockPlaying = ctx.runtime.clock.playing;
+  const active = clockPlaying || timeChanged || cameraMoving || inputChanged;
+  memo.quietFrames = active ? 0 : memo.quietFrames + 1;
+  return { clockPlaying, timeChanged, cameraMoving, inputChanged, quietFrames: memo.quietFrames };
+}
+
+/** Stage 8: decides whether the renderer draws this frame. */
+export function decideDraw(ctx: FrameContext, t: number): boolean {
+  return shouldDrawFrame(readDrawInputs(ctx, t));
+}
+
 /** One frame, in order. The caller has checked `bodiesMounted`. */
 export function runFrame(ctx: FrameContext): void {
   const t = frameTime(ctx.runtime, ctx.controls);
@@ -254,4 +376,5 @@ export function runFrame(ctx: FrameContext): void {
   const hoverGain = placeViews(ctx, t, placed, setLook);
   updateOverlays(ctx, t, step, hoverGain);
   placeLightsAndReadout(ctx, t, placed);
+  ctx.state.drawThisFrame = decideDraw(ctx, t);
 }
