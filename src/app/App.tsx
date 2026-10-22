@@ -10,7 +10,7 @@ import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGr
 import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { scaleFromSearch, timeFromSearch, viewFromSearch, viewLinkSearch, type StartView } from "./viewLink";
+import { scaleFromSearch, timeFromSearch, viewFromSearch, shareViewLink, type StartView } from "./viewLink";
 import { Collapsible } from "../shell/Collapsible";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./DeveloperSettings";
@@ -309,12 +309,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
   const copyViewLink = async () => {
     const view = controls.current.viewReadout;
     if (view === undefined) return;
-    const search = viewLinkSearch(window.location.search, { view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs });
-    try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
-    const url = `${window.location.origin}${window.location.pathname}${search}`;
-    let copied = false;
-    try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
-    setViewLink({ url, copied });
+    setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
   };
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (

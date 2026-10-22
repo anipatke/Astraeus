@@ -100,3 +100,15 @@ export function viewLinkSearch(search: string, state: { view: StartView; scaleId
   params.set("t", new Date(Math.round(state.timeUtcMs / 1000) * 1000).toISOString());
   return `?${params.toString().replace(/%2C/gi, ",").replace(/%3A/gi, ":")}`;
 }
+
+/**
+ * Writes the view link into the address (so a reload keeps the view), then copies the full link. `copied` is false when the clipboard refuses; the caller then shows the link to copy by hand.
+ */
+export async function shareViewLink(state: { view: StartView; scaleId: string; up: string; timeUtcMs: number }): Promise<{ readonly url: string; readonly copied: boolean }> {
+  const search = viewLinkSearch(window.location.search, state);
+  try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
+  const url = `${window.location.origin}${window.location.pathname}${search}`;
+  let copied = false;
+  try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
+  return { url, copied };
+}

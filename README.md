@@ -133,11 +133,10 @@ npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 npm install
 npx playwright-core install chromium   # once
 npm test                               # unit tests
-npm run check:engine                   # browser checks for the engine, about 5 minutes
-npm run check:demo -- apollo           # optional: one demo's checks (apollo, showers or planets)
+npm run check:browser                  # the one quick browser check, under a minute
 ```
 
-The engine set runs on made-up scenes and needs no demo. Each run writes logs to a new folder under `docs/evidence/`. What each script asserts is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
+The browser check loads every public page and demo view and runs two short journeys. Each run writes its results to a new folder under `docs/evidence/`. What it asserts, and where every older browser scenario went, is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
 
 Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
 

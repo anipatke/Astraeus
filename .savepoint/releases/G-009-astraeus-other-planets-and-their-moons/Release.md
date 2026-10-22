@@ -1,7 +1,7 @@
 ---
 id: G-009
 title: Astraeus other planets and their moons
-status: in_progress
+status: done
 ---
 
 ## Outcome

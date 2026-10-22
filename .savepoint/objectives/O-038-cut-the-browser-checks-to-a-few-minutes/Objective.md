@@ -2,9 +2,15 @@
 id: O-038
 title: Cut the browser checks to a few minutes
 status: planned
-depends_on: [O-037, O-039]
+depends_on: [O-039]
 release: G-007
 priority: high
+lanes:
+  - {key: dom, title: Screen parts in fast tests}
+  - {key: scene, title: Scene sums in fast tests}
+  - {key: demos, title: Demo rules in fast tests}
+  - {key: browser, title: One browser command}
+  - {key: close, title: Retire, map and rules}
 ---
 
 # O-038: Cut the browser checks to a few minutes
@@ -32,6 +38,9 @@ The tree is an inverted test pyramid at the top: 26 browser scripts in the engin
 
 1. **Journeys**: "Planets on a phone" (switch planet, focus a moon, open a place card at phone size) and "Play a meteor shower" (play, seek, a story panel opens). Apollo and desktop controls get no journey; the smoke check still opens their pages.
 2. **Screen-level proofs** (drawers, panels, info cards): "Fast tests with a light pretend-page": a DOM test environment in the fast suite, overriding O-037's out-of-scope note; exact layout and overlap stay with the owner's look on the preview.
+3. **On-request scripts** (owner, 2026-10-23, asked "why are these browser scripts? feel like the wrong approach?"): the six that check computed numbers (precision far from the Sun, sky fixed under camera moves, Sun halo size, marker swap, eccentric-orbit framing, marker rule on existing scenes) become fast tests; all seven on-request scripts are retired, the phone frame-time probe included (a measuring tool, kept in git history).
+4. **Plan** (owner chose "Yes, write these steps", 2026-10-23): five steps; screen parts, scene sums and the browser command can run side by side in lanes; demo rules wait for the pretend-page set-up; retirement, mapping, rules and the three timed runs come last. The pretend page is `happy-dom` as a dev dependency, switched on per test file (`// @vitest-environment happy-dom`) so the rest of the suite stays on `node`.
+5. **Dependency** (owner, 2026-10-23, "Stop waiting on it"): O-037 is dropped from `depends_on`; it closed by owner exception (browser-set timing), which this Objective replaces. O-039 stays.
 
 ## Architectural Considerations
 
