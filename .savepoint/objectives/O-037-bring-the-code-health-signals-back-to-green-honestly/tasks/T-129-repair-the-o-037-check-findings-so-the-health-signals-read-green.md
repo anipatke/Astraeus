@@ -2,8 +2,7 @@
 id: T-129
 title: Repair the O-037 check findings so the health signals read green
 objective: O-037
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 check_waiver:
@@ -78,3 +77,5 @@ Built 2026-10-22 by the T-129 builder; Task Check waived by the owner (`check_wa
 7. Gates: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (junit written) all pass; one first `npm test` failure (`tests/nameCheck.test.ts`: the word "sun" in a new type) was fixed by retyping and rerun green.
 
 ## Drift Notes
+
+Owner, 2026-10-22, after a phone-size look on the preview at Io (Loki Patera marker) and a general look at the scene: "both fine, mark it done and run the recheck". Coordinator set status done on that instruction.
