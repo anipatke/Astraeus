@@ -1,7 +1,7 @@
 ---
 id: O-039
 title: Fix the reported maps, orbit lines, cards and lighting
-status: in_progress
+status: done
 depends_on: []
 release: G-007
 priority: high
