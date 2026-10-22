@@ -2,7 +2,8 @@
 id: T-131
 title: Turn the other moon maps and put Titan's places on their terrain
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-131
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
@@ -63,7 +64,22 @@ Focused node tests during iteration; configured gates at handoff; owner's look o
 
 ## Technical Evidence
 
-Pending execution.
+### Evidence (builder, 2026-10-22, lane-t131)
+
+Criteria:
+- Turns: `Math.PI` set for Europa, Callisto (`galileanMoons.ts`), Pluto, Tethys, Dione, Rhea, Titan (`planetSystemMaps.ts`); Ganymede 0; others untouched. Pinned in `tests/mapOrientation.test.ts` ("T-131: moon maps centred on 180 E turn half a revolution").
+- Titan conversion: `shownLongitude` (`surfacePlace.mjs`/`.d.mts`) called from `placedFeatures` (`planetDefinition.ts`); `packagesOf` and the Saturn glob now carry `map.json`. Keyed by the map record's `coordinates` (positive-west source, marker scale 1 offset 0), no Titan name in code. `data/bodies/titan/features.json` unchanged (`git diff` empty). Wiring pinned in `tests/planetDefinition.test.ts`.
+- Longitudes: all looked up 2026-10-22 on the USGS Gazetteer (ids and values in `tests/mapOrientation.test.ts` comments and `docs/DONOR_PROVENANCE.md`). Titan: Xanadu 15 S 100 W [6958], Ontario Lacus 72 S 183 W [7003]. Huygens landing site is not in the Gazetteer; used Wikipedia's 10.573 S 192.335 W (stored 192.3 is that west value, so the conversion is right for it).
+- `docs/DONOR_PROVENANCE.md` updated.
+
+Deviations and findings for the owner:
+- Europa: only Pwyll and Conamara Chaos are pinned. Pwyll (271 W) and Conamara (273 W) cannot tell the west-direct frame from the 180 - W frame, because both lie near 270 W; Tyre (stored 147, Gazetteer 146.6 W [lookup 2026-10-22]) shows the donor stored Europa's west values directly, which puts Tyre about 114 degrees from its terrain. Europa's places therefore likely have the same defect as Titan's (the audit judged it from Pwyll alone). Not fixed: out of this Task's scope (Titan only). Needs an Issue or a follow-up Task; I may not create one in a lane.
+- Tolerances: Europa 8 degrees (Conamara stored 274 vs Gazetteer-derived 267), Pluto 6 (Sputnik stored -5, gazetteer 178.69 E), others 3.
+- Pluto's Gazetteer record is planetocentric +East (all others planetographic +West); the test uses the east value negated.
+
+Gates (lane dir): lint pass; typecheck pass; build pass (chunk size warning only); `npm test` pass (see final run below).
+
+Owner look on preview: pending. On localhost:5490 (Planets demo, switch to Saturn): Titan: Xanadu's marker should sit on the large bright region, Ontario Lacus' marker on the dark southern lake patch, the Huygens landing site marker on the dark plains west of Xanadu. Ganymede: Tros/Osiris markers on their craters (should look as before, with the globe now facing 0 E). One of Tethys/Dione/Rhea: the dark trailing hemisphere should be on the side away from motion; Europa/Callisto: Pwyll's rayed crater and Valhalla's rings under their markers.
 
 ## Drift Notes
 

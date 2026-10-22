@@ -44,10 +44,10 @@ const texture = (url: string, licence: AssetLicence): TextureRef => Object.freez
 const LIGHT = Object.freeze({ ambient: 0.08, directional: 1.4 });
 const visual = (tex: TextureRef, material: BodyMaterialConfig, textureYawRad: number): BodyVisual => Object.freeze({ kind: "sphere", texture: tex, material: Object.freeze(material), textureYawRad, light: LIGHT });
 
-export const EUROPA_VISUAL = visual(texture(europaTextureUrl, EUROPA_TEXTURE_LICENCE), { color: "#c8b898", roughness: 0.96, metalness: 0 }, 0);
-/** The donor's Ganymede picture is recentred by 180 degrees against the mosaic (data/bodies/ganymede/map.json textureRecentringDeg), so it is turned back half a turn to share Io's convention. */
-export const GANYMEDE_VISUAL = visual(texture(ganymedeTextureUrl, GANYMEDE_TEXTURE_LICENCE), { color: "#887868", roughness: 0.95, metalness: 0 }, Math.PI);
-export const CALLISTO_VISUAL = visual(texture(callistoTextureUrl, CALLISTO_TEXTURE_LICENCE), { color: "#606070", roughness: 0.97, metalness: 0 }, 0);
+export const EUROPA_VISUAL = visual(texture(europaTextureUrl, EUROPA_TEXTURE_LICENCE), { color: "#c8b898", roughness: 0.96, metalness: 0 }, Math.PI);
+/** The donor's Ganymede picture is recentred by 180 degrees against the mosaic (data/bodies/ganymede/map.json textureRecentringDeg), so it is centred on 0 E like Io's and needs no turn (O-039 T-131). Europa and Callisto are centred on 180 E and turn half a revolution. */
+export const GANYMEDE_VISUAL = visual(texture(ganymedeTextureUrl, GANYMEDE_TEXTURE_LICENCE), { color: "#887868", roughness: 0.95, metalness: 0 }, 0);
+export const CALLISTO_VISUAL = visual(texture(callistoTextureUrl, CALLISTO_TEXTURE_LICENCE), { color: "#606070", roughness: 0.97, metalness: 0 }, Math.PI);
 
 export const GALILEAN_ENTRIES = Object.freeze([
   Object.freeze({ body: EUROPA.id, visual: EUROPA_VISUAL }),
