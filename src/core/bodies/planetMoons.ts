@@ -37,7 +37,7 @@ export const NEPTUNE_MOON_SYSTEM = createMoonSystem({
   loadIndex: async () => (await import("../../../data/ephemerides/neptune-moons/index.json")).default as unknown,
 });
 export const PLUTO_MOON_SYSTEM = createMoonSystem({
-  centre: "pluto", centreLabel: "Pluto", centreGmKm3S2: PLUTO.gmKm3S2!, ephemerisName: "plu060_merged", fitSource: moonFitSource("Pluto"),
+  centre: "pluto", centreLabel: "Pluto", centreGmKm3S2: PLUTO.gmKm3S2!, balancePoint: { body: "charon", gmKm3S2: 106.10 }, ephemerisName: "plu060_merged", fitSource: moonFitSource("Pluto"),
   loadIndex: async () => (await import("../../../data/ephemerides/pluto-moons/index.json")).default as unknown,
 });
 

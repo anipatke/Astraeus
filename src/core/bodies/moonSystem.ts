@@ -8,7 +8,7 @@ import type { BodyId, CelestialBodyDefinition, CenterId, StateSourceBinding } fr
 import { moonOrientationFromOrbit } from "../bodyOrientation";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
-import { osculatingPeriodS } from "../orbitPeriod";
+import { type BalancePoint, periodAboutBalanceS } from "../orbitPeriod";
 import { createProvenance } from "../provenance";
 import { assertUtcUnixMs, createState, type State } from "../state";
 import type { TimeBounds, Trajectory } from "../trajectory";
@@ -21,6 +21,8 @@ export interface MoonSystemConfig {
   readonly centre: BodyId;
   readonly centreLabel: string;
   readonly centreGmKm3S2: number;
+  /** A big moon the centre circles with (Pluto and Charon): orbit periods and lines are worked out about their balance point (I-056). Absent: the centre. */
+  readonly balancePoint?: BalancePoint;
   /** Horizons' name of the ephemeris the system's moons come from, for the position record. */
   readonly ephemerisName: string;
   readonly fitSource: string;
@@ -131,7 +133,8 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
 
   const osculatingPeriodMs = (set: ChebyshevEphemeris, body: BodyId, timeUtcMs: number): number => {
     const state = set.stateOf(body, timeUtcMs);
-    return 1000 * osculatingPeriodS(state.positionKm, state.velocityKmS!, config.centreGmKm3S2);
+    const partner = config.balancePoint === undefined ? state : set.stateOf(config.balancePoint.body, timeUtcMs);
+    return 1000 * periodAboutBalanceS(state.positionKm, state.velocityKmS!, config.centreGmKm3S2, config.balancePoint, body === config.balancePoint?.body, partner.positionKm, partner.velocityKmS!);
   };
 
   const trajectory = (body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory => Object.freeze({

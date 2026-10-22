@@ -24,6 +24,7 @@ export const plutoSystem: PlanetSystem = {
   fitSource: PLUTO_MOON_SYSTEM.config.fitSource,
   tidalLockNote: PLUTO_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: PLUTO_MOON_SYSTEM.config.centreGmKm3S2,
+  balancePoint: PLUTO_MOON_SYSTEM.config.balancePoint,
   fitErrorsM: plutoFitErrors,
   packages: packagesOf(PACKAGES, ["pluto", "charon"]),
   load: async (window) => { await PLUTO_MOON_SYSTEM.load({ window, bodies: PLUTO_MOON_IDS, chunkUrls: PLUTO_CHUNK_URLS }); },

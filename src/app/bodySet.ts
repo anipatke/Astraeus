@@ -2,6 +2,7 @@
 // hover, tap or near zoom, and one batch of orbit lines coloured by family. Generic: the members, families and colours are the experience's.
 import type { BodyId } from "../core/body";
 import type { EphemerisGroup } from "../core/ephemerisGroup";
+import type { BalancePoint } from "../core/orbitPeriod";
 
 export interface BodySetMember {
   readonly id: BodyId;
@@ -36,6 +37,11 @@ export interface BodySetLayer {
   readonly extraOrbits?: { readonly group: EphemerisGroup; readonly families: readonly string[] };
   /** Gravitational parameter of the set's centre, km^3/s^2: it sizes each orbit line to about one orbital period of the member's own path. */
   readonly centreGmKm3S2: number;
+  /**
+   * A member (or extra-orbit body) the centre circles with: the other members' orbit lines are drawn about the balance point and each line's period
+   * is worked out about it, so a line is one round lap. The line is moved to end at its body, so the body is always on it. Absent: about the centre.
+   */
+  readonly balancePoint?: BalancePoint;
 }
 
 /** The live look of a body set (Developer > Display settings). Presentation only. */
