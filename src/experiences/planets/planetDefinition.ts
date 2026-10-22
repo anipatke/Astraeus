@@ -11,6 +11,7 @@ import type { SystemComposition } from "../../assets/compositions";
 import type { ChebyshevEphemeris } from "../../core/chebyshevEphemeris";
 import { createEphemerisGroup } from "../../core/ephemerisGroup";
 import { createEvents } from "../../core/events";
+import type { BalancePoint } from "../../core/orbitPeriod";
 import { createProvenance, type Provenance } from "../../core/provenance";
 import type { TimeBounds } from "../../core/trajectory";
 import { bodyFeatureSet, type BodyFeature, type BodyFeatureCategory } from "../../shell/bodyFeatures";
@@ -47,6 +48,8 @@ export interface PlanetSystem {
   /** Said of every mapped moon whose face is held towards the planet. */
   readonly tidalLockNote?: string;
   readonly centreGmKm3S2?: number;
+  /** The big moon the planet circles with, when it names one (Pluto and Charon): orbit lines are drawn about their balance point. */
+  readonly balancePoint?: BalancePoint;
   /** Each moon's worst measured error against Horizons (m), from its fit index. When given, a dot moon's accuracy text states its own figure; when not, the text states the fit target (1 m). */
   readonly fitErrorsM?: Readonly<Record<string, number>>;
   readonly rings?: NonNullable<VisualOverride["rings"]>;
@@ -102,7 +105,7 @@ function moonListOf(settings: PlanetSettings, system: PlanetSystem): MoonListPar
 }
 
 /** The planet's dot moons as one body set: the layer the scene draws in one batch. Undefined when there is no dot moon and no mapped moon to batch an orbit line for. */
-function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<PlanetSystem, "composition" | "fitErrorsM">): BodySetLayer | undefined {
+function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<PlanetSystem, "composition" | "fitErrorsM" | "balancePoint">): BodySetLayer | undefined {
   const mapped = new Set(system.composition.bodies);
   const dots = system.catalogue.moons.filter((moon) => !mapped.has(moon.id));
   const mappedMoons = system.catalogue.moons.filter((moon) => mapped.has(moon.id));
@@ -124,6 +127,7 @@ function planetMoonLayer(settings: PlanetSettings, system: MoonListParts & Pick<
       families: batched.map((moon) => moon.family),
     } }),
     centreGmKm3S2: system.centreGmKm3S2,
+    ...(system.balancePoint === undefined ? {} : { balancePoint: system.balancePoint }),
   };
 }
 
@@ -159,7 +163,7 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
   const mappedMoons = settings.moons?.mapped ?? [];
   validatePlanetSystem(settings, system, moonList);
 
-  const layer = list === undefined ? undefined : planetMoonLayer(settings, { ...list, composition: system.composition, fitErrorsM: system.fitErrorsM });
+  const layer = list === undefined ? undefined : planetMoonLayer(settings, { ...list, composition: system.composition, fitErrorsM: system.fitErrorsM, balancePoint: system.balancePoint });
   const dots = moonList === undefined ? [] : moonList.moons.filter((moon) => !mappedIds.has(moon.id));
 
   // The Horizons list the moons come from: its date is the list's asOf and its count is the moons the data holds (never typed in).

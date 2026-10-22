@@ -6,7 +6,7 @@
 // places). Every sample sits at a whole multiple of its path's fixed step, so the line does not shift as the clock runs (owner, 2026-10-18).
 // Named deviation from the composition lines: no trailing arc.
 import { BufferAttribute, BufferGeometry, Color, Group, LineSegments, ShaderMaterial, Vector3, type Camera } from "three";
-import { osculatingPeriodS } from "../core/orbitPeriod";
+import { balanceShare, meanPeriodS, periodAboutBalanceS } from "../core/orbitPeriod";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { familyColorOf, familyGainOf, MAX_BODY_SET_FAMILIES, type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -64,6 +64,11 @@ interface PathSource {
   positionInto(timeUtcMs: number, out: Float64Array, offset: number): void;
   loadedFrom(timeUtcMs: number): number | null;
   periodMs(timeUtcMs: number): number;
+  /**
+   * Set when the line is drawn about the set's balance point: writes the move (km) from the centre-relative frame to the balance-point frame at a
+   * time. `positionInto` then returns balance-point-frame places; the view draws them moved back by the move at the clock time, so the body is on its line.
+   */
+  moveInto?(timeUtcMs: number, out: Float64Array, offset: number): void;
 }
 
 /** How far a line is from its body on screen, for the checks. */
@@ -104,6 +109,8 @@ export class OrbitSetView {
   readonly #spanMs: Float64Array;
   readonly #loadedFromMs: Float64Array;
   readonly #headKm: Float64Array;
+  /** Each path's move (km) at the clock time, for a line drawn about a balance point; zero for the others. */
+  readonly #moveKm: Float64Array;
   /** Each head's fine points (km about the centre) from the path's last sample on, at whole multiples of the fine step: the first's index, and how many. */
   readonly #fineKm: Float64Array;
   readonly #fineFrom: Float64Array;
@@ -121,14 +128,42 @@ export class OrbitSetView {
 
   constructor(readonly layer: BodySetLayer, readonly samples: number = ORBIT_SET_SAMPLES) {
     const extra = layer.extraOrbits;
+    const partnerKm3 = new Float64Array(3);
     const gm = layer.centreGmKm3S2;
-    const fromGroup = (group: BodySetLayer["group"], index: number, family: string): PathSource => ({
-      family,
-      id: group.members[index],
-      positionInto: (t, out, offset) => group.memberPositionKmInto(index, t, out, offset),
-      loadedFrom: (t) => group.memberLoadedFromUtcMs(index, t),
-      periodMs: (t) => { const state = group.memberStateAt(index, t); return 1000 * osculatingPeriodS(state.positionKm, state.velocityKmS ?? [0, 0, 0], gm); },
-    });
+    const balance = layer.balancePoint;
+    const partnerGroup = balance === undefined ? undefined : [layer.group, extra?.group].find((candidate) => candidate?.members.includes(balance.body));
+    if (balance !== undefined && partnerGroup === undefined) throw new RangeError(`body set "${layer.id}" names the balance point body "${balance.body}", which is not one of its orbit bodies`);
+    const partnerIndex = balance === undefined ? -1 : partnerGroup!.members.indexOf(balance.body);
+    const share = balance === undefined ? 0 : balanceShare(gm, balance);
+    const partnerKm = new Float64Array(3);
+    const fromGroup = (group: BodySetLayer["group"], index: number, family: string): PathSource => {
+      const isPartner = balance !== undefined && group.members[index] === balance.body;
+      const moves = balance !== undefined && !isPartner;
+      const moveInto = (t: number, out: Float64Array, offset: number): void => {
+        partnerGroup!.memberPositionKmInto(partnerIndex, t, partnerKm, 0);
+        for (let k = 0; k < 3; k += 1) out[offset + k] = -share * partnerKm[k];
+      };
+      const source: PathSource = {
+        family,
+        id: group.members[index],
+        positionInto: (t, out, offset) => {
+          group.memberPositionKmInto(index, t, out, offset);
+          if (!moves) return;
+          moveInto(t, partnerKm3, 0);
+          for (let k = 0; k < 3; k += 1) out[offset + k] += partnerKm3[k];
+        },
+        loadedFrom: (t) => group.memberLoadedFromUtcMs(index, t),
+        periodMs: (t) => {
+          const state = group.memberStateAt(index, t);
+          const partner = balance === undefined ? state : partnerGroup!.memberStateAt(partnerIndex, t);
+          const osculatingS = periodAboutBalanceS(state.positionKm, state.velocityKmS ?? [0, 0, 0], gm, balance, isPartner, partner.positionKm, partner.velocityKmS ?? [0, 0, 0]);
+          // About a balance point the osculating period is off by several percent (the binary's pull is not a point's), so the line spans the mean lap instead.
+          return 1000 * (balance === undefined ? osculatingS : meanPeriodS((at, out) => source.positionInto(at, out, 0), t, osculatingS));
+        },
+        ...(moves ? { moveInto } : {}),
+      };
+      return source;
+    };
     this.#sources = [
       ...layer.members.map((member, index) => fromGroup(layer.group, index, member.family)),
       ...(extra === undefined ? [] : extra.families.map((family, index) => fromGroup(extra.group, index, family))),
@@ -141,6 +176,7 @@ export class OrbitSetView {
     this.#spanMs = new Float64Array(n);
     this.#loadedFromMs = new Float64Array(n);
     this.#headKm = new Float64Array(n * 3);
+    this.#moveKm = new Float64Array(n * 3);
     this.#fineKm = new Float64Array(n * (HEAD_FINE_POINTS + 1) * 3);
     this.#fineFrom = new Float64Array(n).fill(Number.NaN);
     this.#fineCount = new Int32Array(n);
@@ -218,19 +254,24 @@ export class OrbitSetView {
   /** Path `index`'s head (km about the centre): its fine points from the path's last sample on, then the body's place at the last sync. */
   headPointsKm(index: number): [number, number, number][] {
     const base = 3 * index * (HEAD_FINE_POINTS + 1);
-    const points = Array.from({ length: this.#fineCount[index] }, (_, i): [number, number, number] => [this.#fineKm[base + 3 * i], this.#fineKm[base + 3 * i + 1], this.#fineKm[base + 3 * i + 2]]);
+    const points = Array.from({ length: this.#fineCount[index] }, (_, i): [number, number, number] => this.#drawnKm(this.#fineKm, base + 3 * i, index));
     return [...points, this.headKm(index)];
   }
 
   /** Sample `sample` of path `index` (km about the centre) as last sampled; the last is the body's place when it was sampled. */
   pointKm(index: number, sample: number): [number, number, number] {
     const at = 3 * (index * this.samples + sample);
-    return [this.#pathKm[at], this.#pathKm[at + 1], this.#pathKm[at + 2]];
+    return this.#drawnKm(this.#pathKm, at, index);
   }
 
   /** The body's place (km about the centre) at the last sync: the head of its line. */
   headKm(index: number): [number, number, number] {
-    return [this.#headKm[3 * index], this.#headKm[3 * index + 1], this.#headKm[3 * index + 2]];
+    return this.#drawnKm(this.#headKm, 3 * index, index);
+  }
+
+  /** A stored point of path `m` as drawn (km about the centre): the move to its balance-point frame taken back off. */
+  #drawnKm(km: Float64Array, at: number, m: number): [number, number, number] {
+    return [km[at] - this.#moveKm[3 * m], km[at + 1] - this.#moveKm[3 * m + 1], km[at + 2] - this.#moveKm[3 * m + 2]];
   }
 
   /**
@@ -248,7 +289,10 @@ export class OrbitSetView {
     this.#unitsPerKm = policy.linearUnitsPerKm;
     this.#policy = policy;
     const n = this.count;
-    for (let m = 0; m < n; m += 1) this.#sources[m].positionInto(timeUtcMs, this.#headKm, 3 * m);
+    for (let m = 0; m < n; m += 1) {
+      this.#sources[m].positionInto(timeUtcMs, this.#headKm, 3 * m);
+      this.#sources[m].moveInto?.(timeUtcMs, this.#moveKm, 3 * m);
+    }
     const whole = policy.id !== this.#policyId;
     this.#policyId = policy.id;
     let budget = ORBITS_PER_FRAME;
@@ -264,7 +308,11 @@ export class OrbitSetView {
         this.#cursor = (m + 1) % n;
       }
     }
-    for (let m = 0; m < n; m += 1) this.#syncHead(m, timeUtcMs);
+    for (let m = 0; m < n; m += 1) {
+      this.#syncHead(m, timeUtcMs);
+      // A line about a balance point is moved with the clock so it keeps ending at its body.
+      if (this.#sources[m].moveInto !== undefined) this.#mapPath(m, policy);
+    }
   }
 
   /** Path `m`'s fixed sample step (ms), worked out from the body's period the first time it is asked for. */
@@ -323,17 +371,20 @@ export class OrbitSetView {
   }
 
   /** Scaled render-axis position, relative to the mapped centre, of a point given in km about the centre. */
-  #mapped(policy: ScalePolicy, km: Float64Array, at: number, out: Float32Array | Float64Array, to: number): void {
+  #mapped(policy: ScalePolicy, km: Float64Array, at: number, out: Float32Array | Float64Array, to: number, m: number): void {
     const linear = this.#unitsPerKm;
+    const mx = this.#moveKm[3 * m];
+    const my = this.#moveKm[3 * m + 1];
+    const mz = this.#moveKm[3 * m + 2];
     if (linear !== undefined) {
       // A policy that only scales: the mapped centre cancels, and the render axes are (x, z, -y) of EQJ (eqjToRenderVector).
-      out[to] = km[at] * linear;
-      out[to + 1] = km[at + 2] * linear;
-      out[to + 2] = -km[at + 1] * linear;
+      out[to] = (km[at] - mx) * linear;
+      out[to + 1] = (km[at + 2] - mz) * linear;
+      out[to + 2] = -(km[at + 1] - my) * linear;
       return;
     }
     const [cx, cy, cz] = this.#centreKm;
-    const render = eqjToRenderVector(policy.mapPosition([km[at] + cx, km[at + 1] + cy, km[at + 2] + cz]));
+    const render = eqjToRenderVector(policy.mapPosition([km[at] - mx + cx, km[at + 1] - my + cy, km[at + 2] - mz + cz]));
     out[to] = render[0] - this.#centre[0];
     out[to + 1] = render[1] - this.#centre[1];
     out[to + 2] = render[2] - this.#centre[2];
@@ -358,8 +409,8 @@ export class OrbitSetView {
     const size = this.#sizeOf(m, policy);
     for (let i = 0; i < segments; i += 1) {
       const v = 2 * (m * segments + i);
-      this.#mapped(policy, this.#pathKm, 3 * (m * s + i), out, 3 * v);
-      this.#mapped(policy, this.#pathKm, 3 * (m * s + i + 1), out, 3 * v + 3);
+      this.#mapped(policy, this.#pathKm, 3 * (m * s + i), out, 3 * v, m);
+      this.#mapped(policy, this.#pathKm, 3 * (m * s + i + 1), out, 3 * v + 3, m);
       sizes[v] = size;
       sizes[v + 1] = size;
     }
@@ -375,8 +426,8 @@ export class OrbitSetView {
     const sizes = this.#headSizes.array as Float32Array;
     const pathSizes = this.#pathSizes.array as Float32Array;
     const point = this.#scratch;
-    const put = (km: Float64Array, at: number, v: number): void => {
-      this.#mapped(policy, km, at, point, 0);
+    const put = (km: Float64Array, at: number, v: number, m: number): void => {
+      this.#mapped(policy, km, at, point, 0, m);
       out[3 * v] = point[0] + local[0];
       out[3 * v + 1] = point[1] + local[1];
       out[3 * v + 2] = point[2] + local[2];
@@ -388,11 +439,11 @@ export class OrbitSetView {
       const count = this.#fineCount[m];
       let v = first;
       for (let i = 0; i + 1 < count; i += 1) {
-        put(this.#fineKm, base + 3 * i, v++);
-        put(this.#fineKm, base + 3 * (i + 1), v++);
+        put(this.#fineKm, base + 3 * i, v++, m);
+        put(this.#fineKm, base + 3 * (i + 1), v++, m);
       }
-      put(this.#fineKm, base + 3 * (count - 1), v++);
-      put(this.#headKm, 3 * m, v++);
+      put(this.#fineKm, base + 3 * (count - 1), v++, m);
+      put(this.#headKm, 3 * m, v++, m);
       for (; v < end; v += 1) {
         out[3 * v] = out[3 * (v - 1)];
         out[3 * v + 1] = out[3 * (v - 1) + 1];
