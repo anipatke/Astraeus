@@ -2,7 +2,8 @@
 id: T-142
 title: Update the build tool past its security warning
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-142
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the recheck of C-096 covers it."
@@ -59,7 +60,15 @@ Configured gates plus `npm run test:full` and a public build. Evaluated by the r
 
 ## Technical Evidence
 
-Pending execution.
+Advisories (GitHub advisory API): all six findings against vite 8.3.2 are fixed in vite 8.3.3 (GHSA-587h-7wmj-h5pm, GHSA-698v-4r3x-3vcv and GHSA-r825-w8mm-5pxw are the launch-editor ones, patched in vite 8.3.3 and launch-editor 2.14.2; the other three npm audit reported, GHSA-9jrq-w75r-8gcw, GHSA-rq7h-c2jc-7f22, GHSA-vfpm-58rq-9qcg, also 8.3.3). Latest 8.3.x is 8.3.5, installed with `npm install --save-exact vite@8.3.5` (exact pin kept, as before).
+
+`npm audit` before (vite 8.3.2): 1 high severity vulnerability (vite 8.3.0 - 8.3.2, six advisories above). After (vite 8.3.5): found 0 vulnerabilities.
+
+Changes: package.json (vite 8.3.2 -> 8.3.5) and package-lock.json (vite plus the rolldown packages it pulls; no other manual bumps; typescript-eslint shim and overrides untouched).
+
+Gates, from a lane with its own `npm ci` node_modules: lint pass; typecheck pass; build pass (under flock); `npm run test:full` 99 files, 1335 passed, 1 skipped, 0 failures (junit tests=1336 failures=0); public build (ASTRAEUS_PUBLIC_BUILD=1 vite build to a scratch outDir under /tmp) then `node tools/validate/public-build-assets.mjs`: ok true, 102 checked.
+
+Owner look on preview: pending. Nothing visual should change; open localhost:5490 after the merge and confirm the app still loads and the planets demo shows Jupiter.
 
 ## Drift Notes
 
