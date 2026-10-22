@@ -2,13 +2,19 @@
 id: I-057
 title: Ten body maps face the wrong way, and Titan's and Venus's tagged places sit on the wrong terrain
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
   at: '2026-10-21T22:40:00Z'
 tasks: []
 severity: high
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o039-planning-20261022}
+  at: '2026-10-22T10:45:00Z'
+  reason: Owner asked for one repair Objective for the five owner-reported defects before O-038 (2026-10-22).
+escalated_to: O-039
 history:
   - at: '2026-10-21T22:40:00Z'
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
@@ -18,6 +24,10 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: observed
     note: 'Read-only audit of 24 textured bodies, each drawn map viewed with its features.json markers overlaid (docs/evidence/map-audit-20261021/report.md): 12 OK, 10 wrong, 2 unchecked (Sun; Enceladus physical centre). Venus: wrong map file (I-054). Titan: donor stores west longitudes but the image runs 360W to 0W, so markers need 180 minus W (Xanadu ~20 degrees off, Huygens ~180 off) and the globe needs a yaw of PI. Europa, Callisto, Pluto, Tethys, Dione, Rhea, Iapetus: map centred on 180E with textureYawRad 0, so markers sit on the right terrain but the globe faces the wrong way in the sky; need yaw PI. Ganymede: donor map already re-centred to 0E, so GANYMEDE_VISUAL yaw PI (src/core/bodies/galileanMoons.ts:47) turns it wrongly; should be 0. Assumes mesh +X is IAU longitude 0 (confirmed only for Earth and Moon). Some reference longitudes (Pwyll, Valhalla, Xanadu, Huygens, Tros, Osiris) were quoted from memory or the donor README, not looked up. Astraeus draws 2k/4k where the donor has 8k desktop variants for Mars, Mercury and Venus.'
+  - at: '2026-10-22T10:45:00Z'
+    actor: {role: planner, session: o039-planning-20261022}
+    kind: escalated
+    note: 'Repair promoted into O-039 (G-007), planned 2026-10-22 with the owner''s decisions recorded there.'
 ---
 
 # I-057: Ten body maps face the wrong way, and Titan's and Venus's tagged places sit on the wrong terrain

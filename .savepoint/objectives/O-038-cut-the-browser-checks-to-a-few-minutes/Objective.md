@@ -2,7 +2,7 @@
 id: O-038
 title: Cut the browser checks to a few minutes
 status: planned
-depends_on: [O-037]
+depends_on: [O-037, O-039]
 release: G-007
 priority: high
 ---
@@ -42,5 +42,5 @@ Logic proofs move to node tests against the plain modules (`sceneFrame.ts` stage
 
 **Out of scope:**
 - Any change to what visitors see (G-007 boundary)
-- The owner-reported defects I-054 to I-058 (their own repair Objective)
+- The owner-reported defects I-054 to I-058 (their own repair Objective, O-039)
 - Visual regression or screenshot testing (owner rule: no screenshots)

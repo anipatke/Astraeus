@@ -2,12 +2,18 @@
 id: I-058
 title: Some planet and moon information cards mix two fonts
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
   at: '2026-10-21T22:45:00Z'
 severity: medium
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o039-planning-20261022}
+  at: '2026-10-22T10:45:00Z'
+  reason: Owner asked for one repair Objective for the five owner-reported defects before O-038 (2026-10-22).
+escalated_to: O-039
 history:
   - at: '2026-10-21T22:45:00Z'
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
@@ -29,6 +35,10 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: observed
     note: 'Owner: "in planetary eplorer they fun facts, origin etc. appeared as little fact cards, we havent carried this over". The repair should port the donor''s fact-card presentation for place details (Fun Fact, origin and the like) faithfully, per the donor rule, rather than only changing fonts.'
+  - at: '2026-10-22T10:45:00Z'
+    actor: {role: planner, session: o039-planning-20261022}
+    kind: escalated
+    note: 'Repair promoted into O-039 (G-007), planned 2026-10-22 with the owner''s decisions recorded there.'
 ---
 
 # I-058: Some planet and moon information cards mix two fonts

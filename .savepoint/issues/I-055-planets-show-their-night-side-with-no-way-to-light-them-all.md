@@ -2,17 +2,27 @@
 id: I-055
 title: Planets show their night side with no way to light them all for inspecting places
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
   at: '2026-10-21T21:25:00Z'
 severity: medium
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o039-planning-20261022}
+  at: '2026-10-22T10:45:00Z'
+  reason: Owner asked for one repair Objective for the five owner-reported defects before O-038 (2026-10-22).
+escalated_to: O-039
 history:
   - at: '2026-10-21T21:25:00Z'
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: observed
     note: 'Owner, on the localhost:5490 preview during O-037: "half of the planets are in the dark! can inspect the feature", then "i think we need an \"illumiate all\" toggle basically". Bodies are lit only by the Sun (placeBodyLights), so from many view angles the night side faces the camera and surface places are hard to inspect. O-037 kept the lighting stage unchanged; the owner can compare with the pre-O-037 preview on localhost:5491.'
+  - at: '2026-10-22T10:45:00Z'
+    actor: {role: planner, session: o039-planning-20261022}
+    kind: escalated
+    note: 'Repair promoted into O-039 (G-007), planned 2026-10-22 with the owner''s decisions recorded there.'
 ---
 
 # I-055: Planets show their night side with no way to light them all for inspecting places

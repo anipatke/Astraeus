@@ -2,12 +2,18 @@
 id: I-054
 title: Venus draws the wrong map, so it looks poor and its tagged places sit on the wrong terrain
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
   at: '2026-10-21T21:20:00Z'
 severity: high
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o039-planning-20261022}
+  at: '2026-10-22T10:45:00Z'
+  reason: Owner asked for one repair Objective for the five owner-reported defects before O-038 (2026-10-22).
+escalated_to: O-039
 history:
   - at: '2026-10-21T21:20:00Z'
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
@@ -21,6 +27,10 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: deferred
     note: 'Owner chose "Later, as its own job" for swapping in the donor Magellan map and Venus lighting, keeping O-037 to code health.'
+  - at: '2026-10-22T10:45:00Z'
+    actor: {role: planner, session: o039-planning-20261022}
+    kind: escalated
+    note: 'Repair promoted into O-039 (G-007), planned 2026-10-22 with the owner''s decisions recorded there.'
 ---
 
 # I-054: Venus looks low detail next to Planetary Explorer
