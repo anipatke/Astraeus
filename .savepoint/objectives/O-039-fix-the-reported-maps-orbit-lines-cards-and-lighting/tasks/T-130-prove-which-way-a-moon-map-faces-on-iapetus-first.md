@@ -77,7 +77,7 @@ Tests: `tests/mapOrientation.test.ts` "uses yaw PI for Iapetus", "points the dra
 
 Gates: `npm run lint` pass; `npm run typecheck` pass; `flock /tmp/astraeus-build.lock npm run build` pass (chunk size warning only); `npm test` (junit) 93 files, 1290 passed, 1 skipped.
 
-Owner look on preview: pending (coordinator records it). No browser scripts, no screenshots.
+Owner look on preview (2026-10-22T10:42:04Z, localhost:5490, Saturn, Iapetus): "Iapetus looks right, go ahead" (owner, session 8d73d3f8). This releases T-131. No browser scripts, no screenshots.
 
 ## Drift Notes
 
