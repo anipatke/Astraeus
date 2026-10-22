@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-124, T-126]
-checks: [C-094]
+checks: [C-094, C-095]
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -28,6 +28,11 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: owner_decision
     note: 'Owner looked on the preview at a phone size, 2026-10-22: Loki Pateras marker shows when it faces the camera; "both fine". Owner visual evidence, not a browser run; for the recheck to weigh.'
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: no browser run (owner decision). Confirmed FeatureMarkers.ts unchanged by O-037 and T-129''s scene refactor leaves updateOverlays untouched. Owner''s phone-size look (2026-10-22) is owner evidence, not a run; owner may resolve as accepted.'
 ---
 
 # I-065: Planets set: jupiter-io on a phone does not find Loki Patera

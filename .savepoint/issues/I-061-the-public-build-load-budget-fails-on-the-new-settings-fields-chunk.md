@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-125]
-checks: [C-094]
+checks: [C-094, C-095]
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -20,6 +20,11 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: repair_attempted
     note: 'T-129: tools/validate/load-budget.mjs now lists settingsFields.js in the planet page sets and SHOWER_COMMON, and in SPLIT_CHUNKS. A fresh public build in scratch (ASTRAEUS_PUBLIC_BUILD=1 vite build, node only) passes node tools/validate/load-budget.mjs with exit 0; tests/publicBuild.test.ts gained a case that holds the listing. The public-build-assets engine step was not rerun.'
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: scratch public build /tmp/c-o037-public-wzLl/dist passes node tools/validate/load-budget.mjs (exit 0); the pre-repair script (a115b693) fails jupiter, saturn and uranus on the same build. Repair proven; not closed as verified because C-095 is NEEDS WORK on owner-held items.'
 ---
 
 # I-061: The public build load budget fails on the new settings-fields chunk

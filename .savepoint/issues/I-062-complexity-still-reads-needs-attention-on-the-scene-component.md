@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-124, T-127]
-checks: [C-094]
+checks: [C-094, C-095]
 guardrail_ids: [CODE-01]
 history:
   - at: '2026-10-21T11:10:00Z'
@@ -29,6 +29,11 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: owner_decision
     note: 'After T-129 (AstraeusScene 38 to 13 by lizard), tools/validate/runner.mjs still reads 27 by lizard (ESLint passes). Owner: "Leave it for the cut-down (Recommended)": O-038 rewrites or retires the runner; the health complexity reading may stay above target until then.'
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: snapshot sha256:4cb756cb... complexity 27 max, 1 function over 20 (tools/validate/runner.mjs:28 runStep); AstraeusScene no longer over 20. SC8 complexity still unmet; rests on the owner''s 2026-10-22 decision (O-038). Owner may record it as a structured exception or resolve this Issue as accepted.'
 ---
 
 # I-062: Complexity still reads Needs attention on the scene component

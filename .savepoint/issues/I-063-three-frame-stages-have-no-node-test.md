@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-124]
-checks: [C-094]
+checks: [C-094, C-095]
 guardrail_ids: [CODE-02, TEST-01]
 history:
   - at: '2026-10-21T11:10:00Z'
@@ -21,6 +21,11 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: repair_attempted
     note: 'T-129: tests/sceneFrame.test.ts now tests syncViews (family colour on an owned orbit path, live look, default look), publishCanvasReadouts (sky only with a sky view, probe only in developer mode) and placeViews (hover gain clamp passed to name layers, path views placed about the origin).'
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: syncViews, publishCanvasReadouts and placeViews now have node tests (tests/sceneFrame.test.ts:167-228); all eight stages covered; full gate green. Repair proven; not closed as verified because C-095 is NEEDS WORK on owner-held items.'
 ---
 
 # I-063: Three frame stages have no node test

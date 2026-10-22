@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-122]
-checks: [C-094]
+checks: [C-094, C-095]
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -20,6 +20,11 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: repair_attempted
     note: "T-129: cause found by timing the case. tests/compositions.test.ts '(i) is byte-identical' built a new TrackedBodyView (its constructor samples the Apollo trajectory, about 75 ms) 36 times; it is now built once and updated each pass. Alone: 1.47 s to 0.58 s; with coverage 2.5 s to 1.0 s. No timeout was changed. Full-gate runs recorded in T-129 evidence."
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: npm run test:full 10:16:43Z exit 0 (1287 passed, 1 skipped), coverage/coverage-final.json and junit.xml written; snapshot coverage fresh. Repair proven; not closed as verified because C-095 is NEEDS WORK on owner-held items (I-064, browser and runner.mjs decisions, I-066 health block).'
 ---
 
 # I-060: The full gate fails under coverage and writes no coverage report

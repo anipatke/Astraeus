@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-123]
-checks: [C-094]
+checks: [C-094, C-095]
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -20,6 +20,11 @@ history:
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: observed
     note: "T-129: pending. Deletion is owner-run: find docs/evidence -name '*.gif' -delete, then git add -A docs/evidence. The builder did not delete anything."
+  - at: '2026-10-22T10:30:00Z'
+    actor: {role: checker, session: o037-full-recheck-20261022}
+    kind: rechecked
+    check: C-095
+    note: 'C-095 recheck: the four .gif files under docs/evidence/o016-t063-* are still tracked. Owner-run deletion still pending.'
 ---
 
 # I-064: Four evidence GIFs remain after the prune
