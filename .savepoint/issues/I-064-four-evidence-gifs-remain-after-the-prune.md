@@ -16,6 +16,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: observed
+    note: "T-129: pending. Deletion is owner-run: find docs/evidence -name '*.gif' -delete, then git add -A docs/evidence. The builder did not delete anything."
 ---
 
 # I-064: Four evidence GIFs remain after the prune

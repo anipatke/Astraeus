@@ -20,6 +20,10 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: deferred
     note: 'Asked how to find out whether O-037 broke it, the owner asked "what failed?" and paused for the night ("we pause here for tognit, write up the task"). Answer: the phone pass of browser-jupiter-io asserts Loki Patera''s marker shows when its side faces the camera, and it did not; desktop passed. T-129 reads the code first and asks the owner how to prove it.'
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: observed
+    note: 'T-129 read-only comparison, no browser run. O-037 did not change the marker path: src/app/FeatureMarkers.ts has no diff against main (last change O-025 T-103, 203419d9); the old inline call at AstraeusScene.tsx:379 on main and the new updateOverlays at src/app/sceneFrame.ts:235 pass the same host (featureHostOf, sceneFrame.ts:215), fov, canvas size, open key and min-px, in the same stage order (poseCamera, swap to markers, overlays). tools/validate/browser-jupiter-io.mjs:218 changed only in the harness preamble (launchBrowser, openPage, watchErrors). The shell changes (useDrawers extraction, AstraeusShell helpers) are extractions with the same open/close logic; the markers hide under the occluder selector panels (FeatureMarkers.ts:68), so a phone drawer or sheet left open would hide one, but no diff shows that. Cause therefore not established by reading; timing under load (187 s step vs 148-157 s) stays the likely cause. Owner decides: phone-size look on the preview (Jupiter, focus Io, turn to Loki Patera), or one run of browser-jupiter-io alone (about 3 minutes).'
 ---
 
 # I-065: Planets set: jupiter-io on a phone does not find Loki Patera

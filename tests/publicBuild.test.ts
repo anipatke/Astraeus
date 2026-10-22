@@ -129,6 +129,13 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.notImported.problems.join(" ")).toMatch(/panels\.js names 3 files, none of which a listed script imports/);
   });
 
+  it("lists the shared settings reader chunk wherever a page set lists a settings script that imports it (I-061)", () => {
+    for (const page of PAGES) {
+      const files: string[] = page.files;
+      if (files.includes("planetSettings.js") || files.includes("showerSettings.js")) expect(files, page.id).toContain("settingsFields.js");
+    }
+  });
+
   it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {
     const ids = PAGES.map((page) => page.id);
     expect(new Set(ids).size).toBe(ids.length);

@@ -329,12 +329,14 @@ describe("State is untouched by how a scene presents it (design E step 3)", () =
     const reference = allStates(createSceneResolver(adapter));
     const resolver = createSceneResolver(adapter);
     const camera = new PerspectiveCamera();
+    // Built once: sampling the Apollo trajectory in the constructor costs about 75 ms, which times 18 passes made this case the suite's slowest under coverage (I-060).
+    const tracked = new TrackedBodyView(apollo11Mission.bodies[0]);
     for (const centre of BODIES) {
       for (const policy of [trueScale, readableScale]) {
         for (const t of DATES) {
           const placement = { resolver, center: centre };
           placeComposition(BODIES, placement, policy, t);
-          new TrackedBodyView(apollo11Mission.bodies[0]).update(t, policy, new FloatingOrigin(), camera, placement);
+          tracked.update(t, policy, new FloatingOrigin(), camera, placement);
           const view = new PointsView(syntheticRingLayer);
           view.sync(syntheticRingLayer.group.bounds!.startUtcMs, placement, policy);
           camera.position.set(1 + t % 7, 2, 3);

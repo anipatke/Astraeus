@@ -1,14 +1,13 @@
-import { bodiesMounted, createFrameState, runFrame, type FrameLayers, type FrameState } from "./sceneFrame";
-import { attachScenePointer } from "./scenePointer";
-import { useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group, PerspectiveCamera } from "three";
+import { createFrameState, type FrameState } from "./sceneFrame";
+import { useBodyRefs, useOverlayLayers, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
+import { useMemo, useRef } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
-import { AnchorLabelLayer } from "./AnchorLabels";
-import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
 import { type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
@@ -20,28 +19,23 @@ import {
 } from "./CameraController";
 import type { DebugReadout } from "./DebugOverlay";
 import { FloatingOrigin } from "./floatingOrigin";
-import { assetWithOverride, DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
+import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
 import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
-import { readoutPairOf, type ScenePlacement } from "./sceneLayout";
-import type { BodyRefs } from "./sceneBodies";
-import { useHostLayer, useSceneViews, useSkyStars } from "./sceneHooks";
+import { useSceneViews, useSkyStars } from "./sceneHooks";
 import type { StartView } from "./viewLink";
 import {
   assignBodyLayers,
-  focusLimits,
   START_CAMERA_DISTANCE,
 } from "./sceneFraming";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
-import { SceneLabelLayer } from "./SceneLabels";
-import { BodySetLabelLayer } from "./BodySetLabels";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { RingLook } from "../assets/rings";
-import { StoryMarkerLayer, type StoryMarkerSpec } from "./StoryMarkers";
-import { FeatureMarkerLayer, type FeatureMarkerSpec } from "./FeatureMarkers";
+import { type StoryMarkerSpec } from "./StoryMarkers";
+import { type FeatureMarkerSpec } from "./FeatureMarkers";
 import type { ExperienceObject } from "../shell/experience";
 
 export interface SceneRuntime {
@@ -175,99 +169,26 @@ interface SceneContentsProps extends Props {
 
 function SceneContents({ runtime, controls, readout, layers }: SceneContentsProps) {
   const catalogue = runtime.catalogue ?? builtInCatalogue;
-  const { gl, camera, size } = useThree();
+  const { gl } = useThree();
   const rootRef = useRef<Group>(null);
-  const groupRefs = useRef(new Map<BodyId, Group>());
-  const orientRefs = useRef(new Map<BodyId, Group>());
-  const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
-  const refFor = (map: Map<BodyId, Group>, id: BodyId) => (node: Group | null) => {
-    if (node === null) map.delete(id);
-    else map.set(id, node);
-  };
-  const partsRefs = useRef(new Map<BodyId, BodyParts>());
-  // One stable callback per body, so a body's effect is not re-run by every render.
-  const partsFor = useMemo(() => new Map(runtime.bodies.map((id) => [id, (parts: BodyParts | null) => {
-    if (parts === null) partsRefs.current.delete(id);
-    else partsRefs.current.set(id, parts);
-  }] as const)), [runtime.bodies]);
-
+  const { groupRefs, orientRefs, lightRefs, partsFor, bodyRefs } = useBodyRefs(runtime);
   const ringLookOf = useMemo(() => () => controls.ringLook, [controls]);
-  const bodyRefs: BodyRefs = { groups: groupRefs.current, orients: orientRefs.current, parts: partsRefs.current };
-
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
   const frameState = useRef<FrameState>(createFrameState(controls.policy.id));
-  const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
-  const readoutPair = useMemo(() => readoutPairOf(runtime.bodies, catalogue), [runtime.bodies, catalogue]);
-  const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
-  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
-
+  const { placement, readoutPair, pairLabels, assets, bodyFamilies } = useSceneDerived(runtime, catalogue);
   const views = useSceneViews(runtime, gl);
   const { trackedViews, groupViews, compositionPaths, skyView, bodySetViews, orbitSetViews, sunCentredViews } = views;
-  const bodySetLabels = useRef<BodySetLabelLayer[]>([]);
-  // Families of catalogued bodies drawn outside the sets (their own orbit lines take the family colour).
-  const bodyFamilies = useMemo(() => (runtime.bodySets ?? []).flatMap((layer) => Object.entries(layer.bodyFamilies ?? {}).map(([body, family]) => ({ layer, body, family }))), [runtime.bodySets]);
-  const anchorLabels = useRef<AnchorLabelLayer | null>(null);
-  const sceneLabels = useRef<SceneLabelLayer | null>(null);
-  const storyMarkers = useRef<StoryMarkerLayer | null>(null);
-  const featureMarkers = useRef<FeatureMarkerLayer | null>(null);
   useSkyStars(gl.domElement, skyView);
-  useEffect(() => {
-    const host = gl.domElement.parentElement;
-    if (host === null) return undefined;
-    const layers = bodySetViews.map((view) => new BodySetLabelLayer(host, gl.domElement, view));
-    bodySetLabels.current = layers;
-    return () => { for (const layer of layers) layer.dispose(); bodySetLabels.current = []; };
-  }, [gl, bodySetViews, controls]);
-  useHostLayer(gl.domElement, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [gl, trackedViews]);
-  useHostLayer(gl.domElement, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects), [gl, controls.labelObjects]);
-  useHostLayer(gl.domElement, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [gl, controls]);
-
-  useHostLayer(gl.domElement, featureMarkers, (host) => (controls.featureMarkers === undefined || controls.featureMarkers.length === 0 ? null : new FeatureMarkerLayer(host, controls.featureMarkers, (key) => controls.onFeatureMarker?.(key))), [gl, controls]);
-
-  /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
-  const bodyIdFor = (id: string): BodyId | null => {
-    if (runtime.sun !== undefined && id === runtime.sun.object.id) return rootBodyId();
-    return catalogue.has(id) ? id : null;
-  };
-
-  useEffect(() => {
-    const limits = () => focusLimits(bodyIdFor(orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: frameState.current.spanScaled, bodies: catalogue }, controls.policy, runtime.cameraReach);
-    return attachScenePointer(gl.domElement, orbit.current, frameState.current, limits, (id) => controls.onPickObject?.(id));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gl, controls]);
-
-  const layerRefs: FrameLayers = { bodySetLabels, anchorLabels, sceneLabels, storyMarkers, featureMarkers };
-  useFrame((_state, delta) => {
-    if (!rootRef.current || !bodiesMounted(runtime, bodyRefs)) return;
-    runFrame({ runtime, controls, readout, catalogue, camera: camera as PerspectiveCamera, canvas: gl.domElement, size, origin, orbit: orbit.current, state: frameState.current, delta, assets, bodyRefs, lightRefs: lightRefs.current, placement, views, layers: layerRefs, bodyFamilies, bodyIdFor, readoutPair, pairLabels });
-  });
+  const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews);
+  useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
+  useSceneFrame(rootRef, { runtime, controls, readout, catalogue, origin, orbit, state: frameState, assets, bodyRefs, lightRefs, placement, views, layers: layerRefs, bodyFamilies, readoutPair, pairLabels });
 
   return (
     <group ref={rootRef}>
-      {assets.map((asset) => {
-        const id = asset.definition.id;
-        const layer = layers.get(id)!;
-        const light = asset.visual.light;
-        return (
-          <group key={id}>
-            <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={partsFor.get(id)} groupRef={refFor(groupRefs.current, id)} orientRef={refFor(orientRefs.current, id)} />
-            {light !== undefined && (
-              <>
-                <ambientLight layers={layer} intensity={light.ambient} />
-                <directionalLight
-                  ref={(node: DirectionalLight | null) => {
-                    if (node === null) lightRefs.current.delete(id);
-                    else lightRefs.current.set(id, node);
-                  }}
-                  layers={layer}
-                  intensity={light.directional}
-                />
-              </>
-            )}
-          </group>
-        );
-      })}
+      {assets.map((asset) => (
+        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
+      ))}
       {skyView !== null && <primitive object={skyView.group} />}
       {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
@@ -275,6 +196,33 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
       {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
       {bodySetViews.map((view) => <primitive key={view.id} object={view.group} />)}
       {orbitSetViews.map((view) => <primitive key={view.id} object={view.group} />)}
+    </group>
+  );
+}
+
+interface SceneBodyProps {
+  readonly asset: BodyAsset;
+  readonly layer: number;
+  readonly controls: SceneControls;
+  readonly ringLookOf: () => RingLook | undefined;
+  readonly onParts: ((parts: BodyParts | null) => void) | undefined;
+  readonly groupRef: (node: Group | null) => void;
+  readonly orientRef: (node: Group | null) => void;
+  readonly lightRef: (node: DirectionalLight | null) => void;
+}
+
+/** One catalogued body: its view and, when its record has a light, the ambient and directional light on its layer. */
+function SceneBody({ asset, layer, controls, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
+  const light = asset.visual.light;
+  return (
+    <group>
+      <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
+      {light !== undefined && (
+        <>
+          <ambientLight layers={layer} intensity={light.ambient} />
+          <directionalLight ref={lightRef} layers={layer} intensity={light.directional} />
+        </>
+      )}
     </group>
   );
 }

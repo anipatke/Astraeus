@@ -14,15 +14,15 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
 const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js"]);
+const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
   id: `app.html?experience=planets&planet=${name}`,
-  files: [...APP_SHARED, "planetSettings.js", "planetDefinition.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
+  files: [...APP_SHARED, "planetSettings.js", "settingsFields.js", "planetDefinition.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
   namedBy: [`${name}.js`],
   ...(VIEW_LIMITS[name] ? { indexLimit: VIEW_LIMITS[name].indexRawBytes } : {}),
   ...limits,

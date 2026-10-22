@@ -16,6 +16,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: repair_attempted
+    note: "T-129: cause found by timing the case. tests/compositions.test.ts '(i) is byte-identical' built a new TrackedBodyView (its constructor samples the Apollo trajectory, about 75 ms) 36 times; it is now built once and updated each pass. Alone: 1.47 s to 0.58 s; with coverage 2.5 s to 1.0 s. No timeout was changed. Full-gate runs recorded in T-129 evidence."
 ---
 
 # I-060: The full gate fails under coverage and writes no coverage report

@@ -17,6 +17,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: repair_attempted
+    note: 'T-129: tests/sceneFrame.test.ts now tests syncViews (family colour on an owned orbit path, live look, default look), publishCanvasReadouts (sky only with a sky view, probe only in developer mode) and placeViews (hover gain clamp passed to name layers, path views placed about the origin).'
 ---
 
 # I-063: Three frame stages have no node test

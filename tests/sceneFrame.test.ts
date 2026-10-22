@@ -8,8 +8,9 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, createFrameState, frameTime, placeLightsAndReadout, placeScene, stepAndPoseCamera, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
+import { bodiesMounted, createFrameState, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
 import { createSceneResolver } from "../src/app/sceneLayout";
+import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
 import { DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
@@ -156,5 +157,72 @@ describe("placeLightsAndReadout", () => {
     expect(ctx.readout.current).not.toBeNull();
     placeLightsAndReadout({ ...ctx, readoutPair: null }, T0, placed);
     expect(ctx.readout.current).toBeNull();
+  });
+});
+
+function fakePath(id: string, defaultLook: object | null = null) {
+  return { id, defaultLook, setLook: vi.fn(), setColor: vi.fn(), sync: vi.fn(), place: vi.fn(), arcHeadAbsolute: () => null, screenReadout: () => ({ id, visible: true, vertices: 0, inView: 0, maxX: 0, minX: 0, maxY: 0, minY: 0, lineMinX: 1, lineMaxX: 0, lineMinY: 1, lineMaxY: 0, axisDeg: 0, aspect: 1, look: null }) };
+}
+
+describe("syncViews", () => {
+  it("gives an owned orbit path its family colour and every path the live look, then syncs all views at the frame time", () => {
+    const { ctx } = makeContext({ controls: { orbitLook: { lineWidth: 3 } as never, bodySetLook: { ...DEFAULT_BODY_SET_LOOK, highlightFamily: "moons", highlightColor: "#123456" } } });
+    const owned = fakePath("moon-orbit", { lineWidth: 1 });
+    const other = fakePath("earth-orbit");
+    const group = { sync: vi.fn() };
+    const views = { ...ctx.views, compositionPaths: [owned, other], groupViews: [group] } as unknown as FrameContext["views"];
+    const look = syncViews({ ...ctx, views, bodyFamilies: [{ layer: {} as never, body: "moon", family: "moons" }] }, T0);
+    expect(look.highlightColor).toBe("#123456");
+    expect(owned.setColor).toHaveBeenCalledWith("#123456");
+    expect(owned.setLook).toHaveBeenCalledWith({ lineWidth: 3 });
+    expect(other.setColor).not.toHaveBeenCalled();
+    expect(other.setLook).not.toHaveBeenCalled();
+    expect(owned.sync).toHaveBeenCalledWith(T0, ctx.placement, ctx.controls.policy);
+    expect(other.sync).toHaveBeenCalledTimes(1);
+    expect(group.sync).toHaveBeenCalledWith(T0, ctx.placement, ctx.controls.policy);
+  });
+
+  it("falls back to the default body-set look when the controls carry none", () => {
+    const { ctx } = makeContext();
+    expect(syncViews(ctx, T0)).toBe(DEFAULT_BODY_SET_LOOK);
+  });
+});
+
+describe("publishCanvasReadouts", () => {
+  function fakeSky() {
+    return { follow: vi.fn(), setPictureVisible: vi.fn(), requestPicture: vi.fn(), setStarBrightness: vi.fn(), setMilkyWayBrightness: vi.fn(), pictureVisible: false, probe: vi.fn(() => ({ ok: true })) };
+  }
+
+  it("updates the sky only when the scene has a sky view, and reads it back only in developer mode", () => {
+    const { ctx } = makeContext();
+    expect(() => publishCanvasReadouts(ctx)).not.toThrow();
+    const sky = fakeSky();
+    const withSky = { ...ctx, views: { ...ctx.views, skyView: sky } } as unknown as FrameContext;
+    publishCanvasReadouts(withSky);
+    expect(sky.follow).toHaveBeenCalledWith(ctx.camera);
+    expect(sky.probe).not.toHaveBeenCalled();
+    expect(ctx.canvas.dataset.skyProbe).toBeUndefined();
+    const dev = { ...withSky, controls: { ...ctx.controls, frameStats: {} as never } } as FrameContext;
+    publishCanvasReadouts(dev);
+    expect(sky.probe).toHaveBeenCalledTimes(1);
+    expect(ctx.canvas.dataset.skyProbe).toBe(JSON.stringify({ ok: true }));
+  });
+});
+
+describe("placeViews", () => {
+  it("clamps the hover gain, passes it to the name layers and places the path views about the origin", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const label = { update: vi.fn() };
+    const { ctx } = makeContext({ controls: { hoverBrightness: 99 } });
+    const placedPath = fakePath("moon-orbit");
+    const withViews = { ...ctx, views: { ...ctx.views, compositionPaths: [placedPath] }, layers: { ...ctx.layers, bodySetLabels: { current: [label] } } } as unknown as FrameContext;
+    const placed = placeScene(withViews, T0);
+    const gain = placeViews(withViews, T0, placed, DEFAULT_BODY_SET_LOOK);
+    expect(gain).toBeLessThanOrEqual(3);
+    expect(gain).toBeGreaterThan(1);
+    expect(label.update).toHaveBeenCalledWith(DEFAULT_BODY_SET_LOOK, gain);
+    expect(placedPath.place).toHaveBeenCalledWith(ctx.origin, { fovDeg: ctx.camera.fov, viewportHeightPx: 600 });
+    const defaultGain = placeViews({ ...withViews, controls: { ...ctx.controls, hoverBrightness: undefined } }, T0, placed, DEFAULT_BODY_SET_LOOK);
+    expect(defaultGain).toBeGreaterThanOrEqual(1);
   });
 });

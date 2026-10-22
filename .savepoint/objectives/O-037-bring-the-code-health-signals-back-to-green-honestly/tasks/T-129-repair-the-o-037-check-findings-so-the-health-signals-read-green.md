@@ -2,9 +2,15 @@
 id: T-129
 title: Repair the O-037 check findings so the health signals read green
 objective: O-037
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: true}
+check_waiver:
+  task: T-129
+  reason: "Owner waived the optional Task Check for O-037 ('dont run full checks until the final objective check'); the targeted recheck covers it."
+  actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+  recorded_at: '2026-10-22T20:55:00Z'
 planned_by: {role: planner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
 planned_reads: [.savepoint/checks/C-094-o-037-full-objective-check.md, .savepoint/issues, tests/compositions.test.ts, vite.config.ts, tools/validate/load-budget.mjs, src/app/AstraeusScene.tsx, src/app/sceneFrame.ts, tests/sceneFrame.test.ts, tools/validate/browser-jupiter-io.mjs, src/app/FeatureMarkers.ts]
 planned_writes: [tests/compositions.test.ts, vite.config.ts, tools/validate/load-budget.mjs, tests, src/app/AstraeusScene.tsx, src/app/sceneFrame.ts, src/app, tools/validate/browser-jupiter-io.mjs, .savepoint/issues]
@@ -60,5 +66,15 @@ Owner-reported I-054 to I-058 (Venus map, illuminate-all, Pluto orbit laps, map 
 Gates above; scratch lizard run on `src/app/AstraeusScene.tsx`; the targeted recheck of C-094 (tests, health snapshot, and only the browser proof the owner chooses) closes the Objective with the owner's preview look (T-124, SC4).
 
 ## Technical Evidence
+
+Built 2026-10-22 by the T-129 builder; Task Check waived by the owner (`check_waiver`). Nothing was run in a browser; no screenshots; no `savepoint health check`; nothing deleted.
+
+1. I-060: timing the case showed the cost was `new TrackedBodyView(...)` (its constructor samples the Apollo trajectory, about 75 ms) built 36 times; `tests/compositions.test.ts` now builds it once. The case went from 1.47 s to 0.58 s alone and 2.5 s to 1.0 s under coverage; no timeout changed. `npm run test:full` twice in a row: 92 files passed, 1287 passed / 1 skipped, about 53 s each; `coverage/coverage-final.json` (2.4 MB) and `junit.xml` written both times; headline Statements 68.89% (7627/11070), Branches 65.8%, Lines 72.09%.
+2. I-061: `tools/validate/load-budget.mjs` lists `settingsFields.js` in `SPLIT_CHUNKS`, `SHOWER_COMMON` and the planet page sets. A fresh public build in the scratch folder (`ASTRAEUS_PUBLIC_BUILD=1 vite build`, node only) passes `node tools/validate/load-budget.mjs` with exit 0; `tests/publicBuild.test.ts` has a new case holding the listing (19 pass). The `public-build-assets` step was not rerun.
+3. I-062: the scene's callbacks moved to `src/app/sceneContentsHooks.ts` (`useBodyRefs`, `useSceneDerived`, `useOverlayLayers`, `useScenePointer`, `useSceneFrame`, `bodyIdOf`, `refFor`) and a `SceneBody` component; behaviour and stage order unchanged. Scratch lizard on `src/app/AstraeusScene.tsx` with the health-config exclusions: highest CCN 13 (was 38). `npm run lint` passes. Whole-project lizard still shows `tools/validate/runner.mjs` at 27 (not in this Task; owner question).
+4. I-063: `tests/sceneFrame.test.ts` gained tests for `syncViews`, `publishCanvasReadouts` and `placeViews` (13 pass).
+5. I-065: read-only. O-037 did not change the marker path: `src/app/FeatureMarkers.ts` has no diff against main; the old call (`AstraeusScene.tsx:379` on main) and `updateOverlays` (`src/app/sceneFrame.ts:235`) pass the same arguments in the same stage order; `browser-jupiter-io.mjs:218` changed only in the harness preamble. Cause not established; timing under load is the likely one. Recorded in the Issue history. The owner decides how to prove it.
+6. I-064: pending the owner's deletion (`find docs/evidence -name '*.gif' -delete`, then `git add -A docs/evidence`).
+7. Gates: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (junit written) all pass; one first `npm test` failure (`tests/nameCheck.test.ts`: the word "sun" in a new type) was fixed by retyping and rerun green.
 
 ## Drift Notes

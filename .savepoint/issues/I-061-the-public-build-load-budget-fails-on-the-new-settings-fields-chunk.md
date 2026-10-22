@@ -16,6 +16,10 @@ history:
     kind: observed
     check: C-094
     note: Found by the O-037 Full Objective Check.
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: repair_attempted
+    note: 'T-129: tools/validate/load-budget.mjs now lists settingsFields.js in the planet page sets and SHOWER_COMMON, and in SPLIT_CHUNKS. A fresh public build in scratch (ASTRAEUS_PUBLIC_BUILD=1 vite build, node only) passes node tools/validate/load-budget.mjs with exit 0; tests/publicBuild.test.ts gained a case that holds the listing. The public-build-assets engine step was not rerun.'
 ---
 
 # I-061: The public build load budget fails on the new settings-fields chunk

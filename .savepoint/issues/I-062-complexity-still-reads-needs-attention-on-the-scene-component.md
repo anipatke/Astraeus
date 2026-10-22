@@ -21,6 +21,10 @@ history:
     actor: {role: owner, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: owner_decision
     note: 'Owner chose "Slim the scene file so it reads under 20 (Recommended)" over accepting the lizard reading. Repair planned in T-129.'
+  - at: '2026-10-22T20:45:00Z'
+    actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
+    kind: repair_attempted
+    note: 'T-129: the scene callbacks moved into named hooks (src/app/sceneContentsHooks.ts) and a SceneBody component; scratch lizard on src/app/AstraeusScene.tsx reads highest CCN 13; npm run lint passes. Another lizard function over 20 remains elsewhere: tools/validate/runner.mjs 27 (not in this Task).'
 ---
 
 # I-062: Complexity still reads Needs attention on the scene component
