@@ -2,21 +2,32 @@
 id: I-068
 title: Desktop showers demos now download the 14.5 MB Venus map, and the load budget does not see it
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-096
   actor: {role: checker, session: o039-full-check-20261022}
   at: '2026-10-22T11:19:28Z'
 tasks: [T-132, T-141]
-checks: [C-096]
+checks: [C-096, C-097]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-097
+  actor: {role: checker, session: o039-full-recheck-20261022}
+  at: '2026-10-22T19:40:00Z'
+  reason: 'T-141: desktop texture variants only for experiences that opt in (planets only); tests prove both showers pages ask for the 2k file at 1280 px; Venus view budget re-measured; 2edab6dd keeps the 8k file out of the public build (verified: not present in /tmp/o039-recheck-oqz3).'
 history:
   - at: '2026-10-22T11:19:28Z'
     actor: {role: checker, session: o039-full-check-20261022}
     kind: observed
     check: C-096
     note: Found by the O-039 Full Objective Check.
+  - at: '2026-10-22T19:40:00Z'
+    actor: {role: checker, session: o039-full-recheck-20261022}
+    kind: rechecked
+    check: C-097
+    note: 'T-141: desktop texture variants only for experiences that opt in (planets only); tests prove both showers pages ask for the 2k file at 1280 px; Venus view budget re-measured; 2edab6dd keeps the 8k file out of the public build (verified: not present in /tmp/o039-recheck-oqz3).'
 ---
 
 # I-068: Desktop showers demos now download the 14.5 MB Venus map, and the load budget does not see it

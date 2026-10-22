@@ -2,16 +2,22 @@
 id: I-069
 title: The Venus site thumbnail is the old CC BY picture, now labelled public domain
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-096
   actor: {role: checker, session: o039-full-check-20261022}
   at: '2026-10-22T11:19:28Z'
 tasks: [T-132]
-checks: [C-096]
+checks: [C-096, C-097]
 guardrail_ids: [PROV-02]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-097
+  actor: {role: checker, session: o039-full-recheck-20261022}
+  at: '2026-10-22T19:40:00Z'
+  reason: 'site/t-venus-2k.jpg regenerated from the Magellan 2k map (a8148d27); read beside the C-096 file it shows the Magellan mosaic, matching the public-domain captions.'
 history:
   - at: '2026-10-22T11:19:28Z'
     actor: {role: checker, session: o039-full-check-20261022}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: 8d73d3f8}
     kind: repair_attempted
     note: 'site/t-venus-2k.jpg regenerated from src/assets/textures/venus-2k-balanced.jpg (480x240, quality 78, stripped), commit a8148d27 on lane-venus-thumb, merged 8d3b7c87. It was made while C-096 ran; the owner accepted merging it without a fresh check ("fine, accept it", 2026-10-22). Left open for the recheck to verify.'
+  - at: '2026-10-22T19:40:00Z'
+    actor: {role: checker, session: o039-full-recheck-20261022}
+    kind: rechecked
+    check: C-097
+    note: 'site/t-venus-2k.jpg regenerated from the Magellan 2k map (a8148d27); read beside the C-096 file it shows the Magellan mosaic, matching the public-domain captions.'
 ---
 
 # I-069: The Venus site thumbnail is the old CC BY picture, now labelled public domain

@@ -2,14 +2,20 @@
 id: I-066
 title: Vite 8.3.2 carries a high-severity advisory
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-094
   actor: {role: checker, session: o037-full-check-20261021}
   at: '2026-10-21T11:10:00Z'
 tasks: [T-142]
-checks: [C-094, C-096]
+checks: [C-094, C-096, C-097]
+resolution:
+  disposition: verified
+  check: C-097
+  actor: {role: checker, session: o039-full-recheck-20261022}
+  at: '2026-10-22T19:40:00Z'
+  reason: 'Vite 8.3.5 (T-142): npm audit 0 vulnerabilities; official snapshot sha256:451ae4a9… reports dependency_vulnerabilities 0 and does not block; all gates pass on 8.3.5.'
 history:
   - at: '2026-10-21T11:10:00Z'
     actor: {role: checker, session: o037-full-check-20261021}
@@ -21,6 +27,11 @@ history:
     kind: observed
     check: C-096
     note: 'Still present at the O-039 Full Objective Check: official snapshot sha256:565b2030530450b64e129130e102e3118f71da75e7c4429eb197a5aa982f55d7 (commit 033d64d0, clean tree) reports dependency_vulnerabilities 6 (1 high) against vite 8.3.2 and says it blocks clearance. O-039 did not change package.json or package-lock.json.'
+  - at: '2026-10-22T19:40:00Z'
+    actor: {role: checker, session: o039-full-recheck-20261022}
+    kind: rechecked
+    check: C-097
+    note: 'Vite 8.3.5 (T-142): npm audit 0 vulnerabilities; official snapshot sha256:451ae4a9… reports dependency_vulnerabilities 0 and does not block; all gates pass on 8.3.5.'
 ---
 
 # I-066: Vite 8.3.2 carries a high-severity advisory

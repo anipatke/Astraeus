@@ -2,14 +2,20 @@
 id: I-067
 title: Europa's places may be read with the same west-longitude mix-up as Titan's
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: 8d73d3f8}
   at: '2026-10-22T12:00:00Z'
 tasks: [T-131, T-139, T-140]
-checks: [C-096]
+checks: [C-096, C-097]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-097
+  actor: {role: checker, session: o039-full-recheck-20261022}
+  at: '2026-10-22T19:40:00Z'
+  reason: 'T-140 passes the Galilean map records into the Jupiter view; tests build the real Jupiter definition and find Tyre at 33 and Pwyll at -91, other moons unchanged; Design.md corrected. The owner look on Europa (T-140 owner_validation) is still to be written down.'
 history:
   - at: '2026-10-22T12:00:00Z'
     actor: {role: executor, session: 8d73d3f8}
@@ -20,6 +26,11 @@ history:
     kind: rechecked
     check: C-096
     note: 'Still open. T-139 corrected Europa''s map record (marker scale 1, offset 0), and `shownLongitude(147, europaMap.coordinates)` gives 33, but the Jupiter system never passes that record to the builder: `src/experiences/planets/systems/jupiter.ts:43-48` imports Europa''s features and categories only, with no `map`, so `placedFeatures` gets `coordinates` undefined and draws Europa''s places as stored. Probe (scratch vitest, removed): `buildPlanetDefinition(parsePlanetSettings(data/planets/jupiter.json), jupiterSystem, …)` gives Tyre 147 and Thera Macula 181 (expected 33 and -1); Titan''s Xanadu in the Saturn definition gives 80 (correct, Saturn''s glob carries map.json). The T-139 tests call `shownLongitude` directly with the map record, so they never reach the Jupiter wiring; Design.md (O-039, Source-west longitudes) says Europa qualifies through its record, which is not so in the app. Proof still needed: Jupiter''s system carries Europa''s map record (as Saturn''s glob does), with a test that builds the real Jupiter definition and finds Tyre at 33; the owner looks at Europa on the preview.'
+  - at: '2026-10-22T19:40:00Z'
+    actor: {role: checker, session: o039-full-recheck-20261022}
+    kind: rechecked
+    check: C-097
+    note: 'T-140 passes the Galilean map records into the Jupiter view; tests build the real Jupiter definition and find Tyre at 33 and Pwyll at -91, other moons unchanged; Design.md corrected. The owner look on Europa (T-140 owner_validation) is still to be written down.'
 ---
 
 # I-067: Europa's places may be read with the same west-longitude mix-up as Titan's
