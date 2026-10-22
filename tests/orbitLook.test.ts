@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial } from "three";
+import { DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera } from "three";
 import { createComposition, earthMoonSystem, jupiterIoSystem, SIDEREAL_MONTH_MS } from "../src/assets/compositions";
 import { catalogue } from "../src/assets/catalogue";
 import { DEFAULT_ORBIT_LOOK, resolveOrbitLook } from "../src/assets/orbitLook";
@@ -9,6 +9,8 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { compositionPathView } from "../src/app/PathView";
 import { arcSegmentAlpha, ringAlpha, windowEdgeAlpha } from "../src/app/pathRules";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
+import { publishOrbitHeadGap } from "../src/app/sceneFrame";
+import { publishPathData } from "../src/app/sceneDebug";
 import { placementAbout } from "./scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();
@@ -255,5 +257,53 @@ describe("a composition path's orbit look", () => {
     view.setLook({ ...view.defaultLook!, zoomOn: false });
     expect((ring.material as LineBasicMaterial).opacity).toBeCloseTo(0.18, 6);
     expect(view.arcSegmentOpacities[0]).toBeCloseTo(0.65, 6);
+  });
+
+  // T-144: what browser-orbit-look.mjs and browser-orbit-motion.mjs read from the canvas (`data-paths` look, `data-orbit-head-gap`, `data-orbit-arc-segment`), proved against the same publishers.
+  const fakeCanvas = () => ({ dataset: {} }) as unknown as HTMLCanvasElement;
+  const lookReadout = (view: ReturnType<typeof compositionPathView>) => {
+    const canvas = fakeCanvas();
+    const camera = new PerspectiveCamera(45, 1.6, 0.01, 1e6);
+    camera.position.set(0, 0, 60);
+    publishPathData(canvas, [view], camera);
+    return (JSON.parse(canvas.dataset.paths!) as { look: { ring: boolean; arc: boolean; endFade: boolean; zoomBrighten: boolean; ringOpacity: number } }[])[0].look;
+  };
+
+  it("reports each layer and the ring's opacity in the scene's path readout as the controls change them, and reset restores them", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    view.sync(date, placement, readableScale, 0);
+    const start = lookReadout(view);
+    expect([start.ring, start.arc, start.endFade, start.zoomBrighten]).toEqual([true, true, true, true]);
+    const look = view.defaultLook!;
+    const flags: [string, Partial<typeof look>, "ring" | "arc" | "endFade" | "zoomBrighten"][] = [["Orbit ring", { baseOn: false }, "ring"], ["Trailing arc", { arcOn: false }, "arc"], ["Fade ring ends", { endFadeOn: false }, "endFade"], ["Brighten when zoomed out", { zoomOn: false }, "zoomBrighten"]];
+    for (const [, off, key] of flags) {
+      view.setLook({ ...look, ...off });
+      expect(lookReadout(view)[key]).toBe(false);
+      view.setLook(look);
+      expect(lookReadout(view)[key]).toBe(true);
+    }
+    const dim = lookReadout(view).ringOpacity;
+    view.setLook({ ...look, baseOpacity: 0.8 });
+    expect(lookReadout(view).ringOpacity).toBeGreaterThan(dim);
+    view.setLook(view.defaultLook!);
+    expect(lookReadout(view).ringOpacity).toBe(dim);
+  });
+
+  it("keeps the arc head on its body and the arc free of chords through load, seeks and fast playback (head gap under 0.002, longest segment under 0.1 of the orbit)", () => {
+    const view = compositionPathView(moonPath, placement.resolver);
+    const canvas = fakeCanvas();
+    let real = 0;
+    const frame = (t: number) => {
+      real += 16;
+      view.sync(t, placement, readableScale, real);
+      publishOrbitHeadGap(canvas, [view], () => trueRender(t) as never, readableScale);
+      expect(Number(canvas.dataset.orbitHeadGap)).toBeLessThan(0.002);
+      expect(Number(canvas.dataset.orbitArcSegment)).toBeLessThan(0.1);
+      expect(Number(canvas.dataset.orbitArcSegment)).toBeGreaterThan(0);
+    };
+    frame(date);
+    for (const fraction of [0.6, 0.2, 0.4]) frame(date + fraction * 30 * DAY); // seeks
+    let t = date;
+    for (let i = 0; i < 240; i += 1) { t += 3 * 60 * 60_000; frame(t); } // the fastest rate, 240 frames
   });
 });
