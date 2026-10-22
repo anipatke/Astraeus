@@ -92,8 +92,10 @@ describe("planet definition builder (T-117)", () => {
     expect(() => buildPlanetDefinition(parsePlanetSettings({ ...madeUpFile, moons: { ...madeUpFile.moons, featuredFamilyId: "family-z" } }), madeUpSystem, madeUpPanels)).toThrow(/family-z/);
   });
 
-  it("leaves Jupiter's view exactly as it was: window, bodies, story panels, families, tagged places, look", () => {
-    expect(jupiterViewSnapshot(jupiterIoExplorer)).toEqual(before);
+  it("leaves Jupiter's view exactly as it was: window, bodies, story panels, families, tagged places, look (but for Europa's places, drawn at 180 - west since T-140)", () => {
+    const expected = structuredClone(before) as { bodyFeatures: { bodyId: string; features: { longitude: number }[] }[] };
+    for (const feature of expected.bodyFeatures.find((set) => set.bodyId === "europa")!.features) feature.longitude = 180 - feature.longitude;
+    expect(jupiterViewSnapshot(jupiterIoExplorer)).toEqual(expected);
   });
 });
 
@@ -133,5 +135,24 @@ describe("the planet places rule (I-048)", () => {
     expect(longitudeOf(west)).toBe(160);
     expect(longitudeOf({ coordinates: { sourceLongitude: "IAU planetographic, positive-west, 0-360", markerLongitudeFromSource: { scale: -1, offsetDeg: 180 } } })).toBe(20);
     expect(longitudeOf(undefined)).toBe(20);
+  });
+});
+
+describe("the real Jupiter view places the Galilean moons' places (T-140, I-067)", () => {
+  const placed = (moon: string, id: string) => jupiterIoExplorer.experience.bodyFeatures!.find((set) => set.bodyId === moon)!.features.find((feature) => feature.id === id)!.longitude;
+  const stored = (file: { features: { id: string; longitude?: number }[] }, id: string) => file.features.find((feature) => feature.id === id)!.longitude;
+
+  it("draws Europa's Tyre at 33 (180 - 146.6 W stored as 147) and Pwyll at 180 - 271 = -91", async () => {
+    const europa = (await import("../data/bodies/europa/features.json")).default;
+    expect(stored(europa, "tyre")).toBe(147);
+    expect(placed("europa", "tyre")).toBeCloseTo(33, 0);
+    expect(placed("europa", "pwyll")).toBe(180 - stored(europa, "pwyll")!);
+  });
+
+  it("leaves Io, Ganymede and Callisto places as stored", async () => {
+    for (const moon of ["io", "ganymede", "callisto"] as const) {
+      const file = (await import(`../data/bodies/${moon}/features.json`)).default as { features: { id: string; latitude?: number; longitude?: number }[] };
+      for (const feature of file.features.filter((f) => f.latitude !== undefined && f.longitude !== undefined)) expect(placed(moon, feature.id)).toBe(feature.longitude);
+    }
   });
 });

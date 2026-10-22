@@ -2,7 +2,8 @@
 id: T-140
 title: Pass Europa's map record into the Jupiter view
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-140
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the recheck of C-096 covers it."
@@ -61,7 +62,12 @@ Focused node tests; configured gates. Evaluated by the recheck under `agent-skil
 
 ## Technical Evidence
 
-Pending execution.
+Test first: added "the real Jupiter view places the Galilean moons' places" to `tests/planetDefinition.test.ts`, going through `jupiterIoExplorer` (built from `jupiterSystem`). Before the wiring it failed (Tyre placed at 147, not 33); the Io/Ganymede/Callisto case passed.
+Wiring: `src/experiences/planets/systems/jupiter.ts` now reads `{io,europa,ganymede,callisto}/{features,categories,map}.json` by glob and uses `packagesOf`, as Saturn does (the four hand imports removed).
+After: Tyre 33, Pwyll -91 (180 - 271), Io/Ganymede/Callisto equal to stored (their maps are not positive-west scale 1), 10/10 in the file.
+Deviations / notes for the owner: (1) The Task said Pwyll stays unchanged; it cannot, since Europa's whole record is west longitudes (Pwyll 271.4 W is drawn at -91, as `tests/mapOrientation.test.ts` T-139 expects), so every Europa place converts; the test asserts that. (2) The older snapshot test "leaves Jupiter's view exactly as it was" compared against a frozen fixture; it now maps Europa's fixture longitudes to 180 - x (fixture file untouched). (3) Design.md O-039 paragraph corrected.
+Gates (lane, 2026-10-22): lint, typecheck, build pass; npm test 99 files, 1337 passed, 1 skipped.
+Owner look on preview: pending. Open localhost:5490 Jupiter, focus Europa: Tyre sits on its ringed impact scar; Pwyll on its rayed crater (a bright-rayed spot); Conamara Chaos and Thera Macula on their terrain.
 
 ## Drift Notes
 

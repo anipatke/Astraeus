@@ -6,14 +6,10 @@ import { jupiterMoonsSystem } from "../../../assets/compositions";
 import { JUPITER } from "../../../core/bodies/jupiter";
 import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, jupiterMoonEphemeris, loadJupiterMoons } from "../../../core/bodies/jupiterMoons";
 import type { PlanetSystem } from "../planetDefinition";
-import ioFeatures from "../../../../data/bodies/io/features.json";
-import ioCategories from "../../../../data/bodies/io/categories.json";
-import europaFeatures from "../../../../data/bodies/europa/features.json";
-import europaCategories from "../../../../data/bodies/europa/categories.json";
-import ganymedeFeatures from "../../../../data/bodies/ganymede/features.json";
-import ganymedeCategories from "../../../../data/bodies/ganymede/categories.json";
-import callistoFeatures from "../../../../data/bodies/callisto/features.json";
-import callistoCategories from "../../../../data/bodies/callisto/categories.json";
+import { packagesOf } from "../planetSystemParts";
+
+/** The tagged places of the four big moons: each body package's features, categories and map record (whose coordinates convert west longitudes, T-140), read as they are stored. */
+const PACKAGES = import.meta.glob("../../../../data/bodies/{io,europa,ganymede,callisto}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /**
  * The fit chunks this build ships: the window's year (one file per moon per year), served as files and fetched only for this
@@ -38,11 +34,6 @@ export const jupiterSystem: PlanetSystem = {
   tidalLockNote: FITTED_MOON_TIDAL_LOCK,
   centreGmKm3S2: JUPITER.gmKm3S2!,
   rings: JUPITER_RINGS,
-  packages: {
-    io: { features: ioFeatures, categories: ioCategories },
-    europa: { features: europaFeatures, categories: europaCategories },
-    ganymede: { features: ganymedeFeatures, categories: ganymedeCategories },
-    callisto: { features: callistoFeatures, categories: callistoCategories },
-  },
+  packages: packagesOf(PACKAGES, ["io", "europa", "ganymede", "callisto"]),
   load: async (window) => { await loadJupiterMoons({ window, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS, history: { bodies: JUPITER_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
 };
