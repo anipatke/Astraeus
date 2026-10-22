@@ -2,8 +2,7 @@
 id: T-147
 title: Retire the old browser scripts and update the rules
 objective: O-038
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-143, requires: clear}, {task: T-144, requires: clear}, {task: T-146, requires: clear}, {task: T-145, requires: clear}]
 owner_validation: {required: true}
 check_waiver:

@@ -1,7 +1,7 @@
 ---
 id: O-038
 title: Cut the browser checks to a few minutes
-status: planned
+status: done
 depends_on: [O-039]
 release: G-007
 priority: high
