@@ -8,7 +8,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, createFrameState, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
+import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
 import { DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
@@ -241,5 +241,126 @@ describe("placeViews", () => {
     expect(placedPath.place).toHaveBeenCalledWith(ctx.origin, { fovDeg: ctx.camera.fov, viewportHeightPx: 600 });
     const defaultGain = placeViews({ ...withViews, controls: { ...ctx.controls, hoverBrightness: undefined } }, T0, placed, DEFAULT_BODY_SET_LOOK);
     expect(defaultGain).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("draw this frame? (stage 8)", () => {
+  const quiet = { clockPlaying: false, timeChanged: false, cameraMoving: false, inputChanged: false };
+
+  it("draws when the clock plays, time jumps, the camera moves or an input changed", () => {
+    expect(shouldDrawFrame({ ...quiet, quietFrames: 999, clockPlaying: true })).toBe(true);
+    expect(shouldDrawFrame({ ...quiet, quietFrames: 999, timeChanged: true })).toBe(true);
+    expect(shouldDrawFrame({ ...quiet, quietFrames: 999, cameraMoving: true })).toBe(true);
+    expect(shouldDrawFrame({ ...quiet, quietFrames: 999, inputChanged: true })).toBe(true);
+  });
+
+  it("keeps drawing for the grace after the last change, then stops", () => {
+    expect(shouldDrawFrame({ ...quiet, quietFrames: IDLE_GRACE_FRAMES - 1 })).toBe(true);
+    expect(shouldDrawFrame({ ...quiet, quietFrames: IDLE_GRACE_FRAMES })).toBe(false);
+  });
+
+  it("knows when the camera's tweens have reached their targets", () => {
+    const orbit = createOrbitCameraState(16, "earth");
+    expect(cameraSettled(orbit)).toBe(true);
+    orbit.targetDistance = 20;
+    expect(cameraSettled(orbit)).toBe(false);
+    orbit.targetDistance = orbit.distance;
+    orbit.transition[1] = 0.5;
+    expect(cameraSettled(orbit)).toBe(false);
+    orbit.transition[1] = 0;
+    orbit.targetAzimuth += 0.1;
+    expect(cameraSettled(orbit)).toBe(false);
+  });
+
+  /** Frames of a paused, untouched scene until the draw rule stops. */
+  function settle(ctx: FrameContext): number {
+    let frames = 0;
+    while (decideDraw(ctx, ctx.runtime.clock.now()) && frames < 500) frames += 1;
+    return frames;
+  }
+
+  it("paused and idle: no draw once the first frames have settled", () => {
+    const { ctx } = makeContext();
+    const frames = settle(ctx);
+    expect(frames).toBeGreaterThan(0);
+    expect(frames).toBeLessThan(IDLE_GRACE_FRAMES + 5);
+    for (let i = 0; i < 100; i += 1) expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
+  });
+
+  it("a playing clock keeps drawing every frame", () => {
+    let monotonic = 0;
+    const clock = new SimulationClock(T0, () => monotonic);
+    const { ctx } = makeContext({ clock });
+    settle(ctx);
+    clock.play();
+    for (let i = 0; i < 100; i += 1) { monotonic += 16; expect(decideDraw(ctx, clock.now())).toBe(true); }
+    clock.pause();
+    expect(settle(ctx)).toBeGreaterThan(0);
+  });
+
+  it("a seek draws again", () => {
+    const { ctx, clock } = makeContext();
+    settle(ctx);
+    clock.seek(T0 + 3_600_000);
+    expect(decideDraw(ctx, clock.now())).toBe(true);
+  });
+
+  it("paused, camera still settling: draws until it arrives", () => {
+    const { ctx } = makeContext();
+    settle(ctx);
+    ctx.orbit.targetDistance = 30;
+    for (let i = 0; i < 10; i += 1) expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    ctx.orbit.distance = ctx.orbit.targetDistance;
+    expect(settle(ctx)).toBeGreaterThanOrEqual(IDLE_GRACE_FRAMES - 1);
+  });
+
+  it("a moved camera pose draws; a sub-pixel nudge does not", () => {
+    const { ctx } = makeContext();
+    settle(ctx);
+    ctx.camera.position.x += 1e-9;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
+    ctx.camera.position.x += 0.5;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    ctx.camera.fov = 60;
+    settle(ctx);
+    ctx.camera.fov = 61;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+  });
+
+  it("a settings change, a resize, a wake or a new body mount draws", () => {
+    const { ctx } = makeContext();
+    settle(ctx);
+    ctx.controls.policy = trueScale;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    settle(ctx);
+    ctx.controls.starBrightness = 1.5;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    settle(ctx);
+    (ctx as { size: { width: number; height: number } }).size = { width: 400, height: 300 };
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    settle(ctx);
+    ctx.state.wakes += 1;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    settle(ctx);
+    (ctx.bodyRefs.parts as Map<BodyId, { sphere: Group; marker: Group }>).set("earth", { sphere: new Group(), marker: new Group() });
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+  });
+
+  it("sees a look edited in place, as the Developer panel does for the Sun's halo", () => {
+    const glow = { sizePx: 40, brightness: 1, scale: 1 };
+    const { ctx } = makeContext({ controls: { glowLook: glow } });
+    settle(ctx);
+    glow.sizePx = 80;
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
+    expect(settle(ctx)).toBeGreaterThan(0);
+  });
+
+  it("ignores the camera readout the scene rewrites every frame", () => {
+    const { ctx } = makeContext();
+    settle(ctx);
+    ctx.controls.viewReadout = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
+    ctx.controls.viewReadout = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
+    expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
   });
 });
