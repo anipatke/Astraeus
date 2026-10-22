@@ -2,7 +2,8 @@
 id: T-137
 title: Owner walk-through on the preview and design notes brought up to date
 objective: O-039
-status: planned
+status: in_progress
+stage: audit
 check_waiver:
   task: T-137
   reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
@@ -62,8 +63,15 @@ Full gate `npm run test:full` fresh; owner's look. Evaluated under `agent-skills
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-22 on branch o039-reported-defects (main checkout, no lane). Extra reads: none beyond Context Files and the O-039 Tasks' evidence.
+
+- Design.md: one O-039 paragraph appended to Current Technical State, covering each drift note as reflected (texture desktop variant and 768 px, optional emissive, per-body textureYawRad and sphere() yaw, source-west conversion keyed on map.json used by Titan and Europa, Pluto balance point and mean-period lines, place-card badge and boxed facts in the UI font, Illuminate all and its Lighting group, desktop click opens the card, public Jupiter-only planet lists and PLANETS_DEMO_ONLY_TEXTURES) plus a non-architectural list (card sizes and colours, test tolerances, Venus credit-row edits).
+- docs/DONOR_PROVENANCE.md: Venus, map turns, Titan and Europa were already covered by T-130/T-131/T-132/T-139; added a Place cards section (T-134). AGENTS.md Codebase Map unchanged (no module purpose changed).
+- Owner walk-through verdict (2026-10-22, localhost:5490 and public build on 5491): owner marked T-131 to T-136, T-138 and T-139 done on the board, after "all done except Jupiter?" and "done, run the final check". Owner-directed change by the coordinator: home page demo card and intro refer to Jupiter and Io only (owner: "Maybe update the pulic page to only refer to Jupiter/IO", chose "Demo wording only"; commit f5a1517c).
+- Gates: npm run lint pass; npm run typecheck pass; flock /tmp/astraeus-build.lock npm run build pass (chunk-size warning only); npm run test:full pass fresh: 99 files, 1335 passed, 1 skipped, vitest 53 s (about 61 s wall), 2026-10-22. No browser sets, screenshots or servers.
+- Limitations: site/t-venus-2k.jpg thumbnail still old; Venus load-budget limits not re-measured; no browser set run (owner decision); coverage and junit not inspected beyond pass.
+
 
 ## Drift Notes
 
-None expected.
+None. Every earlier drift note is accounted for in Design.md (Current Technical State, O-039).
