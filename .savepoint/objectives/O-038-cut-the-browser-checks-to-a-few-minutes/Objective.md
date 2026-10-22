@@ -23,10 +23,15 @@ The tree is an inverted test pyramid at the top: 26 browser scripts in the engin
 
 1. One browser command (for example `npm run check:browser`) runs the smoke check and the journey checks in about 3 minutes or less on this machine, one browser at a time; the time is recorded.
 2. The smoke check opens every public page and demo view once (desktop and phone size) and fails on any page or console error or a page that does not draw.
-3. Two or three journey checks, chosen with the owner when this Objective is planned in detail (candidates: switch planets and open a place card on a phone; play and seek a shower's timeline; open the Apollo story), each pass reliably three runs in a row.
+3. Two journey checks (Confirmed Decision 1), each passing reliably three runs in a row.
 4. Every scenario of the retired scripts is mapped in `docs/BROWSER_CHECKS.md` to the node test that now proves it, the smoke or journey check that covers it, or "the owner's look on the preview", with nothing left unmapped.
 5. AGENTS.md's browser-check rules, the Full Objective Check routine and `check-method` usage say: run the one browser command once at a Full Objective Check; no per-Task browser runs; no demo sets.
 6. The fast test gate stays under about a minute; typecheck, build, lint and test pass.
+
+## Confirmed Decisions (owner, 2026-10-23)
+
+1. **Journeys**: "Planets on a phone" (switch planet, focus a moon, open a place card at phone size) and "Play a meteor shower" (play, seek, a story panel opens). Apollo and desktop controls get no journey; the smoke check still opens their pages.
+2. **Screen-level proofs** (drawers, panels, info cards): "Fast tests with a light pretend-page": a DOM test environment in the fast suite, overriding O-037's out-of-scope note; exact layout and overlap stay with the owner's look on the preview.
 
 ## Architectural Considerations
 
