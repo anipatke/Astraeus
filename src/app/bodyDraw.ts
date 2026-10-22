@@ -98,14 +98,18 @@ export interface BodyDrawPlan {
   readonly atmosphere?: AtmosphereConfig;
 }
 
-export function describeBody(asset: BodyAsset, policy: ScalePolicy): BodyDrawPlan {
+/**
+ * `desktopTextures` (the experience definition's opt-in, default off) lets a body with a desktop texture variant use it from its
+ * minimum viewport width up; without it the base file is used at any width.
+ */
+export function describeBody(asset: BodyAsset, policy: ScalePolicy, desktopTextures = false): BodyDrawPlan {
   const { definition, visual } = asset;
   const radii = drawnRadii(definition, policy);
   return {
     kind: visual.kind,
     radii,
     poleScale: radii.equatorial === 0 ? 1 : radii.polar / radii.equatorial,
-    ...(visual.texture === undefined ? {} : { textureUrl: textureUrlFor(visual.texture, typeof window === "undefined" ? undefined : window.innerWidth) }),
+    ...(visual.texture === undefined ? {} : { textureUrl: textureUrlFor(visual.texture, !desktopTextures ? 0 : typeof window === "undefined" ? undefined : window.innerWidth) }),
     material: visual.material,
     ...(visual.atmosphere === undefined ? {} : { atmosphere: visual.atmosphere }),
   };

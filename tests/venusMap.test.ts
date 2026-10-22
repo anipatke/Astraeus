@@ -4,6 +4,10 @@ import { catalogue } from "../src/assets/catalogue";
 import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "../src/assets/bodies/venus";
 import { textureRightsProblem, textureUrlFor } from "../src/assets/licence";
 import { trueScale } from "../src/core/scalePolicy";
+import { buildShowerDefinition, showerComposition } from "../src/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
+import perseidsFile from "../data/showers/perseids.json";
+import geminidsFile from "../data/showers/geminids.json";
 
 // Node modules are loaded by a computed name so the browser-typed project needs no node types (as tests/publicBuild.test.ts does).
 const node = async (name: string): Promise<any> => import(/* @vite-ignore */ `node:${name}`);
@@ -33,7 +37,27 @@ describe("Venus Magellan map (I-054)", () => {
     vi.stubGlobal("window", { innerWidth: 375 });
     expect(describeBody(venus, trueScale).textureUrl).toBe(VENUS_TEXTURE.url);
     vi.stubGlobal("window", { innerWidth: 1280 });
-    expect(describeBody(venus, trueScale).textureUrl).toBe(desktop.url);
+    expect(describeBody(venus, trueScale, true).textureUrl).toBe(desktop.url);
+    vi.stubGlobal("window", { innerWidth: 375 });
+    expect(describeBody(venus, trueScale, true).textureUrl).toBe(VENUS_TEXTURE.url);
+  });
+
+  it("asks for the 2k file at desktop width unless the experience opts in (I-068, T-141)", () => {
+    const venus = catalogue.get("venus");
+    vi.stubGlobal("window", { innerWidth: 1280 });
+    expect(describeBody(venus, trueScale).textureUrl).toBe(VENUS_TEXTURE.url);
+    expect(describeBody(venus, trueScale, false).textureUrl).toBe(VENUS_TEXTURE.url);
+  });
+
+  it("a desktop-width showers page draws Venus from the 2k file", () => {
+    vi.stubGlobal("window", { innerWidth: 1280 });
+    for (const file of [perseidsFile, geminidsFile]) {
+      const settings = parseShowerSettings(file);
+      expect(showerComposition(settings).bodies).toContain("venus");
+      const definition = buildShowerDefinition(settings, { kind: "absent" });
+      expect(definition.desktopTextures).toBeUndefined();
+      expect(describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true).textureUrl).toBe(VENUS_TEXTURE.url);
+    }
   });
 
   it("leaves a body with no variant on its one file", () => {

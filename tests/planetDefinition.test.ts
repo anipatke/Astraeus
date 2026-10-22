@@ -74,6 +74,7 @@ describe("planet settings (T-117)", () => {
 describe("planet definition builder (T-117)", () => {
   it("builds a made-up planet from its settings alone, with no Jupiter in it", () => {
     const definition = buildPlanetDefinition(parsePlanetSettings(madeUpFile), madeUpSystem, madeUpPanels);
+    expect(definition.desktopTextures).toBe(true);
     const ids = definition.experience.objects.map((object) => object.id);
     expect(ids).toEqual(["mars", "moon", "dot-a", "dot-b"]);
     expect(definition.experience.objects.find((object) => object.id === "dot-a")?.description).toBe("A small moon of Made-up planet in the Family A.");

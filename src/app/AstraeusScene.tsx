@@ -64,6 +64,8 @@ export interface SceneRuntime {
   readonly sun?: SunBody;
   /** The experience's per-body presentation overrides, laid over the catalogue's records. */
   readonly overrides?: ReadonlyMap<BodyId, VisualOverride>;
+  /** Whether bodies may use their desktop texture variant on wide viewports (the definition's opt-in). Absent: no. */
+  readonly desktopTextures?: boolean;
   /** Paths the `sun-centred` layer draws; empty when the experience has none. */
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
@@ -189,7 +191,7 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   return (
     <group ref={rootRef}>
       {assets.map((asset) => (
-        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
+        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} desktopTextures={runtime.desktopTextures === true} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
       ))}
       {skyView !== null && <primitive object={skyView.group} />}
       {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
@@ -206,6 +208,7 @@ interface SceneBodyProps {
   readonly asset: BodyAsset;
   readonly layer: number;
   readonly controls: SceneControls;
+  readonly desktopTextures: boolean;
   readonly ringLookOf: () => RingLook | undefined;
   readonly onParts: ((parts: BodyParts | null) => void) | undefined;
   readonly groupRef: (node: Group | null) => void;
@@ -214,11 +217,11 @@ interface SceneBodyProps {
 }
 
 /** One catalogued body: its view and, when its record has a light, the ambient and directional light on its layer. */
-function SceneBody({ asset, layer, controls, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
+function SceneBody({ asset, layer, controls, desktopTextures, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
   const light = asset.visual.light;
   return (
     <group>
-      <BodyView asset={asset} policy={controls.policy} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
+      <BodyView asset={asset} policy={controls.policy} desktopTextures={desktopTextures} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
       {light !== undefined && (
         <>
           <ambientLight layers={layer} intensity={light.ambient} />

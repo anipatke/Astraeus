@@ -258,6 +258,7 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
     experience,
     clock: { startUtcMs: window.startUtcMs, rate: settings.clockRate },
     sceneLayers: [],
+    desktopTextures: true,
     composition: system.composition,
     ...(system.rings === undefined ? {} : { visualOverrides: { [settings.centre.id]: { rings: system.rings } } }),
     bodySets: layer === undefined ? [] : [layer],

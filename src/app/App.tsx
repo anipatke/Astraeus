@@ -103,6 +103,7 @@ function buildRuntime(definition: ExperienceDefinition) {
       bodies: mountedBodiesOf(definition),
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
+      desktopTextures: definition.desktopTextures === true,
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),

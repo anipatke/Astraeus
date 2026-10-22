@@ -25,6 +25,8 @@ interface BodyViewProps {
   readonly markerLayer: number;
   /** Screen size of the dot a sphere shrinks to when its own record states none. */
   readonly markerPx?: number;
+  /** The experience's opt-in to desktop texture variants (default off). */
+  readonly desktopTextures?: boolean;
   /** The live halo settings for a body whose record has a glow. */
   readonly glowLook?: GlowLook;
   /** The group the scene positions. */
@@ -41,8 +43,8 @@ interface BodyViewProps {
  * Draws any catalogued body from its visual record: a sphere or spheroid with an optional atmosphere, or a marker. A sphere also carries a
  * hidden marker at the same place; the scene shows it instead of the sphere when the sphere would be smaller than a few pixels.
  */
-export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, groupRef, orientRef, onParts, ringLookOf }: BodyViewProps) {
-  const plan = describeBody(asset, policy);
+export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, desktopTextures = false, groupRef, orientRef, onParts, ringLookOf }: BodyViewProps) {
+  const plan = describeBody(asset, policy, desktopTextures);
   // A body with a halo draws no marker dot: the halo is its marker.
   const marker = useMemo(() => (plan.kind === "marker" && asset.visual.glow === undefined ? createMarker(asset, layer).group : null), [asset, plan.kind, layer]);
   const standIn = useMemo(() => (plan.kind === "sphere" ? createMarker(asset, markerLayer, undefined, markerPx).group : null), [asset, plan.kind, markerLayer, markerPx]);
