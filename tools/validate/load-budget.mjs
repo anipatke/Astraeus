@@ -17,7 +17,7 @@ const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v4
 const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
@@ -50,7 +50,7 @@ export const PAGES = [
   planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_610_000, gzipLimit: 2_930_000 }),
   planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 4_020_000, gzipLimit: 2_410_000 }),
   planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 3_080_000, gzipLimit: 1_710_000 }),
-  planetView("venus", ["venus-2k.jpg"], { moons: false, rawLimit: 3_100_000, gzipLimit: 1_730_000 }),
+  planetView("venus", ["venus-2k-balanced.jpg"], { moons: false, rawLimit: 3_100_000, gzipLimit: 1_730_000 }),
   planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 4_420_000, gzipLimit: 3_030_000 }),
   planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
   { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },

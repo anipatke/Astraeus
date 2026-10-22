@@ -75,7 +75,7 @@ describe("home shelf and demo card (T-120)", () => {
       const chip = /<\/b><span>(.*?)<\/span>/.exec(g)?.[1] ?? "";
       const licence = catalogue.get(id).visual.texture?.licence?.licence;
       if (licence === undefined) throw new Error(`${id} has no texture licence`);
-      const expected = licence === "public domain" ? "NASA Earth Observatory" : licence.startsWith("NASA/JPL") ? "NASA/JPL" : licence;
+      const expected = licence === "public domain" ? (id === "earth" ? "NASA Earth Observatory" : "Public domain") : licence.startsWith("NASA/JPL") ? "NASA/JPL" : licence;
       expect(chip, id).toBe(expected);
       const count = id === "earth" ? bodies.filter((b) => b.parent === "earth").length : MOON_PLANETS.concat("jupiter").includes(id) ? moonList(id).length : 0;
       const link = /<a class="moons" href="assets\.html#([^"]+)">\+(\d+) (moons?)<\/a>/.exec(g);

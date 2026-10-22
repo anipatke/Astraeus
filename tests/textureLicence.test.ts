@@ -25,14 +25,14 @@ describe("texture rights (PROV-02)", () => {
     }
     expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     // The Sun's map is from the same Solar System Scope set, so it is licensed like the planets'.
-    for (const [id, texture] of [textures[0], ...textures.slice(3, 7)]) {
+    for (const [id, texture] of [textures[0], ...textures.slice(3, 4), ...textures.slice(5, 7)]) {
       expect(textureRightsProblem(texture), id).toBeNull();
       expect(texture.licence?.licence, id).toBe("CC BY 4.0");
       expect(texture.localOnly, id).toBeUndefined();
     }
     // Io's, Europa's, Ganymede's and Callisto's maps are USGS public-domain mosaics (T-098 for the last three), and Earth and the Moon are NASA
     // products (I-029), so all are licensed rather than local-only.
-    for (const [id, texture] of [...textures.slice(7, 11), textures[1], textures[2]]) {
+    for (const [id, texture] of [...textures.slice(7, 11), textures[1], textures[2], textures[4]]) {
       expect(textureRightsProblem(texture), id).toBeNull();
       expect(texture.licence?.licence, id).toBe("public domain");
       expect(texture.localOnly, id).toBeUndefined();

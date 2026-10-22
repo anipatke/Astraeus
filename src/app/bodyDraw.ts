@@ -1,5 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Group, Points, PointsMaterial, Sprite, SpriteMaterial } from "three";
 import type { BodyAsset } from "../assets/catalogue";
+import { textureUrlFor } from "../assets/licence";
 import type { AtmosphereConfig, BodyMaterialConfig } from "../assets/visual";
 import type { CelestialBodyDefinition } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -104,7 +105,7 @@ export function describeBody(asset: BodyAsset, policy: ScalePolicy): BodyDrawPla
     kind: visual.kind,
     radii,
     poleScale: radii.equatorial === 0 ? 1 : radii.polar / radii.equatorial,
-    ...(visual.texture === undefined ? {} : { textureUrl: visual.texture.url }),
+    ...(visual.texture === undefined ? {} : { textureUrl: textureUrlFor(visual.texture, typeof window === "undefined" ? undefined : window.innerWidth) }),
     material: visual.material,
     ...(visual.atmosphere === undefined ? {} : { atmosphere: visual.atmosphere }),
   };

@@ -151,7 +151,8 @@ Everything the demos draw, with its source, licence and whether it can go public
 |---|---|---|---|
 | Milky Way panorama | ESO eso0932a, ESO/S. Brunier | CC BY 4.0 | Public |
 | Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
-| Sun, Mercury, Venus, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
+| Sun, Mercury, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
+| Venus map | USGS Astrogeology / NASA Magellan C3-MDIR mosaic | Public domain | Public |
 | Io map | USGS Galileo and Voyager mosaic | Public domain | Public |
 | Earth map | NASA Earth Observatory, Blue Marble: Next Generation with topography and bathymetry, July 2004 (Reto Stöckli) | Public domain | Public |
 | Moon map | NASA Scientific Visualization Studio, CGI Moon Kit (SVS 4720), LROC colour map with polar fill | Public domain | Public |
@@ -165,7 +166,8 @@ Everything the demos draw, with its source, licence and whether it can go public
 Credit lines, word for word:
 
 - Milky Way panorama, CC BY 4.0: ESO/S. Brunier. eso0932a, eso.org/public/images/eso0932a. Changed: split in two and turned into the J2000 sky frame.
-- Sun, Mercury, Venus, Mars, Jupiter maps, CC BY 4.0: Solar System Scope (solarsystemscope.com/textures), based on NASA imagery and elevation data.
+- Venus map, public domain: USGS Astrogeology / NASA Magellan C3-MDIR mosaic.
+- Sun, Mercury, Mars, Jupiter maps, CC BY 4.0: Solar System Scope (solarsystemscope.com/textures), based on NASA imagery and elevation data.
 - Io map, public domain: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions.
 - Earth map, public domain: NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096x2048.
 - Moon map, public domain: NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.

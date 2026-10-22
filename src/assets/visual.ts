@@ -5,6 +5,9 @@ export interface BodyMaterialConfig {
   readonly color: string;
   readonly roughness: number;
   readonly metalness: number;
+  /** Self-light added to the lit colour; both or neither. */
+  readonly emissive?: string;
+  readonly emissiveIntensity?: number;
 }
 
 export interface AtmosphereConfig {

@@ -47,6 +47,7 @@ function TexturedMaterial({ url, material }: { readonly url: string; readonly ma
       color={texture ? "#ffffff" : material.color}
       roughness={material.roughness}
       metalness={material.metalness}
+      {...(material.emissive === undefined ? {} : { emissive: material.emissive, emissiveIntensity: material.emissiveIntensity ?? 1 })}
     />
   );
 }
