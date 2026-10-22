@@ -3,6 +3,11 @@ id: T-134
 title: Show place details as little fact cards in one font
 objective: O-039
 status: planned
+check_waiver:
+  task: T-134
+  reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
+  actor: {role: owner, session: 8d73d3f8}
+  recorded_at: '2026-10-22T10:40:06Z'
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o039-planning-20261022}

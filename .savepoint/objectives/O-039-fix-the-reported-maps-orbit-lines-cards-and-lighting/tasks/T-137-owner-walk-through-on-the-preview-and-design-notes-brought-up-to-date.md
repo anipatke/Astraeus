@@ -3,6 +3,11 @@ id: T-137
 title: Owner walk-through on the preview and design notes brought up to date
 objective: O-039
 status: planned
+check_waiver:
+  task: T-137
+  reason: "Owner skipped the optional Task Check for the O-039 overnight run ('Skip them, one big check at the end'); the Full Objective Check covers it."
+  actor: {role: owner, session: 8d73d3f8}
+  recorded_at: '2026-10-22T10:40:06Z'
 depends_on: [{task: T-131, requires: clear}, {task: T-132, requires: clear}, {task: T-133, requires: clear}, {task: T-134, requires: clear}, {task: T-135, requires: clear}, {task: T-136, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o039-planning-20261022}

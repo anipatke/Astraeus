@@ -22,8 +22,8 @@ import uranusUrl from "../textures/uranus-2k.jpg";
  * Pluto are resized to 4096x2048 because the donor files are 14,134, 14,138 and 5,926 px wide (the resize is recorded in each licence's source).
  * Sources and licences are the donor README entries recorded in each `map.json`, read 2026-10-21 from the local donor checkout; no source page was
  * opened. Pluto, Uranus, Neptune and Charon have no donor README entry: their sources are the ones Astraeus recorded in
- * `tools/import/planetary-explorer-map-sources.json` (docs/DONOR_TEXTURE_INVENTORY.md, section C). `textureYawRad` is 0 for all: no map has been
- * checked against its body's prime meridian yet.
+ * `tools/import/planetary-explorer-map-sources.json` (docs/DONOR_TEXTURE_INVENTORY.md, section C). `textureYawRad` is 0 except Iapetus (PI, T-130: its map is registered 180 degrees from the
+ * marker frame, proved in tests/mapOrientation.test.ts); no other map has been checked against its body's prime meridian yet.
  */
 const accessed = "2026-10-21";
 const LIGHT = Object.freeze({ ambient: 0.08, directional: 1.4 });
@@ -45,11 +45,11 @@ const nasa = (name: string, source: string, url: string, credit: string, licence
 const LPI = "NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute";
 const SSI = "NASA/JPL-Caltech/Space Science Institute";
 
-const sphere = (url: string, widthPx: number, heightPx: number, licence: AssetLicence, color: string, roughness: number): BodyVisual => Object.freeze({
+const sphere = (url: string, widthPx: number, heightPx: number, licence: AssetLicence, color: string, roughness: number, textureYawRad = 0): BodyVisual => Object.freeze({
   kind: "sphere",
   texture: Object.freeze<TextureRef>({ url, widthPx, heightPx, licence }),
   material: Object.freeze({ color, roughness, metalness: 0 }),
-  textureYawRad: 0,
+  textureYawRad,
   light: LIGHT,
 });
 
@@ -67,7 +67,7 @@ export const TETHYS_VISUAL = sphere(tethysUrl, 4096, 2048, nasa("Tethys", "NASA/
 export const DIONE_VISUAL = sphere(dioneUrl, 4096, 2048, nasa("Dione", `NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Dione - 2014 (PIA18434), donor file 14,134x7,067 (donor README); ${RESIZE}`, "https://pds-rings.seti.org/press_releases/pages/PIA18xxx/PIA18434.html", LPI), "#b8b8b8", 0.95);
 export const RHEA_VISUAL = sphere(rheaUrl, 4096, 2048, nasa("Rhea", "NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Rhea - 2014 (PIA18438), donor-resized 4096x2048 (donor README)", "https://photojournal.jpl.nasa.gov/catalog/PIA18438", LPI), "#b4b0aa", 0.95);
 export const TITAN_VISUAL = sphere(titanUrl, 4096, 2048, nasa("Titan", "NASA/JPL-Caltech/Space Science Institute Titan Global Map - June 2015 (PIA19658), Cassini ISS albedo map, longitudes labelled 360 W at the left edge (donor README)", "https://science.nasa.gov/photojournal/titan-global-map-june-2015/", SSI), "#c8943c", 0.9);
-export const IAPETUS_VISUAL = sphere(iapetusUrl, 4096, 2048, nasa("Iapetus", "NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Iapetus - 2014 (PIA18436), donor-resized 4096x2048; the donor notes it is registered 180 degrees from its marker frame (donor README)", "https://commons.wikimedia.org/wiki/File:Color_map_of_Iapetus_PIA18436_Nov._2014.jpg", LPI), "#8a7a6a", 0.95);
+export const IAPETUS_VISUAL = sphere(iapetusUrl, 4096, 2048, nasa("Iapetus", "NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute Color Maps of Iapetus - 2014 (PIA18436), donor-resized 4096x2048; the donor notes it is registered 180 degrees from its marker frame (donor README)", "https://commons.wikimedia.org/wiki/File:Color_map_of_Iapetus_PIA18436_Nov._2014.jpg", LPI), "#8a7a6a", 0.95, Math.PI);
 export const TRITON_VISUAL = sphere(tritonUrl, 4096, 2048, nasa("Triton", `NASA/JPL-Caltech/Lunar & Planetary Institute Map of Triton (PIA18668), Voyager 2 simple-cylindrical colour map via the public-domain Wikimedia copy; donor file 14,138x7,069 (donor README); ${RESIZE}`, "https://pds-rings.seti.org/press_releases/pages/PIA18xxx/PIA18668.html", "NASA/JPL-Caltech/Lunar & Planetary Institute"), "#c9bfb5", 0.95);
 export const CHARON_VISUAL = sphere(charonUrl, 1024, 512, nasa("Charon", "USGS Astrogeology, Charon New Horizons LORRI MVIC Global Mosaic 300 m (Jul 2017), 1024 px preview JPG (byte-identical to the donor's charon-2k.jpg; no donor README entry, source recorded by Astraeus)", "https://astrogeology.usgs.gov/", "New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017", "USGS use constraint: please cite authors"), "#8a8486", 0.95);
 
