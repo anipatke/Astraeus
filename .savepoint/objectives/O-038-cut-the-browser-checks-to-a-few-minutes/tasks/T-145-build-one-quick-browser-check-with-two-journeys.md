@@ -2,12 +2,21 @@
 id: T-145
 title: Build one quick browser check with two journeys
 objective: O-038
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o038-planning-20261023}
 lane: browser
 planned_writes: [package.json, tools/validate/runner.mjs, tools/validate/run-browser.mjs, tools/validate/browser-smoke.mjs, tools/validate/journey-planets-phone.mjs, tools/validate/journey-meteor-shower.mjs, tools/validate/driver.mjs]
+check_waiver:
+    task: T-145
+    reason: owner asked for one full fresh check at the end of O-038 instead
+    quote: "orchestrate the delivery of O-38. ask clrifying questions front, one full (new) chek at the end"
+    actor:
+        role: owner
+        session: owner
+    recorded_at: "2026-10-23T00:00:00Z"
 ---
 
 # Build one quick browser check with two journeys
@@ -57,7 +66,13 @@ The three timed runs are this step's own proof (it builds the checks, so a brows
 
 ## Technical Evidence
 
-Pending execution.
+Built in lane `lane-t145`.
+- `browser-lite` alone measured first: 162 s (26 loads incl. 7 made-up scenes, loader, title, object-info and story checks). `browser-smoke.mjs` keeps the discovery but loads only public views (Apollo, planets, showers, two showers, plus `index` and `assets` pages), asserts shell, scene readouts not empty (bodies, dots, paths or stars, as lite did) and zero page/console errors: about 24 s.
+- `journey-planets-phone.mjs` (375x667 touch): Mercury, switch to Jupiter, moons panel then Io (camera focused), a place marker (`io:ra-patera`) pressed, card headed by its name. `journey-meteor-shower.mjs` (1280x720): Perseids, play moves the clock, seek to half, scene draws, story panel `stream-shape` opens. Both through `driver.mjs` only; no driver change needed; the guard test covers them.
+- `runner.mjs` split into `startServers`, `makeContext`, `runSet`, `runStep`; largest function reads CCN 10 by lizard (`lizard tools/validate/runner.mjs`). The old reading of 27 was lizard mis-parsing `1 << 28` (read as a generic), which swallowed the rest of the file into `runStep`; now `2 ** 28`.
+- `run-browser.mjs` lists smoke, two journeys and the two public-build file checks (no-browser steps on a scratch public build, which stay in the gate that way). `package.json`: script `check:browser` only.
+- Three consecutive passing timed runs (dev port 5479, public 5480, nothing else running): 46 s `docs/evidence/browser-20261022T201927Z`, 42 s `docs/evidence/browser-20261022T202014Z`, 41 s `docs/evidence/browser-20261022T202056Z` (totals include servers and public build).
+- Optional Task Check waived (see check_waiver). No Tasks, Checks or Issues created. Old sets and scripts untouched.
 
 ## Drift Notes
 
