@@ -2,8 +2,7 @@
 id: T-146
 title: Check each demo's own rules in fast tests
 objective: O-038
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-143, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o038-planning-20261023}
@@ -178,6 +177,8 @@ Carried over from T-144: item 42 (Sun label off in Perseids, still selectable) i
 **Summary.** About 120 scenario lines over the 11 scripts; every one is mapped to a fast test, S (smoke check), O (owner's look), or J (the two journeys). None unmapped. One weaker mapping the Full Check may want to look at: M7 (the exclusivity of the moons sheet and the information panel is a shell rule in `AstraeusShell.tsx` that I read but did not add a case for; it needs the app holding the lit family). Several rows name a test file without a case where the file as a whole covers the row (`viewUp`, `startCamera`, `publicBuild`, `moonOrbits`, `core`, `clickOpensInfo`).
 
 Needed Issues or Tasks: none.
+
+Marked done by the coordinator at 2026-10-22T20:32:21Z on the owner's authority (2026-10-23, asked "Should I mark each step finished as it passes its tests": "I mark them as they pass"). Merged to o038-browser-checks as 9a450717; combined run there: `npm test` 110 files, 1499 passed, 1 skipped, 30.3 s. Row M7 (moons sheet and info panel never together) is file-level only; handed to T-147 to prove with a case or map explicitly.
 
 ## Drift Notes
 
