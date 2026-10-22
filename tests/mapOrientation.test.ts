@@ -8,7 +8,9 @@ import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL,
 import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "../src/assets/bodies/galileanMoons";
 import { shownLongitude } from "../src/experiences/planets/surfacePlace.mjs";
 import type { BodyVisual } from "../src/assets/visual";
+import europaMap from "../data/bodies/europa/map.json";
 import titanMap from "../data/bodies/titan/map.json";
+import europaFeatures from "../data/bodies/europa/features.json";
 import titanFeatures from "../data/bodies/titan/features.json";
 import tritonMap from "../data/bodies/triton/map.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
@@ -110,9 +112,6 @@ describe("T-131: moon maps centred on 180 E turn half a revolution", () => {
     expect(IAPETUS_VISUAL.textureYawRad).toBe(Math.PI);
   });
 
-  it("Europa: Pwyll [4878] 271.4 W, Conamara Chaos 272.7 W (Tyre is not pinned: see Technical Evidence)", () => {
-    expectPlacesOnTheirTerrain(EUROPA_VISUAL, asStored, "europa", [{ name: "Pwyll", west: 271.4, id: "4878" }, { name: "Conamara Chaos", west: 272.7, id: "-" }], 8);
-  });
 
   it("Callisto: Valhalla [6284] 56.0 W", () => {
     expectPlacesOnTheirTerrain(CALLISTO_VISUAL, asStored, "callisto", [{ name: "Valhalla", west: 56, id: "6284" }], 3);
@@ -161,5 +160,24 @@ describe("T-131: Titan's places are converted from west longitudes as they load"
     const xanadu = titanFeatures.features.find((f) => f.id === "xanadu")!;
     expect(xanadu.longitude).toBe(100);
     expect(() => expectPlacesOnTheirTerrain(TITAN_VISUAL, asStored, "titan", [{ name: "Xanadu", west: 100, id: "6958" }], 3)).toThrow();
+  });
+});
+
+describe("T-139: Europa's places are converted from west longitudes as they load (I-067)", () => {
+  const shown = (_name: string, stored: number): number => shownLongitude(stored, europaMap.coordinates);
+
+  it("Tyre [6170] 146.6 W, Pwyll [4878] 271.4 W, Conamara Chaos [1282] 272.7 W and Thera Macula [5967] 181.2 W land on their terrain", () => {
+    // USGS Gazetteer of Planetary Nomenclature (planetarynames.wr.usgs.gov, target Europa, planetographic +West, looked up 2026-10-22).
+    expectPlacesOnTheirTerrain(EUROPA_VISUAL, shown, "europa", [
+      { name: "Tyre", west: 146.6, id: "6170" }, { name: "Pwyll", west: 271.4, id: "4878" },
+      { name: "Conamara Chaos", west: 272.7, id: "1282" }, { name: "Thera Macula", west: 181.2, id: "5967" },
+    ], 8);
+  });
+
+  it("without the conversion Tyre is about 114 degrees off its terrain and the data file is untouched", () => {
+    const tyre = europaFeatures.features.find((f) => f.id === "tyre")!;
+    expect(tyre.longitude).toBe(147);
+    expect(shown("Tyre", 147)).toBe(33);
+    expect(() => expectPlacesOnTheirTerrain(EUROPA_VISUAL, asStored, "europa", [{ name: "Tyre", west: 146.6, id: "6170" }], 8)).toThrow();
   });
 });

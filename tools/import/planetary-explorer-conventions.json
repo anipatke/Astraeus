@@ -65,8 +65,11 @@
     },
     "europa": {
       "sourceLongitude": "IAU planetographic, positive-west, 0-360",
-      "markerLongitudeFromSource": null,
-      "note": "donor: the texture is positive-west 0-360 and matches the convention of europa-features.json; formula not stated"
+      "markerLongitudeFromSource": {
+        "scale": 1,
+        "offsetDeg": 0
+      },
+      "note": "donor: the texture is positive-west 0-360 and europa-features.json stores source west longitudes directly (checked against the USGS Gazetteer, O-039 T-139); formula not stated by the donor"
     },
     "io": {
       "sourceLongitude": "planetocentric latitude, positive-west -180 to 180",
