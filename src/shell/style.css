@@ -44,12 +44,14 @@
 }
 .info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .info-panel-header h2 { margin: 6px 0 0; font-size: 16px; line-height: 1.3; }
-.info-panel-subtitle { margin: 0; color: var(--ui-data, #b1a1df); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+/* Fact cards ported from Planetary Explorer's FeatureDetails (badge, then one small box per detail), in the shell's one UI font (O-039 T-134, I-058). */
+.info-panel-subtitle { margin: 0; }
+.info-panel-badge { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 3px 10px; border: 1px solid color-mix(in srgb, var(--ui-data, #b1a1df) 45%, transparent); border-radius: 999px; color: var(--ui-data, #b1a1df); font-size: 12px; line-height: 1.3; text-transform: capitalize; overflow-wrap: anywhere; }
 .info-panel-description { margin: 0; color: var(--ui-muted, #c7bdb3); }
-.info-panel-facts { display: grid; gap: 2px; margin: 0; }
-.info-panel-facts div { display: flex; gap: 8px; }
-.info-panel-facts dt { flex: 0 0 4.5em; color: var(--ui-muted, #c7bdb3); }
-.info-panel-facts dd { margin: 0; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.info-panel-facts { display: grid; gap: 8px; margin: 0; min-width: 0; }
+.info-panel-fact { min-width: 0; padding: 8px 12px; border: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); border-radius: 12px; background: rgba(0, 0, 0, .2); text-align: left; }
+.info-panel-fact dt { margin: 0; color: var(--ui-muted, #c7bdb3); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.info-panel-fact dd { margin: 4px 0 0; color: var(--ui-color, #f0e6da); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
 
 .provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }

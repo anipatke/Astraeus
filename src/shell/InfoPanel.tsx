@@ -39,12 +39,12 @@ export function InfoPanel({ view, metrics, onClose }: Props) {
         <h2 id="info-panel-title">{view.title}</h2>
         <button type="button" className="info-panel-close ui-pill" aria-label="Close information" onClick={onClose}>Close</button>
       </header>
-      {view.subtitle !== undefined && <p className="info-panel-subtitle">{view.subtitle}</p>}
+      {view.subtitle !== undefined && <p className="info-panel-subtitle"><span className="info-panel-badge">{view.subtitle}</span></p>}
       {view.provenance !== null && <ProvenanceBadge key={targetKey} provenance={view.provenance} />}
       {view.description !== undefined && <p className="info-panel-description">{view.description}</p>}
       {view.facts !== undefined && (
         <dl className="info-panel-facts">
-          {view.facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+          {view.facts.map((fact) => <div key={fact.label} className="info-panel-fact"><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
         </dl>
       )}
       {metrics.length > 0 && (
