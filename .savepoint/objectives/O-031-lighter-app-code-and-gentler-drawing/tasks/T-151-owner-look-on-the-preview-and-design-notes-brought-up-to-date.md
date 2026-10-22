@@ -2,7 +2,13 @@
 id: T-151
 title: Owner look on the preview and design notes brought up to date
 objective: O-031
-status: planned
+status: in_progress
+stage: test
+check_waiver:
+  task: T-151
+  reason: 'owner asked for one full fresh check at the end of O-031 instead. Owner quote: "orchestrate the delivery of O-31. Ask questions before execution, one full test at end"'
+  actor: {role: owner, session: o031-orchestration-20261023}
+  recorded_at: '2026-10-23T00:00:00Z'
 depends_on: [{task: T-149, requires: clear}, {task: T-150, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o031-planning-20261023}
@@ -55,7 +61,22 @@ Configured gates at hand-off; the owner's recorded look. Evaluated later under `
 
 ## Technical Evidence
 
-Pending execution.
+**Owner checklist** (built from T-149's paused-animation list; preview `localhost:5490`, branch o031-lighter-app at 1ae421a9). For each of Apollo 11 (`/app.html`), Planets (`/app.html?experience=planets`) and Showers (`/app.html?experience=showers`), at desktop and at phone size:
+
+1. Pause, leave it 3 seconds untouched (the scene stops drawing here).
+2. Drag to turn the view, then let go: it moves and comes to rest smoothly, no jump.
+3. Scroll or pinch to zoom.
+4. Tap a planet or moon (Apollo: the Moon): the camera flies there and the information card opens.
+5. Use a camera button (Focus, Follow, Overview).
+6. Open the cog and change a look setting (for example Sun halo size or label size): the scene updates at once.
+7. Switch Readable / True scale.
+8. Move along the timeline, and jump to the next event: the scene shows the new time.
+9. Open a story panel from its marker.
+10. Press play: it moves smoothly.
+11. Phone size only: rotate, or resize the window: the scene redraws at the new size, not stretched.
+12. Reload and watch the first seconds: planet and moon pictures appear (none stays blank or blurry after loading). This is T-149's one named risk: a picture arriving late could stay stale until the next touch.
+
+Owner verdict: pending.
 
 ## Drift Notes
 
