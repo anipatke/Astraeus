@@ -3,7 +3,7 @@
 // count above the limit. Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
 // about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildPackage, PACKAGES } from "./build-packages.mjs";
@@ -75,7 +75,8 @@ function codeProblems(name, dir) {
   if (name.startsWith("astraeus-data-")) {
     const urls = readFileSync(join(dir, "src", "chunks.js"), "utf8").match(/new URL\([^)]*\)/g) ?? [];
     if (urls.length === 0) problems.push(`${name}: src/chunks.js lists no chunk`);
-    if (urls.some((url) => !url.includes('?no-inline"'))) problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);
+    if (urls.some((url) => !/\.bin\?no-inline"/.test(url))) problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);
+    if (!existsSync(join(dir, "src", "chunks.d.ts"))) problems.push(`${name}: src/chunks.d.ts is missing (chunkUrls would be untyped)`);
   }
   return problems;
 }

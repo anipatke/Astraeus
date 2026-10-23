@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
@@ -45,6 +45,27 @@ describe("publishable packages", () => {
       expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain("astraeus-data-pluto: extensionless relative import in src/bad.js: ./chunks");
     } finally {
       rmSync(join(dist, "src", "bad.js"), { force: true });
+    }
+  }, 60_000);
+
+  it("fails on a chunk URL a bundler could inline, and on a missing chunk list type (I-078)", () => {
+    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+    const list = join(dist, "src", "chunks.js");
+    const types = join(dist, "src", "chunks.d.ts");
+    const original = readFileSync(list, "utf8");
+    const declaration = readFileSync(types, "utf8");
+    const problem = "astraeus-data-pluto: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)";
+    try {
+      for (const broken of [original.replace("?no-inline", ""), original.replace("?no-inline", "?no-inline=0")]) {
+        writeFileSync(list, broken);
+        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(problem);
+      }
+      writeFileSync(list, original);
+      rmSync(types);
+      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain("astraeus-data-pluto: src/chunks.d.ts is missing (chunkUrls would be untyped)");
+    } finally {
+      writeFileSync(list, original);
+      writeFileSync(types, declaration);
     }
   }, 60_000);
 });
