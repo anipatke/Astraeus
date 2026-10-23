@@ -15,5 +15,6 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"]
   },
-  "include": ["packages", "tools", "vitest.config.ts"]
+  "include": ["packages", "tools", "vitest.config.ts"],
+  "exclude": ["**/node_modules", "**/dist"]
 }

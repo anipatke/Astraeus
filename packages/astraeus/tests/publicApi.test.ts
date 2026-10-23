@@ -2,7 +2,11 @@
 // The engine's small public API (O-036 T-160): a scene built with the documented calls becomes the app's definition, bad input fails with a named error, and mount/unmount leaves nothing behind.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { Scene, SceneError, earth, moon, mount, readableScale, trueScale, type DataSource } from "astraeus";
+import { Scene, SceneError, earth, moon, mount, readableScale, saturn, titan, trueScale, type DataSource } from "astraeus";
+import { dataSource as pictureData } from "astraeus-data";
+import { catalogue } from "../src/assets/catalogue";
+import { clearPictures, pictureOf, registerPictures } from "../src/assets/pictures";
+import { installData } from "../src/api/data";
 import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -66,6 +70,37 @@ describe("Scene", () => {
     expect(codeOf(() => scene.toDefinition())).toContain("astraeus-data");
     const data: DataSource = { name: "astraeus-data", provides: ["io"] };
     expect(mountedBodiesOf(scene.toDefinition([data]))).toEqual(["jupiter", "io"]);
+  });
+});
+
+describe("moons and the data packages (O-036 T-161)", () => {
+  const positions = (): DataSource => ({ name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { centre: "saturn", loadIndex: async () => ({}), chunkUrls: {} } });
+
+  it("does not offer a moon without its planet's positions package, by reference or by id", () => {
+    expect(codeOf(() => new Scene().addBody(saturn).addBody(titan).toDefinition())).toMatch(/^missing-data: .*titan.*astraeus-data-saturn/);
+    expect(codeOf(() => new Scene().addBody("saturn").addBody("titan").toDefinition())).toMatch(/^missing-data: .*astraeus-data-saturn/);
+  });
+
+  it("is not satisfied by the pictures package alone, and is by the positions package", () => {
+    const scene = new Scene().addBody(saturn).addBody(titan);
+    expect(codeOf(() => scene.toDefinition([pictureData]))).toMatch(/^missing-data: .*astraeus-data-saturn/);
+    expect(mountedBodiesOf(scene.toDefinition([positions(), pictureData]))).toEqual(["saturn", "titan"]);
+  });
+
+  it("registers a package's pictures when it is installed, and without them a moon has no map (no invented data)", async () => {
+    clearPictures();
+    try {
+      expect(catalogue.get("titan").visual.texture).toBeUndefined();
+      expect(catalogue.get("venus").visual.texture?.desktop).toBeUndefined();
+      await installData([pictureData], [], { startUtcMs: 0, endUtcMs: 1 });
+      const texture = catalogue.get("titan").visual.texture;
+      expect(texture?.url).toBeTruthy();
+      expect(texture?.licence?.attribution).toContain("NASA/JPL");
+      expect(catalogue.get("venus").visual.texture?.desktop?.widthPx).toBe(8192);
+      expect(pictureOf("milky-way-left")).toBeDefined();
+    } finally {
+      registerPictures(pictureData.pictures!);
+    }
   });
 });
 

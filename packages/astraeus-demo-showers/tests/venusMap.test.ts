@@ -17,7 +17,7 @@ const shippedPackage = async () => {
 };
 const sha = async (file: string): Promise<string> => {
   const [{ readFileSync }, { createHash }] = [await node("fs"), await node("crypto")];
-  return createHash("sha256").update(readFileSync(`packages/astraeus/src/assets/textures/${file}`)).digest("hex") as string;
+  return createHash("sha256").update(readFileSync(`packages/${file.includes("8k") ? "astraeus-data/src" : "astraeus/src/assets"}/textures/${file}`)).digest("hex") as string;
 };
 const desktop = VENUS_TEXTURE.desktop!;
 

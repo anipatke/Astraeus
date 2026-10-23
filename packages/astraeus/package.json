@@ -1,7 +1,7 @@
 {
   "name": "astraeus",
   "version": "0.1.0",
-  "description": "The Astraeus engine and shell: scientific core, body catalogue, scene, shell and made-up experiences.",
+  "description": "A 3D solar system engine for the browser: place bodies and recorded paths in a scene, mount it, and get time controls, camera, scale choice and body info. Planet positions and the main pictures included.",
   "license": "MIT",
   "type": "module",
   "dependencies": {
@@ -34,5 +34,38 @@
     "./shell/StoryPanelView": "./src/shell/StoryPanelView.tsx",
     "./shell/SwitchControl": "./src/shell/SwitchControl.tsx",
     "./tools/import/test-io.mjs": "./tools/import/test-io.mjs"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anipatke/Astraeus.git"
+  },
+  "keywords": [
+    "astronomy",
+    "solar-system",
+    "three",
+    "react-three-fiber",
+    "orbit",
+    "ephemeris",
+    "space"
+  ],
+  "x-publish": {
+    "exports": {
+      ".": {
+        "types": "./src/api/index.d.ts",
+        "import": "./src/api/index.js"
+      },
+      "./style.css": "./src/app/style.css"
+    },
+    "files": [
+      "src",
+      "data",
+      "README.md",
+      "NOTICE",
+      "LICENSE",
+      "licenses"
+    ]
   }
 }

@@ -99,7 +99,7 @@ const designation = (label) => {
 
 const summary = {};
 for (const [planet, plan] of Object.entries(PLANETS)) {
-  const index = JSON.parse(readFileSync(new URL(`data/ephemerides/${planet}-moons/index.json`, root), "utf8"));
+  const index = JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/index.json`, root), "utf8"));
   const moons = index.bodies.filter((body) => body.role === "moon");
   const mine = facts[planet];
   const errors = [];

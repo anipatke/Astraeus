@@ -3,8 +3,7 @@
 // with its licence (PROV-02).
 import type { AssetLicence, TextureRef } from "./licence";
 import hygStarsUrl from "./stars/hyg-v42-naked-eye.json?url";
-import milkyWayLeftUrl from "./textures/milky-way-left.jpg";
-import milkyWayRightUrl from "./textures/milky-way-right.jpg";
+import { pictureOf } from "./pictures";
 
 const RAD = Math.PI / 180;
 
@@ -170,29 +169,24 @@ export function starAppearance(vMag: number): { readonly sizePx: number; readonl
 
 // ---------------------------------------------------------------- sources and the shell item
 
-export const MILKY_WAY_LICENCE: AssetLicence = Object.freeze({
-  source: "The Milky Way panorama (eso0932a), ESO/S. Brunier",
-  url: "https://www.eso.org/public/images/eso0932a/",
-  licence: "CC BY 4.0",
-  attribution: "ESO/S. Brunier. The 6000x3000 original (TIFF) was cut into two 3000x3000 halves and re-encoded as JPEG; no other change.",
-  accessed: "2026-10-13",
-});
-
-/** The picture in two square halves, left (longitude 180 to 0, running to the centre) then right; each is under every GPU's texture limit. */
-export const MILKY_WAY_TILES: readonly TextureRef[] = Object.freeze([
-  Object.freeze({ url: milkyWayLeftUrl, widthPx: 3000, heightPx: 3000, licence: MILKY_WAY_LICENCE }),
-  Object.freeze({ url: milkyWayRightUrl, widthPx: 3000, heightPx: 3000, licence: MILKY_WAY_LICENCE }),
-]);
+/**
+ * The picture in two square halves, left (longitude 180 to 0, running to the centre) then right; each is under every GPU's texture limit.
+ * The files ship in astraeus-data (names "milky-way-left", "milky-way-right"); without that package the list is empty and no picture is drawn.
+ */
+export const milkyWayTiles = (): readonly TextureRef[] => ["milky-way-left", "milky-way-right"].flatMap((name) => pictureOf(name) ?? []);
 
 /** The ESO panorama as a two-tile galactic picture: the one Milky Way picture. */
-export const ESO_PICTURE: PictureSet = Object.freeze({
+export const ESO_PICTURE: PictureSet = Object.freeze<PictureSet>({
   name: "ESO Milky Way panorama (eso0932a)",
   columns: 2,
   rows: 1,
-  tiles: Object.freeze(MILKY_WAY_TILES.map((tile, column) => Object.freeze({ column, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }))),
+  get tiles(): readonly PictureTile[] {
+    const halves = milkyWayTiles();
+    return halves.length < 2 ? [] : halves.map((tile, column) => Object.freeze({ column, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }));
+  },
   credit: "ESO/S. Brunier",
   licence: "CC BY 4.0",
-  source: MILKY_WAY_LICENCE.url,
+  source: "https://www.eso.org/public/images/eso0932a/",
 });
 
 export const SKY_SOURCES: readonly string[] = Object.freeze([

@@ -10,7 +10,7 @@ interface Moon {
   sources: { list: string; family: string; familyBasis: string[]; radius: string; discovery: string };
 }
 const catalogue = readJson(`${ROOT}data/moons/jupiter.json`) as { sources: Record<string, { title: string; url: string }>; families: { id: string; sources: string[] }[]; moons: Moon[] };
-const fits = readJson(`${ROOT}data/ephemerides/jupiter-moons/index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
+const fits = readJson(`${ROOT}../astraeus-data-jupiter/data/jupiter-moons/index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
 const fitMoons = fits.bodies.filter((body) => body.role === "moon");
 
 describe("Jupiter moon catalogue (core data)", () => {

@@ -23,8 +23,7 @@ export const JUPITER_MOON_SYSTEM = createMoonSystem({
   centreLabel: "Jupiter",
   centreGmKm3S2: JUPITER.gmKm3S2!,
   ephemerisName: "jup365_merged",
-  fitSource: JUPITER_MOON_FIT_SOURCE,
-  loadIndex: async () => (await import("../../../data/ephemerides/jupiter-moons/index.json")).default as unknown,
+  fitSource: JUPITER_MOON_FIT_SOURCE
 });
 
 export { chunksNeeded };

@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
+import "../app/style.css";
 import { App } from "../app/App";
 import { SceneError } from "./errors";
 import type { DataSource, Scene } from "./scene";

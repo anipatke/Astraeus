@@ -1,6 +1,6 @@
 # astraeus (the engine)
 
-The part of Astraeus that has no story of its own. It is shipped as TypeScript source and built by the site that uses it (there is no build step here). It imports no other package in this repository.
+The part of Astraeus that has no story of its own. Inside this repository it is used as TypeScript source (the demos and the site build it). For npm it is compiled by `npm run build:packages` into `dist/`, which is the folder that gets packed (`npm run check:pack` builds and checks it; nothing is published from here). Its code imports no other package in this repository; the moon pictures, the 8k Venus map, the Milky Way and the moon positions live in `astraeus-data` and `astraeus-data-<planet>`, which a customer hands to `mount(..., { data })`.
 
 ## What it holds
 
@@ -21,7 +21,7 @@ A demo is a package that depends on `astraeus`, builds an `ExperienceDefinition`
 
 A complete small example with no real data is `src/synthetic/syntheticDefinition.ts`: a made-up object on a tilted loop with marks, events and story panels. Read it first; the site lists it as the `synthetic` experience (`packages/astraeus-site/src/main.tsx`).
 
-The `exports` list is broad for now (one pattern per folder); a later Objective narrows it to the public API.
+The source `exports` list is broad (one pattern per folder) for the demos and the site; the published package exports only `.` (the public API) and `./style.css`, written into `dist/package.json` from the `x-publish` block of this manifest.
 
 ## Check it alone
 

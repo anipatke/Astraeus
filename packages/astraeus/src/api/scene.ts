@@ -14,18 +14,13 @@ import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
-import type { BodyRef } from "./bodies";
+import { readyMade, type BodyRef } from "./bodies";
+import { installData, type DataSource } from "./data";
+export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 
 /** A moment: ISO text, a Date, or Unix milliseconds. */
 export type TimeInput = string | number | Date;
-
-/** A data package handed to `mount`: what it provides, and an optional load step run before the scene draws. */
-export interface DataSource {
-  readonly name: string;
-  readonly provides: readonly BodyId[];
-  readonly prepare?: () => Promise<void>;
-}
 
 /** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre. */
 export interface TrajectorySampleInput {
@@ -107,7 +102,7 @@ export class Scene {
     const id = typeof body === "string" ? body : body.id;
     if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
     if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
-    this.#bodies.set(id, typeof body === "string" ? { id, label: catalogue.get(id).definition.label } : body);
+    this.#bodies.set(id, typeof body === "string" ? readyMade(id) ?? { id, label: catalogue.get(id).definition.label } : body);
     return this;
   }
 
@@ -184,7 +179,7 @@ export class Scene {
       },
       prepare: async () => {
         if (needsPlanetSeries(definition)) await loadPlanetSeries();
-        for (const source of data) await source.prepare?.();
+        await installData(data, ids, window);
       },
     };
     return definition;

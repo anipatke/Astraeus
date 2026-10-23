@@ -7,7 +7,7 @@ import {
   galacticToEqj,
   GALACTIC_CENTRE,
   GALACTIC_NORTH_POLE,
-  MILKY_WAY_TILES,
+  milkyWayTiles,
   starAppearance,
   milkyWayUv,
   parseStarFile,
@@ -226,14 +226,14 @@ describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
 
 describe("rights and the shell item (Done When 4, PROV-02)", () => {
   it("licenses the Milky Way image and credits ESO/S. Brunier", () => {
-    expect(MILKY_WAY_TILES).toHaveLength(2);
-    for (const tile of MILKY_WAY_TILES) {
+    expect(milkyWayTiles()).toHaveLength(2);
+    for (const tile of milkyWayTiles()) {
       expect(textureRightsProblem(tile)).toBeNull();
       expect(tile.licence?.licence).toBe("CC BY 4.0");
       expect(tile.licence?.attribution).toContain("ESO/S. Brunier");
       expect(Math.max(tile.widthPx, tile.heightPx)).toBeLessThanOrEqual(4096); // under every WebGL2 GPU's texture limit
     }
-    expect(MILKY_WAY_TILES.reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(6000); // the full original width
+    expect(milkyWayTiles().reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(6000); // the full original width
   });
 
   it("cites its sources and says plainly which star file is drawn", () => {

@@ -14,7 +14,7 @@ const { decodeChunk } = await import("../../src/core/chebyshevSeries.ts");
 const { chebyshevValue } = await import("../../src/core/chebyshev.ts");
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const DATA = join(REPO, "data", "ephemerides", "jupiter-moons");
+const DATA = join(REPO, "..", "astraeus-data-jupiter", "data", "jupiter-moons");
 const index = JSON.parse(readFileSync(join(DATA, "index.json"), "utf8"));
 const measure = JSON.parse(readFileSync(join(REPO, "docs", "evidence", "o025-t096-20261018T043531Z", "measure.json"), "utf8"));
 const J2000_MS = Date.UTC(2000, 0, 1, 12);

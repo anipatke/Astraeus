@@ -1,0 +1,50 @@
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { PICTURES } from "astraeus-data";
+import { checkPacks, LIMITS } from "../../../tools/check-packs.mjs";
+import { PACKAGES } from "../../../tools/build-packages.mjs";
+
+// O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
+// Slow part first: one build and eight `npm pack --dry-run` runs, about 12 s.
+describe("publishable packages", () => {
+  it("every package builds, packs only allowed files and stays under its limits", () => {
+    const result = checkPacks();
+    expect(result.problems).toEqual([]);
+    expect(result.rows.map((row) => row.name)).toEqual([...PACKAGES]);
+    expect(Object.keys(LIMITS).sort()).toEqual([...PACKAGES].sort());
+  }, 120_000);
+
+  it("fails on a test file, a source file and a cache folder in a package", () => {
+    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+    mkdirSync(join(dist, "src", "tests"), { recursive: true });
+    writeFileSync(join(dist, "src", "x.test.js"), "");
+    writeFileSync(join(dist, "src", "stray.ts"), "");
+    writeFileSync(join(dist, "src", "notes.txt"), "");
+    try {
+      const result = checkPacks({ build: false, only: ["astraeus-data-pluto"] });
+      expect(result.ok).toBe(false);
+      expect(result.problems).toEqual(expect.arrayContaining([
+        "astraeus-data-pluto: forbidden file src/x.test.js",
+        "astraeus-data-pluto: forbidden file src/stray.ts",
+        "astraeus-data-pluto: unexpected file src/notes.txt",
+      ]));
+    } finally {
+      rmSync(join(dist, "src", "tests"), { recursive: true, force: true });
+      rmSync(join(dist, "src", "x.test.js"), { force: true });
+      rmSync(join(dist, "src", "stray.ts"), { force: true });
+      rmSync(join(dist, "src", "notes.txt"), { force: true });
+    }
+  }, 60_000);
+});
+
+describe("astraeus-data credits (PROV-02)", () => {
+  it("every picture carries a licence with a credit and a source page", () => {
+    expect(Object.keys(PICTURES).length).toBe(17);
+    for (const [name, texture] of Object.entries(PICTURES)) {
+      expect(texture.licence, name).toBeDefined();
+      expect(texture.licence!.attribution, name).toBeTruthy();
+      expect(texture.licence!.url, name).toMatch(/^https:\/\//);
+    }
+  });
+});

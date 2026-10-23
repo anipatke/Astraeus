@@ -19,6 +19,7 @@ import noPanels from "../data/stories/no-panels/panels.json";
 
 // Engine data (bodies, moons, rings, fits) lives in the astraeus package; REPO is the repository root, where a build-time asset address (/packages/...) is rooted.
 const ENGINE = new URL("../../astraeus/", import.meta.url).pathname;
+const DATA = new URL("../../", import.meta.url).pathname; // the packages folder: each planet's moon positions are in astraeus-data-<planet>
 const REPO = new URL("../../../", import.meta.url).pathname;
 
 /** The stated load limit of each outer planet's view: one source, shared with tools/validate/load-budget.mjs (see the note in the file). */
@@ -77,7 +78,7 @@ describe("the outer planets in the planet switch (T-118)", () => {
       });
 
       it("keeps its moon index within its stated size", () => {
-        const raw = readBytes(`${ENGINE}data/ephemerides/${view.name}-moons/index.json`);
+        const raw = readBytes(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/index.json`);
         const limit = LIMITS[view.name]!;
         expect(raw.byteLength).toBeLessThanOrEqual(limit.indexRawBytes);
         expect(gzipSize(raw)).toBeLessThanOrEqual(limit.indexGzipBytes);
@@ -118,7 +119,7 @@ describe("the outer planets in the planet switch (T-118)", () => {
 
   it("states each dot moon's own measured error, never less than the fit index's worst figure (I-050)", () => {
     for (const view of VIEWS) {
-      const index = readJson(`${ENGINE}data/ephemerides/${view.name}-moons/index.json`) as { bodies: { id: string; accuracy?: Record<string, { worstM?: number }> }[] };
+      const index = readJson(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/index.json`) as { bodies: { id: string; accuracy?: Record<string, { worstM?: number }> }[] };
       const definition = buildPlanetDefinition(parsePlanetSettings(view.file), view.system as PlanetSystem, noPanels);
       const stated = new Map(definition.experience.objects.map((object) => [object.id, object.provenance?.accuracy ?? ""]));
       let checked = 0;

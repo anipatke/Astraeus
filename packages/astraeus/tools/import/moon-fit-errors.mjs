@@ -16,7 +16,7 @@ export function worstFigures(index) {
 }
 
 export function fitErrorsOf(planet) {
-  return worstFigures(JSON.parse(readFileSync(new URL(`data/ephemerides/${planet}-moons/index.json`, root), "utf8")));
+  return worstFigures(JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/index.json`, root), "utf8")));
 }
 
 if (process.argv[1] && new URL(`file://${process.argv[1]}`).href === import.meta.url) {
