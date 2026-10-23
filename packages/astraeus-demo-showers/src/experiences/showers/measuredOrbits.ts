@@ -103,7 +103,7 @@ const shippedUrl = (story: string, iauCode: number): string | undefined => SHIPP
 /** Where the fetch tool writes a shower's full file, and where the dev server serves it from the project root. */
 export const measuredOrbitsUrl = (iauCode: number): string => `/data/local/gmn-iau-${iauCode}.json`;
 export const fetchOrbitsCommand = (iauCode: number, months: readonly string[] = []): string =>
-  `node tools/data/fetch-meteoroid-orbits.mjs ${iauCode} --months ${months.join(",")}`;
+  `node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs ${iauCode} --months ${months.join(",")}`;
 
 const fail = (problem: string): never => {
   throw new MeasuredOrbitsError(`measured orbit file ${problem}`);

@@ -36,9 +36,9 @@ interface HorizonsSample { jdUtc: number; utcMs: number; positionKm: number[] }
 interface HorizonsBody { command: string; target: string; ephemerisSource: string; centre: string; six: HorizonsSample[]; dense: HorizonsSample[] }
 const bodies = horizons.bodies as unknown as Record<string, HorizonsBody>;
 
-const rawHorizons = import.meta.glob("../../../docs/evidence/o019-t078-horizons-*/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const rawKernel = Object.entries(import.meta.glob("../../../docs/evidence/o019-t078-iau-rotation-*/pck00011.tpc", { query: "?raw", import: "default", eager: true }))[0][1] as string;
-const rawSats = Object.entries(import.meta.glob("../../../docs/evidence/o019-t078-sats-elem-*/sats-elem.html", { query: "?raw", import: "default", eager: true }))[0][1] as string;
+const rawHorizons = import.meta.glob("./fixtures/o019-t078/o019-t078-horizons-*/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const rawKernel = Object.entries(import.meta.glob("./fixtures/o019-t078/o019-t078-iau-rotation-*/pck00011.tpc", { query: "?raw", import: "default", eager: true }))[0][1] as string;
+const rawSats = Object.entries(import.meta.glob("./fixtures/o019-t078/o019-t078-sats-elem-*/sats-elem.html", { query: "?raw", import: "default", eager: true }))[0][1] as string;
 
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 const classify = (errorKm: number, diameterKm: number, semiMajorAxisKm: number) =>

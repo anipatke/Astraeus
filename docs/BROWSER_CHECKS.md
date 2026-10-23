@@ -4,7 +4,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 ## Running it
 
-`npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `tools/validate/run-browser.mjs`.
+`npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `packages/astraeus-site/tools/validate/run-browser.mjs`.
 
 ## What it runs (about 1 minute)
 
@@ -60,11 +60,11 @@ Rows that name a file but not a case are covered by that file as a whole: `viewU
 
 The old "dropped, with reasons" list of O-034 is history: its dropped cases are now either a fast test above or the owner's look.
 
-## The harness (`tools/validate/harness.mjs`)
+## The harness (`packages/astraeus-site/tools/validate/harness.mjs`)
 
 Every script gets its browser from the harness, never from `chromium.launch` (the guard fails it): `launchBrowser()` (software-rendering flags), `watchErrors(page, errors, label)` (page and console errors, the lines the runner counts) and `checkScript({ name, viewports }, run)` (launch, one page per viewport, error collection, close, `results.json`, non-zero exit). The two journeys use `checkScript`; the smoke check uses the two helpers and keeps its own page pattern.
 
-## The interface driver (`tools/validate/driver.mjs`)
+## The interface driver (`packages/astraeus-site/tools/validate/driver.mjs`)
 
 Scripts never find or operate controls themselves. Each user action and readout is one driver function (`import * as ui from "./driver.mjs"`); when the interface changes, only the driver is edited.
 | Area | Functions (all take `page` first) |
@@ -81,11 +81,11 @@ Scripts never find or operate controls themselves. Each user action and readout 
 
 Elements are found by accessible name or role, by a stable `data-*` attribute (`data-camera-preset`, `data-related-object`, `data-scale-current`) or `data-testid`; the few controls with none of those (the Events summary, the information panel, a few readout containers) are named once, in the `HOOK` table at the top of the driver. Camera, toggle and slider arguments are logical ids, not labels, so a renamed label changes one table.
 
-**The guard** (`tools/validate/driver-guard.mjs`, run in the unit tests by `tests/browserDriverGuard.test.ts`, and as `node tools/validate/driver-guard.mjs`) fails when a script outside the driver calls `getByRole`, `getByText`, `getByLabel` (or the other `getBy*` finders except `getByTestId`), calls `click`, `fill`, `selectOption`, `press`, `focus`, `check`, `hover` or `tap` on anything, uses `keyboard.`, or calls `locator`, `querySelector`, `querySelectorAll` or `waitForSelector` with any selector other than the exceptions. **Exceptions, stated in the rule:** the scene canvas (`canvas`, `getByTestId(...)`), data-attribute readouts (a selector that begins `[data-`), and `new Array(n).fill(0)`. `mouse.move/down/up/wheel` on the canvas is not flagged (scene drags and zoom). `OPT_OUT` in the guard lists scripts exempt from the rule with a reason; it is empty.
+**The guard** (`packages/astraeus-site/tools/validate/driver-guard.mjs`, run in the unit tests by `packages/astraeus-site/tests/browserDriverGuard.test.ts`, and as `node packages/astraeus-site/tools/validate/driver-guard.mjs`) fails when a script outside the driver calls `getByRole`, `getByText`, `getByLabel` (or the other `getBy*` finders except `getByTestId`), calls `click`, `fill`, `selectOption`, `press`, `focus`, `check`, `hover` or `tap` on anything, uses `keyboard.`, or calls `locator`, `querySelector`, `querySelectorAll` or `waitForSelector` with any selector other than the exceptions. **Exceptions, stated in the rule:** the scene canvas (`canvas`, `getByTestId(...)`), data-attribute readouts (a selector that begins `[data-`), and `new Array(n).fill(0)`. `mouse.move/down/up/wheel` on the canvas is not flagged (scene drags and zoom). `OPT_OUT` in the guard lists scripts exempt from the rule with a reason; it is empty.
 
 ## Scene readouts instead of pictures (T-102, TEST-03)
 
-The canvas carries `data-*` readouts the driver reads (`tools/validate/driver.mjs`). Each is computed in the app each frame from the same objects that are drawn; a readout shows what the scene draws, never the picture of it.
+The canvas carries `data-*` readouts the driver reads (`packages/astraeus-site/tools/validate/driver.mjs`). Each is computed in the app each frame from the same objects that are drawn; a readout shows what the scene draws, never the picture of it.
 
 | Readout (driver function) | Attribute | Says |
 |------|------|------|

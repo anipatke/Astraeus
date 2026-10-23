@@ -1,0 +1,146 @@
+==== QUERY triton-dense: https://ssd.jpl.nasa.gov/api/horizons.api COMMAND='801' CENTER='500@899' --data-urlencode TIME_TYPE=UT --data-urlencode TLIST='2451545.000000','2451545.244875','2451545.489750','2451545.734625','2451545.979500','2451546.224375','2451546.469250','2451546.714125','2451546.959000','2451547.203875','2451547.448750','2451547.693625','2451547.938500','2451548.183375','2451548.428250','2451548.673125','2451548.918000','2451549.162875','2451549.407750','2451549.652625','2451549.897500','2451550.142375','2451550.387250','2451550.632125','2451550.877000' fetched 2026-10-17T03:53:18Z ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+ Revised: Jul 08, 2026             Triton / (Neptune)                       801
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean radius (km)        = 1352.6 +- 2.4    Mean dens (g cm^-3)= 2.065 +-0.011
+  GM (km^3/s^2)           = 1428.495 +- 0.62 Geometric Albedo   = 0.7  
+                                             V(1,0)             = -1.24
+
+ SATELLITE ORBITAL DATA (mean values wrt Laplace plane):
+  Semi-major axis, a (km) = 354800           Orbital period      = 5.876994 d
+  Eccentricity, e         = 0.000            Rotational period   = Synchronous
+  Inclination, i  (deg)   = 157.3  
+
+ Fit to all reported measurements (Voyager 2, ground, HST)
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Fri Oct 16 20:53:18 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Triton (801)                    {source: nep098_merged}
+Center body name: Neptune (899)                   {source: nep098_merged}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2000-Jan-01 12:00:00.0000 UT 
+Stop  time      : A.D. 2000-Jan-07 09:02:52.8000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {W-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {W-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 24764.0, 24764.0, 24341.0 km    {Equator_a, b, pole_c}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261016.p270112
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-16. PREDICTS-> 2027-JAN-11
+Reference frame : ICRF
+*******************************************************************************
+            JDUT ,            Calendar Date (UT ),                      X,                      Y,                      Z,
+**************************************************************************************************************************
+$$SOE
+2451545.000000000, A.D. 2000-Jan-01 12:00:00.0000, -2.055044716130231E+05,  1.016333087700021E+04,  2.889434475313780E+05,
+2451545.244875000, A.D. 2000-Jan-01 17:52:37.2000, -1.359082901621961E+05,  6.171358838622511E+04,  3.217801088858835E+05,
+2451545.489750000, A.D. 2000-Jan-01 23:45:14.4000, -5.704653562786107E+04,  1.090566763151372E+05,  3.326785191144536E+05,
+2451545.734625000, A.D. 2000-Jan-02 05:37:51.6000,  2.570427901015823E+04,  1.489649550780934E+05,  3.208957804087633E+05,
+2451545.979500000, A.D. 2000-Jan-02 11:30:28.8000,  1.067026658913480E+05,  1.787179984175930E+05,  2.872358913464871E+05,
+2451546.224375000, A.D. 2000-Jan-02 17:23:06.0000,  1.804269938274152E+05,  1.962880745887894E+05,  2.339946903633357E+05,
+2451546.469250000, A.D. 2000-Jan-02 23:15:43.2000,  2.418522560832078E+05,  2.004782563482057E+05,  1.648027994263735E+05,
+2451546.714125000, A.D. 2000-Jan-03 05:08:20.4000,  2.867927835846870E+05,  1.910039552582087E+05,  8.437768317064186E+04,
+2451546.959000000, A.D. 2000-Jan-03 11:00:57.6000,  3.121873497552276E+05,  1.685120561856082E+05, -1.798326945426978E+03,
+2451547.203875000, A.D. 2000-Jan-03 16:53:34.8000,  3.163073260164231E+05,  1.345365677094619E+05, -8.785188251059959E+04,
+2451547.448750000, A.D. 2000-Jan-03 22:46:12.0000,  2.988739021903254E+05,  9.139358862292068E+04, -1.679191050153415E+05,
+2451547.693625000, A.D. 2000-Jan-04 04:38:49.2000,  2.610767008682598E+05,  4.202330441691109E+04, -2.365450468921955E+05,
+2451547.938500000, A.D. 2000-Jan-04 10:31:26.4000,  2.054923103467331E+05, -1.021034683952012E+04, -2.890549416160388E+05,
+2451548.183375000, A.D. 2000-Jan-04 16:24:03.6000,  1.359084734551216E+05, -6.174868418026062E+04, -3.218720984635235E+05,
+2451548.428250000, A.D. 2000-Jan-04 22:16:40.8000,  5.706596953300945E+04, -1.090805807149257E+05, -3.327611265294638E+05,
+2451548.673125000, A.D. 2000-Jan-05 04:09:18.0000, -2.566407441439982E+04, -1.489815249759623E+05, -3.209800613924455E+05,
+2451548.918000000, A.D. 2000-Jan-05 10:01:55.2000, -1.066455057190573E+05, -1.787329103898402E+05, -2.873308450594493E+05,
+2451549.162875000, A.D. 2000-Jan-05 15:54:32.4000, -1.803607065228782E+05, -1.963071152943804E+05, -2.341049271466359E+05,
+2451549.407750000, A.D. 2000-Jan-05 21:47:09.6000, -2.417863097387530E+05, -2.005056060166082E+05, -1.649274938501985E+05,
+2451549.652625000, A.D. 2000-Jan-06 03:39:46.8000, -2.867355161190369E+05, -1.910409961092881E+05, -8.451114204574245E+04,
+2451549.897500000, A.D. 2000-Jan-06 09:32:24.0000, -3.121435074426356E+05, -1.685569483338410E+05,  1.664713096145505E+03,
+2451550.142375000, A.D. 2000-Jan-06 15:25:01.2000, -3.162766460244654E+05, -1.345845961608723E+05,  8.772699169801902E+04,
+2451550.387250000, A.D. 2000-Jan-06 21:17:38.4000, -2.988512283860542E+05, -9.143846593332718E+04,  1.678092739484919E+05,
+2451550.632125000, A.D. 2000-Jan-07 03:10:15.6000, -2.610535066571482E+05, -4.205890878640718E+04,  2.364519920719255E+05,
+2451550.877000000, A.D. 2000-Jan-07 09:02:52.8000, -2.054591408692785E+05,  1.018813564588916E+04,  2.889748286085413E+05,
+$$EOE
+**************************************************************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

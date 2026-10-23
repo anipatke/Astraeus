@@ -276,7 +276,7 @@ describe("the orbit source", () => {
   it("says how to fetch the GMN months when they are not on this machine", () => {
     const definition = buildShowerDefinition(perseids, { kind: "absent" }, "all");
     const item = experienceWithGroups(definition).objects.find((o) => o.id === streamIdOf(perseids));
-    expect(item?.description).toContain("node tools/data/fetch-meteoroid-orbits.mjs 7 --months 202507,202508");
+    expect(item?.description).toContain("node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs 7 --months 202507,202508");
     expect(item?.description).not.toContain("--source");
     expect(item?.provenance?.sources.join(" ")).toContain("Global Meteor Network");
   });
@@ -299,7 +299,7 @@ describe("what a production build offers (I-030)", () => {
 describe("a shower whose measured orbits are not on this machine", () => {
   const settings = parseShowerSettings(madeUp);
   it.each([
-    ["absent", { kind: "absent" } as MeasuredLoad, /not fetched on this machine.*node tools\/data\/fetch-meteoroid-orbits\.mjs 999/s],
+    ["absent", { kind: "absent" } as MeasuredLoad, /not fetched on this machine.*node packages\/astraeus-demo-showers\/tools\/data\/fetch-meteoroid-orbits\.mjs 999/s],
     ["invalid", { kind: "invalid", problem: "measured orbit file holds no rows" } as MeasuredLoad, /cannot be used: measured orbit file holds no rows/],
   ])("%s: says so, draws no stream and invents none", (_name, load, message) => {
     const definition = buildShowerDefinition(settings, load);

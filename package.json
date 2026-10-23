@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:full": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml",
     "apollo11:reconstruct": "node packages/astraeus-demo-apollo11/tools/apollo11/run.mjs",
+    "check:engine-alone": "node tools/check-engine-alone.mjs",
     "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },
   "dependencies": {

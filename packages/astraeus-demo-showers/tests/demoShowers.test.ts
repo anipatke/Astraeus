@@ -118,7 +118,7 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     expect(groupsOf(buildShowerDefinition(settings, { kind: "absent" }))).toHaveLength(0);
     const stream = infoView(absent, { kind: "object", id: streamId })!;
     expect(stream.description).toMatch(/not fetched on this machine/i);
-    expect(stream.description).toContain(`node tools/data/fetch-meteoroid-orbits.mjs ${settings.stream.iauCode} --months ${settings.stream.sources.gmn.months.join(",")}`);
+    expect(stream.description).toContain(`node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs ${settings.stream.iauCode} --months ${settings.stream.sources.gmn.months.join(",")}`);
     expect(stream.description).not.toContain("--source");
     expect(mountedBodiesOf(buildShowerDefinition(settings, { kind: "absent" }))).toEqual(mountedBodiesOf(definition));
   });
