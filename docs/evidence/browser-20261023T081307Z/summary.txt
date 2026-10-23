@@ -1,0 +1,9 @@
+logs: /tmp/astraeus-check-logs-1gQTYO
+smoke | scene=every public page and demo view, desktop and phone | exit=0 | 08:13:13-08:13:42 | 29s | error-lines=0
+smoke-public-showers | scene=showers views on the scratch public build: stream dots drawn | exit=0 | 08:13:42-08:13:56 | 14s | error-lines=0
+planets-phone | scene=planets on a phone: switch planet, focus Io, open a place card | exit=0 | 08:13:56-08:14:05 | 9s | error-lines=0
+meteor-shower | scene=showers (Perseids): play, seek, open a story panel | exit=0 | 08:14:05-08:14:24 | 19s | error-lines=0
+hello-scene | scene=examples/hello-scene from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone | exit=0 | 08:14:24-08:14:28 | 4s | error-lines=0
+public-build-assets | scene=none (files only) | exit=0 | 08:14:28-08:14:29 | 1s | error-lines=0
+public-addresses | scene=none (files only) | exit=0 | 08:14:29-08:14:29 | 0s | error-lines=0
+total 82s (servers and public build included)

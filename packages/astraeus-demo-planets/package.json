@@ -11,6 +11,13 @@
     "./data/*": "./data/*"
   },
   "dependencies": {
-    "astraeus": "*"
+    "astraeus": "*",
+    "astraeus-data-jupiter": "*",
+    "astraeus-data-saturn": "*",
+    "astraeus-data-uranus": "*",
+    "astraeus-data-neptune": "*",
+    "astraeus-data-mars": "*",
+    "astraeus-data-pluto": "*",
+    "astraeus-data": "*"
   }
 }

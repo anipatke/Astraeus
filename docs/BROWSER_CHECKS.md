@@ -6,7 +6,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 `npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `packages/astraeus-site/tools/validate/run-browser.mjs`.
 
-## What it runs (about 1 minute)
+## What it runs (about 1 minute, plus a few seconds for the example build)
 
 One browser at a time:
 
@@ -14,6 +14,7 @@ One browser at a time:
 - `smoke-public-showers` (the same script, `ASTRAEUS_VIEWS=showers`): the showers views again, on the scratch public build served by a preview, so the shipped stream copy is what loads and must be drawn.
 - `planets-phone` (`journey-planets-phone.mjs`): at 375x667 with touch, switch Mercury to Jupiter, focus Io from the moons panel, open a place card.
 - `meteor-shower` (`journey-meteor-shower.mjs`): Perseids at 1280x720, paused and untouched the scene stops drawing (`data-frames-drawn` stops counting; the smoke check asserts the same for Apollo 11), a wheel turn, a tap on the canvas and play draw again (O-031 T-149, I-073), then play, seek (the stream dots must be in view), a story panel opens, then the switch opens the Geminids in place (a marker on `window` survives, so no reload; the Geminids stream is drawn) (O-030 T-153).
+- `hello-scene` (`check-hello-scene.mjs`, O-036 T-162): builds `examples/hello-scene` from the packed `astraeus` tarball (`tools/build-example.mjs`, once), serves it with a preview, and at 1280x720 and 375x667 reads the scene's own readouts through the driver: the probe is in the Object list and picked, the Follow preset is in force from the first frame, Earth and the Moon are drawn and in view, the Moon's orbit line (`moon-orbit` path readout) is drawn, the time starts at the one `setTime` gave and can be moved. The step adds the example's build (a few seconds) to the run.
 - `public-build-assets` and `public-addresses`: no browser; run on a scratch public build (licence records, no made-up scenes, page size, no retired links).
 
 Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s. With the `smoke-public-showers` step added (T-148): `browser-20261022T205738Z` 58 s (recheck C-099).

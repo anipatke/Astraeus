@@ -1,10 +1,11 @@
+import { moonDataFolder } from "./moonData";
 import { readBytes } from "../tools/import/test-io.mjs";
 import { describe, expect, it } from "vitest";
 import { type BodySetLayer, familiesWithPalette, validateBodySet } from "../src/app/bodySet";
 import { OrbitSetView } from "../src/app/OrbitSetView";
 import { MARS_MOON_SYSTEM, PLUTO_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
 import { createMoonSystem } from "../src/core/bodies/moonSystem";
-import plutoIndex from "../data/ephemerides/pluto-moons/index.json";
+import plutoIndex from "astraeus-data-pluto/index.json";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
 import { createProvenance } from "../src/core/provenance";
 import { trueScale } from "../src/core/scalePolicy";
@@ -24,7 +25,7 @@ let loaded: ReturnType<typeof createMoonSystem> | undefined;
 async function plutoSystem(window: { startUtcMs: number; endUtcMs: number }) {
   if (loaded !== undefined) return loaded;
   loaded = createMoonSystem({ ...PLUTO_MOON_SYSTEM.config, loadIndex: async () => plutoIndex });
-  const root = new URL("../data/ephemerides/pluto-moons/", import.meta.url).pathname;
+  const root = moonDataFolder("pluto");
   const chunkUrls = new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${root}${path}` : undefined) }) as Record<string, string>;
   await loaded.load({ window, bodies: Object.keys(TRUE_DAYS), chunkUrls, fetchBytes: async (url) => readBytes(url) });
   return loaded;

@@ -1,0 +1,47 @@
+{
+  "name": "astraeus-data-uranus",
+  "version": "0.1.0",
+  "description": "Uranus's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anipatke/Astraeus.git"
+  },
+  "keywords": [
+    "astraeus",
+    "astronomy",
+    "ephemeris",
+    "moons",
+    "uranus"
+  ],
+  "peerDependencies": {
+    "astraeus": ">=0.1.0 <1.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./index.json": "./data/uranus-moons/index.json",
+    "./data/*": "./data/*",
+    "./package.json": "./package.json"
+  },
+  "x-publish": {
+    "exports": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/uranus-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "files": [
+      "src",
+      "data",
+      "README.md",
+      "NOTICE",
+      "LICENSE",
+      "licenses"
+    ],
+    "linkData": true
+  }
+}

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "astraeus/assets/catalogue";
 import type { AssetLicence } from "astraeus/assets/licence";
-import { HYG_STAR_LICENCE, MILKY_WAY_LICENCE } from "astraeus/assets/sky";
+import { PICTURES } from "astraeus-data";
+import { HYG_STAR_LICENCE } from "astraeus/assets/sky";
 import html from "../assets.html?raw";
 import starFileText from "astraeus/assets/stars/hyg-v42-naked-eye.json?raw";
 import apolloPanels from "astraeus-demo-apollo11/data/stories/apollo11/panels.json";
@@ -51,7 +52,7 @@ interface Claim {
 }
 
 const claims: readonly Claim[] = [
-  { row: "Milky Way panorama", records: [MILKY_WAY_LICENCE], credit: ["ESO/S. Brunier"], linked: true },
+  { row: "Milky Way panorama", records: [PICTURES["milky-way-left"]!.licence!], credit: ["ESO/S. Brunier"], linked: true },
   { row: "Sun, Mercury, Mars, Jupiter maps", records: ["sun", "mercury", "mars", "jupiter"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
   { row: "Venus map", records: [bodyRecord("venus")], credit: ["USGS Astrogeology / NASA Magellan"], linked: true },
   { row: "Io map", records: [bodyRecord("io")], credit: ["USGS Astrogeology Science Center", "NASA/JPL Galileo and Voyager missions"], linked: false },

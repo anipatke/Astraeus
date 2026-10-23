@@ -21,24 +21,19 @@ import { rotation as titanRotation } from "../../../data/orbits/titan.json";
 import { rotation as tritonRotation } from "../../../data/orbits/triton.json";
 
 export const MARS_MOON_SYSTEM = createMoonSystem({
-  centre: "mars", centreLabel: "Mars", centreGmKm3S2: MARS.gmKm3S2!, ephemerisName: "mar099", fitSource: moonFitSource("Mars"),
-  loadIndex: async () => (await import("../../../data/ephemerides/mars-moons/index.json")).default as unknown,
+  centre: "mars", centreLabel: "Mars", centreGmKm3S2: MARS.gmKm3S2!, ephemerisName: "mar099", fitSource: moonFitSource("Mars")
 });
 export const SATURN_MOON_SYSTEM = createMoonSystem({
-  centre: "saturn", centreLabel: "Saturn", centreGmKm3S2: SATURN.gmKm3S2!, ephemerisName: "sat441l", fitSource: moonFitSource("Saturn"),
-  loadIndex: async () => (await import("../../../data/ephemerides/saturn-moons/index.json")).default as unknown,
+  centre: "saturn", centreLabel: "Saturn", centreGmKm3S2: SATURN.gmKm3S2!, ephemerisName: "sat441l", fitSource: moonFitSource("Saturn")
 });
 export const URANUS_MOON_SYSTEM = createMoonSystem({
-  centre: "uranus", centreLabel: "Uranus", centreGmKm3S2: URANUS.gmKm3S2!, ephemerisName: "ura184_merged", fitSource: moonFitSource("Uranus"),
-  loadIndex: async () => (await import("../../../data/ephemerides/uranus-moons/index.json")).default as unknown,
+  centre: "uranus", centreLabel: "Uranus", centreGmKm3S2: URANUS.gmKm3S2!, ephemerisName: "ura184_merged", fitSource: moonFitSource("Uranus")
 });
 export const NEPTUNE_MOON_SYSTEM = createMoonSystem({
-  centre: "neptune", centreLabel: "Neptune", centreGmKm3S2: NEPTUNE.gmKm3S2!, ephemerisName: "nep098_merged", fitSource: moonFitSource("Neptune"),
-  loadIndex: async () => (await import("../../../data/ephemerides/neptune-moons/index.json")).default as unknown,
+  centre: "neptune", centreLabel: "Neptune", centreGmKm3S2: NEPTUNE.gmKm3S2!, ephemerisName: "nep098_merged", fitSource: moonFitSource("Neptune")
 });
 export const PLUTO_MOON_SYSTEM = createMoonSystem({
-  centre: "pluto", centreLabel: "Pluto", centreGmKm3S2: PLUTO.gmKm3S2!, balancePoint: { body: "charon", gmKm3S2: 106.10 }, ephemerisName: "plu060_merged", fitSource: moonFitSource("Pluto"),
-  loadIndex: async () => (await import("../../../data/ephemerides/pluto-moons/index.json")).default as unknown,
+  centre: "pluto", centreLabel: "Pluto", centreGmKm3S2: PLUTO.gmKm3S2!, balancePoint: { body: "charon", gmKm3S2: 106.10 }, ephemerisName: "plu060_merged", fitSource: moonFitSource("Pluto")
 });
 
 

@@ -1,0 +1,13 @@
+astraeus-data: pictures and their credits
+
+The code is MIT (see LICENSE). The pictures keep their own rights; each is recorded with its licence in src/pictures.js (PICTURES[name].licence).
+
+Moon maps:
+  Io, Europa, Callisto, Ganymede: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions (public domain).
+  Mimas, Titan: NASA/JPL-Caltech/Space Science Institute (credit required).
+  Enceladus, Tethys, Dione, Rhea, Iapetus: NASA/JPL-Caltech/Space Science Institute/Lunar and Planetary Institute (credit required).
+  Triton: NASA/JPL-Caltech/Lunar & Planetary Institute (credit required).
+  Pluto: NASA/JHUAPL/SwRI (credit required).
+  Charon: New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017 (please cite authors).
+Venus 8k map: USGS Astrogeology / NASA Magellan C3-MDIR mosaic (public domain).
+Milky Way panorama: ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0. The 6000x3000 original was cut into two 3000x3000 halves and re-encoded as JPEG; no other change.

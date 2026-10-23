@@ -2,10 +2,17 @@
 id: T-159
 title: Decide how the engine is built and split for npm
 objective: O-036
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o036-planning-20261023}
+check_waiver:
+    task: T-159
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-036; quote: "Same as O-035 (Recommended)"; owner read: "Yes, go ahead (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T07:16:20Z"
 ---
 
 # Decide how the engine is built and split for npm
@@ -55,8 +62,10 @@ The spike's commands and outputs recorded in Technical Evidence; configured gate
 
 ## Technical Evidence
 
-Pending execution.
+Note: docs/NPM_PACKAGING.md (decisions, limits, owner addition on GitHub publishing). Spike in session scratch (outside repo): tsc build + asset rewrite; npm pack astraeus 10.5 MB packed / 12.0 MB unpacked / 387 files, astraeus-data 146.0 MB / 155.7 MB / 9,297 files; scratch Vite app built (7.5 MB) and headless run logged SPIKE line (Earth picture 4096 px, 2208 triangles, Mars chunks 60). Vite library mode rejected (61 MB inlined). Finding: committed moon positions are 120 MB, not 38 MB. Gates: lint, typecheck, build, npm test (1531 passed) green. No packages/ change. Owner reading of the note pending (owner_validation).
 
 ## Drift Notes
 
 None yet.
+
+**Owner's verdict (2026-10-23T07:16:20Z):** Owner decisions (2026-10-23): data split "Split per planet (Recommended)" — `astraeus-data` holds the moon pictures (and Venus 8k), `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` hold moon positions; Milky Way pictures "Move to the data package" — a plain engine install shows the catalogue stars without the Milky Way picture until `astraeus-data` is added; note accepted "Yes, go ahead (Recommended)". Names `astraeus`, `astraeus-data`, `astraeus-data-jupiter`, `astraeus-data-saturn` checked free on npm by the coordinator.

@@ -9,6 +9,7 @@
     "astraeus": "*",
     "astraeus-demo-apollo11": "*",
     "astraeus-demo-planets": "*",
-    "astraeus-demo-showers": "*"
+    "astraeus-demo-showers": "*",
+    "astraeus-data": "*"
   }
 }

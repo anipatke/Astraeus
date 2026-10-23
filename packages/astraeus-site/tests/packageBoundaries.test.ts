@@ -4,15 +4,19 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // The package boundary (O-035 T-156, ARCH-03): packages meet only through the names and entries a package declares in its `exports`.
-// Checked: no relative import into another package, the engine imports no other package, a demo imports only the engine, the site imports the engine and the demos,
+// The data packages (astraeus-data, astraeus-data-<planet>, O-036 T-161) are engine-side data: they import only the engine (types), the engine's code imports none of them (its tests and vitest.setup.ts may, to register what a customer hands to mount), and the demos and the site may.
+// Checked: no relative import into another package, the engine's code imports no other package, a demo imports the engine and the data packages, the site imports the engine, the demos and the data packages,
 // and every `package/entry` import is an entry the target declares (and that points at a real file).
 // Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a path. Relative and `/packages/...` patterns are checked against every package their path can match (a wildcard, partial name or brace list in the package-name segment reaches several, a brace list holding a `/` is expanded, and a call's `base` option is resolved first; a `**` above a package reaches it from an unknown place), and a match on any other package fails unless a named rule allows it.
-// Three named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file in a package's top-level `tests/` folder may glob the engine's `src/` when that glob call's own options say `query: "?raw"`, to read source as text for a rule check, never to import it).
+// Four named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`), DATA-OF-DATA-PACKAGE (any package may glob a data package's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file in a package's top-level `tests/` folder may glob the engine's `src/` when that glob call's own options say `query: "?raw"`, to read source as text for a rule check, never to import it).
 // Not checked: an alias-based glob (neither relative nor `/`-rooted), file paths a test or script reads at run time, and paths that leave `packages/` for the repository root (docs, vercel.json).
 
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
+const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
+/** Engine files that are not shipped code: its tests and the test setup. */
+const isEngineTestFile = (where: string) => where.startsWith(`${ENGINE}/tests/`) || where === `${ENGINE}/vitest.setup.ts`;
 
 type Exports = Record<string, string>;
 interface PackageInfo { dir: string; exports: Exports }
@@ -174,14 +178,24 @@ function globOffences(packages: Map<string, PackageInfo>, packagesDir: string, f
       const below = reaches.find((one) => one[0] !== "data" && !(one[0] === "src" && raw)) ?? reaches[0];
       const dataOfEngine = name === ENGINE;
       const dataOfDemo = from === SITE && isDemo(name);
+      const dataOfDataPackage = isData(name);
       const declaresData = info.exports["./data/*"] !== undefined;
       const testReadsEngineText = dataOfEngine && raw && where.startsWith(`${from}/tests/`) && below[0] === "src";
       if (testReadsEngineText) continue; // TEST-READS-ENGINE-TEXT
-      if (below[0] === "data" && declaresData && (dataOfEngine || dataOfDemo)) continue; // DATA-OF-ENGINE, DATA-OF-DEMO
+      if (below[0] === "data" && declaresData && (dataOfEngine || dataOfDemo || dataOfDataPackage)) continue; // DATA-OF-ENGINE, DATA-OF-DEMO, DATA-OF-DATA-PACKAGE
       offences.push(`${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`);
     }
   }
   return offences;
+}
+
+/** Which package may import which: the engine's code none, a data package only the engine, a demo the engine and the data packages, the site those and the demos. */
+function directionOffence(from: string, first: string, where: string): string | null {
+  if (from === ENGINE) return isData(first) && isEngineTestFile(where) ? null : `${where}: the engine imports ${first}`;
+  if (isData(from)) return first === ENGINE ? null : `${where}: data package ${from} imports ${first}`;
+  if (isDemo(from)) return first === ENGINE || isData(first) ? null : `${where}: demo ${from} imports ${first}`;
+  if (from === SITE) return first === ENGINE || isDemo(first) || isData(first) ? null : `${where}: imports ${first}`;
+  return null;
 }
 
 function boundaryOffences(packagesDir: string): string[] {
@@ -203,9 +217,8 @@ function boundaryOffences(packagesDir: string): string[] {
         const [first, ...rest] = spec.split("/");
         const target = packages.get(first);
         if (!target || first === from) continue;
-        if (from === ENGINE) offences.push(`${where}: the engine imports ${first}`);
-        else if (isDemo(from) && first !== ENGINE) offences.push(`${where}: demo ${from} imports ${first}`);
-        else if (from === SITE && first !== ENGINE && !isDemo(first)) offences.push(`${where}: imports ${first}`);
+        const direction = directionOffence(from, first, where);
+        if (direction !== null) offences.push(direction);
         const entry = exportTarget(target.exports, rest.length ? `./${rest.join("/")}` : ".");
         if (entry === undefined) offences.push(`${where}: ${spec} is not an entry ${first} declares in exports`);
         else if (!existsSync(join(target.dir, entry))) offences.push(`${where}: ${spec} points at ${entry}, which does not exist`);
@@ -246,7 +259,7 @@ const use = (spec: string) => `import "${spec}";\n`;
 describe("package boundaries (ARCH-03)", () => {
   it("holds across the real packages", () => {
     const packagesDir = resolve(__dirname, "../..");
-    expect(loadPackages(packagesDir).size).toBe(5);
+    expect(loadPackages(packagesDir).size).toBe(12);
     expect(boundaryOffences(packagesDir)).toEqual([]);
   });
 
@@ -256,6 +269,30 @@ describe("package boundaries (ARCH-03)", () => {
       [`${SITE}/src.ts`]: use("astraeus/core/clock") + use("astraeus-demo-a/things/thing?raw") + use("../../docs/evidence/x.txt"),
     });
     try { expect(boundaryOffences(dir)).toEqual([]); } finally { rmSync(dir, { recursive: true }); }
+  });
+
+  it("lets the data packages be imported by tests, demos and the site, and by no engine code", () => {
+    const dir = scratchPackages({
+      "astraeus-data-x/package.json": JSON.stringify({ name: "astraeus-data-x", exports: { ".": "./src/index.ts", "./data/*": "./data/*" } }),
+      "astraeus-data-x/src/index.ts": use("astraeus/core/clock"),
+      "astraeus-data-x/data/a.json": "{}",
+      [`${ENGINE}/tests/uses.ts`]: use("astraeus-data-x"),
+      [`${ENGINE}/vitest.setup.ts`]: use("astraeus-data-x"),
+      "astraeus-demo-a/src/things/uses.ts": use("astraeus-data-x") + `const a = ${GLOB}("../../../astraeus-data-x/data/*.json");\n`,
+      [`${SITE}/src/uses.ts`]: use("astraeus-data-x"),
+    });
+    try { expect(boundaryOffences(dir)).toEqual([]); } finally { rmSync(dir, { recursive: true }); }
+    const bad = scratchPackages({
+      "astraeus-data-x/package.json": JSON.stringify({ name: "astraeus-data-x", exports: { ".": "./src/index.ts" } }),
+      "astraeus-data-x/src/index.ts": use("astraeus-demo-a/things/thing"),
+      [`${ENGINE}/src/core/uses.ts`]: use("astraeus-data-x"),
+    });
+    try {
+      expect(boundaryOffences(bad)).toEqual([
+        "astraeus-data-x/src/index.ts: data package astraeus-data-x imports astraeus-demo-a",
+        "astraeus/src/core/uses.ts: the engine imports astraeus-data-x",
+      ].sort());
+    } finally { rmSync(bad, { recursive: true }); }
   });
 
   it("fails each kind of bad import", () => {

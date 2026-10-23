@@ -25,7 +25,7 @@ const { ChebyshevEphemeris, parseEphemerisIndex } = await import('../../src/core
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO = resolve(HERE, '..', '..')
-const DATA = join(REPO, 'data', 'ephemerides', 'jupiter-moons')
+const DATA = join(REPO, '..', 'astraeus-data-jupiter', 'data', 'jupiter-moons')
 const CACHE = join(HERE, '.horizons-cache')
 const DAY_S = 86_400
 const TARGET_KM = 0.001

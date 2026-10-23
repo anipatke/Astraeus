@@ -4,6 +4,8 @@ Positions of bodies as piecewise Chebyshev fits of JPL Horizons state vectors, t
 
 ## `<planet>-moons/` (jupiter, mars, saturn, uranus, neptune, pluto)
 
+Moved in O-036 T-161: these six sets are no longer in the engine. Each lives in its own package, `packages/astraeus-data-<planet>/data/<planet>-moons/`, published as `astraeus-data-<planet>` (120 MB in all, split so no download is over about 40 MB). The engine reads a set only when the package is handed to it (`mount(..., { data })`, or `provideIndex` on the moon system). The paths below are relative to that package; rebuild commands run from `packages/astraeus` and write there.
+
 Every moon Horizons lists for the planet, and the planet itself, each relative to the planet's system barycentre (NAIF 5 Jupiter, 4 Mars, 6 Saturn, 7 Uranus, 8 Neptune, 9 Pluto), geometric, ICRF (Astraeus's EQJ), km, in TDB. `src/core/chebyshevEphemeris.ts` subtracts Jupiter's series to answer Jupiter-centred `stateAt(utcMs)`; `src/core/timeScale.ts` turns UTC into TDB with the TT - UTC table held in the index.
 
 | File | Holds |

@@ -41,7 +41,7 @@ describe("home page curve-fit section (O-025 T-101)", () => {
     plane: { e1: number[]; e2: number[] }; tableStepMinutes: number;
     figures: { ioTableBytes: number; ioFitBytes: number; ioWorstM: number; bodies: number; worstOfAllM: number; planets?: { beforeBytes: number; afterBytes: number } };
   };
-  const dataDir = new URL("../../astraeus/data/ephemerides/jupiter-moons/", import.meta.url).pathname;
+  const dataDir = new URL("../../astraeus-data-jupiter/data/jupiter-moons/", import.meta.url).pathname;
   const index = readJson(`${dataDir}index.json`) as { bodies: { id: string; fit: { segmentSeconds: number; degree: number; quantumKm: number }; chunks: { path: string; startTdbS: number; segmentCount: number }[]; accuracy: { span: { worstM: number } } }[] };
   const chunkOf = (id: string) => {
     const body = index.bodies.find((b) => b.id === id)!;

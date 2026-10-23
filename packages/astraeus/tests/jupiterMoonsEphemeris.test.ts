@@ -1,10 +1,11 @@
+import { moonDataFolder } from "./moonData";
 import { describe, expect, it } from "vitest";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../src/core/chebyshevEphemeris";
 import { exists, readBytes, readJson } from "../tools/import/test-io.mjs";
 
 // The committed core data (data/ephemerides/jupiter-moons/, O-025 T-096) read through the provider, checked against JPL
 // Horizons' own Jupiter-centred UT vectors kept in a fixture. No network.
-const DATA = new URL("../data/ephemerides/jupiter-moons/", import.meta.url).pathname;
+const DATA = moonDataFolder("jupiter");
 const FIXTURE = new URL("./fixtures/jupiter-moons-horizons.json", import.meta.url).pathname;
 
 interface FixtureRow { utc: string; positionKm: [number, number, number] }

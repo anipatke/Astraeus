@@ -1,3 +1,4 @@
+import { moonDataFolder } from "./moonData";
 import { describe, expect, it } from "vitest";
 import { parseMoonCatalogue } from "../src/assets/moonCatalogue";
 import { exists, readJson } from "../tools/import/test-io.mjs";
@@ -19,7 +20,7 @@ const MAPPED: Record<string, string[]> = { mars: [], saturn: ["mimas", "enceladu
 
 describe.each(Object.keys(EXPECTED))("%s moon list (core data)", (planet) => {
   const raw = readJson(`${ROOT}data/moons/${planet}.json`) as Raw;
-  const fits = readJson(`${ROOT}data/ephemerides/${planet}-moons/index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
+  const fits = readJson(`${moonDataFolder(planet)}index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
   const fitMoons = fits.bodies.filter((body) => body.role === "moon");
   const catalogue = parseMoonCatalogue(raw);
 

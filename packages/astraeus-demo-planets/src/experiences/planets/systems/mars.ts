@@ -12,8 +12,11 @@ import marsFeatures from "astraeus/data/bodies/mars/features.json";
 import marsCategories from "astraeus/data/bodies/mars/categories.json";
 import marsFitErrors from "astraeus/data/moons/fit-errors/mars.json";
 
+// The index ships in astraeus-data-mars; a dynamic import keeps it its own chunk (it is read only when the system loads).
+MARS_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-mars/index.json")).default as unknown);
+
 /** The fit chunks this build ships for Mars: the window's year (one file per body per year), fetched only for this planet. A window in another year needs its year here. */
-const SHIPPED_CHUNKS = import.meta.glob("../../../../../astraeus/data/ephemerides/mars-moons/*/2016.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
+const SHIPPED_CHUNKS = import.meta.glob("../../../../../astraeus-data-mars/data/mars-moons/*/2016.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
 /** How far back an orbit line may reach: Deimos takes 1.26 days. */
 const ORBIT_HISTORY_MS = 3 * 86_400_000;
 const DAY_MS = 86_400_000;

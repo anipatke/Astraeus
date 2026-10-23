@@ -1,0 +1,14 @@
+astraeus: pictures, data and library notices
+
+The Astraeus code is MIT (see LICENSE). The pictures and data below keep their own rights; each picture is recorded with its licence in the code
+that uses it (src/assets/bodies/*.js, src/assets/sky.js). Library licences are in licenses/. Pictures and positions that ship in the optional
+astraeus-data and astraeus-data-<planet> packages are credited in those packages.
+
+Pictures in this package:
+  Earth: NASA Earth Observatory, Blue Marble: Next Generation (Reto Stockli).
+  Moon: NASA's Scientific Visualization Studio, CGI Moon Kit.
+  Sun, Mercury, Mars, Jupiter, Saturn, Uranus, Neptune: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA imagery and elevation data.
+  Venus (2k map): USGS Astrogeology / NASA Magellan C3-MDIR colorized global mosaic, public domain.
+Star catalogue: HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0.
+  Stars of V 6.5 or brighter kept, right ascension converted from hours to degrees; no other change. The licence covers the star file only.
+Planet positions (data/ephemerides/planets): fits of VSOP87A series (through Orb, MIT) and JPL Horizons states (NASA/JPL-Caltech Solar System Dynamics, US Government work, used with credit).

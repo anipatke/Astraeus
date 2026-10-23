@@ -1,0 +1,6 @@
+astraeus-data-pluto: moon positions
+
+Positions are piecewise Chebyshev fits of state vectors from the JPL Horizons On-Line Ephemeris System API (https://ssd.jpl.nasa.gov/api/horizons.api),
+NASA/JPL-Caltech Solar System Dynamics, a US Government work used with credit. The fit error is measured against Horizons;
+Horizons' own uncertainty is separate and is stated in each body's provenance in index.json.
+The package code is MIT (see LICENSE).

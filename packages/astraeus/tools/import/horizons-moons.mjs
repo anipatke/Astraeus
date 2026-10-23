@@ -17,7 +17,7 @@
 //                 UT samples through the provider itself -> worst and typical error, written to the index and the report
 //
 // Usage: node tools/import/horizons-moons.mjs [--system jupiter|mars|saturn|uranus|neptune|pluto] [--from 2010-01-01] [--to 2030-01-01] [--only 501,516] [--offline]
-//          [--cache tools/import/.horizons-cache] [--out data/ephemerides/<system>-moons] [--report <dir>] [--recalibrate]
+//          [--cache tools/import/.horizons-cache] [--out ../astraeus-data-<system>/data/<system>-moons] [--report <dir>] [--recalibrate]
 // Needs Node with built-in TypeScript type stripping (22.18+ or 24) to load the shared fitting and provider code.
 
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -83,7 +83,7 @@ function parseArgs(argv) {
     else throw new Error(`Unknown argument: ${arg}`)
   }
   if (!(opts.system in SYSTEMS)) throw new Error(`Unknown system ${opts.system}; one of ${Object.keys(SYSTEMS).join(', ')}`)
-  opts.out ??= join(REPO, 'data', 'ephemerides', `${opts.system}-moons`)
+  opts.out ??= join(REPO, '..', `astraeus-data-${opts.system}`, 'data', `${opts.system}-moons`)
   return opts
 }
 

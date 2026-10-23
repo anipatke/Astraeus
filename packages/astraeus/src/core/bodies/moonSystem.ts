@@ -26,7 +26,11 @@ export interface MoonSystemConfig {
   /** Horizons' name of the ephemeris the system's moons come from, for the position record. */
   readonly ephemerisName: string;
   readonly fitSource: string;
-  readonly loadIndex: () => Promise<unknown>;
+  /**
+   * Where the index is read from. The index ships in the system's data package (`astraeus-data-<planet>`), not in the engine, so a caller hands it in
+   * with `provideIndex`; `load` refuses, naming the missing data, until one is.
+   */
+  readonly loadIndex?: () => Promise<unknown>;
 }
 
 /** The fit source every system cites: Horizons state vectors about the planet's system barycentre, fitted as piecewise Chebyshev series. */
@@ -76,6 +80,8 @@ export interface MoonSystem {
   ephemeris(): ChebyshevEphemeris;
   /** True once a set is installed (the planet's own placement adds its wobble about the barycentre only then). */
   isLoaded(): boolean;
+  /** Hands in the reader of the system's index.json (from its data package). */
+  provideIndex(loadIndex: () => Promise<unknown>): void;
   /** Hands in a set built elsewhere (tests read the committed chunks from disk). */
   install(ephemeris: ChebyshevEphemeris | null): void;
   /** Loads the index and only the chunks the window needs, once per page: a second call returns the first one's promise. */
@@ -112,6 +118,7 @@ export interface MappedMoonFacts {
 
 export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
   let installed: ChebyshevEphemeris | null = null;
+  let loadIndex = config.loadIndex;
   let loading: Promise<ChebyshevEphemeris> | null = null;
   const tidalLockNote = `The orientation is an approximate tidal lock keeping the near side towards ${config.centreLabel}, with no libration.`;
 
@@ -167,6 +174,9 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     config,
     ephemeris,
     isLoaded: () => installed !== null,
+    provideIndex(reader: () => Promise<unknown>) {
+      loadIndex = reader;
+    },
     install(set: ChebyshevEphemeris | null) {
       installed = set;
       loading = null;
@@ -174,7 +184,8 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     load(request: MoonSystemLoad): Promise<ChebyshevEphemeris> {
       if (installed !== null) return Promise.resolve(installed);
       loading ??= (async () => {
-        const set = new ChebyshevEphemeris(parseEphemerisIndex(await config.loadIndex()));
+        if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
+        const set = new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
         const needed = chunksNeeded(set, request);
         const fetchBytes = request.fetchBytes ?? fetchBytesOf;
         await decodeInto(set, needed, await Promise.all(needed.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));

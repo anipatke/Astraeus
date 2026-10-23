@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const root = new URL("../../", import.meta.url);
-const index = JSON.parse(readFileSync(new URL("data/ephemerides/jupiter-moons/index.json", root), "utf8"));
+const index = JSON.parse(readFileSync(new URL("../astraeus-data-jupiter/data/jupiter-moons/index.json", root), "utf8"));
 const moons = index.bodies.filter((body) => body.role === "moon");
 
 /** "S/2003 J 18" -> "s2003-j18"; plain names lower-cased. */

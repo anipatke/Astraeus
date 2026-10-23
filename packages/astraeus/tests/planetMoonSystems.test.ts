@@ -1,3 +1,4 @@
+import { moonDataFolder } from "./moonData";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { catalogue } from "../src/assets/catalogue";
@@ -6,10 +7,10 @@ import { MARS_MOON_SYSTEM, PHOBOS, PLANET_MOON_DEFINITIONS, PLUTO_MOON_SYSTEM, S
 import { PLUTO } from "../src/core/bodies/outerPlanets";
 import { MARS } from "../src/core/bodies/mars";
 import outerFixture from "./fixtures/outer-planets-horizons.json";
-import marsIndex from "../data/ephemerides/mars-moons/index.json";
-import saturnIndex from "../data/ephemerides/saturn-moons/index.json";
-import neptuneIndex from "../data/ephemerides/neptune-moons/index.json";
-import plutoIndex from "../data/ephemerides/pluto-moons/index.json";
+import marsIndex from "astraeus-data-mars/index.json";
+import saturnIndex from "astraeus-data-saturn/index.json";
+import neptuneIndex from "astraeus-data-neptune/index.json";
+import plutoIndex from "astraeus-data-pluto/index.json";
 import { readBytes } from "../tools/import/test-io.mjs";
 
 // The generic moon-system loader and the mapped moons of Mars, Saturn, Neptune and Pluto (O-033 T-116). The facing tolerances are the largest
@@ -95,7 +96,7 @@ describe("the generic loader", () => {
   it("fetches only the chunks a window needs for one system, and refuses a window whose chunks the build does not ship", async () => {
     const fresh = createMoonSystem({ ...MARS_MOON_SYSTEM.config, loadIndex: async () => marsIndex });
     const requested: string[] = [];
-    const root = new URL("../data/ephemerides/mars-moons/", import.meta.url).pathname;
+    const root = moonDataFolder("mars");
     const chunkUrls = new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2018.bin") ? `${root}${path}` : undefined) }) as Record<string, string>;
     const window = { startUtcMs: Date.UTC(2018, 2, 1), endUtcMs: Date.UTC(2018, 2, 8) };
     const set = await fresh.load({ window, bodies: ["phobos"], chunkUrls, fetchBytes: async (url) => { requested.push(url); return readBytes(url); } });
@@ -121,7 +122,7 @@ describe("Pluto: the system barycentre from the planet fits plus its own offset 
   const trajectory = catalogue.get("pluto").source!.create(adapter);
 
   it("is within a kilometre of Horizons' Pluto where its system's chunks are loaded", async () => {
-    const root = new URL("../data/ephemerides/pluto-moons/", import.meta.url).pathname;
+    const root = moonDataFolder("pluto");
     const ephemeris = PLUTO_MOON_SYSTEM.ephemeris();
     for (const year of [2010, 2023, 2024]) ephemeris.addChunk("pluto", `pluto/${year}.bin`, readBytes(`${root}pluto/${year}.bin`));
     const checked: number[] = [];

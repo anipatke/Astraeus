@@ -2,10 +2,17 @@
 id: T-160
 title: Give the engine its small public API
 objective: O-036
-status: planned
+status: done
 depends_on: [{task: T-159, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o036-planning-20261023}
+check_waiver:
+    task: T-160
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-036; quote: "Same as O-035 (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T07:21:48Z"
 ---
 
 # Give the engine its small public API
@@ -55,7 +62,13 @@ Focused tests while building; configured gates and `npm run check:engine-alone` 
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-23 (builder, no commit). Files: packages/astraeus/src/api/{index,scene,mount,bodies,errors}.ts, packages/astraeus/tests/publicApi.test.ts, packages/astraeus/package.json (`"."` entry plus `x-internal-exports` note; broad entries unchanged so the demos did not move).
+- Scene/addBody/addTrajectory/setTime/setScale/camera.follow/mount: src/api; Scene.toDefinition() builds today's ExperienceDefinition, mount() renders today's App; no change to App or the demos. Ready-made bodies sun..pluto and moon; trueScale/readableScale re-exported; trajectory by samples or provider+bounds.
+- Data: mount(el, scene, { data: DataSource[] }), DataSource = {name, provides, prepare?}; BodyRef.requires names a package; missing -> SceneError "missing-data" naming it. prepare loads the planet series, then each source's prepare.
+- Tests: packages/astraeus/tests/publicApi.test.ts (17 cases: definition contents, defaults, provider trajectory, 10 named-error cases, data-package naming, mount/unmount leaves no canvas, unmount before ready, bad element).
+- Gates: lint, typecheck, build, npm test (117 files, 1548 passed, includes packageBoundaries), npm run check:engine-alone: all pass. No browser run.
+- Drift/needs: (1) camera.follow opens framed on the target (startView) and offers the viewer's Follow button; App has no "start already following" option, so true follow-on-open would need a small App change. (2) mount does not import app/style.css; T-161's build must ship or inject it. (3) Ready-made moons beyond the Moon and the data-required refs arrive with the data split (T-161); today every catalogued body is still offered.
+
 
 ## Drift Notes
 

@@ -1,7 +1,7 @@
-// Proves the engine works alone (O-035 T-158): copies packages/astraeus and the shared root config into a scratch
-// folder with no demo and no site, links the installed dependencies, then type-checks, lints and tests the copy.
-// Anything that reaches outside the copy fails there (a missing import or file). The engine has no build of its own:
-// it is shipped as source and built by the site, so there is no build step to run.
+// Proves the engine works alone (O-035 T-158): copies packages/astraeus, its data packages (astraeus-data, astraeus-data-<planet>: engine-side data
+// its tests read, O-036 T-161) and the shared root config into a scratch folder with no demo and no site, links the installed dependencies, then
+// type-checks, lints and tests the copy. Anything that reaches outside the copy fails there (a missing import or file). The publishable build
+// (tools/build-packages.mjs, checked by `npm run check:pack`) is a separate gate; this one runs on source.
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -29,7 +29,9 @@ function copy(from, to) {
   });
 }
 
+const dataPackages = readdirSync(join(root, "packages")).filter((name) => name === "astraeus-data" || name.startsWith("astraeus-data-"));
 copy("packages/astraeus");
+for (const name of dataPackages) copy(`packages/${name}`);
 for (const file of ["tsconfig.json", "vitest.config.ts", "eslint.config.js"]) copy(file);
 copy("tools/lint");
 writeFileSync(join(scratch, "package.json"), JSON.stringify({
@@ -43,7 +45,7 @@ for (const name of readdirSync(join(root, "node_modules"))) {
   if (name === "astraeus" || name.startsWith("astraeus-")) continue;
   symlinkSync(join(root, "node_modules", name), join(scratch, "node_modules", name));
 }
-symlinkSync(join(scratch, "packages", "astraeus"), join(scratch, "node_modules", "astraeus"));
+for (const name of ["astraeus", ...dataPackages]) symlinkSync(join(scratch, "packages", name), join(scratch, "node_modules", name));
 
 const steps = [
   ["typecheck", ["node_modules/typescript/bin/tsc", "--noEmit"]],

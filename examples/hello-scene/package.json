@@ -1,0 +1,14 @@
+{
+  "name": "hello-scene",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The smallest app that draws a scene with the astraeus npm package. Installed from the packed tarballs by `npm run build:example` in the repository root.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "8.3.5"
+  }
+}

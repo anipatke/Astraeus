@@ -7,16 +7,19 @@ import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 import uranusFitErrors from "astraeus/data/moons/fit-errors/uranus.json";
 
+// The index ships in astraeus-data-uranus; a dynamic import keeps it its own chunk (it is read only when the system loads).
+URANUS_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-uranus/index.json")).default as unknown);
+
 /** The tagged places of Uranus itself (it has no mapped moon): its body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/uranus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Uranus: the window's year for every body, and the years before it only for the moons whose orbit line reaches back into them (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {
-  ...import.meta.glob("../../../../../astraeus/data/ephemerides/uranus-moons/*/2016.bin", { query: "?url", import: "default", eager: true }),
+  ...import.meta.glob("../../../../../astraeus-data-uranus/data/uranus-moons/*/2016.bin", { query: "?url", import: "default", eager: true }),
   // 2014: not for the 20 moons whose orbit line does not reach back into it.
-  ...import.meta.glob(["../../../../../astraeus/data/ephemerides/uranus-moons/*/2014.bin", "!../../../../../astraeus/data/ephemerides/uranus-moons/{ariel,belinda,bianca,caliban,cordelia,cressida,cupid,desdemona,francisco,juliet,mab,miranda,oberon,ophelia,perdita,portia,puck,rosalind,titania,umbriel}/*"], { query: "?url", import: "default", eager: true }),
+  ...import.meta.glob(["../../../../../astraeus-data-uranus/data/uranus-moons/*/2014.bin", "!../../../../../astraeus-data-uranus/data/uranus-moons/{ariel,belinda,bianca,caliban,cordelia,cressida,cupid,desdemona,francisco,juliet,mab,miranda,oberon,ophelia,perdita,portia,puck,rosalind,titania,umbriel}/*"], { query: "?url", import: "default", eager: true }),
   // 2015: not for the 19 moons whose orbit line does not reach back into it.
-  ...import.meta.glob(["../../../../../astraeus/data/ephemerides/uranus-moons/*/2015.bin", "!../../../../../astraeus/data/ephemerides/uranus-moons/{ariel,belinda,bianca,cordelia,cressida,cupid,desdemona,francisco,juliet,mab,miranda,oberon,ophelia,perdita,portia,puck,rosalind,titania,umbriel}/*"], { query: "?url", import: "default", eager: true }),
+  ...import.meta.glob(["../../../../../astraeus-data-uranus/data/uranus-moons/*/2015.bin", "!../../../../../astraeus-data-uranus/data/uranus-moons/{ariel,belinda,bianca,cordelia,cressida,cupid,desdemona,francisco,juliet,mab,miranda,oberon,ophelia,perdita,portia,puck,rosalind,titania,umbriel}/*"], { query: "?url", import: "default", eager: true }),
 } as Record<string, string>;
 export const URANUS_CHUNK_URLS = chunkUrlsOf(SHIPPED, "uranus-moons");
 export const URANUS_MOON_IDS = URANUS_MOON_CATALOGUE.moons.map((moon) => moon.id);
