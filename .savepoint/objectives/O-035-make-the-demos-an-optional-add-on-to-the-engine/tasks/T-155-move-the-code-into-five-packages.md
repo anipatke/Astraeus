@@ -2,11 +2,17 @@
 id: T-155
 title: Move the code into five packages
 objective: O-035
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o035-planning-20261023}
+check_waiver:
+    task: T-155
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-035; quote: "Same as O-030 (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T04:15:15Z"
 ---
 
 # Move the code into five packages
