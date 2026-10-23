@@ -823,6 +823,14 @@ export async function nudgeCamera(page) {
   await page.mouse.wheel(0, 120);
   return true;
 }
+/** A tap (click) on the scene where the canvas itself is on top: goes through the pointer listeners, so a resting scene draws again (O-031 I-073). Returns false when no free point exists. */
+export async function tapCanvas(page) {
+  const point = await freeCanvasPoint(page);
+  if (point === null) return false;
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.click(point.x, point.y);
+  return true;
+}
 /** The anchor-label layer: whether it is hidden, how many labels it holds, how many are on screen. */
 export const anchorLayerHidden = async (page) => (await page.locator(HOOK.anchorLabels).getAttribute("hidden")) !== null;
 export const anchorLabelCount = (page) => page.locator(`${HOOK.anchorLabels} .anchor-label`).count();

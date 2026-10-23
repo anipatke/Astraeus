@@ -1,5 +1,5 @@
 // Journey "Play a meteor shower" (O-038 T-145), a step of `npm run check:browser`: open the Perseids on a laptop screen, play (the clock moves and the scene shows
-// It also checks that a resting scene stops drawing and wakes on a wheel turn and on play (O-031 T-149).
+// It also checks that a resting scene stops drawing and wakes on a wheel turn, on a tap and on play (O-031 T-149, I-073).
 // its meteors), seek to a later time, then open a story panel from its timeline marker. Everything goes through driver.mjs and the scene's own readouts; no screenshot is taken.
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-meteor-shower.mjs
 import assert from "node:assert/strict";
@@ -14,10 +14,13 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   await ui.waitForShell(page);
   await ui.ensurePaused(page);
   const start = await ui.clockMs(page);
-  // O-031 T-149: paused and untouched, the scene stops drawing; a wheel turn over it and then play draw again.
+  // O-031 T-149: paused and untouched, the scene stops drawing; a wheel turn over it, a tap on it and then play draw again.
   const idleAt = await ui.waitUntilSceneIdle(page);
   assert.ok(await ui.nudgeCamera(page), "a free point on the canvas to turn the wheel over");
   const afterNudge = await ui.waitForMoreFrames(page, idleAt);
+  const idleAgain = await ui.waitUntilSceneIdle(page);
+  assert.ok(await ui.tapCanvas(page), "a free point on the canvas to tap");
+  const afterTap = await ui.waitForMoreFrames(page, idleAgain);
   await ui.waitUntilSceneIdle(page);
 
   await ui.ensurePlaying(page);
@@ -41,5 +44,5 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   const id = await ui.firstStoryMarkerId(page);
   await ui.openStoryPanel(page, id, {});
   await ui.storyPanel(page, id).waitFor({ timeout: 10000 });
-  return { idleAt, afterNudge, whilePlaying, panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
+  return { idleAt, afterNudge, idleAgain, afterTap, whilePlaying, panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
 });

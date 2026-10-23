@@ -18,6 +18,10 @@ history:
     kind: observed
     check: C-100
     note: 'O-031 Success Condition 2 and T-149 Done When ask npm run check:browser to show a resting scene draws again on a tap; the meteor journey uses a wheel turn instead, and the evidence does not record the swap. The behaviour itself works (checker probe: a tap on the canvas, a drag and a body pick all draw again).'
+  - at: '2026-10-23T00:28:53Z'
+    actor: {role: executor, session: o031-orchestration-20261023}
+    kind: repair_attempted
+    note: 'Owner chose "Add the tap, short recheck". Added driver function tapCanvas (click on freeCanvasPoint, through the pointer listeners) in tools/validate/driver.mjs; journey-meteor-shower.mjs now rests, wheel-turns, rests again, taps and asserts waitForMoreFrames, then play; docs/BROWSER_CHECKS.md names the tap. Lint, typecheck and the driver guard test (4 passed) pass. One npm run check:browser, 00:27:26-00:28:40Z, 74 s, all six steps exit 0, 0 error lines, docs/evidence/browser-20261023T002726Z: meteor-shower idleAt 38, afterNudge 45, idleAgain 68, afterTap 73, whilePlaying 89.'
 ---
 
 # I-073: The browser command proves the scene wakes on a wheel turn, not on a tap
