@@ -2,13 +2,12 @@
 id: T-169
 title: Rebuild Apollo 11 on the public API
 objective: O-041
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-170, requires: clear}]
 owner_validation: {required: true}
 check_waiver:
   task: T-169
-  reason: 'Owner approved the O-041 plan ("go ahead") and set the standing run rule of no per-step Task Checks and one Full Objective Check at the end (Decision 8). Not a technical CLEAR; no acceptance criterion or Objective Check is waived. The owner look at Apollo on localhost:5490 is pending, not passed.'
+  reason: 'Owner approved the O-041 plan ("go ahead") and set the standing run rule of no per-step Task Checks and one Full Objective Check at the end (Decision 8). Not a technical CLEAR; no acceptance criterion or Objective Check is waived. The owner look has since passed (see Technical Evidence).'
   actor: {role: owner, session: o041-run-20261024}
   recorded_at: '2026-10-23T21:50:00Z'
 planned_by: {role: planner, session: o041-planning-20261024}
@@ -67,7 +66,7 @@ Hand-off gates plus `check:engine-alone`; public build plus `public-build-assets
 
 ## Technical Evidence
 
-Built by a Sonnet builder session, o041-run-20261024. Stopped at `stage: audit`; not marked done, not committed, router untouched. Optional Task Check waived (see `check_waiver`). The owner's look at Apollo on `localhost:5490` is PENDING (not passed).
+Built by a Sonnet builder session, o041-run-20261024. Stopped at `stage: audit`; not marked done, not committed, router untouched. Optional Task Check waived (see `check_waiver`). Owner look at Apollo on `localhost:5490`: PASSED (owner, 2026-10-24): "looks cool, no need for Sky in drop downs though".
 
 **Capture first.** Before any Apollo code changed, `packages/astraeus-demo-apollo11/tests/fixtures/apollo11-before-rebuild.json` was written from the hand-written `apollo11Definition` (objects, presets, events and provenance, window, rates, clock, panels, composition, scale choices, opening view, tracked paths, Developer section ids, and the info-card rows of all four objects at four times) by a throwaway test (deleted).
 
@@ -89,6 +88,8 @@ Built by a Sonnet builder session, o041-run-20261024. Stopped at `stage: audit`;
 **Limitations.** Not verified: the look of the rebuilt Apollo by eye (desktop and phone), the info-card bars as drawn, the camera menu and opening view in a browser, the story panels firing, `check:browser` (never run, by rule), `check:pack` (not run: engine API unchanged in this Task). Missing capability, not worked around: the public `addBody` takes no colour and no known limits, so Earth and Moon take the catalogue's; if the owner wants them as before, `addBody` needs `color` and `knownLimitations` options (small, a new Task). A path-uncertainty limit line replaces the live bar by Decision 9; its wording is mine.
 
 **Decision 11 follow-up (owner, 2026-10-24, "Add the two options").** `addBody` gained `color` (hex colour) and `knownLimitations` (list of non-empty texts) in `packages/astraeus/src/api/scene.ts` with doc comments (on `/api` through `AddBodyOptions`, already in its SECTIONS group), a new `SceneError` code `bad-body` in `errors.ts`, and a made-up-configuration test in `packages/astraeus/tests/publicApi.test.ts` (set colour and limits, defaults kept for other bodies, five bad values, empty list allowed). `apollo11Scene.ts` passes Earth `#9fd8ff`, Moon `#ded7cc` and the Moon's two original limits. `rebuildComparison.test.ts` now compares colour and the Earth and Moon limits equal to the fixture (the colour and Moon-limit difference cases were removed). Remaining accepted minor differences pending the owner's look: the Moon's label priority is 99 not 90 and the composition id is `scene` not `earth-moon` (no public option carries them; nothing reads the id). Gates rerun after the change: lint clean, typecheck clean, build ok, `npm test` 124 files / 1654 passed / 1 skipped, `check:engine-alone` pass (14.2 s), `check:pack` pass (15.3 s). Items 4 and Limitations above are superseded on colours and the Moon's limit.
+
+**Sky fix (owner look, 2026-10-24).** `skyObject` (`packages/astraeus/src/app/skyModel.ts`) now has `listed: false`, so the Sky item is out of the object drop-downs (desktop top bar and phone drawer) in every experience; the sky is still drawn, still an object, and its credits (NOTICE, home page, Milky Way/HYG sources in its provenance) are unchanged. `tests/sky.test.ts` gained "is not offered in the object drop-downs" (`listedObjects` returns none for it); no existing test expected the Sky entry. Gates after the change: lint clean, typecheck clean, build ok, `npm test` 124 files / 1655 passed / 1 skipped, `check:engine-alone` pass (17.0 s). Not seen in a browser; `check:pack` not rerun (API unchanged). Side effect: the Sky card can no longer be opened from a list.
 
 ## Drift Notes
 

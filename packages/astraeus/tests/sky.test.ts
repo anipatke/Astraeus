@@ -15,6 +15,7 @@ import {
 } from "../src/assets/sky";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyView, SKY_PROBE_DIRECTION, brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "../src/app/SkyView";
+import { listedObjects } from "../src/shell/objectModel";
 import { buildPictureMesh, buildStarBuffers, resolveSkySettings, skyObject, starRenderDirection, withSkyObject } from "../src/app/skyModel";
 
 const DEG = Math.PI / 180;
@@ -248,6 +249,12 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(skyObject({ kind: "loaded", count: 8920 }).provenance?.notes).toMatch(/8920 stars.*HYG star catalogue \(CC BY-SA 4\.0\)/);
     expect(skyObject({ kind: "loaded", count: 8920 }).provenance?.notes).not.toMatch(/Yale|stars=/);
     expect(absent.knownLimitations?.join(" ")).toMatch(/precession/);
+  });
+
+  it("is not offered in the object drop-downs, though it is still an object", () => {
+    const config = withSkyObject({ objects: [], cameraPresets: [], events: [], window: { startUtcMs: 0, endUtcMs: 1 }, rates: [1] }, true, { kind: "absent" });
+    expect(config.objects.map((object) => object.id)).toEqual(["sky"]);
+    expect(listedObjects(config, "earth").map((object) => object.id)).toEqual([]);
   });
 
   it("adds the item once, and not when the experience hides the sky", () => {

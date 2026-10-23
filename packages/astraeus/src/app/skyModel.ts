@@ -55,6 +55,8 @@ export function skyObject(status: StarStatus): ExperienceObject {
   return {
     id: SKY_OBJECT_ID,
     label: "Sky",
+    // Drawn and still an object, but not offered in the object drop-downs (owner, 2026-10-24); its credits stay in NOTICE and on the home page.
+    listed: false,
     description: "Stars and the Milky Way, drawn at infinity behind the scene. The sky turns only with the camera; the scene centre, scale and followed object do not move it.",
     provenance,
     knownLimitations: [
