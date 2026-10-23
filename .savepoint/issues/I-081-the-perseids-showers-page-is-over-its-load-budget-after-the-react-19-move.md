@@ -32,6 +32,10 @@ history:
     kind: rechecked
     check: C-111
     note: 'load-budget.mjs raises the perseids raw limit 10,070,000 -> 10,080,000 with the measurement, cause and date beside it, as the file''s rule requires; gzip and every other limit unchanged. Fresh ASTRAEUS_PUBLIC_BUILD=1 vite build plus public-build-assets.mjs alone on 57ad92e3: exit 0, ok true, 94 files, showers 10,073,636 / 10,080,000 raw, 7,025,217 / 7,040,000 gzip; evidence docs/evidence/browser-20261023T114407Z-public-build-assets/. Verified as a measured, deliberate change that makes the gate pass. The raise is the coordinator''s provisional choice under the owner''s overnight run and is NOT owner-accepted; the owner may reopen this Issue if a trim is preferred.'
+  - at: '2026-10-23T20:31:40Z'
+    actor: {role: owner, session: g011-morning-20261024}
+    kind: owner_decision
+    note: 'Owner accepted the raw limit raise for app.html?experience=showers (10,070,000 -> 10,080,000 B) instead of a trim: "accept the size limit too" (2026-10-24, after reviewing the overnight run). Recorded by the coordinator on the owner''s direct instruction.'
 ---
 
 # I-081: The Perseids showers page is over its load budget after the React 19 move

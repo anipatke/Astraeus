@@ -83,3 +83,5 @@ Stage: audit (ready for a Check; not passed). Optional Task Check waived by the 
 ## Drift Notes
 
 This step is the integration step: it accounts for T-163's and T-164's drift notes before the Full Objective Check. Done: all three Tasks' notes are reconciled in Design.md (O-040 paragraph and the O-036 packaging row). No new drift from this Task beyond the reference page itself, also in Design.md.
+
+**Owner's verdict (2026-10-23T20:31:40Z):** looked at the API reference on http://localhost:5490/api (dev preview, restarted after the overnight run): "looks fine". User Check passed.
