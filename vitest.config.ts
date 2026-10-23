@@ -9,6 +9,8 @@ export default defineConfig({
     environment: "node",
     include: ["packages/*/tests/**/*.test.ts"],
     clearMocks: true,
+    // GitHub's runners are slower than a desk machine; the heavy data cases (showers, look-ahead) passed 5 s there only by luck (v0.1.1 publish runs).
+    testTimeout: process.env.CI ? 30_000 : 5_000,
     setupFiles: ["./packages/astraeus/vitest.setup.ts"],
     coverage: {
       provider: "v8",
