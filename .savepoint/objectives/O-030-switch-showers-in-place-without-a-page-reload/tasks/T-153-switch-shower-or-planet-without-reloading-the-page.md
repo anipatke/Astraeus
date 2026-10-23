@@ -2,8 +2,7 @@
 id: T-153
 title: Switch shower or planet without reloading the page
 objective: O-030
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-152, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o030-planning-20261023}
@@ -13,10 +12,6 @@ check_waiver:
     actor:
         role: owner
         session: owner-run-rules
-    recorded_at: "2026-10-23T02:27:46Z"
-replan:
-    reason: Memory measurement over 20 in-page switches shows JS heap growing about 2.6 MB per switch with no levelling off (33.2 to 85.6 MB); the Task Boundaries say to stop and replan with the measurement.
-    recorded_by: {role: executor, session: t153-builder}
     recorded_at: "2026-10-23T02:27:46Z"
 ---
 
@@ -67,6 +62,10 @@ No change to what visitors see beyond the flash going away; no change to which o
 
 Focused `npx vitest run` while building; configured gates and one `npm run check:browser` at hand-off. Evaluated later under `agent-skills/references/check-method.md`.
 
+## Replan Resolution
+
+Planner (coordinator), 2026-10-23T02:28:53Z: the executor's replan (heap grew about 2.6 MB per switch, 33.2 to 85.6 MB over 20 switches, no levelling off) does not invalidate the approach; it is a defect inside this Task's scope. Owner decision, 2026-10-23: "Find and fix the leak (Recommended)". The Task continues: find what keeps each old mount alive, release it, and repeat the one memory measurement; done when the heap levels off across about 20 switches. If the cause is not found within the repair's time box, stop and report to the owner again with what was ruled out.
+
 ## Technical Evidence
 
 Built (all done and green): `src/app/addressNavigation.ts` (plain push/no-push logic, newest request wins), `src/main.tsx` (choice read from the address each time; one root; remount by key; popstate), `src/shell/SwitchControl.tsx` (`open` callback on `ExperienceSwitch`, given by the entry through `App`'s `switcherOf`; falls back to `location.assign` when absent), `src/shell/bootLoader.ts` (`showBootLoader` rebuilds the cover from the page's own markup; the next scene's first frame hides it), `tests/addressNavigation.test.ts`, `tests/switchControl.test.ts` (made-up choice, no navigation), `tests/domSetup.ts` (`switcher` option), `tools/validate/driver.mjs` (`markPage`, `pageWasKept`; `chooseSwitchOption` waits for the new active option), `tools/validate/journey-meteor-shower.mjs` (Geminids switch step), `docs/BROWSER_CHECKS.md`.
@@ -81,8 +80,17 @@ Module-level caches a definition fills: planet series models (`src/core/planetSe
 
 Extra reads beyond Context Files: `app.html` (boot markup), `tests/domShell.test.ts` head (pretend page use), `docs/BROWSER_CHECKS.md` line 16 (edited), `src/shell/bootLoader.ts` is a Context File. Grep of `src` for module-level state.
 
-Limitations: cause of the per-mount retention not found (time box); JS heap only, GPU memory not measured.
+Limitations: JS heap only, GPU memory not measured.
+
+Leak repair (stage build, then test, then audit): CAUSE found with CDP heap snapshots after 2 and 10 switches (11 detached canvases and 17 WebGL contexts kept). Three.js renderers keep their GPU copy of a texture, geometry or buffer in tables (WeakMaps) keyed by the object; an object that outlives the scene (shared, module-level or cached) keeps its table entry, and through it the old renderer's WebGL context, canvas and the whole old page DOM. Three shared things did that: the module-level glow and anchor pictures (`bodyDraw.ts`, `TrackedBodyView.ts`), Three's one geometry behind all Sprites, and the body pictures cached by R3F `useLoader`. FIX: `releaseGlowTexture()` (`bodyDraw.ts`; disposes the glow picture and the shared sprite geometry), `releaseAnchorSprite()` (`TrackedBodyView.ts`), a `useReleaseSharedTextures` hook (`sceneContentsHooks.ts`, called from `SceneContents` in `AstraeusScene.tsx`) that runs both on scene unmount, and `useEffect(() => () => texture.dispose(), [texture])` in `useBodyTexture.ts`. Dispose sends every renderer that drew the object its dispose event, so each forgets it; the next scene uploads again. Test: `tests/releaseSharedTextures.test.ts` (both releases fire the dispose event; the anchor picture is rebuilt).
+Memory after (same scratch script, preview on port 5602, forced gc, Perseids/Geminids alternating, page kept, one canvas): usedJSHeapSize MB at 0, 4, 8, 12, 16, 20 switches = 32.9, 47.9, 48.7, 48.9, 49.1, 49.6 (before: 32.8, 52.1, 59.0, 65.3, 71.6, 78.3 in the rerun; 33.2 to 85.6 earlier). Levels off after the first switch (second shower's data and code, kept on purpose); about +0.2 MB per 4 switches after. Note: the first script held Playwright element handles from waitForSelector, which kept detached DOM; the rerun used locator waits, and the growth was still real (78.3 MB), so the numbers above are clean.
+Gates after the repair: `npm run lint` pass; `npm run typecheck` pass; `flock /tmp/astraeus-build.lock npm run build` pass; `npm test` pass, 114 files, 1522 tests (1 skipped); public build (ASTRAEUS_PUBLIC_BUILD=1, scratch outDir) plus `node tools/validate/load-budget.mjs` all pages ok (showers 9.95 MB of 10.07 limit raw). No browser check, no screenshots.
+Extra reads beyond Context Files: `src/app/sceneContentsHooks.ts`, `bodyDraw.ts`, `TrackedBodyView.ts`, `useBodyTexture.ts`, `AstraeusScene.tsx` (Canvas), grep of `src` for listeners and WeakMaps, `ScaleControl.tsx`/`useDrawers.ts`/`StoryPanelView.tsx`/`phoneLayout.ts`/`AstraeusShell.tsx` effects (all clean up).
 
 ## Drift Notes
 
 Note for Design: the switch rebuilds in place. Reconciled in the last step of this Objective.
+
+## Owner Decision
+
+Marked done by the coordinator at 2026-10-23T02:42:43Z under the owner's run rule for O-030, "Same as O-031 (Recommended)" (2026-10-23), which carries O-038's "I mark them as they pass". Leak repair per owner "Find and fix the leak (Recommended)"; heap levels off (32.9 to 49.6 MB over 20 switches). Coordinator re-ran lint, typecheck and npm test (114 files, 1522 passed, 1 skipped). The journey switch step is unrun until the Full Objective Check, by owner decision "Only at the final check (Recommended)".

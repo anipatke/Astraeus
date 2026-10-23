@@ -65,6 +65,12 @@ export function anchorSpriteTexture(): DataTexture {
   return anchorSprite;
 }
 
+/** Frees the shared anchor picture on every renderer that drew it (an unmounted scene's renderer must not stay reachable through it); the next anchor makes a new one. */
+export function releaseAnchorSprite(): void {
+  anchorSprite?.dispose();
+  anchorSprite = null;
+}
+
 /**
  * Marker, travelled/future path and anchor dots for one tracked body. Every position goes through
  * stateAt -> ScalePolicy -> render axes -> floating origin, exactly like Earth and the Moon.

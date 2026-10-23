@@ -1,5 +1,5 @@
 import { createFrameState, type FrameState } from "./sceneFrame";
-import { useBodyRefs, useDrawWakes, useOverlayLayers, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
+import { useBodyRefs, useDrawWakes, useOverlayLayers, useReleaseSharedTextures, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
 import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
@@ -187,6 +187,7 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
   const { trackedViews, groupViews, compositionPaths, skyView, bodySetViews, orbitSetViews, sunCentredViews } = views;
   useSkyStars(gl.domElement, skyView);
   useDrawWakes(gl.domElement, frameState);
+  useReleaseSharedTextures();
   const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews);
   useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
   useSceneFrame(rootRef, { runtime, controls, readout, catalogue, origin, orbit, state: frameState, assets, bodyRefs, lightRefs, placement, views, layers: layerRefs, bodyFamilies, readoutPair, pairLabels });
