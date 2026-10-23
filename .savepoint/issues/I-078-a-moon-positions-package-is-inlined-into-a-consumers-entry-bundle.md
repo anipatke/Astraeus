@@ -2,15 +2,21 @@
 id: I-078
 title: A moon-positions package is inlined into a consumer's entry bundle, so users download every chunk up front
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-107
   actor: {role: checker, session: o036-full-check-20261023}
   at: '2026-10-23T08:14:48Z'
 tasks: [T-161]
-checks: [C-107]
+checks: [C-107, C-108]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-108
+  actor: {role: checker, session: o036-full-recheck-20261023}
+  at: '2026-10-23T08:44:17Z'
+  reason: 'Default Vite 8.3.5 consumer of packed astraeus + astraeus-data + astraeus-data-saturn: entry 1,866,933 B (C-107: 14.97 MB), 0 data: URLs, 5,849 .bin files emitted separately. Only 4 window chunks were fetched in the built page and in vite dev; webpack and Parcel are the same (5,849 files, 0 inlined). The check:pack guard fails a URL without ?no-inline, ?no-inline=0 and an empty list (mutation, file restored). The README download sentence matches.'
 history:
   - at: '2026-10-23T08:14:48Z'
     actor: {role: checker, session: o036-full-check-20261023}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o036-repair-20261023}
     kind: repair_attempted
     note: "Owner decision 2026-10-23: \"Fix all three, short recheck (Recommended)\". Repair in tools/build-packages.mjs: every URL in a generated src/chunks.js ends `?no-inline` (`new URL(\"../data/saturn-moons/titan/2026.bin?no-inline\", import.meta.url).href`), the form Vite documents for never inlining an asset. Guard: check-packs.mjs fails a position package whose chunk URL lacks it or whose list is empty. Proof, scratch Vite 8.3.5 app with the packed astraeus, astraeus-data and astraeus-data-saturn tarballs (Saturn + Titan): entry script before 14,968,777 B (5,321 data: URLs, 528 .bin files emitted) -> after 1,866,801 B (0 data: URLs, 5,849 .bin files emitted as separate files); headless Chromium on the built page: Titan drawn as a sphere in view, Saturn moves over a seek, only 4 .bin files fetched, 0 console errors, no screenshots. Webpack 5.112.1 (never inlined them): main.js 2,177,663 B, 5,849 .bin files, same Titan check passes with the query present. Parcel 2.16.4: entry 1,871,673 B, 5,849 .bin files, Titan check passes. README sentence now matches what a user gets. Left in_progress for the recheck."
+  - at: '2026-10-23T08:44:17Z'
+    actor: {role: checker, session: o036-full-recheck-20261023}
+    kind: rechecked
+    check: C-108
+    note: 'Default Vite 8.3.5 consumer of packed astraeus + astraeus-data + astraeus-data-saturn: entry 1,866,933 B (C-107: 14.97 MB), 0 data: URLs, 5,849 .bin files emitted separately. Only 4 window chunks were fetched in the built page and in vite dev; webpack and Parcel are the same (5,849 files, 0 inlined). The check:pack guard fails a URL without ?no-inline, ?no-inline=0 and an empty list (mutation, file restored). The README download sentence matches.'
 ---
 
 # I-078: A moon-positions package is inlined into a consumer's entry bundle, so users download every chunk up front

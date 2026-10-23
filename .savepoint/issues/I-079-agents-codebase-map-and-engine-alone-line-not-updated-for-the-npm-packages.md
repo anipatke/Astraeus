@@ -2,15 +2,21 @@
 id: I-079
 title: AGENTS.md Codebase Map and engine-alone line not updated for the npm packages
 type: drift
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-107
   actor: {role: checker, session: o036-full-check-20261023}
   at: '2026-10-23T08:14:48Z'
 tasks: [T-161, T-162]
-checks: [C-107]
+checks: [C-107, C-108]
 severity: low
+resolution:
+  disposition: verified
+  check: C-108
+  actor: {role: checker, session: o036-full-recheck-20261023}
+  at: '2026-10-23T08:44:17Z'
+  reason: 'AGENTS.md Codebase Map has rows for packages/astraeus-data, astraeus-data-{jupiter,saturn,uranus,neptune,mars,pluto} and examples/hello-scene. The engine row names the compiled dist/ and x-publish. The tools/ row names build-packages, check-packs, publish-packages and build-example, all present. The engine-alone line no longer says the engine has no build. The edits are outside the Savepoint workflow sections. One non-blocking wording slip is noted in C-108 ("Moon-to-Charon").'
 history:
   - at: '2026-10-23T08:14:48Z'
     actor: {role: checker, session: o036-full-check-20261023}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o036-repair-20261023}
     kind: repair_attempted
     note: "Owner decision 2026-10-23: \"Fix all three, short recheck (Recommended)\". Repair in AGENTS.md: Codebase Map rows added for packages/astraeus-data, the six astraeus-data-<planet> packages and examples/hello-scene; the packages/astraeus row no longer says \"shipped as source\" (workspace uses source, tools/build-packages.mjs compiles to dist/); the tools/ row names build-packages, check-packs, publish-packages and build-example; the engine-alone line no longer says the engine has no build. Also C-107 notes: README astraeus-data size now \"about 39 MB\" (38.6 MB measured); .github/workflows/publish.yml now fails the job when npm is older than 11.5.1 (was only printed). Checked by reading the diff and running packages/astraeus-site publishWorkflow.test.ts inside npm test (pass). The publish workflow's real run is not exercised here. Left in_progress for the recheck."
+  - at: '2026-10-23T08:44:17Z'
+    actor: {role: checker, session: o036-full-recheck-20261023}
+    kind: rechecked
+    check: C-108
+    note: 'AGENTS.md Codebase Map has rows for packages/astraeus-data, astraeus-data-{jupiter,saturn,uranus,neptune,mars,pluto} and examples/hello-scene. The engine row names the compiled dist/ and x-publish. The tools/ row names build-packages, check-packs, publish-packages and build-example, all present. The engine-alone line no longer says the engine has no build. The edits are outside the Savepoint workflow sections. One non-blocking wording slip is noted in C-108 ("Moon-to-Charon").'
 ---
 
 # I-079: AGENTS.md Codebase Map and engine-alone line not updated for the npm packages
