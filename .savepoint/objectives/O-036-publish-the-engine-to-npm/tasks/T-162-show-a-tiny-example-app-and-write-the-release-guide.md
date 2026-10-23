@@ -2,11 +2,17 @@
 id: T-162
 title: Show a tiny example app and write the release guide
 objective: O-036
-status: in_progress
-stage: test
+status: done
 depends_on: [{task: T-161, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o036-planning-20261023}
+check_waiver:
+    task: T-162
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-036; quote: "Same as O-035 (Recommended)"; owner look given: "nah yall good bra"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T08:04:26Z"
 ---
 
 # Show a tiny example app and write the release guide
@@ -83,3 +89,6 @@ Built 2026-10-23 (builder, no commit; stage `test`, waiting for the owner's look
 - `tools/check-packs.mjs` pinned the version to 0.1.0; changed to compare with the source manifest so the first release bump does not fail the workflow's pack check.
 - The example's build includes all planet pictures (about 6 MB) because the engine's catalogue imports them; per-body picture loading is not in scope.
 - Moon definitions stayed in the engine (T-161 note) is reflected in Design.md; no further architectural notes are deferred.
+
+**Owner's verdict (2026-10-23T08:04:26Z):** looked at the example on http://localhost:5496. Asked "why is the moon in an odd location" — the Moon is at its real place (about 361,000 km, 26.3 deg above the equatorial plane of the probe circle, near the 2025-26 major lunar standstill); owner chose "show both orbits for reference" and `addBody(moon, { orbit: true })` was added. Asked "is earth at the right angle.." — coordinator measured Earth's pole at EQJ (0.0025, 0, 1.0) and Greenwich at RA about 100 deg (GMST 6.7 h) at 2026-01-01T00:00Z, so the probe circle lies on the equator and Greenwich faces away from the Sun. Owner: "nah yall good bra".
+
