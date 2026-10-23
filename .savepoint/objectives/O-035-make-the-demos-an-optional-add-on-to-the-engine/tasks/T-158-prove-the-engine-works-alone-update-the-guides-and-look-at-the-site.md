@@ -2,11 +2,17 @@
 id: T-158
 title: Prove the engine works alone, update the guides and look at the site
 objective: O-035
-status: in_progress
-stage: test
+status: done
 depends_on: [{task: T-157, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o035-planning-20261023}
+check_waiver:
+    task: T-158
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-035; quote: "Same as O-030 (Recommended)"; owner look given: "all fine, run the check"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T06:19:54Z"
 ---
 
 # Prove the engine works alone, update the guides and look at the site
@@ -68,7 +74,7 @@ Builder run 2026-10-23, uncommitted, stage test (waiting for the owner's look).
 
 **Owner's checklist** (desktop about 1280x720 and phone about 375x667, on both 5490 and 5491): 1. Front page `/`: loads, pictures show, links work. 2. Assets page `/assets.html`: sections, credits at the bottom. 3. Apollo 11 `/app.html`: plays, a story panel opens at the landing, info panel works. 4. Showers `/app.html?experience=showers`: Perseids draw; switch to Geminids and back. 5. Planets `/app.html?experience=planets&planet=jupiter`: on 5490 switch through Saturn, Mars, Earth and others; on 5491 only Jupiter. 6. Nothing overlaps on the phone size. Verdict: the site looks and behaves as before, or what differs.
 
-**Owner's verdict:** pending.
+**Owner's verdict (2026-10-23T06:19:54Z):** "all fine, run the check". During the look the owner also said "tagged places looks a bit weird as a table" and "assets.html is too long, we need to make it more concuse and organise the information better"; the page is unchanged by O-035, and the owner chose "Log it, do it next (Recommended)" — recorded as I-075.
 
 
 ## Drift Notes
