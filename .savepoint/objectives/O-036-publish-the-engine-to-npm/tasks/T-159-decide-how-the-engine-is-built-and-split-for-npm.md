@@ -2,7 +2,8 @@
 id: T-159
 title: Decide how the engine is built and split for npm
 objective: O-036
-status: planned
+status: in_progress
+stage: build
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o036-planning-20261023}
