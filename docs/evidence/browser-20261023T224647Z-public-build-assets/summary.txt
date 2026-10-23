@@ -1,0 +1,4 @@
+C-113 (O-041 recheck), head dec78743. public-build-assets alone on a fresh scratch public build; check:browser not rerun (reused docs/evidence/browser-20261023T221627Z/).
+build: ASTRAEUS_PUBLIC_BUILD=1 npx vite build packages/astraeus-site --outDir <scratch>/public-dist --emptyOutDir | exit=0 | 22:46:47-22:46:49
+public-build-assets | scene=none (files only) | exit=0 | 22:46:49-22:46:50 | ok=true checked=95
+Apollo 4,338,042 / 4,370,000 raw, 2,809,498 / 2,900,000 gzip; Perseids 10,078,005 / 10,080,000 raw, 7,026,237 / 7,040,000 gzip

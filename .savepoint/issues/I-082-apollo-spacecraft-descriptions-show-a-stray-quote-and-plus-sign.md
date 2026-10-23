@@ -2,16 +2,22 @@
 id: I-082
 title: Apollo spacecraft descriptions show a stray quote and plus sign
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-112
   actor: {role: checker, session: o041-full-check-20261024}
   at: '2026-10-23T22:20:00Z'
 tasks: [T-169]
-checks: [C-112]
+checks: [C-112, C-113]
 guardrail_ids: [TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-113
+  actor: {role: checker, session: o041-full-recheck-20261024}
+  at: '2026-10-23T22:50:00Z'
+  reason: 'Repair verified by C-113: ABOUT_THE_DRAWING (apollo11Scene.ts:150-151) is now a template literal joined to a plain string; an independent probe on buildApollo11Scene().toDefinition() and on the site''s apollo11Definition finds no quote, plus sign, newline, template leftover or doubled space in any description or known-limit line, and both spacecraft carry the exact note sentence. The new rebuildComparison.test.ts case refuses /"|\+|\n/ and pins the sentence; its regex matches an independent copy of the C-112 literal (TEST-02). Fresh gates on dec78743 all pass (npm test and test:full 1,656 passed, 1 skipped); the fresh public build carries the clean sentence in the Apollo chunk; public-build-assets ok (docs/evidence/browser-20261023T224647Z-public-build-assets/).'
 history:
   - at: '2026-10-23T22:20:00Z'
     actor: {role: checker, session: o041-full-check-20261024}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o041-i082-repair}
     kind: repair_attempted
     note: 'Fixed ABOUT_THE_DRAWING in apollo11Scene.ts (two joined strings now). Added a regression test in rebuildComparison.test.ts: Columbia and Eagle descriptions contain no quote, plus sign or newline and contain the exact note sentence. Also tidied SwitchesInput into the Scene section of api-reference.mjs and the README and CHANGELOG (addBody color and knownLimitations, bad-body, camera preset id change, Sky unlisted). Gates: lint, typecheck, build, npm test (124 files, 1656 passed, 1 skipped) all green. Not closed; needs a Check.'
+  - at: '2026-10-23T22:50:00Z'
+    actor: {role: checker, session: o041-full-recheck-20261024}
+    kind: rechecked
+    check: C-113
+    note: 'Repair verified by C-113: ABOUT_THE_DRAWING (apollo11Scene.ts:150-151) is now a template literal joined to a plain string; an independent probe on buildApollo11Scene().toDefinition() and on the site''s apollo11Definition finds no quote, plus sign, newline, template leftover or doubled space in any description or known-limit line, and both spacecraft carry the exact note sentence. The new rebuildComparison.test.ts case refuses /"|\+|\n/ and pins the sentence; its regex matches an independent copy of the C-112 literal (TEST-02). Fresh gates on dec78743 all pass (npm test and test:full 1,656 passed, 1 skipped); the fresh public build carries the clean sentence in the Apollo chunk; public-build-assets ok (docs/evidence/browser-20261023T224647Z-public-build-assets/).'
 ---
 
 # I-082: Apollo spacecraft descriptions show a stray quote and plus sign

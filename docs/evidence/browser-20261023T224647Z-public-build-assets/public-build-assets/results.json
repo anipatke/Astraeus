@@ -1,0 +1,164 @@
+{
+  "distDir": "/tmp/claude-1000/-home-user-code-Astraeus/ff83c791-2497-4220-98d7-ab430375047a/scratchpad/c113/public-dist",
+  "packageCredits": [
+    {
+      "package": "astraeus",
+      "licenceFiles": [
+        "licenses/ERFA.txt",
+        "licenses/orbjs-MIT.txt",
+        "licenses/python-sgp4.txt"
+      ],
+      "dataLicenceFiles": 0
+    },
+    {
+      "package": "astraeus-demo-apollo11",
+      "licenceFiles": [
+        "credits/APOLLO11_SOURCES.md",
+        "credits/CREDITS.md"
+      ],
+      "dataLicenceFiles": 0
+    },
+    {
+      "package": "astraeus-demo-planets",
+      "licenceFiles": [
+        "credits/CREDITS.md"
+      ],
+      "dataLicenceFiles": 0
+    },
+    {
+      "package": "astraeus-demo-showers",
+      "licenceFiles": [
+        "credits/CREDITS.md"
+      ],
+      "dataLicenceFiles": 4
+    }
+  ],
+  "engineLicences": {
+    "ok": true,
+    "missing": []
+  },
+  "loadBudget": {
+    "ok": true,
+    "pages": [
+      {
+        "id": "index.html",
+        "files": 14,
+        "raw": 403946,
+        "gzip": 357153,
+        "rawLimit": 600000,
+        "gzipLimit": 530000,
+        "problems": []
+      },
+      {
+        "id": "assets.html",
+        "files": 22,
+        "raw": 617758,
+        "gzip": 497928,
+        "rawLimit": 670000,
+        "gzipLimit": 520000,
+        "problems": []
+      },
+      {
+        "id": "api/index.html",
+        "files": 1,
+        "raw": 34955,
+        "gzip": 9003,
+        "rawLimit": 100000,
+        "gzipLimit": 30000,
+        "problems": []
+      },
+      {
+        "id": "app.html (Apollo 11)",
+        "files": 11,
+        "raw": 4338042,
+        "gzip": 2809498,
+        "rawLimit": 4370000,
+        "gzipLimit": 2900000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=planets&planet=jupiter",
+        "files": 46,
+        "raw": 6934754,
+        "gzip": 4705704,
+        "rawLimit": 7130000,
+        "gzipLimit": 4900000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers",
+        "files": 20,
+        "raw": 10078005,
+        "gzip": 7026237,
+        "rawLimit": 10080000,
+        "gzipLimit": 7040000,
+        "problems": []
+      },
+      {
+        "id": "app.html?experience=showers&shower=geminids",
+        "files": 20,
+        "raw": 12564581,
+        "gzip": 7833180,
+        "rawLimit": 12680000,
+        "gzipLimit": 7890000,
+        "problems": []
+      },
+      {
+        "id": "whole build",
+        "files": 95,
+        "raw": 25045276,
+        "gzip": 17324413,
+        "rawLimit": 54610000,
+        "gzipLimit": 44130000,
+        "problems": []
+      }
+    ]
+  },
+  "budgetSelfProof": true,
+  "localDataFilesChecked": 0,
+  "requiredPages": [
+    "index.html",
+    "assets.html",
+    "app.html",
+    "api/index.html"
+  ],
+  "missingPages": [],
+  "starAsset": {
+    "ok": true,
+    "problems": [],
+    "file": "src/assets/stars/hyg-v42-naked-eye.json",
+    "sha256": "f4076d268d53f2781cb8f4beaafe63abbf9c89366f641ff080d02af4ef54f540",
+    "bytes": 284317
+  },
+  "synthetic": {
+    "ok": true,
+    "modules": [
+      "syntheticDefinition",
+      "syntheticEccentricDefinition",
+      "syntheticListedDefinition",
+      "syntheticRingDefinition"
+    ],
+    "matches": []
+  },
+  "syntheticSelfProof": true,
+  "planets": {
+    "ok": true,
+    "others": [
+      "earth",
+      "mars",
+      "mercury",
+      "neptune",
+      "pluto",
+      "saturn",
+      "uranus",
+      "venus"
+    ],
+    "matches": []
+  },
+  "planetSelfProof": true,
+  "selfProof": true,
+  "ok": true,
+  "checked": 95,
+  "sources": [],
+  "matches": []
+}
