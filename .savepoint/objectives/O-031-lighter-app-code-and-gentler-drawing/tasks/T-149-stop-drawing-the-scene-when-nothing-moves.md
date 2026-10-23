@@ -83,7 +83,7 @@ Built in lane `lane-t149`. Task Check waived (see `check_waiver`); the Full Obje
 9. Path ring / arc fades and zoom-brighten: a function of clock time and camera distance only (checked in `PathView.sync` / `place`); no wall-clock animation. Rolling-path resampling by real time (`pathNeedsRefresh`) needs the clock to have drifted, so it only happens while time moves.
 10. Hover: the mouse only changes name brightness and the cursor on DOM elements, not the canvas picture; not reported (no canvas change). Name labels, story markers, feature markers and anchor labels are DOM; they are still updated every frame because the frame logic keeps running.
 11. Story marker and feature marker pulses, if any, are CSS animation on DOM, independent of the canvas.
-12. Not covered by the grace, by design: a tap on empty sky selects nothing and so changes nothing; no draw follows it.
+12. A tap on empty sky: listed here at build time as drawing nothing, but C-100's probe measured a fresh draw (48 frames); harmless either way, since an empty-sky tap changes nothing on screen. Corrected after C-101 (record-only).
 Open item for the owner's look (T-151): a texture that finishes loading more than half a second after its loader event is the one case that could show a stale body until the next input; none seen.
 
 **Frame-rate readout.** The developer panel's `FrameStats` ticks in the scene frame callback, which still runs at the display's rate, so while idle it keeps reading about 60 fps (it measures the frame loop, not draws). Recorded as sensible: no red 0 fps when the page is simply resting. `data-frames-drawn` on the canvas counts real draws.

@@ -50,7 +50,7 @@ export interface FrameState {
   drawThisFrame: boolean;
   /** Frames the renderer has drawn since mount (`data-frames-drawn`). */
   framesDrawn: number;
-  /** Bumped by anything that can change the picture without the clock, camera or controls moving (a finished load, a restored context, a React render). */
+  /** Bumped by anything that can change the picture without the clock, camera or controls moving (a finished load or a restored context). */
   wakes: number;
   /** What the last drawn frame looked like, for `decideDraw`. */
   readonly drawn: DrawnMemo;
