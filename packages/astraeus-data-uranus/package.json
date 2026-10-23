@@ -1,6 +1,6 @@
 {
   "name": "astraeus-data-uranus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Uranus's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030.",
   "license": "MIT",
   "type": "module",

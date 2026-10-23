@@ -46,7 +46,9 @@ function packOf(name) {
   const dir = join(root, "packages", name, "dist");
   const run = spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: dir, encoding: "utf8", maxBuffer: 1 << 28 });
   if (run.status !== 0) throw new Error(`${name}: npm pack --dry-run failed\n${run.stderr}`);
-  return { dir, pack: JSON.parse(run.stdout)[0] };
+  // npm 11 prints an array of packs; npm 12 prints an object keyed by package name.
+  const parsed = JSON.parse(run.stdout);
+  return { dir, pack: Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0] };
 }
 
 const RELATIVE_SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(?\s*)(["'])(\.[^"']*)\1/g;
