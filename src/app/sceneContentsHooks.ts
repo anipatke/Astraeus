@@ -1,7 +1,7 @@
 // Scene contents hooks: the refs, DOM layers, pointer listeners and frame callback `SceneContents` wires together.
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import type { DirectionalLight, Group, PerspectiveCamera } from "three";
+import { DefaultLoadingManager, type DirectionalLight, type Group, type PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
 import { rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import { AnchorLabelLayer } from "./AnchorLabels";
@@ -113,8 +113,35 @@ export interface FrameInputs {
 export function useSceneFrame(rootRef: { current: Group | null }, inputs: FrameInputs): void {
   const { gl, camera, size } = useThree();
   useFrame((_state, delta) => {
+    // Draw by default; a finished frame (`runFrame`) may decide the picture cannot have changed.
+    inputs.state.current.drawThisFrame = true;
     if (!rootRef.current || !bodiesMounted(inputs.runtime, inputs.bodyRefs)) return;
     const { orbit, state, lightRefs, ...rest } = inputs;
     runFrame({ ...rest, camera: camera as PerspectiveCamera, canvas: gl.domElement, size, orbit: orbit.current, state: state.current, delta, lightRefs: lightRefs.current, bodyIdFor: (id) => bodyIdOf(inputs.runtime, inputs.catalogue, id) });
   });
+}
+
+/**
+ * Wakes the draw rule for changes the scene cannot see in its own numbers: every load that starts, progresses, ends or fails (textures, the sky
+ * pictures, which are what a texture swap after a React render waits on) and a restored graphics context. Each keeps the scene drawing
+ * for the idle grace after it (`IDLE_GRACE_FRAMES`).
+ */
+export function useDrawWakes(canvas: HTMLCanvasElement, state: { current: FrameState }): void {
+  useEffect(() => {
+    const wake = () => { state.current.wakes += 1; };
+    const manager = DefaultLoadingManager;
+    const { onStart, onProgress, onLoad, onError } = manager;
+    manager.onStart = (...args) => { wake(); onStart?.(...args); };
+    manager.onProgress = (...args) => { wake(); onProgress?.(...args); };
+    manager.onLoad = () => { wake(); onLoad?.(); };
+    manager.onError = (url) => { wake(); onError?.(url); };
+    canvas.addEventListener("webglcontextrestored", wake);
+    return () => {
+      manager.onStart = onStart;
+      manager.onProgress = onProgress;
+      manager.onLoad = onLoad;
+      manager.onError = onError;
+      canvas.removeEventListener("webglcontextrestored", wake);
+    };
+  }, [canvas, state]);
 }

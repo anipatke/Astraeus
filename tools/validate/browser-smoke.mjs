@@ -2,6 +2,7 @@
 // Each load fails on any page or console error, a missing shell, or a scene with no body, orbit path or dot in view (the scene's own readouts; stars alone do not count; no picture). Nothing else is asserted.
 // Views are discovered as browser-lite does: Apollo (no query), the keys of DEFINITIONS in src/main.tsx, the planets and showers experiences, and every data/showers/<name>.json.
 // The made-up (synthetic) scenes are not public pages and are left to the DOM tests. Pages: index.html and assets.html beside app.html.
+// Apollo 11 must also stop drawing once paused and untouched (the frames-drawn readout stops counting, O-031 T-149).
 // Shower views (id starting "showers") must also draw the meteor stream: dots in view, not just any body (I-071). ASTRAEUS_VIEWS=showers limits the run to those views
 // (the step against the scratch public build uses it, so the shipped stream copy is what loads).
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
@@ -68,6 +69,8 @@ async function load(browser, view, size) {
     if (view.scene) {
       await ui.waitForShell(page, { timeout: 60000 });
       drawn = await drawsSomething(page, view);
+      // O-031 T-149: a paused, untouched scene stops drawing (Apollo 11 is the one view checked; the rule is the same for all).
+      if (view.id === "apollo11") { await ui.ensurePaused(page); drawn = { ...drawn, idleAtFrames: await ui.waitUntilSceneIdle(page) }; }
     } else {
       await page.waitForTimeout(500);
     }

@@ -1,5 +1,5 @@
 import { createFrameState, type FrameState } from "./sceneFrame";
-import { useBodyRefs, useOverlayLayers, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
+import { useBodyRefs, useDrawWakes, useOverlayLayers, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
 import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
@@ -147,6 +147,8 @@ export function AstraeusScene(props: Props) {
   const catalogue = runtime.catalogue ?? builtInCatalogue;
   const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER, catalogue), [runtime.bodies, catalogue]);
   const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers, catalogue]);
+  // One frame state for the whole canvas: the scene contents decide whether a frame is drawn and the layered render obeys.
+  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id));
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
@@ -161,17 +163,18 @@ export function AstraeusScene(props: Props) {
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
       data-rings={runtime.bodies.map((id) => (runtime.overrides?.get(id)?.rings ?? catalogue.get(id).visual.rings)?.bands.length ?? 0).reduce((sum, n) => sum + n, 0)}
     >
-      <SceneContents {...props} layers={layers} />
-      <LayeredRender lightLayers={lightLayers} />
+      <SceneContents {...props} layers={layers} frameState={frameState} />
+      <LayeredRender lightLayers={lightLayers} state={frameState} />
     </Canvas>
   );
 }
 
 interface SceneContentsProps extends Props {
   readonly layers: ReadonlyMap<BodyId, number>;
+  readonly frameState: { current: FrameState };
 }
 
-function SceneContents({ runtime, controls, readout, layers }: SceneContentsProps) {
+function SceneContents({ runtime, controls, readout, layers, frameState }: SceneContentsProps) {
   const catalogue = runtime.catalogue ?? builtInCatalogue;
   const { gl } = useThree();
   const rootRef = useRef<Group>(null);
@@ -179,11 +182,11 @@ function SceneContents({ runtime, controls, readout, layers }: SceneContentsProp
   const ringLookOf = useMemo(() => () => controls.ringLook, [controls]);
   const origin = useMemo(() => new FloatingOrigin(), []);
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
-  const frameState = useRef<FrameState>(createFrameState(controls.policy.id));
   const { placement, readoutPair, pairLabels, assets, bodyFamilies } = useSceneDerived(runtime, catalogue);
   const views = useSceneViews(runtime, gl);
   const { trackedViews, groupViews, compositionPaths, skyView, bodySetViews, orbitSetViews, sunCentredViews } = views;
   useSkyStars(gl.domElement, skyView);
+  useDrawWakes(gl.domElement, frameState);
   const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews);
   useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
   useSceneFrame(rootRef, { runtime, controls, readout, catalogue, origin, orbit, state: frameState, assets, bodyRefs, lightRefs, placement, views, layers: layerRefs, bodyFamilies, readoutPair, pairLabels });

@@ -789,6 +789,48 @@ export async function freeCanvasPoint(page) {
   }
   return null;
 }
+/** How many frames the scene has drawn since it mounted (`data-frames-drawn`, O-031 T-149); 0 before the first. A paused, untouched scene stops counting. */
+export async function framesDrawn(page) {
+  return Number((await page.locator("canvas").first().getAttribute("data-frames-drawn")) ?? 0);
+}
+/** Waits until the frames-drawn count has not moved for `quietMs`; returns it. Throws if the scene is still drawing after `timeout`. Pause first: a playing scene never stops. */
+export async function waitUntilSceneIdle(page, { quietMs = 1500, timeout = 10000 } = {}) {
+  const deadline = Date.now() + timeout;
+  let last = await framesDrawn(page);
+  let since = Date.now();
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(250);
+    const now = await framesDrawn(page);
+    if (now !== last) { last = now; since = Date.now(); } else if (Date.now() - since >= quietMs) return last;
+  }
+  throw new Error(`the scene kept drawing for ${timeout} ms while paused and untouched (frames drawn: ${last})`);
+}
+/** Waits until the scene has drawn at least `count` more frames than `before`; returns the new count. Throws after `timeout`. */
+export async function waitForMoreFrames(page, before, count = 3, timeout = 5000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const now = await framesDrawn(page);
+    if (now >= before + count) return now;
+    await page.waitForTimeout(100);
+  }
+  throw new Error(`the scene drew fewer than ${count} frames in ${timeout} ms (frames drawn: ${await framesDrawn(page)}, was ${before})`);
+}
+/** A wheel turn over the scene, where the canvas itself is on top: moves the camera, so a resting scene draws again. Returns false when no free point exists. */
+export async function nudgeCamera(page) {
+  const point = await freeCanvasPoint(page);
+  if (point === null) return false;
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.wheel(0, 120);
+  return true;
+}
+/** A tap (click) on the scene where the canvas itself is on top: goes through the pointer listeners, so a resting scene draws again (O-031 I-073). Returns false when no free point exists. */
+export async function tapCanvas(page) {
+  const point = await freeCanvasPoint(page);
+  if (point === null) return false;
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.click(point.x, point.y);
+  return true;
+}
 /** The anchor-label layer: whether it is hidden, how many labels it holds, how many are on screen. */
 export const anchorLayerHidden = async (page) => (await page.locator(HOOK.anchorLabels).getAttribute("hidden")) !== null;
 export const anchorLabelCount = (page) => page.locator(`${HOOK.anchorLabels} .anchor-label`).count();
