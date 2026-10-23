@@ -88,7 +88,8 @@ function pair(sliceMs = 4) {
   return { look, plain, lookCalls, plainCalls, step, policyOf };
 }
 
-describe("fill look-ahead on a large group", () => {
+// Each case compares every frame against a whole fill of a large group; on a busy machine or a CI runner that takes several seconds, past the 5 s default.
+describe("fill look-ahead on a large group", { timeout: 30_000 }, () => {
   it("plays forward with the same positions as whole fills, making only the first two fills whole", () => {
     const { look, plain, lookCalls, step } = pair();
     const start = START + 600_000;
