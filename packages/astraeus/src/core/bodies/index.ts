@@ -12,7 +12,8 @@ import { MERCURY, MERCURY_ROTATION } from "./mercury";
 import { NEPTUNE, NEPTUNE_ROTATION, PLUTO, SATURN, SATURN_ROTATION, URANUS, URANUS_ROTATION } from "./outerPlanets";
 import { PLANET_MOON_BINDINGS, PLANET_MOON_DEFINITIONS, PLUTO_BINDING } from "./planetMoons";
 import { SUN } from "./sun";
-import { SWIFT_TUTTLE, SWIFT_TUTTLE_BINDING } from "./swiftTuttle";
+import { SWIFT_TUTTLE, SWIFT_TUTTLE_BINDING, SWIFT_TUTTLE_SAMPLING } from "./swiftTuttle";
+import type { EccentricSampling } from "../sunCentredSources";
 import { VENUS, VENUS_ROTATION } from "./venus";
 
 export { EARTH, EARTH_EPHEMERIS } from "./earth";
@@ -47,3 +48,6 @@ export const BUILT_IN_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
   ...PLANET_MOON_BINDINGS,
   SWIFT_TUTTLE_BINDING,
 ]);
+
+/** Built-in bodies whose period and periapsis the catalogue knows (a comet's century-long orbit), so their whole orbit can be drawn from periapsis. */
+export const BUILT_IN_SAMPLING: Readonly<Record<string, EccentricSampling>> = Object.freeze({ [SWIFT_TUTTLE.id]: SWIFT_TUTTLE_SAMPLING });

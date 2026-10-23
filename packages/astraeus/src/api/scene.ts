@@ -6,11 +6,12 @@ import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy"
 import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { loadPlanetSeries } from "../core/planetSeries";
-import { catalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
+import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
 import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { bodyMetrics } from "../app/bodyMetrics";
-import type { ExperienceDefinition, GroupLayer } from "../app/experienceDefinition";
+import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
@@ -18,6 +19,8 @@ import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
 import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
+import type { EccentricSampling } from "../core/sunCentredSources";
+import { circlesTheSun, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
 import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
@@ -29,11 +32,19 @@ import { switchesOf, type SwitchesInput } from "./switches";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import { eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
+export type { ElementsBodyRecord } from "../core/elementsBody";
 
 /** Options of `addBody`. */
 export interface AddBodyOptions {
-  /** Draws the body's orbit about its parent as a line (the engine's own orbit line). Only the Moon (about Earth) and Io (about Jupiter) have one in 0.1; others throw `no-orbit`. */
+  /**
+   * Draws the body's orbit as a line: the Moon's about Earth and Io's about Jupiter, or, in a scene that holds the Sun, one full turn round the Sun of any body that
+   * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), from the scene's opening time (an own body from its periapsis). Others throw `no-orbit`.
+   */
   readonly orbit?: boolean;
+  /** Draws the body this many times larger than life in the readable (solar-system) scale, so a planet can be seen; a number of at least 1 (distances stay true). A bad value throws `bad-body`. */
+  readonly enlarge?: number;
+  /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
+  readonly showLabel?: boolean;
   /** One or two plain sentences for the body's info card. */
   readonly description?: string;
   /** The body's colour on its info card and label, as a CSS hex colour such as "#9fd8ff"; the catalogue's own when absent. A bad value throws `bad-body`. */
@@ -159,6 +170,9 @@ export class Scene {
   readonly #tracked = new Map<string, Tracked>();
   readonly #groups = new Map<string, PlannedGroup>();
   readonly #orbits = new Set<BodyId>();
+  readonly #own = new Map<BodyId, EccentricSampling>();
+  readonly #shape = new Map<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>();
+  #catalogue: BodyCatalogue = builtInCatalogue;
   readonly #notes = new Map<BodyId, string>();
   readonly #looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   #timeUtcMs: number | undefined;
@@ -177,15 +191,44 @@ export class Scene {
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
     const id = typeof body === "string" ? body : body.id;
-    if (options.orbit === true && ORBITS[id] === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} only`);
-    if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
-    if (this.#taken(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
+    this.#register("addBody", id, typeof body === "string" ? readyMade(id) ?? { id, label: this.#catalogue.has(id) ? this.#catalogue.get(id).definition.label : id } : body, options);
+    return this;
+  }
+
+  /**
+   * Adds your own body that circles the Sun, from its published orbit elements and where they came from: a record with the id, label, elements at an epoch, the source
+   * (name, URL, solution, access date), a stated accuracy and optionally a radius and marker. Drawn as a marker on unperturbed two-body motion about the Sun; the provenance
+   * and the stated limits show on its info card. The options are `addBody`'s (`{ orbit: true }` draws its whole orbit from periapsis). A bad record throws `bad-element`
+   * naming the field; a repeated id throws `duplicate-id`.
+   * @example
+   * scene.addBody(sun).addBodyFromElements(record, { orbit: true, showLabel: false });
+   */
+  addBodyFromElements(record: ElementsBodyRecord, options: AddBodyOptions = {}): this {
+    const parsed = parseRecord(record);
+    if (this.#taken(parsed.id) || this.#catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
+    const root = builtInCatalogue.get(rootBodyId()).definition;
+    const before = this.#catalogue;
+    this.#catalogue = extendCatalogue(before, [parsed]);
+    try {
+      this.#register("addBodyFromElements", parsed.id, { id: parsed.id, label: parsed.label }, options);
+    } catch (error) {
+      this.#catalogue = before;
+      throw error;
+    }
+    this.#own.set(parsed.id, buildElementsBody(parsed, { id: root.id, gmKm3S2: root.gmKm3S2! }).sampling);
+    return this;
+  }
+
+  #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
+    if (options.orbit === true && ORBITS[id] === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} and of any body that circles the Sun`);
+    if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${this.#catalogue.ids().join(", ")})`);
+    if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
     if (options.orbit === true) this.#orbits.add(id);
     if (options.color !== undefined || options.knownLimitations !== undefined) this.#looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
+    if (options.enlarge !== undefined || options.showLabel !== undefined) this.#shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.#notes.set(id, options.description);
-    this.#bodies.set(id, typeof body === "string" ? readyMade(id) ?? { id, label: catalogue.get(id).definition.label } : body);
-    return this;
+    this.#bodies.set(id, ref);
   }
 
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
@@ -194,7 +237,7 @@ export class Scene {
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
     const center = input.center ?? "earth";
-    if (!catalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
+    if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
     const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
     const readouts = readoutsOf(id, input.readouts);
@@ -297,6 +340,47 @@ export class Scene {
     });
   }
 
+  /** Throws `missing-data` naming the bodies whose data package was not passed. */
+  #checkData(data: readonly DataSource[]): void {
+    const missing = this.missingData(data);
+    if (missing.length === 0) return;
+    const names = [...this.#bodies.values()].filter((body) => body.requires !== undefined && missing.includes(body.requires)).map((body) => body.id);
+    throw new SceneError("missing-data", `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`);
+  }
+
+  /** The engine's own orbit loops (the Moon's and Io's) the scene asked for. */
+  #moonPaths(): readonly CompositionPath[] {
+    return [...this.#orbits].filter((id) => ORBITS[id] !== undefined).map((id): CompositionPath => {
+      const orbit = ORBITS[id]!;
+      if (!this.#bodies.has(orbit.parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${orbit.parent}, which has not been added to the scene`);
+      return { body: id, ...orbit.path };
+    });
+  }
+
+  /** Whether the scene is centred on the Sun; such a scene cannot hold a tracked path. */
+  #checkSunCentred(ids: readonly BodyId[]): boolean {
+    const sunCentred = ids[0] === rootBodyId(this.#catalogue);
+    if (sunCentred && this.#tracked.size > 0) throw new SceneError("bad-trajectory", `addTrajectory("${[...this.#tracked.keys()][0]}"): a scene centred on the Sun cannot hold a tracked path yet; centre the scene on Earth or another body`);
+    return sunCentred;
+  }
+
+  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene sets no label reach. */
+  #bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean): ExperienceObject {
+    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred ? {} : { labelMaxDistance: 500 }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
+    return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
+  }
+
+  /** The Sun-orbit lines of the bodies that asked for one: one full turn from the opening time (an own body from its periapsis). The Sun must be in the scene. */
+  #sunPaths(ids: readonly BodyId[], openUtcMs: number): readonly PathLayer[] {
+    return [...this.#orbits].filter((id) => ORBITS[id] === undefined).map((id): PathLayer => {
+      if (!ids.includes(rootBodyId(this.#catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
+      if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
+      const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
+      if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within a dozen years and the catalogue does not know its period; add it with addBodyFromElements to draw its whole orbit`);
+      return layer;
+    });
+  }
+
   /** A readout names a body the scene must hold, so it can be measured against. */
   #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
     for (const spec of entry.readouts) {
@@ -315,21 +399,15 @@ export class Scene {
   /** The app's plug-in contract for this scene. Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
     if (this.#bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
-    const missing = this.missingData(data);
-    if (missing.length > 0) {
-      const names = [...this.#bodies.values()].filter((body) => body.requires !== undefined && missing.includes(body.requires)).map((body) => body.id);
-      throw new SceneError("missing-data", `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`);
-    }
+    this.#checkData(data);
     const ids = [...this.#bodies.keys()];
-    const paths = [...this.#orbits].map((id): CompositionPath => {
-      const orbit = ORBITS[id]!;
-      if (!this.#bodies.has(orbit.parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${orbit.parent}, which has not been added to the scene`);
-      return { body: id, ...orbit.path };
-    });
+    const paths = this.#moonPaths();
+    const sunCentred = this.#checkSunCentred(ids);
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, tracked);
+    const sunPaths = this.#sunPaths(ids, startUtcMs);
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
@@ -338,7 +416,7 @@ export class Scene {
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
-          ...[...this.#bodies.values()].map((body): ExperienceObject => ({ ...catalogueItem(body.id, { labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500, ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) }), label: body.label })),
+          ...[...this.#bodies.values()].map((body) => this.#bodyObject(body, ids, sunCentred)),
           ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: cameraPresetsOf(labelled),
@@ -351,8 +429,11 @@ export class Scene {
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
-      ...groupLayersEntry(layers),
-      composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
+      ...groupLayersEntry(layers, sunPaths.length > 0),
+      ...(sunPaths.length === 0 ? {} : { paths: sunPaths }),
+      ...(this.#own.size === 0 ? {} : { catalogue: this.#catalogue }),
+      ...visualOverridesEntry(this.#shape),
+      composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
@@ -372,8 +453,26 @@ export class Scene {
 }
 
 /** The scene's layers: the points layer and the groups only when a group was added. */
-function groupLayersEntry(layers: readonly GroupLayer[]): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
-  return layers.length === 0 ? { sceneLayers: ["tracked-bodies"] } : { sceneLayers: ["tracked-bodies", "points"], groups: layers };
+function groupLayersEntry(layers: readonly GroupLayer[], sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
+  const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(layers.length === 0 ? [] : ["points" as const]), ...(sunCentred ? ["sun-centred" as const] : [])];
+  return layers.length === 0 ? { sceneLayers } : { sceneLayers, groups: layers };
+}
+
+/** The enlargements the scene asked for, as the engine's per-body overrides. */
+function visualOverridesEntry(shape: ReadonlyMap<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>): Pick<ExperienceDefinition, "visualOverrides"> {
+  const overrides: Record<BodyId, VisualOverride> = {};
+  for (const [id, { enlarge }] of shape) if (enlarge !== undefined) overrides[id] = { exaggeration: enlarge };
+  return Object.keys(overrides).length === 0 ? {} : { visualOverrides: overrides };
+}
+
+/** Parses an elements record, naming the field a mistake is in. */
+function parseRecord(record: ElementsBodyRecord): ElementsBodyRecord {
+  try {
+    return parseElementsBodyRecord(record, "addBodyFromElements");
+  } catch (error) {
+    if (error instanceof ElementsBodyError) throw new SceneError("bad-element", error.message);
+    throw error;
+  }
 }
 
 /** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
@@ -442,6 +541,8 @@ function windowOf(tracked: readonly TrackedBody[], timeUtcMs: number | undefined
 
 /** Checks the colour and known limits given to `addBody`. */
 function checkBodyLook(id: string, options: AddBodyOptions): void {
+  if (options.enlarge !== undefined && !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)) throw new SceneError("bad-body", `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`);
+  if (options.showLabel !== undefined && typeof options.showLabel !== "boolean") throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
   if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
   const limits = options.knownLimitations;
   if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
@@ -461,7 +562,7 @@ function readoutsOf(id: string, readouts: readonly ReadoutInput[] = []): readonl
     if (!READOUT_KINDS.includes(spec?.kind)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout kind "${String(spec?.kind)}" is not one of ${READOUT_KINDS.join(", ")}`);
     const named = readoutBody(spec);
     if (spec.kind !== "range" && spec.kind !== "speed" && named === undefined) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} needs ${spec.kind === "distance" ? "`to`" : "`above`"}, the body to measure against`);
-    if (named !== undefined && !catalogue.has(named)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
+    if (named !== undefined && !builtInCatalogue.has(named)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
   }
   return readouts;
 }
