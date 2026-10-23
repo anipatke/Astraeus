@@ -34,6 +34,10 @@ export interface AddBodyOptions {
   readonly orbit?: boolean;
   /** One or two plain sentences for the body's info card. */
   readonly description?: string;
+  /** The body's colour on its info card and label, as a CSS hex colour such as "#9fd8ff"; the catalogue's own when absent. A bad value throws `bad-body`. */
+  readonly color?: string;
+  /** Known limits shown with the body's provenance, replacing the catalogue's own; a list of non-empty texts. A bad value throws `bad-body`. */
+  readonly knownLimitations?: readonly string[];
 }
 
 /** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */
@@ -153,6 +157,7 @@ export class Scene {
   readonly #tracked = new Map<string, Tracked>();
   readonly #orbits = new Set<BodyId>();
   readonly #notes = new Map<BodyId, string>();
+  readonly #looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
@@ -172,7 +177,9 @@ export class Scene {
     if (options.orbit === true && ORBITS[id] === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} only`);
     if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
     if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
+    checkBodyLook(id, options);
     if (options.orbit === true) this.#orbits.add(id);
+    if (options.color !== undefined || options.knownLimitations !== undefined) this.#looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
     if (options.description !== undefined) this.#notes.set(id, options.description);
     this.#bodies.set(id, typeof body === "string" ? readyMade(id) ?? { id, label: catalogue.get(id).definition.label } : body);
     return this;
@@ -297,7 +304,7 @@ export class Scene {
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
-          ...[...this.#bodies.values()].map((body): ExperienceObject => ({ ...catalogueItem(body.id, { labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500, ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}) }), label: body.label })),
+          ...[...this.#bodies.values()].map((body): ExperienceObject => ({ ...catalogueItem(body.id, { labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500, ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) }), label: body.label })),
           ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: cameraPresetsOf(labelled),
@@ -392,6 +399,13 @@ function windowOf(tracked: readonly TrackedBody[], timeUtcMs: number | undefined
   }
   const centre = timeUtcMs ?? Date.now();
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
+}
+
+/** Checks the colour and known limits given to `addBody`. */
+function checkBodyLook(id: string, options: AddBodyOptions): void {
+  if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
+  const limits = options.knownLimitations;
+  if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
 }
 
 const READOUT_KINDS = ["range", "speed", "distance", "altitude"];

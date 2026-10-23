@@ -6,16 +6,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { bodyMetrics } from "astraeus/app/bodyMetrics";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
-import { apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
-import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
+import { apollo11Definition, apollo11Experience, apolloMetrics } from "./support";
 import { infoView } from "astraeus/shell/infoModel";
 import { scaleChoicesFor } from "astraeus/shell/scaleModel";
 import type { Metric } from "astraeus/shell/metrics";
 import { $, findAllByLabel, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
 
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
-const metricsFor = apolloMetrics(apollo11Mission.bodies, resolver);
+const metricsFor = apolloMetrics(resolver);
 const utc = (text: string) => Date.parse(`${text.replace(" ", "T")}Z`);
 const valueOf = (metrics: readonly Metric[], id: string): number => {
   const metric = metrics.find((entry) => entry.id === id);
@@ -29,8 +27,7 @@ afterEach(() => { m?.unmount(); m = undefined; });
 describe("the thirty events", () => {
   it("are the mission's thirty, listed on the screen as many rows, and the same list the timeline markers use", () => {
     expect(apollo11Experience.events).toHaveLength(30);
-    expect(apollo11Experience.events).toBe(apollo11Mission.events);
-    m = mountShell({ experience: apollo11Experience });
+        m = mountShell({ experience: apollo11Experience });
     const rows = [...m.container.querySelectorAll<HTMLElement>(".timeline-expanded li button")];
     expect(rows).toHaveLength(30);
     const labels = rows.map((row) => row.querySelector("span")!.textContent!.trim());
@@ -71,11 +68,12 @@ describe("the six mission phases (browser-spike02)", () => {
     ["return", "1969-07-23 12:00:00", ["columbia"]],
     ["entry", "1969-07-24 16:30:00", ["columbia"]],
   ] as const;
-  it.each(phases)("%s: the vehicle's range, speed and Moon gap read as finite numbers at %s", (_id, when, vehicles) => {
+  it.each(phases)("%s: the vehicle's range, speed, Moon gap and two altitudes read as finite numbers at %s", (_id, when, vehicles) => {
     for (const vehicle of vehicles) {
       const metrics = metricsFor(vehicle, utc(when));
-      expect(metrics.map((metric) => metric.id)).toEqual([`${vehicle}-range`, `${vehicle}-speed`, `${vehicle}-to-moon`]);
-      for (const id of [`${vehicle}-range`, `${vehicle}-speed`, `${vehicle}-to-moon`]) expect(Number.isFinite(valueOf(metrics, id))).toBe(true);
+      const ids = [`${vehicle}-range`, `${vehicle}-speed`, `${vehicle}-to-moon`, `${vehicle}-altitude-earth`, `${vehicle}-altitude-moon`];
+      expect(metrics.map((metric) => metric.id)).toEqual(ids);
+      for (const id of ids) expect(Number.isFinite(valueOf(metrics, id))).toBe(true);
     }
   });
 
@@ -85,7 +83,7 @@ describe("the six mission phases (browser-spike02)", () => {
     const before = ids.map((id) => metricsFor(id, when));
     m = mountShell({ experience: apollo11Experience });
     const presets = apollo11Experience.cameraPresets.map((preset) => preset.id);
-    expect(presets).toEqual(expect.arrayContaining(["focus-earth", "focus-moon", "focus-columbia", "focus-eagle", "follow-columbia", "follow-eagle", "overview"]));
+    expect(presets).toEqual(expect.arrayContaining(["focus-earth", "focus-moon", "focus-columbia", "focus-eagle", "follow-columbia", "follow-eagle", "follow-earth", "follow-moon", "overview"]));
     for (const preset of apollo11Experience.cameraPresets) {
       expect(preset.request).toBeDefined();
       expect(ids.map((id) => metricsFor(id, when))).toEqual(before);

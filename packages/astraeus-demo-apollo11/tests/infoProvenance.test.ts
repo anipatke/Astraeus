@@ -5,16 +5,10 @@ import { createEvents } from "astraeus/core/events";
 import { createWindows } from "astraeus/core/timeWindow";
 import { createProvenance } from "astraeus/core/provenance";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
-import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
 import { trackedAbsolute } from "astraeus/app/sceneLayout";
 import { placementAbout } from "astraeus/tests/scenePlacement";
-import {
-  apollo11Experience,
-  apollo11KnownLimitations,
-  apollo11Mission,
-  POST_TLI_COAST_ID,
-  type GeneratedValidation,
-} from "../src/experiences/apollo11/apollo11";
+import { APOLLO11_DATA, buildApollo11Scene, POST_TLI_COAST_ID, type GeneratedValidation } from "../src/experiences/apollo11/apollo11Scene";
+import { apolloMetrics, apollo11Experience, apollo11Mission } from "./support";
 import type { ExperienceConfig } from "astraeus/shell/experience";
 import { infoView, PROVENANCE_STATUS } from "astraeus/shell/infoModel";
 import { formatMetricNumber } from "astraeus/shell/metrics";
@@ -52,7 +46,7 @@ describe("provenance reachability", () => {
     expect(infoView(apollo11Experience, { kind: "object", id: "earth" })?.provenance?.status).toBe("Ephemeris");
     expect(infoView(apollo11Experience, { kind: "object", id: "moon" })?.provenance?.status).toBe("Ephemeris");
     expect(apollo11Experience.objects.find((object) => object.id === "columbia")?.provenance).toBe(
-      (columbia.trajectory as { provenance?: unknown }).provenance,
+      columbia.provenance,
     );
   });
 
@@ -181,8 +175,9 @@ describe("Apollo known limitations come from the generated reconstruction data",
       landingSiteOffset: validation.landingSiteOffset.map((o) => ({ ...o, offsetKm: o.offsetKm + 1000 })),
       segments: validation.segments.map((s) => (s.cutoffPositionResidualKm === undefined ? s : { ...s, cutoffPositionResidualKm: s.cutoffPositionResidualKm + 1000 })),
     };
-    const before = apollo11KnownLimitations(apollo11Mission);
-    const after = apollo11KnownLimitations(apollo11Mission, altered);
+    const limits = (data: typeof APOLLO11_DATA) => Object.fromEntries(buildApollo11Scene(data).toDefinition().experience.objects.map((object) => [object.id, object.knownLimitations ?? []]));
+    const before = limits(APOLLO11_DATA);
+    const after = limits({ ...APOLLO11_DATA, validation: altered });
     expect(after.eagle.join()).not.toBe(before.eagle.join());
     expect(after.columbia.join()).not.toBe(before.columbia.join());
     expect(after.eagle.join()).toContain(n(validation.landingSiteOffset[0].offsetKm + 1000, 2));
@@ -197,7 +192,7 @@ describe("scale choice independence", () => {
   });
 
   it("leaves State and every info readout identical under True and Readable through the shell's choice", () => {
-    const metricsFor = apolloMetrics(apollo11Mission.bodies, createSceneResolver(createOrbAstronomyAdapter()));
+    const metricsFor = apolloMetrics(createSceneResolver(createOrbAstronomyAdapter()));
     const snapshot = () => objectIds.map((id) => metricsFor(id, eagleMid));
     const states = () => apollo11Mission.bodies.map((body) => {
       const state = body.trajectory.stateAt(eagleMid);

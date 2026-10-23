@@ -15,7 +15,7 @@ import { inertialTrailKm, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameK
 import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
 import { travelledCount } from "astraeus/app/mission";
 import { TrackedBodyView } from "astraeus/app/TrackedBodyView";
-import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
+import { apollo11Mission } from "./support";
 import { placementAbout } from "astraeus/tests/scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();

@@ -9,10 +9,13 @@ import { describe, expect, it } from "vitest";
 // and every `package/entry` import is an entry the target declares (and that points at a real file).
 // Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a path. Relative and `/packages/...` patterns are checked against every package their path can match (a wildcard, partial name or brace list in the package-name segment reaches several, a brace list holding a `/` is expanded, and a call's `base` option is resolved first; a `**` above a package reaches it from an unknown place), and a match on any other package fails unless a named rule allows it.
 // Four named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`), DATA-OF-DATA-PACKAGE (any package may glob a data package's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file in a package's top-level `tests/` folder may glob the engine's `src/` when that glob call's own options say `query: "?raw"`, to read source as text for a rule check, never to import it).
+// One more rule (O-041 T-169, ARCH-03): a demo built on the public API (`PUBLIC_API_DEMOS`) imports the engine only through its `.` entry, `astraeus`, the way a customer's app would, in its `src/` (its tests may use the engine's inside); another package and a deep `astraeus/...` entry fail.
 // Not checked: an alias-based glob (neither relative nor `/`-rooted), file paths a test or script reads at run time, and paths that leave `packages/` for the repository root (docs, vercel.json).
 
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
+/** Demos that are stories on the public API: their `src/` imports `astraeus` and nothing else outside the package. */
+const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11"]);
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
 const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
 /** Engine files that are not shipped code: its tests and the test setup. */
@@ -198,7 +201,18 @@ function directionOffence(from: string, first: string, where: string): string | 
   return null;
 }
 
-function boundaryOffences(packagesDir: string): string[] {
+/** Offences of a public-API demo's `src/`: every import that is not relative must be exactly `astraeus`. */
+function publicApiOffences(from: string, where: string, text: string): string[] {
+  const offences: string[] = [];
+  for (const raw of specifiers(text)) {
+    const spec = raw.split("?")[0];
+    if (spec.startsWith(".") || spec === ENGINE) continue;
+    offences.push(`${where}: ${from} is built on the public API and may import only "${ENGINE}", not ${spec}`);
+  }
+  return offences;
+}
+
+function boundaryOffences(packagesDir: string, publicApiDemos: ReadonlySet<string> = PUBLIC_API_DEMOS): string[] {
   const packages = loadPackages(packagesDir);
   const byDir = new Map([...packages].map(([name, info]) => [info.dir, name]));
   const offences: string[] = [];
@@ -207,6 +221,7 @@ function boundaryOffences(packagesDir: string): string[] {
       const where = relative(packagesDir, file).split(sep).join("/");
       const text = readFileSync(file, "utf8");
       offences.push(...globOffences(packages, packagesDir, from, file, where, text));
+      if (publicApiDemos.has(from) && relative(info.dir, file).split(sep)[0] === "src") offences.push(...publicApiOffences(from, where, text));
       for (const raw of specifiers(text)) {
         const spec = raw.split("?")[0];
         if (spec.startsWith(".")) {
@@ -232,7 +247,7 @@ function boundaryOffences(packagesDir: string): string[] {
 function scratchPackages(files: Record<string, string>): string {
   const dir = mkdtempSync(join(tmpdir(), "astraeus-boundaries-"));
   const manifests: Record<string, object> = {
-    [ENGINE]: { name: ENGINE, exports: { "./core/*": "./src/core/*.ts", "./data/*": "./data/*" } },
+    [ENGINE]: { name: ENGINE, exports: { ".": "./src/core/clock.ts", "./core/*": "./src/core/*.ts", "./data/*": "./data/*" } },
     "astraeus-demo-a": { name: "astraeus-demo-a", exports: { "./things/*": "./src/things/*.ts", "./data/*": "./data/*" } },
     "astraeus-demo-b": { name: "astraeus-demo-b", exports: {} },
     [SITE]: { name: SITE, exports: {} },
@@ -293,6 +308,28 @@ describe("package boundaries (ARCH-03)", () => {
         "astraeus/src/core/uses.ts: the engine imports astraeus-data-x",
       ].sort());
     } finally { rmSync(bad, { recursive: true }); }
+  });
+
+  it("holds a demo built on the public API to the `astraeus` entry in its src, proved on a made-up offence", () => {
+    const files = {
+      "astraeus-demo-a/src/things/ok.ts": use("astraeus") + use("./thing") + use("../../data/x.json"),
+      "astraeus-demo-a/src/things/deep.ts": use("astraeus/core/clock"),
+      "astraeus-demo-a/src/things/app.ts": use("astraeus/app/App"),
+      "astraeus-demo-a/src/things/data.ts": use("astraeus-data-x"),
+      "astraeus-demo-a/tests/usesInternals.ts": use("astraeus/core/clock"),
+      [`${SITE}/src/deep.ts`]: use("astraeus/core/clock"),
+    };
+    const dir = scratchPackages(files);
+    try {
+      expect(boundaryOffences(dir, new Set(["astraeus-demo-a"]))).toEqual([
+        'astraeus-demo-a/src/things/app.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/app/App',
+        'astraeus-demo-a/src/things/data.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus-data-x',
+        'astraeus-demo-a/src/things/deep.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/core/clock',
+        "astraeus-demo-a/src/things/app.ts: astraeus/app/App is not an entry astraeus declares in exports",
+      ].sort());
+      // The same files are fine for a demo that has not taken the rule on.
+      expect(boundaryOffences(dir).some((line) => line.includes("built on the public API"))).toBe(false);
+    } finally { rmSync(dir, { recursive: true }); }
   });
 
   it("fails each kind of bad import", () => {

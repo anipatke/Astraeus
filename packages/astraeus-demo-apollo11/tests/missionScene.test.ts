@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "astraeus/core/clock";
 import { readableScale, trueScale } from "astraeus/core/scalePolicy";
-import { SPEEDS } from "../src/experiences/apollo11/DebugControls";
+import { DEFAULT_PLAYBACK_SPEEDS as SPEEDS } from "astraeus/shell/timelineModel";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "astraeus/app/CameraController";
 import { projectToScreen } from "astraeus/app/AnchorLabels";
@@ -22,7 +22,7 @@ import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
 import { trackedAbsolute } from "astraeus/app/sceneLayout";
 import { placementAbout } from "astraeus/tests/scenePlacement";
 import { TrackedBodyView } from "astraeus/app/TrackedBodyView";
-import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
+import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "./support";
 import { availableObjectById, findCameraPreset, isObjectAvailable } from "astraeus/shell/objectModel";
 
 const earthPlacement = placementAbout("earth");
@@ -48,9 +48,10 @@ describe("mission module wiring", () => {
   });
 
   it("uses the required wording and never calls the path exact", () => {
-    expect(mission.title).toBe(APOLLO11_STATEMENT);
-    expect(mission.title).toBe("Apollo 11 educational trajectory reconstruction based on NASA postflight trajectory data");
-    const text = [mission.title, ...mission.notes, ...mission.events.map((e) => e.label)].join(" ");
+    expect(APOLLO11_STATEMENT).toBe("Apollo 11 educational trajectory reconstruction based on NASA postflight trajectory data");
+    const descriptions = apollo11Experience.objects.filter((object) => mission.bodies.some((body) => body.id === object.id)).map((object) => object.description ?? "");
+    for (const description of descriptions) expect(description).toContain(APOLLO11_STATEMENT);
+    const text = [...descriptions, ...mission.events.map((e) => e.label)].join(" ");
     expect(text).not.toMatch(/exact\s+(apollo 11\s+)?flight path/i);
   });
 
@@ -98,10 +99,11 @@ describe("configured object selection", () => {
     expect(isObjectAvailable(columbiaOption, startUtcMs)).toBe(true);
     expect(isObjectAvailable(columbiaOption, endUtcMs)).toBe(true);
     expect(isObjectAvailable(columbiaOption, endUtcMs + 1)).toBe(false);
-    expect(findCameraPreset(apollo11Experience, "overview")?.label).toBe("Earth–Moon overview");
+    expect(findCameraPreset(apollo11Experience, "overview")?.label).toBe("Overview");
     expect(findCameraPreset(apollo11Experience, "focus", columbia.id)?.label).toBe("Focus Columbia (CSM)");
     expect(findCameraPreset(apollo11Experience, "follow", columbia.id)?.label).toBe("Follow Columbia (CSM)");
-    expect(findCameraPreset(apollo11Experience, "follow", "earth")).toBeUndefined();
+    // Decision 3 (O-041): the menu is automatic, so Earth has a Follow item too.
+    expect(findCameraPreset(apollo11Experience, "follow", "earth")?.label).toBe("Follow Earth");
   });
 });
 

@@ -7,19 +7,9 @@ import { listedObjects, relatedObjects } from "astraeus/shell/objectModel";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor } from "astraeus/shell/scaleModel";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { EARTH, MOON } from "astraeus/core/body";
-import { SimulationClock } from "astraeus/core/clock";
 import { MoonTrajectory } from "astraeus/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
 import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
-import {
-  clampToWindow,
-  formatUtcInput,
-  parseUtcInput,
-  SCRUB_HALF_SPAN_MS,
-  seekClock,
-  setPlaying,
-  SPEEDS,
-} from "../src/experiences/apollo11/DebugControls";
 import { buildDebugReadout, overlayRows, type DebugReadout } from "astraeus/app/DebugOverlay";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { pathNeedsRefresh } from "astraeus/app/pathRules";
@@ -29,12 +19,6 @@ import { bodyAbsolutes } from "astraeus/app/sceneLayout";
 const adapter = createOrbAstronomyAdapter();
 const trajectory = new MoonTrajectory(adapter);
 const T = Date.UTC(2026, 3, 1, 12, 0, 0);
-
-function fakeClock(startUtcMs = T) {
-  let now = 0;
-  const clock = new SimulationClock(startUtcMs, () => now);
-  return { clock, advance: (ms: number) => { now += ms; } };
-}
 
 function readoutFor(timeUtcMs: number, policy: ScalePolicy, origin = new FloatingOrigin(), rate = 1): DebugReadout {
   const earth = earthStateAt(adapter, timeUtcMs);
@@ -51,102 +35,6 @@ function readoutFor(timeUtcMs: number, policy: ScalePolicy, origin = new Floatin
     placed, renderedDistanceUnits, origin,
   });
 }
-
-describe("UTC input", () => {
-  it("parses valid UTC text with and without seconds", () => {
-    expect(parseUtcInput("2026-04-01 12:00:00")).toEqual({ ok: true, timeUtcMs: T });
-    expect(parseUtcInput("2026-04-01T12:00Z")).toEqual({ ok: true, timeUtcMs: T });
-  });
-
-  it.each(["", "tomorrow", "2026-02-30 10:00", "2026-13-01 10:00", "2026-04-01 24:30", "1800-01-01 00:00", "2200-01-01 00:00"])(
-    "rejects %j with a message",
-    (text) => {
-      const result = parseUtcInput(text);
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.length).toBeGreaterThan(0);
-    },
-  );
-
-  it("round-trips through the display format", () => {
-    expect(parseUtcInput(formatUtcInput(T))).toEqual({ ok: true, timeUtcMs: T });
-  });
-
-  it("an invalid entry never reaches the clock", () => {
-    const { clock } = fakeClock();
-    const parsed = parseUtcInput("2026-02-30 10:00");
-    if (parsed.ok) seekClock(clock, parsed.timeUtcMs);
-    expect(clock.now()).toBe(T);
-  });
-});
-
-describe("clock controls", () => {
-  it("offers exactly 1x, 1 h/s, 1 day/s and 7 days/s", () => {
-    expect(SPEEDS.map((s) => s.rate)).toEqual([1, 3600, 86400, 604800]);
-  });
-
-  it("seeks forward and backward while paused and stays paused", () => {
-    const { clock, advance } = fakeClock();
-    seekClock(clock, T + 5 * 86_400_000);
-    advance(10_000);
-    expect(clock.playing).toBe(false);
-    expect(clock.now()).toBe(T + 5 * 86_400_000);
-    seekClock(clock, T - 3 * 86_400_000);
-    expect(clock.now()).toBe(T - 3 * 86_400_000);
-    expect(clock.playing).toBe(false);
-  });
-
-  it("seeks while playing and keeps advancing from the target at the current rate", () => {
-    const { clock, advance } = fakeClock();
-    clock.setRate(3600);
-    setPlaying(clock, true);
-    advance(1000);
-    seekClock(clock, T + 86_400_000);
-    expect(clock.now()).toBe(T + 86_400_000);
-    advance(2000);
-    expect(clock.playing).toBe(true);
-    expect(clock.now()).toBe(T + 86_400_000 + 2000 * 3600);
-  });
-
-  it("changing rate does not move the requested timestamp or its state", () => {
-    const { clock, advance } = fakeClock();
-    clock.setRate(3600);
-    setPlaying(clock, true);
-    advance(1000);
-    const before = clock.now();
-    for (const { rate } of SPEEDS) {
-      clock.setRate(rate);
-      expect(clock.now()).toBe(before);
-    }
-    const stateBefore = trajectory.stateAt(before, "earth").positionKm;
-    clock.setRate(604_800);
-    expect(Array.from(trajectory.stateAt(clock.now(), "earth").positionKm)).toEqual(Array.from(stateBefore));
-    advance(1000);
-    expect(clock.now()).toBe(before + 1000 * 604_800);
-  });
-
-  it("pausing and resuming does not discontinue time", () => {
-    const { clock, advance } = fakeClock();
-    clock.setRate(86_400);
-    setPlaying(clock, true);
-    advance(500);
-    setPlaying(clock, false);
-    const paused = clock.now();
-    advance(9000);
-    expect(clock.now()).toBe(paused);
-    setPlaying(clock, true);
-    expect(clock.now()).toBe(paused);
-  });
-});
-
-describe("scrub window", () => {
-  it("is centred on the seek target and bounds the scrubbed time", () => {
-    const window = seekClock(fakeClock().clock, T);
-    expect(window).toEqual({ startUtcMs: T - SCRUB_HALF_SPAN_MS, endUtcMs: T + SCRUB_HALF_SPAN_MS });
-    expect(clampToWindow(T + 2 * SCRUB_HALF_SPAN_MS, window)).toBe(window.endUtcMs);
-    expect(clampToWindow(T - 2 * SCRUB_HALF_SPAN_MS, window)).toBe(window.startUtcMs);
-    expect(clampToWindow(T, window)).toBe(T);
-  });
-});
 
 describe("debug readout", () => {
   it("keeps scientific values identical across scale policies at the same timestamp", () => {

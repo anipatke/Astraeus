@@ -20,6 +20,19 @@ const apollo = { id: "apollo11", label: "Apollo 11", samples };
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
 
 describe("Scene", () => {
+  it("addBody takes a colour and known limits for the info card, and rejects bad ones with bad-body", () => {
+    const objects = new Scene().addBody(earth, { color: "#9fd8ff" }).addBody(moon, { knownLimitations: ["Made-up limit."] }).addBody("mars").toDefinition().experience.objects;
+    expect(objects.map((o) => o.color)[0]).toBe("#9fd8ff");
+    expect(objects[1]!.knownLimitations).toEqual(["Made-up limit."]);
+    expect(objects[1]!.color).not.toBe("#9fd8ff");
+    expect(objects[0]!.knownLimitations).not.toEqual(["Made-up limit."]);
+    expect(objects[2]!.color).toBeDefined();
+    for (const bad of [{ color: "red" }, { color: 5 }, { knownLimitations: "x" }, { knownLimitations: [""] }, { knownLimitations: [1] }]) {
+      expect(() => new Scene().addBody(earth, bad as never), JSON.stringify(bad)).toThrowError(expect.objectContaining({ code: "bad-body" }));
+    }
+    expect(new Scene().addBody(earth, { knownLimitations: [] }).toDefinition().experience.objects[0]!.knownLimitations).toEqual([]);
+  });
+
   it("builds the definition from addBody, addTrajectory, setTime, setScale and camera.follow", () => {
     const scene = new Scene();
     scene.addBody(earth).addBody(moon).addTrajectory(apollo).setTime(T0).setScale(readableScale);

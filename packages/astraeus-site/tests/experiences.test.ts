@@ -23,8 +23,6 @@ import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createSolarSystemScale, trueScale } from "astraeus/core/scalePolicy";
 import type { StateResolver } from "astraeus/core/stateResolver";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { apolloMetrics } from "astraeus-demo-apollo11/experiences/apollo11/apolloMetrics";
-import { apollo11Mission } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
 import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
@@ -49,7 +47,8 @@ describe("every experience names a composition", () => {
     ["the synthetic ring", syntheticRingDefinition, earthMoonSystem],
     ["the synthetic belt", syntheticBeltDefinition, sunEarthSystem],
   ] as const)("%s", (_name, definition, composition) => {
-    expect(compositionOf(definition)).toEqual(composition);
+    // Apollo is a scene built on the public API: the Earth–Moon system, named "scene" (O-041).
+    expect(_name === "Apollo" ? { ...compositionOf(definition), id: composition.id } : compositionOf(definition)).toEqual(composition);
   });
 
   it("leaves only the bodiless fixture without one, on purpose", () => {
@@ -88,17 +87,17 @@ describe("the Earth and Moon readouts", () => {
 
 describe("Apollo", () => {
   it("declares the Earth–Moon composition and the two original scale choices", () => {
-    expect(compositionOf(apollo11Definition)).toBe(earthMoonSystem);
+    expect({ ...compositionOf(apollo11Definition), id: earthMoonSystem.id }).toEqual(earthMoonSystem);
     expect(scaleChoiceIdsOf(apollo11Definition)).toEqual(["true-scale"]);
   });
 
   it("keeps Earth's and the Moon's rows as they were, and the spacecraft's after them", () => {
-    const metrics = apolloMetrics(apollo11Mission.bodies, resolver);
-    const eagle = apollo11Mission.bodies[1];
+    const metrics = apollo11Definition.createMetrics!({ resolver, clock: undefined as never, catalogue: undefined as never });
+    const eagle = apollo11Definition.trackedBodies![1];
     const t = Math.round((eagle.trajectory.bounds.startUtcMs + eagle.trajectory.bounds.endUtcMs) / 2);
     expect(metrics("earth", t).map((m) => [m.id, m.label])).toEqual([["earth-to-moon", "Distance to Moon"]]);
     expect(metrics("moon", t).map((m) => [m.id, m.label])).toEqual([["moon-range", "Distance from Earth"]]);
-    expect(metrics("eagle", t).map((m) => m.id)).toEqual(["eagle-range", "eagle-speed", "eagle-to-moon"]);
+    expect(metrics("eagle", t).map((m) => m.id)).toEqual(["eagle-range", "eagle-speed", "eagle-to-moon", "eagle-altitude-earth", "eagle-altitude-moon"]);
     expect(metrics("nothing", t)).toEqual([]);
   });
 

@@ -1,18 +1,15 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { SimulationClock } from "astraeus/core/clock";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { MoonTrajectory } from "astraeus/core/moonTrajectory";
 import { catalogue } from "astraeus/assets/catalogue";
 import { createStateResolver } from "astraeus/core/stateResolver";
-import { MissionTelemetry } from "../src/experiences/apollo11/MissionPanel";
-import { journeyProgressMetric, sceneMetrics } from "astraeus/app/metricReadouts";
-import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftDiscrepancyMetric, spacecraftRangeMetric, spacecraftSpeedMetric } from "astraeus/app/trackedMetrics";
-import { spacecraftAltitudeMetric, spacecraftMoonMetric, spacecraftPositionMetric } from "../src/experiences/apollo11/earthMoonMetrics";
-import { discrepancyAt, stateIfInBounds, trackedReadouts } from "astraeus/app/mission";
+import { sceneMetrics } from "astraeus/app/metricReadouts";
+import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftRangeMetric, spacecraftSpeedMetric } from "astraeus/app/trackedMetrics";
+import { stateIfInBounds, trackedReadouts } from "astraeus/app/mission";
 import { MOON } from "astraeus/core/body";
-import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
+import { apollo11Mission, apolloMetrics } from "./support";
 import { MetricVisual } from "astraeus/shell/MetricVisual";
 import {
   altitudeGlyph,
@@ -247,57 +244,31 @@ describe("Apollo metric configuration", () => {
     expect(illumination.kind === "phase" && phaseVisual(illumination)).toEqual({ kind: "band", fraction: 0.4 });
   });
 
-  it("measures the spacecraft–Moon gap and altitude from the same centre and frame, above the nearer body's mean radius", () => {
-    const [columbiaRow, eagleRow] = trackedReadouts(apollo11Mission.bodies, time);
+  it("gives each spacecraft's info card range, speed, the Moon gap and the two named altitudes, measured from one centre and frame (Decisions 2 and 9)", () => {
+    const metricsFor = apolloMetrics(resolver);
+    const rows = (id: string) => metricsFor(id, time);
+    const eagleRows = rows("eagle");
+    expect(eagleRows.map((row) => row.id)).toEqual(["eagle-range", "eagle-speed", "eagle-to-moon", "eagle-altitude-earth", "eagle-altitude-moon"]);
+    const [, eagleRow] = trackedReadouts(apollo11Mission.bodies, time);
     const moonFromEarth = moon.stateAt(time);
-    const gap = spacecraftMoonMetric(eagleRow, moonFromEarth);
-    expect(gap.value).toBeCloseTo(Math.hypot(...eagleRow.positionKm.map((c, i) => c - moonFromEarth.positionKm[i])), 9);
-    expect(spacecraftMoonMetric(eagleRow, resolver.stateOf("moon", time, "sun")).value).toBeNull();
-    const eagleAltitude = spacecraftAltitudeMetric(eagleRow, moonFromEarth);
-    expect(eagleAltitude.body).toBe("Moon");
-    expect(eagleAltitude.value).toBeCloseTo(gap.value! - MOON.radiusKm, 9);
-    expect(Math.abs(eagleAltitude.value!)).toBeLessThan(10); // on the surface: near the mean radius, either side
-    expect(spacecraftAltitudeMetric(columbiaRow, null).body).toBe("Earth");
-    const parked = trackedReadouts([columbia], columbia.trajectory.bounds.startUtcMs)[0];
-    expect(spacecraftAltitudeMetric(parked, moon.stateAt(columbia.trajectory.bounds.startUtcMs)).body).toBe("Earth");
-    expect(spacecraftPositionMetric(columbiaRow, null).components?.map((c) => c.value)).toEqual([...columbiaRow.positionKm]);
-    expect(spacecraftPositionMetric(columbiaRow, null).planViews?.references).toEqual([]);
-    expect(spacecraftPositionMetric(columbiaRow, resolver.stateOf("moon", time, "sun")).planViews?.references).toEqual([]);
-    expect(spacecraftPositionMetric(columbiaRow, moonFromEarth).planViews?.references).toEqual([
-      { label: "Moon", xyz: [moonFromEarth.positionKm[0], moonFromEarth.positionKm[1], moonFromEarth.positionKm[2]] },
-    ]);
+    const value = (list: readonly Metric[], id: string) => { const row = list.find((r) => r.id === id) as { value: number | null }; return row.value!; };
+    const gap = value(eagleRows, "eagle-to-moon");
+    expect(gap).toBeCloseTo(Math.hypot(...eagleRow.positionKm.map((c, i) => c - moonFromEarth.positionKm[i])), 3);
+    expect(value(eagleRows, "eagle-altitude-moon")).toBeCloseTo(gap - MOON.radiusKm, 3);
+    expect(Math.abs(value(eagleRows, "eagle-altitude-moon"))).toBeLessThan(10); // on the surface: near the mean radius, either side
+    expect(value(eagleRows, "eagle-altitude-earth")).toBeCloseTo(Math.hypot(...eagleRow.positionKm) - 6371, -1);
+    expect(eagleRows.filter((row) => row.kind === "altitude").map((row) => (row as { body: string }).body)).toEqual(["Earth", "Moon"]);
+    const range = eagleRows.find((row) => row.id === "eagle-range") as { markers?: { label: string }[] };
+    expect(range.markers?.map((marker) => marker.label)).toEqual(["Moon now"]);
   });
 
-  it("reads each segment's published discrepancy from the generated data, and none where none is published", () => {
-    const afterTli = Date.UTC(1969, 6, 16, 16, 22, 8, 200);
-    expect(discrepancyAt(columbia, afterTli)).toMatchObject({ km: 463.219, basis: "largest smoothing correction on this coast" });
-    const parking = spacecraftDiscrepancyMetric(columbia, columbia.trajectory.bounds.startUtcMs + 60_000);
-    expect(parking.value).toBeNull();
-    expect(parking.context).toBe("no figure published (parking-orbit-backward)");
-    expect(parking.scale?.max).toBe(1963.327);
-    expect(discrepancyAt(columbia, columbia.trajectory.bounds.endUtcMs)?.km).toBe(32.232);
-  });
-
-  it("measures journey progress from the first to the last event", () => {
-    const events = apollo11Mission.events;
-    const metric = journeyProgressMetric(events, events[0].timeUtcMs, { start: "lift-off", end: "splashdown" });
-    expect(metric.value).toBe(0);
-    expect(metric.total).toBeCloseTo((events[events.length - 1].timeUtcMs - events[0].timeUtcMs) / 3_600_000, 9);
-    expect(metric.markers).toHaveLength(events.length);
-    expect(journeyProgressMetric(events, events[events.length - 1].timeUtcMs + 1e9, { start: "a", end: "b" }).value).toBe(metric.total);
-  });
-
-  it("metric visuals mounted, updated and removed leave State identical at a fixed time", () => {
+  it("shows nothing for a spacecraft outside its path, and the drawn rows leave State identical at a fixed time", () => {
+    const metricsFor = apolloMetrics(resolver);
+    expect(metricsFor("columbia", apollo11Mission.window.startUtcMs)).toEqual([]);
     const states = () => [...apollo11Mission.bodies.map((body) => stateIfInBounds(body, time)), moon.stateAt(time)];
     const before = states();
-    const clock = new SimulationClock(time);
-    const first = renderToStaticMarkup(createElement(MissionTelemetry, { mission: apollo11Mission, clock, moon }));
-    const again = renderToStaticMarkup(createElement(MissionTelemetry, { mission: apollo11Mission, clock, moon }));
-    renderToStaticMarkup(createElement("div"));
-    expect(first).toContain("Moon now");
-    expect(first).toContain("peak at NASA source anchors");
-    expect(again).toBe(first);
-    expect(clock.now()).toBe(time);
+    const first = metricsFor("columbia", time);
+    expect(metricsFor("columbia", time)).toEqual(first);
     expect(states()).toEqual(before);
   });
 });

@@ -1,0 +1,879 @@
+{
+ "label": "Apollo 11",
+ "objects": [
+  {
+   "id": "earth",
+   "label": "Earth",
+   "color": "#9fd8ff",
+   "provenance": {
+    "sourceType": "ephemeris",
+    "sources": [
+     "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+     "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+    ],
+    "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+    "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+   },
+   "knownLimitations": [
+    "Earth's orientation leaves out polar motion."
+   ],
+   "labelPriority": 100,
+   "labelMaxDistance": 500,
+   "description": "Our planet, and the centre every distance and speed here is measured from."
+  },
+  {
+   "id": "moon",
+   "label": "Moon",
+   "color": "#ded7cc",
+   "provenance": {
+    "sourceType": "ephemeris",
+    "sources": [
+     "@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"
+    ],
+    "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+    "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+   },
+   "knownLimitations": [
+    "The Moon's orientation is an approximate tidal lock that keeps its near side towards Earth, with no libration, so surface features can sit several degrees from their true place.",
+    "No velocity is modelled for the Moon, so it has no speed readout."
+   ],
+   "labelPriority": 90,
+   "labelMaxDistance": 500,
+   "description": "Earth's natural satellite and Apollo 11's destination. Columbia orbited it while Eagle landed in the Sea of Tranquility."
+  },
+  {
+   "id": "columbia",
+   "label": "Columbia (CSM)",
+   "color": "#7fd4ff",
+   "availability": {
+    "startUtcMs": -14552180700,
+    "endUtcMs": -13850694300
+   },
+   "labelPriority": 80,
+   "labelMaxDistance": 4,
+   "description": "The command and service module. It carried the three astronauts to lunar orbit and home, with Michael Collins aboard while Eagle was on the surface.",
+   "provenance": {
+    "sourceType": "reconstructed",
+    "sources": [
+     "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 7-II, Table 7-VII, Table 5-IV, Table 3-I",
+     "Astraeus Moon state (@lizard-isana/orb) for Moon-to-Earth normalisation"
+    ],
+    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Burns are integrated from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant acceleration fitted to the cutoff velocity, and the coast after each starts from the modelled cutoff state. Coasts use the same gravity; the miss that remains at the next anchor is spread smoothly along the coast, so joins have no steps. That correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial north, adopted from data consistency rather than a printed definition. Three anchor states use inferred values. Not navigation grade.",
+    "notes": "A reconstruction from sparse NASA postflight anchor states, not the exact flight path. The burn model is not guidance. Powered descent and ascent are interpolated between two anchors."
+   },
+   "knownLimitations": [
+    "Smoothed joins: 13 coasts are bent by more than 100 km or 50 m/s to meet their next NASA anchor, by up to 1,963 km (A-30>A-31). The drawn path there is illustrative; no accuracy is claimed between anchors.",
+    "Burn cutoffs: the 9 modelled engine burns end 2.3–454.7 km from NASA's published cutoff position (largest A-01>A-02). Each residual is published, and the following coast starts from the modelled end.",
+    "Speed just after translunar injection: for 10 s after the burn (A-02>A-03) the coast absorbs the burn's 454.7 km cutoff miss with a velocity correction of up to 69,263 m/s, so the speed shown there reaches 73.5 km/s and is not physical. This is an accepted limitation of this reconstruction."
+   ]
+  },
+  {
+   "id": "eagle",
+   "label": "Eagle (LM)",
+   "color": "#ffb347",
+   "availability": {
+    "startUtcMs": -14192160000,
+    "endUtcMs": -14091900000
+   },
+   "labelPriority": 80,
+   "labelMaxDistance": 4,
+   "description": "The lunar module. It took Neil Armstrong and Buzz Aldrin from lunar orbit down to the Sea of Tranquility and back up to Columbia.",
+   "provenance": {
+    "sourceType": "reconstructed",
+    "sources": [
+     "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 7-II, Table 7-VII, Table 5-IV, Table 3-I",
+     "Astraeus Moon state (@lizard-isana/orb) for Moon-to-Earth normalisation"
+    ],
+    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Burns are integrated from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant acceleration fitted to the cutoff velocity, and the coast after each starts from the modelled cutoff state. Coasts use the same gravity; the miss that remains at the next anchor is spread smoothly along the coast, so joins have no steps. That correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial north, adopted from data consistency rather than a printed definition. Three anchor states use inferred values. Not navigation grade.",
+    "notes": "A reconstruction from sparse NASA postflight anchor states, not the exact flight path. The burn model is not guidance. Powered descent and ascent are interpolated between two anchors."
+   },
+   "knownLimitations": [
+    "Landing site: Eagle is placed correctly in space, but the drawn Moon has no libration, so Eagle's surface position is offset from Tranquility Base on the drawn Moon by 254.18 km (8.386°) at Lunar landing (touchdown) and 275.37 km (9.087°) at Lunar lift-off. This is a stated liberty of the drawn Moon, not of the landing.",
+    "Smoothed joins: 3 coasts are bent by more than 100 km or 50 m/s to meet their next NASA anchor, by up to 456 km (A-15>A-18). The drawn path there is illustrative; no accuracy is claimed between anchors.",
+    "Burn cutoffs: the 3 modelled engine burns end 0.2–5.8 km from NASA's published cutoff position (largest A-18>A-19). Each residual is published, and the following coast starts from the modelled end."
+   ]
+  }
+ ],
+ "cameraPresets": [
+  {
+   "id": "overview",
+   "label": "Earth–Moon overview",
+   "request": {
+    "kind": "overview"
+   }
+  },
+  {
+   "id": "focus-columbia",
+   "label": "Focus Columbia (CSM)",
+   "request": {
+    "kind": "focus",
+    "target": "columbia"
+   }
+  },
+  {
+   "id": "focus-eagle",
+   "label": "Focus Eagle (LM)",
+   "request": {
+    "kind": "focus",
+    "target": "eagle"
+   }
+  },
+  {
+   "id": "follow-columbia",
+   "label": "Follow Columbia (CSM)",
+   "request": {
+    "kind": "follow",
+    "target": "columbia"
+   }
+  },
+  {
+   "id": "follow-eagle",
+   "label": "Follow Eagle (LM)",
+   "request": {
+    "kind": "follow",
+    "target": "eagle"
+   }
+  },
+  {
+   "id": "focus-earth",
+   "label": "Focus Earth",
+   "request": {
+    "kind": "focus",
+    "target": "earth"
+   }
+  },
+  {
+   "id": "focus-moon",
+   "label": "Focus Moon",
+   "request": {
+    "kind": "focus",
+    "target": "moon"
+   }
+  }
+ ],
+ "startCameraPresetId": null,
+ "events": [
+  {
+   "timeUtcMs": -14552879400,
+   "id": "E-01",
+   "label": "GET 00:00:00.6 · Lift-off",
+   "type": "launch"
+  },
+  {
+   "timeUtcMs": -14552180700,
+   "id": "E-02",
+   "label": "GET 00:11:39.3 · S-IVB engine cutoff (Earth orbit insertion)",
+   "type": "earth_orbit_insertion"
+  },
+  {
+   "timeUtcMs": -14543023800,
+   "id": "E-03",
+   "label": "GET 02:44:16.2 · Translunar injection maneuver ignition",
+   "type": "translunar_injection"
+  },
+  {
+   "timeUtcMs": -14542676800,
+   "id": "E-04",
+   "label": "GET 02:50:03.2 · Translunar injection maneuver cutoff",
+   "type": "translunar_injection"
+  },
+  {
+   "timeUtcMs": -14541055400,
+   "id": "E-05",
+   "label": "GET 03:17:04.6 · Command and service module / S-IVB separation",
+   "type": "transposition_docking_extraction"
+  },
+  {
+   "timeUtcMs": -14540636900,
+   "id": "E-06",
+   "label": "GET 03:24:03.1 · First docking (CSM with LM)",
+   "type": "transposition_docking_extraction"
+  },
+  {
+   "timeUtcMs": -14537460900,
+   "id": "E-07",
+   "label": "GET 04:16:59.1 · Spacecraft ejection (from S-IVB)",
+   "type": "transposition_docking_extraction"
+  },
+  {
+   "timeUtcMs": -14536078200,
+   "id": "E-08",
+   "label": "GET 04:40:01.8 · Separation maneuver ignition (from S-IVB)",
+   "type": "transposition_docking_extraction"
+  },
+  {
+   "timeUtcMs": -14456581300,
+   "id": "E-09",
+   "label": "GET 26:44:58.7 · First midcourse correction (MCC-1) ignition",
+   "type": "midcourse_correction"
+  },
+  {
+   "timeUtcMs": -14279889600,
+   "id": "E-10",
+   "label": "GET 75:49:50.4 · Lunar orbit insertion (LOI-1) ignition",
+   "type": "lunar_orbit_insertion"
+  },
+  {
+   "timeUtcMs": -14264183200,
+   "id": "E-11",
+   "label": "GET 80:11:36.8 · Lunar orbit circularization (LOI-2) ignition",
+   "type": "lunar_orbit_insertion"
+  },
+  {
+   "timeUtcMs": -14192160000,
+   "id": "E-12",
+   "label": "GET 100:12:00 · Undocking",
+   "type": "lunar_module_separation"
+  },
+  {
+   "timeUtcMs": -14190487100,
+   "id": "E-13",
+   "label": "GET 100:39:52.9 · Separation maneuver ignition (CSM from LM)",
+   "type": "lunar_module_separation"
+  },
+  {
+   "timeUtcMs": -14187106000,
+   "id": "E-14",
+   "label": "GET 101:36:14.0 · Descent orbit insertion (DOI) ignition",
+   "type": "powered_descent_initiation"
+  },
+  {
+   "timeUtcMs": -14183694800,
+   "id": "E-15",
+   "label": "GET 102:33:05.2 · Powered descent initiation (PDI)",
+   "type": "powered_descent_initiation"
+  },
+  {
+   "timeUtcMs": -14182940100,
+   "id": "E-16",
+   "label": "GET 102:45:39.9 · Lunar landing (touchdown)",
+   "type": "lunar_landing"
+  },
+  {
+   "timeUtcMs": -14105159200,
+   "id": "E-17",
+   "label": "GET 124:22:00.8 · Lunar lift-off",
+   "type": "lunar_ascent"
+  },
+  {
+   "timeUtcMs": -14104724300,
+   "id": "E-18",
+   "label": "GET 124:29:15.7 · Lunar orbit insertion engine cutoff (Ascent)",
+   "type": "lunar_ascent"
+  },
+  {
+   "timeUtcMs": -14101704500,
+   "id": "E-19",
+   "label": "GET 125:19:35.5 · Coelliptic sequence initiation (CSI) ignition",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14098210400,
+   "id": "E-20",
+   "label": "GET 126:17:49.6 · Constant differential height (CDH) maneuver ignition",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14095448200,
+   "id": "E-21",
+   "label": "GET 127:03:51.8 · Terminal phase initiation (TPI) ignition",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14092910200,
+   "id": "E-22",
+   "label": "GET 127:46:09.8 · Terminal phase finalize (TPFI)",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14091900000,
+   "id": "E-23",
+   "label": "GET 128:03:00 · Docking (CSM and LM ascent stage)",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14084308800,
+   "id": "E-24",
+   "label": "GET 130:09:31.2 · Ascent stage jettison",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14083079000,
+   "id": "E-25",
+   "label": "GET 130:30:01 · Separation maneuver ignition (from ascent stage)",
+   "type": "rendezvous"
+  },
+  {
+   "timeUtcMs": -14065457700,
+   "id": "E-26",
+   "label": "GET 135:23:42.3 · Transearth injection maneuver ignition",
+   "type": "trans_earth_injection"
+  },
+  {
+   "timeUtcMs": -13851527300,
+   "id": "E-27",
+   "label": "GET 194:49:12.7 · Command module / service module separation",
+   "type": "entry"
+  },
+  {
+   "timeUtcMs": -13850694300,
+   "id": "E-28",
+   "label": "GET 195:03:05.7 · Entry interface (400 000 feet altitude)",
+   "type": "entry"
+  },
+  {
+   "timeUtcMs": -13850153100,
+   "id": "E-29",
+   "label": "GET 195:12:06.9 · Drogue deployment",
+   "type": "entry"
+  },
+  {
+   "timeUtcMs": -13849765000,
+   "id": "E-30",
+   "label": "GET 195:18:35 · Splashdown / Landing",
+   "type": "splashdown"
+  }
+ ],
+ "eventProvenance": {
+  "sourceType": "observed",
+  "sources": [
+   "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 3-I, Table 7-II, Table 7-VII, Table 5-IV"
+  ],
+  "accuracy": "Printed ground elapsed times, to a tenth of a second, added to range zero 1969-07-16T13:32:00.000Z.",
+  "notes": "Event times do not depend on the reconstructed paths. Launch, ascent to orbit and splashdown exist only as events."
+ },
+ "window": {
+  "startUtcMs": -14552879400,
+  "endUtcMs": -13849765000
+ },
+ "rates": [
+  1,
+  100,
+  1000,
+  10000
+ ],
+ "storyPanels": {
+  "panels": [
+   {
+    "id": "tli-cutoff",
+    "timeUtcMs": -14542676800,
+    "title": "Leaving Earth behind",
+    "body": [
+     "The rocket's last stage fires one final time and flings the crew out of Earth's orbit. They're now moving at nearly 40,000 km an hour, fast enough to coast all the way to the Moon.",
+     "Three days of coasting start here."
+    ],
+    "badge": "observed",
+    "details": [
+     "At ground elapsed time 2:50:03.2 (16:22:03 UTC, 16 July 1969) the S-IVB's second burn cut off. NASA's postflight table puts the stack about 321 km above Earth, moving at about 10.84 km/s relative to Earth's centre.",
+     "The next anchor, translunar injection, follows ten seconds later.",
+     "Nearly 40,000 km an hour: 10.84 km/s × 3,600 seconds in an hour = about 39,000 km an hour.",
+     "Three days: from this cutoff (2:50:03.2) to the lunar orbit insertion burn (75:49:50.4) is 72 hours 59 minutes 47.2 seconds, about three days."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-02, S-IVB second cutoff",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-11, lunar orbit insertion ignition (GET 75:49:50.4), for the three days of coasting"
+    ],
+    "objectId": "columbia"
+   },
+   {
+    "id": "loi",
+    "timeUtcMs": -14279889600,
+    "title": "Braking to stay at the Moon",
+    "body": [
+     "The crew fires their spacecraft's big engine to slow down. Without this brake they would swing right past the Moon.",
+     "After about six minutes of burning, the Moon's pull catches them and they settle into orbit."
+    ],
+    "badge": "observed",
+    "details": [
+     "At ground elapsed time 75:49:50.4 (17:21:50 UTC, 19 July 1969) the service module engine fired to let the Moon capture the spacecraft. The burn lasted 5 minutes 57.6 seconds, ending at 75:55:48.0.",
+     "Over that burn the speed relative to the Moon fell from about 2.51 km/s to about 1.67 km/s, and the altitude above the Moon from about 161 km to about 111 km.",
+     "About six minutes: the burn lasted 5 minutes 57.6 seconds."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-11, lunar orbit insertion ignition (GET, altitude 160.57 km, speed 2.5146 km/s)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-12, lunar orbit insertion cutoff (GET 75:55:48.0, altitude 111.31 km, speed 1.6700 km/s)"
+    ],
+    "objectId": "moon"
+   },
+   {
+    "id": "powered-descent",
+    "timeUtcMs": -14183694900,
+    "title": "Heading down to the surface",
+    "body": [
+     "Eagle, the landing craft, lights its engine and begins braking its way down to the Moon.",
+     "Touchdown is about 12 and a half minutes away."
+    ],
+    "badge": "observed",
+    "details": [
+     "Eagle lit its descent engine at ground elapsed time 102:33:05.1 (20:05:05 UTC, 20 July 1969), about 11.9 km above the Moon and moving at about 1.70 km/s relative to it.",
+     "Touchdown came 12 minutes 34.8 seconds later. The two times are published values; the path drawn between them is a reconstruction, not a measured track.",
+     "About 12 and a half minutes: 12 minutes 34.8 seconds from engine start (102:33:05.1) to touchdown (102:45:39.9)."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-20, powered descent initiation (GET, altitude 11.85 km, speed 1.6960 km/s)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 5-IV, p. 5-10: anchor A-LND, lunar touchdown (for the interval)",
+     "Astraeus Apollo 11 reconstruction notes: powered descent remains a two-anchor interpolation"
+    ],
+    "objectId": "eagle"
+   },
+   {
+    "id": "touchdown",
+    "timeUtcMs": -14182940100,
+    "title": "The Eagle has landed",
+    "body": [
+     "Eagle settles gently onto the Moon. For the first time, people have landed on another world.",
+     "They will stay here for nearly a whole day."
+    ],
+    "badge": "observed",
+    "details": [
+     "Eagle touched down at ground elapsed time 102:45:39.9 (20:17:40 UTC, 20 July 1969), at 0.674° N, 23.473° E on the Moon (Landing Site 2).",
+     "The touchdown time and place are published values. The descent path drawn to reach them is a reconstruction: powered descent is a two-anchor interpolation, not a measured track.",
+     "Nearly a whole day: lunar lift-off at 124:22:00.8 less touchdown at 102:45:39.9 is 21 hours 36 minutes 20.9 seconds on the surface."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 5-IV, p. 5-10: anchor A-LND, lunar touchdown (Landing Site 2)",
+     "Astraeus Apollo 11 reconstruction notes: powered descent and ascent remain two-anchor interpolations",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 3-I, p. 3-4: lunar lift-off, GET 124:22:00.8 (anchor A-LIFTOFF), for the time on the surface"
+    ],
+    "objectId": "eagle"
+   },
+   {
+    "id": "ascent-docking",
+    "timeUtcMs": -14104724300,
+    "title": "Back up to Columbia",
+    "body": [
+     "Eagle lifts off from the Moon and climbs back into orbit to catch up with Columbia, which has been circling overhead the whole time.",
+     "In under four hours the two spacecraft are joined together again."
+    ],
+    "badge": "observed",
+    "details": [
+     "Eagle's ascent engine lit at 124:22:00.8, after 21 hours 36 minutes on the surface. At 124:29:15.7 (18:01:16 UTC, 21 July 1969) it cut off, with Eagle about 18.5 km above the Moon and moving at about 1.69 km/s.",
+     "Eagle and Columbia docked at 128:03:00.0, 3 hours 41 minutes after lift-off. The ascent and rendezvous paths drawn between these times are reconstructions.",
+     "Under four hours: docking at 128:03:00.0 less lift-off at 124:22:00.8 is 3 hours 40 minutes 59.2 seconds."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-21, ascent engine cutoff (GET 124:29:15.7, altitude 18.52 km, speed 1.6880 km/s); anchor A-27, docking (GET 128:03:00.0)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 3-I, p. 3-4: lunar lift-off, GET 124:22:00.8 (anchor A-LIFTOFF); touchdown from Table 5-IV, p. 5-10 (anchor A-LND), for the surface time",
+     "Astraeus Apollo 11 reconstruction notes: powered descent and ascent remain two-anchor interpolations"
+    ],
+    "objectId": "eagle"
+   },
+   {
+    "id": "tei",
+    "timeUtcMs": -14065457700,
+    "title": "Heading home",
+    "body": [
+     "With everyone back aboard, Columbia fires its engine one more time to break free of the Moon.",
+     "The burn lasts about two and a half minutes and sends the crew on their way back to Earth."
+    ],
+    "badge": "observed",
+    "details": [
+     "At ground elapsed time 135:23:42.3 (04:55:42 UTC, 22 July 1969) Columbia's engine fired for 2 minutes 31.4 seconds to send the crew back toward Earth.",
+     "Speed relative to the Moon rose from about 1.64 km/s to about 2.62 km/s over the burn, at an altitude of about 108 km.",
+     "About two and a half minutes: the burn lasted 2 minutes 31.4 seconds."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-31, transearth injection ignition (GET 135:23:42.3, altitude 108.16 km, speed 1.6388 km/s)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-32, transearth injection cutoff (GET 135:26:13.7, altitude 109.45 km, speed 2.6179 km/s)"
+    ],
+    "objectId": "columbia"
+   },
+   {
+    "id": "splashdown",
+    "timeUtcMs": -13849765000,
+    "title": "Home with a splash",
+    "body": [
+     "Columbia's capsule plunges into Earth's atmosphere at nearly 40,000 km an hour, and the air slows it down.",
+     "Its parachutes open, and it splashes down in the Pacific Ocean. The trip to the Moon and back is over."
+    ],
+    "badge": "observed",
+    "details": [
+     "Columbia's command module landed in the Pacific at ground elapsed time 195:18:35 (16:50:35 UTC, 24 July 1969), near 13.3° N, 169.15° W.",
+     "It had crossed the top of the atmosphere, defined as 400,000 feet, at 195:03:05.7, moving at about 11.03 km/s. The 15 minutes 29 seconds from there to the water are shown as events only; Astraeus draws no path for them.",
+     "Nearly 40,000 km an hour: 11.03 km/s × 3,600 seconds in an hour = about 39,700 km an hour.",
+     "The drogue parachutes opened at 195:12:06.9, at about 10,000 feet."
+    ],
+    "sources": [
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: anchor A-36, entry interface (GET 195:03:05.7, altitude 121.86 km, speed 11.0321 km/s)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: splashdown, GET 195:18:35 and guidance-computed position 13.30° N, 169.15° W (event E-30; as recorded in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md)",
+     "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: drogue deployment, GET 195:12:06.9, at about 10,000 feet (event E-29)"
+    ],
+    "objectId": "earth"
+   }
+  ],
+  "pauseSeconds": 6,
+  "autoOpen": true
+ },
+ "hideTimeline": false,
+ "clock": {
+  "startUtcMs": -14552879400,
+  "rate": 3600
+ },
+ "sceneLayers": [
+  "tracked-bodies"
+ ],
+ "composition": {
+  "id": "earth-moon",
+  "bodies": [
+   "earth",
+   "moon"
+  ],
+  "defaultCenter": "earth",
+  "paths": [
+   {
+    "body": "moon",
+    "spanMs": 2360591510.4
+   }
+  ]
+ },
+ "scaleChoices": [
+  "true-scale"
+ ],
+ "startView": {
+  "focus": "earth",
+  "azimuthDeg": 0,
+  "elevationDeg": 70,
+  "distance": 130
+ },
+ "developerSections": [
+  "clock",
+  "telemetry",
+  "mission"
+ ],
+ "trackedBodies": [
+  {
+   "id": "columbia",
+   "label": "Columbia (CSM)",
+   "color": "#7fd4ff",
+   "bounds": {
+    "startUtcMs": -14552180700,
+    "endUtcMs": -13850694300
+   },
+   "pathCount": 2244,
+   "pathTimeSum": -31834285079900,
+   "anchorTimesUtcMs": [
+    -14543023800,
+    -14542676800,
+    -14542666800,
+    -14541055400,
+    -14540636900,
+    -14537460900,
+    -14536078200,
+    -14536075300,
+    -14456581300,
+    -14456578200,
+    -14279889600,
+    -14279532000,
+    -14264183200,
+    -14264166400,
+    -14192160000,
+    -14190487100,
+    -14190478100,
+    -14091900000,
+    -14084308800,
+    -14083079000,
+    -14083071800,
+    -14065457700,
+    -14065306300,
+    -14011082600,
+    -14011071400,
+    -13851527300,
+    -13850694300
+   ],
+   "anchorLabels": [
+    "A-01",
+    "A-02",
+    "A-03",
+    "A-04",
+    "A-05",
+    "A-06",
+    "A-07",
+    "A-08",
+    "A-09",
+    "A-10",
+    "A-11",
+    "A-12",
+    "A-13",
+    "A-14",
+    "A-15",
+    "A-16",
+    "A-17",
+    "A-27",
+    "A-28",
+    "A-29",
+    "A-30",
+    "A-31",
+    "A-32",
+    "A-33",
+    "A-34",
+    "A-35",
+    "A-36"
+   ],
+   "provenance": {
+    "sourceType": "reconstructed",
+    "sources": [
+     "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 7-II, Table 7-VII, Table 5-IV, Table 3-I",
+     "Astraeus Moon state (@lizard-isana/orb) for Moon-to-Earth normalisation"
+    ],
+    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Burns are integrated from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant acceleration fitted to the cutoff velocity, and the coast after each starts from the modelled cutoff state. Coasts use the same gravity; the miss that remains at the next anchor is spread smoothly along the coast, so joins have no steps. That correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial north, adopted from data consistency rather than a printed definition. Three anchor states use inferred values. Not navigation grade.",
+    "notes": "A reconstruction from sparse NASA postflight anchor states, not the exact flight path. The burn model is not guidance. Powered descent and ascent are interpolated between two anchors."
+   }
+  },
+  {
+   "id": "eagle",
+   "label": "Eagle (LM)",
+   "color": "#ffb347",
+   "bounds": {
+    "startUtcMs": -14192160000,
+    "endUtcMs": -14091900000
+   },
+   "pathCount": 107,
+   "pathTimeSum": -1512296303100,
+   "anchorTimesUtcMs": [
+    -14192160000,
+    -14187106000,
+    -14187076000,
+    -14183694900,
+    -14182940100,
+    -14105159200,
+    -14104724300,
+    -14101704500,
+    -14101657500,
+    -14095448200,
+    -14095425500,
+    -14092910200,
+    -14091900000
+   ],
+   "anchorLabels": [
+    "A-15",
+    "A-18",
+    "A-19",
+    "A-20",
+    "A-LND",
+    "A-LIFTOFF",
+    "A-21",
+    "A-22",
+    "A-23",
+    "A-24",
+    "A-25",
+    "A-26",
+    "A-27"
+   ],
+   "provenance": {
+    "sourceType": "reconstructed",
+    "sources": [
+     "NASA Apollo 11 Mission Report, MSC-00171 / SP-238 (NTRS 19700008096): Table 7-II, Table 7-VII, Table 5-IV, Table 3-I",
+     "Astraeus Moon state (@lizard-isana/orb) for Moon-to-Earth normalisation"
+    ],
+    "accuracy": "Passes through every non-cutoff NASA anchor state by construction. Burns are integrated from their ignition anchors with Earth (J2), Moon and Sun gravity plus a constant acceleration fitted to the cutoff velocity, and the coast after each starts from the modelled cutoff state. Coasts use the same gravity; the miss that remains at the next anchor is spread smoothly along the coast, so joins have no steps. That correction is a presentation repair, not physics. Moon-referenced flight-path angle and heading use Earth-equatorial north, adopted from data consistency rather than a printed definition. Three anchor states use inferred values. Not navigation grade.",
+    "notes": "A reconstruction from sparse NASA postflight anchor states, not the exact flight path. The burn model is not guidance. Powered descent and ascent are interpolated between two anchors."
+   }
+  }
+ ],
+ "times": [
+  -14548580700,
+  -14515200000,
+  -14184000000,
+  -13996800000
+ ],
+ "metricRows": {
+  "earth": [
+   [
+    {
+     "kind": "distance",
+     "id": "earth-to-moon",
+     "label": "Distance to Moon",
+     "value": 403815.23124757333,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "earth-to-moon",
+     "label": "Distance to Moon",
+     "value": 403020.3769185228,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "earth-to-moon",
+     "label": "Distance to Moon",
+     "value": 389526.07876624406,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "earth-to-moon",
+     "label": "Distance to Moon",
+     "value": 378079.96433248546,
+     "unit": "km"
+    }
+   ]
+  ],
+  "moon": [
+   [
+    {
+     "kind": "distance",
+     "id": "moon-range",
+     "label": "Distance from Earth",
+     "value": 403815.23124757333,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "moon-range",
+     "label": "Distance from Earth",
+     "value": 403020.3769185228,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "moon-range",
+     "label": "Distance from Earth",
+     "value": 389526.07876624406,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "moon-range",
+     "label": "Distance from Earth",
+     "value": 378079.96433248546,
+     "unit": "km"
+    }
+   ]
+  ],
+  "columbia": [
+   [
+    {
+     "kind": "distance",
+     "id": "columbia-range",
+     "label": "Range",
+     "value": 6571.738881339954,
+     "unit": "km"
+    },
+    {
+     "kind": "speed",
+     "id": "columbia-speed",
+     "label": "Speed",
+     "value": 7.7926084198141465,
+     "unit": "km/s"
+    },
+    {
+     "kind": "relative-distance",
+     "id": "columbia-to-moon",
+     "label": "Distance to Moon",
+     "value": 410155.2797621908,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "columbia-range",
+     "label": "Range",
+     "value": 100150.38310943011,
+     "unit": "km"
+    },
+    {
+     "kind": "speed",
+     "id": "columbia-speed",
+     "label": "Speed",
+     "value": 2.5470896461451984,
+     "unit": "km/s"
+    },
+    {
+     "kind": "relative-distance",
+     "id": "columbia-to-moon",
+     "label": "Distance to Moon",
+     "value": 307708.8906697914,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "columbia-range",
+     "label": "Range",
+     "value": 388961.15415384964,
+     "unit": "km"
+    },
+    {
+     "kind": "speed",
+     "id": "columbia-speed",
+     "label": "Speed",
+     "value": 2.1993571623632864,
+     "unit": "km/s"
+    },
+    {
+     "kind": "relative-distance",
+     "id": "columbia-to-moon",
+     "label": "Distance to Moon",
+     "value": 1858.826611168016,
+     "unit": "km"
+    }
+   ],
+   [
+    {
+     "kind": "distance",
+     "id": "columbia-range",
+     "label": "Range",
+     "value": 301691.5489511592,
+     "unit": "km"
+    },
+    {
+     "kind": "speed",
+     "id": "columbia-speed",
+     "label": "Speed",
+     "value": 1.29345490830754,
+     "unit": "km/s"
+    },
+    {
+     "kind": "relative-distance",
+     "id": "columbia-to-moon",
+     "label": "Distance to Moon",
+     "value": 94196.07870104912,
+     "unit": "km"
+    }
+   ]
+  ],
+  "eagle": [
+   [],
+   [],
+   [
+    {
+     "kind": "distance",
+     "id": "eagle-range",
+     "label": "Range",
+     "value": 388748.0644886208,
+     "unit": "km"
+    },
+    {
+     "kind": "speed",
+     "id": "eagle-speed",
+     "label": "Speed",
+     "value": 2.3676242830365637,
+     "unit": "km/s"
+    },
+    {
+     "kind": "relative-distance",
+     "id": "eagle-to-moon",
+     "label": "Distance to Moon",
+     "value": 1751.7270395549342,
+     "unit": "km"
+    }
+   ],
+   []
+  ]
+ }
+}

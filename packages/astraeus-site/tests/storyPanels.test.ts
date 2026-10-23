@@ -147,7 +147,8 @@ describe("panel view (T-059 Done When 4)", () => {
 
 describe("the demo wiring (T-059 Done When 5)", () => {
   it("gives the first demo story seven sourced panels, in mission order, that sit on its own anchors and objects", async () => {
-    const { apollo11Experience } = await import("astraeus-demo-apollo11/experiences/apollo11/apollo11");
+    const { apollo11Definition } = await import("astraeus-demo-apollo11/experiences/apollo11/apollo11Definition");
+    const apollo11Experience = apollo11Definition.experience;
     const panels = apollo11Experience.storyPanels?.panels ?? [];
     expect(panels.map((panel) => panel.id)).toEqual(["tli-cutoff", "loi", "powered-descent", "touchdown", "ascent-docking", "tei", "splashdown"]);
     for (const panel of panels) {

@@ -37,7 +37,6 @@ const HOOK = {
   storyPanel: ".story-panel",
   storyMarker: ".timeline-panel-marker",
   developerPanel: ".developer-tools",
-  missionPanel: ".mission",
   infoToggle: ".object-info-toggle",
   sceneLabels: ".scene-labels",
   anchorLabels: ".anchor-labels",
@@ -136,19 +135,6 @@ export async function seekToFraction(page, fraction) {
   }, fraction);
 }
 
-/** Types an instant into the developer panel's "UTC date and time" field. */
-export const setUtc = (page, utc) => page.getByLabel("UTC date and time").fill(utc);
-/** Types an instant into that field and presses "Seek (UTC)". */
-export async function seekToUtcText(page, utc) {
-  await setUtc(page, utc);
-  await page.getByRole("button", { name: "Seek (UTC)", exact: true }).click();
-}
-/** Presses "Jump to event" in the developer panel (after choosing a Mission event). */
-export const jumpToMissionEvent = (page) => page.getByRole("button", { name: "Jump to event", exact: true }).click();
-/** Waits for that field (to appear, or with `{state: "hidden"}` to go). */
-export const waitForUtcField = (page, options) => page.getByLabel("UTC date and time").waitFor(options);
-export const utcFieldVisible = (page) => page.getByLabel("UTC date and time").isVisible();
-
 /** The clock as the timeline prints it (for example "1969-07-16T13:32:00.000Z"). */
 export const clockText = (page) => page.locator(HOOK.timeLabel).innerText();
 /** The clock's machine-readable instant (ISO). */
@@ -239,12 +225,6 @@ export const eventContextText = (page) => page.locator(HOOK.eventContext).innerT
 export const insideText = (page) => page.locator(".timeline-window-current").innerText();
 /** Presses the "Just happened" line, which opens that event's information. */
 export const openCurrentEventInfo = async (page) => (await reveal(page, page.locator(HOOK.currentEventButton).first())).click();
-/** Chooses an event in the developer panel's "Mission event" list by value. */
-export const missionEventOptions = (page) => page.getByLabel("Mission event").locator("option").evaluateAll((options) => options.map((option) => ({
-  value: option.value,
-  label: option.textContent?.trim() ?? "",
-})));
-export const pickMissionEvent = (page, value) => page.getByLabel("Mission event").selectOption(value);
 /** Waits until the clock reads a UTC instant (any parseable form). */
 export const waitForClock = (page, target, timeout = 5000) => page.waitForFunction((wanted) => Date.parse(document.querySelector(".timeline-time")?.getAttribute("datetime") ?? "") === Date.parse(wanted), target, { timeout });
 
@@ -473,27 +453,15 @@ export async function closeDeveloper(page) { if (await developerOpen(page)) awai
 /** Presses the drawer's button from inside the page (a phone drawer covers some controls). */
 export const pressDeveloperNow = (page) => developerButton(page).evaluate((element) => element.click());
 export const developerPanel = (page) => page.locator(HOOK.developerPanel);
-export const missionPanel = (page) => page.locator(HOOK.missionPanel);
-export const missionReadouts = (page) => page.locator(".mission .readout").allTextContents();
-export const waitForMission = (page) => page.locator(HOOK.missionPanel).waitFor();
 /** One metric visual by its data id, and the readouts inside the drawer. */
 export const metric = (page, id) => page.locator(`[data-metric="${id}"]`);
-export const missionMetricSvg = (page, kind) => page.locator(`.mission .metric-${kind} svg[role="img"]`);
-export const missionRadars = (page) => page.locator('.mission [data-metric$="-position"] svg.metric-radar');
 /** The metrics that overflow their box at the current width (their data ids). */
 export const overflowingMetrics = (page) => page.evaluate(() => [...document.querySelectorAll(".metric")]
   .filter((metric) => metric.getBoundingClientRect().right > window.innerWidth + 0.5 || metric.scrollWidth > metric.clientWidth + 1)
   .map((metric) => metric.getAttribute("data-metric")));
 export const instrumentMetrics = (page) => page.locator(".scientific-instruments .metric");
-export const missionMetrics = (page, kind) => page.locator(`.mission .metric-${kind}`);
 export const advancedReadouts = (page) => ({ summary: page.locator(".advanced-readouts summary"), list: page.locator("dl.overlay") });
 export const openAdvancedReadouts = (page) => page.locator(".advanced-readouts summary").click();
-/** A drawer section, for a picture. */
-export const drawerSection = (page, which) => {
-  const hooks = { telemetry: ".hud-section:has(#developer-telemetry-heading)", scene: ".hud-section:has(#developer-scene-heading)", journey: ".hud-section-clock" };
-  return page.locator(hooks[which]);
-};
-export const scrollDrawerToTelemetry = (page) => page.locator(HOOK.developerPanel).evaluate((panel) => { panel.scrollTop = panel.querySelector("#developer-telemetry-heading").offsetTop - 8; });
 
 /** A drawer toggle by its logical id: pressing, reading, waiting. */
 const TOGGLES = {

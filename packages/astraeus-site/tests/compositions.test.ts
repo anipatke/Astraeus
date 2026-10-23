@@ -30,7 +30,6 @@ import {
 import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "astraeus/app/sceneFraming";
 import { TRACK_LAYER, TrackedBodyView } from "astraeus/app/TrackedBodyView";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { apollo11Mission } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
 import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
@@ -77,7 +76,9 @@ describe("experience definitions name their compositions", () => {
   it.each(withAlias)("%s: usesEarthMoon is %s-consistent and the centre is as before", (_name, definition, earthMoon) => {
     expect(hasEarthMoon(definition)).toBe(earthMoon);
     if (earthMoon) {
-      expect(compositionOf(definition)).toBe(earthMoonSystem);
+      // A scene built on the public API names its composition "scene"; it is the Earth–Moon system otherwise (O-041).
+      if (definition === apollo11Definition) expect({ ...compositionOf(definition), id: earthMoonSystem.id }).toEqual(earthMoonSystem);
+      else expect(compositionOf(definition)).toBe(earthMoonSystem);
       expect(mountedBodiesOf(definition)).toEqual(["earth", "moon"]);
       expect(sceneCenterOf(definition)).toBe("earth");
     }
@@ -179,7 +180,7 @@ describe("the scene places Earth and the Moon exactly as before", () => {
   });
 
   it("an Earth-centred scene adds nothing to Earth-centred data: tracked positions are the samples", () => {
-    const columbia = apollo11Mission.bodies[0];
+    const columbia = apollo11Definition.trackedBodies![0];
     const t = (columbia.trajectory.bounds.startUtcMs + columbia.trajectory.bounds.endUtcMs) / 2;
     const state = columbia.trajectory.stateAt(t);
     expect(trackedAbsolute(state, trueScale, placement)).toEqual(eqjToRenderVector(trueScale.mapPosition(state.positionKm)));
@@ -194,7 +195,7 @@ describe("the scene places Earth and the Moon exactly as before", () => {
 });
 
 describe("tracked data and groups follow the scene centre", () => {
-  const columbia = apollo11Mission.bodies[0];
+  const columbia = apollo11Definition.trackedBodies![0];
   const mid = (columbia.trajectory.bounds.startUtcMs + columbia.trajectory.bounds.endUtcMs) / 2;
 
   it("a Moon-centred scene shifts Earth-measured data by the Earth's offset from the Moon", () => {
@@ -330,7 +331,7 @@ describe("State is untouched by how a scene presents it (design E step 3)", () =
     const resolver = createSceneResolver(adapter);
     const camera = new PerspectiveCamera();
     // Built once: sampling the Apollo trajectory in the constructor costs about 75 ms, which times 18 passes made this case the suite's slowest under coverage (I-060).
-    const tracked = new TrackedBodyView(apollo11Mission.bodies[0]);
+    const tracked = new TrackedBodyView(apollo11Definition.trackedBodies![0]);
     for (const centre of BODIES) {
       for (const policy of [trueScale, readableScale]) {
         for (const t of DATES) {

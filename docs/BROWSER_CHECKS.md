@@ -49,7 +49,7 @@ O-038 T-147 deleted every other browser script, `run-engine.mjs`, `run-demo.mjs`
 | `on-request/browser-precision` | Earth within one pixel at 1 AU, 60-frame sweep | D `sceneTransforms` "position precision far from the Sun" |
 | `on-request/browser-synthetic-belt`, `-eccentric`, `-marker-existing` | belt, Sun and paths, marker rule, whole 1 to 51 AU orbit framed | D `syntheticRing`, `sunCentred`, `bodyMarkers`, `longOrbitPaths`, `sceneTargets`, `demoRules` (marker rule on every demo) |
 | `on-request/probe-phone-frames` | throttled frame-time probe; asserted nothing | none; retired measurement (frame pacing: owner's look) |
-| `browser-apollo-shell` | 30 events, Unavailable at start, one scale, labels, info wording, metric visuals | D `domApollo`, `missionScene`, `infoProvenance` ("Apollo known limitations ..."), `metricVisuals`, `experiences`; labels and follow fallback S |
+| `browser-apollo-shell` | 30 events, Unavailable at start, one scale, labels, info wording, metric visuals | D `domApollo`, `missionScene`, `infoProvenance` ("Apollo known limitations ..."), `metricVisuals` ("gives each spacecraft's info card ..."), `rebuildComparison`, `experiences`; labels and follow fallback S |
 | `browser-spike02` | six phases, camera invariance, jumps, rates, speed against range, four USNO phases | D `domApollo`, `missionScene`, `core` (clock: "keeps same-time science fixed when playback rates differ"), `infoProvenance` |
 | `browser-home-curve-fits` | 325 dots, 2 pieces, slider, distance bound | D `homePage`; drawing S; phone layout O |
 | `browser-showers`, `browser-public-showers` | Sun-centred scene, Object list, scales, orbits, peak, year, quality sets, no CAMS, shower switch, shipped orbits | D `demoShowers`, `demoRules`, `showers`, `showersMeasured`, `showerChoice`, `viewUp` ("ecliptic-up view"), `startCamera` ("the start camera (I-028)"), `publicBuild`; the swap S, J; the stream drawn (dots in view) S and J, on the public build too (`smoke-public-showers`) |
@@ -69,14 +69,17 @@ Every script gets its browser from the harness, never from `chromium.launch` (th
 ## The interface driver (`packages/astraeus-site/tools/validate/driver.mjs`)
 
 Scripts never find or operate controls themselves. Each user action and readout is one driver function (`import * as ui from "./driver.mjs"`); when the interface changes, only the driver is edited.
+
+O-041 T-169 (Apollo rebuilt on the public API): Apollo's Developer "This demo" sections are gone (Decision 2), so the driver lost the functions that read them: `jumpToMissionEvent`, `missionEventOptions`, `pickMissionEvent` (the "Mission event" list), `setUtc`, `seekToUtcText`, `waitForUtcField`, `utcFieldVisible` (the typed-date field), `missionPanel`, `missionReadouts`, `waitForMission`, `missionMetricSvg`, `missionRadars`, `missionMetrics` (the telemetry cards), `drawerSection` and `scrollDrawerToTelemetry`. No step called any of them; the same facts are asserted in the fast suite: the typed date and the telemetry cards by nothing now (accepted loss), the spacecraft's range, speed, Moon gap and altitudes as info-card rows by D `domApollo` and `metricVisuals`, the camera menu (Overview, Focus and Follow per object) by D `rebuildComparison` and `missionScene`. The camera labels the scripts use are preset ids (`overview`, `focus-columbia`), which are unchanged.
+
 | Area | Functions (all take `page` first) |
 |------|------|
-| Shell, time | `waitForShell`, `timelineText`, `pageText`, `pressKey`, `seekRange`, `seekTo`, `seekToFraction`, `seekToUtcText`, `setUtc`, `clockText`, `clockIso`, `clockMs`, `waitForClock` |
+| Shell, time | `waitForShell`, `timelineText`, `pageText`, `pressKey`, `seekRange`, `seekTo`, `seekToFraction`, `clockText`, `clockIso`, `clockMs`, `waitForClock` |
 | Playback | `pausePlayback`, `ensurePaused`, `playPlayback`, `ensurePlaying`, `continuePlayback`, `isPlaying`, `waitUntilPlaying`, `setSpeed`, `speed` |
 | Events, windows | `nextEvent`, `previousEvent`, `hasNextEvent`, `toggleEventList`, `openEventList`, `closeEventList`, `eventRows`, `pickEventRow`, `eventContextText`, `windowParts`, `glowCount`, `glowText`, `glowGradients`, `glowTooltipAt`, `goToWindowPeak`, `goToNamedWindowPeak` |
 | Bodies, information | `pickBody`, `pickedBody`, `bodyOptions`, `bodyOptionCount`, `bodyOptionInfo`, `waitForBodyAvailability`, `openInfo`, `closeInfo`, `infoPanel`, `infoText`, `openProvenance`, `provenanceDetailText`, `pressRelatedObject`, `selectOrbit` |
 | Camera | `chooseCamera(page, presetId)` (for example `"overview"`, `"focus-columbia"`, `"follow-moon"`, `"whole-orbit"`), `pickBodyWithCamera`, `cameraOffered`, `cameraActive` |
-| Drawer | `toggleDeveloper`, `openDeveloper`, `closeDeveloper`, `developerOpen`, `pressToggle(id)`, `toggleOn(id)`, `setSlider(id)`, `dragSlider(id)`, `sliderReadout(id)`, `missionPanel`, `metric`, `copyViewLink`, `frameRate` |
+| Drawer | `toggleDeveloper`, `openDeveloper`, `closeDeveloper`, `developerOpen`, `pressToggle(id)`, `toggleOn(id)`, `setSlider(id)`, `dragSlider(id)`, `sliderReadout(id)`, `metric`, `copyViewLink`, `frameRate` |
 | Story panels | `storyPanel`, `storyMarkers`, `openStoryPanel`, `closeStoryPanel`, `pressSceneStoryMarker`, `openStoryPanelIds` |
 | Scale | `chooseScale`, `currentScale`, `scaleOptions`, `offersScale` |
 

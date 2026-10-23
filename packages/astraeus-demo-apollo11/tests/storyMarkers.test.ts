@@ -57,7 +57,7 @@ describe("stacked story markers on one object (I-031)", () => {
 
 describe("the demo stories' scene markers (T-088 Done When 5)", () => {
   it("never stack two markers on one object, and every Apollo 11 panel has a scene marker", async () => {
-    const { apollo11Experience } = await import("../src/experiences/apollo11/apollo11");
+    const { apollo11Experience } = await import("./support");
     const panels = apollo11Experience.storyPanels?.panels ?? [];
     const apolloSpecs = panels.flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }]));
     expect(apolloSpecs.map((spec) => spec.panelId)).toEqual(panels.map((panel) => panel.id));

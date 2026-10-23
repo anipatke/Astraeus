@@ -88,7 +88,10 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
     return { ...buildShowerDefinition(settings, load, set, panelsFile), switcher: showerChoice.switcher };
   }
-  return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("astraeus-demo-apollo11/experiences/apollo11/apollo11Definition")).apollo11Definition;
+  if (Object.hasOwn(DEFINITIONS, requested)) return DEFINITIONS[requested]!();
+  // Apollo 11 is the default: a story built on the public API (`astraeus`), given to the app as its definition.
+  const { APOLLO11_LABEL, buildApollo11Scene } = await import("astraeus-demo-apollo11/experiences/apollo11/apollo11Scene");
+  return { ...buildApollo11Scene().toDefinition(), label: APOLLO11_LABEL };
 }
 // The planet series (about 1.4 MB) load only for a composition that contains a planet.
 async function buildDefinition(): Promise<ExperienceDefinition> {

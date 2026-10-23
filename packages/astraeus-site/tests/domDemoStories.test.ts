@@ -3,7 +3,7 @@
 // title, its badge, its body and its source lines, with its details in the one folded section. How panels open and hold on playback is generic (tests/domStory.test.ts); the wording and order
 // of each demo's panels are data (tests/storyStoriesAllDemos.test.ts, tests/storyPanels.test.ts); the scene markers' drawing is the smoke check.
 import { afterEach, describe, expect, it } from "vitest";
-import { apollo11Experience } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
+import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
 import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
@@ -14,7 +14,7 @@ import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPane
 import { $, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
 
 const shower = (file: unknown): ExperienceConfig => { const settings = parseShowerSettings(file); return buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience; };
-const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];
+const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Definition.experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];
 
 let m: Mounted | undefined;
 afterEach(() => { m?.unmount(); m = undefined; });
