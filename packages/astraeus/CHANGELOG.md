@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- Needs React 19 and `@react-three/fiber` 9.8.2 or later: `react`, `react-dom`, `@react-three/fiber` and `three` are now peer dependencies, not dependencies, so the host app's own copies are used and installed once. Install them beside `astraeus`. No change to the public API.
+
 ## 0.1.1
 
 No changes to the code, data or public API. The first version published by the GitHub release workflow, with npm provenance ("Built and signed on GitHub Actions").

@@ -2,9 +2,16 @@
 id: T-163
 title: Move the engine and demos to React 19
 objective: O-040
-status: planned
+status: done
 owner_validation: {required: true}
 planned_by: {role: planner, session: g011-planning-20261023}
+check_waiver:
+    task: T-163
+    reason: 'owner run rules: no per-step checks, one Full Objective Check at the end of O-040 ("dont we have a skill for this", standing O-036 rules); owner look given: "looks fine"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T10:54:59Z"
 ---
 
 # Move the engine and demos to React 19
@@ -51,8 +58,30 @@ Hand-off gates from AGENTS.md (`npm run lint`, `npm run typecheck`, `npm run bui
 
 ## Technical Evidence
 
-Pending execution.
+Installed: react 19.3.1, react-dom 19.3.1, @react-three/fiber 9.8.2, three 0.169.0 (unchanged; Fiber 9 needs >=0.156), @types/react 19.3.0, @types/react-dom 19.3.0.
+
+Migration review (plan step 1): no design change needed. `npm run typecheck` passed straight after the upgrade, with no source edit under `packages/*/src`; the fast suite (happy-dom shell tests, frame-stage tests) passes unchanged. No REPLAN needed.
+
+Changes:
+- `package.json`, `packages/astraeus/package.json`: react, react-dom, @react-three/fiber, three moved out of `dependencies`; `astraeus` lists them as `peerDependencies` (react and react-dom `>=19 <19.4`, fiber `>=9.8.2 <10`, three `>=0.169.0 <1`) and as `devDependencies` (workspace install). Root keeps them as devDependencies; `@lizard-isana/orb` stays a dependency.
+- `tools/build-packages.mjs`: published manifest drops `devDependencies` (peer block carried via the source manifest).
+- `tools/check-packs.mjs`: new `peerProblems` fails when one of the four is a `dependency` or is missing from `peerDependencies`, or when any packed manifest keeps `devDependencies`.
+- `examples/hello-scene/package.json`: the four libraries added as devDependencies (a host app installs its own copies; the tarball no longer brings them). Kept under `devDependencies` because `publishWorkflow.test.ts` requires the example to have no `dependencies`.
+- `packages/astraeus/README.md` (install line and peer note), `packages/astraeus/CHANGELOG.md` (Unreleased: React 19 required).
+- `package-lock.json` regenerated.
+
+Commands run (all pass): `npm run lint` (clean); `npm run typecheck` (clean); `npm run build` (built); `npm test` (119 files, 1569 passed, 1 skipped); `npm run check:engine-alone` (pass); `npm run check:pack` (pass); `npm run build:example` (built from tarballs).
+
+Criteria: React 19 / DOM 19 / Fiber 9.8.2 installed with matching types: met. Gates, engine-alone, pack: met. Published manifest lists the four as peerDependencies, verified in `packages/astraeus/dist/package.json`: met. check-packs fails on a bundling manifest: implemented, not exercised with a deliberately bad manifest. hello-scene builds: met. Owner's look: pending (preview on localhost:5490, restarted).
+
+Extra reads beyond Context Files: `tools/check-engine-alone.mjs` (grep only, to confirm it needs no change for peers), `packages/astraeus-site/tests/publishWorkflow.test.ts` (failing test; explains the devDependencies placement), `.npm` ERESOLVE report.
+
+Limitations: plain `npm install` first failed with ERESOLVE (react 19.3.1 conflict reported against fiber); `npm install --legacy-peer-deps` resolved it and a later plain `npm install` succeeded; `npm ls` shows no invalid entries. No browser check run (by rule). Visual behaviour not judged.
 
 ## Drift Notes
 
 Record architecture deltas (dependency model change) for the planner to reconcile in Design before the Full Objective Check.
+
+Dependency model change: react, react-dom, @react-three/fiber and three are peer dependencies of the published `astraeus` (were dependencies); the workspace keeps them as devDependencies. Design Components/Codebase Map (O-036 packaging row) and the example description should say a host app installs them; `check-packs.mjs` now enforces it. The hello-scene example installs them itself.
+
+**Owner's verdict (2026-10-23T10:54:59Z):** walked Apollo 11, showers and planets on http://localhost:5490 after the React 19 move: "looks fine".

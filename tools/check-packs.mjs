@@ -34,6 +34,8 @@ const ALLOWED = {
 /** Never packed, whatever else matches. */
 const FORBIDDEN = /(?:\.test\.|\.spec\.|(?:^|\/)tests?\/|(?:^|\/)tools\/|horizons-cache|\.map$|\.env|\.tsbuildinfo|tsconfig|(?<!\.d)\.tsx?$|vitest|\/local\/)/;
 
+/** The libraries the engine takes from the host app (T-163): peer dependencies of `astraeus`, never bundled or listed as dependencies. */
+const PEER_LIBRARIES = ["react", "react-dom", "@react-three/fiber", "three"];
 const REQUIRED_FIELDS = ["name", "version", "description", "license", "repository", "keywords", "exports", "types", "files", "type"];
 
 function targetsOf(value) {
@@ -83,6 +85,18 @@ function codeProblems(name, dir) {
   return problems;
 }
 
+/** The problems with the peer libraries of a manifest: `astraeus` must list them as peerDependencies and not as dependencies. */
+function peerProblems(name, manifest) {
+  const problems = [];
+  if (manifest.devDependencies !== undefined) problems.push(`${name}: package.json still lists devDependencies`);
+  if (name !== "astraeus") return problems;
+  for (const library of PEER_LIBRARIES) {
+    if (manifest.dependencies?.[library] !== undefined) problems.push(`${name}: ${library} is a dependency; it must be a peerDependency (the host app's copy is used)`);
+    if (manifest.peerDependencies?.[library] === undefined) problems.push(`${name}: ${library} is not a peerDependency`);
+  }
+  return problems;
+}
+
 /** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
 function problemsOf(name, dir, pack) {
   const problems = [];
@@ -100,6 +114,7 @@ function problemsOf(name, dir, pack) {
   if (manifest.private === true) problems.push(`${name}: package.json is private`);
   if (Object.keys(manifest).some((key) => key.startsWith("x-"))) problems.push(`${name}: package.json still has an x- build block`);
   for (const target of targetsOf(manifest.exports)) if (!paths.includes(target.replace(/^\.\//, ""))) problems.push(`${name}: exports names ${target}, which is not packed`);
+  problems.push(...peerProblems(name, manifest));
   for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
   if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
   problems.push(...codeProblems(name, dir));

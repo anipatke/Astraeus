@@ -7,8 +7,10 @@ A 3D solar system for the browser. Place bodies and recorded paths in a scene, m
 ## Install
 
 ```sh
-npm install astraeus
+npm install astraeus react react-dom @react-three/fiber three
 ```
+
+`react` (19), `react-dom` (19), `@react-three/fiber` (9.8.2 or later 9.x) and `three` (0.169 or later) are peer dependencies: your app's own copies are used, so install them beside `astraeus` (npm 7 and later installs missing peers for you).
 
 You need a bundler. These were each built and run with the packed packages (a scene with Saturn and Titan from `astraeus-data-saturn`): Vite 8, webpack 5 (5.112) and Parcel 2 (2.16, which needs `"@parcel/resolver-default": { "packageExports": true }` in your `package.json` so it reads the package `exports`). Others are untried. The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; loading it straight in Node or from a bare `<script type="module">` will not work.
 

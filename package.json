@@ -22,21 +22,21 @@
     "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },
   "dependencies": {
-    "@lizard-isana/orb": "3.1.1",
-    "@react-three/fiber": "^8.18.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "three": "^0.169.0"
+    "@lizard-isana/orb": "3.1.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.31",
-    "@types/react-dom": "^18.3.7",
+    "@react-three/fiber": "^9.8.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
     "@types/three": "^0.169.0",
     "@vitest/coverage-v8": "^5.0.3",
     "eslint": "10.12.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "happy-dom": "^21.0.4",
     "playwright-core": "1.59.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.169.0",
     "typescript": "7.0.2",
     "typescript-eslint": "8.71.2",
     "typescript6": "npm:@typescript/typescript6@6.0.2",

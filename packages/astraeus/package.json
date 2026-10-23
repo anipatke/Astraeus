@@ -5,10 +5,18 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@lizard-isana/orb": "3.1.1",
-    "@react-three/fiber": "^8.18.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "@lizard-isana/orb": "3.1.1"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": ">=9.8.2 <10",
+    "react": ">=19 <19.4",
+    "react-dom": ">=19 <19.4",
+    "three": ">=0.169.0 <1"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "three": "^0.169.0"
   },
   "x-internal-exports": "Only \".\" is the public API (0.1 preview). Every other entry is internal, kept for the demos and the site, and may change without notice.",

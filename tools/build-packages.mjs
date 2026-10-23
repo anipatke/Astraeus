@@ -153,7 +153,7 @@ export function buildPackage(name) {
   for (const file of ["README.md", "CHANGELOG.md", "NOTICE"]) if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
   copyFileSync(join(root, "LICENSE"), join(out, "LICENSE"));
   if (existsSync(join(pkg, "licenses"))) cpSync(join(pkg, "licenses"), join(out, "licenses"), { recursive: true });
-  const { "x-publish": _publishBlock, "x-internal-exports": _internal, ...rest } = manifest;
+  const { "x-publish": _publishBlock, "x-internal-exports": _internal, devDependencies: _dev, ...rest } = manifest;
   const published = { ...rest, exports: publish.exports, types: publish.exports["."].types, files: publish.files };
   writeFileSync(join(out, "package.json"), `${JSON.stringify(published, null, 2)}\n`);
   return { name, out, assets, chunks };
