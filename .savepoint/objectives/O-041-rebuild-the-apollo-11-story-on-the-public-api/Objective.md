@@ -38,6 +38,7 @@ Owner, 2026-10-24, O-041 planning interview (proposal drafted overnight 2026-10-
 7. **Engine leftovers** ("yes add them to the plans"): `spacecraftMetrics.ts` moves out of `src/experiences/apollo11/` to a generic name and place.
 8. **Run** under the standing orchestration rules (owner, 2026-10-23/24): Task Checks waived, coordinator marks steps done once gates pass, one owner look at Apollo on the preview, one Full Objective Check with one browser run.
 9. **Telemetry bars without a generic readout** (owner, 2026-10-24, "Simplify (Recommended)"): "altitude above the nearer of Earth or the Moon" becomes two named altitude bars (above Earth, above the Moon); the path-uncertainty figure moves into each spacecraft's known-limits text; the live uncertainty bar and the position coordinates are dropped. No new readout kinds for them.
+10. **Placeable display switches** (owner, 2026-10-24: "Can i sneak a toggle orbit lines feature in here", then "Each Toggle option should be customisable on the top bar or an custom panel + developer panel", "New step in this Apollo part (Recommended)", switches "Orbit lines, Labels, Milky Way picture"): a developer chooses, per switch, whether it appears on the top bar, in a story switch panel opened from the top bar, or only in the Developer drawer (where every switch always stays), and its starting state. First switches: orbit lines (all orbit rings, trails and moon orbits as one), labels (including anchor labels), Milky Way picture. Existing demos keep their current look unless the owner asks.
 
 ## Architectural Considerations
 
@@ -48,6 +49,7 @@ Additions go through the public API in `packages/astraeus/src/api/` as a thin la
 **In scope:**
 - The public calls Apollo needs (Decisions 1, 2, 6), their tests on a made-up configuration, the rebuilt Apollo story and its reference entries
 - Moving `packages/astraeus/src/experiences/apollo11/spacecraftMetrics.ts` out of its Apollo-named engine folder to a generic place (e.g. `src/app/`), so the engine names no Apollo code (owner, 2026-10-24: "yes add them to the plans")
+- Placeable display switches (Decision 10): orbit lines, labels, Milky Way picture, on the top bar, a story switch panel or the Developer drawer only, with a starting state
 - The made-up story in `examples/hello-scene`, its browser step through `driver.mjs`, and re-measuring the Apollo page set in `load-budget.mjs` (a raise needs the owner's OK)
 
 **Out of scope:**

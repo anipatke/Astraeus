@@ -3,7 +3,7 @@ id: T-169
 title: Rebuild Apollo 11 on the public API
 objective: O-041
 status: planned
-depends_on: [{task: T-167, requires: clear}]
+depends_on: [{task: T-170, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o041-planning-20261024}
 ---
