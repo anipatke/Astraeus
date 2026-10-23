@@ -1,7 +1,7 @@
 ---
 id: O-030
 title: Switch showers in place without a page reload
-status: in_progress
+status: done
 depends_on: []
 release: G-007
 ---
