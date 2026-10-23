@@ -12,7 +12,7 @@ planned_by: {role: planner, session: o036-planning-20261023}
 
 ## Outcome
 
-`astraeus` builds to compiled JavaScript with types and packs small; a new `astraeus-data` package carries the moon positions and full pictures; a standing fast check packs both and fails on unexpected contents or sizes.
+`astraeus` builds to compiled JavaScript with types and packs small; new data packages carry the rest — `astraeus-data` (moon pictures, Venus 8k, the Milky Way) and `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` (moon positions), per the owner's choices in docs/NPM_PACKAGING.md; a standing fast check packs all of them and fails on unexpected contents or sizes.
 
 ## User Check
 
@@ -21,9 +21,9 @@ Run the pack check from the repository root and see both packages listed with th
 ## Done When
 
 - An engine build command (named in the decision note) writes compiled ESM and `.d.ts` to the package's output folder; `package.json` points `exports`, `types` and `files` at it, with version `0.1.0`, licence, repository, keywords and the dependency/peer split the note decided.
-- `packages/astraeus-data/` holds the data the note moved (with `git mv`), its own `package.json` (version `0.1.0`), README and licences; the engine finds it when installed and offers only what it has when it is not (no invented data, DATA-01).
+- `packages/astraeus-data/` and the six `packages/astraeus-data-<planet>/` packages hold the data the note moved (with `git mv`), each with its own `package.json` (version `0.1.0`), README, licences and credit records for what it ships; the engine finds it when installed and offers only what it has when it is not (no invented data, DATA-01).
 - The demos and the site still build and behave the same (they may keep using source); public build file list and load budget unchanged.
-- A root script (for example `npm run check:pack`) runs the build and `npm pack --dry-run --json` for both packages and fails on files outside an allow-list or sizes above the note's limits; it is fast, in the configured gates or the test suite, and documented.
+- A root script (for example `npm run check:pack`) runs the build and `npm pack --dry-run --json` for every published package and fails on files outside an allow-list or sizes above the note's limits; it is fast, in the configured gates or the test suite, and documented.
 - Configured gates and `npm run check:engine-alone` pass. No browser runs.
 
 ## Context Files

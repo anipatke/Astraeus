@@ -26,7 +26,7 @@ Owner, 2026-10-20: "and 3 too" (publish the engine to npm after the split). The 
 ## Success Conditions
 
 1. **Small API.** `Scene`, `addBody`, `addTrajectory`, `setTime`, `setScale`, `camera.follow` and `mount(element, scene)` work in any web page without the developer writing React; they are a thin layer over today's engine (ExperienceDefinition, providers, presentation) and the demos keep working unchanged.
-2. **Two packages.** `astraeus` is small: code, the planets' positions and a few pictures. `astraeus-data` is optional and adds every moon's positions and the full pictures. A standing fast check packs both (`npm pack --dry-run` or equivalent) and fails on unexpected contents or a size above the limits the research step sets.
+2. **Two packages.** `astraeus` is small: code, the planets' positions and a few pictures. optional data packages add the rest: `astraeus-data` (moon pictures, full pictures, the Milky Way) and one positions package per planet with moons (`astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto`). A standing fast check packs both (`npm pack --dry-run` or equivalent) and fails on unexpected contents or a size above the limits the research step sets.
 3. **Install-ready.** The engine ships compiled JavaScript with type declarations; its public `exports` name only the public API (plus entries the demos need, marked internal and outside the promise).
 4. **Example.** A tiny app outside the demos installs the packed packages and draws a scene; `npm run check:browser` proves it draws (scene readouts through the driver, no screenshots) once at the Full Objective Check, and the owner looks at it on a preview.
 5. **Written down.** The public API, the 0.1 preview promise (anything not listed is internal; breaking changes before 1.0 noted in a changelog), a CHANGELOG and a step-by-step release procedure.
@@ -35,9 +35,10 @@ Owner, 2026-10-20: "and 3 too" (publish the engine to npm after the split). The 
 ## Confirmed Decisions (owner, 2026-10-23)
 
 1. **API style:** "Idea's style, plus a mount call (Recommended)": the Idea's imperative calls plus `mount`, no React knowledge required; not a React-only component.
-2. **Data:** "Small engine + optional data package (Recommended)": `astraeus` small; `astraeus-data` optional with every moon's positions (about 38 MB committed) and the full pictures (the engine's textures are about 44 MB). Planet and moon data stay engine-side, never in a demo (owner, 2026-10-18).
+2. **Data:** "Small engine + optional data package (Recommended)": `astraeus` small; optional data packages for the rest. (Corrected by T-159: the committed moon positions are about 120 MB, not 38 MB; one data package would be about 146 MB packed.) Planet and moon data stay engine-side, never in a demo (owner, 2026-10-18).
 3. **Distribution:** owner asked "Is NPM the best distro approach for this? How are other similar models distributed"; answered from comparable libraries (three.js, CesiumJS, Aladin Lite, astronomy-engine, satellite.js publish on npm and are mirrored free by jsDelivr/unpkg; Stellarium Web, Celestia, OpenSpace are applications shared as source). npm stands.
 4. **Stability:** "0.1 preview, promise written (Recommended)": publish as 0.1.0; the public API is written down, anything else internal; breaking changes allowed before 1.0, each in the changelog.
+7. **Data split and sky** (T-159, owner): "Split per planet (Recommended)" — pictures in `astraeus-data`, positions in one package per planet; Milky Way pictures "Move to the data package". Build per docs/NPM_PACKAGING.md (accepted "Yes, go ahead (Recommended)").
 6. **Publish automation** (owner: "we should automate the publish to NPM cia GH"): "A GitHub release you create (Recommended)": a GitHub Actions workflow publishes on a GitHub release, using npm trusted publishing with provenance; a first manual publish or token may be needed if npm requires the package to exist first (step 1 finds out).
 5. **Plan:** "Yes, write these steps (Recommended)": research, public API, build and packages, example and guides with the owner's look. Browser check once, at the Full Objective Check.
 
