@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 // The package boundary (O-035 T-156, ARCH-03): packages meet only through the names and entries a package declares in its `exports`.
 // Checked: no relative import into another package, the engine imports no other package, a demo imports only the engine, the site imports the engine and the demos,
 // and every `package/entry` import is an entry the target declares (and that points at a real file).
-// Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a path. Relative and `/packages/...` patterns are checked against every package their path can match (a wildcard, partial name or brace list in the package-name segment reaches several; a `**` above a package reaches it from an unknown place), and a match on any other package fails unless a named rule allows it.
+// Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a path. Relative and `/packages/...` patterns are checked against every package their path can match (a wildcard, partial name or brace list in the package-name segment reaches several, a brace list holding a `/` is expanded, and a call's `base` option is resolved first; a `**` above a package reaches it from an unknown place), and a match on any other package fails unless a named rule allows it.
 // Three named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file in a package's top-level `tests/` folder may glob the engine's `src/` when that glob call's own options say `query: "?raw"`, to read source as text for a rule check, never to import it).
 // Not checked: an alias-based glob (neither relative nor `/`-rooted), file paths a test or script reads at run time, and paths that leave `packages/` for the repository root (docs, vercel.json).
 
@@ -71,19 +71,45 @@ function callArguments(source: string, open: number): string {
   return out;
 }
 
-/** The patterns of every `import.meta.glob` call (the first argument as one string or an array of strings, a leading `!` removed), and whether that call's own options ask for the file text (`query: "?raw"`). */
-function globPatterns(source: string): { pattern: string; raw: boolean }[] {
-  const out: { pattern: string; raw: boolean }[] = [];
+/** The patterns of every `import.meta.glob` call (the first argument as one string or an array of strings, a leading `!` removed), whether that call's own options ask for the file text (`query: "?raw"`), and the `base` folder its options name, if any. */
+function globPatterns(source: string): { pattern: string; raw: boolean; base?: string }[] {
+  const out: { pattern: string; raw: boolean; base?: string }[] = [];
   for (const call of source.matchAll(/import\.meta\.glob\b/g)) {
     let at = call.index + call[0].length;
     let angle = 0;
     while (at < source.length && !(source[at] === "(" && angle === 0)) { if (source[at] === "<") angle++; else if (source[at] === ">") angle--; at++; }
     const args = callArguments(source, at).trim();
     const list = args.startsWith("[") ? args.slice(0, args.indexOf("]")) : (/^(["'`])[^"'`]*\1/.exec(args)?.[0] ?? "");
-    const raw = /\bquery\s*:\s*["'`]\?raw["'`]/.test(args.slice(list.length));
-    for (const text of list.matchAll(/(["'`])([^"'`]*)\1/g)) out.push({ pattern: text[2].replace(/^!/, ""), raw });
+    const options = args.slice(list.length);
+    const raw = /\bquery\s*:\s*["'`]\?raw["'`]/.test(options);
+    const base = /\bbase\s*:\s*(["'`])([^"'`]*)\1/.exec(options)?.[2];
+    for (const text of list.matchAll(/(["'`])([^"'`]*)\1/g)) out.push({ pattern: text[2].replace(/^!/, ""), raw, base });
   }
   return out;
+}
+
+/** A pattern with every brace list that holds a `/` expanded into its alternatives (`{a/src,b/src}` reaches two folders); brace lists within one segment stay for segmentMatches. */
+function expandBraces(pattern: string): string[] {
+  let open = -1;
+  let depth = 0;
+  for (let at = 0; at < pattern.length; at++) {
+    if (pattern[at] === "{" && depth++ === 0) open = at;
+    else if (pattern[at] === "}" && --depth === 0) {
+      const inner = pattern.slice(open + 1, at);
+      if (!inner.includes("/")) continue;
+      const parts: string[] = [];
+      let level = 0;
+      let current = "";
+      for (const c of inner) {
+        if (c === "{") level++;
+        if (c === "}") level--;
+        if (c === "," && level === 0) { parts.push(current); current = ""; } else current += c;
+      }
+      parts.push(current);
+      return parts.flatMap((part) => expandBraces(pattern.slice(0, open) + part + pattern.slice(at + 1)));
+    }
+  }
+  return [pattern];
 }
 
 /** A path split at `/`, except inside braces. */
@@ -138,12 +164,14 @@ function exportTarget(exports: Exports, sub: string): string | undefined {
 /** Offences of the `import.meta.glob` patterns in one file; the named rules below are the only ways a glob may leave its package. */
 function globOffences(packages: Map<string, PackageInfo>, packagesDir: string, from: string, file: string, where: string, text: string): string[] {
   const offences: string[] = [];
-  for (const { pattern, raw } of globPatterns(text)) {
-    const absolute = pattern.startsWith("/packages/") ? resolve(packagesDir, pattern.slice("/packages/".length)) : pattern.startsWith("/") ? resolve(dirname(packagesDir), pattern.slice(1)) : pattern.startsWith(".") ? resolve(dirname(file), pattern) : undefined;
-    if (absolute === undefined) continue;
+  const rooted = (path: string) => path.startsWith("/packages/") ? resolve(packagesDir, path.slice("/packages/".length)) : resolve(dirname(packagesDir), path.slice(1));
+  for (const { pattern, raw, base } of globPatterns(text)) {
+    const baseDir = base === undefined ? dirname(file) : base.startsWith("/") ? rooted(base) : resolve(dirname(file), base);
+    const absolutes = expandBraces(pattern).map((one) => one.startsWith("/") ? rooted(one) : one.startsWith(".") || base !== undefined ? resolve(baseDir, one) : undefined);
     for (const [name, info] of packages) {
-      const below = name === from ? undefined : globReach(absolute.split(sep).join("/"), info.dir.split(sep).join("/"));
-      if (below === undefined) continue;
+      const reaches = name === from ? [] : absolutes.flatMap((absolute) => absolute === undefined ? [] : [globReach(absolute.split(sep).join("/"), info.dir.split(sep).join("/"))]).filter((below) => below !== undefined);
+      if (reaches.length === 0) continue;
+      const below = reaches.find((one) => one[0] !== "data" && !(one[0] === "src" && raw)) ?? reaches[0];
       const dataOfEngine = name === ENGINE;
       const dataOfDemo = from === SITE && isDemo(name);
       const declaresData = info.exports["./data/*"] !== undefined;
@@ -277,6 +305,8 @@ describe("package boundaries (ARCH-03)", () => {
       [`${SITE}/tests/wildRaw.ts`]: `const a = ${GLOB}("../../*/src/**/*.ts", { query: "?raw" });\n`,
       [`${SITE}/tests/laterComment.ts`]: `const a = ${GLOB}("../../astraeus/src/core/*.ts", { eager: true });\n// the other one reads ?raw text\n`,
       [`${SITE}/src/deep/tests/notTopLevel.ts`]: `const a = ${GLOB}("../../../../astraeus/src/core/*.ts", { query: "?raw" });\n`,
+      [`${SITE}/src/braceSlash.ts`]: `const a = ${GLOB}("../../{astraeus-demo-a/src,astraeus-demo-b/src}/**/*.ts");\n`,
+      [`${SITE}/src/baseOption.ts`]: `const a = ${GLOB}("./things/*.ts", { base: "../../astraeus-demo-a/src" });\n`,
       [`${SITE}/src/own.ts`]: `const a = ${GLOB}("./pages/*.ts");\n`,
     });
     const message = (where: string, name: string, pattern: string) => `${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`;
@@ -302,6 +332,8 @@ describe("package boundaries (ARCH-03)", () => {
         message("astraeus-site/src/readsTextNotInTests.ts", "astraeus", "../../astraeus/src/core/*.ts"),
         message("astraeus-site/tests/importsCode.ts", "astraeus", "../../astraeus/src/core/*.ts"),
         message("astraeus-site/src/ownTests.ts", "astraeus", "../../astraeus/tests/*.ts"),
+        ...["astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/braceSlash.ts", name, "../../{astraeus-demo-a/src,astraeus-demo-b/src}/**/*.ts")),
+        message("astraeus-site/src/baseOption.ts", "astraeus-demo-a", "./things/*.ts"),
         message("astraeus/src/core/engineGlob.ts", "astraeus-demo-a", "../../../astraeus-demo-a/data/*.json"),
       ].sort());
     } finally { rmSync(dir, { recursive: true }); }

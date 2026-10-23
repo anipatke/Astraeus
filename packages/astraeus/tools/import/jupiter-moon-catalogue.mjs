@@ -14,14 +14,16 @@ const list = (text) => text.split(",").map(key);
 
 const GROUPS = {
   himalia: list("S/2011 J 4, Leda, Ersa, S/2018 J 2, Himalia, Pandia, Lysithea, Elara, S/2011 J 3, S/2017 J 17, Dia"),
-  ananke: list("Euporie, S/2003 J 18, Eupheme, S/2021 J 3, S/2010 J 2, S/2016 J 1, Mneme, Euanthe, S/2003 J 16, Harpalyke, Orthosie, Helike, S/2021 J 2, Praxidike, S/2017 J 3, S/2021 J 1, S/2003 J 12, S/2017 J 7, Thelxinoe, Thyone, S/2021 J 8, S/2003 J 2, S/2022 J 3, Ananke, Iocaste, S/2017 J 10, Hermippe, S/2010 J 6, S/2017 J 9"),
+  ananke: list("Euporie, S/2003 J 18, Eupheme, S/2021 J 3, S/2010 J 2, S/2016 J 1, Mneme, Euanthe, S/2003 J 16, Harpalyke, Orthosie, Helike, S/2021 J 2, Praxidike, S/2017 J 3, S/2021 J 1, S/2003 J 12, S/2017 J 7, Thelxinoe, Thyone, S/2021 J 8, S/2003 J 2, S/2022 J 3, Ananke, Iocaste, S/2017 J 10, Hermippe, S/2017 J 9"),
   carme: list("S/2016 J 3, S/2022 J 1, S/2010 J 4, S/2017 J 8, Pasithee, S/2017 J 13, S/2021 J 6, S/2003 J 24, S/2017 J 18, S/2017 J 2, Chaldene, Isonoe, S/2017 J 11, S/2017 J 16, Kallichore, S/2021 J 4, Erinome, Kale, Eirene, Aitne, Eukelade, S/2022 J 2, Arche, Taygete, S/2011 J 1, Carme, Herse, S/2003 J 19, S/2010 J 1, S/2003 J 9, S/2017 J 5, S/2011 J 6, S/2018 J 5, S/2017 J 12, Kalyke, S/2003 J 10, S/2018 J 3, S/2021 J 5, S/2024 J 1, S/2011 J 5, S/2010 J 5"),
-  pasiphae: list("Eurydome, S/2011 J 2, S/2003 J 4, S/2016 J 4, S/2017 J 15, S/2017 J 6, S/2021 J 7, Hegemone, S/2017 J 14, Pasiphae, Sponde, Megaclite, Cyllene, Sinope, S/2017 J 1, Aoede, Autonoe, Callirrhoe, S/2003 J 23, S/2010 J 3, Kore, Philophrosyne"),
+  pasiphae: list("Eurydome, S/2011 J 2, S/2003 J 4, S/2016 J 4, S/2017 J 15, S/2017 J 6, S/2021 J 7, Hegemone, S/2017 J 14, Pasiphae, Sponde, Megaclite, Cyllene, Sinope, S/2017 J 1, Aoede, Autonoe, Callirrhoe, S/2003 J 23, S/2010 J 3, Kore, Philophrosyne, S/2010 J 6"),
   carpo: list("Carpo, S/2018 J 4"),
   loner: list("Themisto, Valetudo"),
   galilean: list("Io, Europa, Ganymede, Callisto"),
   inner: list("Metis, Adrastea, Amalthea, Thebe"),
 };
+// Where a moon's family was settled against Sheppard's own table rather than the Wikipedia list (S/2010 J 6: Pasiphae group, commit 9b7dc4d4).
+const FAMILY_SOURCE = { "s2010-j6": "sheppard-jupiter-moons" };
 const familyOf = new Map();
 for (const [family, ids] of Object.entries(GROUPS)) for (const id of ids) {
   if (familyOf.has(id)) throw new Error(`${id} is in two families`);
@@ -94,7 +96,7 @@ const entries = moons.map((moon) => {
     bodyPackage: MAPPED.has(moon.id) ? `data/bodies/${moon.id}` : null,
     sources: {
       list: "horizons-moon-list",
-      family: family === "galilean" || family === "inner" ? "jpl-sat-elem" : "wikipedia-moons-of-jupiter",
+      family: family === "galilean" || family === "inner" ? "jpl-sat-elem" : FAMILY_SOURCE[moon.id] ?? "wikipedia-moons-of-jupiter",
       familyBasis: family === "galilean" || family === "inner" ? ["jpl-sat-elem"] : family === "loner" || family === "carpo" ? ["sheppard-jupiter-moons"] : ["sheppard-jewitt-2003", "sheppard-jupiter-moons"],
       radius: radiusSource,
       discovery: "jpl-sat-discovery",

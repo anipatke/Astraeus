@@ -239,7 +239,11 @@ describe("a per-experience catalogue", () => {
 });
 
 describe("the name check", () => {
-  const files = import.meta.glob("../../astraeus/src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+  // The engine's src and this demo's own src (the other demos and the site sit outside this package's boundary).
+  const files = {
+    ...import.meta.glob("../../astraeus/src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }),
+    ...import.meta.glob("../src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }),
+  } as Record<string, string>;
 
   it("finds the asteroid's name nowhere in src: it exists only in its settings file", () => {
     const named = Object.entries(files).filter(([, text]) => /phaethon|geminid/i.test(text)).map(([path]) => path);
