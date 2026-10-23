@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-040 Full Objective Check (C-110). npm run test:full failed twice in a row (11:25:12Z and 11:26:29Z) on the same test; npm test and the file alone pass. The full gate (AGENTS.md Build) is red, and savepoint health check O-040 reports "blocks clearance" (1 failing) with no coverage report written.'
     check: C-110
+  - at: '2026-10-23T12:10:00Z'
+    actor: {role: executor, session: o040-repair-builder-20261023}
+    kind: repair_attempted
+    note: 'Repair: packages/astraeus-site/tests/apiReference.test.ts now builds the public-entry TypeScript program once in a beforeAll (60 s hook limit) and shares the items across the three cases (renderApiPage(items), items filtered for missing docs); the made-up-entry case is unchanged. Two consecutive npm run test:full runs passed (120 files, 1577 passed, 1 skipped; 62 s and 58 s); the file took 5.9 s and 5.6 s in total, mostly the one hook; coverage/coverage-final.json written. npm test, lint, typecheck, build pass. Not closed: awaiting a Check (fresh savepoint health check O-040 not run by the repairer).'
 ---
 
 # I-080: The API reference listing test times out under the full gate

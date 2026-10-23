@@ -17,6 +17,10 @@ history:
     kind: observed
     note: 'Found by the O-040 Full Objective Check (C-110) in its one npm run check:browser (docs/evidence/browser-20261023T112923Z/): the public-build-assets step exited 1. The T-165 builder had reported the same byte count. The same step passed on main in browser-20261023T084202Z (C-108).'
     check: C-110
+  - at: '2026-10-23T12:10:00Z'
+    actor: {role: executor, session: o040-repair-builder-20261023}
+    kind: repair_attempted
+    note: 'Repair: no behaviour-neutral trim found; the extra bytes are the React 19 / Fiber 9 chunks (T-163). Raw limit for app.html?experience=showers raised 10,070,000 -> 10,080,000 in packages/astraeus-site/tools/validate/load-budget.mjs with a comment (measured 10,073,636 B raw / 7,025,217 B gzip, 19 files; gzip limit 7,040,000 unchanged; other limits untouched). Coordinator provisional choice under the owner overnight run, pending the owner morning review. Proof: fresh ASTRAEUS_PUBLIC_BUILD=1 vite build into a scratch folder, then node packages/astraeus-site/tools/validate/public-build-assets.mjs on it: ok true, 94 files checked, showers page problems []. check:browser not run. Not closed: awaiting a Check.'
 ---
 
 # I-081: The Perseids showers page is over its load budget after the React 19 move

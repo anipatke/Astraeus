@@ -2,12 +2,18 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { buildApiPage, collectExports, undocumentedExports } from "../tools/site/api-reference.mjs";
+import { beforeAll, describe, expect, it } from "vitest";
+import { collectExports, renderApiPage, undocumentedExports } from "../tools/site/api-reference.mjs";
 
 describe("API reference", () => {
+  // I-080: building the TypeScript program of the public entry is the slow part (several seconds under coverage), so it is done once for the file.
+  let items: ReturnType<typeof collectExports>;
+  beforeAll(() => {
+    items = collectExports();
+  }, 60_000);
+
   it("has a doc comment on every export of the public entry", () => {
-    expect(undocumentedExports()).toEqual([]);
+    expect(items.filter((item) => item.doc === "").map((item) => item.name)).toEqual([]);
   });
 
   it("names an export that has no doc comment (proved on a made-up entry)", () => {
@@ -22,11 +28,10 @@ describe("API reference", () => {
   });
 
   it("lists the public calls, the React component and the ready-made bodies, with examples for Scene, mount and AstraeusScene", () => {
-    const items = collectExports();
     const names = items.map((item) => item.name);
     expect(names).toEqual(expect.arrayContaining(["Scene", "SceneCamera", "mount", "AstraeusScene", "AstraeusSceneProps", "SceneError", "trueScale", "readableScale", "earth", "titan"]));
     for (const name of ["Scene", "mount", "AstraeusScene"]) expect(items.find((item) => item.name === name)?.examples.length, name).toBeGreaterThan(0);
-    const page = buildApiPage();
+    const page = renderApiPage(items);
     for (const name of names) expect(page, name).toContain(name);
     expect(page).toContain("addTrajectory");
     expect(page).toContain('name="viewport"');
