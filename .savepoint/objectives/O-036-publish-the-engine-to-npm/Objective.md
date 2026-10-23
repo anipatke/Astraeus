@@ -1,7 +1,7 @@
 ---
 id: O-036
 title: Publish the engine to npm
-status: planned
+status: done
 depends_on: [O-035]
 release: G-010
 ---

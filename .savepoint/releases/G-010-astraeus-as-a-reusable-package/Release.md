@@ -1,7 +1,7 @@
 ---
 id: G-010
 title: Astraeus as a reusable package
-status: planned
+status: done
 ---
 
 ## Outcome
