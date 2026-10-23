@@ -17,7 +17,7 @@ const decode = (text: string): string => text.replace(/&amp;/g, "&").replace(/&l
 
 interface CreditRow { readonly title: string; readonly licence: string; readonly text: string; readonly status: string }
 
-const creditsHtml = html.slice(html.indexOf("<h2>Credits</h2>"), html.indexOf("<h2>Wish list</h2>"));
+const creditsHtml = html.slice(html.indexOf("<h2>Credits</h2>"), html.indexOf("<h2>How it is made</h2>"));
 const rows = new Map<string, CreditRow>();
 for (const m of creditsHtml.matchAll(/<div class="row"><div><h3>(.*?)<\/h3><span class="sub">(.*?)<\/span><\/div><p class="lic">(.*?)<\/p><p><\/p><span class="st (\w+)">/g)) {
   rows.set(decode(m[1]), { title: decode(m[1]), licence: decode(m[2]), text: decode(m[3]), status: m[4] });
@@ -108,7 +108,7 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
   });
 
   it("each surface-picture card names the licence its record gives", () => {
-    const pictures = html.slice(html.indexOf("<h2>Surface pictures</h2>"), html.indexOf("<h2>Where things are</h2>"));
+    const pictures = html.slice(html.indexOf("<h2>Surface pictures</h2>"), html.indexOf("<h2>Credits</h2>"));
     const cards = new Map<string, string>();
     for (const m of pictures.matchAll(/<h3>(\w+)<\/h3>.*?<div class="meta"><span>(.*?)<\/span>/g)) cards.set(m[1].toLowerCase(), decode(m[2]));
     expect([...cards.keys()]).toEqual(["sun", "mercury", "venus", "earth", "moon", "mars", "jupiter", "io", "saturn", "uranus", "neptune", "pluto", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
