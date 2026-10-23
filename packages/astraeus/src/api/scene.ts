@@ -7,7 +7,8 @@ import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { loadPlanetSeries } from "../core/planetSeries";
 import { catalogue } from "../assets/catalogue";
-import { createComposition } from "../assets/compositions";
+import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
+import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
@@ -18,6 +19,18 @@ import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+
+/** Options of `addBody`. */
+export interface AddBodyOptions {
+  /** Draws the body's orbit about its parent as a line (the engine's own orbit line). Only the Moon (about Earth) and Io (about Jupiter) have one in 0.1; others throw `no-orbit`. */
+  readonly orbit?: boolean;
+}
+
+/** The orbits the engine can draw: the parent the line is measured from, and the span one lap covers. */
+const ORBITS: Readonly<Record<string, { readonly parent: BodyId; readonly path: Omit<CompositionPath, "body"> }>> = {
+  moon: { parent: "earth", path: { spanMs: SIDEREAL_MONTH_MS } },
+  io: { parent: "jupiter", path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
+};
 
 /** A moment: ISO text, a Date, or Unix milliseconds. */
 export type TimeInput = string | number | Date;
@@ -90,6 +103,7 @@ export class Scene {
   readonly camera: SceneCamera;
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();
+  readonly #orbits = new Set<BodyId>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
 
@@ -97,11 +111,13 @@ export class Scene {
     this.camera = new SceneCamera((id) => this.#bodies.has(id) || this.#tracked.has(id));
   }
 
-  /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. */
-  addBody(body: BodyRef | BodyId): this {
+  /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
+  addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
     const id = typeof body === "string" ? body : body.id;
+    if (options.orbit === true && ORBITS[id] === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} only`);
     if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
     if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
+    if (options.orbit === true) this.#orbits.add(id);
     this.#bodies.set(id, typeof body === "string" ? readyMade(id) ?? { id, label: catalogue.get(id).definition.label } : body);
     return this;
   }
@@ -148,6 +164,11 @@ export class Scene {
       throw new SceneError("missing-data", `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`);
     }
     const ids = [...this.#bodies.keys()];
+    const paths = [...this.#orbits].map((id): CompositionPath => {
+      const orbit = ORBITS[id]!;
+      if (!this.#bodies.has(orbit.parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${orbit.parent}, which has not been added to the scene`);
+      return { body: id, ...orbit.path };
+    });
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const window = windowOf(tracked, this.#timeUtcMs);
     const startUtcMs = this.#timeUtcMs ?? window.startUtcMs;
@@ -170,7 +191,7 @@ export class Scene {
       },
       clock: { startUtcMs, rate: 60 },
       sceneLayers: ["tracked-bodies"],
-      composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]! }),
+      composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: [this.#scale.id, ...SCALES.filter((scale) => scale.id !== this.#scale.id).map((scale) => scale.id)],
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,

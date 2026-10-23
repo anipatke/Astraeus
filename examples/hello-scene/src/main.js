@@ -9,7 +9,7 @@ const samples = Array.from({ length: 73 }, (_, i) => {
 
 const scene = new Scene()
   .addBody(earth)
-  .addBody(moon)
+  .addBody(moon, { orbit: true })
   .addTrajectory({ id: "probe", label: "Hello probe", samples })
   .setTime("2026-01-01T00:00:00Z");
 scene.camera.follow("probe", { distance: 110 });

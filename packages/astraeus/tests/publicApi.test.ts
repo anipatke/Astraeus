@@ -140,6 +140,19 @@ describe("mount", () => {
   });
 });
 
+describe("addBody with an orbit line", () => {
+  it("declares the Moon's orbit as a composition path about Earth", () => {
+    const definition = new Scene().addBody(earth).addBody(moon, { orbit: true }).toDefinition();
+    expect(definition.composition?.paths?.map((path) => path.body)).toEqual(["moon"]);
+    expect(new Scene().addBody(earth).addBody(moon).toDefinition().composition?.paths).toBeUndefined();
+  });
+
+  it("refuses an orbit the engine cannot draw, and one whose parent is not in the scene", () => {
+    expect(codeOf(() => new Scene().addBody(earth).addBody("mars", { orbit: true }))).toMatch(/^no-orbit: .*moon and io only/);
+    expect(codeOf(() => new Scene().addBody(moon, { orbit: true }).toDefinition())).toMatch(/^no-orbit: .*about earth/);
+  });
+});
+
 describe("camera.follow starts already following", () => {
   it("opens the shell with the Follow preset in force, and no preset in force without it", () => {
     const withFollow = mountShell({ experience: { ...syntheticDefinition.experience, startCameraPresetId: syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id } });

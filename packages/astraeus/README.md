@@ -26,7 +26,7 @@ const samples = Array.from({ length: 73 }, (_, i) => {
 
 const scene = new Scene()
   .addBody(earth)
-  .addBody(moon)
+  .addBody(moon, { orbit: true })
   .addTrajectory({ id: "probe", label: "Hello probe", samples })
   .setTime("2026-01-01T00:00:00Z");
 scene.camera.follow("probe", { distance: 110 });
@@ -34,20 +34,20 @@ scene.camera.follow("probe", { distance: 110 });
 mount(document.getElementById("app"), scene);
 ```
 
-The element needs a size (for example `height: 100%` all the way up). The finished app is in the repository at `examples/hello-scene`.
+The element needs a size (for example `height: 100%` all the way up). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app is in the repository at `examples/hello-scene`.
 
 ## The public API
 
 | Call | What it does |
 |---|---|
 | `new Scene()` | An empty scene. Every method below returns the scene, so calls chain. |
-| `scene.addBody(body)` | Adds a catalogued body: a ready-made one (`sun`, `mercury`, `venus`, `earth`, `moon`, `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`, and the moons `io`, `europa`, `ganymede`, `callisto`, `mimas`, `enceladus`, `tethys`, `dione`, `rhea`, `titan`, `iapetus`, `triton`, `charon`, `phobos`, `deimos`) or its id. The first body added is the scene's centre. |
+| `scene.addBody(body, { orbit? })` | Adds a catalogued body: a ready-made one (`sun`, `mercury`, `venus`, `earth`, `moon`, `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`, and the moons `io`, `europa`, `ganymede`, `callisto`, `mimas`, `enceladus`, `tethys`, `dione`, `rhea`, `titan`, `iapetus`, `triton`, `charon`, `phobos`, `deimos`) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line about its parent (the parent must be in the scene); in 0.1 only `moon` (about Earth) and `io` (about Jupiter) have one, others throw `no-orbit`. |
 | `scene.addTrajectory({ id, label?, color?, center?, samples })` | A recorded path. Each sample is `{ time, positionKm, velocityKmS? }` measured from `center` (default `"earth"`); `time` is ISO text, a `Date` or Unix milliseconds. Instead of `samples` you may give `provider` (an object with `stateAt(timeUtcMs)`) and `bounds: { start, end }`. |
 | `scene.setTime(time)` | The moment the scene opens at. |
 | `scene.setScale(trueScale \| readableScale)` | The opening scale; the viewer can switch to the other. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
 | `mount(element, scene, { data? })` | Draws the scene with the full viewer. Returns `{ ready, unmount() }`. `data` is a list of data packages (below). |
-| `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`) and the message says what to do. |
+| `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |
 
 Types (`State`, `Pictures`, `TextureRef`, `AssetLicence`, `DataSource`, `TrajectoryInput` and the like) are exported for TypeScript.
 

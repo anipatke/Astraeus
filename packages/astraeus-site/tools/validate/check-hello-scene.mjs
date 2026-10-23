@@ -1,5 +1,5 @@
 // The example app (O-036 T-162), a step of `npm run check:browser`: examples/hello-scene, built from the packed `astraeus` tarball (not workspace links), is opened at desktop and
-// phone size. It must draw Earth and the Moon (the scene's own readouts), list the probe and open following it, start already following the path, and let the time be set. No screenshot is taken.
+// phone size. It must draw Earth and the Moon (the scene's own readouts), list the probe and open following it, start already following the path, and let the time be set (the Moon's orbit line is read from the scene's path readout `moon-orbit`). No screenshot is taken.
 // Alone: ASTRAEUS_URL=<example url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/check-hello-scene.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
@@ -24,6 +24,8 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   assert.ok(earth && earth.as !== "none" && earth.inView, "Earth is drawn and in view");
   const moon = await ui.sceneBody(page, "moon");
   assert.ok(moon && moon.as !== "none" && moon.inView, "the Moon is drawn and in view");
+  const orbit = await ui.scenePath(page, "moon-orbit");
+  assert.ok(orbit?.visible && orbit.inView > 0, "the Moon's orbit line is drawn and in view");
   // The opening time is the one the example sets, and it can be moved.
   const opened = await ui.clockMs(page);
   const set = Date.parse("2026-01-01T00:00:00Z");
@@ -32,5 +34,5 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   const target = Math.round((min + max) / 2);
   await ui.seekTo(page, target);
   await ui.waitForClock(page, new Date(target).toISOString());
-  return { opened, moved: target, earthPx: earth.radiusPx, moonAs: moon.as };
+  return { opened, moved: target, earthPx: earth.radiusPx, orbitInView: orbit.inView, moonAs: moon.as };
 });
