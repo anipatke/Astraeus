@@ -5,9 +5,9 @@ This file records state and selection only. `savepoint resume` computes the read
 ## Current state
 
 ```yaml
-state: task
-objective: O-040
-task: T-165
+state: design
+objective: O-041
+task: none
 issue: none
 release: G-011
 ```
