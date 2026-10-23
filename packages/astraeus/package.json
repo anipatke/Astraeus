@@ -46,6 +46,7 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "homepage": "https://astraeus.anipatke.com/api/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/anipatke/Astraeus.git"

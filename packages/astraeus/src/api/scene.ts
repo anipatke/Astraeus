@@ -98,8 +98,17 @@ export class SceneCamera {
   get view(): FollowView { return this.#view; }
 }
 
-/** A scene built with imperative calls. `mount(element, scene)` draws it; `toDefinition()` is what the app is given. */
+/**
+ * A scene built with imperative calls. `mount(element, scene)` draws it; `toDefinition()` is what the app is given. Every method returns the scene, so calls chain.
+ * @example
+ * const scene = new Scene()
+ *   .addBody(earth)
+ *   .addBody(moon, { orbit: true })
+ *   .setTime("2026-01-01T00:00:00Z");
+ * scene.camera.follow("moon", { distance: 60 });
+ */
 export class Scene {
+  /** The camera: `scene.camera.follow(id)` opens framed on a body or trajectory. */
   readonly camera: SceneCamera;
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();

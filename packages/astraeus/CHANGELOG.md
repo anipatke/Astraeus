@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- An API reference page is published at <https://astraeus.anipatke.com/api/>, generated from the public types and doc comments; the package `homepage` points at it. Every export now has a doc comment (a test keeps it so). No change to the API.
+
 - New export `AstraeusScene` (with its props type `AstraeusSceneProps`): a React component that draws the same viewer as `mount`, `<AstraeusScene scene={scene} data={[...]} onReady onError />`. It rebuilds when the `scene` prop changes and cleans up on unmount.
 - Needs React 19 and `@react-three/fiber` 9.8.2 or later: `react`, `react-dom`, `@react-three/fiber` and `three` are now peer dependencies, not dependencies, so the host app's own copies are used and installed once. Install them beside `astraeus`. No change to the public API.
 

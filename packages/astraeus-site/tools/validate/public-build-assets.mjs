@@ -13,7 +13,7 @@ import { checkEngineLicences, gatherPackageCredits } from "../site/package-credi
 import { checkLoadBudget, NON_PUBLIC_PLANET_FILES, proveLoadBudgetFails, PUBLIC_PLANETS } from "./load-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
-export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html"];
+export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html", "api/index.html"];
 // The repository root (this file is packages/astraeus-site/tools/validate/). Sources sit in their packages: the engine's textures, stars and synthetic scenes, the Showers demo's data/local, the Planets demo's settings.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 /** The folder of package `name` under `rootDir`, or `rootDir` itself when it has no packages folder (the made-up roots the self-checks build). */

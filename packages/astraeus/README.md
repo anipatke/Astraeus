@@ -40,6 +40,8 @@ The element needs a size (for example `height: 100%` all the way up). The probe'
 
 ## The public API
 
+The full reference, generated from the types and doc comments, is at <https://astraeus.anipatke.com/api/>. The table below is the short form.
+
 | Call | What it does |
 |---|---|
 | `new Scene()` | An empty scene. Every method below returns the scene, so calls chain. |

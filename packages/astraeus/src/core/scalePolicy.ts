@@ -1,5 +1,6 @@
 import { EARTH, type BodyId } from "./body";
 
+/** How kilometres become scene units: a position mapping and a radius mapping. `trueScale` and `readableScale` are the two the engine offers. */
 export interface ScalePolicy {
   /** Open: an application may supply policies beyond the engine's own three. */
   readonly id: string;
@@ -53,7 +54,9 @@ export class ReadableScalePolicy extends EarthRadiusScale {
   protected readonly distanceFactor = 0.1;
 }
 
+/** Real proportions: distances and body sizes at the same scale, so planets are specks, as in space. */
 export const trueScale: ScalePolicy = Object.freeze(new TrueScalePolicy());
+/** Distances shrunk to a tenth while body sizes are kept, so bodies are easier to see and pick. */
 export const readableScale: ScalePolicy = Object.freeze(new ReadableScalePolicy());
 
 /** Per-body enlargement of drawn radii; distances stay exactly as True scale maps them. */

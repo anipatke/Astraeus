@@ -41,6 +41,8 @@ const ALL_PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   // T-120 (O-033), raised on purpose: assets.html grew from the old limit to 629,684 B raw / 493,085 B gzip (22 files) measured 2026-10-21 with its 13 new body thumbnails (site/t-*.jpg, about 300 KB, lazy-loaded), the generated moon lists for five planets (343 moons) and the tagged-places list (403 places). New limit: that measurement plus 5%, rounded up to the next 10,000 bytes.
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
+  // T-165 (O-040): the API reference, one static page with inline style and no script; about 25 KB raw, limit rounded up generously for the page to grow with each Objective's exports.
+  { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 100_000, gzipLimit: 30_000 },
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "compositions.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).

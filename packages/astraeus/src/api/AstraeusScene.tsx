@@ -5,6 +5,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 
+/** Props of `AstraeusScene`. */
 export interface AstraeusSceneProps {
   /** The scene to draw. Passing a different `Scene` object rebuilds the viewer; changing the same object in place does not. */
   readonly scene: Scene;
@@ -23,7 +24,14 @@ export interface AstraeusSceneProps {
 const FILL: CSSProperties = { width: "100%", height: "100%" };
 const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new Error(String(cause)));
 
-/** The full viewer `mount` draws, as a React component: `<AstraeusScene scene={scene} data={[...]} />`. Waits for the scene's data, then draws; cleans up on unmount. */
+/**
+ * The full viewer `mount` draws, as a React component: `<AstraeusScene scene={scene} data={[...]} />`. Waits for the scene's data, then draws; cleans up on unmount.
+ * @example
+ * const scene = new Scene().addBody(earth).addBody(moon);
+ * export function App() {
+ *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
+ * }
+ */
 export function AstraeusScene({ scene, data, onReady, onError, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.

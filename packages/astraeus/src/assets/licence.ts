@@ -19,6 +19,7 @@ export interface LocalOnlyDeclaration {
   readonly publicReplacement: PublicReplacement;
 }
 
+/** A picture the engine can wrap on a body: where it is, its size, and the rights to show it publicly. */
 export interface TextureRef {
   /** Bundler asset URL. */
   readonly url: string;

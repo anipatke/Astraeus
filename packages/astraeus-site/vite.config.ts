@@ -32,6 +32,27 @@ export function publicBuildAliases(): readonly { readonly find: RegExp; readonly
   return [...LOCAL_ONLY_TEXTURES, ...PLANETS_DEMO_ONLY_TEXTURES].map((file) => ({ find: new RegExp(`^.*/textures/${file.replace(/[.]/g, "\\.")}$`), replacement: PLACEHOLDER }));
 }
 
+/**
+ * The API reference at /api (O-040 T-165): generated from the engine's public entry and its doc comments (tools/site/api-reference.mjs), emitted into the build as
+ * api/index.html and served by the dev server at /api. It is a static page of its own with no script, so it adds no chunk.
+ */
+function apiReference(): Plugin {
+  const page = async (): Promise<string> => (await import("./tools/site/api-reference.mjs")).buildApiPage();
+  return {
+    name: "astraeus-api-reference",
+    async generateBundle() {
+      this.emitFile({ type: "asset", fileName: "api/index.html", source: await page() });
+    },
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!/^\/api\/?(\?.*)?$/.test(request.url ?? "")) return next();
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        response.end(await page());
+      });
+    },
+  };
+}
+
 /** Dev server only: serves the git-ignored /data/local/ files (the fetched measured orbits) from the Showers package, where the project root used to serve them. */
 function localData(): Plugin {
   const folder = decodeURIComponent(new URL("../astraeus-demo-showers/data/local/", import.meta.url).pathname);
@@ -67,5 +88,5 @@ export default defineConfig({
   // True in a public build: the made-up (synthetic) experiences are then left out of the entry, so no chunk of them is built (T-068).
   define: { __PUBLIC_BUILD__: JSON.stringify(process.env.ASTRAEUS_PUBLIC_BUILD === "1") },
   resolve: { alias: process.env.ASTRAEUS_PUBLIC_BUILD === "1" ? [...publicBuildAliases()] : [] },
-  plugins: [localData()],
+  plugins: [localData(), apiReference()],
 });

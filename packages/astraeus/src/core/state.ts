@@ -16,6 +16,7 @@ export interface CenteredPosition {
   readonly velocityKmS?: Float64Array;
 }
 
+/** Where a body is at one moment, as the engine reports it: position (and velocity when known) in km about a centre, in the EQJ frame, with its attitude when modelled. */
 export interface State extends CenteredPosition {
   /** Body-fixed +X/+Y/+Z axes expressed in EQJ; null means this body's attitude is not modeled. */
   readonly orientation: Quaternion | null;
