@@ -10,6 +10,7 @@ import { SWIFT_TUTTLE_SAMPLING } from "../src/core/bodies";
 import {
   absentStreamObject,
   buildShowerDefinition,
+  loadShowerPanelsFile,
   createActivityWindow,
   parentOrbitIdOf,
   parentSamplingOf,
@@ -21,6 +22,7 @@ import {
   timelineBoundsOf,
 } from "../src/experiences/showers/showerDefinition";
 import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } from "../src/experiences/showers/measuredOrbits";
+import { shippedPanelsOf } from "./helpers/shippedPanels";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { buildElementsBody } from "../src/core/elementsBody";
@@ -696,7 +698,7 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
   it("reads a panels file by the path the settings name", () => {
     const settings = parseShowerSettings(perseidsFile);
     expect(settings.story?.panels).toBe("data/stories/perseids/panels.json");
-    const set = buildShowerDefinition(settings, { kind: "absent" }).experience.storyPanels!;
+    const set = buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience.storyPanels!;
     expect(set.panels.map((p) => [p.id, p.badge, p.objectId])).toEqual([
       ["stream-shape", "illustrative", "perseids-stream"],
       ["earth-crossing", "observed", "earth"],
@@ -719,12 +721,30 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
 
   it.each([
     ["a path outside a story folder", withPanels("data/showers/perseids.json"), /story\.panels must be a path like data\/stories/],
-    ["a path to no file", withPanels("data/stories/nothing/panels.json"), /story\.panels names "data\/stories\/nothing\/panels\.json", which is not a panels file/],
     ["panels that are not a list", withPanels({ panels: "x" }), /story\.panels\.panels/],
     ["a story that is not an object", { ...clone(), story: "panels" }, /story is required and must be an object/],
   ])("names the field for %s", (_what, settings, message) => {
     expect(() => build(settings as Record<string, any>)).toThrow(ShowerSettingsError);
     expect(() => build(settings as Record<string, any>)).toThrow(message);
+  });
+
+  it("builds a shower from the panels it is handed, and a made-up shower gains panels from settings alone (T-152, ARCH-03)", () => {
+    const handed = { panels: [panel()] };
+    const settings = parseShowerSettings({ ...clone(), story: { panels: "data/stories/made-up/panels.json" } });
+    expect(buildShowerDefinition(settings, { kind: "absent" }).experience.storyPanels).toBeUndefined();
+    expect(buildShowerDefinition(settings, { kind: "absent" }, undefined, handed).experience.storyPanels!.panels.map((p) => p.id)).toEqual(["crossing"]);
+    expect(() => buildShowerDefinition(settings, { kind: "absent" }, undefined, { panels: [panel({ object: "ghost" })] })).toThrow(/story\.panels: .*crossing: object names "ghost"/);
+  });
+
+  it("loads only the panels file the settings name, and says so when the project has none (T-152)", async () => {
+    const loaded: string[] = [];
+    const lookup = { "../data/stories/a/panels.json": async () => { loaded.push("a"); return { a: 1 }; }, "../data/stories/b/panels.json": async () => { loaded.push("b"); return { b: 1 }; } };
+    const named = (path: string) => parseShowerSettings({ ...clone(), story: { panels: path } });
+    expect(await loadShowerPanelsFile(named("data/stories/b/panels.json"), lookup)).toEqual({ b: 1 });
+    expect(loaded).toEqual(["b"]);
+    expect(await loadShowerPanelsFile(parseShowerSettings({ ...clone(), story: { panels: { panels: [] } } }), lookup)).toBeUndefined();
+    await expect(loadShowerPanelsFile(named("data/stories/nothing/panels.json"), lookup)).rejects.toThrow(/story\.panels names "data\/stories\/nothing\/panels\.json", which is not a panels file/);
+    await expect(loadShowerPanelsFile(named("data/stories/nothing/panels.json"), lookup)).rejects.toThrow(ShowerSettingsError);
   });
 
   it.each([

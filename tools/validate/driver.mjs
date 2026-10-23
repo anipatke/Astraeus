@@ -1047,14 +1047,19 @@ export async function experienceSwitchState(page) {
     options: [...group.querySelectorAll("[data-switch-value]")].map((button) => ({ value: button.getAttribute("data-switch-value"), label: button.textContent.trim(), active: button.getAttribute("aria-pressed") === "true" })),
   }));
 }
-/** Presses a switch option by its value and waits for the experience to open again (the address changes, the shell comes back). */
+/** Presses a switch option by its value and waits for the experience to open again (the address changes, the new option is the active one, the shell is there). The page is switched in place, not reloaded. */
 export async function chooseSwitchOption(page, value) {
   const param = await experienceSwitch(page).getAttribute("data-switch-param");
   const button = (await reveal(page, experienceSwitch(page).locator(`[data-switch-value="${value}"]`))).first();
   await Promise.all([page.waitForURL((address) => new URL(address).searchParams.get(param) === value), button.click()]);
+  await page.waitForSelector(`[data-switch-param] [data-switch-value="${value}"][aria-pressed="true"]`, { state: "attached" });
   await page.waitForSelector("canvas");
   await waitForShell(page);
 }
+/** Sets a marker on the page's window; it survives a switch made in place and is gone after a reload. */
+export const markPage = (page) => page.evaluate(() => { window.__pageKept = true; });
+/** Whether the marker set by `markPage` is still there (the page was not reloaded). */
+export const pageWasKept = (page) => page.evaluate(() => window.__pageKept === true);
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Loading screen (T-094): app.html carries a loader (#boot) that shows from the first paint and is removed after the scene's first drawn frame.

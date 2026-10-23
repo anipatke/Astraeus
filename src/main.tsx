@@ -9,7 +9,8 @@ import { showerEntryName } from "./experiences/showers/showerEntry";
 import type { ShowerSettings } from "./experiences/showers/showerSettings";
 import type { ExperienceDefinition } from "./app/experienceDefinition";
 import type { PlanetSystem } from "./experiences/planets/planetDefinition";
-import { failBootLoader } from "./shell/bootLoader";
+import { createAddressNavigation } from "./app/addressNavigation";
+import { failBootLoader, showBootLoader } from "./shell/bootLoader";
 import "./app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
@@ -44,11 +45,19 @@ const PLANET_SYSTEMS = __PUBLIC_BUILD__
   : import.meta.glob<Record<string, PlanetSystem>>("./experiences/planets/systems/*.ts");
 const STORY_PANELS = import.meta.glob<unknown>("../data/stories/*/panels.json", { import: "default" });
 const planetEntries: PlanetEntry[] = Object.entries(PLANET_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order, isDefault: json.default === true }));
-const requested = new URLSearchParams(window.location.search).get("experience") ?? "";
-const planetChoice = requested === "planets" || requested === "jupiter-io" ? choosePlanet(planetEntries, new URLSearchParams(window.location.search).get("planet")) : undefined;
-const showerChoice = requested === "showers" ? chooseShower(showerEntries, new URLSearchParams(window.location.search).get("shower")) : undefined;
+// The choice is read from the address each time, so a switch inside the page builds the new one.
+function currentChoices(search: string) {
+  const query = new URLSearchParams(search);
+  const requested = query.get("experience") ?? "";
+  return {
+    requested,
+    planetChoice: requested === "planets" || requested === "jupiter-io" ? choosePlanet(planetEntries, query.get("planet")) : undefined,
+    showerChoice: requested === "showers" ? chooseShower(showerEntries, query.get("shower")) : undefined,
+  };
+}
 // A shower's measured orbits are the GMN file (a local fetch in development, the shipped copy in a build), so a shower is built once that has been looked for.
 async function chooseDefinition(): Promise<ExperienceDefinition> {
+  const { requested, planetChoice, showerChoice } = currentChoices(window.location.search);
   if (planetChoice !== undefined) {
     const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("./experiences/planets/planetSettings"), import("./experiences/planets/planetDefinition")]);
     const settings = parsePlanetSettings(PLANET_FILES[`../data/planets/${planetChoice.name}.json`]);
@@ -56,7 +65,7 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {
-    const [{ parseShowerSettings }, { buildShowerDefinition, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
+    const [{ parseShowerSettings }, { buildShowerDefinition, loadShowerPanelsFile, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
       import("./experiences/showers/showerSettings"),
       import("./experiences/showers/showerDefinition"),
       import("./experiences/showers/measuredOrbits"),
@@ -70,15 +79,34 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
     // Building a shower already reads planet positions (the planets' orbit paths), so the series load first when its composition has a planet.
     if (showerComposition(settings).bodies.some(isPlanetId)) await loadPlanetSeries();
-    return { ...buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, settings.id), set), switcher: showerChoice.switcher };
+    // Only the chosen shower's panels file is fetched, beside its orbits.
+    const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
+    return { ...buildShowerDefinition(settings, load, set, panelsFile), switcher: showerChoice.switcher };
   }
   return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("./experiences/apollo11/apollo11Definition")).apollo11Definition;
 }
 // The planet series (about 1.4 MB) load only for a composition that contains a planet.
-async function start(): Promise<void> {
+async function buildDefinition(): Promise<ExperienceDefinition> {
   const definition = await chooseDefinition();
   if (definition.prepare !== undefined) await definition.prepare();
   if (needsPlanetSeries(definition)) await loadPlanetSeries();
-  createRoot(app!).render(<StrictMode><App definition={definition} /></StrictMode>);
+  return definition;
 }
-start().catch((error: unknown) => { failBootLoader(); throw error; });
+const root = createRoot(app);
+// Each build is mounted under a new key, so the old app unmounts whole (its canvas and the scene's GPU resources are disposed) before the new one starts.
+let mounts = 0;
+const navigation = createAddressNavigation({
+  push: (address) => window.history.pushState(null, "", address),
+  showCover: showBootLoader,
+  rebuild: async (isCurrent) => {
+    const definition = await buildDefinition();
+    if (isCurrent()) mount(definition);
+  },
+  fail: (error) => { failBootLoader(); throw error; },
+});
+function mount(definition: ExperienceDefinition): void {
+  mounts += 1;
+  root.render(<StrictMode><App key={mounts} definition={definition} onOpenAddress={navigation.open} /></StrictMode>);
+}
+window.addEventListener("popstate", navigation.popped);
+buildDefinition().then(mount).catch((error: unknown) => { failBootLoader(); throw error; });

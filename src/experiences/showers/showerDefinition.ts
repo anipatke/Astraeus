@@ -26,18 +26,28 @@ export { showerEntryName } from "./showerEntry";
 export { createStreamLayer } from "./showerStream";
 export { absentStreamObject, gmnSourceSentence, orbitSetSentence, streamLimitations } from "./showerStreamText";
 
-/** Every story panels file a shower's `story.panels` path may name, keyed by repo-relative path. */
-const PANEL_FILES = import.meta.glob<unknown>("../../../data/stories/*/panels.json", { eager: true, import: "default" });
+/**
+ * Loads the panels file a shower's settings name, from the lazy `lookup` of panels files keyed by repo-relative path (so only the chosen shower's is fetched).
+ * Undefined when the settings carry no path (none, or inline panels); a path that names no file in the project is a settings error.
+ */
+export async function loadShowerPanelsFile(settings: ShowerSettings, lookup: Readonly<Record<string, () => Promise<unknown>>>): Promise<unknown> {
+  const path = settings.story?.panels;
+  if (typeof path !== "string") return undefined;
+  const load = lookup[`../${path}`];
+  if (load === undefined) throw new ShowerSettingsError(`shower settings story.panels names "${path}", which is not a panels file in the project`);
+  return load();
+}
 
 /**
- * The shower's story panels, or undefined when its settings carry none. A path is read from the story folder; either way the panels are checked
+ * The shower's story panels, or undefined when its settings carry none. A path in the settings names a panels file the caller has loaded and hands
+ * in as `panelsFile` (the entry loads only the chosen shower's); inline panels are read from the settings. Either way the panels are checked
  * against this experience's events, objects and timeline, and a problem is raised with the settings field or the panel and field named.
  */
-export function showerStoryPanels(settings: ShowerSettings, objectIds: readonly string[], events: readonly { readonly id: string; readonly timeUtcMs: number }[], window: { readonly startUtcMs: number; readonly endUtcMs: number }): StoryPanelSet | undefined {
+export function showerStoryPanels(settings: ShowerSettings, objectIds: readonly string[], events: readonly { readonly id: string; readonly timeUtcMs: number }[], window: { readonly startUtcMs: number; readonly endUtcMs: number }, panelsFile?: unknown): StoryPanelSet | undefined {
   if (settings.story === undefined) return undefined;
   const given = settings.story.panels;
-  const raw = typeof given === "string" ? PANEL_FILES[`../../../${given}`] : given;
-  if (raw === undefined) throw new ShowerSettingsError(`shower settings story.panels names "${String(given)}", which is not a panels file in the project`);
+  const raw = typeof given === "string" ? panelsFile : given;
+  if (raw === undefined) return undefined; // a path whose file the caller has not loaded: the entry raises the missing-file error before it gets here
   try {
     // Validated against the full default (year) timeline so a genuine data mistake still throws; a viewer who narrows the span just loses the panels outside what is visible.
     const set = parseStoryPanels(raw, { events, objectIds, window: yearBoundsOf(settings) });
@@ -65,7 +75,7 @@ function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSe
  * Turns shower settings and the shower's measured orbits into an experience definition; nothing here names a particular shower. When the
  * orbits are not on this machine the experience says so and draws no stream: there is no stand-in.
  */
-export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default): ExperienceDefinition {
+export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet = settings.stream.quality.default, panelsFile?: unknown): ExperienceDefinition {
   const composition = showerComposition(settings);
   const layer = load.kind === "loaded" ? createStreamLayer(settings, load.orbits, set) : null;
   const window = createActivityWindow(settings);
@@ -80,7 +90,7 @@ export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLo
   ]);
   const objects = [...bodyObjects(settings, composition), ...(load.kind === "loaded" ? [] : [absentStreamObject(settings, load)])];
   // A panel may name any object the experience lists, or the stream when it is drawn.
-  const storyPanels = showerStoryPanels(settings, [...objects.map((object) => object.id), ...(layer === null ? [] : [streamId])], events, { startUtcMs, endUtcMs });
+  const storyPanels = showerStoryPanels(settings, [...objects.map((object) => object.id), ...(layer === null ? [] : [streamId])], events, { startUtcMs, endUtcMs }, panelsFile);
   const experience: ExperienceConfig = {
     objects,
     cameraPresets: [

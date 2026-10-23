@@ -1,6 +1,6 @@
 // Journey "Play a meteor shower" (O-038 T-145), a step of `npm run check:browser`: open the Perseids on a laptop screen, play (the clock moves and the scene shows
 // It also checks that a resting scene stops drawing and wakes on a wheel turn, on a tap and on play (O-031 T-149, I-073).
-// its meteors), seek to a later time, then open a story panel from its timeline marker. Everything goes through driver.mjs and the scene's own readouts; no screenshot is taken.
+// its meteors), seek to a later time, then open a story panel from its timeline marker, then switch to the Geminids in place (T-153). Everything goes through driver.mjs and the scene's own readouts; no screenshot is taken.
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-meteor-shower.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
@@ -44,5 +44,14 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   const id = await ui.firstStoryMarkerId(page);
   await ui.openStoryPanel(page, id, {});
   await ui.storyPanel(page, id).waitFor({ timeout: 10000 });
-  return { idleAt, afterNudge, idleAgain, afterTap, whilePlaying, panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
+
+  // O-030 T-153: the switch opens the Geminids inside the page (no reload: a marker set before the switch survives) and the Geminids stream is drawn.
+  await ui.markPage(page);
+  await ui.chooseSwitchOption(page, "geminids");
+  assert.ok(await ui.pageWasKept(page), "the switch did not reload the page");
+  await ui.waitForShell(page);
+  await page.waitForTimeout(800);
+  const geminids = await ui.sceneDrawsSomething(page);
+  assertStreamDrawn(geminids.dots, "the Geminids after the switch");
+  return { switched: "geminids", geminidDots: geminids.dots, idleAt, afterNudge, idleAgain, afterTap, whilePlaying, panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
 });

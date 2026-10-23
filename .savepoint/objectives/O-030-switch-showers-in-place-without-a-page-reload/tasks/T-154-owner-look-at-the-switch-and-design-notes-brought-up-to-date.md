@@ -2,10 +2,17 @@
 id: T-154
 title: Owner look at the switch and design notes brought up to date
 objective: O-030
-status: planned
+status: done
 depends_on: [{task: T-153, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o030-planning-20261023}
+check_waiver:
+    task: T-154
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-030; quote: "Same as O-031 (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T03:13:17Z"
 ---
 
 # Owner look at the switch and design notes brought up to date
@@ -54,8 +61,32 @@ Configured gates at hand-off; the owner's recorded look. Evaluated later under `
 
 ## Technical Evidence
 
-Pending execution.
+Check waived per owner run rule (see frontmatter once added at hand-off); the Full Objective Check covers this step.
+
+**Owner checklist** (preview `http://localhost:5490`, branch `o030-shower-switch` at 2afa5e44; desktop about 1280x720 and phone about 375x667):
+
+Showers — `http://localhost:5490/app.html?experience=showers`
+1. Switch Perseids to Geminids and back three or four times: the loading cover shows, then the new shower; no blank flash, no reload.
+2. Each opens at its own start view and time; the stream is drawn; the active option follows.
+3. Press browser Back and Forward: the shower changes in place each time.
+4. After a switch, open a story panel: it is the right shower's story.
+5. Reload on a switched address: it opens that shower.
+
+Planets (local) — `http://localhost:5490/app.html?experience=planets`
+6. Switch between several planets: cover, then the new planet; clock time carries over; no leftovers of the old one (labels, moons, rings).
+7. Back and Forward move between planets in place.
+8. Open a story panel after a switch.
+
+Say whether anything flashed, stuck, opened in the wrong place or showed the old one's leftovers.
+
+**Owner verdict** (2026-10-23T03:13:17Z, on the preview at localhost:5490, desktop and phone): "all fine, run the check". Nothing to fix.
+
+**Design.md reconciled** (2026-10-23): Codebase rows `src/experiences/`, `src/shell/` (SwitchControl open callback, `showBootLoader`) and the entry row (`src/main.tsx` + `src/app/addressNavigation.ts`, remount by key); Shower builder: switch rebuilds in place, point (b) lazy `STORY_PANELS` via `loadShowerPanelsFile` (T-152 drift), new point (f) in-place switch, shared-texture disposal on unmount, caches kept on purpose, showers load-budget figures and the `storyPanels` option (T-153 drift); O-024 paragraph's stale "reload" phrases marked replaced. Both drift notes reflected in Design.md.
 
 ## Drift Notes
 
 Reconciles the two earlier steps' drift notes into Design.md.
+
+## Owner Decision
+
+Marked done by the coordinator at 2026-10-23T03:13:17Z on the owner's verdict "all fine, run the check" (owner_validation) and the O-030 run rule "Same as O-031 (Recommended)". Gates: lint, typecheck and npm test passed at 2afa5e44 (1522 passed); this step changed only Design.md and records since.

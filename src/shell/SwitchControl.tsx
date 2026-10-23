@@ -8,6 +8,8 @@ export interface ExperienceSwitch {
   readonly keep?: readonly string[];
   /** The clock's time now, in UTC ms: when `keep` names `t`, the switch carries this time, not the one the address was opened with. Given by the app, which owns the clock. */
   readonly currentTimeUtcMs?: () => number;
+  /** Opens the address a choice leads to inside the running page (the entry pushes it into history and rebuilds); absent: the page navigates to it. Given by the entry through the app. */
+  readonly open?: (address: string) => void;
   readonly options: readonly { readonly label: string; readonly value: string; readonly active: boolean }[];
 }
 
@@ -21,7 +23,12 @@ export function switchAddress(href: string, param: string, value: string, keep: 
   return url.toString();
 }
 
-/** One button per option in the top bar (and the phone drawer); choosing one opens the experience again at the new address. Fewer than two options: nothing to choose, no control. */
+function openAddress(choice: ExperienceSwitch, address: string): void {
+  if (choice.open !== undefined) choice.open(address);
+  else window.location.assign(address);
+}
+
+/** One button per option in the top bar (and the phone drawer); choosing one asks for the new address to be opened. Fewer than two options: nothing to choose, no control. */
 export function SwitchControl({ choice }: { readonly choice: ExperienceSwitch }) {
   if (choice.options.length < 2) return null;
   return (
@@ -33,7 +40,7 @@ export function SwitchControl({ choice }: { readonly choice: ExperienceSwitch })
           className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`}
           aria-pressed={option.active}
           data-switch-value={option.value}
-          onClick={() => { if (!option.active) window.location.assign(switchAddress(window.location.href, choice.param, option.value, choice.keep, choice.currentTimeUtcMs?.())); }}
+          onClick={() => { if (!option.active) openAddress(choice, switchAddress(window.location.href, choice.param, option.value, choice.keep, choice.currentTimeUtcMs?.())); }}
         >
           <span>{option.label}</span>
         </button>

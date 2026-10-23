@@ -8,6 +8,7 @@ import { AnchorLabelLayer } from "./AnchorLabels";
 import type { SceneControls, SceneReadout, SceneRuntime } from "./AstraeusScene";
 import { BodySetLabelLayer } from "./BodySetLabels";
 import type { BodyParts } from "./BodyView";
+import { releaseGlowTexture } from "./bodyDraw";
 import { type OrbitCameraState } from "./CameraController";
 import { assetWithOverride } from "./experienceDefinition";
 import { FeatureMarkerLayer } from "./FeatureMarkers";
@@ -21,7 +22,7 @@ import { SceneLabelLayer } from "./SceneLabels";
 import { attachScenePointer } from "./scenePointer";
 import { StoryMarkerLayer } from "./StoryMarkers";
 import type { BodySetView } from "./BodySetView";
-import type { TrackedBodyView } from "./TrackedBodyView";
+import { releaseAnchorSprite, type TrackedBodyView } from "./TrackedBodyView";
 
 /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
 export function bodyIdOf(runtime: { readonly sun?: { readonly object: { readonly id: string } } }, catalogue: BodyCatalogue, id: string): BodyId | null {
@@ -119,6 +120,15 @@ export function useSceneFrame(rootRef: { current: Group | null }, inputs: FrameI
     const { orbit, state, lightRefs, ...rest } = inputs;
     runFrame({ ...rest, camera: camera as PerspectiveCamera, canvas: gl.domElement, size, orbit: orbit.current, state: state.current, delta, lightRefs: lightRefs.current, bodyIdFor: (id) => bodyIdOf(inputs.runtime, inputs.catalogue, id) });
   });
+}
+
+/**
+ * The glow and anchor pictures are made once and shared by every scene, and a renderer keeps its GPU copy of a picture in a table keyed by it,
+ * so a shared picture would keep every unmounted scene's renderer, canvas and page alive (a switch inside the page, O-030). When the scene unmounts
+ * the pictures are disposed, which every renderer that drew them hears and forgets.
+ */
+export function useReleaseSharedTextures(): void {
+  useEffect(() => () => { releaseGlowTexture(); releaseAnchorSprite(); }, []);
 }
 
 /**

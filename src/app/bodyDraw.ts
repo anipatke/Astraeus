@@ -186,6 +186,18 @@ function softGlowTexture(): CanvasTexture {
 }
 
 /**
+ * Frees what every halo shares on every renderer that drew it, so an unmounted scene's renderer is not kept reachable through it:
+ * the soft glow picture (the next halo makes a new one) and Three.js's one geometry behind all sprites (it is re-uploaded when next drawn).
+ */
+export function releaseGlowTexture(): void {
+  glowTexture?.dispose();
+  glowTexture = null;
+  const probe = new Sprite();
+  probe.geometry.dispose();
+  probe.material.dispose();
+}
+
+/**
  * The halo: a camera-facing sprite at the body's place, additive, drawn after everything else and without a depth test so dots never cover it.
  * It is sized in world units each frame (see `applyGlowLook`), so it grows with the body close up and is never limited by a point-size cap.
  */
