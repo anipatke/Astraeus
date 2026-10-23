@@ -3,16 +3,16 @@ import eagleFile from "../../../data/apollo11/generated/eagle.json";
 import eventsFile from "../../../data/apollo11/generated/events.json";
 import panelsFile from "../../../data/stories/apollo11/panels.json";
 import validationFile from "../../../data/apollo11/generated/validation.json";
-import { createEvents, type TimelineEvent } from "../../../../astraeus/src/core/events";
-import { createProvenance, type Provenance } from "../../../../astraeus/src/core/provenance";
-import { SampledTrajectory, type TrajectorySample } from "../../../../astraeus/src/core/sampledTrajectory";
-import type { Trajectory } from "../../../../astraeus/src/core/trajectory";
-import { MOON_EPHEMERIS } from "../../../../astraeus/src/app/ephemerisProvenance";
-import { catalogueItem } from "../../../../astraeus/src/app/catalogueItem";
-import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "../../../../astraeus/src/app/mission";
-import type { ExperienceConfig } from "../../../../astraeus/src/shell/experience";
-import { formatMetricNumber } from "../../../../astraeus/src/shell/metrics";
-import { parseStoryPanels } from "../../../../astraeus/src/shell/storyPanels";
+import { createEvents, type TimelineEvent } from "astraeus/core/events";
+import { createProvenance, type Provenance } from "astraeus/core/provenance";
+import { SampledTrajectory, type TrajectorySample } from "astraeus/core/sampledTrajectory";
+import type { Trajectory } from "astraeus/core/trajectory";
+import { MOON_EPHEMERIS } from "astraeus/app/ephemerisProvenance";
+import { catalogueItem } from "astraeus/app/catalogueItem";
+import type { MissionConfig, PositionDiscrepancy, TrackedBody } from "astraeus/app/mission";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import { formatMetricNumber } from "astraeus/shell/metrics";
+import { parseStoryPanels } from "astraeus/shell/storyPanels";
 
 /** The wording the brief requires; never describe the path as exact. */
 export const APOLLO11_STATEMENT =

@@ -7,10 +7,10 @@ import eagleText from "../data/apollo11/generated/eagle.json?raw";
 import eventsText from "../data/apollo11/generated/events.json?raw";
 import validationText from "../data/apollo11/generated/validation.json?raw";
 import reportText from "../../../docs/APOLLO11_RECONSTRUCTION.md?raw";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createEvents } from "../../astraeus/src/core/events";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import { SampledTrajectory } from "../../astraeus/src/core/sampledTrajectory";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createEvents } from "astraeus/core/events";
+import { createProvenance } from "astraeus/core/provenance";
+import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
 import { CONSTANTS, getToUtcMs, parseLatitudeDeg, parseLongitudeDeg, parsePrintedNumber } from "../tools/apollo11/conventions";
 import {
   fixedToGeodetic,

@@ -10,5 +10,27 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.169.0"
+  },
+  "exports": {
+    "./app/*": "./src/app/*.ts",
+    "./assets/*": "./src/assets/*.ts",
+    "./core/*": "./src/core/*.ts",
+    "./experiences/*": "./src/experiences/*.ts",
+    "./shell/*": "./src/shell/*.ts",
+    "./synthetic/*": "./src/synthetic/*.ts",
+    "./data/*": "./data/*",
+    "./tests/*": "./tests/*.ts",
+    "./app/App": "./src/app/App.tsx",
+    "./app/CameraController": "./src/app/CameraController.tsx",
+    "./app/DebugOverlay": "./src/app/DebugOverlay.tsx",
+    "./app/style.css": "./src/app/style.css",
+    "./assets/stars/hyg-v42-naked-eye.json": "./src/assets/stars/hyg-v42-naked-eye.json",
+    "./shell/AstraeusShell": "./src/shell/AstraeusShell.tsx",
+    "./shell/MetricVisual": "./src/shell/MetricVisual.tsx",
+    "./shell/MoonFamilyPanel": "./src/shell/MoonFamilyPanel.tsx",
+    "./shell/ScaleControl": "./src/shell/ScaleControl.tsx",
+    "./shell/StoryPanelView": "./src/shell/StoryPanelView.tsx",
+    "./shell/SwitchControl": "./src/shell/SwitchControl.tsx",
+    "./tools/import/test-io.mjs": "./tools/import/test-io.mjs"
   }
 }

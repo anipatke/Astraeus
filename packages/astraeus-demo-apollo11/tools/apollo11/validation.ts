@@ -1,6 +1,6 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
-import { moonOrientationFromOrbit, rotateVectorByQuaternion } from "../../../astraeus/src/core/bodyOrientation";
-import { SampledTrajectory } from "../../../astraeus/src/core/sampledTrajectory";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { moonOrientationFromOrbit, rotateVectorByQuaternion } from "astraeus/core/bodyOrientation";
+import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
 import type { NormalisedAnchor } from "./anchors";
 import config from "./config.json";
 import { CONSTANTS, NUMERICS } from "./conventions";

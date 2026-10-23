@@ -1,6 +1,6 @@
 // Shower stream text: the sentences, limitations and shell objects that describe the stream and its source.
-import { createProvenance } from "../../../../astraeus/src/core/provenance";
-import type { ExperienceObject } from "../../../../astraeus/src/shell/experience";
+import { createProvenance } from "astraeus/core/provenance";
+import type { ExperienceObject } from "astraeus/shell/experience";
 import { fetchOrbitsCommand, type MeasuredLoad, type MeasuredOrbitProvenance, type OrbitSet, type OrbitSetCounts } from "./measuredOrbits";
 import { LABEL_PRIORITY, sourceLine, streamIdOf } from "./showerBasics";
 import { citedSourceOf, type ShowerSettings } from "./showerSettings";

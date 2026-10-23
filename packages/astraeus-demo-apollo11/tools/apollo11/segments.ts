@@ -1,4 +1,4 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import type { NormalisedAnchor } from "./anchors";
 import { solvePhysicalBurn } from "./burn";
 import { CONSTANTS, NUMERICS } from "./conventions";

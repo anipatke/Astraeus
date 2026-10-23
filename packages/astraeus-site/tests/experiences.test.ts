@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { bodyMetrics, resolverTrajectory } from "../../astraeus/src/app/bodyMetrics";
-import { catalogueItem } from "../../astraeus/src/app/catalogueItem";
-import { drawnRadii } from "../../astraeus/src/app/bodyDraw";
+import { bodyMetrics, resolverTrajectory } from "astraeus/app/bodyMetrics";
+import { catalogueItem } from "astraeus/app/catalogueItem";
+import { drawnRadii } from "astraeus/app/bodyDraw";
 import {
   assetWithOverride,
   compositionOf,
@@ -13,25 +13,25 @@ import {
   sunCentredOf,
   visualOverridesOf,
   type ExperienceDefinition,
-} from "../../astraeus/src/app/experienceDefinition";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
-import { createOrbitCameraState } from "../../astraeus/src/app/CameraController";
-import { readoutPairOf } from "../../astraeus/src/app/sceneLayout";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createComposition, earthMoonSystem, sunEarthSystem } from "../../astraeus/src/assets/compositions";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createSolarSystemScale, trueScale } from "../../astraeus/src/core/scalePolicy";
-import type { StateResolver } from "../../astraeus/src/core/stateResolver";
-import { apollo11Definition } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11Definition";
-import { apolloMetrics } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apolloMetrics";
-import { apollo11Mission } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11";
-import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { madeUpOrbits } from "../../astraeus-demo-showers/tests/helpers/measuredOrbits";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import { scaleChoicesFor } from "../../astraeus/src/shell/scaleModel";
-import { syntheticBareDefinition, syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
-import { syntheticBeltDefinition, syntheticRingDefinition } from "../../astraeus/src/synthetic/syntheticRingDefinition";
-import perseidsFile from "../../astraeus-demo-showers/data/showers/perseids.json";
+} from "astraeus/app/experienceDefinition";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
+import { createOrbitCameraState } from "astraeus/app/CameraController";
+import { readoutPairOf } from "astraeus/app/sceneLayout";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createComposition, earthMoonSystem, sunEarthSystem } from "astraeus/assets/compositions";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createSolarSystemScale, trueScale } from "astraeus/core/scalePolicy";
+import type { StateResolver } from "astraeus/core/stateResolver";
+import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
+import { apolloMetrics } from "astraeus-demo-apollo11/experiences/apollo11/apolloMetrics";
+import { apollo11Mission } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
+import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import { scaleChoicesFor } from "astraeus/shell/scaleModel";
+import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { syntheticBeltDefinition, syntheticRingDefinition } from "astraeus/synthetic/syntheticRingDefinition";
+import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
 
 const adapter = createOrbAstronomyAdapter();
 const resolver = createSceneResolver(adapter);
@@ -77,7 +77,7 @@ describe("the Earth and Moon readouts", () => {
   });
 
   it("matches the lunar illumination the scene's own readout uses", async () => {
-    const { lunarIlluminatedFraction } = await import("../../astraeus/src/core/illumination");
+    const { lunarIlluminatedFraction } = await import("astraeus/core/illumination");
     const t = Date.UTC(2025, 0, 13, 22, 27);
     const metrics = bodyMetrics(resolver, ["earth", "moon"]);
     const phase = metrics("moon", t).find((metric) => metric.kind === "phase");
@@ -103,7 +103,7 @@ describe("Apollo", () => {
   });
 
   it("reads the Moon about Earth the same way the old provider did", async () => {
-    const { MoonTrajectory } = await import("../../astraeus/src/core/moonTrajectory");
+    const { MoonTrajectory } = await import("astraeus/core/moonTrajectory");
     const t = Date.UTC(1969, 6, 20, 20, 17);
     const old = new MoonTrajectory(adapter).stateAt(t);
     const now = resolverTrajectory(resolver, "moon", "earth").stateAt(t);

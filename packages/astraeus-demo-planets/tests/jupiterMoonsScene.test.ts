@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { bodySetsOf, mountedBodiesOf, visualOverridesOf } from "../../astraeus/src/app/experienceDefinition";
-import { JUPITER_MOON_CATALOGUE } from "../../astraeus/src/assets/bodies/jupiterMoonCatalogue";
-import { JUPITER_RINGS } from "../../astraeus/src/assets/bodies/jupiterRings";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { parseRingSystem, ringBandsWithLook } from "../../astraeus/src/assets/rings";
-import { ringExtentKm } from "../../astraeus/src/app/RingView";
-import { chunksNeeded, jupiterMoonEphemeris, JUPITER_MOON_FIT_SPAN, osculatingPeriodMs } from "../../astraeus/src/core/bodies/jupiterMoons";
+import { bodySetsOf, mountedBodiesOf, visualOverridesOf } from "astraeus/app/experienceDefinition";
+import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
+import { JUPITER_RINGS } from "astraeus/assets/bodies/jupiterRings";
+import { catalogue } from "astraeus/assets/catalogue";
+import { parseRingSystem, ringBandsWithLook } from "astraeus/assets/rings";
+import { ringExtentKm } from "astraeus/app/RingView";
+import { chunksNeeded, jupiterMoonEphemeris, JUPITER_MOON_FIT_SPAN, osculatingPeriodMs } from "astraeus/core/bodies/jupiterMoons";
 import { JUPITER_CHUNK_URLS, JUPITER_MOON_IDS, JUPITER_WINDOW, jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
 
 // O-025 T-098: the Jupiter scene draws every catalogued moon, ships and fetches only its window's fit chunks, and draws the rings at the

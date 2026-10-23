@@ -1,13 +1,13 @@
 import validationFile from "../data/apollo11/generated/validation.json";
 import { describe, expect, it } from "vitest";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createEvents } from "../../astraeus/src/core/events";
-import { createWindows } from "../../astraeus/src/core/timeWindow";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createEvents } from "astraeus/core/events";
+import { createWindows } from "astraeus/core/timeWindow";
+import { createProvenance } from "astraeus/core/provenance";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
-import { trackedAbsolute } from "../../astraeus/src/app/sceneLayout";
-import { placementAbout } from "../../astraeus/tests/scenePlacement";
+import { trackedAbsolute } from "astraeus/app/sceneLayout";
+import { placementAbout } from "astraeus/tests/scenePlacement";
 import {
   apollo11Experience,
   apollo11KnownLimitations,
@@ -15,11 +15,11 @@ import {
   POST_TLI_COAST_ID,
   type GeneratedValidation,
 } from "../src/experiences/apollo11/apollo11";
-import type { ExperienceConfig } from "../../astraeus/src/shell/experience";
-import { infoView, PROVENANCE_STATUS } from "../../astraeus/src/shell/infoModel";
-import { formatMetricNumber } from "../../astraeus/src/shell/metrics";
-import { SCALE_CHOICES, scalePolicyFor } from "../../astraeus/src/shell/scaleModel";
-import { formatUtcTimestamp } from "../../astraeus/src/shell/timelineModel";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import { infoView, PROVENANCE_STATUS } from "astraeus/shell/infoModel";
+import { formatMetricNumber } from "astraeus/shell/metrics";
+import { SCALE_CHOICES, scalePolicyFor } from "astraeus/shell/scaleModel";
+import { formatUtcTimestamp } from "astraeus/shell/timelineModel";
 
 const validation = validationFile as unknown as GeneratedValidation;
 const n = formatMetricNumber;

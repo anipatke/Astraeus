@@ -1,9 +1,9 @@
 // Shower stream: builds the meteor stream group layer from measured orbits.
-import { createOrbAstronomyAdapter } from "../../../../astraeus/src/core/astronomyAdapter";
-import { createListedOrbitGroup } from "../../../../astraeus/src/core/listedOrbitGroup";
-import { createProvenance, type Provenance } from "../../../../astraeus/src/core/provenance";
-import { createOrbTwoBodyAdapter } from "../../../../astraeus/src/core/twoBodyAdapter";
-import type { GroupLayer } from "../../../../astraeus/src/app/experienceDefinition";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createListedOrbitGroup } from "astraeus/core/listedOrbitGroup";
+import { createProvenance, type Provenance } from "astraeus/core/provenance";
+import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
+import type { GroupLayer } from "astraeus/app/experienceDefinition";
 import { orbitSetCounts, selectOrbits, type MeasuredOrbits, type OrbitSet } from "./measuredOrbits";
 import { HOUR_MS, showerCatalogue, sourceLine, streamIdOf, timelineBoundsOf } from "./showerBasics";
 import { citedSourceOf, type ShowerSettings } from "./showerSettings";

@@ -1,4 +1,4 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { NUMERICS } from "./conventions";
 import { toVec3, type Vec3 } from "./vec";
 

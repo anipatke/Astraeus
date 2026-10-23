@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
+import { catalogue } from "astraeus/assets/catalogue";
 import assets from "../assets.html?raw";
 import index from "../index.html?raw";
 import { MOON_PLANETS, generatedBlocks, markers } from "../tools/site/assets-sections.mjs";
-import { exists, readJson } from "../../astraeus/tools/import/test-io.mjs";
+import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
 
 /**
  * T-120: the planet moon sections and the tagged-places section of assets.html are generated from the data by tools/site/assets-sections.mjs

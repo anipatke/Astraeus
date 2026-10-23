@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatView, parseView, scaleFromSearch, timeFromSearch, validateStartView, viewFromAngles, viewFromSearch, viewLinkSearch } from "../../astraeus/src/app/viewLink";
+import { formatView, parseView, scaleFromSearch, timeFromSearch, validateStartView, viewFromAngles, viewFromSearch, viewLinkSearch } from "astraeus/app/viewLink";
 
 describe("view link", () => {
   it("round-trips the captured view through the address", () => {

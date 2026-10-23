@@ -2,7 +2,7 @@
 // read it directly. The page itself builds it in main.tsx, from whichever planet the address names.
 import jupiterFile from "../../../data/planets/jupiter.json";
 import panelsFile from "../../../data/stories/jupiter-io/panels.json";
-import type { ExperienceDefinition } from "../../../../astraeus/src/app/experienceDefinition";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 import { buildPlanetDefinition } from "../planets/planetDefinition";
 import { parsePlanetSettings } from "../planets/planetSettings";
 import { jupiterSystem } from "../planets/systems/jupiter";

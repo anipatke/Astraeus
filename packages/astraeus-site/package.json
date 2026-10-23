@@ -4,5 +4,11 @@
   "description": "The public site: entry, pages, pictures, public build, browser checks and deploy wiring.",
   "private": true,
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "astraeus": "*",
+    "astraeus-demo-apollo11": "*",
+    "astraeus-demo-planets": "*",
+    "astraeus-demo-showers": "*"
+  }
 }

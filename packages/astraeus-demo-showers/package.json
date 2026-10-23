@@ -4,5 +4,14 @@
   "description": "The meteor showers demo: code, data, fetch tool and tests.",
   "private": true,
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./experiences/*": "./src/experiences/*.ts",
+    "./data/*": "./data/*",
+    "./tests/*": "./tests/*.ts",
+    "./tools/data/fetch-meteoroid-orbits.mjs": "./tools/data/fetch-meteoroid-orbits.mjs"
+  },
+  "dependencies": {
+    "astraeus": "*"
+  }
 }

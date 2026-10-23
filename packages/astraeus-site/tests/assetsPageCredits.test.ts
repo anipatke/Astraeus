@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import type { AssetLicence } from "../../astraeus/src/assets/licence";
-import { HYG_STAR_LICENCE, MILKY_WAY_LICENCE } from "../../astraeus/src/assets/sky";
+import { catalogue } from "astraeus/assets/catalogue";
+import type { AssetLicence } from "astraeus/assets/licence";
+import { HYG_STAR_LICENCE, MILKY_WAY_LICENCE } from "astraeus/assets/sky";
 import html from "../assets.html?raw";
-import starFileText from "../../astraeus/src/assets/stars/hyg-v42-naked-eye.json?raw";
-import apolloPanels from "../../astraeus-demo-apollo11/data/stories/apollo11/panels.json";
-import geminidsPanels from "../../astraeus-demo-showers/data/stories/geminids/panels.json";
-import jupiterIoPanels from "../../astraeus-demo-planets/data/stories/jupiter-io/panels.json";
-import perseidsPanels from "../../astraeus-demo-showers/data/stories/perseids/panels.json";
+import starFileText from "astraeus/assets/stars/hyg-v42-naked-eye.json?raw";
+import apolloPanels from "astraeus-demo-apollo11/data/stories/apollo11/panels.json";
+import geminidsPanels from "astraeus-demo-showers/data/stories/geminids/panels.json";
+import jupiterIoPanels from "astraeus-demo-planets/data/stories/jupiter-io/panels.json";
+import perseidsPanels from "astraeus-demo-showers/data/stories/perseids/panels.json";
 
 /**
  * T-064: every credit on the assets page is checked against the AssetLicence record it describes (PROV-02), so a record

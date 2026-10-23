@@ -3,15 +3,15 @@
 // title, its badge, its body and its source lines, with its details in the one folded section. How panels open and hold on playback is generic (tests/domStory.test.ts); the wording and order
 // of each demo's panels are data (tests/storyStoriesAllDemos.test.ts, tests/storyPanels.test.ts); the scene markers' drawing is the smoke check.
 import { afterEach, describe, expect, it } from "vitest";
-import { apollo11Experience } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11";
-import { jupiterIoExplorer } from "../../astraeus-demo-planets/src/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import type { ExperienceConfig } from "../../astraeus/src/shell/experience";
-import geminidsFile from "../../astraeus-demo-showers/data/showers/geminids.json";
-import perseidsFile from "../../astraeus-demo-showers/data/showers/perseids.json";
-import { shippedPanelsOf } from "../../astraeus-demo-showers/tests/helpers/shippedPanels";
-import { $, mountShell, press, type Mounted } from "../../astraeus/tests/domSetup";
+import { apollo11Experience } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
+import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
+import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
+import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
+import { $, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
 
 const shower = (file: unknown): ExperienceConfig => { const settings = parseShowerSettings(file); return buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience; };
 const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];

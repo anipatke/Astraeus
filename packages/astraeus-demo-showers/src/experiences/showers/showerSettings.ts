@@ -1,8 +1,8 @@
 // Shower settings: the settings types and their strict validation from a shower file.
-import { validateStartView, type StartView } from "../../../../astraeus/src/app/viewLink";
-import type { Raw } from "../../../../astraeus/src/core/fieldReaders";
-import { settingsFields } from "../../../../astraeus/src/experiences/settingsFields";
-import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../../../../astraeus/src/core/elementsBody";
+import { validateStartView, type StartView } from "astraeus/app/viewLink";
+import type { Raw } from "astraeus/core/fieldReaders";
+import { settingsFields } from "astraeus/experiences/settingsFields";
+import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "astraeus/core/elementsBody";
 
 /** A cited fact: where a value was read, and when. */
 export interface ShowerSource {

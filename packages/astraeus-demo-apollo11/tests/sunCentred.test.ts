@@ -7,26 +7,26 @@ import {
   type ExperienceDefinition,
   type PathLayer,
   type SunBody,
-} from "../../astraeus/src/app/experienceDefinition";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
-import { PathView, createPathViews, pathReachKm } from "../../astraeus/src/app/PathView";
-import { placementAbout } from "../../astraeus/tests/scenePlacement";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import { earthStateAt, sunPositionFromEarthAt } from "../../astraeus/src/core/referenceCenters";
-import { readableScale, trueScale } from "../../astraeus/src/core/scalePolicy";
-import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "../../astraeus/src/core/sunCentredSources";
-import { createOrbTwoBodyAdapter } from "../../astraeus/src/core/twoBodyAdapter";
+} from "astraeus/app/experienceDefinition";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+import { PathView, createPathViews, pathReachKm } from "astraeus/app/PathView";
+import { placementAbout } from "astraeus/tests/scenePlacement";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createProvenance } from "astraeus/core/provenance";
+import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
+import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "astraeus/core/sunCentredSources";
+import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
-import { syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
 import {
   syntheticBeltDefinition,
   syntheticEarthPath,
   syntheticFarPath,
   syntheticRingDefinition,
   syntheticSun,
-} from "../../astraeus/src/synthetic/syntheticRingDefinition";
+} from "astraeus/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
 const earthPlacement = placementAbout("earth", adapter);

@@ -3,15 +3,15 @@
 // sets, the year and activity spans, the loop, the label settings, the parent, the story panels and the solar longitudes are kept by tests/showers.test.ts; the measured file's counts by
 // tests/showersMeasured.test.ts; the switch by tests/showerChoice.test.ts. The stream's dots, the glow's gradient and the camera flights are the smoke check.
 import { describe, expect, it } from "vitest";
-import { experienceWithGroups, groupsOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf } from "../../astraeus/src/app/experienceDefinition";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { rateAt } from "../../astraeus/src/core/timeWindow";
+import { experienceWithGroups, groupsOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf } from "astraeus/app/experienceDefinition";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { SimulationClock } from "astraeus/core/clock";
+import { rateAt } from "astraeus/core/timeWindow";
 import { buildShowerDefinition, parentOrbitIdOf, streamIdOf, timelineBoundsOf } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings, type ShowerSettings } from "../src/experiences/showers/showerSettings";
-import { infoView } from "../../astraeus/src/shell/infoModel";
+import { infoView } from "astraeus/shell/infoModel";
 import geminidsFile from "../data/showers/geminids.json";
 import perseidsFile from "../data/showers/perseids.json";
 import { madeUpOrbits, readShippedFile, readShippedOrbits } from "./helpers/measuredOrbits";

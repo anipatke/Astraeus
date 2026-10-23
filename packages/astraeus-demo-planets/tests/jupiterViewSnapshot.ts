@@ -1,4 +1,4 @@
-import type { ExperienceDefinition } from "../../astraeus/src/app/experienceDefinition";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 
 /** The parts of the Jupiter view the planets builder must leave unchanged (O-033 T-117): window, bodies, story panels, families, tagged places, look. */
 export function jupiterViewSnapshot(definition: ExperienceDefinition): unknown {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_BODY_SET_LOOK, familyGainOf } from "../../astraeus/src/app/bodySet";
-import { JUPITER_MOON_CATALOGUE } from "../../astraeus/src/assets/bodies/jupiterMoonCatalogue";
-import { moonFacts, moonSourceTitles } from "../../astraeus/src/assets/moonCatalogue";
+import { DEFAULT_BODY_SET_LOOK, familyGainOf } from "astraeus/app/bodySet";
+import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
+import { moonFacts, moonSourceTitles } from "astraeus/assets/moonCatalogue";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
-import { infoView } from "../../astraeus/src/shell/infoModel";
-import { moonCountText, moonFamilyListSummary, moonListDateText, searchMoons, splitNamed } from "../../astraeus/src/shell/moonFamilies";
+import { infoView } from "astraeus/shell/infoModel";
+import { moonCountText, moonFamilyListSummary, moonListDateText, searchMoons, splitNamed } from "astraeus/shell/moonFamilies";
 
 // O-025 T-099: the moon panel's model (families, counts, named first, search), the moon facts, the highlight and the panel's links to the scene.
 const list = jupiterIoExplorer.experience.moonFamilies!;

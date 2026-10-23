@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createComposition } from "../../astraeus/src/assets/compositions";
-import { parseMoonCatalogue } from "../../astraeus/src/assets/moonCatalogue";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createComposition } from "astraeus/assets/compositions";
+import { parseMoonCatalogue } from "astraeus/assets/moonCatalogue";
 import { buildPlanetDefinition, type PlanetSystem } from "../src/experiences/planets/planetDefinition";
 import { choosePlanet, PLANET_PARAM } from "../src/experiences/planets/planetChoice";
 import { parsePlanetSettings, PlanetSettingsError } from "../src/experiences/planets/planetSettings";
@@ -144,15 +144,16 @@ describe("the real Jupiter view places the Galilean moons' places (T-140, I-067)
   const stored = (file: { features: { id: string; longitude?: number }[] }, id: string) => file.features.find((feature) => feature.id === id)!.longitude;
 
   it("draws Europa's Tyre at 33 (180 - 146.6 W stored as 147) and Pwyll at 180 - 271 = -91", async () => {
-    const europa = (await import("../../astraeus/data/bodies/europa/features.json")).default;
+    const europa = (await import("astraeus/data/bodies/europa/features.json")).default;
     expect(stored(europa, "tyre")).toBe(147);
     expect(placed("europa", "tyre")).toBeCloseTo(33, 0);
     expect(placed("europa", "pwyll")).toBe(180 - stored(europa, "pwyll")!);
   });
 
   it("leaves Io, Ganymede and Callisto places as stored", async () => {
+    const stored = { io: () => import("astraeus/data/bodies/io/features.json"), ganymede: () => import("astraeus/data/bodies/ganymede/features.json"), callisto: () => import("astraeus/data/bodies/callisto/features.json") };
     for (const moon of ["io", "ganymede", "callisto"] as const) {
-      const file = (await import(`../../astraeus/data/bodies/${moon}/features.json`)).default as { features: { id: string; latitude?: number; longitude?: number }[] };
+      const file = (await stored[moon]()).default as { features: { id: string; latitude?: number; longitude?: number }[] };
       for (const feature of file.features.filter((f) => f.latitude !== undefined && f.longitude !== undefined)) expect(placed(moon, feature.id)).toBe(feature.longitude);
     }
   });

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { groupsOf } from "../../astraeus/src/app/experienceDefinition";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createOrbTwoBodyAdapter } from "../../astraeus/src/core/twoBodyAdapter";
-import { meanAnomalyFromStateRad, type ListedOrbitGroup } from "../../astraeus/src/core/listedOrbitGroup";
+import { groupsOf } from "astraeus/app/experienceDefinition";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
+import { meanAnomalyFromStateRad, type ListedOrbitGroup } from "astraeus/core/listedOrbitGroup";
 import { buildShowerDefinition, createParentOrbitPathLayer, streamIdOf, streamLimitations } from "../src/experiences/showers/showerDefinition";
 import { MEASURED_ROW_COLUMNS, SHIPPED_ROW_COLUMNS, orbitSetCounts, parseMeasuredOrbits } from "../src/experiences/showers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
@@ -11,7 +11,7 @@ import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { ROW_COLUMNS, SHIPPED_COLUMNS } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPED_COL as C, readShippedFile, readShippedOrbits, readStoredShippedFile } from "./helpers/measuredOrbits";
-import { AU_KM, SUN_GM_KM3_S2, apply, earthEcliptic, ellipseOf, nearestPoint, raDecOf, separationDeg, solarLongitudeDeg, timeOfSolarLongitude, velocityOn } from "../../astraeus/tests/helpers/streamFacts";
+import { AU_KM, SUN_GM_KM3_S2, apply, earthEcliptic, ellipseOf, nearestPoint, raDecOf, separationDeg, solarLongitudeDeg, timeOfSolarLongitude, velocityOn } from "astraeus/tests/helpers/streamFacts";
 
 // The facts of each shower from the Global Meteor Network's measured orbits, read from the committed copy the public build ships
 // (data/stories/<story>/gmn-iau-<code>.json), so every machine checks them. Rows are in the shipped (compact) layout; the C map names the columns.

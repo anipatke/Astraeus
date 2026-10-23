@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import type { SimulationClock } from "../../../../astraeus/src/core/clock";
-import type { Trajectory } from "../../../../astraeus/src/core/trajectory";
-import { MetricVisual } from "../../../../astraeus/src/shell/MetricVisual";
-import { journeyProgressMetric } from "../../../../astraeus/src/app/metricReadouts";
+import type { SimulationClock } from "astraeus/core/clock";
+import type { Trajectory } from "astraeus/core/trajectory";
+import { MetricVisual } from "astraeus/shell/MetricVisual";
+import { journeyProgressMetric } from "astraeus/app/metricReadouts";
 import {
   peakAnchorSpeedKmS,
   referenceInSameFrame,
@@ -12,8 +12,8 @@ import {
   spacecraftPositionMetric,
   spacecraftRangeMetric,
   spacecraftSpeedMetric,
-} from "../../../../astraeus/src/experiences/apollo11/spacecraftMetrics";
-import { trackedReadouts, type MissionConfig, type TrackedReadout } from "../../../../astraeus/src/app/mission";
+} from "astraeus/experiences/apollo11/spacecraftMetrics";
+import { trackedReadouts, type MissionConfig, type TrackedReadout } from "astraeus/app/mission";
 
 interface TelemetryProps {
   readonly mission: MissionConfig;

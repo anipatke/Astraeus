@@ -1,5 +1,5 @@
 // Shower basics: shared time constants, label priorities, ids and the shower catalogue.
-import { catalogue as builtInCatalogue, extendCatalogue, type BodyCatalogue } from "../../../../astraeus/src/assets/catalogue";
+import { catalogue as builtInCatalogue, extendCatalogue, type BodyCatalogue } from "astraeus/assets/catalogue";
 import { YEAR_DAYS, type ShowerSettings, type ShowerSource } from "./showerSettings";
 
 export const DAY_MS = 86_400_000;

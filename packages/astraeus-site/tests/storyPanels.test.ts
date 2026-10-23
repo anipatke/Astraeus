@@ -1,11 +1,11 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { StoryPanelView } from "../../astraeus/src/shell/StoryPanelView";
-import apolloPanelsFile from "../../astraeus-demo-apollo11/data/stories/apollo11/panels.json";
-import perseidsPanelsFile from "../../astraeus-demo-showers/data/stories/perseids/panels.json";
+import { StoryPanelView } from "astraeus/shell/StoryPanelView";
+import apolloPanelsFile from "astraeus-demo-apollo11/data/stories/apollo11/panels.json";
+import perseidsPanelsFile from "astraeus-demo-showers/data/stories/perseids/panels.json";
 import bodiesBeforeT088 from "./fixtures/storyPanelBodiesBeforeT088.json";
-import { CrossingTracker, panelsCrossed, parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanel } from "../../astraeus/src/shell/storyPanels";
+import { CrossingTracker, panelsCrossed, parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanel } from "astraeus/shell/storyPanels";
 
 /**
  * A synthetic story that names no mission and no real dataset (ARCH-03): a made-up "orbiter" with three events and
@@ -147,7 +147,7 @@ describe("panel view (T-059 Done When 4)", () => {
 
 describe("the demo wiring (T-059 Done When 5)", () => {
   it("gives the first demo story seven sourced panels, in mission order, that sit on its own anchors and objects", async () => {
-    const { apollo11Experience } = await import("../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11");
+    const { apollo11Experience } = await import("astraeus-demo-apollo11/experiences/apollo11/apollo11");
     const panels = apollo11Experience.storyPanels?.panels ?? [];
     expect(panels.map((panel) => panel.id)).toEqual(["tli-cutoff", "loi", "powered-descent", "touchdown", "ascent-docking", "tei", "splashdown"]);
     for (const panel of panels) {

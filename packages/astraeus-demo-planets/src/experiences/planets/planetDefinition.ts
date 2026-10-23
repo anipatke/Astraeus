@@ -1,22 +1,22 @@
 // The planets experience builder: one planet's settings (data/planets/<planet>.json) and its system become an ExperienceDefinition.
 // Generic (ARCH-01): no planet, moon or story is named here; the names are in the settings file and the system.
-import { catalogue } from "../../../../astraeus/src/assets/catalogue";
-import { moonFacts, moonSourceTitles, type MoonCatalogue, type MoonRecord } from "../../../../astraeus/src/assets/moonCatalogue";
-import { moonListSummary, type MoonFamilyList } from "../../../../astraeus/src/shell/moonFamilies";
-import { bodyMetrics } from "../../../../astraeus/src/app/bodyMetrics";
-import { familiesWithPalette, type BodySetLayer } from "../../../../astraeus/src/app/bodySet";
-import { catalogueItem } from "../../../../astraeus/src/app/catalogueItem";
-import type { ExperienceDefinition, VisualOverride } from "../../../../astraeus/src/app/experienceDefinition";
-import type { SystemComposition } from "../../../../astraeus/src/assets/compositions";
-import type { ChebyshevEphemeris } from "../../../../astraeus/src/core/chebyshevEphemeris";
-import { createEphemerisGroup } from "../../../../astraeus/src/core/ephemerisGroup";
-import { createEvents } from "../../../../astraeus/src/core/events";
-import type { BalancePoint } from "../../../../astraeus/src/core/orbitPeriod";
-import { createProvenance, type Provenance } from "../../../../astraeus/src/core/provenance";
-import type { TimeBounds } from "../../../../astraeus/src/core/trajectory";
-import { bodyFeatureSet, type BodyFeature, type BodyFeatureCategory } from "../../../../astraeus/src/shell/bodyFeatures";
-import type { ExperienceConfig, ExperienceObject } from "../../../../astraeus/src/shell/experience";
-import { parseStoryPanels } from "../../../../astraeus/src/shell/storyPanels";
+import { catalogue } from "astraeus/assets/catalogue";
+import { moonFacts, moonSourceTitles, type MoonCatalogue, type MoonRecord } from "astraeus/assets/moonCatalogue";
+import { moonListSummary, type MoonFamilyList } from "astraeus/shell/moonFamilies";
+import { bodyMetrics } from "astraeus/app/bodyMetrics";
+import { familiesWithPalette, type BodySetLayer } from "astraeus/app/bodySet";
+import { catalogueItem } from "astraeus/app/catalogueItem";
+import type { ExperienceDefinition, VisualOverride } from "astraeus/app/experienceDefinition";
+import type { SystemComposition } from "astraeus/assets/compositions";
+import type { ChebyshevEphemeris } from "astraeus/core/chebyshevEphemeris";
+import { createEphemerisGroup } from "astraeus/core/ephemerisGroup";
+import { createEvents } from "astraeus/core/events";
+import type { BalancePoint } from "astraeus/core/orbitPeriod";
+import { createProvenance, type Provenance } from "astraeus/core/provenance";
+import type { TimeBounds } from "astraeus/core/trajectory";
+import { bodyFeatureSet, type BodyFeature, type BodyFeatureCategory } from "astraeus/shell/bodyFeatures";
+import type { ExperienceConfig, ExperienceObject } from "astraeus/shell/experience";
+import { parseStoryPanels } from "astraeus/shell/storyPanels";
 import type { PlanetSettings } from "./planetSettings";
 import { isSurfacePlace, shownLongitude } from "./surfacePlace.mjs";
 

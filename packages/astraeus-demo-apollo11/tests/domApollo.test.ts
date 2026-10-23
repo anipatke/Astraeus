@@ -3,16 +3,16 @@
 // six mission phases, the speed against the range's rate of change, the Moon's illumination at four USNO dates, and the camera presets leaving time and readouts alone. The
 // provenance wording, the mission panel's metric visuals and the event jumps are kept by tests/infoProvenance.test.ts, tests/metricVisuals.test.ts and tests/missionScene.test.ts.
 import { afterEach, describe, expect, it } from "vitest";
-import { bodyMetrics } from "../../astraeus/src/app/bodyMetrics";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
+import { bodyMetrics } from "astraeus/app/bodyMetrics";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
 import { apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
 import { apolloMetrics } from "../src/experiences/apollo11/apolloMetrics";
-import { infoView } from "../../astraeus/src/shell/infoModel";
-import { scaleChoicesFor } from "../../astraeus/src/shell/scaleModel";
-import type { Metric } from "../../astraeus/src/shell/metrics";
-import { $, findAllByLabel, mountShell, press, type Mounted } from "../../astraeus/tests/domSetup";
+import { infoView } from "astraeus/shell/infoModel";
+import { scaleChoicesFor } from "astraeus/shell/scaleModel";
+import type { Metric } from "astraeus/shell/metrics";
+import { $, findAllByLabel, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
 
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 const metricsFor = apolloMetrics(apollo11Mission.bodies, resolver);

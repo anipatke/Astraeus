@@ -1,13 +1,13 @@
-import { hasEarthMoon } from "../../astraeus/tests/scenePlacement";
+import { hasEarthMoon } from "astraeus/tests/scenePlacement";
 import appHtml from "../app.html?raw";
 import { describe, expect, it } from "vitest";
-import perseidsFile from "../../astraeus-demo-showers/data/showers/perseids.json";
-import { jupiterIoExplorer } from "../../astraeus-demo-planets/src/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import { focusLimits } from "../../astraeus/src/app/sceneFraming";
-import { MOON } from "../../astraeus/src/core/body";
-import { readableScale, trueScale } from "../../astraeus/src/core/scalePolicy";
+import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
+import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import { focusLimits } from "astraeus/app/sceneFraming";
+import { MOON } from "astraeus/core/body";
+import { readableScale, trueScale } from "astraeus/core/scalePolicy";
 import {
   DEFAULT_CAMERA_FAR,
   cameraReachOf,
@@ -17,10 +17,10 @@ import {
   trackedBodiesOf,
   validateCameraReach,
   type ExperienceDefinition,
-} from "../../astraeus/src/app/experienceDefinition";
-import { syntheticBeltDefinition } from "../../astraeus/src/synthetic/syntheticRingDefinition";
-import { syntheticBareDefinition, syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
-import { apollo11Definition } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11Definition";
+} from "astraeus/app/experienceDefinition";
+import { syntheticBeltDefinition } from "astraeus/synthetic/syntheticRingDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
 
 const appSources = import.meta.glob<string>("../../astraeus/src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
 

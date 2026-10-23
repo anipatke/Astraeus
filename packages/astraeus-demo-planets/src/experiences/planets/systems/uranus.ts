@@ -1,11 +1,11 @@
 // Uranus's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
 // of the view are data/planets/uranus.json; this file only names where Uranus's data is.
-import { URANUS_MOON_CATALOGUE, URANUS_RINGS } from "../../../../../astraeus/src/assets/bodies/outerPlanetCatalogues";
-import { uranusMoonsSystem } from "../../../../../astraeus/src/assets/compositions";
-import { URANUS_MOON_SYSTEM } from "../../../../../astraeus/src/core/bodies/planetMoons";
+import { URANUS_MOON_CATALOGUE, URANUS_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { uranusMoonsSystem } from "astraeus/assets/compositions";
+import { URANUS_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
-import uranusFitErrors from "../../../../../astraeus/data/moons/fit-errors/uranus.json";
+import uranusFitErrors from "astraeus/data/moons/fit-errors/uranus.json";
 
 /** The tagged places of Uranus itself (it has no mapped moon): its body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/uranus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;

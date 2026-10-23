@@ -3,10 +3,10 @@ import { apollo11Experience } from "../src/experiences/apollo11/apollo11";
 import {
   eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
   windowContextAt, windowPeakRateText, DEFAULT_PLAYBACK_SPEEDS,
-} from "../../astraeus/src/shell/timelineModel";
-import { DEFAULT_TIMELINE_GLOW, activityAt, glowBrightness, glowDescription, glowGradient, glowProfile, glowTooltip } from "../../astraeus/src/shell/timelineGlow";
-import { createWindows } from "../../astraeus/src/core/timeWindow";
-import type { TimelineEvent } from "../../astraeus/src/core/events";
+} from "astraeus/shell/timelineModel";
+import { DEFAULT_TIMELINE_GLOW, activityAt, glowBrightness, glowDescription, glowGradient, glowProfile, glowTooltip } from "astraeus/shell/timelineGlow";
+import { createWindows } from "astraeus/core/timeWindow";
+import type { TimelineEvent } from "astraeus/core/events";
 
 const sampleEvents: readonly TimelineEvent[] = [
   { id: "first", label: "First event", timeUtcMs: 10 },

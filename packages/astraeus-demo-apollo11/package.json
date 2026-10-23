@@ -4,5 +4,13 @@
   "description": "The Apollo 11 demo: code, data, reconstruction tool and tests.",
   "private": true,
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./experiences/*": "./src/experiences/*.ts",
+    "./experiences/apollo11/apollo11Definition": "./src/experiences/apollo11/apollo11Definition.tsx",
+    "./data/*": "./data/*"
+  },
+  "dependencies": {
+    "astraeus": "*"
+  }
 }

@@ -4,5 +4,13 @@
   "description": "The planets demo (the Jupiter-Io address is an alias): code, data and tests.",
   "private": true,
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./experiences/*": "./src/experiences/*.ts",
+    "./experiences/planets/surfacePlace.mjs": "./src/experiences/planets/surfacePlace.mjs",
+    "./data/*": "./data/*"
+  },
+  "dependencies": {
+    "astraeus": "*"
+  }
 }

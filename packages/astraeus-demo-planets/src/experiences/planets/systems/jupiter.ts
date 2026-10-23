@@ -1,10 +1,10 @@
 // Jupiter's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
 // of the view are data/planets/jupiter.json; this file only names where Jupiter's data is.
-import { JUPITER_MOON_CATALOGUE } from "../../../../../astraeus/src/assets/bodies/jupiterMoonCatalogue";
-import { JUPITER_RINGS } from "../../../../../astraeus/src/assets/bodies/jupiterRings";
-import { jupiterMoonsSystem } from "../../../../../astraeus/src/assets/compositions";
-import { JUPITER } from "../../../../../astraeus/src/core/bodies/jupiter";
-import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, jupiterMoonEphemeris, loadJupiterMoons } from "../../../../../astraeus/src/core/bodies/jupiterMoons";
+import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
+import { JUPITER_RINGS } from "astraeus/assets/bodies/jupiterRings";
+import { jupiterMoonsSystem } from "astraeus/assets/compositions";
+import { JUPITER } from "astraeus/core/bodies/jupiter";
+import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, jupiterMoonEphemeris, loadJupiterMoons } from "astraeus/core/bodies/jupiterMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { packagesOf } from "../planetSystemParts";
 

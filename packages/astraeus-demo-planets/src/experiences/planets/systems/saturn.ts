@@ -1,11 +1,11 @@
 // Saturn's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
 // of the view are data/planets/saturn.json; this file only names where Saturn's data is.
-import { SATURN_MOON_CATALOGUE, SATURN_RINGS } from "../../../../../astraeus/src/assets/bodies/outerPlanetCatalogues";
-import { saturnMoonsSystem } from "../../../../../astraeus/src/assets/compositions";
-import { SATURN_MOON_SYSTEM } from "../../../../../astraeus/src/core/bodies/planetMoons";
+import { SATURN_MOON_CATALOGUE, SATURN_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { saturnMoonsSystem } from "astraeus/assets/compositions";
+import { SATURN_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
-import saturnFitErrors from "../../../../../astraeus/data/moons/fit-errors/saturn.json";
+import saturnFitErrors from "astraeus/data/moons/fit-errors/saturn.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;

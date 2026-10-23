@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { describeBody } from "../../astraeus/src/app/bodyDraw";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "../../astraeus/src/assets/bodies/venus";
-import { textureRightsProblem, textureUrlFor } from "../../astraeus/src/assets/licence";
-import { trueScale } from "../../astraeus/src/core/scalePolicy";
+import { describeBody } from "astraeus/app/bodyDraw";
+import { catalogue } from "astraeus/assets/catalogue";
+import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "astraeus/assets/bodies/venus";
+import { textureRightsProblem, textureUrlFor } from "astraeus/assets/licence";
+import { trueScale } from "astraeus/core/scalePolicy";
 import { buildShowerDefinition, showerComposition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";

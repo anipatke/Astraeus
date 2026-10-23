@@ -1,16 +1,16 @@
 // Mars's system for the planets experience: Mars with Phobos and Deimos on their fitted orbits, and Mars's tagged places. The words and numbers of the
 // view are data/planets/mars.json; this file only names where Mars's data is.
-import { catalogue } from "../../../../../astraeus/src/assets/catalogue";
-import { createComposition } from "../../../../../astraeus/src/assets/compositions";
-import { MARS } from "../../../../../astraeus/src/core/bodies/mars";
-import { MARS_MOON_SYSTEM } from "../../../../../astraeus/src/core/bodies/planetMoons";
-import { moonFitSource } from "../../../../../astraeus/src/core/bodies/moonSystem";
-import { parseMoonCatalogue } from "../../../../../astraeus/src/assets/moonCatalogue";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createComposition } from "astraeus/assets/compositions";
+import { MARS } from "astraeus/core/bodies/mars";
+import { MARS_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
+import { moonFitSource } from "astraeus/core/bodies/moonSystem";
+import { parseMoonCatalogue } from "astraeus/assets/moonCatalogue";
 import type { PlanetSystem } from "../planetDefinition";
-import marsMoons from "../../../../../astraeus/data/moons/mars.json";
-import marsFeatures from "../../../../../astraeus/data/bodies/mars/features.json";
-import marsCategories from "../../../../../astraeus/data/bodies/mars/categories.json";
-import marsFitErrors from "../../../../../astraeus/data/moons/fit-errors/mars.json";
+import marsMoons from "astraeus/data/moons/mars.json";
+import marsFeatures from "astraeus/data/bodies/mars/features.json";
+import marsCategories from "astraeus/data/bodies/mars/categories.json";
+import marsFitErrors from "astraeus/data/moons/fit-errors/mars.json";
 
 /** The fit chunks this build ships for Mars: the window's year (one file per body per year), fetched only for this planet. A window in another year needs its year here. */
 const SHIPPED_CHUNKS = import.meta.glob("../../../../../astraeus/data/ephemerides/mars-moons/*/2016.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;

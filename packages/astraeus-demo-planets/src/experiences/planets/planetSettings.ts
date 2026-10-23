@@ -1,7 +1,7 @@
 // Planet settings: the settings types and their strict validation from a planet file (data/planets/<planet>.json), the Showers pattern.
-import { validateStartView, type StartView } from "../../../../astraeus/src/app/viewLink";
-import type { Raw } from "../../../../astraeus/src/core/fieldReaders";
-import { settingsFields } from "../../../../astraeus/src/experiences/settingsFields";
+import { validateStartView, type StartView } from "astraeus/app/viewLink";
+import type { Raw } from "astraeus/core/fieldReaders";
+import { settingsFields } from "astraeus/experiences/settingsFields";
 
 /** A moon drawn as a full body: its words and when its label shows. The moon's facts come from the moon list. */
 export interface PlanetMappedMoon {

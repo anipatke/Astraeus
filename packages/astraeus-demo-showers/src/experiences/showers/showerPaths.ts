@@ -1,10 +1,10 @@
 // Shower paths: the Earth, planet and parent-orbit path layers.
-import type { PathLayer } from "../../../../astraeus/src/app/experienceDefinition";
-import { EARTH_EPHEMERIS } from "../../../../astraeus/src/app/ephemerisProvenance";
-import { rootBodyId } from "../../../../astraeus/src/assets/catalogue";
-import { createOrbAstronomyAdapter } from "../../../../astraeus/src/core/astronomyAdapter";
-import { createEarthSunTrajectory, fullTurnSpanMs, type EccentricSampling } from "../../../../astraeus/src/core/sunCentredSources";
-import type { Trajectory } from "../../../../astraeus/src/core/trajectory";
+import type { PathLayer } from "astraeus/app/experienceDefinition";
+import { EARTH_EPHEMERIS } from "astraeus/app/ephemerisProvenance";
+import { rootBodyId } from "astraeus/assets/catalogue";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createEarthSunTrajectory, fullTurnSpanMs, type EccentricSampling } from "astraeus/core/sunCentredSources";
+import type { Trajectory } from "astraeus/core/trajectory";
 import { BEYOND_SHOWER_VIEWS, DAY_MS, LABEL_PRIORITY, YEAR_MS, showerCatalogue } from "./showerBasics";
 import type { ShowerSettings } from "./showerSettings";
 

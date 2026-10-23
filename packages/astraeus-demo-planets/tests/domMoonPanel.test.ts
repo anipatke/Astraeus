@@ -5,11 +5,11 @@ import { createElement, useState } from "react";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
-import { JUPITER_MOON_CATALOGUE } from "../../astraeus/src/assets/bodies/jupiterMoonCatalogue";
+import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
-import { MoonFamilyPanel } from "../../astraeus/src/shell/MoonFamilyPanel";
-import { moonFamilyListSummary, moonListDateText, splitNamed } from "../../astraeus/src/shell/moonFamilies";
-import { $, change, mountShell, press, selectObject, type Mounted } from "../../astraeus/tests/domSetup";
+import { MoonFamilyPanel } from "astraeus/shell/MoonFamilyPanel";
+import { moonFamilyListSummary, moonListDateText, splitNamed } from "astraeus/shell/moonFamilies";
+import { $, change, mountShell, press, selectObject, type Mounted } from "astraeus/tests/domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const list = jupiterIoExplorer.experience.moonFamilies!;

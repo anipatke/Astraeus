@@ -1,16 +1,16 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ScaleControl } from "../../astraeus/src/shell/ScaleControl";
-import type { ExperienceConfig } from "../../astraeus/src/shell/experience";
-import { listedObjects, relatedObjects } from "../../astraeus/src/shell/objectModel";
-import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor } from "../../astraeus/src/shell/scaleModel";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { EARTH, MOON } from "../../astraeus/src/core/body";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { MoonTrajectory } from "../../astraeus/src/core/moonTrajectory";
-import { earthStateAt, sunPositionFromEarthAt } from "../../astraeus/src/core/referenceCenters";
-import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "../../astraeus/src/core/scalePolicy";
+import { ScaleControl } from "astraeus/shell/ScaleControl";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import { listedObjects, relatedObjects } from "astraeus/shell/objectModel";
+import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor } from "astraeus/shell/scaleModel";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { EARTH, MOON } from "astraeus/core/body";
+import { SimulationClock } from "astraeus/core/clock";
+import { MoonTrajectory } from "astraeus/core/moonTrajectory";
+import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
+import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
 import {
   clampToWindow,
   formatUtcInput,
@@ -20,11 +20,11 @@ import {
   setPlaying,
   SPEEDS,
 } from "../src/experiences/apollo11/DebugControls";
-import { buildDebugReadout, overlayRows, type DebugReadout } from "../../astraeus/src/app/DebugOverlay";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { pathNeedsRefresh } from "../../astraeus/src/app/pathRules";
-import { SIDEREAL_MONTH_MS } from "../../astraeus/src/assets/compositions";
-import { bodyAbsolutes } from "../../astraeus/src/app/sceneLayout";
+import { buildDebugReadout, overlayRows, type DebugReadout } from "astraeus/app/DebugOverlay";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { pathNeedsRefresh } from "astraeus/app/pathRules";
+import { SIDEREAL_MONTH_MS } from "astraeus/assets/compositions";
+import { bodyAbsolutes } from "astraeus/app/sceneLayout";
 
 const adapter = createOrbAstronomyAdapter();
 const trajectory = new MoonTrajectory(adapter);

@@ -1,6 +1,6 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
-import { createEvents } from "../../../astraeus/src/core/events";
-import { SampledTrajectory } from "../../../astraeus/src/core/sampledTrajectory";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createEvents } from "astraeus/core/events";
+import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
 import { liftoffAnchor, normaliseAnchor, type NormalisedAnchor, type RawAnchor } from "./anchors";
 import config from "./config.json";
 import { CONSTANTS, getToUtcMs } from "./conventions";

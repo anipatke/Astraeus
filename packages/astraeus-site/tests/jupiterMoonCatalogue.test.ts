@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import html from "../../astraeus-site/assets.html?raw";
-import { exists, readJson } from "../tools/import/test-io.mjs";
+import html from "../assets.html?raw";
+import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
 
 // The core Jupiter moon catalogue (data/moons/jupiter.json, O-025 T-097) against the T-096 curve fits, the O-018 body packages and the catalogue page.
-const ROOT = new URL("../", import.meta.url).pathname;
+const ROOT = new URL("../../astraeus/", import.meta.url).pathname; // engine data read by file path (moved from the engine tests: it also reads the site page)
 interface Moon {
   id: string; name: string; naifId: number; family: string; meanRadiusKm: number; radiusBasis: string; discoveryYear: number;
   ephemeris: { set: string; body: string }; bodyPackage: string | null;

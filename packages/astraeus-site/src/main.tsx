@@ -1,17 +1,17 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "../../astraeus/src/app/App";
-import { needsPlanetSeries } from "../../astraeus/src/app/planetNeeds";
-import { isPlanetId, loadPlanetSeries } from "../../astraeus/src/core/planetSeries";
-import { choosePlanet, type PlanetEntry } from "../../astraeus-demo-planets/src/experiences/planets/planetChoice";
-import { chooseShower, type ShowerEntry } from "../../astraeus/src/experiences/showers/showerChoice";
-import { showerEntryName } from "../../astraeus-demo-showers/src/experiences/showers/showerEntry";
-import type { ShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import type { ExperienceDefinition } from "../../astraeus/src/app/experienceDefinition";
-import type { PlanetSystem } from "../../astraeus-demo-planets/src/experiences/planets/planetDefinition";
-import { createAddressNavigation } from "../../astraeus/src/app/addressNavigation";
-import { failBootLoader, showBootLoader } from "../../astraeus/src/shell/bootLoader";
-import "../../astraeus/src/app/style.css";
+import { App } from "astraeus/app/App";
+import { needsPlanetSeries } from "astraeus/app/planetNeeds";
+import { isPlanetId, loadPlanetSeries } from "astraeus/core/planetSeries";
+import { choosePlanet, type PlanetEntry } from "astraeus-demo-planets/experiences/planets/planetChoice";
+import { chooseShower, type ShowerEntry } from "astraeus/experiences/showers/showerChoice";
+import { showerEntryName } from "astraeus-demo-showers/experiences/showers/showerEntry";
+import type { ShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
+import type { PlanetSystem } from "astraeus-demo-planets/experiences/planets/planetDefinition";
+import { createAddressNavigation } from "astraeus/app/addressNavigation";
+import { failBootLoader, showBootLoader } from "astraeus/shell/bootLoader";
+import "astraeus/app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("Astraeus entry element #app is missing");
@@ -19,12 +19,12 @@ if (!app) throw new Error("Astraeus entry element #app is missing");
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = __PUBLIC_BUILD__ ? {} : {
-  synthetic: async () => (await import("../../astraeus/src/synthetic/syntheticDefinition")).syntheticDefinition,
-  "synthetic-bare": async () => (await import("../../astraeus/src/synthetic/syntheticDefinition")).syntheticBareDefinition,
-  "synthetic-ring": async () => (await import("../../astraeus/src/synthetic/syntheticRingDefinition")).syntheticRingDefinition,
-  "synthetic-belt": async () => (await import("../../astraeus/src/synthetic/syntheticRingDefinition")).syntheticBeltDefinition,
-  "synthetic-listed": async () => (await import("../../astraeus/src/synthetic/syntheticListedDefinition")).syntheticListedDefinition,
-  "synthetic-eccentric": async () => (await import("../../astraeus/src/synthetic/syntheticEccentricDefinition")).syntheticEccentricDefinition,
+  synthetic: async () => (await import("astraeus/synthetic/syntheticDefinition")).syntheticDefinition,
+  "synthetic-bare": async () => (await import("astraeus/synthetic/syntheticDefinition")).syntheticBareDefinition,
+  "synthetic-ring": async () => (await import("astraeus/synthetic/syntheticRingDefinition")).syntheticRingDefinition,
+  "synthetic-belt": async () => (await import("astraeus/synthetic/syntheticRingDefinition")).syntheticBeltDefinition,
+  "synthetic-listed": async () => (await import("astraeus/synthetic/syntheticListedDefinition")).syntheticListedDefinition,
+  "synthetic-eccentric": async () => (await import("astraeus/synthetic/syntheticEccentricDefinition")).syntheticEccentricDefinition,
 };
 const DEFINITIONS: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = {
   ...SYNTHETIC,
@@ -66,16 +66,16 @@ function currentChoices(search: string) {
 async function chooseDefinition(): Promise<ExperienceDefinition> {
   const { requested, planetChoice, showerChoice } = currentChoices(window.location.search);
   if (planetChoice !== undefined) {
-    const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("../../astraeus-demo-planets/src/experiences/planets/planetSettings"), import("../../astraeus-demo-planets/src/experiences/planets/planetDefinition")]);
+    const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("astraeus-demo-planets/experiences/planets/planetSettings"), import("astraeus-demo-planets/experiences/planets/planetDefinition")]);
     const settings = parsePlanetSettings(PLANET_FILES[`../../astraeus-demo-planets/data/planets/${planetChoice.name}.json`]);
     const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[`../../astraeus-demo-planets/src/experiences/planets/systems/${settings.system}.ts`]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
     return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {
     const [{ parseShowerSettings }, { buildShowerDefinition, loadShowerPanelsFile, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
-      import("../../astraeus-demo-showers/src/experiences/showers/showerSettings"),
-      import("../../astraeus-demo-showers/src/experiences/showers/showerDefinition"),
-      import("../../astraeus-demo-showers/src/experiences/showers/measuredOrbits"),
+      import("astraeus-demo-showers/experiences/showers/showerSettings"),
+      import("astraeus-demo-showers/experiences/showers/showerDefinition"),
+      import("astraeus-demo-showers/experiences/showers/measuredOrbits"),
     ]);
     const parsed = parseShowerSettings(SHOWER_FILES[`../../astraeus-demo-showers/data/showers/${showerChoice.name}.json`]);
     // ?span=activity|year overrides the settings file's timeline span, for comparison.
@@ -90,7 +90,7 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
     return { ...buildShowerDefinition(settings, load, set, panelsFile), switcher: showerChoice.switcher };
   }
-  return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11Definition")).apollo11Definition;
+  return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("astraeus-demo-apollo11/experiences/apollo11/apollo11Definition")).apollo11Definition;
 }
 // The planet series (about 1.4 MB) load only for a composition that contains a planet.
 async function buildDefinition(): Promise<ExperienceDefinition> {

@@ -1,4 +1,4 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import config from "./config.json";
 import {
   CONSTANTS,

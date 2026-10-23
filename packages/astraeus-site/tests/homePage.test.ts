@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import html from "../index.html?raw";
-import { decodeChunk } from "../../astraeus/src/core/chebyshevSeries";
-import { readBytes, readJson } from "../../astraeus/tools/import/test-io.mjs";
+import { decodeChunk } from "astraeus/core/chebyshevSeries";
+import { readBytes, readJson } from "astraeus/tools/import/test-io.mjs";
 import { DEMO_ADDRESSES, RETIRED_ADDRESSES, danglingLinks } from "../tools/validate/public-addresses.mjs";
 
 /** The addresses (O-024 T-091: the two showers are one) the owner's portfolio embeds (O-020 Decision 5), each of which the home page must open. */

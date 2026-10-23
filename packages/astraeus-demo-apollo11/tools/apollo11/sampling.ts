@@ -1,5 +1,5 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
-import { SampledTrajectory } from "../../../astraeus/src/core/sampledTrajectory";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
 import { NUMERICS } from "./conventions";
 import { toEarthCentred } from "./ephemeris";
 import type { Segment } from "./segments";

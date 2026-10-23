@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { experienceWithGroups, groupsOf, mountedBodiesOf } from "../../astraeus/src/app/experienceDefinition";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { hiddenLabelsFrom, loopFromSearch } from "../../astraeus/src/app/App";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
-import { provenanceAt, rateAt } from "../../astraeus/src/core/timeWindow";
-import { SWIFT_TUTTLE_SAMPLING } from "../../astraeus/src/core/bodies";
+import { experienceWithGroups, groupsOf, mountedBodiesOf } from "astraeus/app/experienceDefinition";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { SimulationClock } from "astraeus/core/clock";
+import { hiddenLabelsFrom, loopFromSearch } from "astraeus/app/App";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
+import { provenanceAt, rateAt } from "astraeus/core/timeWindow";
+import { SWIFT_TUTTLE_SAMPLING } from "astraeus/core/bodies/index";
 import {
   absentStreamObject,
   buildShowerDefinition,
@@ -25,7 +25,7 @@ import { orbitSetCounts, parseMeasuredOrbits, selectOrbits, type MeasuredLoad } 
 import { shippedPanelsOf } from "./helpers/shippedPanels";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
-import { buildElementsBody } from "../../astraeus/src/core/elementsBody";
+import { buildElementsBody } from "astraeus/core/elementsBody";
 import { citedSourceOf, parseShowerSettings, ShowerSettingsError } from "../src/experiences/showers/showerSettings";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 

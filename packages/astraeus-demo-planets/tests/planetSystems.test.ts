@@ -1,11 +1,11 @@
-import { gzipSize, readBytes, readJson } from "../../astraeus/tools/import/test-io.mjs";
+import { gzipSize, readBytes, readJson } from "astraeus/tools/import/test-io.mjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parsePlanetSettings } from "../src/experiences/planets/planetSettings";
 import { buildPlanetDefinition, type PlanetSystem } from "../src/experiences/planets/planetDefinition";
 import { PLANET_SWITCH_KEEPS, choosePlanet } from "../src/experiences/planets/planetChoice";
-import { switchAddress } from "../../astraeus/src/shell/SwitchControl";
-import { SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM } from "../../astraeus/src/core/bodies/planetMoons";
-import { parseRingSystem } from "../../astraeus/src/assets/rings";
+import { switchAddress } from "astraeus/shell/SwitchControl";
+import { SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
+import { parseRingSystem } from "astraeus/assets/rings";
 import { saturnSystem, SATURN_CHUNK_URLS } from "../src/experiences/planets/systems/saturn";
 import { uranusSystem, URANUS_CHUNK_URLS } from "../src/experiences/planets/systems/uranus";
 import { neptuneSystem, NEPTUNE_CHUNK_URLS } from "../src/experiences/planets/systems/neptune";

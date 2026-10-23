@@ -2,7 +2,7 @@
 // `node tools/site/assets-sections.mjs` rewrites the marked blocks in assets.html; tests/assetsSections.test.ts fails when the page differs from this output.
 // Jupiter's own section stays with tools/import/jupiter-moon-catalogue.mjs. Same markup and styles as that section (details.moon-family, ul.moon-list).
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { isSurfacePlace } from "../../../astraeus-demo-planets/src/experiences/planets/surfacePlace.mjs";
+import { isSurfacePlace } from "astraeus-demo-planets/experiences/planets/surfacePlace.mjs";
 
 const root = new URL("../../", import.meta.url);
 // Body and moon data are the engine's; the planet settings are the Planets demo's.

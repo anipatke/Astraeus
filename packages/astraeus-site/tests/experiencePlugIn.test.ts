@@ -1,21 +1,21 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createSceneResolver } from "../../astraeus/src/app/sceneLayout";
-import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "../../astraeus/src/app/experienceDefinition";
-import { AstraeusShell } from "../../astraeus/src/shell/AstraeusShell";
-import { apollo11Definition } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11Definition";
-import { syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
-import { provenanceAt, rateAt } from "../../astraeus/src/core/timeWindow";
-import { infoView } from "../../astraeus/src/shell/infoModel";
-import perseidsFile from "../../astraeus-demo-showers/data/showers/perseids.json";
-import { buildShowerDefinition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { madeUpOrbits } from "../../astraeus-demo-showers/tests/helpers/measuredOrbits";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import type { RateMetric } from "../../astraeus/src/shell/metrics";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { SimulationClock } from "astraeus/core/clock";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createSceneResolver } from "astraeus/app/sceneLayout";
+import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "astraeus/app/experienceDefinition";
+import { AstraeusShell } from "astraeus/shell/AstraeusShell";
+import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
+import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { provenanceAt, rateAt } from "astraeus/core/timeWindow";
+import { infoView } from "astraeus/shell/infoModel";
+import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
+import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import type { RateMetric } from "astraeus/shell/metrics";
 
 const sources = import.meta.glob<string>(
   ["../../astraeus/src/core/**/*.{ts,tsx}", "../../astraeus/src/assets/**/*.{ts,tsx}", "../../astraeus/src/shell/**/*.{ts,tsx,css}", "../../astraeus/src/app/*.{ts,tsx,css}"],

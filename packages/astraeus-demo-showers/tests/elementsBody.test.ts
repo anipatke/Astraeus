@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/phaethon-horizons.json";
 import source from "./fixtures/phaethon-horizons-source.txt?raw";
 import geminids from "../data/showers/geminids.json";
-import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS, SWIFT_TUTTLE_EPOCH_UTC_MS, SWIFT_TUTTLE_SAMPLING } from "../../astraeus/src/core/bodies/swiftTuttle";
+import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS, SWIFT_TUTTLE_EPOCH_UTC_MS, SWIFT_TUTTLE_SAMPLING } from "astraeus/core/bodies/swiftTuttle";
 import {
   APPROXIMATE_LIMIT_FRACTION,
   buildElementsBody,
@@ -12,8 +12,8 @@ import {
   ElementsBodyError,
   INDICATIVE_LIMIT_FRACTION,
   parseElementsBodyRecord,
-} from "../../astraeus/src/core/elementsBody";
-import { catalogue, extendCatalogue } from "../../astraeus/src/assets/catalogue";
+} from "astraeus/core/elementsBody";
+import { catalogue, extendCatalogue } from "astraeus/assets/catalogue";
 
 const AU_KM = 149_597_870.7;
 const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };

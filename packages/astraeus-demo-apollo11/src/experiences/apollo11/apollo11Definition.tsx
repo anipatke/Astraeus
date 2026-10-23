@@ -1,6 +1,6 @@
-import type { ExperienceDefinition } from "../../../../astraeus/src/app/experienceDefinition";
-import { resolverTrajectory } from "../../../../astraeus/src/app/bodyMetrics";
-import { earthMoonSystem } from "../../../../astraeus/src/assets/compositions";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
+import { resolverTrajectory } from "astraeus/app/bodyMetrics";
+import { earthMoonSystem } from "astraeus/assets/compositions";
 import { apolloMetrics } from "./apolloMetrics";
 import { apollo11Experience, apollo11Mission } from "./apollo11";
 import { DebugControls } from "./DebugControls";

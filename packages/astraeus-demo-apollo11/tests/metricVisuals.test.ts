@@ -1,13 +1,13 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { MoonTrajectory } from "../../astraeus/src/core/moonTrajectory";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { createStateResolver } from "../../astraeus/src/core/stateResolver";
+import { SimulationClock } from "astraeus/core/clock";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { MoonTrajectory } from "astraeus/core/moonTrajectory";
+import { catalogue } from "astraeus/assets/catalogue";
+import { createStateResolver } from "astraeus/core/stateResolver";
 import { MissionTelemetry } from "../src/experiences/apollo11/MissionPanel";
-import { journeyProgressMetric, sceneMetrics } from "../../astraeus/src/app/metricReadouts";
+import { journeyProgressMetric, sceneMetrics } from "astraeus/app/metricReadouts";
 import {
   peakAnchorSpeedKmS,
   referenceInSameFrame,
@@ -17,11 +17,11 @@ import {
   spacecraftPositionMetric,
   spacecraftRangeMetric,
   spacecraftSpeedMetric,
-} from "../../astraeus/src/experiences/apollo11/spacecraftMetrics";
-import { discrepancyAt, stateIfInBounds, trackedReadouts } from "../../astraeus/src/app/mission";
-import { MOON } from "../../astraeus/src/core/body";
+} from "astraeus/experiences/apollo11/spacecraftMetrics";
+import { discrepancyAt, stateIfInBounds, trackedReadouts } from "astraeus/app/mission";
+import { MOON } from "astraeus/core/body";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";
-import { MetricVisual } from "../../astraeus/src/shell/MetricVisual";
+import { MetricVisual } from "astraeus/shell/MetricVisual";
 import {
   altitudeGlyph,
   describeMetric,
@@ -39,7 +39,7 @@ import {
   type PhaseMetric,
   type RateMetric,
   type SpeedMetric,
-} from "../../astraeus/src/shell/metrics";
+} from "astraeus/shell/metrics";
 
 const render = (metric: Metric) => renderToStaticMarkup(createElement(MetricVisual, { metric }));
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { groupStoryMarkers, panelForMarkerPress, type StoryMarkerSpec } from "../../astraeus/src/app/StoryMarkers";
-import { parseStoryPanels } from "../../astraeus/src/shell/storyPanels";
+import { groupStoryMarkers, panelForMarkerPress, type StoryMarkerSpec } from "astraeus/app/StoryMarkers";
+import { parseStoryPanels } from "astraeus/shell/storyPanels";
 
 /**
  * I-031: a synthetic story (no mission, no real dataset) with three panels on one made-up object and one on another.

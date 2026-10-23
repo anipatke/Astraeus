@@ -1,12 +1,12 @@
 import columbiaFile from "../data/apollo11/generated/columbia.json";
 import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
-import { SimulationClock } from "../../astraeus/src/core/clock";
-import { readableScale, trueScale } from "../../astraeus/src/core/scalePolicy";
+import { SimulationClock } from "astraeus/core/clock";
+import { readableScale, trueScale } from "astraeus/core/scalePolicy";
 import { SPEEDS } from "../src/experiences/apollo11/DebugControls";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "../../astraeus/src/app/CameraController";
-import { projectToScreen } from "../../astraeus/src/app/AnchorLabels";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "astraeus/app/CameraController";
+import { projectToScreen } from "astraeus/app/AnchorLabels";
 import {
   anchorLabelsOf,
   jumpToEvent,
@@ -16,14 +16,14 @@ import {
   stateIfInBounds,
   trackedReadouts,
   travelledCount,
-} from "../../astraeus/src/app/mission";
-import { mapPathKm } from "../../astraeus/src/app/pathRules";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
-import { trackedAbsolute } from "../../astraeus/src/app/sceneLayout";
-import { placementAbout } from "../../astraeus/tests/scenePlacement";
-import { TrackedBodyView } from "../../astraeus/src/app/TrackedBodyView";
+} from "astraeus/app/mission";
+import { mapPathKm } from "astraeus/app/pathRules";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+import { trackedAbsolute } from "astraeus/app/sceneLayout";
+import { placementAbout } from "astraeus/tests/scenePlacement";
+import { TrackedBodyView } from "astraeus/app/TrackedBodyView";
 import { APOLLO11_STATEMENT, apollo11Experience, apollo11Mission } from "../src/experiences/apollo11/apollo11";
-import { availableObjectById, findCameraPreset, isObjectAvailable } from "../../astraeus/src/shell/objectModel";
+import { availableObjectById, findCameraPreset, isObjectAvailable } from "astraeus/shell/objectModel";
 
 const earthPlacement = placementAbout("earth");
 const mission = apollo11Mission;

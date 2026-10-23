@@ -1,4 +1,4 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import type { NormalisedAnchor } from "./anchors";
 import { integrateDrivenSpan, tableAt, type EarthState, type StateTable } from "./dynamics";
 import { add, norm, scale, sub, type Vec3 } from "./vec";

@@ -1,4 +1,4 @@
-import type { ListedMember } from "../../../../astraeus/src/core/listedOrbitGroup";
+import type { ListedMember } from "astraeus/core/listedOrbitGroup";
 
 const AU_KM = 149_597_870.7;
 

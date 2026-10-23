@@ -8,22 +8,22 @@ import {
   type ExperienceDefinition,
   type GroupLayer,
   type SceneLayerId,
-} from "../../astraeus/src/app/experienceDefinition";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { PointsView } from "../../astraeus/src/app/PointsView";
-import { hasEarthMoon, placementAbout } from "../../astraeus/tests/scenePlacement";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import type { CenterId } from "../../astraeus/src/core/body";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import { memberState, type PointGroup } from "../../astraeus/src/core/pointGroup";
-import { composeCenteredPositions, sunPositionFromEarthAt } from "../../astraeus/src/core/referenceCenters";
-import { readableScale, trueScale } from "../../astraeus/src/core/scalePolicy";
-import { AstraeusShell } from "../../astraeus/src/shell/AstraeusShell";
-import { findCameraPreset } from "../../astraeus/src/shell/objectModel";
+} from "astraeus/app/experienceDefinition";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { PointsView } from "astraeus/app/PointsView";
+import { hasEarthMoon, placementAbout } from "astraeus/tests/scenePlacement";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import type { CenterId } from "astraeus/core/body";
+import { createProvenance } from "astraeus/core/provenance";
+import { memberState, type PointGroup } from "astraeus/core/pointGroup";
+import { composeCenteredPositions, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
+import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { AstraeusShell } from "astraeus/shell/AstraeusShell";
+import { findCameraPreset } from "astraeus/shell/objectModel";
 import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
-import { syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
-import { syntheticRingLayer } from "../../astraeus/src/synthetic/syntheticRingDefinition";
+import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { syntheticRingLayer } from "astraeus/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
 const earthPlacement = placementAbout("earth", adapter);

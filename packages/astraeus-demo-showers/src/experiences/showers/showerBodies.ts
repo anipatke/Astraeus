@@ -1,10 +1,10 @@
 // Shower bodies: the system composition, planet ids and the shell objects for the bodies.
-import { catalogueItem } from "../../../../astraeus/src/app/catalogueItem";
-import { EARTH_EPHEMERIS } from "../../../../astraeus/src/app/ephemerisProvenance";
-import type { BodyId } from "../../../../astraeus/src/core/body";
-import { rootBodyId } from "../../../../astraeus/src/assets/catalogue";
-import { createComposition, type SystemComposition } from "../../../../astraeus/src/assets/compositions";
-import type { ExperienceObject } from "../../../../astraeus/src/shell/experience";
+import { catalogueItem } from "astraeus/app/catalogueItem";
+import { EARTH_EPHEMERIS } from "astraeus/app/ephemerisProvenance";
+import type { BodyId } from "astraeus/core/body";
+import { rootBodyId } from "astraeus/assets/catalogue";
+import { createComposition, type SystemComposition } from "astraeus/assets/compositions";
+import type { ExperienceObject } from "astraeus/shell/experience";
 import { BEYOND_SHOWER_VIEWS, LABEL_PRIORITY, showerCatalogue } from "./showerBasics";
 import type { ShowerSettings } from "./showerSettings";
 

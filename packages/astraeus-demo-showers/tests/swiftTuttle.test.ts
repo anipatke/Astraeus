@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/swift-tuttle-horizons.json";
 import source from "./fixtures/swift-tuttle-horizons-source.txt?raw";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../../astraeus/src/core/bodies";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "astraeus/core/bodies/index";
 import {
   createSwiftTuttleTrajectory,
   SWIFT_TUTTLE,
@@ -14,11 +14,11 @@ import {
   SWIFT_TUTTLE_PERIOD_MS,
   SWIFT_TUTTLE_RADIUS_KM,
   SWIFT_TUTTLE_SAMPLING,
-} from "../../astraeus/src/core/bodies/swiftTuttle";
-import { createStateResolver } from "../../astraeus/src/core/stateResolver";
-import { eccentricPathTimesUtcMs, pathTimesUtcMs } from "../../astraeus/src/core/sunCentredSources";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { SWIFT_TUTTLE_VISUAL } from "../../astraeus/src/assets/bodies/swiftTuttle";
+} from "astraeus/core/bodies/swiftTuttle";
+import { createStateResolver } from "astraeus/core/stateResolver";
+import { eccentricPathTimesUtcMs, pathTimesUtcMs } from "astraeus/core/sunCentredSources";
+import { catalogue } from "astraeus/assets/catalogue";
+import { SWIFT_TUTTLE_VISUAL } from "astraeus/assets/bodies/swiftTuttle";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";

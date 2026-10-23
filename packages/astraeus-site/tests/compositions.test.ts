@@ -1,44 +1,44 @@
 import { describe, expect, it } from "vitest";
 import { Object3D } from "three";
-import { catalogue, createCatalogue, rootBodyId, type VisualEntry } from "../../astraeus/src/assets/catalogue";
-import { CompositionError, createComposition, earthMoonSystem, SIDEREAL_MONTH_MS, sunEarthSystem } from "../../astraeus/src/assets/compositions";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import type { CelestialBodyDefinition, StateSourceBinding } from "../../astraeus/src/core/body";
-import { directionFromCenterToSun, directionToSun } from "../../astraeus/src/core/illumination";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import { earthStateAt, sunPositionFromEarthAt } from "../../astraeus/src/core/referenceCenters";
-import { readableScale, trueScale, type ScalePolicy } from "../../astraeus/src/core/scalePolicy";
-import { createStateResolver } from "../../astraeus/src/core/stateResolver";
-import { createState, type Quaternion, type State } from "../../astraeus/src/core/state";
-import type { Trajectory } from "../../astraeus/src/core/trajectory";
+import { catalogue, createCatalogue, rootBodyId, type VisualEntry } from "astraeus/assets/catalogue";
+import { CompositionError, createComposition, earthMoonSystem, SIDEREAL_MONTH_MS, sunEarthSystem } from "astraeus/assets/compositions";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import type { CelestialBodyDefinition, StateSourceBinding } from "astraeus/core/body";
+import { directionFromCenterToSun, directionToSun } from "astraeus/core/illumination";
+import { createProvenance } from "astraeus/core/provenance";
+import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
+import { readableScale, trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
+import { createStateResolver } from "astraeus/core/stateResolver";
+import { createState, type Quaternion, type State } from "astraeus/core/state";
+import type { Trajectory } from "astraeus/core/trajectory";
 import {
   compositionOf,
   mountedBodiesOf,
   sceneCenterOf,
   type ExperienceDefinition,
-} from "../../astraeus/src/app/experienceDefinition";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { PointsView } from "../../astraeus/src/app/PointsView";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
+} from "astraeus/app/experienceDefinition";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { PointsView } from "astraeus/app/PointsView";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
 import {
   createSceneResolver,
   readoutPairOf,
   placeBody,
   placeComposition,
   trackedAbsolute,
-} from "../../astraeus/src/app/sceneLayout";
-import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "../../astraeus/src/app/sceneFraming";
-import { TRACK_LAYER, TrackedBodyView } from "../../astraeus/src/app/TrackedBodyView";
-import { apollo11Definition } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11Definition";
-import { apollo11Mission } from "../../astraeus-demo-apollo11/src/experiences/apollo11/apollo11";
-import { buildShowerDefinition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { madeUpOrbits } from "../../astraeus-demo-showers/tests/helpers/measuredOrbits";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import perseidsFile from "../../astraeus-demo-showers/data/showers/perseids.json";
-import { syntheticBareDefinition, syntheticDefinition } from "../../astraeus/src/synthetic/syntheticDefinition";
-import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "../../astraeus/src/synthetic/syntheticRingDefinition";
+} from "astraeus/app/sceneLayout";
+import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "astraeus/app/sceneFraming";
+import { TRACK_LAYER, TrackedBodyView } from "astraeus/app/TrackedBodyView";
+import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
+import { apollo11Mission } from "astraeus-demo-apollo11/experiences/apollo11/apollo11";
+import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
+import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "astraeus/synthetic/syntheticRingDefinition";
 import { PerspectiveCamera } from "three";
-import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "../../astraeus/tests/scenePlacement";
+import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "astraeus/tests/scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();
 const DATES = [Date.UTC(2023, 0, 15, 3), Date.UTC(2024, 6, 1, 12), Date.UTC(2025, 2, 20, 9, 30)];

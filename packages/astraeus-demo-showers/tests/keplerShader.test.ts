@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { groupsOf } from "../../astraeus/src/app/experienceDefinition";
-import { KeplerPoints } from "../../astraeus/src/app/KeplerPoints";
+import { groupsOf } from "astraeus/app/experienceDefinition";
+import { KeplerPoints } from "astraeus/app/KeplerPoints";
 import {
   KEPLER_BEGIN_VERTEX_GLSL,
   KEPLER_MAX_STEPS,
@@ -8,15 +8,15 @@ import {
   keplerKmF32,
   keplerOperationOrder,
   keplerStepsFor,
-} from "../../astraeus/src/app/keplerShader";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
-import { eccentricAnomalyRad } from "../../astraeus/src/core/listedOrbitGroup";
-import { fillKeplerRangeKm } from "../../astraeus/src/core/keplerElements";
-import { createOrbitGroup } from "../../astraeus/src/core/orbitGroup";
-import { createProvenance } from "../../astraeus/src/core/provenance";
-import type { PointGroup } from "../../astraeus/src/core/pointGroup";
-import { trueScale } from "../../astraeus/src/core/scalePolicy";
-import { createOrbTwoBodyAdapter } from "../../astraeus/src/core/twoBodyAdapter";
+} from "astraeus/app/keplerShader";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+import { eccentricAnomalyRad } from "astraeus/core/listedOrbitGroup";
+import { fillKeplerRangeKm } from "astraeus/core/keplerElements";
+import { createOrbitGroup } from "astraeus/core/orbitGroup";
+import { createProvenance } from "astraeus/core/provenance";
+import type { PointGroup } from "astraeus/core/pointGroup";
+import { trueScale } from "astraeus/core/scalePolicy";
+import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import geminidsFile from "../data/showers/geminids.json";

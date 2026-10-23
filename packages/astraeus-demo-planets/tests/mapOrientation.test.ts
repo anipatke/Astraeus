@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { Object3D, Vector3 } from "three";
-import { applyOrientation } from "../../astraeus/src/app/sceneLayout";
-import { latLonToXYZ } from "../../astraeus/src/app/FeatureMarkers";
-import { eqjToRenderVector } from "../../astraeus/src/app/renderCoordinates";
-import { catalogue } from "../../astraeus/src/assets/catalogue";
-import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL, TITAN_VISUAL } from "../../astraeus/src/assets/bodies/planetSystemMaps";
-import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "../../astraeus/src/assets/bodies/galileanMoons";
+import { applyOrientation } from "astraeus/app/sceneLayout";
+import { latLonToXYZ } from "astraeus/app/FeatureMarkers";
+import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+import { catalogue } from "astraeus/assets/catalogue";
+import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL, TITAN_VISUAL } from "astraeus/assets/bodies/planetSystemMaps";
+import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "astraeus/assets/bodies/galileanMoons";
 import { shownLongitude } from "../src/experiences/planets/surfacePlace.mjs";
-import type { BodyVisual } from "../../astraeus/src/assets/visual";
-import europaMap from "../../astraeus/data/bodies/europa/map.json";
-import titanMap from "../../astraeus/data/bodies/titan/map.json";
-import europaFeatures from "../../astraeus/data/bodies/europa/features.json";
-import titanFeatures from "../../astraeus/data/bodies/titan/features.json";
-import tritonMap from "../../astraeus/data/bodies/triton/map.json";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { createStateResolver } from "../../astraeus/src/core/stateResolver";
-import features from "../../astraeus/data/bodies/iapetus/features.json";
-import { readJson } from "../../astraeus/tools/import/test-io.mjs";
+import type { BodyVisual } from "astraeus/assets/visual";
+import europaMap from "astraeus/data/bodies/europa/map.json";
+import titanMap from "astraeus/data/bodies/titan/map.json";
+import europaFeatures from "astraeus/data/bodies/europa/features.json";
+import titanFeatures from "astraeus/data/bodies/titan/features.json";
+import tritonMap from "astraeus/data/bodies/triton/map.json";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { createStateResolver } from "astraeus/core/stateResolver";
+import features from "astraeus/data/bodies/iapetus/features.json";
+import { readJson } from "astraeus/tools/import/test-io.mjs";
 
 // O-039 T-130 (time inside the fit window the test setup loads, 2016-02-10 to 2016-12-30): Iapetus is tidally locked, so its dark Cassini Regio hemisphere leads in its orbit about Saturn. The drawn map's dark
 // centre (marker frame, longitude about +87 east) must therefore point along Iapetus's velocity once the body's rotation and the

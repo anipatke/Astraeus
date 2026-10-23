@@ -1,12 +1,12 @@
 // Shower definition: assembles the shower experience definition from its settings and re-exports the pieces.
-import { bodyMetrics } from "../../../../astraeus/src/app/bodyMetrics";
-import type { ExperienceDefinition } from "../../../../astraeus/src/app/experienceDefinition";
-import { rootBodyId } from "../../../../astraeus/src/assets/catalogue";
-import { createEvents } from "../../../../astraeus/src/core/events";
-import { createProvenance } from "../../../../astraeus/src/core/provenance";
-import type { ExperienceConfig } from "../../../../astraeus/src/shell/experience";
-import type { Metric } from "../../../../astraeus/src/shell/metrics";
-import { parseStoryPanels, StoryPanelError, type StoryPanelSet } from "../../../../astraeus/src/shell/storyPanels";
+import { bodyMetrics } from "astraeus/app/bodyMetrics";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
+import { rootBodyId } from "astraeus/assets/catalogue";
+import { createEvents } from "astraeus/core/events";
+import { createProvenance } from "astraeus/core/provenance";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import type { Metric } from "astraeus/shell/metrics";
+import { parseStoryPanels, StoryPanelError, type StoryPanelSet } from "astraeus/shell/storyPanels";
 import { orbitSetCounts, type MeasuredLoad, type OrbitSet } from "./measuredOrbits";
 import { createActivityWindow, radiantMetricOf, rateMetricOf } from "./showerActivity";
 import { showerCatalogue, sourceLine, streamIdOf, timelineBoundsOf, yearBoundsOf } from "./showerBasics";

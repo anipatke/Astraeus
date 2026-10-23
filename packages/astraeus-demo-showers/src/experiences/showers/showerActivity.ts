@@ -1,7 +1,7 @@
 // Shower activity: the rate samples, activity window and the rate and radiant metrics.
-import { createProvenance, type Provenance } from "../../../../astraeus/src/core/provenance";
-import { createWindows, rateAt, type RateSample, type TimelineWindow } from "../../../../astraeus/src/core/timeWindow";
-import type { CoordinatesMetric, RateMetric } from "../../../../astraeus/src/shell/metrics";
+import { createProvenance, type Provenance } from "astraeus/core/provenance";
+import { createWindows, rateAt, type RateSample, type TimelineWindow } from "astraeus/core/timeWindow";
+import type { CoordinatesMetric, RateMetric } from "astraeus/shell/metrics";
 import { DAY_MS, HOUR_MS, sourceLine, windowIdOf } from "./showerBasics";
 import type { ShowerSettings } from "./showerSettings";
 

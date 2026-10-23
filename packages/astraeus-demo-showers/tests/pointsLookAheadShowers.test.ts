@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { groupsOf } from "../../astraeus/src/app/experienceDefinition";
-import { FloatingOrigin } from "../../astraeus/src/app/floatingOrigin";
-import { PointsView } from "../../astraeus/src/app/PointsView";
-import { createOrbAstronomyAdapter } from "../../astraeus/src/core/astronomyAdapter";
-import { trueScale, type ScalePolicy } from "../../astraeus/src/core/scalePolicy";
+import { groupsOf } from "astraeus/app/experienceDefinition";
+import { FloatingOrigin } from "astraeus/app/floatingOrigin";
+import { PointsView } from "astraeus/app/PointsView";
+import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
+import { trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
 import { readShippedOrbits } from "./helpers/measuredOrbits";
-import { placementAbout } from "../../astraeus/tests/scenePlacement";
+import { placementAbout } from "astraeus/tests/scenePlacement";
 
 // T-073 (I-034), after the made-up group in pointsLookAhead.test.ts: the shipped showers, with their own refill interval, draw the
 // same positions with the fill spread over frames as with whole fills, forward, backward and across a seek.

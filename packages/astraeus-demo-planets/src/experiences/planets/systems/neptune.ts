@@ -1,11 +1,11 @@
 // Neptune's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
 // of the view are data/planets/neptune.json; this file only names where Neptune's data is.
-import { NEPTUNE_MOON_CATALOGUE, NEPTUNE_RINGS } from "../../../../../astraeus/src/assets/bodies/outerPlanetCatalogues";
-import { neptuneMoonsSystem } from "../../../../../astraeus/src/assets/compositions";
-import { NEPTUNE_MOON_SYSTEM } from "../../../../../astraeus/src/core/bodies/planetMoons";
+import { NEPTUNE_MOON_CATALOGUE, NEPTUNE_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { neptuneMoonsSystem } from "astraeus/assets/compositions";
+import { NEPTUNE_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
-import neptuneFitErrors from "../../../../../astraeus/data/moons/fit-errors/neptune.json";
+import neptuneFitErrors from "astraeus/data/moons/fit-errors/neptune.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/{neptune,triton}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;

@@ -1,11 +1,11 @@
 // Pluto's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/pluto.json; this file only names where Pluto's data is.
-import { PLUTO_MOON_CATALOGUE } from "../../../../../astraeus/src/assets/bodies/outerPlanetCatalogues";
-import { plutoMoonsSystem } from "../../../../../astraeus/src/assets/compositions";
-import { PLUTO_MOON_SYSTEM } from "../../../../../astraeus/src/core/bodies/planetMoons";
+import { PLUTO_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { plutoMoonsSystem } from "astraeus/assets/compositions";
+import { PLUTO_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
 import { chunkUrlsOf, packagesOf } from "../planetSystemParts";
-import plutoFitErrors from "../../../../../astraeus/data/moons/fit-errors/pluto.json";
+import plutoFitErrors from "astraeus/data/moons/fit-errors/pluto.json";
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/{pluto,charon}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;

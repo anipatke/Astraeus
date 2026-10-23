@@ -2,7 +2,7 @@
 // that are about what the settings, the data and the builder make. The moon panel's model is in tests/moonFamilyPanel.test.ts and its screen in tests/domMoonPanel.test.ts; the switch's clock and views in
 // tests/planetSystems.test.ts, tests/planetSwitchInner.test.ts and tests/planetChoice.test.ts; Io's place and lighting in tests/jupiterIo.test.ts. What is drawn, the dots' taps and the camera are the smoke check.
 import { describe, expect, it } from "vitest";
-import { mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf } from "../../astraeus/src/app/experienceDefinition";
+import { mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf } from "astraeus/app/experienceDefinition";
 import { buildPlanetDefinition, type PlanetSystem } from "../src/experiences/planets/planetDefinition";
 import { parsePlanetSettings } from "../src/experiences/planets/planetSettings";
 import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
@@ -10,9 +10,9 @@ import { marsSystem } from "../src/experiences/planets/systems/mars";
 import { plutoSystem } from "../src/experiences/planets/systems/pluto";
 import { saturnSystem } from "../src/experiences/planets/systems/saturn";
 import { uranusSystem } from "../src/experiences/planets/systems/uranus";
-import { JUPITER_MOON_CATALOGUE } from "../../astraeus/src/assets/bodies/jupiterMoonCatalogue";
-import { infoView } from "../../astraeus/src/shell/infoModel";
-import { readJson } from "../../astraeus/tools/import/test-io.mjs";
+import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
+import { infoView } from "astraeus/shell/infoModel";
+import { readJson } from "astraeus/tools/import/test-io.mjs";
 import marsFile from "../data/planets/mars.json";
 import plutoFile from "../data/planets/pluto.json";
 import saturnFile from "../data/planets/saturn.json";

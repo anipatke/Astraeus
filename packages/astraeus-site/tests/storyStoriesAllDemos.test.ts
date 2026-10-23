@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { jupiterIoExplorer } from "../../astraeus-demo-planets/src/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "../../astraeus-demo-showers/src/experiences/showers/showerDefinition";
-import { parseShowerSettings } from "../../astraeus-demo-showers/src/experiences/showers/showerSettings";
-import type { ExperienceConfig } from "../../astraeus/src/shell/experience";
-import type { StoryPanel } from "../../astraeus/src/shell/storyPanels";
-import { shippedPanelsOf } from "../../astraeus-demo-showers/tests/helpers/shippedPanels";
-import geminidsFile from "../../astraeus-demo-showers/data/showers/geminids.json";
+import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import type { ExperienceConfig } from "astraeus/shell/experience";
+import type { StoryPanel } from "astraeus/shell/storyPanels";
+import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
+import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
 
 /** O-015 / T-089: stories on every demo. Each demo's panels are story data, read through the same generic panel path. */
 const geminids = (span?: "activity") => {

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ExperienceDefinition } from "../../astraeus/src/app/experienceDefinition";
-import { MARS_MOON_SYSTEM } from "../../astraeus/src/core/bodies/planetMoons";
-import { needsPlanetSeries } from "../../astraeus/src/app/planetNeeds";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
+import { MARS_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
+import { needsPlanetSeries } from "astraeus/app/planetNeeds";
 import { buildPlanetDefinition, type PlanetSystem } from "../src/experiences/planets/planetDefinition";
 import { parsePlanetSettings } from "../src/experiences/planets/planetSettings";
 import { earthSystem } from "../src/experiences/planets/systems/earth";
@@ -12,11 +12,11 @@ import earthFile from "../data/planets/earth.json";
 import marsFile from "../data/planets/mars.json";
 import mercuryFile from "../data/planets/mercury.json";
 import venusFile from "../data/planets/venus.json";
-import earthFeatures from "../../astraeus/data/bodies/earth/features.json";
-import moonFeatures from "../../astraeus/data/bodies/moon/features.json";
-import marsFeatures from "../../astraeus/data/bodies/mars/features.json";
-import mercuryFeatures from "../../astraeus/data/bodies/mercury/features.json";
-import venusFeatures from "../../astraeus/data/bodies/venus/features.json";
+import earthFeatures from "astraeus/data/bodies/earth/features.json";
+import moonFeatures from "astraeus/data/bodies/moon/features.json";
+import marsFeatures from "astraeus/data/bodies/mars/features.json";
+import mercuryFeatures from "astraeus/data/bodies/mercury/features.json";
+import venusFeatures from "astraeus/data/bodies/venus/features.json";
 
 // Mercury, Venus, Earth and Mars in the planet switch (O-033 T-119): one settings file and one small system each, built by the one planet builder.
 const panels = { pauseSeconds: 6, autoOpen: false, panels: [] };

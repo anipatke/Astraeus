@@ -1,4 +1,4 @@
-import type { AstronomyAdapter } from "../../../astraeus/src/core/astronomyAdapter";
+import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import type { NormalisedAnchor } from "./anchors";
 import type { EarthState } from "./dynamics";
 import { roundPosition, roundVelocity } from "./format";

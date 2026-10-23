@@ -1,8 +1,8 @@
-import { bodyMetrics, resolverTrajectory } from "../../../../astraeus/src/app/bodyMetrics";
-import { createTrackedMetrics } from "../../../../astraeus/src/experiences/apollo11/spacecraftMetrics";
-import type { TrackedBody } from "../../../../astraeus/src/app/mission";
-import type { StateResolver } from "../../../../astraeus/src/core/stateResolver";
-import type { Metric } from "../../../../astraeus/src/shell/metrics";
+import { bodyMetrics, resolverTrajectory } from "astraeus/app/bodyMetrics";
+import { createTrackedMetrics } from "astraeus/experiences/apollo11/spacecraftMetrics";
+import type { TrackedBody } from "astraeus/app/mission";
+import type { StateResolver } from "astraeus/core/stateResolver";
+import type { Metric } from "astraeus/shell/metrics";
 
 /**
  * Apollo's info-panel rows: Earth's and the Moon's distances (the catalogue's rows, without phase or position, which the
