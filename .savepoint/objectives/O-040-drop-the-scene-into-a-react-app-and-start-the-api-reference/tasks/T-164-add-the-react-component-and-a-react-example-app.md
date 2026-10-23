@@ -2,10 +2,17 @@
 id: T-164
 title: Add the React component and a React example app
 objective: O-040
-status: planned
+status: done
 depends_on: [{task: T-163, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: g011-planning-20261023}
+check_waiver:
+    task: T-164
+    reason: 'owner run rules: no per-step checks, one Full Objective Check at the end of O-040 ("dont we have a skill for this", standing O-036 rules); owner look given: "looks fine"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T11:00:13Z"
 ---
 
 # Add the React component and a React example app
@@ -52,8 +59,30 @@ Hand-off gates from AGENTS.md plus `npm run check:pack` and `npm run build:examp
 
 ## Technical Evidence
 
-Pending execution.
+Built by a Sonnet builder, 2026-10-23. Task Check waived by the owner's run rules (no Check record written); left at `stage: audit`.
+
+Per criterion:
+- `AstraeusScene` and `AstraeusSceneProps` exported from `.` with doc comments (`src/api/AstraeusScene.tsx`, `index.ts`): met. It renders `App` with the definition, waits for `prepare()`, calls `onReady`/`onError`, rebuilds on a new `scene` object (data and callbacks are read through a ref, documented), cleans up on unmount.
+- `mount` on the same shared path: met. New `src/api/prepared.ts` `prepareScene(scene, data)` builds the definition and starts `prepare()`; both `mount` and the component call it (STYLE-07). `mount` signature and behaviour unchanged (existing mount tests pass).
+- Tests: met. `tests/publicApi.test.ts` gains an `AstraeusScene` block (render, ready, build error, data-load error, scene change vs callback change, unmount incl. before data loads) in the happy-dom page; the file imports and asserts the new export. 28 tests pass.
+- `examples/hello-react` built by `npm run build:example` from the packed tarball: met (`tools/build-example.mjs` now builds `hello-scene` and `hello-react`; `node tools/build-example.mjs hello-react` builds one).
+- Browser step: `hello-react` added to `run-browser.mjs`; `example` is now a folder name, the runner previews each example on its own port (`runner.mjs`); it reuses `check-hello-scene.mjs` (same scene, same readouts, STYLE-07). Run once alone against the built example at :5497 (scratch evidence dir, not docs/evidence): desktop and phone passed, errors [] (probe in list and picked, Follow in force, Earth/Moon drawn in view, Moon orbit line in view, time set and moved). Mapped in `docs/BROWSER_CHECKS.md`. Full `check:browser` not run (Full Objective Check).
+- README: React section and API table row; CHANGELOG Unreleased entry: met.
+- Owner look pending: built example previewed at http://localhost:5497/.
+
+Commands run: `npm run lint` pass; `npm run typecheck` pass; `npm run build` pass; `npm test` 1574 passed, 1 skipped (119 files); `npm run check:pack` pass; `npm run build:example` pass (both examples); hello-react browser step alone pass.
+
+Files read: the Context Files. Extra reads: `packages/astraeus/src/api/errors.ts` (error codes, to avoid a new code), `packages/astraeus-site/tests/publishWorkflow.test.ts` (example manifest rules), `examples/hello-scene/.gitignore`.
+Files changed: packages/astraeus/src/api/{AstraeusScene.tsx (new), prepared.ts (new), mount.ts, index.ts}, tests/publicApi.test.ts, README.md, CHANGELOG.md; examples/hello-react/{package.json, index.html, src/main.jsx, .gitignore} (new); tools/build-example.mjs; packages/astraeus-site/tools/validate/{runner.mjs, run-browser.mjs, check-hello-scene.mjs (comment)}; docs/BROWSER_CHECKS.md; router task T-164.
+
+Limitations: no visual look by the builder; `onReady` fires when state is set for the draw (the commit follows immediately); the component is not exercised with a real canvas in tests (pretend page). `publishWorkflow.test.ts` still checks only hello-scene's manifest/main.js, not hello-react.
+
 
 ## Drift Notes
 
 Record architecture deltas (new public export, second example) for reconciliation before the Full Objective Check.
+
+- New public export `AstraeusScene` / `AstraeusSceneProps` on the `.` entry; new internal `src/api/prepared.ts` (`prepareScene`) shared by `mount` and the component. Design Components (O-036 packaging row, public API) needs both.
+- Second example `examples/hello-react` (outside the workspaces, tarball-installed, devDependencies for the peers) built with `hello-scene` by `build-example.mjs`; browser runner `example` field is now a folder name with one preview port per example; `hello-react` step reuses `check-hello-scene.mjs`.
+
+**Owner's verdict (2026-10-23T11:00:13Z):** looked at the React example on http://localhost:5497 (desktop and phone): "looks fine".

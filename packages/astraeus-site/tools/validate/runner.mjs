@@ -4,7 +4,7 @@
 // preview-server.log go to a scratch folder under the OS temp directory whose path the summary prints.
 //
 // A step is { name, script, scene?, args?, env?, public?, example? } (`scene` is the experience the step opens, printed in the summary). `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
-// script gets ASTRAEUS_URL pointing at a preview of it. An `example` step builds examples/hello-scene from the packed tarballs (`tools/build-example.mjs`, once) and gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
+// script gets ASTRAEUS_URL pointing at a preview of it. An `example: "<folder>"` step builds the examples (`hello-scene`, `hello-react`) from the packed tarballs (`tools/build-example.mjs`, once) and gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,6 +16,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 const DEV_PORT = process.env.DEV_PORT ?? "5479";
 const PUBLIC_PORT = process.env.PUBLIC_PORT ?? "5480";
 const EXAMPLE_PORT = process.env.EXAMPLE_PORT ?? "5481";
+/** The example apps a step can open (`example: "<folder>"`); each previews on its own port, counting up from EXAMPLE_PORT. */
+const EXAMPLE_NAMES = ["hello-scene", "hello-react"];
+const examplePort = (name) => Number(EXAMPLE_PORT) + EXAMPLE_NAMES.indexOf(name);
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 const ERROR_LINE = /console error|pageerror|page error/i;
 const ZERO_ERRORS = /zero console errors/i;
@@ -30,7 +33,7 @@ async function waitFor(url) {
 }
 
 function runStep(step, ctx) {
-  const url = step.example ? ctx.exampleUrl : step.public ? ctx.publicUrl : ctx.devUrl;
+  const url = step.example ? ctx.exampleUrls[step.example] : step.public ? ctx.publicUrl : ctx.devUrl;
   const dir = join(ctx.evidence, step.name);
   const args = [join("packages/astraeus-site/tools/validate", step.script), ...(step.args ?? [])];
   if (step.public && step.noBrowser) args.push(ctx.publicDir);
@@ -65,8 +68,10 @@ async function startServers(steps, ctx) {
     const build = spawnSync(process.execPath, ["tools/build-example.mjs"], { cwd: root, encoding: "utf8" });
     ctx.writeLog("example-build.log", `${build.stdout}${build.stderr}`);
     if (build.status !== 0) throw new Error("example build failed (see example-build.log)");
-    ctx.serve("example-server.log", ["vite", "preview", "examples/hello-scene", "--port", EXAMPLE_PORT, "--strictPort", "--host", "localhost"]);
-    await waitFor(ctx.exampleUrl);
+    for (const name of [...new Set(steps.filter((s) => s.example).map((s) => s.example))]) {
+      ctx.serve(`${name}-server.log`, ["vite", "preview", `examples/${name}`, "--port", String(examplePort(name)), "--strictPort", "--host", "localhost"]);
+      await waitFor(ctx.exampleUrls[name]);
+    }
   }
   if (needsDev) await waitFor(ctx.devUrl);
   if (needsPreview) await waitFor(ctx.publicUrl);
@@ -92,7 +97,7 @@ function makeContext(setName) {
   console.log(`logs: ${logs}`);
   return {
     evidence, logs, publicDir: join(scratch, "public"), serve, stop, writeLog,
-    devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`, exampleUrl: `http://localhost:${EXAMPLE_PORT}/`,
+    devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`, exampleUrls: Object.fromEntries(EXAMPLE_NAMES.map((name) => [name, `http://localhost:${examplePort(name)}/`])),
   };
 }
 

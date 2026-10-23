@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 // The engine's small public API (O-036 T-160): a scene built with the documented calls becomes the app's definition, bad input fails with a named error, and mount/unmount leaves nothing behind.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act } from "react";
-import { Scene, SceneError, earth, moon, mount, readableScale, saturn, titan, trueScale, type DataSource } from "astraeus";
+import { act, createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { AstraeusScene, Scene, SceneError, earth, moon, mount, readableScale, saturn, titan, trueScale, type DataSource } from "astraeus";
 import { dataSource as pictureData } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
 import { clearPictures, pictureOf, registerPictures } from "../src/assets/pictures";
@@ -137,6 +138,88 @@ describe("mount", () => {
   it("refuses something that is not an element and a scene with a missing package", () => {
     expect(codeOf(() => mount(null as never, new Scene().addBody(earth)))).toMatch(/^bad-element/);
     expect(codeOf(() => mount(document.createElement("div"), new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" })))).toMatch(/^missing-data: .*astraeus-data/);
+  });
+});
+
+describe("AstraeusScene", () => {
+  let host: HTMLElement;
+  let root: Root | undefined;
+  beforeEach(() => {
+    vi.stubGlobal("fetch", () => Promise.reject(new Error("offline")));
+    host = document.createElement("div");
+    document.body.append(host);
+  });
+  afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); });
+  const render = async (props: Parameters<typeof AstraeusScene>[0]) => {
+    root ??= createRoot(host);
+    await act(async () => { root!.render(createElement(AstraeusScene, props)); await Promise.resolve(); });
+  };
+  const flush = () => act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+  const scene = () => new Scene().addBody(earth).addBody(moon).addTrajectory(apollo);
+
+  it("draws the viewer into its wrapper and reports ready once", async () => {
+    expect(typeof AstraeusScene).toBe("function");
+    const onReady = vi.fn();
+    await render({ scene: scene(), onReady, className: "wrap", style: { height: 300 } });
+    await flush();
+    const wrapper = host.firstElementChild as HTMLElement;
+    expect(wrapper.className).toBe("wrap");
+    expect(wrapper.style.height).toBe("300px");
+    expect(wrapper.childElementCount).toBeGreaterThan(0);
+    expect(onReady).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports a scene that cannot be built through onError and draws nothing", async () => {
+    const onError = vi.fn();
+    await render({ scene: new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" }), onError });
+    await flush();
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError.mock.calls[0]![0]).toBeInstanceOf(SceneError);
+    expect((host.firstElementChild as HTMLElement).childElementCount).toBe(0);
+  });
+
+  it("reports a data load failure through onError", async () => {
+    const failing = { id: "x", provides: [] } as unknown as DataSource;
+    const s = scene();
+    const definition = s.toDefinition();
+    vi.spyOn(s, "toDefinition").mockReturnValue({ ...definition, prepare: () => Promise.reject(new Error("no data")) });
+    const onError = vi.fn(); const onReady = vi.fn();
+    await render({ scene: s, data: [failing], onError, onReady });
+    await flush();
+    expect(onError.mock.calls[0]![0].message).toBe("no data");
+    expect(onReady).not.toHaveBeenCalled();
+  });
+
+  it("rebuilds when the scene prop changes, not when only the callbacks change", async () => {
+    const first = scene();
+    const spy = vi.spyOn(first, "toDefinition");
+    await render({ scene: first, onReady: () => undefined });
+    await flush();
+    await render({ scene: first, onReady: () => undefined });
+    await flush();
+    expect(spy).toHaveBeenCalledTimes(1);
+    const second = new Scene().addBody(earth);
+    const spy2 = vi.spyOn(second, "toDefinition");
+    const onReady = vi.fn();
+    await render({ scene: second, onReady });
+    await flush();
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(onReady).toHaveBeenCalledTimes(1);
+  });
+
+  it("removes everything on unmount, and never draws if unmounted before the data loads", async () => {
+    await render({ scene: scene() });
+    await flush();
+    act(() => root!.unmount());
+    root = undefined;
+    expect(host.childElementCount).toBe(0);
+    const onReady = vi.fn();
+    const early = createRoot(host);
+    act(() => early.render(createElement(AstraeusScene, { scene: new Scene().addBody("jupiter"), onReady })));
+    act(() => early.unmount());
+    await flush();
+    expect(host.childElementCount).toBe(0);
+    expect(onReady).not.toHaveBeenCalled();
   });
 });
 

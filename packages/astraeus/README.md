@@ -49,9 +49,28 @@ The element needs a size (for example `height: 100%` all the way up). The probe'
 | `scene.setScale(trueScale \| readableScale)` | The opening scale; the viewer can switch to the other. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
 | `mount(element, scene, { data? })` | Draws the scene with the full viewer. Returns `{ ready, unmount() }`. `data` is a list of data packages (below). |
+| `<AstraeusScene scene data? onReady? onError? />` | The same viewer as a React component (below). |
 | `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |
 
 Types (`State`, `Pictures`, `TextureRef`, `AssetLicence`, `DataSource`, `TrajectoryInput` and the like) are exported for TypeScript.
+
+## In a React app
+
+`AstraeusScene` draws the same viewer as `mount`, as a component. It fills its parent, so give the parent a size:
+
+```jsx
+import { Scene, earth, moon, AstraeusScene } from "astraeus";
+
+const scene = new Scene().addBody(earth).addBody(moon, { orbit: true });
+
+export const App = () => (
+  <div style={{ height: "100vh" }}>
+    <AstraeusScene scene={scene} data={[]} onReady={() => console.log("drawn")} onError={(error) => console.error(error)} />
+  </div>
+);
+```
+
+Props: `scene`, `data` (as for `mount`), `onReady`, `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
 
 ## What `astraeus-data` adds
 

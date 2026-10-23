@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "../app/style.css";
 import { App } from "../app/App";
 import { SceneError } from "./errors";
+import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 
 export interface MountOptions {
@@ -21,10 +22,10 @@ export interface MountedScene {
 /** Draws `scene` into `element` with the full viewer. The caller writes no React. */
 export function mount(element: HTMLElement, scene: Scene, options: MountOptions = {}): MountedScene {
   if (!(element instanceof Object) || typeof element.appendChild !== "function") throw new SceneError("bad-element", "mount: the first argument must be an element of the page");
-  const definition = scene.toDefinition(options.data ?? []);
+  const { definition, ready: loaded } = prepareScene(scene, options.data);
   const root = createRoot(element);
   let open = true;
-  const ready = (definition.prepare?.() ?? Promise.resolve()).then(() => {
+  const ready = loaded.then(() => {
     if (open) root.render(createElement(App, { definition }));
   });
   return {

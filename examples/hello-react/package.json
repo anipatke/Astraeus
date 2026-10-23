@@ -1,0 +1,18 @@
+{
+  "name": "hello-react",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The smallest app that draws a scene in a React 19 app with the astraeus component. Installed from the packed tarballs by `npm run build:example` in the repository root.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.169.0",
+    "vite": "8.3.5"
+  }
+}

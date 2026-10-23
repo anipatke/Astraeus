@@ -1,4 +1,4 @@
-// The example app (O-036 T-162), a step of `npm run check:browser`: examples/hello-scene, built from the packed `astraeus` tarball (not workspace links), is opened at desktop and
+// The example apps (O-036 T-162; O-040 T-164 runs the same readouts on examples/hello-react, which draws the same scene through the React component), steps of `npm run check:browser`: examples/hello-scene, built from the packed `astraeus` tarball (not workspace links), is opened at desktop and
 // phone size. It must draw Earth and the Moon (the scene's own readouts), list the probe and open following it, start already following the path, and let the time be set (the Moon's orbit line is read from the scene's path readout `moon-orbit`). No screenshot is taken.
 // Alone: ASTRAEUS_URL=<example url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/check-hello-scene.mjs
 import assert from "node:assert/strict";
