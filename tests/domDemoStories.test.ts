@@ -10,9 +10,10 @@ import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import type { ExperienceConfig } from "../src/shell/experience";
 import geminidsFile from "../data/showers/geminids.json";
 import perseidsFile from "../data/showers/perseids.json";
+import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { $, mountShell, press, type Mounted } from "./domSetup";
 
-const shower = (file: unknown): ExperienceConfig => buildShowerDefinition(parseShowerSettings(file), { kind: "absent" }).experience;
+const shower = (file: unknown): ExperienceConfig => { const settings = parseShowerSettings(file); return buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience; };
 const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];
 
 let m: Mounted | undefined;

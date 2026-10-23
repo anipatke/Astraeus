@@ -4,12 +4,14 @@ import { buildShowerDefinition } from "../src/experiences/showers/showerDefiniti
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import type { ExperienceConfig } from "../src/shell/experience";
 import type { StoryPanel } from "../src/shell/storyPanels";
+import { shippedPanelsOf } from "./helpers/shippedPanels";
 import geminidsFile from "../data/showers/geminids.json";
 
 /** O-015 / T-089: stories on every demo. Each demo's panels are story data, read through the same generic panel path. */
 const geminids = (span?: "activity") => {
   const file = span === undefined ? geminidsFile : { ...geminidsFile, timeline: { ...geminidsFile.timeline, span } };
-  return buildShowerDefinition(parseShowerSettings(file), { kind: "absent" }).experience;
+  const settings = parseShowerSettings(file);
+  return buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience;
 };
 
 const stories: readonly [string, ExperienceConfig, readonly (readonly [string, string, string | undefined])[]][] = [

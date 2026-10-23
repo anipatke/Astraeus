@@ -8,6 +8,7 @@ import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "../src/c
 import { buildElementsBody, classifyPositionError, parseElementsBodyRecord } from "../src/core/elementsBody";
 import { catalogue } from "../src/assets/catalogue";
 import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 
 // O-024 T-092: the Showers demo's year (21 September 2019 to 20 September 2020) checked against JPL Horizons, as C-030/C-032 did for the
@@ -110,7 +111,8 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(geminidsText).toMatch(/December 2024 and December 2025/);
     expect(geminidsText).toMatch(/Active 4 to 17 December 2019/);
     expect(geminidsText).toMatch(/14 December 2019 at 04:33:33 UTC/);
-    const built = buildShowerDefinition(parseShowerSettings(geminids), { kind: "absent" }).experience;
+    const settings = parseShowerSettings(geminids);
+    const built = buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience;
     expect(built.storyPanels!.panels.map((p) => p.id)).toEqual(["phaethon", "best-shower", "earth-crossing"]);
   });
 });

@@ -56,7 +56,7 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {
-    const [{ parseShowerSettings }, { buildShowerDefinition, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
+    const [{ parseShowerSettings }, { buildShowerDefinition, loadShowerPanelsFile, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
       import("./experiences/showers/showerSettings"),
       import("./experiences/showers/showerDefinition"),
       import("./experiences/showers/measuredOrbits"),
@@ -70,7 +70,9 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
     // Building a shower already reads planet positions (the planets' orbit paths), so the series load first when its composition has a planet.
     if (showerComposition(settings).bodies.some(isPlanetId)) await loadPlanetSeries();
-    return { ...buildShowerDefinition(settings, await loadMeasuredOrbits(settings.stream.iauCode, settings.id), set), switcher: showerChoice.switcher };
+    // Only the chosen shower's panels file is fetched, beside its orbits.
+    const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
+    return { ...buildShowerDefinition(settings, load, set, panelsFile), switcher: showerChoice.switcher };
   }
   return Object.hasOwn(DEFINITIONS, requested) ? DEFINITIONS[requested]!() : (await import("./experiences/apollo11/apollo11Definition")).apollo11Definition;
 }

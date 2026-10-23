@@ -17,7 +17,7 @@ const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v4
 const SPLIT_CHUNKS = new Set(["elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "panels.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
@@ -56,8 +56,9 @@ const ALL_PAGES = [
   planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 17_380_000, gzipLimit: 15_950_000 }),
   planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 4_420_000, gzipLimit: 3_030_000 }),
   planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
-  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], rawLimit: 10_090_000, gzipLimit: 7_050_000 },
-  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], rawLimit: 12_700_000, gzipLimit: 7_900_000 },
+  // T-152 (O-030): the showers pages list only the chosen shower's panels chunk (`storyPanels`), not every story's. perseids page 9,965,936 B raw / 6,995,644 B gzip (24 files) before, 9,944,191 / 6,987,339 (20 files) after; geminids page 12,450,409 / 7,801,854 before, 12,430,767 / 7,794,282 after (public build, 2026-10-23). Limits lowered by the saving, rounded up to the next 10,000 bytes.
+  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 10_070_000, gzipLimit: 7_040_000 },
+  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 12_680_000, gzipLimit: 7_890_000 },
 ];
 /**
  * The planets a public build offers: Jupiter alone (owner, 2026-10-22; T-136). The other eight planet views exist only in a local build, so their page sets
@@ -164,6 +165,16 @@ function addNamedFiles(distDir, names, page, files) {
   }
 }
 
+/** The one panels chunk a page's story fetches (T-152): the app script's lazy lookup maps `data/stories/<story>/panels.json` to its hashed chunk; only the chosen story's counts. */
+function addStoryPanels(distDir, names, page, files, problems) {
+  if (page.storyPanels === undefined) return;
+  for (const app of findFiles(names, "app.js")) {
+    const match = readFileSync(join(distDir, app), "latin1").match(new RegExp(`stories/${page.storyPanels}/panels\\.json":\\(\\)=>[^\`]*\`\\./(panels-[A-Za-z0-9_-]{8}\\.js)\``));
+    if (match !== null && !files.includes(`assets/${match[1]}`)) { files.push(`assets/${match[1]}`); return; }
+  }
+  problems.push(`the app script names no panels chunk for the story "${page.storyPanels}" (the page set is out of date)`);
+}
+
 /** A problem for every script in `files` that imports a script the page set does not list. */
 function unlistedImportProblems(distDir, files) {
   const listed = new Set(files);
@@ -193,6 +204,7 @@ function stemPageFiles(distDir, names, page, problems) {
   followSplitChunks(distDir, files, several);
   addFetchedFiles(names, page, files, problems);
   addNamedFiles(distDir, names, page, files);
+  addStoryPanels(distDir, names, page, files, problems);
   for (const [entry, found] of severalEntries) {
     if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
   }
