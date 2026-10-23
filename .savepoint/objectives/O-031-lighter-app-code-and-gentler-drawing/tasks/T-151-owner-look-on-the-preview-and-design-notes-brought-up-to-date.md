@@ -9,7 +9,7 @@ check_waiver:
   actor: {role: owner, session: o031-orchestration-20261023}
   recorded_at: '2026-10-23T00:00:00Z'
 depends_on: [{task: T-149, requires: clear}, {task: T-150, requires: clear}]
-owner_validation: {required: true, accepted_by: {role: owner, session: o031-orchestration-20261023}, accepted_at: '2026-10-23T00:16:39Z', verdict: 'all fine, run the final check'}
+owner_validation: {required: true}
 planned_by: {role: planner, session: o031-planning-20261023}
 lane: close
 ---
