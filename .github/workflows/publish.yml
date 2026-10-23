@@ -1,0 +1,46 @@
+# Publishes the Astraeus packages to npm (O-036 T-162). Runs when you publish a GitHub release; docs/RELEASING.md is the owner's step-by-step.
+# npm trusted publishing: no token is stored; the runner signs in to npm with its OIDC identity (id-token: write) and npm adds a provenance statement.
+# A manual run (Actions tab, "Run workflow") is a DRY RUN: it does every step except sending anything to npm.
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Show tool versions (trusted publishing needs npm 11.5.1 or later)
+        run: |
+          node --version
+          npm --version
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - run: npm run check:engine-alone
+      - name: Build the packages and check what they pack
+        run: npm run check:pack
+      - name: Publish (release) or dry-run (manual run)
+        env:
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "$EVENT" = "release" ]; then
+            node tools/publish-packages.mjs --tag "$TAG"
+          else
+            node tools/publish-packages.mjs --dry-run
+          fi

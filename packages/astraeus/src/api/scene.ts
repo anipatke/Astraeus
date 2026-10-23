@@ -74,7 +74,7 @@ export class SceneCamera {
   constructor(has: (id: string) => boolean) {
     this.#has = has;
   }
-  /** Opens framed on a body or trajectory already added to the scene, with the viewer's Follow button offered for it. */
+  /** Opens framed on a body or trajectory already added to the scene and already following it (the viewer's Follow button shows as pressed). */
   follow(id: string, view: FollowView = {}): this {
     if (!this.#has(id)) throw new SceneError("unknown-body", `camera.follow("${id}"): no body or trajectory with that id has been added to the scene`);
     this.#target = id;
@@ -163,6 +163,7 @@ export class Scene {
           { id: "overview", label: "Overview", request: { kind: "overview" } },
           ...(target === undefined ? [] : [{ id: "focus-target", label: "Focus", request: { kind: "focus" as const, target } }, { id: "follow-target", label: "Follow", request: { kind: "follow" as const, target } }]),
         ],
+        ...(target === undefined ? {} : { startCameraPresetId: "follow-target" }),
         events: createEvents([]),
         window,
         rates: [60, 3_600, DAY_MS / 1000],

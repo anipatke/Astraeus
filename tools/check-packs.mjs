@@ -23,7 +23,7 @@ export const LIMITS = {
   "astraeus-data-pluto": { packed: 2 * MB, unpacked: 2.1 * MB, files: 140 },
 };
 
-const COMMON = ["package\\.json", "README\\.md", "LICENSE", "NOTICE", "licenses/[^/]+"];
+const COMMON = ["package\\.json", "README\\.md", "CHANGELOG\\.md", "LICENSE", "NOTICE", "licenses/[^/]+"];
 const CODE = "src/.+\\.(?:js|d\\.ts)";
 /** Files each package may contain (anything else fails). */
 const ALLOWED = {
@@ -60,7 +60,8 @@ function problemsOf(name, dir, pack) {
   }
   const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
   if (manifest.name !== name) problems.push(`${name}: package.json names ${manifest.name}`);
-  if (manifest.version !== "0.1.0") problems.push(`${name}: version is ${manifest.version}, expected 0.1.0`);
+  const sourceVersion = JSON.parse(readFileSync(join(root, "packages", name, "package.json"), "utf8")).version;
+  if (manifest.version !== sourceVersion) problems.push(`${name}: version is ${manifest.version}, the source package.json says ${sourceVersion}`);
   for (const field of REQUIRED_FIELDS) if (manifest[field] === undefined) problems.push(`${name}: package.json has no ${field}`);
   if (manifest.private === true) problems.push(`${name}: package.json is private`);
   if (Object.keys(manifest).some((key) => key.startsWith("x-"))) problems.push(`${name}: package.json still has an x- build block`);

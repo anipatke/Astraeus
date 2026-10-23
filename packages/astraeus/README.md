@@ -1,6 +1,87 @@
-# astraeus (the engine)
+# astraeus
 
-The part of Astraeus that has no story of its own. Inside this repository it is used as TypeScript source (the demos and the site build it). For npm it is compiled by `npm run build:packages` into `dist/`, which is the folder that gets packed (`npm run check:pack` builds and checks it; nothing is published from here). Its code imports no other package in this repository; the moon pictures, the 8k Venus map, the Milky Way and the moon positions live in `astraeus-data` and `astraeus-data-<planet>`, which a customer hands to `mount(..., { data })`.
+A 3D solar system for the browser. Place bodies and recorded paths in a scene, mount it, and get time controls, camera, scale choice and body information, with no React and no 3D code of your own.
+
+> **0.1 preview.** The public API below is the promise: it is small on purpose and may still change between `0.x` versions, with every change listed in [CHANGELOG.md](./CHANGELOG.md). Anything not exported from `astraeus` is internal and may change or disappear in any release.
+
+## Install
+
+```sh
+npm install astraeus
+```
+
+You need a bundler (Vite, webpack 5 or Parcel). The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; loading it straight in Node or from a bare `<script type="module">` will not work.
+
+## A scene in about 20 lines
+
+```js
+import { Scene, earth, moon, mount } from "astraeus";
+
+// A made-up probe on a circle 120,000 km from Earth, one lap in six hours (positions in km, times as ISO text).
+const start = Date.parse("2026-01-01T00:00:00Z");
+const samples = Array.from({ length: 73 }, (_, i) => {
+  const angle = (i / 72) * 2 * Math.PI;
+  return { time: start + i * 300_000, positionKm: [120_000 * Math.cos(angle), 120_000 * Math.sin(angle), 0] };
+});
+
+const scene = new Scene()
+  .addBody(earth)
+  .addBody(moon)
+  .addTrajectory({ id: "probe", label: "Hello probe", samples })
+  .setTime("2026-01-01T00:00:00Z");
+scene.camera.follow("probe", { distance: 110 });
+
+mount(document.getElementById("app"), scene);
+```
+
+The element needs a size (for example `height: 100%` all the way up). The finished app is in the repository at `examples/hello-scene`.
+
+## The public API
+
+| Call | What it does |
+|---|---|
+| `new Scene()` | An empty scene. Every method below returns the scene, so calls chain. |
+| `scene.addBody(body)` | Adds a catalogued body: a ready-made one (`sun`, `mercury`, `venus`, `earth`, `moon`, `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`, and the moons `io`, `europa`, `ganymede`, `callisto`, `mimas`, `enceladus`, `tethys`, `dione`, `rhea`, `titan`, `iapetus`, `triton`, `charon`, `phobos`, `deimos`) or its id. The first body added is the scene's centre. |
+| `scene.addTrajectory({ id, label?, color?, center?, samples })` | A recorded path. Each sample is `{ time, positionKm, velocityKmS? }` measured from `center` (default `"earth"`); `time` is ISO text, a `Date` or Unix milliseconds. Instead of `samples` you may give `provider` (an object with `stateAt(timeUtcMs)`) and `bounds: { start, end }`. |
+| `scene.setTime(time)` | The moment the scene opens at. |
+| `scene.setScale(trueScale \| readableScale)` | The opening scale; the viewer can switch to the other. |
+| `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
+| `mount(element, scene, { data? })` | Draws the scene with the full viewer. Returns `{ ready, unmount() }`. `data` is a list of data packages (below). |
+| `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`) and the message says what to do. |
+
+Types (`State`, `Pictures`, `TextureRef`, `AssetLicence`, `DataSource`, `TrajectoryInput` and the like) are exported for TypeScript.
+
+## What `astraeus-data` adds
+
+The engine alone draws the Sun, Earth, Moon and the eight planets with their pictures and positions for 2010 to 2030. Everything heavier is a separate, optional package you import and hand to `mount`, so you only download what you use:
+
+| Package | Adds | Download |
+|---|---|---|
+| `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way | about 35 MB |
+| `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` | Moon positions for that planet's system | 2 to 40 MB each |
+
+```js
+import { Scene, jupiter, io, mount } from "astraeus";
+import { dataSource as jupiterMoons } from "astraeus-data-jupiter";
+
+mount(el, new Scene().addBody(jupiter).addBody(io), { data: [jupiterMoons] });
+```
+
+Nothing is looked up behind your back. A moon added without its data package makes `mount` throw a `missing-data` error that names the package to install; nothing is invented to fill the gap.
+
+## What counts as internal
+
+Only what `import ... from "astraeus"` (and `astraeus/style.css`) gives you is public. Deep imports, file paths inside the package and the repository's other workspaces (the demos and the site) are internal and may change in any release.
+
+## Licence
+
+MIT for the code. Pictures and data carry their own credits and licences: see `NOTICE` and `licenses/`, and each picture's `licence` record.
+
+---
+
+## Working on the engine in the repository
+
+Inside the repository the engine is used as TypeScript source (the demos and the site build it). For npm it is compiled by `npm run build:packages` into `dist/`, the folder that gets packed (`npm run check:pack` builds and checks it). `docs/RELEASING.md` is the release procedure.
 
 ## What it holds
 

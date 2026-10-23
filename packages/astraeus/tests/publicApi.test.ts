@@ -7,6 +7,8 @@ import { dataSource as pictureData } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
 import { clearPictures, pictureOf, registerPictures } from "../src/assets/pictures";
 import { installData } from "../src/api/data";
+import { mountShell } from "./domSetup";
+import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -28,6 +30,7 @@ describe("Scene", () => {
     expect(definition.clock.startUtcMs).toBe(Date.parse(T0));
     expect(scaleChoiceIdsOf(definition)).toEqual(["readable-scale", "true-scale"]);
     expect(definition.startView?.focus).toBe("apollo11");
+    expect(definition.experience.startCameraPresetId).toBe("follow-target");
     expect(definition.experience.cameraPresets.map((preset) => preset.request.kind)).toEqual(["overview", "focus", "follow"]);
     expect(definition.experience.objects.map((object) => object.id)).toEqual(["earth", "moon", "apollo11"]);
     expect(cameraReachOf(definition)).toEqual({});
@@ -38,6 +41,7 @@ describe("Scene", () => {
     expect(scaleChoiceIdsOf(definition)?.[0]).toBe(trueScale.id);
     expect(definition.clock.startUtcMs).toBe(samples[0]!.time);
     expect(definition.startView).toBeUndefined();
+    expect(definition.experience.startCameraPresetId).toBeUndefined();
   });
 
   it("accepts a provider with stateAt as a trajectory", () => {
@@ -133,5 +137,17 @@ describe("mount", () => {
   it("refuses something that is not an element and a scene with a missing package", () => {
     expect(codeOf(() => mount(null as never, new Scene().addBody(earth)))).toMatch(/^bad-element/);
     expect(codeOf(() => mount(document.createElement("div"), new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" })))).toMatch(/^missing-data: .*astraeus-data/);
+  });
+});
+
+describe("camera.follow starts already following", () => {
+  it("opens the shell with the Follow preset in force, and no preset in force without it", () => {
+    const withFollow = mountShell({ experience: { ...syntheticDefinition.experience, startCameraPresetId: syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id } });
+    const pressed = [...withFollow.container.querySelectorAll("[data-camera-preset]")].filter((button) => button.getAttribute("aria-pressed") === "true").map((button) => button.getAttribute("data-camera-preset"));
+    withFollow.unmount();
+    expect(pressed).toEqual([syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id]);
+    const without = mountShell();
+    expect([...without.container.querySelectorAll("[data-camera-preset][aria-pressed='true']")]).toHaveLength(0);
+    without.unmount();
   });
 });

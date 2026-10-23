@@ -2,7 +2,8 @@
 id: T-162
 title: Show a tiny example app and write the release guide
 objective: O-036
-status: planned
+status: in_progress
+stage: test
 depends_on: [{task: T-161, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o036-planning-20261023}
@@ -59,8 +60,24 @@ Configured gates, engine-alone and the pack check at hand-off; `npm run check:br
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-23 (builder, no commit; stage `test`, waiting for the owner's look).
+- **Example:** `examples/hello-scene/` (outside the workspaces; `src/main.js` is 17 lines: `Scene` with `earth`, `moon`, a made-up 6-hour probe loop 120,000 km from Earth, `setTime`, `camera.follow("probe", { distance: 110 })`, `mount`). `npm run build:example` (`tools/build-example.mjs`) builds the engine, `npm pack`s `packages/astraeus/dist` into `examples/hello-scene/.packs/`, `npm install --no-save`s that tarball (a real copy in `node_modules`, not a workspace link; `package.json` stays clean) and runs `vite build`. `.packs`, `node_modules`, `dist` are git-ignored (checked with `git check-ignore`). The data packages are not used (the example needs no moon positions); a Jupiter moon example is in the README.
+- **`camera.follow` opens following:** `ExperienceConfig.startCameraPresetId` (new, optional) makes `AstraeusShell` open with that preset in force and the target picked (`initialObjectId`, `initialObjectIdOf`); `Scene.toDefinition` sets it to `follow-target` when `camera.follow` was called. Fast tests in `packages/astraeus/tests/publicApi.test.ts` (definition field present or absent; shell opens with exactly the Follow button pressed, none without).
+- **Browser step:** `packages/astraeus-site/tools/validate/check-hello-scene.mjs` (driver and harness only; `driver-guard.mjs` passes) added as the `hello-scene` step in `run-browser.mjs`; `runner.mjs` gained an `example` step kind (build once with `tools/build-example.mjs`, preview on port 5481). `docs/BROWSER_CHECKS.md` step map updated. The scene has no readout for a tracked path line, so the step asserts the probe is in the Object list and picked, the Follow preset is in force from the first frame, Earth and the Moon are drawn and in view, and the time starts at the `setTime` value and can be moved. `npm run check:browser` was NOT run; the new script alone was run once against the served example (desktop and phone: ok, zero errors; scratch results only).
+- **Workflow:** `.github/workflows/publish.yml`: on `release: published` and `workflow_dispatch`; permissions `contents: read`, `id-token: write`; Node 24; `npm ci`, lint, typecheck, build, test, `check:engine-alone`, `check:pack`; then `tools/publish-packages.mjs --tag "$TAG"` on a release, `--dry-run` on a manual run. `tools/publish-packages.mjs` publishes each `packages/<name>/dist` with `npm publish --access public --provenance`, skips a version already on npm (`npm view`), refuses when the release tag differs from a package version, and in `--dry-run` runs `npm publish --dry-run` only. Proof: `node tools/publish-packages.mjs --dry-run` run here listed all eight as "not on npm yet" and dry-run published each (`+ name@0.1.0`, nothing sent); with `--tag v9.9.9` it refused all eight. Fast tests `packages/astraeus-site/tests/publishWorkflow.test.ts` (9 cases) read the workflow text (trigger, OIDC and no token, gate order, no direct `npm publish`, tag via env) and the plan and example shape. No real publish was run.
+- **Pack check:** now compares each built package version with its source manifest (was a fixed 0.1.0, which would have blocked 0.1.1); `CHANGELOG.md` is allowed and shipped for `astraeus` and `astraeus-data`.
+- **Docs:** `packages/astraeus/README.md` (npm front page: install, the example, API table, data packages, 0.1 preview promise, what is internal; the repository notes follow), `packages/astraeus/CHANGELOG.md` and `packages/astraeus-data/CHANGELOG.md` (0.1.0), `docs/RELEASING.md` (one-time setup incl. first manual publish and trusted-publisher entry, each release, after a release), `AGENTS.md` (Build lines, Codebase Map rows), `.savepoint/Design.md` (Components row, O-036 paragraph in Current Technical State accounting for each T-159 to T-161 drift note).
+- **Gates (2026-10-23):** `npm run lint` pass; `npm run typecheck` pass; `npm run build` pass; `npm test` 119 files, 1565 passed, 1 skipped; `npm run check:engine-alone` pass; `npm run check:pack` pass (all eight packages within limits).
+- **Owner's look (pending).** Example served at http://localhost:5496 (vite preview of `examples/hello-scene/dist`). Checklist, at desktop width and at phone width (about 375 px):
+  1. Earth draws as a globe with its picture, and the Moon shows as a small dot or ball a little way off.
+  2. A circle (the probe's path) is drawn around Earth and the Follow button is already pressed; the camera stays centred on the probe as time runs.
+  3. The time can be set: drag the timeline slider (on a phone, open the timeline drawer first) and the date and the probe move; pause and play work.
+  4. Nothing overlaps on the phone layout and there is no page error.
+  5. Read `packages/astraeus/README.md` and `docs/RELEASING.md`.
 
 ## Drift Notes
 
-None yet.
+- The scene has no readout for a tracked trajectory's drawn line, so the browser step cannot assert the path itself (only its Object-list entry, the follow state and the bodies around it); adding a path readout for tracked bodies would be an engine change outside this Task.
+- `tools/check-packs.mjs` pinned the version to 0.1.0; changed to compare with the source manifest so the first release bump does not fail the workflow's pack check.
+- The example's build includes all planet pictures (about 6 MB) because the engine's catalogue imports them; per-body picture loading is not in scope.
+- Moon definitions stayed in the engine (T-161 note) is reflected in Design.md; no further architectural notes are deferred.

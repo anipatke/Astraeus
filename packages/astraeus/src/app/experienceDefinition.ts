@@ -310,7 +310,10 @@ export function mountedBodiesOf(definition: ExperienceDefinition): readonly Body
  * shell item (a group, path or tracked body included). Never a body the experience does not mount.
  */
 export function initialObjectIdOf(definition: ExperienceDefinition): string {
-  const objects = experienceWithGroups(definition).objects;
+  const config = experienceWithGroups(definition);
+  const objects = config.objects;
+  const start = config.cameraPresets.find((preset) => preset.id === config.startCameraPresetId)?.request;
+  if (start !== undefined && start.kind !== "overview" && objects.some((object) => object.id === start.target)) return start.target;
   const centre = sceneCenterOf(definition);
   return objects.some((object) => object.id === centre) ? centre : objects[0]?.id ?? centre;
 }

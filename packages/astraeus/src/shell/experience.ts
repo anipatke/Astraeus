@@ -52,6 +52,8 @@ export interface ExperienceCameraPreset {
 export interface ExperienceConfig {
   readonly objects: readonly ExperienceObject[];
   readonly cameraPresets: readonly ExperienceCameraPreset[];
+  /** The camera preset that is already in force when the shell opens (for example a Follow preset, so the scene starts following). Absent: none, as before. */
+  readonly startCameraPresetId?: string;
   readonly events: readonly TimelineEvent[];
   /** Periods with an optional rate and peak, drawn on the timeline. Omit for an experience of instants only. */
   readonly windows?: readonly TimelineWindow[];

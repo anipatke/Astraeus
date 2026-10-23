@@ -3,8 +3,8 @@
 // No script takes or saves a picture. The evidence directory holds summary.txt and each step's own results files only (O-037 T-123); step logs, dev-server.log and
 // preview-server.log go to a scratch folder under the OS temp directory whose path the summary prints.
 //
-// A step is { name, script, scene?, args?, env?, public? } (`scene` is the experience the step opens, printed in the summary). `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
-// script gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
+// A step is { name, script, scene?, args?, env?, public?, example? } (`scene` is the experience the step opens, printed in the summary). `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
+// script gets ASTRAEUS_URL pointing at a preview of it. An `example` step builds examples/hello-scene from the packed tarballs (`tools/build-example.mjs`, once) and gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 const DEV_PORT = process.env.DEV_PORT ?? "5479";
 const PUBLIC_PORT = process.env.PUBLIC_PORT ?? "5480";
+const EXAMPLE_PORT = process.env.EXAMPLE_PORT ?? "5481";
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 const ERROR_LINE = /console error|pageerror|page error/i;
 const ZERO_ERRORS = /zero console errors/i;
@@ -29,7 +30,7 @@ async function waitFor(url) {
 }
 
 function runStep(step, ctx) {
-  const url = step.public ? ctx.publicUrl : ctx.devUrl;
+  const url = step.example ? ctx.exampleUrl : step.public ? ctx.publicUrl : ctx.devUrl;
   const dir = join(ctx.evidence, step.name);
   const args = [join("packages/astraeus-site/tools/validate", step.script), ...(step.args ?? [])];
   if (step.public && step.noBrowser) args.push(ctx.publicDir);
@@ -51,7 +52,7 @@ function runStep(step, ctx) {
 
 /** Start the dev server, the scratch public build and its preview, as far as `steps` need them, and wait until each answers. */
 async function startServers(steps, ctx) {
-  const needsDev = steps.some((s) => !s.public || !s.noBrowser);
+  const needsDev = steps.some((s) => !s.example && (!s.public || !s.noBrowser));
   const needsPreview = steps.some((s) => s.public && !s.noBrowser);
   if (needsDev) ctx.serve("dev-server.log", ["vite", "packages/astraeus-site", "--port", DEV_PORT, "--strictPort"]);
   if (steps.some((s) => s.public)) {
@@ -60,6 +61,13 @@ async function startServers(steps, ctx) {
     if (build.status !== 0) throw new Error("public build failed (see public-build.log)");
   }
   if (needsPreview) ctx.serve("preview-server.log", ["vite", "preview", "packages/astraeus-site", "--outDir", ctx.publicDir, "--port", PUBLIC_PORT, "--strictPort", "--host", "localhost"]);
+  if (steps.some((s) => s.example)) {
+    const build = spawnSync(process.execPath, ["tools/build-example.mjs"], { cwd: root, encoding: "utf8" });
+    ctx.writeLog("example-build.log", `${build.stdout}${build.stderr}`);
+    if (build.status !== 0) throw new Error("example build failed (see example-build.log)");
+    ctx.serve("example-server.log", ["vite", "preview", "examples/hello-scene", "--port", EXAMPLE_PORT, "--strictPort", "--host", "localhost"]);
+    await waitFor(ctx.exampleUrl);
+  }
   if (needsDev) await waitFor(ctx.devUrl);
   if (needsPreview) await waitFor(ctx.publicUrl);
 }
@@ -84,7 +92,7 @@ function makeContext(setName) {
   console.log(`logs: ${logs}`);
   return {
     evidence, logs, publicDir: join(scratch, "public"), serve, stop, writeLog,
-    devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`,
+    devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`, exampleUrl: `http://localhost:${EXAMPLE_PORT}/`,
   };
 }
 

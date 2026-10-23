@@ -110,7 +110,7 @@ export function buildPackage(name) {
     copyFileSync(file, dest);
   });
   const chunks = name.startsWith("astraeus-data-") ? writeChunkList(pkg, out) : 0;
-  for (const file of ["README.md", "NOTICE"]) if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
+  for (const file of ["README.md", "CHANGELOG.md", "NOTICE"]) if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
   copyFileSync(join(root, "LICENSE"), join(out, "LICENSE"));
   if (existsSync(join(pkg, "licenses"))) cpSync(join(pkg, "licenses"), join(out, "licenses"), { recursive: true });
   const { "x-publish": _publishBlock, "x-internal-exports": _internal, ...rest } = manifest;
