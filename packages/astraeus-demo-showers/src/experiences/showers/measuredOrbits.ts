@@ -6,10 +6,18 @@ const AU_KM = 149_597_870.7;
 export const MEASURED_ROW_COLUMNS = ["recordId", "sheetRow", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "solarLongitudeDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS", "pairsFlag"] as const;
 
 /**
- * The compact layout a shipped file uses: the full layout without the columns the app never reads (the sheet row, the solar longitude, and the double-entry flag,
- * which is always 0 for GMN). Rows are read by position in whichever of the two layouts the header declares.
+ * The earlier compact layout: the full layout without the columns the app never reads (the sheet row, the solar longitude, and the double-entry flag,
+ * which is always 0 for GMN). Files in it still carry the three quality columns.
  */
-export const SHIPPED_ROW_COLUMNS = ["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"] as const;
+export const COMPACT_ROW_COLUMNS = ["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"] as const;
+
+/** The layout a shipped file uses now (O-042 T-172): the orbit elements only, no quality columns. */
+export const SHIPPED_ROW_COLUMNS = ["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg"] as const;
+
+/** `provenance.recordIds` of a file whose record ids drop the time they repeat ("_uGG34" for "20250717204730_uGG34" at that epoch). */
+export const TRIMMED_IDS = "time-trimmed";
+const idStamp = (epochUtcMs: number): string => new Date(epochUtcMs).toISOString().slice(0, 19).replace(/[-:T]/g, "");
+const restoreId = (id: string, epochUtcMs: number): string => (id.startsWith("_") ? `${idStamp(epochUtcMs)}${id}` : id);
 
 /**
  * A shipped file may store its rows column by column (`provenance.layout` is "columns"): one array per entry of `provenance.columns`, the epoch column as
@@ -42,9 +50,11 @@ export interface MeasuredOrbitProvenance {
   /** Present for a catalogue with an open licence (GMN: CC BY 4.0). */
   readonly licence?: string;
   readonly licenceUrl?: string;
+  /** Present in a shipped copy: the columns left out and the published quality counts as text (the file has no per-orbit quality). */
+  readonly shipped?: { readonly droppedColumns?: readonly string[]; readonly qualityCounts?: string };
 }
 
-/** What the database says about how well one orbit was measured. */
+/** What the database says about how well one orbit was measured. A file shipped since T-172 carries none: `quality` is then empty. */
 export interface MemberQuality {
   /** Convergence angle Q between the cameras' planes, degrees. */
   readonly convergenceAngleDeg: number;
@@ -73,11 +83,16 @@ export const isReliable = (quality: MemberQuality, rule: QualityRule): boolean =
 /** How many orbits each set holds. */
 export interface OrbitSetCounts {
   readonly all: number;
-  readonly reliable: number;
-  readonly cut: number;
+  /** Null when the file carries no quality columns, so the reliable set cannot be told. */
+  readonly reliable: number | null;
+  readonly cut: number | null;
 }
 
+/** True when each orbit has its quality, so a reliable set can be cut. */
+export const hasQuality = (orbits: MeasuredOrbits): boolean => orbits.quality.length === orbits.members.length;
+
 export function orbitSetCounts(orbits: MeasuredOrbits, rule: QualityRule): OrbitSetCounts {
+  if (!hasQuality(orbits)) return { all: orbits.members.length, reliable: null, cut: null };
   let reliable = 0;
   for (const q of orbits.quality) {
     if (isReliable(q, rule)) reliable += 1;
@@ -87,7 +102,7 @@ export function orbitSetCounts(orbits: MeasuredOrbits, rule: QualityRule): Orbit
 
 /** The orbits of one set, in file order. */
 export function selectOrbits(orbits: MeasuredOrbits, set: OrbitSet, rule: QualityRule): MeasuredOrbits {
-  if (set === "all") return orbits;
+  if (set === "all" || !hasQuality(orbits)) return orbits;
   const keep = orbits.quality.map((q) => isReliable(q, rule));
   return { provenance: orbits.provenance, members: orbits.members.filter((_, k) => keep[k]), quality: orbits.quality.filter((_, k) => keep[k]) };
 }
@@ -109,6 +124,41 @@ const fail = (problem: string): never => {
   throw new MeasuredOrbitsError(`measured orbit file ${problem}`);
 };
 
+/** Which of the three layouts a header's column list declares (lean: elements only; compact: lean or the earlier ten columns); fails for any other list. */
+function layoutOf(columns: unknown): { lean: boolean; compact: boolean; width: number } {
+  const list = Array.isArray(columns) ? columns.join(",") : "";
+  const lean = list === SHIPPED_ROW_COLUMNS.join(",");
+  const compact = lean || list === COMPACT_ROW_COLUMNS.join(",");
+  if (!compact && list !== MEASURED_ROW_COLUMNS.join(",")) {
+    return fail(`has columns ${JSON.stringify(columns)}, expected ${JSON.stringify(MEASURED_ROW_COLUMNS)} (or the shipped ${JSON.stringify(SHIPPED_ROW_COLUMNS)})`);
+  }
+  return { lean, compact, width: lean ? SHIPPED_ROW_COLUMNS.length : compact ? COMPACT_ROW_COLUMNS.length : MEASURED_ROW_COLUMNS.length };
+}
+
+interface RowRead {
+  readonly member: ListedMember;
+  readonly quality: MemberQuality | null;
+}
+
+/** One row of any of the three layouts, checked: a record id and finite numbers. The id is as stored (still trimmed when the file says so). */
+function readRow(row: unknown, index: number, width: number, compact: boolean, lean: boolean): RowRead {
+  if (!Array.isArray(row) || row.length !== width) return fail(`row ${index} must have ${width} values`);
+  const [storedId, epochUtcMs, a, e, i, w, node, q, vg, vgSigma] = (compact ? row : [row[0], ...row.slice(2, 8), row[9], row[10], row[11]]) as unknown[];
+  if (typeof storedId !== "string" || storedId.length === 0) return fail(`row ${index} has no record id`);
+  const numbers = lean ? [epochUtcMs, a, e, i, w, node] : [epochUtcMs, a, e, i, w, node, 0, q, vg, vgSigma, compact ? 0 : row[12], ...(compact ? [] : [row[8]])];
+  for (const value of numbers) {
+    if (typeof value !== "number" || !Number.isFinite(value)) return fail(`row ${index} (record "${storedId}") holds a value that is not a finite number`);
+  }
+  return {
+    member: {
+      recordId: storedId,
+      epochUtcMs: epochUtcMs as number,
+      elements: { semiMajorAxisKm: (a as number) * AU_KM, eccentricity: e as number, inclinationDeg: i as number, argumentOfPeriapsisDeg: w as number, raanDeg: node as number },
+    },
+    quality: lean ? null : { convergenceAngleDeg: q as number, velocityKmS: vg as number, velocityErrorKmS: vgSigma as number },
+  };
+}
+
 /**
  * Checks a fetched file and returns its members. It names the problem when the file is for another shower, has other columns, or holds
  * a row that is not a finite bound orbit. Records are not dropped here: the fetch tool already dropped unbound ones and says how many.
@@ -119,40 +169,19 @@ export function parseMeasuredOrbits(input: unknown, iauCode: number): MeasuredOr
   const provenance = file.provenance;
   if (typeof provenance !== "object" || provenance === null) return fail("has no provenance header");
   if (provenance.iauCode !== iauCode) return fail(`is for IAU shower ${String(provenance.iauCode)}, not ${iauCode}`);
-  const columns = provenance.columns;
-  const compact = Array.isArray(columns) && columns.join(",") === SHIPPED_ROW_COLUMNS.join(",");
-  if (!Array.isArray(columns) || (!compact && columns.join(",") !== MEASURED_ROW_COLUMNS.join(","))) {
-    return fail(`has columns ${JSON.stringify(columns)}, expected ${JSON.stringify(MEASURED_ROW_COLUMNS)} (or the shipped ${JSON.stringify(SHIPPED_ROW_COLUMNS)})`);
-  }
-  const width = compact ? SHIPPED_ROW_COLUMNS.length : MEASURED_ROW_COLUMNS.length;
+  const { lean, compact, width } = layoutOf(provenance.columns);
   for (const key of ["database", "citation", "source", "fetchedAt"] as const) {
     if (typeof provenance[key] !== "string" || (provenance[key] as string).length === 0) return fail(`provenance.${key} is missing`);
   }
   if (provenance.layout === COLUMN_LAYOUT && !compact) return fail("stores columns, which only the shipped column list allows");
   const rows = provenance.layout === COLUMN_LAYOUT ? rowsFromColumns(file.rows, width) : file.rows;
+  const trimmed = provenance.recordIds === TRIMMED_IDS;
   if (!Array.isArray(rows) || rows.length === 0) return fail("holds no rows");
   const quality: MemberQuality[] = [];
   const members = rows.map((row: unknown, index): ListedMember => {
-    if (!Array.isArray(row) || row.length !== width) return fail(`row ${index} must have ${width} values`);
-    const [recordId, epochUtcMs, a, e, i, w, node, q, vg, vgSigma] = (compact ? row : [row[0], ...row.slice(2, 8), row[9], row[10], row[11]]) as unknown[];
-    const solarLongitude = 0;
-    const pairs = compact ? 0 : row[12];
-    if (typeof recordId !== "string" || recordId.length === 0) return fail(`row ${index} has no record id`);
-    for (const value of [epochUtcMs, a, e, i, w, node, solarLongitude, q, vg, vgSigma, pairs, ...(compact ? [] : [row[8]])]) {
-      if (typeof value !== "number" || !Number.isFinite(value)) return fail(`row ${index} (record "${recordId}") holds a value that is not a finite number`);
-    }
-    quality.push({ convergenceAngleDeg: q as number, velocityKmS: vg as number, velocityErrorKmS: vgSigma as number });
-    return {
-      recordId,
-      epochUtcMs: epochUtcMs as number,
-      elements: {
-        semiMajorAxisKm: (a as number) * AU_KM,
-        eccentricity: e as number,
-        inclinationDeg: i as number,
-        argumentOfPeriapsisDeg: w as number,
-        raanDeg: node as number,
-      },
-    };
+    const read = readRow(row, index, width, compact, lean);
+    if (read.quality !== null) quality.push(read.quality);
+    return { ...read.member, recordId: trimmed ? restoreId(read.member.recordId, read.member.epochUtcMs) : read.member.recordId };
   });
   return { provenance: provenance as unknown as MeasuredOrbitProvenance, members, quality };
 }

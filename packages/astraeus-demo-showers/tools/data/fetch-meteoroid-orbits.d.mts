@@ -29,8 +29,13 @@ export function gmnShowerFile(input: { iauCode: number; extraction: GmnExtractio
 export const SHIPPABLE_LICENCES: readonly string[];
 export const SHIPPED_COLUMNS: readonly string[];
 export const COLUMN_LAYOUT: "columns";
+export const TRIMMED_IDS: "time-trimmed";
+export const QUALITY_COLUMNS: readonly string[];
+export const QUALITY_RULE: { readonly minConvergenceAngleDeg: number; readonly maxVelocityErrorFraction: number };
+export function trimId(id: string, epochUtcMs: number): string;
+export function restoreId(id: string, epochUtcMs: number): string;
 export function toColumns(rows: unknown[][]): unknown[][];
-export function fromColumns(columns: unknown[][]): unknown[][];
+export function fromColumns(columns: unknown[][], trimmed?: boolean): unknown[][];
 export function rowsOfFile(file: { provenance: Record<string, any>; rows: unknown[][] }): unknown[][];
 export function shippedFileFor(story: string, iauCode: number): string;
 export function shippedCopy(file: { provenance: Record<string, any>; rows: unknown[][] }): { provenance: Record<string, any>; rows: unknown[][] };

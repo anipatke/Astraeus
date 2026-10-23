@@ -4,7 +4,7 @@ import { createListedOrbitGroup } from "astraeus/core/listedOrbitGroup";
 import { createProvenance, type Provenance } from "astraeus/core/provenance";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import type { GroupLayer } from "astraeus/app/experienceDefinition";
-import { orbitSetCounts, selectOrbits, type MeasuredOrbits, type OrbitSet } from "./measuredOrbits";
+import { hasQuality, orbitSetCounts, selectOrbits, type MeasuredOrbits, type OrbitSet } from "./measuredOrbits";
 import { HOUR_MS, showerCatalogue, sourceLine, streamIdOf, timelineBoundsOf } from "./showerBasics";
 import { citedSourceOf, type ShowerSettings } from "./showerSettings";
 import { streamObject } from "./showerStreamText";
@@ -24,7 +24,9 @@ function measuredProvenance(settings: ShowerSettings, orbits: MeasuredOrbits, sh
  * The stream as one group, centred on the Sun: one dot per measured orbit, on its own ellipse, with the dot's place along the orbit a
  * stated drawing choice. A stated share is clumped near the parent's orbital phase, a model.
  */
-export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, set: OrbitSet = settings.stream.quality.default): GroupLayer {
+export function createStreamLayer(settings: ShowerSettings, all: MeasuredOrbits, requested: OrbitSet = settings.stream.quality.default): GroupLayer {
+  // A file without per-orbit quality has only the one set.
+  const set: OrbitSet = hasQuality(all) ? requested : "all";
   const catalogue = showerCatalogue(settings);
   const counts = orbitSetCounts(all, settings.stream.quality.rule);
   const orbits = selectOrbits(all, set, settings.stream.quality.rule);

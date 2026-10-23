@@ -8,9 +8,14 @@ import { citedSourceOf, type ShowerSettings } from "./showerSettings";
 const percent = (fraction: number): string => `${Math.round(fraction * 100)}%`;
 
 /** The words the stream's panel must carry about what is measured, what is a drawing choice and what is not shown. */
-export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts): string {
+export function orbitSetSentence(settings: ShowerSettings, set: OrbitSet, counts: OrbitSetCounts, provenance?: MeasuredOrbitProvenance): string {
   const { rule } = settings.stream.quality;
   const { gmn } = settings.stream.sources;
+  if (counts.reliable === null || counts.cut === null) {
+    // The shipped file carries no per-orbit quality: every bound orbit is drawn, and the published counts are quoted from the file's header.
+    const published = provenance?.shipped?.qualityCounts;
+    return `Orbit set shown: all orbits (${counts.all} bound orbits). This file carries no per-orbit quality columns, so it cannot be cut to a reliable set.${published === undefined ? "" : ` ${published}`} The cut is the published rule: ${rule.quote} (${rule.source.name}, ${rule.source.url}), mapped to GMN's own columns: ${gmn.ruleNote} GMN has no double-entry flag.`;
+  }
   const shown = set === "reliable" ? counts.reliable : counts.all;
   const cut = `Qc (the maximum convergence angle between the stations that saw the meteor) at least ${rule.minConvergenceAngleDeg}° and the Vgeo sigma at most ${Math.round(rule.maxVelocityErrorFraction * 100)}% of Vgeo`;
   return `Orbit set shown: ${set === "reliable" ? "reliable orbits only" : "all orbits"} (${shown} of ${counts.all} bound orbits; the reliable set, ${cut}, has ${counts.reliable} and cuts ${counts.cut}). The cut is the published rule: ${rule.quote} (${rule.source.name}, ${rule.source.url}), mapped to GMN's own columns: ${gmn.ruleNote} GMN has no double-entry flag.`;
@@ -28,7 +33,7 @@ export function streamLimitations(settings: ShowerSettings, orbitSet?: { readonl
   const status = concentration.status === "cited" ? `cited; basis: ${concentration.basis}` : `illustrative defaults: ${concentration.basis}`;
   return [
     // The source, licence and counts are in the provenance (sources and notes), not repeated here.
-    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts)]),
+    ...(orbitSet === undefined ? [] : [orbitSetSentence(settings, orbitSet.set, orbitSet.counts, orbitSet.provenance)]),
     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
     `The clump near ${settings.parentBody} is a model: ${percent(concentration.fraction)} of the dots are placed within ±${concentration.widthDeg}° of ${settings.parentBody}'s orbital phase (${status}) The orbits differ in size, so the clump shows as a band at ${settings.parentBody}'s phase, not a blob on ${settings.parentBody}.`,
     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",

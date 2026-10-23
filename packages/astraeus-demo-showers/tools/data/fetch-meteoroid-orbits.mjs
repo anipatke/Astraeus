@@ -17,26 +17,42 @@ export const BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/5
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 /** Licences under which a measured-orbit file may be copied into a public build (tests keep this equal to src/experiences/showers/measuredOrbits.ts). */
 export const SHIPPABLE_LICENCES = Object.freeze(["CC BY 4.0", "CC0 1.0"]);
-/** The compact layout of a shipped file: the full layout without the sheet row, the solar longitude and the double-entry flag. */
-export const SHIPPED_COLUMNS = Object.freeze(["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg", "convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"]);
+/** The layout of a shipped file: the orbit elements only. The three quality columns (convergence angle, geocentric velocity and its error) are not shipped (O-042 T-172). */
+export const SHIPPED_COLUMNS = Object.freeze(["recordId", "epochUtcMs", "semiMajorAxisAu", "eccentricity", "inclinationDeg", "argumentOfPeriapsisDeg", "raanDeg"]);
+/** The quality columns the fetched file carries (not shipped); they feed the published counts kept as text in the shipped header. */
+export const QUALITY_COLUMNS = Object.freeze(["convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"]);
+/** The published quality cut the counts are taken with (settings stream.quality.rule: Qc at least 15 deg, Vgeo sigma at most 10% of Vgeo). */
+export const QUALITY_RULE = Object.freeze({ minConvergenceAngleDeg: 15, maxVelocityErrorFraction: 0.1 });
 /** `provenance.layout` of a shipped file whose `rows` hold one array per column, not one per orbit; the epoch column is stored as differences from the row before (T-070). */
 export const COLUMN_LAYOUT = "columns";
+/** `provenance.recordIds` of a shipped file whose record ids drop the time they repeat: "20250717204730_uGG34" with epoch 2025-07-17 20:47:30 is stored "_uGG34". */
+export const TRIMMED_IDS = "time-trimmed";
 const EPOCH_COLUMN = SHIPPED_COLUMNS.indexOf("epochUtcMs");
-/** Rows (one array per orbit) to columns (one array per column, the epoch as differences). Lossless: `fromColumns` returns the same rows. */
+/** The id's own time text for an epoch: UTC year to second, 14 digits. */
+const idStamp = (epochUtcMs) => new Date(epochUtcMs).toISOString().slice(0, 19).replace(/[-:T]/g, "");
+/** An id without its repeated time (kept in full when its time differs from the epoch's). */
+export function trimId(id, epochUtcMs) {
+  if (id.startsWith("_")) throw new Error(`record id "${id}" starts with the trim marker`);
+  return id.startsWith(`${idStamp(epochUtcMs)}_`) ? id.slice(14) : id;
+}
+/** The id `trimId` shortened. */
+export const restoreId = (id, epochUtcMs) => (id.startsWith("_") ? `${idStamp(epochUtcMs)}${id}` : id);
+/** Rows (one array per orbit) to columns (one array per column, the epoch as differences, ids trimmed). Lossless: `fromColumns` returns the same rows. */
 export function toColumns(rows) {
   const columns = SHIPPED_COLUMNS.map((_, c) => rows.map((row) => row[c]));
   const epochs = columns[EPOCH_COLUMN];
+  columns[0] = columns[0].map((id, k) => trimId(id, epochs[k]));
   columns[EPOCH_COLUMN] = epochs.map((epoch, k) => (k === 0 ? epoch : epoch - epochs[k - 1]));
   return columns;
 }
-/** The inverse of `toColumns`. */
-export function fromColumns(columns) {
+/** Columns back to rows; ids are restored only when the file says they were trimmed. */
+export function fromColumns(columns, trimmed = true) {
   const epochs = [];
   columns[EPOCH_COLUMN].forEach((step, k) => epochs.push(k === 0 ? step : epochs[k - 1] + step));
-  return columns[0].map((_, k) => columns.map((column, c) => (c === EPOCH_COLUMN ? epochs[k] : column[k])));
+  return columns[0].map((_, k) => columns.map((column, c) => (c === EPOCH_COLUMN ? epochs[k] : c === 0 && trimmed ? restoreId(column[k], epochs[k]) : column[k])));
 }
 /** The rows of a shipped or fetched file in either layout. */
-export const rowsOfFile = (file) => (file.provenance.layout === COLUMN_LAYOUT ? fromColumns(file.rows) : file.rows);
+export const rowsOfFile = (file) => (file.provenance.layout === COLUMN_LAYOUT ? fromColumns(file.rows, file.provenance.recordIds === TRIMMED_IDS) : file.rows);
 export const shippedFileFor = (story, iauCode) => join(ROOT, "data", "stories", story, `gmn-iau-${iauCode}.json`);
 export const localFileFor = (iauCode) => join(ROOT, "data", "local", `gmn-iau-${iauCode}.json`);
 
@@ -254,10 +270,15 @@ export function shippedCopy(file) {
   const keep = SHIPPED_COLUMNS.map((name) => from.indexOf(name));
   if (keep.some((k) => k < 0)) throw new Error(`the file's columns ${JSON.stringify(from)} lack one of ${JSON.stringify(SHIPPED_COLUMNS)}`);
   const { columnPositionsByFile, ...header } = file.provenance;
-  const dropped = from.filter((name) => !SHIPPED_COLUMNS.includes(name));
+  const rows = rowsOfFile(file);
+  // The published counts, kept as text when the file still has the quality columns (a file shipped before keeps the text it already has).
+  const at = QUALITY_COLUMNS.map((name) => from.indexOf(name));
+  const reliable = at.some((k) => k < 0) ? null : rows.filter((r) => r[at[0]] >= QUALITY_RULE.minConvergenceAngleDeg && r[at[2]] <= QUALITY_RULE.maxVelocityErrorFraction * r[at[1]]).length;
+  const qualityCounts = reliable === null ? file.provenance.shipped?.qualityCounts : `Of ${rows.length} bound orbits, ${reliable} pass the published quality cut (convergence angle Qc at least ${QUALITY_RULE.minConvergenceAngleDeg} deg and Vgeo sigma at most ${QUALITY_RULE.maxVelocityErrorFraction * 100}% of Vgeo) and ${rows.length - reliable} fail it.`;
+  const dropped = [...new Set([...(file.provenance.shipped?.droppedColumns ?? []), ...from.filter((name) => !SHIPPED_COLUMNS.includes(name))])];
   return {
-    provenance: { ...header, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT, shipped: { droppedColumns: dropped, note: "Shipped copy of the fetched file: same records and header, without the columns the app never reads (the pairs flag is always 0 for GMN). Rows are stored column by column, the epoch as differences from the row before, to send fewer bytes; every value is unchanged. Credit: Global Meteor Network, CC BY 4.0." } },
-    rows: toColumns(rowsOfFile(file).map((row) => keep.map((k) => row[k]))),
+    provenance: { ...header, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT, recordIds: TRIMMED_IDS, shipped: { droppedColumns: dropped, ...(qualityCounts === undefined ? {} : { qualityCounts }), note: "Shipped copy of the fetched file: same records and header, without the columns the app never reads (the sheet row, the solar longitude, the pairs flag, which is always 0 for GMN) and without the three quality columns (convergence angle, geocentric velocity and its error; the published counts are kept as text in qualityCounts). Rows are stored column by column, the epoch as differences from the row before; a record id drops the time it repeats (stored from the underscore on), ids whose time differs from the epoch's are kept in full; every kept value is unchanged. Credit: Global Meteor Network, CC BY 4.0." } },
+    rows: toColumns(rows.map((row) => keep.map((k) => row[k]))),
   };
 }
 

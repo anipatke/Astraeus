@@ -16,26 +16,31 @@ import { AU_KM, SUN_GM_KM3_S2, apply, earthEcliptic, ellipseOf, nearestPoint, ra
 // The facts of each shower from the Global Meteor Network's measured orbits, read from the committed copy the public build ships
 // (data/stories/<story>/gmn-iau-<code>.json), so every machine checks them. Rows are in the shipped (compact) layout; the C map names the columns.
 // Published values: IAU MDC established showers, parameter set AdNo 8 (Jenniskens 2023), J2000. One parametrised suite covers both showers (O-017 T-069 C7).
+import { createHash } from "node:crypto";
+// SHA-256 of the [recordId, epochUtcMs, a (AU), e, i, w, node] rows (JSON) of each shipped file as it was before T-172, taken through the old file's own reader.
+const OLD_MEMBERS_SHA256: Record<string, string> = {
+  perseids: "36280b612ab91bca04dac5c1047956d3fa44962f07d8484c34d27ed22d953ce5",
+  geminids: "00cf9c131c045380285ff6dc4ee1cf1dc6f3c22fd7c2a2f25b3d60e969a95576",
+};
 const DAY_MS = 86_400_000;
 const adapter = createOrbAstronomyAdapter();
-const toEqj = createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix();
 const medianOf = (values: number[]) => { const v = [...values].sort((a, b) => a - b); return v.length % 2 === 1 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; };
+const toEqj = createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix();
 
 interface ShowerCase {
   readonly name: string;
   readonly story: string;
   readonly iau: number;
   readonly letters: string;
-  /** MDC geocentric velocity (km/s) and solar longitude of the peak (deg). */
-  readonly mdcVg: number;
+  /** MDC solar longitude of the peak (deg). */
   readonly mdcSolarLongitudeDeg: number;
   readonly minRows: number;
   readonly settings: ReturnType<typeof parseShowerSettings>;
 }
 
 const CASES: readonly ShowerCase[] = [
-  { name: "Perseids", story: "perseids", iau: 7, letters: "PER", mdcVg: 58.8, mdcSolarLongitudeDeg: 140.1, minRows: 0, settings: parseShowerSettings(perseidsFile) },
-  { name: "Geminids", story: "geminids", iau: 4, letters: "GEM", mdcVg: 33.8, mdcSolarLongitudeDeg: 261.6, minRows: 40_000, settings: parseShowerSettings(geminidsFile) },
+  { name: "Perseids", story: "perseids", iau: 7, letters: "PER", mdcSolarLongitudeDeg: 140.1, minRows: 0, settings: parseShowerSettings(perseidsFile) },
+  { name: "Geminids", story: "geminids", iau: 4, letters: "GEM", mdcSolarLongitudeDeg: 261.6, minRows: 40_000, settings: parseShowerSettings(geminidsFile) },
 ];
 
 it("keeps the settings-side row columns equal to the fetch tool's", () => {
@@ -43,11 +48,11 @@ it("keeps the settings-side row columns equal to the fetch tool's", () => {
   expect([...SHIPPED_ROW_COLUMNS]).toEqual([...SHIPPED_COLUMNS]);
 });
 
-describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters, mdcVg, mdcSolarLongitudeDeg, minRows, settings }) => {
+describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters, mdcSolarLongitudeDeg, minRows, settings }) => {
   const file = readShippedFile(story, iau);
   const orbits = readShippedOrbits(story, iau);
-  const rule = settings.stream.quality.rule;
-  const rowsFor = (set: "all" | "reliable") => (set === "all" ? file.rows : file.rows.filter((r) => r[C.q] >= rule.minConvergenceAngleDeg && r[C.vgSigma] <= rule.maxVelocityErrorFraction * r[C.vg]));
+    // The shipped files carry no quality columns (T-172): one set, every bound orbit.
+  const rowsFor = (_set: "all") => file.rows;
   const peakPublished = timeOfSolarLongitude(adapter, toEqj, settings.radiant.peakSolarLongitudeDeg, Date.parse(settings.activity.startUtc), Date.parse(settings.activity.endUtc));
 
   it("holds the files the settings name, CC BY 4.0, with the two citations, hashes and the counts, and parses as the builder's input", () => {
@@ -65,13 +70,27 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     console.info(`${letters} GMN COUNTS ${JSON.stringify(provenance.counts)}`);
   });
 
-  it("is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and the reliable set is the rule's", () => {
+  it("holds exactly the members of the file shipped before the id trim and the quality columns were dropped", () => {
+    const stored = readStoredShippedFile(story, iau);
+    expect(stored.provenance.recordIds).toBe("time-trimmed");
+    expect(stored.provenance.columns).toEqual([...SHIPPED_COLUMNS]);
+    const rows = file.rows.map((row) => row.slice(0, 7));
+    expect(orbits.members.map((m) => [m.recordId, m.epochUtcMs])).toEqual(rows.map((row) => row.slice(0, 2)));
+    expect(orbits.members.map((m) => m.elements.semiMajorAxisKm)).toEqual(rows.map((row) => row[2] * AU_KM));
+    expect(createHash("sha256").update(JSON.stringify(rows)).digest("hex")).toBe(OLD_MEMBERS_SHA256[story]);
+    // Ids whose time differs from the epoch's are stored in full; every other id is stored from the underscore on.
+    const full = (stored.rows[0] as string[]).filter((id) => !id.startsWith("_")).length;
+    expect(full).toBeGreaterThan(0);
+    expect(full).toBeLessThan(stored.rows[0].length / 100);
+  });
+
+  it("is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and one set, as the file has no quality columns", () => {
     const group = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "all"))[0].group as ListedOrbitGroup;
     expect(group.count).toBe(file.rows.length);
-    const reliable = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable"))[0].group;
-    const counts = orbitSetCounts(orbits, rule);
-    expect(reliable.count).toBe(rowsFor("reliable").length);
-    expect(reliable.count).toBe(counts.reliable);
+    const asked = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable"))[0].group;
+    const counts = orbitSetCounts(orbits, settings.stream.quality.rule);
+    expect(asked.count).toBe(group.count);
+    expect(counts).toEqual({ all: file.rows.length, reliable: null, cut: null });
     console.info(`${letters} GMN SETS ${JSON.stringify(counts)}`);
     const panel = streamLimitations(settings, { set: "all", counts, provenance: orbits.provenance }).join(" ");
     const sourced = `${group.provenance.sources.join(" ")} ${group.provenance.notes}`;
@@ -80,16 +99,12 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     expect(sourced).toContain(`${file.provenance.counts.kept} bound orbits in the file`);
     expect(panel).not.toContain("CC BY 4.0");
     expect(panel).toContain("Qc");
+    expect(panel).toContain(file.provenance.shipped.qualityCounts);
+    expect(file.provenance.shipped.droppedColumns).toEqual(expect.arrayContaining(["convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"]));
     expect(panel).not.toContain("double entries are kept");
   });
 
-  for (const set of ["all", "reliable"] as const) it(`DW3(i), ${set} orbits: the median geocentric velocity is within 1 km/s of the MDC's ${mdcVg}`, () => {
-    const median = medianOf(rowsFor(set).map((r) => r[C.vg]));
-    console.info(`[${set}] ${letters} GMN median Vgeo = ${median.toFixed(2)} km/s over ${rowsFor(set).length} orbits (MDC ${mdcVg})`);
-    expect(Math.abs(median - mdcVg)).toBeLessThan(1);
-  });
-
-  for (const set of ["all", "reliable"] as const) it(`DW3(ii), ${set} orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's ${mdcSolarLongitudeDeg} (J2000)`, () => {
+  for (const set of ["all"] as const) it(`DW3(ii), ${set} orbits: the busiest solar-longitude bin (0.5 deg) is within 1 degree of the MDC's ${mdcSolarLongitudeDeg} (J2000)`, () => {
     const busiest = (binDeg: number) => {
       const bins = new Map<number, number>();
       for (const r of rowsFor(set)) { const k = Math.floor(solarLongitudeDeg(adapter, toEqj, r[C.epochUtcMs]) / binDeg); bins.set(k, (bins.get(k) ?? 0) + 1); }
@@ -102,7 +117,7 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     expect(Math.abs(centre - mdcSolarLongitudeDeg)).toBeLessThan(1);
   });
 
-  for (const set of ["all", "reliable"] as const) it(`DW3(iii), ${set} orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak`, () => {
+  for (const set of ["all"] as const) it(`DW3(iii), ${set} orbits: Earth is nearest the GMN stream orbits within 2 days of the published peak`, () => {
     const members = rowsFor(set).map((row) => ellipseOf(row[C.a], row[C.e], row[C.i], row[C.w], row[C.node]));
     const days: number[] = [];
     for (let t = peakPublished - 6 * DAY_MS; t <= peakPublished + 6 * DAY_MS; t += DAY_MS) days.push(t);
@@ -131,7 +146,7 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
     expect(Math.abs(deltaDays)).toBeLessThanOrEqual(2);
   }, 240_000);
 
-  for (const set of ["all", "reliable"] as const) it(`DW3(iv), ${set} orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant`, () => {
+  for (const set of ["all"] as const) it(`DW3(iv), ${set} orbits: the radiant from GMN orbits crossing Earth's at the peak is within 3 degrees of the published radiant`, () => {
     const earth = earthEcliptic(adapter, toEqj, peakPublished);
     const CROSSING_AU = 0.02;
     const radiants: { x: number; y: number; z: number; speed: number }[] = [];

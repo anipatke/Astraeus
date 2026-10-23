@@ -7,7 +7,7 @@ import { createProvenance } from "astraeus/core/provenance";
 import type { ExperienceConfig } from "astraeus/shell/experience";
 import type { Metric } from "astraeus/shell/metrics";
 import { parseStoryPanels, StoryPanelError, type StoryPanelSet } from "astraeus/shell/storyPanels";
-import { orbitSetCounts, type MeasuredLoad, type OrbitSet } from "./measuredOrbits";
+import { hasQuality, orbitSetCounts, type MeasuredLoad, type OrbitSet } from "./measuredOrbits";
 import { createActivityWindow, radiantMetricOf, rateMetricOf } from "./showerActivity";
 import { showerCatalogue, sourceLine, streamIdOf, timelineBoundsOf, yearBoundsOf } from "./showerBasics";
 import { bodyObjects, planetIdsOf, showerComposition } from "./showerBodies";
@@ -61,10 +61,11 @@ export function showerStoryPanels(settings: ShowerSettings, objectIds: readonly 
 
 /** The live switch the Developer section lists: the orbit set (once loaded). Undefined when there is none. */
 function alternatesOf(settings: ShowerSettings, load: MeasuredLoad, set: OrbitSet): ExperienceDefinition["alternates"] {
-  if (load.kind !== "loaded") return undefined;
+  // Without per-orbit quality (a shipped copy) there is only one set, so there is nothing to switch.
+  if (load.kind !== "loaded" || !hasQuality(load.orbits)) return undefined;
   const counts = orbitSetCounts(load.orbits, settings.stream.quality.rule);
   return (["all", "reliable"] as const).map((option) => ({
-    label: option === "all" ? `All orbits (${counts.all})` : `Reliable only (${counts.reliable})`,
+    label: option === "all" ? `All orbits (${counts.all})` : `Reliable only (${counts.reliable ?? 0})`,
     param: "orbits",
     value: option,
     active: option === set,

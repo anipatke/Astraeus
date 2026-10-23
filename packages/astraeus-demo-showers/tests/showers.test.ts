@@ -410,7 +410,7 @@ describe("the orbit sets", () => {
     const counts = orbitSetCounts(orbits, rule);
     expect(counts).toEqual({ all: 200, cut: expectedCut, reliable: 200 - expectedCut });
     const reliable = selectOrbits(orbits, "reliable", rule);
-    expect(reliable.members).toHaveLength(counts.reliable);
+    expect(reliable.members).toHaveLength(counts.reliable!);
     expect(reliable.members.every((m) => Number(m.recordId.split("-")[2]) % 4 !== 0 && Number(m.recordId.split("-")[2]) % 5 !== 0)).toBe(true);
     expect(selectOrbits(orbits, "all", rule)).toBe(orbits);
   });
@@ -428,7 +428,7 @@ describe("the orbit sets", () => {
     const reliable = buildShowerDefinition(settings, loaded, "reliable");
     const counts = orbitSetCounts(orbits, rule);
     expect(groupsOf(all)[0].group.count).toBe(200);
-    expect(groupsOf(reliable)[0].group.count).toBe(counts.reliable);
+    expect(groupsOf(reliable)[0].group.count).toBe(counts.reliable!);
     const text = (groupsOf(reliable)[0].object.knownLimitations ?? []).join(" ");
     expect(text).toMatch(new RegExp(`Orbit set shown: reliable orbits only \\(${counts.reliable} of 200 bound orbits`));
     expect(text).toMatch(/Qc \(the maximum convergence angle between the stations that saw the meteor\) at least 15° and the Vgeo sigma at most 10% of Vgeo/);

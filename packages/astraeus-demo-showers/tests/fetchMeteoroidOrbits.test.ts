@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkLayout, extractGmn, gmnEpochMs, gmnLayout, gmnShowerFile, shippedCopy, SHIPPED_COLUMNS, ROW_COLUMNS, COLUMN_LAYOUT, toColumns, fromColumns, rowsOfFile } from "../tools/data/fetch-meteoroid-orbits.mjs";
+import { checkLayout, extractGmn, gmnEpochMs, gmnLayout, gmnShowerFile, shippedCopy, SHIPPED_COLUMNS, ROW_COLUMNS, COLUMN_LAYOUT, TRIMMED_IDS, toColumns, fromColumns, rowsOfFile } from "../tools/data/fetch-meteoroid-orbits.mjs";
 import { parseMeasuredOrbits, SHIPPED_ROW_COLUMNS } from "../src/experiences/showers/measuredOrbits";
 
 // The Global Meteor Network's monthly summaries (made-up rows in the real file's shape).
@@ -71,6 +71,8 @@ describe("the layout check", () => {
   });
 });
 
+const stampOf = (epochUtcMs: number): string => new Date(epochUtcMs).toISOString().slice(0, 19).replace(/[-:T]/g, "");
+
 describe("shipping a measured-orbit file", () => {
   it("makes a compact copy that keeps the licence header and is read like the full file", async () => {
     const result = await extractGmn([{ month: "202508", lines: gmnLines(Array.from({ length: 12 }, (_, k) => gmnRow(k))) }], 7);
@@ -90,15 +92,28 @@ describe("shipping a measured-orbit file", () => {
     const a = parseMeasuredOrbits(full, 7);
     const b = parseMeasuredOrbits(shipped, 7);
     expect(b.members).toEqual(a.members);
-    expect(b.quality.map((q) => [q.convergenceAngleDeg, q.velocityKmS, q.velocityErrorKmS])).toEqual(a.quality.map((q) => [q.convergenceAngleDeg, q.velocityKmS, q.velocityErrorKmS]));
+    expect(a.quality).toHaveLength(12);
+    expect(b.quality).toEqual([]);
+    expect(shipped.provenance.recordIds).toBe(TRIMMED_IDS);
+    expect(shipped.provenance.shipped.droppedColumns).toEqual(expect.arrayContaining(["convergenceAngleDeg", "geocentricVelocityKmS", "geocentricVelocityErrorKmS"]));
+    expect(shipped.provenance.shipped.qualityCounts).toMatch(/^Of 12 bound orbits, \d+ pass the published quality cut/);
+    // Shipping a shipped copy again changes nothing.
+    expect(shippedCopy(shipped)).toEqual(shipped);
   });
 
   it("stores the shipped rows column by column without changing any value, and the loader rejects columns that do not line up", async () => {
-    const rows = Array.from({ length: 5 }, (_, k) => [`id-${k}`, 1_752_785_250_169 + k * 4_321 - (k === 3 ? 9_000 : 0), 2 + k / 7, 0.5 + k / 100, 100 + k, 140 + k, 115 + k, 10 + k, 50 + k / 3, 0.1 * k]);
+    const epochOf = (k: number) => 1_752_785_250_169 + k * 4_321 - (k === 3 ? 9_000 : 0);
+    // Ids 0, 1 and 4 carry their epoch's time (trimmed); id 2 carries a time one second off and id 3 none (both kept in full).
+    const ids = [`${stampOf(epochOf(0))}_aB1`, `${stampOf(epochOf(1))}_cD2`, `${stampOf(epochOf(2) + 1_000)}_eF3`, "plain-id", `${stampOf(epochOf(4))}_gH4`];
+    const rows = Array.from({ length: 5 }, (_, k) => [ids[k], epochOf(k), 2 + k / 7, 0.5 + k / 100, 100 + k, 140 + k, 115 + k]);
     expect(fromColumns(toColumns(rows))).toEqual(rows);
     const columns = toColumns(rows);
     expect(columns[1].slice(0, 2)).toEqual([rows[0][1], 4_321]);
-    const provenance = { database: "d", citation: "c", source: "s", fetchedAt: "t", iauCode: 7, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT };
+    expect(columns[0]).toEqual(["_aB1", "_cD2", ids[2], "plain-id", "_gH4"]);
+    expect(() => toColumns([["_x", 1, 1, 0.5, 1, 1, 1]])).toThrow(/trim marker/);
+    const provenance = { database: "d", citation: "c", source: "s", fetchedAt: "t", iauCode: 7, columns: [...SHIPPED_COLUMNS], layout: COLUMN_LAYOUT, recordIds: TRIMMED_IDS };
+    expect(parseMeasuredOrbits({ provenance, rows: columns }, 7).members.map((m) => m.recordId)).toEqual(ids);
+    expect(fromColumns(columns, false)[0][0]).toBe("_aB1");
     expect(parseMeasuredOrbits({ provenance, rows: columns }, 7).members.map((m) => m.epochUtcMs)).toEqual(rows.map((r) => r[1]));
     expect(() => parseMeasuredOrbits({ provenance, rows: columns.slice(1) }, 7)).toThrow(/column-wise rows/);
     expect(() => parseMeasuredOrbits({ provenance, rows: columns.map((c, k) => (k === 2 ? c.slice(1) : c)) }, 7)).toThrow(/column-wise rows/);
