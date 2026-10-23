@@ -3,7 +3,7 @@ import type { DirectionalLight, PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { BodyAsset, BodyCatalogue } from "../assets/catalogue";
-import { hideBootLoader } from "../shell/bootLoader";
+import { bootShowing, hideBootLoader } from "../shell/bootLoader";
 import type { AnchorLabelLayer } from "./AnchorLabels";
 import type { BodyParts } from "./BodyView";
 import { drawnRadii } from "./bodyDraw";
@@ -38,6 +38,8 @@ const REBASE_THRESHOLD = 1;
 /** What survives from one frame to the next. The component owns one and hands it to every frame. */
 export interface FrameState {
   started: boolean;
+  /** The loading cover's showing this scene mounted under; its first frame hides only that one (I-074). */
+  readonly coverShowing: number;
   /** The composition's span of the previous frame, in scaled units. */
   spanScaled: number;
   lastPolicyId: ScalePolicy["id"];
@@ -71,7 +73,7 @@ export interface DrawnMemo {
 
 export function createFrameState(policyId: ScalePolicy["id"]): FrameState {
   return {
-    started: false, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
+    started: false, coverShowing: bootShowing(), spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
     drawThisFrame: true, framesDrawn: 0, wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
   };
@@ -192,7 +194,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   resolveCamera(orbit, focusAbsoluteOf(targets, orbit.focus), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR, viewUp);
-  if (firstFrame) requestAnimationFrame(hideBootLoader);
+  if (firstFrame) requestAnimationFrame(() => hideBootLoader(state.coverShowing));
   controls.viewReadout = viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance);
   return { targets };
 }

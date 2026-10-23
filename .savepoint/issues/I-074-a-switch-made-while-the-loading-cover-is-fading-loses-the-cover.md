@@ -18,6 +18,10 @@ history:
     kind: observed
     check: C-102
     note: 'O-030 Success Condition 3 (the loading animation covers the change). hideBootLoader schedules boot.remove() on the element it faded; showBootLoader reuses that same element when it is still in the page, so the pending timer removes the cover mid-switch. Reproduced in a scratch happy-dom test (removed after the run).'
+  - at: '2026-10-23T03:22:41Z'
+    actor: {role: executor, session: o030-coordinator-20261023}
+    kind: repair_attempted
+    note: 'Owner: "Fix it, short recheck (Recommended)". showBootLoader now cancels a pending removal and counts showings; hideBootLoader(showing) ignores a scene mounted before the latest showing (sceneFrame FrameState.coverShowing, noted at mount). New tests in tests/bootLoader.test.ts: hide, show within the fade, past the fade the cover stays loading, a later hide still removes it; an older scene cannot hide a newer showing. Neighbouring cases still pass (hide once, fail, no loader). lint, typecheck, build, npm test (114 files, 1524 passed) pass. Not run in a browser (no browser script changed).'
 ---
 
 # I-074: A switch made while the loading cover is still fading out loses the cover
