@@ -147,8 +147,8 @@ function landingSite(validation: GeneratedValidation, events: GeneratedEvents): 
     + `from Tranquility Base on the drawn Moon by ${offsets}. This is a stated liberty of the drawn Moon, not of the landing.`;
 }
 
-const ABOUT_THE_DRAWING = `${APOLLO11_STATEMENT}. Lines are reconstructed samples and round dots are NASA source anchors. "
-  + "The marker is drawn larger than the vehicle so you can see it, and is not to scale.`;
+const ABOUT_THE_DRAWING = `${APOLLO11_STATEMENT}. Lines are reconstructed samples and round dots are NASA source anchors. `
+  + "The marker is drawn larger than the vehicle so you can see it, and is not to scale.";
 
 const DESCRIPTIONS: Readonly<Record<string, string>> = {
   earth: "Our planet, and the centre every distance and speed here is measured from.",

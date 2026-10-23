@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-041 Full Objective Check (C-112) on 6ae9fc58: the Columbia and Eagle descriptions built by buildApollo11Scene() contain the literal text `. "` + newline + `  + "The marker ...`, shown on both info cards of the default site demo.'
     check: C-112
+  - at: '2026-10-24T09:25:00Z'
+    actor: {role: executor, session: o041-i082-repair}
+    kind: repair_attempted
+    note: 'Fixed ABOUT_THE_DRAWING in apollo11Scene.ts (two joined strings now). Added a regression test in rebuildComparison.test.ts: Columbia and Eagle descriptions contain no quote, plus sign or newline and contain the exact note sentence. Also tidied SwitchesInput into the Scene section of api-reference.mjs and the README and CHANGELOG (addBody color and knownLimitations, bad-body, camera preset id change, Sky unlisted). Gates: lint, typecheck, build, npm test (124 files, 1656 passed, 1 skipped) all green. Not closed; needs a Check.'
 ---
 
 # I-082: Apollo spacecraft descriptions show a stray quote and plus sign

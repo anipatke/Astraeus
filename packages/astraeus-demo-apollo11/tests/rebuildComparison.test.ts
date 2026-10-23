@@ -54,6 +54,14 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     expect(byId(objectsAfter, "columbia").description).toContain("Launch and splashdown are events only");
   });
 
+  it("writes the drawing note as plain sentences with no code left in the text (I-082)", () => {
+    for (const id of ["columbia", "eagle"]) {
+      const now = byId(objectsAfter, id).description as string;
+      expect(now).not.toMatch(/"|\+|\n/);
+      expect(now).toContain("round dots are NASA source anchors. The marker is drawn larger than the vehicle so you can see it, and is not to scale.");
+    }
+  });
+
   it("has the same events, event provenance, window, rates, opening clock, story panels, scale choice, opening view and layers", () => {
     expect(plain(after.experience.events)).toEqual(before.events);
     expect(plain(after.experience.eventProvenance)).toEqual(before.eventProvenance);
