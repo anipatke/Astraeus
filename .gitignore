@@ -11,7 +11,7 @@ docs/evidence/**/*.out
 docs/evidence/**/*.mjs
 
 # Local-only data fetched by tools/data/* (never committed, never in a public build).
-data/local/
+packages/*/data/local/
 
 # Raw JPL Horizons responses cached by tools/import/horizons-moons.mjs (large; re-fetchable).
-tools/import/.horizons-cache/
+packages/*/tools/import/.horizons-cache/

@@ -1,5 +1,5 @@
 {
-  "name": "astraeus",
+  "name": "astraeus-workspace",
   "private": true,
   "version": "0.1.0",
   "license": "MIT",
@@ -8,14 +8,15 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite packages/astraeus-site",
+    "build": "vite build packages/astraeus-site",
     "typecheck": "tsc --noEmit",
-    "check:browser": "node tools/validate/run-browser.mjs",
+    "check:browser": "node packages/astraeus-site/tools/validate/run-browser.mjs",
     "test": "vitest run",
     "test:full": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml",
-    "apollo11:reconstruct": "node tools/apollo11/run.mjs",
-    "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js src tests tools"
+    "apollo11:reconstruct": "node packages/astraeus-demo-apollo11/tools/apollo11/run.mjs",
+    "check:engine-alone": "node tools/check-engine-alone.mjs",
+    "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },
   "dependencies": {
     "@lizard-isana/orb": "3.1.1",
@@ -64,5 +65,8 @@
     "@typescript-eslint/tsconfig-utils": {
       "typescript": "$typescript"
     }
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

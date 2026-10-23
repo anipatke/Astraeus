@@ -1,0 +1,131 @@
+==== QUERY charon-six: https://ssd.jpl.nasa.gov/api/horizons.api COMMAND='901' CENTER='500@999' --data-urlencode TIME_TYPE=UT --data-urlencode TLIST='2440423.500000','2446217.500000','2451545.000000','2455378.500000','2460310.500000','2462653.500000' fetched 2026-10-17T03:53:21Z ====
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+ Revised: Apr 03, 2024              Charon / (Pluto)                        901 
+
+ Pre-computed solution PLU060/DE440. Fit to post New Horizons encounter and 
+ Gaia data through 2023.  For discussion, see ...
+
+ M. Brozovic, R. A. Jacobson (2024) "Post-New Horizons orbits and masses 
+ for the satellites of Pluto". AJ (in press)
+
+ Satellite General Physical Properties (PLU060):
+  GM (km^3/s^2)           = 106.10 +- 0.3 Density (g cm^-3)     = 1.853 +- 0.004
+  Radius (km, IAU2015)    = 606 +- 0.5    Geometric albedo      = 
+  Mass (10^21 kg )        =               Hill Sphere radius, km= 
+  Surface gravity (cm/s^2)=               Escape velocity, km/s = 
+
+ Satellite mean orbital data (2000-Jan-01.5 TDB, planet-centered equatorial):
+  Semi-major axis, a (km) = 19600.        Orbital period, days  = 6.387222
+  Eccentricity, e         =     0.000     Inclination, deg.     = 0.0
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Fri Oct 16 20:53:21 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Charon (901)                    {source: plu060_merged}
+Center body name: Pluto (999)                     {source: plu060_merged}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 1969-Jul-21 00:00:00.0000 UT 
+Stop  time      : A.D. 2030-Jun-01 00:00:00.0000 UT 
+Step-size       : DISCRETE TIME-LIST
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 1188.3, 1188.3, 1188.3 km       {Equator_a, b, pole_c}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 1 (position only)
+EOP file        : eop.261016.p270112
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-16. PREDICTS-> 2027-JAN-11
+Reference frame : ICRF
+*******************************************************************************
+            JDUT ,            Calendar Date (UT ),                      X,                      Y,                      Z,
+**************************************************************************************************************************
+$$SOE
+2440423.500000000, A.D. 1969-Jul-21 00:00:00.0000,  1.061953219596173E+04,  7.729008571475376E+03, -1.454118504943172E+04,
+2446217.500000000, A.D. 1985-Jun-01 00:00:00.0000,  7.534811924219198E+02, -2.209756236487787E+03, -1.945765440847086E+04,
+2451545.000000000, A.D. 2000-Jan-01 12:00:00.0000, -6.846982641872730E+03, -8.798825762176246E+03, -1.611828461667589E+04,
+2455378.500000000, A.D. 2010-Jul-01 00:00:00.0000, -1.436788689491447E+04, -1.289983943159538E+04,  3.354594310566074E+03,
+2460310.500000000, A.D. 2024-Jan-01 00:00:00.0000, -6.287063375752267E+03, -3.127558404689116E+03,  1.829414278547216E+04,
+2462653.500000000, A.D. 2030-Jun-01 00:00:00.0000, -1.439959414799527E+04, -1.306039772421836E+04,  2.485285918789633E+03,
+$$EOE
+**************************************************************************************************************************
+ 
+TIME
+
+ Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" atomic time-scale. UTC is kept within 0.9 seconds
+of UT1 using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the discontinuous civil UT time-scale has not been
+determined for UTC times after the next July or January 1st. Therefore,
+the last known leap-second is used as a constant over future intervals,
+a condition noted here as "UT~".
+
+  Future but as yet undetermined leap-seconds can be expected to change
+time-tags in the "UT~" interval and, in general, the UT scale may not be
+suitable for purposes that assume time-tag continuity in the ephemeris.
+Output in continuous TDB and TT timescales may instead be requested,
+though these are not linked to Earth's rotation.
+
+  Time-tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning:
+
+    JDUT     Julian Day Number, Universal Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

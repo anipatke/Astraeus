@@ -1,0 +1,166 @@
+{
+  "pauseSeconds": 6,
+  "autoOpen": true,
+  "panels": [
+    {
+      "id": "tli-cutoff",
+      "at": {
+        "anchor": "A-02"
+      },
+      "object": "columbia",
+      "title": "Leaving Earth behind",
+      "badge": "observed",
+      "body": [
+        "The rocket's last stage fires one final time and flings the crew out of Earth's orbit. They're now moving at nearly 40,000 km an hour, fast enough to coast all the way to the Moon.",
+        "Three days of coasting start here."
+      ],
+      "details": [
+        "At ground elapsed time 2:50:03.2 (16:22:03 UTC, 16 July 1969) the S-IVB's second burn cut off. NASA's postflight table puts the stack about 321 km above Earth, moving at about 10.84 km/s relative to Earth's centre.",
+        "The next anchor, translunar injection, follows ten seconds later.",
+        "Nearly 40,000 km an hour: 10.84 km/s × 3,600 seconds in an hour = about 39,000 km an hour.",
+        "Three days: from this cutoff (2:50:03.2) to the lunar orbit insertion burn (75:49:50.4) is 72 hours 59 minutes 47.2 seconds, about three days."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-02, S-IVB second cutoff",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-11, lunar orbit insertion ignition (GET 75:49:50.4), for the three days of coasting"
+      ]
+    },
+    {
+      "id": "loi",
+      "at": {
+        "anchor": "A-11"
+      },
+      "object": "moon",
+      "title": "Braking to stay at the Moon",
+      "badge": "observed",
+      "body": [
+        "The crew fires their spacecraft's big engine to slow down. Without this brake they would swing right past the Moon.",
+        "After about six minutes of burning, the Moon's pull catches them and they settle into orbit."
+      ],
+      "details": [
+        "At ground elapsed time 75:49:50.4 (17:21:50 UTC, 19 July 1969) the service module engine fired to let the Moon capture the spacecraft. The burn lasted 5 minutes 57.6 seconds, ending at 75:55:48.0.",
+        "Over that burn the speed relative to the Moon fell from about 2.51 km/s to about 1.67 km/s, and the altitude above the Moon from about 161 km to about 111 km.",
+        "About six minutes: the burn lasted 5 minutes 57.6 seconds."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-11, lunar orbit insertion ignition (GET, altitude 160.57 km, speed 2.5146 km/s)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-12, lunar orbit insertion cutoff (GET 75:55:48.0, altitude 111.31 km, speed 1.6700 km/s)"
+      ]
+    },
+    {
+      "id": "powered-descent",
+      "at": {
+        "anchor": "A-20"
+      },
+      "object": "eagle",
+      "title": "Heading down to the surface",
+      "badge": "observed",
+      "body": [
+        "Eagle, the landing craft, lights its engine and begins braking its way down to the Moon.",
+        "Touchdown is about 12 and a half minutes away."
+      ],
+      "details": [
+        "Eagle lit its descent engine at ground elapsed time 102:33:05.1 (20:05:05 UTC, 20 July 1969), about 11.9 km above the Moon and moving at about 1.70 km/s relative to it.",
+        "Touchdown came 12 minutes 34.8 seconds later. The two times are published values; the path drawn between them is a reconstruction, not a measured track.",
+        "About 12 and a half minutes: 12 minutes 34.8 seconds from engine start (102:33:05.1) to touchdown (102:45:39.9)."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-20, powered descent initiation (GET, altitude 11.85 km, speed 1.6960 km/s)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 5-IV, p. 5-10: anchor A-LND, lunar touchdown (for the interval)",
+        "Astraeus Apollo 11 reconstruction notes: powered descent remains a two-anchor interpolation"
+      ]
+    },
+    {
+      "id": "touchdown",
+      "at": {
+        "anchor": "A-LND"
+      },
+      "object": "eagle",
+      "title": "The Eagle has landed",
+      "badge": "observed",
+      "body": [
+        "Eagle settles gently onto the Moon. For the first time, people have landed on another world.",
+        "They will stay here for nearly a whole day."
+      ],
+      "details": [
+        "Eagle touched down at ground elapsed time 102:45:39.9 (20:17:40 UTC, 20 July 1969), at 0.674° N, 23.473° E on the Moon (Landing Site 2).",
+        "The touchdown time and place are published values. The descent path drawn to reach them is a reconstruction: powered descent is a two-anchor interpolation, not a measured track.",
+        "Nearly a whole day: lunar lift-off at 124:22:00.8 less touchdown at 102:45:39.9 is 21 hours 36 minutes 20.9 seconds on the surface."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 5-IV, p. 5-10: anchor A-LND, lunar touchdown (Landing Site 2)",
+        "Astraeus Apollo 11 reconstruction notes: powered descent and ascent remain two-anchor interpolations",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 3-I, p. 3-4: lunar lift-off, GET 124:22:00.8 (anchor A-LIFTOFF), for the time on the surface"
+      ]
+    },
+    {
+      "id": "ascent-docking",
+      "at": {
+        "anchor": "A-21"
+      },
+      "object": "eagle",
+      "title": "Back up to Columbia",
+      "badge": "observed",
+      "body": [
+        "Eagle lifts off from the Moon and climbs back into orbit to catch up with Columbia, which has been circling overhead the whole time.",
+        "In under four hours the two spacecraft are joined together again."
+      ],
+      "details": [
+        "Eagle's ascent engine lit at 124:22:00.8, after 21 hours 36 minutes on the surface. At 124:29:15.7 (18:01:16 UTC, 21 July 1969) it cut off, with Eagle about 18.5 km above the Moon and moving at about 1.69 km/s.",
+        "Eagle and Columbia docked at 128:03:00.0, 3 hours 41 minutes after lift-off. The ascent and rendezvous paths drawn between these times are reconstructions.",
+        "Under four hours: docking at 128:03:00.0 less lift-off at 124:22:00.8 is 3 hours 40 minutes 59.2 seconds."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-21, ascent engine cutoff (GET 124:29:15.7, altitude 18.52 km, speed 1.6880 km/s); anchor A-27, docking (GET 128:03:00.0)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 3-I, p. 3-4: lunar lift-off, GET 124:22:00.8 (anchor A-LIFTOFF); touchdown from Table 5-IV, p. 5-10 (anchor A-LND), for the surface time",
+        "Astraeus Apollo 11 reconstruction notes: powered descent and ascent remain two-anchor interpolations"
+      ]
+    },
+    {
+      "id": "tei",
+      "at": {
+        "anchor": "A-31"
+      },
+      "object": "columbia",
+      "title": "Heading home",
+      "badge": "observed",
+      "body": [
+        "With everyone back aboard, Columbia fires its engine one more time to break free of the Moon.",
+        "The burn lasts about two and a half minutes and sends the crew on their way back to Earth."
+      ],
+      "details": [
+        "At ground elapsed time 135:23:42.3 (04:55:42 UTC, 22 July 1969) Columbia's engine fired for 2 minutes 31.4 seconds to send the crew back toward Earth.",
+        "Speed relative to the Moon rose from about 1.64 km/s to about 2.62 km/s over the burn, at an altitude of about 108 km.",
+        "About two and a half minutes: the burn lasted 2 minutes 31.4 seconds."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-31, transearth injection ignition (GET 135:23:42.3, altitude 108.16 km, speed 1.6388 km/s)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-II, p. 7-9: anchor A-32, transearth injection cutoff (GET 135:26:13.7, altitude 109.45 km, speed 2.6179 km/s)"
+      ]
+    },
+    {
+      "id": "splashdown",
+      "at": {
+        "event": "E-30"
+      },
+      "object": "earth",
+      "title": "Home with a splash",
+      "badge": "observed",
+      "body": [
+        "Columbia's capsule plunges into Earth's atmosphere at nearly 40,000 km an hour, and the air slows it down.",
+        "Its parachutes open, and it splashes down in the Pacific Ocean. The trip to the Moon and back is over."
+      ],
+      "details": [
+        "Columbia's command module landed in the Pacific at ground elapsed time 195:18:35 (16:50:35 UTC, 24 July 1969), near 13.3° N, 169.15° W.",
+        "It had crossed the top of the atmosphere, defined as 400,000 feet, at 195:03:05.7, moving at about 11.03 km/s. The 15 minutes 29 seconds from there to the water are shown as events only; Astraeus draws no path for them.",
+        "Nearly 40,000 km an hour: 11.03 km/s × 3,600 seconds in an hour = about 39,700 km an hour.",
+        "The drogue parachutes opened at 195:12:06.9, at about 10,000 feet."
+      ],
+      "sources": [
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: anchor A-36, entry interface (GET 195:03:05.7, altitude 121.86 km, speed 11.0321 km/s)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: splashdown, GET 195:18:35 and guidance-computed position 13.30° N, 169.15° W (event E-30; as recorded in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md)",
+        "NASA Apollo 11 Mission Report (MSC-00171), Table 7-VII, p. 7-12: drogue deployment, GET 195:12:06.9, at about 10,000 feet (event E-29)"
+      ]
+    }
+  ]
+}

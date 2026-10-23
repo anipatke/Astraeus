@@ -11,11 +11,11 @@ This is a **reconstruction** of the Apollo 11 flight path from sparse NASA postf
 | Parking orbit (Earth orbit insertion → TLI ignition) | No NASA anchor exists before TLI ignition (A-01). A-01 integrated **backward** in time with the coast dynamics below. Unanchored at the start; drag is ignored. |
 | Coast between anchors (including Earth ↔ Moon) | Numerical integration (RK4, fixed step) in Earth-centred EQJ with Earth point mass + J2, and the Moon and Sun as third bodies from the Astraeus adapter. Integrated forward from the earlier anchor and backward from the later one, then smoothed (see Joins). |
 | Ordinary burn (ignition → cutoff anchors) | Numerical integration from the ignition state with Earth (J2), Moon and Sun gravity plus a constant EQJ acceleration solved to reach the cutoff velocity. The cutoff position residual is reported; the next coast starts from the modelled cutoff state. This is not guidance. |
-| Powered descent (PDI → touchdown) | Two-anchor cubic Hermite in the Moon-fixed frame. The 2022 NASA descent reconstruction was not used (docs/APOLLO11_SOURCES.md section 3). |
+| Powered descent (PDI → touchdown) | Two-anchor cubic Hermite in the Moon-fixed frame. The 2022 NASA descent reconstruction was not used (packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md section 3). |
 | Surface stay | The touchdown site held fixed in the Moon-fixed frame (IAU lunar rotation model). |
 | Powered ascent (lift-off → ascent insertion) | Two-anchor cubic Hermite in the Moon-fixed frame, from the touchdown site at the lift-off event time. |
 
-Moon-relative states are normalised offline to Earth-centred EQJ with the Astraeus Moon state at the same instant. Earth-fixed anchors use the Fischer 1960 ellipsoid and Orb's ECEF→EQJ transform; Moon-fixed anchors use the IAU WGCCRE lunar rotation on a 1,738.09 km sphere for position; Moon-referenced flight-path angle and heading are taken in a local basis whose north points to the EQJ (J2000) pole, adopted because the lunar-orbit anchors are only consistent that way (owner decision 2026-10-06; the source does not define it). Conventions are in `docs/APOLLO11_SOURCES.md` section 4.
+Moon-relative states are normalised offline to Earth-centred EQJ with the Astraeus Moon state at the same instant. Earth-fixed anchors use the Fischer 1960 ellipsoid and Orb's ECEF→EQJ transform; Moon-fixed anchors use the IAU WGCCRE lunar rotation on a 1,738.09 km sphere for position; Moon-referenced flight-path angle and heading are taken in a local basis whose north points to the EQJ (J2000) pole, adopted because the lunar-orbit anchors are only consistent that way (owner decision 2026-10-06; the source does not define it). Conventions are in `packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md` section 4.
 
 **Joins (smoothing).** Propagated forward from its start state alone, a coast still misses its next anchor; that **raw miss** is measured and published below. After a burn, this forward state is the modelled cutoff state; otherwise it is the converted start anchor. The coast is blended to a backward propagation from the next anchor with a smoothstep weight (0 with zero slope at the start, 1 with zero slope at the end), interpolating radius linearly and direction along the great circle about the Moon when both anchors are Moon-referenced, otherwise about Earth. Non-cutoff anchors are met in position and velocity, and `discontinuities` is empty. The largest difference between the smoothed and raw forward path is published per coast as the correction. Large corrections are a presentation repair over doubtful data, not physics.
 
@@ -185,14 +185,14 @@ A-05 is printed as 44.94 degrees but disagrees with the state propagated from A-
 
 ## Independent cross-check: published lunar orbits
 
-Apsis altitudes (above the 1,738.09 km reference sphere) from the converted post-burn anchor, versus the orbit values in the Mission Report as recorded in docs/APOLLO11_SOURCES.md section 5. The osculating two-body values are expected to differ by a few n mi because of lunar gravity anomalies.
+Apsis altitudes (above the 1,738.09 km reference sphere) from the converted post-burn anchor, versus the orbit values in the Mission Report as recorded in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md section 5. The osculating two-body values are expected to differ by a few n mi because of lunar gravity anomalies.
 
 | Anchor | Published apolune / perilune n mi | Computed apolune / perilune n mi | Source |
 |---|---|---|---|
 | A-12 | 169.7 / 60 | 169.8 / 60 | Table 7-V (LOI-1 resultant orbit) |
 | A-14 | 65.7 / 53.8 | 67.4 / 56.2 | Table 7-V / Sec 7.4.4 (LOI-2 resultant orbit) |
 | A-17 | 63.7 / 56 | 66.1 / 60.5 | Table 7-V (CSM separation burn resultant orbit) |
-| A-19 | 64.3 / 8.5 | 57.8 / 12.1 | Table 7-V / Sec 7.4.6 (DOI) as recorded in docs/APOLLO11_SOURCES.md; apolune value looks mis-recorded |
+| A-19 | 64.3 / 8.5 | 57.8 / 12.1 | Table 7-V / Sec 7.4.6 (DOI) as recorded in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md; apolune value looks mis-recorded |
 | A-21 | 48 / 9.4 | 50.9 / 9.5 | Table 7-V (ascent insertion orbit) |
 | A-23 | 49.3 / 45.7 | 46 / 41.2 | Table 7-V (CSI resultant orbit) |
 | A-25 | 61.7 / 43.7 | 64.9 / 44 | Table 7-V (TPI resultant orbit) |
@@ -207,7 +207,7 @@ Apsis altitudes (above the 1,738.09 km reference sphere) from the converted post
 
 ### Landing site versus the runtime Moon orientation
 
-The IAU-placed site compared with the same selenographic latitude/longitude under the runtime tidal-lock Moon orientation. The offset is larger than the 1°–2° anticipated in docs/APOLLO11_SOURCES.md because the runtime orientation has no libration. The Moon mesh is deliberately not adjusted to hide this.
+The IAU-placed site compared with the same selenographic latitude/longitude under the runtime tidal-lock Moon orientation. The offset is larger than the 1°–2° anticipated in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md because the runtime orientation has no libration. The Moon mesh is deliberately not adjusted to hide this.
 
 | Time UTC | Offset km | Offset ° |
 |---|---|---|

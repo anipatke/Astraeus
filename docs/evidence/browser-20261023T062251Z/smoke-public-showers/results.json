@@ -1,0 +1,86 @@
+{
+  "at": "2026-10-23T06:23:40.792Z",
+  "appUrl": "http://localhost:5480/app.html",
+  "loads": 6,
+  "failed": 0,
+  "results": [
+    {
+      "label": "showers",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 2.1,
+      "drawn": {
+        "bodies": 7,
+        "dots": 24218,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "phone",
+      "ok": true,
+      "seconds": 1.2,
+      "drawn": {
+        "bodies": 5,
+        "dots": 7486,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 5,
+      "drawn": {
+        "bodies": 7,
+        "dots": 51115,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "phone",
+      "ok": true,
+      "seconds": 2.4,
+      "drawn": {
+        "bodies": 7,
+        "dots": 49533,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 1,
+      "drawn": {
+        "bodies": 7,
+        "dots": 24218,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "phone",
+      "ok": true,
+      "seconds": 1.1,
+      "drawn": {
+        "bodies": 5,
+        "dots": 7486,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    }
+  ]
+}

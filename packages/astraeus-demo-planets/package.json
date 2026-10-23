@@ -1,0 +1,16 @@
+{
+  "name": "astraeus-demo-planets",
+  "version": "0.1.0",
+  "description": "The planets demo (the Jupiter-Io address is an alias): code, data and tests.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./experiences/*": "./src/experiences/*.ts",
+    "./experiences/planets/surfacePlace.mjs": "./src/experiences/planets/surfacePlace.mjs",
+    "./data/*": "./data/*"
+  },
+  "dependencies": {
+    "astraeus": "*"
+  }
+}

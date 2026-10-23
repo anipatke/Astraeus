@@ -2,7 +2,7 @@
 
 Everything in space, where it is right now, drawn in the browser.
 
-![The Perseid meteor stream over a year, drawn from Global Meteor Network orbits, seen obliquely from above the planets' plane](site/readme/perseids-year.gif)
+![The Perseid meteor stream over a year, drawn from Global Meteor Network orbits, seen obliquely from above the planets' plane](packages/astraeus-site/site/readme/perseids-year.gif)
 
 <sub>The Perseid stream over one year, one frame per week. Each dot is a measured meteoroid orbit. Orbits: [Global Meteor Network](https://globalmeteornetwork.org), CC BY 4.0. Stars: HYG database (astronexus), CC BY-SA 4.0.</sub>
 
@@ -14,7 +14,7 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 
 | | |
 |---|---|
-| ![Apollo 11's free-return path from above, Earth and the Moon](site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](site/perseids-gmn.jpg) |
+| ![Apollo 11's free-return path from above, Earth and the Moon](packages/astraeus-site/site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](packages/astraeus-site/site/perseids-gmn.jpg) |
 | **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. Seven story panels. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. Three story panels. |
 | [Try it](https://astraeus.anipatke.com/app.html) (going live soon) | [Try it](https://astraeus.anipatke.com/app.html?experience=showers) (going live soon) |
 
@@ -26,17 +26,17 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 
 ## How it knows
 
-![The info panel for Apollo 11's lunar landing, marked Observed, with its source, accuracy and notes](site/apollo-provenance.jpg)
+![The info panel for Apollo 11's lunar landing, marked Observed, with its source, accuracy and notes](packages/astraeus-site/site/apollo-provenance.jpg)
 
 Every number in the info panel carries a label. **Observed** means someone measured it, like the time of the Apollo 11 landing from NASA's report. **Modelled** means it comes from a published method, like the planets from VSOP87. **Illustrative** means it fills a gap: where each meteor sits along its orbit today was never measured, so the dots are spread evenly and say so. The rule behind it: be reliable where the data exists, plausible where it doesn't, and explicit about the difference.
 
 ## Story panels
 
-A story can list short panels in a JSON file: [Apollo 11 has seven](data/stories/apollo11/panels.json) and [the Perseids have three](data/stories/perseids/panels.json). Each panel is tied to a moment, an event or an anchor point in the data. It opens when playback reaches that moment and holds playback for a few seconds. It carries one of the three badges above and lists its sources. On a wide screen the panel sits on the right edge, and on a phone it is a bottom sheet. Its look and behaviour follow the panel parts of Planetary Explorer, rewritten for Astraeus.
+A story can list short panels in a JSON file: [Apollo 11 has seven](packages/astraeus-demo-apollo11/data/stories/apollo11/panels.json) and [the Perseids have three](packages/astraeus-demo-showers/data/stories/perseids/panels.json). Each panel is tied to a moment, an event or an anchor point in the data. It opens when playback reaches that moment and holds playback for a few seconds. It carries one of the three badges above and lists its sources. On a wide screen the panel sits on the right edge, and on a phone it is a bottom sheet. Its look and behaviour follow the panel parts of Planetary Explorer, rewritten for Astraeus.
 
 ## A shower is a settings file
 
-The Geminids are one JSON file, [`data/showers/geminids.json`](data/showers/geminids.json). The code has no Geminid-specific lines. A new file in that folder becomes `?experience=showers&shower=<name>`; `?experience=showers` opens the first shower.
+The Geminids are one JSON file, [`packages/astraeus-demo-showers/data/showers/geminids.json`](packages/astraeus-demo-showers/data/showers/geminids.json). The code has no Geminid-specific lines. A new file in that folder becomes `?experience=showers&shower=<name>`; `?experience=showers` opens the first shower.
 
 ```json
 {
@@ -66,10 +66,17 @@ flowchart LR
   C --> D["Story<br/>timeline, events,<br/>info panel"]
 ```
 
-- `src/core/` is the scientific core: time, state vectors, orientation, scale policies and trajectories, with no Three.js or React.
-- `src/app/` draws it: floating origin, camera, paths, sky and labels.
-- `src/shell/` holds the reusable timeline, event list, story panels and info panel.
-- `src/experiences/` holds each story: Apollo 11, the planets (Mercury to Pluto with their mapped moons), and the showers.
+The repository is five npm workspaces under `packages/`:
+
+| Package | What it holds |
+|---|---|
+| [`packages/astraeus`](packages/astraeus/) | The engine: scientific core (`src/core/`), body catalogue (`src/assets/`), scene (`src/app/`), shell (`src/shell/`), made-up experiences (`src/synthetic/`), core data and importers. It imports no other package. |
+| `packages/astraeus-demo-apollo11` | The Apollo 11 demo: its definition, data, story panels and reconstruction tool. |
+| `packages/astraeus-demo-showers` | The Perseids and Geminids demo: showers settings, Global Meteor Network data and fetch tool. |
+| `packages/astraeus-demo-planets` | The planets demo (Mercury to Pluto with their mapped moons), including the Jupiter view. |
+| `packages/astraeus-site` | The pages (pitch, app, assets), the demo list, the Vite config, the public build and the browser checks. |
+
+A demo imports only the engine, and the site imports only the engine and the demos; `packages/astraeus-site/tests/packageBoundaries.test.ts` fails any other import. Each package keeps its own credits and licences. `npm run check:engine-alone` copies the engine alone into a scratch folder and type-checks, lints and tests it there.
 
 ## Run it locally
 
@@ -93,8 +100,8 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 
 Data:
 
-- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node tools/data/fetch-hyg-stars.mjs` rebuilds that file.
-- **Perseids and Geminids work out of the box.** They draw the Global Meteor Network orbits (CC BY 4.0), the only orbit source, and compact copies are committed: 25,588 Perseid orbits at `data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching; `node tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a file from the monthly summaries.
+- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node packages/astraeus/tools/data/fetch-hyg-stars.mjs` rebuilds that file.
+- **Perseids and Geminids work out of the box.** They draw the Global Meteor Network orbits (CC BY 4.0), the only orbit source, and compact copies are committed: 25,588 Perseid orbits at `packages/astraeus-demo-showers/data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `packages/astraeus-demo-showers/data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching; `node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a file from the monthly summaries.
 
 ## Develop
 
@@ -103,11 +110,12 @@ npm test             # unit tests
 npm run typecheck
 npm run build        # production bundle in dist/
 npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
+npm run check:engine-alone     # the engine alone, copied out, then typechecked, linted and tested
 ```
 
-`ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node tools/validate/public-build-assets.mjs` then checks that none of them, and nothing from `data/local/`, is in `dist/`.
+`ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node packages/astraeus-site/tools/validate/public-build-assets.mjs dist` then checks that none of them, and nothing from `data/local/` (under any package), is in `dist/`.
 
-**Page size.** The same validator fails the build if a page's first load grows past its limit (`tools/validate/load-budget.mjs`; `node tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-21 (nine planet views added, O-033), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"), so Saturn, with seven 4k moon maps, is the heavy view. The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. Each outer planet's moon-index and fit-chunk limits are in `src/experiences/planets/viewLimits.json`, checked by `tests/planetSystems.test.ts` and, for the index, by the validator. A change that makes a page heavier raises its limit on purpose, with the new measurement.
+**Page size.** The same validator fails the build if a page's first load grows past its limit (`packages/astraeus-site/tools/validate/load-budget.mjs`; `node packages/astraeus-site/tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-21 (nine planet views added, O-033), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"), so Saturn, with seven 4k moon maps, is the heavy view. The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. Each outer planet's moon-index and fit-chunk limits are in `packages/astraeus-demo-planets/src/experiences/planets/viewLimits.json`, checked by `packages/astraeus-demo-planets/tests/planetSystems.test.ts` and, for the index, by the validator. A change that makes a page heavier raises its limit on purpose, with the new measurement.
 
 | Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
 |---|---|---|---|---|
@@ -138,7 +146,7 @@ npm run check:browser                  # the one quick browser check, under a mi
 
 The browser check loads every public page and demo view and runs two short journeys. Each run writes its results to a new folder under `docs/evidence/`. What it asserts, and where every older browser scenario went, is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
 
-Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
+Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
 
 ## Assets, science and credits
 
@@ -178,7 +186,7 @@ Credit lines, word for word:
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.
 - Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com. The story panel's look and behaviour (side panel, phone bottom sheet, marker dot, badge) follow its panel parts, rewritten for Astraeus.
 
-Third-party library notices are in [`licenses/`](licenses/).
+Third-party library notices are in [`packages/astraeus/licenses/`](packages/astraeus/licenses/).
 
 ## Status and roadmap
 

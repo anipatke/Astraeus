@@ -135,12 +135,13 @@ List the project's gate commands here when they differ from, or add to, `quality
 
 - Hand-off gates (`quality_gates` in `.savepoint/config.yml`): `npm run lint`, `npm run typecheck`, `npm run build` and `npm test` (with the junit reporter). Run the build under the shared build lock when other sessions run.
 - Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
-- Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `src`, `tests` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
-- Browser gate: `npm run check:browser` (about 1 minute) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
+- Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `packages` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
+- Engine-alone gate: `npm run check:engine-alone` (about 20 s) copies `packages/astraeus` and the shared config into a scratch folder with no demo or site, links the installed dependencies, then type-checks, lints and tests it there; anything that reaches outside the copy fails. The engine has no build of its own. Run it at each Full Objective Check and when the engine's boundary changes.
+- Browser gate: `npm run check:browser` (about 1 minute) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `packages/astraeus-site/tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
 - Health scanners (`.savepoint/health/config.json`), one line each:
   - jscpd measures duplicated lines over code only; it skips `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`.
   - lizard measures function complexity over the same code; same skips. `.claude` hooks are not skipped (11 rows of about 5500; left as measured, the owner may add the exclusion).
-  - coverage counts `src` and the non-browser `tools` only (`test.coverage` in `vite.config.ts`), refreshed by `npm run test:full` at each Full Objective Check before `savepoint health check`.
+  - coverage counts `src` and the non-browser `tools` only (`test.coverage` in the root `vitest.config.ts`), refreshed by `npm run test:full` at each Full Objective Check before `savepoint health check`.
 
 See Verification Policy for gate evidence and reuse requirements.
 
@@ -148,15 +149,13 @@ See Verification Policy for gate evidence and reuse requirements.
 
 | Module | Purpose |
 |--------|---------|
-| `src/core/` | Scientific core: clock, frames, bodies, providers and curve-fit state; no presentation, no experience names (ARCH-01, ARCH-02) |
-| `src/assets/` | Body catalogue, compositions, visuals, licences, rings and sky |
-| `src/app/` | Scene and app adapter; `sceneFrame.ts` holds the per-frame stages, `scenePointer.ts` the pointer listeners (CODE-02) |
-| `src/shell/` | Generic UI: shell, top bar, timeline, drawers (`useDrawers.ts`), info panel, story panels |
-| `src/experiences/` | The three demos (Apollo 11, Showers, Planets) built from data; `settingsFields.ts` is the shared settings reader |
-| `src/synthetic/` | Made-up experiences that prove the plug-in contract and feed the engine browser set |
-| `data/` | Committed core and demo data: bodies, ephemerides, orbits, planets, showers, stories |
-| `tools/` | Importers, site generators, `tools/lint/` (TypeScript 6 parser shim) and `tools/validate/` (browser checks over `harness.mjs` and `driver.mjs`) |
-| `tests/` | Vitest suites, fixtures and the browser-driver guard |
+| `packages/astraeus/` | The engine, shipped as source: `src/core/` (scientific core: clock, frames, bodies, providers, curve-fit state; no presentation, no experience names, ARCH-01, ARCH-02), `src/assets/` (catalogue, compositions, visuals, rings, sky), `src/app/` (scene and adapter; `sceneFrame.ts` per-frame stages, `scenePointer.ts` pointer listeners, CODE-02), `src/shell/` (generic UI; `useDrawers.ts`), `src/experiences/` (shared helpers such as `settingsFields.ts`), `src/synthetic/` (made-up experiences that prove the plug-in contract), `data/` core data, `licenses/` library notices, `tools/` importers, `tests/`. Imports no other package; its `package.json` `exports` are the only doorways |
+| `packages/astraeus-demo-apollo11/` | Apollo 11 demo: `src/experiences/apollo11`, data, story panels, reconstruction tool, `credits/` (CREDITS.md, APOLLO11_SOURCES.md) |
+| `packages/astraeus-demo-showers/` | Perseids and Geminids demo: `src/experiences/showers`, `data/showers`, GMN stories, `tools/data/fetch-meteoroid-orbits.mjs`, `credits/` |
+| `packages/astraeus-demo-planets/` | Planets demo (Mercury to Pluto, Jupiter view): `src/experiences/planets`, `jupiter-io`, planet data and stories, `credits/` |
+| `packages/astraeus-site/` | Pages (`index.html`, `app.html`, `assets.html`), `src/main.tsx` demo list, `vite.config.ts`, `public/`, `site/` pictures, `tools/site` generators and credits gatherer, `tools/validate/` browser checks (`harness.mjs`, `driver.mjs`), and `tests/packageBoundaries.test.ts` |
+| `tools/` | Root only: `check-engine-alone.mjs` and `tools/lint/` (TypeScript 6 parser shim) |
+| `tests/` | Each package keeps its own `tests/`; the root `vitest.config.ts` runs them all |
 | `docs/` | Design notes, `BROWSER_CHECKS.md` and `docs/evidence/` (only what a record cites) |
 
 ## Context Budget
@@ -190,9 +189,9 @@ Project-owned rules outside the Savepoint-managed block (added by the G-002 retr
   - Never run it twice for one change; a later check reuses the earlier run (owner, 2026-10-20: "Didnt we say we WOULDNT run these checks isnt that the point of this objective").
   - No per-Task browser runs unless the Task changes the browser scripts or runner. Screen parts, scene sums and demo rules are proved in the fast suite (`npm test`).
   - Headless runs never replace the owner's visual judgement where an Objective requires it.
-- **Browser checks never take or save screenshots** (owner, 2026-10-18, T-102). A check that must prove something is drawn reads the scene's own readouts through `tools/validate/driver.mjs`; the driver guard fails any `.screenshot(` call. The owner judges looks on the preview (`localhost:5490`).
+- **Browser checks never take or save screenshots** (owner, 2026-10-18, T-102). A check that must prove something is drawn reads the scene's own readouts through `packages/astraeus-site/tools/validate/driver.mjs`; the driver guard fails any `.screenshot(` call. The owner judges looks on the preview (`localhost:5490`).
 - **Browser regression maintenance.** When a UI change breaks a browser script, update it or name a runnable replacement and map each prior scenario in `docs/BROWSER_CHECKS.md`.
-- **Browser scripts use the shared interface driver.** Scripts under `tools/validate/` touch the interface only through `tools/validate/driver.mjs`; an interface change is repaired there, never in the scripts. `driver-guard.mjs`, run by `tests/browserDriverGuard.test.ts`, fails the tests on direct selectors or clicks (O-020 T-083).
+- **Browser scripts use the shared interface driver.** Scripts under `tools/validate/` touch the interface only through `packages/astraeus-site/tools/validate/driver.mjs`; an interface change is repaired there, never in the scripts. `driver-guard.mjs`, run by `tests/browserDriverGuard.test.ts`, fails the tests on direct selectors or clicks (O-020 T-083).
 - **Historical evidence preservation.** Fresh browser validation writes to a distinct run directory rather than overwriting earlier results. Record the output path, command, time and result; any deliberate replacement of a cited run folder needs an explicit owner decision.
 - **Evidence retention (O-037 T-123, owner 2026-10-21).** A browser run keeps only `summary.txt` and each step's `results.json` under `docs/evidence/browser-<stamp>/`; step logs and server logs go to a scratch folder whose path the summary prints. A run folder no Check, Task, Issue or Design note cites may be removed at the next clean-up; a cited folder is kept whole.
 - **Deferred Design reconciliation.** When architecture notes are deferred to an integration Task, name that Task in the originating drift note. The integration Task accounts for each deferred note as reflected in Design.md or explicitly non-architectural, with a reason, before the Full Objective Check.

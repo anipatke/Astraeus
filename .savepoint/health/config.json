@@ -59,11 +59,11 @@
         "**/*_generated.*",
         "**/*.min.js",
         "docs/evidence/**",
-        "tests/fixtures/**",
-        "data/**",
+        "**/tests/fixtures/**",
+        "**/data/**",
         "tools/archive/**",
-        "tools/import/*.json",
-        "tools/import/.horizons-cache/**",
+        "**/tools/import/*.json",
+        "**/tools/import/.horizons-cache/**",
         "coverage/**"
       ]
     },
@@ -79,7 +79,7 @@
         "--workers",
         "1",
         "--ignore",
-        "node_modules/**,dist/**,.savepoint/**,**/*.pb.go,**/*_generated.*,**/*.min.js,**/testdata/**,**/.git/**,docs/evidence/**,tests/fixtures/**,data/**,tools/archive/**,tools/import/*.json,tools/import/.horizons-cache/**,coverage/**",
+        "node_modules/**,dist/**,.savepoint/**,**/*.pb.go,**/*_generated.*,**/*.min.js,**/testdata/**,**/.git/**,docs/evidence/**,**/tests/fixtures/**,**/data/**,tools/archive/**,**/tools/import/*.json,**/tools/import/.horizons-cache/**,coverage/**",
         "."
       ],
       "report": ".savepoint/health/reports/root/jscpd-report.json",
@@ -92,11 +92,11 @@
         "**/*.min.js",
         "**/testdata/**",
         "docs/evidence/**",
-        "tests/fixtures/**",
-        "data/**",
+        "**/tests/fixtures/**",
+        "**/data/**",
         "tools/archive/**",
-        "tools/import/*.json",
-        "tools/import/.horizons-cache/**",
+        "**/tools/import/*.json",
+        "**/tools/import/.horizons-cache/**",
         "coverage/**"
       ]
     },

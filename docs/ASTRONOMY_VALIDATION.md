@@ -31,7 +31,7 @@ For the Moon, pass the requested UTC instant as a JavaScript `Date` to `Luna().x
 
 The conversion functions reject invalid timestamps and non-finite coordinates. UTC-to-TT conversion occurs inside `AstroInstant`; Orb's legacy Moon routine independently applies its `delta_t()` approximation to its `Date` input. The two routines were compared together against UTC-tagged Horizons vectors below. Earth orientation uses Orb's EQJ↔ECEF transform with `dut1=0` unless a future caller supplies a sourced DUT1 value. Orb's frame path uses IAU 2006 precession, IAU 2000B nutation and IAU 1982 GMST; its frame source also uses the nominal Earth rotation rate `7.292115146706979e-5 rad/s` for rotating-frame velocity conversion. This is adequate for the visual spike and is not an IERS Earth-orientation solution. No Orb class, state, units token or frame string is part of the Astraeus public API.
 
-Orb's package is pinned exactly, with npm lockfile integrity. Preserve the package's `MIT-LICENSE`, `src/models/earth-epv00/LICENSE-ERFA` and `src/sgp4/LICENSE-python-sgp4` texts in `licenses/`. The selected astronomy dependency has no runtime dependencies; no Astronomy Engine dependency is justified by this task's evidence.
+Orb's package is pinned exactly, with npm lockfile integrity. Preserve the package's `MIT-LICENSE`, `src/models/earth-epv00/LICENSE-ERFA` and `src/sgp4/LICENSE-python-sgp4` texts in `packages/astraeus/licenses/`. The selected astronomy dependency has no runtime dependencies; no Astronomy Engine dependency is justified by this task's evidence.
 
 ## Scientific state conventions
 

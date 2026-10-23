@@ -112,7 +112,7 @@ An early draft of the Horizons fetch used the default ecliptic plane and appeare
 - Entry conditions from A-32 under the new reading (194:59:23.7, 8.85°S 166.13°E, −10.89°) do not match Table 7-VI's −0.70°. This check is hypersensitive: 3.5 m/s over about 45 h moves perigee by hundreds of km, while A-33 itself (with the T-010 override) grazes at a 125 km perigee. It neither supports nor refutes the reading.
 - Four anchors do not fit the plane under either north: A-15 (printed −89.13°, plane-implied −74.58°), A-27 (−97.63°, −87.38°), A-29 (−52.56°, −113.07°) and A-30 (−52.73°, −113.08°). A-29/A-30 would agree to within 0.5° if the printed values were −112.56° and −112.73°; A-27 would if it were −87.63°. These are transcription leads only, not read against the scan. A-30>A-31 stays at about 200–290 km / 1,740 m/s under either reading, consistent with A-30 being one of them.
 - A-11, A-31 and A-32 sit 4° to 5° from the 60 nmi plane. A-11 is the pre-burn approach and A-31/A-32 are TEI; the offset is not diagnosed here.
-- `docs/APOLLO11_SOURCES.md` 4.1 gave the range-zero constant as −14581680000 ms (05:32 UTC); it now gives −14552880000 ms (13:32 UTC), as the code always used (I-001).
+- `packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md` 4.1 gave the range-zero constant as −14581680000 ms (05:32 UTC); it now gives −14552880000 ms (13:32 UTC), as the code always used (I-001).
 
 ### 7.3 Heading reference, full gravity and smoothed joins (T-013)
 

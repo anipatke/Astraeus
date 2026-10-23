@@ -4,13 +4,13 @@ import reactHooks from "eslint-plugin-react-hooks";
 export default [
   {
     ignores: [
-      "node_modules",
+      "**/node_modules",
       "dist",
       "coverage",
       "docs",
-      "data",
+      "**/data",
       ".savepoint",
-      "tools/import/.horizons-cache",
+      "**/tools/import/.horizons-cache",
     ],
   },
   {
