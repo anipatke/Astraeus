@@ -2,7 +2,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { checkPacks, LIMITS } from "../../../tools/check-packs.mjs";
+import { checkPacks, extensionlessImports, LIMITS } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
 
 // O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
@@ -34,6 +34,17 @@ describe("publishable packages", () => {
       rmSync(join(dist, "src", "x.test.js"), { force: true });
       rmSync(join(dist, "src", "stray.ts"), { force: true });
       rmSync(join(dist, "src", "notes.txt"), { force: true });
+    }
+  }, 60_000);
+
+  it("fails on a compiled file with an extensionless relative import (webpack 5, I-077)", () => {
+    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+    writeFileSync(join(dist, "src", "bad.js"), 'export { a } from "./chunks";\nconst b = await import("../x/y");\nexport * from "./chunks.js";\n');
+    try {
+      expect(extensionlessImports(dist)).toEqual(["src/bad.js: ./chunks", "src/bad.js: ../x/y"]);
+      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain("astraeus-data-pluto: extensionless relative import in src/bad.js: ./chunks");
+    } finally {
+      rmSync(join(dist, "src", "bad.js"), { force: true });
     }
   }, 60_000);
 });

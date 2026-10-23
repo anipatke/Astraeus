@@ -6,7 +6,9 @@
 //   3. Data folders are hard-linked (copied across file systems), the manifest is rewritten from the source manifest's `x-publish` block, and the
 //      README, LICENSE, NOTICE and licenses are added. A data package gets `src/chunks.js`: a literal URL for each position chunk, so a build copies
 //      only the chunk files of the systems it imports.
-// The compiled code keeps the source's extensionless imports, so it needs a bundler; plain Node and bare browser modules cannot load it.
+//   4. A named import from a .json file becomes a default import plus a destructuring (webpack 5 allows only the default export of JSON in an ES module).
+//   5. Relative imports and exports get their `.js` (or `/index.js`) written out, because the packages are `"type": "module"` and webpack 5 treats those
+//      as fully specified (I-077). Plain Node and bare browser modules still cannot load the code: a package like `astraeus` imports CSS and pictures.
 import { spawnSync } from "node:child_process";
 import { copyFileSync, cpSync, existsSync, linkSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -60,6 +62,40 @@ function rewriteAssets(out, pkg) {
   return count;
 }
 
+/** `import { a as b, c } from "x.json";` becomes a default import and `const { a: b, c } = ...;` (I-077: webpack 5 allows only the default export of JSON). */
+function defaultJsonImports(out) {
+  let count = 0;
+  walk(out, (file) => {
+    if (!file.endsWith(".js")) return;
+    const before = readFileSync(file, "utf8");
+    const text = before.replace(/^import \{([^}]+)\} from ("[^"]+\.json");$/gm, (whole, names, spec) => {
+      count += 1;
+      const holder = `json${count}`;
+      return `import ${holder} from ${spec};\nconst { ${names.split(",").map((one) => one.trim().replace(/\s+as\s+/, ": ")).join(", ")} } = ${holder};`;
+    });
+    if (text !== before) writeFileSync(file, text);
+  });
+}
+
+/** A relative specifier made fully specified: `./scene` becomes `./scene.js` or, for a folder, `./api/index.js`. Other specifiers are returned as they are. */
+function fullySpecified(file, spec) {
+  if (!spec.startsWith(".") || /\.[a-z]+$/i.test(spec.replace(/^(\.\.?\/)+/, ""))) return spec;
+  const target = resolve(dirname(file), spec);
+  if (existsSync(`${target}.js`) || existsSync(`${target}.d.ts`)) return `${spec}.js`;
+  if (existsSync(join(target, "index.js")) || existsSync(join(target, "index.d.ts"))) return `${spec.replace(/\/$/, "")}/index.js`;
+  throw new Error(`${file}: cannot resolve ${spec}`);
+}
+
+/** Writes the extension into every relative `from "x"`, `import "x"`, `import("x")` and `export ... from "x"` of the compiled .js and .d.ts files in `out`. */
+function addExtensions(out) {
+  walk(out, (file) => {
+    if (!file.endsWith(".js") && !file.endsWith(".d.ts")) return;
+    const before = readFileSync(file, "utf8");
+    const text = before.replace(/(\bfrom\s*|\bimport\s*\(?\s*|\bimport\s+)(["'])(\.[^"']*)\2/g, (whole, lead, quote, spec) => `${lead}${quote}${fullySpecified(file, spec)}${quote}`);
+    if (text !== before) writeFileSync(file, text);
+  });
+}
+
 /** The chunk list of a position package: one literal URL per `<moon>/<year>.bin`. */
 function writeChunkList(pkg, out) {
   const data = readdirSync(join(pkg, "data")).filter((name) => name.endsWith("-moons"));
@@ -69,7 +105,7 @@ function writeChunkList(pkg, out) {
       const folder = join(pkg, "data", set, moon);
       if (!statSync(folder).isDirectory()) continue;
       for (const file of readdirSync(folder).sort()) {
-        if (file.endsWith(".bin")) lines.push(`  ${JSON.stringify(`${moon}/${file}`)}: new URL(${JSON.stringify(`../data/${set}/${moon}/${file}`)}, import.meta.url).href,`);
+        if (file.endsWith(".bin")) lines.push(`  ${JSON.stringify(`${moon}/${file}`)}: new URL(${JSON.stringify(`../data/${set}/${moon}/${file}?no-inline`)}, import.meta.url).href,`);
       }
     }
   }
@@ -99,6 +135,8 @@ export function buildPackage(name) {
 
   // 2. pictures and ?url files
   const assets = rewriteAssets(out, pkg);
+  defaultJsonImports(out);
+  addExtensions(out);
 
   // 3. data, chunk list, style, manifest and notices
   // The engine ships only the data its code imports (tsc emitted it); a data package ships its whole data folder.

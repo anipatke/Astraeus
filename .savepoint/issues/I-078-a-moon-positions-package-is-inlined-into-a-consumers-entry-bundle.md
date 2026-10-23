@@ -2,7 +2,7 @@
 id: I-078
 title: A moon-positions package is inlined into a consumer's entry bundle, so users download every chunk up front
 type: defect
-status: open
+status: in_progress
 source:
   kind: check
   check: C-107
@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-036 Full Objective Check (C-107) against Success Condition 2, Confirmed Decision 7 (build per docs/NPM_PACKAGING.md) and the README promise.
     check: C-107
+  - at: '2026-10-23T08:30:56Z'
+    actor: {role: executor, session: o036-repair-20261023}
+    kind: repair_attempted
+    note: "Owner decision 2026-10-23: \"Fix all three, short recheck (Recommended)\". Repair in tools/build-packages.mjs: every URL in a generated src/chunks.js ends `?no-inline` (`new URL(\"../data/saturn-moons/titan/2026.bin?no-inline\", import.meta.url).href`), the form Vite documents for never inlining an asset. Guard: check-packs.mjs fails a position package whose chunk URL lacks it or whose list is empty. Proof, scratch Vite 8.3.5 app with the packed astraeus, astraeus-data and astraeus-data-saturn tarballs (Saturn + Titan): entry script before 14,968,777 B (5,321 data: URLs, 528 .bin files emitted) -> after 1,866,801 B (0 data: URLs, 5,849 .bin files emitted as separate files); headless Chromium on the built page: Titan drawn as a sphere in view, Saturn moves over a seek, only 4 .bin files fetched, 0 console errors, no screenshots. Webpack 5.112.1 (never inlined them): main.js 2,177,663 B, 5,849 .bin files, same Titan check passes with the query present. Parcel 2.16.4: entry 1,871,673 B, 5,849 .bin files, Titan check passes. README sentence now matches what a user gets. Left in_progress for the recheck."
 ---
 
 # I-078: A moon-positions package is inlined into a consumer's entry bundle, so users download every chunk up front

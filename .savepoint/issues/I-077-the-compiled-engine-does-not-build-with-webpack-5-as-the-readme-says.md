@@ -2,7 +2,7 @@
 id: I-077
 title: The compiled engine does not build with webpack 5, as the README says it does
 type: defect
-status: open
+status: in_progress
 source:
   kind: check
   check: C-107
@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-036 Full Objective Check (C-107) against Success Conditions 3 and 5.
     check: C-107
+  - at: '2026-10-23T08:30:56Z'
+    actor: {role: executor, session: o036-repair-20261023}
+    kind: repair_attempted
+    note: "Owner decision 2026-10-23: \"Fix all three, short recheck (Recommended)\". Repair in tools/build-packages.mjs: relative imports and exports in the compiled .js and .d.ts now carry .js (or /index.js), and JSON named imports (`import { rotation as x } from \"x.json\"`, 13 in the engine) become a default import plus a destructuring, because webpack 5 (a second, hidden break found while proving this) allows only the default export of JSON in an ES module. Data packages' loadIndex now uses `loaded.default ?? loaded` because Parcel returns the JSON itself. Guard: check-packs.mjs extensionlessImports() fails any compiled relative import without an extension (npm run check:pack and a new case in packagePacks.test.ts that plants one). Proof: scratch app outside the repo (scratchpad/app) with the PACKED astraeus, astraeus-data and astraeus-data-saturn tarballs, README data example (Saturn and Titan): `webpack --mode production` (5.112.1) compiles successfully (before: 9, then 13 errors); `vite build` (8.3.5) passes; `parcel build` (2.16.4) passes once the app sets `\"@parcel/resolver-default\": {\"packageExports\": true}` (without it Parcel cannot read the package exports). Each build served and opened in headless Chromium through tools/validate/driver.mjs: Titan drawn as a sphere in view (radius 19.5 px), Saturn moves over a mid-window seek, 4 chunk .bin files fetched, 0 console errors (no screenshots). README now names exactly these three with versions and the Parcel setting; docs/NPM_PACKAGING.md updated. Not run: esbuild, Rollup alone, webpack 4. Gates: lint, typecheck, build, npm test, check:engine-alone, check:pack, build:example pass. Left in_progress for the recheck."
 ---
 
 # I-077: The compiled engine does not build with webpack 5, as the README says it does

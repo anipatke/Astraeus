@@ -3,7 +3,7 @@
 // count above the limit. Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
 // about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildPackage, PACKAGES } from "./build-packages.mjs";
@@ -49,6 +49,37 @@ function packOf(name) {
   return { dir, pack: JSON.parse(run.stdout)[0] };
 }
 
+const RELATIVE_SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(?\s*)(["'])(\.[^"']*)\1/g;
+
+/** Relative imports and exports in compiled .js and .d.ts files that name no file extension; webpack 5 refuses them in a "type": "module" package (I-077). */
+export function extensionlessImports(dir) {
+  const found = [];
+  const visit = (folder) => {
+    for (const entry of readdirSync(folder, { withFileTypes: true })) {
+      const path = join(folder, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (/\.(?:js|d\.ts)$/.test(entry.name)) {
+        for (const match of readFileSync(path, "utf8").matchAll(RELATIVE_SPECIFIER)) {
+          if (!/\.[a-z]+$/i.test(match[2].replace(/^(\.\.?\/)+/, ""))) found.push(`${path.slice(dir.length + 1)}: ${match[2]}`);
+        }
+      }
+    }
+  };
+  visit(join(dir, "src"));
+  return found;
+}
+
+/** Compiled-code problems: extensionless relative imports (I-077) and, in a position package, a chunk URL that Vite could inline (I-078). */
+function codeProblems(name, dir) {
+  const problems = extensionlessImports(dir).map((one) => `${name}: extensionless relative import in ${one}`);
+  if (name.startsWith("astraeus-data-")) {
+    const urls = readFileSync(join(dir, "src", "chunks.js"), "utf8").match(/new URL\([^)]*\)/g) ?? [];
+    if (urls.length === 0) problems.push(`${name}: src/chunks.js lists no chunk`);
+    if (urls.some((url) => !url.includes('?no-inline"'))) problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);
+  }
+  return problems;
+}
+
 /** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
 function problemsOf(name, dir, pack) {
   const problems = [];
@@ -68,6 +99,7 @@ function problemsOf(name, dir, pack) {
   for (const target of targetsOf(manifest.exports)) if (!paths.includes(target.replace(/^\.\//, ""))) problems.push(`${name}: exports names ${target}, which is not packed`);
   for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
   if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
+  problems.push(...codeProblems(name, dir));
   const limit = LIMITS[name];
   if (pack.size > limit.packed) problems.push(`${name}: packed ${(pack.size / MB).toFixed(2)} MB is over ${(limit.packed / MB).toFixed(1)} MB`);
   if (pack.unpackedSize > limit.unpacked) problems.push(`${name}: unpacked ${(pack.unpackedSize / MB).toFixed(2)} MB is over ${(limit.unpacked / MB).toFixed(1)} MB`);

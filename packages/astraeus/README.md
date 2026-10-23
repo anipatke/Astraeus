@@ -10,7 +10,7 @@ A 3D solar system for the browser. Place bodies and recorded paths in a scene, m
 npm install astraeus
 ```
 
-You need a bundler (Vite, webpack 5 or Parcel). The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; loading it straight in Node or from a bare `<script type="module">` will not work.
+You need a bundler. These were each built and run with the packed packages (a scene with Saturn and Titan from `astraeus-data-saturn`): Vite 8, webpack 5 (5.112) and Parcel 2 (2.16, which needs `"@parcel/resolver-default": { "packageExports": true }` in your `package.json` so it reads the package `exports`). Others are untried. The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; loading it straight in Node or from a bare `<script type="module">` will not work.
 
 ## A scene in about 20 lines
 
@@ -53,11 +53,11 @@ Types (`State`, `Pictures`, `TextureRef`, `AssetLicence`, `DataSource`, `Traject
 
 ## What `astraeus-data` adds
 
-The engine alone draws the Sun, Earth, Moon and the eight planets with their pictures and positions for 2010 to 2030. Everything heavier is a separate, optional package you import and hand to `mount`, so you only download what you use:
+The engine alone draws the Sun, Earth, Moon and the eight planets with their pictures and positions for 2010 to 2030. Everything heavier is a separate, optional package you import and hand to `mount`, so you only download what you use. A moon-position package is thousands of small files; your build copies them as separate files and the page fetches only the ones for the time window on screen (each chunk URL ends `?no-inline`, so Vite does not paste them into your script):
 
 | Package | Adds | Download |
 |---|---|---|
-| `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way | about 35 MB |
+| `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way | about 39 MB |
 | `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` | Moon positions for that planet's system | 2 to 40 MB each |
 
 ```js
