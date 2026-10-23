@@ -1,7 +1,7 @@
 ---
 id: G-007
 title: Astraeus post-launch clean-up
-status: planned
+status: done
 ---
 
 ## Outcome
