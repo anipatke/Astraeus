@@ -10,7 +10,7 @@ import { catalogue } from "../assets/catalogue";
 import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
 import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { bodyMetrics } from "../app/bodyMetrics";
-import type { ExperienceDefinition } from "../app/experienceDefinition";
+import type { ExperienceDefinition, GroupLayer } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
@@ -20,6 +20,8 @@ import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
+import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
+export type { GroupInput, GroupOrbitInput, GroupClumpInput } from "./group";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
@@ -155,6 +157,7 @@ export class Scene {
   readonly camera: SceneCamera;
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();
+  readonly #groups = new Map<string, PlannedGroup>();
   readonly #orbits = new Set<BodyId>();
   readonly #notes = new Map<BodyId, string>();
   readonly #looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
@@ -168,7 +171,7 @@ export class Scene {
   #switches: DisplaySwitchSettings | undefined;
 
   constructor() {
-    this.camera = new SceneCamera((id) => this.#bodies.has(id) || this.#tracked.has(id));
+    this.camera = new SceneCamera((id) => this.#taken(id));
   }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
@@ -176,7 +179,7 @@ export class Scene {
     const id = typeof body === "string" ? body : body.id;
     if (options.orbit === true && ORBITS[id] === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} only`);
     if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
-    if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
+    if (this.#taken(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
     checkBodyLook(id, options);
     if (options.orbit === true) this.#orbits.add(id);
     if (options.color !== undefined || options.knownLimitations !== undefined) this.#looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
@@ -189,7 +192,7 @@ export class Scene {
   addTrajectory(input: TrajectoryInput): this {
     const id = input.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
-    if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
+    if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
     const center = input.center ?? "earth";
     if (!catalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
@@ -197,6 +200,24 @@ export class Scene {
     const readouts = readoutsOf(id, input.readouts);
     const body = "samples" in input ? sampledBody(common, input, center) : providerBody(common, input);
     this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+    return this;
+  }
+
+  /** Whether a body, path or group already has this id. */
+  #taken(id: string): boolean {
+    return this.#bodies.has(id) || this.#tracked.has(id) || this.#groups.has(id);
+  }
+
+  /**
+   * Adds a group of listed orbits drawn as one set of dots (one colour and dot size, one menu item and info card), with an optional clump near a body.
+   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour, clump or centre throws `bad-group`.
+   * @example
+   * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
+   */
+  addGroup(input: GroupInput): this {
+    const plan = planGroup(input);
+    if (this.#taken(plan.id)) throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
+    this.#groups.set(plan.id, plan);
     return this;
   }
 
@@ -261,7 +282,19 @@ export class Scene {
     if (this.#panels === undefined) return undefined;
     const anchors = new Map<string, number>();
     for (const { body } of this.#tracked.values()) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
-    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys()], window });
+    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
+  }
+
+  /** The draw layers of the groups: each circles its centre (default the scene's first body), which and whose clump body the scene must hold. */
+  #groupLayers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number): readonly GroupLayer[] {
+    return [...this.#groups.values()].map((plan) => {
+      const center = plan.input.center ?? ids[0]!;
+      const clump = plan.input.clump;
+      if (!ids.includes(center)) throw new SceneError("bad-group", `addGroup("${plan.id}"): the orbits circle "${center}", which has not been added to the scene`);
+      if (clump !== undefined && !ids.includes(clump.near)) throw new SceneError("bad-group", `addGroup("${plan.id}"): clump.near "${clump.near}" has not been added to the scene`);
+      if (clump !== undefined && clump.near === center) throw new SceneError("bad-group", `addGroup("${plan.id}"): the clump cannot be near the body the orbits circle ("${center}")`);
+      return buildGroupLayer(plan, center, openUtcMs, window);
+    });
   }
 
   /** A readout names a body the scene must hold, so it can be measured against. */
@@ -300,7 +333,8 @@ export class Scene {
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
-    const labelled = [...this.#bodies.values(), ...tracked].map(({ id, label }) => ({ id, label }));
+    const layers = this.#groupLayers(ids, window, startUtcMs);
+    const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
@@ -317,7 +351,7 @@ export class Scene {
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
-      sceneLayers: ["tracked-bodies"],
+      ...groupLayersEntry(layers),
       composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
@@ -326,7 +360,7 @@ export class Scene {
       createMetrics: ({ resolver }) => {
         const catalogued = bodyMetrics(resolver, ids, ["distance"]);
         const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
+        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? [] : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
         if (needsPlanetSeries(definition)) await loadPlanetSeries();
@@ -335,6 +369,11 @@ export class Scene {
     };
     return definition;
   }
+}
+
+/** The scene's layers: the points layer and the groups only when a group was added. */
+function groupLayersEntry(layers: readonly GroupLayer[]): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
+  return layers.length === 0 ? { sceneLayers: ["tracked-bodies"] } : { sceneLayers: ["tracked-bodies", "points"], groups: layers };
 }
 
 /** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */

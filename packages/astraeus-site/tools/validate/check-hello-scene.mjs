@@ -36,7 +36,7 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   const target = Math.round((min + max) / 2);
   await ui.seekTo(page, target);
   await ui.waitForClock(page, new Date(target).toISOString());
-  const storyReadouts = story ? { ...(await checkStory(page)), ...(await checkSwitches(page)) } : {};
+  const storyReadouts = story ? { ...(await checkStory(page)), ...(await checkSwitches(page)), ...(await checkGroup(page)) } : {};
   return { opened, moved: target, ...storyReadouts, earthPx: earth.radiusPx, orbitInView: orbit.inView, moonAs: moon.as };
 });
 
@@ -55,6 +55,16 @@ async function checkStory(page) {
   assert.ok((await ui.storyPanelSources(page)) >= 1, "the panel lists its source");
   await ui.closeStoryPanelNow(page);
   return { anchors: 3, events: rows.length, panel: "half-lap" };
+}
+
+// The made-up ring of examples/hello-scene (O-042 T-173): 40 orbits drawn as one group of dots, listed once in the Object list and in the camera menu. Read through the scene's own point readout.
+async function checkGroup(page) {
+  assert.ok((await ui.bodyOptions(page)).includes("ring"), "the ring is one item in the Object list");
+  const ring = await ui.scenePointGroup(page, "ring");
+  assert.ok(ring, "the scene reports the ring as a point group");
+  assert.equal(ring.members, 40, "the ring has its 40 dots");
+  assert.equal(ring.drawn, true, "the ring is drawn at the opening time");
+  return { ringDots: ring.members };
 }
 
 // The display switches examples/hello-scene places (O-041 T-170): orbit lines on the top bar, labels in the switch panel and the Milky Way picture in the Developer drawer only.

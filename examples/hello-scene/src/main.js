@@ -16,6 +16,9 @@ const samples = Array.from({ length: 73 }, (_, i) => {
 // Where the made-up times and sources come from, shown with the path and the events.
 const madeUp = { sourceType: "illustrative", sources: ["Invented for this example"], accuracy: "None: nothing here was measured.", notes: "A circle, not a real flight." };
 
+// A made-up ring of 40 orbits about Earth, each listed with its own shape and tilt.
+const orbits = Array.from({ length: 40 }, (_, k) => ({ id: `rock-${k + 1}`, semiMajorAxisKm: 150_000 + 2_500 * k, eccentricity: 0.05 + 0.004 * k, inclinationDeg: 10 + (k % 9), raanDeg: 20 + 7 * k, argumentOfPeriapsisDeg: 15 * k }));
+
 const scene = new Scene()
   .addBody(earth, { description: "The planet the made-up probe circles." })
   .addBody(moon, { orbit: true })
@@ -35,6 +38,8 @@ const scene = new Scene()
     // Bars on the probe's info card, in order.
     readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }, { kind: "altitude", above: "earth" }],
   })
+  // The 40 orbits as one group of dots: one colour, one menu item and info card, a quarter of the dots drawn near the Moon.
+  .addGroup({ id: "ring", label: "Made-up ring", orbits, color: "#9de3a8", seed: 7, clump: { near: "moon", fraction: 0.25, widthDeg: 20 }, provenance: madeUp, description: "Forty invented orbits about Earth, one dot each.", knownLimitations: ["Invented orbits: not a real population."] })
   // Two moments on the timeline, and one story panel that opens at the second.
   .addEvents(
     [
