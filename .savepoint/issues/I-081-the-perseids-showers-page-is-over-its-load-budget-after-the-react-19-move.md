@@ -2,15 +2,21 @@
 id: I-081
 title: The Perseids showers page is over its load budget after the React 19 move
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-110
   actor: {role: checker, session: o040-full-check-20261023}
   at: '2026-10-23T11:32:30Z'
 tasks: [T-163, T-164]
-checks: [C-110]
+checks: [C-110, C-111]
 severity: low
+resolution:
+  disposition: verified
+  check: C-111
+  actor: {role: checker, session: o040-full-recheck-20261023}
+  at: '2026-10-23T11:47:00Z'
+  reason: 'load-budget.mjs raises the perseids raw limit 10,070,000 -> 10,080,000 with the measurement, cause and date beside it, as the file''s rule requires; gzip and every other limit unchanged. Fresh ASTRAEUS_PUBLIC_BUILD=1 vite build plus public-build-assets.mjs alone on 57ad92e3: exit 0, ok true, 94 files, showers 10,073,636 / 10,080,000 raw, 7,025,217 / 7,040,000 gzip; evidence docs/evidence/browser-20261023T114407Z-public-build-assets/. Verified as a measured, deliberate change that makes the gate pass. The raise is the coordinator''s provisional choice under the owner''s overnight run and is NOT owner-accepted; the owner may reopen this Issue if a trim is preferred.'
 history:
   - at: '2026-10-23T11:32:30Z'
     actor: {role: checker, session: o040-full-check-20261023}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o040-repair-builder-20261023}
     kind: repair_attempted
     note: 'Repair: no behaviour-neutral trim found; the extra bytes are the React 19 / Fiber 9 chunks (T-163). Raw limit for app.html?experience=showers raised 10,070,000 -> 10,080,000 in packages/astraeus-site/tools/validate/load-budget.mjs with a comment (measured 10,073,636 B raw / 7,025,217 B gzip, 19 files; gzip limit 7,040,000 unchanged; other limits untouched). Coordinator provisional choice under the owner overnight run, pending the owner morning review. Proof: fresh ASTRAEUS_PUBLIC_BUILD=1 vite build into a scratch folder, then node packages/astraeus-site/tools/validate/public-build-assets.mjs on it: ok true, 94 files checked, showers page problems []. check:browser not run. Not closed: awaiting a Check.'
+  - at: '2026-10-23T11:47:00Z'
+    actor: {role: checker, session: o040-full-recheck-20261023}
+    kind: rechecked
+    check: C-111
+    note: 'load-budget.mjs raises the perseids raw limit 10,070,000 -> 10,080,000 with the measurement, cause and date beside it, as the file''s rule requires; gzip and every other limit unchanged. Fresh ASTRAEUS_PUBLIC_BUILD=1 vite build plus public-build-assets.mjs alone on 57ad92e3: exit 0, ok true, 94 files, showers 10,073,636 / 10,080,000 raw, 7,025,217 / 7,040,000 gzip; evidence docs/evidence/browser-20261023T114407Z-public-build-assets/. Verified as a measured, deliberate change that makes the gate pass. The raise is the coordinator''s provisional choice under the owner''s overnight run and is NOT owner-accepted; the owner may reopen this Issue if a trim is preferred.'
 ---
 
 # I-081: The Perseids showers page is over its load budget after the React 19 move

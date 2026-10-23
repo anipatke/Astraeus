@@ -2,16 +2,22 @@
 id: I-080
 title: The API reference listing test times out under the full gate
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-110
   actor: {role: checker, session: o040-full-check-20261023}
   at: '2026-10-23T11:32:30Z'
 tasks: [T-165]
-checks: [C-110]
+checks: [C-110, C-111]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-111
+  actor: {role: checker, session: o040-full-recheck-20261023}
+  at: '2026-10-23T11:47:00Z'
+  reason: 'npm run test:full passed twice in a row on 57ad92e3 (11:41:14-11:42:15Z and 11:42:15-11:43:16Z; 120 files, 1577 passed, 1 skipped); apiReference.test.ts took 6.10 s and 5.36 s in total, its three cases 0.002 / 1.34 / 0.003 s (junit.xml), the program build sits in one beforeAll with a 60 s hook limit. coverage/coverage-final.json written. Fresh savepoint health check O-040 snapshot sha256:96e134025d47717edddb0b2865b4c6961dfbe7f11c8562ace7967497185291c9 does not block clearance. The made-up-entry case still names forgotten and AlsoForgotten; an independent probe shows the inline filter agrees with undocumentedExports and renderApiPage(collectExports()) equals buildApiPage() on the real entry.'
 history:
   - at: '2026-10-23T11:32:30Z'
     actor: {role: checker, session: o040-full-check-20261023}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o040-repair-builder-20261023}
     kind: repair_attempted
     note: 'Repair: packages/astraeus-site/tests/apiReference.test.ts now builds the public-entry TypeScript program once in a beforeAll (60 s hook limit) and shares the items across the three cases (renderApiPage(items), items filtered for missing docs); the made-up-entry case is unchanged. Two consecutive npm run test:full runs passed (120 files, 1577 passed, 1 skipped; 62 s and 58 s); the file took 5.9 s and 5.6 s in total, mostly the one hook; coverage/coverage-final.json written. npm test, lint, typecheck, build pass. Not closed: awaiting a Check (fresh savepoint health check O-040 not run by the repairer).'
+  - at: '2026-10-23T11:47:00Z'
+    actor: {role: checker, session: o040-full-recheck-20261023}
+    kind: rechecked
+    check: C-111
+    note: 'npm run test:full passed twice in a row on 57ad92e3 (11:41:14-11:42:15Z and 11:42:15-11:43:16Z; 120 files, 1577 passed, 1 skipped); apiReference.test.ts took 6.10 s and 5.36 s in total, its three cases 0.002 / 1.34 / 0.003 s (junit.xml), the program build sits in one beforeAll with a 60 s hook limit. coverage/coverage-final.json written. Fresh savepoint health check O-040 snapshot sha256:96e134025d47717edddb0b2865b4c6961dfbe7f11c8562ace7967497185291c9 does not block clearance. The made-up-entry case still names forgotten and AlsoForgotten; an independent probe shows the inline filter agrees with undocumentedExports and renderApiPage(collectExports()) equals buildApiPage() on the real entry.'
 ---
 
 # I-080: The API reference listing test times out under the full gate

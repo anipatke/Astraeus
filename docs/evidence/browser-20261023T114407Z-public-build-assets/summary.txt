@@ -1,0 +1,5 @@
+public-build-assets alone (recheck of C-110, I-081), head 57ad92e3; every other check:browser step reused from docs/evidence/browser-20261023T112923Z (owner rule: never twice for one change)
+build: ASTRAEUS_PUBLIC_BUILD=1 npx vite build packages/astraeus-site --outDir <scratch>/public-dist --emptyOutDir | exit=0 | 11:44:07-11:44:08
+public-build-assets | scene=none (files only) | node packages/astraeus-site/tools/validate/public-build-assets.mjs <scratch>/public-dist public-build-assets/results.json | exit=0 | 11:44:08-11:44:10 | ok=true checked=94 | showers raw 10073636 / limit 10080000, gzip 7025217 / 7040000
+logs: /tmp/claude-1000/-home-user-code-Astraeus/ff83c791-2497-4220-98d7-ab430375047a/scratchpad/pubbuild.log, pba.log
+No screenshots.
