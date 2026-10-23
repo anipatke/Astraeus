@@ -2,16 +2,21 @@
 id: I-073
 title: The browser command proves the scene wakes on a wheel turn, not on a tap
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-100
   actor: {role: checker, session: o031-full-check-20261023}
   at: '2026-10-23T00:24:21Z'
 tasks: [T-149]
-checks: [C-100]
+checks: [C-100, C-101]
 guardrail_ids: [TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-101
+  actor: {role: checker, session: o031-recheck-20261023}
+  at: '2026-10-23T00:32:00Z'
 history:
   - at: '2026-10-23T00:24:21Z'
     actor: {role: checker, session: o031-full-check-20261023}
@@ -22,6 +27,11 @@ history:
     actor: {role: executor, session: o031-orchestration-20261023}
     kind: repair_attempted
     note: 'Owner chose "Add the tap, short recheck". Added driver function tapCanvas (click on freeCanvasPoint, through the pointer listeners) in tools/validate/driver.mjs; journey-meteor-shower.mjs now rests, wheel-turns, rests again, taps and asserts waitForMoreFrames, then play; docs/BROWSER_CHECKS.md names the tap. Lint, typecheck and the driver guard test (4 passed) pass. One npm run check:browser, 00:27:26-00:28:40Z, 74 s, all six steps exit 0, 0 error lines, docs/evidence/browser-20261023T002726Z: meteor-shower idleAt 38, afterNudge 45, idleAgain 68, afterTap 73, whilePlaying 89.'
+  - at: '2026-10-23T00:32:00Z'
+    actor: {role: checker, session: o031-recheck-20261023}
+    kind: rechecked
+    check: C-101
+    note: 'Verified by C-101 (CLEAR, supersedes C-100). tapCanvas clicks a freeCanvasPoint where the canvas is on top, through driver.mjs; the journey waits for rest again, taps and requires 3 more frames. Reused run docs/evidence/browser-20261023T002726Z (inputs unchanged since; all steps exit 0): idleAgain 68, afterTap 73. BROWSER_CHECKS.md names the tap. Fresh lint, typecheck, build and test:full pass (driver guard 4 passed).'
 ---
 
 # I-073: The browser command proves the scene wakes on a wheel turn, not on a tap
