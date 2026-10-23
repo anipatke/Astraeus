@@ -1,7 +1,8 @@
 // The showers' own rules, checked on each real shower file with the shared builder (O-038 T-146): the parts of browser-showers.mjs and browser-public-showers.mjs that
 // are about what the settings and the builder make, not about pixels. Both real shower files run the same cases (nothing belongs to one shower). The settings contract, the orbit
 // sets, the year and activity spans, the loop, the label settings, the parent, the story panels and the solar longitudes are kept by tests/showers.test.ts; the measured file's counts by
-// tests/showersMeasured.test.ts; the switch by tests/showerChoice.test.ts. The stream's dots, the glow's gradient and the camera flights are the smoke check.
+// tests/showersMeasured.test.ts; the switch by packages/astraeus/tests/listSwitch.test.ts and the shower entries below. The stream's dots, the glow's gradient and the camera flights are the smoke check.
+import { chooseShower, SHOWER_PARAM, SHOWER_SWITCH_LABEL } from "../src/experiences/showers/showerEntry";
 import { describe, expect, it } from "vitest";
 import { experienceWithGroups, groupsOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf } from "astraeus/app/experienceDefinition";
 import { catalogue } from "astraeus/assets/catalogue";
@@ -142,5 +143,14 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     expect(rate(peak)).toBeGreaterThan(rate(window.startUtcMs));
     expect(rate(peak)).toBeGreaterThan(rate(window.endUtcMs));
     expect(rateAt(window, window.endUtcMs + 86_400_000 * 40)).toBeNull();
+  });
+});
+
+describe("shower switch (T-171)", () => {
+  it("names the address parameter and the label the shower switch carries", () => {
+    const choice = chooseShower([{ name: "b", label: "B", order: 2 }, { name: "a", label: "A", order: 1 }], null)!;
+    expect(choice.name).toBe("a");
+    expect(choice.switcher).toMatchObject({ label: SHOWER_SWITCH_LABEL, param: SHOWER_PARAM });
+    expect(SHOWER_PARAM).toBe("shower");
   });
 });

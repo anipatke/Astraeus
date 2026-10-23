@@ -1,5 +1,5 @@
 // Planet choice: which planet the planets experience opens, and the switch that offers the others. Pure; the names come from the settings files.
-import { chooseSwitch, type ShowerEntry } from "astraeus/experiences/showers/showerChoice";
+import { chooseSwitch, type SwitchEntry } from "astraeus/app/listSwitch";
 
 /** The address parameter that names the planet (`?experience=planets&planet=<id>`). */
 export const PLANET_PARAM = "planet";
@@ -10,7 +10,7 @@ export const PLANET_SWITCH_LABEL = "Planet";
 export const PLANET_SWITCH_KEEPS: readonly string[] = ["t"];
 
 /** One planet the experience can open: its settings file's name, its label, its place in the switch, and whether it opens when the address names none. */
-export interface PlanetEntry extends ShowerEntry {
+export interface PlanetEntry extends SwitchEntry {
   readonly isDefault: boolean;
 }
 
