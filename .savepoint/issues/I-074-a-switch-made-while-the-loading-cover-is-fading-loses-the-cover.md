@@ -2,16 +2,22 @@
 id: I-074
 title: A switch made while the loading cover is still fading out loses the cover
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-102
   actor: {role: checker, session: o030-full-check-20261023}
   at: '2026-10-23T03:19:00Z'
 tasks: [T-153]
-checks: [C-102]
+checks: [C-102, C-103]
 guardrail_ids: [TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-103
+  actor: {role: checker, session: o030-full-recheck-20261023}
+  at: '2026-10-23T03:26:22Z'
+  reason: 'Repair in 9eadeba9 proven by CLEAR Check C-103: a show during the fade cancels the pending removal, and a hide from a scene mounted under an older showing is ignored.'
 history:
   - at: '2026-10-23T03:19:00Z'
     actor: {role: checker, session: o030-full-check-20261023}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o030-coordinator-20261023}
     kind: repair_attempted
     note: 'Owner: "Fix it, short recheck (Recommended)". showBootLoader now cancels a pending removal and counts showings; hideBootLoader(showing) ignores a scene mounted before the latest showing (sceneFrame FrameState.coverShowing, noted at mount). New tests in tests/bootLoader.test.ts: hide, show within the fade, past the fade the cover stays loading, a later hide still removes it; an older scene cannot hide a newer showing. Neighbouring cases still pass (hide once, fail, no loader). lint, typecheck, build, npm test (114 files, 1524 passed) pass. Not run in a browser (no browser script changed).'
+  - at: '2026-10-23T03:26:22Z'
+    actor: {role: checker, session: o030-full-recheck-20261023}
+    kind: rechecked
+    check: C-103
+    note: 'Proof Needed met: repair tests plus an independent scratch probe (3 s fade: show inside the fade keeps the cover loading; stale and overtaken hides ignored; newest hide removes once; failure stays failed). Fresh lint, typecheck, build, test:full, public load budget pass. Verified.'
 ---
 
 # I-074: A switch made while the loading cover is still fading out loses the cover
