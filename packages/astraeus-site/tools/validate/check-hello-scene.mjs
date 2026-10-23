@@ -36,7 +36,7 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   const target = Math.round((min + max) / 2);
   await ui.seekTo(page, target);
   await ui.waitForClock(page, new Date(target).toISOString());
-  const storyReadouts = story ? await checkStory(page) : {};
+  const storyReadouts = story ? { ...(await checkStory(page)), ...(await checkSwitches(page)) } : {};
   return { opened, moved: target, ...storyReadouts, earthPx: earth.radiusPx, orbitInView: orbit.inView, moonAs: moon.as };
 });
 
@@ -55,4 +55,31 @@ async function checkStory(page) {
   assert.ok((await ui.storyPanelSources(page)) >= 1, "the panel lists its source");
   await ui.closeStoryPanelNow(page);
   return { anchors: 3, events: rows.length, panel: "half-lap" };
+}
+
+// The display switches examples/hello-scene places (O-041 T-170): orbit lines on the top bar, labels in the switch panel and the Milky Way picture in the Developer drawer only.
+// Each is read through the scene's own readouts (the Moon's orbit line, the label layer, the sky), and the open panel must sit inside the window and clear of the cog and the timeline.
+async function checkSwitches(page) {
+  const places = await ui.displaySwitchPlaces(page);
+  assert.deepEqual(places, { topBar: ["orbitLines"], panel: ["labels"] }, "orbit lines sit on the top bar and labels in the switch panel; the Milky Way is in the Developer drawer only");
+  const fit = await ui.switchPanelFit(page);
+  assert.ok(fit.insideWindow && fit.overlaps.length === 0, `the switch panel is inside the window and clear of the cog and the timeline (overlaps: ${fit.overlaps.join(", ") || "none"})`);
+  assert.equal(await ui.displaySwitchOn(page, "orbitLines"), true, "orbit lines start on");
+  await toggleAndRead(page, "orbitLines", async () => (await ui.scenePath(page, "moon-orbit"))?.visible === true, "the Moon's orbit line");
+  assert.equal(await ui.displaySwitchOn(page, "labels"), true, "labels start on");
+  await toggleAndRead(page, "labels", async () => (await ui.visibleSceneLabelCount(page)) > 0, "the body name labels");
+  assert.equal((await ui.sceneSky(page)).picture, false, "the Milky Way picture starts off, as the example asked");
+  return { switches: places };
+}
+
+/** Presses a switch off and on again and checks the scene's readout follows each press. */
+async function toggleAndRead(page, id, drawn, what) {
+  const before = await drawn();
+  await ui.toggleDisplaySwitch(page, id);
+  await page.waitForTimeout(500);
+  assert.notEqual(await drawn(), before, `${what} changes when the ${id} switch is pressed`);
+  assert.equal(await ui.displaySwitchOn(page, id), !before, `the ${id} switch shows its new state`);
+  await ui.toggleDisplaySwitch(page, id);
+  await page.waitForTimeout(500);
+  assert.equal(await drawn(), before, `${what} returns when the ${id} switch is pressed again`);
 }

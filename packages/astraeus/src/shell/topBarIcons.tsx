@@ -14,6 +14,7 @@ export const FocusIcon = () => <Icon><circle cx="10.5" cy="10.5" r="6.5" /><path
 export const OverviewIcon = () => <Icon><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
 export const FollowIcon = () => <Icon><circle cx="12" cy="12" r="4" /><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /></Icon>;
 export const OrbitIcon = () => <Icon><ellipse cx="12" cy="12" rx="9" ry="5" transform="rotate(-20 12 12)" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /></Icon>;
+export const SwitchesIcon = () => <Icon><path d="M4 8h10M18 8h2M4 16h2M10 16h10" /><circle cx="16" cy="8" r="2" /><circle cx="8" cy="16" r="2" /></Icon>;
 export const ScaleIcon = () => <Icon size={16}><circle cx="7" cy="12" r="2.5" /><circle cx="16" cy="12" r="5.5" /></Icon>;
 export const ChevronIcon = () => <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" /></svg>;
 export const CogIcon = () => (

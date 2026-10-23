@@ -12,6 +12,7 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "../src/shell/expe
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import type { PhoneLayoutSettings } from "../src/shell/phoneLayout";
 import type { StoryPanelSettings } from "../src/shell/useStoryPanels";
+import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import type { ExperienceSwitch } from "../src/shell/SwitchControl";
 import type { ScaleChoice } from "../src/shell/scaleModel";
 
@@ -41,6 +42,8 @@ export interface MountOptions {
   readonly storyPanelSettings?: StoryPanelSettings;
   /** A made-up choice between versions, shown first in the top bar. */
   readonly switcher?: ExperienceSwitch;
+  /** Made-up display switches (their `on` is the start; pressing one flips it, as the app would). */
+  readonly displaySwitches?: readonly DisplaySwitchItem[];
 }
 
 /** Tells the page whether it is a phone, framed or asked for reduced motion: the three things the shell reads from its window. */
@@ -110,6 +113,8 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
   const refresh = () => setSnapshot(clock.snapshot());
   probe.refresh = refresh;
   probe.requestPanel = (id) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 }));
+  const [flipped, setFlipped] = useState<ReadonlySet<string>>(new Set());
+  const displaySwitches = options.displaySwitches?.map((item) => ({ ...item, on: item.on !== flipped.has(item.id), onToggle: () => { item.onToggle(); setFlipped((was) => new Set(was.has(item.id) ? [...was].filter((id) => id !== item.id) : [...was, item.id])); } }));
   const experience = options.experience ?? syntheticDefinition.experience;
   const resolver = useRef(createSceneResolver(createOrbAstronomyAdapter()));
   const metrics = useRef(syntheticDefinition.createMetrics({ clock, resolver: resolver.current, catalogue }));
@@ -134,6 +139,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     phoneLayout: options.phoneLayout,
     storyPanelSettings: options.storyPanelSettings,
     switcher: options.switcher,
+    displaySwitches,
     children: null,
   });
 }

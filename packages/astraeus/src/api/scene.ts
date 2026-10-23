@@ -23,6 +23,8 @@ import { installData, type DataSource } from "./data";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
+import { switchesOf, type SwitchesInput } from "./switches";
+import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import { eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 
@@ -158,6 +160,7 @@ export class Scene {
   #eventProvenance: Provenance | undefined;
   #panels: StoryPanelsInput | undefined;
   #timeline: TimelineSetting | undefined;
+  #switches: DisplaySwitchSettings | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#bodies.has(id) || this.#tracked.has(id));
@@ -220,6 +223,19 @@ export class Scene {
   /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`) and the speed it opens at (`rate`), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#timeline = timelineOf(timeline);
+    return this;
+  }
+
+  /**
+   * Places the display switches: for each of `orbitLines` (orbit ring, trailing arc and moon orbits), `labels` (body and anchor labels) and `milkyWay` (the sky picture), `place` is
+   * `"top-bar"` (a button in the bar), `"panel"` (a row in one switch panel opened from the bar) or `"developer"` (only in the Developer drawer, where every switch stays), and `on` is
+   * whether it starts on (default on). A switch the scene has nothing for (orbit lines with no orbit drawn) shows nowhere. May be called more than once; later calls replace the same switch.
+   * A bad switch name, place or `on` throws `bad-switch`.
+   * @example
+   * scene.setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false }, milkyWay: { place: "developer", on: false } });
+   */
+  setSwitches(switches: SwitchesInput): this {
+    this.#switches = switchesOf(switches, this.#switches);
     return this;
   }
 
@@ -297,6 +313,7 @@ export class Scene {
       sceneLayers: ["tracked-bodies"],
       composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
+      ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {

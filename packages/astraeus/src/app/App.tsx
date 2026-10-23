@@ -29,6 +29,7 @@ import { loadStarCatalogue } from "../assets/sky";
 import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
+import { displaySwitchItems, orbitStart } from "./displaySwitches";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
@@ -39,7 +40,7 @@ const FPS_HISTORY = 60;
 /** The sky settings in force: the experience's own, hidden when the address says `?sky=off`. */
 function skySettingsOf(definition: ExperienceDefinition) {
   const settings = resolveSkySettings(definition.sky);
-  const milkyWay = milkyWayFromSearch(window.location.search) ?? settings.milkyWay;
+  const milkyWay = milkyWayFromSearch(window.location.search) ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay;
   const starBrightness = brightnessFromSearch(window.location.search, "stars") ?? settings.starBrightness;
   const milkyWayBrightness = brightnessFromSearch(window.location.search, "milkywaybrightness") ?? settings.milkyWayBrightness;
   return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(window.location.search) };
@@ -61,6 +62,17 @@ export function hiddenLabelsFrom(search: string, objects: readonly { readonly id
 export function loopFromSearch(search: string, fallback: boolean): boolean {
   const value = new URLSearchParams(search).get("loop");
   return value === "on" ? true : value === "off" ? false : fallback;
+}
+
+/** The labels switch's starting state, if the story gave one. */
+function labelStart(definition: ExperienceDefinition): boolean | undefined {
+  return definition.displaySwitches?.labels?.on;
+}
+
+/** The orbit lines a story starts off: the ring and arc, and the moon orbits. */
+function startOrbitControls(definition: ExperienceDefinition): Pick<SceneControls, "orbitLook" | "bodySetLook"> {
+  const start = orbitStart(definition.displaySwitches?.orbitLines);
+  return start === undefined ? {} : { orbitLook: start.look, bodySetLook: { ...DEFAULT_BODY_SET_LOOK, orbitsOn: false } };
 }
 
 function copyOfGlow(look: GlowLook | undefined): GlowLook | null {
@@ -135,7 +147,7 @@ function initialSceneControls(
   return {
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
-    showAnchorLabels: false,
+    showAnchorLabels: labelStart(definition) === true && runtime.trackedBodies.length > 0,
     loop: loopFromSearch(search, definition.loop === true),
     up: viewUpVector(startViewUp(definition)),
     showMilkyWay: runtime.sky.milkyWay,
@@ -144,7 +156,8 @@ function initialSceneControls(
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
     illuminateAll: DEFAULT_ILLUMINATE_ALL,
-    hiddenLabels: hiddenLabelsFrom(search, experience.objects),
+    hiddenLabels: hiddenLabelsFrom(search, labelStart(definition) === undefined ? experience.objects : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) }))),
+    ...startOrbitControls(definition),
     labelObjects: experience.objects,
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
@@ -202,18 +215,18 @@ export function App({ definition, onOpenAddress }: { readonly definition: Experi
   const [developerMode, setDeveloperMode] = useState(false);
   const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
   const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
-  const [anchorLabels, setAnchorLabels] = useState(false);
+  const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(copyOfGlow(controls.current.glowLook));
   const orbitPaths = orbitPathsOf(runtime);
   const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
-  const [orbitShown, setOrbitShown] = useState<OrbitLook>(orbitDefault);
+  const [orbitShown, setOrbitShown] = useState<OrbitLook>({ ...orbitDefault, ...controls.current.orbitLook });
   const setOrbit = (change: Partial<OrbitLook>) => {
     controls.current.orbitLook = { ...controls.current.orbitLook, ...change };
     setOrbitShown({ ...orbitDefault, ...controls.current.orbitLook });
   };
   const resetOrbit = () => { delete controls.current.orbitLook; setOrbitShown(orbitDefault); };
   const bodySets = runtime.bodySets;
-  const [setLook, setSetLook] = useState<BodySetLook>(DEFAULT_BODY_SET_LOOK);
+  const [setLook, setSetLook] = useState<BodySetLook>(controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK);
   const changeSetLook = (change: Partial<BodySetLook>) => {
     const next = { ...(controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK), ...change };
     controls.current.bodySetLook = next;
@@ -308,6 +321,17 @@ export function App({ definition, onOpenAddress }: { readonly definition: Experi
     if (view === undefined) return;
     setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
   };
+  const displaySwitches = displaySwitchItems({
+    settings: definition.displaySwitches,
+    orbit: { present: orbitPaths.length > 0, look: orbitShown, set: setOrbit },
+    moons: { present: bodySets.length > 0, look: setLook, set: changeSetLook },
+    sky: { present: runtime.sky.visible, on: milkyWayOn, set: (on) => { controls.current.showMilkyWay = on; setMilkyWayOn(on); } },
+    labels: {
+      objectIds: experience.objects.map((object) => object.id), hidden: hiddenLabels,
+      setHidden: (hidden) => { controls.current.hiddenLabels = new Set(hidden); setHiddenLabels(new Set(hidden)); },
+      anchorsPresent: runtime.trackedBodies.length > 0, anchors: anchorLabels, setAnchors: (on) => { controls.current.showAnchorLabels = on; setAnchorLabels(on); },
+    },
+  });
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (
     <section key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} aria-labelledby={`developer-${section.id}-heading`}>
@@ -507,6 +531,7 @@ export function App({ definition, onOpenAddress }: { readonly definition: Experi
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
       switcher={switcherOf(definition, runtime, onOpenAddress)}
+      displaySwitches={displaySwitches}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

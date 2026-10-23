@@ -41,6 +41,8 @@ const HOOK = {
   infoToggle: ".object-info-toggle",
   sceneLabels: ".scene-labels",
   anchorLabels: ".anchor-labels",
+  switchPanelToggle: "button.switch-panel-toggle",
+  switchPanel: ".switch-panel",
   bootLoader: "#boot",
 };
 
@@ -839,6 +841,8 @@ export async function visibleAnchorLabelCount(page) {
   return page.locator(`${HOOK.anchorLabels} .anchor-label:not([hidden])`).count();
 }
 export const waitForAnchorLayer = (page, hidden) => page.waitForFunction(([hook, wanted]) => document.querySelector(hook)?.hasAttribute("hidden") === wanted, [HOOK.anchorLabels, hidden]);
+/** How many body-name labels the scene shows now (labels switched off or out of range are hidden). */
+export const visibleSceneLabelCount = (page) => page.locator(`${HOOK.sceneLabels} .scene-object-label:not([hidden])`).count();
 /** Waits for a drawn line in the frame-rate graph. */
 export const waitForFrameGraphLine = (page, options) => frameRate(page).locator(".fps-graph line.tone-good, .fps-graph line.tone-warn, .fps-graph line.tone-bad").first().waitFor(options);
 
@@ -1579,3 +1583,52 @@ export const curveFitLayout = (page) => page.evaluate(({ section, slider, panels
     reach: spill("*"), panelSpill: spill(panels), smallestFontPx: smallest, overlapsNeighbours: overlaps, columns, collisions,
   };
 }, HOME_FIT);
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Display switches a story placed (O-041 T-170): buttons in the top bar (the phone drawer) and rows in one switch panel opened from a Display button.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The switch's own control, by logical id ("orbitLines", "labels", "milkyWay"); the top-bar button or the panel row. */
+const displaySwitch = (page, id) => page.locator(`[data-display-switch="${id}"]`);
+/** Opens the switch panel (and the phone drawer holding it) when it is closed. */
+async function openSwitchPanel(page) {
+  const toggle = await reveal(page, page.locator(HOOK.switchPanelToggle));
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+  await page.locator(HOOK.switchPanel).waitFor({ state: "visible" });
+}
+/** Where each placed switch shows: the ids in the top bar and the ids in the switch panel (the panel is opened to read it, and left open). */
+export async function displaySwitchPlaces(page) {
+  const bar = await reveal(page, page.locator(".display-switches > button[data-display-switch]"));
+  const inBar = await bar.evaluateAll((buttons) => buttons.map((button) => button.dataset.displaySwitch));
+  const hasPanel = (await page.locator(HOOK.switchPanelToggle).count()) > 0;
+  if (hasPanel) await openSwitchPanel(page);
+  const inPanel = hasPanel ? await page.locator(`${HOOK.switchPanel} [data-display-switch]`).evaluateAll((rows) => rows.map((row) => row.dataset.displaySwitch)) : [];
+  return { topBar: inBar, panel: inPanel };
+}
+/** Whether a placed switch is on (its pressed state). */
+export async function displaySwitchOn(page, id) {
+  const control = displaySwitch(page, id);
+  if (await page.locator(HOOK.switchPanel).locator(control).count()) await openSwitchPanel(page);
+  else await reveal(page, control);
+  return (await control.getAttribute("aria-pressed")) === "true";
+}
+/** Presses a placed switch (opening the switch panel first when it lives there). */
+export async function toggleDisplaySwitch(page, id) {
+  const control = displaySwitch(page, id);
+  if (await page.locator(HOOK.switchPanel).locator(control).count()) await openSwitchPanel(page);
+  else await reveal(page, control);
+  await control.click();
+}
+/** The open switch panel against the rest of the screen: whether it lies inside the window, and which of the cog, the timeline and the open information panel it overlaps. */
+export async function switchPanelFit(page) {
+  await openSwitchPanel(page);
+  await drawersSettled(page);
+  return page.evaluate(([panelHook]) => {
+    const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+    const panel = box(document.querySelector(panelHook));
+    const crosses = (other) => other.left < panel.right - 0.5 && panel.left < other.right - 0.5 && other.top < panel.bottom - 0.5 && panel.top < other.bottom - 0.5;
+    const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", info: "#info-panel", story: ".story-panel", pill: "button.controls-pill" };
+    const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
+    return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
+  }, [HOOK.switchPanel]);
+}

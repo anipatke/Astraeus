@@ -76,6 +76,7 @@
 /* The object list takes the first row, leaving room for the cog at the right. */
 [data-phone="true"] .controls-drawer .object-picker { grid-column: 1 / -1; width: calc(100% - 52px); max-width: none; }
 /* Each button: icon over a short word. */
+[data-phone="true"] .controls-drawer .display-switches { display: contents; }
 [data-phone="true"] .controls-drawer .top-bar-button { width: auto; flex-direction: column; gap: 2px; padding: 0 4px; }
 [data-phone="true"] .controls-drawer .top-bar-button-text { display: block; max-width: 100%; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 [data-phone="true"] .controls-drawer .switch-control { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); gap: 8px; }
@@ -83,6 +84,8 @@
 [data-phone="true"] .controls-drawer .scale-toggle > span { font-size: 11px; }
 [data-phone="true"] .controls-drawer .scale-menu,
 [data-phone="true"] .controls-drawer .scale-explanation-panel { top: calc(100% + 6px); right: auto; left: 0; width: min(320px, calc(100vw - 32px)); }
+/* The switch panel stays clear of the cog's column (60 px at the right) and the drawer's edge. */
+[data-phone="true"] .controls-drawer .switch-panel { top: calc(100% + 6px); right: auto; left: 0; width: min(260px, calc(100vw - 84px)); min-width: 0; }
 [data-phone="true"] .controls-drawer .top-bar { position: relative; }
 [data-phone="true"] .controls-drawer .scale-control { position: static; }
 

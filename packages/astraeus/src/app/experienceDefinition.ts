@@ -14,6 +14,7 @@ import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 import type { SkySettings } from "../assets/sky";
 import { validateBodySet, type BodySetLayer } from "./bodySet";
+import type { DisplaySwitchSettings } from "./displaySwitches";
 
 /** Generic scene parts an experience opts into. Nothing here names a mission. */
 export type SceneLayerId = "tracked-bodies" | "points" | "sun-centred";
@@ -188,6 +189,8 @@ export interface ExperienceDefinition {
   readonly alternates?: readonly { readonly label: string; readonly param: string; readonly value: string; readonly active: boolean }[];
   /** A choice between versions of this experience, shown in the top bar and the phone drawer: choosing one opens it again with `?param=value` (the camera view and time of the old address are dropped). Absent: none. */
   readonly switcher?: import("../shell/SwitchControl").ExperienceSwitch;
+  /** Where the orbit-lines, labels and Milky Way switches show (top bar, switch panel or the Developer drawer only) and whether each starts on. Absent: all in the Developer drawer, the scene's own start. The address (`?labels=`, `?sky=`) still overrides the start. */
+  readonly displaySwitches?: DisplaySwitchSettings;
   /** Which direction the camera treats as up (default "equatorial", celestial north; "ecliptic" orbits about the ecliptic pole so the planets' plane reads flat). */
   readonly viewUp?: import("./viewUp").ViewUp;
   /** The camera view to open on (focus id, azimuth and elevation in degrees, distance in scaled units). Absent: the usual opening. `?view=` overrides it. */

@@ -58,6 +58,8 @@ const scene = new Scene()
   })
   // The timeline covers one lap, offers three speeds and opens at the second.
   .setTimeline({ start, end: start + 6 * HOUR, rates: [60, 600, 3600], rate: 600 })
+  // Orbit lines get a button in the top bar and labels a row in the switch panel; the Milky Way picture stays in the Developer drawer, off.
+  .setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" }, milkyWay: { place: "developer", on: false } })
   // True scale only: the viewer offers no switch to the readable scale.
   .setScale(trueScale, { only: true })
   .setTime("2026-01-01T00:00:00Z");

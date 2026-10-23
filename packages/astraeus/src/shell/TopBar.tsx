@@ -1,6 +1,7 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { ObjectControls } from "./ObjectControls";
 import { ScaleControl } from "./ScaleControl";
+import { DisplaySwitches, type DisplaySwitchItem } from "./DisplaySwitches";
 import { SwitchControl, type ExperienceSwitch } from "./SwitchControl";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { CogIcon } from "./topBarIcons";
@@ -20,6 +21,8 @@ interface Props {
   readonly scaleChoices?: readonly ScaleChoice[];
   /** A choice between versions of the experience, shown first in the bar; absent: none. */
   readonly switcher?: ExperienceSwitch;
+  /** Display switches a story placed in the bar or its panel; absent or empty: none, the bar as it was. */
+  readonly displaySwitches?: readonly DisplaySwitchItem[];
 }
 
 interface DeveloperProps {
@@ -28,7 +31,7 @@ interface DeveloperProps {
 }
 
 /** The single compact bar: body picker, Info, camera buttons and Scale in one row. */
-export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, ...objectControls }: Props) {
+export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, displaySwitches = [], ...objectControls }: Props) {
   return (
     <div className="shell-toolbar">
       <div className="top-bar">
@@ -41,6 +44,12 @@ export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, ...obje
         <ObjectControls {...objectControls} />
         <span className="top-bar-divider" aria-hidden="true" />
         <ScaleControl scaleId={scaleId} onScaleChange={onScaleChange} choices={scaleChoices} />
+        {displaySwitches.length > 0 && (
+          <>
+            <span className="top-bar-divider" aria-hidden="true" />
+            <DisplaySwitches switches={displaySwitches} />
+          </>
+        )}
       </div>
     </div>
   );

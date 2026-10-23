@@ -1,6 +1,7 @@
 // The engine's public API (0.1 preview): everything not exported here is internal.
 export { Scene, SceneCamera, type AddBodyOptions, type AnchorInput, type ReadoutInput, type DataSource, type MoonPositions, type FollowView, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type StoryPanelsInput } from "./story";
+export { type SwitchesInput } from "./switches";
 export { mount, type MountOptions, type MountedScene } from "./mount";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { SceneError, type SceneErrorCode } from "./errors";

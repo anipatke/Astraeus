@@ -1,0 +1,3 @@
+O-041 T-170 hello-scene browser step, run alone once (npm run check:browser not run)
+Command: HELLO_STORY=1 ASTRAEUS_URL=http://localhost:5496/ ASTRAEUS_EVIDENCE_DIR=<this folder> node packages/astraeus-site/tools/validate/check-hello-scene.mjs (vite preview of the built examples/hello-scene)
+Result: PASS at desktop 1280x720 and phone 375x667; no page or console errors. Switches: orbit lines on the top bar, labels in the switch panel, Milky Way developer-only and off; each press changed the scene's readout; panel inside the window and clear of cog and timeline. No screenshots.
