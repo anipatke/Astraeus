@@ -2,7 +2,8 @@
 id: T-155
 title: Move the code into five packages
 objective: O-035
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o035-planning-20261023}
@@ -57,7 +58,19 @@ Focused `npx vitest run` while moving; configured gates, public build and load b
 
 ## Technical Evidence
 
-Pending execution.
+Builder run 2026-10-23 (moves only, nothing committed; staged by `git mv`). Five workspaces under `packages/` (`astraeus`, `astraeus-demo-apollo11`, `-showers`, `-planets`, `astraeus-site`), each keeping the old folder shape (`src/`, `data/`, `tools/`, `tests/`). 9918 pure renames, 91 renamed files with import/path edits, new root `vitest.config.ts` and five package manifests.
+
+Homes: engine = core/assets/app/shell/synthetic/types, `settingsFields.ts`, core data, `tools/import`, `fetch-hyg-stars`, engine tests and their fixtures/helpers. Showers = `src/experiences/showers`, `data/showers`, stories perseids/geminids, `fetch-meteoroid-orbits`, `data/local`. Planets = `planets` + `jupiter-io` code, `data/planets`, stories jupiter-io and no-panels. Apollo = apollo11 code/data/story/tool. Site = `main.tsx`, html, `site/`, `public/`, `tools/site`, `tools/validate`, `vite.config.ts`. Tests: one demo plus engine goes to that demo; several demos or the site goes to the site package; engine-only to the engine.
+
+Unclear homes (put where only users are): `apollo11/spacecraftMetrics.ts` -> engine `src/experiences/` (used by `src/synthetic` and Apollo; the engine cannot import a demo); `showers/showerChoice.ts` -> engine `src/experiences/` (generic switch chooser, used by the Planets and Showers demos); `data/stories/no-panels` -> planets (only planets name it); `vitest.setup.ts` -> engine.
+
+Edits beyond renames: relative imports and `import.meta.glob` paths across packages; root `package.json` (workspaces, scripts dev/build/check:browser/apollo11:reconstruct/lint, name `astraeus-workspace` to avoid clashing with the engine's name), `package-lock.json`, `tsconfig.json`, `eslint.config.js`, `.gitignore`, `.savepoint/health/config.json` (`**/` prefixes), new `vitest.config.ts` (test block of the old `vite.config.ts`), `packages/astraeus-site/vite.config.ts` (outDir `../../dist`, dev route for `/data/local/`), `src/main.tsx` (story panels globbed per package, re-keyed to the old `data/stories/...` names), planet system globs (negated patterns written as full paths; `**/` ignores stopped matching once the files sit outside the vite root), `planetSystemParts.ts` key, `tools/validate/{runner,load-budget,public-build-assets,browser-smoke}.mjs`, `tools/site/assets-sections.mjs`, `tools/apollo11/run.mjs`, tests that read files by path or cwd (`domEmbedded`, `domPhone`, `venusMap`, `demoPlanets`, `planetSystems`, `assetsSections`, `homePage`, `elementsBody`, `swiftTuttle`, `publicBuild`, helper `shippedPanels`, `jupiterViewSnapshot`, which maps `/packages/astraeus/src/` back to the fixture's `/src/`).
+
+Public build (`ASTRAEUS_PUBLIC_BUILD=1 npm run build`) vs the build of HEAD: 101 files / 26,023,331 B before; 99 files / 26,012,195 B after (-0.04%). Every file name (hash removed) matches except two: `panels-*.json` for apollo11 (9451 B) and jupiter-io (5979 B) are no longer emitted. They were never read: the Showers loader's `data/stories/*/*.json` glob used to sweep every demo's story files, now only the Showers stories; the two stories' panels are bundled with their demo code (`jupiter.js` +4.1 kB, app.js +0.5 kB). Sizes of all other files equal, bar `measuredOrbits.js` -320 B (shorter hashed names). Load budget `node packages/astraeus-site/tools/validate/load-budget.mjs dist`: all pages ok, whole build 99 files 26,012,195 B raw (limit 54,610,000). `public-build-assets.mjs dist` ok (self-proofs ok) and `public-addresses.mjs dist` ok. Dev server (`vite packages/astraeus-site`) answers /app.html, /src/main.tsx, /site/*.jpg and /data/local/gmn-iau-7.json (HTTP only, no browser).
+
+Gates (repo root): `npm run lint` pass 3 s; `npm run typecheck` pass 4 s; `npm run build` pass 1 s; `npm test` 114 files, 1524 passed + 1 skipped (1525, same count as before) 33 s; `npm run test:full` pass 57 s (coverage-final.json, junit.xml refreshed). No browser script run, no screenshots.
+
+Left for later steps (not done here): AGENTS.md Codebase Map/Build, `docs/BROWSER_CHECKS.md`, Design (path names); `fetchOrbitsCommand` text in `measuredOrbits.ts` still says `node tools/data/fetch-meteoroid-orbits.mjs` (now under `packages/astraeus-demo-showers/`); dev-only. Cross-package imports are relative paths (entry points come next step). Tests of one demo still import engine test helpers by relative path. `npm install` was not run (lock updated with `--package-lock-only`); `npm ci` should be tried once.
 
 ## Drift Notes
 

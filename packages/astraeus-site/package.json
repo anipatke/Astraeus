@@ -1,0 +1,8 @@
+{
+  "name": "astraeus-site",
+  "version": "0.1.0",
+  "description": "The public site: entry, pages, pictures, public build, browser checks and deploy wiring.",
+  "private": true,
+  "license": "MIT",
+  "type": "module"
+}

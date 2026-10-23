@@ -1,7 +1,7 @@
 ---
 id: O-035
 title: Make the demos an optional add-on to the engine
-status: planned
+status: in_progress
 depends_on: [O-034]
 release: G-010
 ---

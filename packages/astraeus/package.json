@@ -1,0 +1,14 @@
+{
+  "name": "astraeus",
+  "version": "0.1.0",
+  "description": "The Astraeus engine and shell: scientific core, body catalogue, scene, shell and made-up experiences.",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@lizard-isana/orb": "3.1.1",
+    "@react-three/fiber": "^8.18.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0"
+  }
+}

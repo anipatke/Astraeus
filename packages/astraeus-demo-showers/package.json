@@ -1,0 +1,8 @@
+{
+  "name": "astraeus-demo-showers",
+  "version": "0.1.0",
+  "description": "The meteor showers demo: code, data, fetch tool and tests.",
+  "private": true,
+  "license": "MIT",
+  "type": "module"
+}

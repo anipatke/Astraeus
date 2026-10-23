@@ -1,0 +1,8 @@
+{
+  "name": "astraeus-demo-apollo11",
+  "version": "0.1.0",
+  "description": "The Apollo 11 demo: code, data, reconstruction tool and tests.",
+  "private": true,
+  "license": "MIT",
+  "type": "module"
+}
