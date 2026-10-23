@@ -2,7 +2,7 @@
 id: O-030
 title: Switch showers in place without a page reload
 status: planned
-depends_on: [O-024]
+depends_on: []
 release: G-007
 ---
 
@@ -33,6 +33,7 @@ Planning, 2026-10-23: the one generic `SwitchControl` (`src/shell/SwitchControl.
 3. **During the switch**: "Loading animation covers it": the same loading cover as first open, no old-scene hold.
 4. **Proof**: "Tests, journey step, one memory reading, your look".
 5. **Plan** (owner, "Yes, write these steps"): three steps in sequence (both code steps edit `src/main.tsx`): one story first, the in-place switch next, the owner look and Design last.
+6. **Dependency** (owner, 2026-10-23, "Drop it"): O-024 is dropped from `depends_on`; it closed by owner exception, its loading animation is built and in use, and this Objective's own Full Check covers it during a switch.
 
 ## Architectural Considerations
 
