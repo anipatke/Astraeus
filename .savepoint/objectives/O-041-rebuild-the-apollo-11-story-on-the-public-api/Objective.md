@@ -1,7 +1,7 @@
 ---
 id: O-041
 title: Rebuild the Apollo 11 story on the public API
-status: in_progress
+status: done
 depends_on: [O-040]
 release: G-011
 ---

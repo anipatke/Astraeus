@@ -4,7 +4,13 @@ title: Rebuild Apollo 11 on the public API
 objective: O-041
 status: done
 depends_on: [{task: T-170, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+  required: true
+  accepted_check: C-113
+  scope: [the rebuilt Apollo look on localhost:5490 (desktop and phone), Done When 1-9]
+  accepted_by: {role: owner, session: o041-run-20261024}
+  accepted_at: '2026-10-23T22:49:20Z'
+  note: 'Owner look: "looks cool, no need for Sky in drop downs though"; formal sign-off against C-113: "Close, merge and push (Recommended)".'
 check_waiver:
   task: T-169
   reason: 'Owner approved the O-041 plan ("go ahead") and set the standing run rule of no per-step Task Checks and one Full Objective Check at the end (Decision 8). Not a technical CLEAR; no acceptance criterion or Objective Check is waived. The owner look has since passed (see Technical Evidence).'
