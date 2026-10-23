@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
@@ -49,6 +49,11 @@ function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): strin
 /** The story-panel settings the experience carries itself, used when the app gives none live. */
 function ownStorySettings(storySet: ExperienceConfig["storyPanels"]): StoryPanelSettings {
   return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
+}
+
+/** The timeline bar, or nothing when the experience says it has no timeline. */
+function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & { readonly hidden: boolean }) {
+  return hidden ? null : <TimelineBar {...bar} />;
 }
 
 /** The wide-screen moons toggle and the sheet it opens under the toolbar. */
@@ -329,7 +334,7 @@ export function AstraeusShell({
   );
 
   return (
-    <main className="astraeus-shell" ref={root} data-phone={phone} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
+    <main className="astraeus-shell" ref={root} data-phone={phone} data-timeline-hidden={experience.hideTimeline === true} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
       <div className="shell-canvas">{children}</div>
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">
@@ -344,7 +349,8 @@ export function AstraeusShell({
       <aside className="developer-tools" id="developer-tools" data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
         {developerMode ? developerTools : null}
       </aside>
-      <TimelineBar
+      <ShellTimeline
+        hidden={experience.hideTimeline === true}
         experience={experience}
         snapshot={snapshot}
         onTogglePlayback={onTogglePlayback}

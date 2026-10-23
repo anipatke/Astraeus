@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
-import { SimulationClock } from "../core/clock";
+import { openClock } from "./openClock";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./DebugOverlay";
@@ -87,12 +87,8 @@ function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
 function buildRuntime(definition: ExperienceDefinition) {
     const adapter = createOrbAstronomyAdapter();
-    const clock = new SimulationClock(definition.clock.startUtcMs);
-    clock.setRate(definition.clock.rate);
     // A copied view link carries the time it was copied at.
-    const linkedTime = timeFromSearch(window.location.search);
-    if (linkedTime !== undefined) clock.seek(linkedTime);
-    clock.play();
+    const clock = openClock(definition, timeFromSearch(window.location.search));
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
     const resolver = createSceneResolver(adapter, catalogueOf(definition));
     return {

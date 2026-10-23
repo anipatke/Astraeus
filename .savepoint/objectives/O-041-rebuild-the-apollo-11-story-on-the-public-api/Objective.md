@@ -37,6 +37,7 @@ Owner, 2026-10-24, O-041 planning interview (proposal drafted overnight 2026-10-
 6. **Optional timeline** ("Add it to the Apollo part (Recommended)"): the timeline-settings call can also say "no timeline", which hides the bar on desktop and phone, with the time either frozen at a chosen moment or running on its own. Apollo does not use it; it is proved on the made-up configuration.
 7. **Engine leftovers** ("yes add them to the plans"): `spacecraftMetrics.ts` moves out of `src/experiences/apollo11/` to a generic name and place.
 8. **Run** under the standing orchestration rules (owner, 2026-10-23/24): Task Checks waived, coordinator marks steps done once gates pass, one owner look at Apollo on the preview, one Full Objective Check with one browser run.
+9. **Telemetry bars without a generic readout** (owner, 2026-10-24, "Simplify (Recommended)"): "altitude above the nearer of Earth or the Moon" becomes two named altitude bars (above Earth, above the Moon); the path-uncertainty figure moves into each spacecraft's known-limits text; the live uncertainty bar and the position coordinates are dropped. No new readout kinds for them.
 
 ## Architectural Considerations
 

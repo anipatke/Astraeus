@@ -118,3 +118,7 @@
 @media (prefers-reduced-motion: reduce) {
   .timeline-bar { scroll-behavior: auto; transition: none !important; }
 }
+
+/* No timeline (experience.hideTimeline): nothing sits at the bottom, so nothing is reserved for it on a wide or a phone screen. */
+main.astraeus-shell[data-timeline-hidden="true"] { --timeline-space: 0px; }
+main.astraeus-shell[data-timeline-hidden="true"] .shell-top { --shell-timeline-space: 0px; }

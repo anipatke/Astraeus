@@ -31,8 +31,8 @@ describe("Scene", () => {
     expect(definition.clock.startUtcMs).toBe(Date.parse(T0));
     expect(scaleChoiceIdsOf(definition)).toEqual(["readable-scale", "true-scale"]);
     expect(definition.startView?.focus).toBe("apollo11");
-    expect(definition.experience.startCameraPresetId).toBe("follow-target");
-    expect(definition.experience.cameraPresets.map((preset) => preset.request.kind)).toEqual(["overview", "focus", "follow"]);
+    expect(definition.experience.startCameraPresetId).toBe("follow-apollo11");
+    expect(definition.experience.cameraPresets.map((preset) => preset.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-moon", "follow-moon", "focus-apollo11", "follow-apollo11"]);
     expect(definition.experience.objects.map((object) => object.id)).toEqual(["earth", "moon", "apollo11"]);
     expect(cameraReachOf(definition)).toEqual({});
   });

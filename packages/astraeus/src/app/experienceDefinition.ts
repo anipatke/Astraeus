@@ -146,7 +146,7 @@ export interface ExperienceDefinition {
   /** The experience's name, shown in the page heading once it opens ("<label> · Astraeus"). Absent: the heading stays "Astraeus". */
   readonly label?: string;
   readonly experience: ExperienceConfig;
-  readonly clock: { readonly startUtcMs: number; readonly rate: number };
+  readonly clock: { readonly startUtcMs: number; readonly rate: number; /** False leaves the clock paused at `startUtcMs` when the scene opens (default true: it plays). */ readonly playing?: boolean };
   /** Layers the scene mounts, e.g. the tracked-body list. */
   readonly sceneLayers: readonly SceneLayerId[];
   /** The catalogued bodies the scene draws, one view each. Absent: none, as in the bodiless fixture. */

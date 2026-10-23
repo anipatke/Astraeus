@@ -1,5 +1,5 @@
 import type { BodyId } from "../core/body";
-import { createEvents } from "../core/events";
+import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
@@ -13,6 +13,7 @@ import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
+import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
 import { catalogueItem } from "../app/catalogueItem";
@@ -21,6 +22,9 @@ import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { toUtcMs, type TimeInput } from "./time";
+import { eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+export { toUtcMs, type TimeInput } from "./time";
 
 /** Options of `addBody`. */
 export interface AddBodyOptions {
@@ -52,9 +56,6 @@ const ORBITS: Readonly<Record<string, { readonly parent: BodyId; readonly path: 
   moon: { parent: "earth", path: { spanMs: SIDEREAL_MONTH_MS } },
   io: { parent: "jupiter", path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
 };
-
-/** A moment: ISO text, a Date, or Unix milliseconds. */
-export type TimeInput = string | number | Date;
 
 /** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre. */
 export interface TrajectorySampleInput {
@@ -96,13 +97,6 @@ const DAY_MS = 86_400_000;
 const PROVIDER_PATH_SAMPLES = 128;
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale];
 
-/** Converts a moment to Unix milliseconds, or throws a `bad-time` SceneError naming it. */
-export function toUtcMs(time: TimeInput, what = "time"): number {
-  const ms = time instanceof Date ? time.getTime() : typeof time === "number" ? time : Date.parse(time);
-  if (!Number.isFinite(ms)) throw new SceneError("bad-time", `${what} "${String(time)}" is not a valid moment; use an ISO text such as "1969-07-20T20:17:40Z", a Date or Unix milliseconds`);
-  return ms;
-}
-
 interface Tracked {
   readonly body: TrackedBody;
   readonly center: BodyId;
@@ -114,6 +108,7 @@ interface Tracked {
 /** The scene's camera: what it opens on. */
 export class SceneCamera {
   #target: string | undefined;
+  #following = false;
   #view: FollowView = {};
   readonly #has: (id: string) => boolean;
   constructor(has: (id: string) => boolean) {
@@ -121,12 +116,22 @@ export class SceneCamera {
   }
   /** Opens framed on a body or trajectory already added to the scene and already following it (the viewer's Follow button shows as pressed). */
   follow(id: string, view: FollowView = {}): this {
-    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.follow("${id}"): no body or trajectory with that id has been added to the scene`);
+    return this.#open("follow", id, view, true);
+  }
+  /** Opens framed on a body or trajectory already added to the scene, looking at it but not following it (the viewer's Focus button shows as pressed). The last of `follow` and `lookAt` wins. */
+  lookAt(id: string, view: FollowView = {}): this {
+    return this.#open("lookAt", id, view, false);
+  }
+  #open(call: string, id: string, view: FollowView, following: boolean): this {
+    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
     this.#target = id;
+    this.#following = following;
     this.#view = view;
     return this;
   }
   get target(): string | undefined { return this.#target; }
+  /** Whether the opening view follows its target (`follow`) rather than only looking at it (`lookAt`). */
+  get following(): boolean { return this.#following; }
   get view(): FollowView { return this.#view; }
 }
 
@@ -148,6 +153,11 @@ export class Scene {
   readonly #notes = new Map<BodyId, string>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
+  #scaleOnly = false;
+  #events: readonly TimelineEvent[] = [];
+  #eventProvenance: Provenance | undefined;
+  #panels: StoryPanelsInput | undefined;
+  #timeline: TimelineSetting | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#bodies.has(id) || this.#tracked.has(id));
@@ -186,11 +196,49 @@ export class Scene {
     return this;
   }
 
-  /** Chooses the opening scale: `trueScale` or `readableScale`; the viewer can switch to the other. */
-  setScale(scale: ScalePolicy): this {
+  /** Chooses the opening scale: `trueScale` or `readableScale`; the viewer can switch to the other, unless `{ only: true }` offers this scale alone. */
+  setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
     if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale or readableScale`);
     this.#scale = scale;
+    this.#scaleOnly = options.only === true;
     return this;
+  }
+
+  /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event. May be called more than once. */
+  addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
+    this.#events = eventsOf(events, this.#events);
+    if (options.provenance !== undefined) this.#eventProvenance = options.provenance;
+    return this;
+  }
+
+  /** Adds story panels that open as playback reaches them. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field. */
+  addStoryPanels(panels: StoryPanelsInput): this {
+    this.#panels = panels;
+    return this;
+  }
+
+  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`) and the speed it opens at (`rate`), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
+  setTimeline(timeline: TimelineInput): this {
+    this.#timeline = timelineOf(timeline);
+    return this;
+  }
+
+  /** The state of a trajectory added with `addTrajectory` at a moment, about its centre body (position in km, velocity in km/s): for figures a story quotes, such as a peak speed. Throws `unknown-body` for any other id and `bad-time` for a moment outside the path. */
+  stateOf(id: string, time: TimeInput): State {
+    const entry = this.#tracked.get(id);
+    if (entry === undefined) throw new SceneError("unknown-body", `stateOf("${id}"): no trajectory with that id has been added to the scene`);
+    const timeUtcMs = toUtcMs(time, `stateOf("${id}") time`);
+    const { startUtcMs, endUtcMs } = entry.body.trajectory.bounds;
+    if (timeUtcMs < startUtcMs || timeUtcMs > endUtcMs) throw new SceneError("bad-time", `stateOf("${id}"): ${new Date(timeUtcMs).toISOString()} is outside the path (${new Date(startUtcMs).toISOString()} to ${new Date(endUtcMs).toISOString()})`);
+    return entry.body.trajectory.stateAt(timeUtcMs, entry.center);
+  }
+
+  /** The story panels, resolved against this scene's events, anchors, objects and timeline span. */
+  #storyPanels(window: TimeBounds): StoryPanelSet | undefined {
+    if (this.#panels === undefined) return undefined;
+    const anchors = new Map<string, number>();
+    for (const { body } of this.#tracked.values()) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
+    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys()], window });
   }
 
   /** A readout names a body the scene must hold, so it can be measured against. */
@@ -224,29 +272,31 @@ export class Scene {
     });
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
-    const window = windowOf(tracked, this.#timeUtcMs);
-    const startUtcMs = this.#timeUtcMs ?? window.startUtcMs;
+    const timeline = this.#timeline;
+    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, tracked);
     const target = this.camera.target;
     const view = this.camera.view;
+    const storyPanels = this.#storyPanels(window);
+    const labelled = [...this.#bodies.values(), ...tracked].map(({ id, label }) => ({ id, label }));
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
           ...[...this.#bodies.values()].map((body): ExperienceObject => ({ ...catalogueItem(body.id, { labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500, ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}) }), label: body.label })),
           ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
-        cameraPresets: [
-          { id: "overview", label: "Overview", request: { kind: "overview" } },
-          ...(target === undefined ? [] : [{ id: "focus-target", label: "Focus", request: { kind: "focus" as const, target } }, { id: "follow-target", label: "Follow", request: { kind: "follow" as const, target } }]),
-        ],
-        ...(target === undefined ? {} : { startCameraPresetId: "follow-target" }),
-        events: createEvents([]),
+        cameraPresets: cameraPresetsOf(labelled),
+        ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
+        events: this.#events,
+        ...(this.#eventProvenance === undefined ? {} : { eventProvenance: this.#eventProvenance }),
+        ...(storyPanels === undefined ? {} : { storyPanels }),
+        ...(timeline?.none === true ? { hideTimeline: true } : {}),
         window,
-        rates: [60, 3_600, DAY_MS / 1000],
+        rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
-      clock: { startUtcMs, rate: 60 },
+      clock: clockOf(timeline, startUtcMs),
       sceneLayers: ["tracked-bodies"],
       composition: createComposition(catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-      scaleChoices: [this.#scale.id, ...SCALES.filter((scale) => scale.id !== this.#scale.id).map((scale) => scale.id)],
+      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
@@ -261,6 +311,37 @@ export class Scene {
     };
     return definition;
   }
+}
+
+/** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
+function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[]): ExperienceDefinition["experience"]["cameraPresets"] {
+  return [
+    { id: "overview", label: "Overview", request: { kind: "overview" } },
+    ...objects.flatMap(({ id, label }) => [
+      { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
+      { id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } },
+    ]),
+  ];
+}
+
+/** The timeline span and the moment the clock opens at; a moment outside a span the caller set is a `bad-timeline`. */
+function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undefined, tracked: readonly TrackedBody[]): { readonly window: TimeBounds; readonly startUtcMs: number } {
+  const setTime = (timeline?.none === true ? timeline.atUtcMs : undefined) ?? timeUtcMs;
+  const window = timeline?.window ?? windowOf(tracked, setTime);
+  if (timeline?.window !== undefined && setTime !== undefined && (setTime < window.startUtcMs || setTime > window.endUtcMs)) {
+    throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
+  }
+  return { window, startUtcMs: setTime ?? window.startUtcMs };
+}
+
+/** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */
+function clockOf(timeline: TimelineSetting | undefined, startUtcMs: number): ExperienceDefinition["clock"] {
+  return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.none === true && timeline.rate === undefined ? { playing: false } : {}) };
+}
+
+/** The scale choices offered: the opening one first, then the other unless the caller offered one alone. */
+function scaleChoicesOf(scale: ScalePolicy, only: boolean): readonly ScalePolicy["id"][] {
+  return only ? [scale.id] : [scale.id, ...SCALES.filter((other) => other.id !== scale.id).map((other) => other.id)];
 }
 
 type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;

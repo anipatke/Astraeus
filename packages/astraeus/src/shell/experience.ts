@@ -59,6 +59,8 @@ export interface ExperienceConfig {
   readonly windows?: readonly TimelineWindow[];
   readonly window: TimeBounds;
   readonly rates: readonly number[];
+  /** True draws no timeline bar (and no phone timeline drawer or reserved space); the clock then runs or stays frozen as the definition says. Absent: the bar is shown. */
+  readonly hideTimeline?: boolean;
   /** Short story panels that open as playback reaches their time; see `parseStoryPanels`. Omit for an experience with none. */
   readonly storyPanels?: StoryPanelSet;
   /** A planet's moons by family for the sliding moon panel; omit for an experience with none. Every moon listed must also be an object. */

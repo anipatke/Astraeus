@@ -18,7 +18,7 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   // check reads the Object list (the probe is in the scene) and the camera preset; the bodies it can read, Earth and the Moon, must be drawn and in view around it.
   assert.ok((await ui.bodyOptions(page)).includes("probe"), "the probe is in the scene's object list");
   assert.equal(await ui.pickedBody(page), "probe", "the probe is the picked object");
-  assert.ok(await ui.cameraActive(page, "follow-target"), "the scene opens already following the probe");
+  assert.ok(await ui.cameraActive(page, "follow-probe"), "the scene opens already following the probe");
   await page.waitForTimeout(1500);
   const earth = await ui.sceneBody(page, "earth");
   assert.ok(earth && earth.as !== "none" && earth.inView, "Earth is drawn and in view");
