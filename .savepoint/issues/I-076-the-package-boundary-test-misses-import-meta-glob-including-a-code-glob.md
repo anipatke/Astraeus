@@ -2,7 +2,7 @@
 id: I-076
 title: The package boundary test misses import.meta.glob, including a code glob
 type: verification
-status: open
+status: in_progress
 source:
   kind: check
   check: C-104
@@ -18,6 +18,10 @@ history:
     kind: observed
     note: Found by the O-035 Full Objective Check (C-104) against Success Condition 2 and the T-156 Done When "no relative path crosses a package folder".
     check: C-104
+  - at: '2026-10-23T06:31:10Z'
+    actor: {role: executor, session: i076-repair-20261023}
+    kind: repair_attempted
+    note: "Owner decision 2026-10-23, \"Fix it, short recheck (Recommended)\". The planets package now exports its systems map (packages/astraeus-demo-planets/src/experiences/planets/planetSystems.ts, __PUBLIC_BUILD__ split kept); main.tsx imports it by package name, so the code glob into the demo's src/ is gone. Vite globs cannot take a package name, so the planets systems' relative globs into packages/astraeus/data/ stay and are allowed by name. packageBoundaries.test.ts now reads import.meta.glob patterns (string and array forms) and fails a glob into another package's code; named rules DATA-OF-ENGINE (any package, engine declared data/*), DATA-OF-DEMO (site only, demo declared data/*) and TEST-READS-ENGINE-TEXT (a tests/ file globbing engine src/ with ?raw; found needed for three existing test files). Proved with made-up offenders in the temp-folder test (code, array, demo-to-demo, site-to-demo-code, engine-to-demo, ?raw outside tests/, non-raw in tests/). Test header and the Design O-035 sentence corrected. Also tools/check-engine-alone.mjs skips git-ignored files (the 2.5 GB Horizons cache). Gates: lint, typecheck, build, npm test (116 files, 1530 pass, 1 skip), check:engine-alone (65 files, 647 pass, 1 skip), public build with load-budget and public-build-assets ok: 99 files, 26,012,269 B (C-104: 99, 26,012,296 B; same file list, -27 B), Jupiter-only holds. No browser run. Awaiting a recheck."
 ---
 
 # I-076: The package boundary test misses import.meta.glob, including a code glob

@@ -8,7 +8,7 @@ import { chooseShower, type ShowerEntry } from "astraeus/experiences/showers/sho
 import { showerEntryName } from "astraeus-demo-showers/experiences/showers/showerEntry";
 import type { ShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
-import type { PlanetSystem } from "astraeus-demo-planets/experiences/planets/planetDefinition";
+import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planetSystems";
 import { createAddressNavigation } from "astraeus/app/addressNavigation";
 import { failBootLoader, showBootLoader } from "astraeus/shell/bootLoader";
 import "astraeus/app/style.css";
@@ -35,14 +35,11 @@ const SHOWER_FILES = import.meta.glob<{ readonly label: string; readonly order?:
 const showerEntries: ShowerEntry[] = Object.entries(SHOWER_FILES).map(([path, json]) => ({ name: showerEntryName(path), label: json.label, order: json.order ?? 0 }));
 // Every data/planets/<name>.json is a planet of the one Planets experience (the old ?experience=jupiter-io address too); a new file needs no change here.
 // The settings files are small and already in the entry; a planet's system (moon list, positions, pictures) and story are fetched only for the chosen one.
-// The public build offers Jupiter alone (owner, 2026-10-22): its globs name only Jupiter's files, so Vite leaves the other eight planets' settings, systems and maps out of the bundle.
+// The public build offers Jupiter alone (owner, 2026-10-22): its globs name only Jupiter's files (the systems map is in the planets package), so Vite leaves the other eight planets' settings, systems and maps out of the bundle.
 type PlanetFile = { readonly label: string; readonly order: number; readonly default?: boolean };
 const PLANET_FILES = __PUBLIC_BUILD__
   ? import.meta.glob<PlanetFile>("../../astraeus-demo-planets/data/planets/jupiter.json", { eager: true, import: "default" })
   : import.meta.glob<PlanetFile>("../../astraeus-demo-planets/data/planets/*.json", { eager: true, import: "default" });
-const PLANET_SYSTEMS = __PUBLIC_BUILD__
-  ? import.meta.glob<Record<string, PlanetSystem>>("../../astraeus-demo-planets/src/experiences/planets/systems/jupiter.ts")
-  : import.meta.glob<Record<string, PlanetSystem>>("../../astraeus-demo-planets/src/experiences/planets/systems/*.ts");
 // The stories' panels files sit in the packages of the demos that own them; they are keyed by the repo-relative path the settings files name (`data/stories/<story>/panels.json`), as before.
 const storyPanels = (files: Record<string, () => Promise<unknown>>): Record<string, () => Promise<unknown>> =>
   Object.fromEntries(Object.entries(files).map(([path, load]) => [`../${path.slice(path.indexOf("data/stories/"))}`, load]));
@@ -68,7 +65,7 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
   if (planetChoice !== undefined) {
     const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("astraeus-demo-planets/experiences/planets/planetSettings"), import("astraeus-demo-planets/experiences/planets/planetDefinition")]);
     const settings = parsePlanetSettings(PLANET_FILES[`../../astraeus-demo-planets/data/planets/${planetChoice.name}.json`]);
-    const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[`../../astraeus-demo-planets/src/experiences/planets/systems/${settings.system}.ts`]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
+    const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[settings.system]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
     return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {

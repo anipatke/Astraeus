@@ -12,10 +12,14 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const scratch = mkdtempSync(join(tmpdir(), "astraeus-engine-alone-"));
 const started = Date.now();
 
+// Git-ignored files (caches such as tools/import/.horizons-cache, about 2.5 GB) are not copied: a fresh clone would not have them either.
+const ignoredFiles = new Set(spawnSync("git", ["ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "packages/astraeus"], { cwd: root, encoding: "utf8", maxBuffer: 1 << 28 }).stdout.split("\n").filter(Boolean).map((p) => resolve(root, p.replace(/\/$/, ""))));
+const ignored = (src) => ignoredFiles.has(resolve(src));
+
 function copy(from, to) {
   cpSync(join(root, from), join(scratch, to ?? from), {
     recursive: true,
-    filter: (src) => !/[\\/](node_modules|coverage)([\\/]|$)/.test(src) && !/[\\/]data[\\/]local([\\/]|$)/.test(src),
+    filter: (src) => !/[\\/](node_modules|coverage)([\\/]|$)/.test(src) && !/[\\/]data[\\/]local([\\/]|$)/.test(src) && !ignored(src),
   });
 }
 
