@@ -1,7 +1,7 @@
 ---
 id: O-031
 title: Lighter app code and gentler drawing
-status: planned
+status: done
 depends_on: []
 release: G-007
 lanes:
