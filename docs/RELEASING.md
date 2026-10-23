@@ -13,7 +13,15 @@ npm will only accept a trusted-publisher setting for a package that already exis
    npm publish packages/astraeus/dist --access public
    ```
    and the same for `astraeus-data`, `astraeus-data-jupiter`, `astraeus-data-saturn`, `astraeus-data-uranus`, `astraeus-data-neptune`, `astraeus-data-mars` and `astraeus-data-pluto`. npm asks for your 2FA code each time. If a name turns out to be taken, stop and tell the planner: the names are in each `packages/<name>/package.json`.
-4. **Link each package to this repository (trusted publisher).** On npmjs.com, open the package, then Settings, then "Trusted Publisher", and choose GitHub Actions. Enter:
+   *Staged publishing (seen on the first publish, 2026-10-23):* npm may hold a new package's upload for a malware scan or a maintainer's approval. While held, the package shows a public `0.0.0-stage` placeholder and the real version is hidden; it went live on its own within minutes for all seven data packages. If one stays held, approve it with `npm stage list` then `npm stage approve <stage-id>` (npm 11.15 or later; asks for 2FA) or on npmjs.com under Staged Packages. The placeholder stays in the version list; `latest` points at the real version.
+   Commands that need your browser or 2FA approval cannot run through Claude Code's `!` prefix; run them in your own terminal.
+4. **Link each package to this repository (trusted publisher).** Quickest from the command line (npm 11.15 or later; asks for approval):
+   ```sh
+   for p in astraeus astraeus-data astraeus-data-jupiter astraeus-data-saturn astraeus-data-uranus astraeus-data-neptune astraeus-data-mars astraeus-data-pluto; do
+     npm trust github $p --repo anipatke/Astraeus --file publish.yml --allow-publish --yes
+   done
+   ```
+   `npm trust list <package>` shows the link. Or on the website: On npmjs.com, open the package, then Settings, then "Trusted Publisher", and choose GitHub Actions. Enter:
    - organisation or user: `anipatke`
    - repository: `Astraeus`
    - workflow filename: `publish.yml` (exactly, with the extension)
