@@ -162,7 +162,7 @@ describe("eccentric-anomaly spacing of the comet's own orbit", () => {
 });
 
 describe("the name check", () => {
-  const files = import.meta.glob("../../*/src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+  const files = import.meta.glob("../../astraeus/src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
   it("finds the comet's name only in src/core/bodies/ and src/assets/bodies/ (and the two lines that join them)", () => {
     const named = Object.entries(files).filter(([, text]) => /swift|tuttle|109P/i.test(text)).map(([path]) => path).sort();

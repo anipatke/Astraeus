@@ -13,7 +13,13 @@ const scratch = mkdtempSync(join(tmpdir(), "astraeus-engine-alone-"));
 const started = Date.now();
 
 // Git-ignored files (caches such as tools/import/.horizons-cache, about 2.5 GB) are not copied: a fresh clone would not have them either.
-const ignoredFiles = new Set(spawnSync("git", ["ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "packages/astraeus"], { cwd: root, encoding: "utf8", maxBuffer: 1 << 28 }).stdout.split("\n").filter(Boolean).map((p) => resolve(root, p.replace(/\/$/, ""))));
+const listed = spawnSync("git", ["ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "--", "packages/astraeus/"], { cwd: root, encoding: "utf8", maxBuffer: 1 << 28 });
+if (listed.error || listed.status !== 0) {
+  rmSync(scratch, { recursive: true, force: true });
+  console.error(`engine alone: cannot list git-ignored files (${listed.error ? listed.error.message : `git exited ${listed.status}`}); git is required`);
+  process.exit(1);
+}
+const ignoredFiles = new Set(listed.stdout.split("\n").filter(Boolean).map((p) => resolve(root, p.replace(/\/$/, ""))));
 const ignored = (src) => ignoredFiles.has(resolve(src));
 
 function copy(from, to) {

@@ -6,9 +6,9 @@ import { describe, expect, it } from "vitest";
 // The package boundary (O-035 T-156, ARCH-03): packages meet only through the names and entries a package declares in its `exports`.
 // Checked: no relative import into another package, the engine imports no other package, a demo imports only the engine, the site imports the engine and the demos,
 // and every `package/entry` import is an entry the target declares (and that points at a real file).
-// Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a relative path. A glob that crosses into another package's code (`src/`, `tools/`, `tests/`) fails.
-// Three named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file under a package's `tests/` may glob the engine's `src/` with `?raw`, to read source as text for a rule check, never to import it).
-// Not checked: file paths a test or script reads at run time, and paths that leave `packages/` for the repository root (docs, vercel.json).
+// Vite `import.meta.glob` patterns (string or array form) are read too, because a glob cannot take a package name and so is a path. Relative and `/packages/...` patterns are checked against every package their path can match (a wildcard, partial name or brace list in the package-name segment reaches several; a `**` above a package reaches it from an unknown place), and a match on any other package fails unless a named rule allows it.
+// Three named rules allow a glob into another package: DATA-OF-ENGINE (any package may glob the engine's `data/`) and DATA-OF-DEMO (the site, and only the site, may glob a demo's `data/`), both only when that package declares a `data/*` entry; and TEST-READS-ENGINE-TEXT (a file in a package's top-level `tests/` folder may glob the engine's `src/` when that glob call's own options say `query: "?raw"`, to read source as text for a rule check, never to import it).
+// Not checked: an alias-based glob (neither relative nor `/`-rooted), file paths a test or script reads at run time, and paths that leave `packages/` for the repository root (docs, vercel.json).
 
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
@@ -44,25 +44,81 @@ function specifiers(source: string): string[] {
   return [...source.matchAll(/(?:\bfrom|\bimport|vi\.mock|vi\.importActual|\brequire)\s*\(?\s*["'`]([^"'`]+)["'`]/g)].map((match) => match[1]);
 }
 
-/** The patterns of every `import.meta.glob` call (the first argument as one string or an array of strings, a leading `!` removed), and whether the call asks for the file text (`?raw`). */
+/** The text of a call's argument list, from just after its `(` to the matching `)`, with comments removed. */
+function callArguments(source: string, open: number): string {
+  let depth = 1;
+  let quote = "";
+  let out = "";
+  for (let at = open + 1; at < source.length; at++) {
+    const c = source[at];
+    if (quote) {
+      out += c;
+      if (c === "\\") out += source[++at] ?? "";
+      else if (c === quote) quote = "";
+    } else if (source.startsWith("//", at)) {
+      const end = source.indexOf("\n", at);
+      at = end < 0 ? source.length : end;
+    } else if (source.startsWith("/*", at)) {
+      const end = source.indexOf("*/", at + 2);
+      at = end < 0 ? source.length : end + 1;
+    } else {
+      if ("\"'`".includes(c)) quote = c;
+      else if (c === "(") depth++;
+      else if (c === ")" && --depth === 0) break;
+      out += c;
+    }
+  }
+  return out;
+}
+
+/** The patterns of every `import.meta.glob` call (the first argument as one string or an array of strings, a leading `!` removed), and whether that call's own options ask for the file text (`query: "?raw"`). */
 function globPatterns(source: string): { pattern: string; raw: boolean }[] {
   const out: { pattern: string; raw: boolean }[] = [];
   for (const call of source.matchAll(/import\.meta\.glob\b/g)) {
     let at = call.index + call[0].length;
     let angle = 0;
     while (at < source.length && !(source[at] === "(" && angle === 0)) { if (source[at] === "<") angle++; else if (source[at] === ">") angle--; at++; }
-    const rest = source.slice(at + 1).trimStart();
-    const list = rest.startsWith("[") ? rest.slice(0, rest.indexOf("]")) : (/^(["'`])[^"'`]*\1/.exec(rest)?.[0] ?? "");
-    const raw = /\?raw/.test(rest.slice(0, 600).split("import.meta.glob")[0]);
+    const args = callArguments(source, at).trim();
+    const list = args.startsWith("[") ? args.slice(0, args.indexOf("]")) : (/^(["'`])[^"'`]*\1/.exec(args)?.[0] ?? "");
+    const raw = /\bquery\s*:\s*["'`]\?raw["'`]/.test(args.slice(list.length));
     for (const text of list.matchAll(/(["'`])([^"'`]*)\1/g)) out.push({ pattern: text[2].replace(/^!/, ""), raw });
   }
   return out;
 }
 
-/** The directory a glob pattern starts from: its relative path up to the first wildcard or brace. */
-function globBase(pattern: string): string {
-  const stop = pattern.search(/[*{[?(]/);
-  return stop < 0 ? pattern : pattern.slice(0, stop);
+/** A path split at `/`, except inside braces. */
+function pathSegments(path: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const c of path) {
+    if (c === "{") depth++;
+    if (c === "}") depth--;
+    if (c === "/" && depth === 0) { if (current) out.push(current); current = ""; } else current += c;
+  }
+  if (current) out.push(current);
+  return out;
+}
+
+/** Whether one glob segment (`*`, `?`, `{a,b}`, `[..]`) can match one literal folder name. */
+function segmentMatches(segment: string, name: string): boolean {
+  const body = segment.replace(/[.+^$()|\\]/g, "\\$&").replace(/\*+/g, "[^/]*").replace(/\?/g, "[^/]").replace(/\{([^}]*)\}/g, (_, list: string) => `(?:${list.split(",").join("|")})`);
+  return new RegExp(`^${body}$`).test(name);
+}
+
+/**
+ * Where a glob pattern can reach inside a package folder: undefined when it cannot match inside it, otherwise the pattern's remaining segments below the folder
+ * (the package-name segment may be a wildcard, a partial name or a brace list, so a pattern can reach several packages; a `**` at or above the folder reaches it from an unknown place, reported as `**`).
+ */
+function globReach(patternPath: string, packageDir: string): string[] | undefined {
+  const pattern = pathSegments(patternPath);
+  const folder = pathSegments(packageDir);
+  for (let i = 0; i < folder.length; i++) {
+    if (i >= pattern.length) return undefined;
+    if (pattern[i] === "**") return ["**"];
+    if (!segmentMatches(pattern[i], folder[i])) return undefined;
+  }
+  return pattern.slice(folder.length);
 }
 
 /** The file an export target points at for a subpath, or undefined when the package does not declare the subpath. */
@@ -80,21 +136,20 @@ function exportTarget(exports: Exports, sub: string): string | undefined {
 }
 
 /** Offences of the `import.meta.glob` patterns in one file; the named rules below are the only ways a glob may leave its package. */
-function globOffences(packages: Map<string, PackageInfo>, byDir: Map<string, string>, from: string, file: string, where: string, text: string): string[] {
+function globOffences(packages: Map<string, PackageInfo>, packagesDir: string, from: string, file: string, where: string, text: string): string[] {
   const offences: string[] = [];
   for (const { pattern, raw } of globPatterns(text)) {
-    if (!pattern.startsWith(".")) continue;
-    const target = resolve(dirname(file), globBase(pattern));
-    for (const [dir, name] of byDir) {
-      if (name === from || !(target === dir || target.startsWith(dir + sep))) continue;
-      const inside = relative(dir, target).split(sep).join("/");
-      const within = (folder: string) => inside === folder || inside.startsWith(`${folder}/`);
+    const absolute = pattern.startsWith("/packages/") ? resolve(packagesDir, pattern.slice("/packages/".length)) : pattern.startsWith("/") ? resolve(dirname(packagesDir), pattern.slice(1)) : pattern.startsWith(".") ? resolve(dirname(file), pattern) : undefined;
+    if (absolute === undefined) continue;
+    for (const [name, info] of packages) {
+      const below = name === from ? undefined : globReach(absolute.split(sep).join("/"), info.dir.split(sep).join("/"));
+      if (below === undefined) continue;
       const dataOfEngine = name === ENGINE;
       const dataOfDemo = from === SITE && isDemo(name);
-      const declaresData = packages.get(name)!.exports["./data/*"] !== undefined;
-      const testReadsEngineText = dataOfEngine && raw && /(^|\/)tests\//.test(where.slice(from.length)) && within("src");
+      const declaresData = info.exports["./data/*"] !== undefined;
+      const testReadsEngineText = dataOfEngine && raw && where.startsWith(`${from}/tests/`) && below[0] === "src";
       if (testReadsEngineText) continue; // TEST-READS-ENGINE-TEXT
-      if (within("data") && declaresData && (dataOfEngine || dataOfDemo)) continue; // DATA-OF-ENGINE, DATA-OF-DEMO
+      if (below[0] === "data" && declaresData && (dataOfEngine || dataOfDemo)) continue; // DATA-OF-ENGINE, DATA-OF-DEMO
       offences.push(`${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`);
     }
   }
@@ -109,7 +164,7 @@ function boundaryOffences(packagesDir: string): string[] {
     for (const file of sourceFiles(info.dir)) {
       const where = relative(packagesDir, file).split(sep).join("/");
       const text = readFileSync(file, "utf8");
-      offences.push(...globOffences(packages, byDir, from, file, where, text));
+      offences.push(...globOffences(packages, packagesDir, from, file, where, text));
       for (const raw of specifiers(text)) {
         const spec = raw.split("?")[0];
         if (spec.startsWith(".")) {
@@ -151,7 +206,10 @@ function scratchPackages(files: Record<string, string>): string {
   mkdirSync(join(dir, "astraeus-demo-a", "data"), { recursive: true });
   writeFileSync(join(dir, ENGINE, "src/core/clock.ts"), "export const clock = 1;\n");
   writeFileSync(join(dir, "astraeus-demo-a", "src/things/thing.ts"), "export const thing = 1;\n");
-  for (const [path, text] of Object.entries(files)) writeFileSync(join(dir, path), text);
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(dirname(join(dir, path)), { recursive: true });
+    writeFileSync(join(dir, path), text);
+  }
   return dir;
 }
 const GLOB = "import.meta" + ".glob";
@@ -210,6 +268,15 @@ describe("package boundaries (ARCH-03)", () => {
       [`${SITE}/tests/readsText.ts`]: `const a = ${GLOB}("../../astraeus/src/core/*.ts", { query: "?raw", import: "default", eager: true });\n`,
       [`${SITE}/tests/importsCode.ts`]: `const a = ${GLOB}("../../astraeus/src/core/*.ts", { eager: true });\n`,
       [`${SITE}/src/readsTextNotInTests.ts`]: `const a = ${GLOB}("../../astraeus/src/core/*.ts", { query: "?raw" });\n`,
+      [`${SITE}/src/wildName.ts`]: `const a = ${GLOB}("../../*/src/**/*.ts");\n`,
+      [`${SITE}/src/partialName.ts`]: `const a = ${GLOB}("../../astraeus-demo-*/src/**/*.ts");\n`,
+      [`${SITE}/src/braceName.ts`]: `const a = ${GLOB}("../../{astraeus,astraeus-demo-a}/src/**/*.ts");\n`,
+      [`${SITE}/src/deepStar.ts`]: `const a = ${GLOB}("../../**/src/*.ts");\n`,
+      [`${SITE}/src/rootStart.ts`]: `const a = ${GLOB}("/packages/astraeus-demo-a/src/things/*.ts");\n`,
+      [`${SITE}/src/rootWild.ts`]: `const a = ${GLOB}("/packages/*/src/things/*.ts");\n`,
+      [`${SITE}/tests/wildRaw.ts`]: `const a = ${GLOB}("../../*/src/**/*.ts", { query: "?raw" });\n`,
+      [`${SITE}/tests/laterComment.ts`]: `const a = ${GLOB}("../../astraeus/src/core/*.ts", { eager: true });\n// the other one reads ?raw text\n`,
+      [`${SITE}/src/deep/tests/notTopLevel.ts`]: `const a = ${GLOB}("../../../../astraeus/src/core/*.ts", { query: "?raw" });\n`,
       [`${SITE}/src/own.ts`]: `const a = ${GLOB}("./pages/*.ts");\n`,
     });
     const message = (where: string, name: string, pattern: string) => `${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`;
@@ -219,6 +286,19 @@ describe("package boundaries (ARCH-03)", () => {
         message("astraeus-demo-a/src/things/codeGlob.ts", "astraeus", "../../../astraeus/src/core/*.ts"),
         message("astraeus-demo-a/src/things/demoData.ts", "astraeus-demo-b", "../../../astraeus-demo-b/data/*.json"),
         message("astraeus-site/src/demoCode.ts", "astraeus-demo-a", "../../astraeus-demo-a/src/things/*.ts"),
+        message("astraeus-site/src/wildName.ts", "astraeus", "../../*/src/**/*.ts"),
+        message("astraeus-site/src/wildName.ts", "astraeus-demo-a", "../../*/src/**/*.ts"),
+        message("astraeus-site/src/wildName.ts", "astraeus-demo-b", "../../*/src/**/*.ts"),
+        message("astraeus-site/src/partialName.ts", "astraeus-demo-a", "../../astraeus-demo-*/src/**/*.ts"),
+        message("astraeus-site/src/partialName.ts", "astraeus-demo-b", "../../astraeus-demo-*/src/**/*.ts"),
+        message("astraeus-site/src/braceName.ts", "astraeus", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
+        message("astraeus-site/src/braceName.ts", "astraeus-demo-a", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
+        ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/deepStar.ts", name, "../../**/src/*.ts")),
+        message("astraeus-site/src/rootStart.ts", "astraeus-demo-a", "/packages/astraeus-demo-a/src/things/*.ts"),
+        ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/rootWild.ts", name, "/packages/*/src/things/*.ts")),
+        ...["astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/tests/wildRaw.ts", name, "../../*/src/**/*.ts")),
+        message("astraeus-site/tests/laterComment.ts", "astraeus", "../../astraeus/src/core/*.ts"),
+        message("astraeus-site/src/deep/tests/notTopLevel.ts", "astraeus", "../../../../astraeus/src/core/*.ts"),
         message("astraeus-site/src/readsTextNotInTests.ts", "astraeus", "../../astraeus/src/core/*.ts"),
         message("astraeus-site/tests/importsCode.ts", "astraeus", "../../astraeus/src/core/*.ts"),
         message("astraeus-site/src/ownTests.ts", "astraeus", "../../astraeus/tests/*.ts"),
