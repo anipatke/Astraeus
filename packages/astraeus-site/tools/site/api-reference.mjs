@@ -103,10 +103,11 @@ function renderItem(item) {
 }
 
 const SECTIONS = [
-  ["Scene", "Build a scene", (item) => ["Scene", "SceneCamera", "AddBodyOptions", "TimeInput", "TrajectoryInput", "TrajectorySampleInput", "FollowView"].includes(item.name)],
+  ["Scene", "Build a scene", (item) => ["Scene", "SceneCamera", "AddBodyOptions", "AnchorInput", "ReadoutInput", "TimeInput", "TrajectoryInput", "TrajectorySampleInput", "FollowView"].includes(item.name)],
   ["Draw it", "Draw it", (item) => ["mount", "MountOptions", "MountedScene", "AstraeusScene", "AstraeusSceneProps"].includes(item.name)],
   ["Data packages", "Data packages", (item) => ["DataSource", "MoonPositions", "Pictures", "TextureRef", "AssetLicence"].includes(item.name)],
   ["Scale and state", "Scale and state", (item) => ["trueScale", "readableScale", "ScalePolicy", "State"].includes(item.name)],
+  ["Provenance", "Provenance", (item) => ["Provenance", "ProvenanceSourceType"].includes(item.name)],
   ["Errors", "Errors", (item) => ["SceneError", "SceneErrorCode"].includes(item.name)],
 ];
 

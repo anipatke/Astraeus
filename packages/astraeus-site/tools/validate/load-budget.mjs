@@ -15,7 +15,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
 const APP_SHARED = ["app.html", "app.js", "app.css", "catalogueItem.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
+const SPLIT_CHUNKS = new Set(["ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
 const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
@@ -43,7 +43,7 @@ const ALL_PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // T-165 (O-040): the API reference, one static page with inline style and no script; about 25 KB raw, limit rounded up generously for the page to grow with each Objective's exports.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 100_000, gzipLimit: 30_000 },
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "compositions.js", "bodyMetrics.js", "events.js", "spacecraftMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Definition.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
   // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's). Figures measured on the public build of 2026-10-21 plus 5%, rounded up to the next 10,000 bytes.

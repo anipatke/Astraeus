@@ -1,8 +1,9 @@
+/** What kind of source a path or body position comes from. */
 export type ProvenanceSourceType = "ephemeris" | "observed" | "reconstructed" | "illustrative";
 
 const SOURCE_TYPES: readonly ProvenanceSourceType[] = ["ephemeris", "observed", "reconstructed", "illustrative"];
 
-/** Where a Trajectory's samples came from and how far to trust them. Never affects State. */
+/** Where a path or body position came from and how far to trust it: `sourceType`, the `sources`, the `accuracy` and `notes`. Pass one as `addTrajectory({ provenance })`. Never affects State. */
 export interface Provenance {
   readonly sourceType: ProvenanceSourceType;
   readonly sources: readonly string[];

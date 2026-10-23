@@ -29,7 +29,7 @@ describe("API reference", () => {
 
   it("lists the public calls, the React component and the ready-made bodies, with examples for Scene, mount and AstraeusScene", () => {
     const names = items.map((item) => item.name);
-    expect(names).toEqual(expect.arrayContaining(["Scene", "SceneCamera", "mount", "AstraeusScene", "AstraeusSceneProps", "SceneError", "trueScale", "readableScale", "earth", "titan"]));
+    expect(names).toEqual(expect.arrayContaining(["Scene", "SceneCamera", "mount", "AstraeusScene", "AstraeusSceneProps", "SceneError", "AnchorInput", "ReadoutInput", "Provenance", "ProvenanceSourceType", "trueScale", "readableScale", "earth", "titan"]));
     for (const name of ["Scene", "mount", "AstraeusScene"]) expect(items.find((item) => item.name === name)?.examples.length, name).toBeGreaterThan(0);
     const page = renderApiPage(items);
     for (const name of names) expect(page, name).toContain(name);

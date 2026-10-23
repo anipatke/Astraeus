@@ -15,6 +15,8 @@ import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
+import { catalogueItem } from "../app/catalogueItem";
+import { createReadoutMetrics } from "../app/trackedMetrics";
 import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 export type { DataSource, MoonPositions } from "./data";
@@ -24,7 +26,26 @@ import { SceneError } from "./errors";
 export interface AddBodyOptions {
   /** Draws the body's orbit about its parent as a line (the engine's own orbit line). Only the Moon (about Earth) and Io (about Jupiter) have one in 0.1; others throw `no-orbit`. */
   readonly orbit?: boolean;
+  /** One or two plain sentences for the body's info card. */
+  readonly description?: string;
 }
+
+/** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */
+export interface AnchorInput {
+  readonly id: string;
+  readonly time: TimeInput;
+}
+
+/**
+ * A bar on a path's info card: `range` (distance from the path's centre body; `marker` also marks where a named body is now), `speed` (its bar scaled
+ * to the path's highest speed at its anchors), `distance` (centre to centre to a named body) and `altitude` (above a named body's mean radius).
+ * A named body must be in the scene.
+ */
+export type ReadoutInput =
+  | { readonly kind: "range"; readonly marker?: BodyId }
+  | { readonly kind: "speed" }
+  | { readonly kind: "distance"; readonly to: BodyId }
+  | { readonly kind: "altitude"; readonly above: BodyId };
 
 /** The orbits the engine can draw: the parent the line is measured from, and the span one lap covers. */
 const ORBITS: Readonly<Record<string, { readonly parent: BodyId; readonly path: Omit<CompositionPath, "body"> }>> = {
@@ -49,6 +70,14 @@ interface TrajectoryBase {
   /** The body the positions are measured from; defaults to "earth". */
   readonly center?: BodyId;
   readonly provenance?: Provenance;
+  /** One or two plain sentences for the path's info card. */
+  readonly description?: string;
+  /** Published limits of the data, shown with the provenance. */
+  readonly knownLimitations?: readonly string[];
+  /** Source anchors, drawn as dots on the path and labelled with their ids. */
+  readonly anchors?: readonly AnchorInput[];
+  /** Bars for the info card, in order. */
+  readonly readouts?: readonly ReadoutInput[];
 }
 /** A path given as sampled states, or as a provider with `stateAt(time)` and the span it covers. */
 export type TrajectoryInput =
@@ -77,6 +106,9 @@ export function toUtcMs(time: TimeInput, what = "time"): number {
 interface Tracked {
   readonly body: TrackedBody;
   readonly center: BodyId;
+  readonly description?: string;
+  readonly knownLimitations?: readonly string[];
+  readonly readouts: readonly ReadoutInput[];
 }
 
 /** The scene's camera: what it opens on. */
@@ -113,6 +145,7 @@ export class Scene {
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();
   readonly #orbits = new Set<BodyId>();
+  readonly #notes = new Map<BodyId, string>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
 
@@ -127,6 +160,7 @@ export class Scene {
     if (!catalogue.has(id)) throw new SceneError("unknown-body", `addBody("${id}"): not a catalogued body (known: ${catalogue.ids().join(", ")})`);
     if (this.#bodies.has(id) || this.#tracked.has(id)) throw new SceneError("duplicate-id", `addBody("${id}"): already in the scene`);
     if (options.orbit === true) this.#orbits.add(id);
+    if (options.description !== undefined) this.#notes.set(id, options.description);
     this.#bodies.set(id, typeof body === "string" ? readyMade(id) ?? { id, label: catalogue.get(id).definition.label } : body);
     return this;
   }
@@ -140,7 +174,9 @@ export class Scene {
     if (!catalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
     const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
-    this.#tracked.set(id, { center, body: "samples" in input ? sampledBody(common, input, center) : providerBody(common, input) });
+    const readouts = readoutsOf(id, input.readouts);
+    const body = "samples" in input ? sampledBody(common, input, center) : providerBody(common, input);
+    this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
     return this;
   }
 
@@ -155,6 +191,14 @@ export class Scene {
     if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale or readableScale`);
     this.#scale = scale;
     return this;
+  }
+
+  /** A readout names a body the scene must hold, so it can be measured against. */
+  #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
+    for (const spec of entry.readouts) {
+      const named = readoutBody(spec);
+      if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
+    }
   }
 
   /** The data packages the added bodies need that `data` does not provide. */
@@ -178,6 +222,7 @@ export class Scene {
       if (!this.#bodies.has(orbit.parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${orbit.parent}, which has not been added to the scene`);
       return { body: id, ...orbit.path };
     });
+    for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const window = windowOf(tracked, this.#timeUtcMs);
     const startUtcMs = this.#timeUtcMs ?? window.startUtcMs;
@@ -186,8 +231,8 @@ export class Scene {
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
-          ...[...this.#bodies.values()].map((body): ExperienceObject => ({ id: body.id, label: body.label, labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500 })),
-          ...tracked.map((body): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance })),
+          ...[...this.#bodies.values()].map((body): ExperienceObject => ({ ...catalogueItem(body.id, { labelPriority: 100 - ids.indexOf(body.id), labelMaxDistance: 500, ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}) }), label: body.label })),
+          ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: [
           { id: "overview", label: "Overview", request: { kind: "overview" } },
@@ -206,7 +251,8 @@ export class Scene {
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
         const catalogued = bodyMetrics(resolver, ids, ["distance"]);
-        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#tracked.has(objectId) ? [] : catalogued(objectId, timeUtcMs));
+        const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
+        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
         if (needsPlanetSeries(definition)) await loadPlanetSeries();
@@ -248,4 +294,43 @@ function windowOf(tracked: readonly TrackedBody[], timeUtcMs: number | undefined
   }
   const centre = timeUtcMs ?? Date.now();
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
+}
+
+const READOUT_KINDS = ["range", "speed", "distance", "altitude"];
+
+/** The body a readout names, if any. */
+function readoutBody(spec: ReadoutInput): BodyId | undefined {
+  return spec.kind === "range" ? spec.marker : spec.kind === "distance" ? spec.to : spec.kind === "altitude" ? spec.above : undefined;
+}
+
+/** Checks each readout's kind and the catalogued body it names; whether the scene holds that body is checked when the definition is built. */
+function readoutsOf(id: string, readouts: readonly ReadoutInput[] = []): readonly ReadoutInput[] {
+  if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readouts must be a list`);
+  for (const spec of readouts) {
+    if (!READOUT_KINDS.includes(spec?.kind)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout kind "${String(spec?.kind)}" is not one of ${READOUT_KINDS.join(", ")}`);
+    const named = readoutBody(spec);
+    if (spec.kind !== "range" && spec.kind !== "speed" && named === undefined) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} needs ${spec.kind === "distance" ? "`to`" : "`above`"}, the body to measure against`);
+    if (named !== undefined && !catalogue.has(named)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
+  }
+  return readouts;
+}
+
+/** The body with its anchors: sorted by time, each labelled with its id. Every anchor needs a distinct id and a moment inside the path. */
+function withAnchors(body: TrackedBody, anchors: readonly AnchorInput[] = []): TrackedBody {
+  if (!Array.isArray(anchors)) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchors must be a list`);
+  const { startUtcMs, endUtcMs } = body.trajectory.bounds;
+  const seen = new Set<string>();
+  const placed = anchors.map((anchor) => {
+    if (typeof anchor?.id !== "string" || anchor.id === "") throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): every anchor needs a non-empty id`);
+    if (seen.has(anchor.id)) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchor "${anchor.id}" appears twice`);
+    seen.add(anchor.id);
+    const timeUtcMs = anchorTime(body.id, anchor);
+    if (timeUtcMs < startUtcMs || timeUtcMs > endUtcMs) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchor "${anchor.id}" is outside the path (${new Date(startUtcMs).toISOString()} to ${new Date(endUtcMs).toISOString()})`);
+    return { id: anchor.id, timeUtcMs };
+  }).sort((a, b) => a.timeUtcMs - b.timeUtcMs);
+  return placed.length === 0 ? body : { ...body, anchorTimesUtcMs: placed.map((anchor) => anchor.timeUtcMs), anchorLabels: placed.map((anchor) => anchor.id) };
+}
+
+function anchorTime(path: string, anchor: AnchorInput): number {
+  try { return toUtcMs(anchor.time); } catch { throw new SceneError("bad-anchor", `addTrajectory("${path}"): anchor "${anchor.id}" has a time "${String(anchor.time)}" that is not a valid moment`); }
 }

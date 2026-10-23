@@ -3,16 +3,8 @@ import type { SimulationClock } from "astraeus/core/clock";
 import type { Trajectory } from "astraeus/core/trajectory";
 import { MetricVisual } from "astraeus/shell/MetricVisual";
 import { journeyProgressMetric } from "astraeus/app/metricReadouts";
-import {
-  peakAnchorSpeedKmS,
-  referenceInSameFrame,
-  spacecraftAltitudeMetric,
-  spacecraftDiscrepancyMetric,
-  spacecraftMoonMetric,
-  spacecraftPositionMetric,
-  spacecraftRangeMetric,
-  spacecraftSpeedMetric,
-} from "astraeus/experiences/apollo11/spacecraftMetrics";
+import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftDiscrepancyMetric, spacecraftRangeMetric, spacecraftSpeedMetric } from "astraeus/app/trackedMetrics";
+import { spacecraftAltitudeMetric, spacecraftMoonMetric, spacecraftPositionMetric } from "./earthMoonMetrics";
 import { trackedReadouts, type MissionConfig, type TrackedReadout } from "astraeus/app/mission";
 
 interface TelemetryProps {

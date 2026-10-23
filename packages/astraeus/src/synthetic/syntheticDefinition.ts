@@ -1,5 +1,5 @@
-import { bodyMetrics, resolverTrajectory } from "../app/bodyMetrics";
-import { createTrackedMetrics } from "../experiences/apollo11/spacecraftMetrics";
+import { bodyMetrics } from "../app/bodyMetrics";
+import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import type { TrackedBody } from "../app/mission";
 import { earthMoonSystem } from "../assets/compositions";
@@ -192,7 +192,7 @@ export const syntheticDefinition: ExperienceDefinition = {
   trackedBodies: [marker],
   createMetrics: ({ resolver }) => {
     const catalogued = bodyMetrics(resolver, earthMoonSystem.bodies, ["distance"]);
-    const tracked = createTrackedMetrics({ bodies: [marker], moon: resolverTrajectory(resolver, "moon", "earth") });
+    const tracked = createReadoutMetrics([{ body: marker, readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }] }], resolver);
     return (objectId: string, timeUtcMs: number): readonly Metric[] =>
       objectId === marker.id ? [...tracked(objectId, timeUtcMs), contactRateMetric(timeUtcMs)] : catalogued(objectId, timeUtcMs);
   },

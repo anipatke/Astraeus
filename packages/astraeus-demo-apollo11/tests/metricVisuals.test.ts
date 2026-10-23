@@ -8,16 +8,8 @@ import { catalogue } from "astraeus/assets/catalogue";
 import { createStateResolver } from "astraeus/core/stateResolver";
 import { MissionTelemetry } from "../src/experiences/apollo11/MissionPanel";
 import { journeyProgressMetric, sceneMetrics } from "astraeus/app/metricReadouts";
-import {
-  peakAnchorSpeedKmS,
-  referenceInSameFrame,
-  spacecraftAltitudeMetric,
-  spacecraftDiscrepancyMetric,
-  spacecraftMoonMetric,
-  spacecraftPositionMetric,
-  spacecraftRangeMetric,
-  spacecraftSpeedMetric,
-} from "astraeus/experiences/apollo11/spacecraftMetrics";
+import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftDiscrepancyMetric, spacecraftRangeMetric, spacecraftSpeedMetric } from "astraeus/app/trackedMetrics";
+import { spacecraftAltitudeMetric, spacecraftMoonMetric, spacecraftPositionMetric } from "../src/experiences/apollo11/earthMoonMetrics";
 import { discrepancyAt, stateIfInBounds, trackedReadouts } from "astraeus/app/mission";
 import { MOON } from "astraeus/core/body";
 import { apollo11Mission } from "../src/experiences/apollo11/apollo11";

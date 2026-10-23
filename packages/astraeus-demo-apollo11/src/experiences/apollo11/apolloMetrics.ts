@@ -1,5 +1,5 @@
 import { bodyMetrics, resolverTrajectory } from "astraeus/app/bodyMetrics";
-import { createTrackedMetrics } from "astraeus/experiences/apollo11/spacecraftMetrics";
+import { createTrackedMetrics } from "./earthMoonMetrics";
 import type { TrackedBody } from "astraeus/app/mission";
 import type { StateResolver } from "astraeus/core/stateResolver";
 import type { Metric } from "astraeus/shell/metrics";
