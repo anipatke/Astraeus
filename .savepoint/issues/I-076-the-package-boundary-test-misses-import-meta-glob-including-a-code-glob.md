@@ -2,16 +2,21 @@
 id: I-076
 title: The package boundary test misses import.meta.glob, including a code glob
 type: verification
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-104
   actor: {role: checker, session: o035-full-check-20261023}
   at: '2026-10-23T06:26:06Z'
 tasks: [T-156]
-checks: [C-104, C-105]
+checks: [C-104, C-105, C-106]
 guardrail_ids: [ARCH-03]
 severity: low
+resolution:
+  disposition: verified
+  check: C-106
+  actor: {role: checker, session: o035-full-recheck2-20261023}
+  at: '2026-10-23T06:48:37Z'
 history:
   - at: '2026-10-23T06:26:06Z'
     actor: {role: checker, session: o035-full-check-20261023}
@@ -31,6 +36,11 @@ history:
     actor: {role: executor, session: i076-repair2-20261023}
     kind: repair_attempted
     note: "Second round after C-105, owner 2026-10-23: \"One more fix, then stop (Recommended)\". globOffences now matches each glob against every package its path can match (wildcard, partial name, brace list in the package-name segment; a ** above a package; /packages/... and other /-rooted patterns resolved), and any other package matched is a crossing. TEST-READS-ENGINE-TEXT is tighter: query ?raw must be in that glob call's own options (call arguments parsed, comments ignored) and the file must be in the package's top-level tests/ folder. The two live cases (showers tests swiftTuttle.test.ts:165 and elementsBody.test.ts:242) were narrowed from ../../*/src/** to ../../astraeus/src/**: swiftTuttle proves the comet name appears in engine src only in the body folders plus catalogue.ts (unchanged; the other packages' src never held it), elementsBody proves the asteroid name is in no src file (now engine src only, demo and site src are no longer scanned by it). Made-up offenders added for package-name wildcard, partial name, brace list, ** above a package, /packages root start and root wildcard, wildcard with ?raw, ?raw only in a later comment, and src/x/tests/ path; all fail. Header and Design sentence updated to match. check-engine-alone: exact ignored paths (pathspec packages/astraeus/) and a clear exit 1 if git cannot run. Gates: lint, typecheck, build, npm test (116 files, 1530 pass, 1 skip), check:engine-alone (65 files, 647 pass, 1 skip) pass. No browser run."
+  - at: '2026-10-23T06:48:37Z'
+    actor: {role: checker, session: o035-full-recheck2-20261023}
+    kind: rechecked
+    check: C-106
+    note: "C-106 CLEAR. Proof Needed met with independent planted offenders: every C-105 shape (package-name wildcard, partial name, root-start, ?raw only in a later comment or string, src/x/tests/, wildcard with ?raw) now fails; the two showers globs are narrowed to engine src and allowed by TEST-READS-ENGINE-TEXT; header and Design match the checked rule. Residue recorded as observations, not blocking: a brace list holding a / and Vite's base option still pass unseen (no use in the repository), and elementsBody no longer scans the showers demo's own src. Fresh lint, typecheck, build, test:full (rerun after load timeouts), engine-alone, public build with load budget and public-build-assets (99 files, 26,012,269 B, Jupiter-only) pass; health does not block. Verified."
 ---
 
 # I-076: The package boundary test misses import.meta.glob, including a code glob
