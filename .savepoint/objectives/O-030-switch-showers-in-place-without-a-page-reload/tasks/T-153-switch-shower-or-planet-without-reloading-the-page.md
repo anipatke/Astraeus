@@ -2,10 +2,22 @@
 id: T-153
 title: Switch shower or planet without reloading the page
 objective: O-030
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-152, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o030-planning-20261023}
+check_waiver:
+    task: T-153
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-030; quote: "Same as O-031 (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T02:27:46Z"
+replan:
+    reason: Memory measurement over 20 in-page switches shows JS heap growing about 2.6 MB per switch with no levelling off (33.2 to 85.6 MB); the Task Boundaries say to stop and replan with the measurement.
+    recorded_by: {role: executor, session: t153-builder}
+    recorded_at: "2026-10-23T02:27:46Z"
 ---
 
 # Switch shower or planet without reloading the page
@@ -57,7 +69,19 @@ Focused `npx vitest run` while building; configured gates and one `npm run check
 
 ## Technical Evidence
 
-Pending execution.
+Built (all done and green): `src/app/addressNavigation.ts` (plain push/no-push logic, newest request wins), `src/main.tsx` (choice read from the address each time; one root; remount by key; popstate), `src/shell/SwitchControl.tsx` (`open` callback on `ExperienceSwitch`, given by the entry through `App`'s `switcherOf`; falls back to `location.assign` when absent), `src/shell/bootLoader.ts` (`showBootLoader` rebuilds the cover from the page's own markup; the next scene's first frame hides it), `tests/addressNavigation.test.ts`, `tests/switchControl.test.ts` (made-up choice, no navigation), `tests/domSetup.ts` (`switcher` option), `tools/validate/driver.mjs` (`markPage`, `pageWasKept`; `chooseSwitchOption` waits for the new active option), `tools/validate/journey-meteor-shower.mjs` (Geminids switch step), `docs/BROWSER_CHECKS.md`.
+
+Gates: `npm run lint` pass (2.6 s); `npm run typecheck` pass (4.0 s); `flock /tmp/astraeus-build.lock npm run build` pass (1 s); `npm test` pass, 113 files, 1520 tests (34 s; driver guard included); public build plus `node tools/validate/load-budget.mjs` all pages ok (showers 9.95 MB of 10.07 limit raw).
+
+Browser run: `npm run check:browser` NOT run in this step by owner decision (2026-10-23, "Only at the final check (Recommended)"); the Full Objective Check runs it once. The new journey step is therefore unrun.
+
+Memory (scratch Chromium script, preview on port 5601, `--enable-precise-memory-info`, forced gc twice before each read, Perseids/Geminids alternating, 20 switches, page kept, one canvas at the end): usedJSHeapSize MB at 0, 4, 8, 12, 16, 20 switches = 33.2, 52.2, 59.1, 65.3, 79.0, 85.6. About +2.6 MB per switch and not levelling. FINDING: remounting does not release everything. Module caches are bounded (only two showers alternate) so they should have levelled by switch 2; the growth is per-mount.
+
+Module-level caches a definition fills: planet series models (`src/core/planetSeries.ts`, kept, shared, 1.4 MB once); sky star catalogue request (`src/assets/sky.ts`, kept, shared); measured-orbit requests Map (`measuredOrbits.ts`, kept, one entry per shower opened, bounded by the number of showers); `showerBasics` WeakMap (weak, released with the settings); glow texture and anchor sprite (`bodyDraw.ts`, `TrackedBodyView.ts`, kept, tiny, but GPU textures tied to the first renderer: check they are re-uploaded for the new renderer); `sceneBodySets` WeakMap keyed by canvas (weak). None of these explains linear growth.
+
+Extra reads beyond Context Files: `app.html` (boot markup), `tests/domShell.test.ts` head (pretend page use), `docs/BROWSER_CHECKS.md` line 16 (edited), `src/shell/bootLoader.ts` is a Context File. Grep of `src` for module-level state.
+
+Limitations: cause of the per-mount retention not found (time box); JS heap only, GPU memory not measured.
 
 ## Drift Notes
 

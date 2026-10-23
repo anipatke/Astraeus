@@ -12,6 +12,7 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "../src/shell/expe
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import type { PhoneLayoutSettings } from "../src/shell/phoneLayout";
 import type { StoryPanelSettings } from "../src/shell/useStoryPanels";
+import type { ExperienceSwitch } from "../src/shell/SwitchControl";
 import type { ScaleChoice } from "../src/shell/scaleModel";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -38,6 +39,8 @@ export interface MountOptions {
   readonly scaleChoices?: readonly ScaleChoice[];
   readonly phoneLayout?: PhoneLayoutSettings;
   readonly storyPanelSettings?: StoryPanelSettings;
+  /** A made-up choice between versions, shown first in the top bar. */
+  readonly switcher?: ExperienceSwitch;
 }
 
 /** Tells the page whether it is a phone, framed or asked for reduced motion: the three things the shell reads from its window. */
@@ -130,6 +133,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     developerTools: options.developerTools,
     phoneLayout: options.phoneLayout,
     storyPanelSettings: options.storyPanelSettings,
+    switcher: options.switcher,
     children: null,
   });
 }

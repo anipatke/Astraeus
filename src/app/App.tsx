@@ -80,8 +80,8 @@ function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"
   return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
 }
 
-function switcherOf(definition: ExperienceDefinition, runtime: Runtime) {
-  return definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs };
+function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (address: string) => void) {
+  return definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs, open };
 }
 
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
@@ -160,7 +160,8 @@ function initialSceneControls(
   };
 }
 
-export function App({ definition }: { readonly definition: ExperienceDefinition }) {
+/** `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page. */
+export function App({ definition, onOpenAddress }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     document.title = pageTitleOf(definition);
@@ -509,7 +510,7 @@ export function App({ definition }: { readonly definition: ExperienceDefinition 
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={switcherOf(definition, runtime)}
+      switcher={switcherOf(definition, runtime, onOpenAddress)}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
