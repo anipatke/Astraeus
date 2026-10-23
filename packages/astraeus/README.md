@@ -36,7 +36,7 @@ scene.camera.follow("probe", { distance: 110 });
 mount(document.getElementById("app"), scene);
 ```
 
-The element needs a size (for example `height: 100%` all the way up). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app is in the repository at `examples/hello-scene`.
+The element needs a size (for example `height: 100%` all the way up). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app, grown into a small made-up story with every call below, is in the repository at `examples/hello-scene`.
 
 ## The public API
 
@@ -45,11 +45,16 @@ The full reference, generated from the types and doc comments, is at <https://as
 | Call | What it does |
 |---|---|
 | `new Scene()` | An empty scene. Every method below returns the scene, so calls chain. |
-| `scene.addBody(body, { orbit? })` | Adds a catalogued body: a ready-made one (`sun`, `mercury`, `venus`, `earth`, `moon`, `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`, and the moons `io`, `europa`, `ganymede`, `callisto`, `mimas`, `enceladus`, `tethys`, `dione`, `rhea`, `titan`, `iapetus`, `triton`, `charon`, `phobos`, `deimos`) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line about its parent (the parent must be in the scene); in 0.1 only `moon` (about Earth) and `io` (about Jupiter) have one, others throw `no-orbit`. |
-| `scene.addTrajectory({ id, label?, color?, center?, samples })` | A recorded path. Each sample is `{ time, positionKm, velocityKmS? }` measured from `center` (default `"earth"`); `time` is ISO text, a `Date` or Unix milliseconds. Instead of `samples` you may give `provider` (an object with `stateAt(timeUtcMs)`) and `bounds: { start, end }`. |
+| `scene.addBody(body, { orbit?, description? })` | Adds a catalogued body: a ready-made one (`sun`, `mercury`, `venus`, `earth`, `moon`, `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`, and the moons `io`, `europa`, `ganymede`, `callisto`, `mimas`, `enceladus`, `tethys`, `dione`, `rhea`, `titan`, `iapetus`, `triton`, `charon`, `phobos`, `deimos`) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line about its parent (the parent must be in the scene); in 0.1 only `moon` (about Earth) and `io` (about Jupiter) have one, others throw `no-orbit`. |
+| `scene.addTrajectory({ id, label?, color?, center?, samples, provenance?, description?, knownLimitations?, anchors?, readouts? })` | A recorded path. Each sample is `{ time, positionKm, velocityKmS? }` measured from `center` (default `"earth"`); `time` is ISO text, a `Date` or Unix milliseconds. Instead of `samples` you may give `provider` (an object with `stateAt(timeUtcMs)`) and `bounds: { start, end }`. `description` and `knownLimitations` (a list of sentences) go on its info card with `provenance`. `anchors: [{ id, time }]` draw labelled dots where the source published a point (the time must fall within the path). `readouts` are bars on the card, in order: `{ kind: "range", marker? }` (distance from the centre; `marker` names a body to mark), `{ kind: "speed" }`, `{ kind: "distance", to }` and `{ kind: "altitude", above }`; a named body must be in the scene. |
 | `scene.setTime(time)` | The moment the scene opens at. |
-| `scene.setScale(trueScale \| readableScale)` | The opening scale; the viewer can switch to the other. |
+| `scene.setScale(trueScale \| readableScale, { only? })` | The opening scale; the viewer can switch to the other unless `{ only: true }` offers that scale alone. |
+| `scene.addEvents(events, { provenance? })` | Timed events on the timeline: `[{ id, label, time, type? }]`, ids unique. `provenance` says where the times come from. May be called more than once. |
+| `scene.addStoryPanels({ pauseSeconds?, autoOpen?, panels })` | Story panels that open as playback reaches them: `{ id, at: { utc } \| { event } \| { anchor }, title, body, details?, badge, sources, object? }`. `badge` is `observed`, `modelled` or `illustrative`; `sources` is never empty. A mistake throws `bad-panels` naming the panel and field. |
+| `scene.setTimeline({ start, end, rates?, rate? })` | The timeline's span, the playback speeds offered (simulated seconds per real second) and the one it opens at. `{ none: true, at?, rate? }` draws no timeline bar: time is frozen at `at`, or runs on at `rate`. |
+| `scene.stateOf(id, time)` | The state (position km, velocity km/s) of an added path at a moment, for figures a story quotes. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
+| `scene.camera.lookAt(id, { azimuthDeg?, elevationDeg?, distance? })` | The same opening view without following. The last of `follow` and `lookAt` wins. The viewer's camera menu gets a Focus and a Follow entry for every body and path. |
 | `mount(element, scene, { data? })` | Draws the scene with the full viewer. Returns `{ ready, unmount() }`. `data` is a list of data packages (below). |
 | `<AstraeusScene scene data? onReady? onError? />` | The same viewer as a React component (below). |
 | `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |

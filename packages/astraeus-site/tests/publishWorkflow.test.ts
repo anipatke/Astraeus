@@ -55,11 +55,11 @@ describe("publish plan", () => {
 describe("example app", () => {
   const dir = join(root, "examples", "hello-scene");
   const main = readFileSync(join(dir, "src", "main.js"), "utf8");
-  it("draws through the public API in about twenty lines", () => {
-    expect(main.trim().split("\n").length).toBeLessThanOrEqual(22);
+  it("tells a small made-up story through the public API, every story call included (O-041 T-168)", () => {
+    expect(main.trim().split("\n").length).toBeLessThanOrEqual(80);
     expect(main).toMatch(/from "astraeus"/);
     expect(main).not.toMatch(/from "(\.|astraeus\/)/);
-    for (const call of ["addBody", "addTrajectory", "setTime", "camera.follow", "mount("]) expect(main).toContain(call);
+    for (const call of ["addBody", "addTrajectory", "setTime", "camera.lookAt", "mount(", "anchors:", "readouts:", "knownLimitations:", "description:", "addEvents(", "addStoryPanels(", "setTimeline(", "setScale(trueScale, { only: true })"]) expect(main).toContain(call);
   });
 
   it("installs packed tarballs, not workspace links, and keeps its build output out of git", () => {

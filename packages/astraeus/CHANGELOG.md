@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- Story calls (O-041), no existing call changes. `addTrajectory` takes `description`, `knownLimitations`, `anchors` (labelled dots where the data was published; a time outside the path throws `bad-anchor`) and `readouts` (info-card bars: `range`, `speed`, `distance`, `altitude`); `addBody` takes `description`. New `Scene` methods: `addEvents` (timed events with optional `provenance`; `bad-event`), `addStoryPanels` (panels at a time, event or anchor; `bad-panels`), `setTimeline` (span, speeds, opening speed, or `{ none: true }` for no timeline; `bad-timeline`), `stateOf` (state of a path at a moment) and `camera.lookAt` (opening view without following). `setScale` takes `{ only: true }` to offer one scale. The camera menu lists a Focus and a Follow entry for every body and path. `examples/hello-scene` now uses all of them.
+
 - An API reference page is published at <https://astraeus.anipatke.com/api/>, generated from the public types and doc comments; the package `homepage` points at it. Every export now has a doc comment (a test keeps it so). No change to the API.
 
 - New export `AstraeusScene` (with its props type `AstraeusSceneProps`): a React component that draws the same viewer as `mount`, `<AstraeusScene scene={scene} data={[...]} onReady onError />`. It rebuilds when the `scene` prop changes and cleans up on unmount.
