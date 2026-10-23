@@ -5,7 +5,7 @@ export type Numerics = typeof config.numerics;
 export const CONSTANTS: Constants = config.constants;
 export const NUMERICS: Numerics = config.numerics;
 
-/** "H:MM:SS.s" ground elapsed time to integer UTC Unix milliseconds (docs/APOLLO11_SOURCES.md 4.1). */
+/** "H:MM:SS.s" ground elapsed time to integer UTC Unix milliseconds (packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md 4.1). */
 export function getToUtcMs(printed: string, rangeZeroUtcMs: number = CONSTANTS.rangeZeroUtcMs): number {
   const match = /^(\d+):(\d{2}):(\d{2})(?:\.(\d+))?$/.exec(printed.trim());
   if (match === null) throw new RangeError(`unrecognised GET "${printed}"`);

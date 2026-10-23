@@ -138,7 +138,7 @@ npm run check:browser                  # the one quick browser check, under a mi
 
 The browser check loads every public page and demo view and runs two short journeys. Each run writes its results to a new folder under `docs/evidence/`. What it asserts, and where every older browser scenario went, is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
 
-Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](docs/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
+Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
 
 ## Assets, science and credits
 
@@ -178,7 +178,7 @@ Credit lines, word for word:
 - Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.
 - Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com. The story panel's look and behaviour (side panel, phone bottom sheet, marker dot, badge) follow its panel parts, rewritten for Astraeus.
 
-Third-party library notices are in [`licenses/`](licenses/).
+Third-party library notices are in [`packages/astraeus/licenses/`](packages/astraeus/licenses/).
 
 ## Status and roadmap
 

@@ -1236,7 +1236,7 @@
     },
     {
       "anchorId": "A-19",
-      "source": "Table 7-V / Sec 7.4.6 (DOI) as recorded in docs/APOLLO11_SOURCES.md; apolune value looks mis-recorded",
+      "source": "Table 7-V / Sec 7.4.6 (DOI) as recorded in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md; apolune value looks mis-recorded",
       "publishedApoluneNmi": 64.3,
       "computedApoluneNmi": 57.8,
       "publishedPeriluneNmi": 8.5,

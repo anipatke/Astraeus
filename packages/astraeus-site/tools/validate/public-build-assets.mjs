@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkEngineLicences, gatherPackageCredits } from "../site/package-credits.mjs";
 import { checkLoadBudget, NON_PUBLIC_PLANET_FILES, proveLoadBudgetFails, PUBLIC_PLANETS } from "./load-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
@@ -299,10 +300,12 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const planets = checkOnlyPublicPlanets({ distDir });
   const planetProof = proveOnlyPublicPlanets();
   const planetSelfProof = planetProof.clean.ok && !planetProof.map.ok && !planetProof.settings.ok;
+  const packageCredits = gatherPackageCredits();
+  const engineLicences = checkEngineLicences();
   const loadBudget = checkLoadBudget({ distDir });
   const budgetProof = proveLoadBudgetFails();
   const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
-  const result = { distDir, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, planets, planetSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok && planets.ok && planetSelfProof };
+  const result = { distDir, packageCredits: packageCredits.map(({ package: name, licenceFiles, dataLicences }) => ({ package: name, licenceFiles, dataLicenceFiles: dataLicences.length })), engineLicences, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, planets, planetSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && engineLicences.ok && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok && planets.ok && planetSelfProof };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

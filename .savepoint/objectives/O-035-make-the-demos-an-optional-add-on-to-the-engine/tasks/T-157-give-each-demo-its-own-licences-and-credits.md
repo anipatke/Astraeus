@@ -2,10 +2,17 @@
 id: T-157
 title: Give each demo its own licences and credits
 objective: O-035
-status: planned
+status: done
 depends_on: [{task: T-156, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o035-planning-20261023}
+check_waiver:
+    task: T-157
+    reason: 'owner chose no per-step checks, one Full Objective Check at the end of O-035; quote: "Same as O-030 (Recommended)"'
+    actor:
+        role: owner
+        session: owner-run-rules
+    recorded_at: "2026-10-23T04:25:20Z"
 ---
 
 # Give each demo its own licences and credits
@@ -54,8 +61,21 @@ Focused tests; configured gates and public build checks at hand-off. Evaluated l
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-23, uncommitted.
+- Moved (git mv): `licenses/` (ERFA.txt, orbjs-MIT.txt, python-sgp4.txt) to `packages/astraeus/licenses/` (engine library notices). README and docs/ASTRONOMY_VALIDATION.md paths updated. Not moved: docs/APOLLO11_SOURCES.md (a decision record, path quoted in data files, generated reports and tool code; moving it means data/code edits) and docs/DONOR_PROVENANCE.md (mixed across packages).
+- Demo credits: the shower, Apollo and planet licences already sit in each demo's data files (`provenance.licence`); the assets-page credit rows are hand-written HTML in the site (unchanged, byte-identical to before).
+- New `packages/astraeus-site/tools/site/package-credits.mjs` (+ .d.mts): gathers every package's `licenses/` and `credits/` files and the `provenance.licence` of its data JSON, by scanning packages/*; `public-build-assets.mjs` now reports `packageCredits` and fails if the engine lacks its three library licences.
+- New test `packages/astraeus-site/tests/packageCredits.test.ts`: a made-up demo package with its own credit file and licensed data file is gathered with no site change (ARCH-03). Existing assetsPageCredits and assetsSections tests pass.
+- Before/after: assets.html Credits section identical (cmp); public-build-assets result identical apart from the two new keys.
+- Gates: lint, typecheck, build (public), npm test (116 files, 1529 passed, 1 skipped), public-build-assets, load-budget: all pass. No browser runs.
+- Note: assets.html credit rows are not generated from the packages; a generated credits section would change the page and was left out.
 
 ## Drift Notes
 
 Note for Design: credits and licences live with each package. Reconciled in the last step.
+
+### Follow-up, owner "Finish it, short (Recommended)" (2026-10-23)
+- `docs/APOLLO11_SOURCES.md` moved (git mv) to `packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md`; path strings only updated in README.md, docs/APOLLO11_RECONSTRUCTION.md, docs/ASTRAEUS_SPIKE_02.md, apollo11 data (normalised/anchors.json, generated/validation.json, stories/apollo11/panels.json) and tools (anchors.ts, config.json, conventions.ts, reconstruct.ts, report.ts). Nothing regenerated.
+- New `credits/CREDITS.md` in the apollo11, showers and planets packages: rows copied from the assets.html Credits section (Apollo 11; GMN, IAU MDC, Shower calendar; Planetary Explorer), plus a heading and one line.
+- packageCredits now lists all four packages; test extended so each demo must have a credit record. Credits section of assets.html still byte-identical.
+- Gates re-run: lint, typecheck, public build, npm test (116 files, 1529 passed, 1 skipped), public-build-assets, load-budget all pass. No browser runs.

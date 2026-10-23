@@ -320,7 +320,7 @@ The following table compiles independent postflight values published in MSC-0017
 
 - `data/apollo11/raw/anchors.json`: 36 authoritative Table 7-II / 7-VII / 5-IV anchor records with complete original metadata.
 - `data/apollo11/raw/events.json`: 30 authoritative mission events covering Section 12 from launch to splashdown, plus explicit reasons for omitted events.
-- `docs/APOLLO11_SOURCES.md`: This comprehensive decision record.
+- `packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md`: This comprehensive decision record.
 - Ready for Task T-006 (generic SampledTrajectory implementation) and Task T-007 (offline conversion and propagation tool).
 
 ## 8. T-014 Source Settlement (2026-10-06)

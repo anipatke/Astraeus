@@ -92,7 +92,7 @@ function refBodyOf(raw: RawAnchor): CenterName {
   throw new RangeError(`anchor ${raw.id} has unknown reference body "${raw.ref_body}"`);
 }
 
-/** Cartesian EQJ state about the anchor's own reference body (docs/APOLLO11_SOURCES.md 4.8). */
+/** Cartesian EQJ state about the anchor's own reference body (packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md 4.8). */
 export function nativeState(
   adapter: AstronomyAdapter,
   refBody: CenterName,
