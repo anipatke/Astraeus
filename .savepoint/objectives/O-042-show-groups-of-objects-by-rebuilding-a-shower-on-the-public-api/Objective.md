@@ -28,6 +28,7 @@ Additions go through the public API in `packages/astraeus/src/api/` as a thin la
 
 **In scope:**
 - Public groups on the existing points layer, their tests, the rebuilt shower and its reference entries
+- Renaming `packages/astraeus/src/experiences/showers/showerChoice.ts` (a generic list switch the planets demo also uses) to a generic name and place, with any shower-only part moving to the showers demo, so the engine names no shower code (owner, 2026-10-24: "yes add them to the plans")
 
 **Out of scope:**
 - New group kinds the engine does not already draw; shower data in the engine (it stays with its demo); the shower stutter (owner, 2026-10-23: dropped)

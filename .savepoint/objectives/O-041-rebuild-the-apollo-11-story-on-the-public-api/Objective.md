@@ -28,6 +28,7 @@ Additions go through the public API in `packages/astraeus/src/api/` as a thin la
 
 **In scope:**
 - The public calls Apollo needs, their tests on a made-up configuration, the rebuilt Apollo story and its reference entries
+- Moving `packages/astraeus/src/experiences/apollo11/spacecraftMetrics.ts` out of its Apollo-named engine folder to a generic place (e.g. `src/app/`), so the engine names no Apollo code (owner, 2026-10-24: "yes add them to the plans")
 
 **Out of scope:**
 - Groups of many objects (O-041 onward); chapters and narration; changing what the Apollo story shows. Whether the rebuild replaces the site's Apollo demo or sits beside it is decided when this Objective is planned
