@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o035-full-check-20261023}
   at: '2026-10-23T06:26:06Z'
 tasks: [T-156]
-checks: [C-104]
+checks: [C-104, C-105]
 guardrail_ids: [ARCH-03]
 severity: low
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: i076-repair-20261023}
     kind: repair_attempted
     note: "Owner decision 2026-10-23, \"Fix it, short recheck (Recommended)\". The planets package now exports its systems map (packages/astraeus-demo-planets/src/experiences/planets/planetSystems.ts, __PUBLIC_BUILD__ split kept); main.tsx imports it by package name, so the code glob into the demo's src/ is gone. Vite globs cannot take a package name, so the planets systems' relative globs into packages/astraeus/data/ stay and are allowed by name. packageBoundaries.test.ts now reads import.meta.glob patterns (string and array forms) and fails a glob into another package's code; named rules DATA-OF-ENGINE (any package, engine declared data/*), DATA-OF-DEMO (site only, demo declared data/*) and TEST-READS-ENGINE-TEXT (a tests/ file globbing engine src/ with ?raw; found needed for three existing test files). Proved with made-up offenders in the temp-folder test (code, array, demo-to-demo, site-to-demo-code, engine-to-demo, ?raw outside tests/, non-raw in tests/). Test header and the Design O-035 sentence corrected. Also tools/check-engine-alone.mjs skips git-ignored files (the 2.5 GB Horizons cache). Gates: lint, typecheck, build, npm test (116 files, 1530 pass, 1 skip), check:engine-alone (65 files, 647 pass, 1 skip), public build with load-budget and public-build-assets ok: 99 files, 26,012,269 B (C-104: 99, 26,012,296 B; same file list, -27 B), Jupiter-only holds. No browser run. Awaiting a recheck."
+  - at: '2026-10-23T06:37:43Z'
+    actor: {role: checker, session: o035-full-recheck-20261023}
+    kind: rechecked
+    note: "C-105 (NEEDS WORK, low). The original reproduction is closed: main.tsx no longer globs the planets demo's src/, and a planted copy of that glob now fails the test. Still open: globOffences checks only a glob whose fixed prefix lies inside a package folder, so a wildcard at the package-name level (../../*/src/**, ../../astraeus-demo-*/src/**) or a root-absolute pattern (/packages/...) is never checked. Two live cases pass unseen: packages/astraeus-demo-showers/tests/swiftTuttle.test.ts:165 and elementsBody.test.ts:242 glob ../../*/src/**/*.{ts,tsx} with ?raw (every package's source, demos and site included), which no named rule allows. The test header and Design sentence therefore still claim more than the test checks. Also tighten the ?raw detection to the call's own options (a later ?raw mention lets an eager code glob through) and the tests/ path match. Remaining Proof Needed: planted wildcard-package and root-absolute offenders fail, the two showers globs are named-rule allowed or narrowed, header and Design match; or the owner accepts these shapes by name."
+    check: C-105
 ---
 
 # I-076: The package boundary test misses import.meta.glob, including a code glob
