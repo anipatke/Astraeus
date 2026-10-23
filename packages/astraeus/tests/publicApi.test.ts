@@ -1,0 +1,102 @@
+// @vitest-environment happy-dom
+// The engine's small public API (O-036 T-160): a scene built with the documented calls becomes the app's definition, bad input fails with a named error, and mount/unmount leaves nothing behind.
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act } from "react";
+import { Scene, SceneError, earth, moon, mount, readableScale, trueScale, type DataSource } from "astraeus";
+import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
+
+(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+const T0 = "1969-07-20T20:17:40Z";
+const samples = [0, 1, 2].map((minute) => ({ time: Date.parse(T0) + minute * 60_000, positionKm: [10_000 + minute * 100, 0, 0], velocityKmS: [1, 0, 0] }));
+const apollo = { id: "apollo11", label: "Apollo 11", samples };
+const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+
+describe("Scene", () => {
+  it("builds the definition from addBody, addTrajectory, setTime, setScale and camera.follow", () => {
+    const scene = new Scene();
+    scene.addBody(earth).addBody(moon).addTrajectory(apollo).setTime(T0).setScale(readableScale);
+    scene.camera.follow("apollo11");
+    const definition = scene.toDefinition();
+    expect(mountedBodiesOf(definition)).toEqual(["earth", "moon"]);
+    expect(sceneCenterOf(definition)).toBe("earth");
+    expect(trackedBodiesOf(definition).map((body) => body.id)).toEqual(["apollo11"]);
+    expect(definition.clock.startUtcMs).toBe(Date.parse(T0));
+    expect(scaleChoiceIdsOf(definition)).toEqual(["readable-scale", "true-scale"]);
+    expect(definition.startView?.focus).toBe("apollo11");
+    expect(definition.experience.cameraPresets.map((preset) => preset.request.kind)).toEqual(["overview", "focus", "follow"]);
+    expect(definition.experience.objects.map((object) => object.id)).toEqual(["earth", "moon", "apollo11"]);
+    expect(cameraReachOf(definition)).toEqual({});
+  });
+
+  it("starts in true scale and at the trajectory's start when nothing is set", () => {
+    const definition = new Scene().addBody("earth").addTrajectory(apollo).toDefinition();
+    expect(scaleChoiceIdsOf(definition)?.[0]).toBe(trueScale.id);
+    expect(definition.clock.startUtcMs).toBe(samples[0]!.time);
+    expect(definition.startView).toBeUndefined();
+  });
+
+  it("accepts a provider with stateAt as a trajectory", () => {
+    const provider = { stateAt: (timeUtcMs: number) => ({ timeUtcMs }) as never };
+    const definition = new Scene().addBody(earth).addTrajectory({ id: "probe", provider, bounds: { start: T0, end: "1969-07-21T20:17:40Z" } }).toDefinition();
+    const probe = trackedBodiesOf(definition)[0]!;
+    expect(probe.trajectory.bounds).toEqual({ startUtcMs: Date.parse(T0), endUtcMs: Date.parse("1969-07-21T20:17:40Z") });
+    expect(probe.pathTimesUtcMs.length).toBeGreaterThan(2);
+    expect(probe.trajectory.stateAt(5)).toEqual({ timeUtcMs: 5 });
+  });
+
+  it.each([
+    ["an unknown body to follow", () => new Scene().addBody(earth).camera.follow("nowhere"), "unknown-body"],
+    ["an uncatalogued body", () => new Scene().addBody("vulcan"), "unknown-body"],
+    ["a body added twice", () => new Scene().addBody(earth).addBody("earth"), "duplicate-id"],
+    ["a bad time", () => new Scene().setTime("not a date"), "bad-time"],
+    ["a bad sample time", () => new Scene().addTrajectory({ id: "x", samples: [{ time: "later", positionKm: [0, 0, 0] }, { time: 1, positionKm: [0, 0, 0] }] }), "bad-time"],
+    ["one sample only", () => new Scene().addTrajectory({ id: "x", samples: [{ time: 1, positionKm: [0, 0, 0] }] }), "bad-trajectory"],
+    ["a provider without stateAt", () => new Scene().addTrajectory({ id: "x", provider: {} as never, bounds: { start: 0, end: 1 } }), "bad-trajectory"],
+    ["reversed provider bounds", () => new Scene().addTrajectory({ id: "x", provider: { stateAt: () => ({}) as never }, bounds: { start: 5, end: 1 } }), "bad-trajectory"],
+    ["a scale that is not offered", () => new Scene().setScale({ id: "huge" } as never), "bad-scale"],
+    ["an empty scene", () => new Scene().toDefinition(), "empty-scene"],
+  ])("refuses %s with a named error", (_name, call, code) => {
+    expect(codeOf(call)).toMatch(new RegExp(`^${code}: .+`));
+  });
+
+  it("names the data package a body needs when it was not passed, and accepts it when it was", () => {
+    const io = { id: "io", label: "Io", requires: "astraeus-data" };
+    const scene = new Scene().addBody("jupiter").addBody(io);
+    expect(codeOf(() => scene.toDefinition())).toContain("astraeus-data");
+    const data: DataSource = { name: "astraeus-data", provides: ["io"] };
+    expect(mountedBodiesOf(scene.toDefinition([data]))).toEqual(["jupiter", "io"]);
+  });
+});
+
+describe("mount", () => {
+  let host: HTMLElement | undefined;
+  // The viewer fetches the star list; there is no network in the test, so it answers "absent" at once.
+  beforeEach(() => { vi.stubGlobal("fetch", () => Promise.reject(new Error("offline"))); });
+  afterEach(() => { host?.remove(); vi.unstubAllGlobals(); });
+
+  it("draws into the element, and unmount removes everything it added", async () => {
+    host = document.createElement("div");
+    document.body.append(host);
+    const handle = mount(host, new Scene().addBody(earth).addBody(moon).addTrajectory(apollo));
+    await act(async () => { await handle.ready; });
+    expect(host.childElementCount).toBeGreaterThan(0);
+    act(() => { handle.unmount(); });
+    expect(host.querySelector("canvas")).toBeNull();
+    expect(host.childElementCount).toBe(0);
+    expect(() => handle.unmount()).not.toThrow();
+  });
+
+  it("unmounted before the data loads, it never draws", async () => {
+    host = document.createElement("div");
+    const handle = mount(host, new Scene().addBody("jupiter"));
+    handle.unmount();
+    await handle.ready;
+    expect(host.childElementCount).toBe(0);
+  });
+
+  it("refuses something that is not an element and a scene with a missing package", () => {
+    expect(codeOf(() => mount(null as never, new Scene().addBody(earth)))).toMatch(/^bad-element/);
+    expect(codeOf(() => mount(document.createElement("div"), new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" })))).toMatch(/^missing-data: .*astraeus-data/);
+  });
+});

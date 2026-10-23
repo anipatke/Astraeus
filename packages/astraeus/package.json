@@ -11,7 +11,9 @@
     "react-dom": "^18.3.1",
     "three": "^0.169.0"
   },
+  "x-internal-exports": "Only \".\" is the public API (0.1 preview). Every other entry is internal, kept for the demos and the site, and may change without notice.",
   "exports": {
+    ".": "./src/api/index.ts",
     "./app/*": "./src/app/*.ts",
     "./assets/*": "./src/assets/*.ts",
     "./core/*": "./src/core/*.ts",

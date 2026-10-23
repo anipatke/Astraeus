@@ -21,6 +21,7 @@ Open the example on its preview address (given at hand-off), at desktop and phon
 ## Done When
 
 - `examples/hello-scene/` (outside the workspaces) installs the packed tarballs (not workspace links), builds with Vite and draws a small scene in about 20 lines through `Scene` ... `mount`; a root script builds it.
+- `camera.follow` starts the scene already following its target (a small `App` start option; T-160 found `App` can only frame the target and offer the Follow button); a fast test proves it.
 - `npm run check:browser` gains one step that opens the example and proves it draws through the scene's readouts via `tools/validate/driver.mjs` (no screenshots); the step map in `docs/BROWSER_CHECKS.md` is updated. The command itself runs once, at the Full Objective Check, not here.
 - `packages/astraeus/README.md` becomes the npm front page: install, the 20-line example, the public API, what `astraeus-data` adds, the 0.1 preview promise and what counts as internal. `CHANGELOG.md` for both packages starts at 0.1.0.
 - `docs/RELEASING.md`: the owner's step-by-step release (version bump, changelog, create the GitHub release; the workflow publishes), the one-time npm setup, and what to check after.
