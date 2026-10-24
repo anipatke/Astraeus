@@ -4,7 +4,13 @@ title: Load the developer panels only when switched on
 objective: O-043
 status: done
 depends_on: [{task: T-178, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+  required: true
+  accepted_check: C-116
+  scope: [developer tools open on demand on localhost:5490 (Developer switch; sliders change the scene; Under the hood readouts update)]
+  accepted_by: {role: owner, session: o043-run-20261024}
+  accepted_at: '2026-10-24T01:39:39Z'
+  note: 'Owner look on the preview: "Looks fine, carry on"; recorded against C-116 (CLEAR) under the O-043 run rules.'
 planned_by: {role: planner, session: o043-planning-20261024}
 check_waiver:
   task: T-179
