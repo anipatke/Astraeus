@@ -15,10 +15,10 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["json", "text-summary"],
+      // Data-import tools (packages/*/tools/import) are left out: maintainer-run JPL import scripts, not in the npm package (owner, 2026-10-24).
       include: [
         "packages/*/src/**/*.{ts,tsx}",
         "packages/*/tools/apollo11/**/*.ts",
-        "packages/*/tools/import/**/*.{ts,mjs}",
         "packages/*/tools/data/**/*.mjs",
         "packages/*/tools/site/**/*.mjs",
       ],

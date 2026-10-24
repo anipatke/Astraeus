@@ -2,10 +2,15 @@
 id: T-180
 title: Test the 3D drawing code and recount coverage
 objective: O-043
-status: planned
+status: done
 depends_on: [{task: T-179, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o043-planning-20261024}
+check_waiver:
+  task: T-180
+  reason: 'Owner said "orchestrate O43"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o043-run-20261024}
+  recorded_at: '2026-10-24T01:47:54Z'
 ---
 
 # Test the 3D drawing code and recount coverage
@@ -55,8 +60,24 @@ Hand-off gates from AGENTS.md plus `npm run test:full` (writes `coverage/coverag
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-24 by a builder session (no Task Check requested).
+
+Coverage (`npm run test:full`, v8, statements):
+- Before the scope change (measured earlier today, owner figures): overall 75.0%; `packages/astraeus/src/app` 73.9% (2,998/4,058).
+- After the scope change only (run 12:40, 62 s): overall 84.9% (8,926/10,513); `src/app` 73.9% (3,006/4,068).
+- After the new tests (run 12:45 to 12:46, 63 s, 134 files, 1,781 passed, 1 skipped): overall 88.28% (9,281/10,513); `src/app` 82.4% (3,354/4,068). Branches 82.83%, functions 86.34%, lines 91.21%. Other areas: shell 90.8%, core 95.1%, api 95.7%, assets 91.9%.
+
+Per criterion:
+- Scope: met. `vitest.config.ts` no longer lists `packages/*/tools/import/**`; one-line comment gives the reason. No other exclusion.
+- Tests of drawing code: met, behaviour only, no source change (no lift was needed). `tests/overlayLayers.test.ts` (happy-dom): `SceneLabelLayer` shows/hides by placement, hidden ids, distance, behind-camera; selected label wins the right slot, next goes left, third above, fourth hidden; hover brightness; dispose. `StoryMarkerLayer` groups per object, hides off-screen, offset position, aria-pressed, press cycles panels by clock/open panel, pointerdown does not propagate. `RingView`: extent, annulus per band with band colour, skips empty band, scale/readout/repaint-only-on-change. `tests/cameraAndNamesDom.test.ts`: orbit drag, touch sensitivity, elevation clamp, wheel clamp and preventDefault, pinch, tap versus drag/right-click, detach, `cancelCameraTransition`; `pickMember`, `membersToName`, `BodySetLabelLayer` (name position, hover, touch ignored, leave, outside bounds, dispose). `tests/glowAndHooksDom.test.ts`: halo size/units/depth rule/tint cache/visibility, URL overrides with warnings, `baseGlowOf`, shared texture release, `projectToScreen`, `AnchorLabelLayer`, `bodyIdOf`, `refFor`, `useDrawWakes`, `useHostLayer`.
+- Not covered (still 0): `sceneContentsHooks` React hooks other than the ones above, `sceneHooks` `useSkyStars`/`useSceneViews`, `App.tsx`, `FeatureMarkers` layer, `DeveloperSettings`, `BodyView`, `scenePointer`. Target of 80% met without them.
+- Design reconciled: new O-043 paragraph at the end of `.savepoint/Design.md` (coverage scope and figures, measure command and figures, on-demand panels, each T-178/T-179 note accounted for as reflected or non-architectural).
+- Gates: `npm run lint` clean; `npm run typecheck` clean; `npm run build` ok (500 kB chunk warning as before); `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml` 134 files, 1,781 passed, 1 skipped; `npm run test:full` as above; `npm run check:engine-alone` pass (15.0 s).
+
+Files changed: `vitest.config.ts`, `.savepoint/Design.md`, new `packages/astraeus/tests/overlayLayers.test.ts`, `cameraAndNamesDom.test.ts`, `glowAndHooksDom.test.ts`. Extra reads (beyond Context Files): `AnchorLabels.ts`, `scenePicking.ts` (TapTracker), `BodySetView.ts` (screen shape), `shell/Label.tsx`, `assets/rings.ts`, `tests/domSetup.ts`/`domStory.test.ts`, `vitest.setup.ts`, `tests/bodyMarkers.test.ts` (patterns for happy-dom and existing coverage).
+
+Limitations: the 80% for `src/app` has a margin of 99 statements (3,255 needed). Canvas 2D is stubbed in the pretend page, so the ring texture and halo picture are checked by recorded calls, not pixels. No browser run.
 
 ## Drift Notes
 
-This Task is the O-043 integration step for deferred Design notes.
+This Task is the O-043 integration step for deferred Design notes. All T-178 and T-179 notes are accounted for in the O-043 paragraph of Design.md. None new from T-180 (tests and config only).
