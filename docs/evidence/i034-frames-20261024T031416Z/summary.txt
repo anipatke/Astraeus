@@ -1,0 +1,16 @@
+I-034 frame probe, 2026-10-24, current improvements-1 code (after 3a9dec55).
+Headless Chromium, software GL, 1440x900, vite dev server on port 5494 (stopped), driver.mjs for navigation/play/seek/speed, requestAnimationFrame deltas.
+Method: per page and rate, 4 bursts of 2.5 s of playback after seeking to 10/30/50/70% of the timeline; the 10% burst lands where the clock does not advance, so 3 bursts (7.5 s) played at one week per second (about 18 scene days per burst). Story auto-open off. Flag = frame over 1.5x median.
+Rates: showers default and fastest are both 604,800 s/s; planets control default 3,600 and fastest 604,800 s/s.
+
+page/rate            frames median  p95   max   >1.5x  >3x
+perseids default       470   16.7  33.4  50.0   130    0
+perseids fastest       464   16.7  33.4  50.0   138    0
+geminids default       317   33.3  50.0  83.2    55    0
+geminids fastest       322   33.3  50.0  66.7    52    0
+planets default        395   16.8  33.4  50.1   190    0   (control, clock barely moving)
+planets fastest        572   16.7  16.8  66.7    26    1   (control)
+
+Result: no periodic hitch. The 2026-10-17 cause (a 100-117 ms frame every 10-11 frames, every 0.4 s) is gone: no frame over 83 ms on either shower and nothing recurring near 430 ms. Flagged frames are 1-2 vsync steps (33/50 ms) with irregular gaps (33-400 ms); the control shows the same scatter. Geminids median is 33 ms against 17 ms for Perseids: a steady per-frame draw cost of about twice the dots (51,115 against 24,169 in view) on software GL, not a fill hitch.
+A first 8 s straight run was discarded: the clock stopped after about 4 s, so it measured a resting clock.
+Unverified: real GPU and phone feel; headless times are not real-hardware times.
