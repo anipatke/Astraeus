@@ -4,7 +4,7 @@ import { createListedOrbitGroup, type ListedMember } from "../core/listedOrbitGr
 import { createProvenance, type Provenance } from "../core/provenance";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import type { TimeBounds } from "../core/trajectory";
-import { catalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { GroupLayer } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
@@ -25,7 +25,7 @@ export interface GroupOrbitInput {
 
 /** A stated share of the dots drawn near a body's position along its orbit: a model, not a measurement. */
 export interface GroupClumpInput {
-  /** A catalogued body in the scene to clump near. Only where it is along its orbit about the group's centre at the reference time is used. */
+  /** A body in the scene to clump near: a catalogued body or one added with `addBodyFromElements` (add it before the group). Only where it is along its orbit about the group's centre at the reference time is used. */
   readonly near: BodyId;
   /** Share of the dots, 0 to 1. */
   readonly fraction: number;
@@ -68,6 +68,8 @@ export interface GroupInput {
   readonly clump?: GroupClumpInput;
   /** How often, in simulated milliseconds, the dots are placed again exactly; between fills the picture blends the two nearest. Presentation only. Default five minutes. */
   readonly refillAfterMs?: number;
+  /** Milliseconds of each frame the dots layer may spend computing the next fill ahead of time, so a large group does not hitch; 0 or a positive number. 0 makes every fill whole in one frame. Presentation only. Default 8. */
+  readonly refillSliceMs?: number;
   /** Where the orbit list came from. The group still marks the position along each orbit as illustrative. Defaults to an "as supplied" notice. */
   readonly provenance?: Provenance;
   /** One or two plain sentences for the info card; a count and placement sentence when absent. */
@@ -90,12 +92,12 @@ const HEX = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
 const bad = (id: unknown, message: string): SceneError => new SceneError("bad-group", `addGroup("${String(id)}"): ${message}`);
 
 /** Checks what can be checked before the scene is complete; the centre, the clump body and the id clash with other things are checked at build. */
-export function planGroup(input: GroupInput): PlannedGroup {
+export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInCatalogue): PlannedGroup {
   const id = input?.id;
   if (typeof id !== "string" || id === "") throw bad(id, "the group needs a non-empty id");
   checkOrbits(id, input.orbits);
   checkLook(id, input);
-  if (input.clump !== undefined) checkClump(id, input.clump);
+  if (input.clump !== undefined) checkClump(id, input.clump, catalogue);
   checkReadouts(id, input.readouts);
   if (input.center !== undefined && !catalogue.has(input.center)) throw new SceneError("unknown-body", `addGroup("${id}"): centre "${String(input.center)}" is not a catalogued body`);
   return { id, label: input.label ?? id, input };
@@ -117,6 +119,7 @@ function checkLook(id: string, input: GroupInput): void {
   if (input.color !== undefined && !(typeof input.color === "string" && HEX.test(input.color))) throw bad(id, `color "${String(input.color)}" is not a hex colour such as "#9de3a8"`);
   if (!positive(input.dotSizePx)) throw bad(id, "dotSizePx must be above 0");
   if (!positive(input.refillAfterMs)) throw bad(id, "refillAfterMs must be above 0");
+  if (input.refillSliceMs !== undefined && !(Number.isFinite(input.refillSliceMs) && input.refillSliceMs >= 0)) throw bad(id, "refillSliceMs must be 0 or above");
   const limits = input.knownLimitations;
   if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw bad(id, "knownLimitations must be a list of non-empty texts");
 }
@@ -130,7 +133,7 @@ function checkReadouts(id: string, readouts: readonly GroupReadoutInput[] | unde
   }
 }
 
-function checkClump(id: string, clump: GroupClumpInput): void {
+function checkClump(id: string, clump: GroupClumpInput, catalogue: BodyCatalogue): void {
   if (typeof clump.near !== "string" || !catalogue.has(clump.near) || catalogue.get(clump.near).source === undefined) throw bad(id, `clump.near "${String(clump?.near)}" is not a catalogued body with a position`);
   if (!(clump.fraction >= 0 && clump.fraction <= 1)) throw bad(id, `clump.fraction must be from 0 to 1, got ${String(clump.fraction)}`);
   if (!(clump.widthDeg > 0 && clump.widthDeg <= 180)) throw bad(id, `clump.widthDeg must be above 0 and at most 180, got ${String(clump.widthDeg)}`);
@@ -138,12 +141,12 @@ function checkClump(id: string, clump: GroupClumpInput): void {
 
 const PLACEMENT_LIMIT = "The position of each dot along its orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.";
 const MOTION_LIMIT = "Motion is unperturbed two-body motion about the centre.";
-const CLUMP_LIMIT = (near: BodyId, fraction: number): string => `${Math.round(fraction * 100)}% of the dots are drawn near ${catalogue.get(near).definition.label}'s position along its orbit. That clump is a model, not a measurement.`;
+const CLUMP_LIMIT = (catalogue: BodyCatalogue, near: BodyId, fraction: number): string => `${Math.round(fraction * 100)}% of the dots are drawn near ${catalogue.get(near).definition.label}'s position along its orbit. That clump is a model, not a measurement.`;
 
 const AS_SUPPLIED = createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "The orbits were passed to addGroup." });
 
 /** Builds the draw layer: the listed-orbit group and its one shell item. `center` and `openUtcMs` come from the finished scene; a group error from the engine is renamed `bad-group`. */
-export function buildGroupLayer(plan: PlannedGroup, center: BodyId, openUtcMs: number, window: TimeBounds): GroupLayer {
+export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, center: BodyId, openUtcMs: number, window: TimeBounds): GroupLayer {
   const { id, input } = plan;
   const referenceUtcMs = input.referenceTime === undefined ? openUtcMs : toUtcMs(input.referenceTime, `addGroup("${id}") referenceTime`);
   const members = input.orbits.map((orbit): ListedMember => ({
@@ -172,13 +175,14 @@ export function buildGroupLayer(plan: PlannedGroup, center: BodyId, openUtcMs: n
       color,
       pointSizePx: input.dotSizePx ?? 2.5,
       ...(input.refillAfterMs === undefined ? {} : { refillAfterMs: input.refillAfterMs }),
+      ...(input.refillSliceMs === undefined ? {} : { refillSliceMs: input.refillSliceMs }),
       object: {
         id,
         label: plan.label,
         color,
         labelPriority: 80,
         description: input.description ?? `${group.count} listed orbit${group.count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`,
-        knownLimitations: [...(input.knownLimitations ?? []), PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(clump.near, clump.fraction)]), MOTION_LIMIT],
+        knownLimitations: [...(input.knownLimitations ?? []), PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT],
       },
     };
   } catch (error) {

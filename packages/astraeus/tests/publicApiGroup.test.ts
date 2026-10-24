@@ -119,3 +119,25 @@ describe("addGroup", () => {
     expect(metrics("ring", T0)).toEqual([]);
   });
 });
+
+describe("clump near an elements body and refillSliceMs (O-042 T-177)", () => {
+  it("clumps near a body added with addBodyFromElements", async () => {
+    const { Scene: S, sun } = await import("astraeus");
+    const scene = new S().addBody(sun).addBodyFromElements({
+      id: "made-up-rock", label: "Made-up rock",
+      elements: { semiMajorAxisAu: 2, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 80, argumentOfPerihelionDeg: 50, meanAnomalyDeg: 20 },
+      epoch: { jd: 2_461_000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 }, frame: "ecliptic-j2000",
+      source: { name: "Invented Survey", url: "https://example.invalid/rock", solution: "A", accessed: "2026-10-24" },
+      accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2025-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: ["Invented for a test."] },
+      marker: { color: "#ff9966", sizePx: 8 },
+    }).addGroup(ring({ center: "sun", clump: { near: "made-up-rock", fraction: 0.5, widthDeg: 20 }, refillSliceMs: 0 })).setTime(T0);
+    const layer = scene.toDefinition().groups![0]!;
+    expect(layer.refillSliceMs).toBe(0);
+    expect(layer.object.knownLimitations!.join(" ")).toContain("Made-up rock");
+  });
+
+  it("refuses a clump near a body that is neither catalogued nor added from elements, and a bad refillSliceMs", () => {
+    expect(codeOf(() => base().addGroup(ring({ clump: { near: "made-up-rock", fraction: 0.5, widthDeg: 20 } })))).toBe("bad-group");
+    for (const bad of [-1, Number.NaN, Infinity]) expect(codeOf(() => base().addGroup(ring({ refillSliceMs: bad })))).toBe("bad-group");
+  });
+});

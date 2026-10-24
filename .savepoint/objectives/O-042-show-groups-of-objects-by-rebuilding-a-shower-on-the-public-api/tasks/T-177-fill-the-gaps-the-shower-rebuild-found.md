@@ -2,10 +2,15 @@
 id: T-177
 title: Fill the gaps the shower rebuild found
 objective: O-042
-status: planned
+status: done
 depends_on: [{task: T-175, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o042-replan-20261024}
+check_waiver:
+  task: T-177
+  reason: 'Owner said "orchestrate O42"; under the standing O-042 run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o042-run-20261024}
+  recorded_at: '2026-10-24T00:18:28Z'
 ---
 
 # Fill the gaps the shower rebuild found
@@ -54,7 +59,14 @@ Hand-off gates from AGENTS.md plus `npm run check:engine-alone` and `npm run che
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-24 (builder session). Changed: `src/api/scene.ts`, `src/api/group.ts`, `src/core/planetSeries.ts` (new `planetSeriesLoaded()`), tests `publicApiSunOrbits.test.ts`, `publicApiGroup.test.ts`, README, CHANGELOG. No extra reads beyond Context Files plus `src/core/scalePolicy.ts`, `src/shell/scaleModel.ts`, `src/app/App.tsx`, `src/api/mount.ts`, `src/api/prepared.ts`, `src/api/AstraeusScene.tsx`, `vitest.setup.ts` (to find the viewer's solar-system scale and the load order).
+
+- Scale: `scaleChoicesOf(scale, only, enlarged)`: when the scene is Sun-centred and any body has `enlarge`, the second choice is `"solar-system"` instead of `"readable-scale"` (opening scale unchanged; `only` unchanged). No enlargement or not Sun-centred: unchanged. Tested.
+- Planet series: Sun-orbit lines and groups with a `clump` are built in `toDefinition` when `planetSeriesLoaded()`, else in `prepare` after `loadPlanetSeries()` (same arrays, filled in place; mount/AstraeusScene render only after `prepare` resolves). Checks (no-orbit Sun missing, duplicate-id, bad-group centre/clump) stay synchronous. Test does `vi.resetModules()` then imports `astraeus` afresh so the planet series are NOT loaded (asserts `planetSeriesLoaded()` false before and true after `prepare`), for orbit lines and a clumped group.
+- `clump.near` accepts a `addBodyFromElements` body (`planGroup`/`buildGroupLayer` take the scene catalogue; add the body before the group); `refillSliceMs` (0 or more, else `bad-group`) passed to the layer. Tested.
+- Docs: doc comments, README, CHANGELOG. `/api` is generated from the doc comments; `api-reference.mjs` not edited (no new exported names); /api page not regenerated or viewed.
+- Gates: lint, typecheck, build, npm test (127 files, 1710 passed, 1 skipped), check:engine-alone, check:pack all pass. No browser run.
+
 
 ## Drift Notes
 

@@ -1,6 +1,6 @@
 // Sun-centred scenes of the public API (O-042 T-174), proved on made-up configurations (ARCH-03): an orbit line for any body that circles the Sun, your own body from
 // published elements, planet enlargement, a label that starts off, label reach at solar-system distances, and named errors.
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Scene, SceneError, earth, mars, mercury, sun, type ElementsBodyRecord } from "astraeus";
 import { sunCentredOf, visualOverridesOf } from "../src/app/experienceDefinition";
 
@@ -133,5 +133,48 @@ describe("tracked paths", () => {
   it("are refused in a Sun-centred scene with a named error", () => {
     const scene = solar().addBody(earth).addTrajectory({ id: "probe", center: "earth", samples: [{ time: T0, positionKm: [7000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 7000, 0] }] });
     expect(codeOf(() => scene.toDefinition())).toMatch(/^bad-trajectory: addTrajectory\("probe"\): a scene centred on the Sun cannot hold a tracked path/);
+  });
+});
+
+describe("the public path without the planet series preloaded (O-042 T-177)", () => {
+  // vitest.setup.ts preloads the planet series into the module instance the other tests share. Resetting the module registry and importing "astraeus" afresh gives a second
+  // instance whose planet series are NOT loaded, which is what a consumer's page has at `mount`.
+  const fresh = async () => {
+    vi.resetModules();
+    const api = await import("astraeus");
+    const series = await import("../src/core/planetSeries");
+    const definitionModule = await import("../src/app/experienceDefinition");
+    expect(series.planetSeriesLoaded()).toBe(false);
+    return { ...api, series, sunCentredOf: definitionModule.sunCentredOf };
+  };
+
+  it("builds a Sun-centred scene with planet orbit lines, then draws the lines once prepare has loaded the series", async () => {
+    const api = await fresh();
+    const definition = new api.Scene().addBody(api.sun).addBody(api.mars, { orbit: true }).addBody(api.earth, { orbit: true }).setTime(T0).toDefinition();
+    expect(definition.sceneLayers).toContain("sun-centred");
+    await definition.prepare!();
+    expect(api.series.planetSeriesLoaded()).toBe(true);
+    const ids = api.sunCentredOf(definition).paths.map((path) => path.object.id);
+    expect(ids.sort()).toEqual(["earth-orbit", "mars-orbit"]);
+  });
+
+  it("builds a group clumped near a planet the same way", async () => {
+    const api = await fresh();
+    const orbits = [0, 1, 2].map((k) => ({ id: `r${k}`, semiMajorAxisKm: 2e8 + 1e7 * k, eccentricity: 0.2, inclinationDeg: 5, raanDeg: 40 + k, argumentOfPeriapsisDeg: 70 }));
+    const definition = new api.Scene().addBody(api.sun).addBody(api.mars).addGroup({ id: "swarm", orbits, center: "sun", clump: { near: "mars", fraction: 0.5, widthDeg: 20 } }).setTime(T0).toDefinition();
+    expect(definition.groups).toHaveLength(0);
+    await definition.prepare!();
+    expect(definition.groups!.map((layer) => layer.object.id)).toEqual(["swarm"]);
+  });
+});
+
+describe("the solar-system scale for an enlarged body", () => {
+  const choices = (scene: Scene) => scene.toDefinition().scaleChoices;
+  it("is offered second in place of the readable scale when a Sun-centred scene enlarges a body", () => {
+    expect(choices(solar().addBody(earth, { enlarge: 20 }))).toEqual(["true-scale", "solar-system"]);
+  });
+  it("leaves scenes without an enlarged body, and scenes not centred on the Sun, unchanged", () => {
+    expect(choices(solar().addBody(earth))).toEqual(["true-scale", "readable-scale"]);
+    expect(choices(new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0))).toEqual(["true-scale", "readable-scale"]);
   });
 });

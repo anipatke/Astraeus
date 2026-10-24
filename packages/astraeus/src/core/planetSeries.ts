@@ -34,6 +34,11 @@ export function loadPlanetSeries(): Promise<void> {
   return loading;
 }
 
+/** Whether the planet series have finished loading. */
+export function planetSeriesLoaded(): boolean {
+  return models !== undefined;
+}
+
 /** The loaded planet models; throws before `loadPlanetSeries()` resolved rather than falling back to the compact tables. */
 export function planetModels(): PlanetModels {
   if (models === undefined) throw new Error("the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet");

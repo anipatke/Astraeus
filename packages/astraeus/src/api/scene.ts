@@ -5,7 +5,7 @@ import { SampledTrajectory, type TrajectorySample } from "../core/sampledTraject
 import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
-import { loadPlanetSeries } from "../core/planetSeries";
+import { loadPlanetSeries, planetSeriesLoaded } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
@@ -43,7 +43,7 @@ export interface AddBodyOptions {
    * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), from the scene's opening time (an own body from its periapsis). Others throw `no-orbit`.
    */
   readonly orbit?: boolean;
-  /** Draws the body this many times larger than life in the readable (solar-system) scale, so a planet can be seen; a number of at least 1 (distances stay true). A bad value throws `bad-body`. */
+  /** Draws the body this many times larger than life so a planet can be seen; a number of at least 1 (distances stay true). In a scene centred on the Sun the viewer offers its \"solar-system\" scale (true distances, the named bodies enlarged) as the second scale choice in place of the readable scale. A bad value throws `bad-body`. */
   readonly enlarge?: number;
   /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
   readonly showLabel?: boolean;
@@ -276,7 +276,7 @@ export class Scene {
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
   addGroup(input: GroupInput): this {
-    const plan = planGroup(input);
+    const plan = planGroup(input, this.#catalogue);
     if (this.#taken(plan.id)) throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
     this.#groups.set(plan.id, plan);
     return this;
@@ -301,7 +301,7 @@ export class Scene {
     return this;
   }
 
-  /** Chooses the opening scale: `trueScale` or `readableScale`; the viewer can switch to the other, unless `{ only: true }` offers this scale alone. */
+  /** Chooses the opening scale: `trueScale` or `readableScale`; the viewer can switch to the other (in a Sun-centred scene with an enlarged body, to the \"solar-system\" scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
   setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
     if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale or readableScale`);
     this.#scale = scale;
@@ -359,16 +359,30 @@ export class Scene {
     return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
   }
 
-  /** The draw layers of the groups: each circles its centre (default the scene's first body), which and whose clump body the scene must hold. */
-  #groupLayers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number): readonly GroupLayer[] {
-    return [...this.#groups.values()].map((plan) => {
+  /** Checks the groups against the finished scene: each circles its centre (default the scene's first body), which and whose clump body the scene must hold. */
+  #checkGroups(ids: readonly BodyId[]): void {
+    for (const plan of this.#groups.values()) {
       const center = plan.input.center ?? ids[0]!;
       const clump = plan.input.clump;
       if (!ids.includes(center)) throw new SceneError("bad-group", `addGroup("${plan.id}"): the orbits circle "${center}", which has not been added to the scene`);
       if (clump !== undefined && !ids.includes(clump.near)) throw new SceneError("bad-group", `addGroup("${plan.id}"): clump.near "${clump.near}" has not been added to the scene`);
       if (clump !== undefined && clump.near === center) throw new SceneError("bad-group", `addGroup("${plan.id}"): the clump cannot be near the body the orbits circle ("${center}")`);
-      return buildGroupLayer(plan, center, openUtcMs, window);
-    });
+    }
+  }
+
+  /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
+  #groupLayers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
+    return [...this.#groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue, plan.input.center ?? ids[0]!, openUtcMs, window));
+  }
+
+  /** The Sun-orbit lines that can be drawn now: all of them when the planet series are loaded, else none (they are drawn in `prepare`). */
+  #earlySunPaths(orbitIds: readonly BodyId[], openUtcMs: number): PathLayer[] {
+    return planetSeriesLoaded() ? orbitIds.map((id) => this.#sunPath(id, openUtcMs)) : [];
+  }
+
+  /** Whether a Sun-centred scene enlarges a body, which the viewer's solar-system scale draws. */
+  #enlargedInSun(sunCentred: boolean): boolean {
+    return sunCentred && [...this.#shape.values()].some((shape) => shape.enlarge !== undefined);
   }
 
   /** The activity windows, when any were added. */
@@ -425,15 +439,20 @@ export class Scene {
     return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
   }
 
-  /** The Sun-orbit lines of the bodies that asked for one: one full turn from the opening time (an own body from its periapsis). The Sun must be in the scene. */
-  #sunPaths(ids: readonly BodyId[], openUtcMs: number): readonly PathLayer[] {
-    return [...this.#orbits].filter((id) => ORBITS[id] === undefined).map((id): PathLayer => {
+  /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
+  #sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
+    return [...this.#orbits].filter((id) => ORBITS[id] === undefined).map((id) => {
       if (!ids.includes(rootBodyId(this.#catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
       if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
-      const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
-      if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within a dozen years and the catalogue does not know its period; add it with addBodyFromElements to draw its whole orbit`);
-      return layer;
+      return id;
     });
+  }
+
+  /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
+  #sunPath(id: BodyId, openUtcMs: number): PathLayer {
+    const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
+    if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within a dozen years and the catalogue does not know its period; add it with addBodyFromElements to draw its whole orbit`);
+    return layer;
   }
 
   /** A readout names a body the scene must hold, so it can be measured against. */
@@ -463,11 +482,17 @@ export class Scene {
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
-    const sunPaths = this.#sunPaths(ids, startUtcMs);
+    const sunOrbitIds = this.#sunOrbitIds(ids);
+    // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
+    const sunPaths: PathLayer[] = this.#earlySunPaths(sunOrbitIds, startUtcMs);
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
-    const layers = this.#groupLayers(ids, window, startUtcMs);
+    this.#checkGroups(ids);
+    // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
+    const seriesIn = planetSeriesLoaded();
+    const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
+    const layers: GroupLayer[] = [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))];
     const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
     const definition: ExperienceDefinition = {
       experience: {
@@ -486,12 +511,12 @@ export class Scene {
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
-      ...groupLayersEntry(layers, sunPaths.length > 0),
-      ...(sunPaths.length === 0 ? {} : { paths: sunPaths }),
+      ...groupLayersEntry(layers, this.#groups.size > 0, sunOrbitIds.length > 0),
+      ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
       ...(this.#own.size === 0 ? {} : { catalogue: this.#catalogue }),
       ...visualOverridesEntry(this.#shape),
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
+      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
       ...viewEntries(timeline, this.camera),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
@@ -502,7 +527,9 @@ export class Scene {
         return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? this.#groupMetrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
-        if (needsPlanetSeries(definition)) await loadPlanetSeries();
+        if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
+        if (this.#groups.size > layers.length) layers.push(...this.#groupLayers(ids, window, startUtcMs, late));
+        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs)));
         await installData(data, ids, window);
       },
     };
@@ -521,9 +548,9 @@ function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera)
 }
 
 /** The scene's layers: the points layer and the groups only when a group was added. */
-function groupLayersEntry(layers: readonly GroupLayer[], sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
-  const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(layers.length === 0 ? [] : ["points" as const]), ...(sunCentred ? ["sun-centred" as const] : [])];
-  return layers.length === 0 ? { sceneLayers } : { sceneLayers, groups: layers };
+function groupLayersEntry(layers: readonly GroupLayer[], hasGroups: boolean, sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
+  const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(hasGroups ? ["points" as const] : []), ...(sunCentred ? ["sun-centred" as const] : [])];
+  return hasGroups ? { sceneLayers, groups: layers } : { sceneLayers };
 }
 
 /** The enlargements the scene asked for, as the engine's per-body overrides. */
@@ -569,9 +596,13 @@ function clockOf(timeline: TimelineSetting | undefined, startUtcMs: number): Exp
   return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.none === true && timeline.rate === undefined ? { playing: false } : {}) };
 }
 
-/** The scale choices offered: the opening one first, then the other unless the caller offered one alone. */
-function scaleChoicesOf(scale: ScalePolicy, only: boolean): readonly ScalePolicy["id"][] {
-  return only ? [scale.id] : [scale.id, ...SCALES.filter((other) => other.id !== scale.id).map((other) => other.id)];
+/**
+ * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
+ * offers the viewer's "solar-system" scale (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
+ */
+function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): readonly string[] {
+  const second = SCALES.filter((other) => other.id !== scale.id).map((other) => (enlarged && other.id === readableScale.id ? "solar-system" : other.id));
+  return only ? [scale.id] : [scale.id, ...second];
 }
 
 type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;
