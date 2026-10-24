@@ -113,6 +113,17 @@ describe("the moons sheet and the information panel (browser-moon-panel M7)", ()
   afterEach(() => { shell?.unmount(); shell = undefined; });
   const sheetOpen = (m: Mounted) => $(m.container, "#moons-panel").getAttribute("data-open");
 
+  it("draws the moon list after its on-demand load when the experience has moon families, and not otherwise (I-089)", async () => {
+    shell = mountShell({ experience: jupiterIoExplorer.experience });
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(shell.container.querySelector("[data-moon-summary]")).not.toBeNull();
+    expect(shell.container.querySelector('[data-moon-family="galilean"]')).not.toBeNull();
+    shell.unmount();
+    shell = mountShell({ experience: { ...jupiterIoExplorer.experience, moonFamilies: undefined } });
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(shell.container.querySelector("[data-moon-summary]")).toBeNull();
+  });
+
   it("never show together on a wide screen: opening one closes the other", () => {
     shell = mountShell({ experience: jupiterIoExplorer.experience });
     const toggle = $(shell.container, ".moons-toggle");

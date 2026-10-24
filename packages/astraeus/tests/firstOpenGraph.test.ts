@@ -63,6 +63,14 @@ describe("first-open import graph (T-179)", () => {
     }
   });
 
+  it("does not reach the moon family panel, which loads on demand (I-089)", () => {
+    expect(graph).not.toContain("shell/MoonFamilyPanel.tsx");
+    expect(graph).not.toContain("shell/moonFamilies.ts");
+    const text = readFileSync(join(SRC, "shell/AstraeusShell.tsx"), "utf8");
+    expect(text).toContain('import("./MoonFamilyPanel")');
+    expect(staticImports(join(SRC, "shell/AstraeusShell.tsx")).map((path) => path.slice(SRC.length + 1))).not.toContain("shell/MoonFamilyPanel.tsx");
+  });
+
   it("loads the developer panels through a dynamic import", () => {
     const text = readFileSync(join(SRC, "app/developerPanels.tsx"), "utf8");
     expect(text).toContain('import("./DeveloperSettings")');

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
@@ -11,7 +11,7 @@ import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
-import { MoonFamilyPanel } from "./MoonFamilyPanel";
+import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
@@ -139,6 +139,9 @@ function infoContent(experience: ExperienceConfig, info: InfoState, selectedObje
   const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, timeUtcMs) : [];
   return { view, metrics };
 }
+
+/** The moon families load on demand: only an experience with `moonFamilies` draws them (I-089). */
+const MoonFamilyPanel = lazy(() => import("./MoonFamilyPanel").then((module) => ({ default: module.MoonFamilyPanel })));
 
 /** Canvas-first layout shared by astronomy experiences. Scene and diagnostics stay app-owned. */
 export function AstraeusShell({
@@ -335,7 +338,11 @@ export function AstraeusShell({
   );
 
   const moonPanel = experience.moonFamilies === undefined ? null : (
-    <MoonFamilyPanel list={experience.moonFamilies} highlightedFamily={highlightedFamily} onHighlight={(id) => onHighlightFamily?.(id)} onSelectMoon={chooseMoon} />
+    <PanelLoadBoundary message="The moon list could not load. Reload the page to try again.">
+      <Suspense fallback={null}>
+        <MoonFamilyPanel list={experience.moonFamilies} highlightedFamily={highlightedFamily} onHighlight={(id) => onHighlightFamily?.(id)} onSelectMoon={chooseMoon} />
+      </Suspense>
+    </PanelLoadBoundary>
   );
 
   return (

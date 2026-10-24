@@ -13,9 +13,9 @@ import { gzipSync } from "node:zlib";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
-const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
+const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js", "licence.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
+const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
 const SHOWER_COMMON = ["showerScene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
@@ -24,7 +24,7 @@ const SHOWER_COMMON = ["showerScene.js", "scene.js", "compositions.js", "bodyMet
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
   planet: name,
   id: `app.html?experience=planets&planet=${name}`,
-  files: [...APP_SHARED, "planetSettings.js", "settingsFields.js", "planetDefinition.js", "events.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
+  files: [...APP_SHARED, "planetSettings.js", "settingsFields.js", "planetDefinition.js", "moonFamilies.js", "events.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
   namedBy: [`${name}.js`],
   ...(VIEW_LIMITS[name] ? { indexLimit: VIEW_LIMITS[name].indexRawBytes } : {}),
   ...limits,
