@@ -19,6 +19,7 @@
     "check:pack": "node tools/check-packs.mjs",
     "build:packages": "node tools/build-packages.mjs",
     "build:example": "node tools/build-example.mjs",
+    "measure:example": "node tools/measure-example.mjs",
     "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },
   "dependencies": {
