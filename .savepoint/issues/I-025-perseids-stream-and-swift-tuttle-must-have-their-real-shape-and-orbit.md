@@ -2,12 +2,17 @@
 id: I-025
 title: Perseids stream and 109P/Swift-Tuttle must have their real shape and orbit
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: owner-chat-o014-live-look-20261013}
   at: '2026-10-13T08:49:53Z'
 tasks: [T-051, T-052, T-054, T-038]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Fixed by O-011 (T-051, T-052, T-054, T-038, T-056; C-031 and C-045 CLEAR): the Perseids stream is drawn from measured GMN orbits. Owner acceptance, not a new Check.'
 history:
   - at: '2026-10-13T08:49:53Z'
     actor: {role: owner, session: owner-chat-o014-live-look-20261013}
@@ -17,6 +22,10 @@ history:
     actor: {role: planner, session: o011-replan-i025-2026-10-13}
     kind: deferred
     note: Planned into O-011 (owner-confirmed replan 2026-10-13); repair carried by T-051 (data decision), T-052 (measured-orbit group), T-054 (comet and whole orbit) and T-038 (Perseids rebuild with factual checks and the owner's look). Status stays open until a Check verifies the repair.
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Fixed by O-011 (T-051, T-052, T-054, T-038, T-056; C-031 and C-045 CLEAR): the Perseids stream is drawn from measured GMN orbits. Owner acceptance, not a new Check.'
 ---
 
 # I-025: Perseids stream and 109P/Swift-Tuttle must have their real shape and orbit

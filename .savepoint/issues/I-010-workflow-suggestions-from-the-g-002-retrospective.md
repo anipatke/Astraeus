@@ -2,12 +2,17 @@
 id: I-010
 title: Packaged-skill suggestions from the G-002 retrospective
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: planner, session: g002-retro-2026-10-06}
   at: '2026-10-06T09:40:00Z'
 checks: [C-005, C-006]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Suggestions for the Savepoint package, not Astraeus code; the owner forwards them to the package if wanted.'
 history:
   - at: '2026-10-06T09:40:00Z'
     actor: {role: planner, session: g002-retro-2026-10-06}
@@ -17,6 +22,10 @@ history:
     actor: {role: executor, session: t023-codex-20261010}
     kind: observed
     note: O-007 reviewed these suggestions against the current workflow. Retrospective closure now follows a planned Task and mandatory Full Objective Check; the earlier no-Full-Check proposal remains historical, not project policy. No additional package suggestion was found.
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Suggestions for the Savepoint package, not Astraeus code; the owner forwards them to the package if wanted.'
 ---
 
 # I-010: Packaged-skill suggestions from the G-002 retrospective

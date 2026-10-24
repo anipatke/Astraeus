@@ -2,11 +2,16 @@
 id: I-033
 title: Add a lite browser check tier for everyday changes
 type: guardrail
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: checker, session: o011-orchestrator-check-20261017-morning}
   at: '2026-10-17T09:15:00Z'
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Proof met per C-052, then superseded by the single npm run check:browser (O-038).'
 history:
   - at: '2026-10-17T09:15:00Z'
     actor: {role: checker, session: o011-orchestrator-check-20261017-morning}
@@ -24,6 +29,10 @@ history:
     actor: {role: executor, session: o011-orchestrator-check-20261017-morning}
     kind: repair_attempted
     note: 'Step 1: tools/validate/browser-lite.mjs written by a builder session; first run by the orchestrator against the dev server (localhost:5302, working tree on 94ee998): exit 0, 26/26 loads passed (11 experiences discovered from src/main.tsx and data/showers, desktop and phone, plus index and assets pages) in 83 seconds; evidence docs/evidence/lite-first-run-20261016T194738Z/. Not yet shown to fail on a broken tree (no negative probe run); O-017 task 6 owns proving it and step 2 (trimming the full run). Issue stays open.'
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Proof met per C-052, then superseded by the single npm run check:browser (O-038).'
 ---
 
 # I-033: Add a lite browser check tier for everyday changes

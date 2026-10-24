@@ -2,11 +2,16 @@
 id: I-032
 title: Donor planet and moon pictures beyond Jupiter are unassessed and unused
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: checker, session: o011-orchestrator-morning-20261017}
   at: '2026-10-17T08:00:00Z'
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Largely done by O-033 and the per-planet data packages (C-091); what remains (Ceres, Mars-moon pictures) is new demo content, out of scope under "no more demos".'
 history:
   - at: '2026-10-17T08:00:00Z'
     actor: {role: checker, session: o011-orchestrator-morning-20261017}
@@ -24,6 +29,10 @@ history:
     actor: {role: planner, session: o017-plan-20261017}
     kind: deferred
     note: 'Owner, 2026-10-17: include all the moons before go-live, as globes you can spin, and update the catalogue. Planned as O-018 (reuse Planetary Explorer moon maps and tagged features through a reusable importer, a Moons experience, catalogue rows; rescoped 2026-10-17 on the owner''s correction), after O-017 and before the deploy. Planets, rings, Mars moons, small moons and real orbits stay out; this Issue stays open for them.'
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Largely done by O-033 and the per-planet data packages (C-091); what remains (Ceres, Mars-moon pictures) is new demo content, out of scope under "no more demos".'
 ---
 
 # I-032: Donor planet and moon pictures beyond Jupiter are unassessed and unused

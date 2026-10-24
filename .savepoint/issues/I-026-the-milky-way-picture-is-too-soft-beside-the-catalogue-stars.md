@@ -2,13 +2,18 @@
 id: I-026
 title: The Milky Way picture is too soft beside the catalogue stars
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
   at: '2026-10-15T07:30:00Z'
 tasks: [T-053]
 checks: [C-028]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Keep it off by default, close it". The Milky Way stays off by default (a placeable switch); sharper free maps carry a non-commercial term, so no change.'
 history:
   - at: '2026-10-15T07:30:00Z'
     actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
@@ -26,6 +31,10 @@ history:
     actor: {role: owner, session: owner-chat-20261017}
     kind: owner_decision
     note: 'Owner, 2026-10-17: "milkyway needs a better photo still". Not accepted; stays open until a sharper Milky Way picture that lines up with the stars is found.'
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Keep it off by default, close it". The Milky Way stays off by default (a placeable switch); sharper free maps carry a non-commercial term, so no change.'
 ---
 
 # I-026: The Milky Way picture is too soft beside the catalogue stars

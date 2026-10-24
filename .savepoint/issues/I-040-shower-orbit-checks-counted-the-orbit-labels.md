@@ -2,11 +2,16 @@
 id: I-040
 title: The showers' "comet orbit is drawn" checks were counting the orbit labels, not the lines
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: checker, session: o020-orchestrator-20261018}
   at: '2026-10-18T06:10:00Z'
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Fixed by 2af11891 and 605c91d6 (scene data-paths readout, driver scenePaths); the browser-showers script it names no longer exists. Owner acceptance, not a new Check.'
 history:
   - at: '2026-10-18T06:10:00Z'
     actor: {role: checker, session: o020-orchestrator-20261018}
@@ -16,6 +21,10 @@ history:
     actor: {role: executor, session: o024-labels-lane}
     kind: repair_attempted
     note: 'Lane o024-labels. (1) Scene readout: the canvas now publishes `data-paths` (JSON per path line: id, visible, vertices, inView, spanX, spanY), from `PathView.screenReadout` via `publishPathData` in sceneDebug.ts, generic (no shower names); driver.scenePaths/scenePath read it. (2) browser-showers: "the comet''s whole orbit is drawn" now asserts the line from that readout (visible, over 500 vertices, at least 90% in view, extent over 3% of the view) in the Overview at start and peak, with a negative probe (wheel in on the Sun: fewer than 60% of the vertices in view; a short orbit such as the Geminids'' keeps its near-Sun end in view, so a quarter is too strict); the Whole orbit preset asserts at least 90% in view and a span over 20% (measured 0.25 for the Perseids, the orbit seen nearly end-on; the old violet-pixel box read over 30% because of labels and glow). The orbit-coloured and violet pixel counts are recorded, not asserted; the unmasked violet-extent evaluate is removed. The whole-orbit picture is now taken before the assertions. (3) browser-anchor-labels now writes to argv[2], else ASTRAEUS_EVIDENCE_DIR, else a fresh timestamped directory under the system temp directory. (4) No other script asserted orbit labels visible. Unit tests added in tests/paths.test.ts. Results: tsc ok; vitest 66 files, 1025 passed 1 skipped; build ok; driver guard ok; browser-showers perseids and geminids (full, desktop and phone) exit 0, docs/evidence/o024-labels-iter-0507j; lite tier docs/evidence/o024-labels-lite-20261018T0519Z: anchor-labels, earth-moon, jupiter-io, orbit-motion, orbit-look, browser-lite all exit 0 with error-lines 0. Full run deferred to the orchestrator''s batch run. Status left open.'
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Fixed by 2af11891 and 605c91d6 (scene data-paths readout, driver scenePaths); the browser-showers script it names no longer exists. Owner acceptance, not a new Check.'
 ---
 
 # I-040: The showers' "comet orbit is drawn" checks were counting the orbit labels

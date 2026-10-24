@@ -2,13 +2,18 @@
 id: I-009
 title: Apollo 11 demo data follow-ups, deferred and non-blocking
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: planner, session: g002-retro-2026-10-06}
   at: '2026-10-06T09:40:00Z'
 tasks: [T-013, T-015]
 checks: [C-005, C-006]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Demo data follow-ups are out of scope under the owner direction "no more demos, here on in only improvements"; the one engine point (lunar libration) moves to I-091.'
 history:
   - at: '2026-10-06T09:40:00Z'
     actor: {role: planner, session: g002-retro-2026-10-06}
@@ -18,6 +23,10 @@ history:
     actor: {role: planner, session: g002-retro-2026-10-06}
     kind: deferred
     note: Owner direction in the retrospective — note Apollo demo issues for later, non-blocking. Apollo is a provider example, not an accuracy target; pick these up only if a future story needs them.
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Demo data follow-ups are out of scope under the owner direction "no more demos, here on in only improvements"; the one engine point (lunar libration) moves to I-091.'
 ---
 
 # I-009: Apollo 11 demo data follow-ups, deferred and non-blocking

@@ -2,17 +2,26 @@
 id: I-059
 title: Packaged-skill suggestions from the O-037 code health run
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
   at: '2026-10-21T10:45:32Z'
 tasks: [T-122, T-128]
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: improvements-intake-20261024}
+  at: '2026-10-24T02:51:07Z'
+  reason: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Suggestions for the Savepoint package, not a project repair; AGENTS.md already records the scanner scope and coverage refresh.'
 history:
   - at: '2026-10-21T10:45:32Z'
     actor: {role: executor, session: 9d85e5d6-91d4-454a-a0d6-81701c464056}
     kind: observed
     note: Recorded by O-037 T-128 as suggestions for the packaged Savepoint skills and references, which this project does not edit (agent-skills/ unchanged). No repair is planned here.
+  - at: '2026-10-24T02:51:07Z'
+    actor: {role: owner, session: improvements-intake-20261024}
+    kind: owner_decision
+    note: 'Owner, 2026-10-24: "Yes, close all seven" after the triage. Suggestions for the Savepoint package, not a project repair; AGENTS.md already records the scanner scope and coverage refresh.'
 ---
 
 # I-059: Packaged-skill suggestions from the O-037 code health run
