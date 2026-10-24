@@ -41,7 +41,6 @@ const madeUp = {
     sources: { gmn: { source: { name: "Made up for the builder test", url: "https://example.invalid/made-up", accessed: "2030-01-01" }, months: ["203001"], licence: "CC BY 4.0", licenceUrl: "https://example.invalid/licence", ruleNote: "Made-up mapping for the builder test." } },
     seed: 11,
     quality: {
-      default: "all",
       rule: { minConvergenceAngleDeg: 15, maxVelocityErrorFraction: 0.1, quote: "Made-up rule for the builder test", source: { name: "Made up", url: "https://example.invalid/made-up", accessed: "2030-01-01" } },
     },
     concentration: { fraction: 0.25, widthDeg: 30, status: "illustrative", basis: "Made-up default for the builder test." },

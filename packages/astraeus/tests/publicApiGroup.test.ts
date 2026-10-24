@@ -81,6 +81,10 @@ describe("addGroup", () => {
     expect(codeOf(() => base().addGroup(ring({ id: "earth" })))).toBe("duplicate-id");
   });
 
+  it("names the code by what is wrong with the centre: unknown-body when it is not a catalogued body, bad-group when it is catalogued but not in the scene (I-084)", () => {
+    expect(codeOf(() => base().addGroup(ring({ center: "made-up-centre" })))).toBe("unknown-body");
+    expect(codeOf(() => new Scene().addBody(earth).addGroup(ring({ center: "moon" })).toDefinition())).toBe("bad-group");
+  });
   it("refuses bad input with bad-group, naming the group", () => {
     const orbits = ring().orbits;
     const cases: Partial<GroupInput>[] = [

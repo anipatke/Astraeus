@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- Documentation only: `addGroup` states that a `center` that is not a catalogued body throws `unknown-body` (a catalogued one missing from the scene throws `bad-group`), and `setTimeline` states that `loop` is ignored with `{ none: true }` or without a timeline. No behaviour changes.
+
 ## 0.2.0
 
 The story layer: a scene can now carry your own bodies from orbit elements, orbit lines for any body circling the Sun, timed events, story panels, groups of many objects, an activity curve, display switches and a looping timeline, through `mount` or the new React component `AstraeusScene`. Every public name is documented at <https://astraeus.anipatke.com/api/>. Two changes can affect a 0.1 app: React, react-dom, `@react-three/fiber` and three are now peer dependencies (React 19 needed), and camera preset ids are now `focus-<id>` and `follow-<id>` (both below).

@@ -86,9 +86,8 @@ export interface ShowerSettings {
     /** The catalogue the orbits are read from (the Global Meteor Network), cited in the stream's panel. */
     readonly sources: { readonly gmn: GmnSourceSettings };
     readonly seed: number;
-    /** Which orbit set is drawn unless the address says otherwise, and the published rule that defines the "reliable" one. */
+    /** The published rule that defines the "reliable" orbit set (quoted in the stream's card; every orbit is drawn). */
     readonly quality: {
-      readonly default: "all" | "reliable";
       readonly rule: {
         readonly minConvergenceAngleDeg: number;
         readonly maxVelocityErrorFraction: number;
@@ -320,14 +319,12 @@ function look(raw: Raw): ShowerLook {
 
 function quality(input: unknown): ShowerSettings["stream"]["quality"] {
   const raw = record(input, "stream.quality");
-  const choice = raw.default;
-  if (choice !== "all" && choice !== "reliable") fail("stream.quality.default", `must be "all" or "reliable", got ${String(choice)}`);
   const rule = record(raw.rule, "stream.quality.rule");
   const fraction = finite(rule, "maxVelocityErrorFraction", "stream.quality.rule");
   if (!(fraction > 0 && fraction <= 1)) fail("stream.quality.rule.maxVelocityErrorFraction", `must be above 0 and at most 1, got ${fraction}`);
   const angle = finite(rule, "minConvergenceAngleDeg", "stream.quality.rule");
   if (!(angle >= 0 && angle <= 90)) fail("stream.quality.rule.minConvergenceAngleDeg", `must be from 0 to 90, got ${angle}`);
-  return { default: choice, rule: { minConvergenceAngleDeg: angle, maxVelocityErrorFraction: fraction, quote: text(rule, "quote", "stream.quality.rule"), source: source(rule, "source", "stream.quality.rule") } };
+  return { rule: { minConvergenceAngleDeg: angle, maxVelocityErrorFraction: fraction, quote: text(rule, "quote", "stream.quality.rule"), source: source(rule, "source", "stream.quality.rule") } };
 }
 
 function concentration(raw: Raw): ShowerSettings["stream"]["concentration"] {

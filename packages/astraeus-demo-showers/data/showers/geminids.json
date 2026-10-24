@@ -73,7 +73,6 @@
     },
     "seed": 20261214,
     "quality": {
-      "default": "all",
       "rule": {
         "minConvergenceAngleDeg": 15,
         "maxVelocityErrorFraction": 0.1,

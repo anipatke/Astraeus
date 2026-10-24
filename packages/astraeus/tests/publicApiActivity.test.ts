@@ -92,6 +92,10 @@ describe("setTimeline loop", () => {
     expect(base().setTimeline({ start: day(0), end: day(20) }).toDefinition().loop).toBeUndefined();
     expect(base().setTimeline({ start: day(0), end: day(20), loop: false }).toDefinition().loop).toBeUndefined();
   });
+  it("ignores loop when the scene has no timeline bar or no timeline call (documented, I-084)", () => {
+    expect(base().setTimeline({ none: true, loop: true } as never).toDefinition().loop).toBeUndefined();
+    expect(base().toDefinition().loop).toBeUndefined();
+  });
   it("refuses a loop that is not true or false", () => { expect(codeOf(() => base().setTimeline({ start: day(0), end: day(20), loop: "yes" as never }))).toBe("bad-timeline"); });
 });
 

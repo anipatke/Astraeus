@@ -2,7 +2,7 @@
 id: I-084
 title: Three small mismatches in the public API found by the shower rebuild
 type: defect
-status: open
+status: in_progress
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: improvements-intake-20261024}
     kind: observed
     note: 'Owner, 2026-10-24: "can we add the fixes as issues, and iterate through and fix them with agents" (after "no more demos, here on in only improvements").'
+  - at: '2026-10-24T13:55:00Z'
+    actor: {role: executor, session: i084-repair}
+    kind: repair_attempted
+    note: 'Item 1 confirmed: group.ts throws unknown-body for a centre that is not catalogued, bad-group (toDefinition) for a catalogued one missing from the scene; doc fixed in scene.ts addGroup, test "names the code by what is wrong with the centre" in publicApiGroup.test.ts. Item 2 confirmed: loop is dropped with { none: true } or no setTimeline; documented as ignored (scene.ts setTimeline, story.ts TimelineInput), test "ignores loop when the scene has no timeline bar" in publicApiActivity.test.ts. Item 3 confirmed: stream.quality.default was validated but read nowhere; removed from showerSettings.ts (type, validation), perseids.json, geminids.json and tests/showers.test.ts; the quality rule is still used. CHANGELOG Unreleased line added (docs only). Gates green: lint, typecheck, build, npm test (135 files, 1786 passed), check:engine-alone. Unverified: check:browser not run (not required); the API reference page not regenerated (it reads the doc comments); the new tests were not run against the old doc text since they pin behaviour, not wording.'
 ---
 
 # I-084: Three small mismatches in the public API found by the shower rebuild

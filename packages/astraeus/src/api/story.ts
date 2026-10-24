@@ -26,7 +26,7 @@ export interface AddEventsOptions {
  * or, when `rate` is given, runs on from there at that rate.
  */
 export type TimelineInput =
-  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. */ readonly loop?: boolean; readonly none?: undefined }
+  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined }
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
 
 /** What `setTimeline` was given, checked and converted. */

@@ -271,7 +271,7 @@ export class Scene {
 
   /**
    * Adds a group of listed orbits drawn as one set of dots (one colour and dot size, one menu item and info card), with an optional clump near a body.
-   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour, clump or centre throws `bad-group`.
+   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour or clump throws `bad-group`. A `center` that is not a catalogued body throws `unknown-body`; a catalogued one the finished scene does not hold throws `bad-group` from `toDefinition`.
    * @example
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
@@ -322,7 +322,7 @@ export class Scene {
     return this;
   }
 
-  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`) and whether playback wraps from the end to the start (`loop`), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
+  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#timeline = timelineOf(timeline);
     return this;
