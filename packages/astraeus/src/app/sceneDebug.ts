@@ -7,7 +7,7 @@ import type { StateResolver } from "../core/stateResolver";
 import type { Camera } from "three";
 import type { PathView } from "./PathView";
 import type { BodyScreenReadout } from "./sceneBodies";
-import { buildDebugReadout, type DebugReadout } from "./DebugOverlay";
+import { buildDebugReadout, type DebugReadout } from "./debugReadout";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";

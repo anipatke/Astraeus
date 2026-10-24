@@ -17,7 +17,7 @@ import {
   type CameraRequest,
   type OrbitCameraState,
 } from "./CameraController";
-import type { DebugReadout } from "./DebugOverlay";
+import type { DebugReadout } from "./debugReadout";
 import { FloatingOrigin } from "./floatingOrigin";
 import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
 import type { TrackedBody } from "./mission";

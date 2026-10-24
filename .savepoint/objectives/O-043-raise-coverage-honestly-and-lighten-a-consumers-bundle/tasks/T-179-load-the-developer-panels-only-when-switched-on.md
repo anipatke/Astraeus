@@ -2,10 +2,15 @@
 id: T-179
 title: Load the developer panels only when switched on
 objective: O-043
-status: planned
+status: done
 depends_on: [{task: T-178, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o043-planning-20261024}
+check_waiver:
+  task: T-179
+  reason: 'Owner said "orchestrate O43"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o043-run-20261024}
+  recorded_at: '2026-10-24T01:39:39Z'
 ---
 
 # Load the developer panels only when switched on
@@ -56,8 +61,25 @@ Hand-off gates from AGENTS.md plus the extra gates in Done When. No `npm run che
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-24 by a builder session (no Task Check requested; owner validation required).
+
+Changes: `app/developerPanels.tsx` (new: six `React.lazy` wrappers over one `import("./DeveloperSettings")`); `app/App.tsx` (imports the panels from it; `developerTools` wrapped in `Suspense` with a quiet "Loading developer tools..." line); `app/debugReadout.ts` (new: `DebugReadout`, `buildDebugReadout`, `EARTH_MOON_LABELS` and types moved out of `DebugOverlay.tsx`, which re-exports them); `sceneDebug.ts`, `metricReadouts.ts`, `AstraeusScene.tsx` and `App.tsx` import the types from `debugReadout`; `tests/firstOpenGraph.test.ts` (new). Per-frame stats collection (`sceneFrame`/`sceneDebug`) is unchanged and stays in the first-open script (CODE-02). Settings read from the address are applied in `App.tsx` state, which is not moved.
+
+Per criterion:
+- No static panel imports in App.tsx; lazy with placeholder: met (`developerPanels.tsx`, `Suspense` fallback).
+- Separate on-demand script, totals lower, recorded: met. `DeveloperSettings-pp231YOh.js` 14,479 B raw / 4,589 gzip on-demand. First-open 1,603,283 to 1,589,537 B raw (-13,746), 458,257 to 454,113 gzip (-4,144). Appended to `docs/evidence/o043-bundle-baseline.md`.
+- Node test: met. `tests/firstOpenGraph.test.ts` walks static value imports from `src/api/index.ts` and asserts `DeveloperSettings`, `DebugOverlay`, `FrameRateSection` are not reached, and `developerPanels` uses a dynamic import. Existing panel tests (`frameStats`, `domMenuAndLink`, `orbitLook`) pass unchanged.
+- Other candidates not small and safe: not done, by owner choice (2026-10-24 "Panels only"): planet-system modules, chebyshevEphemeris, sunCentredSources.
+- Gates: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (131 files, 1744 passed, 1 skipped, junit.xml), `npm run check:pack` pass, `npm run measure:example` (builds the example) pass, `npm run check:engine-alone` pass.
+
+Extra reads: none beyond Context Files except `sceneDebug.ts`, `sceneFrame.ts`, `metricReadouts.ts`, `shell/AstraeusShell.tsx` (grep of who imports the panels and where `developerTools` is drawn), and `docs/evidence/o043-bundle-baseline.md`.
+
+Limitations: no browser run (none required). The developer drawer opening and working was not looked at in a browser; the owner checks on the preview. No test renders the lazy path in a browser; panel components remain covered by static-markup tests. Open it with the "Developer" switch in the shell (DeveloperToggle); no address parameter.
 
 ## Drift Notes
 
 Defer architecture notes to the coverage and Design step of O-043.
+
+## Owner Validation
+
+2026-10-24T01:39:39Z, owner (session o043-run-20261024), on the localhost:5490 preview after turning on the Developer switch: "Looks fine, carry on" (developer tools open, sliders change the scene, Under the hood readouts update). Owner decision before this step: "Panels only" (planet-system modules and chebyshevEphemeris/sunCentredSources not made on-demand).

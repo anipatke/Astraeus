@@ -47,3 +47,20 @@ The engine is about 325,000 characters (23%); the libraries it needs are about 1
 | Orb 97,885 (7%) | n/a | Used by `core/bodies/{earth,moon,sun}`, `astronomyAdapter`, `twoBodyAdapter`; needed for any Earth or Moon scene. A replacement is out of scope. |
 
 Reading: the engine's own share is about 23% of the script, and the named developer-panel candidate is about 1% of it. Even all engine candidates together are under 3.5%. `planetModels` (330 kB raw, 218 kB gzip) is already loaded on demand.
+
+## After T-179 (developer panels on demand)
+
+- Date: 2026-10-24. Command: `npm run measure:example`.
+- `App.tsx` reaches `DeveloperSettings` (with `DebugOverlay` and `FrameRateSection`) only through `app/developerPanels.tsx`, six `React.lazy` wrappers over one dynamic `import()`, inside one `Suspense`. The per-frame figures `buildDebugReadout` and its types moved to `app/debugReadout.ts` so the scene keeps collecting stats without the panel code.
+
+| File | Raw bytes | Gzip bytes | When |
+|------|-----------|------------|------|
+| assets/index-Bvj3AWzI.js | 1,544,787 | 445,267 | first-open |
+| assets/index-V3uHjv0f.css | 44,750 | 8,846 | first-open |
+| assets/DeveloperSettings-pp231YOh.js | 14,479 | 4,589 | on-demand (new) |
+| assets/planetModels-OJ4kSAlo.js | 329,775 | 218,257 | on-demand |
+| First-open total | 1,589,537 | 454,113 | |
+
+Change against baseline: first-open raw 1,603,283 to 1,589,537 (-13,746, -0.86%); gzip 458,257 to 454,113 (-4,144, -0.90%).
+
+Not done, by owner choice (2026-10-24, "Panels only"): planet-system modules (`outerPlanets`, `moonSystem`, `planetMoons`, `swiftTuttle`, `planetSystemMaps`, `MoonFamilyPanel`), `chebyshevEphemeris`, `sunCentredSources`. three.js and Orb are consumer dependencies, out of scope.

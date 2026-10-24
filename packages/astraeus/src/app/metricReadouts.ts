@@ -1,6 +1,6 @@
 import type { TimelineEvent } from "../core/events";
 import type { CoordinatesMetric, DistanceMetric, Metric, PhaseMetric, ProgressMetric } from "../shell/metrics";
-import { EARTH_MOON_LABELS, type DebugReadout } from "./DebugOverlay";
+import { EARTH_MOON_LABELS, type DebugReadout } from "./debugReadout";
 
 const HOUR_MS = 3_600_000;
 
