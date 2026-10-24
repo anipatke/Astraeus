@@ -2,12 +2,19 @@
 id: I-086
 title: The Apollo 11 page is at 99.7% of its download limit
 type: other
-status: in_progress
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
   at: '2026-10-24T02:47:47Z'
 severity: low
+checks: [C-117]
+resolution:
+  disposition: verified
+  check: C-117
+  actor: {role: checker, session: c117-improvements-check-20261024}
+  at: '2026-10-24T03:50:00Z'
+  reason: Repair proven by C-117 (CLEAR).
 history:
   - at: '2026-10-24T02:47:47Z'
     actor: {role: planner, session: improvements-intake-20261024}
@@ -25,6 +32,11 @@ history:
     actor: {role: executor, session: improvements-1-coordinator-20261024}
     kind: repair_attempted
     note: 'packages/astraeus-site/tools/validate/load-budget.mjs: Apollo 11 rawLimit 4,370,000 -> 4,450,000 (97.5% used, about 110 kB of room); gzipLimit 2,900,000 unchanged (96.9% used); dated comment above the row. Limit-only change; proof is the public-build file check in the final check:browser run.'
+  - at: '2026-10-24T03:50:00Z'
+    actor: {role: checker, session: c117-improvements-check-20261024}
+    kind: rechecked
+    note: 'C-117 CLEAR: raw limit 4,450,000 by the recorded owner decision; fresh check:browser public-build file check: Apollo 11 page 4,340,642 B raw (97.5%) / 2,812,143 B gzip (97.0%), 12 files, no problems (docs/evidence/browser-20261024T033359Z).'
+    check: C-117
 ---
 
 # I-086: The Apollo 11 page is at 99.7% of its download limit

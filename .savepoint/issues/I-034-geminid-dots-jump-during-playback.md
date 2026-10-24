@@ -48,6 +48,11 @@ history:
     actor: {role: executor, session: improvements-i034-20261024}
     kind: observed
     note: 'Re-measured on the current code (headless Chromium, software GL, dev server, frame probe through driver.mjs, any frame over 1.5x median flagged; docs/evidence/i034-frames-20261024T031416Z). Played 7.5 s per page at one week per second (default and fastest are the same rate for both showers). Perseids: median 16.7 ms, max 50 ms, no frame over 3x. Geminids: median 33.3 ms, max 83 ms (default) and 67 ms (fastest), no frame over 3x. The planets control gave max 50-67 ms. The old pattern (a 100-117 ms frame every 10-11 frames, every 0.4 s) does not reproduce: flagged frames are one or two vsync steps with irregular gaps, no match to the 72 h refill interval, and the control scatters the same way. Geminids runs at twice the Perseids frame time because it draws twice the dots on software GL (steady cost, not a periodic hitch). No stutter reproduces, so nothing was changed. Not measured: real GPU or phone; the owner judges feel on the preview, so the Issue stays in_progress for the owner to resolve or reopen with a fresh description.'
+  - at: '2026-10-24T03:50:00Z'
+    actor: {role: checker, session: c117-improvements-check-20261024}
+    kind: observed
+    note: 'C-117 review: the clock standing still in the 2026-10-24 probe is the story panel hold, not a playback defect. Probe (Perseids, dev server port 5531, driver.mjs): after a seek to 10% (2019-10-27T17:56Z) the clock ran 5 days, paused about 6 s and resumed by itself; data/stories/perseids/panels.json has autoOpen true, pauseSeconds 6 and the stream-shape panel at 2019-11-01; useStoryPanels.ts holds on a forward crossing. From the opening time playback ran 60 scene days in 12 s without stopping. No Issue; the owner still judges the showers by eye.'
+    check: C-117
 ---
 
 # I-034: Geminid dots jump during playback

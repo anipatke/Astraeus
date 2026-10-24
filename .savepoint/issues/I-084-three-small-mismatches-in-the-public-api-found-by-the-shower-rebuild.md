@@ -2,12 +2,19 @@
 id: I-084
 title: Three small mismatches in the public API found by the shower rebuild
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
   at: '2026-10-24T02:47:47Z'
 severity: low
+checks: [C-117]
+resolution:
+  disposition: verified
+  check: C-117
+  actor: {role: checker, session: c117-improvements-check-20261024}
+  at: '2026-10-24T03:50:00Z'
+  reason: Repair proven by C-117 (CLEAR).
 history:
   - at: '2026-10-24T02:47:47Z'
     actor: {role: planner, session: improvements-intake-20261024}
@@ -17,6 +24,11 @@ history:
     actor: {role: executor, session: i084-repair}
     kind: repair_attempted
     note: 'Item 1 confirmed: group.ts throws unknown-body for a centre that is not catalogued, bad-group (toDefinition) for a catalogued one missing from the scene; doc fixed in scene.ts addGroup, test "names the code by what is wrong with the centre" in publicApiGroup.test.ts. Item 2 confirmed: loop is dropped with { none: true } or no setTimeline; documented as ignored (scene.ts setTimeline, story.ts TimelineInput), test "ignores loop when the scene has no timeline bar" in publicApiActivity.test.ts. Item 3 confirmed: stream.quality.default was validated but read nowhere; removed from showerSettings.ts (type, validation), perseids.json, geminids.json and tests/showers.test.ts; the quality rule is still used. CHANGELOG Unreleased line added (docs only). Gates green: lint, typecheck, build, npm test (135 files, 1786 passed), check:engine-alone. Unverified: check:browser not run (not required); the API reference page not regenerated (it reads the doc comments); the new tests were not run against the old doc text since they pin behaviour, not wording.'
+  - at: '2026-10-24T03:50:00Z'
+    actor: {role: checker, session: c117-improvements-check-20261024}
+    kind: rechecked
+    note: 'C-117 CLEAR: bad-centre codes (unknown-body / bad-group) match the scene.ts doc and the test; loop with { none: true } or no setTimeline is documented as ignored and tested; stream.quality.default removed from type, parser, both shower files and tests with no remaining reader; CHANGELOG Unreleased lists it. Fresh lint, typecheck, build, test:full, check:engine-alone pass.'
+    check: C-117
 ---
 
 # I-084: Three small mismatches in the public API found by the shower rebuild

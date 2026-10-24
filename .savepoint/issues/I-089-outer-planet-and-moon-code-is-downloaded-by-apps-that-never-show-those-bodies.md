@@ -2,12 +2,19 @@
 id: I-089
 title: Outer-planet and moon code is downloaded by apps that never show those bodies
 type: other
-status: in_progress
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
   at: '2026-10-24T02:47:47Z'
 severity: low
+checks: [C-117]
+resolution:
+  disposition: verified
+  check: C-117
+  actor: {role: checker, session: c117-improvements-check-20261024}
+  at: '2026-10-24T03:50:00Z'
+  reason: Repair proven by C-117 (CLEAR).
 history:
   - at: '2026-10-24T02:47:47Z'
     actor: {role: planner, session: improvements-intake-20261024}
@@ -21,6 +28,11 @@ history:
     actor: {role: executor, session: i089-repair}
     kind: repair_attempted
     note: 'Owner decision 2026-10-24: "Do the small part only" (option B of the design note; options A and C not pursued: the outer-planet, moon-system, comet and planet-map tables stay in the first-open script because making them on-demand needs a catalogue refactor worth about 1.1%, recorded as not worth it). Changed: shell/AstraeusShell.tsx loads MoonFamilyPanel with React.lazy behind Suspense (fallback null) and PanelLoadBoundary, which gained an optional `message` prop (default text unchanged, so the developer panels read as before); the `./shell/MoonFamilyPanel` package export is unchanged. Measured npm run measure:example, first-open: before 1,589,850 B raw / 454,211 B gzip, after 1,586,382 / 453,280 (-3,468 raw, -931 gzip); new on-demand chunk MoonFamilyPanel 3,859 / 1,479. Apollo 11 page on a public build (ASTRAEUS_PUBLIC_BUILD=1, scratch outDir, load-budget.mjs): 4,339,326 B raw / 2,811,428 B gzip, 12 files, against 4,370,000 / 2,900,000 (was 4,342,461 / 2,811,207, 11 files; gzip +221 B because the bundler now splits the shared licence module into a 6,046 B chunk, one more request). load-budget.mjs page sets now list licence.js (all app pages) and moonFamilies.js (planets pages, which import it statically); both tolerated when absent; limits unchanged. Tests: firstOpenGraph.test.ts asserts MoonFamilyPanel and moonFamilies are not reached from the entry and the shell uses a dynamic import; domMoonPanel.test.ts (planets demo) asserts the moon list appears after the lazy load with moonFamilies set and not without; existing moon panel and planets tests pass. Gates: lint, typecheck, build, npm test (1852 passed, 1 skipped; junit.xml), check:engine-alone, check:pack all pass. Not verified: no browser run (none requested), so the lazy panel timing on a real phone drawer and the failure message are checked only in happy-dom; failure message of the moon boundary has no dedicated test.'
+  - at: '2026-10-24T03:50:00Z'
+    actor: {role: checker, session: c117-improvements-check-20261024}
+    kind: rechecked
+    note: 'C-117 CLEAR: measure:example on a scratch copy of 8a0991c7 reproduces 1,586,382 B raw / 453,280 B gzip first-open with MoonFamilyPanel 3,859 B on demand (HEAD 1,587,659 / 453,973 after I-091); firstOpenGraph and domMoonPanel tests pass; TS-AST walk agrees the panel is not reached; check:browser smoke over all demo views passes. Moon-panel load-failure message untested (non-blocking observation).'
+    check: C-117
 ---
 
 # I-089: Outer-planet and moon code is downloaded by apps that never show those bodies

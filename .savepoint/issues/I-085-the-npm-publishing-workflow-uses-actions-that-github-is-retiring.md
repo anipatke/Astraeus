@@ -17,6 +17,11 @@ history:
     actor: {role: executor, session: repair-builder-I-085}
     kind: repair_attempted
     note: 'publish.yml: actions/checkout v4 to v7 and actions/setup-node v4 to v7 (latest majors, 7.0.1 and 7.1.0; both action.yml declare using node24). Runner kept at ubuntu-latest (already Ubuntu 24.04; nothing in the workflow depends on OS specifics; the workflow sets Node 24 for the job itself). Only workflow in .github/workflows. docs/RELEASING.md unchanged (no step changes). Verified: YAML parses; @action-validator/cli passes; npm run lint and typecheck pass. Unverified: a real run. The branch is not pushed, so the manual dry run (Actions, Run workflow, publishes nothing) is owed after the coordinator pushes; confirm no Node 20 deprecation annotation appears.'
+  - at: '2026-10-24T03:50:00Z'
+    actor: {role: checker, session: c117-improvements-check-20261024}
+    kind: rechecked
+    note: 'C-117: file repair proven (publish.yml parses; actions/checkout@v7 and actions/setup-node@v7 action.yml both declare using node24). Not verified: the real manual dry run, which needs a push; outside C-117. Issue stays in_progress until that run passes.'
+    check: C-117
 ---
 
 # I-085: The npm publishing workflow uses actions that GitHub is retiring
