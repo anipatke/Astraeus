@@ -1,7 +1,7 @@
 ---
 id: O-043
 title: Raise coverage honestly and lighten a consumer's bundle
-status: in_progress
+status: done
 depends_on: [O-042]
 release: G-011
 ---

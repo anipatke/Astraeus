@@ -12,6 +12,7 @@ import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, timeFromSearch, viewFromSearch, shareViewLink, type StartView } from "./viewLink";
 import { Collapsible } from "../shell/Collapsible";
+import { PanelLoadBoundary } from "./PanelLoadBoundary";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
@@ -493,6 +494,7 @@ export function App({ definition, onOpenAddress }: { readonly definition: Experi
   ];
   const presentGroups = groups.filter((group) => group !== null);
   const developerTools = (
+    <PanelLoadBoundary>
     <Suspense fallback={<p className="developer-loading" role="status">Loading developer tools...</p>}>
     <div className="hud">
       <header className="developer-heading">
@@ -506,6 +508,7 @@ export function App({ definition, onOpenAddress }: { readonly definition: Experi
       ))}
     </div>
     </Suspense>
+    </PanelLoadBoundary>
   );
 
   return (

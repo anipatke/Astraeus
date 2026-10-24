@@ -32,12 +32,14 @@ function staticImports(source) {
 export function measureBuild(dir) {
   const html = readFileSync(join(dir, "index.html"), "utf8");
   const firstOpen = new Set();
-  const queue = pageFiles(html);
+  const queue = pageFiles(html).filter((file) => !/^[a-z]+:/i.test(file)).map((file) => ({ file, from: "index.html" }));
   while (queue.length > 0) {
-    const file = queue.shift();
-    if (firstOpen.has(file) || !existsSync(join(dir, file))) continue;
+    const { file, from } = queue.shift();
+    if (firstOpen.has(file)) continue;
+    // A missing first-open file would make the total too small, so the measure fails rather than skipping it (C-116 O2).
+    if (!existsSync(join(dir, file))) throw new Error(`measure-example: ${from} loads ${file}, which is not in ${dir}`);
     firstOpen.add(file);
-    if (file.endsWith(".js")) for (const spec of staticImports(readFileSync(join(dir, file), "utf8"))) queue.push(posix.normalize(posix.join(posix.dirname(file), spec)));
+    if (file.endsWith(".js")) for (const spec of staticImports(readFileSync(join(dir, file), "utf8"))) queue.push({ file: posix.normalize(posix.join(posix.dirname(file), spec)), from: file });
   }
   const all = [];
   const walk = (sub) => {

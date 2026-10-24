@@ -48,4 +48,16 @@ describe("measureBuild", () => {
     expect(lines).toHaveLength(7);
     expect(lines[6]).toBe(`first-open total\t${result.totals.raw}\t${result.totals.gzip}\t`);
   });
+
+  it("fails, naming the file and who loads it, when a first-open script is missing from the build", () => {
+    const broken = mkdtempSync(join(tmpdir(), "measure-example-missing-"));
+    try {
+      mkdirSync(join(broken, "assets"));
+      writeFileSync(join(broken, "index.html"), '<script type="module" src="/assets/entry.js"></script><script type="module" src="https://cdn.example/x.js"></script>');
+      writeFileSync(join(broken, "assets/entry.js"), 'import"./gone.js";');
+      expect(() => measureBuild(broken)).toThrow("assets/entry.js loads assets/gone.js");
+    } finally {
+      rmSync(broken, { recursive: true, force: true });
+    }
+  });
 });
