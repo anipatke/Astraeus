@@ -1,7 +1,7 @@
 ---
 id: O-042
 title: Show groups of objects by rebuilding a shower on the public API
-status: in_progress
+status: done
 depends_on: [O-041]
 release: G-011
 ---

@@ -2,16 +2,22 @@
 id: I-083
 title: The Geminids solar-longitude test times out under the full gate
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-114
   actor: {role: checker, session: o042-full-check-20261024}
   at: '2026-10-24T00:55:00Z'
 tasks: [T-172, T-176]
-checks: [C-114]
+checks: [C-114, C-115]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-115
+  actor: {role: checker, session: o042-full-recheck-20261024}
+  at: '2026-10-24T01:06:00Z'
+  reason: 'npm run test:full passed twice in a row on 5475a815 (00:59:02-01:00:07Z and 01:00:27-01:01:32Z; 129 files, 1738 passed, 1 skipped), each writing coverage/coverage-final.json; DW3(ii) took 5.5 ms (Perseids) and 3.1 ms (Geminids) per case, the fill indicator 15.0 and 15.8 ms (best of 5, budget 100 ms). The pre-repair test logic, run as a temporary sibling, gives the same busiest bins (140.0-140.5, 5747 orbits; 261.5-262.0, 12563 orbits). savepoint health check O-042 snapshot sha256:8b283659dd7d005165e0a7f03bb2bebb75b5897d861b496fb40c31cc0261039a does not block clearance. Repair touched only the test file; C-114 browser run reused.'
 history:
   - at: '2026-10-24T00:55:00Z'
     actor: {role: checker, session: o042-full-check-20261024}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: i083-repair-builder-20261024}
     kind: repair_attempted
     note: 'Repair (tests only, no production change): packages/astraeus-demo-showers/tests/showersMeasured.test.ts now works out each row solar longitude once in a beforeAll (120 s hook limit, reason in a comment) and both bin widths read the cached values; the DW3(ii) case itself now takes about 7 ms and asserts the same 1 degree facts. The Perseids fill-time case now takes the best of five single fills against the same 100 ms budget, so load on one fill cannot fail it. Two consecutive npm run test:full runs passed (129 files, 1738 passed, 1 skipped; 58 s each, about 63 s wall); coverage/coverage-final.json written. npm test, lint, typecheck pass. Not closed: awaiting a Check (fresh savepoint health check O-042 not run by the repairer; the C-114 browser run stays reusable as only a test file changed).'
+  - at: '2026-10-24T01:06:00Z'
+    actor: {role: checker, session: o042-full-recheck-20261024}
+    kind: rechecked
+    check: C-115
+    note: 'npm run test:full passed twice in a row on 5475a815 (00:59:02-01:00:07Z and 01:00:27-01:01:32Z; 129 files, 1738 passed, 1 skipped), each writing coverage/coverage-final.json; DW3(ii) took 5.5 ms (Perseids) and 3.1 ms (Geminids) per case, the fill indicator 15.0 and 15.8 ms (best of 5, budget 100 ms). The pre-repair test logic, run as a temporary sibling, gives the same busiest bins (140.0-140.5, 5747 orbits; 261.5-262.0, 12563 orbits). savepoint health check O-042 snapshot sha256:8b283659dd7d005165e0a7f03bb2bebb75b5897d861b496fb40c31cc0261039a does not block clearance. Repair touched only the test file; C-114 browser run reused.'
 ---
 
 # I-083: The Geminids solar-longitude test times out under the full gate

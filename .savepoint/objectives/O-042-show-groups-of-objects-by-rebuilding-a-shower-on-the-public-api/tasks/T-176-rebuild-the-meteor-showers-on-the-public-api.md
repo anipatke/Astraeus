@@ -4,7 +4,13 @@ title: Rebuild the meteor showers on the public API
 objective: O-042
 status: done
 depends_on: [{task: T-171, requires: clear}, {task: T-172, requires: clear}, {task: T-175, requires: clear}, {task: T-177, requires: clear}]
-owner_validation: {required: true}
+owner_validation:
+  required: true
+  accepted_check: C-115
+  scope: [both rebuilt showers on localhost:5490 (desktop and phone) incl. the flagged differences, Done When 1-8]
+  accepted_by: {role: owner, session: o042-run-20261024}
+  accepted_at: '2026-10-24T01:05:03Z'
+  note: 'Owner look: "looks fine"; formal sign-off by the owner standing instruction for O-042: "merge and push when its clear" (C-115 CLEAR).'
 planned_by: {role: planner, session: o042-planning-20261024}
 check_waiver:
   task: T-176
