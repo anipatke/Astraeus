@@ -3,7 +3,7 @@ import appHtml from "../app.html?raw";
 import { describe, expect, it } from "vitest";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
 import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import { focusLimits } from "astraeus/app/sceneFraming";
 import { MOON } from "astraeus/core/body";

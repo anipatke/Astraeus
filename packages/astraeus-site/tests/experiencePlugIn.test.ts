@@ -12,7 +12,7 @@ import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
 import { provenanceAt, rateAt } from "astraeus/core/timeWindow";
 import { infoView } from "astraeus/shell/infoModel";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import type { RateMetric } from "astraeus/shell/metrics";

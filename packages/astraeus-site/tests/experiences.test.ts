@@ -23,7 +23,7 @@ import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createSolarSystemScale, trueScale } from "astraeus/core/scalePolicy";
 import type { StateResolver } from "astraeus/core/stateResolver";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { buildShowerDefinition, createEarthPathLayer, parentOrbitIdOf, showerComposition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import { scaleChoicesFor } from "astraeus/shell/scaleModel";
@@ -31,6 +31,7 @@ import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic
 import { syntheticBeltDefinition, syntheticRingDefinition } from "astraeus/synthetic/syntheticRingDefinition";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
 
+const parentOrbitId = "swift-tuttle-orbit";
 const adapter = createOrbAstronomyAdapter();
 const resolver = createSceneResolver(adapter);
 const settings = parseShowerSettings(perseidsFile);
@@ -42,7 +43,7 @@ const start = Date.parse(settings.activity.startUtc);
 describe("every experience names a composition", () => {
   it.each([
     ["Apollo", apollo11Definition, earthMoonSystem],
-    ["Perseids", perseids, showerComposition(settings)],
+    ["Perseids", perseids, createComposition(catalogue, { id: "scene", bodies: ["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"], defaultCenter: "sun" })],
     ["the synthetic marker", syntheticDefinition, earthMoonSystem],
     ["the synthetic ring", syntheticRingDefinition, earthMoonSystem],
     ["the synthetic belt", syntheticBeltDefinition, sunEarthSystem],
@@ -113,18 +114,18 @@ describe("Apollo", () => {
 
 describe("Perseids in the Sun-centred composition", () => {
   it("mounts the Sun, Earth, the planets and the comet about the Sun, with no Moon anywhere", () => {
-    expect(compositionOf(perseids)).toEqual(showerComposition(settings));
+    expect(compositionOf(perseids)?.bodies).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
     expect(sceneCenterOf(perseids)).toBe("sun");
     expect(mountedBodiesOf(perseids)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
     const ids = experienceWithGroups(perseids).objects.map((object) => object.id);
-    expect(ids).toEqual(expect.arrayContaining(["sun", "earth", "mars", "swift-tuttle", `${settings.id}-stream`, "earth-path", parentOrbitIdOf(settings)]));
+    expect(ids).toEqual(expect.arrayContaining(["sun", "earth", "mars", "swift-tuttle", `${settings.id}-stream`, "earth-orbit", parentOrbitId]));
     expect(ids).not.toContain("moon");
     expect(JSON.stringify(experienceWithGroups(perseids))).not.toMatch(/\bMoon\b/);
   });
 
   it("leaves every orbit line out of the Object list but offers each from its body", () => {
     const objects = experienceWithGroups(perseids).objects;
-    const orbits = objects.filter((object) => object.id.endsWith("-orbit") || object.id === "earth-path");
+    const orbits = objects.filter((object) => object.id.endsWith("-orbit") || object.id === "earth-orbit");
     expect(orbits.length).toBeGreaterThanOrEqual(5);
     for (const orbit of orbits) {
       expect(orbit.listed).toBe(false);
@@ -135,7 +136,7 @@ describe("Perseids in the Sun-centred composition", () => {
 
   it("draws no labels on any orbit or path line by default (owner, 2026-10-18: \"off by default for all demos\")", () => {
     const objects = experienceWithGroups(perseids).objects;
-    for (const id of ["mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", "earth-path", parentOrbitIdOf(settings)]) expect(objects.find((object) => object.id === id)?.showLabel).toBe(false);
+    for (const id of ["mercury-orbit", "venus-orbit", "mars-orbit", "jupiter-orbit", "earth-orbit", parentOrbitId]) expect(objects.find((object) => object.id === id)?.showLabel).toBe(false);
   });
 
   it("declares Earth's path and the parent's orbit as orbit paths about the Sun", () => {
@@ -143,17 +144,17 @@ describe("Perseids in the Sun-centred composition", () => {
     expect(sun).toBeUndefined();
     // Earth's path, then one orbit per catalogued planet (T-049), then the parent's whole orbit (T-038).
     expect(paths.map((path) => [path.object.id, path.kind])).toEqual([
-      ["earth-path", "orbit"],
+      ["earth-orbit", "orbit"],
       ...["mercury", "venus", "mars", "jupiter"].map((id) => [`${id}-orbit`, "orbit"]),
-      [parentOrbitIdOf(settings), "orbit"],
+      [parentOrbitId, "orbit"],
     ]);
     expect(paths.every((path) => path.object.provenance !== undefined)).toBe(true);
   });
 
   it("puts Earth on its path at the start and at the peak", () => {
-    const layer = createEarthPathLayer(settings);
+    const layer = sunCentredOf(perseids).paths.find((path) => path.object.id === "earth-orbit")!;
     const span = layer.span as { startUtcMs: number; endUtcMs: number };
-    const samples = layer.samples ?? 0;
+    const samples = layer.samples ?? 0; // the orbit starts at the opening time (the start), so the peak is checked on the same line
     const vertices = Array.from({ length: samples }, (_, i) => layer.source.stateAt(Math.round(span.startUtcMs + (i / (samples - 1)) * (span.endUtcMs - span.startUtcMs)), "sun").positionKm);
     const distanceToSegment = (p: ArrayLike<number>, a: ArrayLike<number>, b: ArrayLike<number>): number => {
       const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
@@ -173,7 +174,7 @@ describe("Perseids in the Sun-centred composition", () => {
     expect(scaleChoiceIdsOf(perseids)).toEqual(["true-scale", "solar-system"]);
     expect(visualOverridesOf(perseids).get("earth")?.exaggeration).toBe(EARTH_EXAGGERATION);
     const earth = perseids.experience.objects.find((object) => object.id === "earth");
-    expect(earth?.knownLimitations?.join(" ")).toContain(`${EARTH_EXAGGERATION} times larger`);
+    expect(earth?.description).toContain(`${EARTH_EXAGGERATION} times larger`);
   });
 
   it("draws Earth at its declared factor under the solar-system policy and everything else at true size", () => {
@@ -186,7 +187,7 @@ describe("Perseids in the Sun-centred composition", () => {
   });
 
   it("leaves Geminids-style settings to the same builder", () => {
-    expect(buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 50) }).composition).toEqual(showerComposition(settings));
+    expect(buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 50) }).composition?.bodies).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
   });
 });
 

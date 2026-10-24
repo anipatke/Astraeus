@@ -3,10 +3,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "astraeus/app/App";
 import { needsPlanetSeries } from "astraeus/app/planetNeeds";
-import { isPlanetId, loadPlanetSeries } from "astraeus/core/planetSeries";
+import { loadPlanetSeries } from "astraeus/core/planetSeries";
 import { choosePlanet, type PlanetEntry } from "astraeus-demo-planets/experiences/planets/planetChoice";
-import { chooseShower, showerEntryName, type ShowerEntry } from "astraeus-demo-showers/experiences/showers/showerEntry";
-import type { ShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
+import { chooseShower, showerEntryName, type ShowerEntry } from "./showerSwitch";
 import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planetSystems";
 import { createAddressNavigation } from "astraeus/app/addressNavigation";
@@ -69,23 +68,16 @@ async function chooseDefinition(): Promise<ExperienceDefinition> {
     return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {
-    const [{ parseShowerSettings }, { buildShowerDefinition, loadShowerPanelsFile, showerComposition }, { loadMeasuredOrbits }] = await Promise.all([
+    const [{ parseShowerSettings }, { buildShowerScene, loadShowerPanelsFile }, { loadMeasuredOrbits }] = await Promise.all([
       import("astraeus-demo-showers/experiences/showers/showerSettings"),
-      import("astraeus-demo-showers/experiences/showers/showerDefinition"),
+      import("astraeus-demo-showers/experiences/showers/showerScene"),
       import("astraeus-demo-showers/experiences/showers/measuredOrbits"),
     ]);
-    const parsed = parseShowerSettings(SHOWER_FILES[`../../astraeus-demo-showers/data/showers/${showerChoice.name}.json`]);
-    // ?span=activity|year overrides the settings file's timeline span, for comparison.
-    const span = new URLSearchParams(window.location.search).get("span");
-    const settings: ShowerSettings = span === "activity" || span === "year" ? { ...parsed, timeline: { ...parsed.timeline, span } } : parsed;
-    // ?orbits=all|reliable picks the orbit set; the settings file's own choice otherwise.
-    const orbits = new URLSearchParams(window.location.search).get("orbits");
-    const set = orbits === "all" || orbits === "reliable" ? orbits : settings.stream.quality.default;
-    // Building a shower already reads planet positions (the planets' orbit paths), so the series load first when its composition has a planet.
-    if (showerComposition(settings).bodies.some(isPlanetId)) await loadPlanetSeries();
+    const settings = parseShowerSettings(SHOWER_FILES[`../../astraeus-demo-showers/data/showers/${showerChoice.name}.json`]);
     // Only the chosen shower's panels file is fetched, beside its orbits.
     const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
-    return { ...buildShowerDefinition(settings, load, set, panelsFile), switcher: showerChoice.switcher };
+    // A shower is a story on the public API (`astraeus`): its scene's `toDefinition()` is what the app is given, with the page heading and the shower switch the site adds.
+    return { ...buildShowerScene(settings, load, panelsFile).toDefinition(), label: settings.label, switcher: showerChoice.switcher };
   }
   if (Object.hasOwn(DEFINITIONS, requested)) return DEFINITIONS[requested]!();
   // Apollo 11 is the default: a story built on the public API (`astraeus`), given to the app as its definition.

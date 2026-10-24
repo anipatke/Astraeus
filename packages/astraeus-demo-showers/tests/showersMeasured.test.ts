@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { groupsOf } from "astraeus/app/experienceDefinition";
+import { groupsOf, sunCentredOf } from "astraeus/app/experienceDefinition";
 import { catalogue } from "astraeus/assets/catalogue";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { meanAnomalyFromStateRad, type ListedOrbitGroup } from "astraeus/core/listedOrbitGroup";
-import { buildShowerDefinition, createParentOrbitPathLayer, streamIdOf, streamLimitations } from "../src/experiences/showers/showerDefinition";
+import { streamIdOf } from "../src/experiences/showers/showerBasics";
+import { streamLimitations } from "../src/experiences/showers/showerText";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { MEASURED_ROW_COLUMNS, SHIPPED_ROW_COLUMNS, orbitSetCounts, parseMeasuredOrbits } from "../src/experiences/showers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
@@ -85,14 +87,12 @@ describe.each(CASES)("$name from the shipped GMN orbits", ({ story, iau, letters
   });
 
   it("is drawn from the GMN file by the builder, with the source, licence and counts in the panel, and one set, as the file has no quality columns", () => {
-    const group = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "all"))[0].group as ListedOrbitGroup;
+    const group = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }))[0].group as ListedOrbitGroup;
     expect(group.count).toBe(file.rows.length);
-    const asked = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits }, "reliable"))[0].group;
     const counts = orbitSetCounts(orbits, settings.stream.quality.rule);
-    expect(asked.count).toBe(group.count);
     expect(counts).toEqual({ all: file.rows.length, reliable: null, cut: null });
     console.info(`${letters} GMN SETS ${JSON.stringify(counts)}`);
-    const panel = streamLimitations(settings, { set: "all", counts, provenance: orbits.provenance }).join(" ");
+    const panel = streamLimitations(settings, counts, orbits.provenance).join(" ");
     const sourced = `${group.provenance.sources.join(" ")} ${group.provenance.notes}`;
     expect(sourced).toContain("Global Meteor Network");
     expect(sourced).toContain("CC BY 4.0");
@@ -174,7 +174,7 @@ describe("Perseids: the member records, the clump and the drawing", () => {
   const { settings } = CASES[0];
   const file = readShippedFile("perseids", 7);
   const orbits = readShippedOrbits("perseids", 7);
-  const definition = buildShowerDefinition(settings, { kind: "loaded", orbits }, "all");
+  const definition = buildShowerDefinition(settings, { kind: "loaded", orbits });
   const group = groupsOf(definition)[0].group as ListedOrbitGroup;
 
   it("cites the two papers and counts the August rows; the columns are the fetch tool's shipped layout", () => {
@@ -235,11 +235,11 @@ describe("Perseids: the member records, the clump and the drawing", () => {
     expect(near / group.count).toBeGreaterThan(expected - 0.01);
     expect(near / group.count).toBeLessThan(expected + 0.01);
     console.info(`CLUMP ${settings.stream.concentration.status} fraction=${fraction} widthDeg=${widthDeg} nearShare=${(near / group.count).toFixed(4)} cometMeanAnomalyDeg=${phase.toFixed(2)}`);
-    expect(streamLimitations(settings).join(" ")).toContain(`clump near ${settings.parentBody} is a model`);
+    expect(streamLimitations(settings).join(" ")).toContain(`Basis of the clump near ${settings.parentBody}`);
   });
 
   it("DW2(c) and (d): the comet and the planets drawn are the catalogue's own bodies", () => {
-    const layer = createParentOrbitPathLayer(settings);
+    const layer = sunCentredOf(definition).paths.find((path) => path.object.id === `${settings.parentBodyId}-orbit`)!;
     const t = Date.parse(settings.activity.peakUtc);
     const catalogueComet = catalogue.get(settings.parentBodyId).source!.create(adapter);
     expect(Array.from(layer.source.stateAt(t, "sun").positionKm)).toEqual(Array.from(catalogueComet.stateAt(t, "sun").positionKm));

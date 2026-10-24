@@ -7,7 +7,7 @@ import perseidsPanels from "../data/stories/perseids/panels.json";
 import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "astraeus/core/bodies/swiftTuttle";
 import { buildElementsBody, classifyPositionError, parseElementsBodyRecord } from "astraeus/core/elementsBody";
 import { catalogue } from "astraeus/assets/catalogue";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 
@@ -112,7 +112,7 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(geminidsText).toMatch(/Active 4 to 17 December 2019/);
     expect(geminidsText).toMatch(/14 December 2019 at 04:33:33 UTC/);
     const settings = parseShowerSettings(geminids);
-    const built = buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience;
+    const built = buildShowerDefinition(settings, { kind: "absent" }, shippedPanelsOf(settings)).experience;
     expect(built.storyPanels!.panels.map((p) => p.id)).toEqual(["phaethon", "best-shower", "earth-crossing"]);
   });
 });

@@ -1,8 +1,16 @@
 // Shower settings: the settings types and their strict validation from a shower file.
-import { validateStartView, type StartView } from "astraeus/app/viewLink";
-import type { Raw } from "astraeus/core/fieldReaders";
-import { settingsFields } from "astraeus/experiences/settingsFields";
-import { ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "astraeus/core/elementsBody";
+import type { ElementsBodyRecord } from "astraeus";
+
+/** A plain object read from JSON-like data. */
+type Raw = Readonly<Record<string, unknown>>;
+
+/** The camera view a shower opens on: what to look at, the angles in degrees, and the distance in Earth radii. */
+export interface StartView {
+  readonly focus: string;
+  readonly azimuthDeg: number;
+  readonly elevationDeg: number;
+  readonly distance: number;
+}
 
 /** A cited fact: where a value was read, and when. */
 export interface ShowerSource {
@@ -148,7 +156,37 @@ function fail(path: string, problem: string): never {
   throw new ShowerSettingsError(`shower settings ${path} ${problem}`);
 }
 
-const { record, text, finite, instant, positive } = settingsFields(fail);
+// The field readers this parser needs, bound to its own failure so every error names the field by its dotted path.
+const ISO_UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+
+function record(value: unknown, path: string): Raw {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
+  return value as Raw;
+}
+
+function text(parent: Raw, key: string, path: string): string {
+  const value = parent[key];
+  if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
+  return value;
+}
+
+function finite(parent: Raw, key: string, path: string): number {
+  const value = parent[key];
+  if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
+  return value;
+}
+
+function instant(parent: Raw, key: string, path: string): string {
+  const value = text(parent, key, path);
+  if (!ISO_UTC_INSTANT.test(value) || !Number.isFinite(Date.parse(value))) fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
+  return value;
+}
+
+function positive(parent: Raw, key: string, path: string): number {
+  const value = finite(parent, key, path);
+  if (!(value > 0)) fail(`${path}.${key}`, `must be above zero, got ${value}`);
+  return value;
+}
 
 function nonNegative(parent: Raw, key: string, path: string): number {
   const value = finite(parent, key, path);
@@ -187,14 +225,18 @@ function orbitElements(raw: Raw, path: string): ShowerOrbitElements {
   return { semiMajorAxisAu, eccentricity };
 }
 
-/** A parent defined in the file, checked by the body-record validator; its errors are reported as settings errors. */
+/**
+ * A parent defined in the file. Only its identity and the size and shape its orbit must agree with are read here; the scene checks the rest of the record
+ * when the parent is added (`addBodyFromElements` names a bad field with `bad-element`).
+ */
 function parentRecord(input: unknown): ElementsBodyRecord {
-  try {
-    return parseElementsBodyRecord(input, "parentElements");
-  } catch (error) {
-    if (error instanceof ElementsBodyError) throw new ShowerSettingsError(`shower settings ${error.message}`);
-    throw error;
-  }
+  const raw = record(input, "parentElements");
+  text(raw, "id", "parentElements");
+  text(raw, "label", "parentElements");
+  const elements = record(raw.elements, "parentElements.elements");
+  finite(elements, "semiMajorAxisAu", "parentElements.elements");
+  finite(elements, "eccentricity", "parentElements.elements");
+  return raw as unknown as ElementsBodyRecord;
 }
 
 /** The orbit's size and shape; a parent defined in the file must agree with its own elements (one fact, said once). */
@@ -241,11 +283,16 @@ function timeline(input: unknown): ShowerSettings["timeline"] {
 }
 
 function startViewOf(value: unknown): StartView {
-  try {
-    return validateStartView(value, "look.startView");
-  } catch (error) {
-    return fail("look.startView", `is not a valid view: ${(error as Error).message}`);
-  }
+  const where = "look.startView";
+  const raw = record(value, where);
+  for (const key of Object.keys(raw)) if (!["focus", "azimuthDeg", "elevationDeg", "distance"].includes(key)) fail(where, `is not a valid view: ${where}.${key} is not a view field`);
+  const focus = text(raw, "focus", where);
+  const azimuthDeg = finite(raw, "azimuthDeg", where);
+  const elevationDeg = finite(raw, "elevationDeg", where);
+  if (Math.abs(elevationDeg) > 89) fail(where, `is not a valid view: ${where}.elevationDeg must be within ±89, got ${elevationDeg}`);
+  const distance = finite(raw, "distance", where);
+  if (!(distance > 0)) fail(where, `is not a valid view: ${where}.distance must be positive, got ${distance}`);
+  return { focus, azimuthDeg: ((azimuthDeg % 360) + 360) % 360, elevationDeg, distance };
 }
 
 function look(raw: Raw): ShowerLook {

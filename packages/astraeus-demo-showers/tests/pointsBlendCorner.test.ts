@@ -5,7 +5,7 @@ import { PointsView } from "astraeus/app/PointsView";
 import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import geminidsFile from "../data/showers/geminids.json";
 import { readShippedOrbits } from "./helpers/measuredOrbits";
@@ -25,7 +25,7 @@ const FOCAL_PX = 900 / 2 / Math.tan((22.5 * Math.PI) / 180);
 describe("Geminids members near the Sun, half way between two fills", () => {
   it("are drawn on their orbits by the shader and cut the corner under the blend", () => {
     const settings = parseShowerSettings(geminidsFile);
-    const layer = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits("geminids", 4) }, "all"))[0];
+    const layer = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits("geminids", 4) }))[0];
     const { group } = layer;
     const exact = new Float64Array(3 * group.count);
     const origin = new FloatingOrigin();

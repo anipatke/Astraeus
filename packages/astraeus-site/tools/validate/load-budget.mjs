@@ -15,10 +15,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
 const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
+const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerDefinition.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "settingsFields.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerScene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
@@ -43,7 +43,7 @@ const ALL_PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // T-165 (O-040): the API reference, one static page with inline style and no script; about 25 KB raw, limit rounded up generously for the page to grow with each Objective's exports.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 100_000, gzipLimit: 30_000 },
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
   // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's). Figures measured on the public build of 2026-10-21 plus 5%, rounded up to the next 10,000 bytes.
@@ -61,8 +61,10 @@ const ALL_PAGES = [
   planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
   // T-152 (O-030): the showers pages list only the chosen shower's panels chunk (`storyPanels`), not every story's. perseids page 9,965,936 B raw / 6,995,644 B gzip (24 files) before, 9,944,191 / 6,987,339 (20 files) after; geminids page 12,450,409 / 7,801,854 before, 12,430,767 / 7,794,282 after (public build, 2026-10-23). Limits lowered by the saving, rounded up to the next 10,000 bytes.
   // I-081 (C-110, O-040): the perseids page measured 10,073,636 B raw after the React 19 / Fiber 9 move (T-163), 3,636 B over the 10,070,000 limit above; the Fiber 9 and React 19 chunks are larger and nothing else on the page grew, so there was no behaviour-neutral trim. Raw limit raised 10,070,000 -> 10,080,000 (next 10,000 bytes); the gzip limit is unchanged. Coordinator's choice under the owner's overnight run (2026-10-23); owner accepted the raise, 2026-10-24.
-  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 10_080_000, gzipLimit: 7_040_000 },
-  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 12_680_000, gzipLimit: 7_890_000 },
+  // O-042 T-176 (the showers rebuilt on the public API, the orbit files trimmed in T-172), measured on a public build (ASTRAEUS_PUBLIC_BUILD=1): perseids page 9,191,109 B raw / 6,758,808 B gzip (19 files), geminids page 10,768,779 B raw / 7,314,429 B gzip (19 files); Apollo 11 4,355,880 / 2,815,247 (11 files, now with the shared `scene.js` chunk), unchanged limits.
+  // Limits lowered to the measurement plus 5%, rounded up to the next 10,000 bytes, except the perseids gzip limit: 6,758,808 plus 5% would be 7,100,000, above the standing 7,040,000, so it stays at 7,040,000 (not raised; the page passes with 281,192 B of headroom, the owner may decide a lower figure).
+  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 9_660_000, gzipLimit: 7_040_000 },
+  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 11_310_000, gzipLimit: 7_690_000 },
 ];
 /**
  * The planets a public build offers: Jupiter alone (owner, 2026-10-22; T-136). The other eight planet views exist only in a local build, so their page sets

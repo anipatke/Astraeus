@@ -2,11 +2,15 @@
 id: T-176
 title: Rebuild the meteor showers on the public API
 objective: O-042
-status: in_progress
-stage: build
+status: done
 depends_on: [{task: T-171, requires: clear}, {task: T-172, requires: clear}, {task: T-175, requires: clear}, {task: T-177, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o042-planning-20261024}
+check_waiver:
+  task: T-176
+  reason: 'Owner said "orchestrate O42"; under the standing O-042 run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o042-run-20261024}
+  recorded_at: '2026-10-24T00:39:36Z'
 ---
 
 # Rebuild the meteor showers on the public API
@@ -56,13 +60,16 @@ Hand-off gates from AGENTS.md (`npm run lint`, `npm run typecheck`, `npm run bui
 
 ## Technical Evidence
 
-Partial work at REPLAN REQUIRED (stage build, nothing committed; the tree does not pass typecheck because the old shower tests still import removed modules):
-- Step 1 done: `packages/astraeus-demo-showers/tests/fixtures/showers-before-rebuild.json` captured from the pre-rebuild code (both showers, shipped orbits) before any change.
-- Step 2 done: `showerScene.ts` (`buildShowerScene`, `loadShowerPanelsFile`, `rateSamplesOf`), `showerText.ts`, trimmed `showerBasics.ts`, `measuredOrbits.ts` (no orbit sets), `showerSettings.ts` with its own readers (no `astraeus/...` import). Removed `showerDefinition.ts`, `showerStream.ts`, `showerPaths.ts`, `showerBodies.ts`, `showerActivity.ts`.
-- Step 3 done: `showerEntry.ts` moved to `packages/astraeus-site/src/showerSwitch.ts`; `main.tsx` builds `buildShowerScene(...).toDefinition()` with label and switcher, loads the planet series first, drops `?span=` and `?orbits=`.
-- Test helper `tests/helpers/showerDefinition.ts` (scene `toDefinition()` for tests). Probe built both showers without error.
-- Not done: comparison test, boundary rule, rewritten tests, driver repair, measuring and limits, Design.md.
-- Differences seen so far (all to tie to a Decision or flag): body label priorities 100..94 (were 95/100/90/80/70); stream label priority 80 (was 70); camera far 10,000,000 (was 12,000,000; far = 2.5 x reach); Earth orbit id `earth-orbit` (was `earth-path`) and orbit lines take the body colours (earthPathColor, parentPathColor no longer used); orbits start at the opening time (were the peak); opening view is Focus Sun pressed (Geminids declares no view, a default one is used); 'times larger than life' sentence now in the planets' descriptions (was a known limit; catalogue limits are kept); radiant is a line in the stream description (Decision 4); rate row id `perseids-stream-rate` and wording 'outside the activity'; Geminids refillSliceMs 12 lost; whole-orbit and Focus parent items gone (Decision 6); the not-fetched notice is in the Sun's description.
+Stage audit (ready for a Check; not passed). Resumed after T-177.
+- Done When: `packages/astraeus-demo-showers/src` imports only `astraeus` and `PUBLIC_API_DEMOS` has the showers demo (boundary test green); the demo carries its own settings readers (`showerSettings.ts`); `tests/rebuildComparison.test.ts` (34 cases) checks both showers against `tests/fixtures/showers-before-rebuild.json`, captured from the unchanged code before any edit, each difference tied to Decisions 1, 4 or 6 or marked FLAG; the showers' tests were rewritten (`demoShowers`, `showers`, `showersMeasured` and the callers in the demo and site packages; dropped cases and reasons are in the header of `tests/showers.test.ts`); driver helpers for the orbit-set buttons removed and mapped in `docs/BROWSER_CHECKS.md`; Design.md reconciled for T-171..T-177 (Drift Notes block "O-042 ...").
+- Page sets on a public build (`ASTRAEUS_PUBLIC_BUILD=1 vite build`, `load-budget.mjs`): Perseids 9,191,109 B raw / 6,758,808 B gzip, Geminids 10,768,779 / 7,314,429, Apollo 4,355,880 / 2,815,247. Limits now Perseids 9,660,000 raw (was 10,080,000), Geminids 11,310,000 / 7,690,000 (were 12,680,000 / 7,890,000). Perseids gzip left at 7,040,000: measurement plus 5% rounds to 7,100,000, which would be a raise, so not made (flag for the owner). Apollo limits unchanged.
+- Gates, all green: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (129 files, 1738 passed, 1 skipped), `npm run check:engine-alone`, `npm run check:pack`, `npm run build:example`. `journey-meteor-shower.mjs` run alone once against the preview (25,588 dots, 6 paths, 7 bodies, switch to Geminids kept the page, no errors); `check:browser` not run.
+- Files read beyond the Context Files: the shower, planets and site tests that import the removed modules; `packages/astraeus/src/api/*`, `core/scalePolicy.ts`, `shell/scaleModel.ts`, `app/App.tsx`, `app/sceneCamera.ts` (to learn the public calls and the scale gap); `tests/helpers/*`; the Apollo scene and comparison test (the precedent). Edited beyond the list: `packages/astraeus-site/src/showerSwitch.ts`, `tests/*` of the site, `packageBoundaries.test.ts`, `publicBuild.test.ts` (the showers no longer import the shared settings readers), `load-budget.mjs` page sets (`showerScene.js`, `scene.js`, `preload-helper.js` optional).
+- Limits: the opening view of the Geminids and every FLAG in `rebuildComparison.test.ts` need the owner's look on the preview; owner look not yet recorded.
+
+## Owner Look
+
+Owner, 2026-10-24, on localhost:5490 (desktop and phone), after being shown the flagged differences (Geminids opening view, orbit-line colours and start, label priorities and reach, Solar system scale, rate bar and radiant line): "looks fine". Formal acceptance is recorded against the Full Objective Check.
 
 ## Drift Notes
 

@@ -1,0 +1,2950 @@
+{
+ "perseids": {
+  "label": "Perseids",
+  "settingsId": "perseids",
+  "streamId": "perseids-stream",
+  "objects": [
+   {
+    "id": "sun",
+    "label": "Sun",
+    "color": "#fff1b0",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+     ],
+     "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+     "notes": "Stated EPV00 model validity is 1900–2100."
+    },
+    "knownLimitations": [
+     "The Sun is drawn as an emissive sphere at its true radius with a soft halo; the halo is a drawing aid sized on screen, not part of the Sun.",
+     "The Sun's orientation is not modelled: the surface map is a visual stand-in at a fixed orientation, and the real solar rotation axis and longitude are not drawn."
+    ],
+    "labelPriority": 95,
+    "labelMaxDistance": 12000000,
+    "description": "The Sun, the centre of the scene. The stream and the planets' paths circle it.",
+    "showLabel": false
+   },
+   {
+    "id": "earth",
+    "label": "Earth",
+    "color": "#9fd8ff",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ],
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+    },
+    "knownLimitations": [
+     "Earth's orientation leaves out polar motion.",
+     "In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 100,
+    "labelMaxDistance": 12000000,
+    "description": "The planet that crosses the stream of the Perseids."
+   },
+   {
+    "id": "mercury",
+    "label": "Mercury",
+    "color": "#d6af84",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Mercury position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 30 km (0.11 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Mercury is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 12000000,
+    "description": "Mercury, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "venus",
+    "label": "Venus",
+    "color": "#f6e1b9",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Venus is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 12000000,
+    "description": "Venus, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "mars",
+    "label": "Mars",
+    "color": "#e3b28c",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Mars is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 12000000,
+    "description": "Mars, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "jupiter",
+    "label": "Jupiter",
+    "color": "#d4a97a",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Jupiter is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 12000000,
+    "description": "Jupiter, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "swift-tuttle",
+    "label": "109P/Swift-Tuttle",
+    "color": "#9fe3ff",
+    "provenance": {
+     "sourceType": "reconstructed",
+     "sources": [
+      "JPL Small-Body Database API, 109P/Swift-Tuttle, solution SB405-CPV-2 (2001-10-09), epoch JD 2450000.5 TDB, read 2026-10-15",
+      "Two-body motion about the Sun's gravitational parameter (catalogue)",
+      "Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF"
+     ],
+     "accuracy": "Position was compared with JPL Horizons at eight dates from 1990 to 2030: the largest Sun-centred difference is about 10,686,093 km (0.86% of its distance from the Sun at that date), so this is an approximate position for drawing the orbit and the comet's place on it, not an ephemeris. This is the largest difference at the eight dates compared, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch."
+    },
+    "knownLimitations": [
+     "Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.",
+     "Horizons applies perturbations from a fit to the same observations, so the two drift apart.",
+     "Positions before 1990 or after 2030 were not compared with Horizons; the orbit reaches 51 AU and takes 133 years, a long span for two-body motion.",
+     "The comet's size is the nucleus alone (a 26 km body); the coma and tail are not modelled. No velocity or orientation is modelled."
+    ],
+    "labelPriority": 90,
+    "labelMaxDistance": 12000000,
+    "description": "109P/Swift-Tuttle, the parent of the Perseids, at its position on the date shown. Its whole orbit is drawn."
+   }
+  ],
+  "shellObjects": [
+   "sun",
+   "earth",
+   "mercury",
+   "venus",
+   "mars",
+   "jupiter",
+   "swift-tuttle",
+   "perseids-stream",
+   "earth-path",
+   "mercury-orbit",
+   "venus-orbit",
+   "mars-orbit",
+   "jupiter-orbit",
+   "swift-tuttle-orbit"
+  ],
+  "group": {
+   "count": 25588,
+   "center": "sun",
+   "frame": "EQJ",
+   "bounds": {
+    "startUtcMs": 1569024000000,
+    "endUtcMs": 1600582149763
+   },
+   "provenance": {
+    "sourceType": "illustrative",
+    "sources": [
+     "Vida, D., Segon, D., Gural, P. S., Brown, P. G., McIntyre, M. J. M., Dijkema, T. J., Pavletic, L., Kukic, P., Mazur, M. J., Eschman, P., Roggemans, P., Merlak, A., Zubovic, D., 2021. The Global Meteor Network - Methodology and first results. Monthly Notices of the Royal Astronomical Society 506(4), 5046-5074.",
+     "Vida, D., Gural, P. S., Brown, P. G., Campbell-Brown, M., Wiegert, P., 2020. Estimating trajectories of meteors: an observational Monte Carlo approach - I. Theory. Monthly Notices of the Royal Astronomical Society 491(2), 2688-2705.",
+     "Global Meteor Network, monthly trajectory summary files (traj_summary_monthly_YYYYMM.txt), IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2) (https://globalmeteornetwork.org/data/, accessed 2026-10-16)"
+    ],
+    "accuracy": "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element. Orbit elements are as listed (observed); the position along each orbit is illustrative.",
+    "notes": "Global Meteor Network trajectory summary, monthly files 202507, 202508, IAU shower 7: 32234 records, 6619 unbound or incomplete records dropped, 25588 bound orbits in the file, 25588 orbits drawn (all orbits). Fetched 2026-10-16T09:20:16.344Z. Licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), credit the Global Meteor Network. Each orbit's shape and orientation come from its record, but the records give no position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre. A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added."
+   },
+   "color": "#ffb86b",
+   "pointSizePx": 1.6,
+   "refillAfterMs": 259200000,
+   "object": {
+    "id": "perseids-stream",
+    "label": "Perseids stream",
+    "color": "#ffb86b",
+    "labelPriority": 70,
+    "description": "25588 measured meteoroid orbits of the Perseids, each drawn as one dot (Global Meteor Network trajectory summary, monthly files 202507, 202508). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 109P/Swift-Tuttle is a model. One item stands for the whole stream; its focus point is the centroid of the dots.",
+    "knownLimitations": [
+     "Orbit set shown: all orbits (25588 bound orbits). This file carries no per-orbit quality columns, so it cannot be cut to a reliable set. Of 25588 bound orbits, 23335 pass the published quality cut (convergence angle Qc at least 15 deg and Vgeo sigma at most 10% of Vgeo) and 2253 fail it. The cut is the published rule: \"requiring a minimum convergence angle of 15 degrees between cameras, ensuring an estimated velocity error of no more than 10% of the nominal value\" (the 2025 HDBSCAN paper words it: \"a minimum convergence angle of 15° between camera detections to ensure reliable triangulation, ... a velocity error not exceeding 10% of the nominal value\"); both apply it to the CAMS v3.0 database; they also drop hyperbolic orbits, which the data file already does (Peña-Asensio and Sánchez-Lozano 2024, Statistical Equivalence of Metrics for Meteor Dynamical Association, Advances in Space Research, doi 10.1016/j.asr.2024.05.005 (arXiv 2405.03308); and arXiv 2507.01501, Meteoroid stream identification with HDBSCAN, https://arxiv.org/abs/2405.03308), mapped to GMN's own columns: Qc is GMN's own maximum convergence angle between stations (column Qc, deg) and the Vgeo sigma is the uncertainty column beside Vgeo (km/s), so the reliable set is Qc at least the angle and sigma at most the fraction of Vgeo. GMN has no double-entry flag.",
+     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
+     "The clump near 109P/Swift-Tuttle is a model: 30% of the dots are placed within ±20° of 109P/Swift-Tuttle's orbital phase (illustrative defaults: not a published fit. 20 degrees of mean anomaly either side is about 15 years of the 133-year orbit. Young dust is known to crowd near the parent (the early-1990s Perseid outbursts followed the comet's 1992 return), but no published fraction or width is claimed.) The orbits differ in size, so the clump shows as a band at 109P/Swift-Tuttle's phase, not a blob on 109P/Swift-Tuttle.",
+     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
+     "The semi-major axis of a measured orbit is poorly determined (the speed error dominates it), so the sizes of the orbits are less certain than their shape and tilt."
+    ]
+   },
+   "members": [
+    {
+     "i": 0,
+     "recordId": "20250717204730_uGG34",
+     "meanAnomalyDeg": 158.4647163912461,
+     "positionKm": [
+      -276589857.7884966,
+      469552831.6813983,
+      -206823489.4575318
+     ]
+    },
+    {
+     "i": 1,
+     "recordId": "20250717220651_32J0c",
+     "meanAnomalyDeg": 66.80324363356942,
+     "positionKm": [
+      -177841202.8232252,
+      181326814.06261638,
+      -379097710.52391255
+     ]
+    },
+    {
+     "i": 7,
+     "recordId": "20250718021931_YT4Eu",
+     "meanAnomalyDeg": 7.647387226440375,
+     "positionKm": [
+      -22212647.89102777,
+      -20822251.020055845,
+      -282846669.2304767
+     ]
+    },
+    {
+     "i": 100,
+     "recordId": "20250723022427_uDre2",
+     "meanAnomalyDeg": 107.41514068780705,
+     "positionKm": [
+      -2004097997.6174068,
+      2637992421.8130965,
+      -863001588.600577
+     ]
+    },
+    {
+     "i": 500,
+     "recordId": "20250728001740_z7Fmq",
+     "meanAnomalyDeg": 128.90017865118355,
+     "positionKm": [
+      -2134737939.3313324,
+      2469987814.8736353,
+      -1021684193.1422291
+     ]
+    },
+    {
+     "i": 1000,
+     "recordId": "20250730021408_LC3gk",
+     "meanAnomalyDeg": 231.44149173738276,
+     "positionKm": [
+      -10565744630.064756,
+      11851304876.674078,
+      -1139240723.4165015
+     ]
+    },
+    {
+     "i": 25587,
+     "recordId": "20250824011430_T2X2V",
+     "meanAnomalyDeg": 318.76842340330506,
+     "positionKm": [
+      -2582994255.6199636,
+      1335027164.6922536,
+      -99638605.99083942
+     ]
+    }
+   ]
+  },
+  "paths": [
+   {
+    "kind": "orbit",
+    "color": "#7ab8ff",
+    "span": {
+     "startUtcMs": 1581467841119,
+     "endUtcMs": 1613025990882
+    },
+    "samples": 361,
+    "object": {
+     "id": "earth-path",
+     "partOf": "earth",
+     "label": "Earth's path",
+     "color": "#7ab8ff",
+     "labelPriority": 60,
+     "showLabel": false,
+     "description": "Earth's path round the Sun over one year, drawn from the same Earth–Sun geometry that places Earth.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+       "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+      ],
+      "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+     },
+     "knownLimitations": [
+      "A year's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -117094959.42400181,
+      "1": 82511395.64695008,
+      "2": 35768473.40312976
+     },
+     {
+      "0": 116285513.28946272,
+      "1": -89208340.40849732,
+      "2": -38671754.34602418
+     },
+     {
+      "0": -117102566.75199516,
+      "1": 82518325.98046467,
+      "2": 35772211.245806314
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#d6af84",
+    "span": {
+     "startUtcMs": 1597246916000,
+     "endUtcMs": 1604847531054
+    },
+    "samples": 361,
+    "object": {
+     "id": "mercury-orbit",
+     "partOf": "mercury",
+     "label": "Mercury's orbit",
+     "color": "#d6af84",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Mercury's path round the Sun for one full turn from the peak, from the same position source that places Mercury when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Mercury position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 30 km (0.11 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -21977968.552069392,
+      "1": 36577408.604989946,
+      "2": 21817538.407633897
+     },
+     {
+      "0": 6401057.979415046,
+      "1": -60264312.10244741,
+      "2": -32856314.909534205
+     },
+     {
+      "0": -21980903.5596119,
+      "1": 36576246.13463208,
+      "2": 21817224.1020788
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#f6e1b9",
+    "span": {
+     "startUtcMs": 1597246916000,
+     "endUtcMs": 1616660898518
+    },
+    "samples": 361,
+    "object": {
+     "id": "venus-orbit",
+     "partOf": "venus",
+     "label": "Venus's orbit",
+     "color": "#f6e1b9",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Venus's path round the Sun for one full turn from the peak, from the same position source that places Venus when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 108205717.76530297,
+      "1": 9521920.175394915,
+      "2": -2562086.360867543
+     },
+     {
+      "0": -107134962.06634006,
+      "1": -11562942.577905685,
+      "2": 1575932.1089206957
+     },
+     {
+      "0": 108207386.67341281,
+      "1": 9521648.695878448,
+      "2": -2562200.295768342
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#e3b28c",
+    "span": {
+     "startUtcMs": 1597246916000,
+     "endUtcMs": 1656603623603
+    },
+    "samples": 361,
+    "object": {
+     "id": "mars-orbit",
+     "partOf": "mars",
+     "label": "Mars's orbit",
+     "color": "#e3b28c",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Mars's path round the Sun for one full turn from the peak, from the same position source that places Mars when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 196537791.23286924,
+      "1": -56141382.4465025,
+      "2": -31053853.52235456
+     },
+     {
+      "0": -234297995.7526161,
+      "1": 74477585.69185838,
+      "2": 40482867.35906343
+     },
+     {
+      "0": 196524151.59734845,
+      "1": -56137344.50990786,
+      "2": -31051454.141955927
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#d4a97a",
+    "span": {
+     "startUtcMs": 1597246916000,
+     "endUtcMs": 1971560801563
+    },
+    "samples": 361,
+    "object": {
+     "id": "jupiter-orbit",
+     "partOf": "jupiter",
+     "label": "Jupiter's orbit",
+     "color": "#d4a97a",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Jupiter's path round the Sun for one full turn from the peak, from the same position source that places Jupiter when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments.",
+      "The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 319656376.5981256,
+      "1": -640742281.0009911,
+      "2": -282421003.73904645
+     },
+     {
+      "0": -455324505.9426199,
+      "1": 589530688.582589,
+      "2": 263772309.9776269
+     },
+     {
+      "0": 319750290.03655785,
+      "1": -640931586.6919862,
+      "2": -282501435.9256311
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#c79bff",
+    "span": {
+     "startUtcMs": 724118320146,
+     "endUtcMs": 4930173435696
+    },
+    "sampling": {
+     "eccentricity": 0.963225755046038,
+     "periodMs": 4206055115549.98,
+     "periapsisUtcMs": 724118320146
+    },
+    "object": {
+     "id": "swift-tuttle-orbit",
+     "partOf": "swift-tuttle",
+     "label": "109P/Swift-Tuttle orbit",
+     "color": "#c79bff",
+     "labelPriority": 65,
+     "showLabel": false,
+     "description": "The whole orbit of 109P/Swift-Tuttle, the source of the Perseids, from its nearest point to the Sun out to its farthest and back. The stream follows orbits like this one.",
+     "provenance": {
+      "sourceType": "reconstructed",
+      "sources": [
+       "JPL Small-Body Database API, 109P/Swift-Tuttle, solution SB405-CPV-2 (2001-10-09), epoch JD 2450000.5 TDB, read 2026-10-15",
+       "Two-body motion about the Sun's gravitational parameter (catalogue)",
+       "Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF"
+      ],
+      "accuracy": "Position was compared with JPL Horizons at eight dates from 1990 to 2030: the largest Sun-centred difference is about 10,686,093 km (0.86% of its distance from the Sun at that date), so this is an approximate position for drawing the orbit and the comet's place on it, not an ephemeris. This is the largest difference at the eight dates compared, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch."
+     },
+     "knownLimitations": [
+      "One full turn of unperturbed two-body motion about the Sun, starting at the nearest point to the Sun; the samples are spaced by eccentric anomaly and joined by straight segments.",
+      "Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.",
+      "Horizons applies perturbations from a fit to the same observations, so the two drift apart.",
+      "Positions before 1990 or after 2030 were not compared with Horizons; the orbit reaches 51 AU and takes 133 years, a long span for two-body motion.",
+      "The comet's size is the nucleus alone (a 26 km body); the coma and tail are not modelled. No velocity or orientation is modelled."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 113961246.48588777,
+      "1": -82101328.26434675,
+      "2": 29603877.73661554
+     },
+     {
+      "0": -6083922454.754297,
+      "1": 4383052409.179664,
+      "2": -1580429221.9765797
+     },
+     {
+      "0": 113961246.48596472,
+      "1": -82101328.26449618,
+      "2": 29603877.735785782
+     }
+    ]
+   }
+  ],
+  "cameraPresets": [
+   {
+    "id": "overview",
+    "label": "Overview",
+    "request": {
+     "kind": "overview"
+    }
+   },
+   {
+    "id": "focus-earth",
+    "label": "Focus Earth",
+    "request": {
+     "kind": "focus",
+     "target": "earth"
+    }
+   },
+   {
+    "id": "follow-earth",
+    "label": "Follow Earth",
+    "request": {
+     "kind": "follow",
+     "target": "earth"
+    }
+   },
+   {
+    "id": "focus-parent",
+    "label": "Focus parent",
+    "request": {
+     "kind": "focus",
+     "target": "swift-tuttle"
+    }
+   },
+   {
+    "id": "whole-orbit",
+    "label": "Whole orbit",
+    "request": {
+     "kind": "focus",
+     "target": "swift-tuttle-orbit"
+    }
+   },
+   {
+    "id": "focus-stream",
+    "label": "Focus stream",
+    "request": {
+     "kind": "focus",
+     "target": "perseids-stream"
+    }
+   },
+   {
+    "id": "follow-stream",
+    "label": "Follow stream",
+    "request": {
+     "kind": "follow",
+     "target": "perseids-stream"
+    }
+   }
+  ],
+  "events": [
+   {
+    "id": "perseids-start",
+    "label": "Perseids activity begins",
+    "timeUtcMs": 1594944000000
+   },
+   {
+    "id": "perseids-peak",
+    "label": "Perseids peak",
+    "timeUtcMs": 1597246916000
+   },
+   {
+    "id": "perseids-end",
+    "label": "Perseids activity ends",
+    "timeUtcMs": 1598313600000
+   }
+  ],
+  "windows": [
+   {
+    "id": "perseids-activity",
+    "label": "Perseids activity",
+    "type": "meteor-shower",
+    "startUtcMs": 1594944000000,
+    "endUtcMs": 1598313600000,
+    "peakUtcMs": 1597246916000,
+    "rate": {
+     "unit": "meteors per hour (ZHR)",
+     "samples": [
+      {
+       "timeUtcMs": 1594944000000,
+       "value": 0.21606676168470845
+      },
+      {
+       "timeUtcMs": 1595030400000,
+       "value": 0.27201193692895387
+      },
+      {
+       "timeUtcMs": 1595116800000,
+       "value": 0.34244273971121236
+      },
+      {
+       "timeUtcMs": 1595203200000,
+       "value": 0.4311098671068609
+      },
+      {
+       "timeUtcMs": 1595289600000,
+       "value": 0.5427351669760331
+      },
+      {
+       "timeUtcMs": 1595376000000,
+       "value": 0.6832630935804787
+      },
+      {
+       "timeUtcMs": 1595462400000,
+       "value": 0.8601772714495609
+      },
+      {
+       "timeUtcMs": 1595548800000,
+       "value": 1.082899025675622
+      },
+      {
+       "timeUtcMs": 1595635200000,
+       "value": 1.3632891018301845
+      },
+      {
+       "timeUtcMs": 1595721600000,
+       "value": 1.7162792939160656
+      },
+      {
+       "timeUtcMs": 1595808000000,
+       "value": 2.1606676168470846
+      },
+      {
+       "timeUtcMs": 1595894400000,
+       "value": 2.72011936928954
+      },
+      {
+       "timeUtcMs": 1595980800000,
+       "value": 3.4244273971121233
+      },
+      {
+       "timeUtcMs": 1596067200000,
+       "value": 4.311098671068609
+      },
+      {
+       "timeUtcMs": 1596153600000,
+       "value": 5.427351669760337
+      },
+      {
+       "timeUtcMs": 1596240000000,
+       "value": 6.832630935804791
+      },
+      {
+       "timeUtcMs": 1596326400000,
+       "value": 8.601772714495615
+      },
+      {
+       "timeUtcMs": 1596412800000,
+       "value": 10.82899025675622
+      },
+      {
+       "timeUtcMs": 1596499200000,
+       "value": 13.632891018301851
+      },
+      {
+       "timeUtcMs": 1596585600000,
+       "value": 17.16279293916066
+      },
+      {
+       "timeUtcMs": 1596672000000,
+       "value": 21.606676168470855
+      },
+      {
+       "timeUtcMs": 1596758400000,
+       "value": 27.20119369289539
+      },
+      {
+       "timeUtcMs": 1596844800000,
+       "value": 34.24427397112124
+      },
+      {
+       "timeUtcMs": 1596931200000,
+       "value": 43.11098671068609
+      },
+      {
+       "timeUtcMs": 1597017600000,
+       "value": 54.27351669760336
+      },
+      {
+       "timeUtcMs": 1597104000000,
+       "value": 68.32630935804792
+      },
+      {
+       "timeUtcMs": 1597190400000,
+       "value": 86.01772714495614
+      },
+      {
+       "timeUtcMs": 1597246916000,
+       "value": 100
+      },
+      {
+       "timeUtcMs": 1597276800000,
+       "value": 92.34471324564159
+      },
+      {
+       "timeUtcMs": 1597363200000,
+       "value": 73.35201305853046
+      },
+      {
+       "timeUtcMs": 1597449600000,
+       "value": 58.26557504625494
+      },
+      {
+       "timeUtcMs": 1597536000000,
+       "value": 46.28199137168683
+      },
+      {
+       "timeUtcMs": 1597622400000,
+       "value": 36.76309250579643
+      },
+      {
+       "timeUtcMs": 1597708800000,
+       "value": 29.201962373134744
+      },
+      {
+       "timeUtcMs": 1597795200000,
+       "value": 23.19594322233701
+      },
+      {
+       "timeUtcMs": 1597881600000,
+       "value": 18.42519263256362
+      },
+      {
+       "timeUtcMs": 1597968000000,
+       "value": 14.635650738279091
+      },
+      {
+       "timeUtcMs": 1598054400000,
+       "value": 11.625510614978358
+      },
+      {
+       "timeUtcMs": 1598140800000,
+       "value": 9.234471324564158
+      },
+      {
+       "timeUtcMs": 1598227200000,
+       "value": 7.335201305853042
+      },
+      {
+       "timeUtcMs": 1598313600000,
+       "value": 5.826557504625494
+      }
+     ]
+    },
+    "provenance": [
+     {
+      "startUtcMs": 1594944000000,
+      "endUtcMs": 1597203716000,
+      "provenance": {
+       "sourceType": "illustrative",
+       "sources": [
+        "Modelled rate curve; not observed"
+       ],
+       "accuracy": "None claimed. The rate between the published points falls off smoothly from the peak.",
+       "notes": "Modelled rise toward the published peak."
+      }
+     },
+     {
+      "startUtcMs": 1597203716000,
+      "endUtcMs": 1597290116000,
+      "provenance": {
+       "sourceType": "observed",
+       "sources": [
+        "International Meteor Organization, 2020 Meteor Shower Calendar (ed. J. Rendtel), the Perseids entry: active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy (https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf, accessed 2026-10-18)"
+       ],
+       "accuracy": "As published for the night of Aug 12, 2020; not checked against the primary source.",
+       "notes": "The published peak night and peak rate of 100. The exact instant inside the night is chosen for the picture."
+      }
+     },
+     {
+      "startUtcMs": 1597290116000,
+      "endUtcMs": 1598313600000,
+      "provenance": {
+       "sourceType": "illustrative",
+       "sources": [
+        "Modelled rate curve; not observed"
+       ],
+       "accuracy": "None claimed. The rate between the published points falls off smoothly from the peak.",
+       "notes": "Modelled fall after the published peak."
+      }
+     }
+    ]
+   }
+  ],
+  "window": {
+   "startUtcMs": 1569024000000,
+   "endUtcMs": 1600582149763
+  },
+  "rates": [
+   3600,
+   43200,
+   86400,
+   259200,
+   604800
+  ],
+  "eventProvenance": {
+   "sourceType": "observed",
+   "sources": [
+    "International Meteor Organization, 2020 Meteor Shower Calendar (ed. J. Rendtel), the Perseids entry: active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy (https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf, accessed 2026-10-18)"
+   ],
+   "accuracy": "Activity dates as published; the peak instant is chosen inside the published night.",
+   "notes": "The peak rate is 100 meteors per hour (ZHR), the American Meteor Society calendar figure; the IMO entry gives 110. The peak instant is when the Sun reaches the IAU Meteor Data Center peak solar longitude of 140.1 degrees, which falls inside the IMO's 13h to 16h UT maximum. The rate curve falls off from that instant."
+  },
+  "storyPanels": {
+   "panels": [
+    {
+     "id": "stream-shape",
+     "timeUtcMs": 1572566400000,
+     "title": "A river of comet dust",
+     "body": [
+      "Each dot follows the real path of a grain of comet dust. Cameras on Earth measured that path when the grain burned up as a shooting star.",
+      "Together, more than 25,000 of them trace a wide ribbon along the orbit of comet Swift–Tuttle."
+     ],
+     "badge": "illustrative",
+     "details": [
+      "The dots are about 25,600 Perseid orbits measured by the Global Meteor Network's cameras in July and August 2025. Together they trace a wide ribbon of dust along the orbit of comet Swift–Tuttle.",
+      "The orbits are measured. Where each dot sits along its orbit is not: those places are illustrative, chosen to show the ribbon's shape, so the pattern of dots along the ribbon says nothing about where the dust really is.",
+      "More than 25,000: 25,588 bound orbits are drawn.",
+      "The demo shows the year from 21 September 2019 to 20 September 2020. The orbits were measured in 2025 and are drawn as they are, a measured shape with illustrative places along it, in that earlier year; this moment, 1 November 2019, is six weeks into it."
+     ],
+     "sources": [
+      "Global Meteor Network, monthly trajectory summaries, Jul and Aug 2025, IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
+      "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section (O-011 / T-056): 25,588 bound orbits drawn; the dots' places along their orbits are illustrative"
+     ],
+     "objectId": "perseids-stream"
+    },
+    {
+     "id": "earth-crossing",
+     "timeUtcMs": 1597246916000,
+     "title": "Earth meets the dust",
+     "body": [
+      "Earth passes through this ribbon every year, from mid-July to late August.",
+      "The dust burns up in our sky as shooting stars: up to about 100 an hour on the best night, under a perfectly dark sky.",
+      "They all seem to fly out of the constellation Perseus, which gives the shower its name."
+     ],
+     "badge": "observed",
+     "details": [
+      "Once a year Earth passes through the ribbon. The Perseids are active from mid-July to late August (17 July to 24 August) and peak on the night of 12–13 August, at about 100 meteors an hour at best (a zenithal hourly rate, ZHR, of 100: the rate one observer would see under a perfectly dark sky with the radiant overhead). They seem to come from a point in the constellation Perseus.",
+      "In 2020, the year this scene shows, the International Meteor Organization gave the activity as 17 July to 24 August and the peak as 12 August between 13:00 and 16:00 UT.",
+      "The peak in this scene is 12 August 2020 at 15:41:56 UTC: the moment the Sun reaches solar longitude 140.1° (J2000), the IAU Meteor Data Center's peak, found on the engine's ephemeris; it falls inside the International Meteor Organization's 13:00 to 16:00 UT.",
+      "In the 2025 measured orbits, the stream passes closest to Earth about 2.2 hours before the official peak, and its radiant lies 0.04° from the IAU's. Those figures were measured against the August 2027 peak; against the 12 August 2020 peak this scene shows, the closest pass is about 2.3 hours before the peak (1.3 hours in the reliable set) and the radiant lies 0.06° from the IAU's."
+     ],
+     "sources": [
+      "IAU Meteor Data Center, Perseids (PER, 7): peak solar longitude 140.1°, radiant RA 47.9°, Dec +57.9° (J2000); ta3.sk (accessed 2026-10-13)",
+      "International Meteor Organization, 2020 Meteor Shower Calendar (IMO_INFO(2-19), ed. J. Rendtel): Perseids active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf (accessed 2026-10-18)",
+      "American Meteor Society calendar: Perseids ZHR 100 (accessed 2026-10-11)",
+      "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section: 0.09 d (2.2 h) before the 2027 peak; radiant 0.04° off; Showers year section (O-024 / T-092): 0.10 d (2.3 h) before the 2020 peak, 0.05 d in the reliable set; radiant 0.06° off"
+     ],
+     "objectId": "earth"
+    },
+    {
+     "id": "swift-tuttle",
+     "timeUtcMs": 1598918400000,
+     "title": "Where the dust comes from",
+     "body": [
+      "All this dust comes from comet Swift–Tuttle, a huge lump of ice and rock.",
+      "Each time it swings close to the Sun it sheds a little more dust, then sails far out beyond Neptune.",
+      "It won't be back near the Sun until 2126."
+     ],
+     "badge": "modelled",
+     "details": [
+      "The dust comes from comet Swift–Tuttle, whose nucleus is about 26 km across. It takes about 133 years to orbit the Sun, last passed closest to it in December 1992, and is next due in 2126.",
+      "At the far end of its orbit the comet is about 51 AU from the Sun (51 times Earth's distance from the Sun), well beyond Neptune.",
+      "2126 is the 1992 closest pass plus one orbital period: a two-body figure, not a perturbed prediction.",
+      "In this scene, in 2019 and 2020, the comet is about 39 AU from the Sun. Its drawn place was compared with JPL Horizons at six dates across the year: within about 7.6 million km, 0.13% of its distance from the Sun."
+     ],
+     "sources": [
+      "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution SB405-CPV-2: diameter 26 km (Lamy et al. 2004, Comets II); period 48,681.19 d (about 133.3 years); time of perihelion JD 2448968.4998 TDB (1992 Dec 11); aphelion 51.22 au; https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 (accessed 2026-10-15)",
+      "Next perihelion: the 1992 perihelion plus one period, JD about 2497650, early 2126 (a two-body figure, not a perturbed prediction)",
+      "JPL Horizons, 109P/Swift-Tuttle (solution JPL#32), Sun-centred positions at six dates from 21 September 2019 to 20 September 2020, fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt); Astraeus docs/ASTRONOMY_VALIDATION.md"
+     ],
+     "objectId": "swift-tuttle"
+    }
+   ],
+   "pauseSeconds": 6,
+   "autoOpen": true
+  },
+  "clock": {
+   "startUtcMs": 1569024000000,
+   "rate": 604800
+  },
+  "loop": true,
+  "viewUp": "ecliptic",
+  "startView": {
+   "focus": "sun",
+   "azimuthDeg": 100,
+   "elevationDeg": 40,
+   "distance": 250000
+  },
+  "sceneLayers": [
+   "points",
+   "sun-centred"
+  ],
+  "composition": {
+   "id": "perseids-sun-system",
+   "bodies": [
+    "sun",
+    "earth",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "swift-tuttle"
+   ],
+   "defaultCenter": "sun"
+  },
+  "sceneCenter": "sun",
+  "scaleChoices": [
+   "true-scale",
+   "solar-system"
+  ],
+  "visualOverrides": {
+   "earth": {
+    "exaggeration": 400
+   },
+   "mercury": {
+    "exaggeration": 400
+   },
+   "venus": {
+    "exaggeration": 400
+   },
+   "mars": {
+    "exaggeration": 400
+   },
+   "jupiter": {
+    "exaggeration": 400
+   }
+  },
+  "trackedBodies": [],
+  "camera": {
+   "maxFocusDistance": 4000000,
+   "far": 12000000
+  },
+  "catalogueExtra": null,
+  "times": [
+   1596382916000,
+   1597246916000,
+   1598110916000,
+   1594857600000
+  ],
+  "metricRows": {
+   "perseids-stream": [
+    [
+     {
+      "kind": "rate",
+      "id": "perseids-rate",
+      "label": "Activity rate",
+      "value": 10.058641078134508,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Perseids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 100
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "perseids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 47.9,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 57.9,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "perseids-rate",
+      "label": "Activity rate",
+      "value": 100,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Perseids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 100
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "perseids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 47.9,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 57.9,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "perseids-rate",
+      "label": "Activity rate",
+      "value": 10.061483108762515,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Perseids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 100
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "perseids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 47.9,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 57.9,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "perseids-rate",
+      "label": "Activity rate",
+      "value": null,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Perseids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 100
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "perseids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 47.9,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 57.9,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Perseids (PER, 7), parameter set AdNo 9 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 140.1 deg, geocentric radiant RA 47.9, Dec +57.9 deg, J2000"
+     }
+    ]
+   ],
+   "earth": [
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 151802455.11981267,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 151578208.14259282,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 151293266.82894653,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 152057494.0015111,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "sun": [
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 151802455.11981267,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 46579955.083836794,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108797072.52388465,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 206651966.001129,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 770276496.0656691,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-swift-tuttle",
+      "label": "Distance to 109P/Swift-Tuttle",
+      "value": 5875751663.918998,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 151578208.14259282,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 47926432.207089275,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108654077.73043558,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 206744528.4022946,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 769735339.6558887,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-swift-tuttle",
+      "label": "Distance to 109P/Swift-Tuttle",
+      "value": 5878494740.901063,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 151293266.82894653,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 55658819.66717946,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108476432.60777515,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 207052114.3846719,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 769195708.2225277,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-swift-tuttle",
+      "label": "Distance to 109P/Swift-Tuttle",
+      "value": 5881235088.452473,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 152057494.0015111,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 59611061.21094994,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108934018.46391356,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 207015800.09541446,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 771235200.5858245,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-swift-tuttle",
+      "label": "Distance to 109P/Swift-Tuttle",
+      "value": 5870902332.514381,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "mars": [
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 206651966.001129,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 206744528.4022946,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 207052114.3846719,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 207015800.09541446,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "swift-tuttle": [
+    [
+     {
+      "kind": "distance",
+      "id": "swift-tuttle-range",
+      "label": "Distance from Sun",
+      "value": 5875751663.918998,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "swift-tuttle-range",
+      "label": "Distance from Sun",
+      "value": 5878494740.901063,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "swift-tuttle-range",
+      "label": "Distance from Sun",
+      "value": 5881235088.452473,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "swift-tuttle-range",
+      "label": "Distance from Sun",
+      "value": 5870902332.514381,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ]
+  }
+ },
+ "geminids": {
+  "label": "Geminids",
+  "settingsId": "geminids",
+  "streamId": "geminids-stream",
+  "objects": [
+   {
+    "id": "sun",
+    "label": "Sun",
+    "color": "#fff1b0",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+     ],
+     "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+     "notes": "Stated EPV00 model validity is 1900–2100."
+    },
+    "knownLimitations": [
+     "The Sun is drawn as an emissive sphere at its true radius with a soft halo; the halo is a drawing aid sized on screen, not part of the Sun.",
+     "The Sun's orientation is not modelled: the surface map is a visual stand-in at a fixed orientation, and the real solar rotation axis and longitude are not drawn."
+    ],
+    "labelPriority": 95,
+    "labelMaxDistance": 1200000,
+    "description": "The Sun, the centre of the scene. The stream and the planets' paths circle it.",
+    "showLabel": false
+   },
+   {
+    "id": "earth",
+    "label": "Earth",
+    "color": "#9fd8ff",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ],
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+    },
+    "knownLimitations": [
+     "Earth's orientation leaves out polar motion.",
+     "In the Solar system scale Earth is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 100,
+    "labelMaxDistance": 1200000,
+    "description": "The planet that crosses the stream of the Geminids."
+   },
+   {
+    "id": "mercury",
+    "label": "Mercury",
+    "color": "#d6af84",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Mercury position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 30 km (0.11 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Mercury is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 1200000,
+    "description": "Mercury, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "venus",
+    "label": "Venus",
+    "color": "#f6e1b9",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Venus is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 1200000,
+    "description": "Venus, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "mars",
+    "label": "Mars",
+    "color": "#e3b28c",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Mars is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 1200000,
+    "description": "Mars, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "jupiter",
+    "label": "Jupiter",
+    "color": "#d4a97a",
+    "provenance": {
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+     ],
+     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+    },
+    "knownLimitations": [
+     "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
+     "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
+     "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27).",
+     "In the Solar system scale Jupiter is drawn 400 times larger than life so it can be seen; distances stay true."
+    ],
+    "labelPriority": 80,
+    "labelMaxDistance": 1200000,
+    "description": "Jupiter, at its catalogued position about the Sun on the date shown."
+   },
+   {
+    "id": "phaethon",
+    "label": "3200 Phaethon (1983 TB)",
+    "color": "#9fe3ff",
+    "provenance": {
+     "sourceType": "reconstructed",
+     "sources": [
+      "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB); osculating elements, equinox J2000, ecliptic plane, SB441-N16 (2026-10-15, 8682 observations 1983 to 2026) (https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1), epoch JD 2461200.5 TDB, read 2026-10-16",
+      "Two-body motion about the gravitational parameter of \"sun\" (catalogue)"
+     ],
+     "accuracy": "indicative: Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date. It was also compared at six dates across the Showers demo's year, 21 September 2019 to 20 September 2020 (Horizons solution JPL#1019, fetched 2026-10-18): the largest difference there is 365,665 km (0.16% of its distance from the Sun, 2020-09-20), within the figure above.",
+     "notes": "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch."
+    },
+    "knownLimitations": [
+     "Unperturbed two-body motion about the Sun from osculating elements at JD 2461200.5 TDB: no planetary perturbations and no non-gravitational forces.",
+     "Horizons integrates the same orbit fit with the planets' pull and a small transverse non-gravitational term that this model leaves out, so the two drift apart.",
+     "Positions before 2019-09-21 or after 2032-12-14 were not compared with Horizons, nor any date between 2020-09-20 and 2020-12-14.",
+     "The body's size is the effective diameter of a 6 km body; no shape, spin or orientation is modelled."
+    ],
+    "labelPriority": 90,
+    "labelMaxDistance": 1200000,
+    "description": "3200 Phaethon (1983 TB), the parent of the Geminids, at its position on the date shown. Its whole orbit is drawn."
+   }
+  ],
+  "shellObjects": [
+   "sun",
+   "earth",
+   "mercury",
+   "venus",
+   "mars",
+   "jupiter",
+   "phaethon",
+   "geminids-stream",
+   "earth-path",
+   "mercury-orbit",
+   "venus-orbit",
+   "mars-orbit",
+   "jupiter-orbit",
+   "phaethon-orbit"
+  ],
+  "group": {
+   "count": 51115,
+   "center": "sun",
+   "frame": "EQJ",
+   "bounds": {
+    "startUtcMs": 1569024000000,
+    "endUtcMs": 1600582149763
+   },
+   "provenance": {
+    "sourceType": "illustrative",
+    "sources": [
+     "Vida, D., Segon, D., Gural, P. S., Brown, P. G., McIntyre, M. J. M., Dijkema, T. J., Pavletic, L., Kukic, P., Mazur, M. J., Eschman, P., Roggemans, P., Merlak, A., Zubovic, D., 2021. The Global Meteor Network - Methodology and first results. Monthly Notices of the Royal Astronomical Society 506(4), 5046-5074.",
+     "Vida, D., Gural, P. S., Brown, P. G., Campbell-Brown, M., Wiegert, P., 2020. Estimating trajectories of meteors: an observational Monte Carlo approach - I. Theory. Monthly Notices of the Royal Astronomical Society 491(2), 2688-2705.",
+     "Global Meteor Network, monthly trajectory summary files (traj_summary_monthly_YYYYMM.txt), IAU shower 4 (GEM); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2) (https://globalmeteornetwork.org/data/, accessed 2026-10-16)"
+    ],
+    "accuracy": "Orbit solutions from video meteor observations. The shape and tilt of each orbit are measured; its semi-major axis is the weakest element. Orbit elements are as listed (observed); the position along each orbit is illustrative.",
+    "notes": "Global Meteor Network trajectory summary, monthly files 202412, 202512, IAU shower 4: 51156 records, 0 unbound or incomplete records dropped, 51115 bound orbits in the file, 51115 orbits drawn (all orbits). Fetched 2026-10-16T10:59:08.522Z. Licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), credit the Global Meteor Network. Each orbit's shape and orientation come from its record, but the records give no position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre. A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added."
+   },
+   "color": "#7fe3c4",
+   "pointSizePx": 1.6,
+   "refillAfterMs": 259200000,
+   "refillSliceMs": 12,
+   "object": {
+    "id": "geminids-stream",
+    "label": "Geminids stream",
+    "color": "#7fe3c4",
+    "labelPriority": 70,
+    "description": "51115 measured meteoroid orbits of the Geminids, each drawn as one dot (Global Meteor Network trajectory summary, monthly files 202412, 202512). The orbits' shapes and tilts are measured; where each dot sits along its orbit is illustrative, and the clump near 3200 Phaethon is a model. One item stands for the whole stream; its focus point is the centroid of the dots.",
+    "knownLimitations": [
+     "Orbit set shown: all orbits (51115 bound orbits). This file carries no per-orbit quality columns, so it cannot be cut to a reliable set. Of 51115 bound orbits, 46828 pass the published quality cut (convergence angle Qc at least 15 deg and Vgeo sigma at most 10% of Vgeo) and 4287 fail it. The cut is the published rule: \"requiring a minimum convergence angle of 15 degrees between cameras, ensuring an estimated velocity error of no more than 10% of the nominal value\" (the 2025 HDBSCAN paper words it: \"a minimum convergence angle of 15° between camera detections to ensure reliable triangulation, ... a velocity error not exceeding 10% of the nominal value\"); both apply it to the CAMS v3.0 database; they also drop hyperbolic orbits, which the data file already does (Peña-Asensio and Sánchez-Lozano 2024, Statistical Equivalence of Metrics for Meteor Dynamical Association, Advances in Space Research, doi 10.1016/j.asr.2024.05.005 (arXiv 2405.03308); and arXiv 2507.01501, Meteoroid stream identification with HDBSCAN, https://arxiv.org/abs/2405.03308), mapped to GMN's own columns: Qc is GMN's own maximum convergence angle between stations (column Qc, deg) and the Vgeo sigma is the uncertainty column beside Vgeo (km/s), so the reliable set is Qc at least the angle and sigma at most the fraction of Vgeo. GMN has no double-entry flag.",
+     "The position of each dot along its orbit is illustrative: the records give each orbit's shape and tilt, not where the meteoroid is. The dots are spread evenly round their orbits.",
+     "The clump near 3200 Phaethon is a model: 0% of the dots are placed within ±20° of 3200 Phaethon's orbital phase (illustrative defaults: no clump is drawn. The Geminid stream is old and broad, and no published fraction or width of dust near Phaethon is claimed; every dot is a measured orbit spread uniformly in mean anomaly.) The orbits differ in size, so the clump shows as a band at 3200 Phaethon's phase, not a blob on 3200 Phaethon.",
+     "Parts of the stream that miss Earth are not shown: the database holds only meteoroids that reached Earth.",
+     "The semi-major axis of a measured orbit is poorly determined (the speed error dominates it), so the sizes of the orbits are less certain than their shape and tilt."
+    ]
+   },
+   "members": [
+    {
+     "i": 0,
+     "recordId": "20241203015359_X9L3M",
+     "meanAnomalyDeg": 88.04030128142423,
+     "positionKm": [
+      289814294.5059556,
+      85822817.02157079,
+      147897335.1254435
+     ]
+    },
+    {
+     "i": 1,
+     "recordId": "20241203020049_N6ImF",
+     "meanAnomalyDeg": 356.71446737748215,
+     "positionKm": [
+      -21339632.76796983,
+      31020315.816917576,
+      -232878.82585642673
+     ]
+    },
+    {
+     "i": 7,
+     "recordId": "20241203080815_yGOyS",
+     "meanAnomalyDeg": 220.79976523525383,
+     "positionKm": [
+      233991430.72132602,
+      184227395.2302246,
+      145640477.74038398
+     ]
+    },
+    {
+     "i": 100,
+     "recordId": "20241204154412_3Y2sR",
+     "meanAnomalyDeg": 152.6874694316737,
+     "positionKm": [
+      240068023.92474616,
+      141066087.93771023,
+      143352121.1488971
+     ]
+    },
+    {
+     "i": 500,
+     "recordId": "20241207203641_A7uFH",
+     "meanAnomalyDeg": 164.37171084808764,
+     "positionKm": [
+      259655017.47687453,
+      174087781.02432954,
+      171827580.34858215
+     ]
+    },
+    {
+     "i": 1000,
+     "recordId": "20241209132719_sx8Kw",
+     "meanAnomalyDeg": 160.08255893573315,
+     "positionKm": [
+      295543964.4611202,
+      196601783.5070217,
+      199873011.27716917
+     ]
+    },
+    {
+     "i": 51114,
+     "recordId": "20251218171459_AbY5n",
+     "meanAnomalyDeg": 249.3800254328475,
+     "positionKm": [
+      188198905.97954774,
+      273731513.92289,
+      213268426.80776286
+     ]
+    }
+   ]
+  },
+  "paths": [
+   {
+    "kind": "orbit",
+    "color": "#7ab8ff",
+    "span": {
+     "startUtcMs": 1560518938119,
+     "endUtcMs": 1592077087882
+    },
+    "samples": 361,
+    "object": {
+     "id": "earth-path",
+     "partOf": "earth",
+     "label": "Earth's path",
+     "color": "#7ab8ff",
+     "labelPriority": 60,
+     "showLabel": false,
+     "description": "Earth's path round the Sun over one year, drawn from the same Earth–Sun geometry that places Earth.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+       "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+      ],
+      "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet)."
+     },
+     "knownLimitations": [
+      "A year's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -18618693.44773007,
+      "1": -138353627.11206847,
+      "2": -59976471.88063251
+     },
+     {
+      "0": 21511614.81543572,
+      "1": 133658219.39184979,
+      "2": 57940520.46655814
+     },
+     {
+      "0": -18631421.19445743,
+      "1": -138357698.00321826,
+      "2": -59977238.95390565
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#d6af84",
+    "span": {
+     "startUtcMs": 1576298013000,
+     "endUtcMs": 1583898576977
+    },
+    "samples": 361,
+    "object": {
+     "id": "mercury-orbit",
+     "partOf": "mercury",
+     "label": "Mercury's orbit",
+     "color": "#d6af84",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Mercury's path round the Sun for one full turn from the peak, from the same position source that places Mercury when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Mercury position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 30 km (0.11 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -55309678.37164526,
+      "1": -31464476.242414914,
+      "2": -11074772.49847897
+     },
+     {
+      "0": 53883996.86628585,
+      "1": -7548177.3036226025,
+      "2": -9617683.210207388
+     },
+     {
+      "0": -55308837.56187389,
+      "1": -31466279.861212473,
+      "2": -11075874.414329035
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#f6e1b9",
+    "span": {
+     "startUtcMs": 1576298013000,
+     "endUtcMs": 1595712190990
+    },
+    "samples": 361,
+    "object": {
+     "id": "venus-orbit",
+     "partOf": "venus",
+     "label": "Venus's orbit",
+     "color": "#f6e1b9",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Venus's path round the Sun for one full turn from the peak, from the same position source that places Venus when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 99190856.47223656,
+      "1": -38244948.77406086,
+      "2": -23484548.753012978
+     },
+     {
+      "0": -98474293.15826531,
+      "1": 36751555.44758169,
+      "2": 22767227.708797336
+     },
+     {
+      "0": 99195875.8301629,
+      "1": -38247103.6677469,
+      "2": -23485817.261403024
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#e3b28c",
+    "span": {
+     "startUtcMs": 1576298013000,
+     "endUtcMs": 1635652137152
+    },
+    "samples": 361,
+    "object": {
+     "id": "mars-orbit",
+     "partOf": "mars",
+     "label": "Mars's orbit",
+     "color": "#e3b28c",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Mars's path round the Sun for one full turn from the peak, from the same position source that places Mars when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -217294617.9463879,
+      "1": -96052747.2272239,
+      "2": -38192670.35992169
+     },
+     {
+      "0": 158177349.98183668,
+      "1": 138082469.22773993,
+      "2": 59067088.737449564
+     },
+     {
+      "0": -217295264.91991836,
+      "1": -96051140.58322373,
+      "2": -38193657.892639674
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#d4a97a",
+    "span": {
+     "startUtcMs": 1576298013000,
+     "endUtcMs": 1950602876977
+    },
+    "samples": 361,
+    "object": {
+     "id": "jupiter-orbit",
+     "partOf": "jupiter",
+     "label": "Jupiter's orbit",
+     "color": "#d4a97a",
+     "labelPriority": 50,
+     "showLabel": false,
+     "description": "Jupiter's path round the Sun for one full turn from the peak, from the same position source that places Jupiter when it is drawn.",
+     "provenance": {
+      "sourceType": "ephemeris",
+      "sources": [
+       "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      ],
+      "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+      "notes": "Geometric position about the Sun's centre; no light-time or aberration."
+     },
+     "knownLimitations": [
+      "A turn's samples joined by straight segments.",
+      "The turn reaches past 2030, the last year the position was compared with JPL Horizons; the series itself is not limited to that range."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": 58907884.226566866,
+      "1": -717118884.8472353,
+      "2": -308811001.0633041
+     },
+     {
+      "0": -205682030.55415893,
+      "1": 687153396.4244186,
+      "2": 299539301.7273098
+     },
+     {
+      "0": 58913834.06218555,
+      "1": -717192027.8164338,
+      "2": -308839559.38564783
+     }
+    ]
+   },
+   {
+    "kind": "orbit",
+    "color": "#c79bff",
+    "span": {
+     "startUtcMs": 1562093234453,
+     "endUtcMs": 1607338025792
+    },
+    "sampling": {
+     "eccentricity": 0.8896722843984632,
+     "periodMs": 45244791339.33394,
+     "periapsisUtcMs": 1562093234453
+    },
+    "object": {
+     "id": "phaethon-orbit",
+     "partOf": "phaethon",
+     "label": "3200 Phaethon (1983 TB) orbit",
+     "color": "#c79bff",
+     "labelPriority": 65,
+     "showLabel": false,
+     "description": "The whole orbit of 3200 Phaethon, the source of the Geminids, from its nearest point to the Sun out to its farthest and back. The stream follows orbits like this one.",
+     "provenance": {
+      "sourceType": "reconstructed",
+      "sources": [
+       "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB); osculating elements, equinox J2000, ecliptic plane, SB441-N16 (2026-10-15, 8682 observations 1983 to 2026) (https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1), epoch JD 2461200.5 TDB, read 2026-10-16",
+       "Two-body motion about the gravitational parameter of \"sun\" (catalogue)"
+      ],
+      "accuracy": "indicative: Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date. It was also compared at six dates across the Showers demo's year, 21 September 2019 to 20 September 2020 (Horizons solution JPL#1019, fetched 2026-10-18): the largest difference there is 365,665 km (0.16% of its distance from the Sun, 2020-09-20), within the figure above.",
+      "notes": "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch."
+     },
+     "knownLimitations": [
+      "One full turn of unperturbed two-body motion about the Sun, starting at the nearest point to the Sun; the samples are spaced by eccentric anomaly and joined by straight segments.",
+      "Unperturbed two-body motion about the Sun from osculating elements at JD 2461200.5 TDB: no planetary perturbations and no non-gravitational forces.",
+      "Horizons integrates the same orbit fit with the planets' pull and a small transverse non-gravitational term that this model leaves out, so the two drift apart.",
+      "Positions before 2019-09-21 or after 2032-12-14 were not compared with Horizons, nor any date between 2020-09-20 and 2020-12-14.",
+      "The body's size is the effective diameter of a 6 km body; no shape, spin or orientation is modelled."
+     ]
+    },
+    "positionsAtPeak": [
+     {
+      "0": -13247521.089807522,
+      "1": -12309729.920870848,
+      "2": -10646821.037618537
+     },
+     {
+      "0": 226901146.37319452,
+      "1": 210838614.8493783,
+      "2": 182356742.06016845
+     },
+     {
+      "0": -13247521.112877535,
+      "1": -12309729.89532346,
+      "2": -10646821.037716914
+     }
+    ]
+   }
+  ],
+  "cameraPresets": [
+   {
+    "id": "overview",
+    "label": "Overview",
+    "request": {
+     "kind": "overview"
+    }
+   },
+   {
+    "id": "focus-earth",
+    "label": "Focus Earth",
+    "request": {
+     "kind": "focus",
+     "target": "earth"
+    }
+   },
+   {
+    "id": "follow-earth",
+    "label": "Follow Earth",
+    "request": {
+     "kind": "follow",
+     "target": "earth"
+    }
+   },
+   {
+    "id": "focus-parent",
+    "label": "Focus parent",
+    "request": {
+     "kind": "focus",
+     "target": "phaethon"
+    }
+   },
+   {
+    "id": "whole-orbit",
+    "label": "Whole orbit",
+    "request": {
+     "kind": "focus",
+     "target": "phaethon-orbit"
+    }
+   },
+   {
+    "id": "focus-stream",
+    "label": "Focus stream",
+    "request": {
+     "kind": "focus",
+     "target": "geminids-stream"
+    }
+   },
+   {
+    "id": "follow-stream",
+    "label": "Follow stream",
+    "request": {
+     "kind": "follow",
+     "target": "geminids-stream"
+    }
+   }
+  ],
+  "events": [
+   {
+    "id": "geminids-start",
+    "label": "Geminids activity begins",
+    "timeUtcMs": 1575417600000
+   },
+   {
+    "id": "geminids-peak",
+    "label": "Geminids peak",
+    "timeUtcMs": 1576298013000
+   },
+   {
+    "id": "geminids-end",
+    "label": "Geminids activity ends",
+    "timeUtcMs": 1576627200000
+   }
+  ],
+  "windows": [
+   {
+    "id": "geminids-activity",
+    "label": "Geminids activity",
+    "type": "meteor-shower",
+    "startUtcMs": 1575417600000,
+    "endUtcMs": 1576627200000,
+    "peakUtcMs": 1576298013000,
+    "rate": {
+     "unit": "meteors per hour (ZHR)",
+     "samples": [
+      {
+       "timeUtcMs": 1575417600000,
+       "value": 14.358025862631534
+      },
+      {
+       "timeUtcMs": 1575504000000,
+       "value": 18.075683621664712
+      },
+      {
+       "timeUtcMs": 1575590400000,
+       "value": 22.75593744686533
+      },
+      {
+       "timeUtcMs": 1575676800000,
+       "value": 28.64802792105725
+      },
+      {
+       "timeUtcMs": 1575763200000,
+       "value": 36.0657303476078
+      },
+      {
+       "timeUtcMs": 1575849600000,
+       "value": 45.404064429519536
+      },
+      {
+       "timeUtcMs": 1575936000000,
+       "value": 57.16033050906179
+      },
+      {
+       "timeUtcMs": 1576022400000,
+       "value": 71.96059262441132
+      },
+      {
+       "timeUtcMs": 1576108800000,
+       "value": 90.59301870263933
+      },
+      {
+       "timeUtcMs": 1576195200000,
+       "value": 114.04985337589689
+      },
+      {
+       "timeUtcMs": 1576281600000,
+       "value": 143.58025862631538
+      },
+      {
+       "timeUtcMs": 1576298013000,
+       "value": 150
+      },
+      {
+       "timeUtcMs": 1576368000000,
+       "value": 124.47661992176327
+      },
+      {
+       "timeUtcMs": 1576454400000,
+       "value": 98.87529376689955
+      },
+      {
+       "timeUtcMs": 1576540800000,
+       "value": 78.53943755570607
+      },
+      {
+       "timeUtcMs": 1576627200000,
+       "value": 62.38609278986194
+      }
+     ]
+    },
+    "provenance": [
+     {
+      "startUtcMs": 1575417600000,
+      "endUtcMs": 1576254813000,
+      "provenance": {
+       "sourceType": "illustrative",
+       "sources": [
+        "Modelled rate curve; not observed"
+       ],
+       "accuracy": "None claimed. The rate between the published points falls off smoothly from the peak.",
+       "notes": "Modelled rise toward the published peak."
+      }
+     },
+     {
+      "startUtcMs": 1576254813000,
+      "endUtcMs": 1576341213000,
+      "provenance": {
+       "sourceType": "observed",
+       "sources": [
+        "International Meteor Organization, 2019 Meteor Shower Calendar (ed. J. Rendtel), the Geminids entry: active December 4-17, maximum December 14, peak night December 13-14; archived copy (https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf, accessed 2026-10-18)"
+       ],
+       "accuracy": "As published for the night of Dec 13-14, 2019; not checked against the primary source.",
+       "notes": "The published peak night and peak rate of 150. The exact instant inside the night is chosen for the picture."
+      }
+     },
+     {
+      "startUtcMs": 1576341213000,
+      "endUtcMs": 1576627200000,
+      "provenance": {
+       "sourceType": "illustrative",
+       "sources": [
+        "Modelled rate curve; not observed"
+       ],
+       "accuracy": "None claimed. The rate between the published points falls off smoothly from the peak.",
+       "notes": "Modelled fall after the published peak."
+      }
+     }
+    ]
+   }
+  ],
+  "window": {
+   "startUtcMs": 1569024000000,
+   "endUtcMs": 1600582149763
+  },
+  "rates": [
+   3600,
+   43200,
+   86400,
+   259200,
+   604800
+  ],
+  "eventProvenance": {
+   "sourceType": "observed",
+   "sources": [
+    "International Meteor Organization, 2019 Meteor Shower Calendar (ed. J. Rendtel), the Geminids entry: active December 4-17, maximum December 14, peak night December 13-14; archived copy (https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf, accessed 2026-10-18)"
+   ],
+   "accuracy": "Activity dates as published; the peak instant is chosen inside the published night.",
+   "notes": "The peak rate is 150 meteors per hour (ZHR), the American Meteor Society calendar figure; the IMO lists 140 for 2019. The peak instant is when the Sun reaches the IAU Meteor Data Center peak solar longitude of 261.6 degrees, which falls inside the IMO's peak period. The rate curve falls off from that instant."
+  },
+  "storyPanels": {
+   "panels": [
+    {
+     "id": "phaethon",
+     "timeUtcMs": 1572566400000,
+     "title": "A rock that behaves like a comet",
+     "body": [
+      "Most meteor showers are dust shed by comets, icy balls that crumble as they pass the Sun. The Geminids come from Phaethon instead, a lump of rock only a few kilometres wide.",
+      "Every 17 months it swings closer to the Sun than Mercury ever gets; its last close pass was in early July 2019. The heat may crack its surface and shed grit, but exactly how it made so much dust is still a puzzle."
+     ],
+     "badge": "modelled",
+     "details": [
+      "Phaethon's closest passes of the Sun (perihelion) either side of this year, from JPL Horizons (solution JPL#1019): JD 2458667.4947 TDB, 2 July 2019 at about 23:51 UTC, and JD 2459191.1021 TDB, 7 December 2020 at about 14:26 UTC, every 523.7 days (about 17 months). Neither falls inside the year the demo shows (21 September 2019 to 20 September 2020), so this panel opens on 1 November 2019, six weeks in and before the shower begins, when Phaethon is about 1.9 AU from the Sun on its way out.",
+      "The scene moves Phaethon by unperturbed two-body motion from published elements. Across this year its drawn place is within about 366,000 km of JPL Horizons (compared at six dates); near the Sun it can be off by up to about 935,000 km (see the asteroid's position accuracy).",
+      "At perihelion Phaethon is about 0.140 AU from the Sun, roughly 21 million km. Mercury's closest distance to the Sun is 46.0 million km.",
+      "Size: JPL gives an effective diameter of 6.25 km (Taylor et al. 2019, from radar); NASA's Geminids page gives 5.1 km. Phaethon was discovered on 11 October 1983 by the Infrared Astronomical Satellite.",
+      "How Phaethon makes dust is unsettled. NASA's STEREO spacecraft saw it brighten near the Sun in 2009, and Jewitt and Li (2010) proposed that the heat cracks and breaks down its rock. Zhang et al. (2023) found that the brightenings seen near perihelion since 1997 are glowing sodium, not dust, so how the dust of the Geminid stream was shed remains an open question."
+     ],
+     "sources": [
+      "JPL Horizons, 3200 Phaethon (solution JPL#1019): osculating elements at 2019-07-02 and 2020-12-14 TDB, Tp = JD 2458667.494747 and 2459191.102110 TDB; Sun-centred positions at six dates from 21 September 2019 to 20 September 2020; fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt)",
+      "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB): perihelion distance q = 0.140278 au, effective diameter 6.25 km (Taylor et al. 2019, Planetary and Space Science, doi 10.1016/j.pss.2019.01.009); https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1 (accessed 2026-10-18)",
+      "NASA Science, Geminids: parent is asteroid 3200 Phaethon, possibly a \"dead comet\" or \"rock comet\"; diameter 5.10 km; discovered 11 Oct 1983 by the Infrared Astronomical Satellite; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)",
+      "NASA Space Science Data Coordinated Archive, Mercury Fact Sheet: perihelion 46.000 million km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html (accessed 2026-10-18)",
+      "Jewitt, D. and Li, J. 2010, Activity in Geminid parent (3200) Phaethon, The Astronomical Journal 140, 1519",
+      "Zhang, Q. et al. 2023, Sodium Brightening of (3200) Phaethon near Perihelion, The Planetary Science Journal 4, 70, doi 10.3847/PSJ/acc866",
+      "Astraeus data/showers/geminids.json, parentElements.accuracy: largest Sun-centred difference from JPL Horizons about 935,344 km over 2020 to 2032, and 365,665 km across 21 September 2019 to 20 September 2020"
+     ],
+     "objectId": "phaethon"
+    },
+    {
+     "id": "best-shower",
+     "timeUtcMs": 1575590400000,
+     "title": "The best shower of the year",
+     "body": [
+      "In early December, Earth starts running into Phaethon's dust. The Geminids are one of the richest and most reliable meteor showers of the year.",
+      "On a clear, dark night at their best you might see about two meteors a minute. They get going in mid-evening, too, so you don't have to stay up until dawn."
+     ],
+     "badge": "observed",
+     "details": [
+      "Active 4 to 17 December 2019, peak on 14 December between 02:00 and 23:00 UT, so the peak night is 13 to 14 December (International Meteor Organization); zenithal hourly rate 150 (American Meteor Society; the International Meteor Organization lists 140 for 2019). NASA gives up to 120 an hour under perfect conditions and 40 to 50 an hour under typical dark skies; \"about two a minute\" is NASA's 120 an hour.",
+      "NASA: the shower \"starts around 9 or 10 p.m.\"",
+      "This moment, 6 December 2019 at 00:00 UTC, is two days into the activity, chosen so that the panel opens once the shower has begun, also in the shower-only (activity) view. The rate drawn in the scene is modelled from the published peak rate.",
+      "The dots are Geminid orbits measured by the Global Meteor Network's cameras in December 2024 and December 2025. They are drawn as they are in this earlier year, 2019 to 2020: the orbits are measured, but where each dot sits along its orbit is illustrative."
+     ],
+     "sources": [
+      "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18), ed. J. Rendtel): Geminids active December 4-17, maximum December 14, peak period 2019 December 14 between 02h and 23h UT, ZHR 140; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
+      "American Meteor Society, Meteor Shower Calendar: Geminids ZHR 150; https://www.amsmeteors.org/calendar/ (accessed 2026-10-16)",
+      "Global Meteor Network, monthly trajectory summaries, Dec 2024 and Dec 2025, IAU shower 4 (GEM); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
+      "NASA Science, Geminids: \"one of the best and most reliable annual meteor showers\"; 120 per hour under perfect conditions, 40 to 50 per hour typical; starts around 9 or 10 p.m.; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
+     ],
+     "objectId": "geminids-stream"
+    },
+    {
+     "id": "earth-crossing",
+     "timeUtcMs": 1576298013000,
+     "title": "Earth reaches the thickest dust",
+     "body": [
+      "Tonight Earth passes through the busiest part of the stream. Tiny specks of rock hit our air at about 35 km a second and burn up as bright streaks.",
+      "They all seem to fly out of Gemini, the Twins, which gives the shower its name."
+     ],
+     "badge": "observed",
+     "details": [
+      "The peak in this scene is 14 December 2019 at 04:33:33 UTC: the moment the Sun reaches solar longitude 261.6° (J2000), the IAU Meteor Data Center's peak, found on the engine's ephemeris. It falls inside the International Meteor Organization's 2019 peak period, 14 December between 02:00 and 23:00 UT (its single best estimate, solar longitude 262.2°, is later that day).",
+      "Radiant: right ascension 113.0°, declination +32.4° (J2000), in Gemini (IAU Meteor Data Center).",
+      "Speed: 35 km a second (22 miles a second), and the meteors tend to look yellow (NASA)."
+     ],
+     "sources": [
+      "IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023): peak solar longitude 261.6°, radiant RA 113.0°, Dec +32.4°, J2000; https://www.ta3.sk/IAUC22DB/MDC2022/Etc/streamestablisheddata2026.txt (accessed 2026-10-16)",
+      "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18)): Geminids maximum December 14 (solar longitude 262.2), peak period solar longitude 261.5 to 262.4, 2019 December 14 between 02h and 23h UT; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
+      "NASA Science, Geminids: speed 22 miles (35 km) per second; meteors tend to be yellow; radiant in Gemini, the Twins; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
+     ],
+     "objectId": "earth"
+    }
+   ],
+   "pauseSeconds": 6,
+   "autoOpen": true
+  },
+  "clock": {
+   "startUtcMs": 1569024000000,
+   "rate": 604800
+  },
+  "loop": true,
+  "viewUp": "ecliptic",
+  "sceneLayers": [
+   "points",
+   "sun-centred"
+  ],
+  "composition": {
+   "id": "geminids-sun-system",
+   "bodies": [
+    "sun",
+    "earth",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "phaethon"
+   ],
+   "defaultCenter": "sun"
+  },
+  "sceneCenter": "sun",
+  "scaleChoices": [
+   "true-scale",
+   "solar-system"
+  ],
+  "visualOverrides": {
+   "earth": {
+    "exaggeration": 400
+   },
+   "mercury": {
+    "exaggeration": 400
+   },
+   "venus": {
+    "exaggeration": 400
+   },
+   "mars": {
+    "exaggeration": 400
+   },
+   "jupiter": {
+    "exaggeration": 400
+   }
+  },
+  "trackedBodies": [],
+  "camera": {
+   "maxFocusDistance": 400000,
+   "far": 1200000
+  },
+  "catalogueExtra": {
+   "id": "phaethon",
+   "label": "3200 Phaethon (1983 TB)",
+   "elements": {
+    "semiMajorAxisAu": 1.271464620766258,
+    "eccentricity": 0.8896722843984632,
+    "inclinationDeg": 22.31052728903618,
+    "ascendingNodeDeg": 265.0988060336058,
+    "argumentOfPerihelionDeg": 322.300168494526,
+    "meanAnomalyDeg": 301.4858238591272
+   },
+   "epoch": {
+    "jd": 2461200.5,
+    "timeScale": "TDB",
+    "ttMinusUtcSeconds": 69.184
+   },
+   "frame": "ecliptic-j2000",
+   "source": {
+    "name": "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB); osculating elements, equinox J2000, ecliptic plane",
+    "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1",
+    "solution": "SB441-N16 (2026-10-15, 8682 observations 1983 to 2026)",
+    "accessed": "2026-10-16"
+   },
+   "radius": {
+    "km": 3.125,
+    "source": "JPL Small-Body Database effective diameter 6.25 km (Taylor et al. 2019, Planetary and Space Science, doi 10.1016/j.pss.2019.01.009), half of it; JPL Horizons prints RAD = 3.125 km"
+   },
+   "accuracy": {
+    "classification": "indicative",
+    "statement": "Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date. It was also compared at six dates across the Showers demo's year, 21 September 2019 to 20 September 2020 (Horizons solution JPL#1019, fetched 2026-10-18): the largest difference there is 365,665 km (0.16% of its distance from the Sun, 2020-09-20), within the figure above.",
+    "validFromUtc": "2019-09-21T00:00:00Z",
+    "validToUtc": "2032-12-14T00:00:00Z",
+    "limitations": [
+     "Horizons integrates the same orbit fit with the planets' pull and a small transverse non-gravitational term that this model leaves out, so the two drift apart.",
+     "Positions before 2019-09-21 or after 2032-12-14 were not compared with Horizons, nor any date between 2020-09-20 and 2020-12-14.",
+     "The body's size is the effective diameter of a 6 km body; no shape, spin or orientation is modelled."
+    ]
+   },
+   "marker": {
+    "color": "#9fe3ff",
+    "sizePx": 7
+   }
+  },
+  "times": [
+   1575434013000,
+   1576298013000,
+   1577162013000,
+   1575331200000
+  ],
+  "metricRows": {
+   "geminids-stream": [
+    [
+     {
+      "kind": "rate",
+      "id": "geminids-rate",
+      "label": "Activity rate",
+      "value": 15.064251751508982,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Geminids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 150
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "geminids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 113,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 32.4,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 261.6 deg, geocentric radiant RA 113.0, Dec +32.4 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "geminids-rate",
+      "label": "Activity rate",
+      "value": 150,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Geminids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 150
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "geminids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 113,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 32.4,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 261.6 deg, geocentric radiant RA 113.0, Dec +32.4 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "geminids-rate",
+      "label": "Activity rate",
+      "value": null,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Geminids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 150
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "geminids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 113,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 32.4,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 261.6 deg, geocentric radiant RA 113.0, Dec +32.4 deg, J2000"
+     }
+    ],
+    [
+     {
+      "kind": "rate",
+      "id": "geminids-rate",
+      "label": "Activity rate",
+      "value": null,
+      "unit": "meteors per hour (ZHR)",
+      "digits": 0,
+      "context": "Geminids activity",
+      "unavailable": "outside the activity window",
+      "peak": {
+       "label": "Published peak",
+       "value": 150
+      }
+     },
+     {
+      "kind": "coordinates",
+      "id": "geminids-radiant",
+      "label": "Radiant",
+      "system": "radec",
+      "components": [
+       {
+        "label": "RA",
+        "value": 113,
+        "unit": "°",
+        "digits": 1
+       },
+       {
+        "label": "Dec",
+        "value": 32.4,
+        "unit": "°",
+        "digits": 1
+       }
+      ],
+      "frame": "J2000",
+      "origin": "Earth",
+      "context": "Published: IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023, Atlas of Earth's Meteor Showers): peak solar longitude 261.6 deg, geocentric radiant RA 113.0, Dec +32.4 deg, J2000"
+     }
+    ]
+   ],
+   "earth": [
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 147452679.29004642,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 147256147.90206674,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 147143269.26158983,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "earth-range",
+      "label": "Distance from Sun",
+      "value": 147481115.96973184,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "sun": [
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 147452679.29004642,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 56909741.1357625,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108929194.84986527,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 242057154.2636454,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 783545166.5949078,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 147256147.90206674,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 64589661.49994442,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108871603.94041696,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 240627848.15474972,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 783003108.6824068,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 147143269.26158983,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 69058869.76302172,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108762993.65481503,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 239094126.58117414,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 782459751.0464708,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "sun-to-earth",
+      "label": "Distance to Earth",
+      "value": 147481115.96973184,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mercury",
+      "label": "Distance to Mercury",
+      "value": 55879132.33255055,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-venus",
+      "label": "Distance to Venus",
+      "value": 108932408.16112304,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-mars",
+      "label": "Distance to Mars",
+      "value": 242219891.76678702,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     },
+     {
+      "kind": "distance",
+      "id": "sun-to-jupiter",
+      "label": "Distance to Jupiter",
+      "value": 783609577.7476102,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "mars": [
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 242057154.2636454,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 240627848.15474972,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 239094126.58117414,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ],
+    [
+     {
+      "kind": "distance",
+      "id": "mars-range",
+      "label": "Distance from Sun",
+      "value": 242219891.76678702,
+      "unit": "km",
+      "digits": 0,
+      "context": "centre to centre · EQJ"
+     }
+    ]
+   ],
+   "phaethon": [
+    [],
+    [],
+    [],
+    []
+   ]
+  }
+ }
+}

@@ -4,7 +4,7 @@ import { catalogue } from "astraeus/assets/catalogue";
 import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "astraeus/assets/bodies/venus";
 import { textureRightsProblem, textureUrlFor } from "astraeus/assets/licence";
 import { trueScale } from "astraeus/core/scalePolicy";
-import { buildShowerDefinition, showerComposition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
@@ -53,8 +53,8 @@ describe("Venus Magellan map (I-054)", () => {
     vi.stubGlobal("window", { innerWidth: 1280 });
     for (const file of [perseidsFile, geminidsFile]) {
       const settings = parseShowerSettings(file);
-      expect(showerComposition(settings).bodies).toContain("venus");
       const definition = buildShowerDefinition(settings, { kind: "absent" });
+      expect(definition.composition?.bodies).toContain("venus");
       expect(definition.desktopTextures).toBeUndefined();
       expect(describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true).textureUrl).toBe(VENUS_TEXTURE.url);
     }

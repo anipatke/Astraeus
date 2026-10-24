@@ -4,7 +4,7 @@ import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { PointsView } from "astraeus/app/PointsView";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";
 import geminidsFile from "../data/showers/geminids.json";
@@ -25,7 +25,7 @@ describe.each([
 ])("$name fill look-ahead", ({ story, iau, file }) => {
   it("draws the same positions as whole fills and makes the later fills ahead of time", () => {
     const settings = parseShowerSettings(file);
-    const base = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }, "all"))[0];
+    const base = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }))[0];
     let whole = 0;
     const counted = { ...base.group, fillPositionsKm: (t: number, out: Float64Array) => { whole += 1; base.group.fillPositionsKm(t, out); } };
     const layerOf = (extra: object) => ({ ...base, ...extra });

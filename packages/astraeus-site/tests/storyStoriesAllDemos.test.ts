@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import type { ExperienceConfig } from "astraeus/shell/experience";
 import type { StoryPanel } from "astraeus/shell/storyPanels";
 import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
+import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
 
 /** O-015 / T-089: stories on every demo. Each demo's panels are story data, read through the same generic panel path. */
-const geminids = (span?: "activity") => {
-  const file = span === undefined ? geminidsFile : { ...geminidsFile, timeline: { ...geminidsFile.timeline, span } };
-  const settings = parseShowerSettings(file);
-  return buildShowerDefinition(settings, { kind: "absent" }, undefined, shippedPanelsOf(settings)).experience;
+const geminids = () => {
+  const settings = parseShowerSettings(geminidsFile);
+  return buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(4, 20) }, shippedPanelsOf(settings)).experience;
 };
 
 const stories: readonly [string, ExperienceConfig, readonly (readonly [string, string, string | undefined])[]][] = [
@@ -46,12 +46,9 @@ describe("short stories for the three demos without one (T-089)", () => {
     }
   });
 
-  it("opens the Geminids Earth panel at the shower's peak, and keeps the two December panels in the narrowed (activity) view", () => {
+  it("opens the Geminids Earth panel at the shower's peak", () => {
+    // The narrowed (activity) span, which dropped the panels outside it, went with the ?span= option (O-042 Decision 1).
     const year = geminids().storyPanels!;
     expect(year.panels.find((panel) => panel.id === "earth-crossing")!.timeUtcMs).toBe(Date.parse(geminidsFile.activity.peakUtc));
-    const activity = geminids("activity");
-    expect(activity.storyPanels!.panels.map((panel) => panel.id)).toEqual(["best-shower", "earth-crossing"]);
-    // Strictly after the narrowed start, so forward playback from the start crosses it and opens it.
-    expect(activity.storyPanels!.panels[0]!.timeUtcMs).toBeGreaterThan(activity.window.startUtcMs);
   });
 });

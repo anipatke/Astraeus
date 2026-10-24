@@ -36,7 +36,7 @@ describe("view link", () => {
 });
 
 import perseidsFile from "../data/showers/perseids.json";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 
 describe("start view in a shower settings file", () => {
@@ -46,12 +46,12 @@ describe("start view in a shower settings file", () => {
     return copy;
   };
 
-  it("passes a valid start view to the definition, and omits it when absent", () => {
+  it("passes a valid start view to the definition, and opens on the Sun from above the ecliptic when absent (the scene always opens on a declared view)", () => {
     const view = { focus: "sun", azimuthDeg: 200, elevationDeg: 35, distance: 40 };
     expect(buildShowerDefinition(parseShowerSettings(withView(view)), { kind: "absent" }).startView).toEqual(view);
     const none = JSON.parse(JSON.stringify(perseidsFile));
     delete none.look.startView;
-    expect(buildShowerDefinition(parseShowerSettings(none), { kind: "absent" }).startView).toBeUndefined();
+    expect(buildShowerDefinition(parseShowerSettings(none), { kind: "absent" }).startView).toMatchObject({ focus: "sun" });
   });
 
   it("names the field of an invalid start view", () => {

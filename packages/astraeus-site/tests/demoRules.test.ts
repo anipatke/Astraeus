@@ -13,7 +13,7 @@ import { earthSystem } from "astraeus-demo-planets/experiences/planets/systems/e
 import { marsSystem } from "astraeus-demo-planets/experiences/planets/systems/mars";
 import { mercurySystem } from "astraeus-demo-planets/experiences/planets/systems/mercury";
 import { venusSystem } from "astraeus-demo-planets/experiences/planets/systems/venus";
-import { buildShowerDefinition, showerCatalogue } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import earthFile from "astraeus-demo-planets/data/planets/earth.json";
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
@@ -25,7 +25,7 @@ import noPanels from "astraeus-demo-planets/data/stories/no-panels/panels.json";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 
 const planet = (file: unknown, system: unknown) => buildPlanetDefinition(parsePlanetSettings(file), system as PlanetSystem, noPanels);
-const shower = (file: unknown) => { const settings = parseShowerSettings(file); return [buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 20) }), showerCatalogue(settings)] as const; };
+const shower = (file: unknown) => { const settings = parseShowerSettings(file); const definition = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 20) }); return [definition, definition.catalogue ?? catalogue] as const; };
 const [perseids, perseidsCatalogue] = shower(perseidsFile);
 const [geminids, geminidsCatalogue] = shower(geminidsFile);
 const SHOWERS: [string, ExperienceDefinition][] = [["Perseids", perseids], ["Geminids", geminids]];

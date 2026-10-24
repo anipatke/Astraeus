@@ -19,7 +19,7 @@ import { createStateResolver } from "astraeus/core/stateResolver";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs } from "astraeus/core/sunCentredSources";
 import { catalogue } from "astraeus/assets/catalogue";
 import { SWIFT_TUTTLE_VISUAL } from "astraeus/assets/bodies/swiftTuttle";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseids from "../data/showers/perseids.json";
@@ -171,10 +171,10 @@ describe("the name check", () => {
     expect(outside).toEqual(["../../astraeus/src/assets/catalogue.ts"]);
   });
 
-  it("leaves the shower builder generic: the planets' orbit list stays the four planets and the comet's whole orbit is drawn on its own", () => {
+  it("leaves the shower builder generic: the orbit lines are Earth's and the four planets' and the comet's whole orbit is drawn on its own", () => {
     const definition = buildShowerDefinition(parseShowerSettings(perseids), { kind: "loaded", orbits: madeUpOrbits(7, 50) });
     const orbitIds = (definition.paths ?? []).map((path) => path.object.id).filter((id) => id.endsWith("-orbit") && id !== "swift-tuttle-orbit");
-    expect(orbitIds.sort()).toEqual(["jupiter-orbit", "mars-orbit", "mercury-orbit", "venus-orbit"]);
+    expect(orbitIds.sort()).toEqual(["earth-orbit", "jupiter-orbit", "mars-orbit", "mercury-orbit", "venus-orbit"]);
   });
 });
 

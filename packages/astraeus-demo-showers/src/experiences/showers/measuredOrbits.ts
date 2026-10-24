@@ -1,4 +1,15 @@
-import type { ListedMember } from "astraeus/core/listedOrbitGroup";
+/** One record of a measured list: its own source id, the time its elements were measured, and the elements (angles in degrees, length in km). */
+export interface ListedMember {
+  readonly recordId: string;
+  readonly epochUtcMs: number;
+  readonly elements: {
+    readonly semiMajorAxisKm: number;
+    readonly eccentricity: number;
+    readonly inclinationDeg: number;
+    readonly raanDeg: number;
+    readonly argumentOfPeriapsisDeg: number;
+  };
+}
 
 const AU_KM = 149_597_870.7;
 
@@ -69,8 +80,6 @@ export interface MeasuredOrbits {
   readonly quality: readonly MemberQuality[];
 }
 
-export type OrbitSet = "all" | "reliable";
-
 /** A published quality cut: a convergence angle at least this, and a velocity error at most this fraction of the velocity. */
 export interface QualityRule {
   readonly minConvergenceAngleDeg: number;
@@ -80,7 +89,7 @@ export interface QualityRule {
 export const isReliable = (quality: MemberQuality, rule: QualityRule): boolean =>
   quality.convergenceAngleDeg >= rule.minConvergenceAngleDeg && quality.velocityErrorKmS <= rule.maxVelocityErrorFraction * quality.velocityKmS;
 
-/** How many orbits each set holds. */
+/** How many orbits the file holds and, when it carries per-orbit quality, how many pass the published cut (quoted in the stream's known limits). */
 export interface OrbitSetCounts {
   readonly all: number;
   /** Null when the file carries no quality columns, so the reliable set cannot be told. */
@@ -98,13 +107,6 @@ export function orbitSetCounts(orbits: MeasuredOrbits, rule: QualityRule): Orbit
     if (isReliable(q, rule)) reliable += 1;
   }
   return { all: orbits.members.length, reliable, cut: orbits.members.length - reliable };
-}
-
-/** The orbits of one set, in file order. */
-export function selectOrbits(orbits: MeasuredOrbits, set: OrbitSet, rule: QualityRule): MeasuredOrbits {
-  if (set === "all" || !hasQuality(orbits)) return orbits;
-  const keep = orbits.quality.map((q) => isReliable(q, rule));
-  return { provenance: orbits.provenance, members: orbits.members.filter((_, k) => keep[k]), quality: orbits.quality.filter((_, k) => keep[k]) };
 }
 
 export class MeasuredOrbitsError extends TypeError {

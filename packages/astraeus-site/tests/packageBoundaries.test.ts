@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
 /** Demos that are stories on the public API: their `src/` imports `astraeus` and nothing else outside the package. */
-const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11"]);
+const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-showers"]);
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
 const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
 /** Engine files that are not shipped code: its tests and the test setup. */

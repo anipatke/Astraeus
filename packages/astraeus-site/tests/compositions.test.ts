@@ -30,7 +30,7 @@ import {
 import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "astraeus/app/sceneFraming";
 import { TRACK_LAYER, TrackedBodyView } from "astraeus/app/TrackedBodyView";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { buildShowerDefinition } from "astraeus-demo-showers/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";

@@ -374,7 +374,7 @@ export async function selectOrbit(page, bodyId, orbitId) {
   await pressRelatedObject(page, orbitId);
 }
 
-/** Chooses a camera by its preset id (for example "overview", "focus-columbia", "follow-moon", "whole-orbit"). */
+/** Chooses a camera by its preset id (for example "overview", "focus-columbia", "follow-moon", "focus-swift-tuttle"). */
 export const chooseCamera = async (page, presetId) => (await reveal(page, page.locator(`[data-camera-preset="${presetId}"]`))).click();
 /** Whether a camera preset is offered. */
 export const cameraOffered = async (page, presetId) => (await page.locator(`[data-camera-preset="${presetId}"]`).count()) > 0;
@@ -541,14 +541,6 @@ export async function pressFirstControlNow(page, kind) {
 
 /** A story-panel setting in the drawer: the group, and its pause readout. */
 export const storySettings = (page) => page.getByRole("group", { name: "Story panels" });
-/** The orbit-set switch in the drawer ("All orbits" / "Reliable only", with counts) and the source switch ("Orbits from ..."). */
-/** Presses an orbit-set button ("all" or "reliable"); whether one is the set in force. */
-const ORBIT_SETS = { all: /^All orbits/, reliable: /^Reliable only/ };
-export const orbitSetPressed = async (page, which) => (await page.getByRole("button", { name: ORBIT_SETS[which] }).getAttribute("aria-pressed")) === "true";
-export const orbitSetButtons = (page) => page.getByRole("button", { name: /^(All orbits|Reliable only)/ });
-export const orbitSourceButtons = (page) => page.getByRole("button", { name: /^Orbits from/ });
-/** Presses an orbit-set button by its exact label and waits for the page to reload with the matching URL query. */
-export const pressOrbitSetAndWait = (page, which, urlPattern) => Promise.all([page.waitForURL(urlPattern), page.getByRole("button", { name: ORBIT_SETS[which] }).click()]);
 /** The camera view readout and link in the drawer. */
 export const viewValuesText = (page) => page.getByTestId("view-values").innerText();
 export const copyViewLink = (page) => page.getByRole("button", { name: "Copy view link" }).click();
@@ -704,7 +696,7 @@ export const sceneCanvas = (page) => page.getByTestId("earth-moon-canvas");
 export async function scenePaths(page) {
   return JSON.parse((await page.locator("canvas").first().getAttribute("data-paths")) ?? "[]");
 }
-/** One path's readout by id (for example `earth-path`, `1p-orbit`), or undefined when the scene draws no such path. */
+/** One path's readout by id (for example `earth-orbit`, `1p-orbit`), or undefined when the scene draws no such path. */
 export async function scenePath(page, id) {
   return (await scenePaths(page)).find((path) => path.id === id);
 }

@@ -17,7 +17,7 @@ import { createProvenance } from "astraeus/core/provenance";
 import type { PointGroup } from "astraeus/core/pointGroup";
 import { trueScale } from "astraeus/core/scalePolicy";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
-import { buildShowerDefinition } from "../src/experiences/showers/showerDefinition";
+import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import geminidsFile from "../data/showers/geminids.json";
 import perseidsFile from "../data/showers/perseids.json";
@@ -123,7 +123,7 @@ describe("the shader's structure", () => {
 describe("the 64-bit fill from the elements", () => {
   it("reproduces the group's own positions to a part in 10^9, on a made-up group and both shipped sets", () => {
     const groups = [spread(1500), ...[["perseids", 7, perseidsFile], ["geminids", 4, geminidsFile]].map(([story, iau, file]) =>
-      groupsOf(buildShowerDefinition(parseShowerSettings(file as typeof geminidsFile), { kind: "loaded", orbits: readShippedOrbits(story as string, iau as number) }, "all"))[0].group)];
+      groupsOf(buildShowerDefinition(parseShowerSettings(file as typeof geminidsFile), { kind: "loaded", orbits: readShippedOrbits(story as string, iau as number) }))[0].group)];
     for (const group of groups) {
       const own = new Float64Array(3 * group.count);
       const theirs = new Float64Array(3 * group.count);
@@ -159,7 +159,7 @@ describe.each([
 ])("$name shipped set", ({ story, iau, file }) => {
   it("matches every member across the timeline", () => {
     const settings = parseShowerSettings(file);
-    const layer = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }, "all"))[0];
+    const layer = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }))[0];
     const { bounds } = layer.group;
     const times = Array.from({ length: 24 }, (_, k) => Math.round(bounds!.startUtcMs + ((bounds!.endUtcMs - bounds!.startUtcMs) * k) / 23));
     const found = accuracyOf(layer.group, times);
