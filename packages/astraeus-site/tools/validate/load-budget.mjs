@@ -43,6 +43,7 @@ const ALL_PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // T-165 (O-040): the API reference, one static page with inline style and no script; about 25 KB raw, limit rounded up generously for the page to grow with each Objective's exports.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 100_000, gzipLimit: 30_000 },
+  // I-086 (2026-10-24), public build after O-043: Apollo 11 measured 4,342,461 B raw / 2,811,207 B gzip (11 files), 99.4% of the raw limit and 96.9% of the gzip limit (27,539 B and 88,793 B of headroom). Limits unchanged.
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_370_000, gzipLimit: 2_900_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
