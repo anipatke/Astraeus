@@ -22,6 +22,10 @@ history:
     kind: rechecked
     note: 'C-117: file repair proven (publish.yml parses; actions/checkout@v7 and actions/setup-node@v7 action.yml both declare using node24). Not verified: the real manual dry run, which needs a push; outside C-117. Issue stays in_progress until that run passes.'
     check: C-117
+  - at: '2026-10-24T03:50:10Z'
+    actor: {role: executor, session: improvements-1-coordinator-20261024}
+    kind: repair_attempted
+    note: 'Owed proof run: manual publish workflow on main a2cc737f (GitHub Actions run 40059649654, workflow_dispatch, dry run, publishes nothing) passed in 3m14s. The Node.js 20 deprecation annotation is gone. One annotation remains, informational: the ubuntu-latest label moves to Ubuntu 26 from 2026-10-19; kept on purpose (nothing in the job depends on the OS version; Node is pinned to 24 by setup-node), per the Proof Needed clause allowing a named remaining annotation. Awaiting owner acceptance or a Check.'
 ---
 
 # I-085: The npm publishing workflow uses actions that GitHub is retiring
