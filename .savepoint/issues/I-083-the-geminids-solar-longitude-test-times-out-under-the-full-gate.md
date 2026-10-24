@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-042 Full Objective Check (C-114). npm run test:full failed twice in a row on 2975f1bf (00:40:17Z and 00:42:39Z), both times on the Geminids DW3(ii) case in showersMeasured.test.ts (5000 ms timeout); the first run also failed the Perseids fill-time indicator (108.3 ms against < 100). npm test and the file alone pass. The full gate is red, Vitest writes no coverage/coverage-final.json, and savepoint health check O-042 reports "blocks clearance" (tests: 1 failing). Same class as I-072 and I-080.'
     check: C-114
+  - at: '2026-10-24T11:59:00Z'
+    actor: {role: executor, session: i083-repair-builder-20261024}
+    kind: repair_attempted
+    note: 'Repair (tests only, no production change): packages/astraeus-demo-showers/tests/showersMeasured.test.ts now works out each row solar longitude once in a beforeAll (120 s hook limit, reason in a comment) and both bin widths read the cached values; the DW3(ii) case itself now takes about 7 ms and asserts the same 1 degree facts. The Perseids fill-time case now takes the best of five single fills against the same 100 ms budget, so load on one fill cannot fail it. Two consecutive npm run test:full runs passed (129 files, 1738 passed, 1 skipped; 58 s each, about 63 s wall); coverage/coverage-final.json written. npm test, lint, typecheck pass. Not closed: awaiting a Check (fresh savepoint health check O-042 not run by the repairer; the C-114 browser run stays reusable as only a test file changed).'
 ---
 
 # I-083: The Geminids solar-longitude test times out under the full gate
