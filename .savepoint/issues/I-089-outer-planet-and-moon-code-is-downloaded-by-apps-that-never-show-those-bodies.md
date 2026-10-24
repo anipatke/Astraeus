@@ -2,7 +2,7 @@
 id: I-089
 title: Outer-planet and moon code is downloaded by apps that never show those bodies
 type: other
-status: open
+status: in_progress
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: improvements-intake-20261024}
     kind: observed
     note: 'Owner, 2026-10-24: "can we add the fixes as issues, and iterate through and fix them with agents" (after "no more demos, here on in only improvements").'
+  - at: '2026-10-24T05:00:00Z'
+    actor: {role: executor, session: i089-repair}
+    kind: observed
+    note: 'Design note, stopped before code. The six modules cannot load on demand without a public API change. (1) core/bodies/outerPlanets (7.2 kB source), planetMoons (7.3), swiftTuttle (7.1) are imported statically by core/bodies/index.ts, which builds BUILT_IN_BODIES and BUILT_IN_BINDINGS as module constants; assets/catalogue.ts builds `catalogue` from them at import with PLANET_SYSTEM_ENTRIES (planetSystemMaps) and SWIFT_TUTTLE_ENTRY; api/data.ts reads the *_MOON_SYSTEM constants from planetMoons; moonSystem is imported by jupiterMoons, so it stays with Io to Callisto. (2) Scene.addBody("saturn"|"pluto"|"neptune"|"uranus"|swiftTuttle) is synchronous and looks the body up in that catalogue (api/scene.ts #catalogue, #register, unknown-body throw), and the planets need no data package, so there is no existing async step (prepare/installData only runs for data packages) in which to register them first. api/bodies.ts itself only holds light refs and imports nothing heavy. Lazy loading would therefore need either addBody/mount to await a catalogue load (async public call) or a catalogue that fills in later (unknown-body errors before it fills). (3) The one separable piece is shell/MoonFamilyPanel (2,966 chars) plus shell/moonFamilies: rendered only when experience.moonFamilies is set, so React.lazy inside AstraeusShell would change no export; saving about 0.2% of the first-open script, under 1% of the engine share. Options for the owner: A) leave as is (the whole set is 1.4% of the script). B) lazy MoonFamilyPanel only, about 3k chars, no API change, cheap. C) make the outer-planet and comet tables on-demand by letting mount() (already async at the data step) register them from the scene body list before the first frame, with Scene.addBody still sync by keeping lightweight id/label/requires refs; this changes the catalogue from a constant to an instance-owned value across scene.ts, catalogue.ts, catalogueItem and every reader of BUILT_IN_BODIES (about 12 call sites), saves about 17k chars (1.1%), and is a medium refactor with test churn, worth it only if the owner wants it. No code changed, no measurements run.'
 ---
 
 # I-089: Outer-planet and moon code is downloaded by apps that never show those bodies
