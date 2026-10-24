@@ -18,7 +18,12 @@ G-011 (owner, 2026-10-23): grow the public API to cover the story layer so the p
 
 ## Success Conditions
 
-To be settled with the owner when this Objective is planned in detail.
+Settled with the owner, 2026-10-24 (planning session o043-planning-20261024):
+
+- **Coverage scope (owner: "Leave them out, test the 3D code").** The data-import tools (`packages/astraeus/tools/import/`, run on the maintainer's machine against JPL; not in the npm package) leave the coverage count, with the reason recorded in Design. Measured before the change (coverage-final.json, 2026-10-24 12:01): overall 75.0% of statements; import tools 8.6% (135 of 1,563); without them about 84.9%; `src/app/` (3D drawing) 73.9% (2,998 of 4,058).
+- **Coverage target.** After the change, `npm run test:full` reports 80% or more of statements overall **and** `packages/astraeus/src/app/` reaches 80% or more through real tests of behaviour, not by further exclusions.
+- **Developer panels (owner: "Load them only when switched on").** The developer settings and debug readouts load as a separate piece only when switched on; an app that never opens them does not download them; the site behaves as today.
+- **Bundle measure (owner: "Code on first open, any real drop").** The measure is the JavaScript and CSS the packed `examples/hello-scene` loads on first open (raw and gzip), taken by one repeatable command before and after. Baseline (2026-10-24 build): one JS file of 1,558,533 B (449,266 B gzip) plus 44,750 B CSS. Success is a real drop, recorded; there is no fixed percentage. three.js and React stay. Larger savings than the panels and small safe items are brought to the owner first.
 
 ## Architectural Considerations
 
