@@ -40,6 +40,10 @@ history:
     actor: {role: checker, session: o017-orchestrator-check-20261017}
     kind: observed
     note: 'Owner watched both showers on a real phone on the live site (astraeus.anipatke.com, main 7377a87, T-073 slicing + GPU blend + T-075 Kepler on the GPU): "Performance looks good, let''s keep going." The real-phone look owed by C-053/C-055/C-057 is done. Ready to resolve: repaired by T-073 and T-075, verified by C-053 and C-055 and the owner''s look.'
+  - at: '2026-10-24T02:47:47Z'
+    actor: {role: planner, session: improvements-intake-20261024}
+    kind: observed
+    note: 'Still open after the 2026-10-17 repairs (T-073, T-075; owner on a phone then: "Performance looks good"). The owner later called a shower stutter out of G-011 (2026-10-23: "Drop it from this goal"), and on 2026-10-24 asked for it among the improvement fixes. Next: re-measure both showers with the frame probe (any frame over 1.5x the median flagged) on the current main; if no stutter reproduces, record that for the owner; if it does, find the cause and repair it in the engine (ARCH-03, made-up large group first).'
 ---
 
 # I-034: Geminid dots jump during playback
