@@ -180,7 +180,7 @@ footer a { border-bottom: 1px solid var(--rule-strong); }
 <header class="top"><a class="brand" href="../">Astraeus</a><span><a class="pillink" href="../">Home</a> <a class="pillink" href="https://github.com/anipatke/Astraeus">GitHub</a></span></header>
 <main>
 <h1>API reference</h1>
-<p class="lead">Everything the <code>astraeus</code> npm package exports: ${items.length} names, read from its types and doc comments when the site is built. Anything not listed here is internal. The package is a 0.1 preview, so the API may still change between <code>0.x</code> versions; each change is in the <a href="https://github.com/anipatke/Astraeus/blob/main/packages/astraeus/CHANGELOG.md">changelog</a>.</p>
+<p class="lead">Everything the <code>astraeus</code> npm package exports: ${items.length} names, read from its types and doc comments when the site is built. Anything not listed here is internal. The package is a 0.2 preview, so the API may still change between <code>0.x</code> versions; each change is in the <a href="https://github.com/anipatke/Astraeus/blob/main/packages/astraeus/CHANGELOG.md">changelog</a>.</p>
 <nav aria-label="Sections">${nav}</nav>
 ${body}
 ${bodyList}

@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.2.0
+
+The story layer: a scene can now carry your own bodies from orbit elements, orbit lines for any body circling the Sun, timed events, story panels, groups of many objects, an activity curve, display switches and a looping timeline, through `mount` or the new React component `AstraeusScene`. Every public name is documented at <https://astraeus.anipatke.com/api/>. Two changes can affect a 0.1 app: React, react-dom, `@react-three/fiber` and three are now peer dependencies (React 19 needed), and camera preset ids are now `focus-<id>` and `follow-<id>` (both below).
+
+- Lighter first download (O-043), no API change. The Developer drawer's panels (settings, debug readout, frame-rate graph) are a separate file loaded only when the Developer switch is turned on: on the packed example the code loaded on first open went from 1,603,283 to 1,589,850 bytes (458,257 to 454,211 gzip). If that file cannot be fetched (offline, or a tab left open across a redeploy), the drawer says so and asks for a reload; the rest of the viewer keeps working.
 
 - Gaps found rebuilding a shower (O-042 T-177), no existing call changes. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`) now offers the viewer's "solar-system" scale (true distances, the named bodies enlarged) as its second scale choice in place of the readable scale, which does not enlarge; scenes without enlargement are unchanged. A Sun-centred scene with planets (orbit lines, or a group clumped near a planet) now works through `mount`, `AstraeusScene` and `prepareScene` without the caller loading the planet series: the lines and clumped groups are drawn once `prepare` has loaded them. `addGroup`'s `clump.near` accepts a body added with `addBodyFromElements`, and `addGroup` takes `refillSliceMs` (0 or more; `bad-group` otherwise).
 

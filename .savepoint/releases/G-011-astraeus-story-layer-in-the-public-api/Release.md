@@ -1,7 +1,7 @@
 ---
 id: G-011
 title: Astraeus story layer in the public API
-status: planned
+status: done
 ---
 
 ## Outcome

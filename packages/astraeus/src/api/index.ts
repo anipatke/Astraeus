@@ -1,4 +1,4 @@
-// The engine's public API (0.1 preview): everything not exported here is internal.
+// The engine's public API (0.2 preview): everything not exported here is internal.
 export { Scene, SceneCamera, type AddBodyOptions, type AnchorInput, type ReadoutInput, type DataSource, type MoonPositions, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type StoryPanelsInput } from "./story";
 export { type SwitchesInput } from "./switches";

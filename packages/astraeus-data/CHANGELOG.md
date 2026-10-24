@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.2.0
+
+No changes to the code, data or public API. Released with `astraeus` 0.2.0 to keep the version numbers together.
+
 ## 0.1.1
 
 No changes to the code, data or public API. The first version published by the GitHub release workflow, with npm provenance ("Built and signed on GitHub Actions").
