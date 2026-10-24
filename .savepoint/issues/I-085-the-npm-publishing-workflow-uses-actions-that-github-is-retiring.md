@@ -2,7 +2,7 @@
 id: I-085
 title: The npm publishing workflow uses actions that GitHub is retiring
 type: other
-status: open
+status: in_progress
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: improvements-intake-20261024}
     kind: observed
     note: 'Owner, 2026-10-24: "can we add the fixes as issues, and iterate through and fix them with agents" (after "no more demos, here on in only improvements").'
+  - at: '2026-10-24T04:00:00Z'
+    actor: {role: executor, session: repair-builder-I-085}
+    kind: repair_attempted
+    note: 'publish.yml: actions/checkout v4 to v7 and actions/setup-node v4 to v7 (latest majors, 7.0.1 and 7.1.0; both action.yml declare using node24). Runner kept at ubuntu-latest (already Ubuntu 24.04; nothing in the workflow depends on OS specifics; the workflow sets Node 24 for the job itself). Only workflow in .github/workflows. docs/RELEASING.md unchanged (no step changes). Verified: YAML parses; @action-validator/cli passes; npm run lint and typecheck pass. Unverified: a real run. The branch is not pushed, so the manual dry run (Actions, Run workflow, publishes nothing) is owed after the coordinator pushes; confirm no Node 20 deprecation annotation appears.'
 ---
 
 # I-085: The npm publishing workflow uses actions that GitHub is retiring
