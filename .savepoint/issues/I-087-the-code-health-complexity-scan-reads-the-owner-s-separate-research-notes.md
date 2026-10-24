@@ -2,7 +2,7 @@
 id: I-087
 title: The code health complexity scan reads the owner's separate research notes
 type: other
-status: open
+status: in_progress
 source:
   kind: report
   actor: {role: owner, session: improvements-intake-20261024}
@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: improvements-intake-20261024}
     kind: observed
     note: 'Owner, 2026-10-24: "can we add the fixes as issues, and iterate through and fix them with agents" (after "no more demos, here on in only improvements").'
+  - at: '2026-10-24T03:10:00Z'
+    actor: {role: executor, session: repair-I-087}
+    kind: repair_attempted
+    note: 'Added docs/research/** and docs/prds/** to .savepoint/health/config.json: lizard -x args plus exclusions (complexity), jscpd --ignore plus exclusions (duplication), and osv-scanner --experimental-exclude plus exclusions (it scans manifests). Design.md Code Health paragraph (T-122 scanner scope) names the exclusion. AGENTS.md Build scanner lines are inside the Savepoint-managed block, left alone. Proof: lizard with the config args to a scratch CSV (6431 rows) has 0 rows from docs/research or docs/prds, top CCN 20 (PathView.ts constructor; horizons-client.mjs headerOf; validate/driver.mjs anonymous); jscpd with the config args to scratch output has 0 mentions. Unverified: official savepoint health snapshot not run (Full-Check only); osv and tests/coverage not run; no before-run baseline taken.'
 ---
 
 # I-087: The code health complexity scan reads the owner's separate research notes
