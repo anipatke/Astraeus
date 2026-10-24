@@ -1319,13 +1319,13 @@
   "landingSiteOffset": [
     {
       "timeUtcMs": -14182940100,
-      "offsetKm": 254.18,
-      "offsetDeg": 8.386
+      "offsetKm": 0.01,
+      "offsetDeg": 0
     },
     {
       "timeUtcMs": -14105159200,
-      "offsetKm": 275.37,
-      "offsetDeg": 9.087
+      "offsetKm": 0.01,
+      "offsetDeg": 0
     }
   ]
 }

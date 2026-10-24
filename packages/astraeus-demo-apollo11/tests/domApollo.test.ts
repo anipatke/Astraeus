@@ -116,7 +116,7 @@ describe("what the information panel says for Apollo's objects (browser-apollo-s
   it.each<[string, string[]]>([
     ["columbia", ["Smoothed joins", "Burn cutoffs", "translunar injection"]],
     ["eagle", ["Landing site", "Smoothed joins", "Burn cutoffs"]],
-    ["moon", ["no libration"]],
+    ["moon", ["libration"]],
   ])("%s states its limitations and carries a status", (id, phrases) => {
     const view = infoView(apollo11Experience, { kind: "object", id })!;
     const text = (view.provenance?.knownLimitations ?? []).join("\n");

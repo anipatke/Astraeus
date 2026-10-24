@@ -106,7 +106,7 @@ describe("scientific orientation conversion and texture axes", () => {
     eqjToRenderVector(rotateVectorByQuaternion(q, [0, 1, 0])).forEach((v, i) => expect(east.getComponent(i)).toBeCloseTo(v, 12));
   });
 
-  it("keeps the Moon's near-side axis toward Earth across dates", () => {
+  it("keeps the Moon's near-side axis toward Earth across dates, to within libration (I-091)", () => {
     for (const date of [Date.UTC(2020, 0, 5), Date.UTC(2023, 6, 20), T, Date.UTC(2026, 3, 17, 11, 52), Date.UTC(2031, 10, 2)]) {
       const h = createSceneHierarchy();
       const moon = trajectory.stateAt(date, "earth");
@@ -114,7 +114,8 @@ describe("scientific orientation conversion and texture axes", () => {
       h.root.updateMatrixWorld(true);
       const nearSide = worldDirection(h.moonMesh, [1, 0, 0]);
       const towardEarth = h.earthGroup.getWorldPosition(new Vector3()).sub(h.moonGroup.getWorldPosition(new Vector3()));
-      expect(angleDeg(nearSide.toArray(), towardEarth.toArray())).toBeLessThan(0.01);
+      // The IAU model librates by up to about 8 degrees; before I-091 this was an exact lock (0.01).
+      expect(angleDeg(nearSide.toArray(), towardEarth.toArray())).toBeLessThan(10);
     }
   });
 });
@@ -351,7 +352,10 @@ describe("Earth and Moon placement is unchanged by the visual records", () => {
       expect(plain(h.earthGroup.position.toArray())).toEqual(recorded.earthPos);
       expect(plain(h.moonGroup.position.toArray())).toEqual(recorded.moonPos);
       expect(plain(h.earthMesh.quaternion.toArray())).toEqual(recorded.earthQ);
-      expect(plain(h.moonMesh.quaternion.toArray())).toEqual(recorded.moonQ);
+      // I-091: the Moon's orientation is now the IAU model with libration, so the recorded tidal-lock quaternion is matched only to within libration.
+      const q = h.moonMesh.quaternion.toArray();
+      const cosHalf = Math.abs(q[0] * recorded.moonQ[0] + q[1] * recorded.moonQ[1] + q[2] * recorded.moonQ[2] + q[3] * recorded.moonQ[3]);
+      expect((2 * Math.acos(Math.min(1, cosHalf)) * 180) / Math.PI).toBeLessThan(10);
     }
   });
 });

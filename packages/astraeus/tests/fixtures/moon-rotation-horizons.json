@@ -1,0 +1,70 @@
+{
+  "source": "NASA/JPL Horizons API v1.2, OBSERVER table, quantities 14 (ObsSub-LON/LAT, degrees, Moon body frame MOON_ME, east longitude positive) and 20 (delta, au); target Moon (301), centre Earth geocentre (500@399); target Moon pole/equ frame MOON_ME; pole RA/Dec from quantity 32 (North Pole position, ICRF), same instants",
+  "rawFile": "moon-rotation-horizons-source.txt",
+  "retrieved": "2026-10-24",
+  "samples": [
+    {
+      "jdUtc": 2440423.5,
+      "eastLonDeg": 352.769915,
+      "latDeg": 1.919541,
+      "deltaAu": 0.00259866757222,
+      "utcMs": -14169600000,
+      "poleRaDeg": 270.31035,
+      "poleDecDeg": 68.0874
+    },
+    {
+      "jdUtc": 2446217.5,
+      "eastLonDeg": 359.350047,
+      "latDeg": -0.875303,
+      "deltaAu": 0.002414162652,
+      "utcMs": 486432000000,
+      "poleRaDeg": 267.08145,
+      "poleDecDeg": 67.56973
+    },
+    {
+      "jdUtc": 2451545,
+      "eastLonDeg": 5.025824,
+      "latDeg": -6.720739,
+      "deltaAu": 0.00268998925442,
+      "utcMs": 946728000000,
+      "poleRaDeg": 266.85757,
+      "poleDecDeg": 65.64324
+    },
+    {
+      "jdUtc": 2455378.5,
+      "eastLonDeg": 359.296213,
+      "latDeg": -5.060901,
+      "deltaAu": 0.00270664512717,
+      "utcMs": 1277942400000,
+      "poleRaDeg": 273.90541,
+      "poleDecDeg": 66.8294
+    },
+    {
+      "jdUtc": 2460310.5,
+      "eastLonDeg": 0.037465,
+      "latDeg": -4.685011,
+      "deltaAu": 0.00270481348636,
+      "utcMs": 1704067200000,
+      "poleRaDeg": 268.49923,
+      "poleDecDeg": 68.02721
+    },
+    {
+      "jdUtc": 2462653.5,
+      "eastLonDeg": 359.390968,
+      "latDeg": -1.050641,
+      "deltaAu": 0.00271578948959,
+      "utcMs": 1906502400000,
+      "poleRaDeg": 273.75157,
+      "poleDecDeg": 66.16289
+    },
+    {
+      "jdUtc": 2469807.5,
+      "eastLonDeg": 6.495671,
+      "latDeg": -4.332265,
+      "deltaAu": 0.00253151360238,
+      "utcMs": 2524608000000,
+      "poleRaDeg": 273.07062,
+      "poleDecDeg": 65.69716
+    }
+  ]
+}

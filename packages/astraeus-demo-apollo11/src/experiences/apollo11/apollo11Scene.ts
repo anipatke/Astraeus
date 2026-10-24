@@ -143,8 +143,8 @@ function landingSite(validation: GeneratedValidation, events: GeneratedEvents): 
   const offsets = validation.landingSiteOffset
     .map((offset) => `${number(offset.offsetKm, 2)} km (${number(offset.offsetDeg, 3)}°) at ${at(offset.timeUtcMs)}`)
     .join(" and ");
-  return "Landing site: Eagle is placed correctly in space, but the drawn Moon has no libration, so Eagle's surface position is offset "
-    + `from Tranquility Base on the drawn Moon by ${offsets}. This is a stated liberty of the drawn Moon, not of the landing.`;
+  return "Landing site: Eagle is placed by the IAU lunar rotation model, and the drawn Moon turns by the same model with its libration, so Eagle's surface position is offset "
+    + `from Tranquility Base on the drawn Moon by ${offsets}. The model itself is a published approximation of the true lunar orientation.`;
 }
 
 const ABOUT_THE_DRAWING = `${APOLLO11_STATEMENT}. Lines are reconstructed samples and round dots are NASA source anchors. `
@@ -157,9 +157,9 @@ const DESCRIPTIONS: Readonly<Record<string, string>> = {
   eagle: `The lunar module. It took Neil Armstrong and Buzz Aldrin from lunar orbit down to the Sea of Tranquility and back up to Columbia. ${ABOUT_THE_DRAWING}`,
 };
 
-/** The Moon's notes: the drawn Moon is a tidal lock with no libration, and it has no speed (same as before the rebuild). */
+/** The Moon's notes: the drawn Moon follows the IAU rotation model with libration, and it has no speed. */
 const MOON_LIMITATIONS: readonly string[] = [
-  "The Moon's orientation is an approximate tidal lock that keeps its near side towards Earth, with no libration, so surface features can sit several degrees from their true place.",
+  "The Moon turns by the IAU mean-Earth rotation model with its libration terms, a published approximation, so surface features can sit a fraction of a degree from their true place.",
   "No velocity is modelled for the Moon, so it has no speed readout.",
 ];
 

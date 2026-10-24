@@ -48,7 +48,7 @@ describe("scientific Earth and Moon orientation", () => {
     expect(advanceDegrees).toBeLessThan(1.02);
   });
 
-  it("keeps the Moon's body +X near-side axis Earth-facing and its +Z pole on the local orbit normal", () => {
+  it("keeps the Moon's body +X near-side axis Earth-facing and its +Z pole near the local orbit normal, to within libration (I-091)", () => {
     for (const utc of [
       "2022-06-01T00:00:00Z",
       "2024-01-01T00:00:00Z",
@@ -60,7 +60,8 @@ describe("scientific Earth and Moon orientation", () => {
       const state = moon.stateAt(time);
       const nearSideAxis = rotateVectorByQuaternion(state.orientation!, [1, 0, 0]);
       const moonToEarth = unit([-state.positionKm[0], -state.positionKm[1], -state.positionKm[2]]);
-      expect(dot(nearSideAxis, moonToEarth)).toBeGreaterThan(0.999999);
+      // The IAU model librates: the sub-Earth point wanders up to about 8 degrees from the plain lock (was an exact lock before I-091).
+      expect(dot(nearSideAxis, moonToEarth)).toBeGreaterThan(Math.cos((10 * Math.PI) / 180));
       expect(Math.hypot(...state.orientation!)).toBeCloseTo(1, 12);
 
       const earlier = adapter.moonPositionKm(time - 1_800_000);
@@ -71,7 +72,8 @@ describe("scientific Earth and Moon orientation", () => {
         earlier[0] * later[1] - earlier[1] * later[0],
       ]);
       const poleAxis = rotateVectorByQuaternion(state.orientation!, [0, 0, 1]);
-      expect(dot(poleAxis, orbitNormal)).toBeGreaterThan(0.999999);
+      // The lunar pole is tilted about 6.7 degrees from the ecliptic pole and the orbit normal by 5.1 degrees more, so up to about 12 degrees apart.
+      expect(dot(poleAxis, orbitNormal)).toBeGreaterThan(Math.cos((14 * Math.PI) / 180));
     }
   });
 });

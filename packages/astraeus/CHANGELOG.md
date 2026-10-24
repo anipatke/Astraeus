@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- The Moon now shows libration (I-091), no API change. Its orientation was a plain tidal lock; it is now the IAU mean-Earth rotation model with its libration terms (Archinal et al. 2009 report, as saved in NAIF pck00011), so the Moon nods and sways by up to about 8 degrees as it does in the sky. Against JPL Horizons at seven dates from 1969 to 2050 the sub-Earth point and pole agree within 0.01 degrees (about 0.3 km on the surface); a surface place can no longer sit up to 8 degrees (254 km at Apollo 11's touchdown) from its true spot. Moon-surface features and mesh textures move accordingly.
+
 - Documentation only: `addGroup` states that a `center` that is not a catalogued body throws `unknown-body` (a catalogued one missing from the scene throws `bad-group`), and `setTimeline` states that `loop` is ignored with `{ none: true }` or without a timeline. No behaviour changes.
 
 ## 0.2.0

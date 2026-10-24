@@ -15,7 +15,7 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     expect(objectsAfter.map((o) => o.id)).toEqual(before.objects.map((o) => o.id));
     for (const old of before.objects) {
       const now = byId(objectsAfter, old.id);
-      for (const field of ["label", "color", "availability", "provenance", "knownLimitations"].filter((f) => f !== "knownLimitations" || old.id === "earth" || old.id === "moon")) expect(now[field], `${old.id}.${field}`).toEqual((old as Record<string, unknown>)[field]);
+      for (const field of ["label", "color", "availability", "provenance", "knownLimitations"].filter((f) => f !== "knownLimitations" || old.id === "earth")) expect(now[field], `${old.id}.${field}`).toEqual((old as Record<string, unknown>)[field]);
       expect(now.labelMaxDistance, `${old.id}.labelMaxDistance`).toBe(old.labelMaxDistance);
     }
   });
@@ -26,7 +26,10 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
   });
 
   it("keeps Earth's and the Moon's known limits, and the descriptions (addBody takes colour and limits, Decision 11)", () => {
-    expect(byId(objectsAfter, "moon").knownLimitations).toEqual(before.objects[1]!.knownLimitations);
+    // I-091: the Moon's orientation line changed from "tidal lock, no libration" to the IAU model with libration; the speed line is unchanged.
+    const moonNow = byId(objectsAfter, "moon").knownLimitations as string[];
+    expect(moonNow[0]).toContain("libration terms");
+    expect(moonNow.slice(1)).toEqual((before.objects[1]!.knownLimitations as string[]).slice(1));
     expect(byId(objectsAfter, "earth").description).toBe(before.objects[0]!.description);
     expect(byId(objectsAfter, "earth").knownLimitations).toEqual(before.objects[0]!.knownLimitations);
     expect(byId(objectsAfter, "moon").description).toBe(before.objects[1]!.description);
@@ -36,7 +39,9 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     for (const id of ["columbia", "eagle"]) {
       const old = before.objects.find((o) => o.id === id)!.knownLimitations as string[];
       const now = byId(objectsAfter, id).knownLimitations as string[];
-      expect(now.slice(0, old.length)).toEqual(old);
+      // I-091: Eagle's landing-site line used to say the drawn Moon has no libration; it is regenerated from the data and now says it follows the IAU model.
+      const sameWording = (lines: string[]) => lines.map((line) => (line.startsWith("Landing site:") ? "Landing site:" : line));
+      expect(sameWording(now.slice(0, old.length))).toEqual(sameWording(old));
       expect(now).toHaveLength(old.length + 1);
       expect(now[old.length]).toMatch(/^Path uncertainty: the drawn position can sit away from the position NASA's anchors imply on a coast by up to [\d,]+ km/);
       expect(now[old.length]).toMatch(/not shown as a live figure/);

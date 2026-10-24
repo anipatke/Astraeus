@@ -1,5 +1,7 @@
 import type { AstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { moonOrientationFromOrbit, rotateVectorByQuaternion } from "astraeus/core/bodyOrientation";
+import { MOON_ROTATION } from "astraeus/core/bodies/moon";
+import { rotateVectorByQuaternion } from "astraeus/core/bodyOrientation";
+import { iauOrientation } from "astraeus/core/iauRotation";
 import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
 import type { NormalisedAnchor } from "./anchors";
 import config from "./config.json";
@@ -278,12 +280,7 @@ export function qualitativeChecks(input: QualitativeInput) {
 export function landingSiteOffset(adapter: AstronomyAdapter, touchdown: NormalisedAnchor, timeUtcMs: number) {
   const fixed = sphericalToFixedKm(touchdown.inputs.latitudeDeg, touchdown.inputs.longitudeDeg, CONSTANTS.moon.referenceRadiusKm);
   const iau = mulMatVec(lunarFixedToEqj(timeUtcMs), fixed);
-  const half = 1_800_000;
-  const orientation = moonOrientationFromOrbit(
-    adapter.moonPositionKm(timeUtcMs),
-    adapter.moonPositionKm(timeUtcMs - half),
-    adapter.moonPositionKm(timeUtcMs + half),
-  );
+  const orientation = iauOrientation(MOON_ROTATION, adapter.daysSinceJ2000Tt(timeUtcMs));
   const runtime = toVec3(rotateVectorByQuaternion(orientation, fixed));
   return {
     timeUtcMs,

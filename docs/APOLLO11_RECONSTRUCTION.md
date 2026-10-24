@@ -207,12 +207,12 @@ Apsis altitudes (above the 1,738.09 km reference sphere) from the converted post
 
 ### Landing site versus the runtime Moon orientation
 
-The IAU-placed site compared with the same selenographic latitude/longitude under the runtime tidal-lock Moon orientation. The offset is larger than the 1°–2° anticipated in packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md because the runtime orientation has no libration. The Moon mesh is deliberately not adjusted to hide this.
+The IAU-placed site compared with the same selenographic latitude/longitude under the runtime Moon orientation, which since I-091 is the same IAU rotation model with its libration terms (it was a tidal lock with no libration, 254 km and 8.4° at touchdown). The two agree by construction, so the offset shows only that the drawn Moon and the placed site use one model; the model's own distance from Horizons' Moon is stated in the Moon's known limitations.
 
 | Time UTC | Offset km | Offset ° |
 |---|---|---|
-| 1969-07-20T20:17:39.900Z | 254.18 | 8.386 |
-| 1969-07-21T17:54:00.800Z | 275.37 | 9.087 |
+| 1969-07-20T20:17:39.900Z | 0.01 | 0 |
+| 1969-07-21T17:54:00.800Z | 0.01 | 0 |
 
 ### Surface clearance of the two-anchor arcs
 
