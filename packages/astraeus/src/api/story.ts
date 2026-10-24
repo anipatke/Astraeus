@@ -26,7 +26,7 @@ export interface AddEventsOptions {
  * or, when `rate` is given, runs on from there at that rate.
  */
 export type TimelineInput =
-  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; readonly none?: undefined }
+  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. */ readonly loop?: boolean; readonly none?: undefined }
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
 
 /** What `setTimeline` was given, checked and converted. */
@@ -34,6 +34,8 @@ export interface TimelineSetting {
   readonly window?: TimeBounds;
   readonly rates?: readonly number[];
   readonly rate?: number;
+  /** Playback wraps from the end of the span to its start. */
+  readonly loop?: boolean;
   /** No timeline bar. */
   readonly none: boolean;
   /** For no timeline: the moment time is frozen at, or runs on from. */
@@ -71,12 +73,13 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   const bad = (message: string) => new SceneError("bad-timeline", `setTimeline: ${message}`);
   if (typeof input !== "object" || input === null) throw bad("give an object such as { start, end } or { none: true }");
   if (input.rate !== undefined && !(Number.isFinite(input.rate) && input.rate !== 0)) throw bad(`rate must be a finite, non-zero number, got ${String(input.rate)}`);
+  if ((input as { loop?: unknown }).loop !== undefined && typeof (input as { loop?: unknown }).loop !== "boolean") throw bad("loop must be true or false");
   if (input.none === true) return { none: true, ...(input.at === undefined ? {} : { atUtcMs: toUtcMs(input.at, "setTimeline at") }), ...(input.rate === undefined ? {} : { rate: input.rate }) };
   const window = { startUtcMs: toUtcMs(input.start, "setTimeline start"), endUtcMs: toUtcMs(input.end, "setTimeline end") };
   if (window.endUtcMs <= window.startUtcMs) throw bad("end must be after start");
   const rates = input.rates;
   if (rates !== undefined && (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))) throw bad("rates must be a non-empty list of positive numbers");
-  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(input.rate === undefined ? {} : { rate: input.rate }) };
+  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
 }
 
 /** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */

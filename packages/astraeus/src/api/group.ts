@@ -33,6 +33,13 @@ export interface GroupClumpInput {
   readonly widthDeg: number;
 }
 
+/** A bar on a group's info card: `rate` is the live rate of an activity (`addActivity`; the scene's first when `activity` is absent) against its peak. */
+export interface GroupReadoutInput {
+  readonly kind: "rate";
+  /** The id of an activity added with `addActivity`. */
+  readonly activity?: string;
+}
+
 /**
  * A group of listed orbits drawn as one set of dots: one dot per orbit, on its own ellipse, one colour and dot size, one menu item and one info card.
  * The group's id joins the camera menu (`focus-<id>`, `follow-<id>`) and may be named by story panels. The orbits' shapes are as listed; where each dot sits
@@ -67,6 +74,8 @@ export interface GroupInput {
   readonly description?: string;
   /** Limits of the list, shown first on the info card; the group adds its own placement and motion limits. */
   readonly knownLimitations?: readonly string[];
+  /** Bars for the info card, in order. Absent: none. */
+  readonly readouts?: readonly GroupReadoutInput[];
 }
 
 /** A validated group, built into a draw layer once the scene's centre and opening time are known. */
@@ -87,6 +96,7 @@ export function planGroup(input: GroupInput): PlannedGroup {
   checkOrbits(id, input.orbits);
   checkLook(id, input);
   if (input.clump !== undefined) checkClump(id, input.clump);
+  checkReadouts(id, input.readouts);
   if (input.center !== undefined && !catalogue.has(input.center)) throw new SceneError("unknown-body", `addGroup("${id}"): centre "${String(input.center)}" is not a catalogued body`);
   return { id, label: input.label ?? id, input };
 }
@@ -109,6 +119,15 @@ function checkLook(id: string, input: GroupInput): void {
   if (!positive(input.refillAfterMs)) throw bad(id, "refillAfterMs must be above 0");
   const limits = input.knownLimitations;
   if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw bad(id, "knownLimitations must be a list of non-empty texts");
+}
+
+function checkReadouts(id: string, readouts: readonly GroupReadoutInput[] | undefined): void {
+  if (readouts === undefined) return;
+  if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `addGroup("${id}"): readouts must be a list`);
+  for (const spec of readouts) {
+    if (spec?.kind !== "rate") throw new SceneError("bad-readout", `addGroup("${id}"): readout kind "${String(spec?.kind)}" is not one of rate`);
+    if (spec.activity !== undefined && (typeof spec.activity !== "string" || spec.activity === "")) throw new SceneError("bad-readout", `addGroup("${id}"): readout rate needs \`activity\` to be the id of an activity`);
+  }
 }
 
 function checkClump(id: string, clump: GroupClumpInput): void {

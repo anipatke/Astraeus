@@ -2,10 +2,15 @@
 id: T-175
 title: Add an activity curve, looping and the view settings
 objective: O-042
-status: planned
+status: done
 depends_on: [{task: T-174, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o042-planning-20261024}
+check_waiver:
+  task: T-175
+  reason: 'Owner said "orchestrate O42"; under the standing O-042 run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o042-run-20261024}
+  recorded_at: '2026-10-24T00:00:53Z'
 ---
 
 # Add an activity curve, looping and the view settings
@@ -51,7 +56,9 @@ Hand-off gates from AGENTS.md (`npm run lint`, `npm run typecheck`, `npm run bui
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-24 (builder session). Added `src/api/activity.ts` (`addActivity`: validated TimelineWindow with peak and provenance spans, `bad-activity`; rate bar fed from it), group `readouts: [{ kind: "rate", activity? }]` (`bad-readout`), `setTimeline({ loop })`, `up: "ecliptic"` on `camera.follow`/`lookAt`, `camera.setReach(distance)` (max focus distance, far = 2.5x, `bad-camera`). Label reach reconciled: in a non-Sun-centred scene a body label reach is max(500, reach); Sun-centred scenes were already unlimited. Without `setTimeline`, the timeline spans trajectories and activities. Docs: doc comments, README rows, CHANGELOG entry, `/api` section list (api-reference.mjs). New test `packages/astraeus/tests/publicApiActivity.test.ts` (rate at, before, after peak and outside the window; error codes; loop; up; reach; label reach).
+
+Gates: `npm run lint` pass (after splitting planActivity and toDefinition for CODE-01), `npm run typecheck` pass, `npm run build` pass, `npm test` pass (127 files, 1704 passed, 1 skipped), `npm run check:engine-alone` pass, `npm run check:pack` pass. No browser run, no screenshots; showers demo, Apollo and hello-scene untouched (hello-scene not changed, so `build:example` not run). The `/api` page was not regenerated or viewed (no site build of it run beyond `npm run build`).
 
 ## Drift Notes
 

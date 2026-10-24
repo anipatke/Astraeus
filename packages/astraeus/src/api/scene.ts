@@ -23,8 +23,10 @@ import type { EccentricSampling } from "../core/sunCentredSources";
 import { circlesTheSun, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
 import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
+import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
-export type { GroupInput, GroupOrbitInput, GroupClumpInput } from "./group";
+export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } from "./group";
+export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
@@ -109,6 +111,8 @@ export interface FollowView {
   readonly azimuthDeg?: number;
   readonly elevationDeg?: number;
   readonly distance?: number;
+  /** Which direction is up as the viewer orbits: "equatorial" (celestial north, the default) or "ecliptic" (the ecliptic's north pole, so the planets' plane reads flat). Any other value throws `bad-camera`. */
+  readonly up?: "equatorial" | "ecliptic";
 }
 
 const DEFAULT_COLOR = "#ffd27a";
@@ -129,6 +133,7 @@ export class SceneCamera {
   #target: string | undefined;
   #following = false;
   #view: FollowView = {};
+  #reach: number | undefined;
   readonly #has: (id: string) => boolean;
   constructor(has: (id: string) => boolean) {
     this.#has = has;
@@ -143,11 +148,23 @@ export class SceneCamera {
   }
   #open(call: string, id: string, view: FollowView, following: boolean): this {
     if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
+    if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
     this.#target = id;
     this.#following = following;
     this.#view = view;
     return this;
   }
+  /**
+   * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
+   * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
+   */
+  setReach(distance: number): this {
+    if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
+    this.#reach = distance;
+    return this;
+  }
+  /** The farthest zoom-out set with `setReach`, if any. */
+  get reach(): number | undefined { return this.#reach; }
   get target(): string | undefined { return this.#target; }
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`lookAt`). */
   get following(): boolean { return this.#following; }
@@ -169,6 +186,7 @@ export class Scene {
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();
   readonly #groups = new Map<string, PlannedGroup>();
+  readonly #activities = new Map<string, PlannedActivity>();
   readonly #orbits = new Set<BodyId>();
   readonly #own = new Map<BodyId, EccentricSampling>();
   readonly #shape = new Map<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>();
@@ -264,6 +282,19 @@ export class Scene {
     return this;
   }
 
+  /**
+   * Adds a period of activity to the timeline: a rate curve the timeline glows by, its peak mark, and where each stretch comes from. A group's `{ kind: "rate" }` readout shows its live rate
+   * (unavailable outside the period) against the peak. Without `setTimeline`, the timeline spans the activities. A repeated id, or a bad curve, peak, source or moment, throws `bad-activity`.
+   * @example
+   * scene.addActivity({ id: "burst", label: "Burst", unit: "per hour", start: "2026-08-01", end: "2026-08-20", peak: "2026-08-12", samples: [{ time: "2026-08-01", value: 2 }, { time: "2026-08-12", value: 100 }, { time: "2026-08-20", value: 5 }] });
+   */
+  addActivity(input: ActivityInput): this {
+    const plan = planActivity(input);
+    if (this.#activities.has(plan.window.id)) throw new SceneError("bad-activity", `addActivity("${plan.window.id}"): an activity with that id is already in the scene`);
+    this.#activities.set(plan.window.id, plan);
+    return this;
+  }
+
   /** Sets the moment the scene opens at. */
   setTime(time: TimeInput): this {
     this.#timeUtcMs = toUtcMs(time, "setTime");
@@ -291,7 +322,7 @@ export class Scene {
     return this;
   }
 
-  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`) and the speed it opens at (`rate`), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
+  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`) and whether playback wraps from the end to the start (`loop`), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#timeline = timelineOf(timeline);
     return this;
@@ -340,6 +371,30 @@ export class Scene {
     });
   }
 
+  /** The activity windows, when any were added. */
+  #windowsEntry(): Pick<ExperienceDefinition["experience"], "windows"> {
+    return this.#activities.size === 0 ? {} : { windows: [...this.#activities.values()].map((activity) => activity.window) };
+  }
+
+  /** The bars of a group's info card at a moment. */
+  #groupMetrics(id: string, timeUtcMs: number): readonly Metric[] {
+    return (this.#groups.get(id)?.input.readouts ?? []).map((spec) => rateMetricOf(id, this.#activities.get(spec.activity ?? this.#firstActivity())!, timeUtcMs));
+  }
+
+  #firstActivity(): string {
+    return this.#activities.keys().next().value as string;
+  }
+
+  /** A group's rate readout names an activity the scene holds. */
+  #checkGroupReadouts(): void {
+    for (const { id, input } of this.#groups.values()) {
+      for (const spec of input.readouts ?? []) {
+        const named = spec.activity ?? (this.#activities.size > 0 ? this.#firstActivity() : undefined);
+        if (named === undefined || !this.#activities.has(named)) throw new SceneError("bad-readout", `addGroup("${id}"): readout rate ${named === undefined ? "needs an activity (addActivity)" : `names activity "${named}", which has not been added to the scene`}`);
+      }
+    }
+  }
+
   /** Throws `missing-data` naming the bodies whose data package was not passed. */
   #checkData(data: readonly DataSource[]): void {
     const missing = this.missingData(data);
@@ -366,7 +421,7 @@ export class Scene {
 
   /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene sets no label reach. */
   #bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean): ExperienceObject {
-    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred ? {} : { labelMaxDistance: 500 }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
+    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
     return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
   }
 
@@ -400,13 +455,14 @@ export class Scene {
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
     if (this.#bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
     this.#checkData(data);
+    this.#checkGroupReadouts();
     const ids = [...this.#bodies.keys()];
     const paths = this.#moonPaths();
     const sunCentred = this.#checkSunCentred(ids);
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const timeline = this.#timeline;
-    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, tracked);
+    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunPaths = this.#sunPaths(ids, startUtcMs);
     const target = this.camera.target;
     const view = this.camera.view;
@@ -426,6 +482,7 @@ export class Scene {
         ...(storyPanels === undefined ? {} : { storyPanels }),
         ...(timeline?.none === true ? { hideTimeline: true } : {}),
         window,
+        ...this.#windowsEntry(),
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
@@ -436,12 +493,13 @@ export class Scene {
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
+      ...viewEntries(timeline, this.camera),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
         const catalogued = bodyMetrics(resolver, ids, ["distance"]);
         const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? [] : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
+        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? this.#groupMetrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
         if (needsPlanetSeries(definition)) await loadPlanetSeries();
@@ -450,6 +508,16 @@ export class Scene {
     };
     return definition;
   }
+}
+
+/** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
+function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
+  const { reach, view, target } = camera;
+  return {
+    ...(timeline?.loop === true ? { loop: true } : {}),
+    ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: reach * 2.5 } }),
+    ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
+  };
 }
 
 /** The scene's layers: the points layer and the groups only when a group was added. */
@@ -487,7 +555,7 @@ function cameraPresetsOf(objects: readonly { readonly id: string; readonly label
 }
 
 /** The timeline span and the moment the clock opens at; a moment outside a span the caller set is a `bad-timeline`. */
-function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undefined, tracked: readonly TrackedBody[]): { readonly window: TimeBounds; readonly startUtcMs: number } {
+function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undefined, tracked: readonly TimeBounds[]): { readonly window: TimeBounds; readonly startUtcMs: number } {
   const setTime = (timeline?.none === true ? timeline.atUtcMs : undefined) ?? timeUtcMs;
   const window = timeline?.window ?? windowOf(tracked, setTime);
   if (timeline?.window !== undefined && setTime !== undefined && (setTime < window.startUtcMs || setTime > window.endUtcMs)) {
@@ -528,11 +596,11 @@ function providerBody(common: Common, input: Extract<TrajectoryInput, { provider
   return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => bounds.startUtcMs + index * step) };
 }
 
-/** The timeline span: the trajectories' union, else a month about the chosen time (or about now). */
-function windowOf(tracked: readonly TrackedBody[], timeUtcMs: number | undefined): TimeBounds {
+/** The timeline span: the union of the trajectories' and activities' spans, else a month about the chosen time (or about now). */
+function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined): TimeBounds {
   if (tracked.length > 0) {
-    const start = Math.min(...tracked.map((body) => body.trajectory.bounds.startUtcMs));
-    const end = Math.max(...tracked.map((body) => body.trajectory.bounds.endUtcMs));
+    const start = Math.min(...tracked.map((bounds) => bounds.startUtcMs));
+    const end = Math.max(...tracked.map((bounds) => bounds.endUtcMs));
     if (timeUtcMs === undefined || (timeUtcMs >= start && timeUtcMs <= end)) return { startUtcMs: start, endUtcMs: end };
   }
   const centre = timeUtcMs ?? Date.now();
