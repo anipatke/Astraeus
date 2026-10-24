@@ -35,6 +35,7 @@ Owner, 2026-10-24, O-042 planning interview (proposal drafted the same day):
 4. **Stream card** ("Rate stays a bar, radiant becomes text (Recommended)"): a `rate` readout kind fed by the activity curve; the radiant's RA/Dec becomes a line in the stream's description.
 5. **Trims and limits** ("Both trims, then tighten limits (Recommended)", after asking "Whats the visual impact of this change" — none): the lossless record-id trim and dropping the three quality columns (only the dropped switch read them); this is the owner's DATA-01 OK to rewrite the two shipped orbit files; limits then lowered to the new measurement plus 5%, rounded up to the next 10,000 bytes.
 6. **As O-041** ("Yes, same as Apollo (Recommended)"): rebuilt in place; camera menu automatic (about 17 items; "Focus parent" becomes "Focus Swift-Tuttle"/"Focus Phaethon"; "Whole orbit" leaves the menu, the comet's orbit stays reachable from its top bar); no display switches placed; standing run rules (step Checks waived, coordinator marks done, one owner look at both showers, one Full Objective Check with one browser run). Owner standing instruction: "merge and push when its clear".
+7. **Gaps found by the rebuild** (owner, 2026-10-24, "Add a small fix step first (Recommended)"): T-176 returned REPLAN REQUIRED; a new step T-177 adds the Solar system scale for enlarged Sun-centred scenes, safe planet-series loading through `mount`, `clump.near` on own bodies and `refillSliceMs` to the public API before T-176 resumes.
 
 ## Architectural Considerations
 

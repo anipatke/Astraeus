@@ -2,8 +2,9 @@
 id: T-176
 title: Rebuild the meteor showers on the public API
 objective: O-042
-status: planned
-depends_on: [{task: T-171, requires: clear}, {task: T-172, requires: clear}, {task: T-175, requires: clear}]
+status: in_progress
+stage: build
+depends_on: [{task: T-171, requires: clear}, {task: T-172, requires: clear}, {task: T-175, requires: clear}, {task: T-177, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o042-planning-20261024}
 ---
@@ -55,8 +56,17 @@ Hand-off gates from AGENTS.md (`npm run lint`, `npm run typecheck`, `npm run bui
 
 ## Technical Evidence
 
-Pending execution.
+Partial work at REPLAN REQUIRED (stage build, nothing committed; the tree does not pass typecheck because the old shower tests still import removed modules):
+- Step 1 done: `packages/astraeus-demo-showers/tests/fixtures/showers-before-rebuild.json` captured from the pre-rebuild code (both showers, shipped orbits) before any change.
+- Step 2 done: `showerScene.ts` (`buildShowerScene`, `loadShowerPanelsFile`, `rateSamplesOf`), `showerText.ts`, trimmed `showerBasics.ts`, `measuredOrbits.ts` (no orbit sets), `showerSettings.ts` with its own readers (no `astraeus/...` import). Removed `showerDefinition.ts`, `showerStream.ts`, `showerPaths.ts`, `showerBodies.ts`, `showerActivity.ts`.
+- Step 3 done: `showerEntry.ts` moved to `packages/astraeus-site/src/showerSwitch.ts`; `main.tsx` builds `buildShowerScene(...).toDefinition()` with label and switcher, loads the planet series first, drops `?span=` and `?orbits=`.
+- Test helper `tests/helpers/showerDefinition.ts` (scene `toDefinition()` for tests). Probe built both showers without error.
+- Not done: comparison test, boundary rule, rewritten tests, driver repair, measuring and limits, Design.md.
+- Differences seen so far (all to tie to a Decision or flag): body label priorities 100..94 (were 95/100/90/80/70); stream label priority 80 (was 70); camera far 10,000,000 (was 12,000,000; far = 2.5 x reach); Earth orbit id `earth-orbit` (was `earth-path`) and orbit lines take the body colours (earthPathColor, parentPathColor no longer used); orbits start at the opening time (were the peak); opening view is Focus Sun pressed (Geminids declares no view, a default one is used); 'times larger than life' sentence now in the planets' descriptions (was a known limit; catalogue limits are kept); radiant is a line in the stream description (Decision 4); rate row id `perseids-stream-rate` and wording 'outside the activity'; Geminids refillSliceMs 12 lost; whole-orbit and Focus parent items gone (Decision 6); the not-fetched notice is in the Sun's description.
 
 ## Drift Notes
+
+Replan 2026-10-24 (planner, o042-replan-20261024): the builder returned REPLAN REQUIRED (Solar system scale unreachable through the public Scene; planet series loaded after the eager Sun-orbit lines; clump.near cannot name an elements body; no refillSliceMs). Owner chose "Add a small fix step first (Recommended)": T-177 fills them; this Task then resumes from its saved partial work (git stash "T-176 partial rebuild", fixture captured before any change). Differences already seen are in the builder's report and go to the comparison test.
+
 
 Record architecture deltas for Design reconciliation in the showers rebuild Task.
