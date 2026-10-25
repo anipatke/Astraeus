@@ -26,8 +26,11 @@ Start from the `Next` line as AGENTS.md's Workflow describes; if `savepoint` is 
 - `.savepoint/router.md`
 - The active Task
 - The owning Objective's boundaries
-- The Task's `## Context Files`
+- The Task's `## Context Files` (an exact path may specify a heading; read that section, while an unqualified path still means the whole file)
+- `docs/agents/verification.md`; `docs/agents/build.md` when selecting or running gates
 - Applicable policy: the `.savepoint/Guardrails.md` rule IDs the Task names, when the project has that file
+
+For architecture references, read the named Design section and only the linked contract/history sections governing it; do not load every reference. Record such linked reads with the path, heading and reason in the evidence before reading.
 
 These Context Files are the read budget. Necessary targeted extra reads are allowed, but logged with what was read and why. The router, `AGENTS.md`, this skill (read directly when the skill tool cannot find it), and the Guardrail IDs the Task names are not extra reads.
 

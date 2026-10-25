@@ -1,0 +1,18 @@
+# Project gates and tooling
+
+## Build
+
+List the project's gate commands here when they differ from, or add to, `quality_gates` in `.savepoint/config.yml` — for example a slower full gate for migration, platform-sensitive work, and Full Objective Checks.
+
+- Hand-off gates (`quality_gates` in `.savepoint/config.yml`): `npm run lint`, `npm run typecheck`, `npm run build` and `npm test` (with the junit reporter). Run the build under the shared build lock when other sessions run.
+- Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
+- Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `packages` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
+- Engine-alone gate: `npm run check:engine-alone` (about 20 s) copies `packages/astraeus` and the shared config into a scratch folder with no demo or site, links the installed dependencies, then type-checks, lints and tests it there; anything that reaches outside the copy fails. It checks the engine source; `check:pack` checks the compiled build. Run it at each Full Objective Check and when the engine's boundary changes.
+- Browser gate: `npm run check:browser` (about 1 minute) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `packages/astraeus-site/tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
+- Package gates (O-036): `npm run build:packages` writes each of the eight publishable packages (`astraeus`, `astraeus-data`, `astraeus-data-{jupiter,saturn,uranus,neptune,mars,pluto}`) to `packages/<name>/dist`; `npm run check:pack` builds them and checks contents and sizes (part of every O-036 hand-off); `npm run build:example` builds `examples/hello-scene` from the packed tarballs. `node tools/publish-packages.mjs --dry-run` shows what a release would publish; never run it without `--dry-run`, and never `npm publish` (the GitHub release workflow publishes, `docs/RELEASING.md`).
+- Health scanners (`.savepoint/health/config.json`), one line each:
+  - jscpd measures duplicated lines over code only; it skips `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`.
+  - lizard measures function complexity over the same code; same skips. `.claude` hooks are not skipped (11 rows of about 5500; left as measured, the owner may add the exclusion).
+  - coverage counts `src` and the non-browser `tools` only (`test.coverage` in the root `vitest.config.ts`), refreshed by `npm run test:full` at each Full Objective Check before `savepoint health check`.
+
+See Verification Policy for gate evidence and reuse requirements.

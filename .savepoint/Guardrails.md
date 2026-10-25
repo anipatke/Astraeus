@@ -5,8 +5,6 @@ status: active
 
 # Guardrails — Engineering Policy
 
-> The rules below are a worked example. **Replace these rules with your project's own engineering policy** — delete what does not apply, and add the rules your domain actually needs. Hold durable project constraints only, once `Design.md` is mature enough to know what they are — not Task-specific instructions and not a running commentary on in-flight work. Keep roughly 10–20 substantive rules, using stable category IDs so Tasks and Checks can cite a rule instead of restating its prose.
-
 ## Purpose
 
 This document is the authoritative engineering policy for Astraeus.

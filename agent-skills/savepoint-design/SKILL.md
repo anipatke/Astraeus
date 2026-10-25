@@ -23,12 +23,13 @@ Start from the `Next` line as AGENTS.md's Workflow describes; if `savepoint` is 
 
 - `.savepoint/router.md`
 - `.savepoint/Idea.md`, when it exists, for the original intent
-- `.savepoint/Design.md`
+- `.savepoint/Design.md` overview and only the linked contract/history sections relevant to this Objective
+- `docs/agents/verification.md`; `docs/agents/build.md` when planning verification
 - `.savepoint/Guardrails.md`
 - The current Objective file
 - Targeted implementation evidence needed to settle readiness for the next Objective — read to verify interfaces, ownership, and constraints, not to design speculatively
 
-Read nothing else. Do not detail Tasks for any Objective beyond the next one, and do not open source files outside the evidence a readiness decision actually needs.
+Relevant linked architecture sections are part of the readiness evidence, not an instruction to load all references. Read nothing else. Do not detail Tasks for any Objective beyond the next one, and do not open source files outside the evidence a readiness decision actually needs.
 
 ## Workflow
 
@@ -183,11 +184,11 @@ Correct selection and Next; explicit stale/unknown evidence; named malformed/mis
 
 ## Context Files
 
-Name exact paths only — no globs, no directory-only entries: `src/commands/status.ts`, `src/commands/status.test.ts`, `src/project/index.ts`, `src/cli.ts`, `src/resume/render.ts`, `src/resume/render.test.ts`.
+Name exact paths, optionally qualified by a Markdown heading for a scoped read — no globs or directory-only entries. For example, `.savepoint/Design.md` under `Interfaces and Data Flow`; an unqualified path means the whole file. Source examples: `src/commands/status.ts`, `src/commands/status.test.ts`, `src/project/index.ts`, `src/cli.ts`, `src/resume/render.ts`, `src/resume/render.test.ts`.
 
 ## Design References
 
-Design sections 4, 5, 10, and 11.
+Exact Design heading names and any governing linked contract/history headings; avoid unstable line numbers.
 
 ## Guardrails
 
@@ -225,7 +226,7 @@ Evaluate title readability through owner-facing scenarios; field validation alon
 
 ## Design Template
 
-`Design.md` carries these sections: Architecture, Components/Codebase Map, Interfaces and Data Flow, Boundaries, Decisions, Current Technical State. Design describes implemented reality concisely; it is not a backlog. Planned change lives in the active Objective's deltas until the work lands, at which point Design is reconciled to match.
+`Design.md` carries these sections: Architecture, Components/Codebase Map, Interfaces and Data Flow, Boundaries, Decisions, Current Technical State. Keep Design as a current overview and package map. Substantial subsystem contracts belong in linked `docs/architecture/` references, loaded only for the affected scope. Preserve technical limits and decision provenance there; existing dated history is retained, not rewritten as current status. Reconciliation updates the overview and relevant contract rather than appending a chronological progress report. Design describes implemented reality concisely; it is not a backlog. Planned change lives in the active Objective's deltas until the work lands, at which point Design is reconciled to match.
 
 ## Guardrails Rule
 

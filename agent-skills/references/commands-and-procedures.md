@@ -21,7 +21,7 @@ Reconcile a migrated V1 `Health-Check.md` into exactly three homes:
 
 1. Lint, typecheck, build, and test commands move into `config.yml`'s
    `quality_gates`.
-2. Quick/Full mechanics stay in `agent-skills/references/check-method.md`; do not copy its prose into project files.
+2. Quick/Full mechanics stay in `agent-skills/references/check-method.md` and its selected mode reference; do not copy its prose into project files.
 3. Remaining project-specific manual verification prose becomes one preserved optional procedure file.
 
 ### What migrate actually does

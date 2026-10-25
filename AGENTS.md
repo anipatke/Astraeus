@@ -32,68 +32,14 @@ An owner may ask, `set router to O-### [T-###] [I-###]`, or select an Issue alon
 
 After a direct Issue repair selected alone, follow `agent-skills/references/issue-capture.md`, Out-Of-Scope Repair, for the exact router handoff. Preserve `release:`.
 
-Three shared references back these four skills and are never triggered directly: `agent-skills/references/check-method.md` (loaded in full by `savepoint-check`), `agent-skills/references/issue-capture.md` (entered by `savepoint-design`, `savepoint-task`, and `savepoint-check` from their own workflow), and `agent-skills/references/commands-and-procedures.md` (loaded by `savepoint-design` for config reconciliation). Each carries `triggerable: false` frontmatter.
-
-Read `.savepoint/Idea.md` only for original intent, `.savepoint/Design.md` only for architecture readiness.
 
 ## Verification Policy
 
-- Every Task records per-criterion evidence and runs its configured gate before handoff.
-- Gate commands are project-owned: `quality_gates` in `.savepoint/config.yml` (build, lint, typecheck, test), plus any fuller gate listed under Build below. When no gate is configured, record that none ran; never invent one.
-- Focused test runs are for iteration. Ordinary Task handoff runs the configured build and test gates; migration or platform-sensitive Task handoff runs the project's full gate fresh when it defines one separately.
-- A Full Objective Check requires current successful full-gate evidence; the optional Task Check does not replace it.
-- Owner acceptances and exceptions carry forward to later Checks while their scope is unchanged; `savepoint-check` Closure Rules define the recorded shape and the `Assess` step. Waived evidence is never `CLEAR`.
-- Reuse a successful full result only for metadata-only corrections. Record the original command, time, toolchain, and result, then prove code, tests, fixtures, dependencies, and gate definitions are unchanged since that run. Any change to those inputs requires a fresh full run.
-- A Task Check is optional, not an automatic implementation gate. If the
-  owner skips the optional independent Task Check, the Task evidence must
-  carry an explicit owner waiver naming the Task, reason, actor, and time.
-  That waiver is not technical `CLEAR` and does not waive any acceptance
-  criterion, guardrail, or Objective Check.
-- A recorded owner Task-check waiver does satisfy a `requires: clear` Task
-  dependency: the owner's completion decision stands in for clear there. It
-  never satisfies `requires: accepted`, since there is no Check to accept.
-- Do not decide whether a dependency blocks by reading this prose. The
-  Savepoint runtime's dependency gate decides, and
-  `savepoint resume` and the board's transition gate report its result as
-  `Blocked:` lines. If neither reports a block, the dependency is met.
-- The Full Objective Check is mandatory before an Objective can close. It is
-  the higher-level integration gate and covers every owned Task, including
-  Tasks whose optional Task Check was waived, plus cross-Task integration and
-  Design reconciliation.
-
-A Check session must be independent from the executor's conversation: the same model is allowed, the same session is not. Only `savepoint-check` writes Check records. Each run is immutable at `.savepoint/checks/C-###-slug.md`; a recheck writes a new record naming the one it supersedes.
-
-During a Check, load `agent-skills/references/check-method.md` in full and apply the selected mode: Quick follows its Quick Check Procedure; Full applies every section, including coverage matrices and the adversarial pass. Apply Guardrails when present; absence is not a finding. A signed `CLEAR` Check is current on its own; optional freshness assessment marks only `stale` or `unknown`.
+Before planning verification, implementing, handing off, or checking work, read [the verification policy](docs/agents/verification.md). It owns gate evidence, optional Task-check waivers, independent Checks and mandatory Objective Checks. Read [project gates](docs/agents/build.md) to choose or run commands. `quality_gates` in `.savepoint/config.yml` owns the ordinary commands.
 
 ## Required Goal Context
 
-Every Savepoint project must have a live Goal selected by the router, and
-every live Objective must name exactly one Goal in its `release:` field.
-`savepoint init` creates and selects G-001, titled after the project.
-`savepoint migrate` keeps the V1 router's live Goal. When that selection is
-missing or unresolvable, it selects a uniquely identifiable existing live
-Goal for the converted active work when possible. If selected work belongs
-only to a historical Goal, migration creates a live continuation with a G-###
-identity and moves that active Objective into it. Converted V1 Releases keep
-their R-### identities. An unresolved release lifecycle decision stays in
-the preview and blocks Apply.
-
-If the router Goal is missing, blank, or `none`, Next says `Choose a Goal`; use
-`g` to select a live Goal. Unknown or archived router selections are reported
-as selection diagnostics; use `g` to select a live Goal. If there are no live
-Goals, `savepoint doctor` says to create one. An Objective missing `release:` remains
-loadable, but resume and the board flag it and doctor names the Objective and
-the exact `release:` field using an `R-###` or `G-###` Goal ID. Unknown or
-malformed Objective references remain errors. The board shows only the selected
-Goal's Objectives and Tasks; it never falls back to a project-wide view.
-
-Existing Goals keep their stable `R-###` identities, paths, and references.
-New Goals use stable `G-###` identities under `.savepoint/releases/`
-(`Release.md`); Objective and router `release:` fields remain the persisted
-compatibility boundary.
-Goals group Objectives; a Goal is complete when every member Objective is
-complete. Goals do not own Tasks, and do not publish, deploy, tag, or generate
-changelogs.
+The router must select a live Goal; each live Objective names exactly one Goal in `release:`. Only an explicit owner Goal choice changes router `release:`. Missing, unknown or archived selections are reported to the owner, never guessed. For Goal repair, creation, migration or adoption, read [Goal and adoption rules](docs/agents/goal-and-adoption.md). Goals group Objectives, never own Tasks or imply publishing.
 
 ## Terminology
 
@@ -111,19 +57,11 @@ Capture defects, drift, guardrail gaps, and durable follow-up that does not belo
 
 ## Worktree Lanes
 
-The owner may run independent Tasks or Issue repairs side by side in git worktrees, starting each lane by pasting its `Next` line. A lane is a worktree the owner names as one, or any checkout where `git rev-parse --git-dir` differs from `git rev-parse --git-common-dir`. In a lane:
-
-- Do not edit `.savepoint/router.md`; skip every router write the active skill would make. The owner sets the router on the main branch after merging.
-- Do not create Tasks, Checks, or Issues. Their IDs are allocated per checkout and would collide at merge. Record a needed one as a note in the Task or Issue evidence for the owner.
-- Commit on the lane branch; do not push or merge. Optional Task Checks and the Full Objective Check run on the main branch after the lane merges.
-
-When `features.parallel_planning` is on, `savepoint-design` may suggest lanes and read/write manifests; they are advisory, owners and agents may ignore them, and this section only sets what an agent may write inside a lane.
+Detect a lane before writing: the owner names it, or `git rev-parse --git-dir` differs from `git rev-parse --git-common-dir`. In a lane, read [lane rules](docs/agents/worktree-lanes.md): never write the router or create Tasks, Checks or Issues; commit on the lane branch without pushing or merging.
 
 ## Existing Codebase Adoption
 
-Design is reconstructed from the code through targeted reads needed by the current Objective or Task: no whole-repository scan, automatic analysis pass, or call to a model service. What exists goes to `.savepoint/Design.md`: structure to Components/Codebase Map, verified behaviour to Current Technical State. Unread areas are recorded as unknown. What the code is for goes to `.savepoint/Idea.md`: owner intent is recorded in `.savepoint/Idea.md` through `savepoint-idea`, never inferred from source.
-
-Adoption preserves user-authored files. `savepoint init` may add or refresh the Savepoint-managed block in an existing agent guide, preserving every byte outside that block; other Savepoint files are added under `.savepoint/`. Concept, Health-Check, and a procedures file are optional. Their absence is normal, not a finding. A Goal is required: `savepoint init` supplies G-001; migration keeps or selects an existing live Goal, or creates a continuation for historical work. Follow Required Goal Context for `Choose a Goal` and `savepoint doctor` repair guidance.
+For adoption or reconstruction, read [adoption rules](docs/agents/goal-and-adoption.md). Use targeted evidence; never infer owner intent from code.
 
 ## Code Style
 
@@ -131,40 +69,17 @@ Code style is project-owned policy: the `STYLE` rules in `.savepoint/Guardrails.
 
 ## Build
 
-List the project's gate commands here when they differ from, or add to, `quality_gates` in `.savepoint/config.yml` — for example a slower full gate for migration, platform-sensitive work, and Full Objective Checks.
-
-- Hand-off gates (`quality_gates` in `.savepoint/config.yml`): `npm run lint`, `npm run typecheck`, `npm run build` and `npm test` (with the junit reporter). Run the build under the shared build lock when other sessions run.
-- Full gate: `npm run test:full` (Vitest with coverage, plus `junit.xml`) for Full Objective Checks and migration or platform-sensitive hand-offs; it writes a fresh `coverage/coverage-final.json`. The fast `npm test` does not.
-- Lint gate: `npm run lint` is ESLint with one rule, `complexity` at 20, over `packages` and `tools` (`eslint.config.js`; Guardrails CODE-01). typescript-eslint refuses TypeScript 7, so `tools/lint/use-typescript6.cjs` and the npm `overrides` in `package.json` point it at a TypeScript 6 parser; do not remove them until typescript-eslint supports TypeScript 7.
-- Engine-alone gate: `npm run check:engine-alone` (about 20 s) copies `packages/astraeus` and the shared config into a scratch folder with no demo or site, links the installed dependencies, then type-checks, lints and tests it there; anything that reaches outside the copy fails. It checks the engine source; `check:pack` checks the compiled build. Run it at each Full Objective Check and when the engine's boundary changes.
-- Browser gate: `npm run check:browser` (about 1 minute) once per Full Objective Check, as the Astraeus Project Rules say; its scripts share `packages/astraeus-site/tools/validate/harness.mjs` and `driver.mjs` (map in `docs/BROWSER_CHECKS.md`).
-- Package gates (O-036): `npm run build:packages` writes each of the eight publishable packages (`astraeus`, `astraeus-data`, `astraeus-data-{jupiter,saturn,uranus,neptune,mars,pluto}`) to `packages/<name>/dist`; `npm run check:pack` builds them and checks contents and sizes (part of every O-036 hand-off); `npm run build:example` builds `examples/hello-scene` from the packed tarballs. `node tools/publish-packages.mjs --dry-run` shows what a release would publish; never run it without `--dry-run`, and never `npm publish` (the GitHub release workflow publishes, `docs/RELEASING.md`).
-- Health scanners (`.savepoint/health/config.json`), one line each:
-  - jscpd measures duplicated lines over code only; it skips `docs/evidence`, `tests/fixtures`, `data`, `tools/archive`, import data and caches, `coverage`.
-  - lizard measures function complexity over the same code; same skips. `.claude` hooks are not skipped (11 rows of about 5500; left as measured, the owner may add the exclusion).
-  - coverage counts `src` and the non-browser `tools` only (`test.coverage` in the root `vitest.config.ts`), refreshed by `npm run test:full` at each Full Objective Check before `savepoint health check`.
-
-See Verification Policy for gate evidence and reuse requirements.
+Read [project gates and tooling](docs/agents/build.md) when selecting or running verification, changing build tooling, or releasing. Never `npm publish` or run `tools/publish-packages.mjs` without `--dry-run`; GitHub releases publish.
 
 ## Codebase Map
 
-| Module | Purpose |
-|--------|---------|
-| `packages/astraeus/` | The engine. The workspace uses its source (`exports` point at `.ts`); `tools/build-packages.mjs` compiles it to `dist/` for npm (O-036), with `x-publish` in its `package.json` describing the published `exports` and `files`: `src/core/` (scientific core: clock, frames, bodies, providers, curve-fit state; no presentation, no experience names, ARCH-01, ARCH-02), `src/assets/` (catalogue, compositions, visuals, rings, sky), `src/app/` (scene and adapter; `sceneFrame.ts` per-frame stages, `scenePointer.ts` pointer listeners, CODE-02), `src/shell/` (generic UI; `useDrawers.ts`), `src/experiences/` (shared helpers such as `settingsFields.ts`), `src/synthetic/` (made-up experiences that prove the plug-in contract), `data/` core data, `licenses/` library notices, `tools/` importers, `tests/`. Imports no other package; its `package.json` `exports` are the only doorways |
-| `packages/astraeus-demo-apollo11/` | Apollo 11 demo: `src/experiences/apollo11`, data, story panels, reconstruction tool, `credits/` (CREDITS.md, APOLLO11_SOURCES.md) |
-| `packages/astraeus-demo-showers/` | Perseids and Geminids demo: `src/experiences/showers`, `data/showers`, GMN stories, `tools/data/fetch-meteoroid-orbits.mjs`, `credits/` |
-| `packages/astraeus-demo-planets/` | Planets demo (Mercury to Pluto, Jupiter view): `src/experiences/planets`, `jupiter-io`, planet data and stories, `credits/` |
-| `packages/astraeus-site/` | Pages (`index.html`, `app.html`, `assets.html`), `src/main.tsx` demo list, `vite.config.ts`, `public/`, `site/` pictures, `tools/site` generators and credits gatherer, `tools/validate/` browser checks (`harness.mjs`, `driver.mjs`), and `tests/packageBoundaries.test.ts` |
-| `packages/astraeus-data/` | npm package of the moon pictures (Io to Charon, plus Pluto), the 8k Venus map and the Milky Way, with their credits (`src/pictures.ts`, `NOTICE`); about 38.6 MB packed; `dataSource` for `mount(..., { data })` |
-| `packages/astraeus-data-{jupiter,saturn,uranus,neptune,mars,pluto}/` | One npm package per planet system: moon-position chunks (`data/<planet>-moons/`), a `loadIndex` and a generated `src/chunks.js` of chunk URLs (each ends `?no-inline` so Vite keeps them as files); `dataSource` for `mount` |
-| `examples/hello-scene/` | The smallest consumer app: Vite plus the packed `astraeus` tarball (not a workspace link), built by `npm run build:example`; checked by the `hello-scene` browser step |
-| `tools/` | Root: `check-engine-alone.mjs`; `build-packages.mjs` (compile each package to `dist/`: pictures to `new URL`, `.js` extensions, JSON default imports, chunk list), `check-packs.mjs` (`npm run check:pack`: contents, sizes, extensionless imports, `?no-inline`), `publish-packages.mjs` (release publish, dry run by default in CI manual runs), `build-example.mjs`; and `tools/lint/` (TypeScript 6 parser shim) |
-| `tests/` | Each package keeps its own `tests/`; the root `vitest.config.ts` runs them all |
-| `docs/` | Design notes, `BROWSER_CHECKS.md` and `docs/evidence/` (only what a record cites) |
+The current package map is in [.savepoint/Design.md](.savepoint/Design.md#componentscodebase-map). Load it for architecture readiness or locating a subsystem, not automatically for every Task.
 
 ## Context Budget
 
-Follow the active skill's Read section and the Task's `## Context Files`. Do not scan or search outside that skill's scope. A necessary targeted extra read during Task execution is allowed only when logged with the file and reason as `savepoint-task` requires. Read Idea only for original intent and Design only for architecture readiness.
+Follow the active skill's Read section and the Task's Context Files. Read only relevant sections of linked references; links are not instructions to load every document. A Context Files entry may name an exact path and heading; unqualified entries retain their whole-file meaning. Log necessary targeted extra Task reads with path, section and reason before reading. Read Idea for original intent and Design for architecture readiness. Do not scan outside the active scope.
+
+Shared references under `agent-skills/references/` are non-triggerable: `check-method.md` routes Check modes; `issue-capture.md` is entered for Issues; `commands-and-procedures.md` is entered for migrated config reconciliation.
 
 ## CLI Rules
 
@@ -179,6 +94,7 @@ After writing or editing any `.savepoint/` record, including creating or renamin
 ## Reporting to the Owner
 
 The Context Log stays technical and precise — it's the record a Check session verifies later. Chat replies to the owner are a different audience: a few plain sentences, no jargon, no file/function dumps unless asked. Say what happened and what's next; leave the mechanism in the Context Log.
+
 <!-- SAVEPOINT:END -->
 
 ## Astraeus Project Rules
@@ -188,14 +104,6 @@ Project-owned rules outside the Savepoint-managed block (added by the G-002 retr
 - **Spikes test engine hypotheses.** An Objective in a spike states what it proves about Astraeus (state, providers, presentation, story layer). Demo data quality is held to the Idea principle: reliable where data exists, plausible where it doesn't, explicit about the difference. A demo dataset's fidelity is never an Objective's acceptance target unless the owner says so explicitly.
 - **One active session per checkout.** Only one agent session writes `.savepoint/` records or the router on the main checkout at a time. Run parallel work in worktree lanes (see Worktree Lanes). A session that finds records changing under it stops and reports to the owner.
 - **Commit at Objective close.** The owner commits after closing each Objective so that Checks have a real diff baseline; an untracked tree makes `git diff` evidence vacuous.
-- **Browser checks (owner decisions 2026-10-17 to 2026-10-23; map in `docs/BROWSER_CHECKS.md`).**
-  - The one browser command, `npm run check:browser` (smoke, two journeys, two public-build file checks), runs once per Full Objective Check. There are no demo sets.
-  - Never run it twice for one change; a later check reuses the earlier run (owner, 2026-10-20: "Didnt we say we WOULDNT run these checks isnt that the point of this objective").
-  - No per-Task browser runs unless the Task changes the browser scripts or runner. Screen parts, scene sums and demo rules are proved in the fast suite (`npm test`).
-  - Headless runs never replace the owner's visual judgement where an Objective requires it.
-- **Browser checks never take or save screenshots** (owner, 2026-10-18, T-102). A check that must prove something is drawn reads the scene's own readouts through `packages/astraeus-site/tools/validate/driver.mjs`; the driver guard fails any `.screenshot(` call. The owner judges looks on the preview (`localhost:5490`).
-- **Browser regression maintenance.** When a UI change breaks a browser script, update it or name a runnable replacement and map each prior scenario in `docs/BROWSER_CHECKS.md`.
-- **Browser scripts use the shared interface driver.** Scripts under `tools/validate/` touch the interface only through `packages/astraeus-site/tools/validate/driver.mjs`; an interface change is repaired there, never in the scripts. `driver-guard.mjs`, run by `tests/browserDriverGuard.test.ts`, fails the tests on direct selectors or clicks (O-020 T-083).
-- **Historical evidence preservation.** Fresh browser validation writes to a distinct run directory rather than overwriting earlier results. Record the output path, command, time and result; any deliberate replacement of a cited run folder needs an explicit owner decision.
-- **Evidence retention (O-037 T-123, owner 2026-10-21).** A browser run keeps only `summary.txt` and each step's `results.json` under `docs/evidence/browser-<stamp>/`; step logs and server logs go to a scratch folder whose path the summary prints. A run folder no Check, Task, Issue or Design note cites may be removed at the next clean-up; a cited folder is kept whole.
 - **Deferred Design reconciliation.** When architecture notes are deferred to an integration Task, name that Task in the originating drift note. The integration Task accounts for each deferred note as reflected in Design.md or explicitly non-architectural, with a reason, before the Full Objective Check.
+
+Read [browser policy](docs/agents/browser-policy.md) before any browser validation, browser-script work, or UI change affecting those scripts. It preserves the owner's once-per-change rule, Task exception, screenshot prohibition, driver boundary and evidence retention. The owner judges appearance on `localhost:5490`.

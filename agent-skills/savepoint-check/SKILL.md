@@ -32,15 +32,20 @@ Start from the `Next` line as AGENTS.md's Workflow describes; if `savepoint` is 
 - Applicable policy: the `.savepoint/Guardrails.md` rule IDs the scope names, when the project has that file
 - Prior Checks and Issues linked to the scope
 - The scoped source and test files the work actually changed
-- `agent-skills/references/check-method.md` in full
+- `docs/agents/verification.md`
+- `agent-skills/references/check-method.md` (common rules), then `check-quick.md` for a Task Check or `check-full.md` for an Objective Check, in full
+- For `Assess`, read only the scope, prior decisions and Closure Rules; no Check method or gates
+- For a Full Objective Check, `docs/agents/build.md` and `docs/agents/browser-policy.md`; for a Task Check, build rules when selecting its applicable gates
 
-Load `agent-skills/references/check-method.md` in full and apply its selected mode; this skill does not restate that method.
+Load the common method and only the selected mode reference; do not load Full procedures for a Quick Check. For architecture reconciliation, read Design overview and only the linked sections governing the scope.
 
 ## Workflow
 
+For `Assess`, apply Closure Rules to the prior decisions, record applicability and stop; do not enter the Check/probe/verdict steps below.
+
 1. Confirm the session is fresh. If this session built the work under review, stop and hand off to a fresh session. An owner-requested self-review may provide observations, but never writes a Check record or satisfies the independent Check gate.
 2. Confirm the scope: a Task Check evaluates one Task's outcome and evidence (the Task Check itself is optional); an Objective Check does everything a Task Check does, plus integration across the Objective's owned Tasks and reconciliation against Design.
-3. Apply `agent-skills/references/check-method.md` in full at the matching evidence mode — Quick for a requested Task Check, Full for the mandatory Objective Check.
+3. Apply the common `check-method.md` plus `check-quick.md` for a requested Task Check or `check-full.md` for the mandatory Objective Check, each in full. `Assess` follows Closure Rules only.
 4. Decide the result. Write one new, immutable Check record — never edit a prior one. A rerun gets a new `C-###` and names the run it replaces in `supersedes`.
 5. On `NEEDS WORK`: record the Issues found, and hand remediation back to the executor or planner rather than repairing anything here. A Task Check's `NEEDS WORK` resumes the executor at `stage: build` inside that same Task. An Objective Check's `NEEDS WORK` must not retreat a Task that is already `done`; remediation is a direct repair under the recorded Issue by default, or new or newly selected work linked to the Objective only when the repair needs planning (see `agent-skills/references/issue-capture.md`, Out-Of-Scope Repair); every previously completed Task keeps its status.
 6. On `CLEAR`: this alone does not close a Task or Objective. Apply the closure rules below to record whether the owner may complete the Task or accept the Objective outcome.
@@ -55,7 +60,7 @@ Follow AGENTS.md's Verification Policy and the selected method mode. Quick is op
 
 ## Code Health Evidence
 
-Only a Full Objective Check runs `savepoint health check O-### [dir]`, after the full gate, and records its official snapshot ID in `health_snapshot`. Apply `check-method.md`, Collect Code Health Evidence, for absent configuration, verdict blockers, optional failures, stale reports, and Issue admission. Manual snapshots never count; `savepoint health setup` and `savepoint health report` are human-only.
+Only a Full Objective Check runs `savepoint health check O-### [dir]`, after the full gate, and records its official snapshot ID in `health_snapshot`. Apply `check-full.md`, Collect Code Health Evidence, for absent configuration, verdict blockers, optional failures, stale reports, and Issue admission. Manual snapshots never count; `savepoint health setup` and `savepoint health report` are human-only.
 
 A signal between the aim and the watch line in `.savepoint/health/config.json` is an observation, never an Issue and never a reason for `NEEDS WORK`; list what remains in the Check body. The health verdict supports evidence; it never grants clearance.
 
