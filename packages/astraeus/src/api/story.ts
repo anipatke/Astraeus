@@ -48,7 +48,9 @@ export interface TimelineSetting {
  * body or path of the scene; these are checked when the scene is turned into a definition (mount), and a mistake throws `bad-panels` naming the panel and field.
  */
 export interface StoryPanelsInput {
+  /** Seconds playback holds when a panel opens by itself (0 to 20, default 6; 0 never pauses). Playback then restarts, unless the visitor pressed Play during the hold, which ends it at once. */
   readonly pauseSeconds?: number;
+  /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
   readonly panels: readonly unknown[];
 }

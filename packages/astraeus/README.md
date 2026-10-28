@@ -12,6 +12,10 @@ npm install astraeus react react-dom @react-three/fiber three
 
 `react` (19), `react-dom` (19), `@react-three/fiber` (9.8.2 or later 9.x) and `three` (0.169 or later) are peer dependencies: your app's own copies are used, so install them beside `astraeus` (npm 7 and later installs missing peers for you).
 
+A plain-JavaScript page still needs React: `mount` draws the viewer with React and `@react-three/fiber` inside, so all four peers must be installed even if your own code never touches React.
+
+`mount` loads the viewer's stylesheet itself. If you use the `AstraeusScene` component instead, add `import "astraeus/style.css";` once in your app.
+
 You need a bundler. These were each built and run with the packed packages (a scene with Saturn and Titan from `astraeus-data-saturn`): Vite 8, webpack 5 (5.112) and Parcel 2 (2.16, which needs `"@parcel/resolver-default": { "packageExports": true }` in your `package.json` so it reads the package `exports`). Others are untried. The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; loading it straight in Node or from a bare `<script type="module">` will not work.
 
 ## A scene in about 20 lines
@@ -83,6 +87,28 @@ export const App = () => (
 ```
 
 Props: `scene`, `data` (as for `mount`), `onReady`, `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
+
+## Inside someone else's page
+
+The viewer is built to sit in a host page without taking it over. It never changes `document.title`. It isolates its own layers (`isolation: isolate` on the element given to `mount` and on the `AstraeusScene` wrapper), so its `z-index` values (0 to 9) stay inside the viewer and cannot cover or sit under your page's layers; `mount` does not restore the element's old `isolation` on `unmount`. Its Escape handlers (story panel, phone drawer, switch panel) ignore a keydown your page already stopped with `preventDefault()`. It honours `prefers-reduced-motion`: the viewer's own animations and transitions are switched off.
+
+A scene with no `setTime`, `setTimeline` or trajectory opens on the current time, with a window of a month around it.
+
+Story panels (`addStoryPanels`): a panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself. `at.utc` may be any instant inside the timeline, in any year. When a panel opens by itself, `pauseSeconds` (default 6) holds playback and then restarts it, unless the visitor pressed Play during the hold. On a phone, a wheel or pinch over an open story sheet zooms the scene behind it. `camera.setReach(d)` sets how far the camera can zoom out and also sets the far plane to 2.5 times `d`.
+
+## Loading in your build and in tests
+
+`planetModels` (the planet series) and the Developer drawer's panels are separate files that your build loads later, on demand. After you redeploy, a tab left open may ask for a file name that no longer exists. In a Vite host, reload the page when that happens:
+
+```js
+window.addEventListener("vite:preloadError", () => window.location.reload());
+```
+
+(The Developer drawer also says when its file cannot be fetched and asks for a reload.)
+
+For tests, the package has a `node` export condition: Node and Vitest's Node environment import a copy of the package without the stylesheet import, so `new Scene()...toDefinition()` works with no `test.server.deps.inline` setting. The jsdom and happy-dom Vitest environments also take the `node` condition, so the viewer's CSS is not loaded there; this does not matter for tests that check scene definitions or behaviour. Bundlers do not use the `node` condition and load the normal build.
+
+First download: the packed `examples/hello-scene` loads 1,589,214 bytes (454,404 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
 
 ## What `astraeus-data` adds
 

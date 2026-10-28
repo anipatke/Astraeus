@@ -38,9 +38,10 @@ The workflow itself needs no secret: it signs in to npm with GitHub's own identi
 2. **Bump it** in the `version` field of the eight `packages/<name>/package.json` files (the `x-publish` block needs no change). Nothing else names the version; `npm run check:pack` fails if a built package disagrees with its source.
 3. **Write the changelog.** Add a `## <version>` section at the top of `packages/astraeus/CHANGELOG.md` and `packages/astraeus-data/CHANGELOG.md`: what a user will notice, and every change to the public API.
 4. **Check it passes here:** `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`, `npm run check:engine-alone`, `npm run check:pack`. (The workflow runs the same, so a failure there stops the release before anything is published.)
-5. **Commit and push** to the default branch.
-6. **Optional dry run.** On GitHub: Actions, "publish", "Run workflow". A manual run does every step except sending anything to npm (`npm publish --dry-run`).
-7. **Create the release.** On GitHub: Releases, "Draft a new release", create a new tag named `v<version>` (for example `v0.2.0`) on the default branch, paste the changelog section as the notes, and press **Publish release**. The tag must equal the version in the packages, or the workflow refuses to publish anything.
+5. **Record the first-download size.** Run `npm run measure:example` and put its first-open total (raw and gzip bytes) in the changelog section and the release notes, so the size is part of every release.
+6. **Commit and push** to the default branch.
+7. **Optional dry run.** On GitHub: Actions, "publish", "Run workflow". A manual run does every step except sending anything to npm (`npm publish --dry-run`).
+8. **Create the release.** On GitHub: Releases, "Draft a new release", create a new tag named `v<version>` (for example `v0.2.0`) on the default branch, paste the changelog section as the notes, and press **Publish release**. The tag must equal the version in the packages, or the workflow refuses to publish anything.
 
 The workflow then: checks out, runs `npm ci` and the gates, builds and checks the packs, and publishes each package from its `dist` folder with provenance. A package whose version is already on npm is skipped, so if one step fails you can fix the cause and run the workflow again (Actions, the failed run, "Re-run all jobs") without a duplicate-version error.
 

@@ -156,6 +156,7 @@ export class SceneCamera {
   }
   /**
    * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
+   * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn.
    * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
    */
   setReach(distance: number): this {
@@ -316,7 +317,10 @@ export class Scene {
     return this;
   }
 
-  /** Adds story panels that open as playback reaches them. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field. */
+  /**
+   * Adds story panels that open as playback reaches them. A panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself
+   * (a panel with an `object` still has its marker on that object). `at.utc` may be any instant inside the timeline, in any year. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field.
+   */
   addStoryPanels(panels: StoryPanelsInput): this {
     this.#panels = panels;
     return this;

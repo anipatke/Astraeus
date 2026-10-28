@@ -4,6 +4,16 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- A better guest in a host page (O-044). `mount` and `AstraeusScene` no longer change `document.title`. The viewer's Escape handlers (story panel, phone drawer, switch panel) ignore a keydown the host already stopped with `preventDefault()`. The mount element and the `AstraeusScene` wrapper get `isolation: isolate`, so the viewer's `z-index` values (0 to 9) stay inside it; a `style` you pass to `AstraeusScene` can override it, and `mount` does not restore the element's old `isolation` on `unmount`.
+
+- Node loading (O-044), no API change. The package's JSON imports now carry `with { type: "json" }`, and the root export has a `node` condition (order: types, node, import) that points at copies without the stylesheet import, so Node and Vitest's Node environment import `astraeus` with no inline setting. Bundlers keep the normal build. jsdom and happy-dom Vitest environments also take the `node` condition, so they do not load the viewer's CSS.
+
+- Default time (O-044). A scene with no `setTime`, no `setTimeline` window and no trajectory now opens on the current time with a window of a month around it.
+
+- Phone story panel (O-044). On a phone, a wheel or two-finger pinch over an open story sheet zooms the scene behind it (the sheet has `touch-action: pan-y`).
+
+- Documentation (O-044). The README says who needs `astraeus/style.css`, why a plain-JavaScript page still needs React, how story panels open and pause, that `camera.setReach(d)` also sets the far plane to 2.5 times `d`, and how to reload on `vite:preloadError`; `addStoryPanels`, `StoryPanelsInput` and `setReach` doc comments say the same.
+
 - The Moon now shows libration (I-091), no API change. Its orientation was a plain tidal lock; it is now the IAU mean-Earth rotation model with its libration terms (Archinal et al. 2009 report, as saved in NAIF pck00011), so the Moon nods and sways by up to about 8 degrees as it does in the sky. Against JPL Horizons at seven dates from 1969 to 2050 the sub-Earth point and pole agree within 0.01 degrees (about 0.3 km on the surface); a surface place can no longer sit up to 8 degrees (254 km at Apollo 11's touchdown) from its true spot. Moon-surface features and mesh textures move accordingly.
 
 - Documentation only: `addGroup` states that a `center` that is not a catalogued body throws `unknown-body` (a catalogued one missing from the scene throws `bad-group`), and `setTimeline` states that `loop` is ignored with `{ none: true }` or without a timeline. No behaviour changes.

@@ -2,10 +2,15 @@
 id: T-184
 title: Write down what outside sites had to learn from the source
 objective: O-044
-status: planned
+status: done
 depends_on: [{task: T-181, requires: clear}, {task: T-182, requires: clear}, {task: T-183, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: g012-planning-20261026}
+check_waiver:
+  task: T-184
+  reason: 'Owner said "orchestrate O44"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o044-run-20261028}
+  recorded_at: '2026-10-28T10:48:41Z'
 ---
 
 # Write down what outside sites had to learn from the source
@@ -61,7 +66,18 @@ Hand-off gates (the doc-comment test covers the API reference). Evaluated later 
 
 ## Technical Evidence
 
-Pending execution.
+Gates: `npm run lint`, `typecheck`, `build`, `npm test` (142 files, 1871 passed, 1 skipped; includes the API doc-comment test) all pass. No browser run. Source change is doc comments only (`src/api/scene.ts` `setReach`, `addStoryPanels`; `src/api/story.ts` `StoryPanelsInput` fields).
+- Install line and why React (R1): README Install paragraph on plain-JavaScript pages. Met.
+- `astraeus/style.css` (R2): README, `mount` loads it, `AstraeusScene` users import it. Met.
+- Story panels (R6, G7): README "Inside someone else's page" and the `addStoryPanels` / `StoryPanelsInput` comments (crossing only, `at.utc` any year, `pauseSeconds` 0 to 20 default 6, restart unless Play pressed; `autoOpen` default true, read from `shell/storyPanels.ts` and `useStoryPanels.ts`). Met.
+- Reduced motion (R10): README; code has `prefers-reduced-motion` media rules in the CSS only. Met.
+- Embedding (E6, E10): README title, isolation (z-index 0 to 9 found in src CSS), Escape. Met.
+- `setReach` far plane (E7): comment and README; `scene.ts` sets `far: reach * 2.5`. Met.
+- Lazy files and `vite:preloadError` (E11): README "Loading in your build and in tests". The reload snippet is advice on Vite's event, not exercised here. Met.
+- First download (E8): `npm run measure:example` first-open total 1589214 raw / 454404 gzip (index js 1544445, css 44769); README states it; `docs/RELEASING.md` step 5 records it each release. Met.
+- CHANGELOG Unreleased: five new entries (title/Escape/layers, Node loading, default time, phone panel, docs). Met.
+- Design reconciliation: Interfaces and Data Flow gained the host-page paragraph; Current Technical State gained the `node` condition. T-181 drift: `writeTitle`, Escape yield and isolation reflected in Design; "mount does not restore isolation on unmount" non-architectural (a small caller-visible detail, recorded in README and CHANGELOG). T-182 drift: `node` condition reflected in Design and README. T-183 drift: default time and `useZoomThrough` reflected in Design. Met.
+Unverified: no real browser or phone check; jsdom/happy-dom claim is from T-182's note (not exercised).
 
 ## Drift Notes
 
