@@ -2,8 +2,7 @@
 id: T-183
 title: Open on today and let phones zoom under a story panel
 objective: O-044
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: g012-planning-20261026}
@@ -69,3 +68,7 @@ Focused node and DOM tests; hand-off gates. The owner's look and `npm run check:
 Defer Design notes to T-184 (the O-044 integration step), named in the note.
 
 - For T-184: Design clock/timeline data flow should say a scene with no span and no setTime opens at now (window now +/- 15 days). `src/shell/` map: story sheet forwards phone zoom to the canvas via `useZoomThrough`.
+
+### Owner validation
+
+2026-10-28T10:45:09Z, owner (session o044-run-20261028), asked to try wheel and pinch over the open phone story sheet on localhost:5490 (app.html?experience=showers): "carry on". Recorded by the coordinator; the accepted Check is filled in at the Full Objective Check.
