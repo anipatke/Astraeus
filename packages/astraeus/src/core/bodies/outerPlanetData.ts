@@ -3,13 +3,13 @@
  * (data/moons/<planet>.json, T-115) and the ring bands (data/rings/<planet>.json). Raw JSON: src/assets parses and checks them (layer rule:
  * assets reach data through core), as `jupiterData.ts` does for Jupiter.
  */
-import neptuneMoons from "../../../data/moons/neptune.json";
-import plutoMoons from "../../../data/moons/pluto.json";
-import saturnMoons from "../../../data/moons/saturn.json";
-import uranusMoons from "../../../data/moons/uranus.json";
-import neptuneRings from "../../../data/rings/neptune.json";
-import saturnRings from "../../../data/rings/saturn.json";
-import uranusRings from "../../../data/rings/uranus.json";
+import neptuneMoons from "../../../data/moons/neptune.json" with { type: "json" };
+import plutoMoons from "../../../data/moons/pluto.json" with { type: "json" };
+import saturnMoons from "../../../data/moons/saturn.json" with { type: "json" };
+import uranusMoons from "../../../data/moons/uranus.json" with { type: "json" };
+import neptuneRings from "../../../data/rings/neptune.json" with { type: "json" };
+import saturnRings from "../../../data/rings/saturn.json" with { type: "json" };
+import uranusRings from "../../../data/rings/uranus.json" with { type: "json" };
 
 export const SATURN_MOON_CATALOGUE_FILE: unknown = saturnMoons;
 export const URANUS_MOON_CATALOGUE_FILE: unknown = uranusMoons;

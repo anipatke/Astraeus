@@ -17,6 +17,7 @@
     "apollo11:reconstruct": "node packages/astraeus-demo-apollo11/tools/apollo11/run.mjs",
     "check:engine-alone": "node tools/check-engine-alone.mjs",
     "check:pack": "node tools/check-packs.mjs",
+    "check:node-consumer": "node tools/check-node-consumer.mjs",
     "build:packages": "node tools/build-packages.mjs",
     "build:example": "node tools/build-example.mjs",
     "measure:example": "node tools/measure-example.mjs",

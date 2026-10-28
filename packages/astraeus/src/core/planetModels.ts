@@ -1,4 +1,4 @@
-import fits from "../../data/ephemerides/planets/planets.json";
+import fits from "../../data/ephemerides/planets/planets.json" with { type: "json" };
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
 import { PLANET_IDS, type PlanetId, type PlanetModel, type PlanetModels } from "./planetSeries";
 import { assertTimeScaleTable, ttMinusUtcSeconds, type TimeScaleTable } from "./timeScale";

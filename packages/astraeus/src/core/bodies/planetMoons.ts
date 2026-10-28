@@ -10,15 +10,15 @@ import { createPlanetSunTrajectory } from "./planetTrajectory";
 import { MARS } from "./mars";
 import { createMoonSystem, moonFitSource } from "./moonSystem";
 import { NEPTUNE, PLUTO, PLUTO_ROTATION, SATURN, URANUS } from "./outerPlanets";
-import { rotation as charonRotation } from "../../../data/orbits/charon.json";
-import { rotation as dioneRotation } from "../../../data/orbits/dione.json";
-import { rotation as enceladusRotation } from "../../../data/orbits/enceladus.json";
-import { rotation as iapetusRotation } from "../../../data/orbits/iapetus.json";
-import { rotation as mimasRotation } from "../../../data/orbits/mimas.json";
-import { rotation as rheaRotation } from "../../../data/orbits/rhea.json";
-import { rotation as tethysRotation } from "../../../data/orbits/tethys.json";
-import { rotation as titanRotation } from "../../../data/orbits/titan.json";
-import { rotation as tritonRotation } from "../../../data/orbits/triton.json";
+import charonOrbit from "../../../data/orbits/charon.json" with { type: "json" };
+import dioneOrbit from "../../../data/orbits/dione.json" with { type: "json" };
+import enceladusOrbit from "../../../data/orbits/enceladus.json" with { type: "json" };
+import iapetusOrbit from "../../../data/orbits/iapetus.json" with { type: "json" };
+import mimasOrbit from "../../../data/orbits/mimas.json" with { type: "json" };
+import rheaOrbit from "../../../data/orbits/rhea.json" with { type: "json" };
+import tethysOrbit from "../../../data/orbits/tethys.json" with { type: "json" };
+import titanOrbit from "../../../data/orbits/titan.json" with { type: "json" };
+import tritonOrbit from "../../../data/orbits/triton.json" with { type: "json" };
 
 export const MARS_MOON_SYSTEM = createMoonSystem({
   centre: "mars", centreLabel: "Mars", centreGmKm3S2: MARS.gmKm3S2!, ephemerisName: "mar099", fitSource: moonFitSource("Mars")
@@ -62,15 +62,15 @@ export const PLANET_MOON_DEFINITIONS = Object.freeze([PHOBOS, DEIMOS, MIMAS, ENC
 export const PLANET_MOON_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
   MARS_MOON_SYSTEM.binding(PHOBOS.id),
   MARS_MOON_SYSTEM.binding(DEIMOS.id),
-  SATURN_MOON_SYSTEM.binding(MIMAS.id, iauElementsFromRecord(mimasRotation)),
-  SATURN_MOON_SYSTEM.binding(ENCELADUS.id, iauElementsFromRecord(enceladusRotation)),
-  SATURN_MOON_SYSTEM.binding(TETHYS.id, iauElementsFromRecord(tethysRotation)),
-  SATURN_MOON_SYSTEM.binding(DIONE.id, iauElementsFromRecord(dioneRotation)),
-  SATURN_MOON_SYSTEM.binding(RHEA.id, iauElementsFromRecord(rheaRotation)),
-  SATURN_MOON_SYSTEM.binding(TITAN.id, iauElementsFromRecord(titanRotation)),
-  SATURN_MOON_SYSTEM.binding(IAPETUS.id, iauElementsFromRecord(iapetusRotation)),
-  NEPTUNE_MOON_SYSTEM.binding(TRITON.id, iauElementsFromRecord(tritonRotation)),
-  PLUTO_MOON_SYSTEM.binding(CHARON.id, iauElementsFromRecord(charonRotation)),
+  SATURN_MOON_SYSTEM.binding(MIMAS.id, iauElementsFromRecord(mimasOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(ENCELADUS.id, iauElementsFromRecord(enceladusOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(TETHYS.id, iauElementsFromRecord(tethysOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(DIONE.id, iauElementsFromRecord(dioneOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(RHEA.id, iauElementsFromRecord(rheaOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(TITAN.id, iauElementsFromRecord(titanOrbit.rotation)),
+  SATURN_MOON_SYSTEM.binding(IAPETUS.id, iauElementsFromRecord(iapetusOrbit.rotation)),
+  NEPTUNE_MOON_SYSTEM.binding(TRITON.id, iauElementsFromRecord(tritonOrbit.rotation)),
+  PLUTO_MOON_SYSTEM.binding(CHARON.id, iauElementsFromRecord(charonOrbit.rotation)),
 ]);
 
 /**

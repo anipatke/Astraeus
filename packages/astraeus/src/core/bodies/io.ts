@@ -9,7 +9,7 @@ import { createOrbTwoBodyAdapter } from "../twoBodyAdapter";
 import { JUPITER } from "./jupiter";
 import { trueAnomalyFromMean } from "../keplerAnomaly";
 import { fittedMoonPosition, IO_FITTED_BINDING, JUPITER_MOON_FIT_SPAN } from "./jupiterMoons";
-import ioRecord from "../../../data/orbits/io.json";
+import ioRecord from "../../../data/orbits/io.json" with { type: "json" };
 
 export { trueAnomalyFromMean };
 

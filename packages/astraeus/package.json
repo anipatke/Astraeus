@@ -64,6 +64,7 @@
     "exports": {
       ".": {
         "types": "./src/api/index.d.ts",
+        "node": "./src/api/index.node.js",
         "import": "./src/api/index.js"
       },
       "./style.css": "./src/app/style.css"

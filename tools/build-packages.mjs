@@ -7,6 +7,7 @@
 //      README, LICENSE, NOTICE and licenses are added. A data package gets `src/chunks.js`: a literal URL for each position chunk, so a build copies
 //      only the chunk files of the systems it imports.
 //   4. A named import from a .json file becomes a default import plus a destructuring (webpack 5 allows only the default export of JSON in an ES module).
+//   4b. The engine also gets a CSS-free Node copy of its root entry (`node` export condition, writeNodeCopy).
 //   5. Relative imports and exports get their `.js` (or `/index.js`) written out, because the packages are `"type": "module"` and webpack 5 treats those
 //      as fully specified (I-077). Plain Node and bare browser modules still cannot load the code: a package like `astraeus` imports CSS and pictures.
 import { spawnSync } from "node:child_process";
@@ -24,6 +25,33 @@ function walk(dir, visit) {
     if (entry.isDirectory()) walk(path, visit);
     else visit(path);
   }
+}
+
+/** Relative `.js` specifiers of a compiled file: `from "./x.js"`, `import "./x.js"`, `import("./x.js")`. */
+const RELATIVE_JS = /((?:from|import)\s*\(?\s*)"(\.{1,2}\/[^"]+\.js)"/g;
+const STYLE_IMPORT = /^import "[^"]+\.css";\n/gm;
+
+/**
+ * The Node copy of the root entry (O-044 T-182): plain Node cannot load a `.css` import, so every compiled file that imports a stylesheet, and every file that
+ * (transitively) imports one of those, is also written as `x.node.js` with the stylesheet lines left out and its imports of the others pointing at their
+ * `.node.js` twins. The `node` export condition reaches `src/api/index.node.js`; bundlers do not use that condition and keep `index.js`. Returns the count of twins.
+ */
+function writeNodeCopy(out) {
+  const files = [];
+  walk(join(out, "src"), (file) => { if (file.endsWith(".js")) files.push(file); });
+  const text = new Map(files.map((file) => [file, readFileSync(file, "utf8")]));
+  const twins = new Set(files.filter((file) => new RegExp(STYLE_IMPORT.source, "m").test(text.get(file))));
+  const importsTwin = (file) => [...text.get(file).matchAll(RELATIVE_JS)].some((match) => twins.has(resolve(dirname(file), match[2])));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const file of files) if (!twins.has(file) && importsTwin(file)) { twins.add(file); grew = true; }
+  }
+  for (const file of twins) {
+    const node = text.get(file).replace(STYLE_IMPORT, "").replace(RELATIVE_JS, (whole, lead, spec) => (twins.has(resolve(dirname(file), spec)) ? `${lead}"${spec.replace(/\.js$/, ".node.js")}"` : whole));
+    writeFileSync(file.replace(/\.js$/, ".node.js"), node);
+  }
+  if (!twins.has(join(out, "src", "api", "index.js"))) throw new Error("the Node copy has no src/api/index.node.js");
+  return twins.size;
 }
 
 /** Hard-link a folder tree (copy when the file system refuses), skipping git-ignored local data. */
@@ -139,6 +167,7 @@ export function buildPackage(name) {
   const assets = rewriteAssets(out, pkg);
   defaultJsonImports(out);
   addExtensions(out);
+  if (name === "astraeus") writeNodeCopy(out);
 
   // 3. data, chunk list, style, manifest and notices
   // The engine ships only the data its code imports (tsc emitted it); a data package ships its whole data folder.
