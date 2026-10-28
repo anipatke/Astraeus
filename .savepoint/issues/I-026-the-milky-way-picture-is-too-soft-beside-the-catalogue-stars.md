@@ -2,18 +2,13 @@
 id: I-026
 title: The Milky Way picture is too soft beside the catalogue stars
 type: other
-status: resolved
+status: open
 source:
   kind: report
   actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
   at: '2026-10-15T07:30:00Z'
 tasks: [T-053]
 checks: [C-028]
-resolution:
-  disposition: accepted
-  actor: {role: owner, session: improvements-intake-20261024}
-  at: '2026-10-24T02:51:07Z'
-  reason: 'Owner, 2026-10-24: "Keep it off by default, close it". The Milky Way stays off by default (a placeable switch); sharper free maps carry a non-commercial term, so no change.'
 history:
   - at: '2026-10-15T07:30:00Z'
     actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
@@ -35,6 +30,14 @@ history:
     actor: {role: owner, session: improvements-intake-20261024}
     kind: owner_decision
     note: 'Owner, 2026-10-24: "Keep it off by default, close it". The Milky Way stays off by default (a placeable switch); sharper free maps carry a non-commercial term, so no change.'
+  - at: '2026-10-27T21:40:00Z'
+    actor: {role: owner, session: owner-chat-milky-way-20261027}
+    kind: reopened
+    note: 'Owner asked why star-explorer.anipatke.com''s Milky Way looks better ("the star explorer one is just smoother and subtle, our one is bright and splotchy"), then, after a local trial, judged the starless Wikimedia render "way better" and said "log it now, do it after" (after T-181). Reopened on the owner''s direct instruction; the 2026-10-24 accepted resolution is cleared. Recorded by the assistant.'
+  - at: '2026-10-27T21:40:00Z'
+    actor: {role: executor, session: owner-chat-milky-way-20261027}
+    kind: observed
+    note: 'Cause, measured against star-explorer/public/textures/milky-way-4k.jpg (NASA SVS 4851 Milky Way layer, bright stars removed): (1) splotchy = ESO eso0932a has its stars baked in; (2) bright = Star Explorer draws an sRGB texture times colour #6e6e6e (0.155 linear, AdditiveBlending, toneMapped false), which darkens faint values far more than bright ones, while SkyView multiplies raw sRGB values by PICTURE_GAIN 0.5, leaving a grey haze. Rejected: ESA Gaia EDR3 flux map (sci.esa.int, CC BY-SA 3.0 IGO): mean grey 18.8% vs NASA 3.9%, 64% of the sky above 8% vs 16%; owner "soo much worse". Chosen: Wikimedia Commons File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png (Kevinmloch, bsrender from Gaia EDR3, stars within 3 kpc removed, CC BY-SA 4.0, 8000x4000; 32000x16000 original not linked). Galactic, l = 0 centred, increasing left, as milkyWayUv expects: LMC 0.1 deg and SMC 0.3 deg from expected (mirrored copy 15.2/9.5 deg). Local trial (uncommitted; files git-ignored in packages/astraeus-site/data/local/sky/): the 3840 px Wikimedia thumbnail, linearised, times 0.04, re-encoded, times 2 to undo PICTURE_GAIN, JPEG q85 = 245 KB, mean grey 2.2% matching the NASA layer drawn the Star Explorer way; NASA layer reprojected equatorial to galactic as a control (?skymap=nasa, local only, licence unchanged). Switch: trialPictureFromSearch in packages/astraeus/src/app/SkyView.ts, ?skymap=starless|nasa. tsc passed; no tests run, no browser run by the assistant.'
 ---
 
 # I-026: The Milky Way picture is too soft beside the catalogue stars
@@ -57,3 +60,12 @@ Evaluate better sources and pick one with a recorded licence (PROV-02):
 - Tiled HiPS surveys (resolution on demand, needs a loader).
 
 A replacement should reach roughly 30 px/deg or be tiled to do so, register to the galactic frame better than the current few degrees, and carry no baked-in stars that disagree with the catalogue. The owner's look then decides whether it can be on by default.
+
+### 2026-10-27: owner's choice
+
+The owner chose the starless Gaia EDR3 render on Wikimedia Commons (Kevinmloch, CC BY-SA 4.0) on a local trial; see the 2026-10-27 history entries. A smooth, subtle look outranks the 30 px/deg target above: the trial's 3840 px picture is about 10.7 px/deg and still won. The repair, after T-181:
+
+- Ship the picture in `astraeus-data` in place of the two ESO halves, with its licence and credit recorded (PROV-02): "Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC, CC BY-SA 4.0", and say that it was resized and dimmed. Decide the size: the 3840 px thumbnail, or the 8000x4000 original (about 60 MB to fetch once) cut into two 4000 px tiles.
+- Do the dimming in the picture shader (linearise, scale, re-encode, as Star Explorer's sRGB texture times #6e6e6e does), not baked into the file, so `milkyWayBrightness` keeps working.
+- Remove the trial switch `trialPictureFromSearch` and the git-ignored trial files.
+- Re-check registration (Magellanic Clouds within 0.5 deg) and the download size against today's 3.7 MB. The owner decides whether it is on by default.
