@@ -24,7 +24,7 @@ export function useDrawers(phone: boolean, onControlsOpened: () => void): Drawer
   const openTimeline = (open: boolean) => { setTimelineOpen(open); if (open) setControlsOpen(false); };
   useEffect(() => {
     if (!phone || (!controlsOpen && !timelineOpen)) return undefined;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setControlsOpen(false); setTimelineOpen(false); } };
+    const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") { setControlsOpen(false); setTimelineOpen(false); } };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [phone, controlsOpen, timelineOpen]);

@@ -2,10 +2,15 @@
 id: T-181
 title: Leave the host page's title, Escape key and layers alone
 objective: O-044
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: g012-planning-20261026}
+check_waiver:
+  task: T-181
+  reason: 'Owner said "orchestrate O44"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o044-run-20261028}
+  recorded_at: '2026-10-28T10:27:53Z'
 ---
 
 # Leave the host page's title, Escape key and layers alone
@@ -53,8 +58,20 @@ Focused DOM tests while iterating; hand-off gates from AGENTS.md (`npm run lint`
 
 ## Technical Evidence
 
-Pending execution.
+Gates run: `npm run lint` pass (no findings), `npm run typecheck` pass, `npm run build` pass (chunk-size warning only), `npm test` pass (142 files, 1865 passed, 1 skipped). No browser run (run rules). No extra reads beyond Context Files (plus `tests/publicApi.test.ts`, `src/api/scene.ts`, `src/api/prepared.ts` to learn how Scene definitions carry a label).
+
+Changed: `packages/astraeus/src/app/App.tsx`, `src/api/mount.ts`, `src/api/AstraeusScene.tsx`, `src/shell/StoryPanelView.tsx`, `src/shell/useDrawers.ts`, `src/shell/DisplaySwitches.tsx`; new `packages/astraeus/tests/hostPageDom.test.ts` (6 tests).
+
+- Criterion 1 (title): `App` has internal prop `writeTitle` (default true); `mount` and `AstraeusScene` pass false. Test mounts into a page titled "Host" with a labelled definition (prepareScene mocked, because the Scene API sets no label) and shows the title stays "Host" for `mount` and `AstraeusScene`; another test shows `App` alone writes "Made-up survey · Astraeus" and not when `writeTitle` is false. Met.
+- Criterion 2 (Escape): the three handlers return unless `!event.defaultPrevented`. Tests with a window capture listener calling `preventDefault` leave the story panel, phone drawer and switch panel open; unprevented Escape closes each. Met.
+- Criterion 3 (isolation): `mount` sets `element.style.isolation = "isolate"`; the `AstraeusScene` wrapper has it inline (before caller `style`, so a caller can override). Asserted on both. Met.
+- Criterion 4: gates green. Met.
+
+Limitations: no real browser/stacking check; the unprevented-Escape tests only confirm the old behaviour; `mount` leaves isolation set on the host element after `unmount`.
 
 ## Drift Notes
 
 Defer Design notes to T-184 (the O-044 integration step), named in the note.
+
+- Deferred to T-184: Design Interfaces should note that `App` has an internal `writeTitle` prop (not public API) that `mount`/`AstraeusScene` set false, that viewer Escape handlers yield to `defaultPrevented`, and that both mount routes set `isolation: isolate`.
+- Not architectural: `mount` does not restore `element.style.isolation` on unmount.

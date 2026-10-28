@@ -53,5 +53,5 @@ export function AstraeusScene({ scene, data, onReady, onError, className, style 
     return () => { open = false; };
   }, [scene]);
 
-  return <div className={className} style={{ ...FILL, ...style }}>{definition ? <App definition={definition} /> : null}</div>;
+  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} /> : null}</div>;
 }

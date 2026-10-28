@@ -170,12 +170,15 @@ function initialSceneControls(
   };
 }
 
-/** `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page. */
-export function App({ definition, onOpenAddress }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void }) {
+/**
+ * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
+ * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
+ */
+export function App({ definition, onOpenAddress, writeTitle = true }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
-    document.title = pageTitleOf(definition);
-  }, [definition]);
+    if (writeTitle) document.title = pageTitleOf(definition);
+  }, [definition, writeTitle]);
   const runtime = useMemo(() => buildRuntime(definition), [definition]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),

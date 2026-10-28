@@ -24,7 +24,7 @@ export function StoryPanelView({ panel, holding, onClose, onContinue }: Props) {
   const sheet = useRef<HTMLElement | null>(null);
   useSwipeToDismiss(sheet, onClose);
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);

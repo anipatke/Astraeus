@@ -1,7 +1,7 @@
 ---
 id: O-044
 title: Make the viewer a good guest in someone else's page
-status: planned
+status: in_progress
 depends_on: []
 release: G-012
 ---

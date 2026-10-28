@@ -32,10 +32,12 @@ export interface MountedScene {
 export function mount(element: HTMLElement, scene: Scene, options: MountOptions = {}): MountedScene {
   if (!(element instanceof Object) || typeof element.appendChild !== "function") throw new SceneError("bad-element", "mount: the first argument must be an element of the page");
   const { definition, ready: loaded } = prepareScene(scene, options.data);
+  // Its own stacking context, so the viewer's z-index values cannot rise above the host page's overlays.
+  element.style.isolation = "isolate";
   const root = createRoot(element);
   let open = true;
   const ready = loaded.then(() => {
-    if (open) root.render(createElement(App, { definition }));
+    if (open) root.render(createElement(App, { definition, writeTitle: false }));
   });
   return {
     ready,

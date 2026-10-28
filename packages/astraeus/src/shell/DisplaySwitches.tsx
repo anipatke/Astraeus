@@ -39,7 +39,7 @@ function SwitchPanel({ switches }: { readonly switches: readonly DisplaySwitchIt
   useEffect(() => {
     if (!open) return undefined;
     const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") setOpen(false); };
     document.addEventListener("pointerdown", outside);
     document.addEventListener("keydown", escape);
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
