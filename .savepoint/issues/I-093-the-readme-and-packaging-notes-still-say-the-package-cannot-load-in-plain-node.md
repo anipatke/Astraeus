@@ -2,15 +2,21 @@
 id: I-093
 title: The README and packaging notes still say the package cannot load in plain Node
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-118
   actor: {role: checker, session: o044-full-check-20261028}
   at: '2026-10-28T10:58:00Z'
 tasks: [T-182, T-184]
-checks: [C-118]
+checks: [C-118, C-119]
 severity: low
+resolution:
+  disposition: verified
+  check: C-119
+  actor: {role: checker, session: o044-recheck-20261028}
+  at: '2026-10-28T11:05:00Z'
+  reason: Repair proven by C-119 (CLEAR).
 history:
   - at: '2026-10-28T10:58:00Z'
     actor: {role: checker, session: o044-full-check-20261028}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: i093-repair}
     kind: repair_attempted
     note: 'Reworded the three named sentences: README line 19 (drawing needs a bundler and a browser; Node and Vitest import it for scene definitions, pointing to "Loading in your build and in tests"), docs/NPM_PACKAGING.md line 79 (default import build needs a bundler; the node condition loads generated CSS-free .node.js twins; check:node-consumer proves it), tools/build-packages.mjs header step 5 (only bare browser modules cannot load the default build; Node and Vitest use the step 4b copy). One grep over README, NPM_PACKAGING.md and RELEASING.md found no other sentence saying the package cannot load in Node. Grep for "straight in Node|plain Node" shows no contradiction. npm run lint and npm test run (results in hand-off). Executor evidence only; not verified.'
+  - at: '2026-10-28T11:05:00Z'
+    actor: {role: checker, session: o044-recheck-20261028}
+    kind: rechecked
+    note: 'C-119 CLEAR: the three sentences now agree with the code (node condition in package.json, 7 CSS-free .node.js twins in the packed tarball, every JSON import carries with { type: "json" }); grep finds no remaining contradiction; a plain-Node import of the freshly packed package builds a definition and resolves to src/api/index.node.js; lint, typecheck, build, npm test, check:node-consumer and check:pack pass.'
+    check: C-119
 ---
 
 # I-093: The README and packaging notes still say the package cannot load in plain Node

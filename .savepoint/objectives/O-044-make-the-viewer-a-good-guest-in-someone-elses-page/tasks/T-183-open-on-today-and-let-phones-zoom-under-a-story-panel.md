@@ -4,7 +4,13 @@ title: Open on today and let phones zoom under a story panel
 objective: O-044
 status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation:
+  required: true
+  accepted_check: C-119
+  scope: ['phone story sheet on localhost:5490 (app.html?experience=showers): wheel or pinch over the open sheet zooms the scene, the sheet stays open, drag down still closes it']
+  accepted_by: {role: owner, session: o044-run-20261028}
+  accepted_at: '2026-10-28T10:45:09Z'
+  note: 'Owner look on the preview: "carry on"; recorded in the Task body by the coordinator and recorded against C-119 (CLEAR) under the O-044 run rules.'
 planned_by: {role: planner, session: g012-planning-20261026}
 check_waiver:
   task: T-183
