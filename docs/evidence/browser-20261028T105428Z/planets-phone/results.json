@@ -1,0 +1,15 @@
+{
+  "name": "journey-planets-phone",
+  "at": "2026-10-28T10:55:30.041Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "phone",
+      "result": {
+        "place": "io:ra-patera",
+        "shown": 3
+      }
+    }
+  ],
+  "errors": []
+}

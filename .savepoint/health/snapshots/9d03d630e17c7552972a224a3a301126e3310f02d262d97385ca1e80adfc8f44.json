@@ -1,0 +1,576 @@
+{
+  "version": 1,
+  "id": "sha256:9d03d630e17c7552972a224a3a301126e3310f02d262d97385ca1e80adfc8f44",
+  "origin": "official",
+  "retention": "permanent",
+  "created_at": "2026-10-28T10:53:00Z",
+  "repository": {
+    "commit": "938cbfc0ee7473a950246ffa2f2f43097c8d80b3",
+    "dirty": true,
+    "input_fingerprint": "sha256:8a86efccad39be674225c2ed1eefdb2d418c0ab5339f0bd78e299e80677d8a1b"
+  },
+  "results": [
+    {
+      "capability": "complexity",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-28T10:52:57Z",
+      "provenance": {
+        "provider": "lizard-csv",
+        "provider_version": "unknown",
+        "measurement_definition": "highest cyclomatic complexity (CCN) of any function"
+      },
+      "config_digest": "sha256:a874e8ef830f654ed42284af3e9c5167b57d153066f2d28a1b0ffcbb74e03115",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/data/**",
+        "**/tests/fixtures/**",
+        "**/tools/import/*.json",
+        "**/tools/import/.horizons-cache/**",
+        ".savepoint/**",
+        "coverage/**",
+        "dist/**",
+        "docs/evidence/**",
+        "docs/prds/**",
+        "docs/research/**",
+        "node_modules/**",
+        "tools/archive/**"
+      ],
+      "value": {
+        "number": 20,
+        "unit": "ccn"
+      },
+      "reason": "Lizard's CSV does not state its version",
+      "details": [
+        {
+          "key": "average_ccn",
+          "number": 1.6904761904761905
+        },
+        {
+          "key": "functions",
+          "number": 6762
+        },
+        {
+          "key": "functions_over_10",
+          "number": 63
+        },
+        {
+          "key": "functions_over_20",
+          "number": 0
+        }
+      ],
+      "evidence": [
+        {
+          "path": "packages/astraeus-demo-apollo11/tests/apollo11Reconstruction.test.ts",
+          "line": 165,
+          "note": "sameWithin has complexity 17"
+        },
+        {
+          "path": "packages/astraeus-demo-showers/src/experiences/showers/measuredOrbits.ts",
+          "line": 168,
+          "note": "parseMeasuredOrbits has complexity 14"
+        },
+        {
+          "path": "packages/astraeus-site/tests/assetsSections.test.ts",
+          "line": 75,
+          "note": "(anonymous) has complexity 15"
+        },
+        {
+          "path": "packages/astraeus-site/tests/packageBoundaries.test.ts",
+          "line": 212,
+          "note": "boundaryOffences has complexity 17"
+        },
+        {
+          "path": "packages/astraeus-site/tools/site/api-reference.mjs",
+          "line": 56,
+          "note": "(anonymous) has complexity 14"
+        },
+        {
+          "path": "packages/astraeus-site/tools/validate/driver.mjs",
+          "line": 956,
+          "note": "(anonymous) has complexity 16"
+        },
+        {
+          "path": "packages/astraeus-site/tools/validate/driver.mjs",
+          "line": 1069,
+          "note": "(anonymous) has complexity 20"
+        },
+        {
+          "path": "packages/astraeus/src/api/scene.ts",
+          "line": 254,
+          "note": "addTrajectory has complexity 14"
+        },
+        {
+          "path": "packages/astraeus/src/app/PathView.ts",
+          "line": 141,
+          "note": "constructor has complexity 20"
+        },
+        {
+          "path": "packages/astraeus/src/app/bodyMetrics.ts",
+          "line": 80,
+          "note": "(anonymous) has complexity 14"
+        },
+        {
+          "path": "packages/astraeus/src/app/bodySet.ts",
+          "line": 119,
+          "note": "validateBodySet has complexity 15"
+        },
+        {
+          "path": "packages/astraeus/src/app/sceneBodies.ts",
+          "line": 65,
+          "note": "bodyScreenReadouts has complexity 17"
+        },
+        {
+          "path": "packages/astraeus/src/assets/catalogue.ts",
+          "line": 44,
+          "note": "createCatalogue has complexity 18"
+        },
+        {
+          "path": "packages/astraeus/src/assets/compositions.ts",
+          "line": 36,
+          "note": "createComposition has complexity 17"
+        },
+        {
+          "path": "packages/astraeus/src/assets/moonCatalogue.ts",
+          "line": 54,
+          "note": "parseMoonCatalogue has complexity 14"
+        },
+        {
+          "path": "packages/astraeus/src/core/chebyshevEphemeris.ts",
+          "line": 200,
+          "note": "chunksFor has complexity 15"
+        },
+        {
+          "path": "packages/astraeus/tools/import/horizons-client.mjs",
+          "line": 91,
+          "note": "headerOf has complexity 20"
+        },
+        {
+          "path": "packages/astraeus/tools/import/horizons-moons-measure.mjs",
+          "line": 176,
+          "note": "browserSpeed has complexity 15"
+        },
+        {
+          "path": "packages/astraeus/tools/import/horizons-moons.mjs",
+          "line": 155,
+          "note": "periodDaysOf has complexity 16"
+        },
+        {
+          "path": "packages/astraeus/tools/import/jupiter-moon-catalogue.mjs",
+          "line": 74,
+          "note": "(anonymous) has complexity 19"
+        }
+      ]
+    },
+    {
+      "capability": "coverage",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-28T10:53:00Z",
+      "provenance": {
+        "provider": "vitest-v8-coverage",
+        "provider_version": "unknown",
+        "measurement_definition": "covered statements as a share of all statements"
+      },
+      "config_digest": "sha256:4fe9e969d32d636c07b00cbbedda1b3494c711f8c4dec8db16cf592e8f79265a",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 91.6690334185364,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "covered_branches",
+          "number": 5108
+        },
+        {
+          "key": "covered_functions",
+          "number": 2219
+        },
+        {
+          "key": "covered_statements",
+          "number": 9683
+        },
+        {
+          "key": "total_branches",
+          "number": 5937
+        },
+        {
+          "key": "total_functions",
+          "number": 2415
+        },
+        {
+          "key": "total_statements",
+          "number": 10563
+        }
+      ],
+      "evidence": [
+        {
+          "path": "packages/astraeus-data-jupiter/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-data-mars/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-data-neptune/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-data-pluto/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-data-saturn/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-data-uranus/src/index.ts",
+          "note": "0.0% of 4 statements covered"
+        },
+        {
+          "path": "packages/astraeus-demo-apollo11/tools/apollo11/ephemeris.ts",
+          "note": "66.7% of 12 statements covered"
+        },
+        {
+          "path": "packages/astraeus-demo-planets/src/experiences/planets/planetSystems.ts",
+          "note": "0.0% of 5 statements covered"
+        },
+        {
+          "path": "packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs",
+          "note": "67.9% of 277 statements covered"
+        },
+        {
+          "path": "packages/astraeus-site/src/registerData.ts",
+          "note": "0.0% of 1 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/api/data.ts",
+          "note": "52.9% of 17 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/AstraeusScene.tsx",
+          "note": "29.3% of 41 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/AtmosphereGlow.tsx",
+          "note": "33.3% of 6 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/BodyMesh.tsx",
+          "note": "14.3% of 7 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/DebugOverlay.tsx",
+          "note": "43.8% of 16 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/LayeredRender.tsx",
+          "note": "0.0% of 20 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/metricReadouts.ts",
+          "note": "62.5% of 16 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/sceneBodySets.ts",
+          "note": "34.9% of 43 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/sceneDebug.ts",
+          "note": "68.6% of 35 statements covered"
+        },
+        {
+          "path": "packages/astraeus/src/app/useBodyTexture.ts",
+          "note": "0.0% of 14 statements covered"
+        }
+      ]
+    },
+    {
+      "capability": "dependency_vulnerabilities",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-28T10:52:59Z",
+      "provenance": {
+        "provider": "osv-scanner-json",
+        "provider_version": "unknown",
+        "measurement_definition": "vulnerability groups per package, bucketed by CVSS"
+      },
+      "config_digest": "sha256:ead67227c592869f9669c9bd5cea2415918c4bfa3e90128395223e2dad52f804",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "docs/prds/**",
+        "docs/research/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 0,
+        "unit": "count"
+      },
+      "reason": "Vulnerability database was queried at collection time; its snapshot is unknown.",
+      "details": [
+        {
+          "key": "critical",
+          "number": 0
+        },
+        {
+          "key": "high",
+          "number": 0
+        },
+        {
+          "key": "low",
+          "number": 0
+        },
+        {
+          "key": "medium",
+          "number": 0
+        },
+        {
+          "key": "unknown",
+          "number": 0
+        }
+      ]
+    },
+    {
+      "capability": "duplication",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-28T10:52:58Z",
+      "provenance": {
+        "provider": "jscpd-json",
+        "provider_version": "unknown",
+        "measurement_definition": "share of lines that are part of a repeated block"
+      },
+      "config_digest": "sha256:78cfc03d01de990db33b59126e41002f3233c07f931a691d14aaad5e62b1a509",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        "**/data/**",
+        "**/testdata/**",
+        "**/tests/fixtures/**",
+        "**/tools/import/*.json",
+        "**/tools/import/.horizons-cache/**",
+        ".savepoint/**",
+        "coverage/**",
+        "dist/**",
+        "docs/evidence/**",
+        "docs/prds/**",
+        "docs/research/**",
+        "node_modules/**",
+        "tools/archive/**"
+      ],
+      "value": {
+        "number": 0.8791019987400492,
+        "unit": "percent"
+      },
+      "details": [
+        {
+          "key": "clones",
+          "number": 41
+        },
+        {
+          "key": "duplicated_lines",
+          "number": 614
+        },
+        {
+          "key": "sources",
+          "number": 554
+        },
+        {
+          "key": "total_lines",
+          "number": 69844
+        }
+      ],
+      "evidence": [
+        {
+          "path": ".claude/hooks/guard.cjs",
+          "line": 9,
+          "note": "187 lines repeated at .claude/hooks/guard.js:9"
+        },
+        {
+          "path": ".claude/hooks/savepoint-find.cjs",
+          "line": 4,
+          "note": "33 lines repeated at .claude/hooks/savepoint-find.js:4"
+        },
+        {
+          "path": ".claude/hooks/session-start.cjs",
+          "line": 9,
+          "note": "44 lines repeated at .claude/hooks/session-start.js:9"
+        },
+        {
+          "path": "package-lock.json",
+          "line": 13,
+          "note": "23 lines repeated at package.json:25"
+        },
+        {
+          "path": "packages/astraeus-demo-showers/src/experiences/showers/showerSettings.ts",
+          "line": 161,
+          "note": "20 lines repeated at packages/astraeus/src/core/fieldReaders.ts:14"
+        },
+        {
+          "path": "packages/astraeus-site/assets.html",
+          "line": 12,
+          "note": "11 lines repeated at packages/astraeus-site/index.html:18"
+        },
+        {
+          "path": "packages/astraeus-site/assets.html",
+          "line": 146,
+          "note": "11 lines repeated at packages/astraeus-site/index.html:197"
+        },
+        {
+          "path": "packages/astraeus-site/tests/compositions.test.ts",
+          "line": 247,
+          "note": "10 lines repeated at packages/astraeus/tests/stateResolver.test.ts:130"
+        },
+        {
+          "path": "packages/astraeus-site/tests/experiencePlugIn.test.ts",
+          "line": 31,
+          "note": "13 lines repeated at packages/astraeus/tests/syntheticRing.test.ts:32"
+        },
+        {
+          "path": "packages/astraeus-site/tools/validate/load-budget.mjs",
+          "line": 86,
+          "note": "9 lines repeated at packages/astraeus-site/tools/validate/public-build-assets.mjs:24"
+        },
+        {
+          "path": "packages/astraeus/licenses/orbjs-MIT.txt",
+          "line": 5,
+          "note": "17 lines repeated at packages/astraeus/licenses/python-sgp4.txt:4"
+        },
+        {
+          "path": "packages/astraeus/src/app/sceneLayout.ts",
+          "line": 91,
+          "note": "10 lines repeated at packages/astraeus/tests/scenePlacement.ts:49"
+        },
+        {
+          "path": "packages/astraeus/src/shell/ObjectControls.tsx",
+          "line": 3,
+          "note": "11 lines repeated at packages/astraeus/src/shell/TopBar.tsx:8"
+        },
+        {
+          "path": "packages/astraeus/src/shell/TopBar.css",
+          "line": 34,
+          "note": "9 lines repeated at packages/astraeus/src/shell/TopBar.css:86"
+        },
+        {
+          "path": "packages/astraeus/src/shell/style.css",
+          "line": 37,
+          "note": "9 lines repeated at packages/astraeus/src/shell/style.css:353"
+        },
+        {
+          "path": "packages/astraeus/src/synthetic/syntheticListedDefinition.ts",
+          "line": 23,
+          "note": "10 lines repeated at packages/astraeus/tests/listedOrbitGroup.test.ts:34"
+        },
+        {
+          "path": "packages/astraeus/tests/bodyViewDom.test.ts",
+          "line": 24,
+          "note": "10 lines repeated at packages/astraeus/tests/developerSettingsDom.test.ts:11"
+        },
+        {
+          "path": "packages/astraeus/tests/core.test.ts",
+          "line": 96,
+          "note": "11 lines repeated at packages/astraeus/tests/core.test.ts:116"
+        },
+        {
+          "path": "packages/astraeus/tests/orbitGroup.test.ts",
+          "line": 157,
+          "note": "10 lines repeated at packages/astraeus/tests/orbitGroup.test.ts:178"
+        },
+        {
+          "path": "packages/astraeus/tests/pointsGpuBlend.test.ts",
+          "line": 10,
+          "note": "12 lines repeated at packages/astraeus/tests/pointsLookAhead.test.ts:8"
+        }
+      ]
+    },
+    {
+      "capability": "tests",
+      "outcome": "available",
+      "freshness": "fresh",
+      "collected_at": "2026-10-28T10:52:55Z",
+      "provenance": {
+        "provider": "vitest-junit",
+        "provider_version": "unknown",
+        "measurement_definition": "failed tests plus errored tests"
+      },
+      "config_digest": "sha256:0aff58554fee731cddc805e5d92799b4aa35067c0a3da27650abfe7b055b66cd",
+      "exclusions": [
+        "**/*.min.js",
+        "**/*.pb.go",
+        "**/*_generated.*",
+        ".savepoint/**",
+        "dist/**",
+        "node_modules/**"
+      ],
+      "value": {
+        "number": 0,
+        "unit": "count"
+      },
+      "details": [
+        {
+          "key": "errors",
+          "number": 0
+        },
+        {
+          "key": "skipped_tests",
+          "number": 1
+        },
+        {
+          "key": "total_tests",
+          "number": 1872
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "overall": "watch",
+    "capabilities": [
+      {
+        "capability": "complexity",
+        "provider": "lizard-csv",
+        "classification": "watch",
+        "explanation": "Highest complexity 20 is within the watch range. Not enough comparable official history for a recent range yet. 46 earlier official results not compared."
+      },
+      {
+        "capability": "coverage",
+        "provider": "vitest-v8-coverage",
+        "classification": "good",
+        "explanation": "Coverage 91.7% meets the good threshold. Improved from recent median 75%; current value still decides. Recent range 74.6% to 91.7% over 5 official checks, improving."
+      },
+      {
+        "capability": "dependency_vulnerabilities",
+        "provider": "osv-scanner-json",
+        "classification": "watch",
+        "explanation": "Vulnerabilities 0 meets the good threshold. Not enough comparable official history for a recent range yet. 44 earlier official results not compared. Good needs three comparable official checks."
+      },
+      {
+        "capability": "duplication",
+        "provider": "jscpd-json",
+        "classification": "watch",
+        "explanation": "Duplication 0.9% meets the good threshold. Not enough comparable official history for a recent range yet. 46 earlier official results not compared. Good needs three comparable official checks."
+      },
+      {
+        "capability": "tests",
+        "provider": "vitest-junit",
+        "classification": "good",
+        "explanation": "Failing tests 0 meets the good threshold. Recent range 0 to 1 over 5 official checks, steady."
+      }
+    ]
+  }
+}
