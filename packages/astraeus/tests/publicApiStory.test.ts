@@ -182,7 +182,7 @@ describe("stateOf", () => {
     expect(Math.hypot(...(state.velocityKmS as unknown as number[]))).toBeCloseTo(2, 6);
   });
   it("refuses a body, an unknown id and a moment outside the path", () => {
-    expect(codeOf(() => base().stateOf("moon", T0))).toBe("unknown-body");
+    expect(codeOf(() => base().stateOf("sun", T0))).toBe("unknown-body");
     expect(codeOf(() => base().stateOf("ghost", T0))).toBe("unknown-body");
     expect(codeOf(() => base().stateOf("probe", T0 + 99 * MIN))).toBe("bad-time");
     expect(codeOf(() => base().stateOf("probe", "soon"))).toBe("bad-time");

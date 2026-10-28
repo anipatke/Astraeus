@@ -20,6 +20,7 @@ export const DEFAULT_ELEMENTS_MARKER_SIZE_PX = 7;
  * within the larger one, "indicative". Both are good enough to draw where the body is on its orbit at overview scale and neither is an ephemeris.
  */
 export const APPROXIMATE_LIMIT_FRACTION = 0.01;
+/** The larger limit of the same rule: within 5% of the body's distance from the Sun at every compared date is "indicative". */
 export const INDICATIVE_LIMIT_FRACTION = 0.05;
 
 /** The classification a largest error fraction earns, or null when it earns neither (the body should not be drawn from its elements alone). */
@@ -30,6 +31,7 @@ export function classifyPositionError(maxFraction: number): AccuracyClassificati
 }
 
 export type ElementsTimeScale = "TDB" | "TT" | "UTC";
+/** The class a position comparison earns: `"approximate"` or `"indicative"` (see `classifyPositionError`). */
 export type AccuracyClassification = "approximate" | "indicative";
 
 /** A cited fact: the solution it came from, where it was read, and when. */
@@ -248,6 +250,8 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
         sources: [citation, `Two-body motion about the gravitational parameter of "${centre.id}" (catalogue)`],
         accuracy: `${body.accuracy.classification}: ${body.accuracy.statement}`,
         notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch.",
+        accuracyClass: body.accuracy.classification,
+        maxErrorFraction: body.accuracy.classification === "approximate" ? APPROXIMATE_LIMIT_FRACTION : INDICATIVE_LIMIT_FRACTION,
       }),
       validUtc: Object.freeze({ startUtcMs: Date.parse(body.accuracy.validFromUtc), endUtcMs: Date.parse(body.accuracy.validToUtc) }),
       orientationLimitations: Object.freeze([

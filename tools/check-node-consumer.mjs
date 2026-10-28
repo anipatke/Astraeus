@@ -33,11 +33,17 @@ try {
   writeFileSync(join(scratch, "vitest.config.mjs"), 'export default { test: { environment: "node", include: ["consumer.test.mjs"] } };\n');
   writeFileSync(join(scratch, "consumer.test.mjs"), [
     'import { expect, test } from "vitest";',
-    'import { Scene, earth, sun } from "astraeus";',
+    'import { Scene, classifyPositionError, earth, sun } from "astraeus";',
     'test("the packed package builds a scene in plain Node", () => {',
     "  const definition = new Scene().addBody(sun).addBody(earth).toDefinition();",
     "  expect(definition.composition).toBeDefined();",
     "  expect(definition.clock.startUtcMs).toEqual(expect.any(Number));",
+    "});",
+    'test("stateOf and provenanceOf answer for a built-in body", () => {',
+    "  const scene = new Scene().addBody(sun).addBody(earth);",
+    '  expect(Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm)).toBeGreaterThan(1.4e8);',
+    '  expect(scene.provenanceOf("earth").sources.length).toBeGreaterThan(0);',
+    '  expect(classifyPositionError(0.005)).toBe("approximate");',
     "});",
     "",
   ].join("\n"));

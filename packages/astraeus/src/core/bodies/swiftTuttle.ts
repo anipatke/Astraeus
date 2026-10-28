@@ -112,6 +112,8 @@ export const SWIFT_TUTTLE: CelestialBodyDefinition = Object.freeze({
       sources: [SWIFT_TUTTLE_ELEMENTS.citation, "Two-body motion about the Sun's gravitational parameter (catalogue)", "Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF"],
       accuracy: `Position was compared with JPL Horizons at eight dates from 1990 to 2030: the largest Sun-centred difference is about ${SWIFT_TUTTLE_MAX_ERROR_KM.toLocaleString("en-US")} km (${(SWIFT_TUTTLE_MAX_ERROR_FRACTION * 100).toFixed(2)}% of its distance from the Sun at that date), so this is an approximate position for drawing the orbit and the comet's place on it, not an ephemeris. This is the largest difference at the eight dates compared, not a bound for every date.`,
       notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch.",
+      accuracyClass: "approximate",
+      maxErrorFraction: SWIFT_TUTTLE_MAX_ERROR_FRACTION,
     }),
     validUtc: COMPARED_UTC,
     orientationLimitations: SWIFT_TUTTLE_LIMITATIONS,

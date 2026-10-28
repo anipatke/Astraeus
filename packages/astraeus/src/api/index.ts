@@ -11,3 +11,4 @@ export type { State } from "../core/state";
 export type { Provenance, ProvenanceSourceType } from "../core/provenance";
 export type { Pictures } from "../assets/pictures";
 export type { AssetLicence, TextureRef } from "../assets/licence";
+export { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, classifyPositionError, parseElementsBodyRecord, type AccuracyClassification } from "../core/elementsBody";

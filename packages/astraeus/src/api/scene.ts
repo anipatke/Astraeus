@@ -4,6 +4,8 @@ import { createProvenance, type Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import type { State } from "../core/state";
+import { createStateResolver } from "../core/stateResolver";
+import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { loadPlanetSeries, planetSeriesLoaded } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
@@ -194,6 +196,7 @@ export class Scene {
   #catalogue: BodyCatalogue = builtInCatalogue;
   readonly #notes = new Map<BodyId, string>();
   readonly #looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
+  readonly #sources = new Map<BodyId, Trajectory>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
@@ -345,14 +348,50 @@ export class Scene {
     return this;
   }
 
-  /** The state of a trajectory added with `addTrajectory` at a moment, about its centre body (position in km, velocity in km/s): for figures a story quotes, such as a peak speed. Throws `unknown-body` for any other id and `bad-time` for a moment outside the path. */
+  /**
+   * The state of a body in the scene at a moment (position in km, velocity in km/s), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
+   * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a peak speed or a
+   * distance from the Sun, come from here. An id the scene does not hold throws `unknown-body`; a moment outside the body's data range throws `bad-time`; a planet before the
+   * planet series have loaded (they load at mount) throws `missing-data`.
+   * @example
+   * const sunDistanceKm = Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm);
+   */
   stateOf(id: string, time: TimeInput): State {
     const entry = this.#tracked.get(id);
-    if (entry === undefined) throw new SceneError("unknown-body", `stateOf("${id}"): no trajectory with that id has been added to the scene`);
+    if (entry === undefined && !this.#bodies.has(id)) throw new SceneError("unknown-body", `stateOf("${id}"): no body or trajectory with that id has been added to the scene`);
     const timeUtcMs = toUtcMs(time, `stateOf("${id}") time`);
-    const { startUtcMs, endUtcMs } = entry.body.trajectory.bounds;
-    if (timeUtcMs < startUtcMs || timeUtcMs > endUtcMs) throw new SceneError("bad-time", `stateOf("${id}"): ${new Date(timeUtcMs).toISOString()} is outside the path (${new Date(startUtcMs).toISOString()} to ${new Date(endUtcMs).toISOString()})`);
-    return entry.body.trajectory.stateAt(timeUtcMs, entry.center);
+    const trajectory = entry?.body.trajectory ?? this.#catalogueSource(id);
+    const bounds = trajectory?.bounds;
+    if (bounds !== undefined && (timeUtcMs < bounds.startUtcMs || timeUtcMs > bounds.endUtcMs)) throw new SceneError("bad-time", `stateOf("${id}"): ${new Date(timeUtcMs).toISOString()} is outside the ${entry === undefined ? "body's data" : "path"} (${new Date(bounds.startUtcMs).toISOString()} to ${new Date(bounds.endUtcMs).toISOString()})`);
+    if (trajectory === undefined) return this.#sunState(id, timeUtcMs);
+    try {
+      return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#catalogue.get(id).definition.parentId);
+    } catch (error) {
+      if (entry === undefined && error instanceof Error && error.message.startsWith("the planet series are not loaded")) throw new SceneError("missing-data", `stateOf("${id}"): ${error.message}`);
+      throw error;
+    }
+  }
+
+  /** The Provenance of a body's position, as its info card shows it: for a ready-made or elements body the catalogue's position record, for a path the one passed to `addTrajectory`. Carries `accuracyClass` and `maxErrorFraction` where a comparison with an independent ephemeris exists. An id the scene does not hold throws `unknown-body`. */
+  provenanceOf(id: string): Provenance {
+    const entry = this.#tracked.get(id);
+    if (entry !== undefined) return entry.body.provenance!; // addTrajectory always sets one
+    if (!this.#bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
+    return this.#catalogue.get(id).definition.accuracy.position;
+  }
+
+  /** A catalogued body's state source, the one the viewer draws from, made once per scene; none for the root (the Sun). */
+  #catalogueSource(id: BodyId): Trajectory | undefined {
+    const binding = this.#catalogue.sources().find((source) => source.body === id);
+    if (binding === undefined) return undefined;
+    const made = this.#sources.get(id) ?? binding.create(createOrbAstronomyAdapter());
+    this.#sources.set(id, made);
+    return made;
+  }
+
+  /** The root body is at the origin of itself and at rest. */
+  #sunState(id: BodyId, timeUtcMs: number): State {
+    return createStateResolver(this.#catalogue.definitions(), this.#catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
   }
 
   /** The story panels, resolved against this scene's events, anchors, objects and timeline span. */

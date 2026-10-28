@@ -18,6 +18,8 @@ import { buildShowerDefinition } from "./helpers/showerDefinition";
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 type Rec = Record<string, any>;
+/** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
+const unclassed = (value: any) => (value && typeof value === "object" && "accuracyClass" in value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction")) : value);
 const byId = (list: readonly Rec[], id: string) => list.find((item) => item.id === id)!;
 
 describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminidsFile, "phaethon"]] as const)("the rebuilt %s against the definition it replaced", (name, file, parent) => {
@@ -31,7 +33,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
 
   it("has the same bodies in the same order with the same ids, labels, colours and provenance", () => {
     expect(objects.map((o) => o.id)).toEqual(old.objects.map((o: Rec) => o.id));
-    for (const was of old.objects) for (const field of ["label", "color", "provenance"]) expect(byId(objects, was.id)[field], `${was.id}.${field}`).toEqual(was[field]);
+    for (const was of old.objects) for (const field of ["label", "color", "provenance"]) expect(unclassed(byId(objects, was.id)[field]), `${was.id}.${field}`).toEqual(was[field]);
   });
 
   it("keeps the catalogue's own known limits; the 'N times larger than life' sentence moved from the planets' known limits into their descriptions (FLAG: owner to judge the wording)", () => {
@@ -167,7 +169,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
       const now = byId(paths.map((p) => ({ ...p, id: p.object.id })), id);
       expect(now.object.partOf).toBe(was.object.partOf);
       expect(now.object.showLabel).toBe(false);
-      expect(now.object.provenance, id).toEqual(was.object.provenance);
+      expect(unclassed(now.object.provenance), id).toEqual(was.object.provenance);
       if (was.sampling === undefined) expect(now.samples).toBe(was.samples);
       else {
         expect(now.sampling.eccentricity).toBeCloseTo(was.sampling.eccentricity, 12);
