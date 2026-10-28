@@ -5,19 +5,7 @@ triggerable: false
 
 # Shared Savepoint Issue Capture
 
-This non-triggerable reference owns Issue capture for Design, Task, and Check; each enters it from its own workflow.
-
-An Issue captures durable follow-up from planning, execution, or Check; it is a record, not a fifth router state. "Defect" stays a word the owner says; it maps to `type: defect`.
-
-**Contents**
-
-- Issue Artifact Template
-- Search Before Creating
-- Resolution Dispositions
-- Escalation Retires The Issue
-- History Is Append-Only
-- Role Boundaries
-- Out-Of-Scope Repair
+This non-triggerable reference owns Issue capture for Design, Task, and Check; each enters it from its own workflow. An Issue captures durable follow-up from planning, execution, or Check; it is a record, not a fifth router state. "Defect" stays a word the owner says; it maps to `type: defect`.
 
 ## Issue Artifact Template
 
@@ -67,13 +55,11 @@ history:
 
 `type` is descriptive: it names what kind of durable follow-up this is, and it is never sufficient on its own to block a Task. Material blocking comes from a Check recording `NEEDS WORK` against an acceptance criterion or guardrail, not from an Issue's `type`.
 
-A Task Check skipped under an explicit owner waiver is not an Issue; apply AGENTS.md's Verification Policy.
+A Task Check skipped under an explicit owner waiver is not an Issue.
 
 ## Search Before Creating
 
 Before allocating an `I-###`, search for the same symptom, the same location, the same violated requirement, or the same linked work. No automatic deduplication is assumed; every capture performs this search.
-
-After creating or renaming an Issue or another identity-bearing record outside `savepoint create-task`, run `savepoint resume` to require strict loading of the complete index before handoff.
 
 ## Resolution Dispositions
 
@@ -105,19 +91,8 @@ Deferral is a dated history entry on an open Issue, not a fourth lifecycle state
 
 ## Out-Of-Scope Repair
 
-Default: fix it directly and record repair evidence in the Issue's own
-history (`kind: repair_attempted`), leaving the Issue open for a checker or an explicit owner acceptance decision.
-Before recording `repair_attempted`, re-run the Issue's Proof Needed scenario
-and the neighbouring cases the repair could change, record each result in the
-history entry, and mark any platform or case you could not run as unverified.
-This is executor evidence only; it never claims `verified`.
-After recording a direct repair, advance an Issue-only router selection: use
-the one distinct Objective identified by the Issue's linked Tasks and
-Objective-scoped Checks, when there is exactly one. Set `objective` to that Objective and clear
-`task` and `issue`. If those links identify no Objective or multiple
-Objectives, clear `issue` only; do not guess an Objective. Preserve `release:`
-and run `savepoint resume` to show the resulting Next line. The Issue remains
-open until a checker verifies it or the owner explicitly accepts it.
-Escalate to a new Objective only when repair needs an open Design decision or spans multiple Objectives; apply Escalation Retires The Issue immediately. A repair that instead becomes a new, bounded Task
-within an existing Objective is not an escalation: the Issue stays open for
-the checker as in the default case.
+Default: fix it directly and record repair evidence in the Issue's own history (`kind: repair_attempted`). Before recording it, re-run the Issue's Proof Needed scenario and the neighbouring cases the repair could change, record each result in the entry, and mark any platform or case you could not run as unverified. This is executor evidence only; it never claims `verified`, and the Issue stays open until a checker verifies it or the owner explicitly accepts it.
+
+After recording a direct repair, advance an Issue-only router selection: when the Issue's linked Tasks and Objective-scoped Checks identify exactly one Objective, set `objective` to it and clear `task` and `issue`; otherwise clear `issue` only and do not guess an Objective. Preserve `release:` and run `savepoint resume` to show the resulting Next line.
+
+Escalate to a new Objective only when repair needs an open Design decision or spans multiple Objectives; apply Escalation Retires The Issue immediately. A repair that becomes a new, bounded Task within an existing Objective is not escalation: the Issue stays open for the checker as in the default case.

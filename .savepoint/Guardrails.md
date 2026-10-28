@@ -79,6 +79,4 @@ If a rule can block a Check's verdict or require remediation, it must be defined
 
 ## Savepoint Check Enforcement
 
-`savepoint-check` applies these rules through `agent-skills/references/check-method.md`: Quick evidence is optional and applies only to a requested Task Check; Full evidence is mandatory for an Objective Check. Code style rules are Guideline severity throughout — they inform review but never block a Check's verdict by themselves.
-
-Required waivers must be explicit and documented. Blocker exceptions require direct owner approval.
+`savepoint-check` applies these rules through `agent-skills/references/check-method.md` (Quick for a requested Task Check, Full for the mandatory Objective Check). Guideline rules, including all code style, never block a verdict by themselves. Required waivers must be explicit and documented; Blocker exceptions require direct owner approval.

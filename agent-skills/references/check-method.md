@@ -5,19 +5,15 @@ triggerable: false
 
 # Shared Savepoint Check Method
 
-`savepoint-check` owns the trigger, scope, mode and immutable record. Design and Task reference this method but never run a Check themselves. Apply [verification policy](../../docs/agents/verification.md) for waivers, dependencies, gates and completion authority.
+`savepoint-check` owns the trigger, scope, mode and immutable record; Design and Task reference this method but never run a Check. Apply the [verification policy](../../docs/agents/verification.md) for waivers, dependencies, gates and completion authority.
 
-Load this common method, then exactly one mode reference **in full**:
+Load this common method, then exactly one mode reference **in full**: [check-quick.md](check-quick.md) for a requested Task Check, [check-full.md](check-full.md) for the mandatory Objective Check. `Assess` is applicability only under the skill's Closure Rules, with no Check or probe procedure. The selected mode sets the order of the common sections below; a re-check keeps the original mode and scope lock.
 
-- Requested Task Check: [check-quick.md](check-quick.md).
-- Mandatory Objective Check: [check-full.md](check-full.md).
-- Assess: applicability only under the skill's Closure Rules; no new Check or probe procedure.
-
-Use Guardrails and optional project verification procedures when present; skip related steps when absent. Absence is not an Issue. Common sections below apply to both modes; the selected mode defines their order. In a re-check, keep the original mode and scope lock. Full-only matrices, workflow locks, adversarial pass and health collection remain mandatory for Full, and are not loaded for Quick.
+Use Guardrails and optional project verification procedures when present; skip related steps when absent. Absence is not an Issue.
 
 ## Task Check And Objective Check Depth
 
-A requested Task Check evaluates one Task's acceptance criteria, plan, evidence, and scoped files. The mandatory Objective Check additionally covers every owned Task, including waived Tasks, cross-Task integration, and Design reconciliation. Apply AGENTS.md's Verification Policy for what a Task clearance or waiver does not replace.
+A requested Task Check (itself optional) evaluates one Task's acceptance criteria, plan, evidence, and scoped files. The mandatory Objective Check does all that for every owned Task, including waived Tasks, plus cross-Task integration and Design reconciliation. A Task clearance or waiver never replaces it.
 
 ## Establish Scope
 
@@ -76,12 +72,7 @@ exception above applies, naming the exact Blocker rule.
 Start the re-check result with a closure map of the prior Issues: closed,
 still open, or unverified.
 
-Also assess every prior owner decision (acceptance or exception) on the scope.
-Compare each decision's scope with what changed since its last assessment and
-record the outcome as a `carried_forward` entry under `savepoint-check`
-Closure Rules. A decision whose scope is unchanged still applies; state why
-and do not ask the owner to renew it. List `unmet` requirement IDs on a
-`NEEDS WORK` result so exception coverage can be checked.
+Also assess every prior owner decision (acceptance or exception) on the scope as `savepoint-check` Closure Rules describe, and list `unmet` requirement IDs on a `NEEDS WORK` result so exception coverage can be checked.
 
 Default convergence limit: one initial Check; one full re-check after
 remediation; if an in-scope failure remains, one targeted remediation and

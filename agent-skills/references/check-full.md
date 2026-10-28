@@ -5,7 +5,7 @@ triggerable: false
 
 # Full Objective Check
 
-Mandatory for Objective closure. Read [common rules](check-method.md) and this entire reference. Apply every applicable section in the checklist's order; common sections are in check-method.md, Full-specific sections are below. Copy the checklist into the Check record and tick each step as completed. No Task waiver replaces this integration Check. References to the credible-blocker exception, Issue admission and evidence gates refer to the matching sections of the common rules.
+Mandatory for Objective closure; every section below is Full-only, and Quick Task Checks and all other Savepoint activity never use them (including health collection). Read [common rules](check-method.md) and this entire reference. Apply every applicable section in the checklist's order; common sections are in check-method.md, Full-specific sections are below. Copy the checklist into the Check record and tick each step as completed. No Task waiver replaces this integration Check. References to the credible-blocker exception, Issue admission and evidence gates refer to the matching sections of the common rules.
 
 ### Full Check Progress Checklist
 
@@ -55,8 +55,6 @@ acceptance interpretation, or meaning of "adjacent" during remediation review.
 
 ## Build The Mandatory Coverage Matrix
 
-Full mode only. A Quick Task Check uses the Quick Check Procedure instead.
-
 Before running focused probes, create a concrete matrix for the scoped public
 behavior. List every row and applicable axis; mark a cell not-applicable only
 with a reason tied to scope or an acceptance rule. A prose checklist is not a
@@ -103,11 +101,9 @@ where applicable; and secret-safe failure output.
 
 Mark a cell not-applicable only with a scope reason. Do not invent additional
 network or toolchain edge classes during later re-checks unless they meet the
-credible-blocker exception below.
+credible-blocker exception (common rules, Re-check After Remediation).
 
 ## Workflow And Side-Effect Check Lock
-
-Full mode only. A Quick Task Check uses the Quick Check Procedure instead.
 
 Apply this lock to any command or workflow with multiple operations,
 external calls, persistence, transactions, generated artifacts, cleanup, or
@@ -153,7 +149,7 @@ shrink the matrix.
 
 ## Perform The Adversarial Pass
 
-Full mode only. Ask every applicable question below to challenge the completed coverage and workflow matrices:
+Ask every applicable question below to challenge the completed coverage and workflow matrices:
 
 - Can another constructor, factory, public API, serialization form, or environment path bypass validation?
 - Can backward, skipped, overlapping, revived, or post-failure transitions violate the invariant?
@@ -165,9 +161,6 @@ Full mode only. Ask every applicable question below to challenge the completed c
 For state machines, structured events, parsers, renderers, auth, billing, persistence, jobs, and multi-step writes, verify relevant inputs and transitions through the required matrices; informal spot checks do not suffice.
 
 ## Collect Code Health Evidence
-
-Full mode only. A Quick Task Check, and every other Savepoint activity, never
-collects health.
 
 1. Run the project's full gate first (see Verify Evidence And Gates). Test and
    coverage health instances read the reports that gate wrote, so tests do not
@@ -190,5 +183,5 @@ collects health.
    bad code.
 6. Optional-instance failures, warnings, Watch results, and unknown-severity
    vulnerabilities do not block. Open an Issue for one only through the Issue
-   Capture judgment below, when durable follow-up is warranted; collection
+   admission test in the common rules, when durable follow-up is warranted; collection
    never creates Issues.

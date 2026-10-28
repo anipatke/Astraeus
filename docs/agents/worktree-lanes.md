@@ -1,7 +1,5 @@
 # Worktree lanes
 
-## Worktree Lanes
-
 The owner may run independent Tasks or Issue repairs side by side in git worktrees, starting each lane by pasting its `Next` line. A lane is a worktree the owner names as one, or any checkout where `git rev-parse --git-dir` differs from `git rev-parse --git-common-dir`. In a lane:
 
 - Do not edit `.savepoint/router.md`; skip every router write the active skill would make. The owner sets the router on the main branch after merging.

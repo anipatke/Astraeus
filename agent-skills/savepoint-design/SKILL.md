@@ -9,15 +9,7 @@ description: Maintains Savepoint Design and Guardrails and the current Objective
 
 Own the technical shape needed by the next unit of work: `Design.md` describes implemented reality, `Guardrails.md` holds durable constraints, and one Objective at a time carries detailed Tasks. Later Objectives stay named outcomes with Boundaries.
 
-Do not write production code. Route product choices to the owner; technical readiness does not require the owner to review code.
-
-## Trigger
-
-Use this skill when the `Next` line starts with `Plan` or `Replan`, or router `state` is `design`. A pasted `Next` line is the selection. When an executor returns `REPLAN REQUIRED`, that routes back into this skill's workflow rather than into a separate phase.
-
-## Next
-
-Start from the `Next` line as AGENTS.md's Workflow describes; if `savepoint` is unavailable, follow AGENTS.md rather than guessing. AGENTS.md's Router Selection section says who changes the router. New Task creation uses the narrow `savepoint create-task` exception in the Task Creation section below.
+Do not write production code. Route product choices to the owner; technical readiness does not require the owner to review code. Routing, router edits, lifecycle terms, owner authority and CLI rules follow AGENTS.md; an executor's `REPLAN REQUIRED` re-enters this skill's workflow, not a separate phase.
 
 ## Read
 
@@ -29,20 +21,19 @@ Start from the `Next` line as AGENTS.md's Workflow describes; if `savepoint` is 
 - The current Objective file
 - Targeted implementation evidence needed to settle readiness for the next Objective — read to verify interfaces, ownership, and constraints, not to design speculatively
 
-Relevant linked architecture sections are part of the readiness evidence, not an instruction to load all references. Read nothing else. Do not detail Tasks for any Objective beyond the next one, and do not open source files outside the evidence a readiness decision actually needs.
+Read nothing else: linked architecture sections count only when relevant, and source files only as far as a readiness decision needs. Do not detail Tasks for any Objective beyond the next one.
 
 ## Workflow
 
-1. Read the router, the Idea when present, Design, Guardrails, and the current Objective.
-2. Update `Design.md` to describe implemented reality, and `Guardrails.md` to hold durable project constraints; keep Objective deltas as the record of planned change until reconciliation. Describe confirmed Code Health tools (the owner's `.savepoint/health/config.json`) in `Design.md` in plain words; the exact commands stay in that file.
-3. Keep exactly one Objective active. Objectives beyond it stay named outcomes with Boundaries — no detailed Tasks.
-4. Before detailing an Objective's Tasks, inspect its stated requirements against Idea, Design, Guardrails, dependencies, and targeted evidence. Use the Objective Decision Interview below to resolve material choices that are missing, ambiguous, or contradictory; do not fill product or verification gaps by assumption. Summarize the proposed outcome, success conditions, boundaries, and key technical decisions in plain language, and obtain the owner's explicit design confirmation. Record confirmed decisions in the Objective. Then apply the readiness gate below; do not detail Tasks for an unconfirmed or unready Objective.
-5. After confirmation, detail the implementation Tasks as ID-free drafts through `savepoint create-task`, then present the plan for owner review before routing to execution. When parallel planning is on (see Parallel Planning below), you may name the parallel lanes in plain words in that review, for example "T-101 and T-102 can run side by side in worktrees; T-103 waits for both." A confirmed Objective design is not approval to implement or to mark a Task done.
-6. When the implementation approach for a piece of work is unknown, write a bounded research Task with a named decision deliverable instead of a confident plan the executor will discover is fiction.
-7. Split a Task that carries multiple unrelated outcomes or an unresolved architectural decision into separate Tasks. Keep work that genuinely shares files in one sequential lane rather than forcing a split. Optional lane shaping follows Parallel Planning below.
-8. When an executor returns `REPLAN REQUIRED`, treat it as re-entry here: reassess Design, Guardrails, or the Objective as needed, then resume from step 3.
-9. When a Task needs a verification approach, name it and reference `agent-skills/references/check-method.md` for how it will later be evaluated; do not restate that method here. When the work touches processes, paths, signals, or file replacement, also name in its Technical Verification the platform evidence the Full Check needs (for example the native Windows CI job) and who produces it, so it exists before the Check starts; the project's own gates still decide.
-10. When the next Objective's Tasks are detailed and approved, select that Objective and its first unblocked planned Task in the router, set `state: task`, and hand off to `savepoint-task`. Follow AGENTS.md's Router Selection section; do not write a free-text next action.
+1. Update `Design.md` to describe implemented reality, and `Guardrails.md` to hold durable project constraints; keep Objective deltas as the record of planned change until reconciliation. Describe confirmed Code Health tools (the owner's `.savepoint/health/config.json`) in `Design.md` in plain words; the exact commands stay in that file.
+2. Keep exactly one Objective active. Objectives beyond it stay named outcomes with Boundaries — no detailed Tasks.
+3. Before detailing an Objective's Tasks, inspect its stated requirements against Idea, Design, Guardrails, dependencies, and targeted evidence. Use the Objective Decision Interview below to resolve material choices that are missing, ambiguous, or contradictory; do not fill product or verification gaps by assumption. Summarize the proposed outcome, success conditions, boundaries, and key technical decisions in plain language, and obtain the owner's explicit design confirmation. Record confirmed decisions in the Objective. Then apply the readiness gate below; do not detail Tasks for an unconfirmed or unready Objective.
+4. After confirmation, detail the implementation Tasks as ID-free drafts through `savepoint create-task`, then present the plan for owner review before routing to execution. When parallel planning is on (see Parallel Planning below), you may name the parallel lanes in plain words in that review, for example "T-101 and T-102 can run side by side in worktrees; T-103 waits for both." A confirmed Objective design is not approval to implement or to mark a Task done.
+5. When the implementation approach for a piece of work is unknown, write a bounded research Task with a named decision deliverable instead of a confident plan the executor will discover is fiction.
+6. Split a Task that carries multiple unrelated outcomes or an unresolved architectural decision into separate Tasks. Keep work that genuinely shares files in one sequential lane rather than forcing a split. Optional lane shaping follows Parallel Planning below.
+7. When an executor returns `REPLAN REQUIRED`, reassess Design, Guardrails, or the Objective as needed, then resume from step 2.
+8. Plan every implementation's verification and owner validation under `docs/agents/verification.md`; never substitute a Task-only result or waiver for Objective clearance. When a Task needs a verification approach, name it and reference `agent-skills/references/check-method.md` for how it will later be evaluated; do not restate that method. When the work touches processes, paths, signals, or file replacement, also name in its Technical Verification the platform evidence the Full Check needs (for example the native Windows CI job) and who produces it, so it exists before the Check starts; the project's own gates still decide.
+9. When the next Objective's Tasks are detailed and approved, select that Objective and its first unblocked planned Task in the router (AGENTS.md Router Selection), set `state: task`, and hand off to `savepoint-task`; do not write a free-text next action.
 
 ## Parallel Planning
 
@@ -58,7 +49,7 @@ Parallel planning is an optional, advisory feature. Its project preference is `f
 
 ## Objective Decision Interview
 
-Before the design confirmation in workflow step 4, identify unresolved decisions or assumptions that could change the current Objective's outcome, success conditions, boundaries, interfaces, data ownership, dependencies, or verification. Challenge them against Idea, Design, Guardrails, and targeted evidence allowed by Read. Answer factual questions from that evidence yourself; ask the owner about material product or verification choices.
+Before the design confirmation in workflow step 3, identify unresolved decisions or assumptions that could change the current Objective's outcome, success conditions, boundaries, interfaces, data ownership, dependencies, or verification. Challenge them against Idea, Design, Guardrails, and targeted evidence allowed by Read. Answer factual questions from that evidence yourself; ask the owner about material product or verification choices.
 
 Ask one material decision at a time, starting with decisions that constrain later ones, and wait for the answer. Use an available structured question tool, or plain text when none is available. Offer concrete options with their tradeoffs and recommend one when justified. Briefly state each settled decision, then follow any consequential uncertainty it exposes. Do not reopen settled choices without new evidence or changed requirements.
 
@@ -74,19 +65,11 @@ The planner never chooses, reserves, or writes a Task ID or destination filename
 savepoint create-task --objective O-### --draft <path> [project-dir]
 ```
 
-The command allocates the next project-wide `T-###`, adds the Task identity and Objective to the draft, derives the filename from the title, and strict-loads the complete index before reporting success. It holds the allocator lock through creation and validation; concurrent planners for different Objectives receive distinct IDs. A failed post-reservation creation may retire an ID, so never retry by selecting that number yourself.
+The command allocates the next project-wide `T-###`, adds the Task identity and Objective to the draft, derives the filename from the title, prints the assigned ID and path, and strict-loads the complete index before reporting success. It holds the allocator lock through creation and validation, so concurrent planners for different Objectives receive distinct IDs; never predict, copy or reserve a number. A failed post-reservation creation may retire an ID, so never retry by selecting that number yourself.
 
-For example, planners working concurrently on O-014 and O-015 each prepare an ID-free draft and invoke `savepoint create-task --objective O-014 --draft draft-o-014.md` or `savepoint create-task --objective O-015 --draft draft-o-015.md`. The command outputs the assigned ID and path for each; neither planner predicts, copies, or reserves a number. No other agent-run `savepoint` command is permitted.
+## Adding A Goal
 
-## Verification Contract
-
-Apply AGENTS.md's Verification Policy to every implementation. Plan verification and owner validation accordingly; never substitute a Task-only result or waiver for Objective clearance.
-
-## Required Goal Context
-
-Apply AGENTS.md's Required Goal Context. If Next says `Choose a Goal` or `savepoint doctor` reports a missing Goal, report it to the owner; do not infer a selection.
-
-When adding another Goal:
+A missing or unresolved Goal selection is reported to the owner (AGENTS.md Required Goal Context); never infer one. When adding another Goal:
 
 1. Allocate a stable global `G-###` identity from the first unused G number. Keep that identity stable across title or path edits, never silently reuse it, and fail closed on duplicates. Existing R-### identities remain unchanged.
 2. Author the Goal sections `Outcome`, `Why`, `Success Conditions`, and `Boundaries`. The outcome describes the grouped Objectives' result, not whether anything has been published or deployed.
@@ -180,7 +163,7 @@ Open a project awaiting a Check; invoke resume and compare selection, owner-wait
 
 ## Done When
 
-Correct selection and Next; explicit stale/unknown evidence; named malformed/missing selection; unchanged file bytes and mtimes. Apply the Verification Contract for Check evidence; record required owner validation after mandatory integration evidence.
+Correct selection and Next; explicit stale/unknown evidence; named malformed/missing selection; unchanged file bytes and mtimes. Apply `docs/agents/verification.md` for Check evidence; record required owner validation after mandatory integration evidence.
 
 ## Context Files
 
@@ -234,23 +217,11 @@ Evaluate title readability through owner-facing scenarios; field validation alon
 
 ## Commands And Procedures Reconciliation
 
-When reconciling a migrated project's commands and procedures, reference
-`agent-skills/references/commands-and-procedures.md` for the config contract
-and the Health-Check.md mapping; do not restate that mapping here.
+When reconciling a migrated project's commands and procedures, follow `agent-skills/references/commands-and-procedures.md` (config contract and Health-Check.md mapping); do not restate it.
 
 ## Issue Capture
 
-Enter Issue capture as an entry from this workflow when planning surfaces
-drift, a guardrail gap, or follow-up that does not belong inside Design or the
-current Objective's Tasks. Capture it as an Issue instead of folding it into
-Design or a Task plan; see `agent-skills/references/issue-capture.md` for the
-artifact template and rules. This skill may read and reference an Issue; the
-owner may resolve it as `accepted` or reopen a resolved one. This skill does not perform those
-owner actions. When it promotes an Issue's repair into a new Objective, it
-retires that Issue immediately with disposition `escalated` naming the new
-Objective, per "Escalation Retires The Issue" in
-`agent-skills/references/issue-capture.md`. That is the only Issue closure
-this skill performs.
+When planning surfaces drift, a guardrail gap, or follow-up that does not belong inside Design or the current Objective's Tasks, capture it as an Issue (`agent-skills/references/issue-capture.md`) instead of folding it into Design or a Task plan. This skill may read and reference Issues but never performs the owner's `accepted` resolution or reopening. Its only Issue closure: when it promotes an Issue's repair into a new Objective, it retires that Issue immediately as `escalated` naming the new Objective (issue-capture.md, Escalation Retires The Issue).
 
 ## Readiness Gate
 
@@ -265,6 +236,4 @@ When any of these is not yet true, that gap is the thing to resolve next — eit
 
 ## Rules
 
-Write only Design, Guardrails, the current Objective, the next Objective's detailed Tasks, and the routing handoff; never production code or detailed backlog beyond the next Objective. Apply AGENTS.md's lifecycle terminology, verification policy, and owner authority. Keep Task titles distinct from outcomes and Objective references as the artifact contract requires.
-
-After writing any `.savepoint/` record, follow AGENTS.md's CLI Rules (write → resume → fix).
+Write only Design, Guardrails, the current Objective, the next Objective's detailed Tasks, and the routing handoff; never production code or detailed backlog beyond the next Objective. Keep Task titles distinct from outcomes and Objective references as the artifact contract requires.
