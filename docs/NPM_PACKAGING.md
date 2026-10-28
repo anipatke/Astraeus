@@ -76,7 +76,7 @@ Sources (read 2026-10-23): https://docs.npmjs.com/trusted-publishers ; https://d
 
 - The moon visuals and definitions must move into the data package (decision 8); this touches the catalogue and, through it, the demos. Highest-risk part of step 3.
 - Customers using esbuild directly (no Vite, webpack or Parcel) do not get `new URL(..., import.meta.url)` copying by default.
-- The compiled output needs a bundler: it imports CSS, pictures and JSON, so plain Node or bare browser module loading fails. Its relative imports do carry `.js` (I-077).
+- The default (`import`) build needs a bundler: it imports CSS, pictures and JSON, so bare browser module loading fails. Plain Node and Vitest take the `node` export condition instead: generated CSS-free `*.node.js` twins of the root entry and every module that reaches the stylesheet (JSON imports carry import attributes), so they import the package with no inline setting; `npm run check:node-consumer` proves it from the packed package. Its relative imports do carry `.js` (I-077).
 - `__PUBLIC_BUILD__` is a build-time flag in the source; the post step replaces it with `false`.
 - The 120 MB size figure must be corrected in the Objective text.
 - Public-site rights: the `PLANETS_DEMO_ONLY` list in the site config is unaffected, but it names engine picture paths that will change when pictures move.

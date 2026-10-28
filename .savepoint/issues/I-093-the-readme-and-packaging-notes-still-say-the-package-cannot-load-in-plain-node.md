@@ -17,6 +17,10 @@ history:
     kind: observed
     note: 'Found in the O-044 Full Objective Check: three pre-existing sentences became false when T-182 added the `node` export condition, and T-184 did not update them.'
     check: C-118
+  - at: '2026-10-28T11:30:00Z'
+    actor: {role: executor, session: i093-repair}
+    kind: repair_attempted
+    note: 'Reworded the three named sentences: README line 19 (drawing needs a bundler and a browser; Node and Vitest import it for scene definitions, pointing to "Loading in your build and in tests"), docs/NPM_PACKAGING.md line 79 (default import build needs a bundler; the node condition loads generated CSS-free .node.js twins; check:node-consumer proves it), tools/build-packages.mjs header step 5 (only bare browser modules cannot load the default build; Node and Vitest use the step 4b copy). One grep over README, NPM_PACKAGING.md and RELEASING.md found no other sentence saying the package cannot load in Node. Grep for "straight in Node|plain Node" shows no contradiction. npm run lint and npm test run (results in hand-off). Executor evidence only; not verified.'
 ---
 
 # I-093: The README and packaging notes still say the package cannot load in plain Node

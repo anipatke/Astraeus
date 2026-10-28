@@ -9,7 +9,7 @@
 //   4. A named import from a .json file becomes a default import plus a destructuring (webpack 5 allows only the default export of JSON in an ES module).
 //   4b. The engine also gets a CSS-free Node copy of its root entry (`node` export condition, writeNodeCopy).
 //   5. Relative imports and exports get their `.js` (or `/index.js`) written out, because the packages are `"type": "module"` and webpack 5 treats those
-//      as fully specified (I-077). Plain Node and bare browser modules still cannot load the code: a package like `astraeus` imports CSS and pictures.
+//      as fully specified (I-077). Bare browser modules still cannot load the default build (it imports CSS and pictures); plain Node and Vitest load the `.node.js` copy from step 4b.
 import { spawnSync } from "node:child_process";
 import { copyFileSync, cpSync, existsSync, linkSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
