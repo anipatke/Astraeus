@@ -15,7 +15,7 @@ import { FeatureMarkerLayer } from "./FeatureMarkers";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { BodyRefs } from "./sceneBodies";
 import { bodiesMounted, runFrame, type FrameLayers, type FrameState } from "./sceneFrame";
-import { focusLimits } from "./sceneFraming";
+import { focusLimits, liveReach } from "./sceneFraming";
 import { useHostLayer, type useSceneViews } from "./sceneHooks";
 import { readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import { SceneLabelLayer } from "./SceneLabels";
@@ -84,7 +84,7 @@ export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneContr
 /** Wires the canvas's orbit gestures, hover and tap picking to the camera and frame state. */
 export function useScenePointer(canvas: HTMLCanvasElement, runtime: SceneRuntime, controls: SceneControls, catalogue: BodyCatalogue, orbit: { current: OrbitCameraState }, state: { current: FrameState }): void {
   useEffect(() => {
-    const limits = () => focusLimits(bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue }, controls.policy, runtime.cameraReach);
+    const limits = () => focusLimits(bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue }, controls.policy, liveReach(runtime.cameraReach, controls.policy, canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 1));
     return attachScenePointer(canvas, orbit.current, state.current, limits, (id) => controls.onPickObject?.(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, controls]);

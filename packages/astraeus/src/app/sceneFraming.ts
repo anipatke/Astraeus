@@ -54,6 +54,30 @@ function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue)
   return asset.visual.kind === "sphere" || asset.visual.emissive === true ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id) : null;
 }
 
+/** The camera's vertical field of view in degrees (the Canvas's `fov`). */
+export const CAMERA_FOV_DEG = 45;
+/** Room left round a fitted orbit, as a multiple. */
+export const ORBIT_FIT_MARGIN = 1.1;
+/** The far plane of a fitted reach, as a multiple of the reach (what `camera.setReach` uses too). */
+export const FAR_PER_REACH = 2.5;
+
+/**
+ * The camera-to-focus distance at which a sphere of radius `farthestUnits` about the focus fits the canvas from any view direction:
+ * the farthest distance divided by the sine of the narrower half field of view (vertical, or horizontal from the aspect ratio), times the margin.
+ */
+export function fitReach(farthestUnits: number, aspect: number, fovDeg: number = CAMERA_FOV_DEG): number {
+  const halfVertical = (fovDeg * Math.PI) / 360;
+  const halfHorizontal = Math.atan(Math.tan(halfVertical) * aspect);
+  return (ORBIT_FIT_MARGIN * farthestUnits) / Math.sin(Math.min(halfVertical, halfHorizontal));
+}
+
+/** The declared reach as the viewer applies it now: a fitting reach becomes a farthest zoom-out and far plane for the canvas shape `aspect` (width over height); any other is returned as is. */
+export function liveReach(declared: CameraReach, policy: ScalePolicy, aspect: number): CameraReach {
+  if (declared.fitOrbit === undefined) return declared;
+  const maxFocusDistance = fitReach(scaleLength(policy, declared.fitOrbit.farthestKm()), aspect > 0 ? aspect : 1);
+  return { maxFocusDistance, far: maxFocusDistance * FAR_PER_REACH };
+}
+
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
 export function focusLimits(focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): { min: number; max: number } {
   const max = declared.maxFocusDistance ?? Math.max(30, frame.span * 3.5);

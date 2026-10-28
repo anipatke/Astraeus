@@ -134,6 +134,12 @@ export interface CameraReach {
   readonly maxFocusDistance?: number;
   /** Far clipping plane; must exceed `maxFocusDistance` when both are given. */
   readonly far?: number;
+  /**
+   * Fit the farthest zoom-out to one orbit about the Sun instead of a fixed `maxFocusDistance`: `farthestKm` is the orbit's farthest Sun distance
+   * (read once the viewer needs it, after the planet series load). The viewer turns it into a distance for the live canvas shape (`fitReach`) and
+   * re-fits when the canvas changes shape. Takes the place of `maxFocusDistance` and `far`, which a fitting reach does not carry.
+   */
+  readonly fitOrbit?: { readonly farthestKm: () => number };
 }
 
 /** The scene's far plane when an experience declares none. */

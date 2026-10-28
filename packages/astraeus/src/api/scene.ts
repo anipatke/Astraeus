@@ -22,7 +22,7 @@ import type { ExperienceObject } from "../shell/experience";
 import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { EccentricSampling } from "../core/sunCentredSources";
-import { circlesTheSun, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
+import { circlesTheSun, farthestSunDistanceKm, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
 import { readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
@@ -136,9 +136,12 @@ export class SceneCamera {
   #following = false;
   #view: FollowView = {};
   #reach: number | undefined;
+  #fit: string | undefined;
   readonly #has: (id: string) => boolean;
-  constructor(has: (id: string) => boolean) {
+  readonly #circlesSun: (id: string) => boolean;
+  constructor(has: (id: string) => boolean, circlesSun: (id: string) => boolean) {
     this.#has = has;
+    this.#circlesSun = circlesSun;
   }
   /** Opens framed on a body or trajectory already added to the scene and already following it (the viewer's Follow button shows as pressed). */
   follow(id: string, view: FollowView = {}): this {
@@ -160,12 +163,33 @@ export class SceneCamera {
    * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
    * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn.
    * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
+   * `setReach` and `fitOrbit` set the same limit, so the later call wins and replaces the earlier one.
    */
   setReach(distance: number): this {
     if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
     this.#reach = distance;
+    this.#fit = undefined;
     return this;
   }
+  /**
+   * Sets the farthest zoom-out so the whole orbit of a body circling the Sun (a planet, a built-in comet or one from `addBodyFromElements`, already added to the scene) fits the canvas
+   * from any view direction: the orbit's farthest Sun distance divided by the sine of the narrower half field of view of the canvas (vertical 45 degrees, or horizontal from the
+   * canvas's width over height), with 10 percent to spare. The viewer fits again whenever the canvas changes shape, such as a phone turning or a window resizing; the far plane follows
+   * as for `setReach`. The opening view does not move. Any other body throws `bad-camera` naming it; an id not in the scene throws `unknown-body`. `setReach` and `fitOrbit` set the
+   * same limit, so the later call wins and replaces the earlier one.
+   * @example
+   * scene.camera.fitOrbit("c-2025-a1");
+   */
+  fitOrbit(body: BodyRef | BodyId): this {
+    const id = typeof body === "string" ? body : body.id;
+    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.fitOrbit("${id}"): no body or trajectory with that id has been added to the scene`);
+    if (!this.#circlesSun(id)) throw new SceneError("bad-camera", `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`);
+    this.#fit = id;
+    this.#reach = undefined;
+    return this;
+  }
+  /** The body `fitOrbit` fits the zoom-out to, if any. */
+  get fitted(): string | undefined { return this.#fit; }
   /** The farthest zoom-out set with `setReach`, if any. */
   get reach(): number | undefined { return this.#reach; }
   get target(): string | undefined { return this.#target; }
@@ -207,7 +231,7 @@ export class Scene {
   #switches: DisplaySwitchSettings | undefined;
 
   constructor() {
-    this.camera = new SceneCamera((id) => this.#taken(id));
+    this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#bodies.has(id) && circlesTheSun(this.#catalogue, id));
   }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
@@ -476,9 +500,9 @@ export class Scene {
     return sunCentred;
   }
 
-  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene sets no label reach. */
+  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no label limit, so labels stay shown at any distance. */
   #bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean): ExperienceObject {
-    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
+    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred || this.camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
     return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
   }
 
@@ -489,6 +513,14 @@ export class Scene {
       if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
       return id;
     });
+  }
+
+  /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
+  #fitFarthestKm(openUtcMs: number): (() => number) | undefined {
+    const id = this.camera.fitted;
+    if (id === undefined) return undefined;
+    let km: number | undefined;
+    return () => (km ??= farthestSunDistanceKm(this.#catalogue, id, openUtcMs, this.#own.get(id)));
   }
 
   /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
@@ -561,7 +593,7 @@ export class Scene {
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
-      ...viewEntries(timeline, this.camera),
+      ...viewEntries(timeline, this.camera, this.#fitFarthestKm(startUtcMs)),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
@@ -581,11 +613,12 @@ export class Scene {
 }
 
 /** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
-function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
+function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
   const { reach, view, target } = camera;
   return {
     ...(timeline?.loop === true ? { loop: true } : {}),
     ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: reach * 2.5 } }),
+    ...(farthestKm === undefined ? {} : { camera: { fitOrbit: { farthestKm } } }),
     ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
   };
 }
