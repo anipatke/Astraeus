@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // The story calls of the public API (O-041 T-167), proved on a made-up probe (ARCH-03): events with provenance, story panels, the timeline's span and speeds or no timeline,
 // a true-scale-only choice, an opening view that does not follow, a camera menu per body and path, and the state a story quotes.
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Scene, SceneError, earth, moon, readableScale, trueScale, type StoryPanelsInput } from "astraeus";
 import { openClock } from "../src/app/openClock";
 import { scaleChoiceIdsOf } from "../src/app/experienceDefinition";
@@ -186,5 +186,23 @@ describe("stateOf", () => {
     expect(codeOf(() => base().stateOf("ghost", T0))).toBe("unknown-body");
     expect(codeOf(() => base().stateOf("probe", T0 + 99 * MIN))).toBe("bad-time");
     expect(codeOf(() => base().stateOf("probe", "soon"))).toBe("bad-time");
+  });
+});
+
+describe("the opening moment with nothing setting a span", () => {
+  afterEach(() => { vi.useRealTimers(); });
+  it("opens a scene of only bodies at the current time, with the month window kept around it", () => {
+    const now = Date.parse("2026-06-15T12:00:00Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    const definition = new Scene().addBody(earth).addBody(moon).toDefinition();
+    expect(definition.clock.startUtcMs).toBe(now);
+    expect(definition.experience.window).toEqual({ startUtcMs: now - 15 * 86_400_000, endUtcMs: now + 15 * 86_400_000 });
+  });
+  it("still honours setTime and a trajectory's span (the tests above)", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.parse("2026-06-15T12:00:00Z"));
+    expect(base().toDefinition().clock.startUtcMs).toBe(T0);
+    expect(new Scene().addBody(earth).setTime(T0).toDefinition().clock.startUtcMs).toBe(T0);
   });
 });

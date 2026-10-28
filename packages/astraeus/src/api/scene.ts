@@ -584,11 +584,13 @@ function cameraPresetsOf(objects: readonly { readonly id: string; readonly label
 /** The timeline span and the moment the clock opens at; a moment outside a span the caller set is a `bad-timeline`. */
 function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undefined, tracked: readonly TimeBounds[]): { readonly window: TimeBounds; readonly startUtcMs: number } {
   const setTime = (timeline?.none === true ? timeline.atUtcMs : undefined) ?? timeUtcMs;
-  const window = timeline?.window ?? windowOf(tracked, setTime);
+  // With nothing setting a span or a moment, the month window is centred on now and the clock opens at now (not at the window's start).
+  const now = setTime === undefined && timeline?.window === undefined && tracked.length === 0 ? Date.now() : undefined;
+  const window = timeline?.window ?? windowOf(tracked, setTime ?? now);
   if (timeline?.window !== undefined && setTime !== undefined && (setTime < window.startUtcMs || setTime > window.endUtcMs)) {
     throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
   }
-  return { window, startUtcMs: setTime ?? window.startUtcMs };
+  return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
 }
 
 /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */

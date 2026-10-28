@@ -2,10 +2,16 @@
 id: T-183
 title: Open on today and let phones zoom under a story panel
 objective: O-044
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: g012-planning-20261026}
+check_waiver:
+  task: T-183
+  reason: 'Owner said "orchestrate O44"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived. Owner validation (phone look) is still owed before the Full Objective Check.'
+  actor: {role: owner, session: o044-run-20261028}
+  recorded_at: '2026-10-28T10:41:06Z'
 ---
 
 # Open on today and let phones zoom under a story panel
@@ -52,8 +58,14 @@ Focused node and DOM tests; hand-off gates. The owner's look and `npm run check:
 
 ## Technical Evidence
 
-Pending execution.
+- Default time: `spanOf` in `api/scene.ts` reads `Date.now()` once when no setTime, no timeline window and no tracked span exist; the month window is centred on it and the clock opens at it. Test `publicApiStory.test.ts` "the opening moment with nothing setting a span" (fake clock fixed at 2026-06-15T12:00Z): a Sun-less earth+moon scene opens at that instant, window = now +/- 15 days. Unchanged paths: same file's second test (trajectory span opens at T0, setTime opens at T0) and the existing setTime/setTimeline tests (TEST-03), all green.
+- Phone panel: new `shell/useZoomThrough.ts`, used by `StoryPanelView`. On a phone (shell `data-phone="true"`) a wheel over the sheet, when it has nothing to scroll, is preventDefault-ed and re-dispatched as a wheel on the scene canvas, where `attachOrbitGestures` already zooms; a two-finger pinch (touch events) is forwarded as a wheel of 5x the spread change (matching the 0.006/0.0012 sensitivities), negative when spreading. `phone.css` sets `touch-action: pan-y` on the phone story sheet so the browser leaves the pinch to the page. Tests in `domStory.test.ts` "zoom through a phone sheet": wheel reaches the canvas and the sheet stays open; pinch spread/close gives -100/+150; a scrollable sheet keeps its wheel; wide screen forwards nothing. T-181's Escape-yield handler untouched.
+- Overlap: no layout change (no new elements, sizes or positions); only `touch-action` added. 375x667 and 1280x720 geometry is as before, so no new collision (reasoned from CSS, not measured).
+- Gates: lint, typecheck, build, npm test (142 files, 1871 passed, 1 skipped) all green.
+- Owner validation pending: owner's phone look and `npm run check:browser` are owed at the Full Objective Check. Real-device pinch and wheel feel are unverified.
 
 ## Drift Notes
 
 Defer Design notes to T-184 (the O-044 integration step), named in the note.
+
+- For T-184: Design clock/timeline data flow should say a scene with no span and no setTime opens at now (window now +/- 15 days). `src/shell/` map: story sheet forwards phone zoom to the canvas via `useZoomThrough`.

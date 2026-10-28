@@ -159,7 +159,7 @@
   animation: story-sheet-in var(--drawer-ms, 240ms) var(--drawer-ease);
 }
 [data-phone="true"] .info-panel { z-index: 8; background: #0e0e13; }
-[data-phone="true"] .story-panel { z-index: 4; }
+[data-phone="true"] .story-panel { z-index: 4; touch-action: pan-y; } /* a pinch reaches the scene beneath (useZoomThrough); a vertical drag still scrolls or dismisses */
 [data-phone="true"] .info-panel-header h2 { margin: 0; font-size: 22px; }
 
 /* ---- The Developer panel below the pill, above the timeline ---- */

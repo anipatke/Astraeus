@@ -145,3 +145,58 @@ describe("the two settings", () => {
     expect(panelEl()).not.toBeNull();
   });
 });
+
+describe("zoom through a phone sheet", () => {
+  /** Puts a canvas where the app's scene sits and records the wheel events that reach it, as the camera control would hear them. */
+  const withCanvas = () => {
+    const canvas = document.createElement("canvas");
+    m.container.querySelector(".shell-canvas")!.append(canvas);
+    const heard: WheelEvent[] = [];
+    canvas.addEventListener("wheel", (event) => heard.push(event));
+    return heard;
+  };
+  const touches = (type: string, spread: number) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { touches: [{ clientX: 0, clientY: 0 }, { clientX: spread, clientY: 0 }] });
+    return event;
+  };
+  it("forwards a wheel over the open phone sheet to the scene and keeps the sheet open", () => {
+    m = mountShell({ phone: true });
+    const heard = withCanvas();
+    m.requestPanel(panels[0].id);
+    const wheel = new WheelEvent("wheel", { deltaY: 120, bubbles: true, cancelable: true });
+    panelEl()!.dispatchEvent(wheel);
+    expect(heard.map((event) => event.deltaY)).toEqual([120]);
+    expect(wheel.defaultPrevented).toBe(true);
+    expect(panelEl()).not.toBeNull();
+  });
+  it("forwards a pinch as a zoom: spreading zooms in (negative wheel), closing zooms out", () => {
+    m = mountShell({ phone: true });
+    const heard = withCanvas();
+    m.requestPanel(panels[0].id);
+    const sheet = panelEl()!;
+    sheet.dispatchEvent(touches("touchstart", 100));
+    sheet.dispatchEvent(touches("touchmove", 120));
+    sheet.dispatchEvent(touches("touchmove", 90));
+    expect(heard.map((event) => event.deltaY)).toEqual([-100, 150]);
+  });
+  it("leaves a sheet with something to scroll its own wheel", () => {
+    m = mountShell({ phone: true });
+    const heard = withCanvas();
+    m.requestPanel(panels[0].id);
+    const sheet = panelEl()!;
+    Object.defineProperty(sheet, "scrollHeight", { value: 600 });
+    Object.defineProperty(sheet, "clientHeight", { value: 300 });
+    const wheel = new WheelEvent("wheel", { deltaY: 120, bubbles: true, cancelable: true });
+    sheet.dispatchEvent(wheel);
+    expect(heard).toEqual([]);
+    expect(wheel.defaultPrevented).toBe(false);
+  });
+  it("does nothing on a wide screen, where the side panel is beside the scene", () => {
+    m = mountShell();
+    const heard = withCanvas();
+    m.requestPanel(panels[0].id);
+    panelEl()!.dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true, cancelable: true }));
+    expect(heard).toEqual([]);
+  });
+});

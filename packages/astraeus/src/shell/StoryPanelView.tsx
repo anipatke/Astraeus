@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Sources } from "./Sources";
 import { BADGE_LABELS, type PanelBadge, type StoryPanel } from "./storyPanels";
 import { useSwipeToDismiss } from "./useSwipeToDismiss";
+import { useZoomThrough } from "./useZoomThrough";
 
 /** A small pill saying how far to trust a panel's facts, after Planetary Explorer's Badge. */
 export function StoryBadge({ badge }: { readonly badge: PanelBadge }) {
@@ -23,6 +24,7 @@ interface Props {
 export function StoryPanelView({ panel, holding, onClose, onContinue }: Props) {
   const sheet = useRef<HTMLElement | null>(null);
   useSwipeToDismiss(sheet, onClose);
+  useZoomThrough(sheet);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);

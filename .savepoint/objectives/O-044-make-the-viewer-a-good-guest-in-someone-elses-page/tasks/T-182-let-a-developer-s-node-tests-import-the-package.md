@@ -8,7 +8,7 @@ owner_validation: {required: false}
 planned_by: {role: planner, session: g012-planning-20261026}
 check_waiver:
   task: T-182
-  reason: 'Owner said \"orchestrate O44\"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  reason: 'Owner said "orchestrate O44"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
   actor: {role: owner, session: o044-run-20261028}
   recorded_at: '2026-10-28T10:38:00Z'
 ---
