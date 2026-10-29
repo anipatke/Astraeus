@@ -1,7 +1,7 @@
 ---
 id: O-045
 title: Answer what outside sites had to compute themselves
-status: in_progress
+status: done
 depends_on: [O-044]
 release: G-012
 ---
