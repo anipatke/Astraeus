@@ -2,13 +2,19 @@
 id: I-026
 title: The Milky Way picture is too soft beside the catalogue stars
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
   at: '2026-10-15T07:30:00Z'
 tasks: [T-053]
-checks: [C-028]
+checks: [C-028, C-122]
+resolution:
+  disposition: verified
+  check: C-122
+  actor: {role: checker, session: i026-check-20261029}
+  at: '2026-10-29T11:10:00Z'
+  reason: Repair proven by C-122 (CLEAR).
 history:
   - at: '2026-10-15T07:30:00Z'
     actor: {role: owner, session: owner-chat-o011-t053-sky-look-20261015}
@@ -46,6 +52,11 @@ history:
     actor: {role: owner, session: i026-repair-20261029}
     kind: owner_decision
     note: 'Owner, 2026-10-29, after looking at the repaired picture on the localhost:5490 preview (app.html?milkyway=on): "Keep it off by default (Recommended)"; earlier the same day chose the 3840 px picture. Recorded by the coordinator.'
+  - at: '2026-10-29T11:10:00Z'
+    actor: {role: checker, session: i026-check-20261029}
+    kind: rechecked
+    note: 'C-122 CLEAR. Shipped milky-way.jpg matches the freshly fetched Commons 3840 px thumbnail (NCC 0.9996, mean 0.088 vs 0.087: undimmed), 3840x1920, 530,833 B (was 3,703,436 B). Credits correct in NOTICE, pictures.ts, sky.ts, assets page, root README, DONOR_PROVENANCE. No code reference to the ESO halves; trial switch and files gone. Shader dims by linear x 0.04, milkyWayBrightness scales it; default equals the trial. Own probe: LMC 0.21 deg, SMC 0.24 deg. Default off. Gates: lint, typecheck, build, test (1886 passed 1 skipped), check:pack, check:engine-alone, check:browser all pass. Stale descriptive lines captured as I-095.'
+    check: C-122
 ---
 
 # I-026: The Milky Way picture is too soft beside the catalogue stars
