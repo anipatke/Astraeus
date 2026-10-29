@@ -2,15 +2,21 @@
 id: I-094
 title: stateOf is documented as giving velocity for every body, but most bodies return none
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-120
   actor: {role: checker, session: o045-full-check-20261029}
   at: '2026-10-29T10:34:00Z'
 tasks: [T-185, T-188]
-checks: [C-120]
+checks: [C-120, C-121]
 severity: low
+resolution:
+  disposition: verified
+  check: C-121
+  actor: {role: checker, session: o045-recheck-20261029}
+  at: '2026-10-29T10:50:00Z'
+  reason: Repair proven by C-121 (CLEAR).
 history:
   - at: '2026-10-29T10:34:00Z'
     actor: {role: checker, session: o045-full-check-20261029}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: i094-repair}
     kind: repair_attempted
     note: 'Doc route (coordinator choice): README stateOf row and the stateOf doc comment now say position km always, velocity km/s only where the source provides it (addTrajectory paths with velocity samples or provider velocities; fitted moon Io), not planets, Earth, Sun, built-in Swift-Tuttle or elements bodies; the peak-speed promise is dropped. Other claims grep (README, CHANGELOG, Design.md): none claim velocity for every body (Design.md:38 already states composed states carry position only). Awaiting savepoint-check verification.'
+  - at: '2026-10-29T10:50:00Z'
+    actor: {role: checker, session: o045-recheck-20261029}
+    kind: rechecked
+    note: 'C-121 CLEAR: at HEAD b9a893f2 a fresh probe of stateOf gives velocityKmS for io and a path with sampled velocities (and a provider path whose States carry it), and none for sun, earth, moon, mars, jupiter, swift-tuttle, an elements body or a path without velocities, matching the new README:65 row and the scene.ts stateOf doc comment; "peak speed" is gone; no other README, CHANGELOG or Design.md sentence promises velocity for any body; git diff 129777ee..HEAD touches only the two doc lines, this Issue and the router; lint, typecheck, build, npm test (incl. apiReference.test.ts), test:full, check:engine-alone, check:pack and check:node-consumer pass.'
+    check: C-121
 ---
 
 # I-094: stateOf is documented as giving velocity for every body, but most bodies return none
