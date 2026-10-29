@@ -1,5 +1,5 @@
 import { createEvents, type TimelineEvent } from "../core/events";
-import type { Provenance } from "../core/provenance";
+import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
 import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../shell/storyPanels";
 import { SceneError } from "./errors";
@@ -12,6 +12,8 @@ export interface EventInput {
   readonly time: TimeInput;
   /** A free word the timeline may group by, such as "launch". */
   readonly type?: string;
+  /** Where this event's time comes from. Shown with the event; an event without one shows the `provenance` of `addEvents`. Malformed: `addEvents` throws "bad-event" naming the event. */
+  readonly provenance?: Provenance;
 }
 
 /** Options of `addEvents`. */
@@ -53,6 +55,16 @@ export interface StoryPanelsInput {
   /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
   readonly panels: readonly unknown[];
+}
+
+/** Checks a provenance given to `addEvents` (for the whole batch, or for the event `eventId`) and returns it frozen; throws "bad-event" when malformed. */
+export function eventProvenanceOf(value: unknown, eventId?: string): Provenance {
+  const where = eventId === undefined ? "addEvents: provenance" : `addEvents: event "${eventId}" provenance`;
+  try {
+    return createProvenance(value as Provenance);
+  } catch (error) {
+    throw new SceneError("bad-event", `${where} is malformed (${error instanceof Error ? error.message : String(error)})`);
+  }
 }
 
 /** The events merged with `inputs`, sorted by time; each needs a distinct non-empty id and label and a valid moment. */

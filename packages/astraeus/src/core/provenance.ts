@@ -1,7 +1,7 @@
-/** What kind of source a path or body position comes from. */
-export type ProvenanceSourceType = "ephemeris" | "observed" | "reconstructed" | "illustrative";
+/** What kind of source a path or body position comes from. `"modelled"` is a computed result of a stated model (shown as "Modelled", the same word as the story-panel badge). */
+export type ProvenanceSourceType = "ephemeris" | "observed" | "reconstructed" | "modelled" | "illustrative";
 
-const SOURCE_TYPES: readonly ProvenanceSourceType[] = ["ephemeris", "observed", "reconstructed", "illustrative"];
+const SOURCE_TYPES: readonly ProvenanceSourceType[] = ["ephemeris", "observed", "reconstructed", "modelled", "illustrative"];
 
 /** Where a path or body position came from and how far to trust it: `sourceType`, the `sources`, the `accuracy` and `notes`. Pass one as `addTrajectory({ provenance })`. Never affects State. */
 export interface Provenance {

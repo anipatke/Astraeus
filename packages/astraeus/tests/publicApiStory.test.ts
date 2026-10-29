@@ -3,6 +3,7 @@
 // a true-scale-only choice, an opening view that does not follow, a camera menu per body and path, and the state a story quotes.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Scene, SceneError, earth, moon, readableScale, trueScale, type StoryPanelsInput } from "astraeus";
+import { infoView } from "../src/shell/infoModel";
 import { openClock } from "../src/app/openClock";
 import { scaleChoiceIdsOf } from "../src/app/experienceDefinition";
 import { $, mountShell, type Mounted } from "./domSetup";
@@ -24,6 +25,17 @@ describe("addEvents", () => {
     expect(definition.experience.events.map((event) => event.id)).toEqual(["early", "late"]);
     expect(definition.experience.events[1]).toMatchObject({ timeUtcMs: T0 + 20 * MIN, type: "burn" });
     expect(definition.experience.eventProvenance?.sources).toEqual(["A made-up log"]);
+  });
+  it("shows an event's own provenance, else the batch's, and refuses a malformed one naming the event (O-045 T-187)", () => {
+    const modelled = { sourceType: "modelled" as const, sources: ["A made-up model"], accuracy: "Computed.", notes: "Invented." };
+    const batch = { sourceType: "observed" as const, sources: ["A made-up log"], accuracy: "To the minute.", notes: "Invented." };
+    const experience = base().addEvents([{ id: "calc", label: "Calculated", time: T0 + MIN, provenance: modelled }, { id: "seen", label: "Seen", time: T0 + 2 * MIN }], { provenance: batch }).toDefinition().experience;
+    expect(infoView(experience, { kind: "event", id: "calc" })!.provenance).toMatchObject({ sourceType: "modelled", status: "Modelled", sources: ["A made-up model"] });
+    expect(infoView(experience, { kind: "event", id: "seen" })!.provenance).toMatchObject({ sourceType: "observed", status: "Observed" });
+    const bad = { ...modelled, sourceType: "guessed" };
+    expect(codeOf(() => base().addEvents([{ id: "calc", label: "C", time: T0, provenance: bad as never }]))).toBe("bad-event");
+    expect(messageOf(() => base().addEvents([{ id: "calc", label: "C", time: T0, provenance: bad as never }]))).toContain('event "calc"');
+    expect(codeOf(() => base().addEvents([{ id: "ok", label: "C", time: T0 }], { provenance: bad as never }))).toBe("bad-event");
   });
   it("starts with no events and no provenance", () => {
     const definition = base().toDefinition();

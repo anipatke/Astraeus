@@ -70,7 +70,13 @@ export interface GroupInput {
   readonly refillAfterMs?: number;
   /** Milliseconds of each frame the dots layer may spend computing the next fill ahead of time, so a large group does not hitch; 0 or a positive number. 0 makes every fill whole in one frame. Presentation only. Default 8. */
   readonly refillSliceMs?: number;
-  /** Where the orbit list came from. The group still marks the position along each orbit as illustrative. Defaults to an "as supplied" notice. */
+  /**
+   * Where the orbit list came from. The group's own card always shows `sourceType` "illustrative", because the position along each orbit is a drawing choice;
+   * the orbits' `sourceType` here is kept in the accuracy line as "Orbit elements are as listed (<sourceType>); the position along each orbit is illustrative."
+   * Your `sources` stay, and the group appends this note to your `notes`: "Each orbit's shape and orientation come from its record, but the records give no
+   * position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed
+   * two-body motion about the centre." (plus a sentence naming the clump, when `clump` is set). Defaults to an "as supplied" notice.
+   */
   readonly provenance?: Provenance;
   /** One or two plain sentences for the info card; a count and placement sentence when absent. */
   readonly description?: string;

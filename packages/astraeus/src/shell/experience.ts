@@ -69,4 +69,6 @@ export interface ExperienceConfig {
   readonly bodyFeatures?: readonly BodyFeatureSet[];
   /** Where the event times come from, shown with every event. */
   readonly eventProvenance?: Provenance;
+  /** Provenance of single events by event id; an event listed here shows it instead of `eventProvenance`. */
+  readonly eventProvenanceById?: Readonly<Record<string, Provenance>>;
 }

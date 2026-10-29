@@ -208,9 +208,23 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   });
 
   it("gives every other object the distance row it had", () => {
-    const metrics = definition.createMetrics({ clock: new SimulationClock(peak), resolver, catalogue });
+    // The viewer builds its resolver from the definition's own catalogue (App.tsx), which holds an elements body.
+    const own = definition.catalogue ?? catalogue;
+    const metrics = definition.createMetrics({ clock: new SimulationClock(peak), resolver: createSceneResolver(createOrbAstronomyAdapter(), own), catalogue: own });
+    const gained = !catalogue.has(parent);
     old.times.forEach((t: number, k: number) => {
-      for (const id of ["earth", "sun", "mars", parent]) expect(plain(metrics(id, t)) as unknown as Rec[], `${id} at ${t}`).toEqual(old.metricRows[id][k]);
+      for (const id of ["earth", "sun", "mars", parent]) {
+        const rows = plain(metrics(id, t)) as unknown as Rec[];
+        // O-045 T-187: a body added from an elements record now shows "Distance from Sun" like the built-in comet; nothing else about its row changes.
+        if (gained && id === parent) {
+          expect(rows.map((row) => row.label), `${id} at ${t}`).toEqual(["Distance from Sun", ...old.metricRows[id][k].map((row: Rec) => row.label)]);
+          expect(rows.slice(1), `${id} at ${t}`).toEqual(old.metricRows[id][k]);
+        } else if (gained && id === "sun") {
+          // The Sun, as the comet's parent, also lists its distance to the comet, after the rows it had.
+          expect(rows.slice(0, -1), `${id} at ${t}`).toEqual(old.metricRows[id][k]);
+          expect(rows.at(-1)!.id, `${id} at ${t}`).toBe(`sun-to-${parent}`);
+        } else expect(rows, `${id} at ${t}`).toEqual(old.metricRows[id][k]);
+      }
     });
   });
 

@@ -9,6 +9,7 @@ export const PROVENANCE_STATUS: Readonly<Record<ProvenanceSourceType, string>> =
   ephemeris: "Ephemeris",
   observed: "Observed",
   reconstructed: "Reconstructed",
+  modelled: "Modelled",
   illustrative: "Illustrative",
 };
 
@@ -100,10 +101,11 @@ function objectInfo(experience: ExperienceConfig, target: InfoTarget): InfoView 
 function eventInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
   const event = experience.events.find((candidate) => candidate.id === target.id);
   if (event === undefined) return null;
+  const source = experience.eventProvenanceById?.[event.id] ?? experience.eventProvenance;
   return {
     target,
     title: event.label,
     subtitle: formatUtcTimestamp(event.timeUtcMs),
-    provenance: experience.eventProvenance === undefined ? null : provenanceView(experience.eventProvenance),
+    provenance: source === undefined ? null : provenanceView(source),
   };
 }

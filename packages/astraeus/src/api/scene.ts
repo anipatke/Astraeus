@@ -18,7 +18,7 @@ import { needsPlanetSeries } from "../app/planetNeeds";
 import type { TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
-import type { ExperienceObject } from "../shell/experience";
+import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { EccentricSampling } from "../core/sunCentredSources";
@@ -34,7 +34,7 @@ import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
-import { eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { eventProvenanceOf, eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -226,6 +226,7 @@ export class Scene {
   #scaleOnly = false;
   #events: readonly TimelineEvent[] = [];
   #eventProvenance: Provenance | undefined;
+  #eventOwnProvenance = new Map<string, Provenance>();
   #panels: StoryPanelsInput | undefined;
   #timeline: TimelineSetting | undefined;
   #switches: DisplaySwitchSettings | undefined;
@@ -337,10 +338,14 @@ export class Scene {
     return this;
   }
 
-  /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event. May be called more than once. */
+  /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
-    this.#events = eventsOf(events, this.#events);
-    if (options.provenance !== undefined) this.#eventProvenance = options.provenance;
+    const merged = eventsOf(events, this.#events);
+    const own = events.flatMap((event): [string, Provenance][] => event.provenance === undefined ? [] : [[event.id, eventProvenanceOf(event.provenance, event.id)]]);
+    const batch = options.provenance === undefined ? undefined : eventProvenanceOf(options.provenance);
+    this.#events = merged;
+    for (const [id, provenance] of own) this.#eventOwnProvenance.set(id, provenance);
+    if (batch !== undefined) this.#eventProvenance = batch;
     return this;
   }
 
@@ -506,6 +511,14 @@ export class Scene {
     return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
   }
 
+  /** The event provenance entries of the experience: the batch's, and each event's own. */
+  #eventProvenanceEntries(): Pick<ExperienceConfig, "eventProvenance" | "eventProvenanceById"> {
+    return {
+      ...(this.#eventProvenance === undefined ? {} : { eventProvenance: this.#eventProvenance }),
+      ...(this.#eventOwnProvenance.size === 0 ? {} : { eventProvenanceById: Object.fromEntries(this.#eventOwnProvenance) }),
+    };
+  }
+
   /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
   #sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
     return [...this.#orbits].filter((id) => ORBITS[id] === undefined).map((id) => {
@@ -569,6 +582,7 @@ export class Scene {
     const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
     const layers: GroupLayer[] = [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))];
     const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
+    const catalogue = this.#catalogue;
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
@@ -578,7 +592,7 @@ export class Scene {
         cameraPresets: cameraPresetsOf(labelled),
         ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
         events: this.#events,
-        ...(this.#eventProvenance === undefined ? {} : { eventProvenance: this.#eventProvenance }),
+        ...this.#eventProvenanceEntries(),
         ...(storyPanels === undefined ? {} : { storyPanels }),
         ...(timeline?.none === true ? { hideTimeline: true } : {}),
         window,
@@ -597,7 +611,7 @@ export class Scene {
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
-        const catalogued = bodyMetrics(resolver, ids, ["distance"]);
+        const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
         const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
         return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? this.#groupMetrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },

@@ -2,6 +2,10 @@
 // published elements, planet enlargement, a label that starts off, label reach at solar-system distances, and named errors.
 import { describe, expect, it, vi } from "vitest";
 import { Scene, SceneError, earth, mars, mercury, sun, type ElementsBodyRecord } from "astraeus";
+import { catalogue as builtIn } from "../src/assets/catalogue";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { createStateResolver } from "../src/core/stateResolver";
+import { bodyMetrics } from "../src/app/bodyMetrics";
 import { sunCentredOf, visualOverridesOf } from "../src/app/experienceDefinition";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
@@ -173,6 +177,24 @@ describe("the solar-system scale for an enlarged body", () => {
   it("is offered second in place of the readable scale when a Sun-centred scene enlarges a body", () => {
     expect(choices(solar().addBody(earth, { enlarge: 20 }))).toEqual(["true-scale", "solar-system"]);
   });
+  it("gives the card the same live Distance from Sun readout as a built-in comet (O-045 T-187)", () => {
+    const definition = solar().addBody(earth).addBodyFromElements(comet()).toDefinition();
+    const own = definition.catalogue!;
+    const resolver = createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter());
+    const metrics = definition.createMetrics({ resolver, catalogue: own, clock: undefined as never });
+    const at = (time: number) => metrics("made-up-comet", time).find((metric) => metric.label === "Distance from Sun") as { value: number; unit: string; digits: number; context: string };
+    const first = at(T0);
+    expect(first).toMatchObject({ kind: "distance", id: "made-up-comet-range", unit: "km", digits: 0 });
+    expect(first.context).toMatch(/^centre to centre/);
+    expect(first.value).toBeGreaterThan(0.1 * 149_597_870.7);
+    expect(first.value).toBeLessThan(11.4 * 149_597_870.7);
+    expect(at(T0 + 100 * DAY).value).not.toBe(first.value);
+    // Swift-Tuttle, built in, has the same shape of readout (its format is the model).
+    const builtInResolver = createStateResolver(builtIn.definitions(), builtIn.sources(), createOrbAstronomyAdapter());
+    const swift = bodyMetrics(builtInResolver, ["sun", "swift-tuttle"], ["distance"])("swift-tuttle", T0).find((metric) => metric.label === "Distance from Sun");
+    expect(swift).toMatchObject({ kind: "distance", id: "swift-tuttle-range", unit: "km", digits: 0 });
+  });
+
   it("leaves scenes without an enlarged body, and scenes not centred on the Sun, unchanged", () => {
     expect(choices(solar().addBody(earth))).toEqual(["true-scale", "readable-scale"]);
     expect(choices(new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0))).toEqual(["true-scale", "readable-scale"]);
