@@ -2,13 +2,19 @@
 id: I-095
 title: Docs and comments still describe the old ESO Milky Way picture
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-122
   actor: {role: checker, session: i026-check-20261029}
   at: '2026-10-29T11:10:00Z'
-checks: [C-122]
+checks: [C-122, C-123]
+resolution:
+  disposition: verified
+  check: C-123
+  actor: {role: checker, session: i095-check-20261029}
+  at: '2026-10-29T12:00:00Z'
+  reason: Repair proven by C-123 (CLEAR).
 severity: low
 history:
   - at: '2026-10-29T11:10:00Z'
@@ -20,6 +26,11 @@ history:
     actor: {role: executor, session: i095-release-prep}
     kind: repair_attempted
     note: 'Fixed docs/architecture/demo-contracts.md:28 (now the Kevinmloch Gaia EDR3 render, CC BY-SA 4.0, I-026 resolved in C-122), the pictures.ts:5 example name (milky-way) and the SkyView.ts PICTURE_DIM comment (flat scale 0.04^(1/2.2) = 0.2315 of the stored value; shader unchanged). Design.md line already fixed by the planner. Final grep of eso0932a, milky-way-left and milky-way-right outside historical records finds only the 0.3.0 astraeus-data changelog line saying the names are gone; dated entries in docs/DONOR_PROVENANCE.md, docs/ASTRAEUS_SPIKE_04*.md and docs/ASTRAEUS_SIMPLIFY_CANDIDATES.md left as history. Not resolved; awaiting a Check.'
+  - at: '2026-10-29T12:00:00Z'
+    actor: {role: checker, session: i095-check-20261029}
+    kind: rechecked
+    note: 'C-123 CLEAR: the four lines are fixed (PICTURE_DIM comment checked against the unchanged shader, 0.04^(1/2.2) = 0.2315), grep finds no current-state eso0932 or milky-way-left/right, gates pass.'
+    check: C-123
 ---
 
 # I-095: Docs and comments still describe the old ESO Milky Way picture
