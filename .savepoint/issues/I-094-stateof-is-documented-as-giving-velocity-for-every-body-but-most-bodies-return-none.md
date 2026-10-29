@@ -17,6 +17,10 @@ history:
     kind: observed
     note: 'Found in the O-045 Full Objective Check: T-185 widened stateOf to catalogue and elements bodies, whose state sources give position only; the README row (rewritten in T-188) and the stateOf doc comment still promise velocity for any body.'
     check: C-120
+  - at: '2026-10-29T11:00:00Z'
+    actor: {role: executor, session: i094-repair}
+    kind: repair_attempted
+    note: 'Doc route (coordinator choice): README stateOf row and the stateOf doc comment now say position km always, velocity km/s only where the source provides it (addTrajectory paths with velocity samples or provider velocities; fitted moon Io), not planets, Earth, Sun, built-in Swift-Tuttle or elements bodies; the peak-speed promise is dropped. Other claims grep (README, CHANGELOG, Design.md): none claim velocity for every body (Design.md:38 already states composed states carry position only). Awaiting savepoint-check verification.'
 ---
 
 # I-094: stateOf is documented as giving velocity for every body, but most bodies return none
