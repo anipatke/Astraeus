@@ -4,6 +4,16 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- Answers for sites (O-045). `Scene.stateOf(id, time)` now answers for every body in the scene (ready-made bodies, moons, elements bodies), not only `addTrajectory` paths; they answer at any date, only a path refuses a moment outside it (`bad-time`), and a planet answers once the planet series are loaded (`missing-data` before). Its unknown-body message now reads "no body or trajectory with that id". New `Scene.provenanceOf(id)` returns the body's `Provenance`, which gains optional `accuracyClass` and `maxErrorFraction`: built-in Swift-Tuttle's is measured (0.00857); an elements body's is the limit of its class (0.01 approximate, 0.05 indicative), an upper bound and not a measured figure. New root exports: `APPROXIMATE_LIMIT_FRACTION`, `INDICATIVE_LIMIT_FRACTION`, `classifyPositionError` and `parseElementsBodyRecord`.
+
+- Fit the zoom-out to an orbit (O-045). New `camera.fitOrbit(body)` sets the farthest zoom-out so the body's whole orbit fits the canvas from any direction, and re-fits when the canvas changes shape; the far plane is 2.5 times the reach. `setReach` and `fitOrbit` set the same limit, the later call wins. The opening view is unchanged except that it is clamped to the limit like any other. Labels are not limited in a fitted scene. `SceneError` `bad-camera` for a body that does not circle the Sun.
+
+- Event labels (O-045). New provenance source type `"modelled"` (shown as "Modelled"). `addEvents` events take their own `provenance`, which wins over the batch's. Batch and per-event provenance are now validated: a malformed one throws `bad-event` (the batch one was not checked before). A group's info card shows "illustrative" as its source type, with the elements' type in the accuracy sentence (documented).
+
+- Visible change (O-045). A body added with `addBodyFromElements` now has a live "Distance from Sun" row on its info card, and in the Geminids demo the Sun's card also lists "Distance to Phaethon".
+
+- Fix (O-045 follow-up to O-044). `setTimeline({ none: true })` with no `at` (and no `setTime` or trajectory) now opens on the current time, as the default-time entry says for a scene with no timeline.
+
 - A better guest in a host page (O-044). `mount` and `AstraeusScene` no longer change `document.title`. The viewer's Escape handlers (story panel, phone drawer, switch panel) ignore a keydown the host already stopped with `preventDefault()`. The mount element and the `AstraeusScene` wrapper get `isolation: isolate`, so the viewer's `z-index` values (0 to 9) stay inside it; a `style` you pass to `AstraeusScene` can override it, and `mount` does not restore the element's old `isolation` on `unmount`.
 
 - Node loading (O-044), no API change. The package's JSON imports now carry `with { type: "json" }`, and the root export has a `node` condition (order: types, node, import) that points at copies without the stylesheet import, so Node and Vitest's Node environment import `astraeus` with no inline setting. Bundlers keep the normal build. jsdom and happy-dom Vitest environments also take the `node` condition, so they do not load the viewer's CSS.

@@ -2,10 +2,15 @@
 id: T-188
 title: Document the new calls and close out the design notes
 objective: O-045
-status: planned
+status: done
 depends_on: [{task: T-185, requires: clear}, {task: T-186, requires: clear}, {task: T-187, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o045-planning-20261028}
+check_waiver:
+  task: T-188
+  reason: 'Owner said "orchestrate O45"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o045-run-20261028}
+  recorded_at: '2026-10-29T10:23:36Z'
 ---
 
 # Document the new calls and close out the design notes
@@ -54,7 +59,15 @@ Hand-off gates (the doc-comment test covers the API reference). Evaluated later 
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-10-29. Extra reads: README.md line 101 area and `src/api/scene.ts` (stateOf, setReach, fitOrbit, spanOf) to verify each claim; none beyond Context Files otherwise.
+
+Changed: `packages/astraeus/README.md` (stateOf row rewritten; new `provenanceOf` and `camera.fitOrbit` rows; limits, `classifyPositionError`, `parseElementsBodyRecord` example; `modelled`, per-event provenance and `bad-event` in the `addEvents` row; group card and elements "Distance from Sun" notes; `MoonFamilyPanel` added to the files loaded later), `packages/astraeus/CHANGELOG.md` (five Unreleased entries, including the visible Geminids "Distance to Phaethon" change and the `setTimeline({ none: true })` opens-on-now fix), `.savepoint/Design.md` (one paragraph in Interfaces and Data Flow), doc comment only in `src/api/scene.ts` (`stateOf` said any moment outside a body's data threw `bad-time`; now says only a path does).
+
+Per criterion: 1 README examples for stateOf, provenanceOf, limits, classifyPositionError, parseElementsBodyRecord, fitOrbit, modelled and per-event provenance. 2 CHANGELOG lists each addition and behaviour change. 3 Design reconciled (drift accounting below). 4 Claims checked against `scene.ts`, `index.ts` (export names are `APPROXIMATE_LIMIT_FRACTION` and `INDICATIVE_LIMIT_FRACTION`), `elementsBody.ts` (`classifyPositionError` returns "approximate", "indicative" or null) and `spanOf`. 5 Gates: lint clean; typecheck clean; build ok; npm test 144 files, 1886 passed, 1 skipped.
+
+Drift accounting: T-185 bad-time scope, class-limit fraction, unknown-body message: reflected in Design paragraph; `rebuildComparison.test.ts` edit: non-architectural (test fixture update); Provenance fields and stateOf coverage: reflected. T-186 CameraReach.fitOrbit/liveReach, label limit, opening clamp: reflected. T-187 rebuild test edit: non-architectural (test); batch event provenance validated and `modelled`: reflected; group card "illustrative": reflected.
+
+Unverified: nothing run in a browser (by rule).
 
 ## Drift Notes
 

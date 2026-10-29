@@ -380,8 +380,8 @@ export class Scene {
   /**
    * The state of a body in the scene at a moment (position in km, velocity in km/s), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
    * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a peak speed or a
-   * distance from the Sun, come from here. An id the scene does not hold throws `unknown-body`; a moment outside the body's data range throws `bad-time`; a planet before the
-   * planet series have loaded (they load at mount) throws `missing-data`.
+   * distance from the Sun, come from here. An id the scene does not hold throws `unknown-body`. Ready-made and elements bodies answer at any date (they have no data cut-off); only a moment outside an
+   * `addTrajectory` path throws `bad-time`. A planet before the planet series have loaded (they load at mount) throws `missing-data`.
    * @example
    * const sunDistanceKm = Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm);
    */
