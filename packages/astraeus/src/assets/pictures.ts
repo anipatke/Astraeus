@@ -2,7 +2,7 @@ import type { TextureRef } from "./licence";
 import type { BodyVisual } from "./visual";
 
 /**
- * Pictures that ship in a data package (`astraeus-data`) rather than in the engine, by name: a body id (`titan`), `venus-8k`, `milky-way-left`.
+ * Pictures that ship in a data package (`astraeus-data`) rather than in the engine, by name: a body id (`titan`), `venus-8k`, `milky-way`.
  * Each carries its own licence record, so the credit travels with the file (PROV-02). A picture that was never registered is simply absent:
  * the body is drawn as a flat colour, the sky without its Milky Way (DATA-01: nothing is invented to fill the gap).
  */

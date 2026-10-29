@@ -1,6 +1,6 @@
 {
   "name": "astraeus",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A 3D solar system engine for the browser: place bodies and recorded paths in a scene, mount it, and get time controls, camera, scale choice and body info. Planet positions and the main pictures included.",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "astraeus-data",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pictures for the Astraeus engine: maps of the moons, the 8k Venus map and the Milky Way. Optional; the engine draws without them.",
   "license": "MIT",
   "type": "module",

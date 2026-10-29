@@ -10,8 +10,8 @@ const PICTURE_GAIN = 1;
 /**
  * The picture is a bright render, so it is dimmed the way Star Explorer dims its sky texture (an sRGB texture times a dark grey, drawn
  * additively): decode to linear light, multiply, encode again. 0.04 gives a mean grey of about 2.2%, the level of the owner's
- * 2026-10-27 trial (linear x 0.04, which at the old gain of 0.5 was written x 2). Faint values fall far more than bright ones,
- * which is what keeps the band smooth and subtle. Look-tuning is the Milky Way brightness setting, which scales the result.
+ * 2026-10-27 trial (linear x 0.04, which at the old gain of 0.5 was written x 2). With a pure 2.2 power the decode and encode cancel,
+ * so this is a flat scale of the stored (sRGB) value by 0.04^(1/2.2), about 0.2315, the same for faint and bright values. Look-tuning is the Milky Way brightness setting, which scales the result.
  */
 const PICTURE_DIM = 0.04;
 /** A fixed render-frame direction used to read the sky back: where it lands on screen depends only on the camera orientation. */

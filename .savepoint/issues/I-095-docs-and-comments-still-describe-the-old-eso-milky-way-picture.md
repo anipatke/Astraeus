@@ -16,6 +16,10 @@ history:
     kind: observed
     note: 'Found in C-122 (I-026 repair check, commit 44210be5). Non-blocking: no I-026 criterion or guardrail names these lines. Four text-only leftovers from the ESO-to-Gaia swap; see Evidence.'
     check: C-122
+  - at: '2026-10-29T11:09:34Z'
+    actor: {role: executor, session: i095-release-prep}
+    kind: repair_attempted
+    note: 'Fixed docs/architecture/demo-contracts.md:28 (now the Kevinmloch Gaia EDR3 render, CC BY-SA 4.0, I-026 resolved in C-122), the pictures.ts:5 example name (milky-way) and the SkyView.ts PICTURE_DIM comment (flat scale 0.04^(1/2.2) = 0.2315 of the stored value; shader unchanged). Design.md line already fixed by the planner. Final grep of eso0932a, milky-way-left and milky-way-right outside historical records finds only the 0.3.0 astraeus-data changelog line saying the names are gone; dated entries in docs/DONOR_PROVENANCE.md, docs/ASTRAEUS_SPIKE_04*.md and docs/ASTRAEUS_SIMPLIFY_CANDIDATES.md left as history. Not resolved; awaiting a Check.'
 ---
 
 # I-095: Docs and comments still describe the old ESO Milky Way picture
