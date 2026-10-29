@@ -1,12 +1,19 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Group, Mesh, Points, ShaderMaterial, NoColorSpace, TextureLoader, Vector3 } from "three";
 import type { Camera, PerspectiveCamera, Texture } from "three";
-import { ESO_PICTURE, type PictureSet, type StarRow } from "../assets/sky";
+import { MILKY_WAY_PICTURE, type PictureSet, type StarRow } from "../assets/sky";
 import { buildPictureMesh, buildStarBuffers } from "./skyModel";
 
 // Both draws sit before everything else in the first pass (the layer-0 pass), ignore depth, and write none.
 const SKY_ORDER = -1000;
-/** Strength of the picture at brightness 1: the Milky Way is a backdrop, not the subject. */
-const PICTURE_GAIN = 0.5;
+/** Strength of the picture at brightness 1, applied after the dimming below (1: the slider scales what the dimming leaves). */
+const PICTURE_GAIN = 1;
+/**
+ * The picture is a bright render, so it is dimmed the way Star Explorer dims its sky texture (an sRGB texture times a dark grey, drawn
+ * additively): decode to linear light, multiply, encode again. 0.04 gives a mean grey of about 2.2%, the level of the owner's
+ * 2026-10-27 trial (linear x 0.04, which at the old gain of 0.5 was written x 2). Faint values fall far more than bright ones,
+ * which is what keeps the band smooth and subtle. Look-tuning is the Milky Way brightness setting, which scales the result.
+ */
+const PICTURE_DIM = 0.04;
 /** A fixed render-frame direction used to read the sky back: where it lands on screen depends only on the camera orientation. */
 const PROBE_DIRECTION = new Vector3(0.62, 0.35, -0.7).normalize();
 
@@ -20,9 +27,11 @@ void main() {
 const PICTURE_FRAGMENT = `
 uniform sampler2D uMap;
 uniform float uGain;
+uniform float uDim;
 varying vec2 vUv;
 void main() {
-  gl_FragColor = vec4(texture2D(uMap, vUv).rgb * uGain, 1.0);
+  vec3 linear = pow(texture2D(uMap, vUv).rgb, vec3(2.2)) * uDim;
+  gl_FragColor = vec4(pow(linear, vec3(1.0 / 2.2)) * uGain, 1.0);
 }`;
 
 // A star is a small Gaussian core: `aSize` is its width at half maximum in CSS pixels, the sprite is wide enough to hold three
@@ -64,9 +73,9 @@ export interface SkyViewOptions {
   readonly maxAnisotropy?: number;
   /** Whether the picture is drawn. Defaults to true. */
   readonly milkyWay?: boolean;
-  /** Legacy: the two ESO halves as ready textures (a test may pass empty ones). Overrides `picture`. */
+  /** Legacy: ready textures, one per tile (a test may pass empty ones). Overrides `picture`. */
   readonly pictures?: readonly Texture[];
-  /** The picture to draw, as a tile grid; defaults to the ESO panorama. `null` draws none until `requestPicture` is called. */
+  /** The picture to draw, as a tile grid; defaults to the Milky Way picture. `null` draws none until `requestPicture` is called. */
   readonly picture?: PictureSet | null;
 }
 
@@ -94,8 +103,8 @@ export class SkyView {
     this.#pictureOn = options.milkyWay ?? false;
     this.#brightness = milkyWayBrightness;
     this.#maxAnisotropy = maxAnisotropy;
-    if (options.pictures !== undefined) this.#build(ESO_PICTURE, options.pictures);
-    else if (options.picture !== null) this.#build(options.picture ?? ESO_PICTURE);
+    if (options.pictures !== undefined) this.#build(MILKY_WAY_PICTURE, options.pictures);
+    else if (options.picture !== null) this.#build(options.picture ?? MILKY_WAY_PICTURE);
     this.#starMaterial = new ShaderMaterial({
       vertexShader: STAR_VERTEX,
       fragmentShader: STAR_FRAGMENT,
@@ -116,7 +125,7 @@ export class SkyView {
     set.tiles.forEach((tile, index) => {
       const texture = textures?.[index] ?? new TextureLoader().load(tile.url);
       this.#textures.push(texture);
-      // Raw sRGB goes to the framebuffer as it is (no decode and re-encode per pixel); mipmaps and anisotropic filtering keep the
+      // The texture is read as raw sRGB values and the shader does the dimming (PICTURE_DIM); mipmaps and anisotropic filtering keep the
       // picture from sparkling when it is drawn smaller than the file, and the magnified case is plain bilinear.
       texture.colorSpace = NoColorSpace;
       texture.generateMipmaps = true;
@@ -127,7 +136,7 @@ export class SkyView {
       const material = new ShaderMaterial({
         vertexShader: PICTURE_VERTEX,
         fragmentShader: PICTURE_FRAGMENT,
-        uniforms: { uMap: { value: texture }, uGain: { value: PICTURE_GAIN * this.#brightness } },
+        uniforms: { uMap: { value: texture }, uDim: { value: PICTURE_DIM }, uGain: { value: PICTURE_GAIN * this.#brightness } },
         side: DoubleSide,
         depthTest: false,
         depthWrite: false,
@@ -157,9 +166,9 @@ export class SkyView {
     this.#held = false;
   }
 
-  /** Builds the ESO panorama the first time it is wanted (nothing is decoded while the picture stays off); a no-op once a picture is held. */
+  /** Builds the Milky Way picture the first time it is wanted (nothing is decoded while the picture stays off); a no-op once a picture is held. */
   requestPicture(): void {
-    if (!this.#held) this.#build(ESO_PICTURE);
+    if (!this.#held) this.#build(MILKY_WAY_PICTURE);
   }
 
   /** Sets the star strength in place (0 to 2); no rebuild. */

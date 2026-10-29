@@ -156,7 +156,7 @@ Everything the demos draw, with its source, licence and whether it can go public
 
 | Asset | Source | Licence | Status |
 |---|---|---|---|
-| Milky Way panorama | ESO eso0932a, ESO/S. Brunier | CC BY 4.0 | Public |
+| Milky Way picture | Gaia EDR3 render without foreground stars, Kevinmloch (bsrender) on Wikimedia Commons | CC BY-SA 4.0 | Public, with credit |
 | Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
 | Sun, Mercury, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
 | Venus map | USGS Astrogeology / NASA Magellan C3-MDIR mosaic | Public domain | Public |
@@ -172,7 +172,7 @@ Everything the demos draw, with its source, licence and whether it can go public
 
 Credit lines, word for word:
 
-- Milky Way panorama, CC BY 4.0: ESO/S. Brunier. eso0932a, eso.org/public/images/eso0932a. Changed: split in two and turned into the J2000 sky frame.
+- Milky Way picture, CC BY-SA 4.0: Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC (commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png). Changed: resized to 3840x1920 and re-encoded as JPEG; dimmed when drawn.
 - Venus map, public domain: USGS Astrogeology / NASA Magellan C3-MDIR mosaic.
 - Sun, Mercury, Mars, Jupiter maps, CC BY 4.0: Solar System Scope (solarsystemscope.com/textures), based on NASA imagery and elevation data.
 - Io map, public domain: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions.

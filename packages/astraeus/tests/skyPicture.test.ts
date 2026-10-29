@@ -1,25 +1,25 @@
-// I-026, slimmed by T-068: the one Milky Way picture (the ESO panorama as a tiled set), its mesh, and its lazy load.
+// I-026, slimmed by T-068: the one Milky Way picture (the Gaia EDR3 render as a one-tile set), its mesh, and its lazy load.
 // Scenarios removed with the second (NASA) picture source, none of them still applicable: manifest validation, tone-map arguments,
-// equatorial registration, the fetched-tiles check, the fall-back to ESO and the `?skymap=` switch (comparison-only; the ESO set,
+// equatorial registration, the fetched-tiles check, the fall-back to the earlier source and the `?skymap=` switch (comparison-only; the picture set,
 // its galactic registration in sky.test.ts, and the lazy load below remain).
 import { describe, expect, it, vi } from "vitest";
 import { Texture, TextureLoader } from "three";
-import { ESO_PICTURE, MAX_TILE_PX, milkyWayUv } from "../src/assets/sky";
+import { MILKY_WAY_PICTURE, MAX_TILE_PX, milkyWayUv } from "../src/assets/sky";
 import { SkyView } from "../src/app/SkyView";
 import { buildPictureMesh, resolveSkySettings } from "../src/app/skyModel";
 
 /** Render-frame position back to an EQJ unit vector. */
 const renderToEqj = (x: number, y: number, z: number): [number, number, number] => [x, -z, y];
 
-describe("the ESO Milky Way picture", () => {
-  it("is the galactic two-tile panorama, each tile within the GPU texture limit, with its licence", () => {
-    expect(ESO_PICTURE).toMatchObject({ columns: 2, rows: 1, licence: "CC BY 4.0", credit: "ESO/S. Brunier" });
-    expect(ESO_PICTURE.tiles).toHaveLength(2);
-    expect(ESO_PICTURE.tiles.every((tile) => tile.widthPx <= MAX_TILE_PX && tile.heightPx <= MAX_TILE_PX)).toBe(true);
+describe("the Milky Way picture", () => {
+  it("is the galactic one-tile picture, within the GPU texture limit, with its licence", () => {
+    expect(MILKY_WAY_PICTURE).toMatchObject({ columns: 1, rows: 1, licence: "CC BY-SA 4.0", credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC" });
+    expect(MILKY_WAY_PICTURE.tiles).toHaveLength(1);
+    expect(MILKY_WAY_PICTURE.tiles.every((tile) => tile.widthPx <= MAX_TILE_PX && tile.heightPx <= MAX_TILE_PX)).toBe(true);
   });
 
   it("places every vertex of each tile mesh on the galactic picture coordinates its own texture coordinates name", () => {
-    const grid = { columns: ESO_PICTURE.columns, rows: ESO_PICTURE.rows };
+    const grid = { columns: MILKY_WAY_PICTURE.columns, rows: MILKY_WAY_PICTURE.rows };
     let worst = 0;
     for (let column = 0; column < grid.columns; column += 1) {
       const mesh = buildPictureMesh(128, 64, { column, row: 0, ...grid });
@@ -47,7 +47,7 @@ describe("the ESO Milky Way picture", () => {
     expect(meshes()).toHaveLength(0);
     view.requestPicture();
     view.requestPicture();
-    expect(meshes()).toHaveLength(2);
+    expect(meshes()).toHaveLength(1);
     expect(view.pictureVisible).toBe(false);
     view.setPictureVisible(true);
     expect(view.pictureVisible).toBe(true);

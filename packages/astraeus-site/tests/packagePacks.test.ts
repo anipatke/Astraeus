@@ -72,7 +72,7 @@ describe("publishable packages", () => {
 
 describe("astraeus-data credits (PROV-02)", () => {
   it("every picture carries a licence with a credit and a source page", () => {
-    expect(Object.keys(PICTURES).length).toBe(17);
+    expect(Object.keys(PICTURES).length).toBe(16);
     for (const [name, texture] of Object.entries(PICTURES)) {
       expect(texture.licence, name).toBeDefined();
       expect(texture.licence!.attribution, name).toBeTruthy();

@@ -52,7 +52,7 @@ interface Claim {
 }
 
 const claims: readonly Claim[] = [
-  { row: "Milky Way panorama", records: [PICTURES["milky-way-left"]!.licence!], credit: ["ESO/S. Brunier"], linked: true },
+  { row: "Milky Way panorama", records: [PICTURES["milky-way"]!.licence!], credit: ["Kevinmloch (bsrender)", "Gaia EDR3"], linked: true },
   { row: "Sun, Mercury, Mars, Jupiter maps", records: ["sun", "mercury", "mars", "jupiter"].map(bodyRecord), credit: ["Solar System Scope (solarsystemscope.com/textures)"], linked: true },
   { row: "Venus map", records: [bodyRecord("venus")], credit: ["USGS Astrogeology / NASA Magellan"], linked: true },
   { row: "Io map", records: [bodyRecord("io")], credit: ["USGS Astrogeology Science Center", "NASA/JPL Galileo and Voyager missions"], linked: false },

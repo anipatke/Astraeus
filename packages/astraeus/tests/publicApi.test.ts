@@ -115,7 +115,7 @@ describe("moons and the data packages (O-036 T-161)", () => {
       expect(texture?.url).toBeTruthy();
       expect(texture?.licence?.attribution).toContain("NASA/JPL");
       expect(catalogue.get("venus").visual.texture?.desktop?.widthPx).toBe(8192);
-      expect(pictureOf("milky-way-left")).toBeDefined();
+      expect(pictureOf("milky-way")).toBeDefined();
     } finally {
       registerPictures(pictureData.pictures!);
     }

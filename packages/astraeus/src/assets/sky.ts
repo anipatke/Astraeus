@@ -170,28 +170,27 @@ export function starAppearance(vMag: number): { readonly sizePx: number; readonl
 // ---------------------------------------------------------------- sources and the shell item
 
 /**
- * The picture in two square halves, left (longitude 180 to 0, running to the centre) then right; each is under every GPU's texture limit.
- * The files ship in astraeus-data (names "milky-way-left", "milky-way-right"); without that package the list is empty and no picture is drawn.
+ * The picture, one 3840x1920 image (under every GPU's texture limit). The file ships in astraeus-data (name "milky-way");
+ * without that package the list is empty and no picture is drawn.
  */
-export const milkyWayTiles = (): readonly TextureRef[] => ["milky-way-left", "milky-way-right"].flatMap((name) => pictureOf(name) ?? []);
+export const milkyWayTiles = (): readonly TextureRef[] => ["milky-way"].flatMap((name) => pictureOf(name) ?? []);
 
-/** The ESO panorama as a two-tile galactic picture: the one Milky Way picture. */
-export const ESO_PICTURE: PictureSet = Object.freeze<PictureSet>({
-  name: "ESO Milky Way panorama (eso0932a)",
-  columns: 2,
+/** The Gaia EDR3 render (stars removed) as a one-tile galactic picture: the one Milky Way picture. */
+export const MILKY_WAY_PICTURE: PictureSet = Object.freeze<PictureSet>({
+  name: "Milky Way, Gaia EDR3 render without foreground stars (Kevinmloch)",
+  columns: 1,
   rows: 1,
   get tiles(): readonly PictureTile[] {
-    const halves = milkyWayTiles();
-    return halves.length < 2 ? [] : halves.map((tile, column) => Object.freeze({ column, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }));
+    return milkyWayTiles().map((tile) => Object.freeze({ column: 0, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }));
   },
-  credit: "ESO/S. Brunier",
-  licence: "CC BY 4.0",
-  source: "https://www.eso.org/public/images/eso0932a/",
+  credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC",
+  licence: "CC BY-SA 4.0",
+  source: "https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png",
 });
 
 export const SKY_SOURCES: readonly string[] = Object.freeze([
   "HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the code is MIT.",
-  "The Milky Way panorama, ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0.",
+  "The Milky Way picture: Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC (https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png), CC BY-SA 4.0. Resized.",
 ]);
 
 // ---------------------------------------------------------------- settings

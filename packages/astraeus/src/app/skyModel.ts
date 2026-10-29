@@ -49,7 +49,7 @@ export function skyObject(status: StarStatus): ExperienceObject {
   const provenance: Provenance = createProvenance({
     sourceType: "observed",
     sources: SKY_SOURCES,
-    accuracy: "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is the ESO photographic panorama, placed by its galactic coordinates (agrees with the stars only to a few degrees).",
+    accuracy: "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is a Gaia EDR3 render with the foreground stars removed, placed by its galactic coordinates (the Magellanic Clouds land within half a degree).",
     notes: starLine,
   });
   return {

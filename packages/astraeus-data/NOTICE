@@ -10,4 +10,4 @@ Moon maps:
   Pluto: NASA/JHUAPL/SwRI (credit required).
   Charon: New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017 (please cite authors).
 Venus 8k map: USGS Astrogeology / NASA Magellan C3-MDIR mosaic (public domain).
-Milky Way panorama: ESO/S. Brunier (https://www.eso.org/public/images/eso0932a/), CC BY 4.0. The 6000x3000 original was cut into two 3000x3000 halves and re-encoded as JPEG; no other change.
+Milky Way picture: Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png). Share-alike applies to the picture and adaptations of it, not to the code. The 8000x4000 original was resized to 3840x1920 by Wikimedia Commons and re-encoded as JPEG; no other change.

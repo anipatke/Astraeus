@@ -158,3 +158,5 @@ The donor's texture README names no source for eight bodies: earth, moon, jupite
 ## Place cards (O-039 T-134, 2026-10-22)
 
 The place card follows the donor's information card in structure only: a badge under the title and each detail as a small boxed label above its value. No donor file was copied. The donor's monospace face is not used (owner decision); the shell UI font is. The donor's separate Close pill, description text, tag badges and coordinates footer were not ported.
+
+**Owner decision 2026-10-27/29 (I-026): the Milky Way picture is the starless Gaia EDR3 render.** `packages/astraeus-data/src/textures/milky-way.jpg` (3840x1920, JPEG) replaces the two ESO halves. Source: Wikimedia Commons File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png, Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC, **CC BY-SA 4.0**, accessed 2026-10-29. The 3840 px thumbnail Commons serves (the 8000x4000 original was not fetched) was re-encoded as JPEG quality 70, alpha flattened; no other change in the file. The shader dims it when drawn.
