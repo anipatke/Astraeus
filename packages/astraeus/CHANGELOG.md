@@ -4,6 +4,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- `addTrajectory` says which frame its positions use (I-097): equatorial J2000 (EQJ) about `center`, as before. A new `plane: "ecliptic-j2000"` option takes ecliptic vectors as JPL Horizons publishes them and rotates them to EQJ once on the way in (samples and provider states), so drawing, `stateOf` and readouts agree. A bad `plane` throws `bad-trajectory`.
 - A path can cross the solar system (O-046). `addTrajectory` is now accepted in a Sun-centred scene (it threw `bad-trajectory`), and a new `lineFixedTo` option names the body the path's line is drawn against at each sample's own time (default the scene centre; `"sun"` for a probe). A `lineFixedTo` body the finished scene does not hold throws `bad-trajectory`. Paths in Earth-centred scenes draw as before.
 
 ## 0.3.0 (2026-10-29)

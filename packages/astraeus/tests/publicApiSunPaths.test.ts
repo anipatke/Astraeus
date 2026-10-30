@@ -5,6 +5,8 @@ import { Scene, SceneError, earth, mars, moon, sun } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
+import { createState } from "../src/core/state";
+import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { trueScale } from "../src/core/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { relativeTrailKm } from "../src/app/pathRules";
@@ -90,5 +92,58 @@ describe("a path in a Sun-centred scene", () => {
 
   it("refuses a lineFixedTo body the scene does not hold, naming the field and the body", () => {
     expect(codeOf(() => solar({ lineFixedTo: "jupiter" }).toDefinition())).toMatch(/^bad-trajectory: addTrajectory\("probe"\): lineFixedTo names "jupiter"/);
+  });
+});
+
+// O-046 T-190: the frame a path's positions use. A made-up circular orbit in the ecliptic, given both ways.
+describe("a path given in the ecliptic plane", () => {
+  const R = 1.5e8;
+  const W = (2 * Math.PI) / (365 * DAY / 1000); // rad/s
+  const ecl = (t: number) => ({ p: [R * Math.cos(W * t), R * Math.sin(W * t), 0], v: [-R * W * Math.sin(W * t), R * W * Math.cos(W * t), 0] });
+  const rows = Array.from({ length: 9 }, (_, i) => i * 10 * DAY);
+  const matrix = () => createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix();
+  const turn = (v: number[]) => [0, 1, 2].map((r) => matrix()[3 * r]! * v[0]! + matrix()[3 * r + 1]! * v[1]! + matrix()[3 * r + 2]! * v[2]!);
+  const build = (frame: "ecl" | "eqj", extra: object = {}) => new Scene().addBody(sun).setTime(T0).addTrajectory({
+    id: "orbiter", center: "sun", ...extra,
+    samples: rows.map((ms) => { const s = ecl(ms / 1000); return { time: T0 + ms, positionKm: frame === "ecl" ? s.p : turn(s.p), velocityKmS: frame === "ecl" ? s.v : turn(s.v) }; }),
+  });
+
+  it("gives the same stateOf as the pre-rotated EQJ path, at several times", () => {
+    const a = build("ecl", { plane: "ecliptic-j2000" });
+    const b = build("eqj");
+    for (const k of [0, 25, 40, 80]) {
+      const sa = a.stateOf("orbiter", T0 + k * DAY), sb = b.stateOf("orbiter", T0 + k * DAY);
+      sa.positionKm.forEach((v, i) => expect(v).toBeCloseTo(sb.positionKm[i]!, 3));
+      sa.velocityKmS!.forEach((v, i) => expect(v).toBeCloseTo(sb.velocityKmS![i]!, 9));
+    }
+  });
+
+  it("leaves the default as EQJ: unrotated ecliptic numbers stay as given", () => {
+    const state = build("ecl").stateOf("orbiter", T0);
+    expect(Array.from(state.positionKm)).toEqual([R, 0, 0].map((v) => v));
+    expect(build("ecl", { plane: "EQJ" }).stateOf("orbiter", T0).positionKm[1]).toBe(0);
+  });
+
+  it("lies in the planets' plane once rotated (the orbit's normal is the ecliptic pole)", () => {
+    const state = build("ecl", { plane: "ecliptic-j2000" });
+    const at = state.stateOf("orbiter", T0 + 45 * DAY);
+    const r = Array.from(at.positionKm), v = Array.from(at.velocityKmS!);
+    const h = [r[1]! * v[2]! - r[2]! * v[1]!, r[2]! * v[0]! - r[0]! * v[2]!, r[0]! * v[1]! - r[1]! * v[0]!];
+    const pole = turn([0, 0, 1]);
+    const inclinationDeg = (Math.acos((h[0]! * pole[0]! + h[1]! * pole[1]! + h[2]! * pole[2]!) / Math.hypot(...h)) * 180) / Math.PI;
+    expect(inclinationDeg).toBeLessThan(1e-3);
+    expect(Math.abs(r[2]!)).toBeGreaterThan(0); // and it is tilted against the equator, as the rotation should leave it
+  });
+
+  it("rotates a provider's states the same way", () => {
+    const provider = { stateAt: (t: number) => { const s = ecl((t - T0) / 1000); return createState({ body: "orbiter", center: "sun", timeUtcMs: t, positionKm: s.p, velocityKmS: s.v, orientation: null }); } };
+    const scene = new Scene().addBody(sun).setTime(T0).addTrajectory({ id: "orbiter", center: "sun", plane: "ecliptic-j2000", provider, bounds: { start: T0, end: T0 + 80 * DAY } });
+    const got = scene.stateOf("orbiter", T0 + 30 * DAY);
+    const want = turn(ecl(30 * 86_400).p);
+    got.positionKm.forEach((v, i) => expect(v).toBeCloseTo(want[i]!, 3));
+  });
+
+  it("refuses a bad plane, naming the field", () => {
+    expect(codeOf(() => build("eqj", { plane: "galactic" }))).toMatch(/^bad-trajectory: addTrajectory\("orbiter"\): plane "galactic"/);
   });
 });

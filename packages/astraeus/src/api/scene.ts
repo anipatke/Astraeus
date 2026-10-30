@@ -3,7 +3,8 @@ import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
-import type { State } from "../core/state";
+import { createState, type State } from "../core/state";
+import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
@@ -80,7 +81,7 @@ const ORBITS: Readonly<Record<string, { readonly parent: BodyId; readonly path: 
   io: { parent: "jupiter", path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
 };
 
-/** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre. */
+/** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre, in equatorial J2000 (EQJ) axes unless the path says `plane: "ecliptic-j2000"`. */
 export interface TrajectorySampleInput {
   readonly time: TimeInput;
   readonly positionKm: ArrayLike<number>;
@@ -99,6 +100,11 @@ interface TrajectoryBase {
    * Throws `bad-trajectory` at build if the scene does not hold the body.
    */
   readonly lineFixedTo?: BodyId;
+  /**
+   * The frame the positions and velocities are given in, about `center`: "EQJ" (equatorial J2000, the default) or "ecliptic-j2000" (the vectors JPL Horizons
+   * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
+   */
+  readonly plane?: "EQJ" | "ecliptic-j2000";
   readonly provenance?: Provenance;
   /** One or two plain sentences for the path's info card. */
   readonly description?: string;
@@ -294,7 +300,9 @@ export class Scene {
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
     const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
     const readouts = readoutsOf(id, input.readouts);
-    const body = "samples" in input ? sampledBody(common, input, center) : providerBody(common, input);
+    if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
+    const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
+    const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
     this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
     return this;
   }
@@ -705,8 +713,17 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
 
 type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance" | "lineFixedTo">;
 
-function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: unknown }>, center: BodyId): TrackedBody {
-  const samples: TrajectorySample[] = input.samples.map((sample, index) => ({ ...sample, timeUtcMs: toUtcMs(sample.time, `addTrajectory("${common.id}") sample ${index} time`) }));
+/** Rotates a vector by a row-major 3x3 matrix; a missing matrix leaves it as it is. Input that is not three numbers passes through for the State checks to refuse. */
+function rotated(matrix: Float64Array | null, v: ArrayLike<number> | undefined): ArrayLike<number> | undefined {
+  if (matrix === null || v === undefined || v.length !== 3) return v;
+  return [0, 1, 2].map((row) => matrix[3 * row]! * v[0]! + matrix[3 * row + 1]! * v[1]! + matrix[3 * row + 2]! * v[2]!);
+}
+
+function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: unknown }>, center: BodyId, toEqj: Float64Array | null): TrackedBody {
+  const samples: TrajectorySample[] = input.samples.map((sample, index) => {
+    const velocityKmS = rotated(toEqj, sample.velocityKmS);
+    return { positionKm: rotated(toEqj, sample.positionKm)!, ...(velocityKmS === undefined ? {} : { velocityKmS }), timeUtcMs: toUtcMs(sample.time, `addTrajectory("${common.id}") sample ${index} time`) };
+  });
   try {
     const trajectory = new SampledTrajectory({ body: common.id, center, samples });
     return { ...common, trajectory, pathTimesUtcMs: samples.map((sample) => sample.timeUtcMs) };
@@ -716,13 +733,19 @@ function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: 
   }
 }
 
-function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>): TrackedBody {
+function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, toEqj: Float64Array | null): TrackedBody {
   if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
   const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
-  const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => input.provider.stateAt(timeUtcMs, center) };
+  const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
   const step = (bounds.endUtcMs - bounds.startUtcMs) / (PROVIDER_PATH_SAMPLES - 1);
   return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => bounds.startUtcMs + index * step) };
+}
+
+/** A provider's State with its position and velocity rotated into EQJ; unchanged for EQJ input. */
+function rotatedState(matrix: Float64Array | null, state: State): State {
+  if (matrix === null) return state;
+  return createState({ body: state.body, center: state.center, timeUtcMs: state.timeUtcMs, positionKm: rotated(matrix, state.positionKm)!, ...(state.velocityKmS === undefined ? {} : { velocityKmS: rotated(matrix, state.velocityKmS)! }), orientation: state.orientation });
 }
 
 /** The timeline span: the union of the trajectories' and activities' spans, else a month about the chosen time (or about now). */
