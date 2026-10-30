@@ -22,7 +22,7 @@ export function mapPathKm(positionsKm: Float64Array, policy: ScalePolicy): Float
  * offsets, so a source need not be catalogued: it only has to say which catalogued body it is measured from.
  *
  * - orbit: every sample about its centre, the whole line carried to the centre's place from the scene centre at the clock time.
- * - relative trail: each sample from the scene centre at that sample's own time (what an observer riding the centre saw).
+ * - relative trail: each sample from `against` (default the scene centre) at that sample's own time; against another body it is then carried to the scene centre at the display time.
  * - inertial trail: each sample in the common root frame at its own time, then from the scene centre at the display time.
  */
 
@@ -32,12 +32,16 @@ export function orbitKm(samplesKm: Float64Array, center: CenterId, placement: Sc
   return offset === null ? samplesKm : shiftedBy(samplesKm, offset);
 }
 
-/** Relative trail: sample i plus the scene centre's offset to `native` at time i. Returns the input when `native` is the scene centre. */
-export function relativeTrailKm(samples: PathSamples, native: CenterId, placement: ScenePlacement): Float64Array {
-  if (samples.timesUtcMs.length === 0 || native === placement.center) return samples.positionsKm;
+/**
+ * Relative trail: sample i plus the offset from `native` to `against` at time i, so the line is drawn against `against` (default the scene
+ * centre: what an observer riding the centre saw). Returns the input when `native` is `against`. Fixing the line to another body leaves it
+ * about that body; `sceneOffsetKm(placement, against, displayUtcMs)` then carries it to the scene centre at the display time.
+ */
+export function relativeTrailKm(samples: PathSamples, native: CenterId, placement: ScenePlacement, against: CenterId = placement.center): Float64Array {
+  if (samples.timesUtcMs.length === 0 || native === against) return samples.positionsKm;
   const out = Float64Array.from(samples.positionsKm);
   samples.timesUtcMs.forEach((time, index) => {
-    const offset = placement.resolver.offsetKm(native, placement.center, time);
+    const offset = placement.resolver.offsetKm(native, against, time);
     for (let k = 0; k < 3; k += 1) out[index * 3 + k] += offset[k];
   });
   return out;

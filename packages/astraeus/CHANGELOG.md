@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- A path can cross the solar system (O-046). `addTrajectory` is now accepted in a Sun-centred scene (it threw `bad-trajectory`), and a new `lineFixedTo` option names the body the path's line is drawn against at each sample's own time (default the scene centre; `"sun"` for a probe). A `lineFixedTo` body the finished scene does not hold throws `bad-trajectory`. Paths in Earth-centred scenes draw as before.
+
 ## 0.3.0 (2026-10-29)
 
 First download of the packed example (`npm run measure:example`): 1,592,336 bytes raw, 453,513 bytes gzip (code and styles loaded on first open).

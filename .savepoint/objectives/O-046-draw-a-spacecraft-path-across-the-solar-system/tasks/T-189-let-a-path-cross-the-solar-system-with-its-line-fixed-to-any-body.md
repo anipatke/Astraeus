@@ -2,7 +2,12 @@
 id: T-189
 title: Let a path cross the solar system with its line fixed to any body
 objective: O-046
-status: planned
+status: done
+check_waiver:
+  task: T-189
+  reason: 'Owner said "orchestrate O-46"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o046-run-20261030}
+  recorded_at: '2026-10-30T20:45:00Z'
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o046-planning-20261030}
@@ -57,8 +62,23 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- Refusal gone: `#checkSunCentred` in `src/api/scene.ts` now only reports Sun-centred. Test "builds, lists the path and offers the enlarged solar-system scale" (`tests/publicApiSunPaths.test.ts`) passes; the old refusal test in `publicApiSunOrbits.test.ts` was removed.
+- One generalised rule: `relativeTrailKm(samples, native, placement, against = placement.center)` in `src/app/pathRules.ts`; `TrackedBodyView` reads `body.lineFixedTo` (new optional field on `TrackedBody`), draws the relative trail against it, then carries the line by `sceneOffsetKm(placement, against, displayTime)` (null when against is the scene centre, so default output is bit-identical). The static `TrackedBodyView.pathRule` stays as the one rule kind (an existing Apollo test asserts it); the target is per path. The inertial rule was not reused: it needs the root frame and a separate cache, while this form covers scene centre and Sun-fixed as two instances.
+- `lineFixedTo` not in the finished scene: `bad-trajectory` naming field and body, thrown from `#checkReadouts` (called from `toDefinition`). Tested with "jupiter".
+- Made-up tests (`tests/publicApiSunPaths.test.ts`, probe on a straight transfer Earth to Mars): Sun-fixed first vertex identical at two display times; marker meets Mars at the flyby time (relative gap < 1e-6); default and `lineFixedTo: "earth"` in an Earth-centred scene give the same line and `relativeTrailKm` returns its input; readouts (range, speed) work in the Sun-centred scene; the enlarged solar-system policy places the marker finite.
+- Apollo 11 and hello-scene unchanged: no change to their definitions; `packages/astraeus-demo-apollo11/tests/paths.test.ts` and the existing public API tests pass in the full run.
+- Docs: doc comment on `lineFixedTo` (scene.ts), README `addTrajectory` and `addBody` rows, CHANGELOG `Unreleased`.
+
+Commands (repo root): `npm run lint` pass; `npm run typecheck` pass; `npm run build` pass (chunk size warning only); `npm test` 145 files passed, 1892 tests passed, 1 skipped. (One earlier typecheck failure from removing `pathRule` was repaired by restoring it.)
+
+Files read: Context Files plus `src/app/sceneLayout.ts` (sceneOffsetKm, trackedAbsolute; extra read, to check placement units), `src/app/mission.ts` (TrackedBody; extra read, to add the field), `tests/scenePlacement.ts`, `tests/scalePolicies.ts` (test helpers).
+Files changed: `src/api/scene.ts`, `src/app/pathRules.ts`, `src/app/TrackedBodyView.ts`, `src/app/mission.ts`, `README.md`, `CHANGELOG.md`, `tests/publicApiSunPaths.test.ts` (new), `tests/publicApiSunOrbits.test.ts` (old refusal test removed) under `packages/astraeus/`.
+
+Limitations: no browser run (by run rules); the Sun-centred tracked layer was checked in unit tests only (marker and line positions with the true and solar-system scale policies), not for label reach, camera distance units or visual look (T-190..T-192). A line fixed to a body other than the scene centre is remapped every frame the clock changes.
 
 ## Drift Notes
 
 Record any change to the tracked-bodies layer contract for the last step's Design reconciliation.
+
+Tracked-bodies layer contract: `TrackedBody` gains optional `lineFixedTo`; `relativeTrailKm` gains an optional `against` argument. Sun-centred scenes now accept tracked paths. For the last step's Design reconciliation. Design.md/state-and-assets.md not edited here.

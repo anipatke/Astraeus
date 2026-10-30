@@ -133,13 +133,6 @@ describe("enlarge, label off and label reach", () => {
   });
 });
 
-describe("tracked paths", () => {
-  it("are refused in a Sun-centred scene with a named error", () => {
-    const scene = solar().addBody(earth).addTrajectory({ id: "probe", center: "earth", samples: [{ time: T0, positionKm: [7000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 7000, 0] }] });
-    expect(codeOf(() => scene.toDefinition())).toMatch(/^bad-trajectory: addTrajectory\("probe"\): a scene centred on the Sun cannot hold a tracked path/);
-  });
-});
-
 describe("the public path without the planet series preloaded (O-042 T-177)", () => {
   // vitest.setup.ts preloads the planet series into the module instance the other tests share. Resetting the module registry and importing "astraeus" afresh gives a second
   // instance whose planet series are NOT loaded, which is what a consumer's page has at `mount`.

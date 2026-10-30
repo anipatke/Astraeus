@@ -93,6 +93,12 @@ interface TrajectoryBase {
   readonly color?: string;
   /** The body the positions are measured from; defaults to "earth". */
   readonly center?: BodyId;
+  /**
+   * The body the path's line is drawn against: each sample is placed from this body at the sample's own time, then the line is carried to
+   * this body's place from the scene centre at the clock time. Defaults to the scene centre; name the Sun for a probe crossing a Sun-centred scene.
+   * Throws `bad-trajectory` at build if the scene does not hold the body.
+   */
+  readonly lineFixedTo?: BodyId;
   readonly provenance?: Provenance;
   /** One or two plain sentences for the path's info card. */
   readonly description?: string;
@@ -286,7 +292,7 @@ export class Scene {
     const center = input.center ?? "earth";
     if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
-    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
+    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
     const readouts = readoutsOf(id, input.readouts);
     const body = "samples" in input ? sampledBody(common, input, center) : providerBody(common, input);
     this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
@@ -498,11 +504,9 @@ export class Scene {
     });
   }
 
-  /** Whether the scene is centred on the Sun; such a scene cannot hold a tracked path. */
+  /** Whether the scene is centred on the Sun. */
   #checkSunCentred(ids: readonly BodyId[]): boolean {
-    const sunCentred = ids[0] === rootBodyId(this.#catalogue);
-    if (sunCentred && this.#tracked.size > 0) throw new SceneError("bad-trajectory", `addTrajectory("${[...this.#tracked.keys()][0]}"): a scene centred on the Sun cannot hold a tracked path yet; centre the scene on Earth or another body`);
-    return sunCentred;
+    return ids[0] === rootBodyId(this.#catalogue);
   }
 
   /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no label limit, so labels stay shown at any distance. */
@@ -543,8 +547,10 @@ export class Scene {
     return layer;
   }
 
-  /** A readout names a body the scene must hold, so it can be measured against. */
+  /** A readout, or the body the line is fixed to, names a body the scene must hold. */
   #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
+    const fixed = entry.body.lineFixedTo;
+    if (fixed !== undefined && !ids.includes(fixed)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo names "${fixed}", which has not been added to the scene`);
     for (const spec of entry.readouts) {
       const named = readoutBody(spec);
       if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
@@ -697,7 +703,7 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
   return only ? [scale.id] : [scale.id, ...second];
 }
 
-type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;
+type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance" | "lineFixedTo">;
 
 function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: unknown }>, center: BodyId): TrackedBody {
   const samples: TrajectorySample[] = input.samples.map((sample, index) => ({ ...sample, timeUtcMs: toUtcMs(sample.time, `addTrajectory("${common.id}") sample ${index} time`) }));

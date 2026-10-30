@@ -17,10 +17,10 @@ import {
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { anchorLabelsOf, markerRadiusUnits, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
-import { mapPathKm, relativeTrailKm, type PathSamples } from "./pathRules";
-import type { PathRule } from "./experienceDefinition";
+import { mapPathKm, relativeTrailKm, shiftedBy, type PathSamples } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
-import { trackedAbsolute, type ScenePlacement } from "./sceneLayout";
+import type { PathRule } from "./experienceDefinition";
+import { sceneOffsetKm, trackedAbsolute, type ScenePlacement } from "./sceneLayout";
 
 /** Drawn after Earth and Moon so overlays are never swallowed by a body in a compressed scale. */
 export const TRACK_LAYER = 3;
@@ -76,7 +76,7 @@ export function releaseAnchorSprite(): void {
  * stateAt -> ScalePolicy -> render axes -> floating origin, exactly like Earth and the Moon.
  */
 export class TrackedBodyView {
-  /** A tracked body's path is a relative trail, drawn by the same rule as every path (`pathRules.ts`). */
+  /** Every tracked body's path is one rule, a relative trail (`pathRules.ts`); the body it is drawn against is the path's own `lineFixedTo`, default the scene centre. */
   static readonly pathRule: PathRule = Object.freeze({ kind: "trail", frame: "relative" });
   readonly group = new Group();
   readonly #marker: Mesh;
@@ -86,6 +86,7 @@ export class TrackedBodyView {
   readonly #samples: ReturnType<typeof sampleTrackedPositions>;
   readonly #anchorKm: Float64Array;
   #mappedFor = "";
+  #mappedAt = 0;
   #placedFor: string | null = null;
   #mappedPath: Float64Array = new Float64Array(0);
   #mappedAnchors: Float64Array = new Float64Array(0);
@@ -130,7 +131,7 @@ export class TrackedBodyView {
   }
 
   update(timeUtcMs: number, policy: ScalePolicy, origin: FloatingOrigin, camera: Camera, placement: ScenePlacement): void {
-    this.#remap(policy, placement);
+    this.#remap(policy, placement, timeUtcMs);
     // Mapped positions are not consistent with body radii in ReadableScale, so only TrueScale occludes.
     const occlude = policy.id === "true-scale";
     for (const material of this.#materials) material.depthTest = occlude;
@@ -151,21 +152,31 @@ export class TrackedBodyView {
   }
 
   /**
-   * A relative trail: each sample is the body's position from the scene centre at that sample's own time, so a
-   * scene centred where the trajectory is measured draws the samples as they are.
+   * A relative trail (`pathRules.ts`): each sample is the body's position from `lineFixedTo` (default the scene centre) at that sample's own time.
+   * A line fixed to a body other than the scene centre is carried to where that body is from the centre at the display time, so it
+   * is remapped as the clock moves; a line against the scene centre depends on the centre and scale alone.
    */
-  #remap(policy: ScalePolicy, placement: ScenePlacement): void {
+  #remap(policy: ScalePolicy, placement: ScenePlacement, timeUtcMs: number): void {
     const placed = placement.center;
-    if (this.#mappedFor === policy.id && this.#placedFor === placed) return;
-    this.#mappedPath = mapPathKm(this.#relative(this.#samples, placement), policy);
-    this.#mappedAnchors = mapPathKm(this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement), policy);
+    const moves = this.#against(placement) !== placed;
+    if (this.#mappedFor === policy.id && this.#placedFor === placed && (!moves || this.#mappedAt === timeUtcMs)) return;
+    this.#mappedPath = mapPathKm(this.#relative(this.#samples, placement, timeUtcMs), policy);
+    this.#mappedAnchors = mapPathKm(this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement, timeUtcMs), policy);
     this.#mappedFor = policy.id;
     this.#placedFor = placed;
+    this.#mappedAt = timeUtcMs;
   }
 
-  #relative(samples: PathSamples, placement: ScenePlacement): Float64Array {
+  #against(placement: ScenePlacement): string {
+    return this.body.lineFixedTo ?? placement.center;
+  }
+
+  #relative(samples: PathSamples, placement: ScenePlacement, timeUtcMs: number): Float64Array {
     if (samples.timesUtcMs.length === 0) return samples.positionsKm;
-    return relativeTrailKm(samples, this.body.trajectory.stateAt(samples.timesUtcMs[0]).center, placement);
+    const against = this.#against(placement);
+    const drawn = relativeTrailKm(samples, this.body.trajectory.stateAt(samples.timesUtcMs[0]).center, placement, against);
+    const carry = sceneOffsetKm(placement, against, timeUtcMs);
+    return carry === null ? drawn : shiftedBy(drawn, carry);
   }
 
   /** Writes [leading?] samples [from, to) [trailing?] into the line and sets how much of it is drawn. */

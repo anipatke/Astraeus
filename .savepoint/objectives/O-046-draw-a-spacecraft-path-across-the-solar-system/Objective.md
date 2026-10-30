@@ -1,7 +1,7 @@
 ---
 id: O-046
 title: Draw a spacecraft path across the solar system
-status: planned
+status: in_progress
 depends_on: []
 release: G-013
 priority: high

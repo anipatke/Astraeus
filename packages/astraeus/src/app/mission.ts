@@ -19,6 +19,8 @@ export interface TrackedBody {
   readonly anchorLabels?: readonly string[];
   /** Published position discrepancy per reconstruction segment, in time order. */
   readonly positionDiscrepancies?: readonly PositionDiscrepancy[];
+  /** The body the line is drawn against, at each sample's own time; absent: the scene centre. */
+  readonly lineFixedTo?: string;
   /** The trajectory's own Provenance, passed through unchanged. */
   readonly provenance?: Provenance;
 }
