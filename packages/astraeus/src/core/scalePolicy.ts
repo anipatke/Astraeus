@@ -97,3 +97,6 @@ export function createSolarSystemScale(options: SolarSystemScaleOptions): SolarS
     mapRadius: (radiusKm: number, bodyId?: BodyId) => trueScale.mapRadius(radiusKm) * factorFor(bodyId),
   });
 }
+
+/** The Solar system scale: true distances with bodies enlarged. This one enlarges nothing itself; a viewer builds the working policy from the scene's declared factors, and `Scene.setScale` accepts it for a Sun-centred scene with an enlarged body. */
+export const solarSystemScale: SolarSystemScalePolicy = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 });

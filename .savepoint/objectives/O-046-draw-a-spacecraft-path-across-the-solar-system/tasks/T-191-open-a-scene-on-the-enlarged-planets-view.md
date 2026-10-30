@@ -2,9 +2,14 @@
 id: T-191
 title: Open a scene on the enlarged planets view
 objective: O-046
-status: planned
+status: done
 depends_on: [{task: T-190, requires: clear}]
 owner_validation: {required: false}
+check_waiver:
+  task: T-191
+  reason: 'Owner said "orchestrate O-46"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o046-run-20261030}
+  recorded_at: '2026-10-30T20:55:18Z'
 planned_by: {role: planner, session: o046-planning-20261030}
 ---
 
@@ -55,8 +60,17 @@ Focused tests while iterating; configured gates at hand-off. No browser run. Eva
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- `setScale(solarSystemScale)` opens a Sun-centred enlarged scene on it; true scale second unless `{ only: true }`: test "opens a Sun-centred scene..." in publicApiSunOrbits.test.ts (choices `["solar-system","true-scale"]`, `["solar-system"]`, and true-first still `["true-scale","solar-system"]`).
+- Other scenes: `toDefinition` throws `bad-scale` naming the Solar system scale needs a Sun-centred scene with an enlarged body (no enlargement; non-Sun scene), tested.
+- One policy: `solarSystemScale` (core/scalePolicy.ts, built by the existing `createSolarSystemScale`, id "solar-system") is exported from api/index.ts and added to `SCALES`; `scaleChoicesOf` uses it instead of the string. No design change. The viewer (App.tsx) still builds its working policy with the same factory from the scene's override factors and selects it by the same id; the exported one enlarges nothing itself (factors come from the scene). App.tsx not changed.
+- Error message names all three scales (tested); README row, setScale doc comment, API reference list (api-reference.mjs adds solarSystemScale to "Scale and state"), CHANGELOG line done.
+- I-104 (ScalePolicy "apps may supply their own" doc): still not true; not fixed. Policy lookup stays id-based in the viewer (scalePolicyFor) and setScale refuses unknown ids.
+
+Commands: npm run lint (clean after moving the check to private `#checkSolarSystemScale`, since toDefinition hit complexity 21), npm run typecheck (clean), npm run build (ok), npm test (145 files, 1899 passed, 1 skipped). No browser run.
+Files read: Context Files plus src/shell/scaleModel.ts and src/app/App.tsx (extra reads: locate where the viewer builds the solar-system policy). Changed: src/core/scalePolicy.ts, src/api/index.ts, src/api/scene.ts, tests/publicApiSunOrbits.test.ts, README.md, CHANGELOG.md, packages/astraeus-site/tools/site/api-reference.mjs.
+Limitations: viewer draw of the opened scale not browser-checked; the API reference rendering was not regenerated or checked.
 
 ## Drift Notes
 
-Record for the last step's Design reconciliation.
+Record for the last step's Design reconciliation. Scale choices: `solarSystemScale` is now a public exported policy (shared id with the viewer's per-experience policy); Design Interfaces note may need the new export named.

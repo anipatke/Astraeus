@@ -2,7 +2,7 @@ import type { BodyId } from "../core/body";
 import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
-import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { createState, type State } from "../core/state";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
@@ -132,7 +132,7 @@ export interface FollowView {
 const DEFAULT_COLOR = "#ffd27a";
 const DAY_MS = 86_400_000;
 const PROVIDER_PATH_SAMPLES = 128;
-const SCALES: readonly ScalePolicy[] = [trueScale, readableScale];
+const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 interface Tracked {
   readonly body: TrackedBody;
@@ -344,9 +344,9 @@ export class Scene {
     return this;
   }
 
-  /** Chooses the opening scale: `trueScale` or `readableScale`; the viewer can switch to the other (in a Sun-centred scene with an enlarged body, to the \"solar-system\" scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
+  /** Chooses the opening scale: `trueScale`, `readableScale` or `solarSystemScale` (true distances, the enlarged bodies drawn larger; it needs a Sun-centred scene with an enlarged body, else the scene throws `bad-scale`); the viewer can switch to the other (in a Sun-centred scene with an enlarged body, the second choice is the Solar system scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
   setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
-    if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale or readableScale`);
+    if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
     this.#scale = scale;
     this.#scaleOnly = options.only === true;
     return this;
@@ -466,6 +466,10 @@ export class Scene {
     return planetSeriesLoaded() ? orbitIds.map((id) => this.#sunPath(id, openUtcMs)) : [];
   }
 
+  #checkSolarSystemScale(sunCentred: boolean): void {
+    if (this.#scale.id === solarSystemScale.id && !this.#enlargedInSun(sunCentred)) throw new SceneError("bad-scale", "setScale: the Solar system scale needs a Sun-centred scene with an enlarged body (addBody(x, { enlarge }))");
+  }
+
   /** Whether a Sun-centred scene enlarges a body, which the viewer's solar-system scale draws. */
   #enlargedInSun(sunCentred: boolean): boolean {
     return sunCentred && [...this.#shape.values()].some((shape) => shape.enlarge !== undefined);
@@ -580,6 +584,7 @@ export class Scene {
     const ids = [...this.#bodies.keys()];
     const paths = this.#moonPaths();
     const sunCentred = this.#checkSunCentred(ids);
+    this.#checkSolarSystemScale(sunCentred);
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
     const tracked = [...this.#tracked.values()].map((entry) => entry.body);
     const timeline = this.#timeline;
@@ -704,11 +709,12 @@ function clockOf(timeline: TimelineSetting | undefined, startUtcMs: number): Exp
 
 /**
  * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
- * offers the viewer's "solar-system" scale (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
+ * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
  */
 function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): readonly string[] {
-  const second = SCALES.filter((other) => other.id !== scale.id).map((other) => (enlarged && other.id === readableScale.id ? "solar-system" : other.id));
-  return only ? [scale.id] : [scale.id, ...second];
+  const offered = [trueScale, enlarged ? solarSystemScale : readableScale];
+  const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
+  return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }
 
 type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance" | "lineFixedTo">;

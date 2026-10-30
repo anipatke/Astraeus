@@ -6,7 +6,7 @@ export { mount, type MountOptions, type MountedScene } from "./mount";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { SceneError, type SceneErrorCode } from "./errors";
 export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, type BodyRef } from "./bodies";
-export { trueScale, readableScale, type ScalePolicy } from "../core/scalePolicy";
+export { trueScale, readableScale, solarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 export type { State } from "../core/state";
 export type { Provenance, ProvenanceSourceType } from "../core/provenance";
 export type { Pictures } from "../assets/pictures";

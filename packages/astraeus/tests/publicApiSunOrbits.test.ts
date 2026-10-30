@@ -1,7 +1,7 @@
 // Sun-centred scenes of the public API (O-042 T-174), proved on made-up configurations (ARCH-03): an orbit line for any body that circles the Sun, your own body from
 // published elements, planet enlargement, a label that starts off, label reach at solar-system distances, and named errors.
 import { describe, expect, it, vi } from "vitest";
-import { Scene, SceneError, earth, mars, mercury, sun, type ElementsBodyRecord } from "astraeus";
+import { Scene, SceneError, earth, mars, mercury, readableScale, solarSystemScale, sun, trueScale, type ElementsBodyRecord } from "astraeus";
 import { catalogue as builtIn } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
@@ -191,5 +191,19 @@ describe("the solar-system scale for an enlarged body", () => {
   it("leaves scenes without an enlarged body, and scenes not centred on the Sun, unchanged", () => {
     expect(choices(solar().addBody(earth))).toEqual(["true-scale", "readable-scale"]);
     expect(choices(new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0))).toEqual(["true-scale", "readable-scale"]);
+  });
+});
+
+describe("setScale(solarSystemScale)", () => {
+  const choices = (scene: Scene) => scene.toDefinition().scaleChoices;
+  it("opens a Sun-centred scene with an enlarged body on the Solar system scale, true scale second unless only", () => {
+    expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(solarSystemScale))).toEqual(["solar-system", "true-scale"]);
+    expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(solarSystemScale, { only: true }))).toEqual(["solar-system"]);
+    expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(trueScale))).toEqual(["true-scale", "solar-system"]);
+  });
+  it("refuses it elsewhere with a bad-scale error, and names all three scales for a made-up one", () => {
+    expect(codeOf(() => solar().addBody(earth).setScale(solarSystemScale).toDefinition())).toMatch(/^bad-scale: .*Solar system scale needs a Sun-centred scene with an enlarged body/);
+    expect(codeOf(() => new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0).setScale(solarSystemScale).toDefinition())).toMatch(/^bad-scale/);
+    expect(codeOf(() => solar().setScale({ ...readableScale, id: "made-up" }))).toMatch(/trueScale, readableScale or solarSystemScale/);
   });
 });
