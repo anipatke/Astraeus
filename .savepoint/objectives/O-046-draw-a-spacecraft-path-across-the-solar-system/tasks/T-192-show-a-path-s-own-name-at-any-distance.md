@@ -2,8 +2,13 @@
 id: T-192
 title: Show a path's own name at any distance
 objective: O-046
-status: planned
+status: done
 depends_on: [{task: T-191, requires: clear}]
+check_waiver:
+  task: T-192
+  reason: 'Owner said "orchestrate O-46"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o046-run-20261030}
+  recorded_at: '2026-10-30T20:56:21Z'
 owner_validation: {required: false}
 planned_by: {role: planner, session: o046-planning-20261030}
 ---
@@ -54,8 +59,14 @@ Focused tests while iterating; configured gates at hand-off. No browser run (the
 
 ## Technical Evidence
 
-Pending execution.
+- Cause proven first (TEST-02): `packages/astraeus/tests/publicApiPathLabels.test.ts` failed before the fix with body labels shown (earth, moon) and `probe` hidden at the same camera distance 50; the cause is the fixed `labelMaxDistance: 4` on path items in `toDefinition`, not SceneLabels or units.
+- Fix: one private `#labelReach(sunCentred)` in `src/api/scene.ts` used by `#bodyObject` and the path items. README (setReach row) and CHANGELOG line added.
+- New tests (4) pass: Earth-centred within reach shown, beyond 500 hidden, raised reach followed, Sun-centred any distance, hidden by id (the labels switch's mechanism).
+- Gates: lint ok, typecheck ok, build ok; test 1 failed | 1902 passed | 1 skipped (146 files, 1 failed).
+- Owner decision 2026-10-30: add a label-distance option (labelReach) rather than change Apollo's path labels. `labelReach?: number` on `addBody` options and `addTrajectory` input (positive finite, else `bad-body` / `bad-trajectory` naming the field) replaces the shared rule for that item; Apollo 11's scene sets `labelReach: 4` on its paths, so `rebuildComparison.test.ts` passes unedited. Tests added for within/beyond reach, bad values, addBody. README rows and CHANGELOG updated.
+- Gates after the last edit: lint ok, typecheck ok, build ok, test 146 files passed, 1905 passed | 1 skipped.
 
 ## Drift Notes
 
 Record for the last step's Design reconciliation.
+

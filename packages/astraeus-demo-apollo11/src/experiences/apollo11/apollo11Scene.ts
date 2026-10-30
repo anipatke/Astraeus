@@ -188,6 +188,7 @@ function path(id: string, label: string, color: string, file: GeneratedFile, kno
     label,
     color,
     center: "earth",
+    labelReach: 4, // the path names show only close in, as they always have (I-100 gave other scenes the shared reach)
     samples: file.samples.map((sample) => ({ time: sample.timeUtcMs, positionKm: sample.positionKm, ...(sample.velocityKmS === undefined ? {} : { velocityKmS: sample.velocityKmS }) })),
     provenance: file.provenance,
     description: DESCRIPTIONS[id],

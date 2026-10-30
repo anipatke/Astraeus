@@ -50,6 +50,8 @@ export interface AddBodyOptions {
   readonly enlarge?: number;
   /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
   readonly showLabel?: boolean;
+  /** How far from the camera the body's label shows, in the camera's `distance` units (as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
+  readonly labelReach?: number;
   /** One or two plain sentences for the body's info card. */
   readonly description?: string;
   /** The body's colour on its info card and label, as a CSS hex colour such as "#9fd8ff"; the catalogue's own when absent. A bad value throws `bad-body`. */
@@ -105,6 +107,8 @@ interface TrajectoryBase {
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
    */
   readonly plane?: "EQJ" | "ecliptic-j2000";
+  /** How far from the camera the path's label shows, in the camera's `distance` units (as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
+  readonly labelReach?: number;
   readonly provenance?: Provenance;
   /** One or two plain sentences for the path's info card. */
   readonly description?: string;
@@ -228,6 +232,7 @@ export class Scene {
   readonly #activities = new Map<string, PlannedActivity>();
   readonly #orbits = new Set<BodyId>();
   readonly #own = new Map<BodyId, EccentricSampling>();
+  readonly #labelReaches = new Map<string, number>();
   readonly #shape = new Map<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>();
   #catalogue: BodyCatalogue = builtInCatalogue;
   readonly #notes = new Map<BodyId, string>();
@@ -283,6 +288,7 @@ export class Scene {
     if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${this.#catalogue.ids().join(", ")})`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
+    if (options.labelReach !== undefined) this.#labelReaches.set(id, options.labelReach);
     if (options.orbit === true) this.#orbits.add(id);
     if (options.color !== undefined || options.knownLimitations !== undefined) this.#looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.#shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
@@ -300,6 +306,10 @@ export class Scene {
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
     const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
     const readouts = readoutsOf(id, input.readouts);
+    if (input.labelReach !== undefined) {
+      checkLabelReach(input.labelReach, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReach ${String(input.labelReach)} must be a positive finite number`));
+      this.#labelReaches.set(id, input.labelReach);
+    }
     if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
     const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
@@ -521,9 +531,16 @@ export class Scene {
     return ids[0] === rootBodyId(this.#catalogue);
   }
 
-  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. A Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no label limit, so labels stay shown at any distance. */
+  /** How far a label shows, for bodies and paths alike: the item's own `labelReach` if given, else the shared rule: a Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no limit; otherwise the camera reach, at least 500. */
+  #labelReach(id: string, sunCentred: boolean): { readonly labelMaxDistance?: number } {
+    const own = this.#labelReaches.get(id);
+    if (own !== undefined) return { labelMaxDistance: own };
+    return sunCentred || this.camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) };
+  }
+
+  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `#labelReach`. */
   #bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean): ExperienceObject {
-    const own = { labelPriority: 100 - ids.indexOf(body.id), ...(sunCentred || this.camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) }), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
+    const own = { labelPriority: 100 - ids.indexOf(body.id), ...this.#labelReach(body.id, sunCentred), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
     return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
   }
 
@@ -606,7 +623,7 @@ export class Scene {
       experience: {
         objects: [
           ...[...this.#bodies.values()].map((body) => this.#bodyObject(body, ids, sunCentred)),
-          ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, labelMaxDistance: 4, provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+          ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#labelReach(body.id, sunCentred), provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: cameraPresetsOf(labelled),
         ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
@@ -765,8 +782,14 @@ function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined)
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
 }
 
-/** Checks the colour and known limits given to `addBody`. */
+/** Throws `error` unless `reach` is a positive finite number. */
+function checkLabelReach(reach: unknown, error: SceneError): void {
+  if (!(typeof reach === "number" && Number.isFinite(reach) && reach > 0)) throw error;
+}
+
+/** Checks the colour, known limits and label reach given to `addBody`. */
 function checkBodyLook(id: string, options: AddBodyOptions): void {
+  if (options.labelReach !== undefined) checkLabelReach(options.labelReach, new SceneError("bad-body", `addBody("${id}"): labelReach ${String(options.labelReach)} must be a positive finite number`));
   if (options.enlarge !== undefined && !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)) throw new SceneError("bad-body", `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`);
   if (options.showLabel !== undefined && typeof options.showLabel !== "boolean") throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
   if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
