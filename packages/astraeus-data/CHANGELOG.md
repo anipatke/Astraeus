@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.4.0 (2026-10-31)
+
+No changes to the code, data or public API. Released with `astraeus` 0.4.0 to keep the version numbers together.
+
 ## 0.3.0 (2026-10-29)
 
 The Milky Way picture is now the starless Gaia EDR3 render by Kevinmloch (CC BY-SA 4.0), 3840x1920, 0.53 MB, replacing the two ESO halves (3.7 MB). The picture is `milky-way` (the names `milky-way-left` and `milky-way-right` are gone) and its licence record travels with it. The package is about 35.5 MB packed. The moon-position and data code is unchanged.

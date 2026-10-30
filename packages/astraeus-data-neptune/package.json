@@ -1,6 +1,6 @@
 {
   "name": "astraeus-data-neptune",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Neptune's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030.",
   "license": "MIT",
   "type": "module",
