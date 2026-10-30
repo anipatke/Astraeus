@@ -2,8 +2,7 @@
 id: T-193
 title: Prove a probe's journey end to end and write it up
 objective: O-046
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-192, requires: clear}]
 owner_validation: {required: true}
 check_waiver:
@@ -85,6 +84,8 @@ Owner-look follow-up (2026-10-30):
 - Change (`packages/astraeus/src/api/scene.ts`): `addTrajectory` builds through `#buildTracked(input, input.center ?? #sceneCentre())`; a path added without `center` is remembered in `#defaulted`, and `#register` rebuilds those when the first body arrives, so a path added before any body also follows the first body. A first body that is not built-in, or no body, leaves Earth. Earth-first scenes are unchanged (comparison tests pass unedited). Docs: README row and example text, doc comment, CHANGELOG (behaviour change called out), Design.md, state-and-assets.md.
 - Tests (publicApiSunPaths.test.ts, 3 new): Sun-first with no `center` meets Mars at the flyby (gap under 1e-6; this fails with the old "earth" default, so it would have caught the miss, TEST-02) and `stateOf(...).center` is "sun"; path added before bodies follows the first body; Earth-first and no-body scenes still read Earth, explicit `center` wins.
 - Gates after the last edit: lint ok, typecheck ok, build ok, `npm test` 146 files, 1910 passed, 1 skipped; `npm run check:node-consumer` pass. Browser scripts unchanged since run `docs/evidence/browser-20261030T211150Z` (no rerun; the final check reuses it).
+
+**Owner validation (2026-10-30, session o046-run-20261030):** after the centre-default fix and orbit lines, the owner looked at `localhost:5490/app.html?experience=synthetic-probe` and said "OK". Recorded by the coordinator from the owner's words; the Full Objective Check C-### still to come gives the accepted Check reference.
 
 ## Drift Notes
 
