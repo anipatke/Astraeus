@@ -69,6 +69,8 @@ For the internal `ExperienceDefinition` contract read [state and assets](../docs
 
 The engine exports are the package boundary; generic code takes experience content as data. Synthetic configurations prove generic capabilities. Scientific approximation and reconstruction carry provenance and known limits; an accepted sample limitation never becomes a claim of measured fidelity. Planetary Explorer (`/home/user/code/planetary-explorer`) remains a read-only donor.
 
+The mechanised body-name check (`packages/astraeus/tests/nameCheck.test.ts`) covers `src/core`, `src/assets`, `src/shell`, generic `src/app` and, since T-194, the public `src/api/` (guardrail ARCH-06): a public default or rule names a body only through an allowlist entry with a reason.
+
 Browser policy is owned by [browser policy](../docs/agents/browser-policy.md); the scenario/driver map is [BROWSER_CHECKS.md](../docs/BROWSER_CHECKS.md). Gate selection and tooling are in [project gates](../docs/agents/build.md), with ordinary commands in `.savepoint/config.yml`.
 
 ## Decisions

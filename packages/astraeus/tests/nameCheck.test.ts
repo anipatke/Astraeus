@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 /**
- * Names the generic layers must not carry (T-047 Done When 5, I-021):
- *  - experience, mission, shower or dataset names anywhere in src/core, src/assets, src/shell or generic src/app;
+ * Names the generic layers must not carry (T-047 Done When 5, I-021; extended to the public API by T-194, guardrail ARCH-06):
+ *  - experience, mission, shower or dataset names anywhere in src/core, src/assets, src/shell, generic src/app or src/api;
  *  - body names (the literals "sun", "earth", "moon" and the EARTH, MOON, SUN constants) anywhere in those folders except
  *    src/core/bodies/ and src/assets/bodies/, unless the file is allowlisted below with a reason.
  */
@@ -12,6 +12,9 @@ const BODY_NAMES = /["'`](?:sun|earth|moon)["'`]|\b(?:EARTH|MOON|SUN)\b/;
 /** File (relative to the repository) -> why it may name bodies. Every entry must still be needed (a test fails on a stale one). */
 const BODY_NAME_ALLOWLIST: Readonly<Record<string, string>> = {
   "src/assets/compositions.ts": "A composition is a list of catalogue ids, so it names the built-in bodies it groups; there is no way to say 'Earth and Moon' without them.",
+  "src/api/bodies.ts": "The ready-made body handles (sun, earth, moon, ...) are the public names of the built-in catalogue; each handle is its id.",
+  "src/api/scene.ts": "The scene-centre fallback is Earth, the documented default for a path added before any body (no catalogued first body to derive from; the catalogue root is the Sun, which is not the default).",
+  "src/api/sunOrbit.ts": "Earth's Sun orbit comes from the dedicated Earth-Sun trajectory and ephemeris provenance, not a catalogue source; the two literals select them.",
   "src/core/astronomyAdapter.ts": "The adapter is the Orb library boundary: its methods are the Sun-from-Earth and Moon-from-Earth series the library provides.",
   "src/core/body.ts": "Re-exports the built-in body constants from src/core/bodies/ so existing imports keep working.",
   "src/core/illumination.ts": "Lunar phase is defined for the Moon seen from Earth with the Sun as the source; its guards name those three bodies.",
@@ -24,7 +27,7 @@ const BODY_NAME_ALLOWLIST: Readonly<Record<string, string>> = {
 };
 
 const sources = import.meta.glob(
-  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx}", "../src/app/*.{ts,tsx}"],
+  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx}", "../src/app/*.{ts,tsx}", "../src/api/**/*.{ts,tsx}"],
   { query: "?raw", import: "default", eager: true },
 ) as Record<string, string>;
 
@@ -51,7 +54,7 @@ const real = Object.fromEntries(Object.entries(sources).map(([path, text]) => [r
 describe("name check (T-047 Done When 5)", () => {
   it("reads the folders it is meant to guard", () => {
     const paths = Object.keys(real);
-    for (const folder of ["src/core/", "src/assets/", "src/shell/", "src/app/"]) expect(paths.some((path) => path.startsWith(folder))).toBe(true);
+    for (const folder of ["src/core/", "src/assets/", "src/shell/", "src/app/", "src/api/"]) expect(paths.some((path) => path.startsWith(folder))).toBe(true);
     expect(paths.some((path) => ownedByBodies(path))).toBe(true);
   });
 
@@ -78,12 +81,13 @@ describe("name check (T-047 Done When 5)", () => {
       "src/app/Planted.ts": 'import { MOON } from "../core/body"; export const r = MOON.radiusKm;',
       "src/core/Planted.ts": "export const label = 'Apollo 11';",
       "src/assets/Planted.ts": "export const id = `sun`;",
+      "src/api/Planted.ts": 'export const centre = input.center ?? "earth";',
       "src/app/Prose.ts": '// the "earth" is named only in a comment\nexport const fine = 1;',
       "src/core/bodies/Fine.ts": 'export const id = "earth";',
       "src/assets/compositions.ts": 'export const bodies = ["earth", "moon"];',
     };
     const offences = nameOffences(planted, BODY_NAME_ALLOWLIST).map(([file]) => file).sort();
-    expect(offences).toEqual(["src/app/Planted.ts", "src/assets/Planted.ts", "src/core/Planted.ts", "src/shell/Planted.tsx"]);
+    expect(offences).toEqual(["src/api/Planted.ts", "src/app/Planted.ts", "src/assets/Planted.ts", "src/core/Planted.ts", "src/shell/Planted.tsx"]);
     // The same body literal is accepted only through an allowlist entry that names the file.
     expect(nameOffences({ "src/app/Planted.ts": 'export const a = "earth";' }, { "src/app/Planted.ts": "made-up reason for the test" })).toEqual([]);
   });

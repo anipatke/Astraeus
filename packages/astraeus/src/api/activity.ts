@@ -26,7 +26,7 @@ export interface ActivityInput {
   readonly id: string;
   /** Name shown on the timeline and with the rate bar. */
   readonly label: string;
-  /** What the rate counts, per unit of time, such as "meteors per hour". */
+  /** What the rate counts, per unit of time, such as "events per hour". */
   readonly unit: string;
   /** The first and last moment of the activity. The curve's samples lie inside it, and the rate is unavailable outside it. */
   readonly start: TimeInput;
@@ -59,7 +59,7 @@ function checkFields(input: ActivityInput): string {
   const id = input?.id;
   if (!isText(id)) throw bad(id, "the activity needs a non-empty id");
   if (!isText(input.label)) throw bad(id, "the activity needs a non-empty label");
-  if (!isText(input.unit)) throw bad(id, "the activity needs a unit such as \"meteors per hour\"");
+  if (!isText(input.unit)) throw bad(id, "the activity needs a unit such as \"events per hour\"");
   if (!Array.isArray(input.samples) || input.samples.length < 2) throw bad(id, "the curve needs at least two samples");
   if (input.peakLabel !== undefined && !isText(input.peakLabel)) throw bad(id, "peakLabel must be a non-empty text");
   return id;

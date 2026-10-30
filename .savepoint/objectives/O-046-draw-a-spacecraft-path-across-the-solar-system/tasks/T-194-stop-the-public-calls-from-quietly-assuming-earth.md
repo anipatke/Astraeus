@@ -2,9 +2,14 @@
 id: T-194
 title: Stop the public calls from quietly assuming Earth
 objective: O-046
-status: planned
+status: done
 depends_on: [{task: T-193, requires: clear}]
 owner_validation: {required: false}
+check_waiver:
+  task: T-194
+  reason: 'Owner said "orchestrate O-46"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.'
+  actor: {role: owner, session: o046-run-20261030}
+  recorded_at: '2026-10-30T21:23:30Z'
 planned_by: {role: planner, session: o046-run-20261030}
 ---
 
@@ -54,7 +59,12 @@ Configured gates at hand-off; no browser run. Evaluated in the Full Objective Ch
 
 ## Technical Evidence
 
-Pending execution.
+Built and handed off at stage audit (Task Check waived, see frontmatter).
+
+- Widened the glob in packages/astraeus/tests/nameCheck.test.ts to src/api/**; header cites ARCH-06; folder-read test includes src/api/; planted src/api case added (stale-allowlist test unchanged and passing).
+- Offences found: activity.ts (experience name "meteors" in an error message: reworded to "events per hour"); scene.ts ORBITS parent "earth"/"jupiter" (replaced by the body's catalogue parentId, no behaviour change); scene.ts scene-centre fallback "earth" (allowlisted: documented default when no catalogued first body, catalogue root is the Sun); bodies.ts (allowlisted: built-in handles are the ids); sunOrbit.ts (allowlisted: Earth's dedicated Sun trajectory and provenance).
+- Design.md Boundaries gains a line on the src/api/ coverage.
+- Gates after last edit: lint, typecheck, build clean; test 146 files, 1910 passed, 1 skipped. No browser run.
 
 ## Drift Notes
 

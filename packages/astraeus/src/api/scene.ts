@@ -77,10 +77,10 @@ export type ReadoutInput =
   | { readonly kind: "distance"; readonly to: BodyId }
   | { readonly kind: "altitude"; readonly above: BodyId };
 
-/** The orbits the engine can draw: the parent the line is measured from, and the span one lap covers. */
-const ORBITS: Readonly<Record<string, { readonly parent: BodyId; readonly path: Omit<CompositionPath, "body"> }>> = {
-  moon: { parent: "earth", path: { spanMs: SIDEREAL_MONTH_MS } },
-  io: { parent: "jupiter", path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
+/** The orbits the engine can draw: the span one lap covers (the parent the line is measured from is the body's catalogue parent). */
+const ORBITS: Readonly<Record<string, { readonly path: Omit<CompositionPath, "body"> }>> = {
+  moon: { path: { spanMs: SIDEREAL_MONTH_MS } },
+  io: { path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
 };
 
 /** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre, in equatorial J2000 (EQJ) axes unless the path says `plane: "ecliptic-j2000"`. */
@@ -536,7 +536,8 @@ export class Scene {
   #moonPaths(): readonly CompositionPath[] {
     return [...this.#orbits].filter((id) => ORBITS[id] !== undefined).map((id): CompositionPath => {
       const orbit = ORBITS[id]!;
-      if (!this.#bodies.has(orbit.parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${orbit.parent}, which has not been added to the scene`);
+      const parent = this.#catalogue.get(id).definition.parentId;
+      if (parent === undefined || !this.#bodies.has(parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`);
       return { body: id, ...orbit.path };
     });
   }
