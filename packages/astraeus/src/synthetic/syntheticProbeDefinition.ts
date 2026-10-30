@@ -42,6 +42,7 @@ scene.addTrajectory({
 });
 scene.addEvents([{ id: "probe-flyby", label: "Made-up flyby of Earth", time: PROBE_FLYBY_UTC_MS }], { provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Not a real flyby." } });
 scene.setScale(solarSystemScale);
+scene.camera.follow("probe", { distance: 70_000 });
 scene.camera.fitOrbit(mars);
 
 export const syntheticProbeDefinition: ExperienceDefinition = scene.toDefinition();

@@ -11,7 +11,7 @@ import { trueScale } from "../src/core/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { relativeTrailKm } from "../src/app/pathRules";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
-import { trackedBodiesOf } from "../src/app/experienceDefinition";
+import { initialObjectIdOf, trackedBodiesOf } from "../src/app/experienceDefinition";
 import { bodyAbsolute } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";
 import { solarSystemPolicyForTest } from "./scalePolicies";
@@ -155,6 +155,7 @@ describe("the made-up probe experience (O-046 T-193)", () => {
     const body = trackedBodiesOf(syntheticProbeDefinition)[0]!;
     expect(body.id).toBe("probe");
     expect(body.lineFixedTo).toBe("sun");
+    expect(initialObjectIdOf(syntheticProbeDefinition)).toBe("probe"); // opens following the probe, so its label wins any collision (I-108)
     expect(syntheticProbeDefinition.experience.objects.map((o) => o.id)).toEqual(expect.arrayContaining(["sun", "earth", "mars", "probe"]));
   });
 

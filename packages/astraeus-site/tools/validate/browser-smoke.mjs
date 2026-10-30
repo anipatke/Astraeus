@@ -58,10 +58,23 @@ async function drawsSomething(page, view) {
   return drawn;
 }
 
-/** O-046 T-193: the probe path draws, its line (fixed to the Sun) sits at the same place in the view at two times, and its label is shown at one of seven times (label layout hides it behind a planet's at some). Readouts only. */
+/**
+ * O-046 T-193: the probe path draws, its label is shown at two times (the scene opens following the probe, and the followed label wins any collision, I-108), and its line (fixed to the Sun)
+ * sits at the same place in the view at two times. The camera follows the probe, so the line check first picks the Sun, which stays put in the view. Readouts only.
+ */
 async function sunPathChecks(page) {
   await ui.ensurePaused(page);
   const line = (p) => [p.minX, p.maxX, p.minY, p.maxY];
+  const labelShownAt = async (fraction) => {
+    await ui.seekToFraction(page, fraction);
+    await page.waitForTimeout(500);
+    return (await ui.shownSceneLabelIds(page)).includes("probe");
+  };
+  const labelFirst = await labelShownAt(0.2);
+  const labelSecond = await labelShownAt(0.8);
+  if (!labelFirst || !labelSecond) throw new Error(`the probe path's label is not shown (at 0.2: ${labelFirst}, at 0.8: ${labelSecond})`);
+  await ui.pickBody(page, "sun");
+  await page.waitForTimeout(2500); // the camera eases to the Sun
   await ui.seekToFraction(page, 0.2);
   await page.waitForTimeout(500);
   const first = await ui.scenePath(page, "probe");
@@ -70,15 +83,6 @@ async function sunPathChecks(page) {
   const second = await ui.scenePath(page, "probe");
   if (first === undefined || !first.visible || first.inView === 0) throw new Error(`the Sun-centred probe path is not drawn in view (${JSON.stringify(first)} of ${JSON.stringify((await ui.scenePaths(page)).map((p) => p.id))})`);
   if (second === undefined || line(first).some((value, k) => Math.abs(value - line(second)[k]) > 0.002)) throw new Error(`the probe path line moved between two times (${JSON.stringify(line(first))} then ${JSON.stringify(second && line(second))})`);
-  // Label layout hides a lower-priority label that collides with a planet's (I-108: the probe's label, priority 80, loses to the Sun's, Earth's or Mars's where the inner system is a few tens of pixels wide, and
-  // which one wins varies with the time and the size), so the label must be shown at one of several times. The line is fixed to the Sun, so these seeks cannot move it.
-  let labelShown = false;
-  for (const fraction of [0.8, 0.05, 0.2, 0.35, 0.5, 0.65, 0.95]) {
-    await ui.seekToFraction(page, fraction);
-    await page.waitForTimeout(500);
-    if ((await ui.shownSceneLabelIds(page)).includes("probe")) { labelShown = true; break; }
-  }
-  if (!labelShown) throw new Error("the probe path's label is not shown at any of seven times");
   return { first: line(first), second: line(second) };
 }
 

@@ -17,6 +17,9 @@ interface Rect {
   readonly bottom: number;
 }
 
+/** Added to the selected object's label priority; larger than any labelPriority, so it is never the label hidden by an overlap. */
+export const SELECTED_PRIORITY = 1_000;
+
 /** App adapter that places configured labels; the label presentation itself stays generic. */
 export class SceneLabelLayer {
   readonly #root = document.createElement("div");
@@ -29,6 +32,7 @@ export class SceneLabelLayer {
     this.#entries = objects.map((object) => {
       const element = createLabelElement(object.label, object.color, "scene-object-label");
       element.dataset.labelId = object.id;
+      element.hidden = true; // not shown until the first layout places it (I-108: unplaced labels all showed for a moment, so a reader could see a label the settled layout then hides)
       this.#root.appendChild(element);
       return { object, element };
     });
@@ -73,7 +77,8 @@ export class SceneLabelLayer {
         entry.element.hidden = true;
         return [];
       }
-      const selectedPriority = entry.object.id === selectedObjectId ? 1_000 : 0;
+      // The selected (and so followed) object's label wins every collision: the bonus outranks any labelPriority (I-108).
+      const selectedPriority = entry.object.id === selectedObjectId ? SELECTED_PRIORITY : 0;
       return [{ ...entry, screen, priority: (entry.object.labelPriority ?? 0) + selectedPriority }];
     }).sort((a, b) => b.priority - a.priority || a.object.id.localeCompare(b.object.id));
 

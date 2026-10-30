@@ -12,6 +12,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - A path's own name shows (I-100). Its label was limited to 4 scaled units from the camera, so it never showed at a normal view; it now has the same reach as a body's label (none in a Sun-centred or fitted scene, otherwise the camera reach, at least 500) and follows the `labels` switch. This also lengthens how far a path's label shows in Earth-centred scenes such as Apollo 11.
 - New `labelReach` option on `addBody` and `addTrajectory`: a positive number (the camera's `distance` units) that limits how far from the camera that label shows, replacing the shared rule for that item; a bad value throws `bad-body` / `bad-trajectory`. Apollo 11 sets `labelReach: 4` on its paths so they behave as before.
 - Wording only (O-046): the `addActivity` error for a missing unit now suggests `"events per hour"` instead of `"meteors per hour"` (the engine names no shower, ARCH-06); the doc comment's example changed the same way.
+- Labels (I-108): the label of the selected object, which is the one `camera.follow` or `camera.lookAt` opens on, always wins a collision with another label; before, the rule was the same in code but nothing opened on a path, so a path's label could be hidden behind a planet's. Other labels keep today's priority order. A scene's labels also stay hidden until the first layout places them, so none shows unplaced for a moment after load.
 
 ## 0.3.0 (2026-10-29)
 

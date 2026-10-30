@@ -21,6 +21,10 @@ history:
     actor: {role: builder, session: o046-repair-20261031}
     kind: repair_attempted
     note: 'Cause proven on a dev server (port 5601): the probe label is in reach but hidden by label collision at some times on a phone (shown at 0.2 or 0.5 in some runs, hidden at 0.8; varies run to run), so layout working as designed. Repaired the check, not the engine: browser-smoke.mjs sunPathChecks now accepts the label shown at any of seven seek times; the phone case is kept. Smoke for synthetic-probe passed twice on both sizes; full check:browser not run.'
+  - at: '2026-10-31T09:10:00Z'
+    actor: {role: builder, session: o046-repair-20261031}
+    kind: repair_attempted
+    note: 'Engine-level fix (owner decision 2026-10-30): the selected object label already outranked others (SELECTED_PRIORITY 1000) but the probe fixture never selected the probe, so it opened on the Sun; the fixture now calls camera.follow("probe"), so the probe label wins every collision. Non-determinism cause: SceneLabelLayer created labels visible, so before the first layout every label showed unplaced and a reader could see a label the settled layout then hides; labels now start hidden. The layout itself is deterministic (priority, then id). Smoke reverted to strict: label shown at 0.2 and 0.8, then the Sun is picked for the line-still check (the camera follows the probe). Smoke for synthetic-probe passed on both sizes in two runs; full check:browser not run.'
 ---
 
 # I-108: The browser check fails: the probe path's label is not shown on a phone

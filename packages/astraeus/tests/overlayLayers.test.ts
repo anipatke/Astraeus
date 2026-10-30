@@ -70,6 +70,43 @@ describe("SceneLabelLayer", () => {
     expect([...layer.shownRects.keys()].sort()).toEqual(["a", "b", "behind"]);
   });
 
+  describe("collisions (I-108; made-up labels at one point)", () => {
+    const pile = [{ id: "high", label: "High", labelPriority: 100 }, { id: "mid", label: "Mid", labelPriority: 90 }, { id: "low", label: "Low", labelPriority: 10 }, { id: "path", label: "Path", labelPriority: 80 }];
+    const run = (selected: string) => {
+      stubRects();
+      const layer = new SceneLabelLayer(host, pile);
+      layer.update(() => [0, 0, 0], camera(), 800, 600, new FloatingOrigin(), selected);
+      return [...layer.shownRects.keys()];
+    };
+
+    it("the selected (followed) label wins every collision, even with the lowest priority", () => {
+      expect(run("low")[0]).toBe("low");
+      expect(run("low")).toContain("low");
+      expect(labelOf("low").style.transform).toContain("translate(408px, 300px)"); // the first, right-hand slot
+    });
+
+    it("with nothing selected, today's order holds: priority, then id; the fourth fits nowhere and is hidden", () => {
+      expect(run("none")).toEqual(["high", "mid", "path"]);
+      expect(labelOf("low").hidden).toBe(true);
+    });
+
+    it("lays out the same for the same input, however often it is asked or by which layer", () => {
+      const transforms = () => pile.map((o) => labelOf(o.id).style.transform + labelOf(o.id).hidden);
+      run("path");
+      const first = transforms();
+      run("path");
+      host.innerHTML = "";
+      expect(run("path")).toEqual(["path", "high", "mid"]);
+      expect(transforms()).toEqual(first);
+    });
+
+    it("no label shows before the first layout places it", () => {
+      const layer = new SceneLabelLayer(host, pile);
+      expect(pile.every((o) => labelOf(o.id).hidden)).toBe(true);
+      layer.dispose();
+    });
+  });
+
   it("brightens only the hovered name, and clears it", () => {
     const layer = new SceneLabelLayer(host, objects);
     layer.setHover("a", 1.5);
