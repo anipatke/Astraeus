@@ -11,11 +11,12 @@ import {
   PointsMaterial,
   RGBAFormat,
   SphereGeometry,
+  Vector3,
   type Camera,
-  type Vector3,
 } from "three";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
+import type { PathScreenReadout } from "./PathView";
 import { anchorLabelsOf, markerRadiusUnits, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
 import { mapPathKm, relativeTrailKm, shiftedBy, type PathSamples } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
@@ -201,6 +202,31 @@ export class TrackedBodyView {
     if (trailing !== null) push(trailing);
     positions.needsUpdate = true;
     line.geometry.setDrawRange(0, written >= 2 ? written : 0);
+  }
+
+  /**
+   * Diagnostic for the browser checks (`data-paths`, O-046 T-193): whether the path is drawn, the vertices of its two lines (travelled and future) in front of the camera and inside the view, and the box they cover
+   * as shares of the view. Both lines together are the whole path, so a line fixed to the Sun reads the same at any time. The line box repeats the vertex box.
+   */
+  screenReadout(camera: Camera): PathScreenReadout {
+    camera.updateMatrixWorld();
+    const point = new Vector3();
+    let [vertices, inView, minX, maxX, minY, maxY] = [0, 0, 1, 0, 1, 0];
+    for (const line of [this.#travelled, this.#future]) {
+      const positions = line.geometry.getAttribute("position") as BufferAttribute;
+      const drawn = line.geometry.drawRange.count;
+      vertices += drawn;
+      for (let i = 0; i < drawn; i += 1) {
+        point.fromBufferAttribute(positions, i).applyMatrix4(camera.matrixWorldInverse);
+        if (point.z >= 0) continue;
+        point.applyMatrix4(camera.projectionMatrix);
+        if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) continue;
+        const [x, y] = [(point.x + 1) / 2, (1 - point.y) / 2];
+        inView += 1;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+    }
+    return { id: this.body.id, visible: this.group.visible && vertices > 0, vertices, inView, minX, maxX, minY, maxY, lineMinX: minX, lineMaxX: maxX, lineMinY: minY, lineMaxY: maxY, axisDeg: 0, aspect: (camera as { aspect?: number }).aspect ?? 1, look: null };
   }
 
   /** Local (floating-origin) render position of anchor `index` as last drawn. */

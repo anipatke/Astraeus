@@ -174,3 +174,10 @@ Improvement fixes (branch improvements-1, 2026-10-24; Issues I-084 to I-091, rec
 - **On-demand panels (I-089, after O-043 T-179).** Reflected: `MoonFamilyPanel` loads through `React.lazy` in `AstraeusShell`, inside `PanelLoadBoundary` (now with a `message` prop; also wraps the developer panels since the O-043 follow-up). The planet and comet tables stay module constants because `addBody` reads them synchronously; moving them is a catalogue refactor the owner declined (I-089 history).
 - **Page limit (I-086).** Apollo 11 raw page limit 4,450,000 B by owner decision (`load-budget.mjs`).
 - **Non-architectural:** I-084 (doc comments and an unread showers setting), I-085 (publish workflow action versions), I-087 (health scanners skip `docs/research`, `docs/prds`, noted in Code Health above), I-088 and I-090 (tests only), I-034 (re-measured, no change).
+
+Paths across the solar system (O-046, branch o046-sun-paths, 2026-10-30; T-189 to T-192 reconciled by T-193):
+- **Sun-centred paths and the line rule (T-189).** Reflected in Design.md "Paths across the solar system" and state-and-assets.md: `addTrajectory` is accepted in a Sun-centred scene (this supersedes the "tracked path in one throws `bad-trajectory`" clause of T-174 above); `TrackedBody.lineFixedTo`; `relativeTrailKm(..., against?)`.
+- **Path frame (T-190).** Reflected: EQJ by default, `plane: "ecliptic-j2000"` rotated once at entry with the orb adapter's matrix. Known limit, decided in T-193 (not rotated): a provider state's `orientation` quaternion passes through unrotated, because tracked paths carry none and no consumer reads it; documented in the README and Design.md.
+- **Scale (T-191).** Reflected: `solarSystemScale` is a public export and the same policy the viewer builds per experience; `bad-scale` outside an enlarged Sun-centred scene.
+- **Label reach (T-192).** Reflected: one rule for bodies and paths, `labelReach` override on `addBody` and `addTrajectory`; Apollo 11 sets 4.
+- **Added by T-193, reflected:** tracked paths report to `data-paths` (`TrackedBodyView.screenReadout`), the made-up `synthetic-probe` fixture, and one browser-smoke case.

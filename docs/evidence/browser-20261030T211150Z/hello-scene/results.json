@@ -1,0 +1,52 @@
+{
+  "name": "check-hello-scene",
+  "at": "2026-10-30T21:13:36.443Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "opened": 1767225692940,
+        "moved": 1767236400000,
+        "anchors": 3,
+        "events": 2,
+        "panel": "half-lap",
+        "switches": {
+          "topBar": [
+            "orbitLines"
+          ],
+          "panel": [
+            "labels"
+          ]
+        },
+        "ringDots": 40,
+        "earthPx": 7.818,
+        "orbitInView": 107,
+        "moonAs": "marker"
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "opened": 1767225643080,
+        "moved": 1767236400000,
+        "anchors": 3,
+        "events": 2,
+        "panel": "half-lap",
+        "switches": {
+          "topBar": [
+            "orbitLines"
+          ],
+          "panel": [
+            "labels"
+          ]
+        },
+        "ringDots": 40,
+        "earthPx": 7.228,
+        "orbitInView": 31,
+        "moonAs": "marker"
+      }
+    }
+  ],
+  "errors": []
+}

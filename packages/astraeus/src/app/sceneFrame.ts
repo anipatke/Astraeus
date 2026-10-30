@@ -234,7 +234,7 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   const hoverGain = clampHoverBrightness(controls.hoverBrightness ?? HOVER_BRIGHTNESS_DEFAULT);
   for (const layer of ctx.layers.bodySetLabels.current) layer.update(setLook, hoverGain);
   publishBodySets(canvas, views.bodySetViews, views.orbitSetViews, setLook, camera, size.width, size.height);
-  publishPathData(canvas, [...views.sunCentredViews, ...views.compositionPaths], camera);
+  publishPathData(canvas, [...views.sunCentredViews, ...views.compositionPaths, ...views.trackedViews], camera);
   publishPointsData(canvas, views.groupViews, camera, views.bodySetViews);
   return hoverGain;
 }

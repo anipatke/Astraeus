@@ -147,3 +147,57 @@ describe("a path given in the ecliptic plane", () => {
     expect(codeOf(() => build("eqj", { plane: "galactic" }))).toMatch(/^bad-trajectory: addTrajectory\("orbiter"\): plane "galactic"/);
   });
 });
+
+describe("the made-up probe experience (O-046 T-193)", () => {
+  it("builds on the public API: Sun first, enlarged planets, the Solar system scale first, the path fixed to the Sun", async () => {
+    const { syntheticProbeDefinition } = await import("../src/synthetic/syntheticProbeDefinition");
+    expect(syntheticProbeDefinition.scaleChoices?.[0]).toBe("solar-system");
+    const body = trackedBodiesOf(syntheticProbeDefinition)[0]!;
+    expect(body.id).toBe("probe");
+    expect(body.lineFixedTo).toBe("sun");
+    expect(syntheticProbeDefinition.experience.objects.map((o) => o.id)).toEqual(expect.arrayContaining(["sun", "earth", "mars", "probe"]));
+  });
+
+  it("builds the README example (a made-up ecliptic probe, line fixed to the Sun, Solar system scale)", async () => {
+    const { solarSystemScale } = await import("astraeus");
+    const AU = 149_597_870.7;
+    const samples = Array.from({ length: 11 }, (_, i) => ({ time: T0 + i * 20 * DAY, positionKm: [AU * (0.6 + 0.05 * i), AU * 0.1 * i, 0] }));
+    const scene = new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).addBody(mars, { enlarge: 60 })
+      .addTrajectory({ id: "probe", label: "Made-up probe", samples, plane: "ecliptic-j2000", lineFixedTo: "sun" }).setTime(T0).setScale(solarSystemScale);
+    scene.camera.fitOrbit(mars);
+    expect(scene.toDefinition().scaleChoices![0]).toBe("solar-system");
+  });
+});
+
+describe("addTrajectory's centre defaults to the scene's centre (O-046, owner decision 2026-10-30)", () => {
+  const withoutCentre = () => ({ id: "probe", samples: transfer(), lineFixedTo: "sun" as const });
+  const meetsMars = (scene: Scene): number => {
+    const view = new TrackedBodyView(trackedBodiesOf(scene.toDefinition())[0]!);
+    view.update(FLYBY, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
+    const marker = (view.group.children[3] as any).position;
+    const planet = bodyAbsolute(resolver().stateOf("mars", FLYBY, "sun").positionKm, trueScale);
+    return Math.hypot(marker.x - planet[0]!, marker.y - planet[1]!, marker.z - planet[2]!) / Math.hypot(...planet);
+  };
+
+  it("a Sun-first scene reads Sun-measured samples from the Sun, so the probe meets the planet (the miss the owner saw)", () => {
+    const scene = new Scene().addBody(sun).addBody(earth, { enlarge: 50 }).addBody(mars, { enlarge: 50 }).setTime(T0).addTrajectory(withoutCentre());
+    expect(meetsMars(scene)).toBeLessThan(1e-6);
+    expect(scene.stateOf("probe", FLYBY).center).toBe("sun");
+  });
+
+  it("follows the first body even when the path is added before any body", () => {
+    const scene = new Scene().addTrajectory(withoutCentre()).addBody(sun).addBody(earth, { enlarge: 50 }).addBody(mars, { enlarge: 50 }).setTime(T0);
+    expect(scene.stateOf("probe", FLYBY).center).toBe("sun");
+    expect(meetsMars(scene)).toBeLessThan(1e-6);
+  });
+
+  it("an Earth-first scene still reads from Earth, and an explicit centre wins", () => {
+    const earthFirst = new Scene().addBody(earth).addBody(moon).addTrajectory({ id: "p", samples: [{ time: T0, positionKm: [8000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 9000, 0] }] });
+    expect(earthFirst.stateOf("p", T0).center).toBe("earth");
+    const alone = new Scene().addTrajectory({ id: "p", samples: [{ time: T0, positionKm: [8000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 9000, 0] }] });
+    expect(alone.stateOf("p", T0).center).toBe("earth");
+    const explicit = new Scene().addBody(sun).addBody(earth).addTrajectory({ id: "p", center: "earth", samples: [{ time: T0, positionKm: [8000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 9000, 0] }] });
+    expect(explicit.stateOf("p", T0).center).toBe("earth");
+  });
+});
+

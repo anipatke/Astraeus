@@ -5,7 +5,7 @@ import { rootBodyId } from "../assets/catalogue";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import type { Camera } from "three";
-import type { PathView } from "./PathView";
+import type { PathScreenReadout } from "./PathView";
 import type { BodyScreenReadout } from "./sceneBodies";
 import { buildDebugReadout, type DebugReadout } from "./debugReadout";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -30,7 +30,7 @@ export function publishSceneData(canvas: HTMLElement, state: { readonly markerBo
  * What the browser scripts read back about every drawn path line (`data-paths`, JSON): per path its id, whether it is drawn, its vertex count, how many
  * vertices are in view and the share of the view they span (with the box's edges, the major axis angle on screen and the view's aspect), and for an orbit its look in force. This is the line itself, so a check that a path is drawn never depends on its label.
  */
-export function publishPathData(canvas: HTMLElement, views: readonly PathView[], camera: Camera): void {
+export function publishPathData(canvas: HTMLElement, views: readonly { screenReadout(camera: Camera): PathScreenReadout }[], camera: Camera): void {
   const round = (value: number): number => Math.round(value * 1000) / 1000;
   const paths = views.map((view) => {
     const r = view.screenReadout(camera);

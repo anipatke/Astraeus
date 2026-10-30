@@ -94,7 +94,7 @@ interface TrajectoryBase {
   readonly id: string;
   readonly label?: string;
   readonly color?: string;
-  /** The body the positions are measured from; defaults to "earth". */
+  /** The body the positions are measured from; defaults to the scene's centre (its first body, whichever you add first; "earth" if none is a catalogued body). */
   readonly center?: BodyId;
   /**
    * The body the path's line is drawn against: each sample is placed from this body at the sample's own time, then the line is carried to
@@ -228,6 +228,8 @@ export class Scene {
   readonly camera: SceneCamera;
   readonly #bodies = new Map<BodyId, BodyRef>();
   readonly #tracked = new Map<string, Tracked>();
+  /** Paths added without a `center`: they follow the scene's first body, so one added before any body is rebuilt when the first body arrives. */
+  readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groups = new Map<string, PlannedGroup>();
   readonly #activities = new Map<string, PlannedActivity>();
   readonly #orbits = new Set<BodyId>();
@@ -294,6 +296,7 @@ export class Scene {
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.#shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.#notes.set(id, options.description);
     this.#bodies.set(id, ref);
+    if (this.#bodies.size === 1 && builtInCatalogue.has(id)) for (const input of this.#defaulted.values()) this.#buildTracked(input, id);
   }
 
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
@@ -301,7 +304,20 @@ export class Scene {
     const id = input.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
-    const center = input.center ?? "earth";
+    this.#buildTracked(input, input.center ?? this.#sceneCentre());
+    if (input.center === undefined) this.#defaulted.set(id, input);
+    return this;
+  }
+
+  /** The scene's centre: its first body when that is a built-in one, else Earth (the default of a path added before any body; `#register` re-reads it when the first body arrives). */
+  #sceneCentre(): BodyId {
+    const first = this.#bodies.keys().next();
+    return first.done === true || !builtInCatalogue.has(first.value) ? "earth" : first.value;
+  }
+
+  /** Validates and stores one path about `center`. */
+  #buildTracked(input: TrajectoryInput, center: BodyId): void {
+    const id = input.id;
     if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
     const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
@@ -314,7 +330,6 @@ export class Scene {
     const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
     this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
-    return this;
   }
 
   /** Whether a body, path or group already has this id. */
