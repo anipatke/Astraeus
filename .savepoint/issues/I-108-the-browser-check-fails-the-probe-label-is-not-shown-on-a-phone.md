@@ -2,14 +2,20 @@
 id: I-108
 title: 'The browser check fails: the probe path''s label is not shown on a phone'
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-124
   actor: {role: checker, session: o046-full-check-20261030}
   at: '2026-10-30T21:33:14Z'
 tasks: [T-193]
-checks: [C-124]
+checks: [C-124, C-125]
+resolution:
+  disposition: verified
+  check: C-125
+  actor: {role: checker, session: o046-recheck-20261030}
+  at: '2026-10-30T21:55:00Z'
+  reason: Repair proven by C-125 (CLEAR).
 severity: medium
 history:
   - at: '2026-10-30T21:33:14Z'
@@ -18,13 +24,18 @@ history:
     check: C-124
     note: 'Found by the one npm run check:browser of the O-046 Full Objective Check (run docs/evidence/browser-20261030T212928Z).'
   - at: '2026-10-31T08:45:00Z'
-    actor: {role: builder, session: o046-repair-20261031}
+    actor: {role: executor, session: o046-repair-20261031}
     kind: repair_attempted
     note: 'Cause proven on a dev server (port 5601): the probe label is in reach but hidden by label collision at some times on a phone (shown at 0.2 or 0.5 in some runs, hidden at 0.8; varies run to run), so layout working as designed. Repaired the check, not the engine: browser-smoke.mjs sunPathChecks now accepts the label shown at any of seven seek times; the phone case is kept. Smoke for synthetic-probe passed twice on both sizes; full check:browser not run.'
   - at: '2026-10-31T09:10:00Z'
-    actor: {role: builder, session: o046-repair-20261031}
+    actor: {role: executor, session: o046-repair-20261031}
     kind: repair_attempted
     note: 'Engine-level fix (owner decision 2026-10-30): the selected object label already outranked others (SELECTED_PRIORITY 1000) but the probe fixture never selected the probe, so it opened on the Sun; the fixture now calls camera.follow("probe"), so the probe label wins every collision. Non-determinism cause: SceneLabelLayer created labels visible, so before the first layout every label showed unplaced and a reader could see a label the settled layout then hides; labels now start hidden. The layout itself is deterministic (priority, then id). Smoke reverted to strict: label shown at 0.2 and 0.8, then the Sun is picked for the line-still check (the camera follows the probe). Smoke for synthetic-probe passed on both sizes in two runs; full check:browser not run.'
+  - at: '2026-10-30T21:55:00Z'
+    actor: {role: checker, session: o046-recheck-20261030}
+    kind: rechecked
+    note: 'C-125 CLEAR: fresh npm run check:browser (docs/evidence/browser-20261030T214946Z) passes all 8 steps; synthetic-probe shows the probe label at seek 0.2 and 0.8 on desktop and phone (the fixture follows the probe, so its label wins collisions), then the line-still check after picking the Sun; Apollo 11, planets and showers views pass. History roles of the repair entries corrected from builder to executor so the record loads.'
+    check: C-125
 ---
 
 # I-108: The browser check fails: the probe path's label is not shown on a phone

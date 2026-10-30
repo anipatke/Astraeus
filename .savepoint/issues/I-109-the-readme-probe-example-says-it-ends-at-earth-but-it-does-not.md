@@ -2,14 +2,20 @@
 id: I-109
 title: 'The README probe example says its line runs to Earth, but it ends 2 AU from Earth'
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-124
   actor: {role: checker, session: o046-full-check-20261030}
   at: '2026-10-30T21:33:14Z'
 tasks: [T-193]
-checks: [C-124]
+checks: [C-124, C-125]
+resolution:
+  disposition: verified
+  check: C-125
+  actor: {role: checker, session: o046-recheck-20261030}
+  at: '2026-10-30T21:55:00Z'
+  reason: Repair proven by C-125 (CLEAR).
 severity: low
 history:
   - at: '2026-10-30T21:33:14Z'
@@ -18,9 +24,14 @@ history:
     check: C-124
     note: 'Found by an independent probe of the README example in the O-046 Full Objective Check.'
   - at: '2026-10-31T08:45:00Z'
-    actor: {role: builder, session: o046-repair-20261031}
+    actor: {role: executor, session: o046-repair-20261031}
     kind: repair_attempted
     note: 'README prose and code comment now state what the samples do (start 0.6 AU, end about 1.49 AU from the Sun, not aimed at a planet); the README-mirroring test checks the start and end distances and the centre; a fixture test checks the probe meets Earth at the flyby.'
+  - at: '2026-10-30T21:55:00Z'
+    actor: {role: checker, session: o046-recheck-20261030}
+    kind: rechecked
+    note: 'C-125 CLEAR: README prose and comment match the samples (0.6 AU start, 1.4866 AU end, from the Sun), checked by running the README code as written; the repo test now asserts the centre and both distances. History role of the repair entry corrected from builder to executor so the record loads.'
+    check: C-125
 ---
 
 # I-109: The README probe example says its line runs to Earth, but it ends 2 AU from Earth
