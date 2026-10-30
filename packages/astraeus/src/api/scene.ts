@@ -24,7 +24,7 @@ import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { EccentricSampling } from "../core/sunCentredSources";
 import { circlesTheSun, farthestSunDistanceKm, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
-import { readyMade, type BodyRef } from "./bodies";
+import { FALLBACK_SCENE_CENTRE, readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
@@ -312,7 +312,7 @@ export class Scene {
   /** The scene's centre: its first body when that is a built-in one, else Earth (the default of a path added before any body; `#register` re-reads it when the first body arrives). */
   #sceneCentre(): BodyId {
     const first = this.#bodies.keys().next();
-    return first.done === true || !builtInCatalogue.has(first.value) ? "earth" : first.value;
+    return first.done === true || !builtInCatalogue.has(first.value) ? FALLBACK_SCENE_CENTRE : first.value;
   }
 
   /** Validates and stores one path about `center`. */

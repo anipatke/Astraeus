@@ -19,6 +19,8 @@ export const venus = ref("venus", "Venus");
 export const earth = ref("earth", "Earth");
 /** Moon. */
 export const moon = ref("moon", "Moon");
+/** The scene centre when a path is added before any body: Earth, the documented default (the only place the fallback is named; ARCH-06). */
+export const FALLBACK_SCENE_CENTRE: BodyId = earth.id;
 /** Mars. */
 export const mars = ref("mars", "Mars");
 /** Jupiter. */

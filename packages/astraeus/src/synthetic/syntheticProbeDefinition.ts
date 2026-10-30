@@ -5,19 +5,22 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { earth, mars, sun, venus } from "../api/bodies";
 import { Scene } from "../api/scene";
 import { solarSystemScale } from "../core/scalePolicy";
+import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 
 export const PROBE_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");
 const DAY_MS = 86_400_000;
 /** The moment the made-up probe is at Earth. */
 export const PROBE_FLYBY_UTC_MS = PROBE_START_UTC_MS + 200 * DAY_MS;
-const OBLIQUITY = (23.4392911 * Math.PI) / 180;
+/** The engine's own ecliptic-to-equator rotation (row-major 3x3); its transpose turns equator vectors back to the ecliptic (STYLE-07: no second obliquity constant). */
+const ECLIPTIC_TO_EQJ = createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix();
 
 const scene = new Scene().addBody(sun).addBody(venus, { enlarge: 60, orbit: true }).addBody(earth, { enlarge: 60, orbit: true }).addBody(mars, { enlarge: 60, orbit: true }).setTime(PROBE_START_UTC_MS);
 
 /** A planet's place from the Sun at `timeUtcMs`, turned from the equator frame the scene answers in to the ecliptic frame the path is given in (km). */
 function eclipticPlace(id: string, timeUtcMs: number): number[] {
   const [x, y, z] = scene.stateOf(id, timeUtcMs).positionKm as unknown as number[];
-  return [x!, y! * Math.cos(OBLIQUITY) + z! * Math.sin(OBLIQUITY), -y! * Math.sin(OBLIQUITY) + z! * Math.cos(OBLIQUITY)];
+  const m = ECLIPTIC_TO_EQJ;
+  return [m[0]! * x! + m[3]! * y! + m[6]! * z!, m[1]! * x! + m[4]! * y! + m[7]! * z!, m[2]! * x! + m[5]! * y! + m[8]! * z!];
 }
 
 // A straight leg from a point 0.6 of the way from the Sun to Earth's place at the start, to Earth's place at the flyby, ten samples, then on along the same line for five more.

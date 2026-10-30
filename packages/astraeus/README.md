@@ -44,7 +44,7 @@ The element needs a size (for example `height: 100%` all the way up). The probe'
 
 ### A probe across the solar system
 
-A recorded path can cross the solar system beside enlarged planets. This one is made up (an invented line from inside Earth's orbit to Earth, given in ecliptic axes); the same calls take positions you downloaded from JPL Horizons.
+A recorded path can cross the solar system beside enlarged planets. This one is made up (an invented straight line that starts 0.6 AU from the Sun, inside Earth's orbit, and ends about 1.49 AU out, given in ecliptic axes; it is not aimed at any planet); the same calls take positions you downloaded from JPL Horizons.
 
 ```js
 import { Scene, earth, mars, mount, solarSystemScale, sun } from "astraeus";
@@ -52,7 +52,7 @@ import { Scene, earth, mars, mount, solarSystemScale, sun } from "astraeus";
 const start = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
 const AU = 149_597_870.7;
-// Ecliptic J2000 positions from the Sun, in km: out from 0.6 AU to 1.1 AU over 200 days.
+// Ecliptic J2000 positions from the Sun, in km: a straight line from 0.6 AU to about 1.49 AU from the Sun over 200 days (x runs 0.6 to 1.1 AU, y 0 to 1.0 AU).
 const samples = Array.from({ length: 11 }, (_, i) => ({ time: start + i * 20 * DAY, positionKm: [AU * (0.6 + 0.05 * i), AU * 0.1 * i, 0] }));
 
 const scene = new Scene()

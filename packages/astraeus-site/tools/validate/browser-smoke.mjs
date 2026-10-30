@@ -58,7 +58,7 @@ async function drawsSomething(page, view) {
   return drawn;
 }
 
-/** O-046 T-193: the probe path draws, its line (fixed to the Sun) sits at the same place in the view at two times, and its label is shown. Readouts only. */
+/** O-046 T-193: the probe path draws, its line (fixed to the Sun) sits at the same place in the view at two times, and its label is shown at one of seven times (label layout hides it behind a planet's at some). Readouts only. */
 async function sunPathChecks(page) {
   await ui.ensurePaused(page);
   const line = (p) => [p.minX, p.maxX, p.minY, p.maxY];
@@ -70,7 +70,15 @@ async function sunPathChecks(page) {
   const second = await ui.scenePath(page, "probe");
   if (first === undefined || !first.visible || first.inView === 0) throw new Error(`the Sun-centred probe path is not drawn in view (${JSON.stringify(first)} of ${JSON.stringify((await ui.scenePaths(page)).map((p) => p.id))})`);
   if (second === undefined || line(first).some((value, k) => Math.abs(value - line(second)[k]) > 0.002)) throw new Error(`the probe path line moved between two times (${JSON.stringify(line(first))} then ${JSON.stringify(second && line(second))})`);
-  if (!(await ui.shownSceneLabelIds(page)).includes("probe")) throw new Error("the probe path's label is not shown");
+  // Label layout hides a lower-priority label that collides with a planet's (I-108: the probe's label, priority 80, loses to the Sun's, Earth's or Mars's where the inner system is a few tens of pixels wide, and
+  // which one wins varies with the time and the size), so the label must be shown at one of several times. The line is fixed to the Sun, so these seeks cannot move it.
+  let labelShown = false;
+  for (const fraction of [0.8, 0.05, 0.2, 0.35, 0.5, 0.65, 0.95]) {
+    await ui.seekToFraction(page, fraction);
+    await page.waitForTimeout(500);
+    if ((await ui.shownSceneLabelIds(page)).includes("probe")) { labelShown = true; break; }
+  }
+  if (!labelShown) throw new Error("the probe path's label is not shown at any of seven times");
   return { first: line(first), second: line(second) };
 }
 

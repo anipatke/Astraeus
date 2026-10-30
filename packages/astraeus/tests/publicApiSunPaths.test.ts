@@ -158,6 +158,16 @@ describe("the made-up probe experience (O-046 T-193)", () => {
     expect(syntheticProbeDefinition.experience.objects.map((o) => o.id)).toEqual(expect.arrayContaining(["sun", "earth", "mars", "probe"]));
   });
 
+  it("the fixture's probe meets Earth at the flyby (its one ecliptic rotation is the engine's)", async () => {
+    const { syntheticProbeDefinition, PROBE_FLYBY_UTC_MS } = await import("../src/synthetic/syntheticProbeDefinition");
+    const body = trackedBodiesOf(syntheticProbeDefinition)[0]!;
+    const view = new TrackedBodyView(body);
+    view.update(PROBE_FLYBY_UTC_MS, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
+    const marker = (view.group.children[3] as any).position;
+    const earthAt = bodyAbsolute(resolver().stateOf("earth", PROBE_FLYBY_UTC_MS, "sun").positionKm, trueScale);
+    expect(Math.hypot(marker.x - earthAt[0]!, marker.y - earthAt[1]!, marker.z - earthAt[2]!) / Math.hypot(...earthAt)).toBeLessThan(1e-6);
+  });
+
   it("builds the README example (a made-up ecliptic probe, line fixed to the Sun, Solar system scale)", async () => {
     const { solarSystemScale } = await import("astraeus");
     const AU = 149_597_870.7;
@@ -166,6 +176,13 @@ describe("the made-up probe experience (O-046 T-193)", () => {
       .addTrajectory({ id: "probe", label: "Made-up probe", samples, plane: "ecliptic-j2000", lineFixedTo: "sun" }).setTime(T0).setScale(solarSystemScale);
     scene.camera.fitOrbit(mars);
     expect(scene.toDefinition().scaleChoices![0]).toBe("solar-system");
+    // The README says the line starts 0.6 AU from the Sun and ends about 1.49 AU out (x 1.1 AU, y 1.0 AU), measured from the Sun; the rotation keeps distances.
+    const fromSun = (day: number) => scene.stateOf("probe", T0 + day * DAY);
+    const au = (v: readonly number[]) => Math.hypot(...v) / AU;
+    expect(fromSun(0).center).toBe("sun");
+    expect(au(fromSun(0).positionKm as unknown as number[])).toBeCloseTo(0.6, 6);
+    expect(au(fromSun(200).positionKm as unknown as number[])).toBeCloseTo(Math.hypot(1.1, 1.0), 6);
+    expect(au(fromSun(200).positionKm as unknown as number[])).toBeGreaterThan(1.48);
   });
 });
 
@@ -200,4 +217,3 @@ describe("addTrajectory's centre defaults to the scene's centre (O-046, owner de
     expect(explicit.stateOf("p", T0).center).toBe("earth");
   });
 });
-

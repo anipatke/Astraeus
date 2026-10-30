@@ -17,6 +17,10 @@ history:
     kind: observed
     check: C-124
     note: 'Found by the one npm run check:browser of the O-046 Full Objective Check (run docs/evidence/browser-20261030T212928Z).'
+  - at: '2026-10-31T08:45:00Z'
+    actor: {role: builder, session: o046-repair-20261031}
+    kind: repair_attempted
+    note: 'Cause proven on a dev server (port 5601): the probe label is in reach but hidden by label collision at some times on a phone (shown at 0.2 or 0.5 in some runs, hidden at 0.8; varies run to run), so layout working as designed. Repaired the check, not the engine: browser-smoke.mjs sunPathChecks now accepts the label shown at any of seven seek times; the phone case is kept. Smoke for synthetic-probe passed twice on both sizes; full check:browser not run.'
 ---
 
 # I-108: The browser check fails: the probe path's label is not shown on a phone

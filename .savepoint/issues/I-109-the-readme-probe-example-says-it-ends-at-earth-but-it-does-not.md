@@ -17,6 +17,10 @@ history:
     kind: observed
     check: C-124
     note: 'Found by an independent probe of the README example in the O-046 Full Objective Check.'
+  - at: '2026-10-31T08:45:00Z'
+    actor: {role: builder, session: o046-repair-20261031}
+    kind: repair_attempted
+    note: 'README prose and code comment now state what the samples do (start 0.6 AU, end about 1.49 AU from the Sun, not aimed at a planet); the README-mirroring test checks the start and end distances and the centre; a fixture test checks the probe meets Earth at the flyby.'
 ---
 
 # I-109: The README probe example says its line runs to Earth, but it ends 2 AU from Earth

@@ -69,4 +69,3 @@ Focused tests while iterating; configured gates at hand-off. No browser run (the
 ## Drift Notes
 
 Record for the last step's Design reconciliation.
-
