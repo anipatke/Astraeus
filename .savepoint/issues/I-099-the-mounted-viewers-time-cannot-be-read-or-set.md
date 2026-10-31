@@ -2,12 +2,19 @@
 id: I-099
 title: 'The mounted viewer''s time cannot be read or set from the host page'
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: voyager-feedback-20261030}
   at: '2026-10-30T20:08:15Z'
 severity: medium
+checks: [C-128]
+resolution:
+  disposition: verified
+  check: C-128
+  actor: {role: checker, session: o047-recheck2-20261031}
+  at: '2026-10-31T04:25:00Z'
+  reason: 'C-128 CLEAR: host time/rate read, set and change callbacks on the mount handle and AstraeusScene proven (C-126 row 8), unchanged by later repairs; full gate passes.'
 history:
   - at: '2026-10-30T20:08:15Z'
     actor: {role: planner, session: voyager-feedback-20261030}
@@ -17,6 +24,11 @@ history:
     actor: {role: planner, session: probe-feedback-20261031}
     kind: observed
     note: 'Reported again from the probe app on 0.4.0: still blocks a host from steering time or rate; timeline pacing filed as I-112.'
+  - at: '2026-10-31T04:25:00Z'
+    actor: {role: checker, session: o047-recheck2-20261031}
+    kind: rechecked
+    check: C-128
+    note: 'Verified by C-128 CLEAR (targeted re-check of O-047 after the I-110 surface repair, 6878f277).'
 ---
 
 # I-099: The mounted viewer's time cannot be read or set from the host page

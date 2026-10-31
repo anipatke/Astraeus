@@ -2,12 +2,19 @@
 id: I-112
 title: 'Playback cannot slow down for encounters and speed up for cruise on its own'
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: probe-feedback-20261031}
   at: '2026-10-31T12:00:00Z'
 severity: medium
+checks: [C-128]
+resolution:
+  disposition: verified
+  check: C-128
+  actor: {role: checker, session: o047-recheck2-20261031}
+  at: '2026-10-31T04:25:00Z'
+  reason: 'C-128 CLEAR: slowest-wins pacing proven in C-127 (event rule faster or slower than span, mixed rule types, ramps, seek determinism); code unchanged since; full gate passes.'
 history:
   - at: '2026-10-31T12:00:00Z'
     actor: {role: planner, session: probe-feedback-20261031}
@@ -27,6 +34,11 @@ history:
     kind: rechecked
     note: 'C-127: repair proven. Slow span with a faster event rule inside it (both listing orders, and inside the rule''s ramp), faster span with a slower rule, and two rules of different types all give the slowest rate; cruise exact, seek deterministic, hourly sweep continuous and within bounds. Stays open only because C-127 is NEEDS WORK on I-110; close as verified at the next CLEAR Check.'
     check: C-127
+  - at: '2026-10-31T04:25:00Z'
+    actor: {role: checker, session: o047-recheck2-20261031}
+    kind: rechecked
+    check: C-128
+    note: 'Verified by C-128 CLEAR (targeted re-check of O-047 after the I-110 surface repair, 6878f277).'
 ---
 
 # I-112: Playback cannot slow down for encounters and speed up for cruise on its own

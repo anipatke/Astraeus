@@ -2,12 +2,19 @@
 id: I-110
 title: 'Moon data starts in 2010, so historical flybys cannot show their moons'
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: probe-feedback-20261031}
   at: '2026-10-31T12:00:00Z'
 severity: high
+checks: [C-128]
+resolution:
+  disposition: verified
+  check: C-128
+  actor: {role: checker, session: o047-recheck2-20261031}
+  at: '2026-10-31T04:25:00Z'
+  reason: 'C-128 CLEAR: planet out-of-span (plain, orbit, fitOrbit, both; before 1950, straddling, after 2045; series loaded and not) never throws from toDefinition or mount and rejects ready with out-of-span naming the planet and 1950-01-01 to 2045-01-01; moon spans, 1950 moon data and README years proven in C-126; check:node-consumer 4/4.'
 history:
   - at: '2026-10-31T12:00:00Z'
     actor: {role: planner, session: probe-feedback-20261031}
@@ -31,6 +38,11 @@ history:
     actor: {role: executor, session: o047-repair2-20261031}
     kind: repair_attempted
     note: 'Out-of-scope repair after C-127, not verified. Owner decision: report it when the viewer loads. toDefinition setup reads (fit, early Sun paths, clump groups) now go through Scene.#deferredRead, which keeps the #planetRead choke point but records an out-of-span failure and returns an empty fallback; prepare rejects with the recorded error first, so the named out-of-span (planet, years) always arrives through prepare/ready, never thrown from toDefinition or mount. dataSpans.test.ts now asserts toDefinition does not throw and prepare rejects (twice) for plain, orbit and fitOrbit, before 1950, straddling and after 2045, series not loaded then loaded. Proof Needed and neighbours re-run: lint, typecheck, build, npm test, check:node-consumer 4/4 pass; no browser run.'
+  - at: '2026-10-31T04:25:00Z'
+    actor: {role: checker, session: o047-recheck2-20261031}
+    kind: rechecked
+    check: C-128
+    note: 'Verified by C-128 CLEAR (targeted re-check of O-047 after the I-110 surface repair, 6878f277).'
 ---
 
 # I-110: Moon data starts in 2010, so historical flybys cannot show their moons
