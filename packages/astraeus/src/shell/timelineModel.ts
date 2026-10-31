@@ -7,13 +7,6 @@ export interface PlaybackSpeed {
   readonly rate: number;
 }
 
-export const DEFAULT_PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [
-  { label: describePlaybackRate(1), rate: 1 },
-  { label: describePlaybackRate(3_600), rate: 3_600 },
-  { label: describePlaybackRate(86_400), rate: 86_400 },
-  { label: describePlaybackRate(604_800), rate: 604_800 },
-];
-
 export const TIMELINE_STEP_MS = 60_000;
 
 export function formatRate(rate: number): string {
@@ -53,11 +46,9 @@ export function describePlaybackRate(rate: number): string {
   return `${formatRate(rate)} — ${formatSimulatedDuration(rate)} per real second`;
 }
 
-/** Existing speeds plus experience rates not already offered, in ascending order. */
-export function mergeSpeeds(base: readonly PlaybackSpeed[], rates: readonly number[]): readonly PlaybackSpeed[] {
-  const extra = rates.filter((rate) => !base.some((speed) => speed.rate === rate))
-    .map((rate) => ({ label: describePlaybackRate(rate), rate }));
-  return [...base, ...extra].sort((a, b) => a.rate - b.rate);
+/** The speeds the timeline offers: exactly the experience's rates (no speed is added), ascending, each once. */
+export function speedsOf(rates: readonly number[]): readonly PlaybackSpeed[] {
+  return [...new Set(rates)].sort((a, b) => a - b).map((rate) => ({ label: describePlaybackRate(rate), rate }));
 }
 
 export interface EventContext {

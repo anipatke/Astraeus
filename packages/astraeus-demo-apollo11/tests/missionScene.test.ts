@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "astraeus/core/clock";
 import { readableScale, trueScale } from "astraeus/core/scalePolicy";
-import { DEFAULT_PLAYBACK_SPEEDS as SPEEDS } from "astraeus/shell/timelineModel";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "astraeus/app/CameraController";
 import { projectToScreen } from "astraeus/app/AnchorLabels";
@@ -11,7 +10,7 @@ import {
   anchorLabelsOf,
   jumpToEvent,
   markerRadiusUnits,
-  mergeSpeeds,
+  speedsOf,
   stateClampedToBounds,
   stateIfInBounds,
   trackedReadouts,
@@ -235,8 +234,8 @@ describe("event jumps and playback", () => {
     }
   });
 
-  it("offers 1×, 100×, 1,000× and 10,000× on top of the existing speeds", () => {
-    const speeds = mergeSpeeds(SPEEDS, mission.rates);
+  it("offers exactly the mission's own speeds", () => {
+    const speeds = speedsOf(mission.rates);
     expect(speeds.map((s) => s.rate)).toEqual([1, 100, 1_000, 3_600, 10_000, 86_400, 604_800]);
     expect(speeds.find((s) => s.rate === 10_000)?.label).toBe("10,000× — 2 hours 46 min 40 sec per real second");
     expect(speeds.find((s) => s.rate === 1)?.label).toBe("1× — real time");

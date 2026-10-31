@@ -4,6 +4,7 @@ export { type EventInput, type AddEventsOptions, type TimelineInput, type StoryP
 export { type SwitchesInput } from "./switches";
 export { mount, type MountOptions, type MountedScene } from "./mount";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
+export { type ViewerChange, type RateSource } from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";
 export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, type BodyRef } from "./bodies";
 export { trueScale, readableScale, solarSystemScale, type ScalePolicy } from "../core/scalePolicy";

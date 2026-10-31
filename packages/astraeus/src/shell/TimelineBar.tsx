@@ -2,7 +2,7 @@ import { useMemo, useState, type CSSProperties, type PointerEvent as ReactPointe
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, mergeSpeeds, DEFAULT_PLAYBACK_SPEEDS, TIMELINE_STEP_MS, clampToBounds, formatRateCompact } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -63,7 +63,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   };
   const stopLabel = (direction: "Previous" | "Next", stop: NavigationStop | null) =>
     windows.length === 0 || stop === null ? `${direction} event` : `${direction}: ${stop.label}`;
-  const speeds = mergeSpeeds(DEFAULT_PLAYBACK_SPEEDS, experience.rates);
+  const speeds = speedsOf(experience.rates);
   const timestamp = formatUtcTimestamp(snapshot.timeUtcMs);
   const handle = useDrawerSwipe({
     thresholdPx: drawer?.swipeThresholdPx ?? 0,

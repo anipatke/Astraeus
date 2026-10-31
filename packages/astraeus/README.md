@@ -84,7 +84,7 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.setScale(trueScale \| readableScale \| solarSystemScale, { only? })` | The opening scale; the viewer can switch to the other unless `{ only: true }` offers that scale alone. `solarSystemScale` (true distances, enlarged bodies drawn larger) needs a Sun-centred scene with an enlarged body, else `bad-scale`; such a scene offers it second in place of `readableScale`. |
 | `scene.addEvents(events, { provenance? })` | Timed events on the timeline: `[{ id, label, time, type?, provenance? }]`, ids unique. `provenance` says where the times come from; an event's own `provenance` wins over the batch's. A provenance `sourceType` is `ephemeris`, `observed`, `reconstructed`, `modelled` or `illustrative`; `modelled` is shown as "Modelled". Batch and per-event provenance are checked: a malformed one throws `bad-event`. May be called more than once. |
 | `scene.addStoryPanels({ pauseSeconds?, autoOpen?, panels })` | Story panels that open as playback reaches them: `{ id, at: { utc } \| { event } \| { anchor }, title, body, details?, badge, sources, object? }`. `badge` is `observed`, `modelled` or `illustrative`; `sources` is never empty. A mistake throws `bad-panels` naming the panel and field. |
-| `scene.setTimeline({ start, end, rates?, rate? })` | The timeline's span, the playback speeds offered (simulated seconds per real second) and the one it opens at. `{ none: true, at?, rate? }` draws no timeline bar: time is frozen at `at`, or runs on at `rate`. |
+| `scene.setTimeline({ start, end, rates?, rate? })` | The timeline's span, the playback speeds offered (simulated seconds per real second) and the one it opens at. `{ none: true, at?, rate? }` draws no timeline bar: time is frozen at `at`, or runs on at `rate`. The speed menu shows exactly the `rates` you give (ascending), and no others; without `rates` it offers 1 minute, 1 hour and 1 day per second. |
 | `scene.addActivity({ id, label, unit, start, end, samples, peak?, provenance?, type?, peakLabel? })` | A period of activity on the timeline: a rate curve `samples: [{ time, value }]` (at least two, sorted, inside `start` to `end`; straight lines between) that the timeline glows by, with an optional `peak` mark and `provenance: [{ start, end, provenance }]` for where each stretch comes from. A group's `readouts: [{ kind: "rate", activity? }]` shows the live rate (unavailable outside the period) against the peak on its card. Without `setTimeline` the timeline spans the activities. A repeated id or a bad curve, peak or source throws `bad-activity`; a rate readout with no activity is `bad-readout`. |
 | `scene.camera.setReach(distance)` | How far the viewer can zoom out, in Earth radii; labels reach as far, a path's own name (at its marker, switched by `labels`) included. A bad value throws `bad-camera`. The object the scene opens on (`camera.follow` or `camera.lookAt`) is selected, and a selected object's label wins every label collision: it is never the one hidden because it overlaps another. Other labels keep their priority order. `camera.follow` and `camera.lookAt` take `up: "ecliptic"` (default `"equatorial"`) to orbit about the ecliptic's pole; any other value throws `bad-camera`. `setTimeline` takes `loop: true` so playback wraps from the end to the start. |
 | `scene.camera.fitOrbit(body)` | Sets the farthest zoom-out so the whole orbit of a body that circles the Sun (a planet, the built-in comet, or one from `addBodyFromElements`, already added) fits the canvas from any view direction: 1.1 times its farthest Sun distance over the sine of the narrower half field of view. The fit follows the live canvas shape (a phone turning, a window resizing) and the far plane is 2.5 times the reach. The opening view is not moved, except that it is clamped to the limit like any other. Labels are not limited in a fitted scene. It and `setReach` set the same limit; the later call wins. A body that does not circle the Sun throws `bad-camera`; one not in the scene, `unknown-body`. `scene.camera.fitOrbit("c-2025-a1")` |
@@ -93,8 +93,8 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.provenanceOf(id)` | Where a body's position comes from, as its info card shows it. Where a comparison with an independent ephemeris exists it carries `accuracyClass` and `maxErrorFraction`. For built-in Swift-Tuttle that fraction is measured (0.00857). For a body from `addBodyFromElements` it is the limit of its class (0.01 `approximate`, 0.05 `indicative`): an upper bound, not a measured figure. Other bodies carry neither field. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
 | `scene.camera.lookAt(id, { azimuthDeg?, elevationDeg?, distance? })` | The same opening view without following. The last of `follow` and `lookAt` wins. The viewer's camera menu gets a Focus and a Follow entry for every body and path. |
-| `mount(element, scene, { data? })` | Draws the scene with the full viewer. Returns `{ ready, unmount() }`. `data` is a list of data packages (below). |
-| `<AstraeusScene scene data? onReady? onError? />` | The same viewer as a React component (below). |
+| `mount(element, scene, { data?, onChange? })` | Draws the scene with the full viewer. Returns `{ ready, unmount(), time, rate, setTime(t), setRate(r), onChange(fn) }`. `data` is a list of data packages (below); the time and speed members are described under "Reading and setting the time". |
+| `<AstraeusScene scene data? onReady? onError? time? rate? onChange? />` | The same viewer as a React component (below). |
 | `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |
 
 Checking accuracy and records without a scene: the class limits are root exports (`APPROXIMATE_LIMIT_FRACTION`, `INDICATIVE_LIMIT_FRACTION`), `classifyPositionError(maxFraction)` returns `"approximate"`, `"indicative"` or `null` (neither) for a measured largest error fraction, and `parseElementsBodyRecord(record)` validates an elements record (the same check `addBodyFromElements` makes, throwing `bad-element` naming the field):
@@ -124,6 +124,30 @@ export const App = () => (
 ```
 
 Props: `scene`, `data` (as for `mount`), `onReady`, `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
+
+## Reading and setting the time
+
+The viewer has one clock. A host page reads it, moves it and hears about changes, from the `mount` handle or from `AstraeusScene` props. Time is Unix milliseconds UTC; speed is simulated seconds per real second.
+
+| Name | What it does |
+|------|--------------|
+| `handle.time`, `handle.rate` | The clock now. `undefined` until `ready` has resolved and after `unmount`. |
+| `handle.setTime(time)` | Moves the viewer to `time` (ISO text, a `Date` or milliseconds). Outside the timeline throws `bad-time`. Before `ready` or after `unmount` throws `missing-data`. |
+| `handle.setRate(rate)` | Sets the speed to one the timeline offers (`setTimeline({ rates })`). Any other number throws `bad-timeline`: the speed menu always shows what is running, so a custom speed is refused, not added. |
+| `handle.onChange(fn)` or `mount(..., { onChange })` | `fn({ time, rate, playing, cause })` on every change; returns a function that stops it. `cause` is `playback` (the clock ran on; about ten calls a second while playing), `visitor` (someone used the timeline) or `host` (your own `setTime` or `setRate`). Nothing arrives after `unmount`. |
+| `<AstraeusScene time rate onChange />` | `time` and `rate` are applied once the viewer is drawn and again whenever their value changes (a new `Date` of the same moment does not seek again); they are not controlled values, so read the live time from `onChange`. A bad one goes to `onError`. |
+
+```ts
+const mounted = mount(el, scene);
+await mounted.ready;
+mounted.setTime("2026-08-12T21:00:00Z");           // jump to the flyby
+mounted.setRate(3600);                              // one hour per second (must be in setTimeline's rates)
+const stop = mounted.onChange(({ time, cause }) => {
+  if (cause !== "host") console.log(new Date(time).toISOString());
+});
+```
+
+The speed menu shows exactly the `rates` the scene gives (`setTimeline({ rates })`) and no others.
 
 ## Inside someone else's page
 

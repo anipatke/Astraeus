@@ -4,6 +4,8 @@ import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
+import { type TimeInput } from "./time";
+import { ViewerLink, type ViewerChange } from "./viewerLink";
 
 /** Props of `AstraeusScene`. */
 export interface AstraeusSceneProps {
@@ -15,6 +17,12 @@ export interface AstraeusSceneProps {
   readonly onReady?: () => void;
   /** Called when the scene cannot be built (a `SceneError`) or its data fails to load. */
   readonly onError?: (error: Error) => void;
+  /** Moves the viewer to this moment (ISO text, a `Date` or Unix milliseconds) once it is drawn, and again whenever the moment changes. Outside the timeline reports `bad-time` to `onError`. Not a controlled value: the viewer keeps running from there, so the current time arrives through `onChange`. */
+  readonly time?: TimeInput;
+  /** Sets the playback speed once drawn and whenever it changes; must be one of the speeds the timeline offers, else `bad-timeline` goes to `onError`. */
+  readonly rate?: number;
+  /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the `time` / `rate` props. About ten times a second while playing. */
+  readonly onChange?: (change: ViewerChange) => void;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
   /** Style for the wrapper element. */
@@ -32,11 +40,28 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, onChange, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
-  const latest = useRef({ data, onReady, onError });
-  latest.current = { data, onReady, onError };
+  const latest = useRef({ data, onReady, onError, onChange });
+  latest.current = { data, onReady, onError, onChange };
+  const [link] = useState(() => new ViewerLink());
+  useEffect(() => {
+    const stop = link.onChange((change) => latest.current.onChange?.(change));
+    return () => { stop(); link.close(); };
+  }, [link]);
+  // A Date made fresh each render must not seek again, so the moment is compared by value.
+  const timeKey = time instanceof Date ? time.getTime() : time;
+  // After the viewer is drawn (its own effects have attached the clock by now), the props take effect.
+  useEffect(() => {
+    if (definition === undefined) return;
+    try {
+      if (timeKey !== undefined) link.setTime(timeKey);
+      if (rate !== undefined) link.setRate(rate);
+    } catch (cause) {
+      latest.current.onError?.(asError(cause));
+    }
+  }, [definition, link, timeKey, rate]);
 
   useEffect(() => {
     let open = true;
@@ -53,5 +78,5 @@ export function AstraeusScene({ scene, data, onReady, onError, className, style 
     return () => { open = false; };
   }, [scene]);
 
-  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} /> : null}</div>;
+  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} host={link} /> : null}</div>;
 }

@@ -13,7 +13,8 @@ export const APOLLO11_STATEMENT =
 export const APOLLO11_LABEL = "Apollo 11";
 
 /** The speeds the timeline offers, simulated seconds per real second. */
-const RATES: readonly number[] = [1, 100, 1_000, 10_000];
+// Exactly the speeds the timeline offers (the engine adds none): real time up to a week per second.
+const RATES: readonly number[] = [1, 100, 1_000, 3_600, 10_000, 86_400, 604_800];
 /** The speed it opens at: one hour per second. */
 const OPENING_RATE = 3_600;
 

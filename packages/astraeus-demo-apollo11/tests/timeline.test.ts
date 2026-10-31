@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { apollo11Experience } from "./support";
 import {
-  eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, mergeSpeeds, navigationStops,
-  windowContextAt, windowPeakRateText, DEFAULT_PLAYBACK_SPEEDS,
+  eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, speedsOf, navigationStops,
+  windowContextAt, windowPeakRateText,
 } from "astraeus/shell/timelineModel";
 import { DEFAULT_TIMELINE_GLOW, activityAt, glowBrightness, glowDescription, glowGradient, glowProfile, glowTooltip } from "astraeus/shell/timelineGlow";
 import { createWindows } from "astraeus/core/timeWindow";
@@ -62,8 +62,8 @@ describe("experience timeline data", () => {
     expect(visited).toEqual(apollo11Experience.events.map((event) => event.id));
   });
 
-  it("merges experience rates with the shared playback speeds", () => {
-    expect(mergeSpeeds(DEFAULT_PLAYBACK_SPEEDS, apollo11Experience.rates).map((speed) => speed.rate))
+  it("offers exactly the experience rates", () => {
+    expect(speedsOf(apollo11Experience.rates).map((speed) => speed.rate))
       .toEqual([1, 100, 1_000, 3_600, 10_000, 86_400, 604_800]);
   });
 });

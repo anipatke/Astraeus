@@ -71,7 +71,8 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     expect(plain(after.experience.events)).toEqual(before.events);
     expect(plain(after.experience.eventProvenance)).toEqual(before.eventProvenance);
     expect(plain(after.experience.window)).toEqual(before.window);
-    expect(plain(after.experience.rates)).toEqual(before.rates);
+    // The old definition's speeds were topped up with 1x, 1 h, 1 d and 1 week at draw time; the engine no longer adds any (I-106), so the rebuild lists the full set.
+    expect(plain(after.experience.rates)).toEqual([...new Set([...before.rates, 1, 3_600, 86_400, 604_800])].sort((a: number, b: number) => a - b));
     expect(plain(after.clock)).toEqual(before.clock);
     expect(plain(after.experience.storyPanels)).toEqual(before.storyPanels);
     expect(plain(after.scaleChoices)).toEqual(before.scaleChoices);

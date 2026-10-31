@@ -3,6 +3,7 @@ import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { openClock } from "./openClock";
+import type { ViewerPort } from "./viewerPort";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
@@ -173,8 +174,9 @@ function initialSceneControls(
 /**
  * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
+ * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean }) {
+export function App({ definition, onOpenAddress, writeTitle = true, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -295,9 +297,24 @@ export function App({ definition, onOpenAddress, writeTitle = true }: { readonly
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
       if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
       setClockSnapshot(runtime.clock.snapshot());
+      host?.publish(runtime.clock.snapshot(), "playback");
     }, 100);
     return () => window.clearInterval(id);
+  }, [runtime, host]);
+  // The host reaches the one clock through the same seek and rate handlers a visitor's timeline uses.
+  const seekTo = useCallback((timeUtcMs: number) => {
+    runtime.clock.seek(timeUtcMs);
+    setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
+  const changeRate = useCallback((rate: number) => {
+    runtime.clock.setRate(rate);
+    setClockSnapshot(runtime.clock.snapshot());
+  }, [runtime]);
+  useEffect(() => {
+    if (host === undefined) return undefined;
+    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, read: () => runtime.clock.snapshot(), seek: seekTo, setRate: changeRate });
+    return () => host.detach();
+  }, [host, runtime, definition, seekTo, changeRate]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -524,14 +541,15 @@ export function App({ definition, onOpenAddress, writeTitle = true }: { readonly
         if (runtime.clock.playing) runtime.clock.pause();
         else runtime.clock.play();
         setClockSnapshot(runtime.clock.snapshot());
+        host?.publish(runtime.clock.snapshot(), "visitor");
       }}
       onRateChange={(rate) => {
-        runtime.clock.setRate(rate);
-        setClockSnapshot(runtime.clock.snapshot());
+        changeRate(rate);
+        host?.publish(runtime.clock.snapshot(), "visitor");
       }}
       onSeek={(timeUtcMs) => {
-        runtime.clock.seek(timeUtcMs);
-        setClockSnapshot(runtime.clock.snapshot());
+        seekTo(timeUtcMs);
+        host?.publish(runtime.clock.snapshot(), "visitor");
       }}
       onCameraRequest={updateCameraRequest}
       onSelectionChange={updateSelectedObject}

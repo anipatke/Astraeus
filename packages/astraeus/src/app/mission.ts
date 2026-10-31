@@ -114,7 +114,7 @@ export function jumpToEvent(clock: SimulationClock, events: readonly TimelineEve
 }
 
 export type { PlaybackSpeed as Speed } from "../shell/timelineModel";
-export { formatRate, mergeSpeeds } from "../shell/timelineModel";
+export { formatRate, speedsOf } from "../shell/timelineModel";
 
 export interface TrackedReadout {
   readonly id: string;
