@@ -244,7 +244,7 @@ describe("addBody with an orbit line", () => {
   });
 
   it("refuses an orbit the engine cannot draw, and one whose parent is not in the scene", () => {
-    expect(codeOf(() => new Scene().addBody(earth).addBody("sun", { orbit: true }))).toMatch(/^no-orbit: .*moon and io and of any body that circles the Sun/);
+    expect(codeOf(() => new Scene().addBody(earth).addBody("sun", { orbit: true }))).toMatch(/^no-orbit: .*any catalogued moon whose data give a period about its planet and of any body that circles the Sun/);
     expect(codeOf(() => new Scene().addBody(earth).addBody("mars", { orbit: true }).toDefinition())).toMatch(/^no-orbit: .*about the Sun, which has not been added/);
     expect(codeOf(() => new Scene().addBody(moon, { orbit: true }).toDefinition())).toMatch(/^no-orbit: .*about earth/);
   });

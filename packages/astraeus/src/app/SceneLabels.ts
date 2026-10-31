@@ -20,12 +20,24 @@ interface Rect {
 /** Added to the selected object's label priority; larger than any labelPriority, so it is never the label hidden by an overlap. */
 export const SELECTED_PRIORITY = 1_000;
 
+/** Screen gap (px) a label keeps from a higher-priority label it is not hiding behind. */
+export const LABEL_PADDING_PX = 6;
+
+/**
+ * Hysteresis (I-121): a label the last layout hid by overlap needs this much more clearance (px, on top of LABEL_PADDING_PX) before it shows again,
+ * while a label already shown keeps its place at the plain padding. So a pair crossing at fast playback swaps winner once per crossing, not every frame.
+ * One rule for every label; the selected label is placed first and never loses a collision (I-108).
+ */
+export const LABEL_REAPPEAR_MARGIN_PX = 14;
+
 /** App adapter that places configured labels; the label presentation itself stays generic. */
 export class SceneLabelLayer {
   readonly #root = document.createElement("div");
   readonly #entries: readonly ProjectedEntry[];
   readonly #local = new Vector3();
   readonly #shown = new Map<string, Rect>();
+  /** Per object id, whether the latest layout showed it; absent when it was not a candidate (unplaced, out of reach or switched off). */
+  readonly #lastShown = new Map<string, boolean>();
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[]) {
     this.#root.className = "scene-labels";
@@ -60,6 +72,8 @@ export class SceneLabelLayer {
   ): void {
     camera.updateMatrixWorld(true);
     this.#shown.clear();
+    const previous = new Map(this.#lastShown);
+    this.#lastShown.clear();
     const candidates = this.#entries.flatMap((entry) => {
       if (hiddenIds?.has(entry.object.id) === true) {
         entry.element.hidden = true;
@@ -86,15 +100,17 @@ export class SceneLabelLayer {
     for (const candidate of candidates) {
       candidate.element.hidden = false;
       let placed: Rect | null = null;
+      const padding = LABEL_PADDING_PX + (previous.get(candidate.object.id) === false ? LABEL_REAPPEAR_MARGIN_PX : 0);
       for (const [dx, dy] of [[8, 0], [-8, 0], [0, -20]] as const) {
         candidate.element.style.transform = `translate(${candidate.screen.x + dx}px, ${candidate.screen.y + dy}px) translate(${dx < 0 ? "-100%" : "0"}, -50%)`;
         const bounds = candidate.element.getBoundingClientRect();
         const rect = { left: bounds.left, top: bounds.top, right: bounds.right, bottom: bounds.bottom };
-        if (occupied.every((other) => !overlapsWithPadding(rect, other, 6))) {
+        if (occupied.every((other) => !overlapsWithPadding(rect, other, padding))) {
           placed = rect;
           break;
         }
       }
+      this.#lastShown.set(candidate.object.id, placed !== null);
       if (placed === null) {
         candidate.element.hidden = true;
       } else {

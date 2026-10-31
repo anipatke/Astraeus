@@ -31,6 +31,7 @@ export function LayeredRender({ lightLayers, state }: { readonly lightLayers: re
     gl.autoClear = previousAutoClear;
     state.current.framesDrawn += 1;
     gl.domElement.dataset.framesDrawn = String(state.current.framesDrawn);
+    gl.domElement.dataset.depthMode = gl.capabilities.logarithmicDepthBuffer ? "logarithmic" : "linear"; // read by the browser checks (O-048 T-209)
   }, 1);
   return null;
 }

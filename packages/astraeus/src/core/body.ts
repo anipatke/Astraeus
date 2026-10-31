@@ -34,6 +34,10 @@ export interface CelestialBodyDefinition {
   readonly gmKm3S2?: number;
   /** The one centre this body's own provider computes in; absent only for the root. */
   readonly parentId?: BodyId;
+  /** A moon's sidereal period about its parent, days, from its catalogue record or mean elements: what an orbit line spans (read once; absent where the data give none). */
+  readonly orbitPeriodDays?: number;
+  /** True when this moon's orbit line keeps the default fading end instead of closing its loop (the Moon's, which is not drawn from a full-lap record). */
+  readonly orbitLineFades?: boolean;
   readonly orientation: OrientationModel;
   /** What is claimed, over which dates, and what is known to be off. Never affects State. */
   readonly accuracy: {

@@ -15,6 +15,8 @@ export interface EventInput {
   readonly type?: string;
   /** Where this event's time comes from. Shown with the event; an event without one shows the `provenance` of `addEvents`. Malformed: `addEvents` throws "bad-event" naming the event. */
   readonly provenance?: Provenance;
+  /** The body or trajectory (its id) this event is about. Go to this event seeks to its time and frames the object as `camera.lookAt` does. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
+  readonly object?: string;
 }
 
 /** Options of `addEvents`. */
@@ -75,6 +77,13 @@ export interface StoryPanelsInput {
   readonly panels: readonly unknown[];
 }
 
+/** Throws "bad-event" naming the first event whose `object` is not among the scene's `objectIds`. */
+export function checkEventObjects(events: readonly TimelineEvent[], objectIds: ReadonlySet<string>): void {
+  for (const event of events) {
+    if (event.object !== undefined && !objectIds.has(event.object)) throw new SceneError("bad-event", `addEvents: event "${event.id}" object "${event.object}" is not a body or trajectory in the scene`);
+  }
+}
+
 /** Checks a provenance given to `addEvents` (for the whole batch, or for the event `eventId`) and returns it frozen; throws "bad-event" when malformed. */
 export function eventProvenanceOf(value: unknown, eventId?: string): Provenance {
   const where = eventId === undefined ? "addEvents: provenance" : `addEvents: event "${eventId}" provenance`;
@@ -95,7 +104,8 @@ export function eventsOf(inputs: readonly EventInput[], known: readonly Timeline
     if (ids.has(input.id)) throw new SceneError("bad-event", `addEvents: event "${input.id}" appears twice`);
     ids.add(input.id);
     const timeUtcMs = toUtcMs(input.time, `addEvents: event "${input.id}" time`);
-    return { id: input.id, label: input.label, timeUtcMs, ...(input.type === undefined ? {} : { type: input.type }) };
+    if (input.object !== undefined && (typeof input.object !== "string" || input.object === "")) throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);
+    return { id: input.id, label: input.label, timeUtcMs, ...(input.type === undefined ? {} : { type: input.type }), ...(input.object === undefined ? {} : { object: input.object }) };
   });
   return createEvents([...known, ...added].sort((a, b) => a.timeUtcMs - b.timeUtcMs));
 }

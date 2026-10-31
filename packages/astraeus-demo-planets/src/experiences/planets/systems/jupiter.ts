@@ -1,7 +1,6 @@
-// Jupiter's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
+// Jupiter's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/jupiter.json; this file only names where Jupiter's data is.
 import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
-import { JUPITER_RINGS } from "astraeus/assets/bodies/jupiterRings";
 import { jupiterMoonsSystem } from "astraeus/assets/compositions";
 import { JUPITER } from "astraeus/core/bodies/jupiter";
 import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, JUPITER_MOON_SYSTEM, jupiterMoonEphemeris, loadJupiterMoons } from "astraeus/core/bodies/jupiterMoons";
@@ -36,7 +35,6 @@ export const jupiterSystem: PlanetSystem = {
   fitSource: JUPITER_MOON_FIT_SOURCE,
   tidalLockNote: FITTED_MOON_TIDAL_LOCK,
   centreGmKm3S2: JUPITER.gmKm3S2!,
-  rings: JUPITER_RINGS,
   packages: packagesOf(PACKAGES, ["io", "europa", "ganymede", "callisto"]),
   load: async (window) => { await loadJupiterMoons({ window, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS, history: { bodies: JUPITER_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
 };

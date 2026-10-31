@@ -43,7 +43,7 @@ export interface BodyVisual {
   readonly glow?: { readonly sizePx: number; readonly brightness: number; readonly scale?: number };
   /** Marker kind: the screen size of the dot. */
   readonly marker?: { readonly sizePx: number };
-  /** Flat ring bands in the body's equator plane, at their real radii; an experience opts in through its visual overrides. */
+  /** Flat ring bands in the body's equator plane, at their real radii; a ringed planet carries them in its catalogue visual, so every scene that adds it draws them (an override may still replace them). */
   readonly rings?: RingSystem;
   /** This body's own lights in its render pass. */
   readonly light?: { readonly ambient: number; readonly directional: number };

@@ -6,7 +6,7 @@ import { Scene, SceneError, earth, moon, readableScale, trueScale, type StoryPan
 import { infoView } from "../src/shell/infoModel";
 import { openClock } from "../src/app/openClock";
 import { scaleChoiceIdsOf } from "../src/app/experienceDefinition";
-import { $, mountShell, type Mounted } from "./domSetup";
+import { $, mountShell, press, type Mounted } from "./domSetup";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
@@ -36,6 +36,26 @@ describe("addEvents", () => {
     expect(codeOf(() => base().addEvents([{ id: "calc", label: "C", time: T0, provenance: bad as never }]))).toBe("bad-event");
     expect(messageOf(() => base().addEvents([{ id: "calc", label: "C", time: T0, provenance: bad as never }]))).toContain('event "calc"');
     expect(codeOf(() => base().addEvents([{ id: "ok", label: "C", time: T0 }], { provenance: bad as never }))).toBe("bad-event");
+  });
+  it("carries an event's object, refuses one the scene lacks naming the event and the id, and Go to frames it (I-120)", () => {
+    const experience = base().addEvents([{ id: "flyby", label: "Flyby", time: T0 + 20 * MIN, object: "moon" }, { id: "plain", label: "Plain", time: T0 + 5 * MIN }]).toDefinition().experience;
+    expect(experience.events.find((event) => event.id === "flyby")?.object).toBe("moon");
+    expect(experience.events.find((event) => event.id === "plain")).not.toHaveProperty("object");
+    const ghost = () => base().addEvents([{ id: "flyby", label: "Flyby", time: T0, object: "ghost" }]).toDefinition();
+    expect(codeOf(ghost)).toBe("bad-event");
+    expect(messageOf(ghost)).toContain('"flyby"');
+    expect(messageOf(ghost)).toContain('"ghost"');
+    expect(codeOf(() => base().addEvents([{ id: "e", label: "E", time: T0, object: "" }]))).toBe("bad-event");
+    const m = mountShell({ experience });
+    const rows = [...m.container.querySelectorAll<HTMLElement>(".timeline-expanded li button")];
+    const before = m.cameraRequests.length;
+    press(rows.find((row) => row.textContent?.includes("Plain"))!);
+    expect(m.cameraRequests.length).toBe(before);
+    press(rows.find((row) => row.textContent?.includes("Flyby"))!);
+    expect(m.cameraRequests.at(-1)).toEqual({ kind: "focus", target: "moon" });
+    expect(m.selected()).toBe("moon");
+    expect(m.clock.now()).toBe(T0 + 20 * MIN);
+    m.unmount();
   });
   it("starts with no events and no provenance", () => {
     const definition = base().toDefinition();

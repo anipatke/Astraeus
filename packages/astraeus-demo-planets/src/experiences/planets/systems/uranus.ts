@@ -1,6 +1,6 @@
-// Uranus's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
+// Uranus's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/uranus.json; this file only names where Uranus's data is.
-import { URANUS_MOON_CATALOGUE, URANUS_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { URANUS_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
 import { uranusMoonsSystem } from "astraeus/assets/compositions";
 import { URANUS_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
@@ -31,7 +31,6 @@ export const uranusSystem: PlanetSystem = {
   fitSource: URANUS_MOON_SYSTEM.config.fitSource,
   tidalLockNote: URANUS_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: URANUS_MOON_SYSTEM.config.centreGmKm3S2,
-  rings: URANUS_RINGS,
   fitErrorsM: uranusFitErrors,
   packages: packagesOf(PACKAGES, ["uranus"]),
   load: async (window) => { await URANUS_MOON_SYSTEM.load({ window, bodies: URANUS_MOON_IDS, chunkUrls: URANUS_CHUNK_URLS, history: { bodies: URANUS_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },

@@ -11,7 +11,7 @@ export interface PlanetMappedMoon {
   readonly description: string;
 }
 
-/** Everything a planet's view needs as plain data; the positions, moon list, pictures and rings come from the planet's system (see `PlanetSystem`). */
+/** Everything a planet's view needs as plain data; the positions, moon list, pictures come from the planet's system (see `PlanetSystem`). */
 export interface PlanetSettings {
   readonly id: string;
   readonly label: string;
@@ -19,7 +19,7 @@ export interface PlanetSettings {
   readonly order: number;
   /** The planet the experience opens on when the address names none. Exactly one planet's file sets it. */
   readonly default: boolean;
-  /** Names the planet's system: the moon list, positions, mapped pictures and rings it is drawn from. */
+  /** Names the planet's system: the moon list, positions, mapped pictures it is drawn from. */
   readonly system: string;
   /** The page title and experience name. */
   readonly experienceLabel: string;

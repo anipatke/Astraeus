@@ -1,6 +1,6 @@
-// Neptune's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
+// Neptune's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/neptune.json; this file only names where Neptune's data is.
-import { NEPTUNE_MOON_CATALOGUE, NEPTUNE_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { NEPTUNE_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
 import { neptuneMoonsSystem } from "astraeus/assets/compositions";
 import { NEPTUNE_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
@@ -31,7 +31,6 @@ export const neptuneSystem: PlanetSystem = {
   fitSource: NEPTUNE_MOON_SYSTEM.config.fitSource,
   tidalLockNote: NEPTUNE_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: NEPTUNE_MOON_SYSTEM.config.centreGmKm3S2,
-  rings: NEPTUNE_RINGS,
   fitErrorsM: neptuneFitErrors,
   packages: packagesOf(PACKAGES, ["neptune", "triton"]),
   load: async (window) => { await NEPTUNE_MOON_SYSTEM.load({ window, bodies: NEPTUNE_MOON_IDS, chunkUrls: NEPTUNE_CHUNK_URLS, history: { bodies: NEPTUNE_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },

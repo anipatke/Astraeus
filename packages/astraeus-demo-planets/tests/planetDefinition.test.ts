@@ -94,7 +94,8 @@ describe("planet definition builder (T-117)", () => {
   });
 
   it("leaves Jupiter's view exactly as it was: window, bodies, story panels, families, tagged places, look (but for Europa's places, drawn at 180 - west since T-140)", () => {
-    const expected = structuredClone(before) as { bodyFeatures: { bodyId: string; features: { longitude: number }[] }[] };
+    const expected = structuredClone(before) as { visualOverrides?: unknown; bodyFeatures: { bodyId: string; features: { longitude: number }[] }[] };
+    delete expected.visualOverrides; // O-048 T-205: the rings moved into the catalogue's Jupiter (asserted in jupiterMoonsScene.test.ts), so the view carries no override
     for (const feature of expected.bodyFeatures.find((set) => set.bodyId === "europa")!.features) feature.longitude = 180 - feature.longitude;
     expect(jupiterViewSnapshot(jupiterIoExplorer)).toEqual(expected);
   });

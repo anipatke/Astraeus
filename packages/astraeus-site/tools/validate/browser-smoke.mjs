@@ -90,6 +90,7 @@ async function sunPathChecks(page) {
 
 const JOURNEY_MOONS = [["1979-03-05T12:00:00Z", ["io", "europa", "ganymede", "callisto"]], ["1980-11-12T12:00:00Z", ["titan", "rhea", "dione", "tethys", "enceladus", "mimas", "iapetus"]]];
 const JOURNEY_END_UTC_MS = Date.UTC(2026, 0, 1);
+const JOURNEY_SATURN_UTC_MS = Date.UTC(1980, 10, 12);
 
 /**
  * O-047 T-203: on the made-up journey, each giant planet's moons are in the scene at the encounter date (a drawn body or marker, never "none"), Saturn's orbit line is drawn, and with the Sun
@@ -117,7 +118,39 @@ async function journeyChecks(page) {
   if (path === undefined || !path.visible || path.vertices === 0 || path.inView < path.vertices) throw new Error(`the 170 AU path is not framed whole at the farthest zoom-out (${JSON.stringify(path)})`);
   const labels = await ui.shownSceneLabelIds(page);
   if (!labels.includes("traveller")) throw new Error(`the path's label is not shown at 170 AU (${JSON.stringify(labels)})`);
-  return { moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+  const nearSaturn = await nearSaturnChecks(page);
+  return { nearSaturn, moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+}
+
+/**
+ * O-048 T-209: with the whole-path reach (far plane past 170 AU) the camera goes close to Saturn at its flyby date; Saturn must still draw as a sphere in view, its rings (the scene's
+ * `data-rings` band count) are in the scene, the orbit lines of Europa, Ganymede and Titan are drawn, and the renderer reports its depth mode (logarithmic). Also reads the frames drawn per second while
+ * the camera is nudged (a headless, software-GL number: a frame-time cost sanity figure, not a GPU measurement). Readouts only.
+ */
+async function nearSaturnChecks(page) {
+  await ui.seekTo(page, JOURNEY_SATURN_UTC_MS);
+  await ui.pickBody(page, "saturn");
+  await page.waitForTimeout(2500);
+  const point = await ui.freeCanvasPoint(page);
+  if (point === null) throw new Error("no free point on the scene to zoom in from");
+  await page.mouse.move(point.x, point.y);
+  for (let k = 0; k < 60; k += 1) { await page.mouse.wheel(0, -600); await page.waitForTimeout(40); }
+  await page.waitForTimeout(1000);
+  const canvas = page.locator("canvas").first();
+  const depthMode = await canvas.getAttribute("data-depth-mode");
+  const rings = Number(await ui.sceneCanvas(page).getAttribute("data-rings")); // on the canvas wrapper, not the drawing surface
+  const saturn = await ui.sceneBody(page, "saturn");
+  if (saturn === undefined || saturn.as !== "sphere" || !saturn.inView || !(saturn.radiusPx > 20)) throw new Error(`Saturn does not draw as a large sphere near the camera (${JSON.stringify(saturn)}, depth ${depthMode})`);
+  if (!(rings > 0)) throw new Error(`Saturn's rings are not in the scene (data-rings ${rings})`);
+  if (depthMode !== "logarithmic") throw new Error(`the renderer's depth mode is ${depthMode}, not logarithmic`);
+  const orbits = await ui.scenePaths(page);
+  const missing = ["europa-orbit", "ganymede-orbit", "titan-orbit"].filter((id) => !orbits.some((path) => path.id === id));
+  if (missing.length > 0) throw new Error(`moon orbit lines are not in the scene: ${missing.join(", ")} (${JSON.stringify(orbits.map((p) => p.id))})`);
+  const before = await ui.framesDrawn(page);
+  const started = Date.now();
+  while (Date.now() - started < 3000) { await page.mouse.wheel(0, 40); await page.waitForTimeout(30); await page.mouse.wheel(0, -40); await page.waitForTimeout(30); }
+  const framesPerSecond = Math.round(((await ui.framesDrawn(page)) - before) / ((Date.now() - started) / 1000));
+  return { depthMode, rings, saturn: { as: saturn.as, radiusPx: saturn.radiusPx }, framesPerSecond };
 }
 
 async function load(browser, view, size) {

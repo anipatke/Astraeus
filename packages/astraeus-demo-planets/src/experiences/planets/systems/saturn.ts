@@ -1,6 +1,6 @@
-// Saturn's system for the planets experience: its moon list, fitted positions, mapped pictures, rings and tagged places. The words and numbers
+// Saturn's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/saturn.json; this file only names where Saturn's data is.
-import { SATURN_MOON_CATALOGUE, SATURN_RINGS } from "astraeus/assets/bodies/outerPlanetCatalogues";
+import { SATURN_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
 import { saturnMoonsSystem } from "astraeus/assets/compositions";
 import { SATURN_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import type { PlanetSystem } from "../planetDefinition";
@@ -31,7 +31,6 @@ export const saturnSystem: PlanetSystem = {
   fitSource: SATURN_MOON_SYSTEM.config.fitSource,
   tidalLockNote: SATURN_MOON_SYSTEM.tidalLockNote,
   centreGmKm3S2: SATURN_MOON_SYSTEM.config.centreGmKm3S2,
-  rings: SATURN_RINGS,
   fitErrorsM: saturnFitErrors,
   packages: packagesOf(PACKAGES, ["saturn", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
   load: async (window) => { await SATURN_MOON_SYSTEM.load({ window, bodies: SATURN_MOON_IDS, chunkUrls: SATURN_CHUNK_URLS, history: { bodies: SATURN_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },

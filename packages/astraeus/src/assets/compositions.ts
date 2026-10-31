@@ -1,10 +1,11 @@
 import type { BodyId } from "../core/body";
 import { IO_PERIOD_DAYS } from "../core/bodies/io";
+import { MOON_SIDEREAL_PERIOD_DAYS } from "../core/bodies/moon";
 import { catalogue, type BodyCatalogue } from "./catalogue";
 import { resolveOrbitLook, type OrbitLook } from "./orbitLook";
 
 /** One sidereal month, the span the Moon's orbit path covers. */
-export const SIDEREAL_MONTH_MS = 27.321661 * 86_400_000;
+export const SIDEREAL_MONTH_MS = MOON_SIDEREAL_PERIOD_DAYS * 86_400_000;
 
 /** A path the composition draws by default: the declared body's positions about its own parent, carried with that parent. */
 export interface CompositionPath {

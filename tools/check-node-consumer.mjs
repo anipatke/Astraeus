@@ -33,7 +33,7 @@ try {
   writeFileSync(join(scratch, "vitest.config.mjs"), 'export default { test: { environment: "node", include: ["consumer.test.mjs"] } };\n');
   writeFileSync(join(scratch, "consumer.test.mjs"), [
     'import { expect, test } from "vitest";',
-    'import { Scene, classifyPositionError, earth, saturn, sun, solarSystemScale } from "astraeus";',
+    'import { Scene, classifyPositionError, earth, saturn, titan, sun, solarSystemScale } from "astraeus";',
     'test("the packed package builds a scene in plain Node", () => {',
     "  const definition = new Scene().addBody(sun).addBody(earth).toDefinition();",
     "  expect(definition.composition).toBeDefined();",
@@ -76,6 +76,16 @@ try {
     "  expect(definition.experience.objects.find((object) => object.id === 'traveller').provenanceSpans).toHaveLength(2);",
     "  const early = new Scene().addBody(sun).addBody(saturn).setTimeline({ start: '1945-01-01T00:00:00Z', end: '1946-01-01T00:00:00Z' });",
     "  await expect(early.toDefinition().prepare()).rejects.toMatchObject({ code: 'out-of-span' }); // before the planet series begin (1950)",
+    "});",
+    'test("a ringed planet carries its rings and a moon beyond Io draws its orbit line on the packed package (O-048)", async () => {',
+    "  const scene = new Scene().addBody(saturn).addBody(titan, { orbit: true });",
+    "  const definition = scene.toDefinition([{ name: 'made-up', provides: ['titan'] }]); // a made-up source for Titan's positions, so the data package is not needed",
+    "  const line = (definition.composition?.paths ?? []).find((path) => path.body === 'titan'); // a moon beyond Io, drawn about Saturn by the one catalogue rule",
+    "  expect(line.spanMs / 86_400_000).toBeCloseTo(15.945, 2); // Titan's sidereal period, days",
+    "  // rings are catalogue data, read from the packed file (the public entry does not export the catalogue): Saturn has bands, Mars none",
+    "  const { catalogue } = await import(new URL('../assets/catalogue.js', import.meta.resolve('astraeus')).href);",
+    "  expect(catalogue.get('saturn').visual.rings.bands.length).toBeGreaterThan(0);",
+    "  expect(catalogue.get('mars').visual.rings).toBeUndefined();",
     "});",
     "",
   ].join("\n"));

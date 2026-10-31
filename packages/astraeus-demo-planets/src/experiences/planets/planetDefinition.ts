@@ -6,7 +6,7 @@ import { moonListSummary, type MoonFamilyList } from "astraeus/shell/moonFamilie
 import { bodyMetrics } from "astraeus/app/bodyMetrics";
 import { familiesWithPalette, type BodySetLayer } from "astraeus/app/bodySet";
 import { catalogueItem } from "astraeus/app/catalogueItem";
-import type { ExperienceDefinition, VisualOverride } from "astraeus/app/experienceDefinition";
+import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 import type { SystemComposition } from "astraeus/assets/compositions";
 import type { ChebyshevEphemeris } from "astraeus/core/chebyshevEphemeris";
 import { createEphemerisGroup } from "astraeus/core/ephemerisGroup";
@@ -36,7 +36,7 @@ function placedFeatures(features: readonly PackageFeature[], coordinates: MapCoo
   };
 }
 
-/** What a planet's view is drawn from besides its settings: the moon list, the fitted positions, the pictures and the rings. */
+/** What a planet's view is drawn from besides its settings: the moon list, the fitted positions, and the pictures. */
 export interface PlanetSystem {
   /**
    * The moon list and what draws it: `catalogue`, `ephemeris`, `fitSource`, `tidalLockNote` and `centreGmKm3S2` come together or not at all. A planet whose
@@ -55,7 +55,6 @@ export interface PlanetSystem {
   readonly balancePoint?: BalancePoint;
   /** Each moon's worst measured error against Horizons (m), from its fit index. When given, a dot moon's accuracy text states its own figure; when not, the text states the fit target (1 m). */
   readonly fitErrorsM?: Readonly<Record<string, number>>;
-  readonly rings?: NonNullable<VisualOverride["rings"]>;
   /** The tagged places of each mapped moon, as the body package stores them. */
   readonly packages: Readonly<Record<string, { readonly features: { readonly features: readonly PackageFeature[] }; readonly categories: { readonly categories: readonly BodyFeatureCategory[] }; readonly map?: { readonly coordinates: MapCoordinates } }>>;
   /** Fetches the position data the window needs (and the history the orbit lines reach back over). */
@@ -260,7 +259,6 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
     sceneLayers: [],
     desktopTextures: true,
     composition: system.composition,
-    ...(system.rings === undefined ? {} : { visualOverrides: { [settings.centre.id]: { rings: system.rings } } }),
     bodySets: layer === undefined ? [] : [layer],
     camera: settings.camera,
     scaleChoices: ["true-scale"],

@@ -6,6 +6,7 @@
  */
 import type { StateSourceBinding } from "../body";
 import { iauElementsFromRecord } from "../iauRotation";
+import { recordPeriodDays } from "../siderealPeriod";
 import { createPlanetSunTrajectory } from "./planetTrajectory";
 import { MARS } from "./mars";
 import { createMoonSystem, HISTORICAL_MOON_FIT_SPAN, moonFitSource } from "./moonSystem";
@@ -45,16 +46,16 @@ const marsMoon = (id: string, label: string, radiusKm: number, massKg: number, w
 export const PHOBOS = marsMoon("phobos", "Phobos", 11.08, 1.08e16, 0.0593, "Radius (km)  = 13.1 x11.1 x9.3 Density (g cm^-3)  =  1.90 +- 0.08; Mass (10^20 kg ) = 1.08 (10^-4)");
 export const DEIMOS = marsMoon("deimos", "Deimos", 6.2, 1.8e15, 0.5101, "Radius (km)  = 7.8 x 6.0 x 5.1 Density (g cm^-3)  =  1.76 +- 0.30; Mass (10^20 kg ) = 1.80 (10^-5)");
 
-const saturnMoon = (id: string, label: string, radiusKm: number, gmKm3S2: number, worstM: number, header: string) => SATURN_MOON_SYSTEM.mappedMoon({ id, label, radiusKm, gmKm3S2, worstM, header, span: HISTORICAL_MOON_FIT_SPAN });
-export const MIMAS = saturnMoon("mimas", "Mimas", 198.8, 2.503489, 0.1777, "Mean Radius (km) = 198.8 +- 1.5, GM (km^3/s^2) = 2.503489");
-export const ENCELADUS = saturnMoon("enceladus", "Enceladus", 252.3, 7.210367, 0.155, "Mean Radius (km) = 252.3 +- 0.6, GM (km^3/s^2) = 7.210367");
-export const TETHYS = saturnMoon("tethys", "Tethys", 536.3, 41.21, 0.1733, "Mean Radius (km) = 536.3 +- 1.5, GM (km^3/s^2) = 41.21 +- 0.007");
-export const DIONE = saturnMoon("dione", "Dione", 562.5, 73.116, 0.1322, "Mean Radius (km) = 562.5 +- 5, GM (km^3/s^2) = 73.116 +- 0.02");
-export const RHEA = saturnMoon("rhea", "Rhea", 764.5, 153.94, 0.1271, "Mean Radius (km) = 764.5 +- 2, GM (km^3/s^2) = 153.94 +- 0.16");
-export const TITAN = saturnMoon("titan", "Titan", 2575.5, 8978.14, 0.5305, "Mean Radius (km) = 2575.5 +- 2.0, GM (km^3/s^2) = 8978.14 +- 0.06");
-export const IAPETUS = saturnMoon("iapetus", "Iapetus", 734.5, 120.52, 0.0715, "Radius (km) = 734.5 +- 4.0, GM (km^3/s^2) = 120.52 +- 0.03");
-export const TRITON = NEPTUNE_MOON_SYSTEM.mappedMoon({ id: "triton", label: "Triton", radiusKm: 1352.6, gmKm3S2: 1428.495, worstM: 0.5118, span: HISTORICAL_MOON_FIT_SPAN, header: "Mean radius (km) = 1352.6 +- 2.4, GM (km^3/s^2) = 1428.495 +- 0.62" });
-export const CHARON = PLUTO_MOON_SYSTEM.mappedMoon({ id: "charon", label: "Charon", radiusKm: 606, gmKm3S2: 106.10, worstM: 0.6237, header: "GM (km^3/s^2) = 106.10 +- 0.3, Radius (km, IAU2015) = 606 +- 0.5" });
+const saturnMoon = (id: string, label: string, radiusKm: number, gmKm3S2: number, worstM: number, header: string, orbit: Parameters<typeof recordPeriodDays>[0]) => SATURN_MOON_SYSTEM.mappedMoon({ id, label, radiusKm, gmKm3S2, worstM, header, orbitPeriodDays: recordPeriodDays(orbit), span: HISTORICAL_MOON_FIT_SPAN });
+export const MIMAS = saturnMoon("mimas", "Mimas", 198.8, 2.503489, 0.1777, "Mean Radius (km) = 198.8 +- 1.5, GM (km^3/s^2) = 2.503489", mimasOrbit);
+export const ENCELADUS = saturnMoon("enceladus", "Enceladus", 252.3, 7.210367, 0.155, "Mean Radius (km) = 252.3 +- 0.6, GM (km^3/s^2) = 7.210367", enceladusOrbit);
+export const TETHYS = saturnMoon("tethys", "Tethys", 536.3, 41.21, 0.1733, "Mean Radius (km) = 536.3 +- 1.5, GM (km^3/s^2) = 41.21 +- 0.007", tethysOrbit);
+export const DIONE = saturnMoon("dione", "Dione", 562.5, 73.116, 0.1322, "Mean Radius (km) = 562.5 +- 5, GM (km^3/s^2) = 73.116 +- 0.02", dioneOrbit);
+export const RHEA = saturnMoon("rhea", "Rhea", 764.5, 153.94, 0.1271, "Mean Radius (km) = 764.5 +- 2, GM (km^3/s^2) = 153.94 +- 0.16", rheaOrbit);
+export const TITAN = saturnMoon("titan", "Titan", 2575.5, 8978.14, 0.5305, "Mean Radius (km) = 2575.5 +- 2.0, GM (km^3/s^2) = 8978.14 +- 0.06", titanOrbit);
+export const IAPETUS = saturnMoon("iapetus", "Iapetus", 734.5, 120.52, 0.0715, "Radius (km) = 734.5 +- 4.0, GM (km^3/s^2) = 120.52 +- 0.03", iapetusOrbit);
+export const TRITON = NEPTUNE_MOON_SYSTEM.mappedMoon({ id: "triton", label: "Triton", radiusKm: 1352.6, gmKm3S2: 1428.495, worstM: 0.5118, orbitPeriodDays: recordPeriodDays(tritonOrbit), span: HISTORICAL_MOON_FIT_SPAN, header: "Mean radius (km) = 1352.6 +- 2.4, GM (km^3/s^2) = 1428.495 +- 0.62" });
+export const CHARON = PLUTO_MOON_SYSTEM.mappedMoon({ id: "charon", label: "Charon", radiusKm: 606, gmKm3S2: 106.10, worstM: 0.6237, orbitPeriodDays: recordPeriodDays(charonOrbit), header: "GM (km^3/s^2) = 106.10 +- 0.3, Radius (km, IAU2015) = 606 +- 0.5" });
 
 /** The mapped moons by system, in the order the moon lists give them. */
 export const PLANET_MOON_DEFINITIONS = Object.freeze([PHOBOS, DEIMOS, MIMAS, ENCELADUS, TETHYS, DIONE, RHEA, TITAN, IAPETUS, TRITON, CHARON]);

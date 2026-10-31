@@ -6,6 +6,8 @@ export interface TimelineEvent {
   readonly id: string;
   readonly label: string;
   readonly type?: string;
+  /** The id of an object in the scene the event is about; Go to frames it. */
+  readonly object?: string;
 }
 
 /** Validates and returns a frozen copy: times sorted ascending (ties allowed), ids unique. */

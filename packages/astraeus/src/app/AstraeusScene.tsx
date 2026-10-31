@@ -159,7 +159,8 @@ export function AstraeusScene(props: Props) {
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}
-      gl={{ antialias: true }}
+      // Logarithmic depth (O-048 T-204, I-117): a planet near the camera keeps its depth precision however far the far plane reaches. Every custom shader in src/app carries the log-depth chunks (tests/logDepth.test.ts).
+      gl={{ antialias: true, logarithmicDepthBuffer: true }}
       style={{ background: "#000000" }}
       data-testid="earth-moon-canvas"
       data-scene-center={runtime.sceneCenter}
