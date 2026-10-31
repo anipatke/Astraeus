@@ -1,7 +1,7 @@
 ---
 id: O-048
 title: Keep near planets visible and show their rings
-status: planned
+status: done
 depends_on: [O-047]
 release: G-014
 priority: high

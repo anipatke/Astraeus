@@ -2,8 +2,7 @@
 id: T-209
 objective: O-048
 title: Prove the fixes on a graphics card and write them up
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-204, requires: clear}, {task: T-205, requires: clear}, {task: T-206, requires: clear}, {task: T-208, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-209, reason: 'Owner said "orchestrate O48"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o048-run-20261031}, recorded_at: '2026-10-31T09:02:27Z'}
