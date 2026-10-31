@@ -5,7 +5,6 @@ import type { State } from "../core/state";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import type { PathSamples } from "./pathRules";
 
-/** A bounded trajectory the scene can draw. Nothing here names a mission. */
 /** One stretch of a path's line, `[startUtcMs, endUtcMs)` (the last may include its end), drawn against `body`. */
 export interface LineStretch {
   readonly startUtcMs: number;
@@ -27,6 +26,7 @@ export function lineBodies(lineFixedTo: TrackedBody["lineFixedTo"]): readonly { 
   return typeof lineFixedTo === "string" ? [{ index: null, body: lineFixedTo }] : lineFixedTo.map((stretch, index) => ({ index, body: stretch.body }));
 }
 
+/** A bounded trajectory the scene can draw. Nothing here names a mission. */
 export interface TrackedBody {
   readonly id: string;
   readonly label: string;

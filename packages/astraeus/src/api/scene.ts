@@ -310,6 +310,7 @@ export class Scene {
    * scene.addBody(sun).addBodyFromElements(record, { orbit: true, showLabel: false });
    */
   addBodyFromElements(record: ElementsBodyRecord, options: AddBodyOptions = {}): this {
+    if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
     const parsed = parseRecord(record);
     if (this.#taken(parsed.id) || this.#catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
     const root = builtInCatalogue.get(rootBodyId()).definition;
@@ -371,6 +372,7 @@ export class Scene {
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
     const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
     const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
+    checkLineFixedToType(id, input.lineFixedTo);
     const auto = input.lineFixedTo === "auto";
     const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : auto ? undefined : input.lineFixedTo;
     this.#tracked.set(id, { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
@@ -935,13 +937,19 @@ function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: 
   }
 }
 
+/** `lineFixedTo` is a body id, `"auto"` or a list; anything else is `bad-trajectory` (the list's own faults are named by `planLineStretches`). */
+function checkLineFixedToType(id: string, value: unknown): void {
+  if (value !== undefined && typeof value !== "string" && typeof value !== "object") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): lineFixedTo ${String(value)} must be a body id, "auto" or a list of stretches`);
+}
+
 function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, toEqj: Float64Array | null): TrackedBody {
   if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
   const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
   const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
+  // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times).
   const step = (bounds.endUtcMs - bounds.startUtcMs) / (PROVIDER_PATH_SAMPLES - 1);
-  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => bounds.startUtcMs + index * step) };
+  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => Math.round(bounds.startUtcMs + index * step)) };
 }
 
 /** A provider's State with its position and velocity rotated into EQJ; unchanged for EQJ input. */

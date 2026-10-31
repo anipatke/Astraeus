@@ -67,7 +67,7 @@ scene.camera.fitOrbit(mars);
 mount(document.getElementById("app"), scene);
 ```
 
-Positions are about the scene centre (here the Sun, the first body) unless `center` says otherwise. `lineFixedTo: "sun"` keeps the line still against the Sun while the planets move; `plane` turns the ecliptic vectors into the engine's equatorial frame once; `solarSystemScale` keeps the distances true and draws the named bodies larger; the probe's name shows at any distance in a Sun-centred scene. The repository's dev site opens a fuller version at `?experience=synthetic-probe`, and a made-up 1977-to-170-AU journey past Jupiter and Saturn (moons at their dates, paced playback, provenance by stretch) at `?experience=synthetic-journey`.
+Positions are about the scene centre (here the Sun, the first body) unless `center` says otherwise. `lineFixedTo: "sun"` keeps the line still against the Sun while the planets move (`lineFixedTo: "auto"` picks the Sun or a planet for each stretch from the path's own samples, or give a list such as `[{ start, end, body: "earth" }]`); `plane` turns the ecliptic vectors into the engine's equatorial frame once; `solarSystemScale` keeps the distances true and draws the named bodies larger; the probe's name shows at any distance in a Sun-centred scene. The repository's dev site opens a fuller version at `?experience=synthetic-probe`, and a made-up 1977-to-170-AU journey past Jupiter and Saturn (moons at their dates, paced playback, provenance by stretch) at `?experience=synthetic-journey`.
 
 ## The public API
 
