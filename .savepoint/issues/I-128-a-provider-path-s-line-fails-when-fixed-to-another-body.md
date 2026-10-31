@@ -2,22 +2,33 @@
 id: I-128
 title: "A provider path's line fails when it is fixed to another body"
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-132
   actor: {role: checker, session: o050-check-20261101}
   at: '2026-10-31T22:20:00Z'
 tasks: [T-213, T-216]
-checks: [C-132]
+checks: [C-132, C-133]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-133
+  actor: {role: checker, session: o050-recheck-20261101}
+  at: '2026-10-31T22:30:00Z'
+  reason: 'Repair 87803afc verified by C-133: provider path sample times are rounded to whole ms (providerBody, scene.ts:950-952). C-132''s own probe re-run unchanged now draws id "earth", the [sun, earth] list and "auto" on 2-day bounds; an independent probe on a 401 h + 7 ms provider flyby of Earth draws every form, resolves auto to sun/earth/sun within one sample step of the analytic sphere-of-influence crossing, matches a sampled path at the same times to 6.8e-7, and gives 128 whole-ms, exact-ended times over seven spans. Regression test publicApiProviderLines.test.ts passes; fresh gates, test:full (2064 passed), check:pack, check:engine-alone and check:node-consumer pass.'
 history:
   - at: '2026-10-31T22:20:00Z'
     actor: {role: checker, session: o050-check-20261101}
     kind: observed
     note: 'Found by an independent probe in the O-050 Full Objective Check (C-132). An addTrajectory given as provider + bounds fails with a RangeError ("timeUtcMs must be an integer JavaScript UTC Unix-millisecond value") once its line is fixed to a body other than the scene centre: "auto" fails at toDefinition, and a listed stretch list (and a plain id, already before O-050) fails when the line is drawn. Sampled paths are not affected.'
     check: C-132
+  - at: '2026-10-31T22:30:00Z'
+    actor: {role: checker, session: o050-recheck-20261101}
+    kind: rechecked
+    check: C-133
+    note: 'Repair 87803afc verified by C-133: provider path sample times are rounded to whole ms (providerBody, scene.ts:950-952). C-132''s own probe re-run unchanged now draws id "earth", the [sun, earth] list and "auto" on 2-day bounds; an independent probe on a 401 h + 7 ms provider flyby of Earth draws every form, resolves auto to sun/earth/sun within one sample step of the analytic sphere-of-influence crossing, matches a sampled path at the same times to 6.8e-7, and gives 128 whole-ms, exact-ended times over seven spans. Regression test publicApiProviderLines.test.ts passes; fresh gates, test:full (2064 passed), check:pack, check:engine-alone and check:node-consumer pass.'
 ---
 
 # I-128: A provider path's line fails when it is fixed to another body
