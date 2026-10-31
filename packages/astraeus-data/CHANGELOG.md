@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.6.0 (2026-11-01)
+
+No changes to the pictures, data or this package's code. Released with `astraeus` 0.6.0 to keep the version numbers together; the six moon-position packages are unchanged, and every moon they hold can now be added by id with `scene.addBody` (see the `astraeus` 0.6.0 changelog).
+
 ## 0.5.1 (2026-10-31)
 
 No changes to the pictures, data or this package's code. Released with `astraeus` 0.5.1 to keep the version numbers together; the six moon-position packages are unchanged.
