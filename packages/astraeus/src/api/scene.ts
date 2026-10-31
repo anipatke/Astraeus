@@ -38,6 +38,7 @@ import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
+import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
@@ -537,14 +538,34 @@ export class Scene {
     }
   }
 
+  /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
+  #planetSpanError(ids: readonly BodyId[], window: TimeBounds): SceneError | undefined {
+    const planets = ids.filter(isPlanetId);
+    if (planets.length === 0 || !planetSeriesLoaded()) return undefined;
+    const span = planetSeriesSpan();
+    if (window.startUtcMs >= span.startUtcMs && window.endUtcMs <= span.endUtcMs) return undefined;
+    const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+    return new SceneError("out-of-span", `${planets.join(", ")} is outside the years the built-in planet series covers: it covers ${iso(span.startUtcMs)} to ${iso(span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline inside that span`);
+  }
+
   /** Throws `out-of-span` naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded). */
   #checkPlanetSpan(ids: readonly BodyId[], window: TimeBounds): void {
-    const planets = ids.filter(isPlanetId);
-    if (planets.length === 0 || !planetSeriesLoaded()) return;
-    const span = planetSeriesSpan();
-    if (window.startUtcMs >= span.startUtcMs && window.endUtcMs <= span.endUtcMs) return;
-    const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
-    throw new SceneError("out-of-span", `${planets.join(", ")} is outside the years the built-in planet series covers: it covers ${iso(span.startUtcMs)} to ${iso(span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline inside that span`);
+    const error = this.#planetSpanError(ids, window);
+    if (error !== undefined) throw error;
+  }
+
+  /**
+   * The one choke point for planet-series reads during setup (orbit lines, the fit distance, clump groups): checks the span first, and turns a
+   * `TimeScaleOutOfRangeError` from the read into the named `out-of-span` error when the window is outside the series, so no setup read can leak the raw one.
+   */
+  #planetRead<T>(ids: readonly BodyId[], window: TimeBounds, read: () => T): T {
+    this.#checkPlanetSpan(ids, window);
+    try {
+      return read();
+    } catch (error) {
+      if (error instanceof TimeScaleOutOfRangeError) throw this.#planetSpanError(ids, window) ?? error;
+      throw error;
+    }
   }
 
   /** Throws `missing-data` naming the bodies whose data package was not passed. */
@@ -665,9 +686,9 @@ export class Scene {
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
-    const fit = this.#fitFarthestKm(startUtcMs);
+    const fit = this.#planetRead(ids, window, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
-    const sunPaths: PathLayer[] = this.#earlySunPaths(sunOrbitIds, startUtcMs);
+    const sunPaths: PathLayer[] = this.#planetRead(ids, window, () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
@@ -675,7 +696,7 @@ export class Scene {
     // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
     const seriesIn = planetSeriesLoaded();
     const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
-    const layers: GroupLayer[] = [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))];
+    const layers: GroupLayer[] = this.#planetRead(ids, window, () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
     const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
     const catalogue = this.#catalogue;
     const definition: ExperienceDefinition = {
@@ -713,10 +734,10 @@ export class Scene {
       },
       prepare: async () => {
         if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
-        if (this.#groups.size > layers.length) layers.push(...this.#groupLayers(ids, window, startUtcMs, late));
-        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs)));
         this.#checkPlanetSpan(ids, window);
-        fit?.settle();
+        if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
+        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs))));
+        if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
         await installData(data, ids, window);
       },
     };

@@ -36,7 +36,7 @@ export type TimelineInput =
  * One piece of a timeline's pacing. A span `{ from, to, rate }` plays at `rate` between two moments; an event rule `{ near: { type, within }, rate }` plays at `rate`
  * within `within` seconds (simulated) of every event of that `type` (see `addEvents`). Outside every piece playback runs at the timeline's `rate`. Between a piece and
  * what surrounds it the speed eases over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span). `rate` here is any positive number;
- * it need not be one of the offered `rates`. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slower speed wins.
+ * it need not be one of the offered `rates`. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed.
  */
 export type PacingInput =
   | { readonly from: TimeInput; readonly to: TimeInput; readonly rate: number; readonly ramp?: number }
@@ -156,7 +156,7 @@ function pacingOf(input: unknown, bad: (message: string) => SceneError): readonl
 }
 
 /**
- * The pacing the viewer runs, laid over the events: spans first (in time order), then one zone per event of each rule's type, the slowest last so it wins.
+ * The pacing the viewer runs, laid over the events: spans, then one zone per event of each rule's type. `pacedRate` lays the zones fastest first, so the slowest applicable piece wins wherever they meet, whatever contains what.
  * A rule whose type has no event throws `bad-timeline` naming the piece (a mistyped type would otherwise slow nothing, silently).
  */
 export function pacingFor(setting: TimelineSetting, events: readonly TimelineEvent[], baseRate: number): Pacing | undefined {
@@ -169,7 +169,5 @@ export function pacingFor(setting: TimelineSetting, events: readonly TimelineEve
     if (matching.length === 0) throw new SceneError("bad-timeline", `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`);
     for (const event of matching) near.push({ fromUtcMs: event.timeUtcMs - piece.withinMs, toUtcMs: event.timeUtcMs + piece.withinMs, rate: piece.rate, rampMs: piece.rampMs });
   });
-  spans.sort((a, b) => a.fromUtcMs - b.fromUtcMs);
-  near.sort((a, b) => b.rate - a.rate);
   return { baseRate, zones: [...spans, ...near] };
 }

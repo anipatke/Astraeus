@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { Scene, SceneError, mercury } from "astraeus";
+import { Scene, SceneError, saturn, sun } from "astraeus";
 import { installData } from "../src/api/data";
 import { JUPITER_MOON_SYSTEM } from "../src/core/bodies/jupiterMoons";
 import { MoonOutOfSpanError } from "../src/core/bodies/moonSystem";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../src/core/chebyshevEphemeris";
-import { planetSeriesSpan } from "../src/core/planetSeries";
 import jupiterIndex from "astraeus-data-jupiter/index.json";
 import marsIndex from "astraeus-data-mars/index.json";
 import neptuneIndex from "astraeus-data-neptune/index.json";
@@ -69,13 +68,26 @@ describe("a window outside a body's span", () => {
   });
 });
 
-describe("a window before the planet series", () => {
-  it("fails with out-of-span naming the planet and the series' years", async () => {
-    const span = planetSeriesSpan();
-    const scene = new Scene().addBody(mercury).setTimeline({ start: "1950-01-01T00:00:00Z", end: "1960-01-01T00:00:00Z" });
-    const prepared = scene.toDefinition().prepare!();
-    if (span.startUtcMs > Date.UTC(1950, 0, 1)) {
-      await expect(prepared).rejects.toMatchObject({ code: "out-of-span", message: expect.stringMatching(/mercury.*1969-01-01/) });
-    } else await expect(prepared).resolves.toBeUndefined();
+describe("a window outside the planet series (I-110)", () => {
+  const windows = { "before 1950": { start: "1945-01-01T00:00:00Z", end: "1946-01-01T00:00:00Z" }, "straddling 1950": { start: "1949-06-01T00:00:00Z", end: "1951-01-01T00:00:00Z" }, "after 2045": { start: "2046-01-01T00:00:00Z", end: "2047-01-01T00:00:00Z" } };
+  const variants: Record<string, (scene: Scene) => Scene> = {
+    plain: (scene) => scene.addBody(saturn),
+    "with an orbit line": (scene) => scene.addBody(saturn, { orbit: true }),
+    "with fitOrbit": (scene) => { scene.addBody(saturn); scene.camera.fitOrbit("saturn"); return scene; },
+  };
+  const outOfSpan = { code: "out-of-span", message: expect.stringMatching(/saturn.*1950-01-01 to 2045-01-01/) };
+  for (const [windowName, timeline] of Object.entries(windows)) {
+    for (const [variant, shape] of Object.entries(variants)) {
+      it(`${windowName}, ${variant}: out-of-span naming saturn and the years, never a raw error (series loaded or not)`, async () => {
+        const make = () => shape(new Scene().addBody(sun)).setTimeline(timeline);
+        // Series not loaded: the error comes from prepare.
+        await expect(Promise.resolve().then(() => make().toDefinition().prepare!())).rejects.toMatchObject(outOfSpan);
+        // Series loaded: the error comes at toDefinition or prepare, still named.
+        await expect(Promise.resolve().then(() => make().toDefinition().prepare!())).rejects.toMatchObject(outOfSpan);
+      });
+    }
+  }
+  it("a window inside the series still resolves", async () => {
+    await expect(new Scene().addBody(sun).addBody(saturn, { orbit: true }).setTimeline({ start: "1960-01-01T00:00:00Z", end: "1961-01-01T00:00:00Z" }).toDefinition().prepare!()).resolves.toBeUndefined();
   });
 });

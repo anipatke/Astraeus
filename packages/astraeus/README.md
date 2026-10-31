@@ -158,7 +158,7 @@ A long journey wants fast cruising and slow encounters. `setTimeline` takes `pac
 | `{ from, to, rate, ramp? }` | Plays at `rate` between the two moments. |
 | `{ near: { type, within }, rate, ramp? }` | Plays at `rate` within `within` seconds (simulated) of every event whose `type` matches (`addEvents`). |
 
-Speeds ease between pieces in log space over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span; `ramp: 0` steps), so a jump from cruise to encounter is smooth both ways. The paced speed depends only on the time, so seeking or looping lands on the right speed at once. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slower speed wins. A piece's `rate` is any positive number and need not be in `rates`. Mistakes throw `bad-timeline` naming the field (`pacing[1].rate`); an event `type` that matches no event is refused too, since a typo would otherwise slow nothing.
+Speeds ease between pieces in log space over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span; `ramp: 0` steps), so a jump from cruise to encounter is smooth both ways. The paced speed depends only on the time, so seeking or looping lands on the right speed at once. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed. A piece's `rate` is any positive number and need not be in `rates`. Mistakes throw `bad-timeline` naming the field (`pacing[1].rate`); an event `type` that matches no event is refused too, since a typo would otherwise slow nothing.
 
 With pacing the speed menu gains an **Auto** choice, selected from the start. Picking a speed (menu, or `setRate(number)`) takes over until the visitor chooses Auto or the host calls `setRate("auto")`. `onChange` reports the speed pacing runs at (`cause: "playback"`), and `handle.rate` reads it.
 
@@ -197,7 +197,7 @@ window.addEventListener("vite:preloadError", () => window.location.reload());
 
 For tests, the package has a `node` export condition: Node and Vitest's Node environment import a copy of the package without the stylesheet import, so `new Scene()...toDefinition()` works with no `test.server.deps.inline` setting. The jsdom and happy-dom Vitest environments also take the `node` condition, so the viewer's CSS is not loaded there; this does not matter for tests that check scene definitions or behaviour. Bundlers do not use the `node` condition and load the normal build.
 
-First download: the packed `examples/hello-scene` loads 1,589,214 bytes (454,404 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
+First download: the packed `examples/hello-scene` loads 1,607,952 bytes (457,776 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
 
 ## What `astraeus-data` adds
 

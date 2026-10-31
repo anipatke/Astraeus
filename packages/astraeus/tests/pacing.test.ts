@@ -55,6 +55,37 @@ describe("the paced rate", () => {
     expect(pacedRate(pacing, T0 + 9.5 * DAY)).toBeCloseTo(200_000, 6);
     expect(pacedRate(pacing, T0 + 10 * DAY)).toBeCloseTo(5, 6); // the event rule is slower than the span, so it wins at the event
   });
+
+  const slowestWins = (pacing: object[], eventDay: number) => {
+    const definition = new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(eventDay), type: "flyby" }])
+      .setTimeline({ start: at(0), end: at(100), rate: 86_400, pacing: pacing as never }).toDefinition();
+    return definition.pacing!;
+  };
+
+  it("the slowest piece wins whatever contains what (I-112)", () => {
+    const span = { from: at(40), to: at(60), rate: 10 };
+    const fast = { near: { type: "flyby", within: 86_400 }, rate: 1_000 };
+    const slow = { near: { type: "flyby", within: 86_400 }, rate: 10 };
+    // A slow span with a faster event rule inside it: the span's rate holds at the event, in either listing order.
+    expect(pacedRate(slowestWins([span, fast], 50), T0 + 50 * DAY)).toBeCloseTo(10, 6);
+    expect(pacedRate(slowestWins([fast, span], 50), T0 + 50 * DAY)).toBeCloseTo(10, 6);
+    // The reverse: a faster span with a slower event rule inside it.
+    const fastSpan = { from: at(40), to: at(60), rate: 1_000 };
+    expect(pacedRate(slowestWins([fastSpan, slow], 50), T0 + 50 * DAY)).toBeCloseTo(10, 6);
+    expect(pacedRate(slowestWins([slow, fastSpan], 50), T0 + 50 * DAY)).toBeCloseTo(10, 6);
+    // Two event rules on one event: the slower wins, in either order, and the rate stays continuous across the ramp.
+    const a = pacedRate(slowestWins([fast, slow], 50), T0 + 50 * DAY);
+    const b = pacedRate(slowestWins([slow, fast], 50), T0 + 50 * DAY);
+    expect(a).toBeCloseTo(10, 6);
+    expect(b).toBeCloseTo(10, 6);
+    const pacing = slowestWins([fast, slow], 50);
+    let previous = pacedRate(pacing, T0 + 45 * DAY);
+    for (let hours = 1; hours <= 240; hours += 1) {
+      const rate = pacedRate(pacing, T0 + 45 * DAY + hours * 3_600_000);
+      expect(Math.abs(Math.log(rate / previous))).toBeLessThan(0.75);
+      previous = rate;
+    }
+  });
 });
 
 describe("pacing checks (bad-timeline names the field)", () => {

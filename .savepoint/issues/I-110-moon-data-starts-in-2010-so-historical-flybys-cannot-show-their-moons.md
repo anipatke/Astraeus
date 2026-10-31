@@ -18,6 +18,10 @@ history:
     kind: rechecked
     note: 'C-126 NEEDS WORK. Data back to 1950, per-body spans, README years and the moon out-of-span error are proven. Still failing: a scene with a planet orbit line or camera.fitOrbit whose timeline starts before 1950 (e.g. sun + saturn {orbit: true}, timeline 1945-01-01 to 1946-01-01) throws TimeScaleOutOfRangeError instead of SceneError out-of-span, because the sun paths (#earlySunPaths at toDefinition, #sunPath in prepare) and the fit read run before #checkPlanetSpan (api/scene.ts). Repair: check the planet span first in both places; test orbit and fitOrbit before 1950; make the dataSpans.test.ts planet case test a pre-1950 date (now vacuous).'
     check: C-126
+  - at: '2026-10-31T15:00:00Z'
+    actor: {role: executor, session: o047-repair-20261031}
+    kind: repair_attempted
+    note: 'Out-of-scope repair after C-126, not verified. All planet-series reads in setup (fit distance, early Sun paths, clump groups at toDefinition; sun paths, groups, fit settle in prepare) go through one choke point, Scene.#planetRead, which checks the span first and converts any TimeScaleOutOfRangeError to the named out-of-span when the window is outside the series. dataSpans.test.ts planet case replaced: windows before 1950, straddling 1950 and after 2045, each plain, with orbit:true and with fitOrbit (the 6 orbit/fitOrbit cells fail on the old code), plus an in-span window that still resolves. Gates lint, typecheck, build, test pass; no browser run.'
 ---
 
 # I-110: Moon data starts in 2010, so historical flybys cannot show their moons
