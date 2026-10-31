@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.5.1 (2026-10-31)
+
+First download of the packed example (`npm run measure:example`): 1,618,563 bytes raw, 461,100 bytes gzip (code and styles loaded on first open).
+
+Near planets stay visible and ringed planets show their rings (O-048, G-014), from a second round of findings sent back by the outside interplanetary probe app built on 0.5.0.
 
 - A planet or moon near the camera now stays visible however far the camera has zoomed out (O-048 T-204, I-117). The renderer uses a logarithmic depth buffer, so a Sun-centred scene whose far plane reaches a 170 AU path no longer loses Saturn at 0.01 AU to depth precision. Every custom shader in the engine carries the log-depth chunks, and a test fails for one that does not.
 - Jupiter, Saturn, Uranus and Neptune now carry their rings in their one catalogue definition (O-048 T-205, I-118), so a scene that adds the planet through the public API draws the rings with their NSSDC fact-sheet source; the ring bands and the ring look sliders are unchanged. The planets demo no longer attaches rings itself. First download of the packed example (`npm run measure:example`) grows from 1,608,313 to 1,617,005 bytes raw and from 457,901 to 460,652 bytes gzip (the ring data now ships with the engine).

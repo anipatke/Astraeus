@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.5.1 (2026-10-31)
+
+No changes to the pictures, data or this package's code. Released with `astraeus` 0.5.1 to keep the version numbers together; the six moon-position packages are unchanged.
+
 ## 0.5.0 (2026-10-31)
 
 No changes to the pictures or this package's code. Released with `astraeus` 0.5.0 to keep the version numbers together. The moon-position packages changed: `astraeus-data-jupiter`, `-saturn`, `-uranus` and `-neptune` now hold their main moons and planet from 1950-01-01 (see the `astraeus` 0.5.0 changelog); `-mars` and `-pluto` are unchanged.
