@@ -1,0 +1,328 @@
+{
+  "at": "2026-10-31T09:08:55.645Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "loads": 18,
+  "failed": 0,
+  "results": [
+    {
+      "label": "apollo11",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 5.4,
+      "drawn": {
+        "bodies": 2,
+        "dots": 0,
+        "paths": 3,
+        "stars": 8920,
+        "idleAtFrames": 49
+      },
+      "failures": []
+    },
+    {
+      "label": "apollo11",
+      "size": "phone",
+      "ok": true,
+      "seconds": 7.2,
+      "drawn": {
+        "bodies": 1,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "idleAtFrames": 48
+      },
+      "failures": []
+    },
+    {
+      "label": "planets",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 4,
+      "drawn": {
+        "bodies": 4,
+        "dots": 16,
+        "paths": 1,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "planets",
+      "size": "phone",
+      "ok": true,
+      "seconds": 3.3,
+      "drawn": {
+        "bodies": 0,
+        "dots": 0,
+        "paths": 1,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 3.5,
+      "drawn": {
+        "bodies": 7,
+        "dots": 24218,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers",
+      "size": "phone",
+      "ok": true,
+      "seconds": 3,
+      "drawn": {
+        "bodies": 5,
+        "dots": 7437,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 3.9,
+      "drawn": {
+        "bodies": 7,
+        "dots": 51115,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-geminids",
+      "size": "phone",
+      "ok": true,
+      "seconds": 3.3,
+      "drawn": {
+        "bodies": 6,
+        "dots": 32033,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 4,
+      "drawn": {
+        "bodies": 7,
+        "dots": 24218,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "showers-perseids",
+      "size": "phone",
+      "ok": true,
+      "seconds": 3.1,
+      "drawn": {
+        "bodies": 5,
+        "dots": 7437,
+        "paths": 6,
+        "stars": 8920
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-probe",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 10.6,
+      "drawn": {
+        "bodies": 2,
+        "dots": 0,
+        "paths": 4,
+        "stars": 8920,
+        "sunPath": {
+          "first": [
+            0.476,
+            0.666,
+            0.331,
+            0.934
+          ],
+          "second": [
+            0.476,
+            0.666,
+            0.331,
+            0.934
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-probe",
+      "size": "phone",
+      "ok": true,
+      "seconds": 7.4,
+      "drawn": {
+        "bodies": 2,
+        "dots": 0,
+        "paths": 4,
+        "stars": 8920,
+        "sunPath": {
+          "first": [
+            0.418,
+            0.993,
+            0.331,
+            0.86
+          ],
+          "second": [
+            0.418,
+            0.993,
+            0.331,
+            0.86
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-journey",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 35,
+      "drawn": {
+        "bodies": 0,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "journey": {
+          "nearSaturn": {
+            "depthMode": "logarithmic",
+            "rings": 10,
+            "saturn": {
+              "as": "sphere",
+              "radiusPx": 702.738
+            },
+            "framesPerSecond": 21
+          },
+          "moons": {
+            "1979-03-05T12:00:00Z": [
+              "io",
+              "europa",
+              "ganymede",
+              "callisto"
+            ],
+            "1980-11-12T12:00:00Z": [
+              "titan",
+              "rhea",
+              "dione",
+              "tethys",
+              "enceladus",
+              "mimas",
+              "iapetus"
+            ]
+          },
+          "saturnOrbit": "saturn-orbit",
+          "path": {
+            "vertices": 124,
+            "inView": 124,
+            "spanX": 0.133,
+            "spanY": 0.006
+          },
+          "labels": [
+            "sun",
+            "earth",
+            "traveller"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-journey",
+      "size": "phone",
+      "ok": true,
+      "seconds": 34.8,
+      "drawn": {
+        "bodies": 0,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "journey": {
+          "nearSaturn": {
+            "depthMode": "logarithmic",
+            "rings": 10,
+            "saturn": {
+              "as": "sphere",
+              "radiusPx": 659.012
+            },
+            "framesPerSecond": 51
+          },
+          "moons": {
+            "1979-03-05T12:00:00Z": [
+              "io",
+              "europa",
+              "ganymede",
+              "callisto"
+            ],
+            "1980-11-12T12:00:00Z": [
+              "titan",
+              "rhea",
+              "dione",
+              "tethys",
+              "enceladus",
+              "mimas",
+              "iapetus"
+            ]
+          },
+          "saturnOrbit": "saturn-orbit",
+          "path": {
+            "vertices": 124,
+            "inView": 124,
+            "spanX": 0.225,
+            "spanY": 0.003
+          },
+          "labels": [
+            "sun",
+            "earth",
+            "traveller"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 1.1,
+      "failures": []
+    },
+    {
+      "label": "index-page",
+      "size": "phone",
+      "ok": true,
+      "seconds": 1,
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 1.1,
+      "failures": []
+    },
+    {
+      "label": "assets-page",
+      "size": "phone",
+      "ok": true,
+      "seconds": 1.1,
+      "failures": []
+    }
+  ]
+}
