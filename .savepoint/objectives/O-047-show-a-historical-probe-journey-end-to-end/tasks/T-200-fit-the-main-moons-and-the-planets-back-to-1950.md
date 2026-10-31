@@ -2,8 +2,7 @@
 id: T-200
 objective: O-047
 title: Fit the main moons and the planets back to 1950
-status: in_progress
-stage: audit
+status: done
 check_waiver: {task: T-200, reason: 'Owner said "orchestrate O-47"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o047-run-20261031}, recorded_at: '2026-10-31T00:25:55Z'}
 depends_on: [{task: T-195, requires: clear}]
 owner_validation: {required: false}
@@ -78,6 +77,8 @@ Tests changed to follow the new truth (not weakened): `dataSpans.test.ts` (bodie
 
 Limitations / unverified: no browser run; the 2010 chunk file of every named body was rewritten (chunk boundaries are laid out from the span start), so the git diff for those data folders is large; the Horizons cache is not committed. The planet series' pre-1972 UTC follows Orb's polynomial, the moons' follows Horizons' UT, so a planet-centred moon state before 1972 combines two slightly different UTC definitions (up to about 0.1 s of planet motion; not measured at scene level). Saturn at 53.5 MB packed is over the Task's 40 MB wording.
 
+
+- Owner decision, 2026-10-31 (session o047-run-20261031), asked by the coordinator: "Accept the larger size" — Saturn 53.46 MB and Uranus 40.63 MB packed are accepted; no history package, no trimmed list. The raised pack-check limits stand. jsDelivr's size limit remains unconfirmed (docs/NPM_PACKAGING.md).
 
 ## Drift Notes
 
