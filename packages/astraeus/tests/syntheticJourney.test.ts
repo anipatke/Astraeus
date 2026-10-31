@@ -12,12 +12,12 @@ import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 import { pacedRate } from "../src/core/pacing";
 import { infoView } from "../src/shell/infoModel";
-import { buildSyntheticJourneyScene, JOURNEY_END_AU, JOURNEY_END_UTC_MS, JOURNEY_JUPITER_UTC_MS, JOURNEY_LAUNCH_UTC_MS, JOURNEY_SATURN_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
+import { buildSyntheticJourneyScene, JOURNEY_END_AU, JOURNEY_END_UTC_MS, JOURNEY_JUPITER_UTC_MS, JOURNEY_LAUNCH_UTC_MS, JOURNEY_SATURN_UTC_MS, JOURNEY_URANUS_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
 import { solarSystemPolicyForTest } from "./scalePolicies";
 
 const AU_KM = 149_597_870.7;
 const stub = (name: string, provides: string[]): DataSource => ({ name, provides });
-const DATA = [stub("astraeus-data-jupiter", ["io", "europa", "ganymede", "callisto"]), stub("astraeus-data-saturn", ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"])];
+const DATA = [stub("astraeus-data-jupiter", ["io", "europa", "ganymede", "callisto"]), stub("astraeus-data-saturn", ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]), stub("astraeus-data-uranus", ["miranda", "ariel", "umbriel", "titania", "oberon"])];
 const policy = solarSystemPolicyForTest({ earth: 60 });
 
 /** The camera's farthest zoom-out the viewer allows, clamping a huge request, in scaled units. */
@@ -64,7 +64,7 @@ describe("the made-up journey", () => {
   it("builds inside every body's years and frames the 170 AU end of the path", () => {
     const built = definition();
     expect(built.experience.window).toEqual({ startUtcMs: JOURNEY_LAUNCH_UTC_MS, endUtcMs: JOURNEY_END_UTC_MS });
-    expect(built.experience.events.map((event) => event.id)).toEqual(["traveller-jupiter", "traveller-saturn"]);
+    expect(built.experience.events.map((event) => event.id)).toEqual(["traveller-jupiter", "traveller-saturn", "traveller-uranus"]);
     const end = built.trackedBodies![0]!.trajectory.stateAt(JOURNEY_END_UTC_MS).positionKm;
     expect(Math.hypot(...end) / AU_KM).toBeCloseTo(JOURNEY_END_AU, 3);
     expect(cameraReachOf(built).cover!.farthestKm() / AU_KM).toBeCloseTo(2 * JOURNEY_END_AU, 1); // twice the farthest, so the whole path fits from any point of it
@@ -77,6 +77,15 @@ describe("the made-up journey", () => {
     expect(pacedRate(pacing, JOURNEY_SATURN_UTC_MS)).toBeCloseTo(day, 0);
     expect(pacedRate(pacing, Date.UTC(1979, 8, 1))).toBeGreaterThan(day * 10);
     expect(pacedRate(pacing, Date.UTC(2010, 0, 1))).toBeCloseTo(31_557_600, -2);
+  });
+
+  it("adds Uranus's five main moons by id with orbit lines, and passes Uranus in January 1986 (O-049 T-212)", () => {
+    const built = definition();
+    const lines = (built.composition?.paths ?? []).map((path) => path.body);
+    for (const id of ["miranda", "ariel", "umbriel", "titania", "oberon"]) expect(lines).toContain(id);
+    const near = built.trackedBodies![0]!.trajectory.stateAt(JOURNEY_URANUS_UTC_MS).positionKm;
+    expect(Math.hypot(...near) / AU_KM).toBeGreaterThan(18);
+    expect(Math.hypot(...near) / AU_KM).toBeLessThan(21);
   });
 
   it("changes the path's provenance along the journey", () => {

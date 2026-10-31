@@ -33,7 +33,7 @@ try {
   writeFileSync(join(scratch, "vitest.config.mjs"), 'export default { test: { environment: "node", include: ["consumer.test.mjs"] } };\n');
   writeFileSync(join(scratch, "consumer.test.mjs"), [
     'import { expect, test } from "vitest";',
-    'import { Scene, classifyPositionError, earth, saturn, titan, sun, solarSystemScale } from "astraeus";',
+    'import { Scene, classifyPositionError, earth, listedMoons, saturn, titan, sun, solarSystemScale } from "astraeus";',
     'test("the packed package builds a scene in plain Node", () => {',
     "  const definition = new Scene().addBody(sun).addBody(earth).toDefinition();",
     "  expect(definition.composition).toBeDefined();",
@@ -86,6 +86,15 @@ try {
     "  const { catalogue } = await import(new URL('../assets/catalogue.js', import.meta.resolve('astraeus')).href);",
     "  expect(catalogue.get('saturn').visual.rings.bands.length).toBeGreaterThan(0);",
     "  expect(catalogue.get('mars').visual.rings).toBeUndefined();",
+    "});",
+    'test("Uranus\'s listed moons are added by id with orbit lines on the packed package (O-049)", () => {',
+    "  const scene = new Scene().addBody(sun).addBody('uranus').addBody('miranda', { orbit: true }).addBody('titania', { orbit: true });",
+    "  const definition = scene.toDefinition([{ name: 'astraeus-data-uranus', provides: ['miranda', 'titania'] }]); // a made-up source stands in for the data package",
+    "  const lines = (definition.composition?.paths ?? []).filter((path) => ['miranda', 'titania'].includes(path.body));",
+    "  expect(lines).toHaveLength(2);",
+    "  expect(lines.find((path) => path.body === 'titania').spanMs / 86_400_000).toBeCloseTo(8.706, 2); // Titania's sidereal period, days (JPL)",
+    "  expect(listedMoons('uranus').map((moon) => moon.id)).toEqual(expect.arrayContaining(['miranda', 'ariel', 'umbriel', 'titania', 'oberon']));",
+    "  expect(() => new Scene().addBody(sun).addBody('uranus').addBody('miranda').toDefinition()).toThrow(/astraeus-data-uranus/); // no package, no moon",
     "});",
     "",
   ].join("\n"));

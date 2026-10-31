@@ -6,6 +6,7 @@
 // the JPL SSD physical-parameters and discovery tables, and the Wikipedia "Moons of <planet>" tables (a compilation). Nothing is invented
 // except the one size stand-in named in the Saturn note.
 import { readFileSync, writeFileSync } from "node:fs";
+import { periodsFor } from "./moon-periods.mjs";
 
 const root = new URL("../../", import.meta.url);
 const facts = JSON.parse(readFileSync(new URL("tools/import/planet-moon-facts.json", root), "utf8"));
@@ -113,6 +114,7 @@ for (const [planet, plan] of Object.entries(PLANETS)) {
   for (const [id, source] of Object.entries(sources)) renamed[id === "wikipedia" ? `wikipedia-moons-of-${planet}` : id] = source;
   const fix = (id) => (id === "wikipedia" ? `wikipedia-moons-of-${planet}` : id);
   for (const family of plan.families) family.sources = family.sources.map(fix);
+  const periods = periodsFor(planet, moons.map((moon) => ({ id: moon.id, naifId: moon.naifId })));
   const entries = moons.map((moon) => {
     const fact = mine.find((candidate) => candidate.id === moon.id);
     const info = plan.family(fact.family);
@@ -128,9 +130,10 @@ for (const [planet, plan] of Object.entries(PLANETS)) {
       meanRadiusKm: fact.meanRadiusKm,
       radiusBasis: fact.radiusBasis,
       discoveryYear: fact.discoveryYear,
+      orbitPeriodDays: periods.periodOf(moon),
       ephemeris: { set: `${planet}-moons`, body: moon.id },
       bodyPackage: MAPPED.has(moon.id) ? `data/bodies/${moon.id}` : null,
-      sources: { list: "horizons-moon-list", family: fix(info.source), familyBasis: info.basis.map(fix), radius: radiusSource, discovery: "jpl-sat-discovery" },
+      sources: { list: "horizons-moon-list", family: fix(info.source), familyBasis: info.basis.map(fix), radius: radiusSource, discovery: "jpl-sat-discovery", ...(periods.periodOf(moon) === null ? {} : { period: "jpl-sat-elem" }) },
     };
   });
   for (const entry of entries) if (!plan.families.some((family) => family.id === entry.family)) errors.push(`${entry.id}: unknown family ${entry.family}`);
@@ -141,6 +144,7 @@ for (const [planet, plan] of Object.entries(PLANETS)) {
     parent: planet,
     note: plan.note,
     asOf: AS_OF,
+    periods: periods.note,
     ephemeris: { path: `data/ephemerides/${planet}-moons/index.json`, moonCount: moons.length },
     sources: renamed,
     families: plan.families,

@@ -4,6 +4,12 @@
  "parent": "neptune",
  "note": "Facts only. 16 moons: JPL Horizons' list. Radius basis 'measured' is a published measurement, 'estimate' is brightness-based. Moons with a bodyPackage use the O-018 packages unchanged.",
  "asOf": "2026-10-20",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/neptune-moons/index.json",
   "moonCount": 16
@@ -108,6 +114,7 @@
    "meanRadiusKm": 1352.6,
    "radiusBasis": "measured",
    "discoveryYear": 1846,
+   "orbitPeriodDays": 5.8792,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "triton"
@@ -120,7 +127,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -133,6 +141,7 @@
    "meanRadiusKm": 170,
    "radiusBasis": "measured",
    "discoveryYear": 1949,
+   "orbitPeriodDays": 360.133039,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "nereid"
@@ -146,7 +155,8 @@
      "brozovic-2022"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -159,6 +169,7 @@
    "meanRadiusKm": 29,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 0.2951,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "naiad"
@@ -172,7 +183,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -185,6 +197,7 @@
    "meanRadiusKm": 40,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 0.3118,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "thalassa"
@@ -198,7 +211,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -211,6 +225,7 @@
    "meanRadiusKm": 74,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 0.3347,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "despina"
@@ -224,7 +239,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -237,6 +253,7 @@
    "meanRadiusKm": 79,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 0.4292,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "galatea"
@@ -250,7 +267,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -263,6 +281,7 @@
    "meanRadiusKm": 96,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 0.5549,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "larissa"
@@ -276,7 +295,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -289,6 +309,7 @@
    "meanRadiusKm": 208,
    "radiusBasis": "measured",
    "discoveryYear": 1989,
+   "orbitPeriodDays": 1.1229,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "proteus"
@@ -302,7 +323,8 @@
      "karkoschka-2003"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -315,6 +337,7 @@
    "meanRadiusKm": 30.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 1879,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "halimede"
@@ -328,7 +351,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -341,6 +365,7 @@
    "meanRadiusKm": 19,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 9149,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "psamathe"
@@ -354,7 +379,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -367,6 +393,7 @@
    "meanRadiusKm": 20,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 2919,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "sao"
@@ -380,7 +407,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -393,6 +421,7 @@
    "meanRadiusKm": 20,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 3168,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "laomedeia"
@@ -406,7 +435,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -419,6 +449,7 @@
    "meanRadiusKm": 30,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 9805,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "neso"
@@ -432,7 +463,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -445,6 +477,7 @@
    "meanRadiusKm": 17.4,
    "radiusBasis": "estimate",
    "discoveryYear": 2013,
+   "orbitPeriodDays": 0.9507,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "hippocamp"
@@ -458,7 +491,8 @@
      "karkoschka-2003"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -471,6 +505,7 @@
    "meanRadiusKm": 19,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 3151,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "s2002-n5"
@@ -484,7 +519,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -497,6 +533,7 @@
    "meanRadiusKm": 12.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 10043,
    "ephemeris": {
     "set": "neptune-moons",
     "body": "s2021-n1"
@@ -510,7 +547,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-neptune",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]

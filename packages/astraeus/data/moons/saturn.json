@@ -4,6 +4,12 @@
  "parent": "saturn",
  "note": "Facts only. 292 moons: JPL Horizons' list. Three groups of irregular moons (Inuit, Gallic, Norse) and the regular moons. Radius basis 'measured' is a published measurement, 'estimate' is brightness-based (an assumed albedo of 0.04). One moon, S/2009 S 2 (announced June 2026), has no published size; its radius 0.15 km is a stand-in equal to the 0.3 km moonlet S/2009 S 1 that the same source lists beside it, marked estimate. Daphnis's curve fit covers only 2010 to 2018 (see its index entry). Moons with a bodyPackage use the O-018 packages unchanged.",
  "asOf": "2026-10-20",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/saturn-moons/index.json",
   "moonCount": 292
@@ -115,6 +121,7 @@
    "meanRadiusKm": 198.2,
    "radiusBasis": "measured",
    "discoveryYear": 1789,
+   "orbitPeriodDays": 0.942422,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "mimas"
@@ -127,7 +134,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -140,6 +148,7 @@
    "meanRadiusKm": 252.1,
    "radiusBasis": "measured",
    "discoveryYear": 1789,
+   "orbitPeriodDays": 1.370218,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "enceladus"
@@ -152,7 +161,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -165,6 +175,7 @@
    "meanRadiusKm": 531.1,
    "radiusBasis": "measured",
    "discoveryYear": 1684,
+   "orbitPeriodDays": 1.887802,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "tethys"
@@ -177,7 +188,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -190,6 +202,7 @@
    "meanRadiusKm": 561.4,
    "radiusBasis": "measured",
    "discoveryYear": 1684,
+   "orbitPeriodDays": 2.736916,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "dione"
@@ -202,7 +215,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -215,6 +229,7 @@
    "meanRadiusKm": 763.5,
    "radiusBasis": "measured",
    "discoveryYear": 1672,
+   "orbitPeriodDays": 4.517503,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "rhea"
@@ -227,7 +242,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -240,6 +256,7 @@
    "meanRadiusKm": 2574.76,
    "radiusBasis": "measured",
    "discoveryYear": 1655,
+   "orbitPeriodDays": 15.945448,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "titan"
@@ -252,7 +269,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -265,6 +283,7 @@
    "meanRadiusKm": 135,
    "radiusBasis": "measured",
    "discoveryYear": 1848,
+   "orbitPeriodDays": 21.276658,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "hyperion"
@@ -277,7 +296,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -290,6 +310,7 @@
    "meanRadiusKm": 734.3,
    "radiusBasis": "measured",
    "discoveryYear": 1671,
+   "orbitPeriodDays": 79.331002,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "iapetus"
@@ -302,7 +323,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -315,6 +337,7 @@
    "meanRadiusKm": 106.5,
    "radiusBasis": "measured",
    "discoveryYear": 1898,
+   "orbitPeriodDays": 550.30391,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "phoebe"
@@ -328,7 +351,8 @@
      "ashton-2025"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -341,6 +365,7 @@
    "meanRadiusKm": 89.2,
    "radiusBasis": "measured",
    "discoveryYear": 1966,
+   "orbitPeriodDays": 0.697353,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "janus"
@@ -353,7 +378,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -366,6 +392,7 @@
    "meanRadiusKm": 58.2,
    "radiusBasis": "measured",
    "discoveryYear": 1977,
+   "orbitPeriodDays": 0.697012,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "epimetheus"
@@ -378,7 +405,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -391,6 +419,7 @@
    "meanRadiusKm": 18,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 2.736916,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "helene"
@@ -403,7 +432,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -416,6 +446,7 @@
    "meanRadiusKm": 12.4,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 1.887802,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "telesto"
@@ -428,7 +459,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -441,6 +473,7 @@
    "meanRadiusKm": 10.7,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 1.887803,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "calypso"
@@ -453,7 +486,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -466,6 +500,7 @@
    "meanRadiusKm": 15.1,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 0.604602,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "atlas"
@@ -478,7 +513,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -491,6 +527,7 @@
    "meanRadiusKm": 43.1,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 0.615878,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "prometheus"
@@ -503,7 +540,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -516,6 +554,7 @@
    "meanRadiusKm": 40.6,
    "radiusBasis": "measured",
    "discoveryYear": 1980,
+   "orbitPeriodDays": 0.631369,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "pandora"
@@ -528,7 +567,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -541,6 +581,7 @@
    "meanRadiusKm": 14,
    "radiusBasis": "measured",
    "discoveryYear": 1990,
+   "orbitPeriodDays": 0.575051,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "pan"
@@ -553,7 +594,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -566,6 +608,7 @@
    "meanRadiusKm": 9.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 1298.6819,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "ymir"
@@ -579,7 +622,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -592,6 +636,7 @@
    "meanRadiusKm": 12.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 685.7153,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "paaliaq"
@@ -605,7 +650,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -618,6 +664,7 @@
    "meanRadiusKm": 7.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 917.984,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "tarvos"
@@ -631,7 +678,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -644,6 +692,7 @@
    "meanRadiusKm": 6.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 451.1201,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "ijiraq"
@@ -657,7 +706,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -670,6 +720,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 1008.2451,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "suttungr"
@@ -683,7 +734,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -696,6 +748,7 @@
    "meanRadiusKm": 8.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 448.9076,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "kiviuq"
@@ -709,7 +762,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -722,6 +776,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 946.2903,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "mundilfari"
@@ -735,7 +790,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -748,6 +804,7 @@
    "meanRadiusKm": 14.3,
    "radiusBasis": "measured",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 779.0701,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "albiorix"
@@ -761,7 +818,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -774,6 +832,7 @@
    "meanRadiusKm": 4,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 725.7313,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "skathi"
@@ -787,7 +846,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -800,6 +860,7 @@
    "meanRadiusKm": 5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 864.9236,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "erriapus"
@@ -813,7 +874,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -826,6 +888,7 @@
    "meanRadiusKm": 19.65,
    "radiusBasis": "measured",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 892.6799,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "siarnaq"
@@ -839,7 +902,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -852,6 +916,7 @@
    "meanRadiusKm": 4,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 1082.2292,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "thrymr"
@@ -865,7 +930,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -878,6 +944,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 999.9417,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "narvi"
@@ -891,7 +958,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -904,6 +972,7 @@
    "meanRadiusKm": 1.45,
    "radiusBasis": "measured",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1.009549,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "methone"
@@ -916,7 +985,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -929,6 +999,7 @@
    "meanRadiusKm": 2.22,
    "radiusBasis": "measured",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1.156059,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "pallene"
@@ -941,7 +1012,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -954,6 +1026,7 @@
    "meanRadiusKm": 1.3,
    "radiusBasis": "measured",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 2.736916,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "polydeuces"
@@ -966,7 +1039,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -979,6 +1053,7 @@
    "meanRadiusKm": 3.8,
    "radiusBasis": "measured",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 0.59408,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "daphnis"
@@ -991,7 +1066,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1004,6 +1080,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1109.1278,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "aegir"
@@ -1017,7 +1094,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1030,6 +1108,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 829.6437,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "bebhionn"
@@ -1043,7 +1122,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1056,6 +1136,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 998.6187,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "bergelmir"
@@ -1069,7 +1150,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1082,6 +1164,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1082.9444,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "bestla"
@@ -1095,7 +1178,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1108,6 +1192,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1079.1243,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "farbauti"
@@ -1121,7 +1206,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1134,6 +1220,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1245.9215,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "fenrir"
@@ -1147,7 +1234,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1160,6 +1248,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1470.3618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "fornjot"
@@ -1173,7 +1262,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1186,6 +1276,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1032.0236,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "hati"
@@ -1199,7 +1290,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1212,6 +1304,7 @@
    "meanRadiusKm": 4,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 927.4569,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "hyrrokkin"
@@ -1225,7 +1318,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1238,6 +1332,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1220.9757,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "kari"
@@ -1251,7 +1346,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1264,6 +1360,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1295.5243,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "loge"
@@ -1277,7 +1374,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1290,6 +1388,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 873.5736,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "skoll"
@@ -1303,7 +1402,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1316,6 +1416,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1281.1396,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "surtur"
@@ -1329,7 +1430,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1342,6 +1444,7 @@
    "meanRadiusKm": 0.9,
    "radiusBasis": "measured",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 1.038898,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "anthe"
@@ -1354,7 +1457,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1367,6 +1471,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 999.1271,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "jarnsaxa"
@@ -1380,7 +1485,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1393,6 +1499,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 930.4389,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "greip"
@@ -1406,7 +1513,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1419,6 +1527,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 882.8514,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "tarqeq"
@@ -1432,7 +1541,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1445,6 +1555,7 @@
    "meanRadiusKm": 0.33,
    "radiusBasis": "measured",
    "discoveryYear": 2008,
+   "orbitPeriodDays": 0.808115,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "aegaeon"
@@ -1457,7 +1568,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1470,6 +1582,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 997.3319,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "gridr"
@@ -1483,7 +1596,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1496,6 +1610,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1103.1986,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "angrboda"
@@ -1509,7 +1624,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1522,6 +1638,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1172.7215,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "skrymir"
@@ -1535,7 +1652,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1548,6 +1666,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1131.9062,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "gerd"
@@ -1561,7 +1680,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1574,6 +1694,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1574.2535,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s26"
@@ -1587,7 +1708,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1600,6 +1722,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1043.8035,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "eggther"
@@ -1613,7 +1736,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1626,6 +1750,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 832.2736,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s29"
@@ -1639,7 +1764,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1652,6 +1778,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1112.2687,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "beli"
@@ -1665,7 +1792,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1678,6 +1806,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1147.7354,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "gunnlod"
@@ -1691,7 +1820,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1704,6 +1834,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1351.8319,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "thiazzi"
@@ -1717,7 +1848,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1730,6 +1862,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1400.9299,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s34"
@@ -1743,7 +1876,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1756,6 +1890,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1217.8042,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "alvaldi"
@@ -1769,7 +1904,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1782,6 +1918,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1240.0465,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "geirrod"
@@ -1795,7 +1932,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1808,6 +1946,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 863.9229,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s31"
@@ -1821,7 +1960,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1834,6 +1974,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1331.3222,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s24"
@@ -1847,7 +1988,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1860,6 +2002,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1207.1833,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s28"
@@ -1873,7 +2016,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1886,6 +2030,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1316.1167,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s21"
@@ -1899,7 +2044,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1912,6 +2058,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1335.8042,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s36"
@@ -1925,7 +2072,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1938,6 +2086,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 752.5465,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s37"
@@ -1951,7 +2100,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1964,6 +2114,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1318.7417,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s39"
@@ -1977,7 +2128,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1990,6 +2142,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 1162.9264,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s7"
@@ -2003,7 +2156,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2016,6 +2170,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 1040.3896,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s12"
@@ -2029,7 +2184,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2042,6 +2198,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 936.0889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s13"
@@ -2055,7 +2212,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2068,6 +2226,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 1032.3694,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s17"
@@ -2081,7 +2240,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2094,6 +2254,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 958.3236,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s1"
@@ -2107,7 +2268,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2120,6 +2282,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1165.0194,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s3"
@@ -2133,7 +2296,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2146,6 +2310,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 751.3306,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s2"
@@ -2159,7 +2324,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2172,6 +2338,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 1025.6986,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s3"
@@ -2185,7 +2352,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2198,6 +2366,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 445.1701,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s1"
@@ -2211,7 +2380,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2224,6 +2394,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 795.6722,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s2"
@@ -2237,7 +2408,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2250,6 +2422,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 833.1917,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s3"
@@ -2263,7 +2436,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2276,6 +2450,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 450.7722,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s1"
@@ -2289,7 +2464,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2302,6 +2478,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 891.8576,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s2"
@@ -2315,7 +2492,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2328,6 +2506,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 760.9993,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s40"
@@ -2341,7 +2520,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2354,6 +2534,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 645.5771,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s9"
@@ -2367,7 +2548,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2380,6 +2562,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 744.0056,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s5"
@@ -2393,7 +2576,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2406,6 +2590,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 905.841,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s3"
@@ -2419,7 +2604,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2432,6 +2618,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 898.0889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s4"
@@ -2445,7 +2632,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2458,6 +2646,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 908.8924,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s41"
@@ -2471,7 +2660,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2484,6 +2674,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 919.5174,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s4"
@@ -2497,7 +2688,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2510,6 +2702,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 931.1889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s5"
@@ -2523,7 +2716,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2536,6 +2730,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 942.9785,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s6"
@@ -2549,7 +2744,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2562,6 +2758,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 919.8847,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s42"
@@ -2575,7 +2772,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2588,6 +2786,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 976.3438,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s10"
@@ -2601,7 +2800,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2614,6 +2814,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 984.8722,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s5"
@@ -2627,7 +2828,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2640,6 +2842,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 972.8528,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s43"
@@ -2653,7 +2856,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2666,6 +2870,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1017.9146,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s44"
@@ -2679,7 +2884,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2692,6 +2898,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1031.8604,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s45"
@@ -2705,7 +2912,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2718,6 +2926,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1033.3521,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s11"
@@ -2731,7 +2940,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2744,6 +2954,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1022.2868,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s12"
@@ -2757,7 +2968,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2770,6 +2982,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 917.1056,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s6"
@@ -2783,7 +2996,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2796,6 +3010,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1052.316,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s13"
@@ -2809,7 +3024,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2822,6 +3038,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1070.8007,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s7"
@@ -2835,7 +3052,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2848,6 +3066,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1078.8604,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s8"
@@ -2861,7 +3080,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2874,6 +3094,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1084.6194,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s9"
@@ -2887,7 +3108,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2900,6 +3122,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1096.9882,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s46"
@@ -2913,7 +3136,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2926,6 +3150,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1111.9924,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s10"
@@ -2939,7 +3164,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2952,6 +3178,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 759.2201,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s47"
@@ -2965,7 +3192,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2978,6 +3206,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1109.1097,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s11"
@@ -2991,7 +3220,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3004,6 +3234,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1141.2708,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s14"
@@ -3017,7 +3248,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3030,6 +3262,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1127.5993,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s12"
@@ -3043,7 +3276,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3056,6 +3290,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1156.8111,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s6"
@@ -3069,7 +3304,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3082,6 +3318,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1133.2653,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s13"
@@ -3095,7 +3332,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3108,6 +3346,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 449.925,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2005-s4"
@@ -3121,7 +3360,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3134,6 +3374,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 750.7958,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s7"
@@ -3147,7 +3388,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3160,6 +3402,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 831.2111,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s8"
@@ -3173,7 +3416,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3186,6 +3430,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 856.534,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s7"
@@ -3199,7 +3444,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3212,6 +3458,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 890.5868,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s14"
@@ -3225,7 +3472,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3238,6 +3486,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1151.6611,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s15"
@@ -3251,7 +3500,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3264,6 +3514,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 1165.9562,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2005-s5"
@@ -3277,7 +3528,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3290,6 +3542,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1201.6924,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s15"
@@ -3303,7 +3556,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3316,6 +3570,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1195.1285,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s16"
@@ -3329,7 +3584,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3342,6 +3598,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1250.4639,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s17"
@@ -3355,7 +3612,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3368,6 +3626,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1229.8632,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s48"
@@ -3381,7 +3640,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3394,6 +3654,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1215.6063,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s8"
@@ -3407,7 +3668,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3420,6 +3682,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1251.6847,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s49"
@@ -3433,7 +3696,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3446,6 +3710,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1247.1917,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s50"
@@ -3459,7 +3724,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3472,6 +3738,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1282.0917,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s18"
@@ -3485,7 +3752,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3498,6 +3766,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1324.9458,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s16"
@@ -3511,7 +3780,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3524,6 +3794,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1278.9618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s17"
@@ -3537,7 +3808,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3550,6 +3822,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1314.2674,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s18"
@@ -3563,7 +3836,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3576,6 +3850,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1306.1604,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s19"
@@ -3589,7 +3864,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3602,6 +3878,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1360.4674,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s20"
@@ -3615,7 +3892,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3628,6 +3906,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1371.0201,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s19"
@@ -3641,7 +3920,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3654,6 +3934,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1494.4076,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s51"
@@ -3667,7 +3948,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3680,6 +3962,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1512.384,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s9"
@@ -3693,7 +3976,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3706,6 +3990,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1605.8868,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s52"
@@ -3719,7 +4004,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3732,6 +4018,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 1069.8069,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s9"
@@ -3745,7 +4032,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3758,6 +4046,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1326.184,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s53"
@@ -3771,7 +4060,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3784,6 +4074,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1503.9681,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s10"
@@ -3797,7 +4088,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3810,6 +4102,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1605.2799,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s21"
@@ -3823,7 +4116,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3836,6 +4130,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 565.7889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s20"
@@ -3849,7 +4144,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3862,6 +4158,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 447.141,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s54"
@@ -3875,7 +4172,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3888,6 +4186,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 448.1618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s55"
@@ -3901,7 +4200,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3914,6 +4214,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 596.6938,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s56"
@@ -3927,7 +4228,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3940,6 +4242,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 913.0736,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s57"
@@ -3953,7 +4256,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3966,6 +4270,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 920.8035,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s58"
@@ -3979,7 +4284,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3992,6 +4298,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 991.1819,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s59"
@@ -4005,7 +4312,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4018,6 +4326,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1018.1285,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s60"
@@ -4031,7 +4340,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4044,6 +4354,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2004,
+   "orbitPeriodDays": 1135.0646,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2004-s61"
@@ -4057,7 +4368,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4070,6 +4382,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 909.5785,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2005-s06"
@@ -4083,7 +4396,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4096,6 +4410,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 939.7451,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2005-s07"
@@ -4109,7 +4424,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4122,6 +4438,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 684.2764,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s21"
@@ -4135,7 +4452,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4148,6 +4466,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 693.4146,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s22"
@@ -4161,7 +4480,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4174,6 +4494,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 921.8632,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s23"
@@ -4187,7 +4508,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4200,6 +4522,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 917.559,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s24"
@@ -4213,7 +4536,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4226,6 +4550,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 945.0681,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s25"
@@ -4239,7 +4564,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4252,6 +4578,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 948.6722,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s26"
@@ -4265,7 +4592,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4278,6 +4606,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 993.7889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s27"
@@ -4291,7 +4620,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4304,6 +4634,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1214.5257,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s28"
@@ -4317,7 +4648,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4330,6 +4662,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2006,
+   "orbitPeriodDays": 1494.7833,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2006-s29"
@@ -4343,7 +4676,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4356,6 +4690,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 452.3576,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s10"
@@ -4369,7 +4704,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4382,6 +4718,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2007,
+   "orbitPeriodDays": 859.5264,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2007-s11"
@@ -4395,7 +4732,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4408,6 +4746,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 448.775,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s22"
@@ -4421,7 +4760,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4434,6 +4774,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 449.0806,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s23"
@@ -4447,7 +4788,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4460,6 +4802,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 452.0743,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s24"
@@ -4473,7 +4816,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4486,6 +4830,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 450.2181,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s25"
@@ -4499,7 +4844,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4512,6 +4858,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 453.8882,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s26"
@@ -4525,7 +4872,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4538,6 +4886,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 774.6333,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s27"
@@ -4551,7 +4900,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4564,6 +4914,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 864.0938,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s28"
@@ -4577,7 +4928,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4590,6 +4942,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 853.6229,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s29"
@@ -4603,7 +4956,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4616,6 +4970,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 879.9708,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s30"
@@ -4629,7 +4984,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4642,6 +4998,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 882.241,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s31"
@@ -4655,7 +5012,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4668,6 +5026,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 898.7083,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s32"
@@ -4681,7 +5040,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4694,6 +5054,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 954.534,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s33"
@@ -4707,7 +5068,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4720,6 +5082,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 935.4472,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s34"
@@ -4733,7 +5096,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4746,6 +5110,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 943.9993,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s35"
@@ -4759,7 +5124,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4772,6 +5138,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1048.4188,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s36"
@@ -4785,7 +5152,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4798,6 +5166,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1055.7771,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s37"
@@ -4811,7 +5180,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4824,6 +5194,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1218.2743,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s38"
@@ -4837,7 +5208,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4850,6 +5222,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1369.6437,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s39"
@@ -4863,7 +5236,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4876,6 +5250,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1395.8771,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s40"
@@ -4889,7 +5264,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4902,6 +5278,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1431.2979,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s41"
@@ -4915,7 +5292,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4928,6 +5306,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1397.975,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s42"
@@ -4941,7 +5320,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4954,6 +5334,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1625.9,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s43"
@@ -4967,7 +5348,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -4980,6 +5362,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2019,
+   "orbitPeriodDays": 1638.1104,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2019-s44"
@@ -4993,7 +5376,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5006,6 +5390,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 448.2111,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s11"
@@ -5019,7 +5404,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5032,6 +5418,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 449.3271,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s12"
@@ -5045,7 +5432,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5058,6 +5446,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 455.3875,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s13"
@@ -5071,7 +5460,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5084,6 +5474,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 768.8625,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s14"
@@ -5097,7 +5488,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5110,6 +5502,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 807.8243,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s15"
@@ -5123,7 +5516,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5136,6 +5530,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 824.9229,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s16"
@@ -5149,7 +5544,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5162,6 +5558,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 834.4472,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s17"
@@ -5175,7 +5572,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5188,6 +5586,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 885.1153,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s18"
@@ -5201,7 +5600,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5214,6 +5614,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 881.0431,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s19"
@@ -5227,7 +5628,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5240,6 +5642,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 901.525,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s20"
@@ -5253,7 +5656,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5266,6 +5670,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 967.2604,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s21"
@@ -5279,7 +5684,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5292,6 +5698,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1012.241,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s22"
@@ -5305,7 +5712,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5318,6 +5726,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1040.3757,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s23"
@@ -5331,7 +5740,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5344,6 +5754,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1105.4083,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s24"
@@ -5357,7 +5768,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5370,6 +5782,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1117.0889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s25"
@@ -5383,7 +5796,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5396,6 +5810,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1157.766,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s26"
@@ -5409,7 +5824,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5422,6 +5838,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1202.016,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s27"
@@ -5435,7 +5852,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5448,6 +5866,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1217.8104,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s28"
@@ -5461,7 +5880,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5474,6 +5894,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1243.4493,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s29"
@@ -5487,7 +5908,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5500,6 +5922,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1201.0187,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s30"
@@ -5513,7 +5936,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5526,6 +5950,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1256.5035,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s31"
@@ -5539,7 +5964,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5552,6 +5978,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1208.8486,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s32"
@@ -5565,7 +5992,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5578,6 +6006,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1295.85,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s33"
@@ -5591,7 +6020,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5604,6 +6034,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1254.6069,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s34"
@@ -5617,7 +6048,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5630,6 +6062,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1304.9653,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s35"
@@ -5643,7 +6076,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5656,6 +6090,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1286.0292,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s36"
@@ -5669,7 +6104,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5682,6 +6118,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1366.8215,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s37"
@@ -5695,7 +6132,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5708,6 +6146,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1352.4347,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s38"
@@ -5721,7 +6160,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5734,6 +6174,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1411.1451,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s39"
@@ -5747,7 +6188,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5760,6 +6202,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1369.7562,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s40"
@@ -5773,7 +6216,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5786,6 +6230,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1554.3993,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s41"
@@ -5799,7 +6244,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5812,6 +6258,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1505.3118,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s42"
@@ -5825,7 +6272,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5838,6 +6286,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1625.2931,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s43"
@@ -5851,7 +6300,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5864,6 +6314,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1680.641,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s44"
@@ -5877,7 +6328,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5890,6 +6342,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 442.8632,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s01"
@@ -5903,7 +6356,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5916,6 +6370,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 449.0535,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s02"
@@ -5929,7 +6384,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5942,6 +6398,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 875.0007,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s03"
@@ -5955,7 +6412,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5968,6 +6426,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 884.1111,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s04"
@@ -5981,7 +6440,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -5994,6 +6454,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1528.0368,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s05"
@@ -6007,7 +6468,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6020,6 +6482,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 487.909,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s06"
@@ -6033,7 +6496,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6046,6 +6510,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 499.0097,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s07"
@@ -6059,7 +6524,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6072,6 +6538,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 619.691,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s08"
@@ -6085,7 +6552,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6098,6 +6566,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 564.1139,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s09"
@@ -6111,7 +6580,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6124,6 +6594,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 720.4931,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s10"
@@ -6137,7 +6608,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6150,6 +6622,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 621.4931,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s11"
@@ -6163,7 +6636,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6176,6 +6650,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 741.9167,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s12"
@@ -6189,7 +6664,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6202,6 +6678,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 699.1799,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s13"
@@ -6215,7 +6692,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6228,6 +6706,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 816.8618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s14"
@@ -6241,7 +6720,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6254,6 +6734,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 919.9347,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s15"
@@ -6267,7 +6748,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6280,6 +6762,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 827.9111,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s16"
@@ -6293,7 +6776,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6306,6 +6790,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 855.9354,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s17"
@@ -6319,7 +6804,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6332,6 +6818,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 855.6535,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s18"
@@ -6345,7 +6832,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6358,6 +6846,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 870.9229,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s19"
@@ -6371,7 +6860,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6384,6 +6874,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 846.7653,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s20"
@@ -6397,7 +6888,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6410,6 +6902,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 883.3083,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s21"
@@ -6423,7 +6916,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6436,6 +6930,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 945.3701,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s22"
@@ -6449,7 +6944,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6462,6 +6958,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 961.2236,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s23"
@@ -6475,7 +6972,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6488,6 +6986,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 928.2451,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s24"
@@ -6501,7 +7000,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6514,6 +7014,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 988.5278,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s25"
@@ -6527,7 +7028,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6540,6 +7042,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1047.7618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s26"
@@ -6553,7 +7056,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6566,6 +7070,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1041.8521,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s27"
@@ -6579,7 +7084,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6592,6 +7098,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1046.5556,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s28"
@@ -6605,7 +7112,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6618,6 +7126,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1059.4208,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s29"
@@ -6631,7 +7140,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6644,6 +7154,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 919.7139,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s30"
@@ -6657,7 +7168,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6670,6 +7182,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1114.2889,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s31"
@@ -6683,7 +7196,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6696,6 +7210,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1092.2417,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s32"
@@ -6709,7 +7224,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6722,6 +7238,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1187.0667,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s33"
@@ -6735,7 +7252,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6748,6 +7266,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1120.3833,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s34"
@@ -6761,7 +7280,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6774,6 +7294,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1240.7618,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s35"
@@ -6787,7 +7308,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6800,6 +7322,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1237.6104,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s36"
@@ -6813,7 +7336,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6826,6 +7350,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1047.3903,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s37"
@@ -6839,7 +7364,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6852,6 +7378,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 546.3146,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s38"
@@ -6865,7 +7392,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6878,6 +7406,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1121.9938,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s39"
@@ -6891,7 +7420,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6904,6 +7434,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1141.4813,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s40"
@@ -6917,7 +7448,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6930,6 +7462,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1159.516,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s41"
@@ -6943,7 +7476,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6956,6 +7490,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1204.8146,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s42"
@@ -6969,7 +7504,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -6982,6 +7518,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1265.5667,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s43"
@@ -6995,7 +7532,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7008,6 +7546,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1000.4722,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s44"
@@ -7021,7 +7560,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7034,6 +7574,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1339.8472,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s45"
@@ -7047,7 +7588,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7060,6 +7602,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1450.2715,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s46"
@@ -7073,7 +7616,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7086,6 +7630,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1485.0417,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s47"
@@ -7099,7 +7644,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7112,6 +7658,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1058.3493,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s48"
@@ -7125,7 +7672,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7138,6 +7686,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1198.9896,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s49"
@@ -7151,7 +7700,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7164,6 +7714,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 469.8201,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s50"
@@ -7177,7 +7728,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7190,6 +7742,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1345.7917,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s45"
@@ -7203,7 +7756,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7216,6 +7770,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 969.5965,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s46"
@@ -7229,7 +7784,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7242,6 +7798,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 1168.5778,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s47"
@@ -7255,7 +7812,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7268,6 +7826,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 451.7528,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s48"
@@ -7281,7 +7840,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7294,6 +7854,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1339.2104,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s51"
@@ -7307,7 +7868,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7320,6 +7882,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1262.3438,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s52"
@@ -7333,7 +7896,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7346,6 +7910,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 840.8181,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s53"
@@ -7359,7 +7924,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7372,6 +7938,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 863.3486,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s54"
@@ -7385,7 +7952,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7398,6 +7966,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 818.5125,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s55"
@@ -7411,7 +7980,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7424,6 +7994,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 447.7458,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s56"
@@ -7437,7 +8008,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7450,6 +8022,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1098.8285,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s57"
@@ -7463,7 +8036,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7476,6 +8050,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2020,
+   "orbitPeriodDays": 448.8382,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2020-s49"
@@ -7489,7 +8064,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7502,6 +8078,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 842.6812,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s58"
@@ -7515,7 +8092,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7528,6 +8106,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 1061.041,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s59"
@@ -7541,7 +8120,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7554,6 +8134,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 863.9632,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s60"
@@ -7567,7 +8148,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7580,6 +8162,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 906.8486,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s61"
@@ -7593,7 +8176,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7606,6 +8190,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 620.1486,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s62"
@@ -7619,7 +8204,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7632,6 +8218,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 938.2549,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2023-s63"
@@ -7645,7 +8232,8 @@
      "ashton-2025"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -7658,6 +8246,7 @@
    "meanRadiusKm": 0.15,
    "radiusBasis": "estimate",
    "discoveryYear": 2009,
+   "orbitPeriodDays": 0.473026,
    "ephemeris": {
     "set": "saturn-moons",
     "body": "s2009-s2"
@@ -7670,7 +8259,8 @@
      "jpl-sat-elem"
     ],
     "radius": "wikipedia-moons-of-saturn",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]

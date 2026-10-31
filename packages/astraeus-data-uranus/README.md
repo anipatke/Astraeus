@@ -9,6 +9,6 @@ import { dataSource } from "astraeus-data-uranus";
 mount(element, new Scene().addBody(uranus), { data: [dataSource] });
 ```
 
-The engine loads only the year files the scene's time window needs. This system has no ready-made moon bodies yet; the positions are for scenes that read them.
+The engine loads only the year files the scene's time window needs. Every one of Uranus's 28 listed moons is added by its id (`scene.addBody("miranda")`, with this package passed to `mount`); `listedMoons("uranus")` names them. Each is a grey sphere at its JPL mean radius, and `{ orbit: true }` draws one lap of its JPL period.
 
 Source: JPL Horizons On-Line Ephemeris System API (NASA/JPL-Caltech Solar System Dynamics), US Government work, used with credit. See `NOTICE`.

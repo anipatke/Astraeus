@@ -4,6 +4,12 @@
  "parent": "pluto",
  "note": "Facts only. Pluto's index also holds Pluto itself as the centre series; the list is its five moons. Sizes are JPL's published mean radii. Charon has a Planetary Explorer map.",
  "asOf": "2026-10-20",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/pluto-moons/index.json",
   "moonCount": 5
@@ -66,6 +72,7 @@
    "meanRadiusKm": 606,
    "radiusBasis": "measured",
    "discoveryYear": 1978,
+   "orbitPeriodDays": 6.387222,
    "ephemeris": {
     "set": "pluto-moons",
     "body": "charon"
@@ -78,7 +85,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -91,6 +99,7 @@
    "meanRadiusKm": 18,
    "radiusBasis": "measured",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 24.85,
    "ephemeris": {
     "set": "pluto-moons",
     "body": "nix"
@@ -104,7 +113,8 @@
      "stern-2006"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -117,6 +127,7 @@
    "meanRadiusKm": 18.5,
    "radiusBasis": "measured",
    "discoveryYear": 2005,
+   "orbitPeriodDays": 38.2,
    "ephemeris": {
     "set": "pluto-moons",
     "body": "hydra"
@@ -130,7 +141,8 @@
      "stern-2006"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -143,6 +155,7 @@
    "meanRadiusKm": 6,
    "radiusBasis": "measured",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 32.17,
    "ephemeris": {
     "set": "pluto-moons",
     "body": "kerberos"
@@ -156,7 +169,8 @@
      "stern-2006"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -169,6 +183,7 @@
    "meanRadiusKm": 5.2,
    "radiusBasis": "measured",
    "discoveryYear": 2012,
+   "orbitPeriodDays": 20.16,
    "ephemeris": {
     "set": "pluto-moons",
     "body": "styx"
@@ -182,7 +197,8 @@
      "stern-2006"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]

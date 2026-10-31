@@ -4,6 +4,12 @@
  "parent": "jupiter",
  "note": "Facts only. The moon list is the T-096 curve-fit index (JPL Horizons). Radius basis 'measured' is a published measurement; 'estimate' is Sheppard's brightness-based diameter halved. A moon in no published family is a loner. The four moons with a bodyPackage use the O-018 packages unchanged.",
  "asOf": "2026-10-18",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/jupiter-moons/index.json",
   "moonCount": 115
@@ -125,6 +131,7 @@
    "meanRadiusKm": 1821.49,
    "radiusBasis": "measured",
    "discoveryYear": 1610,
+   "orbitPeriodDays": 1.762732,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "io"
@@ -137,7 +144,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -150,6 +158,7 @@
    "meanRadiusKm": 1560.8,
    "radiusBasis": "measured",
    "discoveryYear": 1610,
+   "orbitPeriodDays": 3.525463,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "europa"
@@ -162,7 +171,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -175,6 +185,7 @@
    "meanRadiusKm": 2631.2,
    "radiusBasis": "measured",
    "discoveryYear": 1610,
+   "orbitPeriodDays": 7.155588,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "ganymede"
@@ -187,7 +198,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -200,6 +212,7 @@
    "meanRadiusKm": 2410.3,
    "radiusBasis": "measured",
    "discoveryYear": 1610,
+   "orbitPeriodDays": 16.69044,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "callisto"
@@ -212,7 +225,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -225,6 +239,7 @@
    "meanRadiusKm": 83.5,
    "radiusBasis": "measured",
    "discoveryYear": 1892,
+   "orbitPeriodDays": 0.499918,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "amalthea"
@@ -237,7 +252,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -250,6 +266,7 @@
    "meanRadiusKm": 85,
    "radiusBasis": "measured",
    "discoveryYear": 1904,
+   "orbitPeriodDays": 249.909,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "himalia"
@@ -263,7 +280,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -276,6 +294,7 @@
    "meanRadiusKm": 39.95,
    "radiusBasis": "measured",
    "discoveryYear": 1905,
+   "orbitPeriodDays": 258.8861,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "elara"
@@ -289,7 +308,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -302,6 +322,7 @@
    "meanRadiusKm": 28.9,
    "radiusBasis": "measured",
    "discoveryYear": 1908,
+   "orbitPeriodDays": 734.4215,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "pasiphae"
@@ -315,7 +336,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -328,6 +350,7 @@
    "meanRadiusKm": 17.5,
    "radiusBasis": "measured",
    "discoveryYear": 1914,
+   "orbitPeriodDays": 744.5951,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "sinope"
@@ -341,7 +364,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -354,6 +378,7 @@
    "meanRadiusKm": 21.1,
    "radiusBasis": "measured",
    "discoveryYear": 1938,
+   "orbitPeriodDays": 258.5035,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "lysithea"
@@ -367,7 +392,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -380,6 +406,7 @@
    "meanRadiusKm": 23.35,
    "radiusBasis": "measured",
    "discoveryYear": 1938,
+   "orbitPeriodDays": 719.2806,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "carme"
@@ -393,7 +420,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -406,6 +434,7 @@
    "meanRadiusKm": 14.55,
    "radiusBasis": "measured",
    "discoveryYear": 1951,
+   "orbitPeriodDays": 623.1097,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "ananke"
@@ -419,7 +448,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -432,6 +462,7 @@
    "meanRadiusKm": 10.75,
    "radiusBasis": "measured",
    "discoveryYear": 1974,
+   "orbitPeriodDays": 240.3264,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "leda"
@@ -445,7 +476,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -458,6 +490,7 @@
    "meanRadiusKm": 49.3,
    "radiusBasis": "measured",
    "discoveryYear": 1979,
+   "orbitPeriodDays": 0.676105,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "thebe"
@@ -470,7 +503,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -483,6 +517,7 @@
    "meanRadiusKm": 8.2,
    "radiusBasis": "measured",
    "discoveryYear": 1979,
+   "orbitPeriodDays": 0.29826,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "adrastea"
@@ -495,7 +530,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -508,6 +544,7 @@
    "meanRadiusKm": 21.5,
    "radiusBasis": "measured",
    "discoveryYear": 1979,
+   "orbitPeriodDays": 0.294779,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "metis"
@@ -520,7 +557,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -533,6 +571,7 @@
    "meanRadiusKm": 4.8,
    "radiusBasis": "measured",
    "discoveryYear": 1999,
+   "orbitPeriodDays": 749.791,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "callirrhoe"
@@ -546,7 +585,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -559,6 +599,7 @@
    "meanRadiusKm": 4.5,
    "radiusBasis": "estimate",
    "discoveryYear": 1975,
+   "orbitPeriodDays": 129.9681,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "themisto"
@@ -571,7 +612,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -584,6 +626,7 @@
    "meanRadiusKm": 3,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 742.7715,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "megaclite"
@@ -597,7 +640,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -610,6 +654,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 717.5917,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "taygete"
@@ -623,7 +668,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -636,6 +682,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 709.3625,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "chaldene"
@@ -649,7 +696,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -662,6 +710,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 616.7833,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "harpalyke"
@@ -675,7 +724,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -688,6 +738,7 @@
    "meanRadiusKm": 3.45,
    "radiusBasis": "measured",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 726.7007,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "kalyke"
@@ -701,7 +752,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -714,6 +766,7 @@
    "meanRadiusKm": 2.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 624.5479,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "iocaste"
@@ -727,7 +780,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -740,6 +794,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 714.0542,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "erinome"
@@ -753,7 +808,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -766,6 +822,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 711.6604,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "isonoe"
@@ -779,7 +836,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -792,6 +850,7 @@
    "meanRadiusKm": 3.5,
    "radiusBasis": "measured",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 618.7229,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "praxidike"
@@ -805,7 +864,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -818,6 +878,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 749.6097,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "autonoe"
@@ -831,7 +892,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -844,6 +906,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 620.5875,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "thyone"
@@ -857,7 +920,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -870,6 +934,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 626.3799,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "hermippe"
@@ -883,7 +948,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -896,6 +962,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 715.5396,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "aitne"
@@ -909,7 +976,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -922,6 +990,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 707.8569,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "eurydome"
@@ -935,7 +1004,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -948,6 +1018,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 613.9278,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "euanthe"
@@ -961,7 +1032,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -974,6 +1046,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 546.1778,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "euporie"
@@ -987,7 +1060,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1000,6 +1074,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 617.2347,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "orthosie"
@@ -1013,7 +1088,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1026,6 +1102,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 737.9542,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "sponde"
@@ -1039,7 +1116,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1052,6 +1130,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 715.016,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "kale"
@@ -1065,7 +1144,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1078,6 +1158,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 705.409,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "pasithee"
@@ -1091,7 +1172,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1104,6 +1186,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 728.7743,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "hegemone"
@@ -1117,7 +1200,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1130,6 +1214,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 613.6104,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "mneme"
@@ -1143,7 +1228,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1156,6 +1242,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 749.0708,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "aoede"
@@ -1169,7 +1256,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1182,6 +1270,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 620.5458,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "thelxinoe"
@@ -1195,7 +1284,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1208,6 +1298,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2002,
+   "orbitPeriodDays": 717.1056,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "arche"
@@ -1221,7 +1312,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1234,6 +1326,7 @@
    "meanRadiusKm": 1.9,
    "radiusBasis": "measured",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 713.5931,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "kallichore"
@@ -1247,7 +1340,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "wikipedia-moons-of-jupiter",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1260,6 +1354,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 617.8625,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "helike"
@@ -1273,7 +1368,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1286,6 +1382,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 454.4,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "carpo"
@@ -1298,7 +1395,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1311,6 +1409,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 715.6868,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "eukelade"
@@ -1324,7 +1423,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1337,6 +1437,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 743.2062,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "cyllene"
@@ -1350,7 +1451,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1363,6 +1465,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 769.4229,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "kore"
@@ -1376,7 +1479,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1389,6 +1493,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 719.6264,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "herse"
@@ -1402,7 +1507,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1415,6 +1521,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 721.4257,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j1"
@@ -1428,7 +1535,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1441,6 +1549,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 612.3507,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j2"
@@ -1454,7 +1563,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1467,6 +1577,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2000,
+   "orbitPeriodDays": 277.2472,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "dia"
@@ -1480,7 +1591,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1493,6 +1605,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2016,
+   "orbitPeriodDays": 612.7812,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2016-j1"
@@ -1506,7 +1619,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1519,6 +1633,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 592.3333,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j18"
@@ -1532,7 +1647,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1545,6 +1661,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 708.2931,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j2"
@@ -1558,7 +1675,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1571,6 +1689,7 @@
    "meanRadiusKm": 2,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 715.191,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "eirene"
@@ -1584,7 +1703,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1597,6 +1717,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 694.2042,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "philophrosyne"
@@ -1610,7 +1731,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1623,6 +1745,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 747.4382,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j1"
@@ -1636,7 +1759,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1649,6 +1773,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 611.316,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "eupheme"
@@ -1662,7 +1787,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1675,6 +1801,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 719.9222,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j19"
@@ -1688,7 +1815,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1701,6 +1829,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2016,
+   "orbitPeriodDays": 522.0743,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "valetudo"
@@ -1713,7 +1842,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1726,6 +1856,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 710.4208,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j2"
@@ -1739,7 +1870,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1752,6 +1884,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 618.9653,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j3"
@@ -1765,7 +1898,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1778,6 +1912,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 251.2319,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "pandia"
@@ -1791,7 +1926,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1804,6 +1940,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 722.1972,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j5"
@@ -1817,7 +1954,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1830,6 +1968,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 724.4688,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j6"
@@ -1843,7 +1982,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1856,6 +1996,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 620.0167,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j7"
@@ -1869,7 +2010,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1882,6 +2024,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 704.4181,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j8"
@@ -1895,7 +2038,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1908,6 +2052,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 656.0479,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j9"
@@ -1921,7 +2066,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1934,6 +2080,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2018,
+   "orbitPeriodDays": 248.6153,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "ersa"
@@ -1947,7 +2094,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1960,6 +2108,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 718.4153,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j1"
@@ -1973,7 +2122,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -1986,6 +2136,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 621.4715,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j2"
@@ -1999,7 +2150,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2012,6 +2164,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 709.1229,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j4"
@@ -2025,7 +2178,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2038,6 +2192,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 721.8792,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j9"
@@ -2051,7 +2206,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2064,6 +2220,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 730.7375,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j10"
@@ -2077,7 +2234,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2090,6 +2248,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 619.9611,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j12"
@@ -2103,7 +2262,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2116,6 +2276,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 616.3444,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j16"
@@ -2129,7 +2290,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2142,6 +2304,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 751.3993,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j23"
@@ -2155,7 +2318,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2168,6 +2332,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 707.3347,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2003-j24"
@@ -2181,7 +2346,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2194,6 +2360,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 259.0875,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j3"
@@ -2207,7 +2374,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2220,6 +2388,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2018,
+   "orbitPeriodDays": 249.275,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2018-j2"
@@ -2233,7 +2402,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2246,6 +2416,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2018,
+   "orbitPeriodDays": 731.4875,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2018-j3"
@@ -2259,7 +2430,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2272,6 +2444,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 619.7687,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j1"
@@ -2285,7 +2458,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2298,6 +2472,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 618.5028,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j2"
@@ -2311,7 +2486,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2324,6 +2500,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 611.8736,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j3"
@@ -2337,7 +2514,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2350,6 +2528,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 713.7056,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j4"
@@ -2363,7 +2542,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2376,6 +2556,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 732.1528,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j5"
@@ -2389,7 +2570,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2402,6 +2584,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 706.7653,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j6"
@@ -2415,7 +2598,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2428,6 +2612,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2016,
+   "orbitPeriodDays": 699.7583,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2016-j3"
@@ -2441,7 +2626,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2454,6 +2640,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2016,
+   "orbitPeriodDays": 718.0382,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2016-j4"
@@ -2467,7 +2654,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2480,6 +2668,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2018,
+   "orbitPeriodDays": 426.2646,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2018-j4"
@@ -2492,7 +2681,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2505,6 +2695,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2022,
+   "orbitPeriodDays": 700.9333,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2022-j1"
@@ -2518,7 +2709,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2531,6 +2723,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2022,
+   "orbitPeriodDays": 716.2104,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2022-j2"
@@ -2544,7 +2737,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2557,6 +2751,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2022,
+   "orbitPeriodDays": 622.4361,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2022-j3"
@@ -2570,7 +2765,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2583,6 +2779,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 625.1493,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j10"
@@ -2596,7 +2793,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2609,6 +2807,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 712.3826,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j11"
@@ -2622,7 +2821,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2635,6 +2835,7 @@
    "meanRadiusKm": 1.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 239.0521,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j4"
@@ -2648,7 +2849,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2661,6 +2863,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2018,
+   "orbitPeriodDays": 725.3785,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2018-j5"
@@ -2674,7 +2877,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2687,6 +2891,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2024,
+   "orbitPeriodDays": 734.3764,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2024-j1"
@@ -2700,7 +2905,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2713,6 +2919,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 737.4646,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j5"
@@ -2726,7 +2933,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2739,6 +2947,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 753.2771,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j3"
@@ -2752,7 +2961,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2765,6 +2975,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 703.1938,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j4"
@@ -2778,7 +2989,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2791,6 +3003,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 739.9875,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j5"
@@ -2804,7 +3017,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2817,6 +3031,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2010,
+   "orbitPeriodDays": 643.6715,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2010-j6"
@@ -2830,7 +3045,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2843,6 +3059,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2011,
+   "orbitPeriodDays": 723.934,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2011-j6"
@@ -2856,7 +3073,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2869,6 +3087,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 725.3986,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j12"
@@ -2882,7 +3101,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2895,6 +3115,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 705.4972,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j13"
@@ -2908,7 +3129,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2921,6 +3143,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 732.0424,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j14"
@@ -2934,7 +3157,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2947,6 +3171,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 720.6535,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j15"
@@ -2960,7 +3185,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2973,6 +3199,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 713.1292,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j16"
@@ -2986,7 +3213,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -2999,6 +3227,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 261.066,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j17"
@@ -3012,7 +3241,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3025,6 +3255,7 @@
    "meanRadiusKm": 1,
    "radiusBasis": "estimate",
    "discoveryYear": 2017,
+   "orbitPeriodDays": 709.2396,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2017-j18"
@@ -3038,7 +3269,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3051,6 +3283,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 727.0104,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j7"
@@ -3064,7 +3297,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -3077,6 +3311,7 @@
    "meanRadiusKm": 0.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2021,
+   "orbitPeriodDays": 620.8486,
    "ephemeris": {
     "set": "jupiter-moons",
     "body": "s2021-j8"
@@ -3090,7 +3325,8 @@
      "sheppard-jupiter-moons"
     ],
     "radius": "sheppard-jupiter-moons",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]

@@ -137,6 +137,31 @@ export async function seekToFraction(page, fraction) {
 
 /** The clock as the timeline prints it (for example "1969-07-16T13:32:00.000Z"). */
 export const clockText = (page) => page.locator(HOOK.timeLabel).innerText();
+/**
+ * Waits until the scene has caught up after a seek (I-123): the clock label shows the seeked instant (when `timeUtcMs` is given), the scene reports at least one body, and every id in `ids` is
+ * a drawn sphere or marker (never "none"). It polls the scene's own readouts, so a slow data load is waited out instead of guessed at with a sleep. Fails with what it last saw.
+ */
+export async function waitForSceneReady(page, { timeUtcMs, ids = [], timeout = 60000 } = {}) {
+  const started = Date.now();
+  let seen = "nothing read";
+  while (Date.now() - started < timeout) {
+    const clock = Date.parse((await clockIso(page)) ?? "");
+    const bodies = await sceneBodies(page);
+    const missing = ids.filter((id) => !bodies.some((body) => body.id === id && body.as !== "none"));
+    const clockOk = timeUtcMs === undefined || clock === timeUtcMs;
+    if (clockOk && bodies.length > 0 && missing.length === 0) return bodies;
+    seen = `clock ${Number.isNaN(clock) ? "unreadable" : new Date(clock).toISOString()}${clockOk ? "" : ` (wanted ${new Date(timeUtcMs).toISOString()})`}, ${bodies.length} bodies, missing [${missing.join(", ")}]`;
+    await page.waitForTimeout(250);
+  }
+  throw new Error(`the scene was not ready after ${timeout} ms: ${seen}`);
+}
+/** Seeks to a UTC instant and waits for the scene to be ready there (see waitForSceneReady). */
+export async function seekToReady(page, timeUtcMs, options = {}) {
+  await seekTo(page, timeUtcMs);
+  const settled = Number(await seekSlider(page).inputValue()); // the slider snaps the instant to its step and range; the clock must show what it settled on
+  return waitForSceneReady(page, { ...options, timeUtcMs: settled });
+}
+
 /** The clock's machine-readable instant (ISO). */
 export const clockIso = (page) => page.locator(HOOK.timeLabel).getAttribute("datetime");
 /** The clock as UTC milliseconds. */

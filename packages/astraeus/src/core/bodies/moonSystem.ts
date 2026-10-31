@@ -128,7 +128,7 @@ export interface MoonSystem {
   trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory;
   binding(body: BodyId, rotation?: IauRotationElements): StateSourceBinding;
   /** What a mapped moon's record says about its position, with its own worst figure from the fit check. */
-  position(label: string, worstM: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
+  position(label: string, worstM?: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
   /** The note said of every mapped moon whose face is held towards the centre. */
   readonly tidalLockNote: string;
   /** A mapped moon: sphere, tidal lock, valid for the fit span. */
@@ -141,7 +141,8 @@ export interface MappedMoonFacts {
   readonly radiusKm: number;
   /** Absent when the source prints a mass only. */
   readonly gmKm3S2?: number;
-  readonly worstM: number;
+  /** The fit check's worst figure (m) when the engine holds one; absent for a moon added by the generic rule, whose figures are in its data package's index. */
+  readonly worstM?: number;
   /** Sidereal period about the centre, days, from the moon's mean-element record; absent where there is none. */
   readonly orbitPeriodDays?: number;
   /** The years this moon's committed fits cover; absent means `MOON_FIT_SPAN`. */
@@ -199,10 +200,10 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
   });
 
-  const position = (label: string, worstM: number, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
+  const position = (label: string, worstM: number | undefined, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
     sourceType: "ephemeris",
     sources: [config.fitSource],
-    accuracy: `${label}'s position is JPL Horizons' (ephemeris ${config.ephemerisName}), reproduced by curve fits to within ${worstM} m at independent checked dates over ${spanYears(span)}. Horizons' own uncertainty is not stated in its output.`,
+    accuracy: `${label}'s position is JPL Horizons' (ephemeris ${config.ephemerisName}), reproduced by curve fits ${worstM === undefined ? `(the checked worst figure is in the data package's index)` : `to within ${worstM} m at independent checked dates`} over ${spanYears(span)}. Horizons' own uncertainty is not stated in its output.`,
     notes: `Geometric position about ${config.centreLabel}'s centre; no light-time. Valid ${spanYears(span)}, the span of this body's committed fits.`,
   });
 

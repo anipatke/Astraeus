@@ -1,9 +1,8 @@
 import type { BodyId } from "../core/body";
 import type { TimeBounds } from "../core/trajectory";
-import { JUPITER_MOON_SYSTEM } from "../core/bodies/jupiterMoons";
-import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM } from "../core/bodies/planetMoons";
-import { MoonOutOfSpanError, type MoonSystem } from "../core/bodies/moonSystem";
-import { catalogue } from "../assets/catalogue";
+import { MOON_SYSTEMS } from "../core/bodies/listedMoonBodies";
+import { MoonOutOfSpanError } from "../core/bodies/moonSystem";
+import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { SceneError } from "./errors";
 import { registerPictures, type Pictures } from "../assets/pictures";
 
@@ -25,25 +24,16 @@ export interface DataSource {
   readonly prepare?: () => Promise<void>;
 }
 
-const SYSTEMS: Readonly<Record<string, MoonSystem>> = {
-  jupiter: JUPITER_MOON_SYSTEM,
-  saturn: SATURN_MOON_SYSTEM,
-  uranus: URANUS_MOON_SYSTEM,
-  neptune: NEPTUNE_MOON_SYSTEM,
-  mars: MARS_MOON_SYSTEM,
-  pluto: PLUTO_MOON_SYSTEM,
-};
-
 /**
  * Hands the packages' pictures and moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
-export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds): Promise<void> {
+export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue): Promise<void> {
   for (const source of data) {
     if (source.pictures !== undefined) registerPictures(source.pictures);
     const positions = source.moonPositions;
     if (positions === undefined) continue;
-    const system = SYSTEMS[positions.centre];
+    const system = MOON_SYSTEMS[positions.centre];
     if (system === undefined) throw new RangeError(`${source.name}: no moon system for "${positions.centre}"`);
     system.provideIndex(positions.loadIndex);
     const moons = sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.centre);

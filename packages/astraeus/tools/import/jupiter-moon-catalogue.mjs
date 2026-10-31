@@ -3,6 +3,7 @@
 // Facts below were read on 2026-10-18 from the sources named in `sources` in the output; nothing is invented. The Jupiter moon list itself is
 // the T-096 index (JPL Horizons); this script adds family, size and discovery year. Anything not in a published family is a loner.
 import { readFileSync, writeFileSync } from "node:fs";
+import { periodsFor } from "./moon-periods.mjs";
 
 const root = new URL("../../", import.meta.url);
 const index = JSON.parse(readFileSync(new URL("../astraeus-data-jupiter/data/jupiter-moons/index.json", root), "utf8"));
@@ -70,6 +71,7 @@ const FAMILIES = [
   { id: "loner", label: "Loners", description: "Moons in no published family: Themisto (prograde, the innermost irregular) and Valetudo (prograde, on an orbit that crosses the retrograde moons').", sources: ["sheppard-jupiter-moons", "wikipedia-moons-of-jupiter"] },
 ];
 
+const periods = periodsFor("jupiter", moons);
 const errors = [];
 const entries = moons.map((moon) => {
   const family = familyOf.get(moon.id);
@@ -92,6 +94,7 @@ const entries = moons.map((moon) => {
     meanRadiusKm: radiusKm,
     radiusBasis: basis,
     discoveryYear: year,
+    orbitPeriodDays: periods.periodOf(moon),
     ephemeris: { set: "jupiter-moons", body: moon.id },
     bodyPackage: MAPPED.has(moon.id) ? `data/bodies/${moon.id}` : null,
     sources: {
@@ -100,6 +103,7 @@ const entries = moons.map((moon) => {
       familyBasis: family === "galilean" || family === "inner" ? ["jpl-sat-elem"] : family === "loner" || family === "carpo" ? ["sheppard-jupiter-moons"] : ["sheppard-jewitt-2003", "sheppard-jupiter-moons"],
       radius: radiusSource,
       discovery: "jpl-sat-discovery",
+      ...(periods.periodOf(moon) === null ? {} : { period: "jpl-sat-elem" }),
     },
   };
 });
@@ -113,6 +117,7 @@ const out = {
   parent: "jupiter",
   note: "Facts only. The moon list is the T-096 curve-fit index (JPL Horizons). Radius basis 'measured' is a published measurement; 'estimate' is Sheppard's brightness-based diameter halved. A moon in no published family is a loner. The four moons with a bodyPackage use the O-018 packages unchanged.",
   asOf: "2026-10-18",
+  periods: periods.note,
   ephemeris: { path: "data/ephemerides/jupiter-moons/index.json", moonCount: moons.length },
   sources,
   families: FAMILIES,
