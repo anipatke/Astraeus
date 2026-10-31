@@ -2,8 +2,9 @@ import type { BodyId } from "../core/body";
 import type { TimeBounds } from "../core/trajectory";
 import { JUPITER_MOON_SYSTEM } from "../core/bodies/jupiterMoons";
 import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM } from "../core/bodies/planetMoons";
-import type { MoonSystem } from "../core/bodies/moonSystem";
+import { MoonOutOfSpanError, type MoonSystem } from "../core/bodies/moonSystem";
 import { catalogue } from "../assets/catalogue";
+import { SceneError } from "./errors";
 import { registerPictures, type Pictures } from "../assets/pictures";
 
 /** Moon positions a data package (`astraeus-data-<planet>`) hands to the engine: where its index is read from and the URL of every chunk file it ships. */
@@ -46,7 +47,15 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
     if (system === undefined) throw new RangeError(`${source.name}: no moon system for "${positions.centre}"`);
     system.provideIndex(positions.loadIndex);
     const moons = sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.centre);
-    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls });
+    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls }).catch(outOfSpan(source.name));
   }
   for (const source of data) await source.prepare?.();
+}
+
+/** Turns a moon's span refusal into the public error, naming the package that holds the positions (once: the load promise is shared). */
+function outOfSpan(packageName: string): (error: unknown) => never {
+  return (error) => {
+    if (error instanceof MoonOutOfSpanError) throw new SceneError("out-of-span", `${error.body} is outside the years ${packageName} covers: ${error.message}; set the timeline inside that span, or refit the data for the longer years`);
+    throw error;
+  };
 }

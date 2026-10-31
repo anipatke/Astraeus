@@ -1,3 +1,5 @@
+import type { TimeBounds } from "./trajectory";
+
 /** Planets the astronomy adapter has a heliocentric model for (Saturn to Pluto added by O-033 T-114). */
 export type PlanetId = "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 
@@ -22,6 +24,7 @@ export type PlanetModels = { readonly [P in PlanetId]: PlanetModel };
 
 let loading: Promise<void> | undefined;
 let models: PlanetModels | undefined;
+let span: TimeBounds | undefined;
 
 /**
  * Builds the planet models, once, from the stored curve fits of the full VSOP87A series (Pluto: of JPL Horizons states) (O-025 T-101, O-033 T-114; the library's compact
@@ -30,13 +33,19 @@ let models: PlanetModels | undefined;
  * downloads them (I-022).
  */
 export function loadPlanetSeries(): Promise<void> {
-  loading ??= import("./planetModels").then((module) => { models = module.createPlanetModels(); });
+  loading ??= import("./planetModels").then((module) => { models = module.createPlanetModels(); span = module.planetSeriesSpan(); });
   return loading;
 }
 
 /** Whether the planet series have finished loading. */
 export function planetSeriesLoaded(): boolean {
   return models !== undefined;
+}
+
+/** The years the loaded planet series cover (UTC); throws before `loadPlanetSeries()` resolved. A date outside it throws rather than extrapolate. */
+export function planetSeriesSpan(): TimeBounds {
+  if (span === undefined) throw new Error("the planet series are not loaded: await loadPlanetSeries() before asking their span");
+  return span;
 }
 
 /** The loaded planet models; throws before `loadPlanetSeries()` resolved rather than falling back to the compact tables. */

@@ -17,6 +17,8 @@
 //                 UT samples through the provider itself -> worst and typical error, written to the index and the report
 //
 // Usage: node tools/import/horizons-moons.mjs [--system jupiter|mars|saturn|uranus|neptune|pluto] [--from 2010-01-01] [--to 2030-01-01] [--only 501,516] [--offline]
+//   --only with --from/--to builds just those bodies (and the centre) over that span and merges them into the existing index: the other bodies keep their chunks
+//   and their span, the time-scale table and the set's span grow to hold the union, and every body's index entry carries its own `span` (O-047 T-195).
 //          [--cache tools/import/.horizons-cache] [--out ../astraeus-data-<system>/data/<system>-moons] [--report <dir>] [--recalibrate]
 // Needs Node with built-in TypeScript type stripping (22.18+ or 24) to load the shared fitting and provider code.
 
@@ -371,17 +373,24 @@ const CENTRE_COMMAND = SYSTEM.centre
 const CENTRE_ID = opts.system
 const CENTRE_NAME = SYSTEM.name
 const MOON_ID = new RegExp(`^(${SYSTEM.barycentre}\\d\\d|${SYSTEM.barycentre}5\\d{3})$`)
-const fromS = secondsOfDate(opts.from)
-const toS = secondsOfDate(opts.to)
-const fromYear = Number(opts.from.slice(0, 4))
-const toYear = Number(opts.to.slice(0, 4))
 const policyPath = join(HERE, 'horizons-moons-fit.json')
 const policies = existsSync(policyPath) && !opts.recalibrate ? readJson(policyPath) : {}
+
+const previousIndexPath = join(opts.out, 'index.json')
+const previous = existsSync(previousIndexPath) ? readJson(previousIndexPath) : null
+// A merge (--only into an existing index) keeps what the other bodies hold: the set's span, the time scale and the centre cover the union.
+const merging = opts.only !== null && previous !== null
+const unionFrom = merging && previous.span.fromUtc < opts.from ? previous.span.fromUtc : opts.from
+const unionTo = merging && previous.span.toUtc > opts.to ? previous.span.toUtc : opts.to
+const unionFromS = secondsOfDate(unionFrom)
+const unionToS = secondsOfDate(unionTo)
+const J2000_MS = Date.UTC(2000, 0, 1, 12)
+const isoOfSeconds = (seconds) => new Date(J2000_MS + seconds * 1000).toISOString().slice(0, 10)
 
 log(`Horizons moons importer: span ${opts.from} to ${opts.to}, cache ${relative(REPO, opts.cache)}`)
 const list = await listMoons(opts)
 log(`  ${list.moons.length} moons listed for ${CENTRE_NAME} (major-body list fetched ${list.fetchedUtc})`)
-const scale = await timeScale(opts, fromS, toS)
+const scale = await timeScale(opts, unionFromS, unionToS)
 log(`  time scale: ${scale.table.pieces.length} pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to ${(scale.check.worstResidualAfter1972S * 1e6).toFixed(1)} us`)
 
 const targets = [
@@ -394,8 +403,6 @@ for (const target of targets) {
   ids.add(target.id)
 }
 
-const previousIndexPath = join(opts.out, 'index.json')
-const previous = existsSync(previousIndexPath) ? readJson(previousIndexPath) : null
 const bodies = []
 const report = []
 const unavailable = []
@@ -411,7 +418,7 @@ function coverageLimit(message) {
 for (const target of targets) {
   if (opts.only !== null && !opts.only.has(target.command) && target.role !== 'centre') {
     const kept = previous?.bodies.find((body) => body.id === target.id)
-    if (kept) bodies.push(kept)
+    if (kept) bodies.push({ ...kept, span: kept.span ?? { fromUtc: previous.span.fromUtc, toUtc: previous.span.toUtc } })
     continue
   }
   const started = Date.now()
@@ -432,8 +439,11 @@ for (const target of targets) {
   // turn), first raise the degree twice, then halve the segment (rounded down to whole source records) at the calibrated degree.
   // Horizons may hold a small moon's ephemeris for only part of the span (Cassini-era moons end in 2018): the series then covers what
   // Horizons has, less one segment so no sample is asked for outside it, and the body's span says so.
-  let bodyFromS = fromS
-  let bodyToS = toS
+  // The centre's series enters every moon's centre-relative position, so it covers the union of every body's span.
+  const requestedFrom = target.role === 'centre' ? unionFrom : opts.from
+  const requestedTo = target.role === 'centre' ? unionTo : opts.to
+  let bodyFromS = secondsOfDate(requestedFrom)
+  let bodyToS = secondsOfDate(requestedTo)
   let tests
   let truncated = null
   for (let tries = 0; tests === undefined; tries += 1) {
@@ -456,7 +466,7 @@ for (const target of targets) {
   for (let attempt = 0, raised = 0; ; attempt += 1) {
     production = await productionSamples(opts, target.command, { ...policy, segmentSeconds: lengthS }, stepS, bodyFromS, bodyToS)
     const blocks = fitSeries(production.samples, production.firstS, lengthS, degree, production.segmentCount)
-    built = buildChunks(target.id, lengthS, degree, targetKm * QUANTUM_PER_TARGET, production.firstS, blocks, fromYear, toYear)
+    built = buildChunks(target.id, lengthS, degree, targetKm * QUANTUM_PER_TARGET, production.firstS, blocks, Number(requestedFrom.slice(0, 4)), Number(requestedTo.slice(0, 4)))
     span = chunkError(built.decoded, tests, production.firstS, production.stepS)
     if (span.worstM <= targetKm * 1000 || attempt >= 16) break
     const grid = policy.sourceGrid?.lengthS ?? DAY_S
@@ -498,6 +508,7 @@ for (const target of targets) {
       periodDays: policy.periodDays,
     },
     chunks,
+    span: { fromUtc: isoOfSeconds(bodyFromS), toUtc: isoOfSeconds(bodyToS) },
     accuracy: { targetM: targetKm * 1000, span, demoWindow: demo },
     provenance: {
       sourceType: 'ephemeris',
@@ -505,8 +516,8 @@ for (const target of targets) {
         `JPL Horizons API ${list.version ?? ''} (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=${target.command} CENTER=${ORIGIN}, VECTORS geometric ICRF km km/s TDB; ephemeris ${header.targetSource}; fetched ${header.generated ?? 'see cache'}`.replace(/\s+/g, ' '),
         LICENCE,
       ],
-      accuracy: `Piecewise Chebyshev fit of Horizons states: worst ${span.worstM} m, typical (rms) ${span.rmsM} m at ${span.count} independent dates ${opts.from} to ${opts.to}; worst ${demo.worstM} m at ${demo.count} dates in the demo window. Horizons' own ephemeris uncertainty is not part of this figure and is not stated in its output.`,
-      notes: `${truncated === null ? '' : `Horizons has this body's ephemeris for only part of ${opts.from} to ${opts.to}, so the series covers ${labelOfSeconds(bodyFromS)} to ${labelOfSeconds(bodyToS)} TDB (${truncated}). `}${recent ? 'Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. ' : ''}Horizons header: ${header.notes.join(' / ')}`,
+      accuracy: `Piecewise Chebyshev fit of Horizons states: worst ${span.worstM} m, typical (rms) ${span.rmsM} m at ${span.count} independent dates ${requestedFrom} to ${requestedTo}; worst ${demo.worstM} m at ${demo.count} dates in the demo window. Horizons' own ephemeris uncertainty is not part of this figure and is not stated in its output.`,
+      notes: `${truncated === null ? '' : `Horizons has this body's ephemeris for only part of ${requestedFrom} to ${requestedTo}, so the series covers ${labelOfSeconds(bodyFromS)} to ${labelOfSeconds(bodyToS)} TDB (${truncated}). `}${recent ? 'Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. ' : ''}Horizons header: ${header.notes.join(' / ')}`,
     },
   })
   report.push({ bodyFromS, bodyToS, id: target.id, naifId: target.naifId, ephemeris: header.targetSource, periodDays: policy.periodDays, segmentDays: lengthS / DAY_S, calibratedSegmentDays: policy.segmentSeconds / DAY_S, degree, calibratedDegree: policy.degree, sourceGridDays: policy.sourceGrid ? policy.sourceGrid.lengthS / DAY_S : null, sampleStepMinutes: production.stepS / 60, samples: production.samples.length, chunkBytes: bytes, span, demo })
@@ -521,7 +532,7 @@ const index = {
   units: { position: 'km', velocity: 'km/s', time: 'TDB seconds from J2000 (2000-01-01 12:00 TDB)' },
   origin: { naifId: SYSTEM.barycentre, label: `${CENTRE_NAME} system barycentre`, note: 'Every series is relative to the barycentre; centre-relative states subtract the centre series.' },
   centre: CENTRE_ID,
-  span: { fromUtc: opts.from, toUtc: opts.to, chunk: 'one file per body per calendar year (TDB), <body>/<year>.bin' },
+  span: { fromUtc: unionFrom, toUtc: unionTo, chunk: 'one file per body per calendar year (TDB), <body>/<year>.bin' },
   source: {
     title: 'JPL Horizons On-Line Ephemeris System, API',
     url: 'https://ssd.jpl.nasa.gov/api/horizons.api',

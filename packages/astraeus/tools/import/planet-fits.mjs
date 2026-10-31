@@ -4,13 +4,14 @@
 // and accuracy. Pluto has no VSOP87 series: the Pluto system barycentre's heliocentric position is fitted to JPL Horizons states (body 9 about the Sun, 6-hourly, ICRF
 // turned into Orb's ecliptic J2000 by Orb's own frame transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms).
 //
-//   node tools/import/planet-fits.mjs [--write] [--report <file>]
+//   node tools/import/planet-fits.mjs [--write] [--report <file>] [--from 1969-01-01] [--only <ids>]
+//   --from moves the span's start earlier (O-047 T-195: 1950-01-01 for a 1977 probe; Pluto's Horizons samples then need fetching from there).
 //
 // The fitted quantity is exactly what `PlanetModel.xyz(date)` returns: heliocentric ecliptic-J2000 x, y, z, here in kilometres, as a function of
 // TT seconds (see Time below).
 // Per planet it searches segment length and degree for the fewest bytes per day whose worst error at independent dates is within TARGET_KM, then
 // fits the whole span, quantises, encodes, and measures. With --write it stores data/ephemerides/planets/planets.json (all four, base64 chunks).
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { register } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,7 +39,9 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
 const AU_KM = 149_597_870.7;
 /** The span: the validated range of the planet definitions (1969-07-21 to 2030-06-01) with margin either side, whole years. */
-const FROM_MS = Date.UTC(1969, 0, 1);
+const fromArg = process.argv.includes("--from") ? process.argv[process.argv.indexOf("--from") + 1] : "1969-01-01";
+const FROM_MS = Date.parse(`${fromArg}T00:00:00Z`);
+if (!Number.isFinite(FROM_MS) || FROM_MS >= Date.UTC(1971, 0, 1)) throw new Error(`--from must be a date before 1971 (the table's drifting piece runs to the first leap second): ${fromArg}`);
 const TO_MS = Date.UTC(2045, 0, 1);
 /** Largest fit error allowed against the VSOP87A series being replaced, kilometres: under 1 km against model errors of tens to thousands of km. */
 const TARGET_KM = 1;
@@ -62,10 +65,12 @@ const MODELS = {
 // Time. Orb turns the UTC date it is given into TT by adding leap seconds (a step at each one) and, before 1972, a polynomial; a fit of that
 // directly would have to fit every step. So the fitted argument is TT seconds from J2000 (smooth): the series' value at TT, with TT - UTC from
 // the small table stored beside the fits (leap seconds from 1972, a drifting piece before; the table is what the runtime uses to go UTC -> TT).
-const orbText = readFileSync(join(REPO, "node_modules", "@lizard-isana", "orb", "src", "orb-time.js"), "utf8");
+// The workspace hoists dependencies, so Orb's source sits in the repository root's node_modules, not the package's.
+const orbTimePath = [join(REPO, "node_modules"), join(REPO, "..", "..", "node_modules")].map((root) => join(root, "@lizard-isana", "orb", "src", "orb-time.js")).find((path) => existsSync(path));
+const orbText = readFileSync(orbTimePath, "utf8");
 const LEAPS = [...orbText.matchAll(/\[Date\.UTC\((\d+), (\d+), (\d+)\), (\d+)\]/g)].map((m) => [Date.UTC(+m[1], +m[2], +m[3]), +m[4]]);
 const orbDelta = (ms) => new Time(new Date(ms)).tt_minus_utc();
-const PRE_FROM = Date.UTC(1969, 0, 1);
+const PRE_FROM = FROM_MS;
 const preSlope = (orbDelta(LEAPS[0][0] - 86_400_000) - orbDelta(PRE_FROM)) / ((LEAPS[0][0] - 86_400_000 - PRE_FROM) / 86_400_000);
 const TIME_TABLE = {
   pieces: [{ fromUtcMs: PRE_FROM, ttMinusUtcS: Math.round(orbDelta(PRE_FROM) * 1e6) / 1e6, driftSPerDay: Math.round(preSlope * 1e9) / 1e9 },

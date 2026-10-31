@@ -1,6 +1,7 @@
 import fits from "../../data/ephemerides/planets/planets.json" with { type: "json" };
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
 import { PLANET_IDS, type PlanetId, type PlanetModel, type PlanetModels } from "./planetSeries";
+import type { TimeBounds } from "./trajectory";
 import { assertTimeScaleTable, ttMinusUtcSeconds, type TimeScaleTable } from "./timeScale";
 
 /** The astronomical unit in km that the astronomy adapter multiplies the model's au by; the fits are stored in km with the same value. */
@@ -34,6 +35,12 @@ function planetModel(chunk: SeriesChunk, table: TimeScaleTable): PlanetModel {
       return { x: km[0] / AU_KM, y: km[1] / AU_KM, z: km[2] / AU_KM, coordinate_keywords: "ecliptic rectangular j2000", unit_keywords: "au" };
     },
   };
+}
+
+/** The years the stored planet fits cover (UTC): from the time-scale table's first piece to where it ends, which the importer sets to the fitted span. */
+export function planetSeriesSpan(): TimeBounds {
+  const table = fits.timeScale as TimeScaleTable;
+  return Object.freeze({ startUtcMs: table.pieces[0].fromUtcMs, endUtcMs: table.validToUtcMs });
 }
 
 /**

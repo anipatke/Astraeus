@@ -16,6 +16,21 @@ import type { TimeBounds, Trajectory } from "../trajectory";
 /** The span the committed fits cover (T-096, T-114: 2010-01-01 to 2030-01-01 TDB, chunked per calendar year; the same for every system). */
 export const MOON_FIT_SPAN: TimeBounds = Object.freeze({ startUtcMs: Date.UTC(2010, 0, 1, 0, 2), endUtcMs: Date.UTC(2029, 11, 31, 23, 58) });
 
+/** A scene's window reaches outside the years a loaded moon's positions cover (O-047 T-195): named once, at load, instead of a throw on every frame. */
+export class MoonOutOfSpanError extends RangeError {
+  readonly body: BodyId;
+  readonly span: TimeBounds;
+  readonly window: TimeBounds;
+  constructor(body: BodyId, span: TimeBounds, window: TimeBounds) {
+    const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+    super(`${body}'s positions cover ${iso(span.startUtcMs)} to ${iso(span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}`);
+    this.name = "MoonOutOfSpanError";
+    this.body = body;
+    this.span = span;
+    this.window = window;
+  }
+}
+
 /** What a system needs to be loaded and described: its centre and where its index is (a dynamic import, so the index is its own chunk). */
 export interface MoonSystemConfig {
   readonly centre: BodyId;
@@ -58,6 +73,14 @@ export function chunksNeeded(ephemeris: ChebyshevEphemeris, load: Pick<MoonSyste
   const missing = needed.filter(({ path }) => load.chunkUrls[path] === undefined).map(({ path }) => path);
   if (missing.length > 0) throw new Error(`the build does not ship the moon fit chunks this window needs: ${missing.slice(0, 5).join(", ")}${missing.length > 5 ? ` and ${missing.length - 5} more` : ""}`);
   return needed;
+}
+
+/** Refuses a window that reaches outside the span any requested body's positions cover. */
+function assertWithinSpan(set: ChebyshevEphemeris, request: Pick<MoonSystemLoad, "window" | "bodies">): void {
+  for (const body of request.bodies) {
+    const span = set.boundsOf(body);
+    if (request.window.startUtcMs < span.startUtcMs || request.window.endUtcMs > span.endUtcMs) throw new MoonOutOfSpanError(body, span, request.window);
+  }
 }
 
 /** The fraction of one period of history loaded beyond the period itself (so a line of one period always has its samples). */
@@ -182,10 +205,18 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
       loading = null;
     },
     load(request: MoonSystemLoad): Promise<ChebyshevEphemeris> {
-      if (installed !== null) return Promise.resolve(installed);
+      if (installed !== null) {
+        try {
+          assertWithinSpan(installed, request);
+        } catch (error) {
+          return Promise.reject(error);
+        }
+        return Promise.resolve(installed);
+      }
       loading ??= (async () => {
         if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
         const set = new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
+        assertWithinSpan(set, request);
         const needed = chunksNeeded(set, request);
         const fetchBytes = request.fetchBytes ?? fetchBytesOf;
         await decodeInto(set, needed, await Promise.all(needed.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
@@ -195,7 +226,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
           const extra: { body: BodyId; path: string }[] = [];
           for (const body of request.history.bodies) {
             const lookback = Math.min(request.history.maxMs, HISTORY_MARGIN * osculatingPeriodMs(set, body, start));
-            const from = Math.floor(Math.max(start - lookback, MOON_FIT_SPAN.startUtcMs));
+            const from = Math.floor(Math.max(start - lookback, set.boundsOf(body).startUtcMs));
             for (const chunk of set.chunksFor([body], from, start)) {
               if (loaded.has(chunk.path) || request.chunkUrls[chunk.path] === undefined) continue;
               loaded.add(chunk.path);

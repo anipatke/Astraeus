@@ -260,3 +260,38 @@ describe("ephemeris index validation (STYLE-06)", () => {
     });
   }
 });
+
+describe("a span per body (O-047 T-195)", () => {
+  const base = built.index as { bodies: Record<string, unknown>[] } & Record<string, unknown>;
+  const withSpans = (_unused: undefined, own: Record<string, { fromUtc: string; toUtc: string }>) =>
+    parseEphemerisIndex({ ...base, bodies: base.bodies.map((body) => (own[body.id as string] === undefined ? body : { ...body, span: own[body.id as string] })) });
+  const fill = (index: ReturnType<typeof parseEphemerisIndex>): ChebyshevEphemeris => {
+    const set = new ChebyshevEphemeris(index);
+    for (const [path, bytes] of built.files) set.addChunk(path.split("/")[0], path, bytes);
+    return set;
+  };
+  const day = (month: number, d: number) => Date.UTC(2016, month - 1, d);
+
+  it("answers only inside its own span, whatever the siblings hold, and a body without one keeps its chunks' extent", () => {
+    const set = fill(withSpans(undefined, { slow: { fromUtc: "2016-10-10", toUtc: "2016-10-20" } }));
+    expect(set.boundsOf("slow").startUtcMs).toBeGreaterThanOrEqual(day(10, 10));
+    expect(set.boundsOf("slow").endUtcMs).toBeLessThanOrEqual(day(10, 20));
+    expect(set.boundsOf("fast").startUtcMs).toBeLessThanOrEqual(day(10, 3));
+    expect(set.boundsOf("fast").endUtcMs).toBeGreaterThan(day(11, 20));
+    expect(() => set.stateOf("slow", day(10, 7))).toThrow(TrajectoryOutOfRangeError);
+    expect(() => set.stateOf("slow", day(10, 15))).not.toThrow();
+    expect(() => set.stateOf("fast", day(10, 7))).not.toThrow();
+    expect(() => set.stateOf("fast", day(9, 30))).toThrow(TrajectoryOutOfRangeError);
+  });
+
+  it("limits a body whose own span is wider than its chunks to the chunks", () => {
+    const plain = fill(parseEphemerisIndex(base));
+    const wide = fill(withSpans(undefined, { slow: { fromUtc: "2016-01-01", toUtc: "2017-06-01" } }));
+    expect(wide.boundsOf("slow")).toEqual(plain.boundsOf("slow"));
+  });
+
+  it("rejects a malformed or reversed span", () => {
+    expect(() => withSpans(undefined, { slow: { fromUtc: "2016-10-20", toUtc: "2016-10-10" } })).toThrow(EphemerisIndexError);
+    expect(() => withSpans(undefined, { slow: { fromUtc: "never", toUtc: "2016-10-10" } })).toThrow(EphemerisIndexError);
+  });
+});

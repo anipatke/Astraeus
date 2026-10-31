@@ -2,6 +2,12 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- A body's positions can cover its own years (O-047 T-195, I-110 engine half). A moon-fit `index.json` may give each body a `span: { fromUtc, toUtc }` (optional; an index without one reads as before, the six shipped data packages are unchanged), and the engine answers each body only inside its own span and its centre's. The importer `tools/import/horizons-moons.mjs --only ... --from ... --to ...` merges a longer-span rebuild of chosen bodies into an existing index.
+- New `SceneError` code `out-of-span`. A scene whose timeline reaches outside the years a loaded moon's data (or the built-in planet series, 1969 to 2045) covers now fails once, as `ready` rejecting at mount, naming the body, the data package and the span, instead of throwing on every frame.
+- Fixed: asking the ephemeris for a body's bounds threw for Pluto's data, whose last chunk ends a day past its time-scale table.
+
 ## 0.4.0 (2026-10-31)
 
 First download of the packed example (`npm run measure:example`): 1,594,919 bytes raw, 453,695 bytes gzip (code and styles loaded on first open).

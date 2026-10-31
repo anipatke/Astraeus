@@ -32,6 +32,12 @@ export interface EphemerisBodyEntry {
   };
   readonly chunks: readonly EphemerisChunkEntry[];
   readonly provenance: Provenance;
+  /**
+   * The years this body's positions are claimed for, narrower than its chunks (UTC, from the body's `span: { fromUtc, toUtc }`). Absent: the chunks' extent
+   * applies, which is the set's span plus the fit's margin, as before. Either way the answered span is also limited by the centre's own. Bodies of one set
+   * may be fitted over different years: each one's chunks (and this) say which.
+   */
+  readonly span?: TimeBounds;
 }
 
 export interface EphemerisIndex {
@@ -84,6 +90,17 @@ function text(value: unknown, where: string): string {
   return value;
 }
 
+/** An optional `{ fromUtc, toUtc }` of ISO dates or date-times; absent is allowed, a malformed one is not. */
+function parseSpan(raw: unknown, where: string): TimeBounds | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "object" || raw === null) fail(`${where} must be an object with fromUtc and toUtc`);
+  const { fromUtc, toUtc } = raw as Record<string, unknown>;
+  const startUtcMs = Date.parse(text(fromUtc, `${where}.fromUtc`));
+  const endUtcMs = Date.parse(text(toUtc, `${where}.toUtc`));
+  if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs) || endUtcMs <= startUtcMs) fail(`${where} must run from one valid date to a later one`);
+  return Object.freeze({ startUtcMs, endUtcMs });
+}
+
 function parseBody(raw: unknown, index: number): EphemerisBodyEntry {
   const where = `bodies[${index}]`;
   if (typeof raw !== "object" || raw === null) fail(`${where} must be an object`);
@@ -118,7 +135,8 @@ function parseBody(raw: unknown, index: number): EphemerisBodyEntry {
   } catch (error) {
     fail(`${where}.provenance: ${(error as Error).message}`);
   }
-  return { id: text(body.id, `${where}.id`), label: text(body.label, `${where}.label`), fit: { segmentSeconds, degree, quantumKm }, chunks, provenance };
+  const span = parseSpan(body.span, `${where}.span`);
+  return { id: text(body.id, `${where}.id`), label: text(body.label, `${where}.label`), fit: { segmentSeconds, degree, quantumKm }, chunks, provenance, ...(span === undefined ? {} : { span }) };
 }
 
 /** Validates an index read from JSON (STYLE-06: external data is checked here, once). */
@@ -149,7 +167,7 @@ function utcMsForTdb(table: TimeScaleTable, tdbS: number, inward: "up" | "down")
   let guess = J2000_NOON_UNIX_MS + tdbS * 1000;
   for (let pass = 0; pass < 3; pass += 1) {
     const tt = tdbS - tdbMinusTtSeconds(tdbS);
-    guess = J2000_NOON_UNIX_MS + (tt - ttMinusUtcSeconds(table, Math.round(guess))) * 1000;
+    guess = J2000_NOON_UNIX_MS + (tt - ttMinusUtcSeconds(table, Math.min(table.validToUtcMs, Math.max(table.pieces[0].fromUtcMs, Math.round(guess))))) * 1000;
   }
   let ms = inward === "up" ? Math.ceil(guess) : Math.floor(guess);
   while (inward === "up" ? utcMsToTdbSeconds(table, ms) < tdbS : utcMsToTdbSeconds(table, ms) > tdbS) ms += inward === "up" ? 1 : -1;
@@ -174,10 +192,11 @@ export class ChebyshevEphemeris {
     this.index = index;
     for (const entry of index.bodies) {
       const last = entry.chunks[entry.chunks.length - 1];
+      const claimed = entry.span;
       this.#bodies.set(entry.id, {
         entry,
-        startTdbS: entry.chunks[0].startTdbS,
-        endTdbS: last.startTdbS + last.segmentCount * entry.fit.segmentSeconds,
+        startTdbS: claimed === undefined ? entry.chunks[0].startTdbS : Math.max(entry.chunks[0].startTdbS, utcMsToTdbSeconds(index.timeScale, claimed.startUtcMs)),
+        endTdbS: Math.min(last.startTdbS + last.segmentCount * entry.fit.segmentSeconds, claimed === undefined ? Infinity : utcMsToTdbSeconds(index.timeScale, claimed.endUtcMs)),
         chunks: entry.chunks.map(() => null),
         last: null,
       });
@@ -230,11 +249,13 @@ export class ChebyshevEphemeris {
     });
   }
 
-  /** The body's span in UTC, intersected with the centre's. */
+  /** The span this body can be asked for, in UTC: its chunks (and its own `span`, when it has one), the centre's, and the time-scale table's. */
   boundsOf(bodyId: BodyId): TimeBounds {
     const body = this.#body(bodyId);
-    const start = Math.max(body.startTdbS, this.#centre.startTdbS);
-    const end = Math.min(body.endTdbS, this.#centre.endTdbS);
+    // A chunk may run a little past the time-scale table (Pluto's last year ends a day after it): the table's own ends, less a second so the conversion back stays inside it, limit the answer.
+    const { timeScale } = this.index;
+    const start = Math.max(body.startTdbS, this.#centre.startTdbS, utcMsToTdbSeconds(timeScale, timeScale.pieces[0].fromUtcMs) + 1);
+    const end = Math.min(body.endTdbS, this.#centre.endTdbS, utcMsToTdbSeconds(timeScale, timeScale.validToUtcMs) - 1);
     return Object.freeze({
       startUtcMs: utcMsForTdb(this.index.timeScale, start, "up"),
       endUtcMs: utcMsForTdb(this.index.timeScale, end, "down"),

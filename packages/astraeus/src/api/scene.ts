@@ -8,7 +8,7 @@ import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
-import { loadPlanetSeries, planetSeriesLoaded } from "../core/planetSeries";
+import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
@@ -524,6 +524,16 @@ export class Scene {
     }
   }
 
+  /** Throws `out-of-span` naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded). */
+  #checkPlanetSpan(ids: readonly BodyId[], window: TimeBounds): void {
+    const planets = ids.filter(isPlanetId);
+    if (planets.length === 0 || !planetSeriesLoaded()) return;
+    const span = planetSeriesSpan();
+    if (window.startUtcMs >= span.startUtcMs && window.endUtcMs <= span.endUtcMs) return;
+    const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+    throw new SceneError("out-of-span", `${planets.join(", ")} is outside the years the built-in planet series covers: it covers ${iso(span.startUtcMs)} to ${iso(span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline inside that span`);
+  }
+
   /** Throws `missing-data` naming the bodies whose data package was not passed. */
   #checkData(data: readonly DataSource[]): void {
     const missing = this.missingData(data);
@@ -671,6 +681,7 @@ export class Scene {
         if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
         if (this.#groups.size > layers.length) layers.push(...this.#groupLayers(ids, window, startUtcMs, late));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs)));
+        this.#checkPlanetSpan(ids, window);
         await installData(data, ids, window);
       },
     };
