@@ -5,6 +5,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 ## Unreleased
 
 - `addTrajectory`'s `lineFixedTo` also takes a list of `{ start, end, body }` stretches (O-050 T-213, I-125): each stretch of the line is drawn against its own body, so a flyby (Sun-fixed cruise, planet-fixed encounter, Sun-fixed cruise) is one path with one menu entry and card. Same span rules as `provenanceSpans`; a fault throws `bad-trajectory` naming the index. A single body id behaves as before.
+- `lineFixedTo: "auto"` (O-050 T-216, I-125): the stretches are picked from the path's own samples. Each sample is fixed to the innermost scene body whose sphere of influence (`a (m / M)^(2/5)`, GMs from the catalogue) holds the probe, else the scene centre, so any flyby or orbiter is one path without working out switch times. Resolved once at mount or `prepare`; a body without a catalogue GM is skipped.
 
 ## 0.6.0 (2026-11-01)
 

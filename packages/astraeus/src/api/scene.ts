@@ -4,6 +4,7 @@ import { createProvenance, type Provenance } from "../core/provenance";
 import type { WindowProvenanceSpan } from "../core/timeWindow";
 import type { ActivitySourceInput } from "./activity";
 import { planLineStretches, planPathProvenance, type LineStretchInput } from "./pathProvenance";
+import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from "./sphereOfInfluence";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { createState, type State } from "../core/state";
@@ -18,7 +19,7 @@ import { createComposition, type CompositionPath } from "../assets/compositions"
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
-import { lineBodies, type TrackedBody } from "../app/mission";
+import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
@@ -110,9 +111,12 @@ interface TrajectoryBase {
    * this body's place from the scene centre at the clock time. Defaults to the scene centre; name the Sun for a probe crossing a Sun-centred scene.
    * A list of `{ start, end, body }` (times as `provenanceSpans`) draws each stretch against its own body, so a flyby is one path: Sun-fixed cruise, planet-fixed encounter, Sun-fixed cruise.
    * Sorted, not overlapping, inside the path's span; time outside every stretch is drawn against the scene centre. A fault throws `bad-trajectory` naming the index.
+   * `"auto"` builds that list from the path's own samples: each sample is fixed to the innermost body in the scene whose sphere of influence (`a (m / M)^(2/5)`, `a` the body's distance from its parent,
+   * GMs from the catalogue) holds the probe (a root body such as the Sun holds everything), else the scene centre; consecutive samples on one body merge. Resolved once when the planet series are in
+   * (at mount, or in `prepare`), never per frame. A body with no catalogue GM (most moons) is skipped. "auto" is reserved, so no body may carry that id.
    * Throws `bad-trajectory` at build if the scene does not hold the body.
    */
-  readonly lineFixedTo?: BodyId | readonly LineStretchInput[];
+  readonly lineFixedTo?: BodyId | "auto" | readonly LineStretchInput[];
   /**
    * The frame the positions and velocities are given in, about `center`: "EQJ" (equatorial J2000, the default) or "ecliptic-j2000" (the vectors JPL Horizons
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
@@ -159,6 +163,8 @@ const PATH_COVER_SAMPLES = 400;
 
 interface Tracked {
   readonly body: TrackedBody;
+  /** `lineFixedTo: "auto"`: the stretches are resolved from the samples once the planet series are in. */
+  readonly auto?: true;
   readonly center: BodyId;
   readonly description?: string;
   readonly knownLimitations?: readonly string[];
@@ -365,8 +371,9 @@ export class Scene {
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
     const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
     const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
-    const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : input.lineFixedTo;
-    this.#tracked.set(id, { center, body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+    const auto = input.lineFixedTo === "auto";
+    const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : auto ? undefined : input.lineFixedTo;
+    this.#tracked.set(id, { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
   }
 
   /** Whether a body, path or group already has this id. */
@@ -693,6 +700,40 @@ export class Scene {
     return layer;
   }
 
+  /** The stretches of a `lineFixedTo: "auto"` path: the innermost scene body whose sphere of influence holds each sample (`sphereOfInfluence.ts`). Reads body states, so the planet series must be loaded. */
+  #autoStretches(entry: Tracked, ids: readonly BodyId[]): readonly LineStretch[] {
+    const resolver = createStateResolver(this.#catalogue.definitions(), this.#catalogue.sources(), createOrbAstronomyAdapter());
+    const norm = (v: ArrayLike<number>): number => Math.hypot(v[0]!, v[1]!, v[2]!);
+    const candidates: InfluenceCandidate[] = [];
+    for (const id of ids) {
+      const { parentId, gmKm3S2 } = this.#catalogue.get(id).definition;
+      if (parentId === undefined) {
+        candidates.push({ id, radiusKm: () => Infinity, probeDistanceKm: () => 0 });
+        continue;
+      }
+      const parentGm = this.#catalogue.get(parentId).definition.gmKm3S2;
+      if (!(gmKm3S2! > 0 && parentGm! > 0)) continue; // no published GM: this body cannot hold a probe
+      candidates.push({
+        id,
+        radiusKm: (t) => sphereOfInfluenceKm(gmKm3S2, parentGm, norm(resolver.stateOf(id, t, parentId).positionKm)),
+        probeDistanceKm: (t) => {
+          const probe = entry.body.trajectory.stateAt(t, entry.center).positionKm;
+          const body = resolver.stateOf(id, t, entry.center).positionKm;
+          return norm([probe[0]! - body[0]!, probe[1]! - body[1]!, probe[2]! - body[2]!]);
+        },
+      });
+    }
+    return influenceStretches(entry.body.pathTimesUtcMs, candidates);
+  }
+
+  /** The `"auto"` paths' one resolution into `tracked`: `now` runs it (through the caller's guarded read) when the planet series are in; else `later` is true and `settle` runs it in `prepare`. */
+  #autoPaths(entries: readonly Tracked[], tracked: TrackedBody[], ids: readonly BodyId[]): { readonly later: boolean; readonly now: (guard: (read: () => void) => void) => void; readonly settle: (guard: (read: () => void) => void) => void } {
+    const pending = entries.some((entry) => entry.auto === true);
+    const later = pending && !planetSeriesLoaded();
+    const resolve = (): void => entries.forEach((entry, index) => { if (entry.auto === true) tracked[index] = { ...entry.body, lineFixedTo: this.#autoStretches(entry, ids) }; });
+    return { later, now: (guard) => { if (pending && !later) guard(resolve); }, settle: (guard) => { if (later) guard(resolve); } };
+  }
+
   /** A readout, or the body the line is fixed to, names a body the scene must hold. */
   #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
     for (const { index, body } of lineBodies(entry.body.lineFixedTo)) {
@@ -721,12 +762,16 @@ export class Scene {
     const sunCentred = this.#checkSunCentred(ids);
     this.#checkSolarSystemScale(sunCentred);
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
-    const tracked = [...this.#tracked.values()].map((entry) => entry.body);
+    const entries = [...this.#tracked.values()];
+    const tracked = entries.map((entry) => entry.body);
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
+    // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
+    const auto = this.#autoPaths(entries, tracked, ids);
+    auto.now((read) => this.#deferredRead(ids, window, fault, undefined, read));
     const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
     const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
@@ -776,8 +821,9 @@ export class Scene {
       },
       prepare: async () => {
         if (fault.error !== undefined) throw fault.error;
-        if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
+        if (needsPlanetSeries(definition) || auto.later || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
         this.#checkPlanetSpan(ids, window);
+        auto.settle((read) => this.#planetRead(ids, window, read));
         if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs))));
         if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
