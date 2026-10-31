@@ -2,8 +2,7 @@
 id: T-212
 title: Prove Uranus's moons on the packed package and write it up
 objective: O-049
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-211, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-212, reason: 'Owner said "orchestrate O49"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o049-run-20261031}, recorded_at: '2026-10-31T12:36:46Z'}

@@ -1,7 +1,7 @@
 ---
 id: O-049
 title: Make every listed moon addable
-status: planned
+status: done
 depends_on: [O-048]
 release: G-014
 priority: high
