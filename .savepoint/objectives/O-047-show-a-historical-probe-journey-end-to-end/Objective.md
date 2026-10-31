@@ -1,7 +1,7 @@
 ---
 id: O-047
 title: Show a historical probe journey end to end
-status: in_progress
+status: done
 depends_on: [O-046]
 release: G-014
 priority: high
