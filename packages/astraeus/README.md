@@ -197,7 +197,7 @@ window.addEventListener("vite:preloadError", () => window.location.reload());
 
 For tests, the package has a `node` export condition: Node and Vitest's Node environment import a copy of the package without the stylesheet import, so `new Scene()...toDefinition()` works with no `test.server.deps.inline` setting. The jsdom and happy-dom Vitest environments also take the `node` condition, so the viewer's CSS is not loaded there; this does not matter for tests that check scene definitions or behaviour. Bundlers do not use the `node` condition and load the normal build.
 
-First download: the packed `examples/hello-scene` loads 1,607,952 bytes (457,776 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
+First download: the packed `examples/hello-scene` loads 1,608,131 bytes (457,845 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
 
 ## What `astraeus-data` adds
 
