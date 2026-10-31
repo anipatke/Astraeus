@@ -186,3 +186,35 @@ export function navigationStops(events: readonly TimelineEvent[], windows: reado
   }
   return { previous, next };
 }
+
+/** The least gap (px) between two markers on the track; markers closer than this are gathered into one group. An 18 px marker button plus a small margin. */
+export const MARKER_MIN_SPACING_PX = 22;
+
+/** One or more markers that sit together on the track: a single member is an ordinary marker, several are gathered under one group mark. */
+export interface MarkerGroup<T> {
+  /** Members in time order. */
+  readonly members: readonly T[];
+  /** Where the mark sits on the track, as a percent of its width (the mean of the members' own positions). */
+  readonly positionPercent: number;
+}
+
+/** Gathers markers whose pixel gaps on a track of this width are under the minimum spacing (chained: each member is close to the one before). Markers keep their true times; a group lists them all. */
+export function groupMarkers<T extends { readonly timeUtcMs: number }>(items: readonly T[], bounds: TimeBounds, trackWidthPx: number, minSpacingPx: number = MARKER_MIN_SPACING_PX): readonly MarkerGroup<T>[] {
+  // An unmeasured track (no layout yet, or a page without one) gathers nothing: every marker stays its own.
+  if (!(trackWidthPx > 0)) return [...items].sort((a, b) => a.timeUtcMs - b.timeUtcMs).map((item) => ({ members: [item], positionPercent: timePositionPercent(item.timeUtcMs, bounds) }));
+  const sorted = [...items].sort((a, b) => a.timeUtcMs - b.timeUtcMs);
+  const px = (item: T) => (timePositionPercent(item.timeUtcMs, bounds) / 100) * trackWidthPx;
+  const groups: T[][] = [];
+  let previous = Number.NEGATIVE_INFINITY;
+  for (const item of sorted) {
+    const at = px(item);
+    const last = groups[groups.length - 1];
+    if (last !== undefined && at - previous < minSpacingPx) last.push(item);
+    else groups.push([item]);
+    previous = at;
+  }
+  return groups.map((members) => ({
+    members,
+    positionPercent: members.reduce((sum, item) => sum + timePositionPercent(item.timeUtcMs, bounds), 0) / members.length,
+  }));
+}
