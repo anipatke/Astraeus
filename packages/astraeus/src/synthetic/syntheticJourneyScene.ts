@@ -8,6 +8,7 @@ import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupit
 import type { Provenance } from "../core/provenance";
 import { solarSystemScale } from "../core/scalePolicy";
 
+const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
 const YEAR_S = 31_557_600;
 const AU_KM = 149_597_870.7;
@@ -56,7 +57,12 @@ export function buildSyntheticJourneyScene(): Scene {
     label: "Made-up traveller",
     samples,
     center: "sun",
-    lineFixedTo: "sun",
+    // O-050 T-217: the line is drawn against the Sun in the cruise and against Jupiter for the 20 days either side of its pass (one path, three stretches, one menu entry).
+    lineFixedTo: [
+      { start: JOURNEY_LAUNCH_UTC_MS, end: JOURNEY_JUPITER_UTC_MS - 20 * DAY_MS, body: "sun" },
+      { start: JOURNEY_JUPITER_UTC_MS - 20 * DAY_MS, end: JOURNEY_JUPITER_UTC_MS + 20 * DAY_MS, body: "jupiter" },
+      { start: JOURNEY_JUPITER_UTC_MS + 20 * DAY_MS, end: JOURNEY_END_UTC_MS, body: "sun" },
+    ],
     provenance: made("whole journey", "None claimed.", "illustrative"),
     provenanceSpans: [
       { start: JOURNEY_LAUNCH_UTC_MS, end: JOURNEY_URANUS_UTC_MS + 90 * DAY_MS, provenance: made("planet passes", "None claimed. Straight legs between two planets' places.", "reconstructed") },
@@ -68,6 +74,10 @@ export function buildSyntheticJourneyScene(): Scene {
   });
   scene.addEvents([
     { id: "traveller-jupiter", label: "Made-up pass of Jupiter", time: JOURNEY_JUPITER_UTC_MS, type: "encounter", object: "jupiter" },
+    // Three moon passes within nine hours of the Jupiter pass: close markers on the timeline, gathered under one numbered mark that lists each (I-126).
+    { id: "traveller-io", label: "Made-up pass of Io", time: JOURNEY_JUPITER_UTC_MS - 3 * HOUR_MS, type: "encounter", object: "io" },
+    { id: "traveller-europa", label: "Made-up pass of Europa", time: JOURNEY_JUPITER_UTC_MS + 2 * HOUR_MS, type: "encounter", object: "europa" },
+    { id: "traveller-ganymede", label: "Made-up pass of Ganymede", time: JOURNEY_JUPITER_UTC_MS + 6 * HOUR_MS, type: "encounter", object: "ganymede" },
     { id: "traveller-saturn", label: "Made-up pass of Saturn", time: JOURNEY_SATURN_UTC_MS, type: "encounter", object: "saturn" },
     { id: "traveller-uranus", label: "Made-up pass of Uranus", time: JOURNEY_URANUS_UTC_MS, type: "encounter", object: "uranus" },
   ], { provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Not real passes." } });

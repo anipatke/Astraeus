@@ -6,6 +6,8 @@ Pictures for the [Astraeus](https://github.com/anipatke/Astraeus) engine, kept a
 - the 8k Venus map (used on wide screens);
 - the Milky Way picture (Kevinmloch, from Gaia EDR3, CC BY-SA 4.0), one 3840x1920 image.
 
+Moons with pictures: Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton and Charon. Every other listed moon, among them Uranus's Miranda, Ariel, Umbriel, Titania and Oberon, draws flat-coloured with this package loaded. Pluto also has a map.
+
 Without this package the engine still draws every body: moons are flat-coloured spheres, Venus uses its 2k map and the sky shows the catalogue stars without the Milky Way. Nothing is invented to fill the gap.
 
 ```ts

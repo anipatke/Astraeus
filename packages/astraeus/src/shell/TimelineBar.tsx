@@ -1,8 +1,8 @@
-import { useMemo, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate } from "./timelineModel";
+import { eventContextAt, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate, groupMarkers } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -60,6 +60,16 @@ function seekValueText(timeUtcMs: number, activityNow: ReturnType<typeof activit
   return `${formatUtcTimestamp(timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`;
 }
 
+/** One marker on the track, whatever it opens: an event, a story panel or a window's peak. */
+interface TrackMarker {
+  readonly kind: "event" | "panel" | "peak";
+  readonly key: string;
+  readonly timeUtcMs: number;
+  readonly text: string;
+  readonly ariaLabel: string;
+  readonly activate: () => void;
+}
+
 export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
@@ -93,6 +103,37 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   const speedIndex = Math.max(0, speeds.findIndex((speed) => speed.rate === snapshot.rate));
   const speedText = paceAuto === true ? autoLabel(true, snapshot.rate) : speeds[speedIndex]?.label;
 
+  const markersRef = useRef<HTMLDivElement>(null);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  useEffect(() => {
+    const node = markersRef.current;
+    if (node === null) return undefined;
+    const measure = () => { const width = node.getBoundingClientRect().width; if (width > 0) setTrackWidth(width); };
+    measure();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [drawer?.open]);
+  const markers: readonly TrackMarker[] = [
+    ...experience.events.map((event): TrackMarker => ({ kind: "event", key: event.id, timeUtcMs: event.timeUtcMs, text: event.label, ariaLabel: `Go to ${event.label}`, activate: () => { onEventSeek(event); onEventInfo(event); } })),
+    ...panels.map((panel): TrackMarker => ({ kind: "panel", key: panel.id, timeUtcMs: panel.timeUtcMs, text: panel.title, ariaLabel: `Open story panel: ${panel.title}`, activate: () => onPanelOpen?.(panel) })),
+    ...windows.flatMap((window): TrackMarker[] => window.peakUtcMs === undefined ? [] : [{ kind: "peak", key: `peak-${window.id}`, timeUtcMs: window.peakUtcMs, text: `${window.label} peak`, ariaLabel: `Go to peak of ${window.label}`, activate: () => { onWindowSeek(window, window.peakUtcMs ?? 0); onWindowInfo(window); } }]),
+  ];
+  const groups = groupMarkers(markers, experience.window, trackWidth);
+  const renderMarker = (marker: TrackMarker, percent: number) => marker.kind === "event" ? (
+    <button key={marker.key} className="timeline-marker" type="button" aria-label={marker.ariaLabel} title={marker.text} style={{ left: `${percent}%` }} onClick={marker.activate}>
+      <Label text={marker.text} className="timeline-marker-label" />
+    </button>
+  ) : marker.kind === "panel" ? (
+    <button key={marker.key} className="timeline-marker timeline-panel-marker" type="button" data-panel-id={marker.key} aria-pressed={openPanelId === marker.key} aria-label={marker.ariaLabel} title={marker.text} style={{ left: `${percent}%` }} onClick={marker.activate}>
+      <Label text={marker.text} className="timeline-marker-label" />
+    </button>
+  ) : (
+    <button key={marker.key} type="button" className="timeline-marker timeline-window-peak" aria-label={marker.ariaLabel} title={marker.text} data-time-utc-ms={marker.timeUtcMs} style={{ left: `${percent}%` }} onClick={marker.activate} />
+  );
+
   const scrubber = (
   <div className="timeline-scrubber">
     <div className="timeline-track" title={profile === null ? undefined : hoverTitle ?? description} onPointerMove={moveOnTrack} onPointerLeave={() => setHoverTitle(null)}>
@@ -110,47 +151,32 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         <span className="timeline-glow-ahead" />
         <span className="timeline-glow-played"><span className="timeline-glow-line" /></span>
       </div>
-      <div className="timeline-markers" aria-label="Timeline event markers">
-        {experience.events.map((event) => (
-          <button
-            key={event.id}
-            className="timeline-marker"
-            type="button"
-            aria-label={`Go to ${event.label}`}
-            title={event.label}
-            style={{ left: `${eventPositionPercent(event, experience.window)}%` }}
-            onClick={() => { onEventSeek(event); onEventInfo(event); }}
-          >
-            <Label text={event.label} className="timeline-marker-label" />
-          </button>
-        ))}
-        {panels.map((panel) => (
-          <button
-            key={panel.id}
-            className="timeline-marker timeline-panel-marker"
-            type="button"
-            data-panel-id={panel.id}
-            aria-pressed={openPanelId === panel.id}
-            aria-label={`Open story panel: ${panel.title}`}
-            title={panel.title}
-            style={{ left: `${timePositionPercent(panel.timeUtcMs, experience.window)}%` }}
-            onClick={() => onPanelOpen?.(panel)}
-          >
-            <Label text={panel.title} className="timeline-marker-label" />
-          </button>
-        ))}
-        {windows.filter((window) => window.peakUtcMs !== undefined).map((window) => (
-          <button
-            key={`peak-${window.id}`}
-            type="button"
-            className="timeline-marker timeline-window-peak"
-            aria-label={`Go to peak of ${window.label}`}
-            title={`${window.label} peak`}
-            data-time-utc-ms={window.peakUtcMs}
-            style={{ left: `${timePositionPercent(window.peakUtcMs ?? 0, experience.window)}%` }}
-            onClick={() => { if (window.peakUtcMs !== undefined) onWindowSeek(window, window.peakUtcMs); onWindowInfo(window); }}
-          />
-        ))}
+      <div className="timeline-markers" ref={markersRef} aria-label="Timeline event markers">
+        {groups.map((group) => group.members.length === 1
+          ? renderMarker(group.members[0]!, group.positionPercent)
+          : (
+            <div key={`group-${group.members[0]!.key}`} className="timeline-marker-group" data-align={group.positionPercent < 25 ? "start" : group.positionPercent > 75 ? "end" : "middle"} style={{ left: `${group.positionPercent}%` }} onKeyDown={(event) => { if (event.key === "Escape") setOpenGroup(null); }}>
+              <button
+                type="button"
+                className="timeline-marker timeline-group-toggle"
+                aria-expanded={openGroup === group.members[0]!.key}
+                aria-label={`${group.members.length} markers close together: show list`}
+                title={`${group.members.length} markers`}
+                onClick={() => setOpenGroup((open) => (open === group.members[0]!.key ? null : group.members[0]!.key))}
+              >
+                <span className="timeline-group-count">{group.members.length}</span>
+              </button>
+              {openGroup === group.members[0]!.key && (
+                <ul className="timeline-group-list" aria-label="Markers close together">
+                  {group.members.map((member) => (
+                    <li key={member.key}>
+                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} data-panel-id={member.kind === "panel" ? member.key : undefined} onClick={() => { member.activate(); setOpenGroup(null); }}>{member.text}</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
       </div>
       <input
         type="range"

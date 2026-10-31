@@ -2,9 +2,10 @@
 id: T-216
 title: Pick the stretches automatically by sphere of influence
 objective: O-050
-status: planned
+status: done
 depends_on: [{task: T-213, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-216, reason: 'Owner said "orchestrate O50"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o050-run-20261101}, recorded_at: '2026-10-31T21:24:21Z'}
 planned_by: {role: planner, session: probe-switch-20261101}
 ---
 
@@ -57,8 +58,23 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution.
+Built (stage build to audit), 2026-11-01:
+
+- New `packages/astraeus/src/api/sphereOfInfluence.ts`: pure `sphereOfInfluenceKm` (a (m/M)^(2/5); NaN where a GM is missing), `innermostHolding` (smallest sphere wins), `influenceStretches` (merge runs, a stretch opens at its first sample and closes where the next run opens or at the last sample; unheld samples uncovered). No body names.
+- `scene.ts`: `lineFixedTo: "auto"` stored as `Tracked.auto`; `#autoStretches` builds candidates from the scene's bodies (root body holds everything; a body with parent GM and own GM from the catalogue definition, ARCH-05; others skipped) and `#autoPaths` resolves once into the same `TrackedBody.lineFixedTo` list: in `toDefinition` when the planet series are loaded, else in `prepare` after `loadPlanetSeries`, through `#deferredRead`/`#planetRead` (today's out-of-span/missing-data errors). Nothing runs per frame; drawing, menu and follow read the unchanged LineStretch list.
+- `tools/check-packs.mjs`: astraeus file-count limit 470 to 472 (one new module and its declaration), comment extended per the file's convention.
+- README (addTrajectory row) and CHANGELOG Unreleased line.
+- GM audit: every built-in planet, the Sun, the Moon and all built-in moons carry a GM; only `swift-tuttle` (comet) lacks one (test records it). Moons added by id from the moon lists carry none and are skipped. No GMs added, so no new sources.
+- Tests: `packages/astraeus/tests/publicApiAutoStretches.test.ts` (9): formula, NaN, merge/innermost, synthetic flyby crossing within one sample of the analytic radius (Sun, Mars, Sun), Moon orbit in Earth scene resolves to the Moon, far path stays uncovered, auto equals the explicit list, GM audit.
+
+Gates: `npm run lint` clean; `npm run typecheck` clean; `npm run build` ok; `npm test` 166 files passed, 2057 passed, 1 skipped (first run failed packagePacks file count 472 over 470, fixed by the limit change above). No browser run.
+
+
+Follow-up (coordinator gaps), same day: added three tests to `publicApiAutoStretches.test.ts` under "when the planet series load after the scene is built" (fresh module registry so the series are not loaded; real `prepareScene` and `prepare`): resolves in prepare to the explicit form's list and the object menu (one entry), `trackedBodiesOf` and `TrackedBodyView` input carry the resolved stretches; an auto path dated outside the planet series fails with `out-of-span` in prepare (late-load and already-loaded instances). Before prepare the tracked `lineFixedTo` is undefined (not "auto"); the viewer (`mount`, `AstraeusScene`) renders only after `ready`, so it never reads that. `out-of-span` is the named error the existing setup reads give; the auto resolution adds no new error. Gates rerun: lint clean, typecheck clean, `npm test` 166 files passed, 2060 passed, 1 skipped. Stage stays audit.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- `api/sphereOfInfluence.ts` is a new pure module beside `pathProvenance.ts`; `"auto"` resolves in `Scene.toDefinition`/`prepare` (like the Sun paths and fit distance) into the same `lineFixedTo` list. Design.md Interfaces and Data Flow: add "auto" resolution, the root-body-holds-everything rule, and GM-less bodies skipped. `tracked` (trackedBodies) entries are replaced in `prepare` when the series load late.
+- Moons added by id (listed moons) have no GM, so they cannot hold a probe; Pluto/Charon and other main moons can.

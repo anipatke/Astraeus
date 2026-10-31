@@ -1,0 +1,8 @@
+{
+  "name": "check-hello-scene",
+  "at": "2026-10-31T21:49:50.365Z",
+  "ok": false,
+  "results": [],
+  "errors": [],
+  "failure": "locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.timeline-panel-marker').first()\u001b[22m\n\n    at Module.firstStoryMarkerId (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/driver.mjs:624:72)\n    at checkStory (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/check-hello-scene.mjs:51:25)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/check-hello-scene.mjs:39:39\n    at async checkScript (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:47:60)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/check-hello-scene.mjs:13:1"
+}

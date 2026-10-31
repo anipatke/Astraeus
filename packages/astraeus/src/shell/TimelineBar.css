@@ -15,6 +15,9 @@
 }
 /* The open Events list rises over the panel rather than hiding behind it. */
 .timeline-bar:has(.timeline-event-list[open]) { z-index: 5; }
+/* An open marker group lists above the bar; the bar rises over the phone information sheet (z-index 8) so each item stays reachable (O-050 T-217). */
+.timeline-bar:has(.timeline-group-list),
+[data-phone="true"] .timeline-bar:has(.timeline-group-list) { z-index: 9; }
 
 .timeline-main-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .timeline-transport { display: flex; flex: 0 0 auto; gap: 4px; }
@@ -122,3 +125,18 @@
 /* No timeline (experience.hideTimeline): nothing sits at the bottom, so nothing is reserved for it on a wide or a phone screen. */
 main.astraeus-shell[data-timeline-hidden="true"] { --timeline-space: 0px; }
 main.astraeus-shell[data-timeline-hidden="true"] .shell-top { --shell-timeline-space: 0px; }
+
+/* Markers that sit closer than the minimum spacing gather under one numbered mark; pressing it lists them, each a full-size button. The list opens above the track, aligned to the screen side the mark is near so it stays on a phone. */
+.timeline-marker-group { position: absolute; top: 0; height: 100%; width: 18px; transform: translateX(-50%); pointer-events: none; }
+.timeline-marker-group .timeline-group-toggle { left: 0; width: 100%; pointer-events: auto; }
+.timeline-marker-group .timeline-group-toggle::after { display: none; }
+.timeline-group-count { display: block; width: 18px; height: 18px; border: 1.5px solid var(--ui-accent, #fc6323); border-radius: 50%; background: rgba(13, 13, 13, .85); color: var(--ui-color, #f0e6da); font: 600 11px/15px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; }
+.timeline-group-toggle:hover .timeline-group-count,
+.timeline-group-toggle:focus-visible .timeline-group-count,
+.timeline-group-toggle[aria-expanded="true"] .timeline-group-count { background: var(--ui-accent, #fc6323); color: #0d0d0d; }
+.timeline-group-list { position: absolute; z-index: 3; bottom: calc(100% + 6px); left: 50%; display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: min(300px, calc(100vw - 32px)); max-height: 40vh; margin: 0; padding: 4px; overflow-y: auto; border: 1px solid #2b2927; border-radius: 6px; background: rgba(13, 13, 13, .95); list-style: none; transform: translateX(-50%); pointer-events: auto; }
+.timeline-marker-group[data-align="start"] .timeline-group-list { left: 0; transform: none; }
+.timeline-marker-group[data-align="end"] .timeline-group-list { right: 0; left: auto; transform: none; }
+.timeline-group-item { display: block; width: 100%; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 4px; background: transparent; color: var(--ui-color, #f0e6da); font: inherit; text-align: left; white-space: normal; cursor: pointer; }
+.timeline-group-item:hover,
+.timeline-group-item:focus-visible { background: #2b2927; }

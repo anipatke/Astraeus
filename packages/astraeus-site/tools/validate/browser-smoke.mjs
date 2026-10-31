@@ -116,9 +116,81 @@ async function journeyChecks(page) {
   if (path === undefined || !path.visible || path.vertices === 0 || path.inView < path.vertices) throw new Error(`the 170 AU path is not framed whole at the farthest zoom-out (${JSON.stringify(path)})`);
   const labels = await ui.shownSceneLabelIds(page);
   if (!labels.includes("traveller")) throw new Error(`the path's label is not shown at 170 AU (${JSON.stringify(labels)})`);
+  const followed = await followAcrossStretchesChecks(page);
+  const closeMarkers = await closeMarkerChecks(page);
   const nearSaturn = await nearSaturnChecks(page);
   const nearUranus = await nearUranusChecks(page);
-  return { nearSaturn, nearUranus, moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+  return { followed, closeMarkers, nearSaturn, nearUranus, moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+}
+
+const JOURNEY_JUPITER_UTC_MS = Date.UTC(1979, 2, 5);
+const JUPITER_CLOSE_EVENTS = ["Made-up pass of Io", "Made-up pass of Jupiter", "Made-up pass of Europa", "Made-up pass of Ganymede"];
+
+/**
+ * O-050 T-217: the traveller is one path with one menu entry (no "(Unavailable)"), drawn against the Sun, then Jupiter for 20 days either side of its pass, then the Sun. With the camera on it,
+ * seeking to either side of each of the two boundaries keeps it followed: its line stays in view and runs through the middle of the screen. Readouts only.
+ */
+async function followAcrossStretchesChecks(page) {
+  await ui.ensurePaused(page);
+  const options = (await ui.bodyOptionDetails(page)).filter((option) => option.value === "traveller");
+  if (options.length !== 1 || /unavailable/i.test(options[0].label)) throw new Error(`the traveller must be one menu entry without "(Unavailable)" (${JSON.stringify(options)})`);
+  await ui.pickBody(page, "traveller");
+  const days = [-30, -19, 19, 30];
+  const seen = {};
+  for (const d of days) {
+    await ui.seekToReady(page, JOURNEY_JUPITER_UTC_MS + d * 86_400_000);
+    await page.waitForTimeout(1500);
+    const line = await ui.scenePath(page, "traveller"); // a path is not in the body readout; with the camera on the probe, its line runs through the middle of the view (the probe is where the line starts)
+    const centred = line !== undefined && line.lineMinX <= 0.53 && line.lineMaxX >= 0.47 && line.lineMinY <= 0.53 && line.lineMaxY >= 0.47;
+    if (line === undefined || !line.visible || line.inView === 0 || !centred) throw new Error(`the camera lost the traveller ${d} days from the Jupiter pass (${JSON.stringify(line)})`);
+    seen[d] = line.inView;
+  }
+  const path = await ui.scenePath(page, "traveller");
+  if (path === undefined || !path.visible || path.vertices === 0) throw new Error(`the traveller's path is not drawn (${JSON.stringify(path)})`);
+  return { seen, path: { vertices: path.vertices, inView: path.inView } };
+}
+
+const overlap = (a, b) => a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+
+/**
+ * O-050 T-217: the four events within nine hours of the Jupiter pass gather under one numbered mark (O-050 T-214). At 1280x720 (desktop load) or 375x667 (phone load), pressing it lists each
+ * as a full-size button, the list sits inside the screen with no two items overlapping, and pressing each item seeks the clock to its own event and closes the list. Readouts only.
+ */
+async function closeMarkerChecks(page) {
+  const phone = await ui.isPhoneLayout(page);
+  const size = phone ? { width: 375, height: 667 } : { width: 1280, height: 720 };
+  await ui.resizeViewport(page, size);
+  await ui.ensurePaused(page);
+  await ui.seekToReady(page, Date.UTC(1977, 8, 5) + 86_400_000);
+  const groups = await ui.markerGroups(page);
+  let index = -1;
+  for (let i = 0; i < groups.length && index < 0; i += 1) {
+    await ui.pressMarkerGroup(page, i);
+    const list = await ui.markerGroupList(page);
+    if (list !== null && JUPITER_CLOSE_EVENTS.every((name) => list.items.some((item) => item.label === `Go to ${name}`))) index = i;
+    else if (list !== null) await ui.pressMarkerGroup(page, i);
+  }
+  if (index < 0) throw new Error(`no numbered mark holds the Jupiter-pass events at ${size.width}x${size.height} (${JSON.stringify(groups)})`);
+  const members = [];
+  for (const name of JUPITER_CLOSE_EVENTS) {
+    if ((await ui.markerGroupList(page)) === null) await ui.pressMarkerGroup(page, index);
+    const list = await ui.markerGroupList(page);
+    const item = list.items.find((entry) => entry.label === `Go to ${name}`);
+    const inside = (b) => b.x >= 0 && b.y >= 0 && b.x + b.width <= list.viewport.width && b.y + b.height <= list.viewport.height;
+    if (!inside(list.box) || !inside(item.box)) throw new Error(`the list item "${name}" is off the ${size.width}x${size.height} screen (${JSON.stringify({ list: list.box, item: item.box })})`);
+    if (item.box.height < 32 || item.box.width < 32) throw new Error(`the list item "${name}" is smaller than 32 px (${JSON.stringify(item.box)})`);
+    const crossing = list.items.filter((other) => other !== item && overlap(other.box, item.box));
+    if (crossing.length > 0) throw new Error(`the list item "${name}" overlaps ${crossing.map((c) => c.label).join(", ")}`);
+    await ui.pressMarkerGroupItem(page, item.label);
+    await page.waitForTimeout(500);
+    const clock = await ui.clockMs(page);
+    if (Math.abs(clock - item.timeUtcMs) > 30 * 60_000) throw new Error(`pressing "${name}" left the clock at ${new Date(clock).toISOString()}, not its event (${new Date(item.timeUtcMs).toISOString()})`);
+    if ((await ui.markerGroupList(page)) !== null) throw new Error(`the list stayed open after pressing "${name}"`);
+    await ui.closeInfoQuietly(page);
+    members.push(name);
+  }
+  await ui.resizeViewport(page, phone ? { width: 390, height: 844 } : { width: 1440, height: 900 });
+  return { size: `${size.width}x${size.height}`, groupCount: groups[index].count, members };
 }
 
 /**

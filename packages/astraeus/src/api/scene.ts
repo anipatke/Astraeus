@@ -3,7 +3,8 @@ import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { WindowProvenanceSpan } from "../core/timeWindow";
 import type { ActivitySourceInput } from "./activity";
-import { planPathProvenance } from "./pathProvenance";
+import { planLineStretches, planPathProvenance, type LineStretchInput } from "./pathProvenance";
+import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from "./sphereOfInfluence";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { createState, type State } from "../core/state";
@@ -18,7 +19,7 @@ import { createComposition, type CompositionPath } from "../assets/compositions"
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
-import type { TrackedBody } from "../app/mission";
+import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
@@ -108,9 +109,14 @@ interface TrajectoryBase {
   /**
    * The body the path's line is drawn against: each sample is placed from this body at the sample's own time, then the line is carried to
    * this body's place from the scene centre at the clock time. Defaults to the scene centre; name the Sun for a probe crossing a Sun-centred scene.
+   * A list of `{ start, end, body }` (times as `provenanceSpans`) draws each stretch against its own body, so a flyby is one path: Sun-fixed cruise, planet-fixed encounter, Sun-fixed cruise.
+   * Sorted, not overlapping, inside the path's span; time outside every stretch is drawn against the scene centre. A fault throws `bad-trajectory` naming the index.
+   * `"auto"` builds that list from the path's own samples: each sample is fixed to the innermost body in the scene whose sphere of influence (`a (m / M)^(2/5)`, `a` the body's distance from its parent,
+   * GMs from the catalogue) holds the probe (a root body such as the Sun holds everything), else the scene centre; consecutive samples on one body merge. Resolved once when the planet series are in
+   * (at mount, or in `prepare`), never per frame. A body with no catalogue GM (most moons) is skipped. "auto" is reserved, so no body may carry that id.
    * Throws `bad-trajectory` at build if the scene does not hold the body.
    */
-  readonly lineFixedTo?: BodyId;
+  readonly lineFixedTo?: BodyId | "auto" | readonly LineStretchInput[];
   /**
    * The frame the positions and velocities are given in, about `center`: "EQJ" (equatorial J2000, the default) or "ecliptic-j2000" (the vectors JPL Horizons
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
@@ -157,6 +163,8 @@ const PATH_COVER_SAMPLES = 400;
 
 interface Tracked {
   readonly body: TrackedBody;
+  /** `lineFixedTo: "auto"`: the stretches are resolved from the samples once the planet series are in. */
+  readonly auto?: true;
   readonly center: BodyId;
   readonly description?: string;
   readonly knownLimitations?: readonly string[];
@@ -302,6 +310,7 @@ export class Scene {
    * scene.addBody(sun).addBodyFromElements(record, { orbit: true, showLabel: false });
    */
   addBodyFromElements(record: ElementsBodyRecord, options: AddBodyOptions = {}): this {
+    if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
     const parsed = parseRecord(record);
     if (this.#taken(parsed.id) || this.#catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
     const root = builtInCatalogue.get(rootBodyId()).definition;
@@ -352,7 +361,7 @@ export class Scene {
     const id = input.id;
     if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
-    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
+    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
     const readouts = readoutsOf(id, input.readouts);
     if (input.labelReach !== undefined) {
       checkLabelReach(input.labelReach, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReach ${String(input.labelReach)} must be a positive finite number`));
@@ -361,8 +370,12 @@ export class Scene {
     if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
     const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
-    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs });
-    this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+    const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
+    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
+    checkLineFixedToType(id, input.lineFixedTo);
+    const auto = input.lineFixedTo === "auto";
+    const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : auto ? undefined : input.lineFixedTo;
+    this.#tracked.set(id, { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
   }
 
   /** Whether a body, path or group already has this id. */
@@ -689,10 +702,45 @@ export class Scene {
     return layer;
   }
 
+  /** The stretches of a `lineFixedTo: "auto"` path: the innermost scene body whose sphere of influence holds each sample (`sphereOfInfluence.ts`). Reads body states, so the planet series must be loaded. */
+  #autoStretches(entry: Tracked, ids: readonly BodyId[]): readonly LineStretch[] {
+    const resolver = createStateResolver(this.#catalogue.definitions(), this.#catalogue.sources(), createOrbAstronomyAdapter());
+    const norm = (v: ArrayLike<number>): number => Math.hypot(v[0]!, v[1]!, v[2]!);
+    const candidates: InfluenceCandidate[] = [];
+    for (const id of ids) {
+      const { parentId, gmKm3S2 } = this.#catalogue.get(id).definition;
+      if (parentId === undefined) {
+        candidates.push({ id, radiusKm: () => Infinity, probeDistanceKm: () => 0 });
+        continue;
+      }
+      const parentGm = this.#catalogue.get(parentId).definition.gmKm3S2;
+      if (!(gmKm3S2! > 0 && parentGm! > 0)) continue; // no published GM: this body cannot hold a probe
+      candidates.push({
+        id,
+        radiusKm: (t) => sphereOfInfluenceKm(gmKm3S2, parentGm, norm(resolver.stateOf(id, t, parentId).positionKm)),
+        probeDistanceKm: (t) => {
+          const probe = entry.body.trajectory.stateAt(t, entry.center).positionKm;
+          const body = resolver.stateOf(id, t, entry.center).positionKm;
+          return norm([probe[0]! - body[0]!, probe[1]! - body[1]!, probe[2]! - body[2]!]);
+        },
+      });
+    }
+    return influenceStretches(entry.body.pathTimesUtcMs, candidates);
+  }
+
+  /** The `"auto"` paths' one resolution into `tracked`: `now` runs it (through the caller's guarded read) when the planet series are in; else `later` is true and `settle` runs it in `prepare`. */
+  #autoPaths(entries: readonly Tracked[], tracked: TrackedBody[], ids: readonly BodyId[]): { readonly later: boolean; readonly now: (guard: (read: () => void) => void) => void; readonly settle: (guard: (read: () => void) => void) => void } {
+    const pending = entries.some((entry) => entry.auto === true);
+    const later = pending && !planetSeriesLoaded();
+    const resolve = (): void => entries.forEach((entry, index) => { if (entry.auto === true) tracked[index] = { ...entry.body, lineFixedTo: this.#autoStretches(entry, ids) }; });
+    return { later, now: (guard) => { if (pending && !later) guard(resolve); }, settle: (guard) => { if (later) guard(resolve); } };
+  }
+
   /** A readout, or the body the line is fixed to, names a body the scene must hold. */
   #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
-    const fixed = entry.body.lineFixedTo;
-    if (fixed !== undefined && !ids.includes(fixed)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo names "${fixed}", which has not been added to the scene`);
+    for (const { index, body } of lineBodies(entry.body.lineFixedTo)) {
+      if (!ids.includes(body)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo${index === null ? "" : `[${index}]`} names "${body}", which has not been added to the scene`);
+    }
     for (const spec of entry.readouts) {
       const named = readoutBody(spec);
       if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
@@ -716,12 +764,16 @@ export class Scene {
     const sunCentred = this.#checkSunCentred(ids);
     this.#checkSolarSystemScale(sunCentred);
     for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
-    const tracked = [...this.#tracked.values()].map((entry) => entry.body);
+    const entries = [...this.#tracked.values()];
+    const tracked = entries.map((entry) => entry.body);
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
+    // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
+    const auto = this.#autoPaths(entries, tracked, ids);
+    auto.now((read) => this.#deferredRead(ids, window, fault, undefined, read));
     const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
     const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
@@ -771,8 +823,9 @@ export class Scene {
       },
       prepare: async () => {
         if (fault.error !== undefined) throw fault.error;
-        if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
+        if (needsPlanetSeries(definition) || auto.later || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
         this.#checkPlanetSpan(ids, window);
+        auto.settle((read) => this.#planetRead(ids, window, read));
         if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs))));
         if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
@@ -862,7 +915,7 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
   return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }
 
-type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance" | "lineFixedTo">;
+type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;
 
 /** Rotates a vector by a row-major 3x3 matrix; a missing matrix leaves it as it is. Input that is not three numbers passes through for the State checks to refuse. */
 function rotated(matrix: Float64Array | null, v: ArrayLike<number> | undefined): ArrayLike<number> | undefined {
@@ -884,13 +937,19 @@ function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: 
   }
 }
 
+/** `lineFixedTo` is a body id, `"auto"` or a list; anything else is `bad-trajectory` (the list's own faults are named by `planLineStretches`). */
+function checkLineFixedToType(id: string, value: unknown): void {
+  if (value !== undefined && typeof value !== "string" && typeof value !== "object") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): lineFixedTo ${String(value)} must be a body id, "auto" or a list of stretches`);
+}
+
 function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, toEqj: Float64Array | null): TrackedBody {
   if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
   const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
   const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
+  // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times).
   const step = (bounds.endUtcMs - bounds.startUtcMs) / (PROVIDER_PATH_SAMPLES - 1);
-  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => bounds.startUtcMs + index * step) };
+  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => Math.round(bounds.startUtcMs + index * step)) };
 }
 
 /** A provider's State with its position and velocity rotated into EQJ; unchanged for EQJ input. */

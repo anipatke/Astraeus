@@ -1,0 +1,28 @@
+{
+  "name": "check-hello-scene",
+  "at": "2026-10-31T22:16:01.072Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "opened": 1767225604620,
+        "moved": 1767236400000,
+        "earthPx": 7.789,
+        "orbitInView": 108,
+        "moonAs": "marker"
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "opened": 1767225606540,
+        "moved": 1767236400000,
+        "earthPx": 7.216,
+        "orbitInView": 31,
+        "moonAs": "marker"
+      }
+    }
+  ],
+  "errors": []
+}

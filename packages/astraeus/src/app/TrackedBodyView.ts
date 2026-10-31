@@ -17,7 +17,7 @@ import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PathScreenReadout } from "./PathView";
-import { anchorLabelsOf, markerRadiusUnits, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
+import { anchorLabelsOf, markerRadiusUnits, lineAgainstAt, lineBodies, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
 import { mapPathKm, relativeTrailKm, shiftedBy, type PathSamples } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { PathRule } from "./experienceDefinition";
@@ -77,7 +77,7 @@ export function releaseAnchorSprite(): void {
  * stateAt -> ScalePolicy -> render axes -> floating origin, exactly like Earth and the Moon.
  */
 export class TrackedBodyView {
-  /** Every tracked body's path is one rule, a relative trail (`pathRules.ts`); the body it is drawn against is the path's own `lineFixedTo`, default the scene centre. */
+  /** Every tracked body's path is one rule, a relative trail (`pathRules.ts`); the body it is drawn against is the path's own `lineFixedTo` (one body or per-stretch), default the scene centre. */
   static readonly pathRule: PathRule = Object.freeze({ kind: "trail", frame: "relative" });
   readonly group = new Group();
   readonly #marker: Mesh;
@@ -159,7 +159,7 @@ export class TrackedBodyView {
    */
   #remap(policy: ScalePolicy, placement: ScenePlacement, timeUtcMs: number): void {
     const placed = placement.center;
-    const moves = this.#against(placement) !== placed;
+    const moves = lineBodies(this.body.lineFixedTo).some(({ body }) => body !== placed);
     if (this.#mappedFor === policy.id && this.#placedFor === placed && (!moves || this.#mappedAt === timeUtcMs)) return;
     this.#mappedPath = mapPathKm(this.#relative(this.#samples, placement, timeUtcMs), policy);
     this.#mappedAnchors = mapPathKm(this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement, timeUtcMs), policy);
@@ -168,16 +168,23 @@ export class TrackedBodyView {
     this.#mappedAt = timeUtcMs;
   }
 
-  #against(placement: ScenePlacement): string {
-    return this.body.lineFixedTo ?? placement.center;
-  }
-
+  /** Each run of samples drawn against one body (a plain `lineFixedTo` is one run) is placed from that body at its own times, then carried to the scene centre at the display time. */
   #relative(samples: PathSamples, placement: ScenePlacement, timeUtcMs: number): Float64Array {
-    if (samples.timesUtcMs.length === 0) return samples.positionsKm;
-    const against = this.#against(placement);
-    const drawn = relativeTrailKm(samples, this.body.trajectory.stateAt(samples.timesUtcMs[0]).center, placement, against);
-    const carry = sceneOffsetKm(placement, against, timeUtcMs);
-    return carry === null ? drawn : shiftedBy(drawn, carry);
+    const count = samples.timesUtcMs.length;
+    if (count === 0) return samples.positionsKm;
+    const native = this.body.trajectory.stateAt(samples.timesUtcMs[0]).center;
+    const out = new Float64Array(samples.positionsKm.length);
+    for (let from = 0; from < count; ) {
+      const against = lineAgainstAt(this.body.lineFixedTo, samples.timesUtcMs[from], placement.center);
+      let to = from + 1;
+      while (to < count && lineAgainstAt(this.body.lineFixedTo, samples.timesUtcMs[to], placement.center) === against) to += 1;
+      const run = { timesUtcMs: samples.timesUtcMs.slice(from, to), positionsKm: samples.positionsKm.subarray(from * 3, to * 3) };
+      const drawn = relativeTrailKm(run, native, placement, against);
+      const carry = sceneOffsetKm(placement, against, timeUtcMs);
+      out.set(carry === null ? drawn : shiftedBy(drawn, carry), from * 3);
+      from = to;
+    }
+    return out;
   }
 
   /** Writes [leading?] samples [from, to) [trailing?] into the line and sets how much of it is drawn. */

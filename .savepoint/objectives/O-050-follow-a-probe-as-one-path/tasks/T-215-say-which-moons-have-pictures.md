@@ -2,9 +2,10 @@
 id: T-215
 title: Say which moons have pictures
 objective: O-050
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-215, reason: 'Owner said "orchestrate O50"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o050-run-20261101}, recorded_at: '2026-10-31T21:16:38Z'}
 planned_by: {role: planner, session: probe-switch-20261101}
 ---
 
@@ -50,7 +51,11 @@ Focused test; at hand-off the configured lint, typecheck, build and test gates (
 
 ## Technical Evidence
 
-Pending execution.
+- Added `packages/astraeus/tests/pictureList.test.ts` (3 tests): reads `PICTURES` keys from `astraeus-data` (minus milky-way, venus-8k, pluto) and `listedMoons()`; fails unless both READMEs contain `Moons with pictures: <derived list>.` and `Every other listed moon, among them Uranus's Miranda, Ariel, Umbriel, Titania and Oberon, draws flat-coloured`; also asserts the five are listed moons with no picture.
+- Docs: passage added to `packages/astraeus-data/README.md` and to the `addBody` row of `packages/astraeus/README.md`. Moons: Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton, Charon (Pluto's map noted separately in the data README).
+- Focused: `npx vitest run packages/astraeus/tests/pictureList.test.ts` 3 passed.
+- Gates: lint pass; typecheck pass; build pass; test 165 files, 2048 passed, 1 skipped.
+- Not run: browser (not needed); fail-on-drift not exercised by editing a README, true by construction of the assertions.
 
 ## Drift Notes
 
