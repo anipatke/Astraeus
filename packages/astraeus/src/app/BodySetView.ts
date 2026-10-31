@@ -13,11 +13,12 @@ import {
   Matrix4,
   MeshLambertMaterial,
   Points,
-  PointsMaterial,
+  type PointsMaterial,
   SphereGeometry,
   Vector3,
   type PerspectiveCamera,
 } from "three";
+import { dotMaterial } from "./dotMaterial";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
@@ -82,7 +83,7 @@ export class BodySetView {
     // Each dot and ball carries its own colour, so a lit family can differ from the rest; the material colour stays white.
     this.#colours = new BufferAttribute(new Float32Array(3 * n), 3);
     geometry.setAttribute("color", this.#colours);
-    this.#pointMaterial = new PointsMaterial({ size: 3, sizeAttenuation: false, depthWrite: true, vertexColors: true });
+    this.#pointMaterial = dotMaterial({ size: 3, sizeAttenuation: false, depthWrite: true, vertexColors: true });
     this.#points = new Points(geometry, this.#pointMaterial);
     this.#points.frustumCulled = false;
     this.#points.layers.set(TRACK_LAYER);

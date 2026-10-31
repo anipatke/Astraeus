@@ -34,6 +34,8 @@ function discoverViews() {
   for (const name of showers) views.push({ id: `showers-${name}`, url: `${appUrl}?experience=showers&shower=${name}`, scene: true });
   // O-046 T-193: the made-up Sun-centred probe path (dev server only; the public build leaves it out) gets the extra checks in `sunPathChecks`.
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });
+  // O-047 T-203: the made-up 1977-to-170-AU journey (dev server only): moons at their dates, Saturn's orbit line, and the whole path framed at its end (`journeyChecks`).
+  views.push({ id: "synthetic-journey", url: `${appUrl}?experience=synthetic-journey`, scene: true, journey: true });
   for (const page of ["index", "assets"]) views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
   const only = process.env.ASTRAEUS_VIEWS;
   return only === undefined || only === "" ? views : views.filter((view) => view.id.startsWith(only));
@@ -86,6 +88,38 @@ async function sunPathChecks(page) {
   return { first: line(first), second: line(second) };
 }
 
+const JOURNEY_MOONS = [["1979-03-05T12:00:00Z", ["io", "europa", "ganymede", "callisto"]], ["1980-11-12T12:00:00Z", ["titan", "rhea", "dione", "tethys", "enceladus", "mimas", "iapetus"]]];
+const JOURNEY_END_UTC_MS = Date.UTC(2026, 0, 1);
+
+/**
+ * O-047 T-203: on the made-up journey, each giant planet's moons are in the scene at the encounter date (a drawn body or marker, never "none"), Saturn's orbit line is drawn, and with the Sun
+ * picked and the clock at the end the camera zooms out to frame the 170 AU path whole (I-114): every vertex in view, its label shown, a body still drawn. Reads the scene's own readouts.
+ */
+async function journeyChecks(page) {
+  await ui.ensurePaused(page);
+  const moons = {};
+  for (const [iso, ids] of JOURNEY_MOONS) {
+    await ui.seekTo(page, Date.parse(iso));
+    await page.waitForTimeout(1500);
+    const bodies = await ui.sceneBodies(page);
+    const missing = ids.filter((id) => !bodies.some((body) => body.id === id && body.as !== "none"));
+    if (missing.length > 0) throw new Error(`at ${iso} the moons ${missing.join(", ")} are not in the scene (${JSON.stringify(bodies.map((b) => `${b.id}:${b.as}`))})`);
+    moons[iso] = ids;
+  }
+  const saturnOrbit = await ui.scenePath(page, "saturn-orbit");
+  if (saturnOrbit === undefined || !saturnOrbit.visible) throw new Error(`Saturn's orbit line is not drawn (${JSON.stringify((await ui.scenePaths(page)).map((p) => p.id))})`);
+  await ui.seekTo(page, JOURNEY_END_UTC_MS - 1000);
+  await ui.pickBody(page, "sun");
+  await page.waitForTimeout(2500);
+  if (!(await ui.zoomOutFully(page))) throw new Error("no free point on the scene to zoom from");
+  await page.waitForTimeout(1000);
+  const path = await ui.scenePath(page, "traveller");
+  if (path === undefined || !path.visible || path.vertices === 0 || path.inView < path.vertices) throw new Error(`the 170 AU path is not framed whole at the farthest zoom-out (${JSON.stringify(path)})`);
+  const labels = await ui.shownSceneLabelIds(page);
+  if (!labels.includes("traveller")) throw new Error(`the path's label is not shown at 170 AU (${JSON.stringify(labels)})`);
+  return { moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+}
+
 async function load(browser, view, size) {
   const errors = [];
   const failures = [];
@@ -100,6 +134,7 @@ async function load(browser, view, size) {
       await ui.waitForShell(page, { timeout: 60000 });
       drawn = await drawsSomething(page, view);
       // O-031 T-149: a paused, untouched scene stops drawing (Apollo 11 is the one view checked; the rule is the same for all).
+      if (view.journey) drawn = { ...drawn, journey: await journeyChecks(page) };
       if (view.sunPath) drawn = { ...drawn, sunPath: await sunPathChecks(page) };
       if (view.id === "apollo11") { await ui.ensurePaused(page); drawn = { ...drawn, idleAtFrames: await ui.waitUntilSceneIdle(page) }; }
     } else {

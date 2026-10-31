@@ -8,12 +8,12 @@ import {
   Mesh,
   MeshBasicMaterial,
   Points,
-  PointsMaterial,
   RGBAFormat,
   SphereGeometry,
   Vector3,
   type Camera,
 } from "three";
+import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PathScreenReadout } from "./PathView";
@@ -108,7 +108,7 @@ export class TrackedBodyView {
     anchorGeometry.setAttribute("position", new BufferAttribute(new Float32Array(this.#anchorKm.length), 3));
     this.#anchors = new Points(
       anchorGeometry,
-      new PointsMaterial({
+      dotMaterial({
         color: "#f0e6da",
         map: anchorSpriteTexture(),
         size: 9,

@@ -1,4 +1,5 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Group, Points, PointsMaterial, Sprite, SpriteMaterial } from "three";
+import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Group, Points, Sprite, SpriteMaterial } from "three";
+import { dotMaterial } from "./dotMaterial";
 import type { BodyAsset } from "../assets/catalogue";
 import { textureUrlFor } from "../assets/licence";
 import type { AtmosphereConfig, BodyMaterialConfig } from "../assets/visual";
@@ -79,7 +80,7 @@ export function createMarker(asset: BodyAsset, layer: number, override?: { reado
   const position = new BufferAttribute(new Float32Array(3), 3);
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", position);
-  const points = new Points(geometry, new PointsMaterial({ color, size: sizePx, sizeAttenuation: false, depthTest: false }));
+  const points = new Points(geometry, dotMaterial({ color, size: sizePx, sizeAttenuation: false, depthTest: false }));
   points.frustumCulled = false;
   points.layers.set(layer);
   const group = new Group();

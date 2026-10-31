@@ -785,6 +785,18 @@ export async function nudgeCamera(page) {
   await page.mouse.wheel(0, 120);
   return true;
 }
+/** Zooms the camera out as far as it goes: wheel turns over the scene for `turns` turns (the camera clamps at its farthest zoom-out). Returns false when no free point exists. */
+export async function zoomOutFully(page, { turns = 60 } = {}) {
+  const point = await freeCanvasPoint(page);
+  if (point === null) return false;
+  await page.mouse.move(point.x, point.y);
+  for (let k = 0; k < turns; k += 1) {
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(40);
+  }
+  await page.waitForTimeout(500);
+  return true;
+}
 /** A tap (click) on the scene where the canvas itself is on top: goes through the pointer listeners, so a resting scene draws again (O-031 I-073). Returns false when no free point exists. */
 export async function tapCanvas(page) {
   const point = await freeCanvasPoint(page);

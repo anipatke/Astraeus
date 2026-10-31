@@ -146,6 +146,9 @@ const DAY_MS = 86_400_000;
 const PROVIDER_PATH_SAMPLES = 128;
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
+/** Samples along a path when its farthest distance is read for the default zoom-out. */
+const PATH_COVER_SAMPLES = 400;
+
 interface Tracked {
   readonly body: TrackedBody;
   readonly center: BodyId;
@@ -597,6 +600,22 @@ export class Scene {
     });
   }
 
+  /**
+   * The distance the default zoom-out must cover for the scene's paths about the scene centre (I-114): a path reaching past the planets must fit whole whichever point of it the camera looks at,
+   * so twice its farthest distance from the centre (no two points of a path are farther apart than that). Sampled over each path's span; undefined when no path is about the centre.
+   */
+  #pathCover(sunCentred: boolean, centre: BodyId): (() => number) | undefined {
+    if (!sunCentred) return undefined;
+    const about = [...this.#tracked.values()].filter((entry) => entry.center === centre);
+    if (about.length === 0) return undefined;
+    return () => 2 * Math.max(...about.map(({ body }) => {
+      const { startUtcMs, endUtcMs } = body.trajectory.bounds;
+      let farthest = 0;
+      for (let k = 0; k < PATH_COVER_SAMPLES; k += 1) farthest = Math.max(farthest, Math.hypot(...body.trajectory.stateAt(Math.round(startUtcMs + ((endUtcMs - startUtcMs) * k) / (PATH_COVER_SAMPLES - 1)), centre).positionKm));
+      return farthest;
+    }));
+  }
+
   /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
   #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
     const id = this.camera.fitted;
@@ -684,7 +703,7 @@ export class Scene {
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
-      ...viewEntries(timeline, this.camera, fit?.read),
+      ...viewEntries(timeline, this.camera, fit?.read, this.#pathCover(sunCentred, ids[0]!)),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
@@ -706,12 +725,13 @@ export class Scene {
 }
 
 /** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
-function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
+function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined, cover: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
   const { reach, view, target } = camera;
   return {
     ...(timeline?.loop === true ? { loop: true } : {}),
     ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: reach * 2.5 } }),
     ...(farthestKm === undefined ? {} : { camera: { fitOrbit: { farthestKm } } }),
+    ...(reach !== undefined || farthestKm !== undefined || cover === undefined ? {} : { camera: { cover: { farthestKm: cover } } }),
     ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
   };
 }

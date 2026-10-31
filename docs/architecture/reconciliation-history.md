@@ -181,3 +181,14 @@ Paths across the solar system (O-046, branch o046-sun-paths, 2026-10-30; T-189 t
 - **Scale (T-191).** Reflected: `solarSystemScale` is a public export and the same policy the viewer builds per experience; `bad-scale` outside an enlarged Sun-centred scene.
 - **Label reach (T-192).** Reflected: one rule for bodies and paths, `labelReach` override on `addBody` and `addTrajectory`; Apollo 11 sets 4.
 - **Added by T-193, reflected:** tracked paths report to `data-paths` (`TrackedBodyView.screenReadout`), the made-up `synthetic-probe` fixture, and one browser-smoke case.
+
+### O-047 (T-203 accounting of the step drift notes)
+
+- **T-195 per-body spans, `out-of-span`:** reflected in Design.md "Journeys across years" and state-and-assets.md. The static "Valid 2010-2030" wording open at T-195 was closed by T-200 (`HISTORICAL_MOON_FIT_SPAN`).
+- **T-196 orbit-line rule, `fitOrbit` settled in setup:** reflected in Design.md "Journeys across years".
+- **T-197 host seam (`viewerPort`, `ViewerLink`, `rateSource`), public handle, exact speed menu:** reflected in Design.md; the I-106 behaviour change (other demos show only their own lists) is recorded in the CHANGELOG and left unchanged in the demos.
+- **T-198 `provenanceSpans`, `spanProvenanceAt`:** reflected in Design.md.
+- **T-199:** no architectural change (none recorded).
+- **T-200 packages from 1950, Saturn above the split target, two UTC definitions, planet segment grid anchored at 1969:** reflected in state-and-assets.md and Design.md; the Saturn size is an owner-accepted limit (T-200 done), the two UTC definitions are an accepted limit; the grid anchoring is a maintainer-tool detail, non-architectural.
+- **T-201 `pacing`, `pacedRate`, viewer wiring:** reflected in Design.md. The pack file limit 450 to 460 (`tools/check-packs.mjs`) is a gate setting, non-architectural. The second-order time error of per-tick pacing is an accepted limit, not measured.
+- **Added by T-203, reflected:** `CameraReach.cover` and `liveReach`'s widen-only default (I-114); `SimulationClock.stopWithin` and `SceneRuntime.stopAtWindow`; the `synthetic-journey` fixture, `journeyData.ts` and one browser-smoke case.

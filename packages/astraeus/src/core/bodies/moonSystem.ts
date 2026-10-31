@@ -90,6 +90,8 @@ function assertWithinSpan(set: ChebyshevEphemeris, request: Pick<MoonSystemLoad,
   }
 }
 
+/** How far past the window's end the loader also looks for shipped chunks (one chunk year; chunks the build does not ship are skipped). */
+const AFTER_WINDOW_MS = 366 * 86_400_000;
 /** The fraction of one period of history loaded beyond the period itself (so a line of one period always has its samples). */
 const HISTORY_MARGIN = 1.05;
 /** A slice of decoding at most this long runs before the loader yields, so the page keeps painting (the boot loader animates). */
@@ -244,6 +246,17 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
           }
           await decodeInto(set, extra, await Promise.all(extra.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
         }
+        // A moon's orbit ring is centred on the clock, so at the window's last instant it reads ahead of it: also load the year after the window where the build ships it (never required).
+        const end = request.window.endUtcMs;
+        const after: { body: BodyId; path: string }[] = [];
+        for (const body of request.bodies) {
+          const limit = set.boundsOf(body).endUtcMs;
+          if (limit <= end) continue;
+          for (const chunk of set.chunksFor([body], end, Math.min(limit, end + AFTER_WINDOW_MS))) {
+            if (!needed.some(({ path }) => path === chunk.path) && request.chunkUrls[chunk.path] !== undefined && !after.some(({ path }) => path === chunk.path)) after.push(chunk);
+          }
+        }
+        await decodeInto(set, after, await Promise.all(after.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
         installed = set;
         return set;
       })();

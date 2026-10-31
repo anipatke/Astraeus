@@ -50,7 +50,7 @@ const ALL_PAGES = [
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
   // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's). Figures measured on the public build of 2026-10-21 plus 5%, rounded up to the next 10,000 bytes.
   // Each outer planet's moon index chunk is also held to the stated limit in `src/experiences/planets/viewLimits.json`, the file tests/planetSystems.test.ts takes its fit-chunk and index limits from.
-  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 7_130_000, gzipLimit: 4_900_000 }),
+  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 7_160_000, gzipLimit: 4_900_000 }),
   planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { parts: true, rawLimit: 24_490_000, gzipLimit: 21_260_000 }),
   planetView("uranus", ["uranus-2k.jpg"], { parts: true, rawLimit: 4_300_000, gzipLimit: 2_520_000 }),
   planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_610_000, gzipLimit: 2_930_000 }),

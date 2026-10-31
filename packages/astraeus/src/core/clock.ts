@@ -85,6 +85,19 @@ export class SimulationClock {
     return true;
   }
 
+  /**
+   * Playback that has run past the end of `window` (or before its start, at a negative rate) stops on that edge: the clock is moved to it and paused. Returns whether it stopped.
+   * Does nothing while paused, so a person who seeks outside the window is not moved. The playing counterpart of `wrapWithin`.
+   */
+  stopWithin(window: { readonly startUtcMs: number; readonly endUtcMs: number }): boolean {
+    if (!this.#playing) return false;
+    const now = this.now();
+    if (now >= window.startUtcMs && now <= window.endUtcMs) return false;
+    this.seek(now > window.endUtcMs ? window.endUtcMs : window.startUtcMs);
+    this.pause();
+    return true;
+  }
+
   setRate(rate: number): void {
     if (!Number.isFinite(rate) || rate === 0) {
       throw new RangeError("playback rate must be a finite, non-zero number");

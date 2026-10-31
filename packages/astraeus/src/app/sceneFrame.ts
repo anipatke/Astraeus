@@ -136,9 +136,10 @@ export function bodiesMounted(runtime: SceneRuntime, refs: BodyRefs): boolean {
   return runtime.bodies.every((id) => refs.groups.has(id) && refs.orients.has(id));
 }
 
-/** Stage 0: the time of this frame; looping playback wraps inside its window first. */
+/** Stage 0: the time of this frame; looping playback wraps inside its window first, and other playback stops on the window's edge (a scene with a timeline bar). */
 export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop" | "paceAuto">): number {
   if (controls.loop === true && runtime.loopWindow !== undefined) runtime.clock.wrapWithin(runtime.loopWindow);
+  else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) runtime.clock.stopWithin(runtime.loopWindow);
   if (controls.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
   return runtime.clock.now();
 }

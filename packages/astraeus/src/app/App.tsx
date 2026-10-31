@@ -123,6 +123,7 @@ function buildRuntime(definition: ExperienceDefinition) {
       cameraReach: cameraReachOf(definition),
       sky: skySettingsOf(definition),
       loopWindow: definition.experience.window,
+      ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
       ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
       up: viewUpVector(startViewUp(definition)),
     };
@@ -300,6 +301,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
       if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
+      else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) runtime.clock.stopWithin(runtime.loopWindow);
       if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
       setClockSnapshot(runtime.clock.snapshot());
       host?.publish(stateNow(), "playback");

@@ -1,4 +1,5 @@
-import { BufferAttribute, BufferGeometry, Group, Points, PointsMaterial, Vector3, type Camera, type WebGLProgramParametersWithUniforms } from "three";
+import { BufferAttribute, BufferGeometry, Group, Points, type PointsMaterial, Vector3, type Camera, type WebGLProgramParametersWithUniforms } from "three";
+import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -164,7 +165,7 @@ export class PointsView {
     this.#to = new BufferAttribute(new Float32Array(3 * count), 3);
     geometry.setAttribute("position", this.#from);
     geometry.setAttribute("positionTo", this.#to);
-    this.#material = new PointsMaterial({
+    this.#material = dotMaterial({
       color: layer.color,
       size: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX,
       sizeAttenuation: false,

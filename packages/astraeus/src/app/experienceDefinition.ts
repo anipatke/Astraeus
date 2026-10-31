@@ -141,6 +141,13 @@ export interface CameraReach {
    * re-fits when the canvas changes shape. Takes the place of `maxFocusDistance` and `far`, which a fitting reach does not carry.
    */
   readonly fitOrbit?: { readonly farthestKm: () => number };
+  /**
+   * The distance, in km, that the default zoom-out must cover for what no body's orbit speaks for (a path reaching past the planets, I-114): twice the path's farthest distance from the scene centre. When neither `maxFocusDistance` nor `fitOrbit` is declared the viewer
+   * widens the default zoom-out and the far plane so this distance fits the canvas whole; it never narrows the default (`minFocusDistance` below is the result, set live).
+   */
+  readonly cover?: { readonly farthestKm: () => number };
+  /** Set live from `cover` (never declared): the zoom-out the default must at least reach, in scaled units. */
+  readonly minFocusDistance?: number;
 }
 
 /** The scene's far plane when an experience declares none. */

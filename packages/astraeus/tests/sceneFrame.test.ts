@@ -50,6 +50,19 @@ describe("frame prerequisites and time", () => {
     expect(bodiesMounted(ctx.runtime, ctx.bodyRefs)).toBe(false);
   });
 
+  it("stops playback on the window's edge when the scene asks, and leaves a paused or looping clock alone (O-047)", () => {
+    let monotonic = 0;
+    const clock = new SimulationClock(T0, () => monotonic);
+    const window = { startUtcMs: T0, endUtcMs: T0 + 1000 };
+    clock.play();
+    monotonic = 10_000;
+    expect(frameTime({ clock, loopWindow: window } as SceneRuntime, {})).toBeGreaterThan(window.endUtcMs);
+    expect(frameTime({ clock, loopWindow: window, stopAtWindow: true } as SceneRuntime, {})).toBe(window.endUtcMs);
+    expect(clock.snapshot().playing).toBe(false);
+    clock.seek(T0 + 5000);
+    expect(frameTime({ clock, loopWindow: window, stopAtWindow: true } as SceneRuntime, {})).toBe(T0 + 5000); // paused: a seek outside is not moved
+  });
+
   it("wraps the clock only when looping is on and the runtime has a loop window", () => {
     let monotonic = 0;
     const clock = new SimulationClock(T0, () => monotonic);

@@ -2,7 +2,7 @@
 import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
-import type { CameraReach } from "./experienceDefinition";
+import { DEFAULT_CAMERA_FAR, type CameraReach } from "./experienceDefinition";
 
 /** A tracked body is a point: the camera may come very close and is framed in Earth radii. */
 export const TRACKED_MIN_DISTANCE = 0.002;
@@ -73,14 +73,19 @@ export function fitReach(farthestUnits: number, aspect: number, fovDeg: number =
 
 /** The declared reach as the viewer applies it now: a fitting reach becomes a farthest zoom-out and far plane for the canvas shape `aspect` (width over height); any other is returned as is. */
 export function liveReach(declared: CameraReach, policy: ScalePolicy, aspect: number): CameraReach {
-  if (declared.fitOrbit === undefined) return declared;
+  if (declared.fitOrbit === undefined) {
+    if (declared.cover === undefined || declared.maxFocusDistance !== undefined) return declared;
+    // I-114: a path past the planets widens the default zoom-out and far plane so it fits whole; the default is never narrowed.
+    const minFocusDistance = fitReach(scaleLength(policy, declared.cover.farthestKm()), aspect > 0 ? aspect : 1);
+    return { ...declared, minFocusDistance, far: Math.max(declared.far ?? DEFAULT_CAMERA_FAR, minFocusDistance * FAR_PER_REACH) };
+  }
   const maxFocusDistance = fitReach(scaleLength(policy, declared.fitOrbit.farthestKm()), aspect > 0 ? aspect : 1);
   return { maxFocusDistance, far: maxFocusDistance * FAR_PER_REACH };
 }
 
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
 export function focusLimits(focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): { min: number; max: number } {
-  const max = declared.maxFocusDistance ?? Math.max(30, frame.span * 3.5);
+  const max = declared.maxFocusDistance ?? Math.max(30, frame.span * 3.5, declared.minFocusDistance ?? 0);
   const member = frame.memberRadius?.(focus) ?? null;
   if (member !== null) return { min: Math.max(MEMBER_MIN_DISTANCE, member * BODY_MIN_FACTOR), max };
   const radius = sphereRadius(focus, policy, frame.bodies ?? catalogue);

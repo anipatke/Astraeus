@@ -110,6 +110,17 @@ describe("the generic loader", () => {
     expect(() => createMoonSystem(MARS_MOON_SYSTEM.config).ephemeris()).toThrow(/not loaded/);
   });
 
+  it("also loads the year after the window where the build ships it, so a moon's orbit ring at the window's end has its data (O-047)", async () => {
+    const fresh = createMoonSystem({ ...MARS_MOON_SYSTEM.config, loadIndex: async () => marsIndex });
+    const root = moonDataFolder("mars");
+    const chunkUrls = new Proxy({}, { get: (_target, path: string) => (/\/(2018|2019)\.bin$/.test(path) ? `${root}${path}` : undefined) }) as Record<string, string>;
+    const requested: string[] = [];
+    const window = { startUtcMs: Date.UTC(2018, 11, 20), endUtcMs: Date.UTC(2019, 0, 1) };
+    const set = await fresh.load({ window, bodies: ["phobos"], chunkUrls, fetchBytes: async (url) => { requested.push(url); return readBytes(url); } });
+    expect(requested.sort()).toEqual(["mars/2018.bin", "mars/2019.bin", "phobos/2018.bin", "phobos/2019.bin"].map((path) => `${root}${path}`).sort());
+    expect(Math.hypot(...set.stateOf("phobos", Date.UTC(2019, 0, 1, 6)).positionKm)).toBeGreaterThan(9000);
+  });
+
   it("serves Saturn's mapped moons about Saturn from the committed fits", () => {
     const state = catalogue.get("titan").source!.create(adapter).stateAt(Date.UTC(2016, 5, 1));
     expect(state.center).toBe("saturn");

@@ -22,6 +22,7 @@ import { SceneLabelLayer } from "./SceneLabels";
 import { attachScenePointer } from "./scenePointer";
 import { StoryMarkerLayer } from "./StoryMarkers";
 import type { BodySetView } from "./BodySetView";
+import { releaseDotTexture } from "./dotMaterial";
 import { releaseAnchorSprite, type TrackedBodyView } from "./TrackedBodyView";
 
 /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
@@ -128,7 +129,7 @@ export function useSceneFrame(rootRef: { current: Group | null }, inputs: FrameI
  * the pictures are disposed, which every renderer that drew them hears and forgets.
  */
 export function useReleaseSharedTextures(): void {
-  useEffect(() => () => { releaseGlowTexture(); releaseAnchorSprite(); }, []);
+  useEffect(() => () => { releaseGlowTexture(); releaseAnchorSprite(); releaseDotTexture(); }, []);
 }
 
 /**

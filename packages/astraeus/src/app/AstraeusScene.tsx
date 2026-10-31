@@ -44,6 +44,8 @@ export interface SceneRuntime {
   readonly up?: RenderVector;
   /** The window looping playback wraps within: the experience's own timeline window. */
   readonly loopWindow?: { readonly startUtcMs: number; readonly endUtcMs: number };
+  /** Playback stops on the edge of `loopWindow` when it runs past it (a scene with a timeline bar that does not loop); absent: the clock runs on. */
+  readonly stopAtWindow?: boolean;
   readonly clock: SimulationClock;
   /** Paced playback (see `pacedRate`); absent: the clock keeps the rate it was given. */
   readonly pacing?: Pacing;
