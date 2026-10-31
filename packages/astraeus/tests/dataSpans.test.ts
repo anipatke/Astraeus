@@ -80,10 +80,16 @@ describe("a window outside the planet series (I-110)", () => {
     for (const [variant, shape] of Object.entries(variants)) {
       it(`${windowName}, ${variant}: out-of-span naming saturn and the years, never a raw error (series loaded or not)`, async () => {
         const make = () => shape(new Scene().addBody(sun)).setTimeline(timeline);
-        // Series not loaded: the error comes from prepare.
-        await expect(Promise.resolve().then(() => make().toDefinition().prepare!())).rejects.toMatchObject(outOfSpan);
-        // Series loaded: the error comes at toDefinition or prepare, still named.
-        await expect(Promise.resolve().then(() => make().toDefinition().prepare!())).rejects.toMatchObject(outOfSpan);
+        // The error always arrives from prepare, never thrown by toDefinition (so mount never throws), with the series not loaded yet or already loaded.
+        const first = make();
+        let definition: ReturnType<Scene["toDefinition"]> | undefined;
+        expect(() => { definition = first.toDefinition(); }).not.toThrow();
+        await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
+        // The series are loaded by now (a consumer's second mount): same surface.
+        const second = make();
+        expect(() => { definition = second.toDefinition(); }).not.toThrow();
+        await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
+        await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
       });
     }
   }

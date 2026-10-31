@@ -568,6 +568,22 @@ export class Scene {
     }
   }
 
+  /**
+   * A setup read in `toDefinition`: an `out-of-span` failure is recorded in `fault` and the read gives `fallback`, so `toDefinition` (and so `mount`) never throws it;
+   * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting).
+   */
+  #deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { error?: SceneError }, fallback: T, read: () => T): T {
+    try {
+      return this.#planetRead(ids, window, read);
+    } catch (error) {
+      if (error instanceof SceneError && error.code === "out-of-span") {
+        fault.error ??= error;
+        return fallback;
+      }
+      throw error;
+    }
+  }
+
   /** Throws `missing-data` naming the bodies whose data package was not passed. */
   #checkData(data: readonly DataSource[]): void {
     const missing = this.missingData(data);
@@ -686,9 +702,10 @@ export class Scene {
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
-    const fit = this.#planetRead(ids, window, () => this.#fitFarthestKm(startUtcMs));
+    const fault: { error?: SceneError } = {};
+    const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
-    const sunPaths: PathLayer[] = this.#planetRead(ids, window, () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
+    const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
@@ -696,7 +713,7 @@ export class Scene {
     // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
     const seriesIn = planetSeriesLoaded();
     const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
-    const layers: GroupLayer[] = this.#planetRead(ids, window, () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
+    const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
     const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
     const catalogue = this.#catalogue;
     const definition: ExperienceDefinition = {
@@ -733,6 +750,7 @@ export class Scene {
         return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? this.#groupMetrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
+        if (fault.error !== undefined) throw fault.error;
         if (needsPlanetSeries(definition) || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
         this.#checkPlanetSpan(ids, window);
         if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));

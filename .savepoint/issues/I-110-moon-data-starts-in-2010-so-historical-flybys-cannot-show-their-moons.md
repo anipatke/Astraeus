@@ -27,6 +27,10 @@ history:
     kind: rechecked
     note: 'C-127 NEEDS WORK. Repair proven for the named error: planet with orbit line, fitOrbit or both, before 1950, straddling 1950 and after 2045, series loaded or not, all give out-of-span naming the planet and 1950-01-01 to 2045-01-01; exact 1950-2045 edges resolve. Regression: with the planet series loaded, a plain planet (no orbit, no fit) outside the series now throws synchronously from toDefinition() (Scene.#planetRead checks the span up front at api/scene.ts:689/691/699), so mount() throws instead of ready rejecting (CHANGELOG: fails once, as ready rejecting at mount), and npm run check:node-consumer fails 1 of 4 at consumer.test.mjs:44 (deterministic, twice). Repair: keep the span check out of toDefinition so prepare/ready carries the error (or change contract, docs and gate together); add a test that asserts the surface; run check:node-consumer before hand-off.'
     check: C-127
+  - at: '2026-10-31T16:00:00Z'
+    actor: {role: executor, session: o047-repair2-20261031}
+    kind: repair_attempted
+    note: 'Out-of-scope repair after C-127, not verified. Owner decision: report it when the viewer loads. toDefinition setup reads (fit, early Sun paths, clump groups) now go through Scene.#deferredRead, which keeps the #planetRead choke point but records an out-of-span failure and returns an empty fallback; prepare rejects with the recorded error first, so the named out-of-span (planet, years) always arrives through prepare/ready, never thrown from toDefinition or mount. dataSpans.test.ts now asserts toDefinition does not throw and prepare rejects (twice) for plain, orbit and fitOrbit, before 1950, straddling and after 2045, series not loaded then loaded. Proof Needed and neighbours re-run: lint, typecheck, build, npm test, check:node-consumer 4/4 pass; no browser run.'
 ---
 
 # I-110: Moon data starts in 2010, so historical flybys cannot show their moons
