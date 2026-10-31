@@ -38,7 +38,7 @@ import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { checkEventObjects, eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -720,6 +720,7 @@ export class Scene {
     const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
     const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
     const catalogue = this.#catalogue;
+    checkEventObjects(this.#events, new Set(labelled.map(({ id }) => id)));
     const definition: ExperienceDefinition = {
       experience: {
         objects: [

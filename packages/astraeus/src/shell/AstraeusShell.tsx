@@ -291,9 +291,9 @@ export function AstraeusShell({
     }
   };
 
-  const activatePreset = (preset: ExperienceCameraPreset) => {
+  const activatePreset = (preset: ExperienceCameraPreset, atUtcMs: number = snapshot.timeUtcMs) => {
     if (preset.request.kind !== "overview") {
-      const target = availableObjectById(experience, preset.request.target, snapshot.timeUtcMs);
+      const target = availableObjectById(experience, preset.request.target, atUtcMs);
       if (target === undefined) return;
       setSelectedObjectId(target.id);
       onSelectionChange(target.id);
@@ -304,6 +304,9 @@ export function AstraeusShell({
 
   const seekToEvent = (event: TimelineEvent) => {
     seek(event.timeUtcMs);
+    // The event's own object, framed as the picker's Focus does (and `camera.lookAt` opens): the event, never a default body, names it.
+    const object = event.object === undefined ? undefined : availableObjectById(experience, event.object, event.timeUtcMs);
+    if (object !== undefined) activatePreset(focusPresetFor(experience, object), event.timeUtcMs);
     if (info?.kind === "event") setInfo({ kind: "event", id: event.id });
   };
 
