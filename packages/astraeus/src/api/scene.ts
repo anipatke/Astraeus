@@ -12,7 +12,7 @@ import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
-import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import { createComposition, type CompositionPath } from "../assets/compositions";
 import { bodyMetrics } from "../app/bodyMetrics";
@@ -26,6 +26,7 @@ import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { EccentricSampling } from "../core/sunCentredSources";
 import { circlesTheSun, farthestSunDistanceKm, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
+import { listedMoonBodyOf } from "../core/bodies/listedMoonBodies";
 import { FALLBACK_SCENE_CENTRE, readyMade, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
@@ -274,8 +275,22 @@ export class Scene {
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
     const id = typeof body === "string" ? body : body.id;
-    this.#register("addBody", id, typeof body === "string" ? readyMade(id) ?? { id, label: this.#catalogue.has(id) ? this.#catalogue.get(id).definition.label : id } : body, options);
+    const before = this.#catalogue;
+    this.#addListedMoon(id);
+    try {
+      this.#register("addBody", id, typeof body === "string" ? readyMade(id) ?? { id, label: this.#catalogue.has(id) ? this.#catalogue.get(id).definition.label : id } : body, options);
+    } catch (error) {
+      this.#catalogue = before;
+      throw error;
+    }
     return this;
+  }
+
+  /** A moon in the listed-moon table that the built-in catalogue does not define by hand is defined now, by the one rule, and joins this scene's catalogue only (an unused moon costs nothing). */
+  #addListedMoon(id: BodyId): void {
+    if (this.#catalogue.has(id)) return;
+    const moon = listedMoonBodyOf(id);
+    if (moon !== undefined && this.#catalogue.has(moon.definition.parentId!)) this.#catalogue = extendCatalogueWithMoons(this.#catalogue, [moon]);
   }
 
   /**
@@ -304,7 +319,7 @@ export class Scene {
 
   #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
     if (options.orbit === true && moonOrbitPath(this.#catalogue, id) === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
-    if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${this.#catalogue.ids().join(", ")})`);
+    if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
     if (options.labelReach !== undefined) this.#labelReaches.set(id, options.labelReach);
@@ -741,7 +756,7 @@ export class Scene {
       ...pacingEntry(timeline, this.#events),
       ...groupLayersEntry(layers, this.#groups.size > 0, sunOrbitIds.length > 0),
       ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
-      ...(this.#own.size === 0 ? {} : { catalogue: this.#catalogue }),
+      ...(this.#catalogue === builtInCatalogue ? {} : { catalogue: this.#catalogue }),
       ...visualOverridesEntry(this.#shape),
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
@@ -761,7 +776,7 @@ export class Scene {
         if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs))));
         if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
-        await installData(data, ids, window);
+        await installData(data, ids, window, catalogue);
       },
     };
     return definition;

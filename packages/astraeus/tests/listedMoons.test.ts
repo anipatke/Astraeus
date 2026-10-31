@@ -54,7 +54,7 @@ describe("the slim lookup", () => {
       dataPackage: `astraeus-data-${planet}`, fitSet: moon.ephemeris.set, fitBody: moon.ephemeris.body,
     })));
     expect(expected).toHaveLength(458);
-    expect(listedMoons()).toEqual(expected);
+    expect(listedMoons()).toEqual(expected.map((moon) => ({ ...moon, early: expect.any(Boolean) })));
   });
 
   it("is the committed output of its generator", () => {

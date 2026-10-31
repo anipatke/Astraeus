@@ -1,4 +1,5 @@
 import type { BodyId } from "../core/body";
+import { listedMoon, listedMoons as table } from "../core/bodies/listedMoons";
 
 /** A catalogued body the scene can draw. `requires` names the data package that must be passed to `mount` for it to be offered. */
 export interface BodyRef {
@@ -70,5 +71,19 @@ export const deimos = ref("deimos", "Deimos", "astraeus-data-mars");
 
 const READY_MADE: readonly BodyRef[] = [sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos];
 
-/** The ready-made reference for a catalogued id, so `addBody("titan")` knows Titan needs `astraeus-data-saturn`. */
-export const readyMade = (id: BodyId): BodyRef | undefined => READY_MADE.find((body) => body.id === id);
+/** The reference for a listed moon: its label and the data package (`astraeus-data-<planet>`) that holds its positions. */
+const moonRef = (id: BodyId): BodyRef | undefined => {
+  const moon = listedMoon(id);
+  return moon === undefined ? undefined : ref(moon.id, moon.label, moon.dataPackage);
+};
+
+/** The ready-made reference for a catalogued id, so `addBody("titan")` knows Titan needs `astraeus-data-saturn`. Every listed moon has one, made from the table. */
+export const readyMade = (id: BodyId): BodyRef | undefined => READY_MADE.find((body) => body.id === id) ?? moonRef(id);
+
+/**
+ * Every moon `addBody` takes by id, with the data package it needs (`requires`): the ready-made moons and all the others in the moon lists (458 in all),
+ * in list order by planet. Pass a planet id to list only its moons. Adding one costs nothing until a scene does.
+ */
+export function listedMoons(planet?: BodyId): readonly BodyRef[] {
+  return table().filter((moon) => planet === undefined || moon.parent === planet).map((moon) => readyMade(moon.id)!);
+}

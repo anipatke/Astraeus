@@ -1,8 +1,10 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "../core/body";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../core/bodies";
+import type { ListedMoonBody } from "../core/bodies/listedMoonBodies";
 import { buildElementsBody, type ElementsBodyRecord } from "../core/elementsBody";
 import { EARTH_ENTRY } from "./bodies/earth";
 import { GALILEAN_ENTRIES } from "./bodies/galileanMoons";
+import { listedMoonEntry } from "./bodies/listedMoons";
 import { IO_ENTRY } from "./bodies/io";
 import { JUPITER_ENTRY } from "./bodies/jupiter";
 import { MARS_ENTRY } from "./bodies/mars";
@@ -120,6 +122,13 @@ export function extendCatalogue(base: BodyCatalogue, records: readonly ElementsB
     [...base.sources(), ...built.map(({ body }) => body.binding)],
     visuals,
   );
+}
+
+/** A catalogue that holds everything `base` holds plus the listed moons given (each added to a scene on request; `base` is not changed). */
+export function extendCatalogueWithMoons(base: BodyCatalogue, moons: readonly ListedMoonBody[]): BodyCatalogue {
+  if (moons.length === 0) return base;
+  const visuals: VisualEntry[] = [...base.ids().map((id) => ({ body: id, visual: base.get(id).visual })), ...moons.map(listedMoonEntry)];
+  return createCatalogue([...base.definitions(), ...moons.map(({ definition }) => definition)], [...base.sources(), ...moons.map(({ binding }) => binding)], visuals);
 }
 
 /** The id of the catalogue's one root body (the one with no parent), the origin every chain ends at. */
