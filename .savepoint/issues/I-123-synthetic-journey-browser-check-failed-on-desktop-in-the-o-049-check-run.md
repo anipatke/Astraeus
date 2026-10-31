@@ -2,16 +2,22 @@
 id: I-123
 title: "Synthetic journey browser check failed on desktop in the O-049 check run"
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-130
   actor: {role: checker, session: o049-check-20261031}
   at: '2026-10-31T12:55:00Z'
 tasks: [T-212]
-checks: [C-130]
+checks: [C-130, C-131]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-131
+  actor: {role: checker, session: o049-recheck-20261031}
+  at: '2026-10-31T13:25:00Z'
+  reason: 'Fresh single npm run check:browser passed all 8 steps, smoke 18/18 incl. synthetic-journey desktop and phone (docs/evidence/browser-20261031T131212Z); journey seeks wait on the scene readouts (clock, bodies, named ids) via driver seekToReady.'
 history:
   - at: '2026-10-31T12:55:00Z'
     actor: {role: checker, session: o049-check-20261031}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o049-repair-20261031}
     kind: repair_attempted
     note: 'Cause: the journey check read the scene 1.5 s after a seek with a fixed sleep; with Uranus and five moons the chunk loads take longer on a loaded machine, so the body readout could still be empty. Fix is general: driver.mjs gains waitForSceneReady and seekToReady (poll the scene readouts until the clock shows where the slider settled, bodies are reported and named ids are drawn, 60 s limit, failure says what it last saw); every seek in browser-smoke.mjs now uses it in place of fixed sleeps. Also: sceneCatalogueReach.test.ts now fails on any new src/app function defaulting a catalogue parameter to the built-in one (allowlist with reasons). Fresh npm run check:browser passed every step (docs/evidence/browser-20261031T130145Z): synthetic-journey 72.8 s desktop, 71.3 s phone. Two earlier runs failed on my own first versions of the wait (compared the clock to an unsnapped instant); fixed. Journey time is still about 72 s, not back to 35 s: the time is Uranus data loading and the 60-step zoom loops, not the wait. Not closed; needs a Check.'
+  - at: '2026-10-31T13:25:00Z'
+    actor: {role: checker, session: o049-recheck-20261031}
+    kind: rechecked
+    note: 'C-131 CLEAR: driver seekToReady/waitForSceneReady verified on every journey seek; one fresh check:browser passed all steps (browser-20261031T131212Z), synthetic-journey 71.4 s desktop / 71.0 s phone. Time is not back near 35 s (T-212 near-Uranus case accounts for most of it); owner may accept the longer time. Sun-path seeks wait without a clock target (C-131 observation 1, non-blocking).'
+    check: C-131
 ---
 
 # I-123: Synthetic journey browser check failed on desktop in the O-049 check run
