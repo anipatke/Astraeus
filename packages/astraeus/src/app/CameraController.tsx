@@ -13,7 +13,9 @@ export type FocusId = string;
 /** Focus re-frames the target; follow keeps the current framing; overview frames Earth and Moon. */
 export type CameraRequest =
   | { readonly kind: "focus" | "follow"; readonly target: FocusId }
-  | { readonly kind: "overview" };
+  | { readonly kind: "overview" }
+  /** Holds the camera where it is: its target becomes the point it looks at now, fixed in the scene frame; the pose is kept. A later focus, follow or overview request replaces it. */
+  | { readonly kind: "hold" };
 
 export interface OrbitCameraState {
   azimuth: number;
@@ -24,6 +26,8 @@ export interface OrbitCameraState {
   distance: number;
   targetDistance: number;
   focus: FocusId;
+  /** Set by a `hold` request: the target stays at this scaled point (scene frame, render axes) whatever `focus` does, until a new focus request clears it. */
+  fixedPoint: [number, number, number] | null;
   /** Decaying offset that tweens the displayed target from the previous focus to the new one. */
   transition: [number, number, number];
   /** Scaled absolute camera/target positions (Float64, render axes) for the latest frame. */
@@ -40,6 +44,7 @@ export function createOrbitCameraState(distance: number, focus: FocusId): OrbitC
     distance,
     targetDistance: distance,
     focus,
+    fixedPoint: null,
     transition: [0, 0, 0],
     cameraAbsolute: [0, 0, 0],
     targetAbsolute: [0, 0, 0],
@@ -165,9 +170,10 @@ function pointerSpread(pointers: Map<number, { x: number; y: number }>): number 
 
 /** Starts a tween from the currently displayed target to a new focus without moving the camera. */
 export function switchFocus(state: OrbitCameraState, focus: FocusId, newTargetAbsolute: RenderVector): void {
-  if (focus === state.focus) return;
+  if (focus === state.focus && state.fixedPoint === null) return;
   for (let i = 0; i < 3; i += 1) state.transition[i] = state.targetAbsolute[i] - newTargetAbsolute[i];
   state.focus = focus;
+  state.fixedPoint = null;
 }
 
 /**

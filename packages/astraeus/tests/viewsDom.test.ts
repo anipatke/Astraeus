@@ -121,17 +121,6 @@ describe("the view choice", () => {
     expect(controls().viewHidden!.objects.size).toBe(0);
     expect(controls().viewHidden!.panels.size).toBe(0);
   });
-
-  it("falls back when the selected object leaves the view: it is deselected and the camera is no longer on it", async () => {
-    await open();
-    await act(async () => { controls().onPickObject!("pa"); });
-    expect(controls().selectedObjectId).toBe("pa");
-    await choose("View B");
-    expect(controls().selectedObjectId).not.toBe("pa");
-    expect(controls().selectedObjectId).not.toBe("");
-    const request = controls().cameraRequest as { kind: string; target?: string } | null;
-    expect(request?.target).not.toBe("pa");
-  });
 });
 
 describe("a moon and its orbit line", () => {

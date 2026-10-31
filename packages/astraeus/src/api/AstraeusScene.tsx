@@ -21,7 +21,9 @@ export interface AstraeusSceneProps {
   readonly time?: TimeInput;
   /** Sets the playback speed once drawn and whenever it changes; must be one of the speeds the timeline offers (or `"auto"`, to hand it back to the scene's pacing), else `bad-timeline` goes to `onError`. */
   readonly rate?: number | "auto";
-  /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the `time` / `rate` props. About ten times a second while playing. */
+  /** Switches to this view (an id from `setViews`) once drawn, and again whenever it changes. Not a controlled value: a visitor can switch too, and the view showing arrives through `onChange`. An unknown id, or a scene without views, reports `bad-view` to `onError`. */
+  readonly view?: string;
+  /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
@@ -40,7 +42,7 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, onChange, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange });
@@ -58,10 +60,11 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, onCha
     try {
       if (timeKey !== undefined) link.setTime(timeKey);
       if (rate !== undefined) link.setRate(rate);
+      if (view !== undefined) link.setView(view);
     } catch (cause) {
       latest.current.onError?.(asError(cause));
     }
-  }, [definition, link, timeKey, rate]);
+  }, [definition, link, timeKey, rate, view]);
 
   useEffect(() => {
     let open = true;

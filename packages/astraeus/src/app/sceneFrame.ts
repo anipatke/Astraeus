@@ -16,7 +16,7 @@ import { DEFAULT_FEATURE_MIN_BODY_PX, type FeatureHost, type FeatureMarkerLayer 
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PathView } from "./PathView";
 import type { RenderVector } from "./renderCoordinates";
-import { rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
+import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
 import type { SceneControls, SceneReadout, SceneRuntime } from "./AstraeusScene";
 import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
 import { focusRadius, liveReach, type SceneFrame } from "./sceneFraming";
@@ -28,7 +28,7 @@ import { placeBodyLights } from "./sceneLights";
 import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, type PickCandidate } from "./scenePicking";
 import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
-import { focusAbsoluteOf, labelPositionOf, type SceneTargets } from "./sceneTargets";
+import { labelPositionOf, type SceneTargets } from "./sceneTargets";
 import type { StoryMarkerLayer } from "./StoryMarkers";
 import { viewFromAngles } from "./viewLink";
 import { EQUATORIAL_UP } from "./viewUp";
@@ -195,7 +195,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   const reach = liveReach(runtime.cameraReach, policy, camera.aspect);
   const focusBody = stepCameraTarget({ camState: orbit, controls, targets, frame, catalogue, reach, fovDeg: camera.fov, viewUp, firstFrame, previousUp: state.lastUp });
   state.lastUp = viewUp;
-  resolveCamera(orbit, focusAbsoluteOf(targets, orbit.focus), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
+  resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
   if (firstFrame) requestAnimationFrame(() => hideBootLoader(state.coverShowing));

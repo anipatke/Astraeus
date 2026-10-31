@@ -49,6 +49,12 @@ export interface CameraStepInput {
 export function rescaleCameraForPolicy(camState: OrbitCameraState, sceneCenter: BodyId, factor: number): void {
   if (camState.focus === sceneCenter) camState.distance *= factor;
   for (let i = 0; i < 3; i += 1) camState.transition[i] *= factor;
+  if (camState.fixedPoint !== null) for (let i = 0; i < 3; i += 1) camState.fixedPoint[i] *= factor;
+}
+
+/** Where the camera's target is this frame: the held point after a `hold` request, else the focus. */
+export function cameraTargetAbsolute(camState: OrbitCameraState, targets: SceneTargets): RenderVector {
+  return camState.fixedPoint ?? focusAbsoluteOf(targets, camState.focus);
 }
 
 /** An explicit start view wins over the overview rule: the camera opens exactly there (the zoom limits still apply). */
@@ -111,6 +117,13 @@ function faceParent(camState: OrbitCameraState, targets: SceneTargets, viewUp: R
 
 function applyCameraRequest(input: CameraStepInput, request: CameraRequest): void {
   const { camState, targets, frame, catalogue, viewUp } = input;
+  if (request.kind === "hold") {
+    // The target stops where it is (including any tween still running); angles and distance are untouched. Scene-frame state only: nothing in State changes.
+    const now = cameraTargetAbsolute(camState, targets);
+    camState.fixedPoint = [now[0] + camState.transition[0], now[1] + camState.transition[1], now[2] + camState.transition[2]];
+    camState.transition.fill(0);
+    return;
+  }
   const target = request.kind === "overview" ? frame.centre : request.target;
   const targetBody = targets.bodyIdFor(target);
   switchFocus(camState, target, focusAbsoluteOf(targets, target));

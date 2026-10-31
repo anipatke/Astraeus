@@ -282,6 +282,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
+  const holdCamera = useCallback(() => { controls.current.cameraRequest = { kind: "hold" }; }, []);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
@@ -303,7 +304,19 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     setScale(id);
   }, [suppliedPolicies]);
 
-  const stateNow = useCallback((): ViewerState => ({ ...runtime.clock.snapshot(), ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }) }), [runtime]);
+  // The view showing is read from a ref set at the switch, so a publish right after a switch already names the new view.
+  const viewRef = useRef(viewId);
+  const chooseView = useCallback((id: string) => {
+    viewRef.current = id;
+    controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
+    setViewId(id);
+  }, [definition, experience]);
+  const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
+  const stateNow = useCallback((): ViewerState => ({
+    ...runtime.clock.snapshot(),
+    ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }),
+    ...(definition.views === undefined ? {} : { view: viewRef.current }),
+  }), [runtime, definition]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -332,9 +345,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   }, [runtime]);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate });
+    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView });
     return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -362,14 +375,13 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     if (view === undefined) return;
     setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
   };
-  const chooseView = (id: string) => {
-    controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
-    setViewId(id);
-  };
   const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
     place: definition.views.place,
     options: definition.views.views.map((view) => ({ id: view.id, label: view.label, active: view.id === currentView?.id })),
-    onSelect: chooseView,
+    onSelect: (id) => {
+      chooseView(id);
+      host?.publish(stateNow(), "visitor");
+    },
   };
   const displaySwitches = displaySwitchItems({
     settings: definition.displaySwitches,
@@ -582,6 +594,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
         host?.publish(stateNow(), "visitor");
       }}
       onCameraRequest={updateCameraRequest}
+      onCameraHold={holdCamera}
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}
@@ -589,6 +602,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
       switcher={switcherOf(definition, runtime, onOpenAddress)}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
+      viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
