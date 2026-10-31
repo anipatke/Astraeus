@@ -286,7 +286,7 @@ export class Scene {
   }
 
   #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
-    if (options.orbit === true && ORBITS[id] === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} and of any body that circles the Sun`);
+    if (options.orbit === true && ORBITS[id] === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
     if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${this.#catalogue.ids().join(", ")})`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
@@ -588,17 +588,19 @@ export class Scene {
   }
 
   /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
-  #fitFarthestKm(openUtcMs: number): (() => number) | undefined {
+  #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
     const id = this.camera.fitted;
     if (id === undefined) return undefined;
     let km: number | undefined;
-    return () => (km ??= farthestSunDistanceKm(this.#catalogue, id, openUtcMs, this.#own.get(id)));
+    const read = (): number => (km ??= farthestSunDistanceKm(this.#catalogue, id, openUtcMs, this.#own.get(id)));
+    if (planetSeriesLoaded()) read();
+    return { read, settle: () => void read() };
   }
 
   /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
   #sunPath(id: BodyId, openUtcMs: number): PathLayer {
     const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
-    if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within a dozen years and the catalogue does not know its period; add it with addBodyFromElements to draw its whole orbit`);
+    if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within thirty years and its position and the Sun's gravity do not give a bound ellipse; add it with addBodyFromElements to draw its whole orbit`);
     return layer;
   }
 
@@ -633,6 +635,8 @@ export class Scene {
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#sunOrbitIds(ids);
+    // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
+    const fit = this.#fitFarthestKm(startUtcMs);
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
     const sunPaths: PathLayer[] = this.#earlySunPaths(sunOrbitIds, startUtcMs);
     const target = this.camera.target;
@@ -669,7 +673,7 @@ export class Scene {
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
-      ...viewEntries(timeline, this.camera, this.#fitFarthestKm(startUtcMs)),
+      ...viewEntries(timeline, this.camera, fit?.read),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
@@ -682,6 +686,7 @@ export class Scene {
         if (this.#groups.size > layers.length) layers.push(...this.#groupLayers(ids, window, startUtcMs, late));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs)));
         this.#checkPlanetSpan(ids, window);
+        fit?.settle();
         await installData(data, ids, window);
       },
     };
