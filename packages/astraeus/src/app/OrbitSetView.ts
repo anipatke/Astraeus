@@ -32,6 +32,8 @@ const JUMP_SHARE = 0.25;
 const MIN_STEP_MS = 60_000;
 
 const VERTEX = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 attribute float aFamily;
 attribute float aSize;
 attribute float aFade;
@@ -48,11 +50,14 @@ void main() {
   float zoom = clamp((distanceRatio - 1.0) / (uFar - 1.0), 0.0, 1.0);
   vColor = vec4(uColors[family], aFade * min(1.0, (uBase + zoom * uBoost) * uGains[family]));
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  #include <logdepthbuf_vertex>
 }`;
 
 const FRAGMENT = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 varying vec4 vColor;
 void main() {
+  #include <logdepthbuf_fragment>
   gl_FragColor = vColor;
   #include <colorspace_fragment>
 }`;

@@ -17,6 +17,8 @@ const PICTURE_DIM = 0.04;
 /** A fixed render-frame direction used to read the sky back: where it lands on screen depends only on the camera orientation. */
 const PROBE_DIRECTION = new Vector3(0.62, 0.35, -0.7).normalize();
 
+// The sky shaders carry no log-depth chunks on purpose: both materials are drawn with depthTest and depthWrite off, so they never read or write depth
+// (their clip position is only used to place the sky on screen, which the logarithmic depth buffer leaves unchanged).
 const PICTURE_VERTEX = `
 varying vec2 vUv;
 void main() {

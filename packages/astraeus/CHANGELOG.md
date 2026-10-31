@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- A planet or moon near the camera now stays visible however far the camera has zoomed out (O-048 T-204, I-117). The renderer uses a logarithmic depth buffer, so a Sun-centred scene whose far plane reaches a 170 AU path no longer loses Saturn at 0.01 AU to depth precision. Every custom shader in the engine carries the log-depth chunks, and a test fails for one that does not.
+
 ## 0.5.0 (2026-10-31)
 
 First download of the packed example (`npm run measure:example`): 1,608,131 bytes raw, 457,845 bytes gzip (code and styles loaded on first open).

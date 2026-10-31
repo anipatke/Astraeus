@@ -2,9 +2,10 @@
 id: T-204
 objective: O-048
 title: Keep near planets visible at any zoom
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-204, reason: 'Owner said "orchestrate O48"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o048-run-20261031}, recorded_at: '2026-10-31T08:30:43Z'}
 planned_by: {role: planner, session: probe-feedback-2-20261031}
 ---
 
@@ -56,8 +57,22 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read/changed, limitations.
+Files changed: `packages/astraeus/src/app/AstraeusScene.tsx` (Canvas `gl`: `logarithmicDepthBuffer: true`), `OrbitSetView.ts` (VERTEX/FRAGMENT carry `common`, `logdepthbuf_pars_vertex`, `logdepthbuf_vertex`, `logdepthbuf_pars_fragment`, `logdepthbuf_fragment`), `SkyView.ts` (comment only), `packages/astraeus/CHANGELOG.md` (Unreleased), new `packages/astraeus/tests/logDepth.test.ts`. Extra reads: none beyond Context Files, plus `packages/astraeus/CHANGELOG.md` (to add the line), `tests/syntheticJourney.test.ts` (to reuse its 170 AU scene set-up) and three's `logdepthbuf_*` chunks in node_modules (to know what to include).
+
+Per criterion:
+- Renderer log depth: Canvas `gl={{ antialias: true, logarithmicDepthBuffer: true }}`, engine-wide; test "the Canvas asks for it" passes.
+- Shaders: OrbitSetView carries all chunks. SkyView's two ShaderMaterials (picture, stars) are left without them on purpose: both are `depthTest: false, depthWrite: false`, so they never read or write depth. PointsView, KeplerPoints and dotMaterial patch stock PointsMaterial via onBeforeCompile (replacing only `void main() {` and `begin_vertex`), so the built-in chunks stay; a test asserts they build via `dotMaterial(` and never replace the whole shader.
+- Guard test: `logDepth.test.ts` fails for any `new ShaderMaterial/RawShaderMaterial` in `src/app` missing the four chunks; the only allowlist entry is SkyView.ts (reason above) and the test also requires every material there to set `depthTest: false`.
+- Depth set-up (test prints it): Sun-centred, 170 AU path, desktop aspect 1.6, camera 0.01 AU from Saturn in the true-scale test policy: gap 234.81 units, Saturn radius 9.14, near 22.567 (0.1 x (gap - radius)), far 57,370,648 (whole-path reach, > 2 x path end), far/near about 2.5e6, mode logarithmic. For comparison a linear 24-bit buffer steps 1.5e-4 units at the gap but 26.4 units at 1e5 units from the camera (grows with distance squared).
+- Frame-time cost: NOT measured. The step forbids browser/headless 3D runs and no GPU exists in the unit environment. Expected cost: a few ALU ops per vertex/fragment, and early-Z is lost on fragments that write gl_FragDepth. Measure in the last step's `npm run check:browser` / owner look. No evidence of an unacceptable cost, and no shader that cannot carry log depth, so no REPLAN REQUIRED.
+- CHANGELOG: `Unreleased` entry added in `packages/astraeus/CHANGELOG.md`.
+
+Gates (lite): `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass (only the existing chunk-size warning), `npm test` 156 files / 1993 passed, 1 skipped. Focused: `tests/logDepth.test.ts` 4 passed.
+
+Limitations: nothing rendered in a browser, so that Saturn at 0.01 AU now draws, that the orbit lines depth-sort correctly with the new chunks, and the frame-time cost are unverified; those fall to the last step's browser check and owner look.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- Engine-wide logarithmic depth buffer (Canvas `gl.logarithmicDepthBuffer`); every custom ShaderMaterial in `src/app` must carry the log-depth chunks (SkyView exempt: depth off), guarded by `tests/logDepth.test.ts`. Design.md (Interfaces and Data Flow, presentation) needs one line; deferred to the last step.
