@@ -142,6 +142,8 @@ export interface MappedMoonFacts {
   /** Absent when the source prints a mass only. */
   readonly gmKm3S2?: number;
   readonly worstM: number;
+  /** Sidereal period about the centre, days, from the moon's mean-element record; absent where there is none. */
+  readonly orbitPeriodDays?: number;
   /** The years this moon's committed fits cover; absent means `MOON_FIT_SPAN`. */
   readonly span?: TimeBounds;
   /** The physical-properties lines of the Horizons header the numbers are read from. */
@@ -274,6 +276,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
         radiusKm: moon.radiusKm,
         ...(moon.gmKm3S2 === undefined ? {} : { gmKm3S2: moon.gmKm3S2 }),
         parentId: config.centre,
+        ...(moon.orbitPeriodDays === undefined ? {} : { orbitPeriodDays: moon.orbitPeriodDays }),
         orientation: "tidal-lock",
         accuracy: Object.freeze({
           dimensions: createProvenance({

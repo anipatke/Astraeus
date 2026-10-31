@@ -11,9 +11,9 @@ import { buildPackage, PACKAGES } from "./build-packages.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MB = 1_000_000;
 
-/** Limits in bytes (packed, unpacked) and file counts. The astraeus file count rose from 450 to 460 in O-047 T-201 (the pacing module) and to 462 in O-048 T-205 (the ring data and ring parse modules, kept apart from the moon lists so the catalogue visuals do not pull them into the first download). The four planet packages were raised in O-047 T-200 (main moons and planets fitted back to 1950: jupiter 30.9, saturn 53.5, uranus 40.6, neptune 18.5 MB packed). */
+/** Limits in bytes (packed, unpacked) and file counts. The astraeus file count rose from 450 to 460 in O-047 T-201 (the pacing module) to 462 in O-048 T-205 (the ring data and ring parse modules, kept apart from the moon lists so the catalogue visuals do not pull them into the first download) and to 464 in O-048 T-206 (the sidereal-period module, kept apart from the propagator so body definitions read a moon's period without loading it; one file and its declaration). The four planet packages were raised in O-047 T-200 (main moons and planets fitted back to 1950: jupiter 30.9, saturn 53.5, uranus 40.6, neptune 18.5 MB packed). */
 export const LIMITS = {
-  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB, files: 462 },
+  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB, files: 464 },
   "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 40 },
   "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
   "astraeus-data-saturn": { packed: 59 * MB, unpacked: 64 * MB, files: 7_000 },

@@ -43,6 +43,9 @@ export const MOON_EPHEMERIS: EphemerisRecord = {
   ],
 };
 
+/** One sidereal month, days: the Moon's period about Earth. */
+export const MOON_SIDEREAL_PERIOD_DAYS = 27.321661;
+
 export const MOON: CelestialBodyDefinition = Object.freeze({
   id: "moon",
   label: "Moon",
@@ -50,6 +53,8 @@ export const MOON: CelestialBodyDefinition = Object.freeze({
   radiusKm: 1737.4,
   gmKm3S2: 4902.800066,
   parentId: "earth",
+  orbitPeriodDays: MOON_SIDEREAL_PERIOD_DAYS,
+  orbitLineFades: true,
   orientation: "iau-rotation",
   accuracy: Object.freeze({
     dimensions: createProvenance({

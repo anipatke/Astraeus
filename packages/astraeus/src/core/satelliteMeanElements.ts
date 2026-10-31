@@ -8,7 +8,6 @@ import { createOrbTwoBodyAdapter } from "./twoBodyAdapter";
 const DEGREES = Math.PI / 180;
 const DAY_MS = 86_400_000;
 const UNIX_EPOCH_JD = 2440587.5;
-const DAYS_PER_YEAR = 365.25;
 
 /** The shape of a `data/orbits/*.json` record this module reads (only the fields it uses; the files carry more, such as citations and rotation). */
 export interface MeanElementRecord {
@@ -35,25 +34,8 @@ export interface MeanElementRecord {
   readonly bodyPhysical: { readonly gmKm3S2: number };
 }
 
-/**
- * How the table's period P becomes the rate of the mean longitude of a fixed ellipse.
- * `table`: P is already the sidereal period (the Saturn and Neptune rows; Mimas 0.942422 d is the known sidereal period).
- * `apsis-corrected`: P is the period of M alone and the periapsis also moves once round per `apsisPeriodYears`; the mean longitude
- * then turns once per 1 / (1/P - 1/Papsis), the rule Io's definition uses (the Jovian rows).
- */
-export type PeriodRule = "table" | "apsis-corrected" | "iau-rate";
-
-export function siderealPeriodDaysFor(record: MeanElementRecord, rule: PeriodRule): number {
-  const { periodDays, apsisPeriodYears } = record.elements;
-  if (rule === "table") return periodDays;
-  if (rule === "iau-rate") {
-    const rate = record.rotation?.primeMeridianDeg.perDay;
-    if (rate === undefined || rate === 0) throw new RangeError(`${record.id}: no IAU rotation rate`);
-    return 360 / Math.abs(rate);
-  }
-  if (apsisPeriodYears === null) throw new RangeError(`${record.id}: the table gives no period of the apsides`);
-  return 1 / (1 / periodDays - 1 / (apsisPeriodYears * DAYS_PER_YEAR));
-}
+import { siderealPeriodDaysFor, type PeriodRule } from "./siderealPeriod";
+export { siderealPeriodDaysFor, type PeriodRule };
 
 /** The instant the elements hold, UTC milliseconds: JD(TDB) taken as TT, less TT minus UTC. */
 export function epochUtcMsOf(record: MeanElementRecord): number {

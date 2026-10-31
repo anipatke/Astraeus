@@ -2,9 +2,10 @@
 id: T-206
 objective: O-048
 title: Draw any moon's orbit line
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-206, reason: 'Owner said "orchestrate O48"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o048-run-20261031}, recorded_at: '2026-10-31T08:44:04Z'}
 planned_by: {role: planner, session: probe-feedback-2-20261031}
 ---
 
@@ -53,8 +54,25 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read/changed, limitations.
+Executed 2026-10-31 (builder session; no Task Check, no browser run).
+
+Files read: scene.ts (ORBITS, #register, #moonPaths, #sunOrbitIds), compositions.ts, OrbitSetView.ts (period via osculating state over the body set; reuse rejected, see Drift), satelliteMeanElements.ts, moonSystem.ts, io.ts, moon.ts, planetMoons.ts, jupiterMoons.ts, sunOrbit.ts, moonOrbits.test.ts.
+
+Changed: packages/astraeus/src/core/body.ts (optional `orbitPeriodDays`, `orbitLineFades` on the definition); src/core/siderealPeriod.ts (new: period rule and `recordPeriodDays`, moved out of satelliteMeanElements.ts, which re-exports); core/bodies/moon.ts, io.ts, moonSystem.ts (`mappedMoon` takes `orbitPeriodDays`), jupiterMoons.ts, planetMoons.ts (period from each moon's data/orbits record by the record's own period rule); assets/compositions.ts (month from MOON_SIDEREAL_PERIOD_DAYS); api/scene.ts (ORBITS removed; `moonOrbitPath` rule over the catalogue definition); tests/moonOrbitLines.test.ts (new), tests/publicApi.test.ts (message); README addBody row; CHANGELOG Unreleased; tools/check-packs.mjs (astraeus file limit 462 to 464, noted).
+
+Criteria:
+- ORBITS replaced by a rule over the catalogue, period read once from the record (ARCH-05): moonOrbitPath; test "draws the Moon and Io exactly as before" asserts the same paths (Moon span SIDEREAL_MONTH_MS, no look; Io span IO_PERIOD_DAYS, endFadeOn false). PASS.
+- Europa (3.551 d), Titan and Mimas (small) draw about their planet; test over every catalogue moon with a period; Phobos refused with `no-orbit` at addBody naming the missing period; planet missing refused at toDefinition. PASS (tests/moonOrbitLines.test.ts 4/4).
+- Body-set layer reuse: stated in Drift. 
+- Tests on a made-up scene (a made-up data source providing all ids); README; CHANGELOG with size line. PASS.
+
+Gates (repo root): npm run lint pass; npm run typecheck pass; npm run build pass; npm test 158 files, 2002 passed, 1 skipped, 0 failed (final run after last change). First download 1,617,005 to 1,617,791 raw (+786), 460,652 to 460,895 gzip (+243).
+
+Not verified: no browser run (by instruction), so the lines of the new moons are not seen drawn; look for non-Moon moons is Io's (closed loop), not reviewed by eye. Phobos and Deimos have no mean-element record and are refused.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- CelestialBodyDefinition gains optional `orbitPeriodDays` (moon's sidereal period about its parent, from its record) and `orbitLineFades`; the scene's orbit-line rule reads them instead of a name list. New core/siderealPeriod.ts holds the period rule apart from the propagator. Deferred to the last step's Design.md reconciliation.
+- OrbitSetView (demos' body-set layer) is not reused: it samples a body set's own sources with a per-frame osculating period, in the app layer; the composition path takes one static span at toDefinition, so the catalogue period is the right input there. The two paths are separate by design.

@@ -122,6 +122,7 @@ export const IO: CelestialBodyDefinition = Object.freeze({
   radiusKm: 1821.49,
   gmKm3S2: 5959.9155,
   parentId: "jupiter",
+  orbitPeriodDays: IO_PERIOD_DAYS,
   orientation: "tidal-lock",
   accuracy: Object.freeze({
     dimensions: createProvenance({

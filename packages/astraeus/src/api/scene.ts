@@ -14,8 +14,7 @@ import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, extendCatalogue, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
-import { createComposition, SIDEREAL_MONTH_MS, type CompositionPath } from "../assets/compositions";
-import { IO_PERIOD_DAYS } from "../core/bodies/io";
+import { createComposition, type CompositionPath } from "../assets/compositions";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
@@ -81,11 +80,16 @@ export type ReadoutInput =
   | { readonly kind: "distance"; readonly to: BodyId }
   | { readonly kind: "altitude"; readonly above: BodyId };
 
-/** The orbits the engine can draw: the span one lap covers (the parent the line is measured from is the body's catalogue parent). */
-const ORBITS: Readonly<Record<string, { readonly path: Omit<CompositionPath, "body"> }>> = {
-  moon: { path: { spanMs: SIDEREAL_MONTH_MS } },
-  io: { path: { spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } } },
-};
+/**
+ * The orbit line of a catalogued moon, by one rule: one lap of the period its catalogue definition carries (`orbitPeriodDays`, read once from the record or mean
+ * elements), drawn about its parent. Undefined where the definition gives no period. A moon closes its loop (Io's look) unless its definition says its line fades (the Moon's, as before).
+ */
+function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId): Omit<CompositionPath, "body"> | undefined {
+  if (!catalogue.has(id)) return undefined;
+  const { orbitPeriodDays, orbitLineFades, parentId } = catalogue.get(id).definition;
+  if (orbitPeriodDays === undefined || parentId === undefined) return undefined;
+  return { spanMs: orbitPeriodDays * 86_400_000, ...(orbitLineFades === true ? {} : { look: { endFadeOn: false } }) };
+}
 
 /** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre, in equatorial J2000 (EQJ) axes unless the path says `plane: "ecliptic-j2000"`. */
 export interface TrajectorySampleInput {
@@ -299,7 +303,7 @@ export class Scene {
   }
 
   #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
-    if (options.orbit === true && ORBITS[id] === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of ${Object.keys(ORBITS).join(" and ")} and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
+    if (options.orbit === true && moonOrbitPath(this.#catalogue, id) === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
     if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${this.#catalogue.ids().join(", ")})`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
@@ -594,11 +598,11 @@ export class Scene {
 
   /** The engine's own orbit loops (the Moon's and Io's) the scene asked for. */
   #moonPaths(): readonly CompositionPath[] {
-    return [...this.#orbits].filter((id) => ORBITS[id] !== undefined).map((id): CompositionPath => {
-      const orbit = ORBITS[id]!;
+    return [...this.#orbits].filter((id) => moonOrbitPath(this.#catalogue, id) !== undefined).map((id): CompositionPath => {
+      const orbit = moonOrbitPath(this.#catalogue, id)!;
       const parent = this.#catalogue.get(id).definition.parentId;
       if (parent === undefined || !this.#bodies.has(parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`);
-      return { body: id, ...orbit.path };
+      return { body: id, ...orbit };
     });
   }
 
@@ -630,7 +634,7 @@ export class Scene {
 
   /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
   #sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
-    return [...this.#orbits].filter((id) => ORBITS[id] === undefined).map((id) => {
+    return [...this.#orbits].filter((id) => moonOrbitPath(this.#catalogue, id) === undefined).map((id) => {
       if (!ids.includes(rootBodyId(this.#catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
       if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
       return id;
