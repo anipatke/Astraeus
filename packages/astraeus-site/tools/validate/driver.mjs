@@ -414,6 +414,25 @@ export async function pickBodyWithCamera(page, bodyId, presetId) {
   await chooseCamera(page, presetId);
 }
 
+/** Resizes the page's viewport (a script's one way to test a second screen size on a loaded page); waits for the layout to settle. */
+export async function resizeViewport(page, size) { await page.setViewportSize(size); await page.waitForTimeout(600); }
+/** The timeline's gathered marker groups (O-050 T-214): { label, expanded, count, box } for each numbered mark, where count is the number the mark shows. */
+export const markerGroups = (page) => page.locator(".timeline-marker-group").evaluateAll((groups) => groups.map((group) => {
+  const toggle = group.querySelector(".timeline-group-toggle");
+  const box = toggle.getBoundingClientRect();
+  return { label: toggle.getAttribute("aria-label"), expanded: toggle.getAttribute("aria-expanded") === "true", count: Number(toggle.textContent), box: { x: box.x, y: box.y, width: box.width, height: box.height } };
+}));
+/** Presses a marker group's numbered mark by its position among the groups (opens or closes its list). */
+export const pressMarkerGroup = async (page, index) => (await reveal(page, page.locator(".timeline-group-toggle"))).nth(index).click();
+/** The open marker group's list: its box and, for each item, { label, timeUtcMs, box } (all in page pixels), plus the viewport size. Null when no list is open. */
+export const markerGroupList = (page) => page.evaluate(() => {
+  const list = document.querySelector(".timeline-group-list");
+  if (list === null) return null;
+  const rect = (element) => { const b = element.getBoundingClientRect(); return { x: b.x, y: b.y, width: b.width, height: b.height }; };
+  return { box: rect(list), viewport: { width: window.innerWidth, height: window.innerHeight }, items: [...list.querySelectorAll(".timeline-group-item")].map((item) => ({ label: item.getAttribute("aria-label"), timeUtcMs: Number(item.dataset.timeUtcMs), box: rect(item) })) };
+});
+/** Presses one item of the open marker group's list by its aria-label. */
+export const pressMarkerGroupItem = (page, label) => page.locator(`.timeline-group-item[aria-label="${label}"]`).click();
 /** Focuses the first marker on the timeline; whether it then shows its label. */
 export const focusFirstTimelineMarker = (page) => page.locator(".timeline-marker").first().focus();
 export const firstTimelineMarkerLabelVisible = (page) => page.locator(".timeline-marker").first().locator(".timeline-marker-label").isVisible();
@@ -602,9 +621,30 @@ export const storyPanelBadgeElement = (page) => page.locator(`${HOOK.storyPanel}
 /** The timeline's story-panel markers (a locator, for counts and attributes). */
 export const storyMarkers = (page, id) => id === undefined ? page.locator(HOOK.storyMarker) : page.locator(`${HOOK.storyMarker}[data-panel-id="${id}"]`);
 /** The id of the first story-panel marker on the timeline. */
-export const firstStoryMarkerId = (page) => storyMarkers(page).first().getAttribute("data-panel-id");
+export async function firstStoryMarkerId(page) {
+  if ((await storyMarkers(page).count()) > 0) return storyMarkers(page).first().getAttribute("data-panel-id");
+  return (await markerGroupPanelIds(page))[0]?.id; // a panel whose marker sits within 22 px of another gathers under a numbered mark (O-050 T-214): read it from the group lists
+}
 /** Presses a story panel's marker on the timeline. */
-export const openStoryPanel = (page, id, options) => storyMarkers(page, id).click(options);
+export async function openStoryPanel(page, id, options) {
+  if ((await storyMarkers(page, id).count()) > 0) return storyMarkers(page, id).click(options);
+  const found = (await markerGroupPanelIds(page)).find((entry) => entry.id === id);
+  if (found === undefined) return storyMarkers(page, id).click(options); // not gathered either: fail the way a missing marker always has
+  if ((await markerGroupList(page)) === null) await pressMarkerGroup(page, found.group);
+  return page.locator(`.timeline-group-item[data-panel-id="${id}"]`).click(options);
+}
+/** The story panels that sit under gathered marks: [{ id, group }] with group the index of the numbered mark holding it. Opens each list in turn to read it and leaves none open. */
+async function markerGroupPanelIds(page) {
+  const found = [];
+  const groups = await markerGroups(page);
+  for (let group = 0; group < groups.length; group += 1) {
+    await pressMarkerGroup(page, group);
+    const ids = await page.locator(".timeline-group-item[data-panel-id]").evaluateAll((items) => items.map((item) => item.getAttribute("data-panel-id")));
+    await pressMarkerGroup(page, group);
+    for (const id of ids) found.push({ id, group });
+  }
+  return found;
+}
 /**
  * The scene marker that carries a panel. Panels naming the same object share one marker (I-031); its
  * `data-panel-ids` lists them in time order.

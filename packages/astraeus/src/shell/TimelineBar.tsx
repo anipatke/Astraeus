@@ -170,7 +170,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 <ul className="timeline-group-list" aria-label="Markers close together">
                   {group.members.map((member) => (
                     <li key={member.key}>
-                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} onClick={() => { member.activate(); setOpenGroup(null); }}>{member.text}</button>
+                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} data-panel-id={member.kind === "panel" ? member.key : undefined} onClick={() => { member.activate(); setOpenGroup(null); }}>{member.text}</button>
                     </li>
                   ))}
                 </ul>

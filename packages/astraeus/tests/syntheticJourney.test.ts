@@ -64,7 +64,11 @@ describe("the made-up journey", () => {
   it("builds inside every body's years and frames the 170 AU end of the path", () => {
     const built = definition();
     expect(built.experience.window).toEqual({ startUtcMs: JOURNEY_LAUNCH_UTC_MS, endUtcMs: JOURNEY_END_UTC_MS });
-    expect(built.experience.events.map((event) => event.id)).toEqual(["traveller-jupiter", "traveller-saturn", "traveller-uranus"]);
+    expect(built.experience.events.map((event) => event.id)).toEqual(["traveller-io", "traveller-jupiter", "traveller-europa", "traveller-ganymede", "traveller-saturn", "traveller-uranus"]);
+    // O-050 T-217: one path drawn against the Sun, then Jupiter for 20 days either side of its pass, then the Sun; one menu entry
+    const traveller = built.trackedBodies![0]!;
+    expect((traveller.lineFixedTo as readonly { body: string; startUtcMs: number; endUtcMs: number }[]).map((s) => s.body)).toEqual(["sun", "jupiter", "sun"]);
+    expect(built.experience.objects.filter((object) => object.id === "traveller")).toHaveLength(1);
     const end = built.trackedBodies![0]!.trajectory.stateAt(JOURNEY_END_UTC_MS).positionKm;
     expect(Math.hypot(...end) / AU_KM).toBeCloseTo(JOURNEY_END_AU, 3);
     expect(cameraReachOf(built).cover!.farthestKm() / AU_KM).toBeCloseTo(2 * JOURNEY_END_AU, 1); // twice the farthest, so the whole path fits from any point of it
