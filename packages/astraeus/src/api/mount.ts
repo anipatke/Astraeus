@@ -28,8 +28,8 @@ export interface MountedScene {
   readonly rate: number | undefined;
   /** Moves the viewer to `time` (ISO text, a `Date` or Unix milliseconds). Outside the timeline throws `bad-time`; before `ready` or after `unmount` throws `missing-data`. */
   setTime(time: TimeInput): void;
-  /** Sets the playback speed to one of the speeds the timeline offers (`setTimeline({ rates })`); any other number throws `bad-timeline`. Before `ready` or after `unmount` throws `missing-data`. */
-  setRate(rate: number): void;
+  /** Sets the playback speed to one of the speeds the timeline offers (`setTimeline({ rates })`); any other number throws `bad-timeline`. `"auto"` gives the speed back to the scene's `setTimeline({ pacing })` (throws `bad-timeline` when it has none). Before `ready` or after `unmount` throws `missing-data`. */
+  setRate(rate: number | "auto"): void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }

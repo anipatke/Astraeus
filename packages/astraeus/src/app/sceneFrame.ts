@@ -9,6 +9,7 @@ import type { BodyParts } from "./BodyView";
 import { drawnRadii } from "./bodyDraw";
 import type { BodySetLabelLayer } from "./BodySetLabels";
 import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
+import { applyPacing } from "../core/pacing";
 import { poseCamera, resolveCamera, type OrbitCameraState } from "./CameraController";
 import { DEFAULT_CAMERA_FAR } from "./experienceDefinition";
 import { DEFAULT_FEATURE_MIN_BODY_PX, type FeatureHost, type FeatureMarkerLayer } from "./FeatureMarkers";
@@ -136,8 +137,9 @@ export function bodiesMounted(runtime: SceneRuntime, refs: BodyRefs): boolean {
 }
 
 /** Stage 0: the time of this frame; looping playback wraps inside its window first. */
-export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop">): number {
+export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop" | "paceAuto">): number {
   if (controls.loop === true && runtime.loopWindow !== undefined) runtime.clock.wrapWithin(runtime.loopWindow);
+  if (controls.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
   return runtime.clock.now();
 }
 

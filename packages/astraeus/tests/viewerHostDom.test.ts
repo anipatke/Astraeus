@@ -67,6 +67,7 @@ describe("the mount handle", () => {
     expect(codeOf(() => handle.setTime(startUtcMs - 1))).toBe("bad-time");
     expect(codeOf(() => handle.setTime("not a date"))).toBe("bad-time");
     expect(codeOf(() => handle.setRate(7))).toBe("bad-timeline");
+    expect(codeOf(() => handle.setRate("auto"))).toBe("bad-timeline"); // this scene has no pacing
     expect(handle.time).toBe(before);
     handle.unmount();
   });
@@ -143,7 +144,7 @@ describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
     let state = { timeUtcMs: MID, rate: RATES[0], playing: false };
-    const control = { window: { startUtcMs, endUtcMs }, rates: RATES, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; } };
+    const control = { window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; } };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");

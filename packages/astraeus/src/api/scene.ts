@@ -35,7 +35,7 @@ import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
-import { eventProvenanceOf, eventsOf, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -397,7 +397,7 @@ export class Scene {
     return this;
   }
 
-  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
+  /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`), `pacing` (playback that slows for encounters and speeds up for cruise: spans `{ from, to, rate }` and event rules `{ near: { type, within }, rate }`, easing between speeds; a speed the visitor or host picks wins until `setRate("auto")`; see `PacingInput`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#timeline = timelineOf(timeline);
     return this;
@@ -666,6 +666,7 @@ export class Scene {
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
+      ...pacingEntry(timeline, this.#events),
       ...groupLayersEntry(layers, this.#groups.size > 0, sunOrbitIds.length > 0),
       ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
       ...(this.#own.size === 0 ? {} : { catalogue: this.#catalogue }),
@@ -749,6 +750,12 @@ function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undef
     throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
   }
   return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
+}
+
+/** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */
+function pacingEntry(timeline: TimelineSetting | undefined, events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing"> {
+  const pacing = timeline === undefined ? undefined : pacingFor(timeline, events, timeline.rate ?? 60);
+  return pacing === undefined ? {} : { pacing };
 }
 
 /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */

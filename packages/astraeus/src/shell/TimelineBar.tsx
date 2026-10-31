@@ -2,7 +2,7 @@ import { useMemo, useState, type CSSProperties, type PointerEvent as ReactPointe
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact } from "./timelineModel";
+import { eventContextAt, eventPositionPercent, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -14,7 +14,9 @@ interface Props {
   readonly experience: ExperienceConfig;
   readonly snapshot: ClockSnapshot;
   readonly onTogglePlayback: () => void;
-  readonly onRateChange: (rate: number) => void;
+  readonly onRateChange: (rate: number | "auto") => void;
+  /** Present only for a scene with pacing: true while pacing sets the speed. The menu then gains an Auto choice, selected while it is. */
+  readonly paceAuto?: boolean | undefined;
   readonly onSeek: (timeUtcMs: number) => void;
   /** Story panels drawn as markers on the track; pressing one seeks to it and opens it. */
   readonly panels?: readonly StoryPanel[];
@@ -34,13 +36,31 @@ interface Props {
   readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
 }
 
+/** The Auto choice of the speed menu: just "Auto", or with the speed pacing is running at now. */
+function autoLabel(showRate: boolean, rate: number): string {
+  return showRate ? `Auto — ${formatRate(Math.round(rate * 10) / 10)}` : "Auto";
+}
+
+/** The speed menu: the scene's speeds, preceded by Auto in a scene with pacing (selected while pacing sets the speed). On a phone it shows each rate in a few characters; the speed slider in the drawer says it in words. */
+function SpeedMenu({ speeds, rate, paceAuto, compact, onRateChange }: { readonly speeds: ReturnType<typeof speedsOf>; readonly rate: number; readonly paceAuto: boolean | undefined; readonly compact: boolean; readonly onRateChange: Props["onRateChange"] }) {
+  return (
+    <label className="timeline-speed">
+      <span>Playback rate</span>
+      <select aria-label="Playback speed" title="Playback speed" value={paceAuto === true ? "auto" : rate} onChange={(event) => onRateChange(event.target.value === "auto" ? "auto" : Number(event.target.value))}>
+        {paceAuto !== undefined && <option value="auto">{autoLabel(paceAuto && !compact, rate)}</option>}
+        {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{compact ? formatRateCompact(speed.rate) : speed.label}</option>)}
+      </select>
+    </label>
+  );
+}
+
 /** The seek slider's spoken value: the time, with the activity window and its rate when one is running. */
 function seekValueText(timeUtcMs: number, activityNow: ReturnType<typeof activityAt>): string {
   if (activityNow === null || activityNow.window.rate === undefined) return formatUtcTimestamp(timeUtcMs);
   return `${formatUtcTimestamp(timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
   const gradients = useMemo(() => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }), [profile, glowLook]);
@@ -71,6 +91,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
     onSwipe: (direction) => drawer?.onOpenChange(direction === "up"),
   });
   const speedIndex = Math.max(0, speeds.findIndex((speed) => speed.rate === snapshot.rate));
+  const speedText = paceAuto === true ? autoLabel(true, snapshot.rate) : speeds[speedIndex]?.label;
 
   const scrubber = (
   <div className="timeline-scrubber">
@@ -186,13 +207,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           <span className="timeline-time-short" aria-hidden="true">{timestamp.slice(0, 16).replace("T", " ")}</span>
         </time>
 
-        <label className="timeline-speed">
-          <span>Playback rate</span>
-          <select aria-label="Playback speed" title="Playback speed" value={snapshot.rate} onChange={(event) => onRateChange(Number(event.target.value))}>
-            {/* On a phone the line is short, so the picker shows the rate in a few characters; the speed slider in the drawer says it in words. */}
-            {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{drawer === undefined ? speed.label : formatRateCompact(speed.rate)}</option>)}
-          </select>
-        </label>
+        <SpeedMenu speeds={speeds} rate={snapshot.rate} paceAuto={paceAuto} compact={drawer !== undefined} onRateChange={onRateChange} />
 
         {scrubber}
 
@@ -218,14 +233,14 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
               <input
                 type="range"
                 aria-label="Speed slider"
-                aria-valuetext={speeds[speedIndex]?.label}
+                aria-valuetext={speedText}
                 min={0}
                 max={speeds.length - 1}
                 step={1}
                 value={speedIndex}
                 onChange={(event) => { const next = speeds[Number(event.target.value)]; if (next !== undefined) onRateChange(next.rate); }}
               />
-              <output>{speeds[speedIndex]?.label}</output>
+              <output>{speedText}</output>
             </div>
             <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
           </div>

@@ -1,4 +1,5 @@
 import { createEvents, type TimelineEvent } from "../core/events";
+import type { PaceZone, Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
 import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../shell/storyPanels";
@@ -28,8 +29,23 @@ export interface AddEventsOptions {
  * or, when `rate` is given, runs on from there at that rate.
  */
 export type TimelineInput =
-  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined }
+  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined }
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
+
+/**
+ * One piece of a timeline's pacing. A span `{ from, to, rate }` plays at `rate` between two moments; an event rule `{ near: { type, within }, rate }` plays at `rate`
+ * within `within` seconds (simulated) of every event of that `type` (see `addEvents`). Outside every piece playback runs at the timeline's `rate`. Between a piece and
+ * what surrounds it the speed eases over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span). `rate` here is any positive number;
+ * it need not be one of the offered `rates`. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slower speed wins.
+ */
+export type PacingInput =
+  | { readonly from: TimeInput; readonly to: TimeInput; readonly rate: number; readonly ramp?: number }
+  | { readonly near: { readonly type: string; readonly within: number }; readonly rate: number; readonly ramp?: number };
+
+/** A checked pacing piece: moments as Unix milliseconds, seconds as milliseconds. */
+export type PacingPiece =
+  | { readonly fromUtcMs: number; readonly toUtcMs: number; readonly rate: number; readonly rampMs: number }
+  | { readonly type: string; readonly withinMs: number; readonly rate: number; readonly rampMs: number };
 
 /** What `setTimeline` was given, checked and converted. */
 export interface TimelineSetting {
@@ -38,6 +54,8 @@ export interface TimelineSetting {
   readonly rate?: number;
   /** Playback wraps from the end of the span to its start. */
   readonly loop?: boolean;
+  /** The checked pacing pieces (absent: none). */
+  readonly pacing?: readonly PacingPiece[];
   /** No timeline bar. */
   readonly none: boolean;
   /** For no timeline: the moment time is frozen at, or runs on from. */
@@ -93,7 +111,8 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   if (window.endUtcMs <= window.startUtcMs) throw bad("end must be after start");
   const rates = input.rates;
   if (rates !== undefined && (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))) throw bad("rates must be a non-empty list of positive numbers");
-  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
+  const pacing = pacingOf(input.pacing, bad);
+  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
 }
 
 /** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */
@@ -104,4 +123,53 @@ export function panelsOf(raw: StoryPanelsInput, lookup: PanelLookup): StoryPanel
     if (error instanceof StoryPanelError) throw new SceneError("bad-panels", `addStoryPanels: ${error.message}`);
     throw error;
   }
+}
+
+/** Checks `pacing`: each piece names the field that is wrong (`pacing[2].rate`); spans must not overlap. */
+function pacingOf(input: unknown, bad: (message: string) => SceneError): readonly PacingPiece[] | undefined {
+  if (input === undefined) return undefined;
+  if (!Array.isArray(input)) throw bad("pacing must be a list of { from, to, rate } and { near: { type, within }, rate }");
+  const positive = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value > 0;
+  const pieces = input.map((raw: unknown, index): PacingPiece => {
+    const at = `pacing[${index}]`;
+    if (typeof raw !== "object" || raw === null) throw bad(`${at} must be an object`);
+    const piece = raw as { from?: TimeInput; to?: TimeInput; near?: { type?: unknown; within?: unknown }; rate?: unknown; ramp?: unknown };
+    if (!positive(piece.rate)) throw bad(`${at}.rate must be a positive number, got ${String(piece.rate)}`);
+    if (piece.ramp !== undefined && !(typeof piece.ramp === "number" && Number.isFinite(piece.ramp) && piece.ramp >= 0)) throw bad(`${at}.ramp must be zero or more seconds, got ${String(piece.ramp)}`);
+    if (piece.near !== undefined) {
+      const { type, within } = piece.near;
+      if (typeof type !== "string" || type === "") throw bad(`${at}.near.type must be a non-empty event type`);
+      if (!positive(within)) throw bad(`${at}.near.within must be a positive number of seconds, got ${String(within)}`);
+      return { type, withinMs: within * 1000, rate: piece.rate, rampMs: (piece.ramp ?? within) * 1000 };
+    }
+    if (piece.from === undefined || piece.to === undefined) throw bad(`${at} needs { from, to, rate } or { near: { type, within }, rate }`);
+    const fromUtcMs = toUtcMs(piece.from, `setTimeline ${at}.from`);
+    const toUtcMsValue = toUtcMs(piece.to, `setTimeline ${at}.to`);
+    if (toUtcMsValue <= fromUtcMs) throw bad(`${at}.to must be after ${at}.from`);
+    return { fromUtcMs, toUtcMs: toUtcMsValue, rate: piece.rate, rampMs: piece.ramp === undefined ? (toUtcMsValue - fromUtcMs) / 10 : piece.ramp * 1000 };
+  });
+  const spans = pieces.flatMap((piece, index) => ("fromUtcMs" in piece ? [{ piece, index }] : [])).sort((a, b) => a.piece.fromUtcMs - b.piece.fromUtcMs);
+  for (let i = 1; i < spans.length; i += 1) {
+    if (spans[i]!.piece.fromUtcMs < spans[i - 1]!.piece.toUtcMs) throw bad(`pacing[${spans[i]!.index}] overlaps pacing[${spans[i - 1]!.index}]; spans may touch but not overlap`);
+  }
+  return pieces.length === 0 ? undefined : pieces;
+}
+
+/**
+ * The pacing the viewer runs, laid over the events: spans first (in time order), then one zone per event of each rule's type, the slowest last so it wins.
+ * A rule whose type has no event throws `bad-timeline` naming the piece (a mistyped type would otherwise slow nothing, silently).
+ */
+export function pacingFor(setting: TimelineSetting, events: readonly TimelineEvent[], baseRate: number): Pacing | undefined {
+  if (setting.pacing === undefined) return undefined;
+  const spans: PaceZone[] = [];
+  const near: PaceZone[] = [];
+  setting.pacing.forEach((piece, index) => {
+    if ("fromUtcMs" in piece) { spans.push({ fromUtcMs: piece.fromUtcMs, toUtcMs: piece.toUtcMs, rate: piece.rate, rampMs: piece.rampMs }); return; }
+    const matching = events.filter((event) => event.type === piece.type);
+    if (matching.length === 0) throw new SceneError("bad-timeline", `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`);
+    for (const event of matching) near.push({ fromUtcMs: event.timeUtcMs - piece.withinMs, toUtcMs: event.timeUtcMs + piece.withinMs, rate: piece.rate, rampMs: piece.rampMs });
+  });
+  spans.sort((a, b) => a.fromUtcMs - b.fromUtcMs);
+  near.sort((a, b) => b.rate - a.rate);
+  return { baseRate, zones: [...spans, ...near] };
 }

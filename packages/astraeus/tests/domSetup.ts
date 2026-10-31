@@ -125,7 +125,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     developerMode: developer,
     onDeveloperModeChange: setDeveloper,
     onTogglePlayback: () => { if (clock.playing) clock.pause(); else clock.play(); refresh(); },
-    onRateChange: (rate: number) => { clock.setRate(rate); refresh(); },
+    onRateChange: (rate: number | "auto") => { if (rate !== "auto") clock.setRate(rate); refresh(); },
     onSeek: (timeUtcMs: number) => { clock.seek(timeUtcMs); refresh(); },
     onCameraRequest: (request: ExperienceCameraPreset["request"]) => { probe.push(request); },
     onSelectionChange: (id: string) => { selected.current = id; probe.selected = id; },

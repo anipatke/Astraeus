@@ -77,7 +77,9 @@ interface Props {
   readonly developerMode: boolean;
   readonly onDeveloperModeChange: (enabled: boolean) => void;
   readonly onTogglePlayback: () => void;
-  readonly onRateChange: (rate: number) => void;
+  readonly onRateChange: (rate: number | "auto") => void;
+  /** Only for a scene with pacing: whether pacing sets the rate now (the speed menu then shows Auto). */
+  readonly paceAuto?: boolean | undefined;
   readonly onSeek: (timeUtcMs: number) => void;
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
   readonly onSelectionChange: (objectId: string) => void;
@@ -151,6 +153,7 @@ export function AstraeusShell({
   onDeveloperModeChange,
   onTogglePlayback,
   onRateChange,
+  paceAuto,
   onSeek,
   onCameraRequest,
   onSelectionChange,
@@ -367,6 +370,7 @@ export function AstraeusShell({
         snapshot={snapshot}
         onTogglePlayback={onTogglePlayback}
         onRateChange={onRateChange}
+        paceAuto={paceAuto}
         onSeek={seek}
         panels={storyPanels}
         openPanelId={openPanelId}

@@ -63,9 +63,20 @@ export class ViewerLink implements ViewerPort {
     this.publish(control.read(), "host");
   }
 
-  /** Only a speed the timeline offers is taken, so the speed picker always shows what is running; any other number throws `bad-timeline`. */
-  setRate(rate: number): void {
+  /**
+   * Only a speed the timeline offers is taken, so the speed picker always shows what is running; any other number throws `bad-timeline`.
+   * `"auto"` hands the rate back to the scene's pacing (`setTimeline({ pacing })`) and throws `bad-timeline` when the scene has none. The in-between speeds pacing
+   * runs at are never set through here; they arrive in `onChange` and `rate`.
+   */
+  setRate(rate: number | "auto"): void {
     const control = this.#open("setRate");
+    if (rate === "auto") {
+      if (!control.paced) throw new SceneError("bad-timeline", "setRate: \"auto\" needs a scene with pacing; give setTimeline({ pacing })");
+      control.setRate("auto");
+      this.#rateSource = "scene";
+      this.publish(control.read(), "host");
+      return;
+    }
     if (!control.rates.includes(rate)) throw new SceneError("bad-timeline", `setRate: ${String(rate)} is not one of the offered speeds (${control.rates.join(", ")}); offer it with setTimeline({ rates })`);
     control.setRate(rate);
     this.#rateSource = "chosen";
@@ -80,8 +91,9 @@ export class ViewerLink implements ViewerPort {
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     const last = this.#last;
-    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing) return;
-    if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
+    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto) return;
+    if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
+    else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
     const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, cause };
     for (const listener of [...this.#listeners]) listener(change);

@@ -19,8 +19,8 @@ export interface AstraeusSceneProps {
   readonly onError?: (error: Error) => void;
   /** Moves the viewer to this moment (ISO text, a `Date` or Unix milliseconds) once it is drawn, and again whenever the moment changes. Outside the timeline reports `bad-time` to `onError`. Not a controlled value: the viewer keeps running from there, so the current time arrives through `onChange`. */
   readonly time?: TimeInput;
-  /** Sets the playback speed once drawn and whenever it changes; must be one of the speeds the timeline offers, else `bad-timeline` goes to `onError`. */
-  readonly rate?: number;
+  /** Sets the playback speed once drawn and whenever it changes; must be one of the speeds the timeline offers (or `"auto"`, to hand it back to the scene's pacing), else `bad-timeline` goes to `onError`. */
+  readonly rate?: number | "auto";
   /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the `time` / `rate` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */

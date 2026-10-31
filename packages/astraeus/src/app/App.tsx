@@ -2,8 +2,9 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type React
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
+import { applyPacing } from "../core/pacing";
 import { openClock } from "./openClock";
-import type { ViewerPort } from "./viewerPort";
+import type { ViewerPort, ViewerState } from "./viewerPort";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
@@ -122,6 +123,7 @@ function buildRuntime(definition: ExperienceDefinition) {
       cameraReach: cameraReachOf(definition),
       sky: skySettingsOf(definition),
       loopWindow: definition.experience.window,
+      ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
       up: viewUpVector(startViewUp(definition)),
     };
 }
@@ -151,6 +153,7 @@ function initialSceneControls(
     cameraRequest: null,
     showAnchorLabels: labelStart(definition) === true && runtime.trackedBodies.length > 0,
     loop: loopFromSearch(search, definition.loop === true),
+    ...(definition.pacing === undefined ? {} : { paceAuto: true }),
     up: viewUpVector(startViewUp(definition)),
     showMilkyWay: runtime.sky.milkyWay,
     bodyMarker: markerSettingsFromSearch(search),
@@ -292,27 +295,35 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     setScale(id);
   }, [suppliedPolicies]);
 
+  const stateNow = useCallback((): ViewerState => ({ ...runtime.clock.snapshot(), ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }) }), [runtime]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
       if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
+      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
       setClockSnapshot(runtime.clock.snapshot());
-      host?.publish(runtime.clock.snapshot(), "playback");
+      host?.publish(stateNow(), "playback");
     }, 100);
     return () => window.clearInterval(id);
-  }, [runtime, host]);
+  }, [runtime, host, stateNow]);
   // The host reaches the one clock through the same seek and rate handlers a visitor's timeline uses.
   const seekTo = useCallback((timeUtcMs: number) => {
     runtime.clock.seek(timeUtcMs);
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
-  const changeRate = useCallback((rate: number) => {
-    runtime.clock.setRate(rate);
+  // A speed picked by the visitor or the host takes over from pacing; "auto" gives the rate back to it.
+  const [paceAuto, setPaceAuto] = useState(controls.current.paceAuto === true);
+  const changeRate = useCallback((rate: number | "auto") => {
+    if (rate === "auto") {
+      if (runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
+    } else runtime.clock.setRate(rate);
+    controls.current.paceAuto = rate === "auto";
+    setPaceAuto(rate === "auto");
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, read: () => runtime.clock.snapshot(), seek: seekTo, setRate: changeRate });
+    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate });
     return () => host.detach();
   }, [host, runtime, definition, seekTo, changeRate]);
 
@@ -535,21 +546,22 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     <AstraeusShell
       experience={shellExperience}
       snapshot={clockSnapshot}
+      paceAuto={runtime.pacing === undefined ? undefined : paceAuto}
       developerMode={developerMode}
       onDeveloperModeChange={setDeveloperMode}
       onTogglePlayback={() => {
         if (runtime.clock.playing) runtime.clock.pause();
         else runtime.clock.play();
         setClockSnapshot(runtime.clock.snapshot());
-        host?.publish(runtime.clock.snapshot(), "visitor");
+        host?.publish(stateNow(), "visitor");
       }}
       onRateChange={(rate) => {
         changeRate(rate);
-        host?.publish(runtime.clock.snapshot(), "visitor");
+        host?.publish(stateNow(), "visitor");
       }}
       onSeek={(timeUtcMs) => {
         seekTo(timeUtcMs);
-        host?.publish(runtime.clock.snapshot(), "visitor");
+        host?.publish(stateNow(), "visitor");
       }}
       onCameraRequest={updateCameraRequest}
       onSelectionChange={updateSelectedObject}

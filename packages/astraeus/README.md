@@ -84,7 +84,7 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.setScale(trueScale \| readableScale \| solarSystemScale, { only? })` | The opening scale; the viewer can switch to the other unless `{ only: true }` offers that scale alone. `solarSystemScale` (true distances, enlarged bodies drawn larger) needs a Sun-centred scene with an enlarged body, else `bad-scale`; such a scene offers it second in place of `readableScale`. |
 | `scene.addEvents(events, { provenance? })` | Timed events on the timeline: `[{ id, label, time, type?, provenance? }]`, ids unique. `provenance` says where the times come from; an event's own `provenance` wins over the batch's. A provenance `sourceType` is `ephemeris`, `observed`, `reconstructed`, `modelled` or `illustrative`; `modelled` is shown as "Modelled". Batch and per-event provenance are checked: a malformed one throws `bad-event`. May be called more than once. |
 | `scene.addStoryPanels({ pauseSeconds?, autoOpen?, panels })` | Story panels that open as playback reaches them: `{ id, at: { utc } \| { event } \| { anchor }, title, body, details?, badge, sources, object? }`. `badge` is `observed`, `modelled` or `illustrative`; `sources` is never empty. A mistake throws `bad-panels` naming the panel and field. |
-| `scene.setTimeline({ start, end, rates?, rate? })` | The timeline's span, the playback speeds offered (simulated seconds per real second) and the one it opens at. `{ none: true, at?, rate? }` draws no timeline bar: time is frozen at `at`, or runs on at `rate`. The speed menu shows exactly the `rates` you give (ascending), and no others; without `rates` it offers 1 minute, 1 hour and 1 day per second. |
+| `scene.setTimeline({ start, end, rates?, rate?, loop?, pacing? })` | The timeline's span, the playback speeds offered (simulated seconds per real second) and the one it opens at. `{ none: true, at?, rate? }` draws no timeline bar: time is frozen at `at`, or runs on at `rate`. The speed menu shows exactly the `rates` you give (ascending), and no others; without `rates` it offers 1 minute, 1 hour and 1 day per second. `pacing` slows playback for encounters and speeds it up for cruise, see "Paced playback" below. |
 | `scene.addActivity({ id, label, unit, start, end, samples, peak?, provenance?, type?, peakLabel? })` | A period of activity on the timeline: a rate curve `samples: [{ time, value }]` (at least two, sorted, inside `start` to `end`; straight lines between) that the timeline glows by, with an optional `peak` mark and `provenance: [{ start, end, provenance }]` for where each stretch comes from. A group's `readouts: [{ kind: "rate", activity? }]` shows the live rate (unavailable outside the period) against the peak on its card. Without `setTimeline` the timeline spans the activities. A repeated id or a bad curve, peak or source throws `bad-activity`; a rate readout with no activity is `bad-readout`. |
 | `scene.camera.setReach(distance)` | How far the viewer can zoom out, in Earth radii; labels reach as far, a path's own name (at its marker, switched by `labels`) included. A bad value throws `bad-camera`. The object the scene opens on (`camera.follow` or `camera.lookAt`) is selected, and a selected object's label wins every label collision: it is never the one hidden because it overlaps another. Other labels keep their priority order. `camera.follow` and `camera.lookAt` take `up: "ecliptic"` (default `"equatorial"`) to orbit about the ecliptic's pole; any other value throws `bad-camera`. `setTimeline` takes `loop: true` so playback wraps from the end to the start. |
 | `scene.camera.fitOrbit(body)` | Sets the farthest zoom-out so the whole orbit of a body that circles the Sun (a planet, the built-in comet, or one from `addBodyFromElements`, already added) fits the canvas from any view direction: 1.1 times its farthest Sun distance over the sine of the narrower half field of view. The fit follows the live canvas shape (a phone turning, a window resizing) and the far plane is 2.5 times the reach. The opening view is not moved, except that it is clamped to the limit like any other. Labels are not limited in a fitted scene. It and `setReach` set the same limit; the later call wins. A body that does not circle the Sun throws `bad-camera`; one not in the scene, `unknown-body`. `scene.camera.fitOrbit("c-2025-a1")` |
@@ -133,7 +133,7 @@ The viewer has one clock. A host page reads it, moves it and hears about changes
 |------|--------------|
 | `handle.time`, `handle.rate` | The clock now. `undefined` until `ready` has resolved and after `unmount`. |
 | `handle.setTime(time)` | Moves the viewer to `time` (ISO text, a `Date` or milliseconds). Outside the timeline throws `bad-time`. Before `ready` or after `unmount` throws `missing-data`. |
-| `handle.setRate(rate)` | Sets the speed to one the timeline offers (`setTimeline({ rates })`). Any other number throws `bad-timeline`: the speed menu always shows what is running, so a custom speed is refused, not added. |
+| `handle.setRate(rate)` | Sets the speed to one the timeline offers (`setTimeline({ rates })`). Any other number throws `bad-timeline`: the speed menu always shows what is running, so a custom speed is refused, not added. `handle.setRate("auto")` hands the speed back to the scene's pacing (below); without pacing it throws `bad-timeline`. |
 | `handle.onChange(fn)` or `mount(..., { onChange })` | `fn({ time, rate, playing, cause })` on every change; returns a function that stops it. `cause` is `playback` (the clock ran on; about ten calls a second while playing), `visitor` (someone used the timeline) or `host` (your own `setTime` or `setRate`). Nothing arrives after `unmount`. |
 | `<AstraeusScene time rate onChange />` | `time` and `rate` are applied once the viewer is drawn and again whenever their value changes (a new `Date` of the same moment does not seek again); they are not controlled values, so read the live time from `onChange`. A bad one goes to `onError`. |
 
@@ -148,6 +148,34 @@ const stop = mounted.onChange(({ time, cause }) => {
 ```
 
 The speed menu shows exactly the `rates` the scene gives (`setTimeline({ rates })`) and no others.
+
+### Paced playback
+
+A long journey wants fast cruising and slow encounters. `setTimeline` takes `pacing`, a list of pieces; outside every piece playback runs at the timeline's `rate`.
+
+| Piece | Meaning |
+|-------|---------|
+| `{ from, to, rate, ramp? }` | Plays at `rate` between the two moments. |
+| `{ near: { type, within }, rate, ramp? }` | Plays at `rate` within `within` seconds (simulated) of every event whose `type` matches (`addEvents`). |
+
+Speeds ease between pieces in log space over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span; `ramp: 0` steps), so a jump from cruise to encounter is smooth both ways. The paced speed depends only on the time, so seeking or looping lands on the right speed at once. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slower speed wins. A piece's `rate` is any positive number and need not be in `rates`. Mistakes throw `bad-timeline` naming the field (`pacing[1].rate`); an event `type` that matches no event is refused too, since a typo would otherwise slow nothing.
+
+With pacing the speed menu gains an **Auto** choice, selected from the start. Picking a speed (menu, or `setRate(number)`) takes over until the visitor chooses Auto or the host calls `setRate("auto")`. `onChange` reports the speed pacing runs at (`cause: "playback"`), and `handle.rate` reads it.
+
+```ts
+const scene = new Scene()
+  .addBody(earth)
+  .addEvents([{ id: "jupiter", label: "Jupiter flyby", time: "2030-06-01", type: "flyby" }])
+  .setTimeline({
+    start: "2030-01-01", end: "2031-01-01", rate: 86_400, rates: [3_600, 86_400, 604_800],
+    pacing: [
+      { from: "2030-02-01", to: "2030-04-01", rate: 604_800 },      // a week per second through the long coast
+      { near: { type: "flyby", within: 3 * 86_400 }, rate: 600 },    // ten minutes per second within 3 days of each flyby
+    ],
+  });
+mounted.setRate(3_600);   // the visitor's choice wins ...
+mounted.setRate("auto");  // ... until it is released
+```
 
 ## Inside someone else's page
 

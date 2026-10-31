@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
+import type { Pacing } from "../core/pacing";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
@@ -44,6 +45,8 @@ export interface SceneRuntime {
   /** The window looping playback wraps within: the experience's own timeline window. */
   readonly loopWindow?: { readonly startUtcMs: number; readonly endUtcMs: number };
   readonly clock: SimulationClock;
+  /** Paced playback (see `pacedRate`); absent: the clock keeps the rate it was given. */
+  readonly pacing?: Pacing;
   /** The one resolver every position in the scene comes from. */
   readonly resolver: StateResolver;
   /** The catalogue the bodies come from; absent means the built-in one. */
@@ -100,6 +103,8 @@ export interface SceneControls {
   illuminateAll: boolean;
   /** Looping playback is on (live; set from the experience, `?loop=` and Developer > Display settings). Needs `SceneRuntime.loopWindow`. */
   loop?: boolean;
+  /** Paced playback is in charge of the rate (live): true until a visitor or the host picks a speed, true again when they choose Auto. Meaningful with `SceneRuntime.pacing`. */
+  paceAuto?: boolean;
   /** The render-frame up vector now in force (live; Developer > Display settings). Absent: the runtime's own. Switching it re-poses the camera in place. */
   up?: RenderVector;
   /** Ids of objects whose label is switched off (live). Their objects stay listed and selectable. */

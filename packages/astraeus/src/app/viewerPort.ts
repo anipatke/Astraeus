@@ -6,6 +6,8 @@ export interface ViewerState {
   /** Simulated seconds per real second. */
   readonly rate: number;
   readonly playing: boolean;
+  /** Only in a scene with pacing: true while pacing sets the rate, false once a visitor or the host has picked a speed. */
+  readonly auto?: boolean;
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */
@@ -18,7 +20,10 @@ export interface ViewerControl {
   readonly rates: readonly number[];
   read(): ViewerState;
   seek(timeUtcMs: number): void;
-  setRate(rate: number): void;
+  /** True: the scene has pacing, so `"auto"` is a valid choice. */
+  readonly paced: boolean;
+  /** A number is a chosen speed; `"auto"` gives the rate back to the scene's pacing. */
+  setRate(rate: number | "auto"): void;
 }
 
 /** The viewer's side of the host link; the public API supplies the implementation (`ViewerLink`). */
