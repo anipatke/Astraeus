@@ -13,6 +13,10 @@ history:
     actor: {role: planner, session: voyager-feedback-20261030}
     kind: observed
     note: 'Reported from the Voyager downstream app (astraeus@0.3.0 from npm, public API only, JPL Horizons data), pasted by the owner.'
+  - at: '2026-10-31T12:00:00Z'
+    actor: {role: planner, session: probe-feedback-20261031}
+    kind: observed
+    note: 'Reported again from the probe app on 0.4.0: still blocks a host from steering time or rate; timeline pacing filed as I-112.'
 ---
 
 # I-099: The mounted viewer's time cannot be read or set from the host page
@@ -25,6 +29,7 @@ history:
 
 - Reported against 0.3.0.
 - Reporter's fix: add `time`, `setTime(t)` and `onTimeChange` to the mount handle and to `AstraeusScene` props.
+- 2026-10-31: still open on 0.4.0 per the probe app; a host also cannot read or set the playback rate. Pacing request filed as I-112.
 
 ## Proof Needed
 
