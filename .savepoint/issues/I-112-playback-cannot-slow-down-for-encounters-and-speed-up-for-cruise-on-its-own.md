@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o047-repair-20261031}
     kind: repair_attempted
     note: 'Out-of-scope repair after C-126, not verified. pacedRate now lays zones fastest first (cached sort) so the slowest applicable piece wins wherever zones meet, ramps included, whatever the listing order. Proof Needed scenario (cruise, ramp, override, Auto) and neighbours re-run: pacing.test.ts and pacingDom.test.ts pass; new test covers slow span with faster event rule inside, fast span with slower rule inside, two event rules, both listing orders, plus ramp continuity. README, PacingInput doc and CHANGELOG state the rule. Gates lint, typecheck, build, test pass; no browser run.'
+  - at: '2026-10-31T04:10:00Z'
+    actor: {role: checker, session: o047-recheck-20261031}
+    kind: rechecked
+    note: 'C-127: repair proven. Slow span with a faster event rule inside it (both listing orders, and inside the rule''s ramp), faster span with a slower rule, and two rules of different types all give the slowest rate; cruise exact, seek deterministic, hourly sweep continuous and within bounds. Stays open only because C-127 is NEEDS WORK on I-110; close as verified at the next CLEAR Check.'
+    check: C-127
 ---
 
 # I-112: Playback cannot slow down for encounters and speed up for cruise on its own
