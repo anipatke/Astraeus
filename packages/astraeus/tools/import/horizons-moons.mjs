@@ -118,7 +118,7 @@ async function listMoons(opts) {
 
 // ---------- 2. timescale ----------
 
-/** TT - UTC pieces from Horizons' TDB - UT (VEC_DELTA_T) sampled monthly: leap-second steps from 1972, straight lines before. */
+/** TT - UTC pieces from Horizons' TDB - UT (VEC_DELTA_T) sampled monthly: leap-second steps from 1972; before 1972 sampled daily, a straight line per month and per step. */
 async function timeScale(opts, fromS, toS) {
   const params = vectorParams({ command: CENTRE_COMMAND, center: ORIGIN, start: '1950-01-01', stop: '2050-01-01', step: '1 MONTHS', timeType: 'UT', table: '1', deltaT: true })
   const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline })
@@ -130,12 +130,43 @@ async function timeScale(opts, fromS, toS) {
   const leapEra = Date.UTC(1972, 0, 1)
   const pieces = []
   let worstResidual = 0
-  samples.forEach((sample, index) => {
-    if (sample.utcMs < leapEra) {
-      const next = samples[index + 1]
-      pieces.push({ fromUtcMs: sample.utcMs, ttMinusUtcS: Number(sample.ttMinusUtc.toFixed(6)), driftSPerDay: Number(((next.ttMinusUtc - sample.ttMinusUtc) / ((next.utcMs - sample.utcMs) / (DAY_S * 1000))).toExponential(9)) })
-      return
+  // Before 1972 UTC ran at a rate set for the year ("rubber seconds") and was stepped by 0.05 to 0.4 s, mostly on the first of a month
+  // but once (January 1962) mid-month. Monthly samples smear a step into the month that holds it: a straight line through it is up to
+  // 0.2 s off (a kilometre or more for Io), so the years before 1972 are sampled daily, a piece starts at each month and at each step
+  // day, and a piece that ends in a step takes its rate from the last sample before it (O-047 T-200).
+  const dailyText = await horizonsText(vectorParams({ command: CENTRE_COMMAND, center: ORIGIN, start: '1950-01-01', stop: '1972-01-01', step: '1 DAYS', timeType: 'UT', table: '1', deltaT: true }), { cacheDir: opts.cache, offline: opts.offline })
+  const daily = rowsOf(dailyText).map((row) => {
+    const utcMs = Math.round((row[0] - 2440587.5) * DAY_S * 1000)
+    const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + row[1]
+    return { utcMs, ttMinusUtc: row[1] - tdbMinusTtSeconds(tt) }
+  })
+  const STEP_S = 0.02
+  const LINE_TOLERANCE_S = 1e-5
+  const isStep = (i) => i > 0 && Math.abs(daily[i].ttMinusUtc - daily[i - 1].ttMinusUtc) > STEP_S
+  // Runs between steps; in each run, pieces as long as one straight line keeps within LINE_TOLERANCE_S (10 us, 0.2 m for Io) of the daily values.
+  const runEnds = daily.map((_, i) => i).filter((i) => i === daily.length - 1 || isStep(i + 1))
+  let runStart = 0
+  for (const runEnd of runEnds) {
+    let k = runStart
+    while (k <= runEnd && daily[k].utcMs < leapEra) {
+      const lineTo = (j) => (daily[j].ttMinusUtc - daily[k].ttMinusUtc) / (j - k)
+      let j = Math.min(k + 1, runEnd)
+      while (j < runEnd) {
+        const rate = lineTo(j + 1)
+        let within = true
+        for (let m = k + 1; m <= j && within; m += 1) within = Math.abs(daily[m].ttMinusUtc - daily[k].ttMinusUtc - rate * (m - k)) <= LINE_TOLERANCE_S
+        if (!within) break
+        j += 1
+      }
+      const rate = j > k ? lineTo(j) : pieces.at(-1)?.driftSPerDay ?? 0
+      pieces.push({ fromUtcMs: daily[k].utcMs, ttMinusUtcS: Number(daily[k].ttMinusUtc.toFixed(6)), driftSPerDay: Number(Number(rate).toExponential(9)) })
+      if (j >= runEnd) break
+      k = j
     }
+    runStart = runEnd + 1
+  }
+  samples.forEach((sample) => {
+    if (sample.utcMs < leapEra) return
     const stepped = 32.184 + Math.round(sample.ttMinusUtc - 32.184)
     worstResidual = Math.max(worstResidual, Math.abs(sample.ttMinusUtc - stepped))
     if (pieces.length === 0 || pieces.at(-1).ttMinusUtcS !== stepped || pieces.at(-1).driftSPerDay !== 0) pieces.push({ fromUtcMs: sample.utcMs, ttMinusUtcS: stepped, driftSPerDay: 0 })
@@ -148,7 +179,7 @@ async function timeScale(opts, fromS, toS) {
   return {
     table: { pieces: kept, validToUtcMs: Math.min(samples.at(-1).utcMs, Math.max(toMs, kept[0].fromUtcMs + 1)) },
     check: { samples: samples.length, worstResidualAfter1972S: worstResidual, note: 'Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050' },
-    source: `JPL Horizons API, COMMAND=${CENTRE_COMMAND} CENTER=${ORIGIN} VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01 (${headerOf(text).generated ?? 'time not printed'})`,
+    source: `JPL Horizons API, COMMAND=${CENTRE_COMMAND} CENTER=${ORIGIN} VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01, daily before 1972 (${headerOf(text).generated ?? 'time not printed'})`,
   }
 }
 

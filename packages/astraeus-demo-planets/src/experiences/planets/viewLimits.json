@@ -1,7 +1,7 @@
 {
-  "note": "The stated load limit of each outer planet's view, one source for tests/planetSystems.test.ts and tools/validate/load-budget.mjs (T-118, T-121): chunkBytes is the bytes of the fit chunks (the window's year plus the orbit-history years the load reaches back into); the index is the moon index it fetches (gzipped and raw). Measured 2026-10-21: Saturn 2.96 MB (799 chunks) with a 962 KB index (71 KB gzipped), Uranus 1.69 MB, Neptune 0.94 MB, Pluto 87 KB; each limit is about 10% over its measured figure, Saturn's equal to Jupiter's (about 3.3 MB of chunks, a 36 KB index).",
-  "saturn": { "chunkBytes": 3379200, "indexGzipBytes": 81920, "indexRawBytes": 1024000 },
-  "uranus": { "chunkBytes": 1894400, "indexGzipBytes": 16384, "indexRawBytes": 133120 },
-  "neptune": { "chunkBytes": 1054720, "indexGzipBytes": 12288, "indexRawBytes": 81920 },
+  "note": "The stated load limit of each outer planet's view, one source for tests/planetSystems.test.ts and tools/validate/load-budget.mjs (T-118, T-121): chunkBytes is the bytes of the fit chunks (the window's year plus the orbit-history years the load reaches back into); the index is the moon index it fetches (gzipped and raw). Measured 2026-10-21: Saturn 2.96 MB (799 chunks) with a 962 KB index (71 KB gzipped), Uranus 1.69 MB, Neptune 0.94 MB, Pluto 87 KB; each limit is about 10% over its measured figure, Saturn's equal to Jupiter's (about 3.3 MB of chunks, a 36 KB index). O-047 T-200: the main moons and the planet are fitted back to 1950, so the index lists 80 years of chunks for them and a longer time-scale table: Saturn index 1.10 MB raw (87 KB gzipped, was 986 KB / 73 KB), Uranus 200 KB (25 KB, was 117 KB / 14 KB), Neptune 138 KB (19 KB, was 71 KB / 9 KB); limits about 10% over.",
+  "saturn": { "chunkBytes": 3379200, "indexGzipBytes": 96000, "indexRawBytes": 1210000 },
+  "uranus": { "chunkBytes": 1894400, "indexGzipBytes": 28000, "indexRawBytes": 220000 },
+  "neptune": { "chunkBytes": 1054720, "indexGzipBytes": 21000, "indexRawBytes": 152000 },
   "pluto": { "chunkBytes": 102400, "indexGzipBytes": 6144, "indexRawBytes": 35840 }
 }

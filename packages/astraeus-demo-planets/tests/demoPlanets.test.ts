@@ -49,7 +49,7 @@ describe("the Jupiter view (browser-jupiter-io)", () => {
     const text = (id: string) => { const p = infoView(e, { kind: "object", id })!.provenance!; return [p.accuracy, p.notes, ...p.sources, ...(p.knownLimitations ?? [])].join(" "); };
     expect(text("jupiter")).toMatch(/flat in one colour/i);
     expect(text("io")).toMatch(/Horizons/i);
-    expect(text("io")).toMatch(/0\.0994 m/);
+    expect(text("io")).toMatch(/0\.1924 m/);
   });
 
   it("carries the tagged places of the four mapped moons only, each with its name, description and details, shown as Reconstructed", () => {

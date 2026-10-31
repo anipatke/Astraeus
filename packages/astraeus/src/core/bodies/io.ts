@@ -130,7 +130,7 @@ export const IO: CelestialBodyDefinition = Object.freeze({
       accuracy: "Mean radius 1821.49 km and GM 5959.9155 km^3/s^2 as printed in the Horizons header; Io is drawn as a sphere.",
       notes: "Gravitational parameter in km^3/s^2.",
     }),
-    position: fittedMoonPosition("Io", 0.0994),
+    position: fittedMoonPosition("Io", 0.1924, JUPITER_MOON_FIT_SPAN),
     validUtc: JUPITER_MOON_FIT_SPAN,
     orientationLimitations: Object.freeze([IO_TIDAL_LOCK_LIMITATION]),
   }),

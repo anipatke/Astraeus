@@ -49,15 +49,21 @@ describe("a window outside a body's span", () => {
     JUPITER_MOON_SYSTEM.install(null);
   });
 
-  it("holds all six shipped indexes to the span they always had (no per-body span; each answers over its chunks, 2010 to 2030)", () => {
+  it("holds every shipped index to the years its bodies' own spans name (the rest 2010 to 2030; T-200 moved the main moons to 1950)", () => {
+    const HISTORICAL = new Set(["io", "europa", "ganymede", "callisto", "jupiter", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "hyperion", "iapetus", "phoebe", "saturn",
+      "miranda", "ariel", "umbriel", "titania", "oberon", "uranus", "triton", "nereid", "neptune"]);
     for (const raw of [jupiterIndex, marsIndex, saturnIndex, uranusIndex, neptuneIndex, plutoIndex]) {
       const parsed = parseEphemerisIndex(raw);
-      expect(parsed.bodies.every((body) => body.span === undefined)).toBe(true);
       const set = new ChebyshevEphemeris(parsed);
       for (const body of parsed.bodies) {
         const bounds = set.boundsOf(body.id);
-        expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(Date.UTC(2009, 11, 1));
+        expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(Date.UTC(HISTORICAL.has(body.id) ? 1949 : 2009, 11, 1));
+        if (!HISTORICAL.has(body.id)) expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(Date.UTC(2009, 11, 1));
         expect(bounds.endUtcMs, body.id).toBeLessThanOrEqual(Date.UTC(2030, 0, 3));
+        if (body.span !== undefined) {
+          expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(body.span.startUtcMs);
+          expect(bounds.endUtcMs, body.id).toBeLessThanOrEqual(body.span.endUtcMs);
+        }
       }
     }
   });

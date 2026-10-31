@@ -1,7 +1,7 @@
 {
   "name": "astraeus-data-saturn",
   "version": "0.4.0",
-  "description": "Saturn's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030.",
+  "description": "Saturn's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030, the main moons and the planet from 1950.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

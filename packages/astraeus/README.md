@@ -149,12 +149,14 @@ First download: the packed `examples/hello-scene` loads 1,589,214 bytes (454,404
 
 ## What `astraeus-data` adds
 
-The engine alone draws the Sun, Earth, Moon and the eight planets with their pictures and positions for 2010 to 2030. Everything heavier is a separate, optional package you import and hand to `mount`, so you only download what you use. A moon-position package is thousands of small files; your build copies them as separate files and the page fetches only the ones for the time window on screen (each chunk URL ends `?no-inline`, so Vite does not paste them into your script):
+The engine alone draws the Sun, Earth, Moon and the eight planets with their pictures and positions for 1950 to 2045. Everything heavier is a separate, optional package you import and hand to `mount`, so you only download what you use. A moon-position package is thousands of small files; your build copies them as separate files and the page fetches only the ones for the time window on screen (each chunk URL ends `?no-inline`, so Vite does not paste them into your script):
 
 | Package | Adds | Download |
 |---|---|---|
 | `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way | about 39 MB |
-| `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` | Moon positions for that planet's system | 2 to 40 MB each |
+| `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` | Moon positions for that planet's system | 1.5 to 53 MB each (Saturn 53, Uranus 41, Jupiter 31, Neptune 19, Mars 5, Pluto 1.5) |
+
+Years each package covers: the main moons and the planet reach back to 1950 in `astraeus-data-jupiter` (Io, Europa, Ganymede, Callisto), `-saturn` (Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus, Phoebe), `-uranus` (Miranda, Ariel, Umbriel, Titania, Oberon) and `-neptune` (Triton, Nereid), 1950 to 2030; every other moon, and all of `-mars` and `-pluto`, covers 2010 to 2030. A scene whose timeline reaches outside a body's years fails once at mount with `SceneError` code `out-of-span`.
 
 ```js
 import { Scene, jupiter, io, mount } from "astraeus";

@@ -43,10 +43,10 @@ Measured with `npm pack` of the spike; limits are about 10% above measured. The 
 |---|---|---|
 | `astraeus` | 10.5 MB / 12.0 MB / 387 | 12 MB / 14 MB / 450 |
 | `astraeus-data` (pictures only, option A) | about 35 MB / 35.1 MB / about 20 | 39 MB / 39 MB / 40 |
-| `astraeus-data-jupiter` | about 22.9 MB | 25 MB, 2,400 files |
-| `astraeus-data-saturn` | about 40.0 MB | 44 MB, 6,000 files |
-| `astraeus-data-uranus` | about 32.6 MB | 36 MB, 700 files |
-| `astraeus-data-neptune` | about 17.8 MB | 20 MB, 400 files |
+| `astraeus-data-jupiter` | about 22.9 MB (30.9 MB with the Galilean moons back to 1950, O-047 T-200) | 34 MB, 2,900 files |
+| `astraeus-data-saturn` | about 40.0 MB (53.5 MB with nine moons and Saturn back to 1950, O-047 T-200) | 59 MB, 7,000 files |
+| `astraeus-data-uranus` | about 32.6 MB (40.6 MB with five moons and Uranus back to 1950, O-047 T-200) | 45 MB, 1,050 files |
+| `astraeus-data-neptune` | about 17.8 MB (18.5 MB with Triton, Nereid and Neptune back to 1950, O-047 T-200) | 20.5 MB, 580 files |
 | `astraeus-data-mars` | about 5.5 MB | 6.1 MB, 80 files |
 | `astraeus-data-pluto` | about 1.8 MB | 2 MB, 140 files |
 | Single `astraeus-data` (if you refuse A) | 146.0 MB / 155.7 MB / 9,297 | 160 MB / 171 MB / 9,400 |

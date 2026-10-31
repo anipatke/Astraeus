@@ -71,9 +71,18 @@ const orbText = readFileSync(orbTimePath, "utf8");
 const LEAPS = [...orbText.matchAll(/\[Date\.UTC\((\d+), (\d+), (\d+)\), (\d+)\]/g)].map((m) => [Date.UTC(+m[1], +m[2], +m[3]), +m[4]]);
 const orbDelta = (ms) => new Time(new Date(ms)).tt_minus_utc();
 const PRE_FROM = FROM_MS;
-const preSlope = (orbDelta(LEAPS[0][0] - 86_400_000) - orbDelta(PRE_FROM)) / ((LEAPS[0][0] - 86_400_000 - PRE_FROM) / 86_400_000);
+// Before the first leap second Orb's TT - UTC is a smooth polynomial; one straight line over 1950 to 1972 is seconds off at its middle (O-047 T-200),
+// so the table holds a piece per month, each joining Orb's values at its two ends (monthly pieces follow the polynomial to a microsecond or so).
+const preEnd = LEAPS[0][0];
+const prePieces = [];
+for (let from = PRE_FROM; from < preEnd; ) {
+  const d = new Date(from);
+  const next = Math.min(preEnd, Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+  prePieces.push({ fromUtcMs: from, ttMinusUtcS: Math.round(orbDelta(from) * 1e6) / 1e6, driftSPerDay: Math.round(((orbDelta(next) - orbDelta(from)) / ((next - from) / 86_400_000)) * 1e9) / 1e9 });
+  from = next;
+}
 const TIME_TABLE = {
-  pieces: [{ fromUtcMs: PRE_FROM, ttMinusUtcS: Math.round(orbDelta(PRE_FROM) * 1e6) / 1e6, driftSPerDay: Math.round(preSlope * 1e9) / 1e9 },
+  pieces: [...prePieces,
     ...LEAPS.map(([fromUtcMs, tai]) => ({ fromUtcMs, ttMinusUtcS: 32.184 + tai, driftSPerDay: 0 }))],
   validToUtcMs: Date.UTC(2045, 0, 1),
 };
@@ -131,6 +140,10 @@ function worstError(model, coefficients, startS, lengthS, count, dates) {
 
 const START_S = ttSecondsOf(FROM_MS);
 const SPAN_S = ttSecondsOf(TO_MS - 1) - START_S;
+// The segment grid is anchored at the original 1969-01-01 start: an earlier --from only prepends whole segments, so the coefficients for 1969 on are the same
+// bytes as before (O-047 T-200; tests and demos compare against positions at metre level) and the fit choice is made over the original span.
+const ANCHOR_S = ttSecondsOf(Date.UTC(1969, 0, 1));
+const ANCHOR_SPAN_S = ttSecondsOf(TO_MS - 1) - ANCHOR_S;
 
 /**
  * The Pluto system barycentre's heliocentric ecliptic-J2000 km from Horizons (body 9 about the Sun) every 6 hours over the span plus margin, as a
@@ -140,7 +153,7 @@ const SPAN_S = ttSecondsOf(TO_MS - 1) - START_S;
 async function plutoFromHorizons() {
   const cacheDir = join(dirname(fileURLToPath(import.meta.url)), ".horizons-cache");
   const stepS = 21_600;
-  const firstS = Math.floor(START_S / stepS) * stepS - 10 * stepS;
+  const firstS = Math.floor((START_S - 400 * DAY_S) / stepS) * stepS - 10 * stepS;
   // The last segment of a fit reaches past the span by up to its length (365 days at most): sample that far too, never extrapolate.
   const count = Math.ceil((START_S + SPAN_S + 400 * DAY_S - firstS) / stepS) + 12;
   const perRequest = MAX_ROWS - 1;
@@ -182,10 +195,12 @@ function testDates(startS, endS, step) {
 
 function fitWhole(model, lengthDays, count) {
   const lengthS = lengthDays * DAY_S;
-  const segments = Math.ceil(SPAN_S / lengthS);
+  const before = Math.ceil(Math.max(0, ANCHOR_S - START_S) / lengthS);
+  const startS = ANCHOR_S - before * lengthS;
+  const segments = before + Math.ceil(ANCHOR_SPAN_S / lengthS);
   const coefficients = new Float64Array(segments * 3 * count);
-  for (let i = 0; i < segments; i += 1) coefficients.set(fitSegment(model, START_S + i * lengthS, lengthS, count), i * 3 * count);
-  return { lengthS, segments, coefficients: quantise(coefficients) };
+  for (let i = 0; i < segments; i += 1) coefficients.set(fitSegment(model, startS + i * lengthS, lengthS, count), i * 3 * count);
+  return { lengthS, segments, startS, coefficients: quantise(coefficients) };
 }
 
 /** Cheap search on a few probe segments spread over the span: fewest bytes per day within half the target. */
@@ -198,7 +213,7 @@ function choose(model) {
       let bytes = 0;
       const probes = 12;
       for (let p = 0; p < probes; p += 1) {
-        const startS = START_S + Math.floor(((SPAN_S - lengthS) / probes) * p);
+        const startS = ANCHOR_S + Math.floor(((ANCHOR_SPAN_S - lengthS) / probes) * p);
         const coefficients = quantise(fitSegment(model, startS, lengthS, count));
         worst = Math.max(worst, worstError(model, coefficients, startS, lengthS, count, testDates(startS, startS + lengthS, lengthS / 40)));
         bytes += encodeChunk({ startTdbS: 0, segmentCount: 1, coefficientCount: count, quantumKm: QUANTUM_KM, coefficients }).length - 20;
@@ -227,16 +242,16 @@ for (const id of Object.keys(MODELS)) {
   // The whole-span check is independent of the fit nodes; if it exceeds the target, raise the degree.
   for (;;) {
     fit = fitWhole(model, attempt.lengthDays, attempt.count);
-    worst = worstError(model, fit.coefficients, START_S, fit.lengthS, attempt.count, testDates(START_S, START_S + SPAN_S, 3.0137 * DAY_S));
+    worst = worstError(model, fit.coefficients, fit.startS, fit.lengthS, attempt.count, testDates(START_S, START_S + SPAN_S, 3.0137 * DAY_S));
     if (worst <= TARGET_KM) break;
     if (attempt.count > 60) throw new Error(`${id}: no degree up to 60 reaches ${TARGET_KM} km (segment ${attempt.lengthDays} d, worst ${worst} km)`);
     attempt = { ...attempt, count: attempt.count + 1 };
   }
-  const bytes = encodeChunk({ startTdbS: START_S, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, coefficients: fit.coefficients });
+  const bytes = encodeChunk({ startTdbS: fit.startS, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, coefficients: fit.coefficients });
   totalBytes += bytes.length;
   totalGzip += gzipSync(bytes).length;
   report.planets[id] = { segmentDays: attempt.lengthDays, coefficientsPerAxis: attempt.count, segments: fit.segments, bytes: bytes.length, base64Bytes: Math.ceil(bytes.length / 3) * 4, worstErrorKm: Number(worst.toFixed(4)) };
-  out.planets[id] = { startS: START_S, segmentSeconds: fit.lengthS, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, worstErrorKm: Number(worst.toFixed(3)), data: Buffer.from(bytes).toString("base64") };
+  out.planets[id] = { startS: fit.startS, segmentSeconds: fit.lengthS, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, worstErrorKm: Number(worst.toFixed(3)), data: Buffer.from(bytes).toString("base64") };
   console.log(id, JSON.stringify(report.planets[id]));
 }
 report.totalBytes = totalBytes;

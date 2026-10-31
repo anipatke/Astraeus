@@ -1,6 +1,6 @@
 # astraeus-data-saturn
 
-Saturn's moon positions for the [Astraeus](https://github.com/anipatke/Astraeus) engine: every moon JPL Horizons lists for Saturn, and Saturn itself, as piecewise Chebyshev fits about the system barycentre (geometric, ICRF, TDB), one file per body per calendar year, 2010 to 2030. The measured fit errors are in `index.json`.
+Saturn's moon positions for the [Astraeus](https://github.com/anipatke/Astraeus) engine: every moon JPL Horizons lists for Saturn, and Saturn itself, as piecewise Chebyshev fits about the system barycentre (geometric, ICRF, TDB), one file per body per calendar year, 2010 to 2030, except Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus and Phoebe, and Saturn itself, which are fitted from 1950 (1950 to 2030). Each body's own years are its `span` in `index.json` (the other moons 2010 to 2030 (Cassini-era moons end where Horizons' coverage ends)); a scene whose timeline reaches outside a body's years fails once at mount with `SceneError` code `out-of-span`. The measured fit errors are in `index.json`.
 
 ```ts
 import { mount, Scene, mimas, saturn } from "astraeus";

@@ -46,7 +46,7 @@ export function planetSeriesSpan(): TimeBounds {
 /**
  * The planet models from the stored curve fits (`data/ephemerides/planets/`, O-025 T-101): heliocentric ecliptic-J2000 positions as piecewise
  * Chebyshev series in TT, refitted from Orb's full VSOP87A series within 1 km (Pluto: fitted to Horizons states; tools/import/planet-fits.mjs). UTC to TT uses the table stored
- * beside them. Dates outside the fitted span (1969 to 2045) throw rather than extrapolate. Only planetSeries.ts imports this, lazily.
+ * beside them. Dates outside the fitted span (1950 to 2045) throw rather than extrapolate. Only planetSeries.ts imports this, lazily.
  */
 export function createPlanetModels(): PlanetModels {
   const table = fits.timeScale as TimeScaleTable;

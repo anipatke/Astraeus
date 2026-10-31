@@ -56,7 +56,7 @@ export const PLUTO_EPHEMERIS: EphemerisRecord = {
   provenance: createProvenance({
     sourceType: "ephemeris",
     sources: ["JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=9 (Pluto system barycentre) CENTER=500@10, VECTORS geometric ICRF km TDB, fetched 2026-10-20, fitted as piecewise Chebyshev series (tools/import/planet-fits.mjs); US Government work, credit NASA/JPL-Caltech Solar System Dynamics"],
-    accuracy: "The system barycentre reproduces Horizons within 1 km at independent dates 1969 to 2045. Pluto's centre is that point plus its own offset from the system's fits (within a metre 2010 to 2030); with the system not loaded Pluto is drawn at the barycentre, up to about 2,100 km from its centre.",
+    accuracy: "The system barycentre reproduces Horizons within 1 km at independent dates 1950 to 2045. Pluto's centre is that point plus its own offset from the system's fits (within a metre 2010 to 2030); with the system not loaded Pluto is drawn at the barycentre, up to about 2,100 km from its centre.",
     notes: "Geometric position about the Sun's centre; no light-time or aberration.",
   }),
   knownLimitations: ["No velocity is modelled for planets, so they have no speed readout.", "Until Pluto's system fits are loaded Pluto sits at the system barycentre, up to about 2,100 km from its centre."],

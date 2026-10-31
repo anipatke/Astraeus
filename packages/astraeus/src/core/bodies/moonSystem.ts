@@ -15,6 +15,13 @@ import type { TimeBounds, Trajectory } from "../trajectory";
 
 /** The span the committed fits cover (T-096, T-114: 2010-01-01 to 2030-01-01 TDB, chunked per calendar year; the same for every system). */
 export const MOON_FIT_SPAN: TimeBounds = Object.freeze({ startUtcMs: Date.UTC(2010, 0, 1, 0, 2), endUtcMs: Date.UTC(2029, 11, 31, 23, 58) });
+/**
+ * The span of the main moons fitted back to 1950 (O-047 T-200). A mapped moon names which span its data holds with `MappedMoonFacts.span`;
+ * `tests/moonSpans.test.ts` compares every static span with the shipped index, so this is never a second source of truth that can drift.
+ */
+export const HISTORICAL_MOON_FIT_SPAN: TimeBounds = Object.freeze({ startUtcMs: Date.UTC(1950, 0, 1, 0, 2), endUtcMs: MOON_FIT_SPAN.endUtcMs });
+
+const spanYears = (span: TimeBounds): string => `${new Date(span.startUtcMs + 300_000).getUTCFullYear()}-${new Date(span.endUtcMs + 300_000).getUTCFullYear()}`;
 
 /** A scene's window reaches outside the years a loaded moon's positions cover (O-047 T-195): named once, at load, instead of a throw on every frame. */
 export class MoonOutOfSpanError extends RangeError {
@@ -119,7 +126,7 @@ export interface MoonSystem {
   trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory;
   binding(body: BodyId, rotation?: IauRotationElements): StateSourceBinding;
   /** What a mapped moon's record says about its position, with its own worst figure from the fit check. */
-  position(label: string, worstM: number): ReturnType<typeof createProvenance>;
+  position(label: string, worstM: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
   /** The note said of every mapped moon whose face is held towards the centre. */
   readonly tidalLockNote: string;
   /** A mapped moon: sphere, tidal lock, valid for the fit span. */
@@ -133,6 +140,8 @@ export interface MappedMoonFacts {
   /** Absent when the source prints a mass only. */
   readonly gmKm3S2?: number;
   readonly worstM: number;
+  /** The years this moon's committed fits cover; absent means `MOON_FIT_SPAN`. */
+  readonly span?: TimeBounds;
   /** The physical-properties lines of the Horizons header the numbers are read from. */
   readonly header: string;
   /** Overrides the default dimensions sentence (a moon drawn at its mean radius that is not printed as one). */
@@ -186,11 +195,11 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
   });
 
-  const position = (label: string, worstM: number) => createProvenance({
+  const position = (label: string, worstM: number, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
     sourceType: "ephemeris",
     sources: [config.fitSource],
-    accuracy: `${label}'s position is JPL Horizons' (ephemeris ${config.ephemerisName}), reproduced by curve fits to within ${worstM} m at 1,001 checked dates 2010-2030. Horizons' own uncertainty is not stated in its output.`,
-    notes: `Geometric position about ${config.centreLabel}'s centre; no light-time. Valid 2010-2030, the span of the committed fits.`,
+    accuracy: `${label}'s position is JPL Horizons' (ephemeris ${config.ephemerisName}), reproduced by curve fits to within ${worstM} m at independent checked dates over ${spanYears(span)}. Horizons' own uncertainty is not stated in its output.`,
+    notes: `Geometric position about ${config.centreLabel}'s centre; no light-time. Valid ${spanYears(span)}, the span of this body's committed fits.`,
   });
 
   return Object.freeze({
@@ -260,8 +269,8 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
             accuracy: moon.dimensionsNote ?? `Mean radius ${moon.radiusKm} km and GM ${moon.gmKm3S2} km^3/s^2 as printed in the Horizons header; ${moon.label} is drawn as a sphere.`,
             notes: "Gravitational parameter in km^3/s^2.",
           }),
-          position: position(moon.label, moon.worstM),
-          validUtc: MOON_FIT_SPAN,
+          position: position(moon.label, moon.worstM, moon.span),
+          validUtc: moon.span ?? MOON_FIT_SPAN,
           orientationLimitations: Object.freeze([tidalLockNote]),
         }),
       });

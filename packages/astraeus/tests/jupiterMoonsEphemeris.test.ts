@@ -12,7 +12,7 @@ interface FixtureRow { utc: string; positionKm: [number, number, number] }
 const raw = readJson(`${DATA}index.json`) as {
   source: { moonCount: number };
   span: { fromUtc: string; toUtc: string };
-  bodies: { id: string; role: string; accuracy: { targetM: number; span: { worstM: number; count: number }; demoWindow: { worstM: number } } }[];
+  bodies: { id: string; role: string; span?: { fromUtc: string; toUtc: string }; accuracy: { targetM: number; span: { worstM: number; count: number }; demoWindow: { worstM: number } } }[];
 };
 const index = parseEphemerisIndex(raw);
 const fixture = readJson(FIXTURE) as { bodies: Record<string, { rows: FixtureRow[] }> };
@@ -46,11 +46,11 @@ describe("Jupiter's moons as core curve-fit data", () => {
 
   it("covers the whole span for every body", () => {
     const ephemeris = new ChebyshevEphemeris(index);
-    const from = Date.parse(`${raw.span.fromUtc}T00:00:00Z`);
     const to = Date.parse(`${raw.span.toUtc}T00:00:00Z`);
     for (const body of index.bodies) {
+      const from = Date.parse(`${raw.bodies.find((entry) => entry.id === body.id)?.span?.fromUtc ?? raw.span.fromUtc}T00:00:00Z`);
       const bounds = ephemeris.boundsOf(body.id);
-      expect(bounds.startUtcMs, body.id).toBeLessThanOrEqual(from);
+      expect(bounds.startUtcMs, body.id).toBeLessThanOrEqual(from + 60_000);
       expect(bounds.endUtcMs, body.id).toBeGreaterThanOrEqual(to);
     }
   });

@@ -11,14 +11,14 @@ import { buildPackage, PACKAGES } from "./build-packages.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MB = 1_000_000;
 
-/** Limits in bytes (packed, unpacked) and file counts. */
+/** Limits in bytes (packed, unpacked) and file counts. The four planet packages were raised in O-047 T-200 (main moons and planets fitted back to 1950: jupiter 30.9, saturn 53.5, uranus 40.6, neptune 18.5 MB packed). */
 export const LIMITS = {
   astraeus: { packed: 8 * MB, unpacked: 9.5 * MB, files: 450 },
   "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 40 },
-  "astraeus-data-jupiter": { packed: 25 * MB, unpacked: 25.5 * MB, files: 2_400 },
-  "astraeus-data-saturn": { packed: 44 * MB, unpacked: 44.5 * MB, files: 6_000 },
-  "astraeus-data-uranus": { packed: 36 * MB, unpacked: 36.5 * MB, files: 700 },
-  "astraeus-data-neptune": { packed: 20 * MB, unpacked: 20.5 * MB, files: 400 },
+  "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
+  "astraeus-data-saturn": { packed: 59 * MB, unpacked: 64 * MB, files: 7_000 },
+  "astraeus-data-uranus": { packed: 45 * MB, unpacked: 47 * MB, files: 1_050 },
+  "astraeus-data-neptune": { packed: 20.5 * MB, unpacked: 22 * MB, files: 580 },
   "astraeus-data-mars": { packed: 6.1 * MB, unpacked: 6.2 * MB, files: 80 },
   "astraeus-data-pluto": { packed: 2 * MB, unpacked: 2.1 * MB, files: 140 },
 };

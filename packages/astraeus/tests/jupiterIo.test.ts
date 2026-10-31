@@ -33,7 +33,7 @@ describe("Io about Jupiter", () => {
     // Since O-025 (T-098) Io's position is JPL Horizons' through the core curve fits, not the mean elements.
     expect(IO.accuracy.position.sourceType).toBe("ephemeris");
     expect(IO.accuracy.position.sources.join(" ")).toContain("ssd.jpl.nasa.gov/api/horizons.api");
-    expect(IO.accuracy.validUtc.startUtcMs).toBeGreaterThanOrEqual(Date.UTC(2010, 0, 1));
+    expect(IO.accuracy.validUtc.startUtcMs).toBeGreaterThanOrEqual(Date.UTC(1950, 0, 1));
     expect(JUPITER.gmKm3S2).toBe(126_686_531.9);
   });
 

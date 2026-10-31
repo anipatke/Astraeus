@@ -2,7 +2,7 @@ import { moonDataFolder } from "./moonData";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { catalogue } from "../src/assets/catalogue";
-import { chunksNeeded, createMoonSystem, MOON_FIT_SPAN, moonFitSource } from "../src/core/bodies/moonSystem";
+import { chunksNeeded, createMoonSystem, HISTORICAL_MOON_FIT_SPAN, MOON_FIT_SPAN, moonFitSource } from "../src/core/bodies/moonSystem";
 import { MARS_MOON_SYSTEM, PHOBOS, PLANET_MOON_DEFINITIONS, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
 import { PLUTO } from "../src/core/bodies/outerPlanets";
 import { MARS } from "../src/core/bodies/mars";
@@ -50,15 +50,18 @@ describe("the sub-planet point of a synchronous moon sits at its record's prime 
 
 describe("the mapped moons of the other planets", () => {
   const indexes = { mars: marsIndex, saturn: saturnIndex, neptune: neptuneIndex, pluto: plutoIndex } as const;
-  it("are defined once with their planet as parent, tidal lock, and the fit span as validity (2010-2030)", () => {
+  it("are defined once with their planet as parent, tidal lock, and the fit span of their own data as validity (1950-2030 for the main moons fitted back, 2010-2030 otherwise)", () => {
     expect(PLANET_MOON_DEFINITIONS.map((moon) => moon.id)).toEqual(["phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     for (const moon of PLANET_MOON_DEFINITIONS) {
       expect(moon.orientation, moon.id).toBe("tidal-lock");
-      expect(moon.accuracy.validUtc, moon.id).toBe(MOON_FIT_SPAN);
+      expect(moon.accuracy.validUtc, moon.id).toBe(["phobos", "deimos", "charon"].includes(moon.id) ? MOON_FIT_SPAN : HISTORICAL_MOON_FIT_SPAN);
       expect(catalogue.get(moon.id).source?.body, moon.id).toBe(moon.id);
       expect(moon.accuracy.position.sources[0], moon.id).toBe(moonFitSource(moon.parentId![0].toUpperCase() + moon.parentId!.slice(1)));
     }
-    for (const index of Object.values(indexes)) expect([index.span.fromUtc, index.span.toUtc]).toEqual(["2010-01-01", "2030-01-01"]);
+    for (const [name, index] of Object.entries(indexes)) {
+      const historical = name === "saturn" || name === "neptune";
+      expect([index.span.fromUtc, index.span.toUtc], name).toEqual([historical ? "1950-01-01" : "2010-01-01", "2030-01-01"]);
+    }
   });
 
   it("carry the worst figure and the radius and GM their own index recorded (no number typed that the data does not hold)", () => {
