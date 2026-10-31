@@ -22,7 +22,9 @@ export interface MoonRecord {
   /** False for a provisional designation such as "S/2003 J 19" that has no name yet. */
   readonly named: boolean;
   readonly discoveryYear?: number;
-  /** Ids into the catalogue's `sources`: the list, the family, the size and the discovery. */
+  /** Sidereal orbit period in days (JPL SSD mean elements); absent when no period is published for the moon. */
+  readonly orbitPeriodDays?: number;
+  /** Ids into the catalogue's `sources`: the list, the family, the size and the discovery (the period source is in the list but not in the info-panel provenance until a panel shows the period). */
   readonly sourceIds: readonly string[];
 }
 
@@ -74,6 +76,7 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
     return Object.freeze({
       named: moon.named !== false,
       ...(typeof moon.discoveryYear === "number" ? { discoveryYear: moon.discoveryYear } : {}),
+      ...(typeof moon.orbitPeriodDays === "number" && moon.orbitPeriodDays > 0 ? { orbitPeriodDays: moon.orbitPeriodDays } : {}),
       sourceIds: Object.freeze(sourceIds),
       id: text(moon.id, `${where}.id`),
       name: text(moon.name, `${where}.name`),

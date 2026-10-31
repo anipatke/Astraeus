@@ -4,6 +4,12 @@
  "parent": "mars",
  "note": "Mars has two moons, both small and irregularly shaped, one family. Sizes are JPL's published mean radii.",
  "asOf": "2026-10-20",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/mars-moons/index.json",
   "moonCount": 2
@@ -52,6 +58,7 @@
    "meanRadiusKm": 11.08,
    "radiusBasis": "measured",
    "discoveryYear": 1877,
+   "orbitPeriodDays": 0.3187,
    "ephemeris": {
     "set": "mars-moons",
     "body": "phobos"
@@ -64,7 +71,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -77,6 +85,7 @@
    "meanRadiusKm": 6.2,
    "radiusBasis": "measured",
    "discoveryYear": 1877,
+   "orbitPeriodDays": 1.2625,
    "ephemeris": {
     "set": "mars-moons",
     "body": "deimos"
@@ -89,7 +98,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]

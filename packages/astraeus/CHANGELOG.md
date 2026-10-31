@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- Every moon in the engine's moon lists (458 across Mars, Jupiter, Saturn, Uranus, Neptune and Pluto) now carries a sidereal orbit period from the JPL Planetary Satellite Mean Elements table (O-049 T-210, I-122), and a small generated lookup (`core/bodies/listedMoons`: id, label, mean radius, parent, period, data package, fit-set body) lets a later step add any listed moon by id without loading the full lists. Importing the lookup from the entry adds 17,716 bytes raw and 7,126 bytes gzip to the first download (`npm run measure:example`, measured with the lookup consulted from `addBody`); the full lists stay out of it. Not yet used by `addBody`; no behaviour change.
+
 ## 0.5.1 (2026-10-31)
 
 First download of the packed example (`npm run measure:example`): 1,618,563 bytes raw, 461,100 bytes gzip (code and styles loaded on first open).

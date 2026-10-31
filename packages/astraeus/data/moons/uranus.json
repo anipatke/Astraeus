@@ -4,6 +4,12 @@
  "parent": "uranus",
  "note": "Facts only. 28 moons: JPL Horizons' list. Radius basis 'measured' is a published measurement, 'estimate' is brightness-based. Moons with a bodyPackage use the O-018 packages unchanged (none for Uranus's moons).",
  "asOf": "2026-10-20",
+ "periods": {
+  "source": "jpl-sat-elem",
+  "column": "P (days)",
+  "fetched": "2026-10-31",
+  "missing": []
+ },
  "ephemeris": {
   "path": "data/ephemerides/uranus-moons/index.json",
   "moonCount": 28
@@ -108,6 +114,7 @@
    "meanRadiusKm": 578.9,
    "radiusBasis": "measured",
    "discoveryYear": 1851,
+   "orbitPeriodDays": 2.520379,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "ariel"
@@ -120,7 +127,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -133,6 +141,7 @@
    "meanRadiusKm": 584.7,
    "radiusBasis": "measured",
    "discoveryYear": 1851,
+   "orbitPeriodDays": 4.144177,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "umbriel"
@@ -145,7 +154,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -158,6 +168,7 @@
    "meanRadiusKm": 788.9,
    "radiusBasis": "measured",
    "discoveryYear": 1787,
+   "orbitPeriodDays": 8.705869,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "titania"
@@ -170,7 +181,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -183,6 +195,7 @@
    "meanRadiusKm": 761.4,
    "radiusBasis": "measured",
    "discoveryYear": 1787,
+   "orbitPeriodDays": 13.463237,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "oberon"
@@ -195,7 +208,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -208,6 +222,7 @@
    "meanRadiusKm": 235.8,
    "radiusBasis": "measured",
    "discoveryYear": 1948,
+   "orbitPeriodDays": 1.413479,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "miranda"
@@ -220,7 +235,8 @@
      "jpl-sat-elem"
     ],
     "radius": "jpl-sat-phys",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -233,6 +249,7 @@
    "meanRadiusKm": 19.8,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.3347,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "cordelia"
@@ -246,7 +263,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -259,6 +277,7 @@
    "meanRadiusKm": 21.65,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.3764,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "ophelia"
@@ -272,7 +291,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -285,6 +305,7 @@
    "meanRadiusKm": 25.45,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.4347,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "bianca"
@@ -298,7 +319,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -311,6 +333,7 @@
    "meanRadiusKm": 39.5,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.4639,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "cressida"
@@ -324,7 +347,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -337,6 +361,7 @@
    "meanRadiusKm": 32.15,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.4736,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "desdemona"
@@ -350,7 +375,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -363,6 +389,7 @@
    "meanRadiusKm": 47.2,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.4931,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "juliet"
@@ -376,7 +403,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -389,6 +417,7 @@
    "meanRadiusKm": 67.45,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.5132,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "portia"
@@ -402,7 +431,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -415,6 +445,7 @@
    "meanRadiusKm": 36,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.5583,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "rosalind"
@@ -428,7 +459,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -441,6 +473,7 @@
    "meanRadiusKm": 40.1,
    "radiusBasis": "measured",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.6236,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "belinda"
@@ -454,7 +487,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -467,6 +501,7 @@
    "meanRadiusKm": 81,
    "radiusBasis": "measured",
    "discoveryYear": 1985,
+   "orbitPeriodDays": 0.7618,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "puck"
@@ -480,7 +515,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -493,6 +529,7 @@
    "meanRadiusKm": 21,
    "radiusBasis": "measured",
    "discoveryYear": 1997,
+   "orbitPeriodDays": 580,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "caliban"
@@ -506,7 +543,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -519,6 +557,7 @@
    "meanRadiusKm": 78.5,
    "radiusBasis": "measured",
    "discoveryYear": 1997,
+   "orbitPeriodDays": 1286,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "sycorax"
@@ -532,7 +571,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -545,6 +585,7 @@
    "meanRadiusKm": 25,
    "radiusBasis": "estimate",
    "discoveryYear": 1999,
+   "orbitPeriodDays": 1974,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "prospero"
@@ -558,7 +599,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -571,6 +613,7 @@
    "meanRadiusKm": 23.5,
    "radiusBasis": "estimate",
    "discoveryYear": 1999,
+   "orbitPeriodDays": 2215,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "setebos"
@@ -584,7 +627,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -597,6 +641,7 @@
    "meanRadiusKm": 16,
    "radiusBasis": "estimate",
    "discoveryYear": 1999,
+   "orbitPeriodDays": 677,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "stephano"
@@ -610,7 +655,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -623,6 +669,7 @@
    "meanRadiusKm": 9,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 749,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "trinculo"
@@ -636,7 +683,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -649,6 +697,7 @@
    "meanRadiusKm": 11,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 267,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "francisco"
@@ -662,7 +711,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -675,6 +725,7 @@
    "meanRadiusKm": 10,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 1655,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "margaret"
@@ -688,7 +739,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -701,6 +753,7 @@
    "meanRadiusKm": 10.5,
    "radiusBasis": "estimate",
    "discoveryYear": 2001,
+   "orbitPeriodDays": 2788,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "ferdinand"
@@ -714,7 +767,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -727,6 +781,7 @@
    "meanRadiusKm": 13.3,
    "radiusBasis": "estimate",
    "discoveryYear": 1986,
+   "orbitPeriodDays": 0.6382,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "perdita"
@@ -740,7 +795,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -753,6 +809,7 @@
    "meanRadiusKm": 6,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 0.9229,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "mab"
@@ -766,7 +823,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -779,6 +837,7 @@
    "meanRadiusKm": 8.9,
    "radiusBasis": "estimate",
    "discoveryYear": 2003,
+   "orbitPeriodDays": 0.6125,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "cupid"
@@ -792,7 +851,8 @@
      "karkoschka-2001"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   },
   {
@@ -805,6 +865,7 @@
    "meanRadiusKm": 4,
    "radiusBasis": "estimate",
    "discoveryYear": 2023,
+   "orbitPeriodDays": 681,
    "ephemeris": {
     "set": "uranus-moons",
     "body": "2023u1"
@@ -818,7 +879,8 @@
      "brozovic-2022"
     ],
     "radius": "wikipedia-moons-of-uranus",
-    "discovery": "jpl-sat-discovery"
+    "discovery": "jpl-sat-discovery",
+    "period": "jpl-sat-elem"
    }
   }
  ]
