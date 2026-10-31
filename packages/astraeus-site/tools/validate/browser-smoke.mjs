@@ -91,6 +91,8 @@ async function sunPathChecks(page) {
 const JOURNEY_MOONS = [["1979-03-05T12:00:00Z", ["io", "europa", "ganymede", "callisto"]], ["1980-11-12T12:00:00Z", ["titan", "rhea", "dione", "tethys", "enceladus", "mimas", "iapetus"]]];
 const JOURNEY_END_UTC_MS = Date.UTC(2026, 0, 1);
 const JOURNEY_SATURN_UTC_MS = Date.UTC(1980, 10, 12);
+const JOURNEY_URANUS_UTC_MS = Date.UTC(1986, 0, 24);
+const URANUS_MOONS = ["miranda", "ariel", "umbriel", "titania", "oberon"];
 
 /**
  * O-047 T-203: on the made-up journey, each giant planet's moons are in the scene at the encounter date (a drawn body or marker, never "none"), Saturn's orbit line is drawn, and with the Sun
@@ -119,7 +121,8 @@ async function journeyChecks(page) {
   const labels = await ui.shownSceneLabelIds(page);
   if (!labels.includes("traveller")) throw new Error(`the path's label is not shown at 170 AU (${JSON.stringify(labels)})`);
   const nearSaturn = await nearSaturnChecks(page);
-  return { nearSaturn, moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
+  const nearUranus = await nearUranusChecks(page);
+  return { nearSaturn, nearUranus, moons, saturnOrbit: saturnOrbit.id, path: { vertices: path.vertices, inView: path.inView, spanX: path.spanX, spanY: path.spanY }, labels };
 }
 
 /**
@@ -151,6 +154,38 @@ async function nearSaturnChecks(page) {
   while (Date.now() - started < 3000) { await page.mouse.wheel(0, 40); await page.waitForTimeout(30); await page.mouse.wheel(0, -40); await page.waitForTimeout(30); }
   const framesPerSecond = Math.round(((await ui.framesDrawn(page)) - before) / ((Date.now() - started) / 1000));
   return { depthMode, rings, saturn: { as: saturn.as, radiusPx: saturn.radiusPx }, framesPerSecond };
+}
+
+/**
+ * O-049 T-212: on the made-up journey in January 1986 the five main Uranus moons, added by id as listed moons (grey spheres, positions from `astraeus-data-uranus`), are in the scene with orbit
+ * lines drawn. With Uranus picked each moon is a drawn body or marker (never "none") with its orbit line drawn, and each, picked and approached, draws as a sphere. Their labels are read and returned. Readouts only.
+ */
+async function nearUranusChecks(page) {
+  await ui.seekTo(page, JOURNEY_URANUS_UTC_MS);
+  await ui.pickBody(page, "uranus");
+  await page.waitForTimeout(2500);
+  const bodies = await ui.sceneBodies(page);
+  const missing = URANUS_MOONS.filter((id) => !bodies.some((body) => body.id === id && body.as !== "none"));
+  if (missing.length > 0) throw new Error(`the Uranus moons ${missing.join(", ")} are not in the scene in 1986 (${JSON.stringify(bodies.map((b) => `${b.id}:${b.as}`))})`);
+  const orbits = await ui.scenePaths(page);
+  const noLine = URANUS_MOONS.filter((id) => !orbits.some((path) => path.id === `${id}-orbit` && path.visible));
+  if (noLine.length > 0) throw new Error(`Uranus moon orbit lines are not drawn: ${noLine.join(", ")} (${JSON.stringify(orbits.map((p) => p.id))})`);
+  // The moons are true size (a few hundred km beside a 25,000 km planet), so each one is picked and approached to read it as a sphere.
+  const spheres = {};
+  for (const id of URANUS_MOONS) {
+    await ui.pickBody(page, id);
+    await page.waitForTimeout(1500);
+    const point = await ui.freeCanvasPoint(page);
+    if (point === null) throw new Error(`no free point on the scene to zoom in on ${id}`);
+    await page.mouse.move(point.x, point.y);
+    for (let k = 0; k < 60; k += 1) { await page.mouse.wheel(0, -600); await page.waitForTimeout(30); }
+    await page.waitForTimeout(1000);
+    const moon = await ui.sceneBody(page, id);
+    if (moon === undefined || moon.as !== "sphere" || !moon.inView || !(moon.radiusPx > 20)) throw new Error(`${id} does not draw as a large sphere when approached (${JSON.stringify(moon)})`);
+    spheres[id] = Math.round(moon.radiusPx);
+  }
+  const labels = (await ui.shownSceneLabelIds(page)).filter((id) => URANUS_MOONS.includes(id));
+  return { spheres, labels };
 }
 
 async function load(browser, view, size) {

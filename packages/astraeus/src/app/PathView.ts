@@ -4,7 +4,7 @@ import type { ScalePolicy } from "../core/scalePolicy";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
-import { catalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import type { CompositionPath } from "../assets/compositions";
 import {
@@ -618,8 +618,8 @@ export const COMPOSITION_PATH_STYLE: PathStyle = Object.freeze({ opacity: 0.45, 
  * A composition's declared path as an orbit layer: the body's positions about its parent from the resolver, over a window about the
  * clock, carried with the parent.
  */
-export function compositionPathLayer(path: CompositionPath, resolver: StateResolver): PathLayer {
-  const parent = catalogue.get(path.body).definition.parentId;
+export function compositionPathLayer(path: CompositionPath, resolver: StateResolver, bodies: BodyCatalogue = builtInCatalogue): PathLayer {
+  const parent = bodies.get(path.body).definition.parentId;
   if (parent === undefined) throw new RangeError(`path body "${path.body}" has no parent to orbit`);
   const source: Trajectory = { body: path.body, stateAt: (timeUtcMs, center = parent) => resolver.stateOf(path.body, timeUtcMs, center) };
   return {
@@ -635,6 +635,6 @@ export function compositionPathLayer(path: CompositionPath, resolver: StateResol
 }
 
 /** A composition path drawn with its orbit look (the path's own settings over the defaults), on the scene's own layer. */
-export function compositionPathView(path: CompositionPath, resolver: StateResolver): PathView {
-  return new PathView(compositionPathLayer(path, resolver), { ...COMPOSITION_PATH_STYLE, orbitLook: resolveOrbitLook(path.look, `path for "${path.body}"`) });
+export function compositionPathView(path: CompositionPath, resolver: StateResolver, bodies: BodyCatalogue = builtInCatalogue): PathView {
+  return new PathView(compositionPathLayer(path, resolver, bodies), { ...COMPOSITION_PATH_STYLE, orbitLook: resolveOrbitLook(path.look, `path for "${path.body}"`) });
 }

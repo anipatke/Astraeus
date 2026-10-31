@@ -57,7 +57,7 @@ export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
   const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
-  const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver)), [runtime.composition, runtime.resolver]);
+  const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)), [runtime.composition, runtime.resolver, runtime.catalogue]);
   const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null }) : null), [runtime.sky, gl]);
   const bodySetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)), [runtime.bodySets]);
   const orbitSetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)), [runtime.bodySets]);
