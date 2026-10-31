@@ -1669,3 +1669,50 @@ export async function switchPanelFit(page) {
     return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
   }, [HOOK.switchPanel]);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Views a scene names (O-051 T-221): the view choice in the top bar (the phone drawer's grid), and the dev page's host link for the made-up views scene.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+const viewButtons = (page) => page.locator("[data-view-choice] button[data-view-id]");
+/** The view choice as shown: [{ id, label, pressed }] in order (the phone drawer is opened to read it). Empty when the scene has no view buttons. */
+export async function viewChoice(page) {
+  await reveal(page, viewButtons(page));
+  return viewButtons(page).evaluateAll((buttons) => buttons.map((button) => ({ id: button.dataset.viewId, label: button.textContent.trim(), pressed: button.getAttribute("aria-pressed") === "true" })));
+}
+/** The id of the view the buttons show as chosen, or undefined. */
+export async function shownView(page) {
+  return (await viewChoice(page)).find((option) => option.pressed)?.id;
+}
+/** Presses a view's button, as a visitor would. */
+export async function chooseView(page, id) {
+  await (await reveal(page, page.locator(`[data-view-choice] button[data-view-id="${id}"]`))).click();
+}
+/** The view choice against the rest of the screen: inside the window, and which of its neighbours (the controls in the same bar or drawer), the cog, the timeline and the pill it overlaps. */
+export async function viewChoiceFit(page) {
+  await reveal(page, viewButtons(page));
+  await drawersSettled(page);
+  return page.evaluate(() => {
+    const group = document.querySelector("[data-view-choice]");
+    const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+    const mine = box(group);
+    const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
+    const rows = [...group.parentElement.children].filter((element) => element !== group && getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width > 0);
+    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["pill", "button.controls-pill"]].map(([name, selector]) => [name, document.querySelector(selector)])];
+    const overlaps = named.filter(([, element]) => element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element))).map(([name]) => name);
+    const buttons = [...group.querySelectorAll("button")].map(box);
+    const smallest = Math.min(...buttons.map((b) => Math.min(b.right - b.left, b.bottom - b.top)));
+    return { insideWindow: mine.left >= 0 && mine.top >= 0 && mine.right <= innerWidth && mine.bottom <= innerHeight, overlaps, smallestButtonPx: Math.round(smallest) };
+  });
+}
+/** The ids of every story panel the timeline carries a marker for, alone or gathered under a numbered mark. */
+export async function listedStoryPanelIds(page) {
+  const single = await page.locator(HOOK.storyMarker).evaluateAll((markers) => markers.map((marker) => marker.getAttribute("data-panel-id")));
+  return [...single, ...(await markerGroupPanelIds(page)).map((entry) => entry.id)].sort();
+}
+/** The dev page's host link for the views scene (the same one `mount` gives a host page): the view it reports, then `setView`, and the changes it has heard (`watchHostChanges` first). */
+export const hostView = (page) => page.evaluate(() => window.astraeusHost?.view);
+export const hostSetView = (page, id) => page.evaluate((view) => window.astraeusHost.setView(view), id);
+/** Starts recording what the host link hears from the viewer, as { view, cause, time } lines. */
+export const watchHostChanges = (page) => page.evaluate(() => { window.hostChanges = []; window.astraeusHost.onChange((change) => window.hostChanges.push({ view: change.view, cause: change.cause, time: change.time })); });
+export const hostChanges = (page) => page.evaluate(() => window.hostChanges ?? []);

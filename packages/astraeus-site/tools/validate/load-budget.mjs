@@ -31,45 +31,32 @@ const planetView = (name, textures, { moons = true, parts = false, ...limits }) 
 });
 
 /**
- * One limit per page set, in bytes, raw and gzipped. Each is the measurement of 2026-10-17 (lossless stream trim; textures kept at their original quality by owner decision; the index page and the whole build re-measured with the three new demo-card pictures, T-074) plus 5% headroom, rounded up to the next 10,000 bytes.
- * The four app pages and the whole build were re-measured 2026-10-20 after planets became curve fits (T-101; planetModels shrank 6.5x), plus 5%, rounded up to the next 10,000 bytes (owner decision). The page sets also list the shared chunks the build now splits out (elementsBody, timeScale, bodyMetrics, events, orbitGroup, listedOrbitGroup, spacecraftMetrics).
- * The Apollo and showers sets also list `compositions.js`, the chunk split out when the planets experience shared it (T-121).
- * A change that makes a page heavier must raise its limit here on purpose, in the same change, with the new measurement.
+ * One limit per page set, in bytes, raw and gzipped, on the page's OWN share: its first load less the engine's share of it (`engineShareOf`; the engine has its own limit in `engine-budget.mjs`), so engine growth never trips a demo.
+ * App-page limits: the page's own share measured on the public build of 2026-11-01 (the engine's share from `engine-share.json`) plus 5%, rounded up to the next 10,000 bytes (owner decision, O-051 T-221: split engine and demo limits). The planet views the public build omits were measured the same way on a local build (their page sets are not held against a public build).
+ * The site pages (index, assets, API) contain no engine code and keep their standing limits. A change that makes a page's own share heavier must raise its limit here on purpose, in the same change, with the new measurement.
  */
-const ALL_PAGES = [
-  // T-120 (O-033): index.html measured 399,236 B raw / 352,149 B gzip (14 files) on 2026-10-21, against 410,463 / 367,851 (13 files) before: the four new planet thumbnails (36,448 B) replace the Moon and Io ones, so the page got lighter and the standing limit is left as it was.
+export const ALL_PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
-  // T-120 (O-033), raised on purpose: assets.html grew from the old limit to 629,684 B raw / 493,085 B gzip (22 files) measured 2026-10-21 with its 13 new body thumbnails (site/t-*.jpg, about 300 KB, lazy-loaded), the generated moon lists for five planets (343 moons) and the tagged-places list (403 places). New limit: that measurement plus 5%, rounded up to the next 10,000 bytes.
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
-  // T-165 (O-040): the API reference, one static page with inline style and no script; about 25 KB raw, limit rounded up generously for the page to grow with each Objective's exports.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 100_000, gzipLimit: 30_000 },
-  // I-086 (2026-10-24), public build after O-043: Apollo 11 measured 4,342,461 B raw / 2,811,207 B gzip (11 files), 99.4% of the raw limit and 96.9% of the gzip limit (27,539 B and 88,793 B of headroom). Limits unchanged.
-  // I-086 after I-089 (2026-10-24): 4,339,326 B raw / 2,811,428 B gzip (12 files), 99.3% raw with no safe trim; raw limit raised from 4,370,000 to 4,450,000 by owner decision ("Raise the limit a little").
-  // O-048 T-209 (2026-10-31), raised on purpose: 4,460,925 B raw / 2,829,833 B gzip (12 files) after rings moved into the engine catalogue (+8.7 KB), moon orbit periods and the log-depth shader chunks, over the 4,450,000 limit; raw limit 4,470,000 (measurement plus headroom, next 10,000). Gzip limit unchanged.
-  // O-049 T-212 (2026-10-31), raised on purpose (owner: "Raise to 4.49 MB"): 4,486,131 B raw after the 458-moon lookup joined the engine; raw limit 4,490,000. Gzip limit unchanged.
-  // O-050 T-217 (2026-11-01), raised on purpose (owner: "Raise to 4,500,000"): 4,492,013 B raw / 2,839,900 B gzip after the stretch drawing, sphere-of-influence resolver and marker grouping, 2,013 B over the 4,490,000 limit; raw limit 4,500,000. Gzip limit unchanged.
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_500_000, gzipLimit: 2_900_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_240_000, gzipLimit: 2_850_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
-  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far. Re-measured 2026-10-20 after planets became curve fits (T-101), plus 5% (owner decision).
-  // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's). Figures measured on the public build of 2026-10-21 plus 5%, rounded up to the next 10,000 bytes.
+  // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far.
+  // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's).
   // Each outer planet's moon index chunk is also held to the stated limit in `src/experiences/planets/viewLimits.json`, the file tests/planetSystems.test.ts takes its fit-chunk and index limits from.
-  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 7_160_000, gzipLimit: 4_900_000 }),
-  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { parts: true, rawLimit: 24_490_000, gzipLimit: 21_260_000 }),
-  planetView("uranus", ["uranus-2k.jpg"], { parts: true, rawLimit: 4_300_000, gzipLimit: 2_520_000 }),
-  planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_610_000, gzipLimit: 2_930_000 }),
-  planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 4_020_000, gzipLimit: 2_410_000 }),
-  planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 3_080_000, gzipLimit: 1_710_000 }),
-  // T-141 (O-039, I-068), re-measured 2026-10-22 on a local build: the Venus view is the one page that opts in to desktop texture variants (`desktopTextures` on the planets definition), so a desktop window fetches `venus-8k-balanced.jpg` (14,474,577 B) instead of the 2k file (1,090,552 B).
-  // The set lists the 8k file, the heavier case: 16,543,654 B raw / 15,185,633 B gzip, plus 5%, rounded up to the next 10,000 bytes. A window under 768 px fetches the 2k file instead: 3,159,629 B raw / 1,848,065 B gzip (the earlier limit, 3,100,000 / 1,730,000, was already below that).
-  planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 17_380_000, gzipLimit: 15_950_000 }),
-  planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 4_420_000, gzipLimit: 3_030_000 }),
-  planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_930_000, gzipLimit: 1_520_000 }),
-  // T-152 (O-030): the showers pages list only the chosen shower's panels chunk (`storyPanels`), not every story's. perseids page 9,965,936 B raw / 6,995,644 B gzip (24 files) before, 9,944,191 / 6,987,339 (20 files) after; geminids page 12,450,409 / 7,801,854 before, 12,430,767 / 7,794,282 after (public build, 2026-10-23). Limits lowered by the saving, rounded up to the next 10,000 bytes.
-  // I-081 (C-110, O-040): the perseids page measured 10,073,636 B raw after the React 19 / Fiber 9 move (T-163), 3,636 B over the 10,070,000 limit above; the Fiber 9 and React 19 chunks are larger and nothing else on the page grew, so there was no behaviour-neutral trim. Raw limit raised 10,070,000 -> 10,080,000 (next 10,000 bytes); the gzip limit is unchanged. Coordinator's choice under the owner's overnight run (2026-10-23); owner accepted the raise, 2026-10-24.
-  // O-042 T-176 (the showers rebuilt on the public API, the orbit files trimmed in T-172), measured on a public build (ASTRAEUS_PUBLIC_BUILD=1): perseids page 9,191,109 B raw / 6,758,808 B gzip (19 files), geminids page 10,768,779 B raw / 7,314,429 B gzip (19 files); Apollo 11 4,355,880 / 2,815,247 (11 files, now with the shared `scene.js` chunk), unchanged limits.
-  // Limits lowered to the measurement plus 5%, rounded up to the next 10,000 bytes, except the perseids gzip limit: 6,758,808 plus 5% would be 7,100,000, above the standing 7,040,000, so it stays at 7,040,000 (not raised; the page passes with 281,192 B of headroom, the owner may decide a lower figure).
-  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 9_660_000, gzipLimit: 7_040_000 },
-  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 11_310_000, gzipLimit: 7_690_000 },
+  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 6_570_000, gzipLimit: 4_560_000 }),
+  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { parts: true, rawLimit: 23_510_000, gzipLimit: 20_570_000 }),
+  planetView("uranus", ["uranus-2k.jpg"], { parts: true, rawLimit: 3_510_000, gzipLimit: 2_030_000 }),
+  planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_000_000, gzipLimit: 2_630_000 }),
+  planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 3_350_000, gzipLimit: 2_100_000 }),
+  planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 2_580_000, gzipLimit: 1_420_000 }),
+  // T-141 (O-039, I-068): the Venus view is the one page that opts in to desktop texture variants (`desktopTextures`), so a desktop window fetches `venus-8k-balanced.jpg` (14,474,577 B) instead of the 2k file (1,090,552 B); the set lists the 8k file, the heavier case.
+  planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 16_860_000, gzipLimit: 15_650_000 }),
+  planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 3_890_000, gzipLimit: 2_730_000 }),
+  planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_420_000, gzipLimit: 1_230_000 }),
+  // The showers pages list only the chosen shower's panels chunk (`storyPanels`), not every story's (T-152).
+  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 8_970_000, gzipLimit: 6_760_000 },
+  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 10_630_000, gzipLimit: 7_340_000 },
 ];
 /**
  * The planets a public build offers: Jupiter alone (owner, 2026-10-22; T-136). The other eight planet views exist only in a local build, so their page sets
@@ -85,7 +72,7 @@ export const NON_PUBLIC_PLANET_FILES = (() => {
 })();
 export const PAGES = ALL_PAGES.filter((page) => page.planet === undefined || PUBLIC_PLANETS.includes(page.planet));
 /** Every file of the build together (also the net for a file no page set lists). */
-// T-098 raised it for the Jupiter moons; T-121 (O-033) raised it on purpose for the nine planet views' pictures (the outer planets' 4k moon maps) and fit chunks: re-measured 2026-10-21 on the public build, plus 5%, rounded up to the next 10,000 bytes.
+// Measured 2026-10-21 on the public build, plus 5%, rounded up to the next 10,000 bytes; the whole build includes the engine, which has ample room here.
 export const BUILD_LIMIT = { id: "whole build", rawLimit: 54_610_000, gzipLimit: 44_130_000 };
 
 function* walk(directory) {
@@ -96,6 +83,32 @@ function* walk(directory) {
   }
 }
 const relativeTo = (distDir, path) => path.slice(distDir.length + 1).split("\\").join("/");
+
+/** The sidecar the browser check's public build writes (`ASTRAEUS_ENGINE_SHARE=1`, vite.config.ts): per script chunk, the rendered bytes from the engine package and in all. Not part of any page. */
+export const ENGINE_SHARE_FILE = "engine-share.json";
+
+/** The engine-share table of a build, or undefined when the build was made without it. */
+export function readEngineShares(distDir) {
+  const file = join(distDir, ENGINE_SHARE_FILE);
+  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : undefined;
+}
+
+/**
+ * The engine's share of a set of built files: each script chunk's raw and gzip size scaled by the ratio of its rendered bytes that come from the engine package (chunk-level, so a chunk that
+ * mixes engine and demo code counts in proportion). Pictures, data and chunks the table does not name count as the page's own.
+ */
+function engineShareOf(distDir, files, shares) {
+  let raw = 0;
+  let gzip = 0;
+  for (const file of files) {
+    const entry = shares?.[file];
+    if (entry === undefined || entry.total === 0 || entry.engine === 0) continue;
+    const bytes = readFileSync(join(distDir, file));
+    raw += (bytes.length * entry.engine) / entry.total;
+    gzip += (gzipSync(bytes).length * entry.engine) / entry.total;
+  }
+  return { raw: Math.round(raw), gzip: Math.round(gzip) };
+}
 
 /** The built file for a `<stem>.<ext>` entry: assets/<stem>-<8 hash characters>.<ext>, or the page itself. Undefined when the build has none. */
 /** Every hashed file in the build whose stem is the entry's (several when the bundler splits same-named modules, e.g. one `panels` chunk per story). */
@@ -235,27 +248,32 @@ function moonIndexProblems(distDir, names, page, files) {
 }
 
 /** The problems of one page set and its measured sizes. */
-function checkPage(distDir, names, page) {
+function checkPage(distDir, names, page, shares) {
   const problems = [];
   const files = page.htmlPage !== undefined ? htmlPageFiles(distDir, names, page, problems) : stemPageFiles(distDir, names, page, problems);
   const sizes = sizesOf(distDir, files);
-  if (sizes.raw > page.rawLimit) problems.push(`${sizes.raw} bytes raw is over the limit of ${page.rawLimit}`);
-  if (sizes.gzip > page.gzipLimit) problems.push(`${sizes.gzip} bytes gzipped is over the limit of ${page.gzipLimit}`);
+  // A page's limit holds what the page adds beyond the engine: its first load less the engine's share of it (the engine has its own limit, engine-budget.mjs).
+  const engine = engineShareOf(distDir, files, shares);
+  const own = { raw: sizes.raw - engine.raw, gzip: sizes.gzip - engine.gzip };
+  const note = `(own share: ${sizes.raw} B in all less ${engine.raw} B engine)`;
+  if (own.raw > page.rawLimit) problems.push(`${own.raw} bytes raw is over the limit of ${page.rawLimit} ${note}`);
+  if (own.gzip > page.gzipLimit) problems.push(`${own.gzip} bytes gzipped is over the limit of ${page.gzipLimit} (own share: ${sizes.gzip} B in all less ${engine.gzip} B engine)`);
   if (page.indexLimit !== undefined) problems.push(...moonIndexProblems(distDir, names, page, files));
-  return { id: page.id, ...sizes, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems };
+  return { id: page.id, ...sizes, engineRaw: engine.raw, engineGzip: engine.gzip, ownRaw: own.raw, ownGzip: own.gzip, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems };
 }
 
 /**
  * Measures every page set of a build and compares it with its limit. Returns { ok, pages: [{ id, files, raw, gzip, rawLimit, gzipLimit, problems }], problems }.
  * `pages` and `buildLimit` default to the real table; tests pass their own.
  */
-export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIMIT }) {
-  const names = [...walk(distDir)].map((path) => relativeTo(distDir, path));
-  const results = pages.map((page) => checkPage(distDir, names, page));
+export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIMIT, shares = readEngineShares(distDir), requireShares = true }) {
+  const names = [...walk(distDir)].map((path) => relativeTo(distDir, path)).filter((name) => name !== ENGINE_SHARE_FILE);
+  const results = pages.map((page) => checkPage(distDir, names, page, shares));
   const whole = sizesOf(distDir, names);
   const wholeProblems = [];
   if (whole.raw > buildLimit.rawLimit) wholeProblems.push(`${whole.raw} bytes raw is over the limit of ${buildLimit.rawLimit}`);
   if (whole.gzip > buildLimit.gzipLimit) wholeProblems.push(`${whole.gzip} bytes gzipped is over the limit of ${buildLimit.gzipLimit}`);
+  if (requireShares && shares === undefined) wholeProblems.push(`${ENGINE_SHARE_FILE} is not in the build, so the engine's share of each page is unknown (build with ASTRAEUS_ENGINE_SHARE=1, as the browser check does)`);
   results.push({ id: buildLimit.id, ...whole, rawLimit: buildLimit.rawLimit, gzipLimit: buildLimit.gzipLimit, problems: wholeProblems });
   return { ok: results.every((result) => result.problems.length === 0), pages: results };
 }
@@ -278,7 +296,7 @@ export function proveLoadBudgetFails() {
       writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), "export const a = 1;");
       writeFileSync(join(dir, "assets", "picture-AbCdEf12.jpg"), noise(3_000));
       change(dir);
-      return checkLoadBudget({ distDir: dir, pages, buildLimit });
+      return checkLoadBudget({ distDir: dir, pages, buildLimit, requireShares: false });
     };
     return {
       within: make("within"),
@@ -311,7 +329,7 @@ export function proveSameStemChunks() {
     writeFileSync(join(dir, "assets", "panels-CCCCCCCC.js"), "export const c = 3;");
     writeFileSync(join(dir, "assets", "stray-AbCdEf12.js"), "export const d = 4;");
     const limits = { rawLimit: 100_000, gzipLimit: 100_000 };
-    const check = (files) => checkLoadBudget({ distDir: dir, pages: [{ id: "page", files, ...limits }], buildLimit: { id: "whole build", ...limits } }).pages[0];
+    const check = (files) => checkLoadBudget({ distDir: dir, pages: [{ id: "page", files, ...limits }], buildLimit: { id: "whole build", ...limits }, requireShares: false }).pages[0];
     return {
       first: check(["app.html", "first.js", "panels.js"]),
       chained: check(["app.html", "second.js", "panels.js"]),
@@ -330,6 +348,6 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
     process.exit(1);
   }
   const result = checkLoadBudget({ distDir });
-  for (const page of result.pages) console.log(`${page.problems.length === 0 ? "ok  " : "FAIL"} ${page.id}: ${page.files} files, ${page.raw} B raw (limit ${page.rawLimit}), ${page.gzip} B gzip (limit ${page.gzipLimit})${page.problems.map((problem) => `\n       ${problem}`).join("")}`);
+  for (const page of result.pages) console.log(`${page.problems.length === 0 ? "ok  " : "FAIL"} ${page.id}: ${page.files} files, ${page.raw} B raw / ${page.gzip} B gzip in all, ${page.engineRaw ?? 0} / ${page.engineGzip ?? 0} from the engine, own ${page.ownRaw ?? page.raw} B raw (limit ${page.rawLimit}), ${page.ownGzip ?? page.gzip} B gzip (limit ${page.gzipLimit})${page.problems.map((problem) => `\n       ${problem}`).join("")}`);
   if (!result.ok) process.exit(1);
 }

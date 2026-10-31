@@ -152,6 +152,26 @@ const stop = mounted.onChange(({ time, cause }) => {
 
 The speed menu shows exactly the `rates` the scene gives (`setTimeline({ rates })`) and no others.
 
+### Views of one scene
+
+Two probes, one shared Earth, three views that keep the clock, the speed and the camera's distance when you switch (the Object list, timeline events, story panels, markers and paths follow the chosen view):
+
+```ts
+const scene = new Scene()
+  .addBody(earth)
+  .addTrajectory({ id: "probe-a", label: "Probe A", samples: samplesA })
+  .addTrajectory({ id: "probe-b", label: "Probe B", samples: samplesB })
+  .addEvents([{ id: "a-burn", label: "A burn", time: t0 + HOUR }, { id: "b-burn", label: "B burn", time: t0 + 2 * HOUR }])
+  .setViews([
+    { id: "a", label: "Probe A", paths: ["probe-a"], events: ["a-burn"], camera: "stay" },       // the camera holds where it is
+    { id: "b", label: "Probe B", paths: ["probe-b"], events: ["b-burn"], camera: { follow: "probe-b" } },
+    { id: "both", label: "Both", paths: ["probe-a", "probe-b"], events: ["a-burn", "b-burn"] },
+  ], { place: "top-bar" });
+const mounted = mount(el, scene);
+await mounted.ready;
+mounted.setView("b");                                 // as if the visitor pressed Probe B; onChange hears cause "host"
+```
+
 ### Paced playback
 
 A long journey wants fast cruising and slow encounters. `setTimeline` takes `pacing`, a list of pieces; outside every piece playback runs at the timeline's `rate`.

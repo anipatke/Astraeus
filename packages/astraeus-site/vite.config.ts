@@ -53,6 +53,33 @@ function apiReference(): Plugin {
   };
 }
 
+/**
+ * With ASTRAEUS_ENGINE_SHARE=1 (the browser check's public build; never a deploy build), writes `engine-share.json`: for each script chunk, the rendered bytes that come from the engine package
+ * (modules under packages/astraeus/) and the chunk's rendered total. `tools/validate/load-budget.mjs` scales a chunk's file size by that ratio to find the engine's share of a page, so a demo's
+ * limit guards only what the demo adds beyond the engine (O-051 T-221).
+ */
+function engineShare(): Plugin {
+  const engine = decodeURIComponent(new URL("../astraeus/", import.meta.url).pathname);
+  return {
+    name: "astraeus-engine-share",
+    generateBundle(_options, bundle) {
+      if (process.env.ASTRAEUS_ENGINE_SHARE !== "1") return;
+      const share: Record<string, { engine: number; total: number }> = {};
+      for (const [name, output] of Object.entries(bundle)) {
+        if (output.type !== "chunk") continue;
+        let fromEngine = 0;
+        let total = 0;
+        for (const [id, info] of Object.entries(output.modules)) {
+          total += info.renderedLength;
+          if (id.startsWith(engine)) fromEngine += info.renderedLength;
+        }
+        share[name] = { engine: fromEngine, total };
+      }
+      this.emitFile({ type: "asset", fileName: "engine-share.json", source: JSON.stringify(share) });
+    },
+  };
+}
+
 /** Dev server only: serves the git-ignored /data/local/ files (the fetched measured orbits) from the Showers package, where the project root used to serve them. */
 function localData(): Plugin {
   const folder = decodeURIComponent(new URL("../astraeus-demo-showers/data/local/", import.meta.url).pathname);
@@ -88,5 +115,5 @@ export default defineConfig({
   // True in a public build: the made-up (synthetic) experiences are then left out of the entry, so no chunk of them is built (T-068).
   define: { __PUBLIC_BUILD__: JSON.stringify(process.env.ASTRAEUS_PUBLIC_BUILD === "1") },
   resolve: { alias: process.env.ASTRAEUS_PUBLIC_BUILD === "1" ? [...publicBuildAliases()] : [] },
-  plugins: [localData(), apiReference()],
+  plugins: [localData(), apiReference(), engineShare()],
 });

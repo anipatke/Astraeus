@@ -4,6 +4,7 @@ import { catalogue } from "astraeus/assets/catalogue";
 import { LOCAL_ONLY_TEXTURES, PLANETS_DEMO_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
 import { proveOnlyPublicPlanets, proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
 import { BUILD_LIMIT, NON_PUBLIC_PLANET_FILES, PAGES, PUBLIC_PLANETS, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
+import { ENGINE_LIMIT, proveEngineDemoSplit } from "../tools/validate/engine-budget.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "astraeus-demo-showers/experiences/showers/measuredOrbits";
 
@@ -119,6 +120,18 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(/imports assets\/extra-AbCdEf12\.js, which the page set does not list/);
     expect(proof.unlistedFile.ok).toBe(false);
     expect(proof.unlistedFile.pages[proof.unlistedFile.pages.length - 1]?.id).toBe("whole build");
+  });
+
+  it("holds the engine and each demo to separate limits: engine growth trips only the engine limit, demo growth only the demo's (O-051 T-221)", () => {
+    const proof = proveEngineDemoSplit();
+    expect(proof.base).toMatchObject({ page: { ok: true }, engine: { ok: true } });
+    expect(proof.engineGrown.page.ok).toBe(true); // the page's limit is its own share, so the engine's growth does not count
+    expect(proof.engineGrown.engine.ok).toBe(false);
+    expect(proof.engineGrown.engine.problems.join(" ")).toMatch(/^engine: the plain example's first download is \d+ bytes raw, over the engine limit of 4000/);
+    expect(proof.demoGrown.page.ok).toBe(false);
+    expect(proof.demoGrown.page.problems.join(" ")).toMatch(/raw is over the limit of 4000 \(own share: \d+ B in all less 3000 B engine\)/);
+    expect(proof.demoGrown.engine.ok).toBe(true);
+    expect(ENGINE_LIMIT).toEqual({ rawLimit: 1_735_000, gzipLimit: 497_000 });
   });
 
   it("lists only the same-named chunks a page's scripts import when the bundler splits one stem into several (T-089: one panels chunk per story)", () => {
