@@ -1,6 +1,6 @@
 import type { Provenance, ProvenanceSourceType } from "../core/provenance";
 import type { ExperienceConfig } from "./experience";
-import { provenanceAt, rateAt } from "../core/timeWindow";
+import { provenanceAt, rateAt, spanProvenanceAt } from "../core/timeWindow";
 import { findFeature } from "./bodyFeatures";
 import { formatUtcTimestamp, formatWindowRate } from "./timelineModel";
 
@@ -52,7 +52,7 @@ export function provenanceView(provenance: Provenance, knownLimitations: readonl
 export function infoView(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
   if (target.kind === "window") return windowInfo(experience, target, timeUtcMs);
   if (target.kind === "feature") return featureInfo(experience, target);
-  if (target.kind === "object") return objectInfo(experience, target);
+  if (target.kind === "object") return objectInfo(experience, target, timeUtcMs);
   return eventInfo(experience, target);
 }
 
@@ -86,15 +86,16 @@ function featureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView
   };
 }
 
-function objectInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
+function objectInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
   const object = experience.objects.find((candidate) => candidate.id === target.id);
   if (object === undefined) return null;
+  const source = (timeUtcMs === undefined || object.provenanceSpans === undefined ? null : spanProvenanceAt(object.provenanceSpans, timeUtcMs)) ?? object.provenance;
   return {
     target,
     title: object.label,
     ...(object.description === undefined ? {} : { description: object.description }),
     ...(object.facts === undefined ? {} : { facts: object.facts }),
-    provenance: object.provenance === undefined ? null : provenanceView(object.provenance, object.knownLimitations),
+    provenance: source === undefined ? null : provenanceView(source, object.knownLimitations),
   };
 }
 

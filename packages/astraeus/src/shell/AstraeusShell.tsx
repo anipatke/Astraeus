@@ -41,7 +41,7 @@ function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone:
 }
 
 /** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
-function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
+export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
   const start = experience.cameraPresets.find((preset) => preset.id === experience.startCameraPresetId)?.request;
   if (start !== undefined && start.kind !== "overview" && experience.objects.some((object) => object.id === start.target)) return start.target;
   return firstAvailableObject(experience, timeUtcMs)?.id ?? experience.objects[0]?.id ?? "";

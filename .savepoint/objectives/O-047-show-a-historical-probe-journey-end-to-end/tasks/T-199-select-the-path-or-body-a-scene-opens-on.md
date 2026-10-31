@@ -2,9 +2,10 @@
 id: T-199
 objective: O-047
 title: Select the path or body a scene opens on
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-199, reason: 'Owner said "orchestrate O-47"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o047-run-20261031}, recorded_at: '2026-10-31T03:06:30Z'}
 planned_by: {role: planner, session: probe-feedback-20261031}
 ---
 
@@ -52,8 +53,15 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read/changed, limitations.
+- Result: I-115 does NOT reproduce at the rule that picks the opening selection; no fix made (plan step 2: stop with evidence).
+- How tried: made-up Sun-centred scene (`sun`, `earth`, `mars`, a sampled path `probe` with `lineFixedTo: "sun"`), `toDefinition()`, then both openers' derivations: `initialObjectIdOf` (app/experienceDefinition.ts, used by App.tsx) and the shell's `initialObjectId` (AstraeusShell.tsx). Cases: `camera.lookAt` on a path, `follow` on a path, `lookAt` on a body (mars), `follow` on a body (earth), no target. All select the target (path or body), and no target selects the Sun as before. The rule already reads the opening camera preset (`startCameraPresetId`), not a hard-coded body (ARCH-06 holds); it has been in place since T-162, before 0.4.0, so the report's cause is not the derivation.
+- One plausible remaining cause, not proved: the shell's availability effect (AstraeusShell.tsx, `isObjectAvailable` fallback to `firstAvailableObject`) replaces a selected object that is unavailable at the clock, which gives the Sun when a scene opens at a moment before the path's data. The made-up scene with the clock before the path (test last case) confirms the derivation still names the path and that the path's availability starts after the clock. Whether the reporter's scene did this, or whether this is wanted (an unavailable path cannot be shown), needs the reporter's scene or a browser run (none allowed here). Recommend the planner decides, or asks the reporter for their `setTime`/`setTimeline` and path bounds.
+- Added `tests/publicApiOpeningSelection.test.ts` (6 cases, pass) as a regression guard for the five cases plus the unavailable-at-open case. Exported `initialObjectId` from AstraeusShell.tsx for the test (no behaviour change). No CHANGELOG line: nothing user-visible changed.
+- Files read: scene.ts, experienceDefinition.ts (initialObjectIdOf), AstraeusShell.tsx, App.tsx (grep), publicApiSunPaths.test.ts. Extra reads: experienceDefinition.ts and I-115 (to see the derivation and the report), logged here.
+- Gates run once after both Tasks: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` all passed (153 files, 1970 passed, 1 skipped). No browser run.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- None architectural. The opening selection already derives from the opening camera preset; no change.

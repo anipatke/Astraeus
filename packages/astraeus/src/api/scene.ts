@@ -1,6 +1,9 @@
 import type { BodyId } from "../core/body";
 import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
+import type { WindowProvenanceSpan } from "../core/timeWindow";
+import type { ActivitySourceInput } from "./activity";
+import { planPathProvenance } from "./pathProvenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { createState, type State } from "../core/state";
@@ -110,6 +113,11 @@ interface TrajectoryBase {
   /** How far from the camera the path's label shows, in the camera's `distance` units (as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
   readonly labelReach?: number;
   readonly provenance?: Provenance;
+  /**
+   * Where each stretch of the path comes from, shown with the path as time moves (the same `{ start, end, provenance }` list as an activity's `provenance`).
+   * Sorted, not overlapping, inside the path's span; a fault throws `bad-trajectory` naming the index. Where no span covers the time, `provenance` (or the illustrative default) shows.
+   */
+  readonly provenanceSpans?: readonly ActivitySourceInput[];
   /** One or two plain sentences for the path's info card. */
   readonly description?: string;
   /** Published limits of the data, shown with the provenance. */
@@ -143,6 +151,7 @@ interface Tracked {
   readonly center: BodyId;
   readonly description?: string;
   readonly knownLimitations?: readonly string[];
+  readonly provenanceSpans?: readonly WindowProvenanceSpan[];
   readonly readouts: readonly ReadoutInput[];
 }
 
@@ -329,7 +338,8 @@ export class Scene {
     if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
     const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
-    this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs });
+    this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
   }
 
   /** Whether a body, path or group already has this id. */
@@ -653,7 +663,7 @@ export class Scene {
       experience: {
         objects: [
           ...[...this.#bodies.values()].map((body) => this.#bodyObject(body, ids, sunCentred)),
-          ...[...this.#tracked.values()].map(({ body, description, knownLimitations }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#labelReach(body.id, sunCentred), provenance: body.provenance, ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+          ...[...this.#tracked.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#labelReach(body.id, sunCentred), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: cameraPresetsOf(labelled),
         ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),

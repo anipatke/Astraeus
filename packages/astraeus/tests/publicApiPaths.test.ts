@@ -5,6 +5,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";
+import { infoView, PROVENANCE_STATUS } from "../src/shell/infoModel";
 
 const T0 = Date.UTC(2026, 3, 1);
 const MIN = 60_000;
@@ -96,5 +97,44 @@ describe("readouts", () => {
     expect(codeOf(add({ kind: "distance", to: "vulcan" }))).toMatch(/^bad-readout: .*vulcan/);
     expect(codeOf(() => new Scene().addBody(earth).addTrajectory({ ...probe, readouts: "range" as never }))).toMatch(/^bad-readout: .*list/);
     expect(codeOf(() => add({ kind: "distance", to: "moon" })().toDefinition())).toMatch(/^bad-readout: .*moon.*not been added/);
+  });
+});
+
+describe("provenance by time span on a path (I-113)", () => {
+  const observed: Provenance = { sourceType: "observed", sources: ["Made-up tracking"], accuracy: "Test", notes: "Test." };
+  const modelled: Provenance = { sourceType: "reconstructed", sources: ["Made-up model"], accuracy: "Test", notes: "Test." };
+  const spans = [
+    { start: T0, end: T0 + MIN, provenance: observed },
+    { start: T0 + MIN, end: T0 + 2 * MIN, provenance: modelled },
+    { start: T0 + 2 * MIN, end: T0 + 3 * MIN, provenance: observed },
+  ];
+  const view = (at: number, input: object = { provenanceSpans: spans }) => infoView(new Scene().addBody(earth).addTrajectory({ ...probe, ...input }).toDefinition().experience, { kind: "object", id: "probe" }, at)!.provenance!;
+
+  it("shows each stretch's own label as time moves", () => {
+    expect(view(T0 + 0.5 * MIN).status).toBe(PROVENANCE_STATUS.observed);
+    expect(view(T0 + 1.5 * MIN).status).toBe(PROVENANCE_STATUS.reconstructed);
+    expect(view(T0 + 2.5 * MIN).sources).toEqual(["Made-up tracking"]);
+  });
+
+  it("falls back to the path's single provenance, else the illustrative default, in a gap", () => {
+    const gap = [spans[0]!];
+    expect(view(T0 + 2 * MIN, { provenanceSpans: gap, provenance: modelled }).sources).toEqual(["Made-up model"]);
+    expect(view(T0 + 2 * MIN, { provenanceSpans: gap }).status).toBe(PROVENANCE_STATUS.illustrative);
+  });
+
+  it("is unchanged when no spans are given", () => {
+    expect(view(T0 + MIN, { provenance: modelled }).sources).toEqual(["Made-up model"]);
+  });
+
+  it.each([
+    ["overlapping spans", [spans[0]!, { ...spans[1]!, start: T0 + 0.5 * MIN }]],
+    ["spans out of order", [spans[1]!, spans[0]!]],
+    ["a span outside the path", [{ ...spans[0]!, end: T0 + 9 * MIN }]],
+    ["a span that ends before it starts", [{ ...spans[0]!, end: T0 - MIN }]],
+    ["a bad time", [{ ...spans[0]!, start: "later" }]],
+    ["a bad provenance", [{ ...spans[0]!, provenance: { sourceType: "magic" } }]],
+    ["spans that are not a list", { start: T0 }],
+  ])("refuse %s with bad-trajectory naming the path", (_name, provenanceSpans) => {
+    expect(codeOf(() => new Scene().addBody(earth).addTrajectory({ ...probe, provenanceSpans: provenanceSpans as never }))).toMatch(/^bad-trajectory: .*probe.*provenanceSpans/);
   });
 });

@@ -126,8 +126,11 @@ export function rateAt(window: TimelineWindow, timeUtcMs: number): number | null
 
 /** The provenance span covering a time (a shared boundary belongs to the later span); null if none. */
 export function provenanceAt(window: TimelineWindow, timeUtcMs: number): Provenance | null {
-  const spans = window.provenance;
-  if (spans === undefined) return null;
+  return window.provenance === undefined ? null : spanProvenanceAt(window.provenance, timeUtcMs);
+}
+
+/** The provenance of the span (sorted, not overlapping) covering a time; null if none. Windows and paths share it. */
+export function spanProvenanceAt(spans: readonly WindowProvenanceSpan[], timeUtcMs: number): Provenance | null {
   for (let i = spans.length - 1; i >= 0; i -= 1) {
     if (timeUtcMs >= spans[i].startUtcMs && timeUtcMs < spans[i].endUtcMs) return spans[i].provenance;
   }

@@ -1,6 +1,6 @@
 import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
-import type { TimelineWindow } from "../core/timeWindow";
+import type { TimelineWindow, WindowProvenanceSpan } from "../core/timeWindow";
 import type { TimeBounds } from "../core/trajectory";
 import type { BodyFeatureSet } from "./bodyFeatures";
 import type { MoonFamilyList } from "./moonFamilies";
@@ -32,6 +32,8 @@ export interface ExperienceObject {
   readonly description?: string;
   /** Where this object's data comes from. Anything reconstructed or illustrative must carry one. */
   readonly provenance?: Provenance;
+  /** Provenance by time: while a span covers the clock its provenance shows in place of `provenance`. */
+  readonly provenanceSpans?: readonly WindowProvenanceSpan[];
   /** Labelled values for the info panel (a moon's family, size, discovery and sources). */
   readonly facts?: readonly { readonly label: string; readonly value: string }[];
   /** Published limitations, shown with the provenance. Figures come from the experience's own data. */
