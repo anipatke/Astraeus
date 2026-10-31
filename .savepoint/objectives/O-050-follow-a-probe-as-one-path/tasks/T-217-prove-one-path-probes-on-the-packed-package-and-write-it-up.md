@@ -2,8 +2,7 @@
 id: T-217
 title: Prove one-path probes on the packed package and write it up
 objective: O-050
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-213, requires: clear}, {task: T-214, requires: clear}, {task: T-215, requires: clear}, {task: T-216, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-217, reason: 'Owner said "orchestrate O50"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o050-run-20261101}, recorded_at: '2026-10-31T22:04:59Z'}
