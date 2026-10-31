@@ -88,12 +88,14 @@ export class StoryMarkerLayer {
     origin: FloatingOrigin,
     openPanelId: string | null,
     timeUtcMs: number,
+    hidden?: { readonly objects: ReadonlySet<string>; readonly panels: ReadonlySet<string> },
   ): void {
     this.#timeUtcMs = timeUtcMs;
     this.#openPanelId = openPanelId;
     camera.updateMatrixWorld(true);
     for (const { group, element } of this.#entries) {
-      const absolute = positionFor(group.objectId);
+      // A marker the current view owns no panel of, or on an object the view hides, is not drawn.
+      const absolute = hidden?.objects.has(group.objectId) === true || group.panels.every((panel) => hidden?.panels.has(panel.panelId) === true) ? null : positionFor(group.objectId);
       const screen = absolute === null ? null : projectToScreen(this.#local.fromArray(origin.toLocal(absolute)), camera, widthPx, heightPx);
       element.hidden = screen === null;
       if (screen === null) continue;

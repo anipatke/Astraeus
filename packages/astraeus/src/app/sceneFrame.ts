@@ -242,11 +242,39 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   return hoverGain;
 }
 
+/** Stage 5b: shows or hides each drawn group by the current view's hidden ids (bodies, paths, point groups, body sets). One set, read here; nothing is rebuilt. */
+export function applyViewVisibility(ctx: FrameContext): void {
+  const hidden = ctx.controls.viewHidden?.objects;
+  const { views, bodyRefs } = ctx;
+  const show = (id: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true; };
+  for (const [id, group] of bodyRefs.groups) show(id, group);
+  for (const view of views.trackedViews) show(view.body.id, view.group);
+  for (const view of views.groupViews) show(view.id, view.group);
+  for (const view of views.sunCentredViews) show(view.id, view.group);
+  // A line follows the body or set it belongs to (the link the line already carries), so a view never names orbit lines.
+  const showOwned = (id: string, owner: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true && hidden?.has(owner) !== true; };
+  for (const view of views.compositionPaths) showOwned(view.id, String(view.layer.source.body), view.group);
+  for (const view of views.bodySetViews) show(view.id, view.group);
+  for (const view of views.orbitSetViews) showOwned(view.id, view.layer.id, view.group);
+}
+
 /** A mounted body's drawn sphere and radius for the feature markers, or null when the body is not drawn as a sphere. */
 export function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<BodyId, BodyParts>, id: string, policy: ScalePolicy): FeatureHost | null {
   const sphere = parts.get(id as BodyId)?.sphere;
   const asset = assets.find((candidate) => candidate.definition.id === id);
   return sphere === undefined || asset === undefined ? null : { sphere, radius: drawnRadii(asset.definition, policy).equatorial };
+}
+
+/** What the labels and taps see under the current view: the objects and body sets it shows, and the label-hidden ids with the view's own added. Allocates only when a view hides something. */
+function shownUnderView(ctx: FrameContext) {
+  const { controls, views } = ctx;
+  const hidden = controls.viewHidden?.objects;
+  if (hidden === undefined || hidden.size === 0) return { objects: controls.labelObjects, bodySetViews: views.bodySetViews, hiddenLabels: controls.hiddenLabels };
+  return {
+    objects: controls.labelObjects.filter((object) => !hidden.has(object.id)),
+    bodySetViews: views.bodySetViews.filter((view) => !hidden.has(view.id)),
+    hiddenLabels: new Set([...(controls.hiddenLabels ?? []), ...hidden]),
+  };
 }
 
 /** Stage 6: updates the overlay layers (names, story and feature markers) and rebuilds what a tap or hover can pick. */
@@ -256,13 +284,14 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   publishBodyData(canvas, bodyScreens);
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, controls.hiddenLabels);
-  state.pickables = pickCandidatesOf({ objects: controls.labelObjects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: ctx.views.bodySetViews });
+  const shown = shownUnderView(ctx);
+  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels);
+  state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
   const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";
   canvas.dataset.pickHover = hover ?? "";
   layers.sceneLabels.current?.setHover(hover, hoverGain);
-  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t);
+  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, controls.viewHidden);
   const featureReadout = layers.featureMarkers.current?.update((id) => featureHostOf(ctx.assets, ctx.bodyRefs.parts, id, controls.policy), camera, camera.fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
   if (featureReadout !== null && featureReadout !== undefined) canvas.dataset.featureMarkers = JSON.stringify(featureReadout);
 }
@@ -379,6 +408,7 @@ export function runFrame(ctx: FrameContext): void {
   const placed = placeScene(ctx, t);
   const step = stepAndPoseCamera(ctx, t, placed);
   publishCanvasReadouts(ctx);
+  applyViewVisibility(ctx);
   const hoverGain = placeViews(ctx, t, placed, setLook);
   updateOverlays(ctx, t, step, hoverGain);
   placeLightsAndReadout(ctx, t, placed);

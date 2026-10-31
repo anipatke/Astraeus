@@ -10,6 +10,7 @@ import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
+import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, timeFromSearch, viewFromSearch, shareViewLink, type StartView } from "./viewLink";
@@ -33,6 +34,7 @@ import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, orbitStart } from "./displaySwitches";
+import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
@@ -165,6 +167,7 @@ function initialSceneControls(
     hiddenLabels: hiddenLabelsFrom(search, labelStart(definition) === undefined ? experience.objects : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) }))),
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
+    viewHidden: hiddenByView(definition.views, viewById(definition.views, definition.views?.start ?? ""), experience),
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxFromSearch(search),
@@ -210,7 +213,11 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     });
     return () => { cancelled = true; };
   }, []);
-  const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
+  // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
+  const [viewId, setViewId] = useState(() => definition.views?.start ?? "");
+  const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
+  const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
+  const shellExperience = useMemo(() => withSkyObject(viewExperience, runtime.sky.visible, starStatus), [viewExperience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
@@ -354,6 +361,15 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     const view = controls.current.viewReadout;
     if (view === undefined) return;
     setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
+  };
+  const chooseView = (id: string) => {
+    controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
+    setViewId(id);
+  };
+  const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
+    place: definition.views.place,
+    options: definition.views.views.map((view) => ({ id: view.id, label: view.label, active: view.id === currentView?.id })),
+    onSelect: chooseView,
   };
   const displaySwitches = displaySwitchItems({
     settings: definition.displaySwitches,
@@ -572,6 +588,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
       scaleChoices={scaleChoices}
       switcher={switcherOf(definition, runtime, onOpenAddress)}
       displaySwitches={displaySwitches}
+      viewChoice={viewChoice}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

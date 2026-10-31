@@ -15,7 +15,7 @@ import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
-import type { DisplaySwitchItem } from "./DisplaySwitches";
+import type { DisplaySwitchItem, ViewChoice } from "./DisplaySwitches";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
@@ -90,6 +90,8 @@ interface Props {
   readonly switcher?: ExperienceSwitch;
   /** Display switches a story placed in the top bar or its switch panel (also in the phone drawer); absent or empty: none. */
   readonly displaySwitches?: readonly DisplaySwitchItem[];
+  /** The views the scene names (T-219); absent: none. The experience this shell gets is already the current view's. */
+  readonly viewChoice?: ViewChoice;
   /** Live measurements for an object's info panel, from the app's own State; empty when it has none. */
   readonly metricsFor?: (objectId: string, timeUtcMs: number) => readonly Metric[];
   readonly developerTools?: ReactNode;
@@ -162,6 +164,7 @@ export function AstraeusShell({
   scaleChoices,
   switcher,
   displaySwitches,
+  viewChoice,
   metricsFor,
   developerTools,
   storyPanelSettings,
@@ -340,6 +343,7 @@ export function AstraeusShell({
       scaleChoices={scaleChoices}
       switcher={switcher}
       displaySwitches={displaySwitches}
+      viewChoice={viewChoice}
     />
   );
 

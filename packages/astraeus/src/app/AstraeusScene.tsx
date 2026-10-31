@@ -1,3 +1,4 @@
+import type { ViewHidden } from "./viewHiding";
 import { createFrameState, type FrameState } from "./sceneFrame";
 import { useBodyRefs, useDrawWakes, useOverlayLayers, useReleaseSharedTextures, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
 import { useMemo, useRef } from "react";
@@ -111,6 +112,8 @@ export interface SceneControls {
   up?: RenderVector;
   /** Ids of objects whose label is switched off (live). Their objects stay listed and selectable. */
   hiddenLabels?: Set<string>;
+  /** Presentation only (views): the ids the current view hides, read by the frame stages (groups, labels, picking, story markers). Absent or empty: everything shows. Replaced, never edited, on a switch. */
+  viewHidden?: ViewHidden;
   readonly labelObjects: readonly ExperienceObject[];
   /** Objects that story panels name; each gets a marker that reopens its panel. */
   readonly storyMarkers?: readonly StoryMarkerSpec[];
