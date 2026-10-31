@@ -12,7 +12,7 @@ checks: [C-128]
 severity: low
 history:
   - at: '2026-10-31T18:00:00Z'
-    actor: {role: coordinator, session: o047-run-20261031}
+    actor: {role: planner, session: o047-run-20261031}
     kind: observed
     note: 'Minor non-blocking finding in C-128, captured by the coordinator.'
 ---
