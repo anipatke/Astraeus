@@ -2,9 +2,10 @@
 id: T-213
 title: Let one path change what its line is drawn against
 objective: O-050
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-213, reason: 'Owner said "orchestrate O50"; under the standing run rules (no per-step checks, one Full Objective Check at the end), the optional Task Check is waived.', actor: {role: owner, session: o050-run-20261101}, recorded_at: '2026-10-31T21:09:37Z'}
 planned_by: {role: planner, session: probe-switch-20261101}
 ---
 
@@ -56,8 +57,15 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution.
+Built per plan. `lineFixedTo` is `BodyId | { start, end, body }[]`; the list is planned by `planLineStretches`, which shares one `planSpans` helper with `planPathProvenance` (`api/pathProvenance.ts`). `TrackedBody.lineFixedTo` carries the planned stretches (`app/mission.ts`: `LineStretch`, `lineAgainstAt`, `lineBodies`); `TrackedBodyView.#relative` places each run of samples from its own body and carries it to the scene centre at the clock time; `#remap` re-maps per clock time when any stretch is fixed to a body other than the centre. Menu, card, readouts and follow needed no change (availability is the path's bounds; the marker is the state, not the line). No browser run.
+
+- `npx vitest run publicApiLineStretches publicApiSunPaths publicApiPaths`: 49 passed (new file: 6 tests: one menu entry across the span, index faults, boundary vertex against Mars versus hand-computed, single id equals one stretch, Moon stretch in Earth-centred scene, marker continuity at both boundaries).
+- Follow test (`camera follow keeps the followed target at the marker, in view and available at, just before and just after each boundary`, `publicApiLineStretches.test.ts`): drives the real follow code without a browser (`stepCameraTarget` with a follow request, `focusAbsoluteOf`/`canFocus`/`labelPositionOf`, `resolveCamera`, `poseCamera`, `TrackedBodyView.update`) at one hour before, at and one hour after day 60 and day 140 of the Sun/Mars/Sun flyby; asserts focus stays "probe", target available, camera look-at target equals the marker position, and the marker is visible and inside the camera frustum. Passes (7 in file).
+- `npm run lint`: pass. `npm run typecheck`: pass. `npm run build`: pass (chunk-size warning only). `npm test`: 163 files passed, 2036 passed, 1 skipped.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- `lineFixedTo` is now `BodyId | readonly {start, end, body}[]` on `addTrajectory`; `TrackedBody.lineFixedTo` holds `string | LineStretch[]` (ms). Pathrule unchanged (relative trail), applied per run of samples; a shared boundary sample belongs to the later stretch, uncovered time to the scene centre.
+- `api/pathProvenance.ts` now holds the shared span planner (`planSpans`) behind `planPathProvenance` and `planLineStretches`. No change to State or `stateOf`.

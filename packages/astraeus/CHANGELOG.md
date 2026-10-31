@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- `addTrajectory`'s `lineFixedTo` also takes a list of `{ start, end, body }` stretches (O-050 T-213, I-125): each stretch of the line is drawn against its own body, so a flyby (Sun-fixed cruise, planet-fixed encounter, Sun-fixed cruise) is one path with one menu entry and card. Same span rules as `provenanceSpans`; a fault throws `bad-trajectory` naming the index. A single body id behaves as before.
+
 ## 0.6.0 (2026-11-01)
 
 First download of the packed example (`npm run measure:example`): 1,638,245 bytes raw, 468,717 bytes gzip (code and styles loaded on first open).

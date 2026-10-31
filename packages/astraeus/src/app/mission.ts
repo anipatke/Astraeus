@@ -6,6 +6,27 @@ import type { TimeBounds, Trajectory } from "../core/trajectory";
 import type { PathSamples } from "./pathRules";
 
 /** A bounded trajectory the scene can draw. Nothing here names a mission. */
+/** One stretch of a path's line, `[startUtcMs, endUtcMs)` (the last may include its end), drawn against `body`. */
+export interface LineStretch {
+  readonly startUtcMs: number;
+  readonly endUtcMs: number;
+  readonly body: string;
+}
+
+/** The body a path's line is drawn against at `timeUtcMs`: the one named, the covering stretch's, or `fallback` (the scene centre). A shared boundary belongs to the later stretch. */
+export function lineAgainstAt(lineFixedTo: TrackedBody["lineFixedTo"], timeUtcMs: number, fallback: string): string {
+  if (lineFixedTo === undefined) return fallback;
+  if (typeof lineFixedTo === "string") return lineFixedTo;
+  const last = lineFixedTo[lineFixedTo.length - 1];
+  return lineFixedTo.find((stretch) => timeUtcMs >= stretch.startUtcMs && timeUtcMs < stretch.endUtcMs)?.body ?? (last !== undefined && timeUtcMs === last.endUtcMs ? last.body : fallback);
+}
+
+/** Every body a path's line is drawn against, in order, with the `lineFixedTo` index of each (a plain id is index null). */
+export function lineBodies(lineFixedTo: TrackedBody["lineFixedTo"]): readonly { readonly index: number | null; readonly body: string }[] {
+  if (lineFixedTo === undefined) return [];
+  return typeof lineFixedTo === "string" ? [{ index: null, body: lineFixedTo }] : lineFixedTo.map((stretch, index) => ({ index, body: stretch.body }));
+}
+
 export interface TrackedBody {
   readonly id: string;
   readonly label: string;
@@ -19,8 +40,8 @@ export interface TrackedBody {
   readonly anchorLabels?: readonly string[];
   /** Published position discrepancy per reconstruction segment, in time order. */
   readonly positionDiscrepancies?: readonly PositionDiscrepancy[];
-  /** The body the line is drawn against, at each sample's own time; absent: the scene centre. */
-  readonly lineFixedTo?: string;
+  /** The body the line is drawn against, at each sample's own time; absent: the scene centre. A list draws each stretch against its own body (time outside every stretch: the scene centre). */
+  readonly lineFixedTo?: string | readonly LineStretch[];
   /** The trajectory's own Provenance, passed through unchanged. */
   readonly provenance?: Provenance;
 }

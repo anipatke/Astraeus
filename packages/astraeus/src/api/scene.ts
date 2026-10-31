@@ -3,7 +3,7 @@ import type { TimelineEvent } from "../core/events";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { WindowProvenanceSpan } from "../core/timeWindow";
 import type { ActivitySourceInput } from "./activity";
-import { planPathProvenance } from "./pathProvenance";
+import { planLineStretches, planPathProvenance, type LineStretchInput } from "./pathProvenance";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
 import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { createState, type State } from "../core/state";
@@ -18,7 +18,7 @@ import { createComposition, type CompositionPath } from "../assets/compositions"
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
-import type { TrackedBody } from "../app/mission";
+import { lineBodies, type TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
@@ -108,9 +108,11 @@ interface TrajectoryBase {
   /**
    * The body the path's line is drawn against: each sample is placed from this body at the sample's own time, then the line is carried to
    * this body's place from the scene centre at the clock time. Defaults to the scene centre; name the Sun for a probe crossing a Sun-centred scene.
+   * A list of `{ start, end, body }` (times as `provenanceSpans`) draws each stretch against its own body, so a flyby is one path: Sun-fixed cruise, planet-fixed encounter, Sun-fixed cruise.
+   * Sorted, not overlapping, inside the path's span; time outside every stretch is drawn against the scene centre. A fault throws `bad-trajectory` naming the index.
    * Throws `bad-trajectory` at build if the scene does not hold the body.
    */
-  readonly lineFixedTo?: BodyId;
+  readonly lineFixedTo?: BodyId | readonly LineStretchInput[];
   /**
    * The frame the positions and velocities are given in, about `center`: "EQJ" (equatorial J2000, the default) or "ecliptic-j2000" (the vectors JPL Horizons
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
@@ -352,7 +354,7 @@ export class Scene {
     const id = input.id;
     if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
     const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
-    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance, ...(input.lineFixedTo === undefined ? {} : { lineFixedTo: input.lineFixedTo }) };
+    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
     const readouts = readoutsOf(id, input.readouts);
     if (input.labelReach !== undefined) {
       checkLabelReach(input.labelReach, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReach ${String(input.labelReach)} must be a positive finite number`));
@@ -361,8 +363,10 @@ export class Scene {
     if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
     const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
     const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
-    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs });
-    this.#tracked.set(id, { center, body: withAnchors(body, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+    const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
+    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
+    const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : input.lineFixedTo;
+    this.#tracked.set(id, { center, body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
   }
 
   /** Whether a body, path or group already has this id. */
@@ -691,8 +695,9 @@ export class Scene {
 
   /** A readout, or the body the line is fixed to, names a body the scene must hold. */
   #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
-    const fixed = entry.body.lineFixedTo;
-    if (fixed !== undefined && !ids.includes(fixed)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo names "${fixed}", which has not been added to the scene`);
+    for (const { index, body } of lineBodies(entry.body.lineFixedTo)) {
+      if (!ids.includes(body)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo${index === null ? "" : `[${index}]`} names "${body}", which has not been added to the scene`);
+    }
     for (const spec of entry.readouts) {
       const named = readoutBody(spec);
       if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
@@ -862,7 +867,7 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
   return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }
 
-type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance" | "lineFixedTo">;
+type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;
 
 /** Rotates a vector by a row-major 3x3 matrix; a missing matrix leaves it as it is. Input that is not three numbers passes through for the State checks to refuse. */
 function rotated(matrix: Float64Array | null, v: ArrayLike<number> | undefined): ArrayLike<number> | undefined {
