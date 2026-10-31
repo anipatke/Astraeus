@@ -13,6 +13,11 @@ history:
     actor: {role: planner, session: probe-feedback-20261031}
     kind: observed
     note: 'Reported from the interplanetary probe downstream app (astraeus@0.4.0 from npm, public API only), pasted by the owner.'
+  - at: '2026-10-31T03:55:00Z'
+    actor: {role: checker, session: o047-check-20261031}
+    kind: rechecked
+    note: 'C-126 NEEDS WORK. Data back to 1950, per-body spans, README years and the moon out-of-span error are proven. Still failing: a scene with a planet orbit line or camera.fitOrbit whose timeline starts before 1950 (e.g. sun + saturn {orbit: true}, timeline 1945-01-01 to 1946-01-01) throws TimeScaleOutOfRangeError instead of SceneError out-of-span, because the sun paths (#earlySunPaths at toDefinition, #sunPath in prepare) and the fit read run before #checkPlanetSpan (api/scene.ts). Repair: check the planet span first in both places; test orbit and fitOrbit before 1950; make the dataSpans.test.ts planet case test a pre-1950 date (now vacuous).'
+    check: C-126
 ---
 
 # I-110: Moon data starts in 2010, so historical flybys cannot show their moons
