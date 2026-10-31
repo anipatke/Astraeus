@@ -1,6 +1,6 @@
 // The pack check (O-036 T-161): `npm run check:pack` builds every publishable package (tools/build-packages.mjs), runs `npm pack --dry-run --json` on each build
 // folder and fails on a file outside the allow-list, a forbidden file, a missing manifest field, an `exports` target that is not packed, or a size or file
-// count above the limit. Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
+// count above the limit (the engine has no file count: a stray file fails, see strayFiles). Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
 // about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -11,9 +11,9 @@ import { buildPackage, PACKAGES } from "./build-packages.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MB = 1_000_000;
 
-/** Limits in bytes (packed, unpacked) and file counts. The astraeus file count rose from 450 to 460 in O-047 T-201 (the pacing module) to 462 in O-048 T-205 (the ring data and ring parse modules, kept apart from the moon lists so the catalogue visuals do not pull them into the first download) and to 464 in O-048 T-206 (the sidereal-period module, kept apart from the propagator so body definitions read a moon's period without loading it; one file and its declaration) and to 466 in O-049 T-210 (the generated listed-moon lookup, `core/bodies/listedMoons`: one file and its declaration, kept apart from the full moon lists so the first download does not carry them) and to 470 in O-049 T-211 (the listed-moon rule `core/bodies/listedMoonBodies` and the catalogue look `assets/bodies/listedMoons`: two files and their declarations) and to 472 in O-050 T-216 (the sphere-of-influence module `api/sphereOfInfluence`: one file and its declaration, a pure rule kept apart from the scene). The four planet packages were raised in O-047 T-200 (main moons and planets fitted back to 1950: jupiter 30.9, saturn 53.5, uranus 40.6, neptune 18.5 MB packed). */
+/** Limits in bytes (packed, unpacked) and file counts. `astraeus` has no file count: `strayFiles` names a packed file that is not a real source module (O-051 T-218, owner choice). The planet packages were raised in O-047 T-200. */
 export const LIMITS = {
-  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB, files: 472 },
+  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB },
   "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 40 },
   "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
   "astraeus-data-saturn": { packed: 59 * MB, unpacked: 64 * MB, files: 7_000 },
@@ -97,6 +97,43 @@ function peerProblems(name, manifest) {
   return problems;
 }
 
+/**
+ * Packed files of `astraeus` that trace to no real file: a `src/**` `.js`, `.node.js` or `.d.ts` needs `packages/astraeus/src/**` `.ts` or `.tsx` of the same name, any other file under `src` or `data`
+ * needs the same path in the package source, and a top-level entry must be `package.json` or one the package's `x-publish.files` lists. So a new module passes and a stray file fails by name.
+ */
+export function strayFiles(paths, sourceDir, publishFiles) {
+  const top = new Set(["package.json", ...publishFiles]);
+  return paths.filter((path) => {
+    const [first] = path.split("/");
+    if (!top.has(first)) return true;
+    if (first !== "src" && first !== "data") return false;
+    const code = first === "src" ? /^(.+?)(?:\.node)?\.js$|^(.+)\.d\.ts$/.exec(path) : null;
+    if (code !== null) {
+      const stem = code[1] ?? code[2];
+      return !existsSync(join(sourceDir, `${stem}.ts`)) && !existsSync(join(sourceDir, `${stem}.tsx`));
+    }
+    return !existsSync(join(sourceDir, path));
+  });
+}
+
+/** The stray-file problems of the engine's pack (none for the other packages). */
+function strayProblems(name, paths) {
+  if (name !== "astraeus") return [];
+  const source = join(root, "packages", name);
+  const publish = JSON.parse(readFileSync(join(source, "package.json"), "utf8"))["x-publish"]?.files ?? [];
+  return strayFiles(paths, source, publish).map((path) => `${name}: stray file ${path} (no source module or listed file behind it)`);
+}
+
+/** Sizes (and, where a package has one, the file count) over the package's limits. */
+function sizeProblems(name, pack) {
+  const problems = [];
+  const limit = LIMITS[name];
+  if (pack.size > limit.packed) problems.push(`${name}: packed ${(pack.size / MB).toFixed(2)} MB is over ${(limit.packed / MB).toFixed(1)} MB`);
+  if (pack.unpackedSize > limit.unpacked) problems.push(`${name}: unpacked ${(pack.unpackedSize / MB).toFixed(2)} MB is over ${(limit.unpacked / MB).toFixed(1)} MB`);
+  if (limit.files !== undefined && pack.entryCount > limit.files) problems.push(`${name}: ${pack.entryCount} files is over ${limit.files}`);
+  return problems;
+}
+
 /** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
 function problemsOf(name, dir, pack) {
   const problems = [];
@@ -106,6 +143,7 @@ function problemsOf(name, dir, pack) {
     if (FORBIDDEN.test(path)) problems.push(`${name}: forbidden file ${path}`);
     else if (!allowed.test(path)) problems.push(`${name}: unexpected file ${path}`);
   }
+  problems.push(...strayProblems(name, paths));
   const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
   if (manifest.name !== name) problems.push(`${name}: package.json names ${manifest.name}`);
   const sourceVersion = JSON.parse(readFileSync(join(root, "packages", name, "package.json"), "utf8")).version;
@@ -118,10 +156,7 @@ function problemsOf(name, dir, pack) {
   for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
   if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
   problems.push(...codeProblems(name, dir));
-  const limit = LIMITS[name];
-  if (pack.size > limit.packed) problems.push(`${name}: packed ${(pack.size / MB).toFixed(2)} MB is over ${(limit.packed / MB).toFixed(1)} MB`);
-  if (pack.unpackedSize > limit.unpacked) problems.push(`${name}: unpacked ${(pack.unpackedSize / MB).toFixed(2)} MB is over ${(limit.unpacked / MB).toFixed(1)} MB`);
-  if (pack.entryCount > limit.files) problems.push(`${name}: ${pack.entryCount} files is over ${limit.files}`);
+  problems.push(...sizeProblems(name, pack));
   return problems;
 }
 
@@ -142,7 +177,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const started = Date.now();
   const result = checkPacks();
   for (const row of result.rows) {
-    console.log(`${row.name.padEnd(24)} packed ${row.packedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.packed / MB).toFixed(1)})  unpacked ${row.unpackedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.unpacked / MB).toFixed(1)})  ${String(row.files).padStart(5)} files (limit ${row.limit.files})`);
+    console.log(`${row.name.padEnd(24)} packed ${row.packedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.packed / MB).toFixed(1)})  unpacked ${row.unpackedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.unpacked / MB).toFixed(1)})  ${String(row.files).padStart(5)} files (${row.limit.files === undefined ? "no count limit; stray-file check" : `limit ${row.limit.files}`})`);
   }
   for (const problem of result.problems) console.error(`FAIL ${problem}`);
   console.log(result.ok ? `pack check: pass (${((Date.now() - started) / 1000).toFixed(1)} s)` : `pack check: FAIL (${result.problems.length} problems)`);

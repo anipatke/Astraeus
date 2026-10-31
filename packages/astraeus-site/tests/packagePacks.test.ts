@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { checkPacks, extensionlessImports, LIMITS } from "../../../tools/check-packs.mjs";
+import { checkPacks, extensionlessImports, LIMITS, strayFiles } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
 
 // O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
@@ -34,6 +34,24 @@ describe("publishable packages", () => {
       rmSync(join(dist, "src", "x.test.js"), { force: true });
       rmSync(join(dist, "src", "stray.ts"), { force: true });
       rmSync(join(dist, "src", "notes.txt"), { force: true });
+    }
+  }, 60_000);
+
+  it("passes a new module and names a stray file in astraeus (O-051 T-218)", () => {
+    const source = join(__dirname, "..", "..", "astraeus");
+    const listed = ["src", "data", "README.md", "licenses"];
+    expect(strayFiles(["package.json", "README.md", "licenses/x.txt", "src/api/scene.js", "src/api/scene.d.ts", "src/api/index.node.js", "src/app/style.css", "data/orbits/io.json"], source, listed)).toEqual([]);
+    expect(strayFiles(["src/api/planted.js", "src/api/planted.d.ts", "src/api/scene.txt", "data/orbits/planted.json", "notes.md", "scratch/a.js"], source, listed))
+      .toEqual(["src/api/planted.js", "src/api/planted.d.ts", "src/api/scene.txt", "data/orbits/planted.json", "notes.md", "scratch/a.js"]);
+  });
+
+  it("fails the pack check on a planted stray file in the astraeus build", () => {
+    const dist = join(__dirname, "..", "..", "astraeus", "dist");
+    writeFileSync(join(dist, "src", "api", "planted.js"), "export {};\n");
+    try {
+      expect(checkPacks({ build: false, only: ["astraeus"] }).problems).toContain("astraeus: stray file src/api/planted.js (no source module or listed file behind it)");
+    } finally {
+      rmSync(join(dist, "src", "api", "planted.js"), { force: true });
     }
   }, 60_000);
 

@@ -38,7 +38,9 @@ export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
+import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
+import type { ViewSettings } from "../app/views";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { checkEventObjects, eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
@@ -275,6 +277,7 @@ export class Scene {
   #panels: StoryPanelsInput | undefined;
   #timeline: TimelineSetting | undefined;
   #switches: DisplaySwitchSettings | undefined;
+  #views: ViewsPlan | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#bodies.has(id) && circlesTheSun(this.#catalogue, id));
@@ -463,6 +466,20 @@ export class Scene {
   }
 
   /**
+   * Names views of this one scene, each listing what it shows: `paths` (ids of `addTrajectory`), `bodies` (ids of `addBody` or `addGroup`), `events` (ids of `addEvents`) and `panels` (ids of `addStoryPanels`).
+   * Anything no view names shows in every view (shared bodies such as the planets); anything a view names shows only in the views that name it. `place` is `"top-bar"` or `"panel"` (as for `setSwitches`);
+   * `start` is the opening view (default the first). `camera` says what happens when the followed or focused object is not in the view switched to: `"stay"` (default), `"start"` (the scene's start) or
+   * `{ follow: id }` / `{ focus: id }` (that framing; the object must be in the view). Presentation only: State is unchanged and a hidden object keeps its state. May be called again; the later call replaces the views.
+   * An empty list, a repeated view id, a bad place or camera, or a `start` that is not a view throws `bad-view` here; an id the scene does not hold, or a camera target the view does not show, throws `bad-view` when the scene is built (`mount`), so the call may come before or after the objects.
+   * @example
+   * scene.setViews([{ id: "a", label: "Probe A", paths: ["probe-a"] }, { id: "b", label: "Probe B", paths: ["probe-b"] }, { id: "both", label: "Both" }], { place: "top-bar" });
+   */
+  setViews(views: readonly ViewInput[], options: ViewsOptions): this {
+    this.#views = viewsOf(views, options);
+    return this;
+  }
+
+  /**
    * The state of a body in the scene at a moment (position in km always; velocity in km/s only where the body's source provides it), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
    * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a distance from the Sun, come from here. `velocityKmS` is set only for a path whose
    * samples or provider carry velocities and for a moon from fitted data (Io); planets, Earth, the Sun, the built-in comet and elements bodies give position only, so check it before use. An id the scene does not hold throws `unknown-body`. Ready-made and elements bodies answer at any date (they have no data cut-off); only a moment outside an
@@ -514,6 +531,12 @@ export class Scene {
     const anchors = new Map<string, number>();
     for (const { body } of this.#tracked.values()) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
     return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
+  }
+
+  /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
+  #viewsEntry(ids: readonly BodyId[], storyPanels: StoryPanelSet | undefined): { views?: ViewSettings } {
+    if (this.#views === undefined) return {};
+    return { views: resolveViews(this.#views, { paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groups.keys()], events: this.#events.map(({ id }) => id), panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
   }
 
   /** Checks the groups against the finished scene: each circles its centre (default the scene's first body), which and whose clump body the scene must hold. */
@@ -813,6 +836,7 @@ export class Scene {
       composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
+      ...this.#viewsEntry(ids, storyPanels),
       ...viewEntries(timeline, this.camera, fit?.read, this.#pathCover(sunCentred, ids[0]!)),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,

@@ -2,6 +2,7 @@
 export { Scene, SceneCamera, type AddBodyOptions, type AnchorInput, type ReadoutInput, type DataSource, type MoonPositions, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelsInput } from "./story";
 export { type SwitchesInput } from "./switches";
+export { type ViewsOptions, type ViewInput, type ViewCameraInput } from "./views";
 export { mount, type MountOptions, type MountedScene } from "./mount";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { type ViewerChange, type RateSource } from "./viewerLink";
