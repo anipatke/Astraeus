@@ -2,17 +2,27 @@
 id: I-124
 title: 'A page cannot switch between scenes inside the viewer'
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: probe-switch-20261101}
   at: '2026-11-01T00:00:00Z'
 severity: high
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o051-plan-20261101}
+  at: '2026-10-31T22:48:14Z'
+  reason: 'Repair promoted into O-051 (Switch between views inside the viewer), owner-confirmed design.'
+escalated_to: O-051
 history:
   - at: '2026-11-01T00:00:00Z'
     actor: {role: planner, session: probe-switch-20261101}
     kind: observed
     note: 'Reported from the interplanetary probe downstream app (astraeus@0.6.0, public API only), pasted by the owner. Owner chose to wait for a built-in switch; the app''s Voyager 1 / Voyager 2 / Both switch (its T-010) is paused before it started.'
+  - at: '2026-10-31T22:48:14Z'
+    actor: {role: planner, session: o051-plan-20261101}
+    kind: escalated
+    note: 'Escalated to O-051 (Switch between views inside the viewer) under G-014; owner chose views on one scene, views own paths, bodies, events and panels, camera rule per view (default stay).'
 ---
 
 # I-124: A page cannot switch between scenes inside the viewer

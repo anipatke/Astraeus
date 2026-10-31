@@ -1,7 +1,7 @@
 ---
 id: O-050
 title: Follow a probe as one path
-status: in_progress
+status: done
 depends_on: [O-049]
 release: G-014
 priority: high
