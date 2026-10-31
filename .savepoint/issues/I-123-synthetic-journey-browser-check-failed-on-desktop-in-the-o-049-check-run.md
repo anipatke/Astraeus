@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Fresh single `npm run check:browser` in the O-049 Full Objective Check failed: smoke synthetic-journey desktop. Everything else passed, public-build-assets included (Apollo 11 4,486,131 B raw under the owner-raised 4,490,000).'
     check: C-130
+  - at: '2026-10-31T13:10:00Z'
+    actor: {role: executor, session: o049-repair-20261031}
+    kind: repair_attempted
+    note: 'Cause: the journey check read the scene 1.5 s after a seek with a fixed sleep; with Uranus and five moons the chunk loads take longer on a loaded machine, so the body readout could still be empty. Fix is general: driver.mjs gains waitForSceneReady and seekToReady (poll the scene readouts until the clock shows where the slider settled, bodies are reported and named ids are drawn, 60 s limit, failure says what it last saw); every seek in browser-smoke.mjs now uses it in place of fixed sleeps. Also: sceneCatalogueReach.test.ts now fails on any new src/app function defaulting a catalogue parameter to the built-in one (allowlist with reasons). Fresh npm run check:browser passed every step (docs/evidence/browser-20261031T130145Z): synthetic-journey 72.8 s desktop, 71.3 s phone. Two earlier runs failed on my own first versions of the wait (compared the clock to an unsnapped instant); fixed. Journey time is still about 72 s, not back to 35 s: the time is Uranus data loading and the 60-step zoom loops, not the wait. Not closed; needs a Check.'
 ---
 
 # I-123: Synthetic journey browser check failed on desktop in the O-049 check run

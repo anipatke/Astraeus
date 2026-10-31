@@ -81,3 +81,9 @@ Limitations: `check:browser` ran four times, not once: runs 1 to 3 failed on a r
 ## Drift Notes
 
 - None new architecture. Reconciled into Design.md (paragraph "Every listed moon addable (O-049, I-122)"): T-210 notes (lookup, `orbitPeriodDays`, Io/Europa period difference) and T-211 notes (scene catalogue extension, `toDefinition`/`installData`, `MOON_SYSTEMS` move, `early`, `listedMoons`). Non-architectural: the Uranus pass in the synthetic journey and the `compositionPathLayer` catalogue argument (guarded by tests/sceneCatalogueReach.test.ts).
+
+### Repair evidence (I-123, C-130 NEEDS WORK)
+
+- Cause: fixed 1.5 s sleep after a seek in `browser-smoke.mjs`; slower data loading since Uranus and its moons made the body readout empty. Fix in the driver: `waitForSceneReady` and `seekToReady` (`packages/astraeus-site/tools/validate/driver.mjs`) poll the scene's readouts (clock equals the slider's settled value, bodies reported, named ids drawn; 60 s limit) and every seek in the smoke uses them.
+- `tests/sceneCatalogueReach.test.ts` now fails for a new src/app function that defaults a catalogue parameter to the built-in one (11 listed with reasons). Design.md pack limit corrected to 470. CHANGELOG first download re-measured: 1,638,245 B raw, 468,717 B gzip.
+- Gates after the change: lint, typecheck, build, npm test (162 files, 2030 passed, 1 skipped) pass. One passing `npm run check:browser` at `docs/evidence/browser-20261031T130145Z` (smoke 18/18; synthetic-journey 72.8 s desktop, 71.3 s phone). Two earlier runs this repair failed on my first versions of the wait (folders removed); journey time not back to 35 s.
