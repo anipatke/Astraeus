@@ -8,7 +8,6 @@ source:
   check: C-128
   actor: {role: checker, session: o047-recheck-20261031}
   at: '2026-10-31T18:00:00Z'
-checks: [C-128]
 severity: low
 history:
   - at: '2026-10-31T18:00:00Z'
