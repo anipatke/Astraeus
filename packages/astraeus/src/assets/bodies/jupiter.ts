@@ -1,6 +1,7 @@
 import { JUPITER } from "../../core/bodies/jupiter";
 import type { AssetLicence, TextureRef } from "../licence";
 import type { BodyMaterialConfig, BodyVisual } from "../visual";
+import { JUPITER_RINGS } from "./jupiterRings";
 import jupiterTextureUrl from "../textures/jupiter-2k.jpg";
 
 /** Donor material (src/entities/jupiter.ts); the fallback colour under and without the texture. */
@@ -34,6 +35,7 @@ export const JUPITER_VISUAL: BodyVisual = Object.freeze({
   texture: JUPITER_TEXTURE,
   material: JUPITER_MATERIAL,
   textureYawRad: 0,
+  rings: JUPITER_RINGS,
   light: Object.freeze({ ambient: 0.08, directional: 1.4 }),
 });
 

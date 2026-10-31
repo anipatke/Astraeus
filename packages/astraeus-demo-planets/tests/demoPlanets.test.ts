@@ -1,6 +1,7 @@
 // The Jupiter and planet views' own rules, on the built definitions (O-038 T-146): the parts of browser-jupiter-io.mjs, browser-jupiter-tap.mjs, browser-outer-planets.mjs and browser-planet-switch.mjs
 // that are about what the settings, the data and the builder make. The moon panel's model is in tests/moonFamilyPanel.test.ts and its screen in tests/domMoonPanel.test.ts; the switch's clock and views in
 // tests/planetSystems.test.ts, tests/planetSwitchInner.test.ts and tests/planetChoice.test.ts; Io's place and lighting in tests/jupiterIo.test.ts. What is drawn, the dots' taps and the camera are the smoke check.
+import { catalogue } from "astraeus/assets/catalogue";
 import { describe, expect, it } from "vitest";
 import { mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf } from "astraeus/app/experienceDefinition";
 import { buildPlanetDefinition, type PlanetSystem } from "../src/experiences/planets/planetDefinition";
@@ -69,7 +70,8 @@ describe("the Jupiter view (browser-jupiter-io)", () => {
 describe("the planet views (browser-outer-planets, browser-planet-switch)", () => {
   it("Saturn draws its ring bands at the fact sheet's radii and lists its moon families in the data's order", () => {
     const saturn = build(saturnFile, saturnSystem);
-    const rings = saturn.visualOverrides!.saturn!.rings!;
+    expect(saturn.visualOverrides?.saturn?.rings).toBeUndefined(); // one source: the catalogue
+    const rings = catalogue.get("saturn").visual.rings!;
     const source = readJson(`${ENGINE}data/rings/saturn.json`) as { bands: { id: string; innerKm: number; outerKm: number }[] };
     expect(rings.bands.map((band) => band.id)).toEqual(source.bands.map((band) => band.id));
     for (const band of rings.bands) expect([band.innerKm, band.outerKm]).toEqual([source.bands.find((entry) => entry.id === band.id)!.innerKm, source.bands.find((entry) => entry.id === band.id)!.outerKm]);
@@ -92,7 +94,8 @@ describe("the planet views (browser-outer-planets, browser-planet-switch)", () =
     expect(mountedBodiesOf(pluto)).toEqual(expect.arrayContaining(["pluto", "charon"]));
     const uranus = build(uranusFile, uranusSystem);
     const bands = (readJson(`${ENGINE}data/rings/uranus.json`) as { bands: unknown[] }).bands.length;
-    expect(uranus.visualOverrides!.uranus!.rings!.bands).toHaveLength(bands);
+    expect(uranus.visualOverrides?.uranus?.rings).toBeUndefined(); // one source: the catalogue
+    expect(catalogue.get("uranus").visual.rings!.bands).toHaveLength(bands);
     expect(uranus.bodySets![0].members).toHaveLength((readJson(`${ENGINE}data/moons/uranus.json`) as { moons: unknown[] }).moons.length);
     expect(mountedBodiesOf(uranus)).toEqual(["uranus"]);
   });

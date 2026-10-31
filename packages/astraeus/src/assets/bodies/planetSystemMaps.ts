@@ -6,6 +6,8 @@ import { withPicture } from "../pictures";
 import neptuneUrl from "../textures/neptune-2k.jpg";
 import saturnUrl from "../textures/saturn-2k.jpg";
 import uranusUrl from "../textures/uranus-2k.jpg";
+import { NEPTUNE_RINGS, SATURN_RINGS, URANUS_RINGS } from "./outerPlanetRings";
+import type { RingSystem } from "../rings";
 
 /**
  * Saturn, Uranus, Neptune and Pluto, nine moons with maps, and Phobos and Deimos without (O-033 T-116). The maps are copied from Planetary Explorer
@@ -36,14 +38,17 @@ const sphere = (url: string, widthPx: number, heightPx: number, licence: AssetLi
 });
 
 /** A sphere whose picture (and its licence) ships in astraeus-data and is registered by name; without it the sphere is a flat colour. */
+/** A planet drawn with its rings: the ring bands (and their recorded sources) belong to the planet's one catalogue definition. */
+const ringed = (visual: BodyVisual, rings: RingSystem): BodyVisual => Object.freeze({ ...visual, rings });
+
 const pictured = (picture: string, color: string, roughness: number, textureYawRad = 0): BodyVisual => withPicture(picture, { kind: "sphere", material: Object.freeze({ color, roughness, metalness: 0 }), textureYawRad, light: LIGHT });
 
 /** Phobos and Deimos: grey spheres at their mean radius, with no map (the donor draws them as dots; no map of either is shipped). */
 const greyBall = (color: string): BodyVisual => Object.freeze({ kind: "sphere", material: Object.freeze({ color, roughness: 0.97, metalness: 0 }), light: LIGHT });
 
-export const SATURN_VISUAL = sphere(saturnUrl, 2048, 1024, solarSystemScope("Saturn", "Solar System Scope Saturn texture (donor saturn-2k.jpg, derived locally from its saturn-4k.jpg, which is the 4096x2048 file the Solar System Scope download endpoint gave; donor README: License CC BY 4.0 per the Solar System Scope textures page)"), "#d8c090", 0.85);
-export const URANUS_VISUAL = sphere(uranusUrl, 2048, 1024, solarSystemScope("Uranus", "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#9fd5df", 0.85);
-export const NEPTUNE_VISUAL = sphere(neptuneUrl, 2048, 1024, solarSystemScope("Neptune", "Solar System Scope 2k_neptune.jpg (byte-identical to the donor's neptune-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#4a6fd0", 0.85);
+export const SATURN_VISUAL = ringed(sphere(saturnUrl, 2048, 1024, solarSystemScope("Saturn", "Solar System Scope Saturn texture (donor saturn-2k.jpg, derived locally from its saturn-4k.jpg, which is the 4096x2048 file the Solar System Scope download endpoint gave; donor README: License CC BY 4.0 per the Solar System Scope textures page)"), "#d8c090", 0.85), SATURN_RINGS);
+export const URANUS_VISUAL = ringed(sphere(uranusUrl, 2048, 1024, solarSystemScope("Uranus", "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#9fd5df", 0.85), URANUS_RINGS);
+export const NEPTUNE_VISUAL = ringed(sphere(neptuneUrl, 2048, 1024, solarSystemScope("Neptune", "Solar System Scope 2k_neptune.jpg (byte-identical to the donor's neptune-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#4a6fd0", 0.85), NEPTUNE_RINGS);
 export const PLUTO_VISUAL = pictured("pluto", "#c4a58a", 0.95, Math.PI);
 
 export const MIMAS_VISUAL = pictured("mimas", "#a8a8a8", 0.95);

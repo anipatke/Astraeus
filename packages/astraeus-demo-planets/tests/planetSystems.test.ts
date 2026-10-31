@@ -6,6 +6,7 @@ import { PLANET_SWITCH_KEEPS, choosePlanet } from "../src/experiences/planets/pl
 import { switchAddress } from "astraeus/shell/SwitchControl";
 import { SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
 import { parseRingSystem } from "astraeus/assets/rings";
+import { catalogue } from "astraeus/assets/catalogue";
 import { saturnSystem, SATURN_CHUNK_URLS } from "../src/experiences/planets/systems/saturn";
 import { uranusSystem, URANUS_CHUNK_URLS } from "../src/experiences/planets/systems/uranus";
 import { neptuneSystem, NEPTUNE_CHUNK_URLS } from "../src/experiences/planets/systems/neptune";
@@ -87,15 +88,15 @@ describe("the outer planets in the planet switch (T-118)", () => {
   }
 
   it("Saturn's, Uranus's and Neptune's rings come from the NSSDC fact sheets, with a look from the donor, and Pluto has none", () => {
-    for (const [name, view] of [["saturn", saturnSystem], ["uranus", uranusSystem], ["neptune", neptuneSystem]] as const) {
-      const rings = view.rings!;
+    for (const name of ["saturn", "uranus", "neptune"] as const) {
+      const rings = catalogue.get(name).visual.rings!;
       expect(rings.body).toBe(name);
       expect(rings.sources.join(" ")).toContain("nssdc.gsfc.nasa.gov/planetary/factsheet/");
       expect(rings.sources.join(" ")).toContain("Planetary Explorer");
       for (const band of rings.bands) expect(band.outerKm).toBeGreaterThan(band.innerKm);
       expect(parseRingSystem(readJson(`${ENGINE}data/rings/${name}.json`)).bands).toEqual(rings.bands);
     }
-    expect(plutoSystem.rings).toBeUndefined();
+    expect(catalogue.get("pluto").visual.rings).toBeUndefined();
   });
 
   it("the switch keeps the clock time for planets, and the camera view is the new planet's own", () => {

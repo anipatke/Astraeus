@@ -63,7 +63,7 @@ describe("Jupiter's moons in the Jupiter scene", () => {
 });
 
 describe("Jupiter's rings", () => {
-  it("are the four Planetary Explorer bands at the NSSDC radii, drawn through the experience's overrides", () => {
+  it("are the four Planetary Explorer bands at the NSSDC radii, drawn from the catalogue's Jupiter", () => {
     expect(JUPITER_RINGS.bands.map((band) => [band.id, band.innerKm, band.outerKm, band.color, band.opacity])).toEqual([
       ["halo", 89_400, 123_000, "#a0b0d0", 0.105],
       ["main", 123_000, 128_940, "#d0a080", 0.28],
@@ -72,9 +72,9 @@ describe("Jupiter's rings", () => {
     ]);
     expect(ringExtentKm(JUPITER_RINGS.bands)).toEqual({ innerKm: 89_400, outerKm: 221_900 });
     expect(JUPITER_RINGS.sources.join(" ")).toContain("nssdc.gsfc.nasa.gov/planetary/factsheet/jupringfact.html");
-    expect(visualOverridesOf(jupiterIoExplorer).get("jupiter")?.rings).toBe(JUPITER_RINGS);
-    // Rings are opt-in: the catalogue's Jupiter (used by the showers) has none.
-    expect(catalogue.get("jupiter").visual.rings).toBeUndefined();
+    // One source: the catalogue's Jupiter carries them and the experience attaches none of its own.
+    expect(visualOverridesOf(jupiterIoExplorer).get("jupiter")?.rings).toBeUndefined();
+    expect(catalogue.get("jupiter").visual.rings).toBe(JUPITER_RINGS);
   });
 
   it("take live colour and opacity per band, and refuse bad data", () => {
