@@ -59,16 +59,17 @@ export type RateSource = "scene" | "chosen";
 export interface LinkAccess {
   /** The attached control, or undefined before the viewer is drawn and after it is gone. */
   control(): ViewerControl | undefined;
-  /** The attached control; before the viewer is drawn or after it is gone, throws `missing-data` naming `what`. */
+  /** The attached control; before the viewer is drawn or after it is gone, throws `not-mounted` naming `what`. */
   open(what: string): ViewerControl;
 }
 
 const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` first";
 
-interface Wait { readonly promise: Promise<void>; resolve: () => void; done: boolean }
+interface Wait { readonly promise: Promise<void>; resolve: () => void; reject: (reason: Error) => void; done: boolean }
 function newWait(): Wait {
   const wait = { done: false } as Wait;
-  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve) => { wait.resolve = resolve; });
+  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve, reject) => { wait.resolve = resolve; wait.reject = reject; });
+  wait.promise.catch(() => undefined); // a wait nobody holds when the link closes is not an unhandled rejection
   return wait;
 }
 
@@ -81,7 +82,7 @@ export class ViewerLink implements ViewerPort {
   readonly #access: LinkAccess = {
     control: () => this.#control,
     open: (what) => {
-      if (this.#control === undefined) throw new SceneError("missing-data", `${what}: ${NOT_OPEN}`);
+      if (this.#control === undefined) throw new SceneError("not-mounted", `${what}: ${NOT_OPEN}`);
       return this.#control;
     },
   };
@@ -109,14 +110,15 @@ export class ViewerLink implements ViewerPort {
   /** Stops all callbacks for good (the host unmounted). */
   close(): void {
     this.#closed = true;
+    if (!this.#wait.done) this.#wait.reject(new SceneError("not-mounted", "the viewer was unmounted before it was drawn"));
     this.detach();
     this.#clock.clearListeners();
     this.#zones.clearListeners();
   }
 
   /**
-   * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. After `close` it
-   * never resolves (a closed link is not usable). A detach (the viewer rebuilt) arms a fresh wait.
+   * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. A `close` before it attached rejects it with
+   * `not-mounted` (a closed link is not usable); it never stays pending. A detach (the viewer rebuilt) arms a fresh wait.
    */
   whenAttached(): Promise<void> { return this.#wait.promise; }
 

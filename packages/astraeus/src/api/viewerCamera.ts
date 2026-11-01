@@ -13,7 +13,7 @@ export class ViewerCamera {
   /**
    * Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, a pose (from `camera`) puts the camera back where it was read,
    * relative to its object. The id must be an object the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`.
-   * Before the viewer is drawn or after it is gone, `missing-data`. The move eases in as a view's camera rule does.
+   * Before the viewer is drawn or after it is gone, `not-mounted`. The move eases in as a view's camera rule does.
    */
   setCamera(target: CameraTarget): void {
     const control = this.access.open("setCamera");

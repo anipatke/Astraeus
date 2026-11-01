@@ -4,6 +4,7 @@ export { type EventInput, type AddEventsOptions, type TimelineInput, type Pacing
 export { type SwitchesInput } from "./switches";
 export { type ViewsOptions, type ViewInput, type ViewCameraInput } from "./views";
 export { mount, type MountOptions, type MountedScene } from "./mount";
+export { type ViewerHandle } from "./viewerHandle";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { type ViewerChange, type EventZoneChange, type RateSource, type CameraPose, type CameraTarget } from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";

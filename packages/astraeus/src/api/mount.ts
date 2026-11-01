@@ -5,8 +5,8 @@ import { App } from "../app/App";
 import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
-import type { TimeInput } from "./time";
-import { ViewerLink, type CameraPose, type CameraTarget, type EventZoneChange, type ViewerChange } from "./viewerLink";
+import type { ViewerHandle } from "./viewerHandle";
+import { ViewerLink, type ViewerChange } from "./viewerLink";
 
 /** Options of `mount`. */
 export interface MountOptions {
@@ -18,37 +18,12 @@ export interface MountOptions {
   readonly address?: boolean;
 }
 
-/** What `mount` returns. */
-export interface MountedScene {
-  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every set call work from then on; rejects if loading failed. Never resolves if `unmount` came first. */
+/** What `mount` returns: the viewer handle plus `ready` and `unmount`. */
+export interface MountedScene extends ViewerHandle {
+  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every set call work from then on. Rejects with its own error if loading failed, and with `SceneError` `not-mounted` if `unmount` came first; it never stays pending. */
   readonly ready: Promise<void>;
   /** Removes the scene, its canvas and its listeners from the page. Safe to call twice. */
   unmount(): void;
-  /** The viewer's time in Unix milliseconds UTC; undefined until `ready` has resolved and after `unmount`. */
-  readonly time: number | undefined;
-  /** The playback speed (simulated seconds per real second); undefined like `time`. */
-  readonly rate: number | undefined;
-  /** The id of the view showing; undefined until `ready` has resolved, after `unmount`, and in a scene without views. */
-  readonly view: string | undefined;
-  /** Moves the viewer to `time` (ISO text, a `Date` or Unix milliseconds). Outside the timeline throws `bad-time`; before `ready` or after `unmount` throws `missing-data`. */
-  setTime(time: TimeInput): void;
-  /** Sets the playback speed to one of the speeds the timeline offers (`setTimeline({ rates })`); any other number throws `bad-timeline`. `"auto"` gives the speed back to the scene's `setTimeline({ pacing })` (throws `bad-timeline` when it has none). Before `ready` or after `unmount` throws `missing-data`. */
-  setRate(rate: number | "auto"): void;
-  /** Switches to the view with this id (`setViews`). An unknown id, or a scene without views, throws `bad-view`; before `ready` or after `unmount` throws `missing-data`. `onChange` hears it with `cause: "host"`. */
-  setView(id: string): void;
-  /** The camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, the pose a copied view link carries); undefined until `ready` and after `unmount`; before the first frame is drawn it is the opening camera. Keep it and hand it to `setCamera` to put the camera back. */
-  readonly camera: CameraPose | undefined;
-  /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, or a pose from `camera` puts it back where it was read (relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `missing-data`. The camera eases there. */
-  setCamera(target: CameraTarget): void;
-  /** The ids of the events whose pacing zone holds the viewer's time now, among the zones the showing view has (an empty list in a scene without pacing event rules); undefined until `ready` and after `unmount`. */
-  readonly eventZones: readonly string[] | undefined;
-  /**
-   * Calls `listener({ event, type?, object?, entered, time, cause })` when playback enters or leaves the zone of a pacing event rule (`setTimeline({ pacing: [{ near }] })`) for an event the showing view has; returns the function that stops it.
-   * `cause` is `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); overlapping zones report separately. A zone already active when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it. The engine moves nothing in response: a host composes its own behaviour, for example `setCamera`. No callbacks arrive after `unmount`.
-   */
-  onEventZone(listener: (change: EventZoneChange) => void): () => void;
-  /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. */
-  onChange(listener: (change: ViewerChange) => void): () => void;
 }
 
 /**
@@ -73,10 +48,12 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   if (options.onChange !== undefined) link.onChange(options.onChange);
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const ready = loaded.then(() => {
-    if (!open) return;
+    if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
     root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, host: link }));
     return link.whenAttached();
   });
+  // A host that never awaits `ready` is not sent an unhandled rejection for an early unmount (or a failed load); whoever awaits it still hears the error.
+  ready.catch(() => undefined);
   return {
     ready,
     get time() { return link.time; },

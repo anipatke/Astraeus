@@ -144,7 +144,7 @@ describe("mount", () => {
     host = document.createElement("div");
     const handle = mount(host, new Scene().addBody("jupiter"));
     handle.unmount();
-    await handle.ready;
+    await expect(handle.ready).rejects.toMatchObject({ code: "not-mounted" });
     expect(host.childElementCount).toBe(0);
   });
 

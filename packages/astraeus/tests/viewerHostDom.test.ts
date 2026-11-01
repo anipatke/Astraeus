@@ -44,7 +44,7 @@ describe("the mount handle", () => {
     const handle = mount(host, new Scene());
     expect(handle.time).toBeUndefined();
     expect(handle.rate).toBeUndefined();
-    expect(codeOf(() => handle.setTime(MID))).toBe("missing-data");
+    expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
     handle.unmount();
   });
 
@@ -169,7 +169,7 @@ describe("views through the host (O-051 T-220)", () => {
     const seen: ViewerChange[] = [];
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
     expect(handle.view).toBeUndefined();
-    expect(codeOf(() => handle.setView("a"))).toBe("missing-data"); // not drawn yet
+    expect(codeOf(() => handle.setView("a"))).toBe("not-mounted"); // not drawn yet
     await drawn(handle);
     expect(handle.view).toBeUndefined();
     expect(codeOf(() => handle.setView("a"))).toBe("bad-view");
@@ -182,7 +182,7 @@ describe("views through the host (O-051 T-220)", () => {
     withViews();
     const handle = mount(host, new Scene());
     expect(handle.view).toBeUndefined();
-    expect(codeOf(() => handle.setView("b"))).toBe("missing-data");
+    expect(codeOf(() => handle.setView("b"))).toBe("not-mounted");
     await drawn(handle);
     expect(handle.view).toBe("a");
     act(() => handle.setView("b"));
@@ -192,7 +192,7 @@ describe("views through the host (O-051 T-220)", () => {
     expect(handle.view).toBe("b");
     handle.unmount();
     expect(handle.view).toBeUndefined();
-    expect(codeOf(() => handle.setView("a"))).toBe("missing-data");
+    expect(codeOf(() => handle.setView("a"))).toBe("not-mounted");
   });
 
   it("publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were", async () => {

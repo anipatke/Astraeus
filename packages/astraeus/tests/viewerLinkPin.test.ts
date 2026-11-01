@@ -30,15 +30,15 @@ function fake(opts: { paced?: boolean; views?: string[] } = {}) {
 const code = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return undefined; };
 
 describe("ViewerLink before attach and after detach", () => {
-  it("reads undefined and refuses every setter with missing-data and the NOT_OPEN message", () => {
+  it("reads undefined and refuses every setter with not-mounted and the NOT_OPEN message", () => {
     const link = new ViewerLink();
     const reads = [link.time, link.rate, link.playing, link.eventZones, link.view, link.camera];
     expect(reads).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
     expect(link.rateSource).toBe("scene");
-    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
-    expect(code(() => link.setRate(1))).toBe(`missing-data: setRate: ${NOT_OPEN}`);
-    expect(code(() => link.setView("a"))).toBe(`missing-data: setView: ${NOT_OPEN}`);
-    expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`missing-data: setCamera: ${NOT_OPEN}`);
+    expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
+    expect(code(() => link.setRate(1))).toBe(`not-mounted: setRate: ${NOT_OPEN}`);
+    expect(code(() => link.setView("a"))).toBe(`not-mounted: setView: ${NOT_OPEN}`);
+    expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`not-mounted: setCamera: ${NOT_OPEN}`);
   });
 
   it("reads after attach and goes back to undefined after detach", () => {
@@ -50,7 +50,7 @@ describe("ViewerLink before attach and after detach", () => {
     expect(link.camera).toEqual({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 });
     link.detach();
     expect([link.time, link.rate, link.playing, link.view, link.eventZones, link.camera]).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
-    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
+    expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
   });
 
   it("eventZones is empty (not undefined) when attached to a control with no zones field", () => {
@@ -80,7 +80,7 @@ describe("ViewerLink whenAttached, detach and close", () => {
     expect(again).toBe(true);
   });
 
-  it("after close: a wait armed before it never resolves, and all callbacks stop", async () => {
+  it("after close: a wait armed before it rejects not-mounted, and all callbacks stop", async () => {
     const link = new ViewerLink();
     const f = fake({ paced: true });
     const changes: ViewerChange[] = [];
@@ -88,9 +88,9 @@ describe("ViewerLink whenAttached, detach and close", () => {
     link.onChange((c) => changes.push(c));
     link.onEventZone((z) => zones.push(z));
     let later = false;
-    void link.whenAttached().then(() => { later = true; });
+    const outcome = link.whenAttached().then(() => { later = true; return "resolved"; }, (error: unknown) => (error instanceof SceneError ? error.code : String(error)));
     link.close();
-    await Promise.resolve(); await Promise.resolve();
+    expect(await outcome).toBe("not-mounted");
     expect(later).toBe(false);
     link.attach(f.control);
     link.publish(f.set({ timeUtcMs: START + 99, zones: ["e1"] }), "playback");

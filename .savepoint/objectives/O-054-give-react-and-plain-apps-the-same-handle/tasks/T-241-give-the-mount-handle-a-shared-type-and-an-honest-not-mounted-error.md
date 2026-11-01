@@ -2,9 +2,10 @@
 id: T-241
 title: Give the mount handle a shared type and an honest not-mounted error
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-240, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-241, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T08:47:39Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -60,8 +61,19 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+T-241 build evidence (stage audit).
+
+Changed: packages/astraeus/src/api/viewerHandle.ts (new, ViewerHandle with the doc comments), mount.ts (MountedScene extends ViewerHandle; ready rejects not-mounted when unmounted before the load completes; an internal no-op catch so an unawaited ready is no unhandled rejection), viewerLink.ts (LinkAccess.open throws not-mounted, NOT_OPEN wording kept; close() rejects a pending whenAttached with not-mounted), AstraeusScene.tsx (whenAttached rejection swallowed so onReady stays unfired after close), errors.ts (new not-mounted code; missing-data doc no longer says "open the viewer first"), index.ts (export ViewerHandle), viewerViews.ts and viewerCamera.ts doc comments, README (mount rows, regenerated error table), CHANGELOG Unreleased entry with migration line, api-surface.lock.json regenerated (api:lock), tests/viewerHandleType.test.ts (new).
+
+Edited existing cases (each missing-data -> not-mounted): viewerHostReady "a load failure still rejects ready" (setTime), viewerHostDom lines 47, 172, 185, 195 (setTime/setView), hostCameraDom "before ready and after unmount" (renamed, 3 calls), viewerLinkPin "reads undefined and refuses every setter" (4 messages) and "reads after attach and goes back to undefined" (1 message). Behaviour changes on purpose: viewerHostReady "unmount before the viewer is drawn" now expects ready to reject not-mounted (case a); viewerHostReady whenAttached "never resolves after close" now rejects not-mounted; viewerLinkPin "after close: a wait armed before it never resolves" now rejects not-mounted; publicApi "unmounted before the data loads, it never draws" now expects ready to reject not-mounted. New: case (b) unmount after load but before attach; viewerHandleType.test.ts. Temporary drift check: adding `readonly extraDrift: number` to MountedScene made npm run typecheck fail (TS2741 in mount.ts and TS2344 in viewerHandleType.test.ts); reverted.
+
+Gates: lint, typecheck, build pass; npm test all pass except allowlistGrowth (below); check:pack and check:react-consumer pass.
+
+RESOLVED by owner decision (2026-11-01, "Count per finding, not per name"); the text below is the original finding. allowlistGrowth.test.ts now counts growth per group (file + section + rule + finding + removedBy), so the re-key passes. Shown against the real file: a planted extra F4 entry in an existing group fails ("grew from 1 to 2"), a planted entry in a new group fails ("grew from 0 to 1"), a planted entry with an owner approval passes, the T-241 state passes; made-up-data unit test covers re-key, extra, new group, approved, agent-approved, public map. Recorded in Design.md "O-053 checks". Original:  ViewerHandle.time is now where apiTypeLint.allowlist.json's two F4 entries (time, unit; removedBy O-057) apply, so the entries were re-keyed from MountedScene.time to ViewerHandle.time (stale-entry + new-break tests require it). allowlistGrowth counts the re-key as new entries without an owner approval and fails. No approval was written.
+
 
 ## Drift Notes
 
-Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+Design.md should show ViewerHandle (shared handle type) and the not-mounted error code, and that ViewerLink.close rejects a pending whenAttached; accounted for in T-249 (Design.md reconciliation).
+
+Drift: mount attaches a no-op catch to `ready`, so an unawaited load failure is silent (it used to be an unhandled rejection); whoever awaits `ready` still hears it. Accounted for in T-249 or the checker to judge whether to keep it.

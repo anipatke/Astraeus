@@ -12,8 +12,10 @@ export type SceneErrorCode =
   | "bad-data"
   /** The scale is not one of the engine's scales, or does not suit this scene. */
   | "bad-scale"
-  /** Position data a body needs was not given to the viewer: pass its data package, or open the viewer first. */
+  /** Position data a body needs was not given to the viewer: pass its data package. */
   | "missing-data"
+  /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */
+  | "not-mounted"
   /** The timeline reaches outside the years a body's data package covers. */
   | "out-of-span"
   /** The scene has no bodies to show. */

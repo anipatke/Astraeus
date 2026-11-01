@@ -98,12 +98,12 @@ describe("setCamera on the mount handle", () => {
     handle.unmount();
   });
 
-  it("before ready and after unmount: missing-data", async () => {
+  it("before ready and after unmount: not-mounted", async () => {
     const handle = mount(host, makeScene());
-    expect(codeOf(() => handle.setCamera({ follow: "pa" }))).toBe("missing-data");
+    expect(codeOf(() => handle.setCamera({ follow: "pa" }))).toBe("not-mounted");
     await drawn(handle);
     handle.unmount();
-    expect(codeOf(() => handle.setCamera({ follow: "pa" }))).toBe("missing-data");
+    expect(codeOf(() => handle.setCamera({ follow: "pa" }))).toBe("not-mounted");
   });
 });
 

@@ -86,7 +86,7 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
           if (!open) return;
           setDefinition(prepared.definition);
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
-          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(); });
+          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(); }, () => undefined); // a closed link (unmounted) rejects the wait: onReady does not fire
         },
         (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
       );
