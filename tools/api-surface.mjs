@@ -1,5 +1,5 @@
 // The public-surface lock (O-053 T-228, API-01). The lock file lists the root exports of `astraeus` (each value and type: kind and signature text, from the same
-// compiler read that builds the API reference) and the `exports` map of every published package. A test compares the tree with the lock; `npm run api:lock` rewrites it.
+// compiler read that builds the API reference) and, for every published package, the `exports` map npm publishes (`x-publish.exports`) and the source `exports` map. A test compares the tree with the lock; `npm run api:lock` rewrites it.
 // This file also finds the types reachable from the root export that are declared outside `packages/astraeus/src/api/`.
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -14,15 +14,18 @@ export const LOCK_PATH = join(PACKAGES_DIR, "astraeus", "api-surface.lock.json")
 export const REGENERATE = "npm run api:lock";
 const API_DIR = dirname(PUBLIC_ENTRY);
 
-/** The exports map of every published (not `private`) package, keyed by package name. */
-export function publishedExports(packagesDir = PACKAGES_DIR) {
+/**
+ * The exports map of every published (not `private`) package, keyed by package name. `published` is what npm gets: the manifest's `x-publish.exports` (which
+ * `tools/build-packages.mjs` writes into `dist/package.json`), else its `exports`. `source` is the workspace `exports` map the demos and the site use.
+ */
+export function publishedExports(packagesDir = PACKAGES_DIR, which = "published") {
   const out = {};
   for (const entry of readdirSync(packagesDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
     const manifest = join(packagesDir, entry.name, "package.json");
     if (!entry.isDirectory() || !existsSync(manifest)) continue;
     const json = JSON.parse(readFileSync(manifest, "utf8"));
     if (json.private === true) continue;
-    out[json.name] = json.exports ?? {};
+    out[json.name] = (which === "source" ? json.exports : json["x-publish"]?.exports ?? json.exports) ?? {};
   }
   return out;
 }
@@ -33,7 +36,7 @@ export function currentSurface(entry = PUBLIC_ENTRY, packagesDir = PACKAGES_DIR)
   for (const item of collectExports(entry)) {
     root[item.name] = { kind: item.kind, signature: item.signature, constructors: item.constructors, members: item.members.map((member) => ({ name: member.name, optional: member.optional === true, signature: member.signature })) };
   }
-  return { root, packageExports: publishedExports(packagesDir) };
+  return { root, packageExports: publishedExports(packagesDir), sourceExports: publishedExports(packagesDir, "source") };
 }
 
 export const writeLock = (path = LOCK_PATH) => writeFileSync(path, `${JSON.stringify(currentSurface(), null, 2)}\n`);
@@ -51,6 +54,7 @@ export function surfaceDifferences(lock, now) {
   };
   compare("root export", lock.root, now.root);
   compare("package exports of", lock.packageExports, now.packageExports);
+  compare("source exports of", lock.sourceExports ?? {}, now.sourceExports ?? {});
   return lines;
 }
 

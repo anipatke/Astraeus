@@ -18,6 +18,11 @@ history:
     kind: observed
     note: Found by the O-053 Full Objective Check. A planted extra entry in the engine's x-publish exports reached dist/package.json while the lock test and check:pack both passed.
     check: C-137
+  - at: '2026-11-01T07:00:00Z'
+    actor: {role: executor, session: o053-repair-20261101}
+    kind: repair_attempted
+    note: "Repair, not verified. tools/api-surface.mjs publishedExports now reads x-publish.exports (else exports) into packageExports and keeps the source map as sourceExports; both are compared and locked (api-surface.lock.json regenerated with npm run api:lock). New test locks the published map and proves the x-publish/exports selection. Proof Needed re-run: plant './core/clock' in the engine x-publish.exports -> 'matches the checked-in lock' fails naming 'changed package exports of astraeus'; plant './extra' in astraeus-data x-publish.exports -> same test fails naming astraeus-data; both reverted, tree passes (apiSurface+apiRules 25 passed). Neighbours: lint, typecheck, build, npm test (181 files, 2231 passed, 1 skipped), check:pack pass. Design.md 'O-053 checks' limit text updated. Unverified: no CHANGELOG entry (public root surface unchanged; only the lock's shape grew)."
+    check: C-137
 ---
 
 # I-133: The surface lock does not lock the published exports map

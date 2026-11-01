@@ -188,7 +188,7 @@ describe("viewer isolation (API-03)", () => {
     expect(allowlistOffences(idLiteralBreaks(), entries, "ids")).toEqual([]);
   });
 
-  it("styles nothing outside the viewer's root class in src/app/style.css beyond the allowlist, which can only shrink", () => {
+  it("styles nothing outside the viewer's root class in any stylesheet under src beyond the allowlist, which can only shrink", () => {
     const entries = isolation.breaks.filter((entry) => entry.rule === "selector");
     expect(allowlistOffences(styleSelectorBreaks(), entries, "selectors")).toEqual([]);
     metadata(isolation.breaks, "isolation");
@@ -211,6 +211,11 @@ describe("viewer isolation (API-03)", () => {
       'shell/Sample.tsx: id="info-title"',
       "shell/Sample.tsx: id={`moons-${\"x\"}`}",
     ]);
+  });
+
+  it("scans every stylesheet in the folder, a new one included, and names the file", () => {
+    const hits = withDir({ "app/style.css": ".astraeus-shell .a { top: 0; }", "shell/new.css": "body { margin: 0; }", "deep/er/more.css": ".x { top: 0; }", "shell/Note.ts": "body {}" }, (dir) => styleSelectorBreaks(dir));
+    expect(hits.map((hit) => hit.site)).toEqual(["deep/er/more.css: .x", "shell/new.css: body"]);
   });
 
   it("fails on a selector outside the root class and on :root, html, body and #app (rules under the root class pass, inside @media too)", () => {

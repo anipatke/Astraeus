@@ -370,8 +370,23 @@ export function selectorBreaks(css) {
   return [...new Set(cssSelectors(css))].filter((selector) => PAGE_WIDE.test(selector) || !underRoot(selector)).map((selector) => ({ rule: "selector", site: selector }));
 }
 
-const stylePath = join(ENGINE_SRC, "app", "style.css");
-export const styleSelectorBreaks = (path = stylePath) => selectorBreaks(readFileSync(path, "utf8"));
+/** Every `.css` file under `dir` (default: the engine source), as paths relative to it with `/`, sorted. The viewer's stylesheets are derived, not listed, so a new one is scanned. */
+export function stylesheets(dir = ENGINE_SRC) {
+  const out = [];
+  const walk = (folder) => {
+    for (const entry of readdirSync(folder, { withFileTypes: true })) {
+      const full = join(folder, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".css")) out.push(relative(dir, full).split("\\").join("/"));
+    }
+  };
+  walk(dir);
+  return out.sort();
+}
+
+/** Selector breaks of every stylesheet under `dir`, each site as `folder/file.css: selector`. */
+export const styleSelectorBreaks = (dir = ENGINE_SRC) =>
+  stylesheets(dir).flatMap((file) => selectorBreaks(readFileSync(join(dir, file), "utf8")).map((hit) => ({ ...hit, site: `${file}: ${hit.site}` })));
 
 // ---------- Allowlists ----------
 

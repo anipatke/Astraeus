@@ -18,6 +18,16 @@ history:
     kind: observed
     note: 'Found by the O-053 Full Objective Check. A planted page-wide body rule in src/shell/style.css passed every API test; the six shell stylesheets hold 289 selectors outside .astraeus-shell that no check or allowlist sees.'
     check: C-137
+  - at: '2026-11-01T07:00:00Z'
+    actor: {role: executor, session: o053-repair-20261101}
+    kind: repair_attempted
+    note: "Repair, not verified. tools/api-rules.mjs styleSelectorBreaks now scans every .css under packages/astraeus/src (stylesheets() derives the set, no names listed) and names each site 'file.css: selector'. apiIsolation.allowlist.json: the 100 app/style.css entries re-keyed with the file, 289 shell entries added (F3, O-055); stale entries still fail. New test proves a new stylesheet in the folder (and a nested one) is scanned and non-css files ignored. Proof Needed re-run: plant 'body { margin: 0; }' in src/shell/style.css -> fails 'new break selector shell/style.css: body'; plant '.top-bar-x' in src/shell/TopBar.css -> fails naming shell/TopBar.css; new src/shell/zz.css -> fails naming it; all reverted, tree passes. Neighbours: lint, typecheck, build, npm test (2231 passed, 1 skipped), check:pack pass. Design.md limit text updated. Unverified: scan reads source CSS, not built dist CSS."
+    check: C-137
+  - at: '2026-11-01T07:30:00Z'
+    actor: {role: executor, session: o053-repair-20261101}
+    kind: repair_attempted
+    note: "Follow-up, not verified. Owner decision C-137 O2 (2026-11-01): allowlists can only grow with an owner approval. The 389 selector entries (100 re-keyed with the file name, 289 shell) carry approved {by owner, 2026-11-01, reason quoting C-137/I-134}; new tests/allowlistGrowth.test.ts compares with git main (ALLOWLIST_BASE=HEAD used to prove it: planted entry fails, tree passes)."
+    check: C-137
 ---
 
 # I-134: The CSS isolation scan skips the shell stylesheets the viewer ships

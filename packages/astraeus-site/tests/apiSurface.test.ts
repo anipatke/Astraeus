@@ -27,8 +27,8 @@ describe("public surface lock (API-01)", () => {
   });
 
   it("names added, removed and changed exports (proved on a made-up surface)", () => {
-    const lock = { root: { kept: { kind: "const" }, gone: { kind: "const" }, edited: { kind: "function", signature: "(a: 1)" } }, packageExports: { p: { ".": "./a.ts" } } } as unknown as Surface;
-    const later = { root: { kept: { kind: "const" }, added: { kind: "const" }, edited: { kind: "function", signature: "(a: 2)" } }, packageExports: { p: { ".": "./b.ts" }, q: {} } } as unknown as Surface;
+    const lock = { root: { kept: { kind: "const" }, gone: { kind: "const" }, edited: { kind: "function", signature: "(a: 1)" } }, packageExports: { p: { ".": "./a.ts" } }, sourceExports: {} } as unknown as Surface;
+    const later = { root: { kept: { kind: "const" }, added: { kind: "const" }, edited: { kind: "function", signature: "(a: 2)" } }, packageExports: { p: { ".": "./b.ts" }, q: {} }, sourceExports: {} } as unknown as Surface;
     expect(surfaceDifferences(lock, later)).toEqual([
       "added root export added",
       "removed root export gone",
@@ -36,6 +36,19 @@ describe("public surface lock (API-01)", () => {
       "added package exports of q",
       'changed package exports of p: {".":"./a.ts"} -> {".":"./b.ts"}',
     ]);
+  });
+
+  it("locks the exports map npm publishes (x-publish.exports), not only the source map", () => {
+    expect(Object.keys(now.packageExports.astraeus)).toEqual([".", "./style.css", "./package.json"]);
+    const dir = mkdtempSync(join(tmpdir(), "astraeus-api-exports-"));
+    try {
+      mkdirSync(join(dir, "p"));
+      writeFileSync(join(dir, "p", "package.json"), JSON.stringify({ name: "p", exports: { "./src/*": "./src/*" }, "x-publish": { exports: { ".": "./a.js" } } }));
+      expect(publishedExports(dir)).toEqual({ p: { ".": "./a.js" } });
+      expect(publishedExports(dir, "source")).toEqual({ p: { "./src/*": "./src/*" } });
+      writeFileSync(join(dir, "p", "package.json"), JSON.stringify({ name: "p", exports: { ".": "./b.js" } }));
+      expect(publishedExports(dir)).toEqual({ p: { ".": "./b.js" } });
+    } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
   it("covers every published package's exports map and none of the private ones", () => {

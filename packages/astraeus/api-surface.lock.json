@@ -1531,6 +1531,72 @@
   },
   "packageExports": {
     "astraeus": {
+      ".": {
+        "types": "./src/api/index.d.ts",
+        "node": "./src/api/index.node.js",
+        "import": "./src/api/index.js"
+      },
+      "./style.css": "./src/app/style.css",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-jupiter": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/jupiter-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-mars": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/mars-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-neptune": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/neptune-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-pluto": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/pluto-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-saturn": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/saturn-moons/index.json",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-uranus": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./index.json": "./data/uranus-moons/index.json",
+      "./package.json": "./package.json"
+    }
+  },
+  "sourceExports": {
+    "astraeus": {
       ".": "./src/api/index.ts",
       "./package.json": "./package.json",
       "./app/*": "./src/app/*.ts",
