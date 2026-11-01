@@ -2,8 +2,7 @@
 id: T-221
 title: Prove view switching on the packed package and write it up
 objective: O-051
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-218, requires: clear}, {task: T-219, requires: clear}, {task: T-220, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-221, reason: 'Owner said "Let''s do the scene switching now" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o051-run-20261101}, recorded_at: '2026-11-01T00:03:55Z'}

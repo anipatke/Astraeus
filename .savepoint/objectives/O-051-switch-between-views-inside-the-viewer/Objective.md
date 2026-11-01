@@ -1,7 +1,7 @@
 ---
 id: O-051
 title: Switch between views inside the viewer
-status: in_progress
+status: done
 depends_on: [O-050]
 release: G-014
 priority: high
