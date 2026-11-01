@@ -35,6 +35,8 @@ jobs:
       - run: npm run check:engine-alone
       - name: Build the packages and check what they pack
         run: npm run check:pack
+      - name: Check the packed engine with the latest React 19.x
+        run: npm run check:react-consumer
       - name: Publish (release) or dry-run (manual run)
         env:
           EVENT: ${{ github.event_name }}

@@ -3,3 +3,5 @@ export const LIMITS: Record<string, { packed: number; unpacked: number; files?: 
 export function checkPacks(options?: { build?: boolean; only?: readonly string[] }): { ok: boolean; rows: PackRow[]; problems: string[] };
 export function extensionlessImports(dir: string): string[];
 export function strayFiles(paths: readonly string[], sourceDir: string, publishFiles: readonly string[]): string[];
+export function enginePeerRange(version: string): string;
+export const REACT_PEER_RANGE: string;

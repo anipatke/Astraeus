@@ -9,8 +9,8 @@
   },
   "peerDependencies": {
     "@react-three/fiber": ">=9.8.2 <10",
-    "react": ">=19 <19.4",
-    "react-dom": ">=19 <19.4",
+    "react": ">=19 <20",
+    "react-dom": ">=19 <20",
     "three": ">=0.169.0 <1"
   },
   "devDependencies": {
@@ -19,9 +19,10 @@
     "react-dom": "^19.2.0",
     "three": "^0.169.0"
   },
-  "x-internal-exports": "Only \".\" is the public API (0.2 preview). Every other entry is internal, kept for the demos and the site, and may change without notice.",
+  "x-internal-exports": "Only \".\" is the public API (the published package also exports \"./style.css\" and \"./package.json\"). Every other entry is internal, kept for the demos and the site, and may change without notice.",
   "exports": {
     ".": "./src/api/index.ts",
+    "./package.json": "./package.json",
     "./app/*": "./src/app/*.ts",
     "./assets/*": "./src/assets/*.ts",
     "./core/*": "./src/core/*.ts",
@@ -67,7 +68,8 @@
         "node": "./src/api/index.node.js",
         "import": "./src/api/index.js"
       },
-      "./style.css": "./src/app/style.css"
+      "./style.css": "./src/app/style.css",
+      "./package.json": "./package.json"
     },
     "files": [
       "src",

@@ -100,6 +100,26 @@ The owner's principles for the public API, from the [api review](../docs/archite
 - **Use the front door ourselves.** In-repo demos and the site use only the public API; existing deep imports sit on a per-package allowlist that may only shrink, and G-016 empties it: the planets demo and the site move onto the public API in 0.8.0 (D6 brought forward by the owner, O-059).
 - **Compatibility.** Renames in 0.8.0 are a clean break with no aliases, listed in one CHANGELOG migration table (D2 revised by the owner: only two outside apps exist, so break and rework them now); `toDefinition` is removed in 0.8.0 with public replacements (D10); groups must state their `plane` (D3); several viewers per page are supported (D9); the Developer drawer is hidden unless a host asks (D8); the React peer covers all of React 19 (D7).
 
+#### O-053 checks (Guardrails API-01 to API-07)
+
+These tests and scripts hold the rules above; each fails on a new break, and each allowlist (one entry per break, with reason, review finding and the Objective expected to remove it) may only shrink.
+
+- **Public surface lock (API-01).** `tools/api-surface.mjs` writes `packages/astraeus/api-surface.lock.json` (`npm run api:lock`): every root export with its kind and signature, plus the `exports` map of every published package; `packages/astraeus-site/tests/apiSurface.test.ts` fails when the tree differs from the lock, so a surface change is a deliberate, reviewed edit. Types the root reaches that are declared outside `src/api/` are listed in `tests/apiOutsideTypes.allowlist.json`. `packageBoundaries.test.ts` counts each package's deep imports into the engine (`DEEP_IMPORT_COUNTS`); counts go down only.
+- **Shape, errors, settings and isolation (API-03 to API-06).** `tools/api-rules.mjs` with `tests/apiRules.test.ts` and four allowlists in `packages/astraeus-site/tests/` (`apiTypeLint`, `apiErrors`, `apiSettings`, `apiIsolation`): a public-type lint (spelling of centre, spans and units), error scans (every thrown error a `SceneError` with a documented code), the README error table generated from the `SceneErrorCode` doc comments (`npm run api:errors`), a settings-to-address mapping, and viewer-isolation scans (fixed DOM ids, selectors outside `.astraeus-shell`).
+- **Honest versions and docs (API-07, T-230).** `check:pack` fails when a data package's `astraeus` peer is not the engine's current minor (`>=M.m.0 <M.(m+1).0`) or the engine's `react` and `react-dom` peers are not `>=19 <20`. `npm run check:react-consumer` (`tools/check-react-consumer.mjs`, run by the release workflow after `check:pack`) installs the packed engine into an empty app so npm picks the newest React 19.x, fails unless that is what got installed, and renders `AstraeusScene` on the server. `apiRules.test.ts` checks the README API tables against `MountedScene`, `MountOptions` and `AstraeusSceneProps`. The engine exports `./package.json`, which the lock records.
+
+Drift accounting for T-228 to T-230 (deferred to this integration Task, AGENTS.md "Deferred Design reconciliation"):
+
+- Lock location (`packages/astraeus/`) and generator (`tools/`): non-architectural, tooling placement; named above.
+- "Published" read as `private` not true, and the lock records the source `exports` maps, not the `x-publish` ones the build writes: non-architectural; the lock still changes whenever a published entry is added or removed in the source map, and `check:pack` verifies the built maps' targets. Reflected only as a limit.
+- Deep-import counts include tests and tools, not only `src/`: non-architectural, a stricter count; counts only go down.
+- The type walk does not descend into types declared outside `src/api/`, and the type lint reads the compiler view of the root entry, not `dist/*.d.ts`: limits of the checks, recorded here; outside types are listed in the allowlist and vanish with the O-057 leaks.
+- The CSS scan covers `src/app/style.css` only, not `src/shell/*.css`: a limit of the isolation check, recorded here; widening it is for the next API Objective that touches styles.
+- The lint finds more or fewer breaks than the review listed, and internal types reach the root through leaks (F7, O-057): reflected in the allowlists, which fall as O-054 to O-057 land; non-architectural.
+- Two error breaks the review missed (`pathProvenance.ts` plain `Error`, `sunOrbit.ts` message-text match, F8): allowlisted for O-054; non-architectural.
+- Every `SceneErrorCode` has a doc comment and the lock's signature text includes them: non-architectural; the lock may be regenerated with comments stripped later.
+- The `public` settings map names `FollowView.up`, `TimelineInput.loop` and `AddBodyOptions.showLabel`: reflected in `apiSettings.allowlist.json`; moves if O-056 adds a settings object.
+
 Detailed decisions, owner acceptances, technical limitations and deferred-note accounting are preserved verbatim in [reconciliation history](../docs/architecture/reconciliation-history.md). Read the paragraphs for the affected Objective or Issue when validating its contract. They are evidence of decisions at their recorded dates, not a second live status board. Current lifecycle status comes from Savepoint records and `savepoint resume`.
 
 ## Current Technical State

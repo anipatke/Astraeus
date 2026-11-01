@@ -2,7 +2,7 @@
 
 A 3D solar system for the browser. Place bodies and recorded paths in a scene, mount it, and get time controls, camera, scale choice and body information, with no React and no 3D code of your own.
 
-> **0.2 preview.** The public API below is the promise: it is small on purpose and may still change between `0.x` versions, with every change listed in [CHANGELOG.md](./CHANGELOG.md). Anything not exported from `astraeus` is internal and may change or disappear in any release.
+> **Before 1.0.** The public API below is the promise: it is small on purpose and may still change between `0.x` versions, with every change listed in [CHANGELOG.md](./CHANGELOG.md). Anything not exported from `astraeus` is internal and may change or disappear in any release.
 
 ## Install
 
@@ -14,7 +14,7 @@ npm install astraeus react react-dom @react-three/fiber three
 
 A plain-JavaScript page still needs React: `mount` draws the viewer with React and `@react-three/fiber` inside, so all four peers must be installed even if your own code never touches React.
 
-`mount` loads the viewer's stylesheet itself. If you use the `AstraeusScene` component instead, add `import "astraeus/style.css";` once in your app.
+Both `mount` and the `AstraeusScene` component load the viewer's stylesheet themselves; you add no CSS import. (`astraeus/style.css` is exported for a host that wants the file on its own, for example to load it ahead of time.)
 
 You need a bundler. These were each built and run with the packed packages (a scene with Saturn and Titan from `astraeus-data-saturn`): Vite 8, webpack 5 (5.112) and Parcel 2 (2.16, which needs `"@parcel/resolver-default": { "packageExports": true }` in your `package.json` so it reads the package `exports`). Others are untried. The package is plain ES modules that reference their pictures with `new URL(..., import.meta.url)`; drawing needs a bundler and a browser, so do not load it from a bare `<script type="module">`. Node and Vitest can import it for scene definitions and tests (see "Loading in your build and in tests").
 
@@ -94,8 +94,8 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.provenanceOf(id)` | Where a body's position comes from, as its info card shows it. Where a comparison with an independent ephemeris exists it carries `accuracyClass` and `maxErrorFraction`. For built-in Swift-Tuttle that fraction is measured (0.00857). For a body from `addBodyFromElements` it is the limit of its class (0.01 `approximate`, 0.05 `indicative`): an upper bound, not a measured figure. Other bodies carry neither field. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
 | `scene.camera.lookAt(id, { azimuthDeg?, elevationDeg?, distance? })` | The same opening view without following. The last of `follow` and `lookAt` wins. The viewer's camera menu gets a Focus and a Follow entry for every body and path. |
-| `mount(element, scene, { data?, onChange? })` | Draws the scene with the full viewer. Returns `{ ready, unmount(), time, rate, view, camera, eventZones, setTime(t), setRate(r), setView(id), setCamera(target), onChange(fn), onEventZone(fn) }`. `data` is a list of data packages (below); the time and speed members are described under "Reading and setting the time". |
-| `<AstraeusScene scene data? onReady? onError? time? rate? view? camera? onChange? onEventZone? />` | The same viewer as a React component (below). |
+| `mount(element, scene, { data?, onChange?, address? })` | Draws the scene with the full viewer. Returns `{ ready, unmount(), time, rate, view, camera, eventZones, setTime(t), setRate(r), setView(id), setCamera(target), onChange(fn), onEventZone(fn) }`. `data` is a list of data packages (below); `address` is off by default (see "Page address"); the time and speed members are described under "Reading and setting the time". |
+| `<AstraeusScene scene data? onReady? onError? time? rate? view? camera? onChange? onEventZone? address? className? style? />` | The same viewer as a React component (below). |
 | `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |
 
 Checking accuracy and records without a scene: the class limits are root exports (`APPROXIMATE_LIMIT_FRACTION`, `INDICATIVE_LIMIT_FRACTION`), `classifyPositionError(maxFraction)` returns `"approximate"`, `"indicative"` or `null` (neither) for a measured largest error fraction, and `parseElementsBodyRecord(record)` validates an elements record (the same check `addBodyFromElements` makes, throwing `bad-element` naming the field):
@@ -351,7 +351,7 @@ A demo is a package that depends on `astraeus`, builds an `ExperienceDefinition`
 
 A complete small example with no real data is `src/synthetic/syntheticDefinition.ts`: a made-up object on a tilted loop with marks, events and story panels. Read it first; the site lists it as the `synthetic` experience (`packages/astraeus-site/src/main.tsx`).
 
-The source `exports` list is broad (one pattern per folder) for the demos and the site; the published package exports only `.` (the public API) and `./style.css`, written into `dist/package.json` from the `x-publish` block of this manifest.
+The source `exports` list is broad (one pattern per folder) for the demos and the site; the published package exports only `.` (the public API), `./style.css` and `./package.json`, written into `dist/package.json` from the `x-publish` block of this manifest.
 
 ## Check it alone
 

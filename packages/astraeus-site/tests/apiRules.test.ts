@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { addressParameters, allowlistOffences, errorBreaks, errorCodes, errorTable, ERROR_TABLE_END, ERROR_TABLE_START, idLiteralBreaks, publicTypeBreaks, readmeErrorTable, selectorBreaks, styleSelectorBreaks, type Break } from "../../../tools/api-rules.mjs";
+import { addressParameters, allowlistOffences, errorBreaks, errorCodes, errorTable, ERROR_TABLE_END, ERROR_TABLE_START, idLiteralBreaks, publicTypeBreaks, readmeApiBreaks, readmeErrorTable, selectorBreaks, styleSelectorBreaks, type Break } from "../../../tools/api-rules.mjs";
 import { currentSurface, type Surface } from "../../../tools/api-surface.mjs";
 
 // The rules on shape, errors, settings and page isolation are checked here (O-053 T-229; Guardrails API-03 to API-06). Each check finds today's breaks, compares them with an allowlist
@@ -225,5 +225,34 @@ describe("viewer isolation (API-03)", () => {
       @keyframes spin { from { opacity: 0; } to { opacity: 1; } }
     `;
     expect(selectorBreaks(css).map((hit) => hit.site)).toEqual([":root", "html", "body", "#app", ".hud", ".astraeus-shellx", ".setting"]);
+  });
+});
+
+describe("README API tables (API-07)", () => {
+  let members: { MountedScene: string[]; MountOptions: string[]; AstraeusSceneProps: string[] };
+  beforeAll(() => {
+    const root = currentSurface().root;
+    const namesOf = (name: string): string[] => (root[name] as { members: { name: string }[] }).members.map((member) => member.name);
+    members = { MountedScene: namesOf("MountedScene"), MountOptions: namesOf("MountOptions"), AstraeusSceneProps: namesOf("AstraeusSceneProps") };
+  }, 60_000);
+
+  it("lists every MountedScene member, MountOptions key and AstraeusSceneProps prop, and every README row names a real one", () => {
+    expect(members.MountedScene.length).toBeGreaterThan(0);
+    expect(readmeApiBreaks(readFileSync(README, "utf8"), members)).toEqual([]);
+  });
+
+  it("fails on a member the README leaves out, a name it invents, and a row that names a member that does not exist", () => {
+    const readme = readFileSync(README, "utf8");
+    const lacking = readme.replace("address? })`", "})`").replace(" onEventZone? address?", " onEventZone?").replace("setCamera(target), ", "");
+    expect(readmeApiBreaks(lacking, members)).toEqual([
+      "mount options (MountOptions): README does not list address",
+      "mount handle (MountedScene): README does not list setCamera",
+      "<AstraeusScene> props (AstraeusSceneProps): README does not list address",
+    ]);
+    const invented = readme.replace("onChange?, address? })", "onChange?, address?, speed? })").replace("| `handle.ready` |", "| `handle.readyNow` |");
+    expect(readmeApiBreaks(invented, members)).toEqual([
+      "mount options (MountOptions): README lists speed, which is not a real member",
+      "README row `handle.readyNow`: handle.readyNow is not a MountedScene member",
+    ]);
   });
 });

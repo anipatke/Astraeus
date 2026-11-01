@@ -159,7 +159,7 @@ export class ViewerLink implements ViewerPort {
     this.publish(control.read(), "host");
   }
 
-  /** The camera pose, or undefined before the viewer is drawn, after it is gone, and before its first frame. */
+  /** The camera pose, or undefined before the viewer is drawn and after it is gone; before its first frame it is the opening camera. */
   get camera(): CameraPose | undefined { return this.#control?.readCamera(); }
 
   /**

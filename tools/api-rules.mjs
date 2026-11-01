@@ -217,6 +217,42 @@ export function readmeErrorTable(readme) {
   return start < 0 || end < start ? undefined : readme.slice(start + ERROR_TABLE_START.length, end).trim();
 }
 
+// ---------- README API tables (API-07) ----------
+
+const bareName = (text) => text.trim().replace(/\(.*$/, "").replace(/\?$/, "");
+const namesIn = (list) => list.split(",").map(bareName).filter((name) => name !== "");
+
+/**
+ * Checks the README's API tables against the types (O-053 T-230): the `mount` row's options object must list exactly the `MountOptions` keys and its returned object exactly the `MountedScene` members, the
+ * `<AstraeusScene ... />` row exactly the `AstraeusSceneProps` props, and every `handle.name` or `<AstraeusScene prop />` named in the first cell of any table row must be a real member or prop.
+ * `members` is `{ MountedScene, MountOptions, AstraeusSceneProps }`, each a list of names. Returns one message per break.
+ */
+export function readmeApiBreaks(readme, members) {
+  const breaks = [];
+  const compare = (what, listed, real) => {
+    for (const name of real) if (!listed.includes(name)) breaks.push(`${what}: README does not list ${name}`);
+    for (const name of listed) if (!real.includes(name)) breaks.push(`${what}: README lists ${name}, which is not a real member`);
+  };
+  const rows = readme.split("\n").filter((line) => line.startsWith("| `")).map((line) => ({ line, first: /^\| (`[^|]*`)/.exec(line)?.[1] ?? "" }));
+  const mountRow = rows.find((row) => row.first.startsWith("`mount("));
+  const sceneRow = rows.find((row) => row.first.startsWith("`<AstraeusScene scene"));
+  if (mountRow === undefined) breaks.push("the README has no `mount(...)` row");
+  else {
+    const options = /`mount\([^{]*\{([^}]*)\}\)`/.exec(mountRow.line);
+    const returned = /Returns `\{([^}]*)\}`/.exec(mountRow.line);
+    if (options === null) breaks.push("the `mount` row names no options object"); else compare("mount options (MountOptions)", namesIn(options[1]), members.MountOptions);
+    if (returned === null) breaks.push("the `mount` row names no returned object"); else compare("mount handle (MountedScene)", namesIn(returned[1]), members.MountedScene);
+  }
+  if (sceneRow === undefined) breaks.push("the README has no `<AstraeusScene scene ... />` row");
+  else compare("<AstraeusScene> props (AstraeusSceneProps)", sceneRow.first.replace(/^`<AstraeusScene\s+|\s*\/>`$/g, "").split(/\s+/).map(bareName), members.AstraeusSceneProps);
+  for (const { first } of rows) {
+    for (const found of first.matchAll(/\bhandle\.(\w+)/g)) if (!members.MountedScene.includes(found[1])) breaks.push(`README row ${first}: handle.${found[1]} is not a MountedScene member`);
+    const props = /^`<AstraeusScene\s+(.*?)\s*\/>`$/.exec(first);
+    if (props !== null) for (const prop of props[1].split(/\s+/).map(bareName)) if (!members.AstraeusSceneProps.includes(prop)) breaks.push(`README row ${first}: ${prop} is not an AstraeusSceneProps prop`);
+  }
+  return breaks;
+}
+
 // ---------- Settings mapping (API-06) ----------
 
 /**

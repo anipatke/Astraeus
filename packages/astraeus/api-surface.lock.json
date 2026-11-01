@@ -1532,6 +1532,7 @@
   "packageExports": {
     "astraeus": {
       ".": "./src/api/index.ts",
+      "./package.json": "./package.json",
       "./app/*": "./src/app/*.ts",
       "./assets/*": "./src/assets/*.ts",
       "./core/*": "./src/core/*.ts",

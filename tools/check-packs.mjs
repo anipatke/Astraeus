@@ -85,11 +85,28 @@ function codeProblems(name, dir) {
   return problems;
 }
 
-/** The problems with the peer libraries of a manifest: `astraeus` must list them as peerDependencies and not as dependencies. */
+/** The `astraeus` peer range a data package states for an engine at `version`: its current minor (`0.7.3` gives `>=0.7.0 <0.8.0`), the one it was tested with (O-053 T-230, API-07). */
+export function enginePeerRange(version) {
+  const [major, minor] = version.split(".").map(Number);
+  return major === 0 ? `>=0.${minor}.0 <0.${minor + 1}.0` : `>=${major}.${minor}.0 <${major + 1}.0.0`;
+}
+
+/** The React range the engine takes: all of React 19. */
+export const REACT_PEER_RANGE = ">=19 <20";
+
+/** The problems with the peer libraries of a manifest: `astraeus` must list them as peerDependencies and not as dependencies, and a data package's `astraeus` peer is the engine's current minor. */
 function peerProblems(name, manifest) {
   const problems = [];
   if (manifest.devDependencies !== undefined) problems.push(`${name}: package.json still lists devDependencies`);
+  if (name.startsWith("astraeus-data")) {
+    const engine = JSON.parse(readFileSync(join(root, "packages", "astraeus", "package.json"), "utf8")).version;
+    const wanted = enginePeerRange(engine);
+    if (manifest.peerDependencies?.astraeus !== wanted) problems.push(`${name}: astraeus peer is ${manifest.peerDependencies?.astraeus ?? "missing"}, the engine's current minor is ${wanted}`);
+  }
   if (name !== "astraeus") return problems;
+  for (const library of ["react", "react-dom"]) {
+    if (manifest.peerDependencies?.[library] !== REACT_PEER_RANGE) problems.push(`${name}: ${library} peer is ${manifest.peerDependencies?.[library] ?? "missing"}, it must cover all of React 19 (${REACT_PEER_RANGE})`);
+  }
   for (const library of PEER_LIBRARIES) {
     if (manifest.dependencies?.[library] !== undefined) problems.push(`${name}: ${library} is a dependency; it must be a peerDependency (the host app's copy is used)`);
     if (manifest.peerDependencies?.[library] === undefined) problems.push(`${name}: ${library} is not a peerDependency`);

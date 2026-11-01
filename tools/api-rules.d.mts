@@ -15,3 +15,4 @@ export function cssSelectors(css: string): string[];
 export function selectorBreaks(css: string): Break[];
 export function styleSelectorBreaks(path?: string): Break[];
 export function allowlistOffences(found: Break[], entries: { rule: string; site: string; finding?: string; removedBy?: string }[], name: string): string[];
+export function readmeApiBreaks(readme: string, members: { MountedScene: string[]; MountOptions: string[]; AstraeusSceneProps: string[] }): string[];
