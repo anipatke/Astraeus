@@ -1,7 +1,7 @@
 ---
 id: O-053
 title: Write the API rules down and enforce them
-status: planned
+status: done
 depends_on: [O-052]
 release: G-016
 priority: high
