@@ -27,6 +27,6 @@ Settings and zones are presentation (ARCH-02); the address stays an override rea
 
 ## Boundaries
 
-**In scope:** F6, F9, F11, the non-probe example, the `toDefinition` replacements.
+**In scope:** F6, F9, F11, the non-probe example, the `toDefinition` replacements; F10's remaining host controls: live scale and display-switch setters on the handle, and readouts on `addBody` (moved here from O-054 by the owner, 2026-11-01, "Yes, all recommendations").
 
 **Out of scope:** removing `toDefinition` and the renames (O-057).
