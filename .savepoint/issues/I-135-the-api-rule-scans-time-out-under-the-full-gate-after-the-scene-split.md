@@ -2,16 +2,22 @@
 id: I-135
 title: The API rule scans time out under the full gate after the scene split
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-139
   actor: {role: checker, session: o058-check-20261101}
   at: '2026-11-01T07:58:00Z'
 tasks: [T-239]
-checks: [C-139]
+checks: [C-139, C-140]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-140
+  actor: {role: checker, session: o058-recheck-20261101}
+  at: '2026-11-01T08:25:00Z'
+  reason: 'C-140 CLEAR: npm run test:full passed twice in a row on a3c9115c (186 files, 2259 passed, 1 skipped; coverage written each time); real-source API-05/06 scans run once in beforeAll (60 s hook limit) and still catch planted real-source breaks; made-up-folder plants still fail; health snapshot sha256:94c9432a does not block.'
 history:
   - at: '2026-11-01T07:58:00Z'
     actor: {role: checker, session: o058-check-20261101}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o058-repair-20261101}
     kind: repair_attempted
     note: 'Repair, not verified. apiRules.test.ts: the real-source API-05 scan (errorBreaks) and API-06 address scan (addressParameters) now run once in beforeAll with a 60 s hook limit, like the surface and type-lint scans (I-080 pattern); the made-up-folder plant cases are unchanged. apiSurface.test.ts already had beforeAll for currentSurface and a 60 s limit on its outsideApiTypes case; allowlistGrowth runs no TypeScript program. scenePin takes about 4.0-4.4 s under test:full (was 5.5-7.1 s in C-139; load differed). npm run test:full twice green: 186 files, 2259 passed, 1 skipped; 70.9 s and 69.0 s; coverage/coverage-final.json written each time; no apiRules case over 1.7 s. A guard that flags a default-limit case calling a whole-source scan was not added.'
+  - at: '2026-11-01T08:25:00Z'
+    actor: {role: checker, session: o058-recheck-20261101}
+    kind: rechecked
+    note: 'Re-checked by C-140 on a3c9115c. test:full run 1 08:09:52-08:11:04Z and run 2 08:11:04-08:12:15Z both exit 0, coverage/coverage-final.json written; apiRules real-source cases <= 0.008 s (scan in hooks), made-up plants 1.31-1.53 s. Planted throw new Error in src/api/planViews.ts and a URLSearchParams get("c140look") in src/app/viewLink.ts each failed their case through the beforeAll scan; restored. Verified.'
+    check: C-140
 ---
 
 # I-135: The API rule scans time out under the full gate after the scene split

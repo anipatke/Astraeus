@@ -2,16 +2,22 @@
 id: I-136
 title: The public build check fails on the new story-panel parser chunk
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-139
   actor: {role: checker, session: o058-check-20261101}
   at: '2026-11-01T07:58:00Z'
 tasks: [T-237]
-checks: [C-139]
+checks: [C-139, C-140]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-140
+  actor: {role: checker, session: o058-recheck-20261101}
+  at: '2026-11-01T08:25:00Z'
+  reason: 'C-140 CLEAR: the one npm run check:browser on a3c9115c passed every step including public-build-assets (loadBudget.ok true, every page within limits, self-proof true); wholly-engine chunks are admitted via engine-share.json while unnamed, tableless, mixed or chained-mixed chunks still fail (checker probes b1-b9); DEEP_IMPORT_COUNTS unchanged; scenePin passes without -u.'
 history:
   - at: '2026-11-01T07:58:00Z'
     actor: {role: checker, session: o058-check-20261101}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o058-repair-20261101}
     kind: repair_attempted
     note: 'Repair, not verified. load-budget.mjs now follows the engine-share table: an unlisted script that a listed script imports at load and that engine-share.json says is wholly engine code (engine == total) joins the page set and counts as engine share (held by the engine limit); a chunk with any demo code, or one the table does not name, must still be listed. A re-chunk inside the engine therefore cannot fail the step. Fast test in publicBuild.test.ts (proveLoadBudgetFails gains engineChunk and mixedChunk cases, also run as self-proof in public-build-assets.mjs). Evidence: public build with ASTRAEUS_PUBLIC_BUILD=1 ASTRAEUS_ENGINE_SHARE=1, then public-build-assets.mjs alone exit 0 and load-budget.mjs 8 ok, 0 FAIL (storyPanels-BiQHMCgc.js is engine 4310 of 4310 bytes). Full npm run check:browser not re-run here; the re-check does it. Page-set limits unchanged.'
+  - at: '2026-11-01T08:25:00Z'
+    actor: {role: checker, session: o058-recheck-20261101}
+    kind: rechecked
+    note: 'Re-checked by C-140 on a3c9115c. check:browser 08:12:41-08:18:47Z exit 0, evidence docs/evidence/browser-20261101T081242Z; storyPanels-BiQHMCgc.js still emitted and now admitted as wholly engine. Engine limit 1,662,849/1,735,000 raw. Budget probes: unnamed, no table, total 0, one demo byte, engine>total and engine-then-mixed chain all fail; engine chains pass and count as engine share. Verified.'
+    check: C-140
 ---
 
 # I-136: The public build check fails on the new story-panel parser chunk
