@@ -2,9 +2,10 @@
 id: T-243
 title: Run one lifecycle suite against both embedding paths
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-242, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-243, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T08:55:28Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -57,8 +58,10 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Built `packages/astraeus/tests/lifecycle.test.ts`: one case list in `describe.each([mount driver, AstraeusScene driver])`, each driver an adapter with the same shape (open, ready, rebuild, outcome, unmount, errors, own onChange). Cases (18 pass, 10 todo): build fault (empty-scene), load fault, unmount before load, unmount after load before attach, every member before ready, every member after unmount, no callbacks after unmount (handle and the scene's own onChange), rebuild; plus an AstraeusScene StrictMode case and a member-table completeness test (keys of `viewerHandleOf` must equal the table). Placeholders (`it.todo`, per path): throwing listener (T-244), frozen scene (T-245), setPlaying (T-246), onSelect (T-247), onCameraChange (T-248).
+Gates: lint clean; typecheck clean; build ok; `npm test` 189 files, 2290 passed, 1 skipped, 10 todo. `git diff --exit-code api-surface.lock.json` empty; apiSurface/apiRules/allowlistGrowth tests 32 passed. No source change, no CHANGELOG entry, no browser run. Files read: viewerHostReady.test.ts, mount.ts, AstraeusScene.tsx, viewerHandle.ts, viewerLink.ts (close/detach/reopen), prepared.ts.
+Limitations: the 3D scene and `prepareScene` are mocked (as in viewerHostReady); the mock returns a fresh definition per call as the real one does (an identical object would hide a rebuild). The pre-attach window (unmount after load) is timed by two microtasks, as in viewerHostReady case (b).
 
 ## Drift Notes
 
-Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+- Task text says every handle call before ready/after unmount throws `not-mounted`; `onChange` and `onEventZone` do not throw (registration is allowed at any time; mount registers `options.onChange` before `ready`). The suite pins: they return a stop function, and no callback arrives after unmount. Design.md Lifecycle bullet should say listener registration is exempt. Accounted for in T-249.
