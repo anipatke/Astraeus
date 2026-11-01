@@ -9,21 +9,18 @@ import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
-import { catalogue as builtInCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
-import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
-import { createComposition, type CompositionPath } from "../assets/compositions";
+import { catalogue as builtInCatalogue } from "../assets/catalogue";
+import type { ElementsBodyRecord } from "../core/elementsBody";
+import { createComposition } from "../assets/compositions";
 import { bodyMetrics } from "../app/bodyMetrics";
-import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
+import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
-import { catalogueItem } from "../app/catalogueItem";
 import { createReadoutMetrics } from "../app/trackedMetrics";
-import type { EccentricSampling } from "../core/sunCentredSources";
-import { circlesTheSun, farthestSunDistanceKm, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
-import { listedMoonBodyOf } from "../core/bodies/listedMoonBodies";
-import { FALLBACK_SCENE_CENTRE, readyMade, type BodyRef } from "./bodies";
+import { circlesTheSun, farthestSunDistanceKm } from "./sunOrbit";
+import { FALLBACK_SCENE_CENTRE, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
@@ -31,7 +28,8 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
-import { autoPaths, buildTracked, checkLabelReach, checkReadouts, pathCover, type Tracked } from "./planPaths";
+import { BodyPlan } from "./planBodies";
+import { autoPaths, buildTracked, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
@@ -79,17 +77,6 @@ export type ReadoutInput =
   | { readonly kind: "speed" }
   | { readonly kind: "distance"; readonly to: BodyId }
   | { readonly kind: "altitude"; readonly above: BodyId };
-
-/**
- * The orbit line of a catalogued moon, by one rule: one lap of the period its catalogue definition carries (`orbitPeriodDays`, read once from the record or mean
- * elements), drawn about its parent. Undefined where the definition gives no period. A moon closes its loop (Io's look) unless its definition says its line fades (the Moon's, as before).
- */
-function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId): Omit<CompositionPath, "body"> | undefined {
-  if (!catalogue.has(id)) return undefined;
-  const { orbitPeriodDays, orbitLineFades, parentId } = catalogue.get(id).definition;
-  if (orbitPeriodDays === undefined || parentId === undefined) return undefined;
-  return { spanMs: orbitPeriodDays * 86_400_000, ...(orbitLineFades === true ? {} : { look: { endFadeOn: false } }) };
-}
 
 /** One sample of a recorded path: position in km (and optionally velocity in km/s) about the trajectory's centre, in equatorial J2000 (EQJ) axes unless the path says `plane: "ecliptic-j2000"`. */
 export interface TrajectorySampleInput {
@@ -234,19 +221,12 @@ export class SceneCamera {
 export class Scene {
   /** The camera: `scene.camera.follow(id)` opens framed on a body or trajectory. */
   readonly camera: SceneCamera;
-  readonly #bodies = new Map<BodyId, BodyRef>();
+  readonly #plan = new BodyPlan((id) => this.#taken(id), (id) => { for (const input of this.#defaulted.values()) this.#track(input, id); });
   readonly #tracked = new Map<string, Tracked>();
   /** Paths added without a `center`: they follow the scene's first body, so one added before any body is rebuilt when the first body arrives. */
   readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groups = new Map<string, PlannedGroup>();
   readonly #activities = new Map<string, PlannedActivity>();
-  readonly #orbits = new Set<BodyId>();
-  readonly #own = new Map<BodyId, EccentricSampling>();
-  readonly #labelReaches = new Map<string, number>();
-  readonly #shape = new Map<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>();
-  #catalogue: BodyCatalogue = builtInCatalogue;
-  readonly #notes = new Map<BodyId, string>();
-  readonly #looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   readonly #sources = new Map<BodyId, Trajectory>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
@@ -260,28 +240,13 @@ export class Scene {
   #views: ViewsPlan | undefined;
 
   constructor() {
-    this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#bodies.has(id) && circlesTheSun(this.#catalogue, id));
+    this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id));
   }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
-    const id = typeof body === "string" ? body : body.id;
-    const before = this.#catalogue;
-    this.#addListedMoon(id);
-    try {
-      this.#register("addBody", id, typeof body === "string" ? readyMade(id) ?? { id, label: this.#catalogue.has(id) ? this.#catalogue.get(id).definition.label : id } : body, options);
-    } catch (error) {
-      this.#catalogue = before;
-      throw error;
-    }
+    this.#plan.addBody(body, options);
     return this;
-  }
-
-  /** A moon in the listed-moon table that the built-in catalogue does not define by hand is defined now, by the one rule, and joins this scene's catalogue only (an unused moon costs nothing). */
-  #addListedMoon(id: BodyId): void {
-    if (this.#catalogue.has(id)) return;
-    const moon = listedMoonBodyOf(id);
-    if (moon !== undefined && this.#catalogue.has(moon.definition.parentId!)) this.#catalogue = extendCatalogueWithMoons(this.#catalogue, [moon]);
   }
 
   /**
@@ -293,34 +258,8 @@ export class Scene {
    * scene.addBody(sun).addBodyFromElements(record, { orbit: true, showLabel: false });
    */
   addBodyFromElements(record: ElementsBodyRecord, options: AddBodyOptions = {}): this {
-    if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
-    const parsed = parseRecord(record);
-    if (this.#taken(parsed.id) || this.#catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
-    const root = builtInCatalogue.get(rootBodyId()).definition;
-    const before = this.#catalogue;
-    this.#catalogue = extendCatalogue(before, [parsed]);
-    try {
-      this.#register("addBodyFromElements", parsed.id, { id: parsed.id, label: parsed.label }, options);
-    } catch (error) {
-      this.#catalogue = before;
-      throw error;
-    }
-    this.#own.set(parsed.id, buildElementsBody(parsed, { id: root.id, gmKm3S2: root.gmKm3S2! }).sampling);
+    this.#plan.addFromElements(record, options);
     return this;
-  }
-
-  #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
-    if (options.orbit === true && moonOrbitPath(this.#catalogue, id) === undefined && !(circlesTheSun(this.#catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
-    if (!this.#catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
-    if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
-    checkBodyLook(id, options);
-    if (options.labelReach !== undefined) this.#labelReaches.set(id, options.labelReach);
-    if (options.orbit === true) this.#orbits.add(id);
-    if (options.color !== undefined || options.knownLimitations !== undefined) this.#looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
-    if (options.enlarge !== undefined || options.showLabel !== undefined) this.#shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
-    if (options.description !== undefined) this.#notes.set(id, options.description);
-    this.#bodies.set(id, ref);
-    if (this.#bodies.size === 1 && builtInCatalogue.has(id)) for (const input of this.#defaulted.values()) this.#track(input, id);
   }
 
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
@@ -333,20 +272,20 @@ export class Scene {
     return this;
   }
 
-  /** The scene's centre: its first body when that is a built-in one, else Earth (the default of a path added before any body; `#register` re-reads it when the first body arrives). */
+  /** The scene's centre: its first body when that is a built-in one, else Earth (the default of a path added before any body; the body plan re-reads it when the first body arrives). */
   #sceneCentre(): BodyId {
-    const first = this.#bodies.keys().next();
+    const first = this.#plan.bodies.keys().next();
     return first.done === true || !builtInCatalogue.has(first.value) ? FALLBACK_SCENE_CENTRE : first.value;
   }
 
   /** Validates and stores one path about `center` (`planPaths.ts`). */
   #track(input: TrajectoryInput, center: BodyId): void {
-    this.#tracked.set(input.id, buildTracked(input, center, this.#labelReaches));
+    this.#tracked.set(input.id, buildTracked(input, center, this.#plan.labelReaches));
   }
 
   /** Whether a body, path or group already has this id. */
   #taken(id: string): boolean {
-    return this.#bodies.has(id) || this.#tracked.has(id) || this.#groups.has(id);
+    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groups.has(id);
   }
 
   /**
@@ -356,7 +295,7 @@ export class Scene {
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
   addGroup(input: GroupInput): this {
-    const plan = planGroup(input, this.#catalogue);
+    const plan = planGroup(input, this.#plan.catalogue);
     if (this.#taken(plan.id)) throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
     this.#groups.set(plan.id, plan);
     return this;
@@ -452,14 +391,14 @@ export class Scene {
    */
   stateOf(id: string, time: TimeInput): State {
     const entry = this.#tracked.get(id);
-    if (entry === undefined && !this.#bodies.has(id)) throw new SceneError("unknown-body", `stateOf("${id}"): no body or trajectory with that id has been added to the scene`);
+    if (entry === undefined && !this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `stateOf("${id}"): no body or trajectory with that id has been added to the scene`);
     const timeUtcMs = toUtcMs(time, `stateOf("${id}") time`);
     const trajectory = entry?.body.trajectory ?? this.#catalogueSource(id);
     const bounds = trajectory?.bounds;
     if (bounds !== undefined && (timeUtcMs < bounds.startUtcMs || timeUtcMs > bounds.endUtcMs)) throw new SceneError("bad-time", `stateOf("${id}"): ${new Date(timeUtcMs).toISOString()} is outside the ${entry === undefined ? "body's data" : "path"} (${new Date(bounds.startUtcMs).toISOString()} to ${new Date(bounds.endUtcMs).toISOString()})`);
     if (trajectory === undefined) return this.#sunState(id, timeUtcMs);
     try {
-      return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#catalogue.get(id).definition.parentId);
+      return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#plan.catalogue.get(id).definition.parentId);
     } catch (error) {
       if (entry === undefined && error instanceof Error && error.message.startsWith("the planet series are not loaded")) throw new SceneError("missing-data", `stateOf("${id}"): ${error.message}`);
       throw error;
@@ -470,13 +409,13 @@ export class Scene {
   provenanceOf(id: string): Provenance {
     const entry = this.#tracked.get(id);
     if (entry !== undefined) return entry.body.provenance!; // addTrajectory always sets one
-    if (!this.#bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
-    return this.#catalogue.get(id).definition.accuracy.position;
+    if (!this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
+    return this.#plan.catalogue.get(id).definition.accuracy.position;
   }
 
   /** A catalogued body's state source, the one the viewer draws from, made once per scene; none for the root (the Sun). */
   #catalogueSource(id: BodyId): Trajectory | undefined {
-    const binding = this.#catalogue.sources().find((source) => source.body === id);
+    const binding = this.#plan.catalogue.sources().find((source) => source.body === id);
     if (binding === undefined) return undefined;
     const made = this.#sources.get(id) ?? binding.create(createOrbAstronomyAdapter());
     this.#sources.set(id, made);
@@ -485,7 +424,7 @@ export class Scene {
 
   /** The root body is at the origin of itself and at rest. */
   #sunState(id: BodyId, timeUtcMs: number): State {
-    return createStateResolver(this.#catalogue.definitions(), this.#catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
+    return createStateResolver(this.#plan.catalogue.definitions(), this.#plan.catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
   }
 
   /** The story panels, resolved against this scene's events, anchors, objects and timeline span. */
@@ -493,7 +432,7 @@ export class Scene {
     if (this.#panels === undefined) return undefined;
     const anchors = new Map<string, number>();
     for (const { body } of this.#tracked.values()) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
-    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
+    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
   }
 
   /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
@@ -515,21 +454,12 @@ export class Scene {
 
   /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
   #groupLayers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
-    return [...this.#groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue, plan.input.center ?? ids[0]!, openUtcMs, window));
+    return [...this.#groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#plan.catalogue, plan.input.center ?? ids[0]!, openUtcMs, window));
   }
 
-  /** The Sun-orbit lines that can be drawn now: all of them when the planet series are loaded, else none (they are drawn in `prepare`). */
-  #earlySunPaths(orbitIds: readonly BodyId[], openUtcMs: number): PathLayer[] {
-    return planetSeriesLoaded() ? orbitIds.map((id) => this.#sunPath(id, openUtcMs)) : [];
-  }
-
-  #checkSolarSystemScale(sunCentred: boolean): void {
-    if (this.#scale.id === solarSystemScale.id && !this.#enlargedInSun(sunCentred)) throw new SceneError("bad-scale", "setScale: the Solar system scale needs a Sun-centred scene with an enlarged body (addBody(x, { enlarge }))");
-  }
-
-  /** Whether a Sun-centred scene enlarges a body, which the viewer's solar-system scale draws. */
-  #enlargedInSun(sunCentred: boolean): boolean {
-    return sunCentred && [...this.#shape.values()].some((shape) => shape.enlarge !== undefined);
+  /** The data packages the added bodies need that `data` does not provide. */
+  missingData(data: readonly DataSource[] = []): readonly string[] {
+    return this.#plan.missingData(data);
   }
 
   /** The activity windows, when any were added. */
@@ -602,42 +532,6 @@ export class Scene {
     }
   }
 
-  /** Throws `missing-data` naming the bodies whose data package was not passed. */
-  #checkData(data: readonly DataSource[]): void {
-    const missing = this.missingData(data);
-    if (missing.length === 0) return;
-    const names = [...this.#bodies.values()].filter((body) => body.requires !== undefined && missing.includes(body.requires)).map((body) => body.id);
-    throw new SceneError("missing-data", `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`);
-  }
-
-  /** The engine's own orbit loops (the Moon's and Io's) the scene asked for. */
-  #moonPaths(): readonly CompositionPath[] {
-    return [...this.#orbits].filter((id) => moonOrbitPath(this.#catalogue, id) !== undefined).map((id): CompositionPath => {
-      const orbit = moonOrbitPath(this.#catalogue, id)!;
-      const parent = this.#catalogue.get(id).definition.parentId;
-      if (parent === undefined || !this.#bodies.has(parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`);
-      return { body: id, ...orbit };
-    });
-  }
-
-  /** Whether the scene is centred on the Sun. */
-  #checkSunCentred(ids: readonly BodyId[]): boolean {
-    return ids[0] === rootBodyId(this.#catalogue);
-  }
-
-  /** How far a label shows, for bodies and paths alike: the item's own `labelReach` if given, else the shared rule: a Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no limit; otherwise the camera reach, at least 500. */
-  #labelReach(id: string, sunCentred: boolean): { readonly labelMaxDistance?: number } {
-    const own = this.#labelReaches.get(id);
-    if (own !== undefined) return { labelMaxDistance: own };
-    return sunCentred || this.camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, this.camera.reach ?? 0) };
-  }
-
-  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `#labelReach`. */
-  #bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean): ExperienceObject {
-    const own = { labelPriority: 100 - ids.indexOf(body.id), ...this.#labelReach(body.id, sunCentred), ...(this.#shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.#shape.get(body.id)!.showLabel }), ...(this.#notes.has(body.id) ? { description: this.#notes.get(body.id) } : {}), ...this.#looks.get(body.id) };
-    return { ...catalogueItem(body.id, own, this.#catalogue), label: body.label };
-  }
-
   /** The event provenance entries of the experience: the batch's, and each event's own. */
   #eventProvenanceEntries(): Pick<ExperienceConfig, "eventProvenance" | "eventProvenanceById"> {
     return {
@@ -646,62 +540,39 @@ export class Scene {
     };
   }
 
-  /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
-  #sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
-    return [...this.#orbits].filter((id) => moonOrbitPath(this.#catalogue, id) === undefined).map((id) => {
-      if (!ids.includes(rootBodyId(this.#catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
-      if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
-      return id;
-    });
-  }
-
   /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
   #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
     const id = this.camera.fitted;
     if (id === undefined) return undefined;
     let km: number | undefined;
-    const read = (): number => (km ??= farthestSunDistanceKm(this.#catalogue, id, openUtcMs, this.#own.get(id)));
+    const read = (): number => (km ??= farthestSunDistanceKm(this.#plan.catalogue, id, openUtcMs, this.#plan.own.get(id)));
     if (planetSeriesLoaded()) read();
     return { read, settle: () => void read() };
   }
 
-  /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
-  #sunPath(id: BodyId, openUtcMs: number): PathLayer {
-    const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
-    if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within thirty years and its position and the Sun's gravity do not give a bound ellipse; add it with addBodyFromElements to draw its whole orbit`);
-    return layer;
-  }
-
-  /** The data packages the added bodies need that `data` does not provide. */
-  missingData(data: readonly DataSource[] = []): readonly string[] {
-    const have = new Set(data.flatMap((source) => source.provides));
-    const named = new Set(data.map((source) => source.name));
-    return [...new Set([...this.#bodies.values()].filter((body) => body.requires !== undefined && !have.has(body.id) && !named.has(body.requires)).map((body) => body.requires!))];
-  }
-
   /** The app's plug-in contract for this scene. Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    if (this.#bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
-    this.#checkData(data);
+    if (this.#plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
+    this.#plan.checkData(data);
     this.#checkGroupReadouts();
-    const ids = [...this.#bodies.keys()];
-    const paths = this.#moonPaths();
-    const sunCentred = this.#checkSunCentred(ids);
-    this.#checkSolarSystemScale(sunCentred);
+    const ids = [...this.#plan.bodies.keys()];
+    const paths = this.#plan.moonPaths();
+    const sunCentred = this.#plan.checkSunCentred(ids);
+    this.#plan.checkSolarSystemScale(this.#scale, sunCentred);
     for (const entry of this.#tracked.values()) checkReadouts(entry, ids);
     const entries = [...this.#tracked.values()];
     const tracked = entries.map((entry) => entry.body);
     const timeline = this.#timeline;
     const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
-    const sunOrbitIds = this.#sunOrbitIds(ids);
+    const sunOrbitIds = this.#plan.sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
     // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
-    const auto = autoPaths(this.#catalogue, entries, tracked, ids);
+    const auto = autoPaths(this.#plan.catalogue, entries, tracked, ids);
     auto.now((read) => this.#deferredRead(ids, window, fault, undefined, read));
     const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
-    const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#earlySunPaths(sunOrbitIds, startUtcMs));
+    const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
     const target = this.camera.target;
     const view = this.camera.view;
     const storyPanels = this.#storyPanels(window);
@@ -710,14 +581,14 @@ export class Scene {
     const seriesIn = planetSeriesLoaded();
     const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
     const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
-    const labelled = [...this.#bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
-    const catalogue = this.#catalogue;
+    const labelled = [...this.#plan.bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
+    const catalogue = this.#plan.catalogue;
     checkEventObjects(this.#events, new Set(labelled.map(({ id }) => id)));
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
-          ...[...this.#bodies.values()].map((body) => this.#bodyObject(body, ids, sunCentred)),
-          ...[...this.#tracked.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#labelReach(body.id, sunCentred), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+          ...[...this.#plan.bodies.values()].map((body) => this.#plan.bodyObject(body, ids, sunCentred, this.camera)),
+          ...[...this.#tracked.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#plan.labelReach(body.id, sunCentred, this.camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
         ],
         cameraPresets: cameraPresetsOf(labelled),
         ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
@@ -733,10 +604,10 @@ export class Scene {
       ...pacingEntry(timeline, this.#events),
       ...groupLayersEntry(layers, this.#groups.size > 0, sunOrbitIds.length > 0),
       ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
-      ...(this.#catalogue === builtInCatalogue ? {} : { catalogue: this.#catalogue }),
-      ...visualOverridesEntry(this.#shape),
-      composition: createComposition(this.#catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
+      ...(this.#plan.catalogue === builtInCatalogue ? {} : { catalogue: this.#plan.catalogue }),
+      ...this.#plan.visualOverrides(),
+      composition: createComposition(this.#plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
+      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#plan.enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
       ...this.#viewsEntry(ids, storyPanels),
       ...viewEntries(timeline, this.camera, fit?.read, pathCover(this.#tracked.values(), sunCentred, ids[0]!)),
@@ -753,7 +624,7 @@ export class Scene {
         this.#checkPlanetSpan(ids, window);
         auto.settle((read) => this.#planetRead(ids, window, read));
         if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
-        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#sunPath(id, startUtcMs))));
+        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#plan.sunPath(id, startUtcMs))));
         if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
         await installData(data, ids, window, catalogue);
       },
@@ -778,23 +649,6 @@ function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera,
 function groupLayersEntry(layers: readonly GroupLayer[], hasGroups: boolean, sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
   const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(hasGroups ? ["points" as const] : []), ...(sunCentred ? ["sun-centred" as const] : [])];
   return hasGroups ? { sceneLayers, groups: layers } : { sceneLayers };
-}
-
-/** The enlargements the scene asked for, as the engine's per-body overrides. */
-function visualOverridesEntry(shape: ReadonlyMap<BodyId, Pick<AddBodyOptions, "enlarge" | "showLabel">>): Pick<ExperienceDefinition, "visualOverrides"> {
-  const overrides: Record<BodyId, VisualOverride> = {};
-  for (const [id, { enlarge }] of shape) if (enlarge !== undefined) overrides[id] = { exaggeration: enlarge };
-  return Object.keys(overrides).length === 0 ? {} : { visualOverrides: overrides };
-}
-
-/** Parses an elements record, naming the field a mistake is in. */
-function parseRecord(record: ElementsBodyRecord): ElementsBodyRecord {
-  try {
-    return parseElementsBodyRecord(record, "addBodyFromElements");
-  } catch (error) {
-    if (error instanceof ElementsBodyError) throw new SceneError("bad-element", error.message);
-    throw error;
-  }
 }
 
 /** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
@@ -850,14 +704,4 @@ function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined)
   }
   const centre = timeUtcMs ?? Date.now();
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
-}
-
-/** Checks the colour, known limits and label reach given to `addBody`. */
-function checkBodyLook(id: string, options: AddBodyOptions): void {
-  if (options.labelReach !== undefined) checkLabelReach(options.labelReach, new SceneError("bad-body", `addBody("${id}"): labelReach ${String(options.labelReach)} must be a positive finite number`));
-  if (options.enlarge !== undefined && !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)) throw new SceneError("bad-body", `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`);
-  if (options.showLabel !== undefined && typeof options.showLabel !== "boolean") throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
-  if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
-  const limits = options.knownLimitations;
-  if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
 }

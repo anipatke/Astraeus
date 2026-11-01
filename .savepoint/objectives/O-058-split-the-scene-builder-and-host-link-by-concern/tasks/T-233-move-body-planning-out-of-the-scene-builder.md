@@ -2,9 +2,10 @@
 id: T-233
 title: Move body planning out of the scene builder
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-232, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-233, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:14:16Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -55,8 +56,14 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Changed: new `packages/astraeus/src/api/planBodies.ts` (209 lines, class `BodyPlan` plus the moved `moonOrbitPath`, `checkBodyLook`, `parseRecord`, `visualOverridesEntry`); `scene.ts` 863 -> 710 lines, holds a `#plan = new BodyPlan(...)`. Code moved as-is. `checkLabelReach` stays in `planPaths.ts` (shared by paths and bodies; `planBodies.ts` imports it).
+- Done When 1/2: grep for the moved names finds nothing in scene.ts; planBodies.ts 209 lines (max 300); `Scene.missingData` still public, delegating.
+- Nothing public moved: `git diff --exit-code main -- api-surface.lock.json packages/astraeus-site/tests/` empty; no modified `*.test.ts(x)`; apiSurface/apiRules/allowlistGrowth/packageBoundaries tests pass.
+- Same output: scenePin test passes without -u; fixture unmodified.
+- Gates: lint clean, typecheck clean, build ok, `npm test` 184 files / 2240 passed, 1 skipped. No browser run.
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+- For T-239: bodies now live in an internal `BodyPlan` (`api/planBodies.ts`) that the Scene holds; it exposes its maps as readonly fields and takes two callbacks (id taken; first body arrived) so it does not import the Scene. `planBodies.ts` imports `AddBodyOptions` type-only from `scene.ts` (same accepted pattern as planPaths.ts). `checkLabelReach` stays in planPaths.ts. `SceneCamera` is passed to the plan structurally (`fitted`, `reach`).
