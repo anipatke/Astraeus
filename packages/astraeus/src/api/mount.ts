@@ -47,13 +47,19 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   const link = new ViewerLink();
   if (options.onChange !== undefined) link.onChange(options.onChange);
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
-  const ready = loaded.then(() => {
+  const attached = loaded.then(() => {
     if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
     root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, host: link }));
     return link.whenAttached();
   });
-  // A host that never awaits `ready` is not sent an unhandled rejection for an early unmount (or a failed load); whoever awaits it still hears the error.
-  ready.catch(() => undefined);
+  // Only the expected "taken down early" rejection (`not-mounted`) is marked handled, so a host that never awaits `ready` is not sent an unhandled rejection for it;
+  // any other rejection (a failed load) stays unhandled until someone awaits `ready`, as before. Whoever awaits `ready` hears either error.
+  const ready: Promise<void> = new Promise<void>((resolve, reject) => {
+    attached.then(resolve, (error: unknown) => {
+      reject(error);
+      if (error instanceof SceneError && error.code === "not-mounted") ready.catch(() => undefined);
+    });
+  });
   // The shared handle is the prototype (a spread would copy its getters' values once); `ready` and `unmount` are this handle's own.
   return Object.assign(Object.create(viewerHandleOf(link)) as ViewerHandle, {
     ready,

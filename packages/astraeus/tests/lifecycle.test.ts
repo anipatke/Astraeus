@@ -437,3 +437,54 @@ describe("the handle member table", () => {
     expect([...members].sort()).toEqual([...READS, ...Object.keys(CALLS), ...LISTENERS].sort());
   });
 });
+
+describe("mount's ready and unhandled rejections (O-054 T-249, owner 2026-11-01: only the expected taken-down-early case is hidden)", () => {
+  let seen: unknown[];
+  let saved: Array<(...args: unknown[]) => void>;
+  const listener = (reason: unknown) => { seen.push(reason); };
+  beforeEach(() => {
+    seen = [];
+    saved = process.listeners("unhandledRejection") as Array<(...args: unknown[]) => void>; // vitest's own handler would fail the run on the expected one
+    process.removeAllListeners("unhandledRejection");
+    process.on("unhandledRejection", listener);
+  });
+  afterEach(() => {
+    process.off("unhandledRejection", listener);
+    for (const fn of saved) process.on("unhandledRejection", fn);
+    prepared.fail = false; prepared.gate = undefined;
+  });
+  const host = () => document.body.appendChild(document.createElement("div"));
+  const settle = () => tick(60);
+
+  it("an unawaited early unmount raises no unhandled rejection", async () => {
+    let release!: () => void;
+    prepared.gate = new Promise<void>((resolve) => { release = resolve; });
+    const handle = mount(host(), new Scene());
+    handle.unmount();
+    release();
+    await settle();
+    expect(seen).toEqual([]);
+  });
+
+  it("an unawaited load failure is an unhandled rejection", async () => {
+    prepared.fail = true;
+    mount(host(), new Scene());
+    await settle();
+    expect(seen.map((reason) => (reason as Error).message)).toEqual(["load failed"]);
+  });
+
+  it("awaited, both still reject, and an awaited failure is not also reported as unhandled", async () => {
+    prepared.fail = true;
+    const failed = mount(host(), new Scene());
+    await expect(failed.ready).rejects.toThrow("load failed");
+    prepared.fail = false;
+    let release!: () => void;
+    prepared.gate = new Promise<void>((resolve) => { release = resolve; });
+    const early = mount(host(), new Scene());
+    early.unmount();
+    release();
+    await expect(early.ready).rejects.toMatchObject({ code: "not-mounted" });
+    await settle();
+    expect(seen).toEqual([]);
+  });
+});
