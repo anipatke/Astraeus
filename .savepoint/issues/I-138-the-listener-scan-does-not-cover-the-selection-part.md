@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-054 Full Objective Check (C-141) on ad3d724b. Planted break B made ViewerSelection.publish loop over its own listeners instead of calling callListeners. The whole fast suite still passed: its only failures were 3 packagePacks cases, which pass on a clean re-run and have nothing to do with listeners. The shipped code is correct today; the guard is missing.'
     check: C-141
+  - at: '2026-11-01T11:00:00Z'
+    actor: {role: executor, session: o054-repair}
+    kind: repair_attempted
+    note: 'Repair (executor, o054-repair): the scan in listeners.test.ts now takes every src/api/*.ts that holds a listener set (except listeners.ts) by rule, asserts the known parts are in it (clock, zones, selection, camera) so the rule cannot go empty, forbids a loop or forEach over the set, and requires callListeners( in each part with an add(listener) set. Added link-level case: a throwing onSelect listener does not stop the next one, reportError receives the error (3 reports), plus the cause naming. Planted break B re-run (viewerSelection.publish looping its own listeners): listeners.test.ts fails 2 cases (the scan names viewerSelection.ts, and the link case); restored by copy, git diff shows only the doc-comment edit. Gates as for I-137 (npm test 191 files, 2339 passed). Not a Check; the Issue stays open for a checker.'
 ---
 
 # I-138: The listener scan does not cover the selection part

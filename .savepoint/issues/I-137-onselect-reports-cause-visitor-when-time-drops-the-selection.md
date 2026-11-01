@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-054 Full Objective Check (C-141) on ad3d724b. A selected path drops out when the clock leaves its sample span. The host setTime case and the playback case are both reported to onSelect with cause visitor, not host or playback. Checker probes P1, P2 (made-up definition) and P6 (real Scene, real prepareScene). Probe sources are in the checker scratchpad (zzC054probe.final.test.ts, zzC054real.test.ts).'
     check: C-141
+  - at: '2026-11-01T11:00:00Z'
+    actor: {role: executor, session: o054-repair}
+    kind: repair_attempted
+    note: 'Repair (executor, o054-repair): the selection cause now comes from whatever last moved the clock or view, the source onChange and onEventZone use. ViewerClock.publish returns whether it reported a change; ViewerLink keeps that change''s cause (#mover, reset to playback on attach/detach); the shell marks its time/view fallback drop byMove; App.updateSelectedObject calls ViewerPort.publishSelection(state, byMove), which names #mover for a drop and visitor for a pick. The host-setView-only selectionCause ref and hostSetView wrapper are removed. Doc comments, README, Design T-247 note updated. Evidence: viewerHostDom ''a drop caused by time'' x3 (host setTime -> host, clock running -> playback, visitor seek after a host move -> visitor), the two existing view-switch causes unchanged, no report while nothing changes; selectionCauseDom.test.ts on a real Scene + real prepareScene (30-min path, 100-day timeline, probe P6 shape) on mount and AstraeusScene, 6 cases pass; the two time cases fail with src reverted (stash). listeners.test.ts link case covers publishSelection causes. Gates: lint, typecheck, build, npm test (191 files, 2339 passed, 1 skipped); lifecycle + viewerHostDom + selectionCauseDom 10x loop, 0 failures. Not verified: browser (not run); not a Check; setRate-driven drops not separately tested (no path to produce one).'
 ---
 
 # I-137: onSelect reports cause visitor when time drops the selection

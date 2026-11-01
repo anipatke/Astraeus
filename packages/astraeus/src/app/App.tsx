@@ -365,16 +365,12 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   }, [runtime, definition]);
   // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
   const hostAttached = useRef(false);
-  // Who caused the selection change now being reported: a host `setView` marks the view switch it starts, so the drop that follows names the host; cleared once that switch has committed.
-  const selectionCause = useRef<"visitor" | "host">("visitor");
-  const updateSelectedObject = useCallback((objectId: string) => {
+  // `byMove`: the shell dropped the object because time or the view moved; the link names whatever last moved them (a host call, the visitor or playback).
+  const updateSelectedObject = useCallback((objectId: string, byMove?: boolean) => {
     const changed = controls.current.selectedObjectId !== objectId;
     controls.current.selectedObjectId = objectId;
-    if (changed && hostAttached.current) host?.publish(stateNow(), selectionCause.current);
+    if (changed && hostAttached.current) host?.publishSelection(stateNow(), byMove === true);
   }, [host, stateNow]);
-  const hostSetView = useCallback((id: string) => { if (id !== viewRef.current) selectionCause.current = "host"; chooseView(id); }, [chooseView]);
-  // The shell (a child) drops the selection in its own effect for this commit; this runs after it.
-  useEffect(() => { selectionCause.current = "visitor"; }, [viewId]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -422,9 +418,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: hostSetView, cameraTargets, readCamera, setCamera });
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, hostSetView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

@@ -69,13 +69,15 @@ export class ViewerClock {
     return () => { this.#listeners.delete(listener); };
   }
 
-  publish(state: ViewerState, cause: ViewerChangeCause): void {
+  /** Tells the listeners of a change in the reading; returns whether there was one. */
+  publish(state: ViewerState, cause: ViewerChangeCause): boolean {
     const last = this.#last;
-    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return;
+    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return false;
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
     const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), cause };
     callListeners(this.#listeners, change);
+    return true;
   }
 }

@@ -8,7 +8,7 @@ export interface SelectionChange {
   readonly object?: string;
   /** The viewer's time at the report, Unix milliseconds UTC. */
   readonly timeUtcMs: number;
-  /** `visitor`: the object menu, a click or a view choice; `playback`: picked up on the viewer's next tick; `host`: a host call that moved the view. */
+  /** `visitor`: the object menu, a click, or a clock or view change the visitor made; `host`: a host call (`setTime`, `setRate`, `setPlaying`, `setView`) moved the clock or view and the selection followed; `playback`: the clock running moved it. */
   readonly cause: ViewerChangeCause;
 }
 

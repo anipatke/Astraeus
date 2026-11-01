@@ -93,12 +93,15 @@ export class ViewerLink implements ViewerPort {
   readonly #zones = new ViewerZones(this.#access);
   readonly #selection = new ViewerSelection(this.#access);
   #wait = newWait();
+  /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
+  #mover: ViewerChangeCause = "playback";
   #closed = false;
 
   attach(control: ViewerControl): void {
     this.#control = control;
     this.#clock.reset(control.read());
     this.#selection.reset(control.read());
+    this.#mover = "playback";
     this.#camera.reset();
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
@@ -109,6 +112,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = undefined;
     this.#clock.reset(undefined);
     this.#selection.reset(undefined);
+    this.#mover = "playback";
     this.#camera.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
@@ -159,11 +163,14 @@ export class ViewerLink implements ViewerPort {
   onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
-    this.#clock.publish(state, cause);
+    if (this.#clock.publish(state, cause)) this.#mover = cause;
     this.#zones.publish(state, cause);
     this.#selection.publish(state, cause);
     this.#camera.publish();
   }
+
+  /** The selection changed. A drop by time or the view names whatever last moved them (`onChange` names the same), so the cause is never a second opinion. */
+  publishSelection(state: ViewerState, byMove: boolean): void { this.#selection.publish(state, byMove ? this.#mover : "visitor"); }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */
   #afterHost(): void { this.publish(this.#access.open("publish").read(), "host"); }

@@ -1,7 +1,8 @@
 // O-054 T-244: one helper runs every host listener; a throw is reported to the page and never stops the others. A scan fails if a host-link part loops over its listeners itself.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { callListeners } from "../src/api/listeners";
+import type { SelectionChange } from "../src/api/viewerSelection";
 import { ViewerLink, type EventZoneChange, type ViewerChange } from "../src/api/viewerLink";
 import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
 
@@ -88,13 +89,43 @@ describe("ViewerLink listeners", () => {
   });
 });
 
+describe("ViewerLink selection listeners (I-138)", () => {
+  it("a throwing onSelect listener does not stop the next one; reportError receives the error; a drop names what last moved the clock", () => {
+    const report = vi.fn();
+    vi.stubGlobal("reportError", report);
+    const link = new ViewerLink();
+    const { control, state } = fakeControl();
+    const heard: SelectionChange[] = [];
+    const boom = new Error("select boom");
+    link.onSelect(() => { throw boom; });
+    link.onSelect((c) => heard.push(c));
+    link.attach(control);
+    const moved = { ...state, timeUtcMs: START + 20 };
+    link.publish(moved, "host"); // the clock moved by a host call
+    link.publishSelection({ ...moved, selected: "moon" }, true); // the viewer then dropped the selection because of it
+    link.publishSelection({ ...moved, selected: "earth" }, false); // a visitor's own choice
+    link.publish({ ...moved, timeUtcMs: START + 30, selected: "earth" }, "playback");
+    link.publishSelection({ ...moved, timeUtcMs: START + 30, selected: "sun" }, true);
+    expect(heard.map((c) => [c.object, c.cause])).toEqual([["moon", "host"], ["earth", "visitor"], ["sun", "playback"]]);
+    expect(report).toHaveBeenCalledTimes(3);
+    expect(report).toHaveBeenCalledWith(boom);
+  });
+});
+
+/** Every file under `src/api` that holds a listener set: a new host-link part is covered the day it is added. */
+const listenerParts = readdirSync(new URL("../src/api/", import.meta.url)).filter((f) => f.endsWith(".ts") && /#listeners|Listeners\b/.test(readFileSync(new URL(`../src/api/${f}`, import.meta.url), "utf8")) && f !== "listeners.ts");
+
 describe("listener scan", () => {
-  it("no host-link part loops over its listeners itself", () => {
-    for (const file of ["viewerClock", "viewerZones", "viewerLink", "viewerViews", "viewerCamera"]) {
-      const source = readFileSync(new URL(`../src/api/${file}.ts`, import.meta.url), "utf8");
-      expect(source, file).not.toMatch(/for \(const \w+ of \[?\.{0,3}\s*this\.#listeners/);
+  it("covers the known host-link parts (so the rule cannot go empty)", () => {
+    for (const part of ["viewerClock.ts", "viewerZones.ts", "viewerSelection.ts", "viewerCamera.ts"]) expect(listenerParts).toContain(part);
+  });
+
+  it("no part that holds listeners loops over them itself, and each calls callListeners", () => {
+    for (const file of listenerParts) {
+      const source = readFileSync(new URL(`../src/api/${file}`, import.meta.url), "utf8");
+      expect(source, file).not.toMatch(/for \(const \w+ of \[?\.{0,3}\s*(this\.)?#?listeners/i);
       expect(source, file).not.toMatch(/#listeners\.forEach/);
+      if (/#listeners\b/.test(source) && /\.add\(listener\)/.test(source)) expect(source, file).toContain("callListeners(");
     }
-    for (const file of ["viewerClock", "viewerZones"]) expect(readFileSync(new URL(`../src/api/${file}.ts`, import.meta.url), "utf8"), file).toContain("callListeners(");
   });
 });

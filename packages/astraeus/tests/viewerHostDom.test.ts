@@ -6,12 +6,16 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
-const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, noTimeline: false }));
+const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, noTimeline: false, markerUntil: undefined as undefined | number }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
   return { prepareScene: () => {
     const base = prepared.noTimeline ? { ...syntheticDefinition, experience: { ...syntheticDefinition.experience, hideTimeline: true } } : syntheticDefinition;
-    return { definition: prepared.views === undefined ? base : { ...base, views: prepared.views }, ready: Promise.resolve() }; } };
+    const withViews = prepared.views === undefined ? base : { ...base, views: prepared.views };
+    // A path whose samples end before the timeline does: its marker is unavailable after `markerUntil`.
+    const until = prepared.markerUntil;
+    const definition = until === undefined ? withViews : { ...withViews, experience: { ...withViews.experience, objects: withViews.experience.objects.map((o) => o.id === "survey-marker" ? { ...o, availability: { startUtcMs: o.availability?.startUtcMs ?? 0, endUtcMs: until } } : o) } };
+    return { definition, ready: Promise.resolve() }; } };
 });
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -39,7 +43,7 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { prepared.views = undefined; prepared.noTimeline = false; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => { prepared.views = undefined; prepared.noTimeline = false; prepared.markerUntil = undefined; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
 
@@ -457,6 +461,49 @@ describe("the selected object through the host (O-054 T-247)", () => {
     act(() => press($(host, '[data-view-id="b"]'))); // a visitor's view choice drops it again
     expect(heard.at(-1)).toMatchObject({ object: "earth", cause: "visitor" });
     handle.unmount();
+  });
+
+  describe("a drop caused by time takes the cause of whatever moved the clock (I-137)", () => {
+    const END = startUtcMs + 10 * 60_000;
+    const setup = async () => {
+      prepared.markerUntil = END;
+      const heard: SelectionChange[] = [];
+      const handle = mount(host, new Scene());
+      handle.onSelect((c) => heard.push(c));
+      await drawn(handle);
+      act(() => { handle.setPlaying(false); handle.setTime(END - 60_000); });
+      pick("survey-marker");
+      return { heard, handle };
+    };
+
+    it("a host setTime past the path's end reports host", async () => {
+      const { heard, handle } = await setup();
+      act(() => handle.setTime(MID));
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "host"]]);
+      expect(heard.at(-1)?.timeUtcMs).toBe(MID);
+      act(() => { vi.advanceTimersByTime(500); });
+      expect(heard.length).toBe(2);
+      handle.unmount();
+    });
+
+    it("the clock running past the path's end reports playback", async () => {
+      const { heard, handle } = await setup();
+      act(() => handle.setPlaying(true));
+      expect(heard.length).toBe(1);
+      for (let i = 0; i < 100 && heard.length < 2; i++) act(() => { vi.advanceTimersByTime(100); });
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "playback"]]);
+      handle.unmount();
+    });
+
+    it("a visitor's timeline seek past the path's end reports visitor, also after a host move", async () => {
+      const { heard, handle } = await setup();
+      act(() => handle.setTime(END - 30_000)); // a host move first: the selection survives it
+      expect(heard.length).toBe(1);
+      const scrub = byLabel(host, "Seek timeline") as HTMLInputElement;
+      act(() => change(scrub, scrub.max));
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "visitor"]]);
+      handle.unmount();
+    });
   });
 
   it("the stop function ends delivery, and nothing arrives after unmount", async () => {

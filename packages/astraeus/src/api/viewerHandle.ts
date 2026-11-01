@@ -35,7 +35,7 @@ export interface ViewerHandle {
   readonly selected: string | undefined;
   /**
    * Calls `listener({ object?, timeUtcMs, cause })` when the selected object changes: `object` is the new id, absent when the selection was dropped (a view switch that no longer shows it, with nothing to take its place).
-   * `cause` is `visitor` (the object menu, a click, or a view the visitor chose), `host` (a drop caused by the host's own `setView`) or `playback` (picked up on the next tick). The selection the viewer opens with is read from `selected`, not reported. The engine moves nothing in response.
+   * `cause` is `visitor` (the object menu, a click, or a time, speed or view the visitor chose), `host` (a drop caused by the host's own `setTime`, `setRate`, `setPlaying` or `setView`) or `playback` (a drop caused by the clock running); a drop takes the cause `onChange` reported for the move that caused it. The selection the viewer opens with is read from `selected`, not reported. The engine moves nothing in response.
    * No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */
   onSelect(listener: (change: SelectionChange) => void): () => void;

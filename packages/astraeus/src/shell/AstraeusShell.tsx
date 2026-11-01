@@ -86,7 +86,7 @@ interface Props {
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
-  readonly onSelectionChange: (objectId: string) => void;
+  readonly onSelectionChange: (objectId: string, byMove?: boolean) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
@@ -255,7 +255,7 @@ export function AstraeusShell({
     if (selected === undefined || !isObjectAvailable(selected, snapshot.timeUtcMs)) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
-      onSelectionChange(fallbackId);
+      onSelectionChange(fallbackId, true);
       // The card of an object the view took away closes with it.
       if (switchRule !== undefined && selected === undefined) setInfo((now) => (now?.kind === "object" ? null : now));
     }
