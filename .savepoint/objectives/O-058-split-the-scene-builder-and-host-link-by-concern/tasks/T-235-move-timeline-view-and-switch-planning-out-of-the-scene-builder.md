@@ -2,9 +2,10 @@
 id: T-235
 title: Move timeline, view and switch planning out of the scene builder
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-234, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-235, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:19:13Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -55,8 +56,13 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Moved as-is: `packages/astraeus/src/api/planTimeline.ts` (65 lines; internal class `TimelinePlan`: setTime, setTimeline, rates, span (spanOf), clock (clockOf), pacing (pacingEntry), windowOf, default rates) and `planViews.ts` (31 lines; internal class `ViewPlan`: setSwitches, setViews, switchesEntry, viewsEntry). `scene.ts` 634 -> 589 lines. Changed: scene.ts and the two new files only. `story.ts`, `views.ts`, `switches.ts` unchanged.
+- grep for `function (spanOf|windowOf|clockOf|pacingEntry)|#viewsEntry` in scene.ts: no match.
+- `git diff --exit-code main -- api-surface.lock.json packages/astraeus-site/tests/`: empty; no modified test files; scenePin fixture unmodified (scenePin ran in `npm test` without -u).
+- `npm run lint`, `npm run typecheck`, `npm run build` pass; `npm test`: 184 files passed, 2240 tests passed, 1 skipped (includes apiSurface, apiRules, allowlistGrowth, packageBoundaries). No browser run.
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+- New internal modules `api/planTimeline.ts` (TimelinePlan) and `api/planViews.ts` (ViewPlan); not exported from index.ts. `ViewPlan.viewsEntry` takes the path/body/event ids from Scene (Scene still owns tracked/groups/story); panel ids derived from storyPanels inside. For T-239 to reflect in Design.md.

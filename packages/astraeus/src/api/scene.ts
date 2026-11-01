@@ -1,5 +1,4 @@
 import type { BodyId } from "../core/body";
-import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { ActivitySourceInput } from "./activity";
 import type { LineStretchInput } from "./pathProvenance";
@@ -15,7 +14,6 @@ import { createComposition } from "../assets/compositions";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
-import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
 import { createReadoutMetrics } from "../app/trackedMetrics";
@@ -33,12 +31,12 @@ import { GroupPlan, groupLayersEntry, lateGroups } from "./planGroups";
 import { StoryPlan } from "./planStory";
 import { autoPaths, buildTracked, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
-import { switchesOf, type SwitchesInput } from "./switches";
-import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
-import type { DisplaySwitchSettings } from "../app/displaySwitches";
-import type { ViewSettings } from "../app/views";
+import { TimelinePlan } from "./planTimeline";
+import { ViewPlan } from "./planViews";
+import type { SwitchesInput } from "./switches";
+import type { ViewInput, ViewsOptions } from "./views";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { pacingFor, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -140,7 +138,6 @@ export interface FollowView {
   readonly up?: "equatorial" | "ecliptic";
 }
 
-const DAY_MS = 86_400_000;
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 /** The scene's camera: what it opens on. */
@@ -229,13 +226,11 @@ export class Scene {
   readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groupPlan = new GroupPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
   readonly #story = new StoryPlan();
+  readonly #timeline = new TimelinePlan();
+  readonly #viewPlan = new ViewPlan();
   readonly #sources = new Map<BodyId, Trajectory>();
-  #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
-  #timeline: TimelineSetting | undefined;
-  #switches: DisplaySwitchSettings | undefined;
-  #views: ViewsPlan | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id));
@@ -310,7 +305,7 @@ export class Scene {
 
   /** Sets the moment the scene opens at. */
   setTime(time: TimeInput): this {
-    this.#timeUtcMs = toUtcMs(time, "setTime");
+    this.#timeline.setTime(time);
     return this;
   }
 
@@ -339,7 +334,7 @@ export class Scene {
 
   /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`), `pacing` (playback that slows for encounters and speeds up for cruise: spans `{ from, to, rate }` and event rules `{ near: { type, within }, rate }`, easing between speeds; a speed the visitor or host picks wins until `setRate("auto")`; see `PacingInput`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
-    this.#timeline = timelineOf(timeline);
+    this.#timeline.setTimeline(timeline);
     return this;
   }
 
@@ -352,7 +347,7 @@ export class Scene {
    * scene.setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false }, milkyWay: { place: "developer", on: false } });
    */
   setSwitches(switches: SwitchesInput): this {
-    this.#switches = switchesOf(switches, this.#switches);
+    this.#viewPlan.setSwitches(switches);
     return this;
   }
 
@@ -366,7 +361,7 @@ export class Scene {
    * scene.setViews([{ id: "a", label: "Probe A", paths: ["probe-a"] }, { id: "b", label: "Probe B", paths: ["probe-b"] }, { id: "both", label: "Both" }], { place: "top-bar" });
    */
   setViews(views: readonly ViewInput[], options: ViewsOptions): this {
-    this.#views = viewsOf(views, options);
+    this.#viewPlan.setViews(views, options);
     return this;
   }
 
@@ -414,12 +409,6 @@ export class Scene {
   /** The root body is at the origin of itself and at rest. */
   #sunState(id: BodyId, timeUtcMs: number): State {
     return createStateResolver(this.#plan.catalogue.definitions(), this.#plan.catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
-  }
-
-  /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
-  #viewsEntry(ids: readonly BodyId[], storyPanels: StoryPanelSet | undefined): { views?: ViewSettings } {
-    if (this.#views === undefined) return {};
-    return { views: resolveViews(this.#views, { paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groupPlan.groups.keys()], events: this.#story.events.map(({ id }) => id), panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
   }
 
   /** The data packages the added bodies need that `data` does not provide. */
@@ -495,8 +484,8 @@ export class Scene {
     for (const entry of this.#tracked.values()) checkReadouts(entry, ids);
     const entries = [...this.#tracked.values()];
     const tracked = entries.map((entry) => entry.body);
-    const timeline = this.#timeline;
-    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)]);
+    const timeline = this.#timeline.setting;
+    const { window, startUtcMs } = this.#timeline.span([...tracked.map((body) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#plan.sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
@@ -531,18 +520,18 @@ export class Scene {
         ...(timeline?.none === true ? { hideTimeline: true } : {}),
         window,
         ...this.#groupPlan.windowsEntry(),
-        rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
+        rates: this.#timeline.rates(),
       },
-      clock: clockOf(timeline, startUtcMs),
-      ...pacingEntry(timeline, this.#story.events),
+      clock: this.#timeline.clock(startUtcMs),
+      ...this.#timeline.pacing(this.#story.events),
       ...groupLayersEntry(layers, this.#groupPlan.groups.size > 0, sunOrbitIds.length > 0),
       ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
       ...(this.#plan.catalogue === builtInCatalogue ? {} : { catalogue: this.#plan.catalogue }),
       ...this.#plan.visualOverrides(),
       composition: createComposition(this.#plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#plan.enlargedInSun(sunCentred)),
-      ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
-      ...this.#viewsEntry(ids, storyPanels),
+      ...this.#viewPlan.switchesEntry(),
+      ...this.#viewPlan.viewsEntry({ paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groupPlan.groups.keys()], events: this.#story.events.map(({ id }) => id) }, storyPanels),
       ...viewEntries(timeline, this.camera, fit?.read, pathCover(this.#tracked.values(), sunCentred, ids[0]!)),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
@@ -589,29 +578,6 @@ function cameraPresetsOf(objects: readonly { readonly id: string; readonly label
   ];
 }
 
-/** The timeline span and the moment the clock opens at; a moment outside a span the caller set is a `bad-timeline`. */
-function spanOf(timeline: TimelineSetting | undefined, timeUtcMs: number | undefined, tracked: readonly TimeBounds[]): { readonly window: TimeBounds; readonly startUtcMs: number } {
-  const setTime = (timeline?.none === true ? timeline.atUtcMs : undefined) ?? timeUtcMs;
-  // With nothing setting a span or a moment, the month window is centred on now and the clock opens at now (not at the window's start).
-  const now = setTime === undefined && timeline?.window === undefined && tracked.length === 0 ? Date.now() : undefined;
-  const window = timeline?.window ?? windowOf(tracked, setTime ?? now);
-  if (timeline?.window !== undefined && setTime !== undefined && (setTime < window.startUtcMs || setTime > window.endUtcMs)) {
-    throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
-  }
-  return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
-}
-
-/** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */
-function pacingEntry(timeline: TimelineSetting | undefined, events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing"> {
-  const pacing = timeline === undefined ? undefined : pacingFor(timeline, events, timeline.rate ?? 60);
-  return pacing === undefined ? {} : { pacing };
-}
-
-/** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */
-function clockOf(timeline: TimelineSetting | undefined, startUtcMs: number): ExperienceDefinition["clock"] {
-  return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.none === true && timeline.rate === undefined ? { playing: false } : {}) };
-}
-
 /**
  * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
  * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
@@ -620,15 +586,4 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
   const offered = [trueScale, enlarged ? solarSystemScale : readableScale];
   const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
   return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
-}
-
-/** The timeline span: the union of the trajectories' and activities' spans, else a month about the chosen time (or about now). */
-function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined): TimeBounds {
-  if (tracked.length > 0) {
-    const start = Math.min(...tracked.map((bounds) => bounds.startUtcMs));
-    const end = Math.max(...tracked.map((bounds) => bounds.endUtcMs));
-    if (timeUtcMs === undefined || (timeUtcMs >= start && timeUtcMs <= end)) return { startUtcMs: start, endUtcMs: end };
-  }
-  const centre = timeUtcMs ?? Date.now();
-  return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
 }
