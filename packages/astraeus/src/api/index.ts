@@ -5,7 +5,7 @@ export { type SwitchesInput } from "./switches";
 export { type ViewsOptions, type ViewInput, type ViewCameraInput } from "./views";
 export { mount, type MountOptions, type MountedScene } from "./mount";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
-export { type ViewerChange, type RateSource, type CameraPose, type CameraTarget } from "./viewerLink";
+export { type ViewerChange, type EventZoneChange, type RateSource, type CameraPose, type CameraTarget } from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";
 export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, listedMoons, type BodyRef } from "./bodies";
 export { trueScale, readableScale, solarSystemScale, type ScalePolicy } from "../core/scalePolicy";

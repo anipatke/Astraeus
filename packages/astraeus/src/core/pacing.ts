@@ -26,6 +26,18 @@ export function zonesInView(zones: readonly PaceZone[], shown: ShownEvents): rea
   return shown === undefined ? zones : zones.filter((zone) => zoneInView(zone, shown));
 }
 
+/**
+ * The ids of the events whose zone holds `timeUtcMs` (edges included, as `pacedRate` reads them), among the zones the showing view has; each id once, in zone order.
+ * Span zones carry no event and never count. A pure function of its arguments.
+ */
+export function activeEventZones(zones: readonly PaceZone[], shown: ShownEvents, timeUtcMs: number): readonly string[] {
+  const ids: string[] = [];
+  for (const zone of zonesInView(zones, shown)) {
+    if (zone.eventId !== undefined && timeUtcMs >= zone.fromUtcMs && timeUtcMs <= zone.toUtcMs && !ids.includes(zone.eventId)) ids.push(zone.eventId);
+  }
+  return ids;
+}
+
 /** A scene's pacing: the rate outside every zone and its zones. Where zones overlap the slowest wins whatever order they are listed in (`pacedRate` lays the fastest first and the slowest last). */
 export interface Pacing {
   readonly baseRate: number;

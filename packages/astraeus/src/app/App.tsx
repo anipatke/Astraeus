@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type Compo
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
-import { applyPacing, startPaceEase, type PaceView } from "../core/pacing";
+import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
 import { openClock } from "./openClock";
 import type { ViewerPort, ViewerState } from "./viewerPort";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
@@ -357,11 +357,14 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     setViewId(id);
   }, [definition, experience, runtime]);
   const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
-  const stateNow = useCallback((): ViewerState => ({
-    ...runtime.clock.snapshot(),
-    ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }),
-    ...(definition.views === undefined ? {} : { view: viewRef.current }),
-  }), [runtime, definition]);
+  const stateNow = useCallback((): ViewerState => {
+    const snapshot = runtime.clock.snapshot();
+    return {
+      ...snapshot,
+      ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true, zones: activeEventZones(runtime.pacing.zones, controls.current.pace?.shown, snapshot.timeUtcMs) }),
+      ...(definition.views === undefined ? {} : { view: viewRef.current }),
+    };
+  }, [runtime, definition]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -406,9 +409,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
     return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

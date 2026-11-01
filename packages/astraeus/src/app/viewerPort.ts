@@ -1,3 +1,4 @@
+import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
 import type { StartView } from "./viewLink";
@@ -12,6 +13,8 @@ export interface ViewerState {
   readonly auto?: boolean;
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
+  /** Only in a scene with pacing: the ids of the events whose pacing zone holds the time, among the zones the showing view has. */
+  readonly zones?: readonly string[];
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */
@@ -20,6 +23,8 @@ export type ViewerChangeCause = "playback" | "visitor" | "host";
 /** What a mounted viewer lets the host do to its one clock. Seeking and rate changes go through the viewer's own handlers, so there is no second clock. */
 export interface ViewerControl {
   readonly window: TimeBounds;
+  /** The scene's events, which name what a zone is about (`type`, `object`). */
+  readonly events: readonly TimelineEvent[];
   /** The speeds the timeline offers. */
   readonly rates: readonly number[];
   read(): ViewerState;

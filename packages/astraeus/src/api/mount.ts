@@ -6,7 +6,7 @@ import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import type { TimeInput } from "./time";
-import { ViewerLink, type CameraPose, type CameraTarget, type ViewerChange } from "./viewerLink";
+import { ViewerLink, type CameraPose, type CameraTarget, type EventZoneChange, type ViewerChange } from "./viewerLink";
 
 /** Options of `mount`. */
 export interface MountOptions {
@@ -40,6 +40,13 @@ export interface MountedScene {
   readonly camera: CameraPose | undefined;
   /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, or a pose from `camera` puts it back where it was read (relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `missing-data`. The camera eases there. */
   setCamera(target: CameraTarget): void;
+  /** The ids of the events whose pacing zone holds the viewer's time now, among the zones the showing view has (an empty list in a scene without pacing event rules); undefined until `ready` and after `unmount`. */
+  readonly eventZones: readonly string[] | undefined;
+  /**
+   * Calls `listener({ event, type?, object?, entered, time, cause })` when playback enters or leaves the zone of a pacing event rule (`setTimeline({ pacing: [{ near }] })`) for an event the showing view has; returns the function that stops it.
+   * `cause` is `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); overlapping zones report separately. A zone already active when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it. The engine moves nothing in response: a host composes its own behaviour, for example `setCamera`. No callbacks arrive after `unmount`.
+   */
+  onEventZone(listener: (change: EventZoneChange) => void): () => void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -76,11 +83,13 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
     get rate() { return link.rate; },
     get view() { return link.view; },
     get camera() { return link.camera; },
+    get eventZones() { return link.eventZones; },
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
     onChange: (listener) => link.onChange(listener),
+    onEventZone: (listener) => link.onEventZone(listener),
     unmount() {
       if (!open) return;
       open = false;

@@ -5,7 +5,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
-import { ViewerLink, type CameraTarget, type ViewerChange } from "./viewerLink";
+import { ViewerLink, type CameraTarget, type EventZoneChange, type ViewerChange } from "./viewerLink";
 
 /** Props of `AstraeusScene`. */
 export interface AstraeusSceneProps {
@@ -27,6 +27,8 @@ export interface AstraeusSceneProps {
   readonly camera?: CameraTarget;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
+  /** Called when playback enters or leaves the pacing zone of an event the showing view has: `{ event, type?, object?, entered, time, cause }` (see `MountedScene.onEventZone`). A zone already active when the viewer opens reports `entered` once, just after `onReady`. */
+  readonly onEventZone?: (change: EventZoneChange) => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
   readonly address?: boolean;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
@@ -46,15 +48,16 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, address, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
-  const latest = useRef({ data, onReady, onError, onChange });
-  latest.current = { data, onReady, onError, onChange };
+  const latest = useRef({ data, onReady, onError, onChange, onEventZone });
+  latest.current = { data, onReady, onError, onChange, onEventZone };
   const [link] = useState(() => new ViewerLink());
   useEffect(() => {
     const stop = link.onChange((change) => latest.current.onChange?.(change));
-    return () => { stop(); link.close(); };
+    const stopZones = link.onEventZone((change) => latest.current.onEventZone?.(change));
+    return () => { stop(); stopZones(); link.close(); };
   }, [link]);
   // A Date made fresh each render must not seek again, so the moment is compared by value.
   const timeKey = time instanceof Date ? time.getTime() : time;

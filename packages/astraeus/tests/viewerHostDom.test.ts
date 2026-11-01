@@ -145,7 +145,7 @@ describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
     let state = { timeUtcMs: MID, rate: RATES[0], playing: false };
-    const control = { window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
+    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");

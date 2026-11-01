@@ -17,6 +17,21 @@ export interface ViewerChange {
   readonly cause: ViewerChangeCause;
 }
 
+/** What a host is told when playback enters or leaves the pacing zone of an event the showing view has. */
+export interface EventZoneChange {
+  /** The id of the event whose zone it is. */
+  readonly event: string;
+  /** The event's `type` and `object`, when it has them. */
+  readonly type?: string;
+  readonly object?: string;
+  /** True on entering the zone, false on leaving it. */
+  readonly entered: boolean;
+  /** The viewer's time at the report, Unix milliseconds UTC. */
+  readonly time: number;
+  /** What moved it across: `playback` (the clock ran, or the zone was already active when the viewer opened), `visitor` (the timeline or the view choice), `host` (`setTime` or `setView`). */
+  readonly cause: ViewerChangeCause;
+}
+
 /** The camera as a plain value: the object it is centred on and where it stands from it. Read from `MountedScene.camera`, put back with `setCamera`. */
 export interface CameraPose {
   /** The id of the object the camera is centred on (and follows as it moves). */
@@ -53,6 +68,8 @@ export class ViewerLink implements ViewerPort {
   #last: ViewerState | undefined;
   #rateSource: RateSource = "scene";
   readonly #listeners = new Set<(change: ViewerChange) => void>();
+  readonly #zoneListeners = new Set<(change: EventZoneChange) => void>();
+  #zones: readonly string[] = [];
   #wait = newWait();
   #closed = false;
 
@@ -60,6 +77,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = control;
     this.#last = control.read();
     this.#rateSource = "scene";
+    this.#zones = []; // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
   }
@@ -75,6 +93,7 @@ export class ViewerLink implements ViewerPort {
     this.#closed = true;
     this.detach();
     this.#listeners.clear();
+    this.#zoneListeners.clear();
   }
 
   /**
@@ -89,6 +108,8 @@ export class ViewerLink implements ViewerPort {
   get time(): number | undefined { return this.#control?.read().timeUtcMs; }
   get rate(): number | undefined { return this.#control?.read().rate; }
   get playing(): boolean | undefined { return this.#control?.read().playing; }
+  /** The ids of the events whose pacing zone holds the time now (empty without pacing event rules); undefined before the viewer is drawn and after it is gone. */
+  get eventZones(): readonly string[] | undefined { return this.#control === undefined ? undefined : this.#control.read().zones ?? []; }
   /** The id of the view showing; undefined before the viewer is drawn, after it is gone, and in a scene without views. */
   get view(): string | undefined { return this.#control?.read().view; }
 
@@ -172,7 +193,35 @@ export class ViewerLink implements ViewerPort {
     return () => { this.#listeners.delete(listener); };
   }
 
+  /**
+   * Calls `listener` when playback enters or leaves the pacing zone of an event the showing view has (a `near` rule of `setTimeline({ pacing })`); returns the function that stops it.
+   * A zone the time is already inside when the viewer opens is reported as entered once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it.
+   * A viewer rebuild (`AstraeusScene` given a new scene) starts over the same way.
+   */
+  onEventZone(listener: (change: EventZoneChange) => void): () => void {
+    this.#zoneListeners.add(listener);
+    return () => { this.#zoneListeners.delete(listener); };
+  }
+
   publish(state: ViewerState, cause: ViewerChangeCause): void {
+    this.#publishChange(state, cause);
+    this.#publishZones(state, cause);
+  }
+
+  #publishZones(state: ViewerState, cause: ViewerChangeCause): void {
+    const now = state.zones ?? [];
+    const before = this.#zones;
+    if (now.length === before.length && now.every((id, index) => id === before[index])) return;
+    this.#zones = now;
+    const reports: [string, boolean][] = [...before.filter((id) => !now.includes(id)).map((id): [string, boolean] => [id, false]), ...now.filter((id) => !before.includes(id)).map((id): [string, boolean] => [id, true])];
+    for (const [id, entered] of reports) {
+      const event = this.#control?.events.find((candidate) => candidate.id === id);
+      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, time: state.timeUtcMs, cause };
+      for (const listener of [...this.#zoneListeners]) listener(change);
+    }
+  }
+
+  #publishChange(state: ViewerState, cause: ViewerChangeCause): void {
     const last = this.#last;
     if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return;
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
