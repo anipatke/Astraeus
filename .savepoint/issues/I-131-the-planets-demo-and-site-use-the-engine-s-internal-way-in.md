@@ -2,18 +2,28 @@
 id: I-131
 title: The planets demo and the site use the engine's internal way in
 type: drift
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: planner, session: api-review-20261101}
   at: '2026-11-01T06:30:00Z'
 guardrail_ids: [API-01]
 severity: medium
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: api-review-20261101}
+  at: '2026-11-01T07:00:00Z'
+  reason: 'Owner brought it into 0.8.0 ("lets do this right"); promoted into O-059 (build the planets demo and site on the front door), G-016.'
+escalated_to: O-059
 history:
   - at: '2026-11-01T06:30:00Z'
     actor: {role: planner, session: api-review-20261101}
     kind: deferred
     note: 'Review F13; owner D6: retire the internal ExperienceDefinition way in over later Goals. In 0.8.0 only the shrinking deep-import allowlist (O-053). After 0.8.0.'
+  - at: '2026-11-01T07:00:00Z'
+    actor: {role: planner, session: api-review-20261101}
+    kind: escalated
+    note: 'Owner: in 0.8.0, not after. Promoted into O-059.'
 ---
 
 # I-131: The planets demo and the site use the engine's internal way in

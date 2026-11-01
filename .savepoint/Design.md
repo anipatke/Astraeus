@@ -90,15 +90,15 @@ Browser policy is owned by [browser policy](../docs/agents/browser-policy.md); t
 
 ### Public API shape (G-016, owner 2026-11-01)
 
-The owner's principles for the public API, from the [api review](../docs/architecture/api-review-2026-11-01.md). Durable rules with IDs are in Guardrails (API-01 to API-07); these are how the API is shaped. Where today's code differs, G-016's Objectives (O-053 to O-057) bring it in line and this section is reconciled as they land.
+The owner's principles for the public API, from the [api review](../docs/architecture/api-review-2026-11-01.md). Durable rules with IDs are in Guardrails (API-01 to API-07); these are how the API is shaped. Where today's code differs, G-016's Objectives (O-053, O-058, O-054, O-055, O-056, O-059, O-057, in that order) bring it in line and this section is reconciled as they land.
 
 - **What the product is (D1).** A scene builder, a full viewer (`mount` and `AstraeusScene`) and numbers without a viewer (`stateOf`, `provenanceOf` after one public load). No viewer-free entry point and no public 3D parts until a real user needs them.
 - **Verb grammar.** `add*` appends and a repeated id throws `duplicate-id`; `set*` replaces the whole setting; `on*` subscribes and returns a stop function; reads are plain properties.
 - **Lifecycle.** Build faults throw at `mount`; load faults reject `ready`; `ready` always settles (usable or rejected, never left pending); after `unmount` calls throw and callbacks stop; a listener that throws does not stop the others; a mounted `Scene` is frozen and later edits throw.
 - **The engine signals, the host decides.** The engine reports what changed and offers setters but builds in no app behaviour; each signal stands alone, never only as a side effect of another feature (event zones independent of pacing, D4).
 - **Numbers work without a viewer.** A Node or server app awaits one public call and can then ask about any body, moons included.
-- **Use the front door ourselves.** In-repo demos and the site use only the public API; existing deep imports sit on a per-package allowlist that may only shrink (D6: the internal `ExperienceDefinition` way in is retired over later Goals).
-- **Compatibility.** Renames in 0.8.0 keep the old name as an alias until 0.9.0, listed in one CHANGELOG migration table (D2); `toDefinition` is removed in 0.8.0 with public replacements (D10); groups must state their `plane` (D3); several viewers per page are supported (D9); the Developer drawer is hidden unless a host asks (D8); the React peer covers all of React 19 (D7).
+- **Use the front door ourselves.** In-repo demos and the site use only the public API; existing deep imports sit on a per-package allowlist that may only shrink, and G-016 empties it: the planets demo and the site move onto the public API in 0.8.0 (D6 brought forward by the owner, O-059).
+- **Compatibility.** Renames in 0.8.0 are a clean break with no aliases, listed in one CHANGELOG migration table (D2 revised by the owner: only two outside apps exist, so break and rework them now); `toDefinition` is removed in 0.8.0 with public replacements (D10); groups must state their `plane` (D3); several viewers per page are supported (D9); the Developer drawer is hidden unless a host asks (D8); the React peer covers all of React 19 (D7).
 
 Detailed decisions, owner acceptances, technical limitations and deferred-note accounting are preserved verbatim in [reconciliation history](../docs/architecture/reconciliation-history.md). Read the paragraphs for the affected Objective or Issue when validating its contract. They are evidence of decisions at their recorded dates, not a second live status board. Current lifecycle status comes from Savepoint records and `savepoint resume`.
 
