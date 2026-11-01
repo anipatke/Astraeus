@@ -6,6 +6,7 @@ status: in_progress
 stage: audit
 depends_on: [{task: T-218, requires: clear}, {task: T-219, requires: clear}, {task: T-220, requires: clear}]
 owner_validation: {required: true}
+check_waiver: {task: T-221, reason: 'Owner said "Let''s do the scene switching now" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o051-run-20261101}, recorded_at: '2026-11-01T00:03:55Z'}
 planned_by: {role: planner, session: o051-plan-20261101}
 ---
 
@@ -79,6 +80,9 @@ Limitations and unverified:
 - The "both" view's rule (`focus probe-a`) is only resolved, never applied, in the browser scene: a rule applies only when the camera's target leaves the view, and "both" hides nothing.
 - Stay is asserted by Earth's projected centre (valid off screen); in the held pose Earth is outside the view, so the check proves the camera holds, not how it looks.
 - No Task Check requested and no waiver recorded.
+
+
+- Owner look (2026-11-01T00:03:55Z, session o051-run-20261101): the owner was given the steps for `localhost:5490/app.html?experience=synthetic-views` (view buttons in the bar and phone drawer, switching at fast playback, menu/timeline/panels per view, follow then stay) and answered "Voyager is the real test, but this looks good". Owner plan: release 0.7.0 after the Full Objective Check, then the Voyager app adopts it.
 
 ## Drift Notes
 
