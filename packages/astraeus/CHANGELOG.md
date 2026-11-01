@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.7.0 (2026-11-01)
+
+First download of the packed example (`npm run measure:example`): 1,652,632 bytes raw, 472,929 bytes gzip (code and styles loaded on first open).
+
+A probe followed as one path, close timeline markers each reachable, the picture-pack moon list documented (O-050), and views of one scene switched inside the viewer (O-051), from the fourth round of findings sent back by the outside interplanetary probe app built on 0.6.0 (G-014).
 
 - Views of one scene (O-051 T-218, I-124, API half), no existing call changes. New `Scene.setViews([{ id, label, paths?, bodies?, events?, panels?, camera? }], { place, start? })` names views, each listing the paths, bodies, events and story panels it shows; anything no view names shows in every view. `toDefinition` resolves each view's membership once into `definition.views`. A bad list, id, place, camera or start throws the new `bad-view` code. New exported types `ViewInput`, `ViewsOptions`, `ViewCameraInput`. The viewer does not switch views yet (next steps). A scene without views is unchanged.
 - The viewer shows the view choice (O-051 T-219, I-124, viewer half): one button per view in the top bar, or a row each in the switch panel, and in the phone drawer, the opening view pressed. Choosing a view hides the other views' paths, bodies, labels, picking targets, timeline events, story panels and story markers at once, from one hidden-id set the frame reads; nothing is rebuilt, and time, speed and playing state carry over. An object the view hides is dropped from the object menu, and a selection or follow on it is dropped, with the camera handled by the per-view camera rule of the next entry. A scene without views is unchanged. The per-view camera rule and the host's `setView` follow in the next entry.
@@ -12,7 +16,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - `lineFixedTo: "auto"` (O-050 T-216, I-125): the stretches are picked from the path's own samples. Each sample is fixed to the innermost scene body whose sphere of influence (`a (m / M)^(2/5)`, GMs from the catalogue) holds the probe, else the scene centre, so any flyby or orbiter is one path without working out switch times. Resolved once at mount or `prepare`; a body without a catalogue GM is skipped.
 - Close timeline markers stay reachable (O-050 T-214, I-126): events, story panels and window peaks that sit under 22 px apart on the measured track gather into one numbered mark whose list opens each member as a full-size button; nothing gathers until the track has a measured width.
 - Proof on the packed package (O-050 T-217, I-125 to I-127): `npm run check:node-consumer` builds a listed-stretch path, a `"auto"` path and a Moon-orbit path and asserts one menu object per path and the resolved stretches; the made-up synthetic journey draws its traveller against the Sun, Jupiter and the Sun again and adds three moon passes within nine hours of Jupiter's, checked by `npm run check:browser` (the camera stays on the traveller across both stretch boundaries; each gathered marker opens its own event at 1280x720 and 375x667).
-- First download of the packed example (`node tools/measure-example.mjs`, after `npm run build`): 1,652,588 bytes raw, 472,895 bytes gzip, against 1,638,245 raw and 468,717 gzip at 0.6.0 (+14,343 raw, +4,178 gzip: the stretch drawing, sphere-of-influence resolver and marker grouping, +5,956 raw and +1,752 gzip as measured after O-050; the views, the view choice, the hide stage and the camera hold add +8,387 raw and +2,426 gzip, measured after O-051).
+- First download of the packed example (`node tools/measure-example.mjs`, after `npm run build`): 1,652,632 bytes raw, 472,929 bytes gzip at release, against 1,638,245 raw and 468,717 gzip at 0.6.0 (+14,387 raw, +4,212 gzip: the stretch drawing, sphere-of-influence resolver and marker grouping, +5,956 raw and +1,752 gzip as measured after O-050; the views, the view choice, the hide stage and the camera hold add +8,387 raw and +2,426 gzip, measured after O-051 T-221; the I-129 repair adds +44 raw and +34 gzip).
 
 ## 0.6.0 (2026-11-01)
 
