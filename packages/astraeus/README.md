@@ -124,7 +124,7 @@ export const App = () => (
 );
 ```
 
-Props: `scene`, `data` (as for `mount`), `onReady`, `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
+Props: `scene`, `data` (as for `mount`), `onReady` (called once drawn and the viewer's clock is attached, the same moment `mount`'s `ready` resolves, and again after each rebuild), `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
 
 ## Reading and setting the time
 
@@ -132,6 +132,7 @@ The viewer has one clock (and, with `setViews`, one current view: rows below). A
 
 | Name | What it does |
 |------|--------------|
+| `handle.ready` | Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every `set` call work on the line after `await handle.ready`; no extra frame or wait. Rejects if loading failed. Never resolves if `unmount` came first. |
 | `handle.time`, `handle.rate` | The clock now. `undefined` until `ready` has resolved and after `unmount`. |
 | `handle.setTime(time)` | Moves the viewer to `time` (ISO text, a `Date` or milliseconds). Outside the timeline throws `bad-time`. Before `ready` or after `unmount` throws `missing-data`. |
 | `handle.setRate(rate)` | Sets the speed to one the timeline offers (`setTimeline({ rates })`). Any other number throws `bad-timeline`: the speed menu always shows what is running, so a custom speed is refused, not added. `handle.setRate("auto")` hands the speed back to the scene's pacing (below); without pacing it throws `bad-timeline`. |

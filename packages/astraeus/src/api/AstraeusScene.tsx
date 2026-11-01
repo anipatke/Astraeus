@@ -13,7 +13,7 @@ export interface AstraeusSceneProps {
   readonly scene: Scene;
   /** Data packages the scene's bodies need, such as moon pictures or positions. Read when the scene is built, so a new array alone does not rebuild. */
   readonly data?: readonly DataSource[];
-  /** Called once the scene's data has loaded and it is drawn (again after each rebuild). */
+  /** Called once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again after each rebuild). */
   readonly onReady?: () => void;
   /** Called when the scene cannot be built (a `SceneError`) or its data fails to load. */
   readonly onError?: (error: Error) => void;
@@ -67,17 +67,23 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
   useEffect(() => {
     let open = true;
     setDefinition(undefined);
+    link.detach(); // a rebuild: the old viewer is going, so `onReady` below waits for the new one's attach
     try {
       const prepared = prepareScene(scene, latest.current.data);
       prepared.ready.then(
-        () => { if (open) { setDefinition(prepared.definition); latest.current.onReady?.(); } },
+        () => {
+          if (!open) return;
+          setDefinition(prepared.definition);
+          // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
+          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(); });
+        },
         (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
       );
     } catch (cause) {
       latest.current.onError?.(asError(cause));
     }
     return () => { open = false; };
-  }, [scene]);
+  }, [scene, link]);
 
   return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} host={link} /> : null}</div>;
 }

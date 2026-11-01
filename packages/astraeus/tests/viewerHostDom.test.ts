@@ -19,7 +19,7 @@ import { Scene } from "../src/api/scene";
 import type { ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { speedsOf } from "../src/shell/timelineModel";
-import { $, byLabel, change, press } from "./domSetup";
+import { $, byLabel, change, drawn, press } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -50,7 +50,7 @@ describe("the mount handle", () => {
 
   it("reads the time and speed, and moves the viewer when set", async () => {
     const handle = mount(host, new Scene());
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(handle.rate).toBe(syntheticDefinition.clock.rate);
     act(() => handle.setTime(new Date(MID)));
     expect(handle.time).toBe(MID);
@@ -62,7 +62,7 @@ describe("the mount handle", () => {
 
   it("refuses a time outside the timeline (bad-time) and a speed it does not offer (bad-timeline)", async () => {
     const handle = mount(host, new Scene());
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     const before = handle.time;
     expect(codeOf(() => handle.setTime(endUtcMs + 1))).toBe("bad-time");
     expect(codeOf(() => handle.setTime(startUtcMs - 1))).toBe("bad-time");
@@ -78,7 +78,7 @@ describe("the mount handle", () => {
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
     const later: ViewerChange[] = [];
     handle.onChange((c) => later.push(c));
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
 
     act(() => handle.setTime(MID));
     expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
@@ -134,7 +134,7 @@ describe("the speed menu (I-106)", () => {
   });
   it("draws only those speeds in the menu", async () => {
     const handle = mount(host, new Scene());
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     const options = [...(byLabel(host, "Playback speed") as HTMLSelectElement).options].map((o) => Number(o.value));
     expect(options).toEqual([...RATES].sort((a, b) => a - b));
     handle.unmount();
@@ -170,7 +170,7 @@ describe("views through the host (O-051 T-220)", () => {
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
     expect(handle.view).toBeUndefined();
     expect(codeOf(() => handle.setView("a"))).toBe("missing-data"); // not drawn yet
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(handle.view).toBeUndefined();
     expect(codeOf(() => handle.setView("a"))).toBe("bad-view");
     act(() => handle.setTime(MID));
@@ -183,7 +183,7 @@ describe("views through the host (O-051 T-220)", () => {
     const handle = mount(host, new Scene());
     expect(handle.view).toBeUndefined();
     expect(codeOf(() => handle.setView("b"))).toBe("missing-data");
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(handle.view).toBe("a");
     act(() => handle.setView("b"));
     expect(handle.view).toBe("b");
@@ -199,7 +199,7 @@ describe("views through the host (O-051 T-220)", () => {
     withViews();
     const seen: ViewerChange[] = [];
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     const before = { time: handle.time, rate: handle.rate };
     act(() => handle.setView("b"));
     expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host" });

@@ -1,7 +1,7 @@
 ---
 id: O-052
 title: Make views work for a multi-probe app
-status: planned
+status: in_progress
 depends_on: [O-051]
 release: G-015
 priority: high

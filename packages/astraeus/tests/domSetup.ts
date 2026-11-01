@@ -197,3 +197,11 @@ export function selectObject(container: ParentNode, id: string): void {
     picker.dispatchEvent(new window.Event("change", { bubbles: true }));
   });
 }
+
+// `ready` now waits for the viewer's effects, which `act` holds back until its callback returns, so `await act(async () => { await handle.ready; })` would never finish.
+// Let the render be queued inside `act`, which flushes it and its effects on exit, then await `ready`. Bare-`await ready` behaviour is covered in viewerHostReady.test.ts.
+export const drawn = async (handle: { readonly ready: Promise<void> }): Promise<void> => {
+  const ready = handle.ready;
+  await act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+  await ready;
+};

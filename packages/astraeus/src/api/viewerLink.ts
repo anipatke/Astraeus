@@ -20,6 +20,13 @@ export type RateSource = "scene" | "chosen";
 
 const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` first";
 
+interface Wait { readonly promise: Promise<void>; resolve: () => void; done: boolean }
+function newWait(): Wait {
+  const wait = { done: false } as Wait;
+  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve) => { wait.resolve = resolve; });
+  return wait;
+}
+
 /**
  * Joins a host page to a mounted viewer's one clock: reads, sets and change callbacks. Created by `mount` and `AstraeusScene`; the viewer attaches
  * its clock controls when it opens and detaches when it closes.
@@ -29,23 +36,35 @@ export class ViewerLink implements ViewerPort {
   #last: ViewerState | undefined;
   #rateSource: RateSource = "scene";
   readonly #listeners = new Set<(change: ViewerChange) => void>();
+  #wait = newWait();
+  #closed = false;
 
   attach(control: ViewerControl): void {
     this.#control = control;
     this.#last = control.read();
     this.#rateSource = "scene";
+    this.#wait.done = true;
+    this.#wait.resolve();
   }
 
   detach(): void {
     this.#control = undefined;
     this.#last = undefined;
+    if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
   /** Stops all callbacks for good (the host unmounted). */
   close(): void {
+    this.#closed = true;
     this.detach();
     this.#listeners.clear();
   }
+
+  /**
+   * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. After `close` it
+   * never resolves (a closed link is not usable). A detach (the viewer rebuilt) arms a fresh wait.
+   */
+  whenAttached(): Promise<void> { return this.#wait.promise; }
 
   get rateSource(): RateSource { return this.#rateSource; }
 

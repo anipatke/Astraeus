@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- `ready` means usable (O-052 T-222, G-015): `mount`'s `ready` resolves, and `AstraeusScene`'s `onReady` fires, only once the viewer has attached its clock, so `time`, `rate`, `view`, `setTime`, `setRate` and `setView` work straight after `await ready`. In 0.7.0 `ready` resolved about two frames earlier and `await ready; setView(...)` threw `missing-data`. A load failure still rejects `ready`; `unmount` before the viewer is drawn never makes it usable. No change to the handle's shape or error codes.
+
 ## 0.7.0 (2026-11-01)
 
 First download of the packed example (`npm run measure:example`): 1,652,632 bytes raw, 472,929 bytes gzip (code and styles loaded on first open).

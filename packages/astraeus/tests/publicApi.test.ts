@@ -8,7 +8,7 @@ import { dataSource as pictureData } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
 import { clearPictures, pictureOf, registerPictures } from "../src/assets/pictures";
 import { installData } from "../src/api/data";
-import { mountShell } from "./domSetup";
+import { drawn, mountShell } from "./domSetup";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
 
@@ -132,7 +132,7 @@ describe("mount", () => {
     host = document.createElement("div");
     document.body.append(host);
     const handle = mount(host, new Scene().addBody(earth).addBody(moon).addTrajectory(apollo));
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(host.childElementCount).toBeGreaterThan(0);
     act(() => { handle.unmount(); });
     expect(host.querySelector("canvas")).toBeNull();

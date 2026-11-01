@@ -18,7 +18,7 @@ export interface MountOptions {
 
 /** What `mount` returns. */
 export interface MountedScene {
-  /** Resolves once the scene's data has loaded and it is drawn; rejects if loading failed. */
+  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every set call work from then on; rejects if loading failed. Never resolves if `unmount` came first. */
   readonly ready: Promise<void>;
   /** Removes the scene, its canvas and its listeners from the page. Safe to call twice. */
   unmount(): void;
@@ -58,8 +58,11 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   let open = true;
   const link = new ViewerLink();
   if (options.onChange !== undefined) link.onChange(options.onChange);
+  // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const ready = loaded.then(() => {
-    if (open) root.render(createElement(App, { definition, writeTitle: false, host: link }));
+    if (!open) return;
+    root.render(createElement(App, { definition, writeTitle: false, host: link }));
+    return link.whenAttached();
   });
   return {
     ready,
