@@ -6,6 +6,7 @@ status: in_progress
 stage: audit
 depends_on: [{task: T-226, requires: clear}]
 owner_validation: {required: true}
+check_waiver: {task: T-227, reason: 'Owner said "orchestrate 052" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o052-run-20261101}, recorded_at: '2026-11-01T04:36:59Z'}
 planned_by: {role: planner, session: voyagers-feedback-20261101}
 ---
 
@@ -79,6 +80,8 @@ Send-back (coordinator): `EventZoneChange.via: "time" | "view"` added (ViewerLin
 Extra reads: none beyond Context Files and the Drift Notes of T-222..T-226; also read packages/astraeus-site/tools/validate/check-hello-scene.mjs and tests/publishWorkflow.test.ts (to keep the example's browser check and cap valid).
 
 Limitations: the camera-to-encounter motion itself is not asserted by any browser check (the owner look covers it); the browser check does not assert pacing in the views scene; hello-scene's `viewer.setCamera(before)` could throw `bad-camera` if the visitor switches view during a flyby so the saved pose's object is hidden (same pattern as the README snippet; not exercised); the owner's running preview on 5490 may need a restart to show the changed made-up views scene.
+
+- Owner look (2026-11-01T04:36:59Z, session o052-run-20261101): the owner was given the steps for `localhost:5490/app.html?experience=synthetic-views` (per-view slowing in Probe A / Probe B / Both, eased switch, address unchanged on switch) and `localhost:5496` (built hello-scene: camera to each probe at its encounter and back, view switch mid-encounter without error or snap-back) and answered "looks good".
 
 ## Drift Notes
 
