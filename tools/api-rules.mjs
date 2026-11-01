@@ -134,7 +134,7 @@ export function publicTypeBreaks(entry = PUBLIC_ENTRY) {
     }
   }
   // The story panel input is untyped (`panels: unknown[]`), so its moment form cannot be read from a type: read the parser, which takes `at.utc` as ISO text ending in Z only.
-  const panels = join(ENGINE_SRC, "shell", "storyPanels.ts");
+  const panels = join(ENGINE_SRC, "core", "storyPanels.ts");
   if (entry === PUBLIC_ENTRY && /"at\.utc"[\s\S]{0,400}\/Z\$\/\.test\(/.test(readFileSync(panels, "utf8"))) add("time", "StoryPanelsInput.panels: at.utc (ISO text ending in Z only)", source.statements[0]);
   return [...breaks.values()].sort((a, b) => `${a.rule} ${a.site}`.localeCompare(`${b.rule} ${b.site}`));
 }

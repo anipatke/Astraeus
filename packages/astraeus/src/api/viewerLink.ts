@@ -1,7 +1,7 @@
 import type { ViewerChangeCause, ViewerControl, ViewerPort, ViewerState } from "../app/viewerPort";
 import { SceneError } from "./errors";
 import type { CameraRequest } from "../app/CameraController";
-import { validateStartView } from "../app/viewLink";
+import { validateStartView } from "../core/startView";
 import { toUtcMs, type TimeInput } from "./time";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */

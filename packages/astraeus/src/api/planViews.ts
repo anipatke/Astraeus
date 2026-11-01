@@ -1,6 +1,6 @@
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import type { ViewSettings } from "../app/views";
-import type { StoryPanelSet } from "../shell/storyPanels";
+import type { StoryPanelSet } from "../core/storyPanels";
 import { switchesOf, type SwitchesInput } from "./switches";
 import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
 

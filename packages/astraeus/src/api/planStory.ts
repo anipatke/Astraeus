@@ -1,7 +1,7 @@
 import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import type { StoryPanelSet } from "../shell/storyPanels";
+import type { StoryPanelSet } from "../core/storyPanels";
 import type { ExperienceConfig } from "../shell/experience";
 import { checkEventObjects, eventProvenanceOf, eventsOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelsInput } from "./story";
 import type { Tracked } from "./planPaths";
