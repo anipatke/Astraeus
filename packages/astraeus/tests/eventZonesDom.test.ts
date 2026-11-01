@@ -48,6 +48,7 @@ beforeEach(() => {
 afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); sceneProps.latest = null; vi.unstubAllGlobals(); vi.useRealTimers(); });
 const tick = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 const short = (c: EventZoneChange) => `${c.entered ? "enter" : "leave"} ${c.event} ${c.cause}`;
+const vias = (seen: EventZoneChange[]) => seen.map((c) => c.via);
 const listen = (handle: { onEventZone(l: (c: EventZoneChange) => void): () => void }) => { const seen: EventZoneChange[] = []; handle.onEventZone((c) => seen.push(c)); return seen; };
 
 describe("event zones from playback", () => {
@@ -58,6 +59,7 @@ describe("event zones from playback", () => {
     expect(handle.eventZones).toEqual([]);
     for (let i = 0; i < 400 && seen.length < 2; i += 1) tick(100);
     expect(seen.map(short)).toEqual(["enter ea playback", "leave ea playback"]);
+    expect(vias(seen)).toEqual(["time", "time"]);
     expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", entered: true });
     expect(seen[0]!.time).toBeGreaterThanOrEqual(T0 + 20 * DAY - 3_600_000);
     expect(seen[0]!.time).toBeLessThanOrEqual(T0 + 20 * DAY + 3_600_000); // inside the zone
@@ -88,6 +90,7 @@ describe("event zones from a seek", () => {
     act(() => handle.setTime(T0 + 20 * DAY));
     act(() => handle.setTime(T0 + 30 * DAY));
     expect(seen.map(short)).toEqual(["enter ea host", "leave ea host"]);
+    expect(vias(seen)).toEqual(["time", "time"]);
     handle.unmount();
   });
 
@@ -99,6 +102,7 @@ describe("event zones from a seek", () => {
     act(() => change(scrub, String(T0 + 20 * DAY)));
     act(() => change(scrub, String(T0 + 30 * DAY)));
     expect(seen.map(short)).toEqual(["enter ea visitor", "leave ea visitor"]);
+    expect(vias(seen)).toEqual(["time", "time"]);
     handle.unmount();
   });
 });
@@ -114,6 +118,7 @@ describe("event zones from a view switch", () => {
     act(() => { (host.querySelector('[data-view-id="b"]') as HTMLElement).click(); });
     act(() => { (host.querySelector('[data-view-id="a"]') as HTMLElement).click(); });
     expect(seen.map(short)).toEqual(["leave ea host", "enter ea host", "leave ea visitor", "enter ea visitor"]);
+    expect(vias(seen)).toEqual(["view", "view", "view", "view"]);
     expect($(host, '[data-view-id="a"]')).toBeTruthy();
     handle.unmount();
   });
@@ -150,6 +155,7 @@ describe("overlap, opening inside a zone, and after unmount", () => {
     tick(100);
     tick(300);
     expect(seen.map(short)).toEqual(["enter ea playback"]);
+    expect(vias(seen)).toEqual(["time"]); // opening inside a zone is time, not a view switch
     handle.unmount();
   });
 
@@ -190,23 +196,45 @@ describe("the React prop", () => {
     await act(async () => { await Promise.resolve(); });
     await draw(at(30));
     expect(seen.map(short)).toEqual(["enter ea host", "leave ea host"]);
-    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", time: T0 + 20 * DAY });
+    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", time: T0 + 20 * DAY, via: "time" });
   });
 });
 
 describe("the README composition: the camera to the encounter and back", () => {
-  it("on enter saves the camera and follows the object; on leave puts the saved pose back, through the camera request path", async () => {
+  it("on enter saves the camera and follows the object; on a time leave puts the saved pose back, through the camera request path", async () => {
     const handle = mount(host, makeScene());
     await drawn(handle);
     sceneProps.latest!.controls.viewReadout = { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
     let saved: typeof handle.camera;
-    handle.onEventZone(({ entered, object }) => {
-      if (entered) { saved = handle.camera; handle.setCamera({ follow: object! }); } else handle.setCamera(saved!);
+    handle.onEventZone(({ entered, object, via }) => {
+      if (entered) { saved = handle.camera; handle.setCamera({ follow: object! }); } else if (via === "time" && saved) handle.setCamera(saved);
+      if (!entered) saved = undefined;
     });
     act(() => handle.setTime(T0 + 20 * DAY));
     expect(sceneProps.latest!.controls.cameraRequest).toEqual({ kind: "follow", target: "pa" });
     act(() => handle.setTime(T0 + 30 * DAY));
     expect(sceneProps.latest!.controls.cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 } });
+    handle.unmount();
+  });
+
+  it("across a mid-zone view switch that hides the zone the composition neither throws nor asks for a restore", async () => {
+    const handle = mount(host, makeScene());
+    await drawn(handle);
+    sceneProps.latest!.controls.viewReadout = { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
+    let saved: typeof handle.camera | undefined;
+    const errors: unknown[] = [];
+    handle.onEventZone(({ entered, object, via }) => {
+      try {
+        if (entered) { saved = handle.camera; handle.setCamera({ follow: object! }); } else if (via === "time" && saved) handle.setCamera(saved);
+        if (!entered) saved = undefined;
+      } catch (error) { errors.push(error); }
+    });
+    act(() => handle.setTime(T0 + 20 * DAY));
+    expect(sceneProps.latest!.controls.cameraRequest).toEqual({ kind: "follow", target: "pa" });
+    act(() => handle.setView("b")); // hides probe A and its zone
+    expect(errors).toEqual([]);
+    expect(saved).toBeUndefined();
+    expect(sceneProps.latest!.controls.cameraRequest).not.toMatchObject({ kind: "pose" }); // no restore request
     handle.unmount();
   });
 });

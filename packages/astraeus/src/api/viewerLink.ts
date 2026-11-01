@@ -30,6 +30,8 @@ export interface EventZoneChange {
   readonly time: number;
   /** What moved it across: `playback` (the clock ran, or the zone was already active when the viewer opened), `visitor` (the timeline or the view choice), `host` (`setTime` or `setView`). */
   readonly cause: ViewerChangeCause;
+  /** What the report is about: `time` (playback crossed the zone, or a seek moved the clock across it) or `view` (a view switch showed or hid the zone). After a `view` leave the view's own camera rule owns the camera, so a host that restores a camera should do it only for `time`. */
+  readonly via: "time" | "view";
 }
 
 /** The camera as a plain value: the object it is centred on and where it stands from it. Read from `MountedScene.camera`, put back with `setCamera`. */
@@ -70,6 +72,8 @@ export class ViewerLink implements ViewerPort {
   readonly #listeners = new Set<(change: ViewerChange) => void>();
   readonly #zoneListeners = new Set<(change: EventZoneChange) => void>();
   #zones: readonly string[] = [];
+  /** The view the last publish showed (`undefined` before the first publish and in a scene without views), to tell a view-caused zone change from a time-caused one. */
+  #zoneView: { view: string | undefined } | undefined;
   #wait = newWait();
   #closed = false;
 
@@ -77,6 +81,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = control;
     this.#last = control.read();
     this.#rateSource = "scene";
+    this.#zoneView = undefined;
     this.#zones = []; // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -211,12 +216,14 @@ export class ViewerLink implements ViewerPort {
   #publishZones(state: ViewerState, cause: ViewerChangeCause): void {
     const now = state.zones ?? [];
     const before = this.#zones;
+    const via = this.#zoneView !== undefined && this.#zoneView.view !== state.view ? "view" : "time";
+    this.#zoneView = { view: state.view };
     if (now.length === before.length && now.every((id, index) => id === before[index])) return;
     this.#zones = now;
     const reports: [string, boolean][] = [...before.filter((id) => !now.includes(id)).map((id): [string, boolean] => [id, false]), ...now.filter((id) => !before.includes(id)).map((id): [string, boolean] => [id, true])];
     for (const [id, entered] of reports) {
       const event = this.#control?.events.find((candidate) => candidate.id === id);
-      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, time: state.timeUtcMs, cause };
+      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, time: state.timeUtcMs, cause, via };
       for (const listener of [...this.#zoneListeners]) listener(change);
     }
   }
