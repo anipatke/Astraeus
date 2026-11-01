@@ -2,16 +2,22 @@
 id: I-129
 title: "The React view prop moves the clock back, and other prop changes undo a visitor's view"
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-134
   actor: {role: checker, session: o051-check-20261101}
   at: '2026-11-01T00:30:00Z'
 tasks: [T-220]
-checks: [C-134]
+checks: [C-134, C-135]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-135
+  actor: {role: checker, session: o051-recheck-20261101}
+  at: '2026-11-01T00:35:00Z'
+  reason: 'Repair ac6d5df5 verified by C-135: AstraeusScene applies time, rate and view in three effects, each keyed on drawn, link and its own prop (AstraeusScene.tsx:59-65). An independent probe run against both the repaired and the pre-repair component reproduces I-129 on the old one (view change seeks back 3,000 s; time or rate change reverts a visitor view; a bad time skips the view) and shows all three gone on the new one; a fresh Date of the same moment does not seek, unknown ids still go to onError, and a new Scene re-applies the props. Fresh gates, test:full (2135 passed), check:pack, check:engine-alone, check:node-consumer and one check:browser (9/9) pass.'
 history:
   - at: '2026-11-01T00:30:00Z'
     actor: {role: checker, session: o051-check-20261101}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o051-repair-i129}
     kind: repair_attempted
     note: 'AstraeusScene now applies time, rate and view in three effects, one per prop, each keyed on drawn and its own prop only, so a host change to one never re-applies another. Regression tests change one prop at a time (viewerHostDom.test.ts, I-129 describe). Also from C-134: setViews deep-copies its input (O1), CHANGELOG T-219 line corrected (O2), journey-views.mjs asserts 44 px on phone (O6). Awaiting a Check to verify.'
+  - at: '2026-11-01T00:35:00Z'
+    actor: {role: checker, session: o051-recheck-20261101}
+    kind: rechecked
+    note: 'Verified by C-135 (supersedes C-134): independent probe against the repaired and pre-repair AstraeusScene; gates and one check:browser pass. Resolved as verified.'
+    check: C-135
 ---
 
 # I-129: The React view prop moves the clock back, and other prop changes undo a visitor's view
