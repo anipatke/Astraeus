@@ -7,6 +7,10 @@ export interface ViewerHandle {
   readonly time: number | undefined;
   /** The playback speed (simulated seconds per real second); undefined like `time`. */
   readonly rate: number | undefined;
+  /** Whether the viewer is playing; undefined until `ready` has resolved and after `unmount`. */
+  readonly playing: boolean | undefined;
+  /** Plays or pauses the viewer, as its play button does. A non-boolean, or a scene without a timeline (`setTimeline({ none: true })`, which has no play control), throws `bad-timeline`; before `ready` or after `unmount` throws `not-mounted`. `onChange` hears it with `cause: "host"`. */
+  setPlaying(playing: boolean): void;
   /** The id of the view showing; undefined until `ready` has resolved, after `unmount`, and in a scene without views. */
   readonly view: string | undefined;
   /** Moves the viewer to `time` (ISO text, a `Date` or Unix milliseconds). Outside the timeline throws `bad-time`; before `ready` or after `unmount` throws `not-mounted`. */
@@ -36,6 +40,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
   return {
     get time() { return link.time; },
     get rate() { return link.rate; },
+    get playing() { return link.playing; },
     get view() { return link.view; },
     get camera() { return link.camera; },
     get eventZones() { return link.eventZones; },
@@ -43,6 +48,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setCamera: (target) => link.setCamera(target),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
+    setPlaying: (playing) => link.setPlaying(playing),
     onChange: (listener) => link.onChange(listener),
     onEventZone: (listener) => link.onEventZone(listener),
   };

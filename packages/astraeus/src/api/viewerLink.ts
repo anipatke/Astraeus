@@ -16,7 +16,7 @@ export interface ViewerChange {
   readonly playing: boolean;
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
-  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate` or `setView`. */
+  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate`, `setPlaying` or `setView`. */
   readonly cause: ViewerChangeCause;
 }
 
@@ -141,6 +141,7 @@ export class ViewerLink implements ViewerPort {
   setView(id: string): void { this.#views.setView(id); this.#afterHost(); }
   setTime(time: TimeInput): void { this.#clock.setTime(time); this.#afterHost(); }
   setRate(rate: number | "auto"): void { this.#clock.setRate(rate); this.#afterHost(); }
+  setPlaying(playing: boolean): void { this.#clock.setPlaying(playing); this.#afterHost(); }
   setCamera(target: CameraTarget): void { this.#camera.setCamera(target); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }

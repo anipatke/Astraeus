@@ -397,6 +397,8 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     setPaceAuto(rate === "auto");
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
+  // The same play handler the visitor's button reaches, so a host and a visitor share one clock.
+  const hostSetPlaying = setPlaying;
   // The objects a host may point the camera at: those the showing view shows (read live, so a view switch is already counted).
   const cameraTargets = useCallback((): readonly string[] => {
     const hidden = controls.current.viewHidden?.objects;
@@ -409,9 +411,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
     return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

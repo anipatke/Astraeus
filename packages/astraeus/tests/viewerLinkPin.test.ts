@@ -16,6 +16,7 @@ function fake(opts: { paced?: boolean; views?: string[] } = {}) {
     window: { startUtcMs: START, endUtcMs: END },
     events: [{ id: "e1", type: "flyby", object: "moon", startUtcMs: START, endUtcMs: START + 5 } as never, { id: "e2" } as never],
     rates: [1, 60], paced: opts.paced ?? false,
+    playable: true, setPlaying: (p) => { calls.push(`playing ${p}`); state = { ...state, playing: p }; },
     read: () => state,
     seek: (t) => { calls.push(`seek ${t}`); state = { ...state, timeUtcMs: t }; },
     setRate: (r) => { calls.push(`rate ${r}`); state = { ...state, rate: r === "auto" ? 1 : r, ...(opts.paced ? { auto: r === "auto" } : {}) }; },

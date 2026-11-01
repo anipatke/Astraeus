@@ -18,6 +18,7 @@ vi.mock("../src/api/prepared", async () => {
 });
 
 import { createElement as h, StrictMode, type ReactElement } from "react";
+import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
@@ -104,7 +105,7 @@ const reactDriver = (strict: boolean): Driver => ({
         onReady: () => { ready += 1; waiters.splice(0).forEach((w) => w.ok()); },
         onError: (e: Error) => { errors.push(e); waiters.splice(0).forEach((w) => w.fail(e)); },
       });
-      root.render(strict ? h(StrictMode, null, el) : el);
+      flushSync(() => root.render(strict ? h(StrictMode, null, el) : el));
     };
     const wait = (): Promise<void> => new Promise<void>((ok, fail) => { waiters.push({ ok, fail }); });
     const opened: Opened = {
@@ -114,19 +115,18 @@ const reactDriver = (strict: boolean): Driver => ({
       rebuild: () => { const next = wait(); render(new Scene()); return next; },
       outcome: () => Promise.race([wait().then(() => "ready", (error: unknown) => errorCode(error)), tick(60).then(() => "silent")]),
     };
-    render(scene);
-    await Promise.resolve();
-    await tick(0); // the commit: the ref is set
+    render(scene); // flushSync: the commit has happened, so the ref is set
     opened.handle = ref.current ?? undefined;
     return opened;
   },
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "view", "camera", "eventZones"] as const;
+const READS = ["time", "rate", "playing", "view", "camera", "eventZones"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
+  setPlaying: (handle) => handle.setPlaying(true),
   setView: (handle) => handle.setView("a"),
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
 };
@@ -285,7 +285,23 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
     expect(codeOf(() => scene.setTime("2026-01-01T00:00:00Z"))).toBe("scene-mounted");
   });
-  it.todo("setPlaying (T-246)");
+  it("setPlaying: pauses and plays, onChange hears cause host, a non-boolean throws bad-timeline, and unmount makes it not-mounted", async () => {
+    openNow();
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const handle = opened.handle!;
+    expect(typeof handle.playing).toBe("boolean");
+    const heard: Array<{ playing: boolean; cause: string }> = [];
+    handle.onChange((c) => heard.push({ playing: c.playing, cause: c.cause }));
+    handle.setPlaying(false);
+    expect(handle.playing).toBe(false);
+    handle.setPlaying(true);
+    expect(handle.playing).toBe(true);
+    expect(heard).toEqual([{ playing: false, cause: "host" }, { playing: true, cause: "host" }]);
+    expect(codeOf(() => handle.setPlaying("yes" as unknown as boolean))).toBe("bad-timeline");
+    opened.unmount();
+    expectUnusable(handle);
+  });
   it.todo("onSelect (T-247)");
   it.todo("onCameraChange (T-248)");
 });

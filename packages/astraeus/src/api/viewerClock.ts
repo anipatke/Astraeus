@@ -55,6 +55,14 @@ export class ViewerClock {
     this.#rateSource = "chosen";
   }
 
+  /** Plays or pauses the viewer through its own play handler. Throws `bad-timeline` for a non-boolean and in a scene without a timeline (`setTimeline({ none: true })`), where a visitor has no play control either. */
+  setPlaying(playing: boolean): void {
+    const control = this.access.open("setPlaying");
+    if (typeof playing !== "boolean") throw new SceneError("bad-timeline", `setPlaying: expected true or false, got ${String(playing)}`);
+    if (!control.playable) throw new SceneError("bad-timeline", "setPlaying: the scene has no timeline (setTimeline({ none: true })), so there is no play control; a visitor cannot play or pause it either");
+    control.setPlaying(playing);
+  }
+
   /** Calls `listener` whenever the time, speed or playing state changes; returns the function that stops it. */
   onChange(listener: (change: ViewerChange) => void): () => void {
     this.#listeners.add(listener);

@@ -852,6 +852,16 @@
           "signature": "number | undefined"
         },
         {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "setPlaying",
+          "optional": false,
+          "signature": "(playing: boolean): void"
+        },
+        {
           "name": "view",
           "optional": false,
           "signature": "string | undefined"
@@ -912,6 +922,16 @@
           "name": "rate",
           "optional": false,
           "signature": "number | undefined"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "setPlaying",
+          "optional": false,
+          "signature": "(playing: boolean): void"
         },
         {
           "name": "view",

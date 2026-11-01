@@ -33,6 +33,10 @@ export interface ViewerControl {
   readonly paced: boolean;
   /** A number is a chosen speed; `"auto"` gives the rate back to the scene's pacing. */
   setRate(rate: number | "auto"): void;
+  /** True: the visitor has a play control; false in a scene without a timeline (`setTimeline({ none: true })`), where `setPlaying` is refused. */
+  readonly playable: boolean;
+  /** Plays or pauses the one clock, as the visitor's play button does. */
+  setPlaying(playing: boolean): void;
   /** The ids of the scene's views, in order; empty without views. */
   readonly views: readonly string[];
   /** Switches to the view with this id (one of `views`), as a visitor's button does. */

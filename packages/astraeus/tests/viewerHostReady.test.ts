@@ -95,7 +95,7 @@ describe("mount: ready means usable", () => {
 });
 
 describe("ViewerLink.whenAttached", () => {
-  const control = { events: [], window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
+  const control = { events: [], window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
   const settled = async (promise: Promise<void>): Promise<boolean> => Promise.race([promise.then(() => true), new Promise<boolean>((r) => setTimeout(() => r(false), 20))]);
 
   it("waits for attach, is resolved after it, and waits again after a detach (a rebuild)", async () => {

@@ -6,10 +6,12 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
-const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings }));
+const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, noTimeline: false }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
-  return { prepareScene: () => ({ definition: prepared.views === undefined ? syntheticDefinition : { ...syntheticDefinition, views: prepared.views }, ready: Promise.resolve() }) };
+  return { prepareScene: () => {
+    const base = prepared.noTimeline ? { ...syntheticDefinition, experience: { ...syntheticDefinition.experience, hideTimeline: true } } : syntheticDefinition;
+    return { definition: prepared.views === undefined ? base : { ...base, views: prepared.views }, ready: Promise.resolve() }; } };
 });
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -36,7 +38,7 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { prepared.views = undefined; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => { prepared.views = undefined; prepared.noTimeline = false; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
 
@@ -213,11 +215,60 @@ describe("the speed menu (I-106)", () => {
   });
 });
 
+describe("playing through the host (O-054 T-246)", () => {
+  const playButton = () => $(host, ".timeline-play");
+  it("setPlaying and the visitor's play button stay in step, and onChange names who did it", async () => {
+    const seen: ViewerChange[] = [];
+    const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
+    await drawn(handle);
+    expect(handle.playing).toBe(true); // the synthetic scene opens playing
+    act(() => handle.setPlaying(false));
+    expect(handle.playing).toBe(false);
+    expect(seen.at(-1)).toMatchObject({ playing: false, cause: "host" });
+    expect(playButton().getAttribute("aria-label")).toBe("Play playback");
+    act(() => press(playButton()));
+    expect(handle.playing).toBe(true);
+    expect(seen.at(-1)).toMatchObject({ playing: true, cause: "visitor" });
+    expect(playButton().getAttribute("aria-label")).toBe("Pause playback");
+    act(() => handle.setPlaying(true));
+    expect(handle.playing).toBe(true);
+    act(() => handle.setPlaying(false));
+    act(() => press(playButton()));
+    expect(handle.playing).toBe(true);
+    handle.unmount();
+  });
+  it("refuses a non-boolean, before ready and after unmount; leaves time and rate alone; remounting reads again", async () => {
+    const handle = mount(host, new Scene());
+    expect(handle.playing).toBeUndefined();
+    expect(codeOf(() => handle.setPlaying(true))).toBe("not-mounted");
+    await drawn(handle);
+    const { time, rate } = handle;
+    expect(codeOf(() => handle.setPlaying(1 as unknown as boolean))).toBe("bad-timeline");
+    act(() => handle.setPlaying(false));
+    expect([handle.time, handle.rate]).toEqual([time, rate]);
+    handle.unmount();
+    expect(handle.playing).toBeUndefined();
+    expect(codeOf(() => handle.setPlaying(false))).toBe("not-mounted");
+    const again = mount(host, new Scene());
+    await drawn(again);
+    expect(again.playing).toBe(true);
+    again.unmount();
+  });
+  it("a scene without a timeline has no play control, so setPlaying throws bad-timeline", async () => {
+    prepared.noTimeline = true;
+    const handle = mount(host, new Scene());
+    await drawn(handle);
+    expect(host.querySelector(".timeline-play")).toBeNull(); // the timeline bar is not drawn
+    expect(codeOf(() => handle.setPlaying(true))).toBe("bad-timeline");
+    handle.unmount();
+  });
+});
+
 describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
     let state = { timeUtcMs: MID, rate: RATES[0], playing: false };
-    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
+    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");

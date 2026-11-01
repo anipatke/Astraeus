@@ -48,7 +48,7 @@ describe("callListeners", () => {
 function fakeControl(): { control: ViewerControl; state: ViewerState } {
   const state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, auto: true, zones: [] };
   const control = {
-    window: { startUtcMs: START, endUtcMs: START + 1e6 }, events: [{ id: "e1", type: "flyby", object: "moon" }], rates: [1], paced: true,
+    window: { startUtcMs: START, endUtcMs: START + 1e6 }, events: [{ id: "e1", type: "flyby", object: "moon" }], rates: [1], paced: true, playable: true, setPlaying: () => undefined,
     read: () => state, seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => ({}), setCamera: () => undefined,
   } as unknown as ViewerControl;
   return { control, state };
