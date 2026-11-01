@@ -19,6 +19,17 @@ const bar = { place: "top-bar" } as const;
 const messageOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
 
 describe("Scene.setViews", () => {
+  it("copies its input, so a later edit to the caller's views cannot slip past the checks (I-129 O1)", () => {
+    const mine = { id: "x", label: "X", paths: ["pa"], camera: { follow: "pa" } } as { id: string; label: string; paths: string[]; camera: { follow: string } };
+    const s = scene().setViews([mine], bar);
+    mine.paths.push("nope"); mine.camera.follow = "nope"; mine.id = "";
+    const view = s.toDefinition().views!.views[0]!;
+    expect(view.id).toBe("x");
+    expect(view.objects.has("pa")).toBe(true);
+    expect(JSON.stringify(view.camera)).toContain("pa");
+    expect(JSON.stringify(view.camera)).not.toContain("nope");
+  });
+
   it("leaves a scene without views exactly as it was", () => {
     expect(scene().toDefinition().views).toBeUndefined();
     expect("views" in scene().toDefinition()).toBe(false);

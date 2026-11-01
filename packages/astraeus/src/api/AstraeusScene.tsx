@@ -54,17 +54,15 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
   }, [link]);
   // A Date made fresh each render must not seek again, so the moment is compared by value.
   const timeKey = time instanceof Date ? time.getTime() : time;
-  // After the viewer is drawn (its own effects have attached the clock by now), the props take effect.
-  useEffect(() => {
-    if (definition === undefined) return;
-    try {
-      if (timeKey !== undefined) link.setTime(timeKey);
-      if (rate !== undefined) link.setRate(rate);
-      if (view !== undefined) link.setView(view);
-    } catch (cause) {
-      latest.current.onError?.(asError(cause));
-    }
-  }, [definition, link, timeKey, rate, view]);
+  // After the viewer is drawn (its own effects have attached the clock by now), each prop takes effect on its own: once when drawn,
+  // then only when that prop changes, so a host change to one never overrides a visitor's later choice of another control.
+  const apply = (set: () => void) => {
+    try { set(); } catch (cause) { latest.current.onError?.(asError(cause)); }
+  };
+  const drawn = definition !== undefined;
+  useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let open = true;

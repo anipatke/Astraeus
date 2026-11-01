@@ -41,7 +41,9 @@ export interface ViewScope {
 const bad = (message: string) => new SceneError("bad-view", `setViews: ${message}`);
 
 /** Checks the shape of a `setViews` call (list, ids, labels, place, start, camera form, id lists); the ids are checked when the scene is built. */
-export function viewsOf(views: readonly ViewInput[], options: ViewsOptions): ViewsPlan {
+export function viewsOf(input: readonly ViewInput[], options: ViewsOptions): ViewsPlan {
+  // A deep copy first, so a later edit to the caller's objects cannot slip past the checks below.
+  const views = Array.isArray(input) ? structuredClone(input) as readonly ViewInput[] : input;
   if (!Array.isArray(views) || views.length === 0) throw bad(`give a non-empty list such as [{ id: "all", label: "All" }]`);
   if (typeof options !== "object" || options === null || !(VIEW_PLACES as readonly unknown[]).includes(options.place)) throw bad(`place must be one of ${VIEW_PLACES.join(", ")}, got ${JSON.stringify((options as { place?: unknown } | null)?.place)}`);
   const seen = new Set<string>();

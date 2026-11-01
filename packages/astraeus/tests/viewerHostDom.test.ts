@@ -227,4 +227,46 @@ describe("views through the host (O-051 T-220)", () => {
     await draw("zzz");
     expect(errors.map((e) => (e as SceneError).code)).toEqual(["bad-view"]);
   });
+
+  describe("AstraeusScene applies each prop only when that prop changes (I-129)", () => {
+    const setup = async () => {
+      withViews();
+      const seen: ViewerChange[] = [];
+      root = createRoot(host);
+      const scene = new Scene();
+      const props = { time: MID, rate: RATES[0], view: "a" } as { time: number; rate: number; view: string };
+      const draw = (next: Partial<typeof props>) => act(async () => { Object.assign(props, next); root!.render(createElement(AstraeusScene, { scene, ...props, onChange: (c) => seen.push(c) })); });
+      await draw({});
+      await act(async () => { await Promise.resolve(); });
+      return { seen, draw };
+    };
+
+    it("view only: a visitor's speed and the clock are left alone", async () => {
+      const { seen, draw } = await setup();
+      act(() => change(byLabel(host, "Playback speed") as HTMLSelectElement, String(RATES[2])));
+      const before = seen.at(-1)!;
+      expect(before).toMatchObject({ rate: RATES[2], cause: "visitor" });
+      await draw({ view: "b" });
+      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host", rate: RATES[2], time: before.time });
+    });
+
+    it("time only: a visitor's view is kept", async () => {
+      const { seen, draw } = await setup();
+      act(() => press(viewButton("b")));
+      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "visitor" });
+      await draw({ time: MID + 1000 });
+      expect(seen.at(-1)!.time).toBe(MID + 1000);
+      expect(seen.at(-1)!.view).toBe("b");
+      expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
+    });
+
+    it("rate only: the time and the view are left alone", async () => {
+      const { seen, draw } = await setup();
+      act(() => press(viewButton("b")));
+      const before = seen.at(-1)!;
+      await draw({ rate: RATES[1] });
+      expect(seen.at(-1)).toMatchObject({ rate: RATES[1], view: "b", time: before.time });
+      expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
+    });
+  });
 });

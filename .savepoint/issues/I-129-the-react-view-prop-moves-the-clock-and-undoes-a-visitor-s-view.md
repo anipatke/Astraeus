@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by an independent probe in the O-051 Full Objective Check (C-134). AstraeusScene applies time, rate and view in one effect keyed on all three, so changing the view prop seeks the clock back to the time prop, and changing the time or rate prop re-applies the view prop over a visitor''s switch.'
     check: C-134
+  - at: '2026-11-01T01:00:00Z'
+    actor: {role: executor, session: o051-repair-i129}
+    kind: repair_attempted
+    note: 'AstraeusScene now applies time, rate and view in three effects, one per prop, each keyed on drawn and its own prop only, so a host change to one never re-applies another. Regression tests change one prop at a time (viewerHostDom.test.ts, I-129 describe). Also from C-134: setViews deep-copies its input (O1), CHANGELOG T-219 line corrected (O2), journey-views.mjs asserts 44 px on phone (O6). Awaiting a Check to verify.'
 ---
 
 # I-129: The React view prop moves the clock back, and other prop changes undo a visitor's view

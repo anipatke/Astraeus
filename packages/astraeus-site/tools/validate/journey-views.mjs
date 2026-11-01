@@ -27,7 +27,8 @@ await checkScript({ name: "journey-views", viewports: SIZES }, async (page, { na
   assert.equal(await ui.hostView(page), "a", "the host link reports the view showing");
   const fit = await ui.viewChoiceFit(page);
   assert.ok(fit.insideWindow && fit.overlaps.length === 0, `${name}: the view choice is inside the window and clear of the other controls (overlaps: ${fit.overlaps.join(", ") || "none"})`);
-  assert.ok(fit.smallestButtonPx >= 24, `${name}: the view buttons are big enough to press (${fit.smallestButtonPx} px)`);
+  const minButtonPx = name === "phone" ? 44 : 24;
+  assert.ok(fit.smallestButtonPx >= minButtonPx, `${name}: the view buttons are big enough to press (${fit.smallestButtonPx} px, need ${minButtonPx})`);
   await ui.watchHostChanges(page);
   await expectView(page, "a");
 
