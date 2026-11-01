@@ -22,7 +22,7 @@ import { createRoot } from "react-dom/client";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
-import { Scene } from "../src/api/scene";
+import { Scene, SceneCamera } from "../src/api/scene";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
@@ -31,6 +31,7 @@ import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 
 const { startUtcMs, endUtcMs } = syntheticDefinition.experience.window;
 const MID = startUtcMs + Math.floor((endUtcMs - startUtcMs) / 2);
+const MID_2026 = Date.UTC(2026, 5, 1);
 const RATE = syntheticDefinition.experience.rates[0];
 const tick = (ms = 20) => new Promise<void>((resolve) => setTimeout(resolve, ms)); // setTimeout stays real; only the interval clock is held
 
@@ -269,7 +270,21 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(report.mock.calls.length).toBe(reports);
     opened.unmount();
   });
-  it.todo("a mounted scene is frozen (T-245)");
+  it("a mounted scene is frozen: an edit after ready throws scene-mounted, reads still answer, and a failed build leaves the scene editable", async () => {
+    prepared.real = true; openNow();
+    const failed = await driver.open(new Scene());
+    await tick();
+    expect(failed.errors.map(errorCode)).toEqual(["empty-scene"]);
+    failed.unmount();
+    const scene = new Scene().addBody("earth");
+    const opened = await driver.open(scene);
+    await opened.ready();
+    expect(codeOf(() => scene.addBody("moon"))).toBe("scene-mounted");
+    expect(codeOf(() => scene.camera.setReach(10))).toBe("scene-mounted");
+    expect(scene.missingData()).toEqual(expect.any(Array));
+    opened.unmount();
+    expect(codeOf(() => scene.setTime("2026-01-01T00:00:00Z"))).toBe("scene-mounted");
+  });
   it.todo("setPlaying (T-246)");
   it.todo("onSelect (T-247)");
   it.todo("onCameraChange (T-248)");
@@ -287,6 +302,57 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
     expect(opened.handle!.time).toBe(MID);
     opened.unmount();
     expectUnusable(opened.handle!);
+  });
+});
+
+/** Every method that edits a scene or its camera, found by name so a future mutator cannot escape the freeze. */
+const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|lookAt|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
+
+describe("a mounted scene is frozen", () => {
+  it("every add, set, follow, lookAt and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody("earth").addBody("moon");
+    const sceneMethods = mutators(Scene.prototype);
+    const cameraMethods = mutators(SceneCamera.prototype);
+    expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setReach"]);
+    const element = document.createElement("div");
+    document.body.append(element);
+    const viewer = mount(element, scene);
+    for (const name of sceneMethods) expect(codeOf(() => (scene as unknown as Record<string, (...a: unknown[]) => unknown>)[name]()), `scene.${name}`).toBe("scene-mounted");
+    for (const name of cameraMethods) expect(codeOf(() => (scene.camera as unknown as Record<string, (...a: unknown[]) => unknown>)[name]("earth")), `camera.${name}`).toBe("scene-mounted");
+    expect(scene.stateOf("earth", MID_2026).positionKm).toHaveLength(3);
+    expect(scene.provenanceOf("earth")).toBeDefined();
+    expect(scene.missingData()).toEqual(expect.any(Array));
+    expect(scene.camera.target).toBeUndefined();
+    expect(scene.camera.following).toBe(false);
+    expect(scene.camera.reach).toBeUndefined();
+    expect(scene.camera.fitted).toBeUndefined();
+    expect(scene.camera.view).toEqual({});
+    viewer.unmount();
+  });
+
+  it("toDefinition on its own does not freeze", () => {
+    const scene = new Scene().addBody("earth");
+    scene.toDefinition();
+    expect(() => scene.addBody("moon")).not.toThrow();
+  });
+
+  it("the same frozen scene mounts into a second element and both draw", async () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody("earth");
+    const a = document.createElement("div");
+    const b = document.createElement("div");
+    document.body.append(a, b);
+    const first = mount(a, scene);
+    await first.ready;
+    const second = mount(b, scene);
+    await second.ready;
+    await tick();
+    expect(a.querySelector("[data-testid=scene]")).not.toBeNull();
+    expect(b.querySelector("[data-testid=scene]")).not.toBeNull();
+    first.unmount();
+    second.unmount();
   });
 });
 

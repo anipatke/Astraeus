@@ -18,6 +18,8 @@ export type SceneErrorCode =
   | "not-mounted"
   /** The timeline reaches outside the years a body's data package covers. */
   | "out-of-span"
+  /** The scene was edited after a viewer took it; build a new scene instead. */
+  | "scene-mounted"
   /** The scene has no bodies to show. */
   | "empty-scene"
   /** An orbital-elements record, or the element to mount into, is malformed. */

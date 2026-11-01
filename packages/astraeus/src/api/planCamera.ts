@@ -18,7 +18,9 @@ export class SceneCamera {
   #fit: string | undefined;
   readonly #has: (id: string) => boolean;
   readonly #circlesSun: (id: string) => boolean;
-  constructor(has: (id: string) => boolean, circlesSun: (id: string) => boolean) {
+  readonly #editable: () => void;
+  constructor(has: (id: string) => boolean, circlesSun: (id: string) => boolean, editable: () => void) {
+    this.#editable = editable;
     this.#has = has;
     this.#circlesSun = circlesSun;
   }
@@ -31,6 +33,7 @@ export class SceneCamera {
     return this.#open("lookAt", id, view, false);
   }
   #open(call: string, id: string, view: FollowView, following: boolean): this {
+    this.#editable();
     if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
     if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
     this.#target = id;
@@ -45,6 +48,7 @@ export class SceneCamera {
    * `setReach` and `fitOrbit` set the same limit, so the later call wins and replaces the earlier one.
    */
   setReach(distance: number): this {
+    this.#editable();
     if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
     this.#reach = distance;
     this.#fit = undefined;
@@ -60,6 +64,7 @@ export class SceneCamera {
    * scene.camera.fitOrbit("c-2025-a1");
    */
   fitOrbit(body: BodyRef | BodyId): this {
+    this.#editable();
     const id = typeof body === "string" ? body : body.id;
     if (!this.#has(id)) throw new SceneError("unknown-body", `camera.fitOrbit("${id}"): no body or trajectory with that id has been added to the scene`);
     if (!this.#circlesSun(id)) throw new SceneError("bad-camera", `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`);

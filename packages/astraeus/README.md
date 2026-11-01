@@ -269,6 +269,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `missing-data` | Position data a body needs was not given to the viewer: pass its data package. |
 | `not-mounted` | The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. |
 | `out-of-span` | The timeline reaches outside the years a body's data package covers. |
+| `scene-mounted` | The scene was edited after a viewer took it; build a new scene instead. |
 | `empty-scene` | The scene has no bodies to show. |
 | `bad-element` | An orbital-elements record, or the element to mount into, is malformed. |
 | `no-orbit` | An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. |
