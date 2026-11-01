@@ -6,20 +6,13 @@ import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "..
 import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import type { TimeBounds, Trajectory } from "../core/trajectory";
-import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
+import type { Trajectory } from "../core/trajectory";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import type { ElementsBodyRecord } from "../core/elementsBody";
-import { createComposition } from "../assets/compositions";
-import { bodyMetrics } from "../app/bodyMetrics";
-import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
-import { needsPlanetSeries } from "../app/planetNeeds";
-import type { Metric } from "../shell/metrics";
-import type { ExperienceObject } from "../shell/experience";
-import { createReadoutMetrics } from "../app/trackedMetrics";
-import { circlesTheSun, farthestSunDistanceKm } from "./sunOrbit";
+import type { ExperienceDefinition } from "../app/experienceDefinition";
+import { circlesTheSun } from "./sunOrbit";
 import { FALLBACK_SCENE_CENTRE, type BodyRef } from "./bodies";
-import { installData, type DataSource } from "./data";
+import type { DataSource } from "./data";
 import type { ActivityInput } from "./activity";
 import type { GroupInput } from "./group";
 export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } from "./group";
@@ -27,16 +20,18 @@ export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { BodyPlan } from "./planBodies";
-import { GroupPlan, groupLayersEntry, lateGroups } from "./planGroups";
+import { GroupPlan } from "./planGroups";
+import { assembleScene } from "./assembleScene";
+import { SceneCamera } from "./planCamera";
+export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
-import { autoPaths, buildTracked, checkReadouts, pathCover, type Tracked } from "./planPaths";
+import { buildTracked, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
 import type { SwitchesInput } from "./switches";
 import type { ViewInput, ViewsOptions } from "./views";
-import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -139,74 +134,6 @@ export interface FollowView {
 }
 
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
-
-/** The scene's camera: what it opens on. */
-export class SceneCamera {
-  #target: string | undefined;
-  #following = false;
-  #view: FollowView = {};
-  #reach: number | undefined;
-  #fit: string | undefined;
-  readonly #has: (id: string) => boolean;
-  readonly #circlesSun: (id: string) => boolean;
-  constructor(has: (id: string) => boolean, circlesSun: (id: string) => boolean) {
-    this.#has = has;
-    this.#circlesSun = circlesSun;
-  }
-  /** Opens framed on a body or trajectory already added to the scene and already following it (the viewer's Follow button shows as pressed). */
-  follow(id: string, view: FollowView = {}): this {
-    return this.#open("follow", id, view, true);
-  }
-  /** Opens framed on a body or trajectory already added to the scene, looking at it but not following it (the viewer's Focus button shows as pressed). The last of `follow` and `lookAt` wins. */
-  lookAt(id: string, view: FollowView = {}): this {
-    return this.#open("lookAt", id, view, false);
-  }
-  #open(call: string, id: string, view: FollowView, following: boolean): this {
-    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
-    if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
-    this.#target = id;
-    this.#following = following;
-    this.#view = view;
-    return this;
-  }
-  /**
-   * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
-   * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn.
-   * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
-   * `setReach` and `fitOrbit` set the same limit, so the later call wins and replaces the earlier one.
-   */
-  setReach(distance: number): this {
-    if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
-    this.#reach = distance;
-    this.#fit = undefined;
-    return this;
-  }
-  /**
-   * Sets the farthest zoom-out so the whole orbit of a body circling the Sun (a planet, a built-in comet or one from `addBodyFromElements`, already added to the scene) fits the canvas
-   * from any view direction: the orbit's farthest Sun distance divided by the sine of the narrower half field of view of the canvas (vertical 45 degrees, or horizontal from the
-   * canvas's width over height), with 10 percent to spare. The viewer fits again whenever the canvas changes shape, such as a phone turning or a window resizing; the far plane follows
-   * as for `setReach`. The opening view does not move. Any other body throws `bad-camera` naming it; an id not in the scene throws `unknown-body`. `setReach` and `fitOrbit` set the
-   * same limit, so the later call wins and replaces the earlier one.
-   * @example
-   * scene.camera.fitOrbit("c-2025-a1");
-   */
-  fitOrbit(body: BodyRef | BodyId): this {
-    const id = typeof body === "string" ? body : body.id;
-    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.fitOrbit("${id}"): no body or trajectory with that id has been added to the scene`);
-    if (!this.#circlesSun(id)) throw new SceneError("bad-camera", `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`);
-    this.#fit = id;
-    this.#reach = undefined;
-    return this;
-  }
-  /** The body `fitOrbit` fits the zoom-out to, if any. */
-  get fitted(): string | undefined { return this.#fit; }
-  /** The farthest zoom-out set with `setReach`, if any. */
-  get reach(): number | undefined { return this.#reach; }
-  get target(): string | undefined { return this.#target; }
-  /** Whether the opening view follows its target (`follow`) rather than only looking at it (`lookAt`). */
-  get following(): boolean { return this.#following; }
-  get view(): FollowView { return this.#view; }
-}
 
 /**
  * A scene built with imperative calls. `mount(element, scene)` draws it; `toDefinition()` is what the app is given. Every method returns the scene, so calls chain.
@@ -416,174 +343,8 @@ export class Scene {
     return this.#plan.missingData(data);
   }
 
-  /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
-  #planetSpanError(ids: readonly BodyId[], window: TimeBounds): SceneError | undefined {
-    const planets = ids.filter(isPlanetId);
-    if (planets.length === 0 || !planetSeriesLoaded()) return undefined;
-    const span = planetSeriesSpan();
-    if (window.startUtcMs >= span.startUtcMs && window.endUtcMs <= span.endUtcMs) return undefined;
-    const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
-    return new SceneError("out-of-span", `${planets.join(", ")} is outside the years the built-in planet series covers: it covers ${iso(span.startUtcMs)} to ${iso(span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline inside that span`);
-  }
-
-  /** Throws `out-of-span` naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded). */
-  #checkPlanetSpan(ids: readonly BodyId[], window: TimeBounds): void {
-    const error = this.#planetSpanError(ids, window);
-    if (error !== undefined) throw error;
-  }
-
-  /**
-   * The one choke point for planet-series reads during setup (orbit lines, the fit distance, clump groups): checks the span first, and turns a
-   * `TimeScaleOutOfRangeError` from the read into the named `out-of-span` error when the window is outside the series, so no setup read can leak the raw one.
-   */
-  #planetRead<T>(ids: readonly BodyId[], window: TimeBounds, read: () => T): T {
-    this.#checkPlanetSpan(ids, window);
-    try {
-      return read();
-    } catch (error) {
-      if (error instanceof TimeScaleOutOfRangeError) throw this.#planetSpanError(ids, window) ?? error;
-      throw error;
-    }
-  }
-
-  /**
-   * A setup read in `toDefinition`: an `out-of-span` failure is recorded in `fault` and the read gives `fallback`, so `toDefinition` (and so `mount`) never throws it;
-   * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting).
-   */
-  #deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { error?: SceneError }, fallback: T, read: () => T): T {
-    try {
-      return this.#planetRead(ids, window, read);
-    } catch (error) {
-      if (error instanceof SceneError && error.code === "out-of-span") {
-        fault.error ??= error;
-        return fallback;
-      }
-      throw error;
-    }
-  }
-
-  /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
-  #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
-    const id = this.camera.fitted;
-    if (id === undefined) return undefined;
-    let km: number | undefined;
-    const read = (): number => (km ??= farthestSunDistanceKm(this.#plan.catalogue, id, openUtcMs, this.#plan.own.get(id)));
-    if (planetSeriesLoaded()) read();
-    return { read, settle: () => void read() };
-  }
-
-  /** The app's plug-in contract for this scene. Throws if the scene is empty or a body needs a data package not passed in `data`. */
+  /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    if (this.#plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
-    this.#plan.checkData(data);
-    this.#groupPlan.checkReadouts();
-    const ids = [...this.#plan.bodies.keys()];
-    const paths = this.#plan.moonPaths();
-    const sunCentred = this.#plan.checkSunCentred(ids);
-    this.#plan.checkSolarSystemScale(this.#scale, sunCentred);
-    for (const entry of this.#tracked.values()) checkReadouts(entry, ids);
-    const entries = [...this.#tracked.values()];
-    const tracked = entries.map((entry) => entry.body);
-    const timeline = this.#timeline.setting;
-    const { window, startUtcMs } = this.#timeline.span([...tracked.map((body) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)]);
-    const sunOrbitIds = this.#plan.sunOrbitIds(ids);
-    // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
-    const fault: { error?: SceneError } = {};
-    // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
-    const auto = autoPaths(this.#plan.catalogue, entries, tracked, ids);
-    auto.now((read) => this.#deferredRead(ids, window, fault, undefined, read));
-    const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
-    // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
-    const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
-    const target = this.camera.target;
-    const view = this.camera.view;
-    const storyPanels = this.#story.panels(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
-    this.#groupPlan.check(ids);
-    // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
-    const seriesIn = planetSeriesLoaded();
-    const late = lateGroups(seriesIn);
-    const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupPlan.layers(ids, window, startUtcMs, (plan) => !late(plan))]);
-    const labelled = [...this.#plan.bodies.values(), ...tracked, ...[...this.#groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
-    const catalogue = this.#plan.catalogue;
-    this.#story.checkObjects(new Set(labelled.map(({ id }) => id)));
-    const definition: ExperienceDefinition = {
-      experience: {
-        objects: [
-          ...[...this.#plan.bodies.values()].map((body) => this.#plan.bodyObject(body, ids, sunCentred, this.camera)),
-          ...[...this.#tracked.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...this.#plan.labelReach(body.id, sunCentred, this.camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
-        ],
-        cameraPresets: cameraPresetsOf(labelled),
-        ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
-        events: this.#story.events,
-        ...this.#story.provenanceEntries(),
-        ...(storyPanels === undefined ? {} : { storyPanels }),
-        ...(timeline?.none === true ? { hideTimeline: true } : {}),
-        window,
-        ...this.#groupPlan.windowsEntry(),
-        rates: this.#timeline.rates(),
-      },
-      clock: this.#timeline.clock(startUtcMs),
-      ...this.#timeline.pacing(this.#story.events),
-      ...groupLayersEntry(layers, this.#groupPlan.groups.size > 0, sunOrbitIds.length > 0),
-      ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
-      ...(this.#plan.catalogue === builtInCatalogue ? {} : { catalogue: this.#plan.catalogue }),
-      ...this.#plan.visualOverrides(),
-      composition: createComposition(this.#plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-      scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#plan.enlargedInSun(sunCentred)),
-      ...this.#viewPlan.switchesEntry(),
-      ...this.#viewPlan.viewsEntry({ paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groupPlan.groups.keys()], events: this.#story.events.map(({ id }) => id) }, storyPanels),
-      ...viewEntries(timeline, this.camera, fit?.read, pathCover(this.#tracked.values(), sunCentred, ids[0]!)),
-      ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
-      trackedBodies: tracked,
-      createMetrics: ({ resolver }) => {
-        const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
-        const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groupPlan.groups.has(objectId) ? this.#groupPlan.metrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
-      },
-      prepare: async () => {
-        if (fault.error !== undefined) throw fault.error;
-        if (needsPlanetSeries(definition) || auto.later || sunPaths.length < sunOrbitIds.length || this.#groupPlan.groups.size > layers.length) await loadPlanetSeries();
-        this.#checkPlanetSpan(ids, window);
-        auto.settle((read) => this.#planetRead(ids, window, read));
-        if (this.#groupPlan.groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupPlan.layers(ids, window, startUtcMs, late)));
-        if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#plan.sunPath(id, startUtcMs))));
-        if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
-        await installData(data, ids, window, catalogue);
-      },
-    };
-    return definition;
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly }, data);
   }
-}
-
-/** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
-function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined, cover: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
-  const { reach, view, target } = camera;
-  return {
-    ...(timeline?.loop === true ? { loop: true } : {}),
-    ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: reach * 2.5 } }),
-    ...(farthestKm === undefined ? {} : { camera: { fitOrbit: { farthestKm } } }),
-    ...(reach !== undefined || farthestKm !== undefined || cover === undefined ? {} : { camera: { cover: { farthestKm: cover } } }),
-    ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
-  };
-}
-
-/** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
-function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[]): ExperienceDefinition["experience"]["cameraPresets"] {
-  return [
-    { id: "overview", label: "Overview", request: { kind: "overview" } },
-    ...objects.flatMap(({ id, label }) => [
-      { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
-      { id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } },
-    ]),
-  ];
-}
-
-/**
- * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
- * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
- */
-function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): readonly string[] {
-  const offered = [trueScale, enlarged ? solarSystemScale : readableScale];
-  const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
-  return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }

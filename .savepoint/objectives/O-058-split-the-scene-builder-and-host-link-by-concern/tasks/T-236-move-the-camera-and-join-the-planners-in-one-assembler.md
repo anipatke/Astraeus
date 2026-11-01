@@ -2,9 +2,10 @@
 id: T-236
 title: Move the camera and join the planners in one assembler
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-235, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-236, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:22:24Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -57,8 +58,15 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Changed: `packages/astraeus/src/api/scene.ts` (589 -> 350 lines), new `planCamera.ts` (124) and `assembleScene.ts` (173). Moved code as-is; `toDefinition` is one call to `assembleScene(ScenePlanners, data)`; `ScenePlanners` is an internal interface, not exported from `index.ts`. `scene.ts` re-exports `SceneCamera`.
+- planCamera.ts holds SceneCamera, cameraPresetsOf, viewEntries, fitFarthestKm (was `#fitFarthestKm`), startPresetEntry, startViewEntry: read in file.
+- assembleScene.ts holds the toDefinition body, planetSpanError/checkPlanetSpan/planetRead/deferredRead, scaleChoicesOf, prepare: read in file.
+- `wc -l`: scene.ts 350 (< 450); largest api module 350 is scene.ts, every split module <= 245 (<= 300 for the new ones).
+- `grep -n "\.\./\(app\|shell\)/" packages/astraeus/src/api/*.ts`: scene.ts has none; assembleScene.ts imports bodyMetrics, planetNeeds, trackedMetrics (value) from app/, others type-only.
+- `git diff --exit-code main -- packages/astraeus/api-surface.lock.json packages/astraeus-site/tests/`: empty; `git diff --name-only --diff-filter=M main -- '*.test.ts' '*.test.tsx'`: empty.
+- `npx vitest run` scenePin + apiSurface + apiRules + allowlistGrowth + packageBoundaries: 5 files, 41 tests passed; scenePin.json unmodified (git status).
+- Gates: `npm run lint` clean, `npm run typecheck` clean, `npm run build` built, `npm test` 184 files, 2240 passed, 1 skipped. No browser run.
 
 ## Drift Notes
 
-Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+For T-239 (Design.md reconciliation): new internal modules `planCamera.ts` (SceneCamera, camera entries, fit distance) and `assembleScene.ts` (definition assembler, planet-read guard, scale choices, prepare) with the internal `ScenePlanners` interface; `scene.ts` is now the public front only. `planCamera.ts` imports the `FollowView` type from `scene.ts` (type-only cycle). `scene.ts` keeps a top-level `SCALES` constant (not a function) for `setScale` validation.
