@@ -8,6 +8,7 @@ const STEPS = [
   { name: "smoke-public-showers", script: "browser-smoke.mjs", public: true, env: { ASTRAEUS_VIEWS: "showers" }, scene: "showers views on the scratch public build: stream dots drawn" },
   { name: "planets-phone", script: "journey-planets-phone.mjs", scene: "planets on a phone: switch planet, focus Io, open a place card" },
   { name: "meteor-shower", script: "journey-meteor-shower.mjs", scene: "showers (Perseids): play, seek, open a story panel" },
+  { name: "views", script: "journey-views.mjs", scene: "synthetic-views (made-up, two probes, three views): a visitor switch and a host setView at desktop and phone size, the stay rule holds the camera still" },
   { name: "hello-scene", script: "check-hello-scene.mjs", example: "hello-scene", env: { HELLO_STORY: "1" }, scene: "examples/hello-scene from the packed tarballs: the made-up story (anchors, events, one panel, looking at the probe), Earth and Moon drawn, time set, desktop and phone" },
   { name: "hello-react", script: "check-hello-scene.mjs", example: "hello-react", scene: "examples/hello-react (AstraeusScene) from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone" },
   { name: "public-build-assets", script: "public-build-assets.mjs", public: true, noBrowser: true },

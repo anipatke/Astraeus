@@ -11,6 +11,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkEngineLicences, gatherPackageCredits } from "../site/package-credits.mjs";
 import { checkLoadBudget, NON_PUBLIC_PLANET_FILES, proveLoadBudgetFails, PUBLIC_PLANETS } from "./load-budget.mjs";
+import { checkEngineBudget, proveEngineDemoSplit } from "./engine-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
 export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html", "api/index.html"];
@@ -159,7 +160,7 @@ export function proveStarAssetHandling() {
 }
 
 /** The entry keys of the made-up (synthetic) experiences; a public build must not mount them (T-068). */
-export const SYNTHETIC_KEYS = ["synthetic", "synthetic-bare", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey"];
+export const SYNTHETIC_KEYS = ["synthetic", "synthetic-bare", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey", "synthetic-views"];
 
 /**
  * The made-up experiences are test fixtures: a public build must contain none of them. Fails on a file whose name carries a synthetic module
@@ -305,7 +306,10 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const loadBudget = checkLoadBudget({ distDir });
   const budgetProof = proveLoadBudgetFails();
   const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
-  const result = { distDir, packageCredits: packageCredits.map(({ package: name, licenceFiles, dataLicences }) => ({ package: name, licenceFiles, dataLicenceFiles: dataLicences.length })), engineLicences, loadBudget, budgetSelfProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, planets, planetSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && engineLicences.ok && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok && planets.ok && planetSelfProof };
+  const engineBudget = checkEngineBudget();
+  const split = proveEngineDemoSplit();
+  const engineSplitProof = split.base.page.ok && split.base.engine.ok && split.engineGrown.page.ok && !split.engineGrown.engine.ok && !split.demoGrown.page.ok && split.demoGrown.engine.ok;
+  const result = { distDir, packageCredits: packageCredits.map(({ package: name, licenceFiles, dataLicences }) => ({ package: name, licenceFiles, dataLicenceFiles: dataLicences.length })), engineLicences, loadBudget, budgetSelfProof, engineBudget, engineSplitProof, localDataFilesChecked: localData.length, requiredPages: REQUIRED_PAGES, missingPages, starAsset, synthetic, syntheticSelfProof, planets, planetSelfProof, selfProof, ...checked, ok: selfProof && syntheticSelfProof && budgetSelfProof && engineSplitProof && engineBudget.ok && engineLicences.ok && loadBudget.ok && checked.ok && missingPages.length === 0 && starAsset.ok && synthetic.ok && planets.ok && planetSelfProof };
   if (process.argv[3] !== undefined) writeFileSync(resolve(process.argv[3]), `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);

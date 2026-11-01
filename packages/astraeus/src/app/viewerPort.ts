@@ -8,6 +8,8 @@ export interface ViewerState {
   readonly playing: boolean;
   /** Only in a scene with pacing: true while pacing sets the rate, false once a visitor or the host has picked a speed. */
   readonly auto?: boolean;
+  /** Only in a scene with views: the id of the view showing. */
+  readonly view?: string;
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */
@@ -24,6 +26,10 @@ export interface ViewerControl {
   readonly paced: boolean;
   /** A number is a chosen speed; `"auto"` gives the rate back to the scene's pacing. */
   setRate(rate: number | "auto"): void;
+  /** The ids of the scene's views, in order; empty without views. */
+  readonly views: readonly string[];
+  /** Switches to the view with this id (one of `views`), as a visitor's button does. */
+  setView(id: string): void;
 }
 
 /** The viewer's side of the host link; the public API supplies the implementation (`ViewerLink`). */

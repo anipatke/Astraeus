@@ -12,7 +12,7 @@ import { ViewerLink, type ViewerChange } from "./viewerLink";
 export interface MountOptions {
   /** Data packages the scene's bodies need, such as moon pictures or positions; nothing is looked up behind the caller's back. */
   readonly data?: readonly DataSource[];
-  /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the host's own `setTime` / `setRate`. About ten times a second while playing. */
+  /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the host's own `setTime` / `setRate` / `setView`. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
 }
 
@@ -26,10 +26,14 @@ export interface MountedScene {
   readonly time: number | undefined;
   /** The playback speed (simulated seconds per real second); undefined like `time`. */
   readonly rate: number | undefined;
+  /** The id of the view showing; undefined until `ready` has resolved, after `unmount`, and in a scene without views. */
+  readonly view: string | undefined;
   /** Moves the viewer to `time` (ISO text, a `Date` or Unix milliseconds). Outside the timeline throws `bad-time`; before `ready` or after `unmount` throws `missing-data`. */
   setTime(time: TimeInput): void;
   /** Sets the playback speed to one of the speeds the timeline offers (`setTimeline({ rates })`); any other number throws `bad-timeline`. `"auto"` gives the speed back to the scene's `setTimeline({ pacing })` (throws `bad-timeline` when it has none). Before `ready` or after `unmount` throws `missing-data`. */
   setRate(rate: number | "auto"): void;
+  /** Switches to the view with this id (`setViews`). An unknown id, or a scene without views, throws `bad-view`; before `ready` or after `unmount` throws `missing-data`. `onChange` hears it with `cause: "host"`. */
+  setView(id: string): void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -61,6 +65,8 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
     ready,
     get time() { return link.time; },
     get rate() { return link.rate; },
+    get view() { return link.view; },
+    setView: (id) => link.setView(id),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
     onChange: (listener) => link.onChange(listener),

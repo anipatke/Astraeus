@@ -10,6 +10,7 @@ import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell } from "../shell/AstraeusShell";
+import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, timeFromSearch, viewFromSearch, shareViewLink, type StartView } from "./viewLink";
@@ -33,6 +34,7 @@ import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, orbitStart } from "./displaySwitches";
+import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
 import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
@@ -165,6 +167,7 @@ function initialSceneControls(
     hiddenLabels: hiddenLabelsFrom(search, labelStart(definition) === undefined ? experience.objects : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) }))),
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
+    viewHidden: hiddenByView(definition.views, viewById(definition.views, definition.views?.start ?? ""), experience),
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxFromSearch(search),
@@ -210,7 +213,11 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     });
     return () => { cancelled = true; };
   }, []);
-  const shellExperience = useMemo(() => withSkyObject(experience, runtime.sky.visible, starStatus), [experience, runtime.sky.visible, starStatus]);
+  // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
+  const [viewId, setViewId] = useState(() => definition.views?.start ?? "");
+  const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
+  const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
+  const shellExperience = useMemo(() => withSkyObject(viewExperience, runtime.sky.visible, starStatus), [viewExperience, runtime.sky.visible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
@@ -275,6 +282,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
     controls.current.cameraRequest = request as CameraRequest;
   }, []);
+  const holdCamera = useCallback(() => { controls.current.cameraRequest = { kind: "hold" }; }, []);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
@@ -296,7 +304,19 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     setScale(id);
   }, [suppliedPolicies]);
 
-  const stateNow = useCallback((): ViewerState => ({ ...runtime.clock.snapshot(), ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }) }), [runtime]);
+  // The view showing is read from a ref set at the switch, so a publish right after a switch already names the new view.
+  const viewRef = useRef(viewId);
+  const chooseView = useCallback((id: string) => {
+    viewRef.current = id;
+    controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
+    setViewId(id);
+  }, [definition, experience]);
+  const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
+  const stateNow = useCallback((): ViewerState => ({
+    ...runtime.clock.snapshot(),
+    ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }),
+    ...(definition.views === undefined ? {} : { view: viewRef.current }),
+  }), [runtime, definition]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -325,9 +345,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   }, [runtime]);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate });
+    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView });
     return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -354,6 +374,14 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     const view = controls.current.viewReadout;
     if (view === undefined) return;
     setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
+  };
+  const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
+    place: definition.views.place,
+    options: definition.views.views.map((view) => ({ id: view.id, label: view.label, active: view.id === currentView?.id })),
+    onSelect: (id) => {
+      chooseView(id);
+      host?.publish(stateNow(), "visitor");
+    },
   };
   const displaySwitches = displaySwitchItems({
     settings: definition.displaySwitches,
@@ -566,12 +594,15 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
         host?.publish(stateNow(), "visitor");
       }}
       onCameraRequest={updateCameraRequest}
+      onCameraHold={holdCamera}
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
       switcher={switcherOf(definition, runtime, onOpenAddress)}
       displaySwitches={displaySwitches}
+      viewChoice={viewChoice}
+      viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
       metricsFor={metricsFor}
       developerTools={developerTools}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}

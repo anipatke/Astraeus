@@ -15,7 +15,9 @@ import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
-import type { DisplaySwitchItem } from "./DisplaySwitches";
+import type { DisplaySwitchItem, ViewChoice } from "./DisplaySwitches";
+import type { ViewCameraRule } from "../app/views";
+import { presetForViewRule } from "./viewCamera";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
@@ -82,6 +84,8 @@ interface Props {
   readonly paceAuto?: boolean | undefined;
   readonly onSeek: (timeUtcMs: number) => void;
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
+  /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
+  readonly onCameraHold?: () => void;
   readonly onSelectionChange: (objectId: string) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
@@ -90,6 +94,10 @@ interface Props {
   readonly switcher?: ExperienceSwitch;
   /** Display switches a story placed in the top bar or its switch panel (also in the phone drawer); absent or empty: none. */
   readonly displaySwitches?: readonly DisplaySwitchItem[];
+  /** The views the scene names (T-219); absent: none. The experience this shell gets is already the current view's. */
+  readonly viewChoice?: ViewChoice;
+  /** The view showing and its camera rule (T-220): on a switch of `id`, a followed or focused object the new view does not show is handled by the rule; absent: no views. */
+  readonly viewCamera?: { readonly id: string; readonly rule: ViewCameraRule };
   /** Live measurements for an object's info panel, from the app's own State; empty when it has none. */
   readonly metricsFor?: (objectId: string, timeUtcMs: number) => readonly Metric[];
   readonly developerTools?: ReactNode;
@@ -125,6 +133,18 @@ function serialOf(request: { readonly serial: number } | null | undefined): numb
   return request?.serial;
 }
 
+/** Tells a switch of view from any other change of the experience: `takeSwitchRule` gives the new view's camera rule once after the view's id changed, else undefined. */
+function useViewSwitch(viewCamera: Props["viewCamera"]) {
+  const viewId = viewCamera?.id;
+  const last = useRef(viewId);
+  const takeSwitchRule = () => {
+    const switched = viewId !== last.current;
+    last.current = viewId;
+    return switched ? viewCamera?.rule : undefined;
+  };
+  return { viewId, takeSwitchRule };
+}
+
 function panelsOf(storySet: ExperienceConfig["storyPanels"]) {
   return storySet?.panels ?? [];
 }
@@ -156,12 +176,15 @@ export function AstraeusShell({
   paceAuto,
   onSeek,
   onCameraRequest,
+  onCameraHold,
   onSelectionChange,
   scaleId,
   onScaleChange,
   scaleChoices,
   switcher,
   displaySwitches,
+  viewChoice,
+  viewCamera,
   metricsFor,
   developerTools,
   storyPanelSettings,
@@ -224,19 +247,26 @@ export function AstraeusShell({
     onSelectionChange(selectedObjectId);
   }, [onSelectionChange, selectedObjectId]);
 
+  // A view switch is told from other changes of the experience by the view's id changing.
+  const { viewId, takeSwitchRule } = useViewSwitch(viewCamera);
   useEffect(() => {
+    const switchRule = takeSwitchRule();
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
     if (selected === undefined || !isObjectAvailable(selected, snapshot.timeUtcMs)) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId);
+      // The card of an object the view took away closes with it.
+      if (switchRule !== undefined && selected === undefined) setInfo((now) => (now?.kind === "object" ? null : now));
     }
 
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     const activeRequest = active?.request;
     if (activeRequest !== undefined && activeRequest.kind !== "overview") {
       const target = experience.objects.find((object) => object.id === activeRequest.target);
-      if (target === undefined || !isObjectAvailable(target, snapshot.timeUtcMs)) {
+      if (switchRule !== undefined && target === undefined) {
+        applyViewRule(switchRule);
+      } else if (target === undefined || !isObjectAvailable(target, snapshot.timeUtcMs)) {
         const overview = findCameraPreset(experience, "overview");
         if (overview !== undefined) {
           setActivePresetId(overview.id);
@@ -244,7 +274,23 @@ export function AstraeusShell({
         }
       }
     }
-  }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs, viewId]);
+
+  /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
+  const applyViewRule = (rule: ViewCameraRule) => {
+    const asked = presetForViewRule(rule, experience);
+    const target = asked === undefined || asked.request.kind === "overview" ? undefined : availableObjectById(experience, asked.request.target, snapshot.timeUtcMs);
+    // A framing whose object is not available now falls back to the overview, like any other lost target.
+    const preset = asked !== undefined && asked.request.kind !== "overview" && target === undefined ? findCameraPreset(experience, "overview") : asked;
+    if (target !== undefined) {
+      setSelectedObjectId(target.id);
+      onSelectionChange(target.id);
+    }
+    setActivePresetId(preset?.id ?? null);
+    if (preset !== undefined) onCameraRequest(preset.request);
+    else onCameraHold?.();
+  };
 
   const [moonsOpen, setMoonsOpen] = useState(false);
   /** A moon chosen in the moon panel: flies to it (the same focus as the object picker) and opens its information. */
@@ -340,6 +386,7 @@ export function AstraeusShell({
       scaleChoices={scaleChoices}
       switcher={switcher}
       displaySwitches={displaySwitches}
+      viewChoice={viewChoice}
     />
   );
 

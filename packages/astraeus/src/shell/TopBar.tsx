@@ -1,7 +1,7 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { ObjectControls } from "./ObjectControls";
 import { ScaleControl } from "./ScaleControl";
-import { DisplaySwitches, type DisplaySwitchItem } from "./DisplaySwitches";
+import { DisplaySwitches, ViewButtons, viewChoiceInPanel, type DisplaySwitchItem, type ViewChoice } from "./DisplaySwitches";
 import { SwitchControl, type ExperienceSwitch } from "./SwitchControl";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { CogIcon } from "./topBarIcons";
@@ -23,6 +23,8 @@ interface Props {
   readonly switcher?: ExperienceSwitch;
   /** Display switches a story placed in the bar or its panel; absent or empty: none, the bar as it was. */
   readonly displaySwitches?: readonly DisplaySwitchItem[];
+  /** The views the scene names, in the bar or its switch panel; absent: none. */
+  readonly viewChoice?: ViewChoice;
 }
 
 interface DeveloperProps {
@@ -31,7 +33,7 @@ interface DeveloperProps {
 }
 
 /** The single compact bar: body picker, Info, camera buttons and Scale in one row. */
-export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, displaySwitches = [], ...objectControls }: Props) {
+export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, displaySwitches = [], viewChoice, ...objectControls }: Props) {
   return (
     <div className="shell-toolbar">
       <div className="top-bar">
@@ -41,13 +43,19 @@ export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, display
             <span className="top-bar-divider" aria-hidden="true" />
           </>
         )}
+        {viewChoice !== undefined && viewChoice.place === "top-bar" && viewChoice.options.length > 1 && (
+          <>
+            <ViewButtons choice={viewChoice} />
+            <span className="top-bar-divider" aria-hidden="true" />
+          </>
+        )}
         <ObjectControls {...objectControls} />
         <span className="top-bar-divider" aria-hidden="true" />
         <ScaleControl scaleId={scaleId} onScaleChange={onScaleChange} choices={scaleChoices} />
-        {displaySwitches.length > 0 && (
+        {(displaySwitches.length > 0 || viewChoiceInPanel(viewChoice)) && (
           <>
             <span className="top-bar-divider" aria-hidden="true" />
-            <DisplaySwitches switches={displaySwitches} />
+            <DisplaySwitches switches={displaySwitches} viewChoice={viewChoice} />
           </>
         )}
       </div>

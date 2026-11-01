@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { readableScale } from "../src/core/scalePolicy";
-import { createOrbitCameraState } from "../src/app/CameraController";
-import { rescaleCameraForPolicy, stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
+import { createOrbitCameraState, resolveCamera } from "../src/app/CameraController";
+import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 import { focusLimits } from "../src/app/sceneFraming";
+import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
 const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]], ["sun", [0, 0, 20000]]]);
@@ -40,6 +41,27 @@ describe("stepCameraTarget", () => {
     const step = input();
     expect(stepCameraTarget(step)).toBe("earth");
     expect(step.camState.distance).toBe(16);
+  });
+
+  it("keeps the camera's focus and pose when a view switch asks for nothing (rule stay): no request, no jump to the overview", () => {
+    const step = input();
+    step.camState.focus = "moon";
+    step.camState.distance = step.camState.targetDistance = 5;
+    step.camState.targetAzimuth = step.camState.azimuth = 1;
+    stepCameraTarget(step);
+    expect(step.camState.focus).toBe("moon");
+    expect(step.camState.targetAzimuth).toBe(1);
+    expect(step.camState.distance).toBe(5);
+  });
+
+  it("moves to the request a view's rule makes (a follow keeps the distance, a focus frames it)", () => {
+    const followed = input({}, { cameraRequest: { kind: "follow", target: "moon" } });
+    stepCameraTarget(followed);
+    expect(followed.camState.focus).toBe("moon");
+    expect(followed.camState.targetDistance).toBe(16);
+    const focused = input({}, { cameraRequest: { kind: "focus", target: "moon" } });
+    stepCameraTarget(focused);
+    expect(focused.camState.focus).toBe("moon");
   });
 
   it("clamps distance and target distance to the focus limits", () => {
@@ -108,5 +130,68 @@ describe("stepCameraTarget", () => {
     const untouched = same.camState.azimuth;
     stepCameraTarget(same);
     expect(same.camState.azimuth).toBe(untouched);
+  });
+});
+
+describe("a held camera (a view's stay rule)", () => {
+  /** One frame as the scene does it: the request step, then the camera resolved against the target it names. */
+  const frameOf = (step: CameraStepInput, origin: FloatingOrigin) => {
+    stepCameraTarget(step);
+    resolveCamera(step.camState, cameraTargetAbsolute(step.camState, step.targets), origin, 0.5, 1e12, EQUATORIAL_UP);
+    return { target: [...step.camState.targetAbsolute], camera: [...step.camState.cameraAbsolute], distance: step.camState.distance, azimuth: step.camState.azimuth, elevation: step.camState.elevation };
+  };
+
+  it("keeps the target and camera still while the object it was on moves on, and keeps the distance and angles", () => {
+    const moving = new Map(positions);
+    const step = input({ targets: { ...targets, placed: moving as SceneTargets["placed"], absoluteOf: (id) => moving.get(id) ?? [0, 0, 0] } });
+    const origin = new FloatingOrigin();
+    step.camState.focus = "moon";
+    step.camState.distance = step.camState.targetDistance = 5;
+    const before = frameOf(step, origin);
+    expect(before.target).toEqual([60, 0, 0]);
+    step.controls.cameraRequest = { kind: "hold" };
+    const held = frameOf(step, origin);
+    expect(held).toEqual(before);
+    for (const x of [90, 400, 5000]) {
+      moving.set("moon", [x, 0, 0]); // the clock runs: the object moves
+      expect(frameOf(step, origin)).toEqual(before);
+    }
+  });
+
+  it("is replaced by the next focus: picking a new object focuses it normally and the target follows it again", () => {
+    const moving = new Map(positions);
+    const step = input({ targets: { ...targets, placed: moving as SceneTargets["placed"], absoluteOf: (id) => moving.get(id) ?? [0, 0, 0] } });
+    const origin = new FloatingOrigin();
+    step.camState.focus = "moon";
+    step.controls.cameraRequest = { kind: "hold" };
+    frameOf(step, origin);
+    moving.set("moon", [500, 0, 0]);
+    step.controls.cameraRequest = { kind: "focus", target: "sun" };
+    stepCameraTarget(step);
+    expect(step.camState.focus).toBe("sun");
+    expect(step.camState.fixedPoint).toBeNull();
+    for (let i = 0; i < 40; i += 1) frameOf(step, origin);
+    expect(step.camState.targetAbsolute).toEqual([0, 0, 20000]);
+    moving.set("sun", [0, 0, 30000]);
+    for (let i = 0; i < 5; i += 1) frameOf(step, origin);
+    expect(step.camState.targetAbsolute).toEqual([0, 0, 30000]);
+  });
+
+  it("is released by a focus on the very object it was held on", () => {
+    const step = input();
+    step.camState.focus = "moon";
+    step.controls.cameraRequest = { kind: "hold" };
+    stepCameraTarget(step);
+    expect(step.camState.fixedPoint).toEqual([60, 0, 0]);
+    step.controls.cameraRequest = { kind: "follow", target: "moon" };
+    stepCameraTarget(step);
+    expect(step.camState.fixedPoint).toBeNull();
+  });
+
+  it("rescales its point with the visual scale, like the transition", () => {
+    const camState = createOrbitCameraState(10, "earth");
+    camState.fixedPoint = [1, 2, 3];
+    rescaleCameraForPolicy(camState, "earth", 2);
+    expect(camState.fixedPoint).toEqual([2, 4, 6]);
   });
 });

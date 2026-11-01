@@ -9,7 +9,9 @@ export interface ViewerChange {
   /** Simulated seconds per real second. */
   readonly rate: number;
   readonly playing: boolean;
-  /** `playback`: the clock ran on; `visitor`: someone used the timeline; `host`: the host page called `setTime` or `setRate`. */
+  /** Only in a scene with views: the id of the view showing. */
+  readonly view?: string;
+  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate` or `setView`. */
   readonly cause: ViewerChangeCause;
 }
 
@@ -51,6 +53,18 @@ export class ViewerLink implements ViewerPort {
   get time(): number | undefined { return this.#control?.read().timeUtcMs; }
   get rate(): number | undefined { return this.#control?.read().rate; }
   get playing(): boolean | undefined { return this.#control?.read().playing; }
+  /** The id of the view showing; undefined before the viewer is drawn, after it is gone, and in a scene without views. */
+  get view(): string | undefined { return this.#control?.read().view; }
+
+  /** Switches to the view with this id. An id the scene does not name, or a scene without views, throws `bad-view`; before the viewer is drawn or after it is gone, `missing-data`. */
+  setView(id: string): void {
+    const control = this.#open("setView");
+    if (!control.views.includes(id)) {
+      throw new SceneError("bad-view", control.views.length === 0 ? "setView: the scene has no views; name them with setViews" : `setView: "${String(id)}" is not one of the scene's views (${control.views.join(", ")})`);
+    }
+    control.setView(id);
+    this.publish(control.read(), "host");
+  }
 
   setTime(time: TimeInput): void {
     const control = this.#open("setTime");
@@ -91,11 +105,11 @@ export class ViewerLink implements ViewerPort {
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     const last = this.#last;
-    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto) return;
+    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return;
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
-    const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, cause };
+    const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), cause };
     for (const listener of [...this.#listeners]) listener(change);
   }
 

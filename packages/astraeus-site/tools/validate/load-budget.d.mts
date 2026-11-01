@@ -7,12 +7,12 @@ export interface PageBudget {
 }
 export interface BudgetResult {
   ok: boolean;
-  pages: { id: string; files: number; raw: number; gzip: number; rawLimit: number; gzipLimit: number; problems: string[] }[];
+  pages: { id: string; files: number; raw: number; gzip: number; engineRaw?: number; engineGzip?: number; ownRaw?: number; ownGzip?: number; rawLimit: number; gzipLimit: number; problems: string[] }[];
 }
 export const PAGES: PageBudget[];
 export const BUILD_LIMIT: { id: string; rawLimit: number; gzipLimit: number };
 export function staticImportsOf(text: string): string[];
-export function checkLoadBudget(input: { distDir: string; pages?: PageBudget[]; buildLimit?: { id: string; rawLimit: number; gzipLimit: number } }): BudgetResult;
+export function checkLoadBudget(input: { distDir: string; pages?: PageBudget[]; buildLimit?: { id: string; rawLimit: number; gzipLimit: number }; shares?: Record<string, { engine: number; total: number }>; requireShares?: boolean }): BudgetResult;
 export function proveLoadBudgetFails(): Record<"within" | "heavier" | "missing" | "unlistedImport" | "unlistedFile", BudgetResult>;
 export function proveSameStemChunks(): Record<"first" | "chained" | "stemLeftOut" | "notImported", BudgetResult["pages"][number]>;
 /** The planets a public build offers (Jupiter alone), and the files only the other planets' views list (T-136). */

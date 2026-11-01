@@ -59,7 +59,7 @@ async function startServers(steps, ctx) {
   const needsPreview = steps.some((s) => s.public && !s.noBrowser);
   if (needsDev) ctx.serve("dev-server.log", ["vite", "packages/astraeus-site", "--port", DEV_PORT, "--strictPort"]);
   if (steps.some((s) => s.public)) {
-    const build = spawnSync("npx", ["vite", "build", "packages/astraeus-site", "--outDir", ctx.publicDir, "--emptyOutDir"], { cwd: root, encoding: "utf8", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1" } });
+    const build = spawnSync("npx", ["vite", "build", "packages/astraeus-site", "--outDir", ctx.publicDir, "--emptyOutDir"], { cwd: root, encoding: "utf8", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1", ASTRAEUS_ENGINE_SHARE: "1" } });
     ctx.writeLog("public-build.log", `${build.stdout}${build.stderr}`);
     if (build.status !== 0) throw new Error("public build failed (see public-build.log)");
   }

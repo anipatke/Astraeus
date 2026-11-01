@@ -6,9 +6,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
+const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
-  return { prepareScene: () => ({ definition: syntheticDefinition, ready: Promise.resolve() }) };
+  return { prepareScene: () => ({ definition: prepared.views === undefined ? syntheticDefinition : { ...syntheticDefinition, views: prepared.views }, ready: Promise.resolve() }) };
 });
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -34,7 +35,7 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => { prepared.views = undefined; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
 
@@ -144,7 +145,7 @@ describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
     let state = { timeUtcMs: MID, rate: RATES[0], playing: false };
-    const control = { window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; } };
+    const control = { window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");
@@ -156,5 +157,116 @@ describe("the rate source (ready for pacing)", () => {
     expect(link.rateSource).toBe("scene");
     link.setRate(RATES[2]);
     expect(link.rateSource).toBe("chosen");
+  });
+});
+
+describe("views through the host (O-051 T-220)", () => {
+  const view = (id: string) => ({ id, label: id.toUpperCase(), camera: { rule: "stay" } as const, objects: new Set<string>(), events: new Set<string>(), panels: new Set<string>() });
+  const withViews = () => { prepared.views = { place: "top-bar", start: "a", views: [view("a"), view("b")] }; };
+  const viewButton = (id: string) => $(host, `[data-view-id="${id}"]`);
+
+  it("a scene without views: view is undefined, setView throws bad-view, onChange payloads carry no view", async () => {
+    const seen: ViewerChange[] = [];
+    const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
+    expect(handle.view).toBeUndefined();
+    expect(codeOf(() => handle.setView("a"))).toBe("missing-data"); // not drawn yet
+    await act(async () => { await handle.ready; });
+    expect(handle.view).toBeUndefined();
+    expect(codeOf(() => handle.setView("a"))).toBe("bad-view");
+    act(() => handle.setTime(MID));
+    expect("view" in seen.at(-1)!).toBe(false);
+    handle.unmount();
+  });
+
+  it("reads the opening view, switches it, names an unknown id, and refuses before ready and after unmount", async () => {
+    withViews();
+    const handle = mount(host, new Scene());
+    expect(handle.view).toBeUndefined();
+    expect(codeOf(() => handle.setView("b"))).toBe("missing-data");
+    await act(async () => { await handle.ready; });
+    expect(handle.view).toBe("a");
+    act(() => handle.setView("b"));
+    expect(handle.view).toBe("b");
+    expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
+    expect(codeOf(() => handle.setView("zzz"))).toBe("bad-view");
+    expect(handle.view).toBe("b");
+    handle.unmount();
+    expect(handle.view).toBeUndefined();
+    expect(codeOf(() => handle.setView("a"))).toBe("missing-data");
+  });
+
+  it("publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were", async () => {
+    withViews();
+    const seen: ViewerChange[] = [];
+    const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
+    await act(async () => { await handle.ready; });
+    const before = { time: handle.time, rate: handle.rate };
+    act(() => handle.setView("b"));
+    expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host" });
+    act(() => press(viewButton("a")));
+    expect(seen.at(-1)).toMatchObject({ view: "a", cause: "visitor" });
+    expect({ time: handle.time, rate: handle.rate }).toEqual(before);
+    const count = seen.length;
+    act(() => handle.setView("a")); // already showing: nothing to tell
+    expect(seen.length).toBe(count);
+    handle.unmount();
+  });
+
+  it("AstraeusScene applies the view prop once drawn and when it changes, and sends an unknown id to onError", async () => {
+    withViews();
+    const seen: ViewerChange[] = [];
+    const errors: Error[] = [];
+    const scene = new Scene();
+    root = createRoot(host);
+    const draw = (viewId: string) => act(async () => { root!.render(createElement(AstraeusScene, { scene, view: viewId, onChange: (c) => seen.push(c), onError: (e) => errors.push(e) })); });
+    await draw("b");
+    await act(async () => { await Promise.resolve(); });
+    expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host" });
+    await draw("a");
+    expect(seen.at(-1)).toMatchObject({ view: "a", cause: "host" });
+    await draw("zzz");
+    expect(errors.map((e) => (e as SceneError).code)).toEqual(["bad-view"]);
+  });
+
+  describe("AstraeusScene applies each prop only when that prop changes (I-129)", () => {
+    const setup = async () => {
+      withViews();
+      const seen: ViewerChange[] = [];
+      root = createRoot(host);
+      const scene = new Scene();
+      const props = { time: MID, rate: RATES[0], view: "a" } as { time: number; rate: number; view: string };
+      const draw = (next: Partial<typeof props>) => act(async () => { Object.assign(props, next); root!.render(createElement(AstraeusScene, { scene, ...props, onChange: (c) => seen.push(c) })); });
+      await draw({});
+      await act(async () => { await Promise.resolve(); });
+      return { seen, draw };
+    };
+
+    it("view only: a visitor's speed and the clock are left alone", async () => {
+      const { seen, draw } = await setup();
+      act(() => change(byLabel(host, "Playback speed") as HTMLSelectElement, String(RATES[2])));
+      const before = seen.at(-1)!;
+      expect(before).toMatchObject({ rate: RATES[2], cause: "visitor" });
+      await draw({ view: "b" });
+      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host", rate: RATES[2], time: before.time });
+    });
+
+    it("time only: a visitor's view is kept", async () => {
+      const { seen, draw } = await setup();
+      act(() => press(viewButton("b")));
+      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "visitor" });
+      await draw({ time: MID + 1000 });
+      expect(seen.at(-1)!.time).toBe(MID + 1000);
+      expect(seen.at(-1)!.view).toBe("b");
+      expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
+    });
+
+    it("rate only: the time and the view are left alone", async () => {
+      const { seen, draw } = await setup();
+      act(() => press(viewButton("b")));
+      const before = seen.at(-1)!;
+      await draw({ rate: RATES[1] });
+      expect(seen.at(-1)).toMatchObject({ rate: RATES[1], view: "b", time: before.time });
+      expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
+    });
   });
 });
