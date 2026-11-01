@@ -1,0 +1,260 @@
+// O-058 T-238: pins ViewerLink's every member against a fake control, so the split into clock, views, camera and zones is checked
+// beyond the DOM tests: the NOT_OPEN guard, whenAttached, detach and close, the listener copying, and the publish order (change, then zones).
+import { describe, expect, it } from "vitest";
+import { SceneError } from "../src/api/errors";
+import { ViewerLink, type EventZoneChange, type ViewerChange } from "../src/api/viewerLink";
+import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
+
+const START = Date.UTC(2020, 0, 1);
+const END = Date.UTC(2020, 0, 2);
+const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` first";
+
+function fake(opts: { paced?: boolean; views?: string[] } = {}) {
+  const calls: string[] = [];
+  let state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, ...(opts.views?.length ? { view: opts.views[0] } : {}), ...(opts.paced ? { auto: true, zones: [] } : {}) };
+  const control: ViewerControl = {
+    window: { startUtcMs: START, endUtcMs: END },
+    events: [{ id: "e1", type: "flyby", object: "moon", startUtcMs: START, endUtcMs: START + 5 } as never, { id: "e2" } as never],
+    rates: [1, 60], paced: opts.paced ?? false,
+    read: () => state,
+    seek: (t) => { calls.push(`seek ${t}`); state = { ...state, timeUtcMs: t }; },
+    setRate: (r) => { calls.push(`rate ${r}`); state = { ...state, rate: r === "auto" ? 1 : r, ...(opts.paced ? { auto: r === "auto" } : {}) }; },
+    views: opts.views ?? [],
+    setView: (id) => { calls.push(`view ${id}`); state = { ...state, view: id }; },
+    cameraTargets: () => ["earth", "moon"],
+    readCamera: () => ({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 }),
+    setCamera: (request) => { calls.push(`camera ${JSON.stringify(request)}`); },
+  };
+  return { control, calls, set: (next: Partial<ViewerState>) => { state = { ...state, ...next }; return state; } };
+}
+const code = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return undefined; };
+
+describe("ViewerLink before attach and after detach", () => {
+  it("reads undefined and refuses every setter with missing-data and the NOT_OPEN message", () => {
+    const link = new ViewerLink();
+    const reads = [link.time, link.rate, link.playing, link.eventZones, link.view, link.camera];
+    expect(reads).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
+    expect(link.rateSource).toBe("scene");
+    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
+    expect(code(() => link.setRate(1))).toBe(`missing-data: setRate: ${NOT_OPEN}`);
+    expect(code(() => link.setView("a"))).toBe(`missing-data: setView: ${NOT_OPEN}`);
+    expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`missing-data: setCamera: ${NOT_OPEN}`);
+  });
+
+  it("reads after attach and goes back to undefined after detach", () => {
+    const link = new ViewerLink();
+    const { control } = fake({ paced: true, views: ["a", "b"] });
+    link.attach(control);
+    expect([link.time, link.rate, link.playing, link.view]).toEqual([START + 10, 1, false, "a"]);
+    expect(link.eventZones).toEqual([]);
+    expect(link.camera).toEqual({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 });
+    link.detach();
+    expect([link.time, link.rate, link.playing, link.view, link.eventZones, link.camera]).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
+    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
+  });
+
+  it("eventZones is empty (not undefined) when attached to a control with no zones field", () => {
+    const link = new ViewerLink();
+    link.attach(fake().control);
+    expect(link.eventZones).toEqual([]);
+  });
+});
+
+describe("ViewerLink whenAttached, detach and close", () => {
+  it("resolves on attach, at once when already attached, and arms a fresh wait after a detach", async () => {
+    const link = new ViewerLink();
+    let early = false;
+    void link.whenAttached().then(() => { early = true; });
+    await Promise.resolve();
+    expect(early).toBe(false);
+    link.attach(fake().control);
+    await link.whenAttached();
+    expect(early).toBe(true);
+    link.detach();
+    let again = false;
+    void link.whenAttached().then(() => { again = true; });
+    await Promise.resolve(); await Promise.resolve();
+    expect(again).toBe(false);
+    link.attach(fake().control);
+    await link.whenAttached();
+    expect(again).toBe(true);
+  });
+
+  it("after close: a wait armed before it never resolves, and all callbacks stop", async () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true });
+    const changes: ViewerChange[] = [];
+    const zones: EventZoneChange[] = [];
+    link.onChange((c) => changes.push(c));
+    link.onEventZone((z) => zones.push(z));
+    let later = false;
+    void link.whenAttached().then(() => { later = true; });
+    link.close();
+    await Promise.resolve(); await Promise.resolve();
+    expect(later).toBe(false);
+    link.attach(f.control);
+    link.publish(f.set({ timeUtcMs: START + 99, zones: ["e1"] }), "playback");
+    expect(changes).toEqual([]);
+    expect(zones).toEqual([]);
+  });
+
+  it("close after an attach detaches (reads undefined) and a closed link does not re-arm the wait", async () => {
+    const link = new ViewerLink();
+    link.attach(fake().control);
+    link.close();
+    expect(link.time).toBeUndefined();
+    await link.whenAttached(); // still the resolved wait: close never arms a new one
+  });
+});
+
+describe("ViewerLink setters", () => {
+  it("setTime validates the window, seeks, then reports once with cause host", () => {
+    const link = new ViewerLink();
+    const f = fake();
+    link.attach(f.control);
+    const seen: ViewerChange[] = [];
+    link.onChange((c) => seen.push(c));
+    expect(code(() => link.setTime(START - 1))).toMatch(/^bad-time: setTime: .* is outside the timeline \(2020-01-01T00:00:00\.000Z to 2020-01-02T00:00:00\.000Z\)$/);
+    expect(code(() => link.setTime(END + 1))).toMatch(/^bad-time: /);
+    expect(f.calls).toEqual([]);
+    link.setTime(new Date(START + 500));
+    expect(f.calls).toEqual([`seek ${START + 500}`]);
+    expect(seen).toEqual([{ time: START + 500, rate: 1, playing: false, cause: "host" }]);
+    link.setTime(START + 500); // same reading: no second report
+    expect(seen.length).toBe(1);
+  });
+
+  it("setRate takes only offered speeds and sets the source chosen; auto needs pacing and returns it to the scene", () => {
+    const plain = new ViewerLink();
+    const f = fake();
+    plain.attach(f.control);
+    expect(code(() => plain.setRate(7))).toBe("bad-timeline: setRate: 7 is not one of the offered speeds (1, 60); offer it with setTimeline({ rates })");
+    expect(code(() => plain.setRate("auto"))).toBe('bad-timeline: setRate: "auto" needs a scene with pacing; give setTimeline({ pacing })');
+    expect(f.calls).toEqual([]);
+    const seen: ViewerChange[] = [];
+    plain.onChange((c) => seen.push(c));
+    plain.setRate(60);
+    expect(plain.rateSource).toBe("chosen");
+    expect(seen).toEqual([{ time: START + 10, rate: 60, playing: false, cause: "host" }]);
+
+    const paced = new ViewerLink();
+    const p = fake({ paced: true });
+    paced.attach(p.control);
+    paced.setRate(60);
+    expect(paced.rateSource).toBe("chosen");
+    paced.setRate("auto");
+    expect(paced.rateSource).toBe("scene");
+    expect(p.calls).toEqual(["rate 60", "rate auto"]);
+  });
+
+  it("setView names the views in its error and reports with cause host", () => {
+    const none = new ViewerLink();
+    none.attach(fake().control);
+    expect(code(() => none.setView("a"))).toBe("bad-view: setView: the scene has no views; name them with setViews");
+    const link = new ViewerLink();
+    const f = fake({ views: ["a", "b"] });
+    link.attach(f.control);
+    expect(code(() => link.setView("z"))).toBe('bad-view: setView: "z" is not one of the scene\'s views (a, b)');
+    const seen: ViewerChange[] = [];
+    link.onChange((c) => seen.push(c));
+    link.setView("b");
+    expect(f.calls).toEqual(["view b"]);
+    expect(seen).toEqual([{ time: START + 10, rate: 1, playing: false, view: "b", cause: "host" }]);
+    expect(link.view).toBe("b");
+  });
+
+  it("setCamera builds follow, focus and pose requests and rejects unknown ids and malformed targets with bad-camera", () => {
+    const link = new ViewerLink();
+    const f = fake();
+    link.attach(f.control);
+    link.setCamera({ follow: "earth" });
+    link.setCamera({ focus: "moon" });
+    link.setCamera({ focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 5 });
+    expect(f.calls).toEqual([
+      'camera {"kind":"follow","target":"earth"}',
+      'camera {"kind":"focus","target":"moon"}',
+      `camera ${JSON.stringify({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 5 } })}`,
+    ]);
+    expect(code(() => link.setCamera({ follow: "mars" }))).toBe('bad-camera: setCamera: "mars" is not an object the showing view shows (earth, moon)');
+    const tail = "; give { follow: id }, { focus: id } or a pose from camera";
+    expect(code(() => link.setCamera(null as never))).toBe(`bad-camera: setCamera: null is not an object${tail}`);
+    expect(code(() => link.setCamera([] as never))).toBe(`bad-camera: setCamera: ${String([])} is not an object${tail}`);
+    expect(code(() => link.setCamera({ follow: "earth", focus: "moon" } as never))).toBe(`bad-camera: setCamera: the target must be exactly one of follow or focus, naming a non-empty id${tail}`);
+    expect(code(() => link.setCamera({ follow: "" }))).toMatch(/^bad-camera: setCamera: the target must be exactly one/);
+    expect(code(() => link.setCamera({ focus: "earth", azimuthDeg: "x" } as never))).toMatch(/^bad-camera: setCamera: .*; give \{ follow: id \}/);
+    expect(f.calls.length).toBe(3);
+  });
+});
+
+describe("ViewerLink publishing", () => {
+  it("reports change before zones, with zone leaves before enters, event type and object, and via view or time", () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true, views: ["a", "b"] });
+    const order: string[] = [];
+    const zones: EventZoneChange[] = [];
+    link.onChange((c) => order.push(`change ${c.cause}`));
+    link.onEventZone((z) => { order.push(`zone ${z.event} ${z.entered}`); zones.push(z); });
+    link.attach(f.control);
+    link.publish(f.set({ timeUtcMs: START + 20, zones: ["e1"] }), "playback");
+    link.publish(f.set({ timeUtcMs: START + 30, zones: ["e2"] }), "visitor");
+    link.publish(f.set({ view: "b", zones: [] }), "visitor");
+    expect(order).toEqual(["change playback", "zone e1 true", "change visitor", "zone e1 false", "zone e2 true", "change visitor", "zone e2 false"]);
+    expect(zones[0]).toEqual({ event: "e1", type: "flyby", object: "moon", entered: true, time: START + 20, cause: "playback", via: "time" });
+    expect(zones[2]).toEqual({ event: "e2", entered: true, time: START + 30, cause: "visitor", via: "time" });
+    expect(zones[3]).toMatchObject({ event: "e2", entered: false, via: "view", cause: "visitor" });
+  });
+
+  it("a zone already active when the viewer attaches is reported on the first publish; a re-attach starts over", () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true });
+    f.set({ zones: ["e1"] });
+    const zones: EventZoneChange[] = [];
+    link.onEventZone((z) => zones.push(z));
+    link.attach(f.control);
+    link.publish(f.control.read(), "playback");
+    expect(zones.map((z) => [z.event, z.entered])).toEqual([["e1", true]]);
+    link.publish(f.control.read(), "playback");
+    expect(zones.length).toBe(1);
+    link.attach(f.control);
+    link.publish(f.control.read(), "playback");
+    expect(zones.length).toBe(2);
+  });
+
+  it("rate source follows state.auto when given, else a visitor rate change; playback leaves it", () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true });
+    link.attach(f.control);
+    link.publish(f.set({ auto: false, rate: 60 }), "visitor");
+    expect(link.rateSource).toBe("chosen");
+    link.publish(f.set({ auto: true, rate: 1 }), "playback");
+    expect(link.rateSource).toBe("scene");
+    const plain = new ViewerLink();
+    const g = fake();
+    plain.attach(g.control);
+    plain.publish(g.set({ rate: 60 }), "playback");
+    expect(plain.rateSource).toBe("scene");
+    plain.publish(g.set({ rate: 1 }), "visitor");
+    expect(plain.rateSource).toBe("chosen");
+  });
+
+  it("copies the listener sets: one added or removed during a report does not change that report; unsubscribe works", () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true });
+    link.attach(f.control);
+    const log: string[] = [];
+    let stopB: () => void = () => undefined;
+    link.onChange(() => { log.push("a"); stopB(); link.onChange(() => log.push("late")); });
+    stopB = link.onChange(() => log.push("b"));
+    link.publish(f.set({ timeUtcMs: START + 1 }), "playback");
+    expect(log).toEqual(["a", "b"]);
+    log.length = 0;
+    link.publish(f.set({ timeUtcMs: START + 2 }), "playback");
+    expect(log).toEqual(["a", "late"]);
+    const zlog: string[] = [];
+    const stopZ = link.onEventZone(() => zlog.push("z"));
+    link.publish(f.set({ zones: ["e1"] }), "playback");
+    stopZ();
+    link.publish(f.set({ zones: [] }), "playback");
+    expect(zlog).toEqual(["z"]);
+  });
+});

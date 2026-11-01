@@ -2,9 +2,10 @@
 id: T-238
 title: Split the host link into clock, views, camera and zones
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-237, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-238, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:30:54Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -56,8 +57,17 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Files read: viewerLink.ts, viewerPort.ts, the host-link DOM tests, apiImports.test.ts. Changed: `packages/astraeus/src/api/viewerLink.ts` (146 lines), new `viewerClock.ts` (72), `viewerViews.ts` (19), `viewerCamera.ts` (42), `viewerZones.ts` (51), new `packages/astraeus/tests/viewerLinkPin.test.ts`. `mount.ts`, `AstraeusScene.tsx`, `index.ts` untouched.
+
+- Safety net: the DOM tests did not cover the NOT_OPEN messages, whenAttached re-arm, close, listener copying or publish order directly, so `viewerLinkPin.test.ts` (14 tests, fake control) was added and passed on the old code (14/14) before any move, and again after.
+- Parts share the one control through a `LinkAccess` object (`control()`, `open(what)`) defined in viewerLink.ts; no part keeps a copy. Host calls publish after the action in `ViewerLink.#afterHost` (change then zones); member docs moved to the parts with the code.
+- Host-link tests (viewerHostDom, viewerHostReady, eventZonesDom, hostCameraDom, pacingDom, hostPageDom) + viewerLinkPin + scenePin + apiImports + apiSurface/apiRules/allowlistGrowth/packageBoundaries: 13 files, 118 tests passed. scenePin ran without -u; fixture unmodified.
+- `git diff --exit-code main -- api-surface.lock.json packages/astraeus-site/tests/` empty; `git diff --name-only --diff-filter=M main -- '*.test.ts' '*.test.tsx'` empty.
+- Gates: lint clean, typecheck clean, build ok, npm test 186 files / 2258 passed, 1 skipped. No browser run.
+- apiImports allowlist needed no change (it lists modules, not files; viewerCamera imports app/CameraController, still listed).
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+T-238: no architecture delta beyond the layout planned. Internal only: `LinkAccess` (exported from viewerLink.ts, not from index.ts) is the shared-control accessor the four parts use; T-239 (Design.md reconciliation) should list viewerClock/Views/Camera/Zones and `LinkAccess` in the codebase map. Member jsdoc now lives in the parts, with one-line pointers in viewerLink.ts to stay under 150 lines.
