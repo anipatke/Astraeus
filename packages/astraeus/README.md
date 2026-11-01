@@ -290,6 +290,8 @@ Nothing is looked up behind your back. A moon added without its data package mak
 
 Only what `import ... from "astraeus"` (and `astraeus/style.css`) gives you is public. Deep imports, file paths inside the package and the repository's other workspaces (the demos and the site) are internal and may change in any release.
 
+The public surface is locked: a test compares what `astraeus` exports with a checked-in lock (`api-surface.lock.json`), so a change to it cannot slip in unnoticed. Every change to it is listed in the [CHANGELOG](CHANGELOG.md).
+
 ## Licence
 
 MIT for the code. Pictures and data carry their own credits and licences: see `NOTICE` and `licenses/`, and each picture's `licence` record.

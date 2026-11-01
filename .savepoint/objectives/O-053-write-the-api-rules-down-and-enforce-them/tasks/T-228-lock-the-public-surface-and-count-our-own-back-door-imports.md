@@ -2,9 +2,10 @@
 id: T-228
 title: Lock the public surface and count our own back-door imports
 objective: O-053
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-228, reason: 'Owner said "orchestrate 053" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o053-run-20261101}, recorded_at: '2026-11-01T05:26:52Z'}
 planned_by: {role: planner, session: api-review-20261101}
 ---
 
@@ -56,8 +57,26 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution: per check, the planted break that made it fail and the clean pass; allowlist entries with reasons; files read/changed; gates.
+Files changed: `tools/api-surface.mjs` and `tools/api-surface.d.mts` (new: lock generator, surface compare, outside-api type walker), `package.json` (script `api:lock`), `packages/astraeus/api-surface.lock.json` (new, generated), `packages/astraeus-site/tests/apiSurface.test.ts` (new), `packages/astraeus-site/tests/apiOutsideTypes.allowlist.json` (new, data), `packages/astraeus-site/tests/packageBoundaries.test.ts` (deep-import counts), `packages/astraeus/README.md` ("What counts as internal").
+Files read: all Context Files plus `tools/` listing and `packages/*/package.json` manifests (published = not `private`); no extra reads beyond those.
+
+Per Done When:
+- Lock: `npm run api:lock` writes the root exports (kind, signature, constructors, members; via `collectExports`) and the exports map of each published package (8 non-private packages: the engine, astraeus-data and six planet data packages; 83 root exports) to `packages/astraeus/api-surface.lock.json`; deterministic (two runs byte-identical); `apiSurface.test.ts` "matches the checked-in lock" names each difference and the regenerate command.
+- Reachable-type check: `outsideApiTypes()` (compiler walk of exports, members, signatures, type arguments, unions, bases, plus written type names so erased aliases like `BodyId` are found) lists 24 entries; allowlist data file has one entry each with reason, finding and Objective (all O-057). Includes ExperienceDefinition (F7), BodyId, ViewPlace, DisplaySwitchPlace (and DisplaySwitchId, ViewerChangeCause), and LineStretchInput / TrajectoryBase (declared in api/, unexported). A stale entry also fails, so the list can only shrink.
+- Deep imports: `packageBoundaries.test.ts` `deepImportCounts` per workspace package (engine excluded, `astraeus/style.css` allowed): apollo11 129, planets 123, showers 68, site 94, data packages 0; a rise fails, a fall fails until the recorded count is lowered.
+- Planted breaks (all reverted, tree clean after):
+  1. added `export const plantedExport` to `src/api/index.ts`: `apiSurface.test.ts` failed with "The public surface changed ... run `npm run api:lock`: expected [ 'added root export plantedExport' ] to deeply equal []".
+  2. type-only import of internal `Trajectory` exposed via `export type PlantedLeak` in `src/api/index.ts`: failed with "not allowed: Trajectory (packages/astraeus/src/core/trajectory.ts); declare it in packages/astraeus/src/api/ ..." (the lock test also failed, as expected).
+  3. `packages/astraeus-demo-planets/src/plant.ts` with `import "astraeus/core/clock"`: failed with "astraeus-demo-planets: 124 deep imports into astraeus, up from 123 ...".
+  Clean tree: all pass. Made-up-tree tests also cover removed/changed exports, a stale allowlist entry, and a count that falls.
+- README: "What counts as internal" now says the surface is locked and changes are listed in the CHANGELOG.
+
+Gates (npm): `npm run lint` pass (one complexity error in my first draft of the walker was fixed by splitting it); `npm run typecheck` pass; `npm run build` pass; `npm test` 180 files, 2210 passed, 1 skipped, 0 failed. No browser run, no check:pack (the lock is not in the packed `files`).
+
+Limits: the type walk does not descend into types declared outside `src/api/` (it records them), so types only reachable through ExperienceDefinition are not listed. Deep-import counts include tests and tools, not just `src/`.
 
 ## Drift Notes
 
 Record architecture deltas here; the last step reconciles them into Design.md.
+
+- The Done When says the lock covers "each published package's `exports` map"; published is read as `private` not true in package.json. The lock file lives at `packages/astraeus/api-surface.lock.json` (outside the packed `files`), the generator in `tools/api-surface.mjs`. Both are tooling, not architecture; no Design.md change needed beyond naming them in O-053's reconciliation.
