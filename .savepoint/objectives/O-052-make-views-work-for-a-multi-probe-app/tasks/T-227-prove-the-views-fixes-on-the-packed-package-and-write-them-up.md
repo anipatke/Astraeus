@@ -2,8 +2,7 @@
 id: T-227
 title: Prove the views fixes on the packed package and write them up
 objective: O-052
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-226, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-227, reason: 'Owner said "orchestrate 052" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o052-run-20261101}, recorded_at: '2026-11-01T04:36:59Z'}
