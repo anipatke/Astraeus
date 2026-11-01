@@ -39,6 +39,12 @@ export interface ViewerHandle {
    * No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */
   onSelect(listener: (change: SelectionChange) => void): () => void;
+  /**
+   * Calls `listener(pose)` with the camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, what `camera` reads) when it changes: a visitor's drag, zoom or pick, a view's camera rule, or your own `setCamera`
+   * (it reports as the camera eases, then stops when the pose settles). At most about ten times a second; an unchanged pose reports nothing, and neither does a camera following a moving object at a fixed pose.
+   * The pose the viewer opens with is read from `camera`, not reported. The engine moves nothing in response. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
+   */
+  onCameraChange(listener: (camera: CameraPose) => void): () => void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -62,5 +68,6 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     onChange: (listener) => link.onChange(listener),
     onEventZone: (listener) => link.onEventZone(listener),
     onSelect: (listener) => link.onSelect(listener),
+    onCameraChange: (listener) => link.onCameraChange(listener),
   };
 }

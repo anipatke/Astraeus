@@ -4,7 +4,10 @@
 import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
+const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+}));
 const prepared = vi.hoisted(() => ({ fail: false, gate: undefined as undefined | Promise<void>, real: false }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
@@ -25,7 +28,7 @@ import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene, SceneCamera } from "../src/api/scene";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
-import { ViewerLink, type ViewerChange } from "../src/api/viewerLink";
+import { ViewerLink, type CameraPose, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
@@ -131,7 +134,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone", "onSelect"] as const;
+const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
@@ -325,7 +328,40 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.selected).toBeUndefined();
     expect(heard.length).toBe(1);
   });
-  it.todo("onCameraChange (T-248)");
+  it("onCameraChange: reads the opening pose without reporting it, reports each change once (at most every 100 ms), nothing when unchanged or after unmount, and a throwing listener spares the others", async () => {
+    openNow();
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const handle = opened.handle!;
+    const heard: CameraPose[] = [];
+    const other: CameraPose[] = [];
+    handle.onCameraChange(() => { throw new Error("listener fault"); });
+    handle.onCameraChange((pose) => heard.push(pose));
+    const stop = handle.onCameraChange((pose) => other.push(pose));
+    const report = vi.fn();
+    vi.stubGlobal("reportError", report);
+    const opening = handle.camera!;
+    const standAt = (azimuthDeg: number): void => { sceneProps.latest!.controls.viewReadout = { ...opening, azimuthDeg }; };
+    vi.advanceTimersByTime(100);
+    expect(heard).toEqual([]); // the opening pose is read, not reported
+    standAt(10);
+    vi.advanceTimersByTime(100);
+    expect(heard).toEqual([{ ...opening, azimuthDeg: 10 }]);
+    expect(other).toEqual(heard);
+    vi.advanceTimersByTime(300); // settled: nothing more
+    expect(heard.length).toBe(1);
+    standAt(20); vi.advanceTimersByTime(100); standAt(30); vi.advanceTimersByTime(100); // a pose moving every tick: one report per tick
+    expect(heard.map((pose) => pose.azimuthDeg)).toEqual([10, 20, 30]);
+    stop();
+    standAt(40); vi.advanceTimersByTime(100);
+    expect(heard.length).toBe(4);
+    expect(other.length).toBe(3);
+    expect(report).toHaveBeenCalledTimes(4); // the throwing listener is reported to the page after every report, not swallowed
+    opened.unmount();
+    standAt(50); vi.advanceTimersByTime(300);
+    expect(heard.length).toBe(4);
+    expectUnusable(handle);
+  });
 });
 
 describe("lifecycle: AstraeusScene under StrictMode", () => {

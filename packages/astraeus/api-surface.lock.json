@@ -912,6 +912,11 @@
           "signature": "(listener: (change: SelectionChange) => void): () => void"
         },
         {
+          "name": "onCameraChange",
+          "optional": false,
+          "signature": "(listener: (camera: CameraPose) => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -992,6 +997,11 @@
           "name": "onSelect",
           "optional": false,
           "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
+          "name": "onCameraChange",
+          "optional": false,
+          "signature": "(listener: (camera: CameraPose) => void): () => void"
         },
         {
           "name": "onChange",

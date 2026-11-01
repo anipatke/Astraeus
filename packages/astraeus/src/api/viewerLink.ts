@@ -99,6 +99,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = control;
     this.#clock.reset(control.read());
     this.#selection.reset(control.read());
+    this.#camera.reset();
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -108,6 +109,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = undefined;
     this.#clock.reset(undefined);
     this.#selection.reset(undefined);
+    this.#camera.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
@@ -126,6 +128,7 @@ export class ViewerLink implements ViewerPort {
     this.#clock.clearListeners();
     this.#zones.clearListeners();
     this.#selection.clearListeners();
+    this.#camera.clearListeners();
   }
 
   /**
@@ -153,11 +156,13 @@ export class ViewerLink implements ViewerPort {
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
   onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
+  onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     this.#clock.publish(state, cause);
     this.#zones.publish(state, cause);
     this.#selection.publish(state, cause);
+    this.#camera.publish();
   }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */

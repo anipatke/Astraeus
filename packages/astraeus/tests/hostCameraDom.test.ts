@@ -156,6 +156,31 @@ describe("camera pose read and restore on the mount handle", () => {
   });
 });
 
+describe("onCameraChange on the mount handle (O-054 T-248)", () => {
+  const tick = () => act(() => { vi.advanceTimersByTime(100); });
+  it("a setCamera that eases reports each tick's pose, then stops when the pose settles; an unchanged pose and a pose after unmount report nothing", async () => {
+    const handle = mount(host, makeScene());
+    await drawn(handle);
+    const heard: Array<{ focus: string; azimuthDeg: number }> = [];
+    const stop = handle.onCameraChange((pose) => heard.push(pose));
+    standAt("earth", 216, 14.32, 16);
+    tick(); tick();
+    expect(heard).toEqual([]); // the opening pose is not a change
+    handle.setCamera({ focus: "moon" });
+    standAt("moon", 200, 14.32, 16); tick();
+    standAt("moon", 180, 14.32, 12); tick();
+    standAt("moon", 180, 14.32, 12); tick(); tick(); // settled
+    expect(heard.map((p) => `${p.focus}@${p.azimuthDeg}`)).toEqual(["moon@200", "moon@180"]);
+    stop();
+    standAt("moon", 90, 14.32, 12); tick();
+    expect(heard.length).toBe(2);
+    handle.onCameraChange((pose) => heard.push(pose));
+    handle.unmount();
+    standAt("moon", 45, 14.32, 12); tick();
+    expect(heard.length).toBe(2);
+  });
+});
+
 describe("the camera at ready (as T-222: ready means usable)", () => {
   it("is the opening pose as soon as a bare await ready resolves, before the scene's first frame, and setCamera accepts it straight away", async () => {
     const handle = mount(host, makeScene());

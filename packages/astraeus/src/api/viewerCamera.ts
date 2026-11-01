@@ -1,11 +1,48 @@
 import type { CameraRequest } from "../app/CameraController";
 import { validateStartView } from "../core/startView";
 import { SceneError } from "./errors";
+import { callListeners } from "./listeners";
 import type { CameraPose, CameraTarget, LinkAccess } from "./viewerLink";
+
+/** The shortest time between two reports, a little under the viewer's 100 ms tick so a tick is never skipped. */
+const MIN_GAP_MS = 80;
 
 /** The host link's camera: the pose read and `setCamera`, with its request check. */
 export class ViewerCamera {
+  readonly #listeners = new Set<(camera: CameraPose) => void>();
+  /** The pose last read or reported; undefined until the viewer is attached and has drawn a frame. */
+  #last: CameraPose | undefined;
+  /** When the last report went out (`performance.now()`), so a burst of publishes reports at most about ten times a second. */
+  #reportedAt = -Infinity;
+
   constructor(private readonly access: LinkAccess) {}
+
+  /** The viewer attached (the opening pose is read, not reported) or detached (nothing is known). */
+  reset(): void { this.#last = this.access.control()?.readCamera(); }
+
+  clearListeners(): void { this.#listeners.clear(); }
+
+  /** Calls `listener` with the new pose when the camera's object, angles or distance change (at most about ten times a second); returns the function that stops it. */
+  onCameraChange(listener: (camera: CameraPose) => void): () => void {
+    this.#listeners.add(listener);
+    return () => { this.#listeners.delete(listener); };
+  }
+
+  /** A viewer publish (its tick, or a host or visitor action): reports the pose when it differs from the last one. */
+  publish(): void {
+    const control = this.access.control();
+    if (control === undefined) return;
+    const pose = control.readCamera();
+    if (pose === undefined) return;
+    const last = this.#last;
+    if (last === undefined) { this.#last = pose; return; } // the first frame's pose is the opening one
+    if (pose.focus === last.focus && pose.azimuthDeg === last.azimuthDeg && pose.elevationDeg === last.elevationDeg && pose.distance === last.distance) return;
+    const now = performance.now();
+    if (now - this.#reportedAt < MIN_GAP_MS) return; // the next tick reports it
+    this.#last = pose;
+    this.#reportedAt = now;
+    callListeners(this.#listeners, pose);
+  }
 
   /** The camera pose, or undefined before the viewer is drawn and after it is gone; before its first frame it is the opening camera. */
   get camera(): CameraPose | undefined { return this.access.control()?.readCamera(); }
