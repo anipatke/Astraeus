@@ -1,5 +1,7 @@
 import type { ViewerChangeCause, ViewerControl, ViewerPort, ViewerState } from "../app/viewerPort";
 import { SceneError } from "./errors";
+import type { CameraRequest } from "../app/CameraController";
+import { validateStartView } from "../app/viewLink";
 import { toUtcMs, type TimeInput } from "./time";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */
@@ -14,6 +16,21 @@ export interface ViewerChange {
   /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate` or `setView`. */
   readonly cause: ViewerChangeCause;
 }
+
+/** The camera as a plain value: the object it is centred on and where it stands from it. Read from `MountedScene.camera`, put back with `setCamera`. */
+export interface CameraPose {
+  /** The id of the object the camera is centred on (and follows as it moves). */
+  readonly focus: string;
+  /** Degrees about the up direction, 0 up to 360 (rounded to 0.01). */
+  readonly azimuthDeg: number;
+  /** Degrees above the orbit plane, within ±89 (rounded to 0.01). */
+  readonly elevationDeg: number;
+  /** Camera-to-object distance in the scene's scaled units (Earth radii), to five significant figures. */
+  readonly distance: number;
+}
+
+/** What `setCamera` takes: follow an object (keep the distance), focus it (frame it), or put the camera back on a pose from `camera`. */
+export type CameraTarget = { readonly follow: string } | { readonly focus: string } | CameraPose;
 
 /** Where the playback rate comes from. `scene` is the rate the scene opened at; `chosen` is one a visitor or the host picked, which stays until it is released. */
 export type RateSource = "scene" | "chosen";
@@ -114,6 +131,39 @@ export class ViewerLink implements ViewerPort {
     control.setRate(rate);
     this.#rateSource = "chosen";
     this.publish(control.read(), "host");
+  }
+
+  /** The camera pose, or undefined before the viewer is drawn, after it is gone, and before its first frame. */
+  get camera(): CameraPose | undefined { return this.#control?.readCamera(); }
+
+  /**
+   * Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, a pose (from `camera`) puts the camera back where it was read,
+   * relative to its object. The id must be an object the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`.
+   * Before the viewer is drawn or after it is gone, `missing-data`. The move eases in as a view's camera rule does.
+   */
+  setCamera(target: CameraTarget): void {
+    const control = this.#open("setCamera");
+    const request = this.#cameraRequest(target);
+    const id = request.kind === "pose" ? request.view.focus : request.kind === "overview" || request.kind === "hold" ? "" : request.target;
+    if (!control.cameraTargets().includes(id)) {
+      throw new SceneError("bad-camera", `setCamera: "${id}" is not an object the showing view shows (${control.cameraTargets().join(", ")})`);
+    }
+    control.setCamera(request);
+  }
+
+  #cameraRequest(target: unknown): CameraRequest {
+    const bad = (why: string) => new SceneError("bad-camera", `setCamera: ${why}; give { follow: id }, { focus: id } or a pose from camera`);
+    if (typeof target !== "object" || target === null || Array.isArray(target)) throw bad(`${String(target)} is not an object`);
+    const record = target as Record<string, unknown>;
+    // A pose names its object with `focus` too; its angle and distance fields tell it from `{ focus: id }`.
+    const isPose = ["azimuthDeg", "elevationDeg", "distance"].some((key) => key in record) || !("follow" in record || "focus" in record);
+    const named = (["follow", "focus"] as const).filter((key) => key in record);
+    if (isPose) {
+      try { return { kind: "pose", view: validateStartView(record, "pose") }; } catch (cause) { throw bad(cause instanceof Error ? cause.message : "a malformed pose"); }
+    }
+    const id = record[named[0]];
+    if (named.length > 1 || Object.keys(record).length > 1 || typeof id !== "string" || id === "") throw bad("the target must be exactly one of follow or focus, naming a non-empty id");
+    return { kind: named[0], target: id };
   }
 
   /** Calls `listener` whenever the time, speed or playing state changes; returns the function that stops it. */

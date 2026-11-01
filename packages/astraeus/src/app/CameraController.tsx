@@ -6,6 +6,7 @@ import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
 import { TapTracker, type PickPointer } from "./scenePicking";
 import { EQUATORIAL_UP, orbitBasis } from "./viewUp";
+import type { StartView } from "./viewLink";
 
 /** The id of a catalogued body, or of any tracked trajectory body, group or path. */
 export type FocusId = string;
@@ -15,7 +16,9 @@ export type CameraRequest =
   | { readonly kind: "focus" | "follow"; readonly target: FocusId }
   | { readonly kind: "overview" }
   /** Holds the camera where it is: its target becomes the point it looks at now, fixed in the scene frame; the pose is kept. A later focus, follow or overview request replaces it. */
-  | { readonly kind: "hold" };
+  | { readonly kind: "hold" }
+  /** Puts the camera back on a pose read earlier: it follows the pose's object and eases to its angles and distance (the offset is the object's own, so a moving object is followed from where it is now). */
+  | { readonly kind: "pose"; readonly view: StartView };
 
 export interface OrbitCameraState {
   azimuth: number;

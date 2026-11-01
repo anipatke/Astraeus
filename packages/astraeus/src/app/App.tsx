@@ -13,7 +13,9 @@ import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromSearch, type StartView } from "./viewLink";
+import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type StartView } from "./viewLink";
+import { createOrbitCameraState } from "./CameraController";
+import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
@@ -163,6 +165,14 @@ function shownEventsOf(definition: Pick<ExperienceDefinition, "views">, viewId: 
 function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, orbitPathCount: number, storyMarkerCount: number): boolean {
   return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
     || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
+}
+
+/** The camera as the scene opens it (the start view, else its default framing): what a host reads before the scene's first frame writes `viewReadout`. */
+function openingCamera(definition: ExperienceDefinition, runtime: Runtime, search: string): StartView {
+  const start = viewFromSearch(search) ?? definition.startView;
+  if (start !== undefined) return start;
+  const opening = createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter);
+  return viewFromAngles(opening.focus, opening.azimuth, opening.elevation, opening.distance);
 }
 
 /** The scene's live controls at mount: the address overrides the experience's own start values. */
@@ -384,11 +394,21 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     setPaceAuto(rate === "auto");
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
+  // The objects a host may point the camera at: those the showing view shows (read live, so a view switch is already counted).
+  const cameraTargets = useCallback((): readonly string[] => {
+    const hidden = controls.current.viewHidden?.objects;
+    return experience.objects.map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
+  }, [experience]);
+  const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const readCamera = useCallback((): StartView | undefined => {
+    return { ...(controls.current.viewReadout ?? opening) };
+  }, [opening]);
+  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView });
+    host.attach({ window: runtime.loopWindow, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
     return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

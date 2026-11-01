@@ -6,7 +6,7 @@ import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import type { TimeInput } from "./time";
-import { ViewerLink, type ViewerChange } from "./viewerLink";
+import { ViewerLink, type CameraPose, type CameraTarget, type ViewerChange } from "./viewerLink";
 
 /** Options of `mount`. */
 export interface MountOptions {
@@ -36,6 +36,10 @@ export interface MountedScene {
   setRate(rate: number | "auto"): void;
   /** Switches to the view with this id (`setViews`). An unknown id, or a scene without views, throws `bad-view`; before `ready` or after `unmount` throws `missing-data`. `onChange` hears it with `cause: "host"`. */
   setView(id: string): void;
+  /** The camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, the pose a copied view link carries); undefined until `ready`, before the first frame is drawn, and after `unmount`. Keep it and hand it to `setCamera` to put the camera back. */
+  readonly camera: CameraPose | undefined;
+  /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, or a pose from `camera` puts it back where it was read (relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `missing-data`. The camera eases there. */
+  setCamera(target: CameraTarget): void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -71,7 +75,9 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
     get time() { return link.time; },
     get rate() { return link.rate; },
     get view() { return link.view; },
+    get camera() { return link.camera; },
     setView: (id) => link.setView(id),
+    setCamera: (target) => link.setCamera(target),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
     onChange: (listener) => link.onChange(listener),

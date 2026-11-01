@@ -5,7 +5,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
-import { ViewerLink, type ViewerChange } from "./viewerLink";
+import { ViewerLink, type CameraTarget, type ViewerChange } from "./viewerLink";
 
 /** Props of `AstraeusScene`. */
 export interface AstraeusSceneProps {
@@ -23,6 +23,8 @@ export interface AstraeusSceneProps {
   readonly rate?: number | "auto";
   /** Switches to this view (an id from `setViews`) once drawn, and again whenever it changes. Not a controlled value: a visitor can switch too, and the view showing arrives through `onChange`. An unknown id, or a scene without views, reports `bad-view` to `onError`. */
   readonly view?: string;
+  /** Points the camera once drawn, and whenever the target changes by value (a new object with the same target does not re-apply): `{ follow: id }`, `{ focus: id }` or a pose read from a `mount` handle. Not a controlled value: a visitor can move the camera afterwards. A bad one reports `bad-camera` to `onError`. */
+  readonly camera?: CameraTarget;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
@@ -44,7 +46,7 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, address, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, address, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange });
@@ -61,10 +63,14 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
   const apply = (set: () => void) => {
     try { set(); } catch (cause) { latest.current.onError?.(asError(cause)); }
   };
+  const cameraKey = camera === undefined ? undefined : JSON.stringify(camera);
+  const cameraRef = useRef(camera);
+  cameraRef.current = camera;
   const drawn = definition !== undefined;
   useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!)); }, [drawn, link, cameraKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let open = true;
