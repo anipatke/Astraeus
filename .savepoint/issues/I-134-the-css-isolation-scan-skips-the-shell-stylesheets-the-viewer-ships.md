@@ -2,16 +2,22 @@
 id: I-134
 title: The CSS isolation scan skips the shell stylesheets the viewer ships
 type: guardrail
-status: open
+status: resolved
 source:
   kind: check
   check: C-137
   actor: {role: checker, session: o053-check-20261101}
   at: '2026-11-01T06:05:00Z'
 tasks: [T-229]
-checks: [C-137]
+checks: [C-137, C-138]
 guardrail_ids: [API-03]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-138
+  actor: {role: checker, session: o053-recheck-20261101}
+  at: '2026-11-01T06:40:00Z'
+  reason: 'Repair 7798f19c verified by C-138 CLEAR: the selector scan reads every .css under packages/astraeus/src, the same set the build ships to dist. Checker plants of body {} in shell/style.css, shell/embedded.css and shell/controls.css, a new nested core/plantdir/zz-plant.css and * {} in app/style.css each fail naming file and selector; a stale shell entry fails; the 289 shell entries match C-137''s measured counts. Fresh gates pass as for I-133.'
 history:
   - at: '2026-11-01T06:05:00Z'
     actor: {role: checker, session: o053-check-20261101}
@@ -28,6 +34,11 @@ history:
     kind: repair_attempted
     note: "Follow-up, not verified. Owner decision C-137 O2 (2026-11-01): allowlists can only grow with an owner approval. The 389 selector entries (100 re-keyed with the file name, 289 shell) carry approved {by owner, 2026-11-01, reason quoting C-137/I-134}; new tests/allowlistGrowth.test.ts compares with git main (ALLOWLIST_BASE=HEAD used to prove it: planted entry fails, tree passes)."
     check: C-137
+  - at: '2026-11-01T06:40:00Z'
+    actor: {role: checker, session: o053-recheck-20261101}
+    kind: rechecked
+    check: C-138
+    note: 'Verified by C-138 CLEAR (Full Objective re-check of O-053 at 7798f19c).'
 ---
 
 # I-134: The CSS isolation scan skips the shell stylesheets the viewer ships
