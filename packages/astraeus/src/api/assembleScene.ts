@@ -159,7 +159,6 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     },
   };
   return definition;
-  return definition;
 }
 
 /**

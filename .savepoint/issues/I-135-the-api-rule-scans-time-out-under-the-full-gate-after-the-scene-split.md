@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-058 Full Objective Check (C-139). npm run test:full failed twice in a row on 1d729c02 (07:37:20-07:38:36Z and 07:39:50-07:41:04Z), both times on apiRules.test.ts > settings mapping (API-06) > gives every setting ... (5.56 s and 5.97 s against the 5 s default). No coverage/coverage-final.json was written. The T-239 builder''s first run failed the same way. Same class as I-072, I-080 and I-083.'
     check: C-139
+  - at: '2026-11-01T19:05:00Z'
+    actor: {role: executor, session: o058-repair-20261101}
+    kind: repair_attempted
+    note: 'Repair, not verified. apiRules.test.ts: the real-source API-05 scan (errorBreaks) and API-06 address scan (addressParameters) now run once in beforeAll with a 60 s hook limit, like the surface and type-lint scans (I-080 pattern); the made-up-folder plant cases are unchanged. apiSurface.test.ts already had beforeAll for currentSurface and a 60 s limit on its outsideApiTypes case; allowlistGrowth runs no TypeScript program. scenePin takes about 4.0-4.4 s under test:full (was 5.5-7.1 s in C-139; load differed). npm run test:full twice green: 186 files, 2259 passed, 1 skipped; 70.9 s and 69.0 s; coverage/coverage-final.json written each time; no apiRules case over 1.7 s. A guard that flags a default-limit case calling a whole-source scan was not added.'
 ---
 
 # I-135: The API rule scans time out under the full gate after the scene split

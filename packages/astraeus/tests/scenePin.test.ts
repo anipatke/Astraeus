@@ -274,6 +274,14 @@ function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
     },
     "the made-up probe definition (synthetic)": async () => ({ definition: await g.synthetic.probe() }),
     "the made-up views definition (synthetic)": async () => ({ definition: await g.synthetic.views() }),
+    // C-139 O3 pin gaps: the pacing base rate when `rate` is unset, and the path-cover sample count on a path whose farthest point is between its end samples.
+    "timeline: pacing with no rate set (the base rate default)": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0 + DAY).setTimeline({ start: T0, end: T0 + 10 * DAY, pacing: [{ from: T0 + 2 * DAY, to: T0 + 3 * DAY, rate: 5000 }] }) }),
+    "sun scene with a path that peaks between its end samples (cover sample count)": (a) => ({
+      scene: new a.Scene().addBody(a.sun).addBody(a.earth).setTime(T0 + 5 * DAY).addTrajectory({
+        id: "bump", center: "sun", bounds: { start: T0, end: T0 + 10 * DAY },
+        provider: { stateAt: (t: number) => createState({ body: "bump", center: "sun", timeUtcMs: t, positionKm: [1.5e8 + 4e9 * Math.exp(-((((t - T0) / DAY) - 3.3) ** 2) / 0.02), 0, 0], velocityKmS: [1, 0, 0], orientation: null }) },
+      }),
+    }),
   };
 }
 

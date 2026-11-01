@@ -14081,6 +14081,725 @@
      []
     ]
    }
+  },
+  "timeline: pacing with no rate set (the base rate default)": {
+   "seriesLoadedAtBuild": true,
+   "definitionBeforePrepare": {
+    "clock": {
+     "rate": 60,
+     "startUtcMs": 1767312000000
+    },
+    "composition": {
+     "bodies": [
+      "earth",
+      "moon"
+     ],
+     "defaultCenter": "earth",
+     "id": "scene"
+    },
+    "createMetrics": "[function]",
+    "experience": {
+     "cameraPresets": [
+      {
+       "id": "overview",
+       "label": "Overview",
+       "request": {
+        "kind": "overview"
+       }
+      },
+      {
+       "id": "focus-earth",
+       "label": "Focus Earth",
+       "request": {
+        "kind": "focus",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "follow-earth",
+       "label": "Follow Earth",
+       "request": {
+        "kind": "follow",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "focus-moon",
+       "label": "Focus Moon",
+       "request": {
+        "kind": "focus",
+        "target": "moon"
+       }
+      },
+      {
+       "id": "follow-moon",
+       "label": "Follow Moon",
+       "request": {
+        "kind": "follow",
+        "target": "moon"
+       }
+      }
+     ],
+     "events": [],
+     "objects": [
+      {
+       "color": "#e8e8e8",
+       "id": "earth",
+       "knownLimitations": [
+        "Earth's orientation leaves out polar motion."
+       ],
+       "label": "Earth",
+       "labelMaxDistance": 500,
+       "labelPriority": 100,
+       "provenance": {
+        "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+         "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "color": "#f3ede4",
+       "id": "moon",
+       "knownLimitations": [
+        "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
+        "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
+       ],
+       "label": "Moon",
+       "labelMaxDistance": 500,
+       "labelPriority": 99,
+       "provenance": {
+        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"
+        ]
+       }
+      }
+     ],
+     "rates": [
+      60,
+      3600,
+      86400
+     ],
+     "window": {
+      "endUtcMs": 1768089600000,
+      "startUtcMs": 1767225600000
+     }
+    },
+    "pacing": {
+     "baseRate": 60,
+     "zones": [
+      {
+       "fromUtcMs": 1767398400000,
+       "rampMs": 8640000,
+       "rate": 5000,
+       "toUtcMs": 1767484800000
+      }
+     ]
+    },
+    "prepare": "[function]",
+    "scaleChoices": [
+     "true-scale",
+     "readable-scale"
+    ],
+    "sceneLayers": [
+     "tracked-bodies"
+    ],
+    "trackedBodies": []
+   },
+   "prepare": "resolved",
+   "definitionAfterPrepare": "[same as before prepare]",
+   "metricTimes": [
+    1767312000000,
+    1767873600000
+   ],
+   "metrics": {
+    "earth": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-to-moon",
+       "kind": "distance",
+       "label": "Distance to Moon",
+       "unit": "km",
+       "value": 360357.545589
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-to-moon",
+       "kind": "distance",
+       "label": "Distance to Moon",
+       "unit": "km",
+       "value": 388575.337465
+      }
+     ]
+    ],
+    "moon": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "moon-range",
+       "kind": "distance",
+       "label": "Distance from Earth",
+       "unit": "km",
+       "value": 360357.545589
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "moon-range",
+       "kind": "distance",
+       "label": "Distance from Earth",
+       "unit": "km",
+       "value": 388575.337465
+      }
+     ]
+    ]
+   },
+   "stateOf": {
+    "earth": [
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       0.000971192460881,
+       0.000816504135896,
+       0.773360386414,
+       0.633965379837
+      ],
+      "positionKm": [
+       -28643723.9439,
+       132383018.859,
+       57385423.4751
+      ],
+      "timeUtcMs": 1767312000000
+     },
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       -0.000762363631048,
+       0.00101605402938,
+       -0.589761070181,
+       0.807576786773
+      ],
+      "positionKm": [
+       -45094691.2914,
+       128477152.32,
+       55692914.8549
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "moon": [
+     {
+      "body": "moon",
+      "center": "earth",
+      "frame": "EQJ",
+      "orientation": [
+       0.120527855611,
+       0.147974365729,
+       -0.747048925274,
+       0.636784521134
+      ],
+      "positionKm": [
+       53747.3602446,
+       313252.18002,
+       169828.895191
+      ],
+      "timeUtcMs": 1767312000000
+     },
+     {
+      "body": "moon",
+      "center": "earth",
+      "frame": "EQJ",
+      "orientation": [
+       0.188761902622,
+       0.0269521078916,
+       -0.115006949603,
+       0.974892778485
+      ],
+      "positionKm": [
+       -385793.188889,
+       45135.9620567,
+       10823.7342092
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ]
+   },
+   "provenanceOf": {
+    "earth": {
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ]
+    },
+    "moon": {
+     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"
+     ]
+    }
+   },
+   "missingData": [
+    "|"
+   ]
+  },
+  "sun scene with a path that peaks between its end samples (cover sample count)": {
+   "seriesLoadedAtBuild": true,
+   "definitionBeforePrepare": {
+    "camera": {
+     "cover": {
+      "farthestKm": 8272685136.3
+     }
+    },
+    "clock": {
+     "rate": 60,
+     "startUtcMs": 1767657600000
+    },
+    "composition": {
+     "bodies": [
+      "sun",
+      "earth"
+     ],
+     "defaultCenter": "sun",
+     "id": "scene"
+    },
+    "createMetrics": "[function]",
+    "experience": {
+     "cameraPresets": [
+      {
+       "id": "overview",
+       "label": "Overview",
+       "request": {
+        "kind": "overview"
+       }
+      },
+      {
+       "id": "focus-sun",
+       "label": "Focus Sun",
+       "request": {
+        "kind": "focus",
+        "target": "sun"
+       }
+      },
+      {
+       "id": "follow-sun",
+       "label": "Follow Sun",
+       "request": {
+        "kind": "follow",
+        "target": "sun"
+       }
+      },
+      {
+       "id": "focus-earth",
+       "label": "Focus Earth",
+       "request": {
+        "kind": "focus",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "follow-earth",
+       "label": "Follow Earth",
+       "request": {
+        "kind": "follow",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "focus-bump",
+       "label": "Focus bump",
+       "request": {
+        "kind": "focus",
+        "target": "bump"
+       }
+      },
+      {
+       "id": "follow-bump",
+       "label": "Follow bump",
+       "request": {
+        "kind": "follow",
+        "target": "bump"
+       }
+      }
+     ],
+     "events": [],
+     "objects": [
+      {
+       "color": "#fff1b0",
+       "id": "sun",
+       "knownLimitations": [
+        "The Sun's orientation is not modelled: the surface map is a visual stand-in at a fixed orientation, and the real solar rotation axis and longitude are not drawn."
+       ],
+       "label": "Sun",
+       "labelPriority": 100,
+       "provenance": {
+        "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+        "notes": "Stated EPV00 model validity is 1900–2100.",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "color": "#e8e8e8",
+       "id": "earth",
+       "knownLimitations": [
+        "Earth's orientation leaves out polar motion."
+       ],
+       "label": "Earth",
+       "labelPriority": 99,
+       "provenance": {
+        "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+         "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "availability": {
+        "endUtcMs": 1768089600000,
+        "startUtcMs": 1767225600000
+       },
+       "color": "#ffd27a",
+       "id": "bump",
+       "label": "bump",
+       "labelPriority": 80,
+       "provenance": {
+        "accuracy": "As supplied; the engine makes no claim.",
+        "notes": "Positions were passed to addTrajectory.",
+        "sourceType": "illustrative",
+        "sources": [
+         "Supplied by the caller"
+        ]
+       }
+      }
+     ],
+     "rates": [
+      60,
+      3600,
+      86400
+     ],
+     "window": {
+      "endUtcMs": 1768089600000,
+      "startUtcMs": 1767225600000
+     }
+    },
+    "prepare": "[function]",
+    "scaleChoices": [
+     "true-scale",
+     "readable-scale"
+    ],
+    "sceneLayers": [
+     "tracked-bodies"
+    ],
+    "trackedBodies": [
+     {
+      "anchorTimesUtcMs": [],
+      "color": "#ffd27a",
+      "id": "bump",
+      "label": "bump",
+      "pathTimesUtcMs": {
+       "[numbers]": 128,
+       "head": [
+        1767225600000,
+        1767232403150,
+        1767239206300
+       ],
+       "tail": [
+        1768075993700,
+        1768082796850,
+        1768089600000
+       ],
+       "sum": 226260172800000
+      },
+      "provenance": {
+       "accuracy": "As supplied; the engine makes no claim.",
+       "notes": "Positions were passed to addTrajectory.",
+       "sourceType": "illustrative",
+       "sources": [
+        "Supplied by the caller"
+       ]
+      },
+      "trajectory": {
+       "[trajectory]": {
+        "bounds": {
+         "endUtcMs": 1768089600000,
+         "startUtcMs": 1767225600000
+        },
+        "states": [
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1767225600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         },
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1767657600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         },
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1768089600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "prepare": "resolved",
+   "definitionAfterPrepare": "[same as before prepare]",
+   "metricTimes": [
+    1767657600000,
+    1767873600000
+   ],
+   "metrics": {
+    "sun": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "sun-to-earth",
+       "kind": "distance",
+       "label": "Distance to Earth",
+       "unit": "km",
+       "value": 147102458.77
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "sun-to-earth",
+       "kind": "distance",
+       "label": "Distance to Earth",
+       "unit": "km",
+       "value": 147110878.646
+      }
+     ]
+    ],
+    "earth": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-range",
+       "kind": "distance",
+       "label": "Distance from Sun",
+       "unit": "km",
+       "value": 147102458.77
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-range",
+       "kind": "distance",
+       "label": "Distance from Sun",
+       "unit": "km",
+       "value": 147110878.646
+      }
+     ]
+    ],
+    "bump": [
+     [],
+     []
+    ]
+   },
+   "stateOf": {
+    "sun": [
+     {
+      "body": "sun",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       0,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767657600000
+     },
+     {
+      "body": "sun",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       0,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "earth": [
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       0.000999375812739,
+       0.00078365526405,
+       0.794709602948,
+       0.606988495866
+      ],
+      "positionKm": [
+       -38824991.0883,
+       130181579.885,
+       56431460.2141
+      ],
+      "timeUtcMs": 1767657600000
+     },
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       -0.000762363631048,
+       0.00101605402938,
+       -0.589761070181,
+       0.807576786773
+      ],
+      "positionKm": [
+       -45094691.2914,
+       128477152.32,
+       55692914.8549
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "bump": [
+     {
+      "body": "bump",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       150000000,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767657600000,
+      "velocityKmS": [
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "body": "bump",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       150000000,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767873600000,
+      "velocityKmS": [
+       1,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   "provenanceOf": {
+    "sun": {
+     "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+     "notes": "Stated EPV00 model validity is 1900–2100.",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+     ]
+    },
+    "earth": {
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ]
+    },
+    "bump": {
+     "accuracy": "As supplied; the engine makes no claim.",
+     "notes": "Positions were passed to addTrajectory.",
+     "sourceType": "illustrative",
+     "sources": [
+      "Supplied by the caller"
+     ]
+    }
+   },
+   "missingData": [
+    "|"
+   ]
   }
  },
  "errorsSeriesLoaded": {
@@ -28857,6 +29576,725 @@
      []
     ]
    }
+  },
+  "timeline: pacing with no rate set (the base rate default)": {
+   "seriesLoadedAtBuild": false,
+   "definitionBeforePrepare": {
+    "clock": {
+     "rate": 60,
+     "startUtcMs": 1767312000000
+    },
+    "composition": {
+     "bodies": [
+      "earth",
+      "moon"
+     ],
+     "defaultCenter": "earth",
+     "id": "scene"
+    },
+    "createMetrics": "[function]",
+    "experience": {
+     "cameraPresets": [
+      {
+       "id": "overview",
+       "label": "Overview",
+       "request": {
+        "kind": "overview"
+       }
+      },
+      {
+       "id": "focus-earth",
+       "label": "Focus Earth",
+       "request": {
+        "kind": "focus",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "follow-earth",
+       "label": "Follow Earth",
+       "request": {
+        "kind": "follow",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "focus-moon",
+       "label": "Focus Moon",
+       "request": {
+        "kind": "focus",
+        "target": "moon"
+       }
+      },
+      {
+       "id": "follow-moon",
+       "label": "Follow Moon",
+       "request": {
+        "kind": "follow",
+        "target": "moon"
+       }
+      }
+     ],
+     "events": [],
+     "objects": [
+      {
+       "color": "#e8e8e8",
+       "id": "earth",
+       "knownLimitations": [
+        "Earth's orientation leaves out polar motion."
+       ],
+       "label": "Earth",
+       "labelMaxDistance": 500,
+       "labelPriority": 100,
+       "provenance": {
+        "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+         "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "color": "#f3ede4",
+       "id": "moon",
+       "knownLimitations": [
+        "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
+        "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
+       ],
+       "label": "Moon",
+       "labelMaxDistance": 500,
+       "labelPriority": 99,
+       "provenance": {
+        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"
+        ]
+       }
+      }
+     ],
+     "rates": [
+      60,
+      3600,
+      86400
+     ],
+     "window": {
+      "endUtcMs": 1768089600000,
+      "startUtcMs": 1767225600000
+     }
+    },
+    "pacing": {
+     "baseRate": 60,
+     "zones": [
+      {
+       "fromUtcMs": 1767398400000,
+       "rampMs": 8640000,
+       "rate": 5000,
+       "toUtcMs": 1767484800000
+      }
+     ]
+    },
+    "prepare": "[function]",
+    "scaleChoices": [
+     "true-scale",
+     "readable-scale"
+    ],
+    "sceneLayers": [
+     "tracked-bodies"
+    ],
+    "trackedBodies": []
+   },
+   "prepare": "resolved",
+   "definitionAfterPrepare": "[same as before prepare]",
+   "metricTimes": [
+    1767312000000,
+    1767873600000
+   ],
+   "metrics": {
+    "earth": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-to-moon",
+       "kind": "distance",
+       "label": "Distance to Moon",
+       "unit": "km",
+       "value": 360357.545589
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-to-moon",
+       "kind": "distance",
+       "label": "Distance to Moon",
+       "unit": "km",
+       "value": 388575.337465
+      }
+     ]
+    ],
+    "moon": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "moon-range",
+       "kind": "distance",
+       "label": "Distance from Earth",
+       "unit": "km",
+       "value": 360357.545589
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "moon-range",
+       "kind": "distance",
+       "label": "Distance from Earth",
+       "unit": "km",
+       "value": 388575.337465
+      }
+     ]
+    ]
+   },
+   "stateOf": {
+    "earth": [
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       0.000971192460881,
+       0.000816504135896,
+       0.773360386414,
+       0.633965379837
+      ],
+      "positionKm": [
+       -28643723.9439,
+       132383018.859,
+       57385423.4751
+      ],
+      "timeUtcMs": 1767312000000
+     },
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       -0.000762363631048,
+       0.00101605402938,
+       -0.589761070181,
+       0.807576786773
+      ],
+      "positionKm": [
+       -45094691.2914,
+       128477152.32,
+       55692914.8549
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "moon": [
+     {
+      "body": "moon",
+      "center": "earth",
+      "frame": "EQJ",
+      "orientation": [
+       0.120527855611,
+       0.147974365729,
+       -0.747048925274,
+       0.636784521134
+      ],
+      "positionKm": [
+       53747.3602446,
+       313252.18002,
+       169828.895191
+      ],
+      "timeUtcMs": 1767312000000
+     },
+     {
+      "body": "moon",
+      "center": "earth",
+      "frame": "EQJ",
+      "orientation": [
+       0.188761902622,
+       0.0269521078916,
+       -0.115006949603,
+       0.974892778485
+      ],
+      "positionKm": [
+       -385793.188889,
+       45135.9620567,
+       10823.7342092
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ]
+   },
+   "provenanceOf": {
+    "earth": {
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ]
+    },
+    "moon": {
+     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"
+     ]
+    }
+   },
+   "missingData": [
+    "|"
+   ]
+  },
+  "sun scene with a path that peaks between its end samples (cover sample count)": {
+   "seriesLoadedAtBuild": false,
+   "definitionBeforePrepare": {
+    "camera": {
+     "cover": {
+      "farthestKm": 8272685136.3
+     }
+    },
+    "clock": {
+     "rate": 60,
+     "startUtcMs": 1767657600000
+    },
+    "composition": {
+     "bodies": [
+      "sun",
+      "earth"
+     ],
+     "defaultCenter": "sun",
+     "id": "scene"
+    },
+    "createMetrics": "[function]",
+    "experience": {
+     "cameraPresets": [
+      {
+       "id": "overview",
+       "label": "Overview",
+       "request": {
+        "kind": "overview"
+       }
+      },
+      {
+       "id": "focus-sun",
+       "label": "Focus Sun",
+       "request": {
+        "kind": "focus",
+        "target": "sun"
+       }
+      },
+      {
+       "id": "follow-sun",
+       "label": "Follow Sun",
+       "request": {
+        "kind": "follow",
+        "target": "sun"
+       }
+      },
+      {
+       "id": "focus-earth",
+       "label": "Focus Earth",
+       "request": {
+        "kind": "focus",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "follow-earth",
+       "label": "Follow Earth",
+       "request": {
+        "kind": "follow",
+        "target": "earth"
+       }
+      },
+      {
+       "id": "focus-bump",
+       "label": "Focus bump",
+       "request": {
+        "kind": "focus",
+        "target": "bump"
+       }
+      },
+      {
+       "id": "follow-bump",
+       "label": "Follow bump",
+       "request": {
+        "kind": "follow",
+        "target": "bump"
+       }
+      }
+     ],
+     "events": [],
+     "objects": [
+      {
+       "color": "#fff1b0",
+       "id": "sun",
+       "knownLimitations": [
+        "The Sun's orientation is not modelled: the surface map is a visual stand-in at a fixed orientation, and the real solar rotation axis and longitude are not drawn."
+       ],
+       "label": "Sun",
+       "labelPriority": 100,
+       "provenance": {
+        "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+        "notes": "Stated EPV00 model validity is 1900–2100.",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "color": "#e8e8e8",
+       "id": "earth",
+       "knownLimitations": [
+        "Earth's orientation leaves out polar motion."
+       ],
+       "label": "Earth",
+       "labelPriority": 99,
+       "provenance": {
+        "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+        "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+        "sourceType": "ephemeris",
+        "sources": [
+         "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+         "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+        ]
+       }
+      },
+      {
+       "availability": {
+        "endUtcMs": 1768089600000,
+        "startUtcMs": 1767225600000
+       },
+       "color": "#ffd27a",
+       "id": "bump",
+       "label": "bump",
+       "labelPriority": 80,
+       "provenance": {
+        "accuracy": "As supplied; the engine makes no claim.",
+        "notes": "Positions were passed to addTrajectory.",
+        "sourceType": "illustrative",
+        "sources": [
+         "Supplied by the caller"
+        ]
+       }
+      }
+     ],
+     "rates": [
+      60,
+      3600,
+      86400
+     ],
+     "window": {
+      "endUtcMs": 1768089600000,
+      "startUtcMs": 1767225600000
+     }
+    },
+    "prepare": "[function]",
+    "scaleChoices": [
+     "true-scale",
+     "readable-scale"
+    ],
+    "sceneLayers": [
+     "tracked-bodies"
+    ],
+    "trackedBodies": [
+     {
+      "anchorTimesUtcMs": [],
+      "color": "#ffd27a",
+      "id": "bump",
+      "label": "bump",
+      "pathTimesUtcMs": {
+       "[numbers]": 128,
+       "head": [
+        1767225600000,
+        1767232403150,
+        1767239206300
+       ],
+       "tail": [
+        1768075993700,
+        1768082796850,
+        1768089600000
+       ],
+       "sum": 226260172800000
+      },
+      "provenance": {
+       "accuracy": "As supplied; the engine makes no claim.",
+       "notes": "Positions were passed to addTrajectory.",
+       "sourceType": "illustrative",
+       "sources": [
+        "Supplied by the caller"
+       ]
+      },
+      "trajectory": {
+       "[trajectory]": {
+        "bounds": {
+         "endUtcMs": 1768089600000,
+         "startUtcMs": 1767225600000
+        },
+        "states": [
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1767225600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         },
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1767657600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         },
+         {
+          "body": "bump",
+          "center": "sun",
+          "frame": "EQJ",
+          "orientation": null,
+          "positionKm": [
+           150000000,
+           0,
+           0
+          ],
+          "timeUtcMs": 1768089600000,
+          "velocityKmS": [
+           1,
+           0,
+           0
+          ]
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "prepare": "resolved",
+   "definitionAfterPrepare": "[same as before prepare]",
+   "metricTimes": [
+    1767657600000,
+    1767873600000
+   ],
+   "metrics": {
+    "sun": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "sun-to-earth",
+       "kind": "distance",
+       "label": "Distance to Earth",
+       "unit": "km",
+       "value": 147102458.77
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "sun-to-earth",
+       "kind": "distance",
+       "label": "Distance to Earth",
+       "unit": "km",
+       "value": 147110878.646
+      }
+     ]
+    ],
+    "earth": [
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-range",
+       "kind": "distance",
+       "label": "Distance from Sun",
+       "unit": "km",
+       "value": 147102458.77
+      }
+     ],
+     [
+      {
+       "context": "centre to centre · EQJ",
+       "digits": 0,
+       "id": "earth-range",
+       "kind": "distance",
+       "label": "Distance from Sun",
+       "unit": "km",
+       "value": 147110878.646
+      }
+     ]
+    ],
+    "bump": [
+     [],
+     []
+    ]
+   },
+   "stateOf": {
+    "sun": [
+     {
+      "body": "sun",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       0,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767657600000
+     },
+     {
+      "body": "sun",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       0,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "earth": [
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       0.000999375812739,
+       0.00078365526405,
+       0.794709602948,
+       0.606988495866
+      ],
+      "positionKm": [
+       -38824991.0883,
+       130181579.885,
+       56431460.2141
+      ],
+      "timeUtcMs": 1767657600000
+     },
+     {
+      "body": "earth",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": [
+       -0.000762363631048,
+       0.00101605402938,
+       -0.589761070181,
+       0.807576786773
+      ],
+      "positionKm": [
+       -45094691.2914,
+       128477152.32,
+       55692914.8549
+      ],
+      "timeUtcMs": 1767873600000
+     }
+    ],
+    "bump": [
+     {
+      "body": "bump",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       150000000,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767657600000,
+      "velocityKmS": [
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "body": "bump",
+      "center": "sun",
+      "frame": "EQJ",
+      "orientation": null,
+      "positionKm": [
+       150000000,
+       0,
+       0
+      ],
+      "timeUtcMs": 1767873600000,
+      "velocityKmS": [
+       1,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   "provenanceOf": {
+    "sun": {
+     "accuracy": "The geocentric direction was checked against JPL Horizons (DE441) samples.",
+     "notes": "Stated EPV00 model validity is 1900–2100.",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 EPV00 model (ERFA, fitted to JPL DE405): the Sun's position is the negated Earth–Sun geometry"
+     ]
+    },
+    "earth": {
+     "accuracy": "Its rotation follows the IAU models listed. The Sun direction was checked against JPL Horizons (DE441) samples; the sample maxima are not a guaranteed bound for every date.",
+     "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
+     "sourceType": "ephemeris",
+     "sources": [
+      "@lizard-isana/orb 3.1.1 frames: IAU 2006 precession, IAU 2000B nutation, IAU 1982 Greenwich sidereal time",
+      "@lizard-isana/orb EPV00 model (ERFA, fitted to JPL DE405) for Earth–Sun geometry"
+     ]
+    },
+    "bump": {
+     "accuracy": "As supplied; the engine makes no claim.",
+     "notes": "Positions were passed to addTrajectory.",
+     "sourceType": "illustrative",
+     "sources": [
+      "Supplied by the caller"
+     ]
+    }
+   },
+   "missingData": [
+    "|"
+   ]
   }
  },
  "errorsSeriesNotLoaded": {

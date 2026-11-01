@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-058 Full Objective Check (C-139). The one npm run check:browser (07:45:25-07:51:18Z on 1d729c02) failed at public-build-assets (exit=1). Four app page sets have a script that statically imports assets/storyPanels-BiQHMCgc.js, which no page set lists. The same step passed on the tree before the split (C-137 run docs/evidence/browser-20261101T055531Z). Evidence folder docs/evidence/browser-20261101T074525Z, logs /tmp/astraeus-check-logs-lg4vec/public-build-assets.log.'
     check: C-139
+  - at: '2026-11-01T19:05:00Z'
+    actor: {role: executor, session: o058-repair-20261101}
+    kind: repair_attempted
+    note: 'Repair, not verified. load-budget.mjs now follows the engine-share table: an unlisted script that a listed script imports at load and that engine-share.json says is wholly engine code (engine == total) joins the page set and counts as engine share (held by the engine limit); a chunk with any demo code, or one the table does not name, must still be listed. A re-chunk inside the engine therefore cannot fail the step. Fast test in publicBuild.test.ts (proveLoadBudgetFails gains engineChunk and mixedChunk cases, also run as self-proof in public-build-assets.mjs). Evidence: public build with ASTRAEUS_PUBLIC_BUILD=1 ASTRAEUS_ENGINE_SHARE=1, then public-build-assets.mjs alone exit 0 and load-budget.mjs 8 ok, 0 FAIL (storyPanels-BiQHMCgc.js is engine 4310 of 4310 bytes). Full npm run check:browser not re-run here; the re-check does it. Page-set limits unchanged.'
 ---
 
 # I-136: The public build check fails on the new story-panel parser chunk

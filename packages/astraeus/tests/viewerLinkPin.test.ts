@@ -107,6 +107,23 @@ describe("ViewerLink whenAttached, detach and close", () => {
   });
 });
 
+describe("ViewerLink zone dispatch (C-139 O3)", () => {
+  it("calls the listeners that were set when a report began: one removed or added by a listener mid-report changes the next report only", () => {
+    const link = new ViewerLink();
+    const f = fake({ paced: true });
+    link.attach(f.control);
+    const heard: string[] = [];
+    let stopB = (): void => {};
+    link.onEventZone(() => { heard.push("A"); stopB(); link.onEventZone(() => heard.push("C")); });
+    stopB = link.onEventZone(() => heard.push("B"));
+    link.publish(f.set({ zones: ["e1"] }), "playback");
+    expect(heard).toEqual(["A", "B"]); // B still hears the report it was removed during; C, added during it, does not
+    heard.length = 0;
+    link.publish(f.set({ zones: [] }), "playback");
+    expect(heard).toEqual(["A", "C"]);
+  });
+});
+
 describe("ViewerLink setters", () => {
   it("setTime validates the window, seeks, then reports once with cause host", () => {
     const link = new ViewerLink();

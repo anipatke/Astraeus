@@ -118,6 +118,9 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.missing.pages[0].problems.join(" ")).toMatch(/picture\.jpg is not in the build/);
     expect(proof.unlistedImport.ok).toBe(false);
     expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(/imports assets\/extra-AbCdEf12\.js, which the page set does not list/);
+    // I-136: a wholly-engine chunk a listed script imports counts as engine share without being listed; a mixed one still has to be listed.
+    expect(proof.engineChunk.pages[0]).toMatchObject({ problems: [], files: 4 });
+    expect(proof.mixedChunk.pages[0].problems.join(" ")).toMatch(/which the page set does not list/);
     expect(proof.unlistedFile.ok).toBe(false);
     expect(proof.unlistedFile.pages[proof.unlistedFile.pages.length - 1]?.id).toBe("whole build");
   });

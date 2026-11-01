@@ -305,7 +305,7 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
   const engineLicences = checkEngineLicences();
   const loadBudget = checkLoadBudget({ distDir });
   const budgetProof = proveLoadBudgetFails();
-  const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok;
+  const budgetSelfProof = budgetProof.within.ok && !budgetProof.heavier.ok && !budgetProof.missing.ok && !budgetProof.unlistedImport.ok && !budgetProof.unlistedFile.ok && budgetProof.engineChunk.ok && !budgetProof.mixedChunk.ok;
   const engineBudget = checkEngineBudget();
   const split = proveEngineDemoSplit();
   const engineSplitProof = split.base.page.ok && split.base.engine.ok && split.engineGrown.page.ok && !split.engineGrown.engine.ok && !split.demoGrown.page.ok && split.demoGrown.engine.ok;
