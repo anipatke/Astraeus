@@ -236,7 +236,39 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expectUnusable(opened.handle!);
   });
 
-  it.todo("a throwing listener does not stop the others (T-244)");
+  it("a throwing onChange listener does not stop the next one, the scene's own onChange or the page; reportError receives the error", async () => {
+    openNow();
+    const report = vi.fn();
+    vi.stubGlobal("reportError", report);
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const boom = new Error("listener boom");
+    const heard: string[] = [];
+    opened.handle!.onChange(() => { throw boom; });
+    opened.handle!.onChange(() => heard.push("second"));
+    opened.handle!.setTime(MID);
+    expect(heard).toEqual(["second"]);
+    expect(opened.changes.length).toBeGreaterThan(0);
+    expect(report).toHaveBeenCalledWith(boom);
+    opened.unmount();
+  });
+  it("a listener added by the handle after a throwing one still hears later changes, and stopping the throwing one silences its reports", async () => {
+    openNow();
+    const report = vi.fn();
+    vi.stubGlobal("reportError", report);
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const stop = opened.handle!.onChange(() => { throw new Error("again"); });
+    const heard: number[] = [];
+    opened.handle!.onChange((c) => heard.push(c.time));
+    opened.handle!.setTime(MID);
+    stop();
+    const reports = report.mock.calls.length;
+    opened.handle!.setTime(MID + 1000);
+    expect(heard).toEqual([MID, MID + 1000]);
+    expect(report.mock.calls.length).toBe(reports);
+    opened.unmount();
+  });
   it.todo("a mounted scene is frozen (T-245)");
   it.todo("setPlaying (T-246)");
   it.todo("onSelect (T-247)");

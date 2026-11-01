@@ -1,4 +1,5 @@
 import type { ViewerChangeCause, ViewerState } from "../app/viewerPort";
+import { callListeners } from "./listeners";
 import type { EventZoneChange, LinkAccess } from "./viewerLink";
 
 /** The host link's event zones: the zones holding the time now and the `onEventZone` callbacks. */
@@ -45,7 +46,7 @@ export class ViewerZones {
     for (const [id, entered] of reports) {
       const event = this.access.control()?.events.find((candidate) => candidate.id === id);
       const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, time: state.timeUtcMs, cause, via };
-      for (const listener of [...this.#listeners]) listener(change);
+      callListeners(this.#listeners, change);
     }
   }
 }

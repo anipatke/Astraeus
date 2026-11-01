@@ -1,5 +1,6 @@
 import type { ViewerChangeCause, ViewerState } from "../app/viewerPort";
 import { SceneError } from "./errors";
+import { callListeners } from "./listeners";
 import { toUtcMs, type TimeInput } from "./time";
 import type { LinkAccess, RateSource, ViewerChange } from "./viewerLink";
 
@@ -67,6 +68,6 @@ export class ViewerClock {
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
     const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), cause };
-    for (const listener of [...this.#listeners]) listener(change);
+    callListeners(this.#listeners, change);
   }
 }
