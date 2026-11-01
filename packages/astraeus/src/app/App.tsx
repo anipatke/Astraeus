@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type Compo
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
-import { applyPacing } from "../core/pacing";
+import { applyPacing, startPaceEase, type PaceView } from "../core/pacing";
 import { openClock } from "./openClock";
 import type { ViewerPort, ViewerState } from "./viewerPort";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
@@ -126,7 +126,7 @@ function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (
 function buildRuntime(definition: ExperienceDefinition, search: string) {
     const adapter = createOrbAstronomyAdapter();
     // A copied view link carries the time it was copied at.
-    const clock = openClock(definition, timeFromSearch(search));
+    const clock = openClock(definition, timeFromSearch(search), shownEventsOf(definition, startViewId(definition, search)));
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
     const resolver = createSceneResolver(adapter, catalogueOf(definition));
     return {
@@ -154,6 +154,11 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
 
 type Runtime = ReturnType<typeof buildRuntime>;
 
+/** The event ids the view shows, which choose the pacing zones that apply; undefined for a scene without views (every zone applies). */
+function shownEventsOf(definition: Pick<ExperienceDefinition, "views">, viewId: string): ReadonlySet<string> | undefined {
+  return viewById(definition.views, viewId)?.events;
+}
+
 /** Whether the experience has anything the Display controls (markers, labels, timeline, phone layout) act on. */
 function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, orbitPathCount: number, storyMarkerCount: number): boolean {
   return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
@@ -177,7 +182,7 @@ function initialSceneControls(
     cameraRequest: null,
     showAnchorLabels: labelStart(definition) === true && runtime.trackedBodies.length > 0,
     loop: loopFromSearch(search, definition.loop === true),
-    ...(definition.pacing === undefined ? {} : { paceAuto: true }),
+    ...(definition.pacing === undefined ? {} : { paceAuto: true, pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView }),
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
     bodyMarker: markerSettingsFromSearch(search),
@@ -334,8 +339,13 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   const chooseView = useCallback((id: string) => {
     viewRef.current = id;
     controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
+    // The showing view's events choose the pacing zones; a paced rate that changes with them eases in rather than jumping.
+    if (controls.current.pace !== undefined) {
+      controls.current.pace.shown = shownEventsOf(definition, id);
+      if (controls.current.paceAuto === true) startPaceEase(controls.current.pace, runtime.clock.rate, performance.now());
+    }
     setViewId(id);
-  }, [definition, experience]);
+  }, [definition, experience, runtime]);
   const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
   const stateNow = useCallback((): ViewerState => ({
     ...runtime.clock.snapshot(),
@@ -347,7 +357,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
       if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
       else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) runtime.clock.stopWithin(runtime.loopWindow);
-      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
+      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
       setClockSnapshot(runtime.clock.snapshot());
       host?.publish(stateNow(), "playback");
     }, 100);
@@ -356,13 +366,19 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   // The host reaches the one clock through the same seek and rate handlers a visitor's timeline uses.
   const seekTo = useCallback((timeUtcMs: number) => {
     runtime.clock.seek(timeUtcMs);
+    // A seek lands on the paced rate for the new time at once, not through a view-switch ease.
+    if (controls.current.pace !== undefined) {
+      delete controls.current.pace.ease;
+      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
+    }
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
   // A speed picked by the visitor or the host takes over from pacing; "auto" gives the rate back to it.
   const [paceAuto, setPaceAuto] = useState(controls.current.paceAuto === true);
   const changeRate = useCallback((rate: number | "auto") => {
     if (rate === "auto") {
-      if (runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing);
+      if (controls.current.pace !== undefined) delete controls.current.pace.ease;
+      if (runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
     } else runtime.clock.setRate(rate);
     controls.current.paceAuto = rate === "auto";
     setPaceAuto(rate === "auto");

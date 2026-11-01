@@ -184,6 +184,8 @@ A long journey wants fast cruising and slow encounters. `setTimeline` takes `pac
 
 Speeds ease between pieces in log space over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span; `ramp: 0` steps), so a jump from cruise to encounter is smooth both ways. The paced speed depends only on the time, so seeking or looping lands on the right speed at once. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed. A piece's `rate` is any positive number and need not be in `rates`. Mistakes throw `bad-timeline` naming the field (`pacing[1].rate`); an event `type` that matches no event is refused too, since a typo would otherwise slow nothing.
 
+In a scene with views (`setViews`), an event rule slows playback only near the events the showing view has (an event no view names is in every view); spans apply in every view. A switch that changes the paced speed eases to the new one in log space over about a second, while seeking lands on the paced speed at once. A scene without views paces exactly as before.
+
 With pacing the speed menu gains an **Auto** choice, selected from the start. Picking a speed (menu, or `setRate(number)`) takes over until the visitor chooses Auto or the host calls `setRate("auto")`. `onChange` reports the speed pacing runs at (`cause: "playback"`), and `handle.rate` reads it.
 
 ```ts

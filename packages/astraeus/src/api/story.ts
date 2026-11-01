@@ -177,7 +177,7 @@ export function pacingFor(setting: TimelineSetting, events: readonly TimelineEve
     if ("fromUtcMs" in piece) { spans.push({ fromUtcMs: piece.fromUtcMs, toUtcMs: piece.toUtcMs, rate: piece.rate, rampMs: piece.rampMs }); return; }
     const matching = events.filter((event) => event.type === piece.type);
     if (matching.length === 0) throw new SceneError("bad-timeline", `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`);
-    for (const event of matching) near.push({ fromUtcMs: event.timeUtcMs - piece.withinMs, toUtcMs: event.timeUtcMs + piece.withinMs, rate: piece.rate, rampMs: piece.rampMs });
+    for (const event of matching) near.push({ fromUtcMs: event.timeUtcMs - piece.withinMs, toUtcMs: event.timeUtcMs + piece.withinMs, rate: piece.rate, rampMs: piece.rampMs, eventId: event.id });
   });
   return { baseRate, zones: [...spans, ...near] };
 }
