@@ -1,0 +1,33 @@
+{
+  "_about": "API-05 error scans (tools/api-rules.mjs errorBreaks) over packages/astraeus/src/api/. `throw`: a throw that is not a SceneError (a rethrow of what was caught is not judged). `message`: an error recognised by its message text. One entry per break: reason, review finding (docs/architecture/api-review-2026-11-01.md), Objective expected to remove it. An entry that no longer matches a break fails the test; entries may only be removed.",
+  "breaks": [
+    {
+      "rule": "message",
+      "site": "scene.ts: error.message.startsWith(\"the planet series are not loaded\")",
+      "reason": "Recognises an internal error by its message text (and names the non-public loadPlanetSeries())",
+      "finding": "F6",
+      "removedBy": "O-056"
+    },
+    {
+      "rule": "message",
+      "site": "sunOrbit.ts: /no full turn|do not cover/.test(error.message)",
+      "reason": "Recognises an internal RangeError by its message text",
+      "finding": "F8",
+      "removedBy": "O-054"
+    },
+    {
+      "rule": "throw",
+      "site": "data.ts: throw new RangeError(`${source.name}: no moon system for \"${positions.centre}\"`);",
+      "reason": "Throws a RangeError, not a SceneError, when a moon list names a planet without a moon system",
+      "finding": "F8",
+      "removedBy": "O-054"
+    },
+    {
+      "rule": "throw",
+      "site": "pathProvenance.ts: throw new Error(\"body must be a body id\");",
+      "reason": "Throws a plain Error inside the span planner; planSpans catches it and rethrows bad-trajectory, but the throw itself is not a SceneError",
+      "finding": "F8",
+      "removedBy": "O-054"
+    }
+  ]
+}

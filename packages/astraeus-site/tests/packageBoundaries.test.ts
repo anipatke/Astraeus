@@ -243,6 +243,46 @@ function boundaryOffences(packagesDir: string, publicApiDemos: ReadonlySet<strin
   return offences.sort();
 }
 
+/** Deep imports into the engine (any `astraeus/...` specifier other than `astraeus/style.css`), counted per workspace package, the engine's own files left out. */
+function deepImportCounts(packagesDir: string): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const [from, info] of loadPackages(packagesDir)) {
+    if (from === ENGINE) continue;
+    let count = 0;
+    for (const file of sourceFiles(info.dir)) {
+      for (const raw of specifiers(readFileSync(file, "utf8"))) {
+        const spec = raw.split("?")[0];
+        if (spec.startsWith(`${ENGINE}/`) && spec !== `${ENGINE}/style.css`) count++;
+      }
+    }
+    if (count > 0) counts[from] = count;
+  }
+  return counts;
+}
+
+/**
+ * The back-door imports into the engine that our own demos, data packages and site still have (O-053 T-228, API-01; front door, Design "Public API shape"). Counts may only go down:
+ * a count that rises fails, and a count that falls must be lowered here in the same change. O-059 builds the planets demo and the site on the front door and takes the rest to zero.
+ */
+const DEEP_IMPORT_COUNTS: Record<string, number> = {
+  "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
+  "astraeus-demo-planets": 123, // F13, O-059
+  "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
+  "astraeus-site": 94, // F13, O-059
+};
+
+/** Offences of measured counts against the recorded ones. */
+function deepImportOffences(measured: Record<string, number>, recorded: Record<string, number>): string[] {
+  const out: string[] = [];
+  for (const name of new Set([...Object.keys(measured), ...Object.keys(recorded)])) {
+    const now = measured[name] ?? 0;
+    const was = recorded[name] ?? 0;
+    if (now > was) out.push(`${name}: ${now} deep imports into ${ENGINE}, up from ${was}; import from "${ENGINE}" instead (counts may only go down)`);
+    else if (now < was) out.push(`${name}: ${now} deep imports into ${ENGINE}, down from ${was}; lower DEEP_IMPORT_COUNTS to ${now} in packageBoundaries.test.ts`);
+  }
+  return out.sort();
+}
+
 /** A scratch `packages/` folder with made-up packages: an engine, a demo, a second demo and a site, each with one source file. */
 function scratchPackages(files: Record<string, string>): string {
   const dir = mkdtempSync(join(tmpdir(), "astraeus-boundaries-"));
@@ -276,6 +316,28 @@ describe("package boundaries (ARCH-03)", () => {
     const packagesDir = resolve(__dirname, "../..");
     expect(loadPackages(packagesDir).size).toBe(12);
     expect(boundaryOffences(packagesDir)).toEqual([]);
+  });
+
+  it("counts deep imports into the engine per package, and counts only go down", () => {
+    expect(deepImportOffences(deepImportCounts(resolve(__dirname, "../..")), DEEP_IMPORT_COUNTS)).toEqual([]);
+  });
+
+  it("fails a count that rises or falls, proved on a made-up tree", () => {
+    const dir = scratchPackages({
+      "astraeus-demo-a/src/things/ok.ts": use("astraeus") + use("astraeus/style.css") + use("./thing"),
+      "astraeus-demo-a/src/things/deep.ts": use("astraeus/core/clock") + use("astraeus/app/App"),
+      "astraeus-demo-a/tests/deep.ts": use("astraeus/core/clock"),
+      [`${SITE}/src/deep.ts`]: use("astraeus/core/clock"),
+      [`${ENGINE}/src/core/own.ts`]: use("astraeus/core/clock"),
+    });
+    try {
+      const measured = deepImportCounts(dir);
+      expect(measured).toEqual({ "astraeus-demo-a": 3, [SITE]: 1 });
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 3, [SITE]: 1 })).toEqual([]);
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 2, [SITE]: 1 })).toEqual([expect.stringContaining("astraeus-demo-a: 3 deep imports into astraeus, up from 2")]);
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 3, [SITE]: 2 })).toEqual([expect.stringContaining("astraeus-site: 1 deep imports into astraeus, down from 2; lower")]);
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 3 })).toEqual([expect.stringContaining("astraeus-site: 1 deep imports into astraeus, up from 0")]);
+    } finally { rmSync(dir, { recursive: true }); }
   });
 
   it("accepts imports through the package name and a declared entry", () => {

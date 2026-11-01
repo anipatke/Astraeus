@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { checkPacks, extensionlessImports, LIMITS, strayFiles } from "../../../tools/check-packs.mjs";
+import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, strayFiles } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
 
 // O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
@@ -53,6 +53,39 @@ describe("publishable packages", () => {
     } finally {
       rmSync(join(dist, "src", "api", "planted.js"), { force: true });
     }
+  }, 60_000);
+
+  it("states the engine's current minor as every data package's astraeus peer, and all of React 19 as the engine's React peers (O-053 T-230, API-07)", () => {
+    expect(enginePeerRange("0.7.0")).toBe(">=0.7.0 <0.8.0");
+    expect(enginePeerRange("0.8.2")).toBe(">=0.8.0 <0.9.0");
+    expect(enginePeerRange("1.2.3")).toBe(">=1.2.0 <2.0.0");
+    const engine = JSON.parse(readFileSync(join(__dirname, "..", "..", "astraeus", "package.json"), "utf8")) as { version: string; peerDependencies: Record<string, string> };
+    expect(engine.peerDependencies.react).toBe(">=19 <20");
+    expect(engine.peerDependencies["react-dom"]).toBe(">=19 <20");
+    for (const name of PACKAGES.filter((one) => one.startsWith("astraeus-data"))) {
+      const manifest = JSON.parse(readFileSync(join(__dirname, "..", "..", name, "package.json"), "utf8")) as { peerDependencies: Record<string, string> };
+      expect(manifest.peerDependencies.astraeus, name).toBe(enginePeerRange(engine.version));
+    }
+  });
+
+  it("fails the pack check when a data package's astraeus peer floor is not the engine's minor, and when the engine's React peer stops short of 19.x", () => {
+    const manifestOf = (name: string): string => join(__dirname, "..", "..", name, "dist", "package.json");
+    const data = manifestOf("astraeus-data-pluto");
+    const engine = manifestOf("astraeus");
+    const dataOriginal = readFileSync(data, "utf8");
+    const engineOriginal = readFileSync(engine, "utf8");
+    try {
+      for (const stale of [">=0.1.0 <1.0.0", ">=0.6.0 <0.7.0", ">=0.7.0 <1.0.0"]) {
+        writeFileSync(data, dataOriginal.replace(/"astraeus": "[^"]*"/, `"astraeus": "${stale}"`));
+        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(`astraeus-data-pluto: astraeus peer is ${stale}, the engine's current minor is >=0.7.0 <0.8.0`);
+      }
+      writeFileSync(engine, engineOriginal.replace('"react": ">=19 <20"', '"react": ">=19 <19.4"'));
+      expect(checkPacks({ build: false, only: ["astraeus"] }).problems).toContain("astraeus: react peer is >=19 <19.4, it must cover all of React 19 (>=19 <20)");
+    } finally {
+      writeFileSync(data, dataOriginal);
+      writeFileSync(engine, engineOriginal);
+    }
+    expect(checkPacks({ build: false, only: ["astraeus-data-pluto", "astraeus"] }).problems).toEqual([]);
   }, 60_000);
 
   it("fails on a compiled file with an extensionless relative import (webpack 5, I-077)", () => {

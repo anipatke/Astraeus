@@ -1,0 +1,461 @@
+{
+  "_about": "API-04 public-type lint (tools/api-rules.mjs publicTypeBreaks). `unitless`: number fields that have no unit, by field name (permanent). `exceptions`: lint hits that are not breaks (permanent, with the reason). `breaks`: today's breaks, one per site, with the review finding (docs/architecture/api-review-2026-11-01.md) and the Objective expected to remove it. An entry that no longer matches fails the test; entries may only be removed.",
+  "unitless": [
+    {
+      "field": "rate",
+      "reason": "a multiple of real time (x1, x60), no unit"
+    },
+    {
+      "field": "rates",
+      "reason": "a list of rate multiples, no unit"
+    },
+    {
+      "field": "baseRate",
+      "reason": "a multiple of real time, no unit"
+    },
+    {
+      "field": "value",
+      "reason": "a metric value that sits beside its own `unit` text"
+    },
+    {
+      "field": "min",
+      "reason": "range end of a metric value that sits beside its own `unit` text"
+    },
+    {
+      "field": "max",
+      "reason": "range end of a metric value that sits beside its own `unit` text"
+    },
+    {
+      "field": "total",
+      "reason": "a metric total that sits beside its own `unit` text"
+    },
+    {
+      "field": "eccentricity",
+      "reason": "a ratio, no unit"
+    },
+    {
+      "field": "fraction",
+      "reason": "a ratio from 0 to 1, no unit"
+    },
+    {
+      "field": "digits",
+      "reason": "a count of decimal places"
+    },
+    {
+      "field": "count",
+      "reason": "a count of things"
+    },
+    {
+      "field": "samples",
+      "reason": "a count of samples"
+    },
+    {
+      "field": "seed",
+      "reason": "a random seed"
+    },
+    {
+      "field": "scale",
+      "reason": "a multiplier, no unit"
+    },
+    {
+      "field": "enlarge",
+      "reason": "a multiplier of the drawn size, no unit"
+    },
+    {
+      "field": "xyz",
+      "reason": "a position in a stated reference, the unit is the metric's own"
+    },
+    {
+      "field": "orientation",
+      "reason": "a unit quaternion, no unit"
+    },
+    {
+      "field": "starBrightness",
+      "reason": "a brightness multiplier, no unit"
+    },
+    {
+      "field": "milkyWayBrightness",
+      "reason": "a brightness multiplier, no unit"
+    },
+    {
+      "field": "brightness",
+      "reason": "a brightness multiplier, no unit"
+    },
+    {
+      "field": "intensity",
+      "reason": "a light intensity multiplier, no unit"
+    },
+    {
+      "field": "emissiveIntensity",
+      "reason": "a light intensity multiplier, no unit"
+    },
+    {
+      "field": "ambient",
+      "reason": "a light level multiplier, no unit"
+    },
+    {
+      "field": "directional",
+      "reason": "a light level multiplier, no unit"
+    },
+    {
+      "field": "opacity",
+      "reason": "a ratio from 0 to 1, no unit"
+    },
+    {
+      "field": "roughness",
+      "reason": "a material ratio from 0 to 1, no unit"
+    },
+    {
+      "field": "metalness",
+      "reason": "a material ratio from 0 to 1, no unit"
+    },
+    {
+      "field": "power",
+      "reason": "an exponent, no unit"
+    },
+    {
+      "field": "labelPriority",
+      "reason": "a rank, no unit"
+    },
+    {
+      "field": "distance",
+      "reason": "CameraPose field names stay (API review, 'would NOT change'); the distance is in the scene's own length unit"
+    }
+  ],
+  "exceptions": [
+    {
+      "rule": "loose",
+      "site": "parseElementsBodyRecord(input)",
+      "reason": "A validator takes untrusted input, so `unknown` is the honest type of what it checks"
+    },
+    {
+      "rule": "span",
+      "site": "ProgressMetric: startLabel/endLabel",
+      "reason": "labels for the two ends of a progress bar, not a span of time"
+    },
+    {
+      "rule": "span",
+      "site": "RelativeDistanceMetric: from/to",
+      "reason": "from and to name the two bodies of a distance, not the ends of a span"
+    },
+    {
+      "rule": "time",
+      "site": "MoonFamilyList.listDate: string",
+      "reason": "the date text of when a moon list was made, not a moment on a timeline"
+    },
+    {
+      "rule": "time",
+      "site": "ReadoutInput.to: BodyId",
+      "reason": "`to` names a body to measure against, not a moment"
+    },
+    {
+      "rule": "time",
+      "site": "RelativeDistanceMetric.from: string",
+      "reason": "`from` names a body, not a moment"
+    },
+    {
+      "rule": "time",
+      "site": "RelativeDistanceMetric.to: string",
+      "reason": "`to` names a body, not a moment"
+    },
+    {
+      "rule": "time",
+      "site": "ViewSettings.start: string",
+      "reason": "`start` is the id of the view to show first, not a moment"
+    },
+    {
+      "rule": "time",
+      "site": "ViewsOptions.start: string",
+      "reason": "`start` is the id of the view to show first, not a moment"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "centre",
+      "site": "BodySetLayer.centreGmKm3S2",
+      "reason": "spelt `centre`; the one spelling is `center`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "centre",
+      "site": "MoonPositions.centre",
+      "reason": "spelt `centre`; the one spelling is `center`",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "frame",
+      "site": "CenteredPosition.frame",
+      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "frame",
+      "site": "CoordinatesMetric.frame",
+      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "frame",
+      "site": "ElementsBodyRecord.frame",
+      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "frame",
+      "site": "PathRule.frame",
+      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "frame",
+      "site": "PointGroup.frame",
+      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "loose",
+      "site": "MoonPositions.loadIndex",
+      "reason": "`unknown` in a public type",
+      "finding": "F5",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "loose",
+      "site": "StoryPanelsInput.panels",
+      "reason": "`unknown` in a public type",
+      "finding": "F5",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "LineStretch: startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "PaceZone: fromUtcMs/toUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "PacingInput: from/to",
+      "reason": "a span not written { start, end }",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "PositionDiscrepancy: startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "SimulationClock.stopWithin(window): startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "SimulationClock.wrapWithin(window): startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "TimeBounds: startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "TimelineWindow: startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "span",
+      "site": "WindowProvenanceSpan: startUtcMs/endUtcMs",
+      "reason": "a span not written { start, end }; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "ElementsBodyRecord.accuracy.validFromUtc: string",
+      "reason": "a moment not typed TimeInput; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "ElementsBodyRecord.accuracy.validToUtc: string",
+      "reason": "a moment not typed TimeInput; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "EventZoneChange.time: number",
+      "reason": "a moment not typed TimeInput",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "MountedScene.time: number | undefined",
+      "reason": "a moment not typed TimeInput",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "StoryPanelsInput.panels: at.utc (ISO text ending in Z only)",
+      "reason": "a moment not typed TimeInput",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "time",
+      "site": "ViewerChange.time: number",
+      "reason": "a moment not typed TimeInput",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "AddBodyOptions.labelReach: labelReach",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "AltitudeMetric.bodyRadius: bodyRadius",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "BodyFeature.latitude: latitude",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "BodyFeature.longitude: longitude",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "CameraReach.far: far",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "CameraReach.maxFocusDistance: maxFocusDistance",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "CameraReach.minFocusDistance: minFocusDistance",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "EventZoneChange.time: time",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "ExperienceObject.labelMaxDistance: labelMaxDistance",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "MountedScene.time: time",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "PacingInput.near.within: within",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "PacingInput.ramp: ramp",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "RelativeDistanceMetric.targetRadius: targetRadius",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "SceneCamera.reach: reach",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "TextureRef.desktop.minViewportWidth: minViewportWidth",
+      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
+      "finding": "F7",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "TrajectoryBase.labelReach: labelReach",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    },
+    {
+      "rule": "unit",
+      "site": "ViewerChange.time: time",
+      "reason": "a number without its unit in its name",
+      "finding": "F4",
+      "removedBy": "O-057"
+    }
+  ]
+}

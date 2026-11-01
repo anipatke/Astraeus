@@ -1,0 +1,74 @@
+{
+  "_about": "API-06 settings mapping (tools/api-rules.mjs addressParameters). `public`: each page-address parameter the viewer reads, mapped to the public `Export.member` that sets the same thing (checked against the real public surface). `addressOnly`: parameters with no public setting yet: reason, review finding (docs/architecture/api-review-2026-11-01.md), Objective expected to give them one. A parameter that gets a public key, or is no longer read, must come off `addressOnly`.",
+  "public": {
+    "view": "MountedScene.setCamera",
+    "t": "MountedScene.setTime",
+    "scale": "Scene.setScale",
+    "show": "MountedScene.setView",
+    "up": "FollowView.up",
+    "loop": "TimelineInput.loop",
+    "labels": "AddBodyOptions.showLabel"
+  },
+  "addressOnly": [
+    {
+      "param": "featurepx",
+      "reason": "feature marker size: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "loadfade",
+      "reason": "load fade time: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "markerpx",
+      "reason": "marker size: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "milkyway",
+      "reason": "Milky Way on or off: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "milkywaybrightness",
+      "reason": "Milky Way brightness: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "sky",
+      "reason": "sky hidden for a comparison: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "stars",
+      "reason": "star brightness: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "sunbrightness",
+      "reason": "Sun glow brightness: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "sunglow",
+      "reason": "Sun glow size: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    },
+    {
+      "param": "sunglowscale",
+      "reason": "Sun glow scale: reachable only through the page address or the Developer drawer",
+      "finding": "F11",
+      "removedBy": "O-056"
+    }
+  ]
+}

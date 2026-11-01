@@ -18,9 +18,12 @@
     "check:engine-alone": "node tools/check-engine-alone.mjs",
     "check:pack": "node tools/check-packs.mjs",
     "check:node-consumer": "node tools/check-node-consumer.mjs",
+    "check:react-consumer": "node tools/check-react-consumer.mjs",
     "build:packages": "node tools/build-packages.mjs",
     "build:example": "node tools/build-example.mjs",
     "measure:example": "node tools/measure-example.mjs",
+    "api:lock": "node tools/api-surface.mjs",
+    "api:errors": "node tools/api-rules.mjs readme",
     "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },
   "dependencies": {
@@ -38,6 +41,7 @@
     "playwright-core": "1.59.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "semver": "^7.8.5",
     "three": "^0.169.0",
     "typescript": "7.0.2",
     "typescript-eslint": "8.71.2",

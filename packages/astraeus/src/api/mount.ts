@@ -36,7 +36,7 @@ export interface MountedScene {
   setRate(rate: number | "auto"): void;
   /** Switches to the view with this id (`setViews`). An unknown id, or a scene without views, throws `bad-view`; before `ready` or after `unmount` throws `missing-data`. `onChange` hears it with `cause: "host"`. */
   setView(id: string): void;
-  /** The camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, the pose a copied view link carries); undefined until `ready`, before the first frame is drawn, and after `unmount`. Keep it and hand it to `setCamera` to put the camera back. */
+  /** The camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, the pose a copied view link carries); undefined until `ready` and after `unmount`; before the first frame is drawn it is the opening camera. Keep it and hand it to `setCamera` to put the camera back. */
   readonly camera: CameraPose | undefined;
   /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, or a pose from `camera` puts it back where it was read (relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `missing-data`. The camera eases there. */
   setCamera(target: CameraTarget): void;
