@@ -252,6 +252,36 @@ Behaviour change from 0.7.0: 0.7.0 read these parameters and wrote the address w
 
 The demo site's own switchers (`experience`, `planet`, `shower`, and the Developer tools' data choice) change the page address to rebuild the page; they belong to the site, not to `mount` or `AstraeusScene`.
 
+## Errors
+
+Every call that refuses its input throws a `SceneError`, a `RangeError` with a stable `code` to branch on and a message that names the offending value and what to do. One code means one cause. The table is generated from the doc comments of `SceneErrorCode` (`npm run api:errors` rewrites it) and a test keeps it in sync.
+
+<!-- error-table:start (generated from the SceneErrorCode doc comments in packages/astraeus/src/api/errors.ts by `npm run api:errors`) -->
+| `code` | Meaning |
+|---|---|
+| `unknown-body` | A body or path id is not in the catalogue or the scene. |
+| `duplicate-id` | An id is already used in the scene, so the new body, path, group or orbit line cannot take it. |
+| `bad-time` | A moment is not a valid time, or lies outside the span it must fall in. |
+| `bad-trajectory` | A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. |
+| `bad-scale` | The scale is not one of the engine's scales, or does not suit this scene. |
+| `missing-data` | Position data a body needs was not given to the viewer: pass its data package, or open the viewer first. |
+| `out-of-span` | The timeline reaches outside the years a body's data package covers. |
+| `empty-scene` | The scene has no bodies to show. |
+| `bad-element` | An orbital-elements record, or the element to mount into, is malformed. |
+| `no-orbit` | An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. |
+| `bad-anchor` | A path anchor is malformed, repeated or outside the path. |
+| `bad-readout` | A readout is of an unknown kind, or lacks or misnames the body or activity it measures. |
+| `bad-event` | An event is malformed, repeated or names an object that is not in the scene. |
+| `bad-panels` | The story panels are malformed. |
+| `bad-timeline` | The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. |
+| `bad-switch` | A display switch is unknown or malformed. |
+| `bad-body` | An option of `addBody` is malformed. |
+| `bad-group` | A point group is malformed or refers to a body that is not in the scene. |
+| `bad-activity` | An activity curve is malformed or repeated. |
+| `bad-camera` | A camera call or pose is malformed, or names an object the view cannot show. |
+| `bad-view` | A scene view is malformed, repeated, or not one of the scene's views. |
+<!-- error-table:end -->
+
 ## Loading in your build and in tests
 
 `planetModels` (the planet series), the Developer drawer's panels and `MoonFamilyPanel` are separate files that your build loads later, on demand. After you redeploy, a tab left open may ask for a file name that no longer exists. In a Vite host, reload the page when that happens:

@@ -9,3 +9,6 @@ export function writeLock(path?: string): void;
 export function readLock(path?: string): Surface;
 export function surfaceDifferences(lock: Surface, now: Surface): string[];
 export function outsideApiTypes(entry?: string, apiDir?: string, repoRoot?: string): string[];
+export const OPTIONS: Record<string, unknown>;
+export const isOwnFile: (file: string) => boolean;
+export const privateName: (name: string) => boolean;

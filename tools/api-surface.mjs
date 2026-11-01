@@ -54,12 +54,12 @@ export function surfaceDifferences(lock, now) {
   return lines;
 }
 
-const OPTIONS = {
+export const OPTIONS = {
   target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler, jsx: ts.JsxEmit.ReactJSX,
   strict: true, skipLibCheck: true, noEmit: true, resolveJsonModule: true, lib: ["lib.es2022.d.ts", "lib.dom.d.ts", "lib.dom.iterable.d.ts"], types: [],
 };
-const isOwnFile = (file) => !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.test(file);
-const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
+export const isOwnFile = (file) => !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.test(file);
+export const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
 
 /**
  * Types reachable from the root export that are declared in a repository file outside the entry's folder (`src/api/`), as `Name (path/relative/to/repo)`, and

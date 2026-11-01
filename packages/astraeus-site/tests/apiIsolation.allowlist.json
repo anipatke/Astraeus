@@ -1,0 +1,957 @@
+{
+  "_about": "API-03 viewer isolation scans (tools/api-rules.mjs idLiteralBreaks, styleSelectorBreaks). One entry per break: reason, review finding (docs/architecture/api-review-2026-11-01.md), Objective expected to remove it. `id`: a fixed element id literal in src/shell or src/app. `selector`: a selector in src/app/style.css that is not under the viewer's root class (.astraeus-shell) or that names :root, html, body or #app. An entry that no longer matches a break fails the test; entries may only be removed.",
+  "breaks": [
+    {
+      "rule": "id",
+      "site": "app/App.tsx: aria-labelledby={`developer-${section.id}-heading`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/App.tsx: id=\"orbit-fine-tune\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/App.tsx: id=\"timeline-glow\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/App.tsx: id={`developer-${section.id}-heading`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: aria-labelledby=\"developer-scene-heading\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"body-set-dots\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"body-set-orbits\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"data\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"developer-scene-heading\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"glow\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"lighting\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"sky\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id=\"story-panels\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/DeveloperSettings.tsx: id={`rings-${rings.body}`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/FrameRateSection.tsx: aria-labelledby=\"developer-frame-rate-heading\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/FrameRateSection.tsx: id=\"developer-frame-rate-heading\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/SettingControls.tsx: aria-labelledby={`setting-group-${id}`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "app/SettingControls.tsx: id={`setting-group-${id}`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/AstraeusShell.tsx: aria-controls=\"moons-panel\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/AstraeusShell.tsx: id=\"developer-tools\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/AstraeusShell.tsx: id=\"moons-panel\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/bootLoader.ts: document.getElementById(\"boot\")",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/ControlsDrawer.tsx: aria-controls=\"controls-drawer\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/ControlsDrawer.tsx: id=\"controls-drawer\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/InfoPanel.tsx: aria-labelledby=\"info-panel-title\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/InfoPanel.tsx: id=\"info-panel-title\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/InfoPanel.tsx: id=\"info-panel\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/MoonFamilyPanel.tsx: id={`moons-${family.id}-unnamed`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/MoonFamilyPanel.tsx: id={`moons-${family.id}`}",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/ObjectControls.tsx: aria-controls=\"info-panel\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/StoryPanelView.tsx: aria-labelledby=\"story-panel-title\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/StoryPanelView.tsx: id=\"story-panel-title\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/TimelineBar.tsx: aria-controls=\"info-panel\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/TimelineBar.tsx: aria-controls=\"timeline-drawer\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/TimelineBar.tsx: id=\"timeline-drawer\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "id",
+      "site": "shell/TopBar.tsx: aria-controls=\"developer-tools\"",
+      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ":root",
+      "reason": "Styles the host page itself (:root, html, body or #app)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": "html",
+      "reason": "Styles the host page itself (:root, html, body or #app)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": "body",
+      "reason": "Styles the host page itself (:root, html, body or #app)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": "#app",
+      "reason": "Styles the host page itself (:root, html, body or #app)",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".canvas-host",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud > *",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".developer-heading",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section-clock",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".developer-heading h2",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".developer-heading p",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section h3",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section h4",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section-frame .frame-body",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section-frame .frame-readouts",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-body > p",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud > .dev-group",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".collapsible-heading",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .collapsible-toggle",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .collapsible-toggle svg",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .collapsible-toggle[aria-expanded=\"true\"] svg",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".collapsible-body",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".collapsible-body[hidden]",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".dev-group-cards > .collapsible-body",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".dev-group-cards > .collapsible-body > *",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".dev-group-cards .hud-section-clock",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".collapsible-nested",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .collapsible-nested .collapsible-toggle",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".setting-group",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".setting-group:last-child",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".setting-group > h4",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting-label",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting input[type=\"range\"]",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting output",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting-buttons",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting-buttons.has-label",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .setting-buttons.has-label > div",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .row",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud button",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud input",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud select",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud button:hover:not(:disabled)",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud select:hover",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud button[aria-pressed=\"true\"]",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .readout",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .controls",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .controls .row:first-child",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .controls .row:last-child input[type=\"range\"]",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .rate-help",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .scale-help",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .error",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary > p",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary details",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary summary",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".advanced-readouts summary",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary details > strong",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-summary ul",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .spacecraft-grid",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".spacecraft-card",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".spacecraft-card-header",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".spacecraft-card-header h4",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".telemetry-state",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".telemetry-state > span",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".spacecraft-metrics",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .mission-empty",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".scale-controls",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".scale-controls .scale-help",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".scientific-instruments",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".instrument-grid",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".instrument-grid .metric-phase",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".instrument-grid .metric-coordinates",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud-section-clock .metric-progress",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".advanced-readouts",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .advanced-readouts .overlay",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .overlay",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-readouts",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .overlay div",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-readouts div",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .overlay dt",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-readouts dt",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .overlay dd",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-readouts dd",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".anchor-labels",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".anchor-label",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .fps-graph",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .tone-good",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .tone-warn",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .tone-bad",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .fps-graph line.tone-good",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .fps-graph line.tone-warn",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .fps-graph line.tone-bad",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .frame-readouts dd[class^=\"tone-\"]",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .fps-graph-key",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .view-link",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .view-link-values",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .view-link-field",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    },
+    {
+      "rule": "selector",
+      "site": ".hud .view-link-field input",
+      "reason": "Not under the viewer's root class, so it can restyle the host's own elements",
+      "finding": "F3",
+      "removedBy": "O-055"
+    }
+  ]
+}
