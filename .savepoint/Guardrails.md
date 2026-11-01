@@ -41,6 +41,22 @@ If a rule can block a Check's verdict or require remediation, it must be defined
 | PROV-01 | Required | Reconstructed, approximated or illustrative data carries provenance and its published known limitations, and is never presented as measured or exact. |
 | PROV-02 | Required | Every texture carries a recorded source and licence, or an explicit local-only declaration naming its public replacement; a public build contains no local-only bytes. |
 
+### Public API
+
+Adopted 2026-11-01 from the whole-package review ([api review](../docs/architecture/api-review-2026-11-01.md), owner decisions D1–D10, Goal G-016). Each rule is mechanised where it says so; code that broke a rule before G-016 sits on that check's allowlist with a reason, an allowlist may only shrink, and G-016's Objectives empty it. A new entry needs the owner's approval.
+
+| ID | Severity | Rule |
+|---|---|---|
+| API-01 | Required | **One front door.** Everything a host can do is reachable from `import … from "astraeus"` (plus `astraeus/style.css`), and no public type exposes an internal one. Checked by the API-surface lock and the reachable-type check; a change to the public surface updates the lock and the CHANGELOG in the same change. |
+| API-02 | Required | **Same abilities on both embedding paths.** A React host reads, sets and hears everything a `mount` host can, through the same handle type; one lifecycle test suite runs against both paths. |
+| API-03 | Required | **Each viewer keeps its own state.** Two viewers on one page, or one viewer rebuilt with a new scene, behave as if alone: no page-wide data cache that skips loading, no fixed DOM ids, no styles outside the viewer's root class. Checked by a two-viewer test, an id-literal scan and a CSS selector scan. |
+| API-04 | Required | **One word, one unit, one shape; typed inputs checked early.** A number carries its unit in its name unless it has none; `center` is the only spelling; every span is `{ start, end }`; every moment input accepts `TimeInput`; a frame field is called `plane`; no public input is typed `unknown` or `any`; shape errors throw at the call that received them. Checked by the public-type lint. |
+| API-05 | Required | **Errors.** Every throw from `src/api/` is a `SceneError`; one code means one cause; errors are never recognised by their message text; the README error table is generated from the code list. Checked by the plain-throw scan and the README sync test. |
+| API-06 | Required | **Looks and viewer controls are public settings with defaults.** The page address only overrides a public setting; no look or control is reachable only through the address, the Developer drawer or the internal definition. Checked by a mapping test between address settings and public setting keys. |
+| API-07 | Required | **Honest versions and docs.** Peer ranges state what was tested; each data package requires the engine minor it was built with (`check:pack`); README API tables are checked against the types. |
+
+ARCH-01 also covers the built-in catalogue: it holds the Sun, planets, dwarf planets and moons only; comets, probes and other story bodies arrive through the public API (owner D5, 2026-11-01).
+
 ### Data
 
 | ID | Severity | Rule |
