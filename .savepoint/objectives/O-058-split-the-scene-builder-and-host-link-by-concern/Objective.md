@@ -1,7 +1,7 @@
 ---
 id: O-058
 title: Split the scene builder and host link by concern
-status: planned
+status: done
 depends_on: [O-053]
 release: G-016
 priority: high
