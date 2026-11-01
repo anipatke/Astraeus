@@ -94,8 +94,8 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.provenanceOf(id)` | Where a body's position comes from, as its info card shows it. Where a comparison with an independent ephemeris exists it carries `accuracyClass` and `maxErrorFraction`. For built-in Swift-Tuttle that fraction is measured (0.00857). For a body from `addBodyFromElements` it is the limit of its class (0.01 `approximate`, 0.05 `indicative`): an upper bound, not a measured figure. Other bodies carry neither field. |
 | `scene.camera.follow(id, { azimuthDeg?, elevationDeg?, distance? })` | Opens framed on a body or trajectory already added, and already following it. `distance` is in Earth radii. |
 | `scene.camera.lookAt(id, { azimuthDeg?, elevationDeg?, distance? })` | The same opening view without following. The last of `follow` and `lookAt` wins. The viewer's camera menu gets a Focus and a Follow entry for every body and path. |
-| `mount(element, scene, { data?, onChange? })` | Draws the scene with the full viewer. Returns `{ ready, unmount(), time, rate, view, setTime(t), setRate(r), setView(id), onChange(fn) }`. `data` is a list of data packages (below); the time and speed members are described under "Reading and setting the time". |
-| `<AstraeusScene scene data? onReady? onError? time? rate? view? onChange? />` | The same viewer as a React component (below). |
+| `mount(element, scene, { data?, onChange? })` | Draws the scene with the full viewer. Returns `{ ready, unmount(), time, rate, view, camera, eventZones, setTime(t), setRate(r), setView(id), setCamera(target), onChange(fn), onEventZone(fn) }`. `data` is a list of data packages (below); the time and speed members are described under "Reading and setting the time". |
+| `<AstraeusScene scene data? onReady? onError? time? rate? view? camera? onChange? onEventZone? />` | The same viewer as a React component (below). |
 | `SceneError` | Thrown for bad input. `error.code` is one of the documented `SceneErrorCode` values (for example `unknown-body`, `bad-time`, `missing-data`, `no-orbit`) and the message says what to do. |
 
 Checking accuracy and records without a scene: the class limits are root exports (`APPROXIMATE_LIMIT_FRACTION`, `INDICATIVE_LIMIT_FRACTION`), `classifyPositionError(maxFraction)` returns `"approximate"`, `"indicative"` or `null` (neither) for a measured largest error fraction, and `parseElementsBodyRecord(record)` validates an elements record (the same check `addBodyFromElements` makes, throwing `bad-element` naming the field):
@@ -124,7 +124,7 @@ export const App = () => (
 );
 ```
 
-Props: `scene`, `data` (as for `mount`), `onReady`, `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
+Props: `scene`, `data` (as for `mount`), `onReady` (called once drawn and the viewer's clock is attached, the same moment `mount`'s `ready` resolves, and again after each rebuild), `onError` (a bad scene or failed data load), `className` and `style` for the wrapper. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. It needs React 19 and the peer dependencies (`react`, `react-dom`, `@react-three/fiber`, `three`). See `examples/hello-react` in the repository.
 
 ## Reading and setting the time
 
@@ -132,6 +132,7 @@ The viewer has one clock (and, with `setViews`, one current view: rows below). A
 
 | Name | What it does |
 |------|--------------|
+| `handle.ready` | Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every `set` call work on the line after `await handle.ready`; no extra frame or wait. Rejects if loading failed. Never resolves if `unmount` came first. |
 | `handle.time`, `handle.rate` | The clock now. `undefined` until `ready` has resolved and after `unmount`. |
 | `handle.setTime(time)` | Moves the viewer to `time` (ISO text, a `Date` or milliseconds). Outside the timeline throws `bad-time`. Before `ready` or after `unmount` throws `missing-data`. |
 | `handle.setRate(rate)` | Sets the speed to one the timeline offers (`setTimeline({ rates })`). Any other number throws `bad-timeline`: the speed menu always shows what is running, so a custom speed is refused, not added. `handle.setRate("auto")` hands the speed back to the scene's pacing (below); without pacing it throws `bad-timeline`. |
@@ -139,6 +140,9 @@ The viewer has one clock (and, with `setViews`, one current view: rows below). A
 | `<AstraeusScene time rate onChange />` | `time` and `rate` are applied once the viewer is drawn and again whenever their value changes (a new `Date` of the same moment does not seek again); they are not controlled values, so read the live time from `onChange`. A bad one goes to `onError`. |
 | `handle.view`, `handle.setView(id)` | The id of the view showing (`setViews`), and a switch to another, as if a visitor pressed its button: the same camera rule applies. `view` is `undefined` until `ready`, after `unmount`, and in a scene without views. `setView` with an unknown id, or on a scene without views, throws `bad-view`; before `ready` or after `unmount`, `missing-data`. `onChange` hears it with `cause: "host"` (a visitor's own choice is `"visitor"`). |
 | `<AstraeusScene view />` | Switches to that view once drawn and whenever it changes; not a controlled value (a visitor can switch too), so read the live view from `onChange`. An unknown id goes to `onError` as `bad-view`. |
+| `handle.setCamera(target)` | Points the camera, through the same request path a view's camera rule uses; it eases there. `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, and a pose from `handle.camera` puts the camera back (below). The object must be one the showing view shows: an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `missing-data`. |
+| `handle.camera` | The camera now as a plain value `{ focus, azimuthDeg, elevationDeg, distance }` (the pose a copied view link carries: the object's id, angles about the up direction in degrees to 0.01, distance in Earth radii to five figures). Safe to keep, store or `JSON.stringify`. `undefined` until `ready` and after `unmount`; from `ready` on it is always defined (before the scene's first frame it is the opening pose, the scene's start view or default framing). `setCamera(handle.camera)` after the visitor has moved the camera puts it back at the same angles and distance from the same object, within the rounding; the offset is the object's own, so an object that moved meanwhile is followed from where it is now. A camera held in place by a view's `"stay"` rule reads as its last object, which is not where it looks. |
+| `<AstraeusScene camera />` | `{ follow: id }`, `{ focus: id }` or a pose, applied once drawn and whenever its value changes (a new object with the same target does not apply again); not a controlled value. A bad one goes to `onError` as `bad-camera`. |
 
 ```ts
 const mounted = mount(el, scene);
@@ -183,6 +187,20 @@ A long journey wants fast cruising and slow encounters. `setTimeline` takes `pac
 
 Speeds ease between pieces in log space over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span; `ramp: 0` steps), so a jump from cruise to encounter is smooth both ways. The paced speed depends only on the time, so seeking or looping lands on the right speed at once. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed. A piece's `rate` is any positive number and need not be in `rates`. Mistakes throw `bad-timeline` naming the field (`pacing[1].rate`); an event `type` that matches no event is refused too, since a typo would otherwise slow nothing.
 
+In a scene with views (`setViews`), an event rule slows playback only near the events the showing view has (an event no view names is in every view); spans apply in every view. A switch that changes the paced speed eases to the new one in log space over about a second, while seeking lands on the paced speed at once. A scene without views paces exactly as before.
+
+Event zones: `mounted.onEventZone(listener)` (React: the `onEventZone` prop) tells the page when playback enters or leaves the zone of an event rule, for an event the showing view has. `listener({ event, type?, object?, entered, time, cause, via })` gets the event's id, its `type` and `object`, `entered` true on entering and false on leaving, the viewer's time, and `cause`: `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); and `via`: `"time"` (playback crossed the zone, or a seek moved the clock across it) or `"view"` (a view switch showed or hid it). After a `"view"` leave the view's own camera rule owns the camera, so a page that restores a camera does so only for `via === "time"`. The zones are the ones pacing uses: `near` rules only, never a span, and only the showing view's events. A view switch that hides an active zone reports leave and one that shows a zone the time is inside reports enter; overlapping zones report separately. A zone the time is already inside when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second, cause `playback`), so a listener added right after `await ready` hears it; a rebuilt viewer starts over the same way. `onEventZone` returns the function that stops it; nothing arrives after `unmount`. `mounted.eventZones` reads the ids of the zones active now (`[]` in a scene with no event rules; `undefined` before `ready` and after `unmount`). The engine moves nothing in response; the page composes its own behaviour:
+
+```ts
+// Camera to the encounter and back: the page decides, the engine only says when.
+let saved = mounted.camera;
+mounted.onEventZone(({ entered, object, via }) => {
+  if (entered) { saved = mounted.camera; if (object) mounted.setCamera({ follow: object }); } // follow the probe at the flyby
+  else if (via === "time" && saved) mounted.setCamera(saved);                               // and put the camera back after it
+  if (!entered) saved = undefined;                                                          // a view switch's camera rule owns the camera: nothing to restore
+});
+```
+
 With pacing the speed menu gains an **Auto** choice, selected from the start. Picking a speed (menu, or `setRate(number)`) takes over until the visitor chooses Auto or the host calls `setRate("auto")`. `onChange` reports the speed pacing runs at (`cause: "playback"`), and `handle.rate` reads it.
 
 ```ts
@@ -207,6 +225,32 @@ The viewer is built to sit in a host page without taking it over. It never chang
 A scene with no `setTime`, `setTimeline` or trajectory opens on the current time, with a window of a month around it.
 
 Story panels (`addStoryPanels`): a panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself. `at.utc` may be any instant inside the timeline, in any year. When a panel opens by itself, `pauseSeconds` (default 6) holds playback and then restarts it, unless the visitor pressed Play during the hold. On a phone, a wheel or pinch over an open story sheet zooms the scene behind it. `camera.setReach(d)` sets how far the camera can zoom out and also sets the far plane to 2.5 times `d`.
+
+## Page address
+
+The viewer leaves your page's address alone. By default it reads no address parameter, never calls `history.replaceState`, and shows no "Copy view link" button, so your own `?view=` or `?t=` means nothing to it. Turn it on with `mount(element, scene, { address: true })` or `<AstraeusScene scene={scene} address />` (read once, when the viewer is built). With it on the viewer reads the parameters below when it opens, and the Developer tools' "Copy view link" button writes `view`, `scale`, `up`, `t` and, in a scene with views, `show` into the address (other parameters are kept) and copies the link. Everything the viewer does with the address goes through one file in the engine's source, so this table is complete.
+
+Behaviour change from 0.7.0: 0.7.0 read these parameters and wrote the address whatever the host did, which made a host's own `?view=` or `?t=` move the viewer and let a copied link overwrite the host's address. Hosts that want the old behaviour pass `address: true`; the demo site does.
+
+| Parameter | Meaning | Format | Read | Written |
+|-----------|---------|--------|------|---------|
+| `view` | Camera view at the start | `focus,azimuthDeg,elevationDeg,distance` (focus is an id in the scene; a bad value is ignored) | yes | yes |
+| `t` | Time at the start | ISO UTC, such as `2026-08-12T21:00:00Z` | yes | yes, to the second |
+| `scale` | Distance scale at the start | an id the scene's scale menu offers (others ignored) | yes | yes |
+| `up` | Which direction is up for the camera | `ecliptic` or `equatorial` | yes | yes |
+| `show` | The view showing, in a scene with `setViews` | a view id; an unknown id opens the scene's `start` view | yes | yes, with views only |
+| `stars` | Star brightness | number 0 to 2 | yes | no |
+| `milkyway` | The Milky Way picture | `on` or `off` | yes | no |
+| `milkywaybrightness` | Milky Way brightness | number 0 to 2 | yes | no |
+| `sky` | The whole sky | `off` hides it | yes | no |
+| `labels` | Object labels at the start | `id:on` or `id:off`, comma-separated | yes | no |
+| `loop` | Looping playback | `on` or `off` | yes | no |
+| `markerpx` | Size below which a sphere is drawn as a marker | number 0 to 100 | yes | no |
+| `featurepx` | Narrowest body that still shows its feature markers | number 0 to 2000 | yes | no |
+| `sunglow`, `sunbrightness`, `sunglowscale` | The Sun's glow: size in pixels, brightness, scale | numbers 0 to 400, 0 to 2, 1 to 6 | yes | no |
+| `loadfade` | Seconds the loading cover fades | number 0 to 3 | yes | no |
+
+The demo site's own switchers (`experience`, `planet`, `shower`, and the Developer tools' data choice) change the page address to rebuild the page; they belong to the site, not to `mount` or `AstraeusScene`.
 
 ## Loading in your build and in tests
 

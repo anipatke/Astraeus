@@ -19,7 +19,7 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { byLabel, change } from "./domSetup";
+import { byLabel, change, drawn } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -42,7 +42,7 @@ describe("paced playback in the viewer", () => {
   it("opens at the cruise rate, follows the pacing as time moves, and the menu shows Auto", async () => {
     const seen: ViewerChange[] = [];
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(handle.rate).toBe(RATES[2]);
     expect(menu().value).toBe("auto");
     expect([...menu().options].map((o) => o.value)).toEqual(["auto", ...[...RATES].sort((a, b) => a - b).map(String)]);
@@ -59,7 +59,7 @@ describe("paced playback in the viewer", () => {
 
   it("lets a visitor's speed win until Auto, and the host's too until setRate(\"auto\")", async () => {
     const handle = mount(host, new Scene());
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     act(() => change(menu(), String(RATES[0])));
     expect(menu().value).toBe(String(RATES[0]));
     act(() => handle.setTime(MID + 120_000));

@@ -27,7 +27,7 @@ const controls = () => sceneProps.latest!.controls;
 /** Opens the page at an address, as a visitor or a copied link does. */
 const visit = (search: string) => window.history.replaceState(null, "", `/app.html${search}`);
 async function open(definition: ExperienceDefinition = syntheticDefinition, onOpenAddress?: (address: string) => void): Promise<void> {
-  await act(async () => { root.render(createElement(App, { definition, ...(onOpenAddress === undefined ? {} : { onOpenAddress }) })); });
+  await act(async () => { root.render(createElement(App, { definition, address: true, ...(onOpenAddress === undefined ? {} : { onOpenAddress }) })); });
 }
 const button = (name: string | RegExp) => [...container.querySelectorAll("button")].find((b) => (typeof name === "string" ? b.textContent === name : name.test(b.textContent ?? "")))!;
 /** Lets the on-demand panels a press just asked for arrive. */

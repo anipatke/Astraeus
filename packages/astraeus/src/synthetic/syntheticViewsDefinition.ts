@@ -2,6 +2,7 @@
 // Two invented probes circle Earth (a on a flat 40,000 km circle, one lap in 6 hours; b on a tilted 70,000 km circle, one lap in 9 hours). Earth is shared by every view.
 // Three views, each with a different camera rule: "a" stays (the camera holds where it was), "b" follows probe b and "both" frames probe a (a focus: start with framing). The scene opens on view "a" following probe a.
 // A rule applies only when the object the camera follows or focuses on is not in the view switched to, so here it is "a" (coming from b) and "b" (coming from a) that show it at work; "both" hides nothing and its rule is only resolved.
+// O-052 T-227: events a and b are "flyby" events with a pacing rule (60x within 30 minutes), which slows playback only in the views that have them; the shared event has no type, so it never paces.
 // A new scene rather than the synthetic journey gaining views: the journey is a historical probe through the real planets, and views need two simple paths, a shared body and distinct events and panels that
 // no other check depends on (the journey's checks and its Object list stay exactly as they were).
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -32,8 +33,8 @@ const scene = new Scene()
   .addTrajectory({ id: "probe-a", label: "Probe A", samples: circle(40_000, 6, 0), provenance: madeUp, description: "A made-up probe on a flat circle.", knownLimitations: ["Made up; not a real spacecraft."] })
   .addTrajectory({ id: "probe-b", label: "Probe B", samples: circle(70_000, 9, 35), provenance: madeUp, description: "A made-up probe on a tilted circle.", knownLimitations: ["Made up; not a real spacecraft."] })
   .addEvents([
-    { id: "event-a", label: "Probe A event", time: VIEWS_START_UTC_MS + 3 * HOUR_MS },
-    { id: "event-b", label: "Probe B event", time: VIEWS_START_UTC_MS + 9 * HOUR_MS },
+    { id: "event-a", label: "Probe A event", time: VIEWS_START_UTC_MS + 3 * HOUR_MS, type: "flyby", object: "probe-a" },
+    { id: "event-b", label: "Probe B event", time: VIEWS_START_UTC_MS + 9 * HOUR_MS, type: "flyby", object: "probe-b" },
     { id: "event-shared", label: "Shared event", time: VIEWS_START_UTC_MS + 21 * HOUR_MS },
   ], { provenance: madeUp })
   .addStoryPanels({ panels: [panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)] })
@@ -42,7 +43,7 @@ const scene = new Scene()
     { id: "b", label: "Probe B", paths: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
     { id: "both", label: "Both", paths: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
   ], { place: "top-bar" })
-  .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600 })
+  .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", within: 1800 }, rate: 60 }] })
   .setScale(trueScale, { only: true })
   .setTime(VIEWS_START_UTC_MS);
 scene.camera.follow("probe-a", { distance: 14 });

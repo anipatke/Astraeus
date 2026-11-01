@@ -5,7 +5,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
-import { ViewerLink, type ViewerChange } from "./viewerLink";
+import { ViewerLink, type CameraTarget, type EventZoneChange, type ViewerChange } from "./viewerLink";
 
 /** Props of `AstraeusScene`. */
 export interface AstraeusSceneProps {
@@ -13,7 +13,7 @@ export interface AstraeusSceneProps {
   readonly scene: Scene;
   /** Data packages the scene's bodies need, such as moon pictures or positions. Read when the scene is built, so a new array alone does not rebuild. */
   readonly data?: readonly DataSource[];
-  /** Called once the scene's data has loaded and it is drawn (again after each rebuild). */
+  /** Called once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again after each rebuild). */
   readonly onReady?: () => void;
   /** Called when the scene cannot be built (a `SceneError`) or its data fails to load. */
   readonly onError?: (error: Error) => void;
@@ -23,8 +23,14 @@ export interface AstraeusSceneProps {
   readonly rate?: number | "auto";
   /** Switches to this view (an id from `setViews`) once drawn, and again whenever it changes. Not a controlled value: a visitor can switch too, and the view showing arrives through `onChange`. An unknown id, or a scene without views, reports `bad-view` to `onError`. */
   readonly view?: string;
+  /** Points the camera once drawn, and whenever the target changes by value (a new object with the same target does not re-apply): `{ follow: id }`, `{ focus: id }` or a pose read from a `mount` handle. Not a controlled value: a visitor can move the camera afterwards. A bad one reports `bad-camera` to `onError`. */
+  readonly camera?: CameraTarget;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
+  /** Called when playback enters or leaves the pacing zone of an event the showing view has: `{ event, type?, object?, entered, time, cause }` (see `MountedScene.onEventZone`). A zone already active when the viewer opens reports `entered` once, just after `onReady`. */
+  readonly onEventZone?: (change: EventZoneChange) => void;
+  /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
+  readonly address?: boolean;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
   /** Style for the wrapper element. */
@@ -42,15 +48,16 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
-  const latest = useRef({ data, onReady, onError, onChange });
-  latest.current = { data, onReady, onError, onChange };
+  const latest = useRef({ data, onReady, onError, onChange, onEventZone });
+  latest.current = { data, onReady, onError, onChange, onEventZone };
   const [link] = useState(() => new ViewerLink());
   useEffect(() => {
     const stop = link.onChange((change) => latest.current.onChange?.(change));
-    return () => { stop(); link.close(); };
+    const stopZones = link.onEventZone((change) => latest.current.onEventZone?.(change));
+    return () => { stop(); stopZones(); link.close(); };
   }, [link]);
   // A Date made fresh each render must not seek again, so the moment is compared by value.
   const timeKey = time instanceof Date ? time.getTime() : time;
@@ -59,25 +66,35 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
   const apply = (set: () => void) => {
     try { set(); } catch (cause) { latest.current.onError?.(asError(cause)); }
   };
+  const cameraKey = camera === undefined ? undefined : JSON.stringify(camera);
+  const cameraRef = useRef(camera);
+  cameraRef.current = camera;
   const drawn = definition !== undefined;
   useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!)); }, [drawn, link, cameraKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let open = true;
     setDefinition(undefined);
+    link.detach(); // a rebuild: the old viewer is going, so `onReady` below waits for the new one's attach
     try {
       const prepared = prepareScene(scene, latest.current.data);
       prepared.ready.then(
-        () => { if (open) { setDefinition(prepared.definition); latest.current.onReady?.(); } },
+        () => {
+          if (!open) return;
+          setDefinition(prepared.definition);
+          // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
+          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(); });
+        },
         (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
       );
     } catch (cause) {
       latest.current.onError?.(asError(cause));
     }
     return () => { open = false; };
-  }, [scene]);
+  }, [scene, link]);
 
-  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} host={link} /> : null}</div>;
+  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} host={link} /> : null}</div>;
 }

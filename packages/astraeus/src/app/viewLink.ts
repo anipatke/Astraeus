@@ -91,24 +91,22 @@ export function scaleFromSearch(search: string): string | undefined {
   return raw === null || raw === "" ? undefined : raw;
 }
 
-/** The address search for a view: the current search with `view`, `scale`, `up` and `t` set (other parameters kept). */
-export function viewLinkSearch(search: string, state: { view: StartView; scaleId: string; up: string; timeUtcMs: number }): string {
+/** What a copied link carries. `show` is the id of the scene view showing, left out in a scene without views. */
+export interface ViewLinkState { view: StartView; scaleId: string; up: string; timeUtcMs: number; show?: string }
+
+/** `?show=<view id>` (a scene's `setViews` id), or undefined. The caller checks the id against the scene's views. */
+export function showFromSearch(search: string): string | undefined {
+  const raw = new URLSearchParams(search).get("show");
+  return raw === null || raw === "" ? undefined : raw;
+}
+
+/** The address search for a view: the current search with `view`, `scale`, `up`, `t` and, with views, `show` set (other parameters kept). */
+export function viewLinkSearch(search: string, state: ViewLinkState): string {
   const params = new URLSearchParams(search);
   params.set("view", formatView(state.view));
   params.set("scale", state.scaleId);
   params.set("up", state.up);
   params.set("t", new Date(Math.round(state.timeUtcMs / 1000) * 1000).toISOString());
+  if (state.show !== undefined && state.show !== "") params.set("show", state.show);
   return `?${params.toString().replace(/%2C/gi, ",").replace(/%3A/gi, ":")}`;
-}
-
-/**
- * Writes the view link into the address (so a reload keeps the view), then copies the full link. `copied` is false when the clipboard refuses; the caller then shows the link to copy by hand.
- */
-export async function shareViewLink(state: { view: StartView; scaleId: string; up: string; timeUtcMs: number }): Promise<{ readonly url: string; readonly copied: boolean }> {
-  const search = viewLinkSearch(window.location.search, state);
-  try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
-  const url = `${window.location.origin}${window.location.pathname}${search}`;
-  let copied = false;
-  try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
-  return { url, copied };
 }

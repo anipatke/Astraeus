@@ -1,0 +1,29 @@
+{
+  "name": "journey-meteor-shower",
+  "at": "2026-11-01T04:45:03.678Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "laptop",
+      "result": {
+        "switched": "geminids",
+        "geminidDots": 51115,
+        "idleAt": 31,
+        "afterNudge": 37,
+        "idleAgain": 61,
+        "afterTap": 66,
+        "whilePlaying": 60,
+        "panel": "stream-shape",
+        "start": "2019-10-04T17:23:51.359Z",
+        "middle": "2020-03-21T15:05:00.000Z",
+        "drawn": {
+          "bodies": 7,
+          "dots": 25588,
+          "paths": 6,
+          "stars": 8920
+        }
+      }
+    }
+  ],
+  "errors": []
+}

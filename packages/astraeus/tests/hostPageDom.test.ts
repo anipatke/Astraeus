@@ -15,7 +15,7 @@ import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
+import { $, drawn, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -32,7 +32,7 @@ afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.r
 describe("the page title", () => {
   it("is left alone by mount, which isolates its element", async () => {
     const handle = mount(host, new Scene());
-    await act(async () => { await handle.ready; });
+    await drawn(handle);
     expect(host.childElementCount).toBeGreaterThan(0);
     expect(document.title).toBe("Host");
     expect(host.style.isolation).toBe("isolate");

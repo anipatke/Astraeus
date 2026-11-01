@@ -8,6 +8,7 @@ import type { RenderVector } from "../src/app/renderCoordinates";
 import { focusLimits } from "../src/app/sceneFraming";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
+import { viewFromAngles, type StartView } from "../src/app/viewLink";
 
 const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]], ["sun", [0, 0, 20000]]]);
 const targets: SceneTargets = {
@@ -193,5 +194,96 @@ describe("a held camera (a view's stay rule)", () => {
     camState.fixedPoint = [1, 2, 3];
     rescaleCameraForPolicy(camState, "earth", 2);
     expect(camState.fixedPoint).toEqual([2, 4, 6]);
+  });
+});
+
+describe("a pose read and restored (the host camera, T-225)", () => {
+  /** Runs frames until the eased camera has settled, then reads the pose as the scene does every frame. */
+  const settle = (step: CameraStepInput): StartView => {
+    const origin = new FloatingOrigin();
+    for (let i = 0; i < 80; i += 1) {
+      stepCameraTarget(step);
+      resolveCamera(step.camState, cameraTargetAbsolute(step.camState, step.targets), origin, 0.5, 1e12, EQUATORIAL_UP);
+    }
+    const { camState } = step;
+    return viewFromAngles(camState.focus, camState.azimuth, camState.elevation, camState.distance);
+  };
+  const standing = (focus: string, azimuth: number, elevation: number, distance: number): CameraStepInput => {
+    const step = input();
+    Object.assign(step.camState, { focus, azimuth, targetAzimuth: azimuth, elevation, targetElevation: elevation, distance, targetDistance: distance });
+    return step;
+  };
+  const near = (a: StartView, b: StartView) => {
+    expect(a.focus).toBe(b.focus);
+    expect(a.azimuthDeg).toBeCloseTo(b.azimuthDeg, 1);
+    expect(a.elevationDeg).toBeCloseTo(b.elevationDeg, 1);
+    expect(a.distance / b.distance).toBeCloseTo(1, 4);
+  };
+
+  it("puts the camera back where it was read after the visitor moved it", () => {
+    const step = standing("moon", 2, 0.3, 9);
+    const read = settle(step);
+    Object.assign(step.camState, { focus: "earth", azimuth: 4, targetAzimuth: 4, elevation: -0.2, targetElevation: -0.2, distance: 14, targetDistance: 14 });
+    step.controls.cameraRequest = { kind: "pose", view: read };
+    near(settle(step), read);
+    expect(step.controls.cameraRequest).toBeNull();
+  });
+
+  it("each input alone: only the focus, only the azimuth, only the elevation or only the distance differs", () => {
+    const base = { azimuth: 2, elevation: 0.3, distance: 9 };
+    const changes: Array<Partial<typeof base> & { focus?: string }> = [{ focus: "earth" }, { azimuth: 5 }, { elevation: -0.4 }, { distance: 30 }];
+    for (const change of changes) {
+      const step = standing("moon", base.azimuth, base.elevation, base.distance);
+      const read = settle(step);
+      const moved = { focus: "moon", ...base, ...change };
+      Object.assign(step.camState, { focus: moved.focus, azimuth: moved.azimuth, targetAzimuth: moved.azimuth, elevation: moved.elevation, targetElevation: moved.elevation, distance: moved.distance, targetDistance: moved.distance });
+      step.controls.cameraRequest = { kind: "pose", view: read };
+      near(settle(step), read);
+    }
+  });
+
+  it("the followed object moves between read and restore: the camera restores the same offset from where the object is now", () => {
+    const step = standing("moon", 2, 0.3, 9);
+    const read = settle(step);
+    const offsetBefore = step.camState.cameraAbsolute.map((v, k) => v - step.camState.targetAbsolute[k]);
+    positions.set("moon", [400, 55, -30]);
+    try {
+      Object.assign(step.camState, { focus: "earth", azimuth: 4, targetAzimuth: 4, distance: 14, targetDistance: 14 });
+      step.controls.cameraRequest = { kind: "pose", view: read };
+      near(settle(step), read);
+      expect(step.camState.targetAbsolute).toEqual([400, 55, -30]);
+      const offsetAfter = step.camState.cameraAbsolute.map((v, k) => v - step.camState.targetAbsolute[k]);
+      offsetAfter.forEach((v, k) => expect(v / Math.hypot(...offsetBefore)).toBeCloseTo(offsetBefore[k] / Math.hypot(...offsetBefore), 4));
+    } finally {
+      positions.set("moon", [60, 0, 0]);
+    }
+  });
+
+  it("restores after the camera was following a moving object (it keeps up, then returns to the read pose)", () => {
+    const step = standing("moon", 2, 0.3, 9);
+    step.controls.cameraRequest = { kind: "follow", target: "moon" };
+    const read = settle(step);
+    positions.set("moon", [-90, 20, 10]);
+    try {
+      settle(step); // the camera has followed the Moon to its new place
+      expect(step.camState.targetAbsolute).toEqual([-90, 20, 10]);
+      positions.set("moon", [10, 5, 5]);
+      step.controls.cameraRequest = { kind: "pose", view: read };
+      near(settle(step), read);
+      expect(step.camState.targetAbsolute).toEqual([10, 5, 5]);
+    } finally {
+      positions.set("moon", [60, 0, 0]);
+    }
+  });
+
+  it("also takes the camera out of a hold (the stay rule)", () => {
+    const step = standing("moon", 2, 0.3, 9);
+    const read = settle(step);
+    step.controls.cameraRequest = { kind: "hold" };
+    settle(step);
+    expect(step.camState.fixedPoint).not.toBeNull();
+    step.controls.cameraRequest = { kind: "pose", view: read };
+    near(settle(step), read);
+    expect(step.camState.fixedPoint).toBeNull();
   });
 });

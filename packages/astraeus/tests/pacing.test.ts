@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
-import { applyPacing, pacedRate } from "../src/core/pacing";
+import { activeEventZones, applyPacing, pacedRate } from "../src/core/pacing";
 
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
@@ -124,5 +124,26 @@ describe("the clock following the paced rate", () => {
     clock.seek(T0); // a loop wrapping to the start returns to cruise at once
     applyPacing(clock, pacing);
     expect(clock.rate).toBeCloseTo(86_400, 6);
+  });
+});
+
+describe("the event zones active at a time (O-052 T-226)", () => {
+  const zones = pacingOf().zones;
+  it("lists the events whose zone holds the time, edges included, and none between them", () => {
+    expect(activeEventZones(zones, undefined, T0 + 10 * DAY)).toEqual([]);
+    expect(activeEventZones(zones, undefined, T0 + 38 * DAY)).toEqual(["a"]);
+    expect(activeEventZones(zones, undefined, T0 + 42 * DAY)).toEqual(["a"]);
+    expect(activeEventZones(zones, undefined, T0 + 42 * DAY + 1)).toEqual([]);
+    expect(activeEventZones(zones, undefined, T0 + 80 * DAY)).toEqual(["b"]);
+  });
+  it("counts only the showing view's events, and never a span", () => {
+    expect(activeEventZones(zones, new Set(["b"]), T0 + 40 * DAY)).toEqual([]);
+    expect(activeEventZones(zones, new Set(["a"]), T0 + 40 * DAY)).toEqual(["a"]);
+    const withSpan = [{ fromUtcMs: T0, toUtcMs: T0 + 100 * DAY, rate: 1, rampMs: 0 }, ...zones];
+    expect(activeEventZones(withSpan, undefined, T0 + 10 * DAY)).toEqual([]);
+  });
+  it("lists overlapping zones each once, and an event with two rules once", () => {
+    const near = (eventId: string, from: number, to: number) => ({ fromUtcMs: T0 + from * DAY, toUtcMs: T0 + to * DAY, rate: 60, rampMs: 0, eventId });
+    expect(activeEventZones([near("a", 0, 10), near("b", 5, 15), near("a", 2, 8)], undefined, T0 + 6 * DAY)).toEqual(["a", "b"]);
   });
 });

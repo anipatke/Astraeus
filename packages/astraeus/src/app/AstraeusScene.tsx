@@ -5,7 +5,7 @@ import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
-import type { Pacing } from "../core/pacing";
+import type { PaceView, Pacing } from "../core/pacing";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
@@ -108,6 +108,8 @@ export interface SceneControls {
   loop?: boolean;
   /** Paced playback is in charge of the rate (live): true until a visitor or the host picks a speed, true again when they choose Auto. Meaningful with `SceneRuntime.pacing`. */
   paceAuto?: boolean;
+  /** Which event zones pace the clock (the showing view's events) and the ease after a view switch. Read and updated by `applyPacing`. */
+  pace?: PaceView;
   /** The render-frame up vector now in force (live; Developer > Display settings). Absent: the runtime's own. Switching it re-poses the camera in place. */
   up?: RenderVector;
   /** Ids of objects whose label is switched off (live). Their objects stay listed and selectable. */
@@ -140,6 +142,8 @@ export interface SceneControls {
   startView?: StartView;
   /** The camera's current view, written every frame by the scene for "Copy view link". */
   viewReadout?: StartView;
+  /** How long the loading cover fades when the first frame is drawn (the address's `loadfade` when the address is on, else the saved setting). */
+  loadFadeSeconds?: number;
 }
 
 export type SceneReadout = DebugReadout;

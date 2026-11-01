@@ -124,6 +124,15 @@ function applyCameraRequest(input: CameraStepInput, request: CameraRequest): voi
     camState.transition.fill(0);
     return;
   }
+  if (request.kind === "pose") {
+    // The pose's offset is relative to its object, so the camera follows that object (also while it moves) and eases to the read angles and distance.
+    const { view } = request;
+    switchFocus(camState, view.focus, focusAbsoluteOf(targets, view.focus));
+    camState.targetAzimuth = (view.azimuthDeg * Math.PI) / 180;
+    camState.targetElevation = (view.elevationDeg * Math.PI) / 180;
+    camState.targetDistance = view.distance;
+    return;
+  }
   const target = request.kind === "overview" ? frame.centre : request.target;
   const targetBody = targets.bodyIdFor(target);
   switchFocus(camState, target, focusAbsoluteOf(targets, target));
