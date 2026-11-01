@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o054-check-20261101}
   at: '2026-11-01T09:55:00Z'
 tasks: [T-247]
-checks: [C-141]
+checks: [C-141, C-142]
 guardrail_ids: [API-02, ARCH-02]
 severity: medium
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o054-repair}
     kind: repair_attempted
     note: 'Repair (executor, o054-repair): the selection cause now comes from whatever last moved the clock or view, the source onChange and onEventZone use. ViewerClock.publish returns whether it reported a change; ViewerLink keeps that change''s cause (#mover, reset to playback on attach/detach); the shell marks its time/view fallback drop byMove; App.updateSelectedObject calls ViewerPort.publishSelection(state, byMove), which names #mover for a drop and visitor for a pick. The host-setView-only selectionCause ref and hostSetView wrapper are removed. Doc comments, README, Design T-247 note updated. Evidence: viewerHostDom ''a drop caused by time'' x3 (host setTime -> host, clock running -> playback, visitor seek after a host move -> visitor), the two existing view-switch causes unchanged, no report while nothing changes; selectionCauseDom.test.ts on a real Scene + real prepareScene (30-min path, 100-day timeline, probe P6 shape) on mount and AstraeusScene, 6 cases pass; the two time cases fail with src reverted (stash). listeners.test.ts link case covers publishSelection causes. Gates: lint, typecheck, build, npm test (191 files, 2339 passed, 1 skipped); lifecycle + viewerHostDom + selectionCauseDom 10x loop, 0 failures. Not verified: browser (not run); not a Check; setRate-driven drops not separately tested (no path to produce one).'
+  - at: '2026-11-01T10:10:00Z'
+    actor: {role: checker, session: o054-recheck-20261101}
+    kind: rechecked
+    note: 'Recheck C-142 (NEEDS WORK) at HEAD 9f5a726d: the reported cases now hold on a real Scene (probe P6 rerun: host setTime -> host, playback -> playback whether play was started by the host or the visitor, visitor seek -> visitor, visitor pick -> visitor, host setView drop -> host, visitor view drop -> visitor, no change -> no report; a paused clock after a host move keeps no stale host because ViewerClock.publish returns false). Still open: the repair regresses a host setView case (Proof Needed: host and visitor setView keep their causes). A host setView to a view whose camera rule frames another object (view b hides pa, camera {focus: pb}, camera focused on pa) reports [earth host, pb visitor]; pre-repair source at d778c4e1 reports [earth host, pb host]. Cause: AstraeusShell.tsx:286-288 applyViewRule calls onSelectionChange(target.id) without byMove, so App publishSelection(state, false) names visitor (viewerLink.ts:173). applyViewRule is called only from the move-driven effect (AstraeusShell.tsx:268), so marking it byMove is the general fix; add a DOM case for a host and a visitor switch to a view with a framing camera rule.'
+    check: C-142
 ---
 
 # I-137: onSelect reports cause visitor when time drops the selection

@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o054-check-20261101}
   at: '2026-11-01T09:55:00Z'
 tasks: [T-244, T-247]
-checks: [C-141]
+checks: [C-141, C-142]
 guardrail_ids: [TEST-01, API-02]
 severity: low
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o054-repair}
     kind: repair_attempted
     note: 'Repair (executor, o054-repair): the scan in listeners.test.ts now takes every src/api/*.ts that holds a listener set (except listeners.ts) by rule, asserts the known parts are in it (clock, zones, selection, camera) so the rule cannot go empty, forbids a loop or forEach over the set, and requires callListeners( in each part with an add(listener) set. Added link-level case: a throwing onSelect listener does not stop the next one, reportError receives the error (3 reports), plus the cause naming. Planted break B re-run (viewerSelection.publish looping its own listeners): listeners.test.ts fails 2 cases (the scan names viewerSelection.ts, and the link case); restored by copy, git diff shows only the doc-comment edit. Gates as for I-137 (npm test 191 files, 2339 passed). Not a Check; the Issue stays open for a checker.'
+  - at: '2026-11-01T10:10:00Z'
+    actor: {role: checker, session: o054-recheck-20261101}
+    kind: rechecked
+    note: 'Recheck C-142 (NEEDS WORK, for I-137) at HEAD 9f5a726d: Proof Needed met. The scan set is derived (viewerCamera, viewerClock, viewerLink, viewerSelection, viewerZones) with the known four guarded; planted break B (for-of loop in ViewerSelection.publish) fails 2 listeners.test.ts cases (scan names viewerSelection.ts; the throwing-onSelect link case); variant [...this.#listeners].forEach fails the callListeners( requirement and the link case; both restored, git diff --quiet. Left open only because C-142 is NEEDS WORK; verified closure goes with the CLEAR Check, as for I-049/C-092.'
+    check: C-142
 ---
 
 # I-138: The listener scan does not cover the selection part
