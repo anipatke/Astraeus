@@ -336,9 +336,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   controls.current.onStoryMarker = requestPanel;
   controls.current.onFeatureMarker = requestFeature;
   controls.current.onPickObject = requestPick;
-  const updateSelectedObject = useCallback((objectId: string) => {
-    controls.current.selectedObjectId = objectId;
-  }, []);
   const updateScale = useCallback((id: ScaleId) => {
     controls.current.policy = scalePolicyFor(id, suppliedPolicies);
     setScale(id);
@@ -363,8 +360,21 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       ...snapshot,
       ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true, zones: activeEventZones(runtime.pacing.zones, controls.current.pace?.shown, snapshot.timeUtcMs) }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
+      ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
     };
   }, [runtime, definition]);
+  // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
+  const hostAttached = useRef(false);
+  // Who caused the selection change now being reported: a host `setView` marks the view switch it starts, so the drop that follows names the host; cleared once that switch has committed.
+  const selectionCause = useRef<"visitor" | "host">("visitor");
+  const updateSelectedObject = useCallback((objectId: string) => {
+    const changed = controls.current.selectedObjectId !== objectId;
+    controls.current.selectedObjectId = objectId;
+    if (changed && hostAttached.current) host?.publish(stateNow(), selectionCause.current);
+  }, [host, stateNow]);
+  const hostSetView = useCallback((id: string) => { if (id !== viewRef.current) selectionCause.current = "host"; chooseView(id); }, [chooseView]);
+  // The shell (a child) drops the selection in its own effect for this commit; this runs after it.
+  useEffect(() => { selectionCause.current = "visitor"; }, [viewId]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -411,9 +421,10 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
-    return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
+    hostAttached.current = true;
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: hostSetView, cameraTargets, readCamera, setCamera });
+    return () => { hostAttached.current = false; host.detach(); };
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, hostSetView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

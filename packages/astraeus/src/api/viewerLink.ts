@@ -3,6 +3,7 @@ import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
+import { ViewerSelection, type SelectionChange } from "./viewerSelection";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
@@ -75,7 +76,7 @@ function newWait(): Wait {
 
 /**
  * Joins a host page to a mounted viewer's one clock: reads, sets and change callbacks. Created by `mount` and `AstraeusScene`; the viewer attaches
- * its clock controls when it opens and detaches when it closes. The clock, views, camera and zones are separate parts it delegates to.
+ * its clock controls when it opens and detaches when it closes. The clock, views, camera, zones and selection are separate parts it delegates to.
  */
 export class ViewerLink implements ViewerPort {
   #control: ViewerControl | undefined;
@@ -90,12 +91,14 @@ export class ViewerLink implements ViewerPort {
   readonly #views = new ViewerViews(this.#access);
   readonly #camera = new ViewerCamera(this.#access);
   readonly #zones = new ViewerZones(this.#access);
+  readonly #selection = new ViewerSelection(this.#access);
   #wait = newWait();
   #closed = false;
 
   attach(control: ViewerControl): void {
     this.#control = control;
     this.#clock.reset(control.read());
+    this.#selection.reset(control.read());
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -104,6 +107,7 @@ export class ViewerLink implements ViewerPort {
   detach(): void {
     this.#control = undefined;
     this.#clock.reset(undefined);
+    this.#selection.reset(undefined);
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
@@ -121,6 +125,7 @@ export class ViewerLink implements ViewerPort {
     this.detach();
     this.#clock.clearListeners();
     this.#zones.clearListeners();
+    this.#selection.clearListeners();
   }
 
   /**
@@ -135,9 +140,10 @@ export class ViewerLink implements ViewerPort {
   get playing(): boolean | undefined { return this.#clock.playing; }
   get eventZones(): readonly string[] | undefined { return this.#zones.eventZones; }
   get view(): string | undefined { return this.#views.view; }
+  get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
 
-  // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones.
+  // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones, viewerSelection.
   setView(id: string): void { this.#views.setView(id); this.#afterHost(); }
   setTime(time: TimeInput): void { this.#clock.setTime(time); this.#afterHost(); }
   setRate(rate: number | "auto"): void { this.#clock.setRate(rate); this.#afterHost(); }
@@ -146,9 +152,12 @@ export class ViewerLink implements ViewerPort {
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
+  onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
+
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     this.#clock.publish(state, cause);
     this.#zones.publish(state, cause);
+    this.#selection.publish(state, cause);
   }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */

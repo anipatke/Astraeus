@@ -276,3 +276,30 @@ describe("ViewerLink publishing", () => {
     expect(zlog).toEqual(["z"]);
   });
 });
+
+describe("ViewerLink selection (O-054 T-247)", () => {
+  it("reads the opening selection without reporting it, reports a change and a drop (no object) once each, and ignores a publish before attach and after detach", () => {
+    const link = new ViewerLink();
+    const heard: Array<{ object?: string; timeUtcMs: number; cause: string }> = [];
+    link.onSelect((c) => heard.push(c));
+    const { control, set } = fake();
+    link.publish(set({ selected: "moon" }), "visitor");
+    expect(heard).toEqual([]); // not attached yet
+    link.attach(control);
+    expect(link.selected).toBe("moon");
+    link.publish(set({ selected: "moon" }), "playback");
+    expect(heard).toEqual([]);
+    link.publish(set({ selected: "earth" }), "visitor");
+    link.publish(set({ selected: undefined }), "playback");
+    link.publish(set({ selected: undefined }), "playback");
+    expect(heard).toEqual([{ object: "earth", timeUtcMs: START + 10, cause: "visitor" }, { timeUtcMs: START + 10, cause: "playback" }]);
+    expect(link.selected).toBeUndefined();
+    link.detach();
+    link.publish(set({ selected: "moon" }), "visitor");
+    expect(heard.length).toBe(2);
+    link.attach(control); // back again: the new opening selection is read, not reported
+    expect(link.selected).toBe("moon");
+    link.publish(set({ selected: "moon" }), "playback");
+    expect(heard.length).toBe(2);
+  });
+});

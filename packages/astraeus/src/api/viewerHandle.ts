@@ -1,4 +1,5 @@
 import type { TimeInput } from "./time";
+import type { SelectionChange } from "./viewerSelection";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
 
 /** Everything a host reads, sets and listens to on a drawn viewer: the handle `mount` returns (as `MountedScene`). Every call before the viewer is drawn or after it is gone throws `not-mounted`; reads are then undefined. */
@@ -30,6 +31,14 @@ export interface ViewerHandle {
    * `cause` is `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); overlapping zones report separately. A zone already active when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it. The engine moves nothing in response: a host composes its own behaviour, for example `setCamera`. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
    */
   onEventZone(listener: (change: EventZoneChange) => void): () => void;
+  /** The id of the object whose information the viewer has open (the one the object menu, a click or a view switch chose); undefined until `ready` has resolved, after `unmount`, and when nothing is selected. Read only: the host cannot select. */
+  readonly selected: string | undefined;
+  /**
+   * Calls `listener({ object?, timeUtcMs, cause })` when the selected object changes: `object` is the new id, absent when the selection was dropped (a view switch that no longer shows it, with nothing to take its place).
+   * `cause` is `visitor` (the object menu, a click, or a view the visitor chose), `host` (a drop caused by the host's own `setView`) or `playback` (picked up on the next tick). The selection the viewer opens with is read from `selected`, not reported. The engine moves nothing in response.
+   * No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
+   */
+  onSelect(listener: (change: SelectionChange) => void): () => void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -44,6 +53,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get view() { return link.view; },
     get camera() { return link.camera; },
     get eventZones() { return link.eventZones; },
+    get selected() { return link.selected; },
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
     setTime: (time) => link.setTime(time),
@@ -51,5 +61,6 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setPlaying: (playing) => link.setPlaying(playing),
     onChange: (listener) => link.onChange(listener),
     onEventZone: (listener) => link.onEventZone(listener),
+    onSelect: (listener) => link.onSelect(listener),
   };
 }

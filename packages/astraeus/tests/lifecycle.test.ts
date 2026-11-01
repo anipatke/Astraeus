@@ -122,7 +122,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "playing", "view", "camera", "eventZones"] as const;
+const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -131,7 +131,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone"] as const;
+const LISTENERS = ["onChange", "onEventZone", "onSelect"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
@@ -302,7 +302,29 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
     expectUnusable(handle);
   });
-  it.todo("onSelect (T-247)");
+  it("onSelect: reads the opening selection without reporting it, hears a visitor's pick once, and hears nothing after unmount", async () => {
+    openNow();
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const handle = opened.handle!;
+    const heard: Array<{ object?: string; cause: string }> = [];
+    handle.onSelect((c) => heard.push({ ...(c.object === undefined ? {} : { object: c.object }), cause: c.cause }));
+    expect(handle.selected).toBe("earth");
+    expect(heard).toEqual([]);
+    const picker = document.querySelector<HTMLSelectElement>("[aria-label='Select object']")!;
+    const pickMoon = (): void => {
+      flushSync(() => {
+        Object.getOwnPropertyDescriptor(Object.getPrototypeOf(picker), "value")!.set!.call(picker, "moon");
+        picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+      });
+    };
+    pickMoon();
+    expect(handle.selected).toBe("moon");
+    expect(heard).toEqual([{ object: "moon", cause: "visitor" }]);
+    opened.unmount();
+    expect(handle.selected).toBeUndefined();
+    expect(heard.length).toBe(1);
+  });
   it.todo("onCameraChange (T-248)");
 });
 

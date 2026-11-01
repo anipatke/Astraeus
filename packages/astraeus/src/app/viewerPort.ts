@@ -15,6 +15,8 @@ export interface ViewerState {
   readonly view?: string;
   /** Only in a scene with pacing: the ids of the events whose pacing zone holds the time, among the zones the showing view has. */
   readonly zones?: readonly string[];
+  /** The id of the object whose information the viewer has selected; absent when nothing is selected. */
+  readonly selected?: string;
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */

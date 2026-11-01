@@ -902,6 +902,16 @@
           "signature": "(listener: (change: EventZoneChange) => void): () => void"
         },
         {
+          "name": "selected",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -972,6 +982,16 @@
           "name": "onEventZone",
           "optional": false,
           "signature": "(listener: (change: EventZoneChange) => void): () => void"
+        },
+        {
+          "name": "selected",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (change: SelectionChange) => void): () => void"
         },
         {
           "name": "onChange",
@@ -1060,6 +1080,28 @@
           "name": "style",
           "optional": true,
           "signature": "CSSProperties | undefined"
+        }
+      ]
+    },
+    "SelectionChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
         }
       ]
     },

@@ -20,6 +20,7 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { ViewerHandle } from "../src/api/viewerHandle";
 import type { ViewerChange } from "../src/api/viewerLink";
+import type { SelectionChange } from "../src/api/viewerSelection";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { speedsOf } from "../src/shell/timelineModel";
 import { $, byLabel, change, drawn, press } from "./domSetup";
@@ -391,5 +392,86 @@ describe("views through the host (O-051 T-220)", () => {
       expect(seen.at(-1)).toMatchObject({ rate: RATES[1], view: "b", time: before.time });
       expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
     });
+  });
+});
+
+describe("the selected object through the host (O-054 T-247)", () => {
+  const view = (id: string, objects: string[]) => ({ id, label: id.toUpperCase(), camera: { rule: "stay" } as const, objects: new Set(objects), events: new Set<string>(), panels: new Set<string>() });
+  const ALL = ["earth", "moon", "survey-marker"];
+  const withViews = () => { prepared.views = { place: "top-bar", start: "a", views: [view("a", ALL), view("b", ["earth"])] }; };
+  const pick = (id: string) => change(byLabel(host, "Select object") as HTMLSelectElement, id);
+
+  it("reads the opening selection without reporting it, and reads undefined before ready and after unmount", async () => {
+    const heard: SelectionChange[] = [];
+    const handle = mount(host, new Scene());
+    handle.onSelect((c) => heard.push(c));
+    expect(handle.selected).toBeUndefined();
+    await drawn(handle);
+    expect(handle.selected).toBe("earth");
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(heard).toEqual([]);
+    handle.unmount();
+    expect(handle.selected).toBeUndefined();
+  });
+
+  it("a visitor picks an object and the host hears it once, at once, with cause visitor", async () => {
+    const heard: SelectionChange[] = [];
+    const handle = mount(host, new Scene());
+    handle.onSelect((c) => heard.push(c));
+    await drawn(handle);
+    pick("moon");
+    expect(handle.selected).toBe("moon");
+    expect(heard).toEqual([{ object: "moon", timeUtcMs: handle.time, cause: "visitor" }]);
+    act(() => { vi.advanceTimersByTime(500); }); // the tick finds nothing new
+    expect(heard.length).toBe(1);
+    handle.unmount();
+  });
+
+  it("no report when nothing changed: the same object chosen again, and time passing", async () => {
+    const heard: SelectionChange[] = [];
+    const handle = mount(host, new Scene());
+    handle.onSelect((c) => heard.push(c));
+    await drawn(handle);
+    pick("moon");
+    pick("moon");
+    act(() => handle.setTime(MID));
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(heard.map((c) => c.object)).toEqual(["moon"]);
+    handle.unmount();
+  });
+
+  it("a view switch that hides the selected object reports the drop (to the object that takes its place)", async () => {
+    withViews();
+    const heard: SelectionChange[] = [];
+    const handle = mount(host, new Scene());
+    handle.onSelect((c) => heard.push(c));
+    await drawn(handle);
+    pick("moon");
+    act(() => handle.setView("b"));
+    expect(handle.selected).toBe("earth");
+    expect(heard.map((c) => c.object)).toEqual(["moon", "earth"]);
+    expect(heard.map((c) => c.cause)).toEqual(["visitor", "host"]); // the host's own setView, not a visitor
+    pick("moon");
+    act(() => press($(host, '[data-view-id="a"]'))); // back to a view that shows it (no drop)
+    pick("moon");
+    act(() => press($(host, '[data-view-id="b"]'))); // a visitor's view choice drops it again
+    expect(heard.at(-1)).toMatchObject({ object: "earth", cause: "visitor" });
+    handle.unmount();
+  });
+
+  it("the stop function ends delivery, and nothing arrives after unmount", async () => {
+    const heard: SelectionChange[] = [];
+    const kept: SelectionChange[] = [];
+    const handle = mount(host, new Scene());
+    const stop = handle.onSelect((c) => heard.push(c));
+    handle.onSelect((c) => kept.push(c));
+    await drawn(handle);
+    stop();
+    pick("moon");
+    expect(heard).toEqual([]);
+    expect(kept.length).toBe(1);
+    handle.unmount();
+    expect(() => pick("earth")).toThrow(); // the viewer is gone: nothing to pick in
+    expect(kept.length).toBe(1);
   });
 });
