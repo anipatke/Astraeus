@@ -207,6 +207,21 @@ mounted.onEventZone(({ entered, object, via }) => {
 });
 ```
 
+In React the same composition goes through the handle that `AstraeusScene` gives through `ref` (or `onReady(handle)`):
+
+```tsx
+const handle = useRef<ViewerHandle>(null);
+const saved = useRef<CameraPose>(undefined);
+const onEventZone = ({ entered, object, via }: EventZoneChange) => {
+  const viewer = handle.current;
+  if (!viewer) return;
+  if (entered) { saved.current = viewer.camera; if (object) viewer.setCamera({ follow: object }); }
+  else if (via === "time" && saved.current) viewer.setCamera(saved.current);
+  if (!entered) saved.current = undefined;
+};
+return <AstraeusScene ref={handle} scene={scene} onEventZone={onEventZone} />;
+```
+
 With pacing the speed menu gains an **Auto** choice, selected from the start. Picking a speed (menu, or `setRate(number)`) takes over until the visitor chooses Auto or the host calls `setRate("auto")`. `onChange` reports the speed pacing runs at (`cause: "playback"`), and `handle.rate` reads it.
 
 ```ts

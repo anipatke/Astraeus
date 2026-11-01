@@ -259,3 +259,31 @@ describe("the camera prop of AstraeusScene", () => {
     expect(controls().cameraRequest).toBeNull();
   });
 });
+
+describe("camera to the encounter and back through AstraeusScene and its handle (O-054 T-249, as examples/hello-react)", () => {
+  const DAY = 86_400_000;
+  const withZone = () => new Scene().addBody(earth)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addEvents([{ id: "ea", label: "A flyby", time: new Date(T0 + 20 * DAY).toISOString(), type: "flyby", object: "pa" }])
+    .setTimeline({ start: new Date(T0).toISOString(), end: new Date(T0 + 100 * DAY).toISOString(), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", within: 86_400 }, rate: 60 }] });
+
+  it("follows the probe on enter and puts the saved pose back on leave via time, the handle coming from ref", async () => {
+    const scene = withZone();
+    const handle: { current: import("../src/api/viewerHandle").ViewerHandle | null } = { current: null };
+    let saved: CameraTarget | undefined;
+    const onEventZone = ({ entered, object, via }: { entered: boolean; object?: string; via: string }) => {
+      const viewer = handle.current!;
+      if (entered) { saved = viewer.camera; if (object) viewer.setCamera({ follow: object }); } else if (via === "time" && saved) viewer.setCamera(saved);
+      if (!entered) saved = undefined;
+    };
+    root = createRoot(host);
+    const draw = (time: string) => act(async () => { root!.render(createElement(AstraeusScene, { ref: handle, scene, onEventZone, time, onError: (e) => { throw e; } })); });
+    await draw(new Date(T0).toISOString());
+    await act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+    controls().viewReadout = { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
+    await draw(new Date(T0 + 20 * DAY).toISOString());
+    expect(controls().cameraRequest).toEqual({ kind: "follow", target: "pa" });
+    await draw(new Date(T0 + 30 * DAY).toISOString());
+    expect(controls().cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 } });
+  });
+});
