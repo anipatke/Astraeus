@@ -1,14 +1,10 @@
 import type { BodyId } from "../core/body";
 import type { TimelineEvent } from "../core/events";
-import { createProvenance, type Provenance } from "../core/provenance";
-import type { WindowProvenanceSpan } from "../core/timeWindow";
+import type { Provenance } from "../core/provenance";
 import type { ActivitySourceInput } from "./activity";
-import { planLineStretches, planPathProvenance, type LineStretchInput } from "./pathProvenance";
-import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from "./sphereOfInfluence";
-import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
+import type { LineStretchInput } from "./pathProvenance";
 import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
-import { createState, type State } from "../core/state";
-import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
+import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
@@ -19,7 +15,6 @@ import { createComposition, type CompositionPath } from "../assets/compositions"
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
-import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
@@ -36,6 +31,7 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { autoPaths, buildTracked, checkLabelReach, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
 import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
@@ -155,24 +151,8 @@ export interface FollowView {
   readonly up?: "equatorial" | "ecliptic";
 }
 
-const DEFAULT_COLOR = "#ffd27a";
 const DAY_MS = 86_400_000;
-const PROVIDER_PATH_SAMPLES = 128;
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
-
-/** Samples along a path when its farthest distance is read for the default zoom-out. */
-const PATH_COVER_SAMPLES = 400;
-
-interface Tracked {
-  readonly body: TrackedBody;
-  /** `lineFixedTo: "auto"`: the stretches are resolved from the samples once the planet series are in. */
-  readonly auto?: true;
-  readonly center: BodyId;
-  readonly description?: string;
-  readonly knownLimitations?: readonly string[];
-  readonly provenanceSpans?: readonly WindowProvenanceSpan[];
-  readonly readouts: readonly ReadoutInput[];
-}
 
 /** The scene's camera: what it opens on. */
 export class SceneCamera {
@@ -340,7 +320,7 @@ export class Scene {
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.#shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.#notes.set(id, options.description);
     this.#bodies.set(id, ref);
-    if (this.#bodies.size === 1 && builtInCatalogue.has(id)) for (const input of this.#defaulted.values()) this.#buildTracked(input, id);
+    if (this.#bodies.size === 1 && builtInCatalogue.has(id)) for (const input of this.#defaulted.values()) this.#track(input, id);
   }
 
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
@@ -348,7 +328,7 @@ export class Scene {
     const id = input.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
-    this.#buildTracked(input, input.center ?? this.#sceneCentre());
+    this.#track(input, input.center ?? this.#sceneCentre());
     if (input.center === undefined) this.#defaulted.set(id, input);
     return this;
   }
@@ -359,26 +339,9 @@ export class Scene {
     return first.done === true || !builtInCatalogue.has(first.value) ? FALLBACK_SCENE_CENTRE : first.value;
   }
 
-  /** Validates and stores one path about `center`. */
-  #buildTracked(input: TrajectoryInput, center: BodyId): void {
-    const id = input.id;
-    if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
-    const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
-    const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
-    const readouts = readoutsOf(id, input.readouts);
-    if (input.labelReach !== undefined) {
-      checkLabelReach(input.labelReach, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReach ${String(input.labelReach)} must be a positive finite number`));
-      this.#labelReaches.set(id, input.labelReach);
-    }
-    if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
-    const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
-    const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
-    const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
-    const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
-    checkLineFixedToType(id, input.lineFixedTo);
-    const auto = input.lineFixedTo === "auto";
-    const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : auto ? undefined : input.lineFixedTo;
-    this.#tracked.set(id, { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) });
+  /** Validates and stores one path about `center` (`planPaths.ts`). */
+  #track(input: TrajectoryInput, center: BodyId): void {
+    this.#tracked.set(input.id, buildTracked(input, center, this.#labelReaches));
   }
 
   /** Whether a body, path or group already has this id. */
@@ -692,22 +655,6 @@ export class Scene {
     });
   }
 
-  /**
-   * The distance the default zoom-out must cover for the scene's paths about the scene centre (I-114): a path reaching past the planets must fit whole whichever point of it the camera looks at,
-   * so twice its farthest distance from the centre (no two points of a path are farther apart than that). Sampled over each path's span; undefined when no path is about the centre.
-   */
-  #pathCover(sunCentred: boolean, centre: BodyId): (() => number) | undefined {
-    if (!sunCentred) return undefined;
-    const about = [...this.#tracked.values()].filter((entry) => entry.center === centre);
-    if (about.length === 0) return undefined;
-    return () => 2 * Math.max(...about.map(({ body }) => {
-      const { startUtcMs, endUtcMs } = body.trajectory.bounds;
-      let farthest = 0;
-      for (let k = 0; k < PATH_COVER_SAMPLES; k += 1) farthest = Math.max(farthest, Math.hypot(...body.trajectory.stateAt(Math.round(startUtcMs + ((endUtcMs - startUtcMs) * k) / (PATH_COVER_SAMPLES - 1)), centre).positionKm));
-      return farthest;
-    }));
-  }
-
   /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
   #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
     const id = this.camera.fitted;
@@ -723,51 +670,6 @@ export class Scene {
     const layer = sunOrbitLayer(this.#catalogue, id, openUtcMs, this.#looks.get(id)?.color ?? "", this.#own.get(id));
     if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within thirty years and its position and the Sun's gravity do not give a bound ellipse; add it with addBodyFromElements to draw its whole orbit`);
     return layer;
-  }
-
-  /** The stretches of a `lineFixedTo: "auto"` path: the innermost scene body whose sphere of influence holds each sample (`sphereOfInfluence.ts`). Reads body states, so the planet series must be loaded. */
-  #autoStretches(entry: Tracked, ids: readonly BodyId[]): readonly LineStretch[] {
-    const resolver = createStateResolver(this.#catalogue.definitions(), this.#catalogue.sources(), createOrbAstronomyAdapter());
-    const norm = (v: ArrayLike<number>): number => Math.hypot(v[0]!, v[1]!, v[2]!);
-    const candidates: InfluenceCandidate[] = [];
-    for (const id of ids) {
-      const { parentId, gmKm3S2 } = this.#catalogue.get(id).definition;
-      if (parentId === undefined) {
-        candidates.push({ id, radiusKm: () => Infinity, probeDistanceKm: () => 0 });
-        continue;
-      }
-      const parentGm = this.#catalogue.get(parentId).definition.gmKm3S2;
-      if (!(gmKm3S2! > 0 && parentGm! > 0)) continue; // no published GM: this body cannot hold a probe
-      candidates.push({
-        id,
-        radiusKm: (t) => sphereOfInfluenceKm(gmKm3S2, parentGm, norm(resolver.stateOf(id, t, parentId).positionKm)),
-        probeDistanceKm: (t) => {
-          const probe = entry.body.trajectory.stateAt(t, entry.center).positionKm;
-          const body = resolver.stateOf(id, t, entry.center).positionKm;
-          return norm([probe[0]! - body[0]!, probe[1]! - body[1]!, probe[2]! - body[2]!]);
-        },
-      });
-    }
-    return influenceStretches(entry.body.pathTimesUtcMs, candidates);
-  }
-
-  /** The `"auto"` paths' one resolution into `tracked`: `now` runs it (through the caller's guarded read) when the planet series are in; else `later` is true and `settle` runs it in `prepare`. */
-  #autoPaths(entries: readonly Tracked[], tracked: TrackedBody[], ids: readonly BodyId[]): { readonly later: boolean; readonly now: (guard: (read: () => void) => void) => void; readonly settle: (guard: (read: () => void) => void) => void } {
-    const pending = entries.some((entry) => entry.auto === true);
-    const later = pending && !planetSeriesLoaded();
-    const resolve = (): void => entries.forEach((entry, index) => { if (entry.auto === true) tracked[index] = { ...entry.body, lineFixedTo: this.#autoStretches(entry, ids) }; });
-    return { later, now: (guard) => { if (pending && !later) guard(resolve); }, settle: (guard) => { if (later) guard(resolve); } };
-  }
-
-  /** A readout, or the body the line is fixed to, names a body the scene must hold. */
-  #checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
-    for (const { index, body } of lineBodies(entry.body.lineFixedTo)) {
-      if (!ids.includes(body)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo${index === null ? "" : `[${index}]`} names "${body}", which has not been added to the scene`);
-    }
-    for (const spec of entry.readouts) {
-      const named = readoutBody(spec);
-      if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
-    }
   }
 
   /** The data packages the added bodies need that `data` does not provide. */
@@ -786,7 +688,7 @@ export class Scene {
     const paths = this.#moonPaths();
     const sunCentred = this.#checkSunCentred(ids);
     this.#checkSolarSystemScale(sunCentred);
-    for (const entry of this.#tracked.values()) this.#checkReadouts(entry, ids);
+    for (const entry of this.#tracked.values()) checkReadouts(entry, ids);
     const entries = [...this.#tracked.values()];
     const tracked = entries.map((entry) => entry.body);
     const timeline = this.#timeline;
@@ -795,7 +697,7 @@ export class Scene {
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
     // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
-    const auto = this.#autoPaths(entries, tracked, ids);
+    const auto = autoPaths(this.#catalogue, entries, tracked, ids);
     auto.now((read) => this.#deferredRead(ids, window, fault, undefined, read));
     const fit = this.#deferredRead(ids, window, fault, undefined, () => this.#fitFarthestKm(startUtcMs));
     // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
@@ -837,7 +739,7 @@ export class Scene {
       scaleChoices: scaleChoicesOf(this.#scale, this.#scaleOnly, this.#enlargedInSun(sunCentred)),
       ...(this.#switches === undefined ? {} : { displaySwitches: this.#switches }),
       ...this.#viewsEntry(ids, storyPanels),
-      ...viewEntries(timeline, this.camera, fit?.read, this.#pathCover(sunCentred, ids[0]!)),
+      ...viewEntries(timeline, this.camera, fit?.read, pathCover(this.#tracked.values(), sunCentred, ids[0]!)),
       ...(target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } }),
       trackedBodies: tracked,
       createMetrics: ({ resolver }) => {
@@ -939,49 +841,6 @@ function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): r
   return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }
 
-type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;
-
-/** Rotates a vector by a row-major 3x3 matrix; a missing matrix leaves it as it is. Input that is not three numbers passes through for the State checks to refuse. */
-function rotated(matrix: Float64Array | null, v: ArrayLike<number> | undefined): ArrayLike<number> | undefined {
-  if (matrix === null || v === undefined || v.length !== 3) return v;
-  return [0, 1, 2].map((row) => matrix[3 * row]! * v[0]! + matrix[3 * row + 1]! * v[1]! + matrix[3 * row + 2]! * v[2]!);
-}
-
-function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: unknown }>, center: BodyId, toEqj: Float64Array | null): TrackedBody {
-  const samples: TrajectorySample[] = input.samples.map((sample, index) => {
-    const velocityKmS = rotated(toEqj, sample.velocityKmS);
-    return { positionKm: rotated(toEqj, sample.positionKm)!, ...(velocityKmS === undefined ? {} : { velocityKmS }), timeUtcMs: toUtcMs(sample.time, `addTrajectory("${common.id}") sample ${index} time`) };
-  });
-  try {
-    const trajectory = new SampledTrajectory({ body: common.id, center, samples });
-    return { ...common, trajectory, pathTimesUtcMs: samples.map((sample) => sample.timeUtcMs) };
-  } catch (error) {
-    if (error instanceof SceneError) throw error;
-    throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-/** `lineFixedTo` is a body id, `"auto"` or a list; anything else is `bad-trajectory` (the list's own faults are named by `planLineStretches`). */
-function checkLineFixedToType(id: string, value: unknown): void {
-  if (value !== undefined && typeof value !== "string" && typeof value !== "object") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): lineFixedTo ${String(value)} must be a body id, "auto" or a list of stretches`);
-}
-
-function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, toEqj: Float64Array | null): TrackedBody {
-  if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
-  const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
-  if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
-  const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
-  // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times).
-  const step = (bounds.endUtcMs - bounds.startUtcMs) / (PROVIDER_PATH_SAMPLES - 1);
-  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => Math.round(bounds.startUtcMs + index * step)) };
-}
-
-/** A provider's State with its position and velocity rotated into EQJ; unchanged for EQJ input. */
-function rotatedState(matrix: Float64Array | null, state: State): State {
-  if (matrix === null) return state;
-  return createState({ body: state.body, center: state.center, timeUtcMs: state.timeUtcMs, positionKm: rotated(matrix, state.positionKm)!, ...(state.velocityKmS === undefined ? {} : { velocityKmS: rotated(matrix, state.velocityKmS)! }), orientation: state.orientation });
-}
-
 /** The timeline span: the union of the trajectories' and activities' spans, else a month about the chosen time (or about now). */
 function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined): TimeBounds {
   if (tracked.length > 0) {
@@ -993,11 +852,6 @@ function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined)
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };
 }
 
-/** Throws `error` unless `reach` is a positive finite number. */
-function checkLabelReach(reach: unknown, error: SceneError): void {
-  if (!(typeof reach === "number" && Number.isFinite(reach) && reach > 0)) throw error;
-}
-
 /** Checks the colour, known limits and label reach given to `addBody`. */
 function checkBodyLook(id: string, options: AddBodyOptions): void {
   if (options.labelReach !== undefined) checkLabelReach(options.labelReach, new SceneError("bad-body", `addBody("${id}"): labelReach ${String(options.labelReach)} must be a positive finite number`));
@@ -1006,43 +860,4 @@ function checkBodyLook(id: string, options: AddBodyOptions): void {
   if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
   const limits = options.knownLimitations;
   if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
-}
-
-const READOUT_KINDS = ["range", "speed", "distance", "altitude"];
-
-/** The body a readout names, if any. */
-function readoutBody(spec: ReadoutInput): BodyId | undefined {
-  return spec.kind === "range" ? spec.marker : spec.kind === "distance" ? spec.to : spec.kind === "altitude" ? spec.above : undefined;
-}
-
-/** Checks each readout's kind and the catalogued body it names; whether the scene holds that body is checked when the definition is built. */
-function readoutsOf(id: string, readouts: readonly ReadoutInput[] = []): readonly ReadoutInput[] {
-  if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readouts must be a list`);
-  for (const spec of readouts) {
-    if (!READOUT_KINDS.includes(spec?.kind)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout kind "${String(spec?.kind)}" is not one of ${READOUT_KINDS.join(", ")}`);
-    const named = readoutBody(spec);
-    if (spec.kind !== "range" && spec.kind !== "speed" && named === undefined) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} needs ${spec.kind === "distance" ? "`to`" : "`above`"}, the body to measure against`);
-    if (named !== undefined && !builtInCatalogue.has(named)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
-  }
-  return readouts;
-}
-
-/** The body with its anchors: sorted by time, each labelled with its id. Every anchor needs a distinct id and a moment inside the path. */
-function withAnchors(body: TrackedBody, anchors: readonly AnchorInput[] = []): TrackedBody {
-  if (!Array.isArray(anchors)) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchors must be a list`);
-  const { startUtcMs, endUtcMs } = body.trajectory.bounds;
-  const seen = new Set<string>();
-  const placed = anchors.map((anchor) => {
-    if (typeof anchor?.id !== "string" || anchor.id === "") throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): every anchor needs a non-empty id`);
-    if (seen.has(anchor.id)) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchor "${anchor.id}" appears twice`);
-    seen.add(anchor.id);
-    const timeUtcMs = anchorTime(body.id, anchor);
-    if (timeUtcMs < startUtcMs || timeUtcMs > endUtcMs) throw new SceneError("bad-anchor", `addTrajectory("${body.id}"): anchor "${anchor.id}" is outside the path (${new Date(startUtcMs).toISOString()} to ${new Date(endUtcMs).toISOString()})`);
-    return { id: anchor.id, timeUtcMs };
-  }).sort((a, b) => a.timeUtcMs - b.timeUtcMs);
-  return placed.length === 0 ? body : { ...body, anchorTimesUtcMs: placed.map((anchor) => anchor.timeUtcMs), anchorLabels: placed.map((anchor) => anchor.id) };
-}
-
-function anchorTime(path: string, anchor: AnchorInput): number {
-  try { return toUtcMs(anchor.time); } catch { throw new SceneError("bad-anchor", `addTrajectory("${path}"): anchor "${anchor.id}" has a time "${String(anchor.time)}" that is not a valid moment`); }
 }
