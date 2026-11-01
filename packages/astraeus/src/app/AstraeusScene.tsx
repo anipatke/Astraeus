@@ -140,6 +140,8 @@ export interface SceneControls {
   startView?: StartView;
   /** The camera's current view, written every frame by the scene for "Copy view link". */
   viewReadout?: StartView;
+  /** How long the loading cover fades when the first frame is drawn (the address's `loadfade` when the address is on, else the saved setting). */
+  loadFadeSeconds?: number;
 }
 
 export type SceneReadout = DebugReadout;

@@ -4,6 +4,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+- The viewer leaves the page address alone unless asked (O-052 T-223, G-015). New `address` option on `mount` (`MountOptions.address`) and `AstraeusScene` (`address` prop), default `false`: off, the viewer reads no address parameter (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `milkywaybrightness`, `sky`, `labels`, `loop`, `markerpx`, `featurepx`, `sunglow`, `sunbrightness`, `sunglowscale`, `loadfade`), never calls `history.replaceState`, and hides the Developer tools' "Copy view link" button. Behaviour change from 0.7.0, which read and wrote the address regardless; pass `address: true` for it (the demo site does). With it on, a copied link in a scene with views also writes `show=<view id>`, and opening it shows that view (an unknown id opens the scene's `start` view). The README's new "Page address" section lists every parameter. A new test fails if source outside `src/app/address.ts` reads the address.
 - `ready` means usable (O-052 T-222, G-015): `mount`'s `ready` resolves, and `AstraeusScene`'s `onReady` fires, only once the viewer has attached its clock, so `time`, `rate`, `view`, `setTime`, `setRate` and `setView` work straight after `await ready`. In 0.7.0 `ready` resolved about two frames earlier and `await ready; setView(...)` threw `missing-data`. A load failure still rejects `ready`; `unmount` before the viewer is drawn never makes it usable. No change to the handle's shape or error codes.
 
 ## 0.7.0 (2026-11-01)

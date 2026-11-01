@@ -9,8 +9,8 @@ function clampFade(seconds: number): number {
   return Number.isFinite(seconds) ? Math.min(BOOT_FADE_LIMITS.max, Math.max(BOOT_FADE_LIMITS.min, seconds)) : BOOT_FADE_DEFAULT_SECONDS;
 }
 
-/** The fade time in force: `?loadfade=<seconds>`, else the saved setting, else the default. */
-export function bootFadeSeconds(search: string = window.location.search): number {
+/** The fade time in force: `?loadfade=<seconds>` in `search` (the address text the viewer may read, see `app/address.ts`), else the saved setting, else the default. */
+export function bootFadeSeconds(search: string): number {
   const asked = new URLSearchParams(search).get("loadfade");
   if (asked !== null && asked.trim() !== "") return clampFade(Number(asked));
   try {
@@ -51,10 +51,9 @@ export function showBootLoader(): void {
 }
 
 /** Fades the loader out and removes it. Safe to call more than once. A scene passes the showing it mounted under; a later showing is not its to hide. */
-export function hideBootLoader(showing: number = showings): void {
+export function hideBootLoader(showing: number = showings, seconds: number = bootFadeSeconds("")): void {
   const boot = document.getElementById("boot");
   if (showing !== showings || boot === null || boot.dataset.state === "done" || boot.dataset.state === "failed") return;
-  const seconds = bootFadeSeconds();
   boot.style.setProperty("--boot-fade", `${seconds}s`);
   boot.dataset.state = "done";
   removal = window.setTimeout(() => { removal = undefined; boot.remove(); }, seconds * 1000 + 100);

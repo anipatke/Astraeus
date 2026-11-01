@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
@@ -13,7 +13,8 @@ import { AstraeusShell } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { scaleFromSearch, timeFromSearch, viewFromSearch, shareViewLink, type StartView } from "./viewLink";
+import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromSearch, type StartView } from "./viewLink";
+import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
@@ -43,12 +44,12 @@ import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./S
 const FPS_HISTORY = 60;
 
 /** The sky settings in force: the experience's own, hidden when the address says `?sky=off`. */
-function skySettingsOf(definition: ExperienceDefinition) {
+function skySettingsOf(definition: ExperienceDefinition, search: string) {
   const settings = resolveSkySettings(definition.sky);
-  const milkyWay = milkyWayFromSearch(window.location.search) ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay;
-  const starBrightness = brightnessFromSearch(window.location.search, "stars") ?? settings.starBrightness;
-  const milkyWayBrightness = brightnessFromSearch(window.location.search, "milkywaybrightness") ?? settings.milkyWayBrightness;
-  return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(window.location.search) };
+  const milkyWay = milkyWayFromSearch(search) ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay;
+  const starBrightness = brightnessFromSearch(search, "stars") ?? settings.starBrightness;
+  const milkyWayBrightness = brightnessFromSearch(search, "milkywaybrightness") ?? settings.milkyWayBrightness;
+  return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(search) };
 }
 
 /** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
@@ -67,6 +68,26 @@ export function hiddenLabelsFrom(search: string, objects: readonly { readonly id
 export function loopFromSearch(search: string, fallback: boolean): boolean {
   const value = new URLSearchParams(search).get("loop");
   return value === "on" ? true : value === "off" ? false : fallback;
+}
+
+/** The scene view showing at the start: `?show=<id>` when it names one of the scene's views, else the scene's own `start` (an unknown id is not an error). */
+function startViewId(definition: ExperienceDefinition, search: string): string {
+  const asked = showFromSearch(search);
+  const known = asked !== undefined && definition.views?.views.some((view) => view.id === asked) === true;
+  return known ? asked : definition.views?.start ?? "";
+}
+
+/** The "Copy view link" button and its readout: offered only when the host turned the address option on (nothing else writes the address). */
+function ViewLinkGroup({ offered, onCopy, ...readout }: { readonly offered: boolean; readonly onCopy: () => void } & ComponentProps<typeof ViewLinkReadout>) {
+  if (!offered) return null;
+  return (
+    <div className="view-link" role="group" aria-label="Camera view">
+      <SettingButtons label="Camera view">
+        <button onClick={onCopy}>Copy view link</button>
+      </SettingButtons>
+      <ViewLinkReadout {...readout} />
+    </div>
+  );
 }
 
 /** The labels switch's starting state, if the story gave one. */
@@ -89,8 +110,8 @@ function orbitPathsOf(runtime: Runtime) {
 }
 
 /** The up direction at the start: `?up=` in the address, else the experience's own, else the equatorial pole. */
-function startViewUp(definition: ExperienceDefinition): ViewUp {
-  return viewUpFromSearch(window.location.search, definition.viewUp ?? "equatorial");
+function startViewUp(definition: ExperienceDefinition, search: string): ViewUp {
+  return viewUpFromSearch(search, definition.viewUp ?? "equatorial");
 }
 
 function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"]) {
@@ -102,10 +123,10 @@ function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (
 }
 
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
-function buildRuntime(definition: ExperienceDefinition) {
+function buildRuntime(definition: ExperienceDefinition, search: string) {
     const adapter = createOrbAstronomyAdapter();
     // A copied view link carries the time it was copied at.
-    const clock = openClock(definition, timeFromSearch(window.location.search));
+    const clock = openClock(definition, timeFromSearch(search));
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
     const resolver = createSceneResolver(adapter, catalogueOf(definition));
     return {
@@ -123,11 +144,11 @@ function buildRuntime(definition: ExperienceDefinition) {
       bodySets: bodySetsOf(definition),
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
-      sky: skySettingsOf(definition),
+      sky: skySettingsOf(definition, search),
       loopWindow: definition.experience.window,
       ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
       ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
-      up: viewUpVector(startViewUp(definition)),
+      up: viewUpVector(startViewUp(definition, search)),
     };
 }
 
@@ -148,8 +169,8 @@ function initialSceneControls(
   glowBase: ReturnType<typeof baseGlowOf>,
   storyMarkers: readonly StoryMarkerSpec[],
   suppliedPolicies: readonly ScalePolicy[],
+  search: string,
 ): SceneControls {
-  const search = window.location.search;
   const startView = viewFromSearch(search) ?? definition.startView;
   return {
     policy: scalePolicyFor(startScale, suppliedPolicies),
@@ -157,7 +178,7 @@ function initialSceneControls(
     showAnchorLabels: labelStart(definition) === true && runtime.trackedBodies.length > 0,
     loop: loopFromSearch(search, definition.loop === true),
     ...(definition.pacing === undefined ? {} : { paceAuto: true }),
-    up: viewUpVector(startViewUp(definition)),
+    up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
     bodyMarker: markerSettingsFromSearch(search),
     ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(search, glowBase) }),
@@ -167,7 +188,8 @@ function initialSceneControls(
     hiddenLabels: hiddenLabelsFrom(search, labelStart(definition) === undefined ? experience.objects : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) }))),
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
-    viewHidden: hiddenByView(definition.views, viewById(definition.views, definition.views?.start ?? ""), experience),
+    viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
+    loadFadeSeconds: bootFadeSeconds(search),
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxFromSearch(search),
@@ -181,14 +203,17 @@ function initialSceneControls(
 /**
  * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
+ * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly host?: ViewerPort }) {
+export function App({ definition, onOpenAddress, writeTitle = true, address, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
   }, [definition, writeTitle]);
-  const runtime = useMemo(() => buildRuntime(definition), [definition]);
+  // The address text every reader below uses: the page's when the host turned the option on, else empty. Read once per scene, as before.
+  const search = useMemo(() => addressSearch(address), [definition, address]); // eslint-disable-line react-hooks/exhaustive-deps
+  const runtime = useMemo(() => buildRuntime(definition, search), [definition, search]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -201,7 +226,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     for (const [id, override] of runtime.overrides) if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
     return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
   }, [runtime]);
-  const linkedScale = scaleFromSearch(window.location.search);
+  const linkedScale = scaleFromSearch(search);
   const startScale: ScaleId = startScaleFor(linkedScale, scaleChoiceIds);
   const experience = useMemo(() => experienceWithGroups(definition), [definition]);
   // The shell also lists the sky, citing its sources and saying whether the stars were fetched.
@@ -214,7 +239,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     return () => { cancelled = true; };
   }, []);
   // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
-  const [viewId, setViewId] = useState(() => definition.views?.start ?? "");
+  const [viewId, setViewId] = useState(() => startViewId(definition, search));
   const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
   const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
   const shellExperience = useMemo(() => withSkyObject(viewExperience, runtime.sky.visible, starStatus), [viewExperience, runtime.sky.visible, starStatus]);
@@ -225,7 +250,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
     () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }])),
     [storySet],
   );
-  const controls = useRef<SceneControls>(initialSceneControls(definition, runtime, experience, startScale, glowBase, storyMarkerSpecs, suppliedPolicies));
+  const controls = useRef<SceneControls>(initialSceneControls(definition, runtime, experience, startScale, glowBase, storyMarkerSpecs, suppliedPolicies, search));
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
   const [scale, setScale] = useState<ScaleId>(startScale);
@@ -260,13 +285,13 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
-  const [upChoice, setUpChoice] = useState<ViewUp>(startViewUp(definition));
+  const [upChoice, setUpChoice] = useState<ViewUp>(startViewUp(definition, search));
   const [illuminateAll, setIlluminateAll] = useState(controls.current.illuminateAll);
   const [milkyWayOn, setMilkyWayOn] = useState(runtime.sky.milkyWay);
   const [hoverBrightness, setHoverBrightness] = useState(HOVER_BRIGHTNESS_DEFAULT);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
-  const [loadFade, setLoadFade] = useState(() => bootFadeSeconds());
+  const [loadFade, setLoadFade] = useState(() => bootFadeSeconds(search));
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);
@@ -373,7 +398,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
   const copyViewLink = async () => {
     const view = controls.current.viewReadout;
     if (view === undefined) return;
-    setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs }));
+    setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs, ...(definition.views === undefined ? {} : { show: viewRef.current }) }));
   };
   const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
     place: definition.views.place,
@@ -448,12 +473,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, host }: { re
           onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
         <SettingSlider label="Loading fade (s, next load)" ariaLabel="Loading fade" testId="load-fade-value" display={loadFade.toFixed(1)} min={BOOT_FADE_LIMITS.min} max={BOOT_FADE_LIMITS.max} step={0.1} value={loadFade}
           onChange={(value) => { saveBootFadeSeconds(value); setLoadFade(value); }} />
-        <div className="view-link" role="group" aria-label="Camera view">
-          <SettingButtons label="Camera view">
-            <button onClick={() => void copyViewLink()}>Copy view link</button>
-          </SettingButtons>
-          <ViewLinkReadout viewNow={viewNow} viewLink={viewLink} scale={scale} upChoice={upChoice} />
-        </div>
+        <ViewLinkGroup offered={address === true} onCopy={() => void copyViewLink()} viewNow={viewNow} viewLink={viewLink} scale={scale} upChoice={upChoice} />
         <SettingButtons>
           <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
         </SettingButtons>

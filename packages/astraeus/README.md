@@ -209,6 +209,32 @@ A scene with no `setTime`, `setTimeline` or trajectory opens on the current time
 
 Story panels (`addStoryPanels`): a panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself. `at.utc` may be any instant inside the timeline, in any year. When a panel opens by itself, `pauseSeconds` (default 6) holds playback and then restarts it, unless the visitor pressed Play during the hold. On a phone, a wheel or pinch over an open story sheet zooms the scene behind it. `camera.setReach(d)` sets how far the camera can zoom out and also sets the far plane to 2.5 times `d`.
 
+## Page address
+
+The viewer leaves your page's address alone. By default it reads no address parameter, never calls `history.replaceState`, and shows no "Copy view link" button, so your own `?view=` or `?t=` means nothing to it. Turn it on with `mount(element, scene, { address: true })` or `<AstraeusScene scene={scene} address />` (read once, when the viewer is built). With it on the viewer reads the parameters below when it opens, and the Developer tools' "Copy view link" button writes `view`, `scale`, `up`, `t` and, in a scene with views, `show` into the address (other parameters are kept) and copies the link. Everything the viewer does with the address goes through one file in the engine's source, so this table is complete.
+
+Behaviour change from 0.7.0: 0.7.0 read these parameters and wrote the address whatever the host did, which made a host's own `?view=` or `?t=` move the viewer and let a copied link overwrite the host's address. Hosts that want the old behaviour pass `address: true`; the demo site does.
+
+| Parameter | Meaning | Format | Read | Written |
+|-----------|---------|--------|------|---------|
+| `view` | Camera view at the start | `focus,azimuthDeg,elevationDeg,distance` (focus is an id in the scene; a bad value is ignored) | yes | yes |
+| `t` | Time at the start | ISO UTC, such as `2026-08-12T21:00:00Z` | yes | yes, to the second |
+| `scale` | Distance scale at the start | an id the scene's scale menu offers (others ignored) | yes | yes |
+| `up` | Which direction is up for the camera | `ecliptic` or `equatorial` | yes | yes |
+| `show` | The view showing, in a scene with `setViews` | a view id; an unknown id opens the scene's `start` view | yes | yes, with views only |
+| `stars` | Star brightness | number 0 to 2 | yes | no |
+| `milkyway` | The Milky Way picture | `on` or `off` | yes | no |
+| `milkywaybrightness` | Milky Way brightness | number 0 to 2 | yes | no |
+| `sky` | The whole sky | `off` hides it | yes | no |
+| `labels` | Object labels at the start | `id:on` or `id:off`, comma-separated | yes | no |
+| `loop` | Looping playback | `on` or `off` | yes | no |
+| `markerpx` | Size below which a sphere is drawn as a marker | number 0 to 100 | yes | no |
+| `featurepx` | Narrowest body that still shows its feature markers | number 0 to 2000 | yes | no |
+| `sunglow`, `sunbrightness`, `sunglowscale` | The Sun's glow: size in pixels, brightness, scale | numbers 0 to 400, 0 to 2, 1 to 6 | yes | no |
+| `loadfade` | Seconds the loading cover fades | number 0 to 3 | yes | no |
+
+The demo site's own switchers (`experience`, `planet`, `shower`, and the Developer tools' data choice) change the page address to rebuild the page; they belong to the site, not to `mount` or `AstraeusScene`.
+
 ## Loading in your build and in tests
 
 `planetModels` (the planet series), the Developer drawer's panels and `MoonFamilyPanel` are separate files that your build loads later, on demand. After you redeploy, a tab left open may ask for a file name that no longer exists. In a Vite host, reload the page when that happens:

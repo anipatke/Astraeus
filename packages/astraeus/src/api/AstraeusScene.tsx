@@ -25,6 +25,8 @@ export interface AstraeusSceneProps {
   readonly view?: string;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
+  /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
+  readonly address?: boolean;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
   /** Style for the wrapper element. */
@@ -42,7 +44,7 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, address, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange });
@@ -85,5 +87,5 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
     return () => { open = false; };
   }, [scene, link]);
 
-  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} host={link} /> : null}</div>;
+  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} host={link} /> : null}</div>;
 }

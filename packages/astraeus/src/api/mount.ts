@@ -14,6 +14,8 @@ export interface MountOptions {
   readonly data?: readonly DataSource[];
   /** Called whenever the viewer's time, speed or playing state changes: playback running, a visitor using the timeline, or the host's own `setTime` / `setRate` / `setView`. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
+  /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). See the README's "Page address" section. */
+  readonly address?: boolean;
 }
 
 /** What `mount` returns. */
@@ -61,7 +63,7 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const ready = loaded.then(() => {
     if (!open) return;
-    root.render(createElement(App, { definition, writeTitle: false, host: link }));
+    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, host: link }));
     return link.whenAttached();
   });
   return {

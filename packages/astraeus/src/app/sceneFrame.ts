@@ -198,7 +198,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
-  if (firstFrame) requestAnimationFrame(() => hideBootLoader(state.coverShowing));
+  if (firstFrame) requestAnimationFrame(() => hideBootLoader(state.coverShowing, controls.loadFadeSeconds));
   controls.viewReadout = viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance);
   return { targets };
 }
