@@ -49,7 +49,7 @@ export interface LineStretchInput {
 /** Checks a path's `lineFixedTo` list (same span rules as `provenanceSpans`) and returns it in milliseconds. */
 export function planLineStretches(id: string, stretches: readonly LineStretchInput[], boundsUtcMs: Bounds): readonly LineStretch[] {
   return planSpans(id, "lineFixedTo", stretches, boundsUtcMs, (stretch) => {
-    if (typeof stretch.body !== "string" || stretch.body === "") throw new Error("body must be a body id");
+    if (typeof stretch.body !== "string" || stretch.body === "") throw new SceneError("bad-trajectory", "body must be a body id");
     return { body: stretch.body };
   });
 }

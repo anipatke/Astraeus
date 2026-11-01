@@ -1,5 +1,13 @@
 import type { TimeBounds } from "./trajectory";
 
+/** A planet curve fit was asked for a moment its stored years do not cover; a `RangeError` so existing range handlers still see it. */
+export class PlanetFitsUncoveredError extends RangeError {
+  constructor(date: Date) {
+    super(`the planet curve fits do not cover ${date.toISOString()}`);
+    this.name = "PlanetFitsUncoveredError";
+  }
+}
+
 /** Planets the astronomy adapter has a heliocentric model for (Saturn to Pluto added by O-033 T-114). */
 export type PlanetId = "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 

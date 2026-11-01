@@ -40,7 +40,7 @@ describe("addActivity", () => {
   });
   it("has no windows unless added", () => { expect(base().toDefinition().experience.windows).toBeUndefined(); });
   it.each([
-    ["a repeated id", () => base().addActivity(burst()).addActivity(burst()), "bad-activity"],
+    ["a repeated id", () => base().addActivity(burst()).addActivity(burst()), "duplicate-id"],
     ["no id", () => base().addActivity(burst({ id: "" })), "bad-activity"],
     ["no unit", () => base().addActivity(burst({ unit: "" })), "bad-activity"],
     ["one sample", () => base().addActivity(burst({ samples: [{ time: day(0), value: 1 }] })), "bad-activity"],

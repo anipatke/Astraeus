@@ -34,7 +34,7 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
     const positions = source.moonPositions;
     if (positions === undefined) continue;
     const system = MOON_SYSTEMS[positions.centre];
-    if (system === undefined) throw new RangeError(`${source.name}: no moon system for "${positions.centre}"`);
+    if (system === undefined) throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.centre}"`);
     system.provideIndex(positions.loadIndex);
     const moons = sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.centre);
     if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls }).catch(outOfSpan(source.name));

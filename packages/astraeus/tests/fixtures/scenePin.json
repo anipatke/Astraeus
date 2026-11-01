@@ -15521,7 +15521,7 @@
    "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-activity",
+    "code": "duplicate-id",
     "message": "addActivity(\"burst\"): an activity with that id is already in the scene"
    }
   },

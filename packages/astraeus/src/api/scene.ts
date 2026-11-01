@@ -221,7 +221,7 @@ export class Scene {
 
   /**
    * Adds a period of activity to the timeline: a rate curve the timeline glows by, its peak mark, and where each stretch comes from. A group's `{ kind: "rate" }` readout shows its live rate
-   * (unavailable outside the period) against the peak. Without `setTimeline`, the timeline spans the activities. A repeated id, or a bad curve, peak, source or moment, throws `bad-activity`.
+   * (unavailable outside the period) against the peak. Without `setTimeline`, the timeline spans the activities. A repeated id throws `duplicate-id`; a bad curve, peak, source or moment throws `bad-activity`.
    * @example
    * scene.addActivity({ id: "burst", label: "Burst", unit: "per hour", start: "2026-08-01", end: "2026-08-20", peak: "2026-08-12", samples: [{ time: "2026-08-01", value: 2 }, { time: "2026-08-12", value: 100 }, { time: "2026-08-20", value: 5 }] });
    */

@@ -2,9 +2,10 @@
 id: T-240
 title: Make the flagged error throws follow the error rule
 objective: O-054
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-240, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T08:39:14Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -60,8 +61,18 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Built 2026-11-01. Files read: the Task's Context Files plus planetSeries.ts (the lazy-import comment; reason: planetModels.ts loads lazily, so the new class lives in planetSeries.ts to keep the fits JSON out of the api chunk).
+
+Done When to evidence:
+- data.ts bad-data: `tests/errorRule.test.ts` "moon positions naming a planet without a moon system throw bad-data naming the package and the planet"; code doc comment in errors.ts.
+- pathProvenance bad-trajectory: errorRule "a lineFixedTo stretch with no body is a bad-trajectory SceneError"; public message unchanged (scenePin entry "addTrajectory: lineFixedTo a stretch without a body" unchanged).
+- Named errors: `NoFullTurnError` (core/sunCentredSources.ts), `PlanetFitsUncoveredError` (core/planetSeries.ts, thrown by planetModels.ts); both extend RangeError. errorRule "the two internal faults are named RangeError subclasses", "a PlanetFitsUncoveredError ... not rethrown", "a plain RangeError whose text says no full turn is no longer swallowed". publicApiSunOrbits.test.ts passes; jupiterIo.test.ts /no full turn/ still passes. Limitation: no shipped data reaches PlanetFitsUncoveredError (the time-scale table guard fires first), so it is proved by constructing it.
+- duplicate-id: planGroups.ts, doc comments (errors.ts, scene.ts addActivity, README), publicApiActivity "a repeated id" expects duplicate-id. scenePin.json diff: 1 line, only "addActivity: repeated id" (code bad-activity to duplicate-id).
+- Allowlist: three O-054 entries removed; `grep -c O-054 packages/astraeus-site/tests/*.allowlist.json` is 0 for all five files.
+- Surface: api:lock and api:errors run; CHANGELOG Unreleased entry with migration line; apiSurface, apiRules, allowlistGrowth, packageBoundaries tests pass.
+- Gates: lint, typecheck, build clean; npm test 187 files, 2264 passed, 1 skipped. No browser run. check:pack / check:react-consumer not run (no export or React change).
+
 
 ## Drift Notes
 
-Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+Design.md should note: new code `bad-data`; repeated activity id is `duplicate-id`; the two internal-fault classes live in core/. Accounted for in T-249.
