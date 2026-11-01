@@ -2,9 +2,10 @@
 id: T-232
 title: Move path planning out of the scene builder
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-231, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-232, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:10:59Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -55,8 +56,16 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Built 2026-11-01 under the O-058 run (Task check waived). Files read: the Context Files scene.ts only as needed; no extra reads. Changed: new packages/astraeus/src/api/planPaths.ts (204 lines); scene.ts (path code removed, 1048 to 859 lines, calls into planPaths through a small `#track` helper).
+
+- planPaths.ts holds buildTracked (was #buildTracked; takes the labelReaches map), sampledBody, providerBody, rotated, rotatedState, checkLineFixedToType, withAnchors, anchorTime, readoutsOf, readoutBody, READOUT_KINDS, DEFAULT_COLOR, PROVIDER_PATH_SAMPLES, checkReadouts, autoStretches, autoPaths, pathCover, PATH_COVER_SAMPLES, Tracked, checkLabelReach (shared with checkBodyLook, so exported). Bodies moved verbatim; the planners take the catalogue as an argument.
+- grep for the moved names in scene.ts: no matches. planPaths.ts 204 lines (at most 300).
+- git diff --exit-code main -- api-surface.lock.json packages/astraeus-site/tests/: empty; no existing *.test.ts modified; apiSurface, apiRules, allowlistGrowth, packageBoundaries and scenePin tests: 5 files, 41 tests pass.
+- scenePin passes without -u; scenePin.json diff empty.
+- Gates: npm run lint clean; typecheck clean; build ok; npm test 184 files, 2240 passed, 1 skipped. No browser run.
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+T-232: no architecture delta beyond the planned module layout. planPaths.ts imports the public input types from scene.ts as type-only imports (scene.ts imports its functions), a type-only cycle. checkLabelReach lives in planPaths.ts for now; the later bodies-planner step may relocate it. Accounted for at the last O-058 Task (Design.md reconciliation).

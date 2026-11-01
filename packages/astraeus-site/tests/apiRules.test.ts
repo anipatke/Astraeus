@@ -98,8 +98,12 @@ describe("public-type lint (API-04)", () => {
 });
 
 describe("errors (API-05)", () => {
+  // The real-source scan builds a TypeScript program over src/api/, which grows with the source: run it once, under a stated hook limit, not inside a case's 5 s default (I-135, as I-080 did).
+  let found: Break[];
+  beforeAll(() => { found = errorBreaks(); }, 60_000);
+
   it("throws only SceneError from src/api/ and recognises no error by its message, beyond the allowlist", () => {
-    expect(allowlistOffences(errorBreaks(), errors.breaks, "errors")).toEqual([]);
+    expect(allowlistOffences(found, errors.breaks, "errors")).toEqual([]);
     metadata(errors.breaks, "errors");
   });
 
@@ -141,8 +145,10 @@ describe("errors (API-05)", () => {
 });
 
 describe("settings mapping (API-06)", () => {
+  // Both scans build a TypeScript program over the whole source: once each, under a stated hook limit (I-135).
   let surface: Surface;
-  beforeAll(() => { surface = currentSurface(); }, 60_000);
+  let addressed: string[];
+  beforeAll(() => { surface = currentSurface(); addressed = addressParameters(); }, 60_000);
 
   /** Offences of the address parameters read against the mapping and the address-only allowlist, and of the mapped keys against the real surface. */
   const offences = (params: string[], list: typeof settings, now: Surface): string[] => {
@@ -162,7 +168,7 @@ describe("settings mapping (API-06)", () => {
   };
 
   it("gives every setting the viewer reads from the page address a public setting key, beyond the address-only allowlist", () => {
-    expect(offences(addressParameters(), settings, surface)).toEqual([]);
+    expect(offences(addressed, settings, surface)).toEqual([]);
     for (const entry of settings.addressOnly) { expect(entry.reason.length, entry.param).toBeGreaterThan(10); expect(entry.finding, entry.param).toMatch(/^F\d+$/); expect(entry.removedBy, entry.param).toMatch(/^O-\d{3}$/); }
   });
 

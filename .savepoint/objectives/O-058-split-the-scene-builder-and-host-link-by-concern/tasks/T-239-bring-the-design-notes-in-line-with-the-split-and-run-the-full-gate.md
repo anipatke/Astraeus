@@ -2,9 +2,10 @@
 id: T-239
 title: Bring the design notes in line with the split and run the full gate
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-238, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-239, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:35:48Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -56,8 +57,15 @@ The full gate above (`docs/agents/build.md`), run fresh. The Full Objective Chec
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Run 2026-11-01 (no browser run):
+- Design.md: Codebase Map (`packages/astraeus/` row) names `src/api/` planners, assembler, four link parts and `core/` parsers with re-exports (`shell/storyPanels.ts`, `app/viewLink.ts`); new Interfaces paragraph "Scene and host-link split (O-058)" (mentions O-059 removing deep imports to the old paths); "Drift accounting for T-231 to T-238" lists every note as reflected or non-architectural with reason. Public API shape intro already lists O-058 as reconciled as it lands; the new paragraph is the reconciliation.
+- `npm run lint`, `typecheck`, `build`: pass.
+- `npm run test:full`: first run 3 failed (2 apiRules tests timed out at 5000 ms under full-suite load; showersMeasured frame-timing "indication only" test); those two files pass alone (37 tests); second full run: 186 files, 2258 passed, 1 skipped, 0 failed.
+- `check:engine-alone`, `check:pack`, `check:node-consumer` (9 tests), `check:react-consumer` (react 19.3.1): pass.
+- `wc -l`: scene.ts 350; planBodies 209, planCamera 124, planGroups 85, planPaths 204, planStory 49, planTimeline 65, planViews 30, assembleScene 173; viewerCamera 42, viewerClock 72, viewerLink 146, viewerViews 19, viewerZones 51.
+- `git diff --exit-code main -- api-surface.lock.json packages/astraeus-site/tests/`: empty; `git diff --name-only --diff-filter=M main -- '*.test.ts' '*.test.tsx'`: empty. apiSurface/apiRules/allowlistGrowth/packageBoundaries + scenePin: 5 files, 41 tests pass without -u; `scenePin.json` unmodified.
+
 
 ## Drift Notes
 
-None expected; this Task is where O-058's deferred notes are accounted for.
+None. Flaky under load: apiRules (5 s default timeout) and showersMeasured timing tests failed once in the full suite and passed on rerun; not caused by O-058.

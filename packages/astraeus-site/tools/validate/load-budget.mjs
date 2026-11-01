@@ -199,6 +199,25 @@ function addStoryPanels(distDir, names, page, files, problems) {
   problems.push(`the app script names no panels chunk for the story "${page.storyPanels}" (the page set is out of date)`);
 }
 
+/**
+ * Adds to `files` the unlisted scripts a listed script imports at load that the engine-share table says are wholly engine code, followed through the chain (I-136). A refactor inside the engine
+ * that only re-chunks it (a module moved so two importers share a new chunk) is then no page set's business: the chunk counts in the page's first load as engine share, and the engine
+ * limit (engine-budget.mjs) holds engine growth. A chunk with any demo code, or one the table does not name, still has to be listed.
+ */
+function followEngineChunks(distDir, files, shares) {
+  if (shares === undefined) return;
+  for (let queue = files.filter((name) => name.endsWith(".js")); queue.length > 0;) {
+    const next = [];
+    for (const file of queue) {
+      for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
+        const entry = shares[imported];
+        if (!files.includes(imported) && existsSync(join(distDir, imported)) && entry !== undefined && entry.total > 0 && entry.engine === entry.total) { files.push(imported); next.push(imported); }
+      }
+    }
+    queue = next;
+  }
+}
+
 /** A problem for every script in `files` that imports a script the page set does not list. */
 function unlistedImportProblems(distDir, files) {
   const listed = new Set(files);
@@ -215,7 +234,7 @@ function unlistedImportProblems(distDir, files) {
  * The files of a page set that lists stems. A stem that names one file lists it. A stem that names several (same-named modules split per importer) lists only those a listed
  * script imports at load, followed through the chain: the page fetches those and no others, and an unrelated new chunk still fails.
  */
-function stemPageFiles(distDir, names, page, problems) {
+function stemPageFiles(distDir, names, page, problems, shares) {
   let files = [];
   const several = new Set();
   const severalEntries = [];
@@ -233,6 +252,7 @@ function stemPageFiles(distDir, names, page, problems) {
     if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
   }
   files = [...new Set(files)];
+  followEngineChunks(distDir, files, shares);
   problems.push(...unlistedImportProblems(distDir, files));
   return files;
 }
@@ -250,7 +270,7 @@ function moonIndexProblems(distDir, names, page, files) {
 /** The problems of one page set and its measured sizes. */
 function checkPage(distDir, names, page, shares) {
   const problems = [];
-  const files = page.htmlPage !== undefined ? htmlPageFiles(distDir, names, page, problems) : stemPageFiles(distDir, names, page, problems);
+  const files = page.htmlPage !== undefined ? htmlPageFiles(distDir, names, page, problems) : stemPageFiles(distDir, names, page, problems, shares);
   const sizes = sizesOf(distDir, files);
   // A page's limit holds what the page adds beyond the engine: its first load less the engine's share of it (the engine has its own limit, engine-budget.mjs).
   const engine = engineShareOf(distDir, files, shares);
@@ -289,14 +309,14 @@ export function proveLoadBudgetFails() {
     const noise = (length) => Buffer.from(Array.from({ length }, (_, k) => (k * 2654435761 >>> 7) & 255));
     const pages = [{ id: "app", files: ["app.html", "app.js", "picture.jpg"], rawLimit: 6_000, gzipLimit: 6_000 }];
     const buildLimit = { id: "whole build", rawLimit: 9_000, gzipLimit: 9_000 };
-    const make = (name, change = () => {}) => {
+    const make = (name, change = () => {}, shares = undefined) => {
       const dir = join(temp, name);
       mkdirSync(join(dir, "assets"), { recursive: true });
       writeFileSync(join(dir, "app.html"), "<html></html>");
       writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), "export const a = 1;");
       writeFileSync(join(dir, "assets", "picture-AbCdEf12.jpg"), noise(3_000));
       change(dir);
-      return checkLoadBudget({ distDir: dir, pages, buildLimit, requireShares: false });
+      return checkLoadBudget({ distDir: dir, pages, buildLimit, shares, requireShares: false });
     };
     return {
       within: make("within"),
@@ -306,6 +326,14 @@ export function proveLoadBudgetFails() {
         writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
         writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
       }),
+      engineChunk: make("engine-chunk", (dir) => {
+        writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
+        writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
+      }, { "assets/extra-AbCdEf12.js": { engine: 20, total: 20 } }),
+      mixedChunk: make("mixed-chunk", (dir) => {
+        writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
+        writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
+      }, { "assets/extra-AbCdEf12.js": { engine: 10, total: 20 } }),
       unlistedFile: make("unlisted-file", (dir) => writeFileSync(join(dir, "assets", "extra-AbCdEf12.jpg"), noise(7_000))),
     };
   } finally {

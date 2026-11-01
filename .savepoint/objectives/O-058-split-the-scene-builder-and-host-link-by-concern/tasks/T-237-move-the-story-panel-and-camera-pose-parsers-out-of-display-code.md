@@ -2,9 +2,10 @@
 id: T-237
 title: Move the story-panel and camera-pose parsers out of display code
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-236, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-237, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:27:03Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -57,8 +58,15 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Built 2026-11-01 under the O-058 run (check waived). Changed: new `src/core/storyPanels.ts` and `src/core/startView.ts` (moved as-is; `MAX_ELEVATION_DEG` and `wrapAzimuth` are exported from core/startView because viewLink's `viewFromAngles` still uses them); `shell/storyPanels.ts` and `app/viewLink.ts` re-export the moved names; `api/story.ts`, `planStory.ts`, `planViews.ts`, `viewerLink.ts` import from `../core/`; new `tests/apiImports.test.ts`; `tools/api-rules.mjs` line 137 now reads the at.utc "Z" check from `core/storyPanels.ts` (the API-04 type lint scans the parser source by path; without this the allowlist entry went stale).
+- Parsers moved, re-exports, api imports: `grep -rnE "shell/storyPanels|app/viewLink" packages/astraeus/src/api/` empty; typecheck passes.
+- apiImports test: 4 pass; with `import type ... from "../shell/storyPanels"` planted in api/story.ts it failed ("api/story.ts: shell/storyPanels"), planted line removed, passes.
+- Nothing public moved: `git diff --exit-code main -- packages/astraeus/api-surface.lock.json packages/astraeus-site/tests/` empty; no existing test file modified; apiSurface/apiRules/allowlistGrowth/packageBoundaries pass inside npm test.
+- Same output: scenePin passes unmodified, fixture unchanged.
+- Gates: lint, typecheck, build pass; `npm test` 185 files, 2244 passed, 1 skipped; `npm run check:engine-alone` pass.
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+T-239 (Design.md reconciliation): `src/core/` now holds the story-panel and start-view parsers; `api/` display imports are test-limited to the listed allowlist; `tools/api-rules.mjs` reads `core/storyPanels.ts`.

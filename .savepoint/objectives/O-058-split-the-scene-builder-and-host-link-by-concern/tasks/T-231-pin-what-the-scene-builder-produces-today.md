@@ -2,9 +2,10 @@
 id: T-231
 title: Pin what the scene builder produces today
 objective: O-058
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-231, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:07:53Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -55,8 +56,20 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Built 2026-11-01 (builder session). Files changed: `packages/astraeus/tests/scenePin.test.ts` (new), `packages/astraeus/tests/fixtures/scenePin.json` (new, about 770 KB; one `toMatchFileSnapshot`). No file under `packages/astraeus/src/` changed. Files read: `src/api/scene.ts`, `story.ts`, `views.ts`, `group.ts`, `activity.ts`, `switches.ts`, `data.ts`, `time.ts`, `pathProvenance.ts`, `sphereOfInfluence.ts`, `errors.ts`, `prepared.ts`, `index.ts`, `src/app/experienceDefinition.ts` (definition fields), `src/app/mission.ts`, `src/core/planetSeries.ts`, `src/core/pointGroup.ts`, the synthetic journey/probe/views modules, `tests/syntheticJourney.test.ts`, `vitest.config.ts`, `vitest.setup.ts`.
+
+- Scenes: 27 builds (every concern in the Done When list; the made-up journey, probe and views scenes from `src/synthetic/`). For each: `toDefinition()` data (functions as a marker, the catalogue as its ids, each trajectory as bounds plus states at start, middle and end, each point group as its data plus positions at the opening time), the definition after `await prepare()` (recorded as "same" when nothing was added), `createMetrics` for every object and group at two times, `stateOf` and `provenanceOf` for every object, `missingData`.
+- Two orders: `seriesLoaded` (the test graph, planet series loaded by the setup file) and `seriesNotLoaded` (a fresh module graph per scene via `vi.resetModules()`, asserted not loaded; the journey scene is loaded-order only because it reads planet states while building).
+- Errors: about 190 bad builds recorded as stage (call, `toDefinition` or `prepare`), code and message, including 20 two-fault scenes pinning which error wins in `toDefinition`'s check order; the ones that depend on the planet series (out-of-span, Sun orbits, clumps, fit, `stateOf` of a planet) are also run in the fresh graph.
+- Clock: `Date` is faked (`vi.useFakeTimers({ toFake: ["Date"] })`, 2026-06-15T12:00Z) so the no-time-set scenes are deterministic; also passes under `TZ=Asia/Tokyo`.
+- Plant 1 (one message word in `scene.ts`, "already in the scene" to "already present in the scene"): `scenePin` FAILED, diff shows the message line. Plant 2 (default rate 60 to 61 in `scene.ts`): `scenePin` FAILED. Both reverted with `git checkout`; the pin then PASSED on the unchanged tree (also without `-u` on repeated runs, md5 of the fixture unchanged).
+- Coverage check (v8, `src/api/`): every `throw new SceneError` in `scene.ts`, `story.ts`, `views.ts`, `group.ts`, `activity.ts`, `switches.ts`, `pathProvenance.ts`, `time.ts` is reached except those listed under limitations.
+- Gates: `npm run lint` clean (the pin test itself was refactored once to stay under complexity 20), `npm run typecheck` clean, `npm run build` built, `npm test` 184 files passed, 2240 passed and 1 skipped (scenePin runs in about 2 s). `git diff --exit-code main -- packages/astraeus/api-surface.lock.json packages/astraeus-site/tests/` is empty. No browser run.
+
+Limitations (unpinned, not reachable from `Scene` without real data or by any public input): the moon-data out-of-span conversion in `data.ts` (needs a real moon package span), the `TimeScaleOutOfRangeError` conversion in `#planetRead` and the `completes no turn within thirty years` `no-orbit` in `#sunPath` / `camera.fitOrbit` (Neptune and Pluto both draw), the non-`SceneError` rethrows in `sampledBody`, `parseRecord` and `panelsOf`, and `ViewerLink`'s own errors (T-238 moves those and is not in this Task's Done When).
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+None: no architecture delta (test only). Fixture size (about 770 KB) is a maintenance note for the Check: the pin is intentionally broad.

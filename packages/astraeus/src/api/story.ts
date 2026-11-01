@@ -2,7 +2,7 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import type { PaceZone, Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../shell/storyPanels";
+import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../core/storyPanels";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 

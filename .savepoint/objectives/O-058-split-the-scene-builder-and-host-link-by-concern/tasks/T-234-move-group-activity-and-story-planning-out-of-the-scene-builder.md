@@ -2,9 +2,10 @@
 id: T-234
 title: Move group, activity and story planning out of the scene builder
 objective: O-058
-status: planned
+status: done
 depends_on: [{task: T-233, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-234, reason: 'Owner said "Orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o058-run-20261101}, recorded_at: '2026-11-01T07:16:47Z'}
 planned_by: {role: planner, session: o058-planning-20261101}
 ---
 
@@ -56,8 +57,14 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: each Done When item with its command and result, files read and changed, and limitations.
+Built 2026-11-01 (O-058 run, check waived). Changed: `packages/astraeus/src/api/scene.ts` (707 -> 634 lines), new `planGroups.ts` (85 lines: `GroupPlan`, `lateGroups`, `groupLayersEntry`) and `planStory.ts` (49 lines: `StoryPlan`). `group.ts`, `activity.ts`, `story.ts` unchanged. No extra reads.
+- Done When 1-2: groups, activities, readout checks, windows, metrics, late split, events, provenance and panels moved as-is; `addGroup`/`addActivity`/`addEvents`/`addStoryPanels` delegate.
+- Grep for the old private names and `function groupLayersEntry` in scene.ts: no match.
+- `git diff --exit-code main -- packages/astraeus/api-surface.lock.json packages/astraeus-site/tests/`: empty; no modified test files; the four O-053 tests plus scenePin: 5 files, 41 tests pass, no `-u`, scenePin.json unmodified.
+- Gates: lint, typecheck, build pass; `npm test` 184 files, 2240 passed, 1 skipped. No browser run.
 
 ## Drift Notes
 
 Record any architecture delta here and name the last Task of O-058 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+For T-239: new internal `GroupPlan` (planGroups.ts; takes catalogue and taken callbacks, holds `groups`/`activities` maps) and `StoryPlan` (planStory.ts; holds `events`, batch and own provenance, panels; type-only import of `Tracked` from planPaths for the anchors). Not exported from index.ts. `Scene` now holds `#groupPlan` and `#story`; `late` group split is `lateGroups(seriesIn)`.
