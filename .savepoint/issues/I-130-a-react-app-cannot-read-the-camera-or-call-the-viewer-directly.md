@@ -14,6 +14,11 @@ history:
     actor: {role: planner, session: o052-run-20261101}
     kind: observed
     note: 'Found while building the T-227 examples: hello-react follows the encounter probe but cannot restore the camera afterwards. Input for the whole-public-API review the owner asked for after O-052.'
+  - at: '2026-11-01T05:00:00Z'
+    actor: {role: planner, session: o052-run-20261101}
+    kind: observed
+    check: C-136
+    note: 'C-136 (CLEAR) non-blocking observations for the same API review: ready after an early unmount resolves unusable (before load) or never settles (render to attach), doc covers only the second; StrictMode close() makes a later rebuild skip whenAttached so onReady could fire early; doc comments mount.ts:39 and viewerLink.ts:162 still say camera is undefined before the first frame; README API rows for mount and AstraeusScene omit address; a throwing onEventZone listener stops later listeners; React camera prop compares by JSON.stringify (key order re-applies).'
 ---
 
 # I-130: A React app cannot read the camera or call the viewer directly
