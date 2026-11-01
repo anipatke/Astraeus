@@ -17,18 +17,20 @@ import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experie
 import { needsPlanetSeries } from "../app/planetNeeds";
 import type { StoryPanelSet } from "../shell/storyPanels";
 import type { Metric } from "../shell/metrics";
-import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
+import type { ExperienceObject } from "../shell/experience";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import { circlesTheSun, farthestSunDistanceKm } from "./sunOrbit";
 import { FALLBACK_SCENE_CENTRE, type BodyRef } from "./bodies";
 import { installData, type DataSource } from "./data";
-import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
-import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
+import type { ActivityInput } from "./activity";
+import type { GroupInput } from "./group";
 export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } from "./group";
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
 import { BodyPlan } from "./planBodies";
+import { GroupPlan, groupLayersEntry, lateGroups } from "./planGroups";
+import { StoryPlan } from "./planStory";
 import { autoPaths, buildTracked, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { switchesOf, type SwitchesInput } from "./switches";
@@ -36,7 +38,7 @@ import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPla
 import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import type { ViewSettings } from "../app/views";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { checkEventObjects, eventProvenanceOf, eventsOf, pacingFor, panelsOf, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
+import { pacingFor, timelineOf, type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput, type TimelineSetting } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -225,16 +227,12 @@ export class Scene {
   readonly #tracked = new Map<string, Tracked>();
   /** Paths added without a `center`: they follow the scene's first body, so one added before any body is rebuilt when the first body arrives. */
   readonly #defaulted = new Map<string, TrajectoryInput>();
-  readonly #groups = new Map<string, PlannedGroup>();
-  readonly #activities = new Map<string, PlannedActivity>();
+  readonly #groupPlan = new GroupPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
+  readonly #story = new StoryPlan();
   readonly #sources = new Map<BodyId, Trajectory>();
   #timeUtcMs: number | undefined;
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
-  #events: readonly TimelineEvent[] = [];
-  #eventProvenance: Provenance | undefined;
-  #eventOwnProvenance = new Map<string, Provenance>();
-  #panels: StoryPanelsInput | undefined;
   #timeline: TimelineSetting | undefined;
   #switches: DisplaySwitchSettings | undefined;
   #views: ViewsPlan | undefined;
@@ -285,7 +283,7 @@ export class Scene {
 
   /** Whether a body, path or group already has this id. */
   #taken(id: string): boolean {
-    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groups.has(id);
+    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id);
   }
 
   /**
@@ -295,9 +293,7 @@ export class Scene {
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
   addGroup(input: GroupInput): this {
-    const plan = planGroup(input, this.#plan.catalogue);
-    if (this.#taken(plan.id)) throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
-    this.#groups.set(plan.id, plan);
+    this.#groupPlan.addGroup(input);
     return this;
   }
 
@@ -308,9 +304,7 @@ export class Scene {
    * scene.addActivity({ id: "burst", label: "Burst", unit: "per hour", start: "2026-08-01", end: "2026-08-20", peak: "2026-08-12", samples: [{ time: "2026-08-01", value: 2 }, { time: "2026-08-12", value: 100 }, { time: "2026-08-20", value: 5 }] });
    */
   addActivity(input: ActivityInput): this {
-    const plan = planActivity(input);
-    if (this.#activities.has(plan.window.id)) throw new SceneError("bad-activity", `addActivity("${plan.window.id}"): an activity with that id is already in the scene`);
-    this.#activities.set(plan.window.id, plan);
+    this.#groupPlan.addActivity(input);
     return this;
   }
 
@@ -330,12 +324,7 @@ export class Scene {
 
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
-    const merged = eventsOf(events, this.#events);
-    const own = events.flatMap((event): [string, Provenance][] => event.provenance === undefined ? [] : [[event.id, eventProvenanceOf(event.provenance, event.id)]]);
-    const batch = options.provenance === undefined ? undefined : eventProvenanceOf(options.provenance);
-    this.#events = merged;
-    for (const [id, provenance] of own) this.#eventOwnProvenance.set(id, provenance);
-    if (batch !== undefined) this.#eventProvenance = batch;
+    this.#story.addEvents(events, options);
     return this;
   }
 
@@ -344,7 +333,7 @@ export class Scene {
    * (a panel with an `object` still has its marker on that object). `at.utc` may be any instant inside the timeline, in any year. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field.
    */
   addStoryPanels(panels: StoryPanelsInput): this {
-    this.#panels = panels;
+    this.#story.addPanels(panels);
     return this;
   }
 
@@ -427,63 +416,15 @@ export class Scene {
     return createStateResolver(this.#plan.catalogue.definitions(), this.#plan.catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
   }
 
-  /** The story panels, resolved against this scene's events, anchors, objects and timeline span. */
-  #storyPanels(window: TimeBounds): StoryPanelSet | undefined {
-    if (this.#panels === undefined) return undefined;
-    const anchors = new Map<string, number>();
-    for (const { body } of this.#tracked.values()) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
-    return panelsOf(this.#panels, { events: this.#events, anchors, objectIds: [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groups.keys()], window });
-  }
-
   /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
   #viewsEntry(ids: readonly BodyId[], storyPanels: StoryPanelSet | undefined): { views?: ViewSettings } {
     if (this.#views === undefined) return {};
-    return { views: resolveViews(this.#views, { paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groups.keys()], events: this.#events.map(({ id }) => id), panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
-  }
-
-  /** Checks the groups against the finished scene: each circles its centre (default the scene's first body), which and whose clump body the scene must hold. */
-  #checkGroups(ids: readonly BodyId[]): void {
-    for (const plan of this.#groups.values()) {
-      const center = plan.input.center ?? ids[0]!;
-      const clump = plan.input.clump;
-      if (!ids.includes(center)) throw new SceneError("bad-group", `addGroup("${plan.id}"): the orbits circle "${center}", which has not been added to the scene`);
-      if (clump !== undefined && !ids.includes(clump.near)) throw new SceneError("bad-group", `addGroup("${plan.id}"): clump.near "${clump.near}" has not been added to the scene`);
-      if (clump !== undefined && clump.near === center) throw new SceneError("bad-group", `addGroup("${plan.id}"): the clump cannot be near the body the orbits circle ("${center}")`);
-    }
-  }
-
-  /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
-  #groupLayers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
-    return [...this.#groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#plan.catalogue, plan.input.center ?? ids[0]!, openUtcMs, window));
+    return { views: resolveViews(this.#views, { paths: [...this.#tracked.keys()], bodies: [...ids, ...this.#groupPlan.groups.keys()], events: this.#story.events.map(({ id }) => id), panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
   }
 
   /** The data packages the added bodies need that `data` does not provide. */
   missingData(data: readonly DataSource[] = []): readonly string[] {
     return this.#plan.missingData(data);
-  }
-
-  /** The activity windows, when any were added. */
-  #windowsEntry(): Pick<ExperienceDefinition["experience"], "windows"> {
-    return this.#activities.size === 0 ? {} : { windows: [...this.#activities.values()].map((activity) => activity.window) };
-  }
-
-  /** The bars of a group's info card at a moment. */
-  #groupMetrics(id: string, timeUtcMs: number): readonly Metric[] {
-    return (this.#groups.get(id)?.input.readouts ?? []).map((spec) => rateMetricOf(id, this.#activities.get(spec.activity ?? this.#firstActivity())!, timeUtcMs));
-  }
-
-  #firstActivity(): string {
-    return this.#activities.keys().next().value as string;
-  }
-
-  /** A group's rate readout names an activity the scene holds. */
-  #checkGroupReadouts(): void {
-    for (const { id, input } of this.#groups.values()) {
-      for (const spec of input.readouts ?? []) {
-        const named = spec.activity ?? (this.#activities.size > 0 ? this.#firstActivity() : undefined);
-        if (named === undefined || !this.#activities.has(named)) throw new SceneError("bad-readout", `addGroup("${id}"): readout rate ${named === undefined ? "needs an activity (addActivity)" : `names activity "${named}", which has not been added to the scene`}`);
-      }
-    }
   }
 
   /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
@@ -532,14 +473,6 @@ export class Scene {
     }
   }
 
-  /** The event provenance entries of the experience: the batch's, and each event's own. */
-  #eventProvenanceEntries(): Pick<ExperienceConfig, "eventProvenance" | "eventProvenanceById"> {
-    return {
-      ...(this.#eventProvenance === undefined ? {} : { eventProvenance: this.#eventProvenance }),
-      ...(this.#eventOwnProvenance.size === 0 ? {} : { eventProvenanceById: Object.fromEntries(this.#eventOwnProvenance) }),
-    };
-  }
-
   /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
   #fitFarthestKm(openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
     const id = this.camera.fitted;
@@ -554,7 +487,7 @@ export class Scene {
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
     if (this.#plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
     this.#plan.checkData(data);
-    this.#checkGroupReadouts();
+    this.#groupPlan.checkReadouts();
     const ids = [...this.#plan.bodies.keys()];
     const paths = this.#plan.moonPaths();
     const sunCentred = this.#plan.checkSunCentred(ids);
@@ -563,7 +496,7 @@ export class Scene {
     const entries = [...this.#tracked.values()];
     const tracked = entries.map((entry) => entry.body);
     const timeline = this.#timeline;
-    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#activities.values()].map((activity) => activity.window)]);
+    const { window, startUtcMs } = spanOf(timeline, this.#timeUtcMs, [...tracked.map((body) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)]);
     const sunOrbitIds = this.#plan.sunOrbitIds(ids);
     // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
     const fault: { error?: SceneError } = {};
@@ -575,15 +508,15 @@ export class Scene {
     const sunPaths: PathLayer[] = this.#deferredRead<PathLayer[]>(ids, window, fault, [], () => this.#plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
     const target = this.camera.target;
     const view = this.camera.view;
-    const storyPanels = this.#storyPanels(window);
-    this.#checkGroups(ids);
+    const storyPanels = this.#story.panels(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
+    this.#groupPlan.check(ids);
     // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
     const seriesIn = planetSeriesLoaded();
-    const late = (plan: PlannedGroup): boolean => !seriesIn && plan.input.clump !== undefined;
-    const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupLayers(ids, window, startUtcMs, (plan) => !late(plan))]);
-    const labelled = [...this.#plan.bodies.values(), ...tracked, ...[...this.#groups.values()]].map(({ id, label }) => ({ id, label }));
+    const late = lateGroups(seriesIn);
+    const layers: GroupLayer[] = this.#deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...this.#groupPlan.layers(ids, window, startUtcMs, (plan) => !late(plan))]);
+    const labelled = [...this.#plan.bodies.values(), ...tracked, ...[...this.#groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
     const catalogue = this.#plan.catalogue;
-    checkEventObjects(this.#events, new Set(labelled.map(({ id }) => id)));
+    this.#story.checkObjects(new Set(labelled.map(({ id }) => id)));
     const definition: ExperienceDefinition = {
       experience: {
         objects: [
@@ -592,17 +525,17 @@ export class Scene {
         ],
         cameraPresets: cameraPresetsOf(labelled),
         ...(target === undefined ? {} : { startCameraPresetId: `${this.camera.following ? "follow" : "focus"}-${target}` }),
-        events: this.#events,
-        ...this.#eventProvenanceEntries(),
+        events: this.#story.events,
+        ...this.#story.provenanceEntries(),
         ...(storyPanels === undefined ? {} : { storyPanels }),
         ...(timeline?.none === true ? { hideTimeline: true } : {}),
         window,
-        ...this.#windowsEntry(),
+        ...this.#groupPlan.windowsEntry(),
         rates: timeline?.rates ?? [60, 3_600, DAY_MS / 1000],
       },
       clock: clockOf(timeline, startUtcMs),
-      ...pacingEntry(timeline, this.#events),
-      ...groupLayersEntry(layers, this.#groups.size > 0, sunOrbitIds.length > 0),
+      ...pacingEntry(timeline, this.#story.events),
+      ...groupLayersEntry(layers, this.#groupPlan.groups.size > 0, sunOrbitIds.length > 0),
       ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
       ...(this.#plan.catalogue === builtInCatalogue ? {} : { catalogue: this.#plan.catalogue }),
       ...this.#plan.visualOverrides(),
@@ -616,14 +549,14 @@ export class Scene {
       createMetrics: ({ resolver }) => {
         const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
         const readouts = createReadoutMetrics([...this.#tracked.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groups.has(objectId) ? this.#groupMetrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
+        return (objectId: string, timeUtcMs: number): readonly Metric[] => (this.#groupPlan.groups.has(objectId) ? this.#groupPlan.metrics(objectId, timeUtcMs) : this.#tracked.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
       },
       prepare: async () => {
         if (fault.error !== undefined) throw fault.error;
-        if (needsPlanetSeries(definition) || auto.later || sunPaths.length < sunOrbitIds.length || this.#groups.size > layers.length) await loadPlanetSeries();
+        if (needsPlanetSeries(definition) || auto.later || sunPaths.length < sunOrbitIds.length || this.#groupPlan.groups.size > layers.length) await loadPlanetSeries();
         this.#checkPlanetSpan(ids, window);
         auto.settle((read) => this.#planetRead(ids, window, read));
-        if (this.#groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupLayers(ids, window, startUtcMs, late)));
+        if (this.#groupPlan.groups.size > layers.length) layers.push(...this.#planetRead(ids, window, () => this.#groupPlan.layers(ids, window, startUtcMs, late)));
         if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...this.#planetRead(ids, window, () => sunOrbitIds.map((id) => this.#plan.sunPath(id, startUtcMs))));
         if (fit !== undefined) this.#planetRead(ids, window, () => fit.settle());
         await installData(data, ids, window, catalogue);
@@ -643,12 +576,6 @@ function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera,
     ...(reach !== undefined || farthestKm !== undefined || cover === undefined ? {} : { camera: { cover: { farthestKm: cover } } }),
     ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
   };
-}
-
-/** The scene's layers: the points layer and the groups only when a group was added. */
-function groupLayersEntry(layers: readonly GroupLayer[], hasGroups: boolean, sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
-  const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(hasGroups ? ["points" as const] : []), ...(sunCentred ? ["sun-centred" as const] : [])];
-  return hasGroups ? { sceneLayers, groups: layers } : { sceneLayers };
 }
 
 /** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
