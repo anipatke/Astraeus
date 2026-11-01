@@ -2,9 +2,10 @@
 id: T-242
 title: Hand React apps the same handle through ref and onReady
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-241, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-242, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T08:52:18Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -60,8 +61,12 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Changed: packages/astraeus/src/api/{AstraeusScene.tsx,mount.ts,viewerHandle.ts,viewerLink.ts}; tests viewerHostDom, viewerHostReady, viewerHandleType; README rows; CHANGELOG Unreleased entry (with migration line); api-surface.lock.json regenerated. Shared helper `viewerHandleOf(link)` used by `mount` (as prototype of the returned object, since a spread would freeze the getters) and `AstraeusScene`. `ViewerLink.reopen()` lets a StrictMode-replayed effect take a closed link back.
+Tests: viewerHostDom "AstraeusScene hands React apps the handle" (ref/onReady reads, setTime, onChange; not-mounted before draw; rebuild keeps same handle and onReady fires again; unmount; camera prop key order vs changed value); viewerHostReady StrictMode case outside act (once per build, handle.time defined inside onReady, listener fires after replay; recorded failing, timing out with onReady never fired, with `link.reopen()` disabled); viewerHandleType ref/onReady types.
+Gates: lint clean; typecheck clean; build ok; npm test 188 files, 2272 passed, 1 skipped; api:lock regenerated; apiSurface/apiRules/allowlistGrowth/packageBoundaries 40 passed; check:react-consumer pass. scenePin/viewerLinkPin unchanged. No allowlist entries touched. No browser run.
 
 ## Drift Notes
 
 Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+- T-249: Design.md should note `viewerHandleOf(link)` as the one handle builder for `mount` and `AstraeusScene`, and `ViewerLink.reopen()` (a closed link can be reopened by a replayed host effect; real unmount leaves it closed).

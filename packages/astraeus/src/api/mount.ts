@@ -5,7 +5,7 @@ import { App } from "../app/App";
 import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
-import type { ViewerHandle } from "./viewerHandle";
+import { viewerHandleOf, type ViewerHandle } from "./viewerHandle";
 import { ViewerLink, type ViewerChange } from "./viewerLink";
 
 /** Options of `mount`. */
@@ -54,24 +54,14 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   });
   // A host that never awaits `ready` is not sent an unhandled rejection for an early unmount (or a failed load); whoever awaits it still hears the error.
   ready.catch(() => undefined);
-  return {
+  // The shared handle is the prototype (a spread would copy its getters' values once); `ready` and `unmount` are this handle's own.
+  return Object.assign(Object.create(viewerHandleOf(link)) as ViewerHandle, {
     ready,
-    get time() { return link.time; },
-    get rate() { return link.rate; },
-    get view() { return link.view; },
-    get camera() { return link.camera; },
-    get eventZones() { return link.eventZones; },
-    setView: (id) => link.setView(id),
-    setCamera: (target) => link.setCamera(target),
-    setTime: (time) => link.setTime(time),
-    setRate: (rate) => link.setRate(rate),
-    onChange: (listener) => link.onChange(listener),
-    onEventZone: (listener) => link.onEventZone(listener),
     unmount() {
       if (!open) return;
       open = false;
       link.close();
       root.unmount();
     },
-  };
+  });
 }

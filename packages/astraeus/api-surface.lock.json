@@ -962,7 +962,7 @@
     },
     "AstraeusScene": {
       "kind": "function",
-      "signature": "AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement",
       "constructors": [],
       "members": []
     },
@@ -982,9 +982,14 @@
           "signature": "readonly DataSource[] | undefined"
         },
         {
+          "name": "ref",
+          "optional": true,
+          "signature": "Ref<ViewerHandle> | undefined"
+        },
+        {
           "name": "onReady",
           "optional": true,
-          "signature": "(() => void) | undefined"
+          "signature": "((handle: ViewerHandle) => void) | undefined"
         },
         {
           "name": "onError",

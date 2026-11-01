@@ -107,6 +107,13 @@ export class ViewerLink implements ViewerPort {
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
+  /** Takes a closed link back into use: a host effect that was cleaned up and replayed (React StrictMode) before the viewer drew. Waits for the next attach, never for the earlier one. */
+  reopen(): void {
+    if (!this.#closed) return;
+    this.#closed = false;
+    this.#wait = newWait();
+  }
+
   /** Stops all callbacks for good (the host unmounted). */
   close(): void {
     this.#closed = true;

@@ -16,6 +16,7 @@ import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
+import type { ViewerHandle } from "../src/api/viewerHandle";
 import type { ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { speedsOf } from "../src/shell/timelineModel";
@@ -125,6 +126,77 @@ describe("AstraeusScene", () => {
     expect(seen.length).toBe(count);
     await draw(endUtcMs + 5);
     expect(errors.map((e) => (e as SceneError).code)).toEqual(["bad-time"]);
+  });
+});
+
+describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
+  const render = (props: Record<string, unknown>) => act(async () => { root!.render(createElement(AstraeusScene, props as never)); });
+
+  it("a React app reads camera and time, sets camera and time and listens through the ref after onReady", async () => {
+    const ref: { current: ViewerHandle | null } = { current: null };
+    const ready: ViewerHandle[] = [];
+    root = createRoot(host);
+    await render({ scene: new Scene(), ref, onReady: (h: ViewerHandle) => ready.push(h) });
+    await act(async () => { await Promise.resolve(); });
+    expect(ready).toHaveLength(1);
+    expect(ready[0]).toBe(ref.current);
+    const handle = ref.current!;
+    expect(handle.time).toBeDefined();
+    const seen: ViewerChange[] = [];
+    const stop = handle.onChange((c) => seen.push(c));
+    act(() => handle.setTime(MID));
+    expect(handle.time).toBe(MID);
+    expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
+    expect(codeOf(() => handle.setCamera({ focus: "no-such-object" }))).toBe("bad-camera");
+    expect(handle.camera === undefined || typeof handle.camera === "object").toBe(true);
+    stop();
+  });
+
+  it("before it is drawn the handle reads undefined and throws not-mounted; after a rebuild the same handle works again and onReady fires again with it; after unmount it is gone", async () => {
+    const ref: { current: ViewerHandle | null } = { current: null };
+    const ready: ViewerHandle[] = [];
+    root = createRoot(host);
+    const onReady = (h: ViewerHandle) => ready.push(h);
+    await render({ scene: new Scene(), ref, onReady });
+    const handle = ref.current!;
+    expect(handle).not.toBeNull();
+    await act(async () => { await Promise.resolve(); });
+    expect(ready).toEqual([handle]);
+    expect(handle.time).toBeDefined();
+    await render({ scene: new Scene(), ref, onReady }); // a rebuild
+    await act(async () => { await Promise.resolve(); });
+    expect(ready).toHaveLength(2);
+    expect(ready[1]).toBe(handle);
+    expect(ref.current).toBe(handle);
+    act(() => handle.setTime(MID));
+    expect(handle.time).toBe(MID);
+    act(() => root!.unmount());
+    root = undefined;
+    expect(handle.time).toBeUndefined();
+    expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
+  });
+
+  it("is not-mounted before the first draw", () => {
+    const ref: { current: ViewerHandle | null } = { current: null };
+    root = createRoot(host);
+    act(() => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
+    expect(ref.current!.time).toBeUndefined();
+    expect(codeOf(() => ref.current!.setTime(MID))).toBe("not-mounted");
+  });
+
+  it("the camera prop re-applies on a changed value but not when the same pose comes with its keys in another order", async () => {
+    const errors: Error[] = [];
+    const scene = new Scene();
+    root = createRoot(host);
+    const pose = { focus: "nope", azimuthDeg: 10, elevationDeg: 20, distance: 5 };
+    const draw = (camera: unknown) => render({ scene, camera, onError: (e: Error) => errors.push(e) });
+    await draw(pose);
+    await act(async () => { await Promise.resolve(); });
+    expect(errors).toHaveLength(1); // each application of a bad pose reports once
+    await draw({ distance: 5, elevationDeg: 20, azimuthDeg: 10, focus: "nope" });
+    expect(errors).toHaveLength(1);
+    await draw({ ...pose, distance: 6 });
+    expect(errors).toHaveLength(2);
   });
 });
 

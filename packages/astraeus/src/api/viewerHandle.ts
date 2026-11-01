@@ -1,5 +1,5 @@
 import type { TimeInput } from "./time";
-import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange } from "./viewerLink";
+import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
 
 /** Everything a host reads, sets and listens to on a drawn viewer: the handle `mount` returns (as `MountedScene`). Every call before the viewer is drawn or after it is gone throws `not-mounted`; reads are then undefined. */
 export interface ViewerHandle {
@@ -30,3 +30,20 @@ export interface ViewerHandle {
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
 
+
+/** The handle a host holds for `link`: one object whose reads and calls go straight to the link, so `mount` and `AstraeusScene` hand out the same thing and cannot drift apart. */
+export function viewerHandleOf(link: ViewerLink): ViewerHandle {
+  return {
+    get time() { return link.time; },
+    get rate() { return link.rate; },
+    get view() { return link.view; },
+    get camera() { return link.camera; },
+    get eventZones() { return link.eventZones; },
+    setView: (id) => link.setView(id),
+    setCamera: (target) => link.setCamera(target),
+    setTime: (time) => link.setTime(time),
+    setRate: (rate) => link.setRate(rate),
+    onChange: (listener) => link.onChange(listener),
+    onEventZone: (listener) => link.onEventZone(listener),
+  };
+}
