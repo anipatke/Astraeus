@@ -12,16 +12,16 @@ planned_by: {role: planner, session: voyagers-feedback-20261101}
 
 ## Outcome
 
-The `examples/` projects show a made-up two-probe scene with A / B / Both views, view-aware pacing and a follow rule, built on the packed package; docs, CHANGELOG and Design are reconciled; the owner has looked on the preview (O-052 "Example", "Proof and docs").
+The `examples/` projects show a made-up two-probe scene with A / B / Both views, view-aware pacing, and host code that moves the camera to each encounter and back with `onEventZone`, `camera` and `setCamera`, built on the packed package; docs, CHANGELOG and Design are reconciled; the owner has looked on the preview (O-052 "Example", "Proof and docs").
 
 ## User Check
 
-On `localhost:5490`, open the made-up views scene: in view A playback slows only at A's events, in Both at both probes' events and the camera moves to each probe at its encounter and back; switching mid-cruise eases the speed. Open the built example: the views switch works and the page address does not change.
+On `localhost:5490`, open the made-up views scene: in view A playback slows only at A's events, in Both at both probes' events; open the built example: at each encounter its host code moves the camera to the probe and back; switching mid-cruise eases the speed. The views switch works and the page address does not change.
 
 ## Done When
 
-- `examples/hello-scene` (and `hello-react` if it stays small) gain the two-probe views scene with pacing and `camera: "follow"`, `await ready` then `setView`, built by `npm run build:example` from the packed tarballs; made-up data only (ARCH-03).
-- The site's made-up views scene gains the pacing and follow rules for the owner look and the browser check.
+- `examples/hello-scene` (and `hello-react` if it stays small) gain the two-probe views scene with pacing, `await ready` then `setView`, and the camera-to-the-encounter composition (`onEventZone`, `camera`, `setCamera`), built by `npm run build:example` from the packed tarballs; made-up data only (ARCH-03).
+- The site's made-up views scene gains pacing rules for the owner look and the browser check.
 - `check:pack`, `check:node-consumer` and one `npm run check:browser` pass.
 - README reviewed end to end for the new rows; CHANGELOG `Unreleased` complete with the two behaviour changes for 0.7.0 users and the first-download size change; Design.md `Interfaces and Data Flow` reconciled with every Drift Note of this Objective (reflected or non-architectural, with reason).
 - Owner look recorded before the Full Objective Check.
