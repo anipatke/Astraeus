@@ -160,3 +160,51 @@ describe.each(ENTRIES)("a viewer started by $name", ({ start }) => {
     started.stop();
   });
 });
+
+/** A host's own markup that borrows the viewer's class names and its state attributes (T-257): the bar, phone and embedded sheets must not restyle it. */
+const HOST_WRAPPERS: ReadonlyArray<{ readonly name: string; readonly attributes: Readonly<Record<string, string>> }> = [
+  { name: "no state attribute", attributes: {} },
+  { name: "data-phone=true (phone rules)", attributes: { "data-phone": "true" } },
+  { name: "data-embedded=true data-phone=false (embedded rules)", attributes: { "data-embedded": "true", "data-phone": "false" } },
+  { name: "data-embedded=true data-phone=true (embedded phone rules)", attributes: { "data-embedded": "true", "data-phone": "true" } },
+  { name: "data-timeline-hidden=true", attributes: { "data-timeline-hidden": "true" } },
+];
+const HOST_PARTS = ["timeline-bar", "timeline-main-row", "timeline-time", "timeline-track", "timeline-marker", "timeline-group-item", "timeline-drawer", "top-bar", "top-bar-divider", "shell-toolbar", "shell-top", "scale-menu", "switch-panel", "controls-pill", "controls-drawer", "drawer-handle", "sheet-handle", "developer-mode-toggle", "story-panel", "info-panel"];
+const BAR_PROPS = ["position", "z-index", "display", "padding-top", "bottom", "top", "right", "left", "width", "height", "min-height", "font-size", "border-top-width", "border-radius", "background-color", "gap", "max-width", "--shell-timeline-space", "--timeline-space"];
+
+describe.each(HOST_WRAPPERS)("a host element with $name outside any viewer", ({ attributes }) => {
+  it("is not restyled by the bar, phone or embedded sheets", () => {
+    const wrapper = document.createElement("div");
+    for (const [name, value] of Object.entries(attributes)) wrapper.setAttribute(name, value);
+    const parts = HOST_PARTS.map((name) => { const part = document.createElement("div"); part.className = name; wrapper.append(part); return part; });
+    const track = document.createElement("input");
+    track.type = "range";
+    wrapper.querySelector(".timeline-main-row")!.append(track);
+    page.append(wrapper);
+    const read = () => [...parts, track, wrapper].map((element) => BAR_PROPS.map((property) => getComputedStyle(element).getPropertyValue(property)));
+    const before = read();
+    injectViewerSheets();
+    expect(read()).toEqual(before);
+    viewerStyle.remove();
+    expect(read()).toEqual(before);
+  });
+});
+
+describe.each(ENTRIES)("a viewer started by $name, beside a host element with the same state attributes", ({ start }) => {
+  it.each([["data-phone", "true"], ["data-embedded", "true"]])("applies %s=%s rules to the viewer's own parts only", async (attribute, value) => {
+    injectViewerSheets();
+    const host = document.createElement("div");
+    host.setAttribute(attribute, value);
+    host.setAttribute("data-phone", attribute === "data-phone" ? value : "false");
+    host.innerHTML = '<div class="timeline-bar"></div><div class="controls-pill"></div>';
+    document.body.append(host);
+    const before = BAR_PROPS.map((property) => getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property));
+    const started = await start(page);
+    const shell = page.querySelector<HTMLElement>(".astraeus-shell")!;
+    shell.setAttribute(attribute, value);
+    expect(BAR_PROPS.map((property) => getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property))).toEqual(before);
+    expect(getComputedStyle(host.querySelector(".timeline-bar")!).position).not.toBe("absolute");
+    started.stop();
+    host.remove();
+  });
+});

@@ -12,7 +12,7 @@
 .astraeus-shell .developer-heading,
 .astraeus-shell .hud-section-clock { column-span: all; }
 .astraeus-shell .developer-heading h2 { margin: 0; font-size: 16px; line-height: 1.25; }
-.astraeus-shell :where(.developer-heading) p { margin: 3px 0 0; color: var(--ui-muted); font-size: 13px; }
+.astraeus-shell .developer-heading p { margin: 3px 0 0; color: var(--ui-muted); font-size: 13px; }
 
 .astraeus-shell .hud-section {
   display: block;
@@ -35,7 +35,7 @@
 }
 
 /* Frame rate has a whole row to itself in "Under the hood": readouts beside the graph. */
-.astraeus-shell :where(.hud-section-frame) .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
+.astraeus-shell .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
 .astraeus-shell .hud-section-frame .frame-readouts { margin-top: 0; }
 .astraeus-shell .hud .frame-body > p { grid-column: 1 / -1; }
 /* The panel's folds (T-090): a full-width heading button over the body; the first group's cards flow in two columns as they did. */
@@ -45,7 +45,7 @@
 .astraeus-shell .hud .collapsible-toggle svg { transition: transform .15s; }
 .astraeus-shell .hud .collapsible-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .astraeus-shell .collapsible-body { padding: 4px 2px 6px; }
-.astraeus-shell :where(.collapsible-body)[hidden] { display: none; }
+.astraeus-shell .collapsible-body[hidden] { display: none; }
 .astraeus-shell .dev-group-cards > .collapsible-body { column-count: 2; column-gap: 10px; }
 .astraeus-shell .dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 10px; }
 .astraeus-shell .dev-group-cards .hud-section-clock { column-span: all; }
@@ -59,7 +59,7 @@
 .astraeus-shell .hud .setting-label { min-width: 0; color: var(--ui-color); }
 .astraeus-shell .hud .setting input[type="range"] { width: 100%; min-width: 0; padding: 0; }
 .astraeus-shell .hud .setting output { color: var(--ui-muted); font-variant-numeric: tabular-nums; text-align: right; }
-.astraeus-shell :where(.hud) .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; margin: 0 0 6px; }
+.astraeus-shell .hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; margin: 0 0 6px; }
 .astraeus-shell .hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(9.5em, 0.8fr) minmax(0, 2.2fr); }
 .astraeus-shell .hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .astraeus-shell .hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
@@ -75,7 +75,7 @@
   font: inherit;
 }
 
-.astraeus-shell :where(.hud) button { cursor: pointer; }
+.astraeus-shell .hud button { cursor: pointer; }
 .astraeus-shell :where(.hud) button:hover:not(:disabled),
 .astraeus-shell :where(.hud) select:hover { border-color: #888078; }
 .astraeus-shell :where(.hud) button[aria-pressed="true"] { border-color: var(--ui-accent); color: var(--ui-accent); }
@@ -99,7 +99,7 @@
 .astraeus-shell .spacecraft-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .astraeus-shell .spacecraft-card-header h4 { min-width: 0; margin: 0; color: var(--ui-color); font-size: 13px; line-height: 1.3; }
 .astraeus-shell .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: #b9d7bd; font-size: 11px; }
-.astraeus-shell :where(.telemetry-state) > span { width: 7px; height: 7px; border-radius: 50%; background: #77c58b; box-shadow: 0 0 7px rgba(119, 197, 139, .5); }
+.astraeus-shell .telemetry-state > span { width: 7px; height: 7px; border-radius: 50%; background: #77c58b; box-shadow: 0 0 7px rgba(119, 197, 139, .5); }
 .astraeus-shell .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
 .astraeus-shell .hud .mission-empty { margin: 0; color: var(--ui-muted); font-size: 13px; line-height: 1.4; }
 .astraeus-shell .scale-controls { align-items: center; }
@@ -125,8 +125,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.astraeus-shell :where(.hud) .overlay div,
-.astraeus-shell :where(.hud) .frame-readouts div { display: contents; }
+.astraeus-shell .hud .overlay div,
+.astraeus-shell .hud .frame-readouts div { display: contents; }
 .astraeus-shell .hud .overlay dt,
 .astraeus-shell .hud .frame-readouts dt { color: var(--ui-data); }
 .astraeus-shell .hud .overlay dd,
@@ -165,7 +165,7 @@
 @media (max-width: 700px) {
   .astraeus-shell .hud { column-count: 1; }
   .astraeus-shell .dev-group-cards > .collapsible-body { column-count: 1; }
-  .astraeus-shell :where(.hud-section-frame) .frame-body { display: block; }
+  .astraeus-shell .hud-section-frame .frame-body { display: block; }
   .astraeus-shell .hud .setting { grid-template-columns: minmax(0, 1fr) 3.4em; }
   .astraeus-shell .hud .setting-label { grid-column: 1 / -1; }
   .astraeus-shell .hud .setting input[type="range"] { grid-column: 1; }

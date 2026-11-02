@@ -1,8 +1,8 @@
 /* The top bar: one compact row of icon buttons at the top left, and the Developer cog on its own at the top right. */
 
-.shell-toolbar { position: relative; z-index: 1; max-width: 100%; }
+.astraeus-shell .shell-toolbar { position: relative; z-index: 1; max-width: 100%; }
 
-.top-bar {
+.astraeus-shell .top-bar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -13,19 +13,19 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
   backdrop-filter: blur(8px);
 }
-.top-bar .object-controls,
-.top-bar .scale-control,
-.top-bar .switch-control { display: contents; }
-.object-camera-actions { display: flex; align-items: center; gap: 6px; }
-.top-bar-divider { flex: 0 0 auto; width: 1px; height: 22px; margin: 0 4px; background: var(--ui-border, rgba(240, 230, 218, .18)); }
+.astraeus-shell .top-bar .object-controls,
+.astraeus-shell .top-bar .scale-control,
+.astraeus-shell .top-bar .switch-control { display: contents; }
+.astraeus-shell .object-camera-actions { display: flex; align-items: center; gap: 6px; }
+.astraeus-shell .top-bar-divider { flex: 0 0 auto; width: 1px; height: 22px; margin: 0 4px; background: var(--ui-border, rgba(240, 230, 218, .18)); }
 
 .astraeus-shell .object-picker { min-width: 0; max-width: 220px; }
-.top-bar-button-text { display: none; }
+.astraeus-shell .top-bar-button-text { display: none; }
 
-.scale-control { position: relative; }
+.astraeus-shell .scale-control { position: relative; }
 .astraeus-shell .scale-toggle { width: auto; white-space: nowrap; }
 
-.scale-menu {
+.astraeus-shell .scale-menu {
   position: absolute;
   z-index: 6;
   top: calc(100% + 8px);
@@ -39,10 +39,10 @@
   background: rgba(13, 13, 13, .97);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
 }
-.scale-menu[hidden] { display: none !important; }
+.astraeus-shell .scale-menu[hidden] { display: none !important; }
 
-.top-bar .scale-explanation { display: contents; }
-.scale-explanation-panel {
+.astraeus-shell .top-bar .scale-explanation { display: contents; }
+.astraeus-shell .scale-explanation-panel {
   position: absolute;
   z-index: 6;
   top: calc(100% + 8px);
@@ -56,11 +56,11 @@
   font-size: 13px;
   line-height: 1.45;
 }
-.scale-explanation-panel[hidden] { display: none !important; }
-.scale-explanation-panel p { margin: 0 0 8px; }
-.scale-explanation-panel .scale-explanation-note { margin: 0; opacity: .75; }
+.astraeus-shell .scale-explanation-panel[hidden] { display: none !important; }
+.astraeus-shell .scale-explanation-panel p { margin: 0 0 8px; }
+.astraeus-shell .scale-explanation-panel .scale-explanation-note { margin: 0; opacity: .75; }
 
-.developer-mode-toggle {
+.astraeus-shell .developer-mode-toggle {
   position: absolute;
   z-index: 5;
   /* Level with the row of controls in the bar beside it (the bar's 12 px offset, its border and its padding). */
@@ -70,13 +70,13 @@
 
 /* The tablet band keeps the row; its 44 px targets come from the shared control stylesheet. */
 @media (min-width: 701px) and (max-width: 900px) {
-  .shell-toolbar { max-width: calc(100vw - 72px); }
+  .astraeus-shell .shell-toolbar { max-width: calc(100vw - 72px); }
 }
 
 /* Display switches a story placed: buttons in the bar, and one small panel opened from a Display button (same look as the scale menu). */
-.top-bar .display-switches,
-.top-bar .switch-panel-host { display: contents; }
-.switch-panel {
+.astraeus-shell .top-bar .display-switches,
+.astraeus-shell .top-bar .switch-panel-host { display: contents; }
+.astraeus-shell .switch-panel {
   position: absolute;
   z-index: 6;
   top: calc(100% + 8px);
@@ -91,4 +91,4 @@
   background: rgba(13, 13, 13, .97);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
 }
-.switch-panel[hidden] { display: none !important; }
+.astraeus-shell .switch-panel[hidden] { display: none !important; }
