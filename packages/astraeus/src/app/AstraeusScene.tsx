@@ -36,6 +36,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { RingLook } from "../assets/rings";
+import type { Pictures } from "../assets/pictures";
 import { type StoryMarkerSpec } from "./StoryMarkers";
 import { type FeatureMarkerSpec } from "./FeatureMarkers";
 import type { ExperienceObject } from "../shell/experience";
@@ -72,6 +73,8 @@ export interface SceneRuntime {
   readonly overrides?: ReadonlyMap<BodyId, VisualOverride>;
   /** Whether bodies may use their desktop texture variant on wide viewports (the definition's opt-in). Absent: no. */
   readonly desktopTextures?: boolean;
+  /** The pictures of the data packages this viewer was given (the definition's `pictures`); absent: none, so bodies are flat colours and the sky has no Milky Way. */
+  readonly pictures?: Pictures;
   /** Paths the `sun-centred` layer draws; empty when the experience has none. */
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
@@ -210,7 +213,7 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
   return (
     <group ref={rootRef}>
       {assets.map((asset) => (
-        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} desktopTextures={runtime.desktopTextures === true} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
+        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} desktopTextures={runtime.desktopTextures === true} pictures={runtime.pictures} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
       ))}
       {skyView !== null && <primitive object={skyView.group} />}
       {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
@@ -228,6 +231,7 @@ interface SceneBodyProps {
   readonly layer: number;
   readonly controls: SceneControls;
   readonly desktopTextures: boolean;
+  readonly pictures: Pictures | undefined;
   readonly ringLookOf: () => RingLook | undefined;
   readonly onParts: ((parts: BodyParts | null) => void) | undefined;
   readonly groupRef: (node: Group | null) => void;
@@ -236,11 +240,11 @@ interface SceneBodyProps {
 }
 
 /** One catalogued body: its view and, when its record has a light, the ambient and directional light on its layer. */
-function SceneBody({ asset, layer, controls, desktopTextures, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
+function SceneBody({ asset, layer, controls, desktopTextures, pictures, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
   const light = asset.visual.light;
   return (
     <group>
-      <BodyView asset={asset} policy={controls.policy} desktopTextures={desktopTextures} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
+      <BodyView asset={asset} policy={controls.policy} desktopTextures={desktopTextures} pictures={pictures} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
       {light !== undefined && (
         <>
           <ambientLight layers={layer} intensity={light.ambient} />

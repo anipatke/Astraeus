@@ -140,6 +140,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
       desktopTextures: definition.desktopTextures === true,
+      ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),

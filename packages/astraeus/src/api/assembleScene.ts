@@ -5,6 +5,7 @@ import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } fr
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import { createComposition } from "../assets/compositions";
+import { mergePictures } from "../assets/pictures";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import { needsPlanetSeries } from "../app/planetNeeds";
@@ -135,6 +136,8 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
     ...(plan.catalogue === builtInCatalogue ? {} : { catalogue: plan.catalogue }),
     ...plan.visualOverrides(),
+    // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
+    ...picturesEntry(data),
     composition: createComposition(plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
     scaleChoices: scaleChoicesOf(parts.scale, parts.scaleOnly, plan.enlargedInSun(sunCentred)),
     ...viewPlan.switchesEntry(),
@@ -159,6 +162,12 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     },
   };
   return definition;
+}
+
+/** The viewer's own pictures (those of the packages passed to it); absent when no package brings any. */
+function picturesEntry(data: readonly DataSource[]): Pick<ExperienceDefinition, "pictures"> {
+  const pictures = mergePictures(data.map((source) => source.pictures));
+  return Object.keys(pictures).length === 0 ? {} : { pictures };
 }
 
 /**

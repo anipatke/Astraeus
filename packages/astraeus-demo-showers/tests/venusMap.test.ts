@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { PICTURES } from "astraeus-data";
 import { describeBody } from "astraeus/app/bodyDraw";
 import { catalogue } from "astraeus/assets/catalogue";
 import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "astraeus/assets/bodies/venus";
@@ -19,14 +20,16 @@ const sha = async (file: string): Promise<string> => {
   const [{ readFileSync }, { createHash }] = [await node("fs"), await node("crypto")];
   return createHash("sha256").update(readFileSync(`packages/${file.includes("8k") ? "astraeus-data/src" : "astraeus/src/assets"}/textures/${file}`)).digest("hex") as string;
 };
-const desktop = VENUS_TEXTURE.desktop!;
+// The 8k file ships in astraeus-data and reaches a viewer through its pictures (T-252); the look names it.
+const desktop = { ...PICTURES["venus-8k"]!, minViewportWidth: 768 };
+const WITH_8K = { ...VENUS_TEXTURE, desktop };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Venus Magellan map (I-054)", () => {
   it("picks the 2k file below 768 px and the 8k file from 768 px up", async () => {
-    for (const width of [320, 375, 414, 600, 767]) expect(textureUrlFor(VENUS_TEXTURE, width)).toBe(VENUS_TEXTURE.url);
-    for (const width of [768, 1024, 1920]) expect(textureUrlFor(VENUS_TEXTURE, width)).toBe(desktop.url);
+    for (const width of [320, 375, 414, 600, 767]) expect(textureUrlFor(WITH_8K, width)).toBe(VENUS_TEXTURE.url);
+    for (const width of [768, 1024, 1920]) expect(textureUrlFor(WITH_8K, width)).toBe(desktop.url);
     expect(VENUS_TEXTURE.url).not.toBe(desktop.url);
     expect(desktop.minViewportWidth).toBe(768);
     expect((await shippedPackage()).textures.find((t) => t.src.includes("8k"))?.minViewportWidth).toBe(768);
@@ -35,18 +38,18 @@ describe("Venus Magellan map (I-054)", () => {
   it("a phone-width window never gets the 8k file from the draw plan; a desktop one does", () => {
     const venus = catalogue.get("venus");
     vi.stubGlobal("window", { innerWidth: 375 });
-    expect(describeBody(venus, trueScale).textureUrl).toBe(VENUS_TEXTURE.url);
+    expect(describeBody(venus, trueScale, false, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
     vi.stubGlobal("window", { innerWidth: 1280 });
-    expect(describeBody(venus, trueScale, true).textureUrl).toBe(desktop.url);
+    expect(describeBody(venus, trueScale, true, PICTURES).textureUrl).toBe(desktop.url);
     vi.stubGlobal("window", { innerWidth: 375 });
-    expect(describeBody(venus, trueScale, true).textureUrl).toBe(VENUS_TEXTURE.url);
+    expect(describeBody(venus, trueScale, true, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
   });
 
   it("asks for the 2k file at desktop width unless the experience opts in (I-068, T-141)", () => {
     const venus = catalogue.get("venus");
     vi.stubGlobal("window", { innerWidth: 1280 });
-    expect(describeBody(venus, trueScale).textureUrl).toBe(VENUS_TEXTURE.url);
-    expect(describeBody(venus, trueScale, false).textureUrl).toBe(VENUS_TEXTURE.url);
+    expect(describeBody(venus, trueScale, false, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
+    expect(describeBody(venus, trueScale, false, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
   });
 
   it("a desktop-width showers page draws Venus from the 2k file", () => {
@@ -56,7 +59,7 @@ describe("Venus Magellan map (I-054)", () => {
       const definition = buildShowerDefinition(settings, { kind: "absent" });
       expect(definition.composition?.bodies).toContain("venus");
       expect(definition.desktopTextures).toBeUndefined();
-      expect(describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true).textureUrl).toBe(VENUS_TEXTURE.url);
+      expect(describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
     }
   });
 

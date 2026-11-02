@@ -1,6 +1,6 @@
-import "./registerData";
 import { StrictMode, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
+import { PICTURES } from "astraeus-data";
 import { App } from "astraeus/app/App";
 import { needsPlanetSeries } from "astraeus/app/planetNeeds";
 import { loadPlanetSeries } from "astraeus/core/planetSeries";
@@ -105,7 +105,8 @@ async function buildDefinition(): Promise<ExperienceDefinition> {
   const definition = await chooseDefinition();
   if (definition.prepare !== undefined) await definition.prepare();
   if (needsPlanetSeries(definition)) await loadPlanetSeries();
-  return definition;
+  // The moon maps, the 8k Venus map and the Milky Way ship in astraeus-data, not the engine; the site hands them to its one viewer through the definition.
+  return { ...definition, pictures: { ...PICTURES, ...definition.pictures } };
 }
 const root = createRoot(app);
 // Each build is mounted under a new key, so the old app unmounts whole (its canvas and the scene's GPU resources are disposed) before the new one starts.

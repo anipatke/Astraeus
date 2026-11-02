@@ -3,7 +3,7 @@
 // with its licence (PROV-02).
 import type { AssetLicence, TextureRef } from "./licence";
 import hygStarsUrl from "./stars/hyg-v42-naked-eye.json?url";
-import { pictureOf } from "./pictures";
+import type { Pictures } from "./pictures";
 
 const RAD = Math.PI / 180;
 
@@ -170,19 +170,17 @@ export function starAppearance(vMag: number): { readonly sizePx: number; readonl
 // ---------------------------------------------------------------- sources and the shell item
 
 /**
- * The picture, one 3840x1920 image (under every GPU's texture limit). The file ships in astraeus-data (name "milky-way");
- * without that package the list is empty and no picture is drawn.
+ * The picture, one 3840x1920 image (under every GPU's texture limit). The file ships in astraeus-data (name "milky-way"); a viewer
+ * that was not given it has an empty list and no picture is drawn.
  */
-export const milkyWayTiles = (): readonly TextureRef[] => ["milky-way"].flatMap((name) => pictureOf(name) ?? []);
+export const milkyWayTiles = (pictures: Pictures): readonly TextureRef[] => ["milky-way"].flatMap((name) => pictures[name] ?? []);
 
-/** The Gaia EDR3 render (stars removed) as a one-tile galactic picture: the one Milky Way picture. */
-export const MILKY_WAY_PICTURE: PictureSet = Object.freeze<PictureSet>({
+/** The Gaia EDR3 render (stars removed) as a one-tile galactic picture, from the pictures this viewer was given: the one Milky Way picture (no tiles without it). */
+export const milkyWayPicture = (pictures: Pictures): PictureSet => Object.freeze<PictureSet>({
   name: "Milky Way, Gaia EDR3 render without foreground stars (Kevinmloch)",
   columns: 1,
   rows: 1,
-  get tiles(): readonly PictureTile[] {
-    return milkyWayTiles().map((tile) => Object.freeze({ column: 0, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }));
-  },
+  tiles: milkyWayTiles(pictures).map((tile) => Object.freeze({ column: 0, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx })),
   credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC",
   licence: "CC BY-SA 4.0",
   source: "https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png",

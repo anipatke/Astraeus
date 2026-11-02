@@ -6,8 +6,9 @@ import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const controlsOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneControls>());
+const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) controlsOf.set(el, props.controls); } }),
+  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); } } }),
 }));
 vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 
@@ -26,6 +27,11 @@ import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
 import { pretendScreen } from "./domSetup";
+import { PICTURES } from "astraeus-data";
+import { describeBody } from "../src/app/bodyDraw";
+import { catalogue } from "../src/assets/catalogue";
+import { milkyWayPicture } from "../src/assets/sky";
+import { trueScale } from "../src/core/scalePolicy";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 
@@ -298,7 +304,28 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     moons.expectBoth();
   });
 
-  it.todo("T-252: each viewer draws only its own data packages' pictures");
+  // T-252: the pictures a viewer draws are those of the packages passed to it. Viewer A gets astraeus-data's pictures, B gets none; each pairing runs in both load orders.
+  it.each([["A loads first", true], ["B loads first", false]])("T-252: a viewer given the pictures draws them and one given none draws none (%s)", async (_order, picturedFirst) => {
+    const pictured: OpenWith = { data: [{ name: "astraeus-data", provides: [], pictures: PICTURES }] };
+    const plain: OpenWith = {};
+    const a = picturedFirst ? await pairing.first.open(pictured) : undefined;
+    if (a) open.push(a);
+    const b = await (picturedFirst ? pairing.second : pairing.first).open(plain);
+    open.push(b);
+    const a2 = a ?? await pairing.second.open(pictured);
+    if (!a) open.push(a2);
+    const drawn = (viewer: Viewer) => {
+      const runtime = runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!;
+      return {
+        titan: describeBody(catalogue.get("titan"), trueScale, false, runtime.pictures).textureUrl,
+        venus: describeBody(catalogue.get("venus"), trueScale, true, runtime.pictures).textureUrl,
+        tiles: milkyWayPicture(runtime.pictures ?? {}).tiles.length,
+      };
+    };
+    expect(drawn(a2)).toEqual({ titan: PICTURES.titan!.url, venus: PICTURES["venus-8k"]!.url, tiles: 1 });
+    expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
+  });
+
   it.todo("T-253: developerTools on one viewer and off on the other");
   it.todo("T-255: Escape closes only the panel of the viewer it was pressed in");
   it.todo("T-255: the loading cover is not touched by an outside host's viewer");

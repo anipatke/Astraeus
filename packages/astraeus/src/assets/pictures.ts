@@ -1,37 +1,38 @@
-import type { TextureRef } from "./licence";
+import { textureRightsProblem, type TextureRef } from "./licence";
 import type { BodyVisual } from "./visual";
 
 /**
  * Pictures that ship in a data package (`astraeus-data`) rather than in the engine, by name: a body id (`titan`), `venus-8k`, `milky-way`.
- * Each carries its own licence record, so the credit travels with the file (PROV-02). A picture that was never registered is simply absent:
- * the body is drawn as a flat colour, the sky without its Milky Way (DATA-01: nothing is invented to fill the gap).
+ * Each carries its own licence record, so the credit travels with the file (PROV-02). A viewer draws only the pictures of the packages passed to it
+ * (its definition's `pictures`): a picture that was not passed is simply absent, so the body is drawn as a flat colour and the sky without its
+ * Milky Way (DATA-01: nothing is invented to fill the gap), and one viewer's pictures never reach another's.
  */
 export type Pictures = Readonly<Record<string, TextureRef>>;
 
-const book = new Map<string, TextureRef>();
+/** No pictures: what a viewer given no data package draws with. */
+export const NO_PICTURES: Pictures = Object.freeze({});
 
-/** Makes a package's pictures known; later calls add to or replace earlier ones of the same name. */
-export function registerPictures(set: Pictures): void {
-  for (const [name, texture] of Object.entries(set)) book.set(name, texture);
+/** The pictures of several packages as one set; a later package's picture of the same name replaces an earlier one's. */
+export function mergePictures(sets: readonly (Pictures | undefined)[]): Pictures {
+  return Object.freeze(Object.assign({}, ...sets.map((set) => set ?? {})) as Record<string, TextureRef>);
 }
 
-export function pictureOf(name: string): TextureRef | undefined {
-  return book.get(name);
+/** The first picture in the set that fails the rights rule, as "<name> <problem>", or null when every one has exactly one of licence and local-only. */
+export function picturesProblem(pictures: Pictures): string | null {
+  for (const [name, texture] of Object.entries(pictures)) {
+    const problem = textureRightsProblem(texture);
+    if (problem !== null) return `the picture "${name}" ${problem}`;
+  }
+  return null;
 }
 
-/** The names registered so far, for tests and error messages. */
-export function registeredPictures(): readonly string[] {
-  return [...book.keys()];
-}
-
-/** Forgets every registered picture (tests only). */
-export function clearPictures(): void {
-  book.clear();
-}
-
-/** A visual whose `texture` is read from the registered picture when asked for, so it picks the picture up whenever the data package is registered. */
-export function withPicture(name: string, visual: Omit<BodyVisual, "texture">): BodyVisual {
-  const look = { ...visual };
-  Object.defineProperty(look, "texture", { enumerable: true, get: () => pictureOf(name) });
-  return Object.freeze(look) as BodyVisual;
+/**
+ * The picture a look draws with, from the pictures this viewer was given: the look's own texture (an engine file) when it has one, else the picture it
+ * names. A named large variant (`desktopPicture`) is added to the texture as its desktop file when the viewer holds it. Undefined: flat colour.
+ */
+export function textureOf(visual: BodyVisual, pictures: Pictures): TextureRef | undefined {
+  const base = visual.texture ?? (visual.picture === undefined ? undefined : pictures[visual.picture]);
+  if (base === undefined || visual.desktopPicture === undefined) return base;
+  const large = pictures[visual.desktopPicture];
+  return large === undefined ? base : { ...base, desktop: { url: large.url, widthPx: large.widthPx, heightPx: large.heightPx, minViewportWidth: 768 } };
 }

@@ -2,9 +2,10 @@
 id: T-252
 title: Give each viewer its own pictures
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-251, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-252, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T09:10:30Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -57,8 +58,40 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+### Read points of the picture book (listed before the change)
+
+1. `withPicture` (assets/pictures.ts): used by `bodies/listedMoons.ts`, `galileanMoons.ts`, `io.ts`, `planetSystemMaps.ts` -> looks now carry `picture: "<name>"`.
+2. Venus large variant (`bodies/venus.ts`, `pictureOf("venus-8k")` getter) -> `desktopPicture: "venus-8k"` on the look.
+3. Milky Way tiles (`assets/sky.ts` `milkyWayTiles`, `MILKY_WAY_PICTURE`, `SkyView`) -> `milkyWayPicture(pictures)`; `SkyView` takes `pictureSet`.
+4. Rights check (`assets/catalogue.ts`): the catalogue still checks the engine's own textures; the pictures a viewer is given are checked in `installData` (`picturesProblem`, `bad-data`).
+5. `describeBody` (`app/bodyDraw.ts`) -> takes the viewer's `pictures`; `BodyView`/`SceneBody`/`SceneRuntime` carry them.
+6. NOT in the planner's list, found by grep: `astraeus-demo-planets/src/experiences/planets/planetDefinition.ts` read `catalogue.get(moon.id).visual.texture?.url` for the moon panel discs. Handled in the same change (the demo imports `PICTURES` from `astraeus-data`, hands it in as its definition's `pictures`, and builds the panel urls from it); no State change needed, so no REPLAN.
+
+### Entry paths (each covered)
+
+- `mount` data -> `assembleScene` -> definition `pictures` (twoViewers: mount+mount, mount+AstraeusScene).
+- `<AstraeusScene data>` -> same builder (twoViewers: AstraeusScene+AstraeusScene).
+- Hand-built definitions (site, planets demo): `definition.pictures` -> App `buildRuntime` -> `SceneRuntime.pictures` -> `BodyView` and `SkyView`.
+- Each of the five picture paths with and without the package: `viewerPictures.test.ts` table.
+
+### Gates (2026-11-02)
+
+- `npm run lint`: clean. `npm run typecheck`: clean. `npm run build`: built. `npm test`: 194 files, 2409 passed, 3 expected fail, 9 todo, 1 skipped.
+- `npm run check:pack`: pass. `npm run check:react-consumer`: pass.
+- `git diff --exit-code -- packages/astraeus/api-surface.lock.json` after `npm run api:lock`: empty. apiSurface/apiRules/allowlistGrowth/packageBoundaries tests: 40 passed.
+- twoViewers.test.ts + viewerPictures.test.ts run 10 times in a loop: 10 of 10 passed.
+- DEEP_IMPORT_COUNTS astraeus-site lowered 94 -> 93 (registerData.ts deleted). No allowlist entry added. No browser run.
+
+### Test edits recorded
+
+- `vitest.setup.ts` no longer registers pictures. Tests that read `visual.texture` of pictured bodies now resolve through the pictures: jupiterIo, planetMoonSystems, textureLicence (`textureOf(visual, PICTURES)`), publicApi (rewritten registers-test into a definition test plus a rights-refusal test), sky/skyPicture (`pictureSet: milkyWayPicture(PICTURES)`), demo-planets mapOrientation/jupiterMoonsScene, demo-showers venusMap (describeBody given PICTURES; 8k variant built from `PICTURES["venus-8k"]`), site assetsPageCredits/assetsSections (licence via the named picture). No expectation weakened; scenePin/viewerLinkPin unchanged (a definition without pictures omits the key).
+- New: `packages/astraeus/tests/viewerPictures.test.ts`; `twoViewers.test.ts` placeholder T-252 is now real (both load orders, three pairings).
+- CHANGELOG Unreleased entry added.
+
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- (T-258) Design "Asset architecture (O-014)": the page-wide picture book is gone. `BodyVisual` gains `picture` and `desktopPicture` (names); `ExperienceDefinition.pictures` carries a viewer's pictures from `data` (assembleScene) or hand-built (site, planets demo) to `BodyView` (`describeBody(..., pictures)`) and `SkyView` (`pictureSet`). `installData` no longer registers pictures; it checks their rights.
+- (T-258) The planets demo imports `PICTURES` from `astraeus-data` and hands it in on its own definition (also feeds the moon panel's disc urls); the site merges `PICTURES` under every definition in `main.tsx`.

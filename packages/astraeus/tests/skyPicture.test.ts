@@ -4,7 +4,10 @@
 // its galactic registration in sky.test.ts, and the lazy load below remain).
 import { describe, expect, it, vi } from "vitest";
 import { Texture, TextureLoader } from "three";
-import { MILKY_WAY_PICTURE, MAX_TILE_PX, milkyWayUv } from "../src/assets/sky";
+import { PICTURES } from "astraeus-data";
+import { milkyWayPicture, MAX_TILE_PX, milkyWayUv } from "../src/assets/sky";
+
+const MILKY_WAY_PICTURE = milkyWayPicture(PICTURES);
 import { SkyView } from "../src/app/SkyView";
 import { buildPictureMesh, resolveSkySettings } from "../src/app/skyModel";
 
@@ -42,7 +45,7 @@ describe("the Milky Way picture", () => {
 
   it("is built only when asked for, once, keeping the on/off state and brightness", () => {
     vi.spyOn(TextureLoader.prototype, "load").mockImplementation(() => new Texture());
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 0.8, pixelRatio: 1, picture: null, milkyWay: false });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 0.8, pixelRatio: 1, picture: null, pictureSet: MILKY_WAY_PICTURE, milkyWay: false });
     const meshes = () => view.group.children.filter((child) => child.type === "Mesh");
     expect(meshes()).toHaveLength(0);
     view.requestPicture();

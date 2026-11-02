@@ -1,4 +1,6 @@
 import { moonDataFolder } from "./moonData";
+import { textureOf } from "../src/assets/pictures";
+import { PICTURES } from "astraeus-data";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { catalogue } from "../src/assets/catalogue";
@@ -81,7 +83,7 @@ describe("the mapped moons of the other planets", () => {
 
   it("draw Phobos and Deimos as grey spheres with no map, and every other mapped moon with a licensed map", () => {
     for (const moon of PLANET_MOON_DEFINITIONS) {
-      const texture = catalogue.get(moon.id).visual.texture;
+      const texture = textureOf(catalogue.get(moon.id).visual, PICTURES);
       if (moon.parentId === "mars") {
         expect(texture, moon.id).toBeUndefined();
         expect(catalogue.get(moon.id).visual.kind).toBe("sphere");

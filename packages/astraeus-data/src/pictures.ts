@@ -1,6 +1,6 @@
 // The pictures that ship in astraeus-data, each with the licence record that travels with the file (PROV-02). The engine draws a body
-// whose picture is not registered as a flat colour; registering this set (`registerPictures(PICTURES)`, which `mount` does for a data
-// package passed in `data`) gives it the map. The records were moved here unchanged from the engine's `assets/bodies/*` files (O-036 T-161).
+// whose picture was not given to its viewer as a flat colour; a viewer given this set (the package passed in `data`, which `mount` carries to that
+// viewer alone) draws the map. The records were moved here unchanged from the engine's `assets/bodies/*` files (O-036 T-161).
 import type { AssetLicence, TextureRef } from "astraeus";
 import callistoUrl from "./textures/callisto-2k.jpg";
 import charonUrl from "./textures/charon-2k.jpg";

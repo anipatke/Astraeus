@@ -8,6 +8,7 @@ import {
   GALACTIC_CENTRE,
   GALACTIC_NORTH_POLE,
   milkyWayTiles,
+  milkyWayPicture,
   starAppearance,
   milkyWayUv,
   parseStarFile,
@@ -17,6 +18,8 @@ import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyView, SKY_PROBE_DIRECTION, brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "../src/app/SkyView";
 import { listedObjects } from "../src/shell/objectModel";
 import { buildPictureMesh, buildStarBuffers, resolveSkySettings, skyObject, starRenderDirection, withSkyObject } from "../src/app/skyModel";
+import { PICTURES } from "astraeus-data";
+const WITH_PICTURE = milkyWayPicture(PICTURES);
 
 const DEG = Math.PI / 180;
 /** Angle between two directions, accurate near zero (acos is not): atan2 of the cross and dot products. */
@@ -162,7 +165,7 @@ function ndcOf(camera: PerspectiveCamera, world: Vector3): [number, number] {
 
 describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
   it("mounts a made-up three-star catalogue", () => {
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()] });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });
     expect(view.starCount).toBe(0);
     view.setStars(MADE_UP);
     expect(view.starCount).toBe(3);
@@ -173,7 +176,7 @@ describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
   });
 
   it("moves no star on screen when the camera's position, near and far change but its orientation does not", () => {
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()] });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });
     view.setStars(MADE_UP);
     const points = view.group.children.find((child) => child.type === "Points") as import("three").Points;
     const positions = points.geometry.getAttribute("position");
@@ -201,7 +204,7 @@ describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
   });
 
   it("turns with the camera: a rotation moves the probe on screen and a translation does not", () => {
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()] });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });
     const camera = new PerspectiveCamera(45, 1.6, 1, 1000);
     view.follow(camera);
     const before = view.probe(camera).ndc;
@@ -227,14 +230,14 @@ describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
 
 describe("rights and the shell item (Done When 4, PROV-02)", () => {
   it("licenses the Milky Way image and credits Kevinmloch and Gaia", () => {
-    expect(milkyWayTiles()).toHaveLength(1);
-    for (const tile of milkyWayTiles()) {
+    expect(milkyWayTiles(PICTURES)).toHaveLength(1);
+    for (const tile of milkyWayTiles(PICTURES)) {
       expect(textureRightsProblem(tile)).toBeNull();
       expect(tile.licence?.licence).toBe("CC BY-SA 4.0");
       expect(tile.licence?.attribution).toContain("Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC");
       expect(Math.max(tile.widthPx, tile.heightPx)).toBeLessThanOrEqual(4096); // under every WebGL2 GPU's texture limit
     }
-    expect(milkyWayTiles().reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(3840); // the 3840 px Commons thumbnail of the 8000 px original
+    expect(milkyWayTiles(PICTURES).reduce((sum, tile) => sum + tile.widthPx, 0)).toBe(3840); // the 3840 px Commons thumbnail of the 8000 px original
   });
 
   it("cites its sources and says plainly which star file is drawn", () => {
@@ -281,7 +284,7 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(milkyWayFromSearch("?milkyway=on")).toBe(true);
     expect(milkyWayFromSearch("?sky=off")).toBeNull();
     expect(milkyWayFromSearch("?milkyway=maybe")).toBeNull();
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], milkyWay: false });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE, milkyWay: false });
     view.setStars(MADE_UP);
     const meshes = () => view.group.children.filter((child) => child.type === "Mesh");
     expect(meshes()).toHaveLength(1);
@@ -292,9 +295,9 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(view.pictureVisible).toBe(true);
     expect(view.starCount).toBe(3);
     // Owner decision 2026-10-15: with no setting the picture starts off; the switch (or ?milkyway=on) turns it on.
-    const byDefault = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()] });
+    const byDefault = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });
     expect(byDefault.pictureVisible).toBe(false);
-    expect(new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], milkyWay: true }).pictureVisible).toBe(true);
+    expect(new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE, milkyWay: true }).pictureVisible).toBe(true);
   });
 
   it("reads brightness from the address, ignoring bad values with a warning, and changes the uniforms in place", () => {
@@ -307,7 +310,7 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     for (const bad of ["?stars=3", "?stars=-1", "?stars=abc", "?stars="]) expect(brightnessFromSearch(bad, "stars")).toBeNull();
     expect(warn).toHaveBeenCalledTimes(4);
     warn.mockRestore();
-    const view = new SkyView({ starBrightness: 1.2, milkyWayBrightness: 0.5, pixelRatio: 1, pictures: [new Texture()] });
+    const view = new SkyView({ starBrightness: 1.2, milkyWayBrightness: 0.5, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });
     expect(view.starBrightness).toBe(1.2);
     expect(view.milkyWayBrightness).toBeCloseTo(0.5, 9);
     view.setStarBrightness(1.7);
@@ -319,7 +322,7 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
 
   it("filters the picture with mipmaps and anisotropy so it does not sparkle", () => {
     const halves = [new Texture()];
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 2, maxAnisotropy: 8, pictures: halves });
+    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 2, maxAnisotropy: 8, pictures: halves, pictureSet: WITH_PICTURE });
     for (const texture of halves) {
       expect(texture.generateMipmaps).toBe(true);
       expect(texture.anisotropy).toBe(8);

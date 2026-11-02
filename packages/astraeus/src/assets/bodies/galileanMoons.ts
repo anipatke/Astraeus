@@ -1,5 +1,4 @@
 import { CALLISTO, EUROPA, GANYMEDE } from "../../core/bodies/jupiterMoons";
-import { withPicture } from "../pictures";
 import type { BodyMaterialConfig, BodyVisual } from "../visual";
 
 /**
@@ -9,7 +8,7 @@ import type { BodyMaterialConfig, BodyVisual } from "../visual";
  */
 
 const LIGHT = Object.freeze({ ambient: 0.08, directional: 1.4 });
-const visual = (picture: string, material: BodyMaterialConfig, textureYawRad: number): BodyVisual => withPicture(picture, { kind: "sphere", material: Object.freeze(material), textureYawRad, light: LIGHT });
+const visual = (picture: string, material: BodyMaterialConfig, textureYawRad: number): BodyVisual => Object.freeze({ kind: "sphere", picture, material: Object.freeze(material), textureYawRad, light: LIGHT });
 
 export const EUROPA_VISUAL = visual("europa", { color: "#c8b898", roughness: 0.96, metalness: 0 }, Math.PI);
 /** The donor's Ganymede picture is recentred by 180 degrees against the mosaic (data/bodies/ganymede/map.json textureRecentringDeg), so it is centred on 0 E like Io's and needs no turn (O-039 T-131). Europa and Callisto are centred on 180 E and turn half a revolution. */

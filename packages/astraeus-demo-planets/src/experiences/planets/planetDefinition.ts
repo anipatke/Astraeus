@@ -1,5 +1,6 @@
 // The planets experience builder: one planet's settings (data/planets/<planet>.json) and its system become an ExperienceDefinition.
 // Generic (ARCH-01): no planet, moon or story is named here; the names are in the settings file and the system.
+import { PICTURES } from "astraeus-data";
 import { catalogue } from "astraeus/assets/catalogue";
 import { moonFacts, moonSourceTitles, type MoonCatalogue, type MoonRecord } from "astraeus/assets/moonCatalogue";
 import { moonListSummary, type MoonFamilyList } from "astraeus/shell/moonFamilies";
@@ -219,7 +220,7 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
         id: moon.id,
         label: moon.name,
         named: moon.named,
-        ...(mappedIds.has(moon.id) ? { pictureUrl: catalogue.get(moon.id).visual.texture?.url } : {}),
+        ...(mappedIds.has(moon.id) ? { pictureUrl: PICTURES[catalogue.get(moon.id).visual.picture ?? moon.id]?.url } : {}),
       })),
     })),
   };
@@ -258,6 +259,8 @@ export function buildPlanetDefinition(settings: PlanetSettings, system: PlanetSy
     clock: { startUtcMs: window.startUtcMs, rate: settings.clockRate },
     sceneLayers: [],
     desktopTextures: true,
+    // The pictures the planets draw (and the moon panel shows) come from this viewer's own data package, handed in through its definition.
+    pictures: PICTURES,
     composition: system.composition,
     bodySets: layer === undefined ? [] : [layer],
     camera: settings.camera,

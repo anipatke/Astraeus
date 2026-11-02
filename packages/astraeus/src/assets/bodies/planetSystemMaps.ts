@@ -2,7 +2,6 @@ import { NEPTUNE, PLUTO, SATURN, URANUS } from "../../core/bodies/outerPlanets";
 import { CHARON, DEIMOS, DIONE, ENCELADUS, IAPETUS, MIMAS, PHOBOS, RHEA, TETHYS, TITAN, TRITON } from "../../core/bodies/planetMoons";
 import type { AssetLicence, TextureRef } from "../licence";
 import type { BodyVisual } from "../visual";
-import { withPicture } from "../pictures";
 import neptuneUrl from "../textures/neptune-2k.jpg";
 import saturnUrl from "../textures/saturn-2k.jpg";
 import uranusUrl from "../textures/uranus-2k.jpg";
@@ -37,11 +36,11 @@ const sphere = (url: string, widthPx: number, heightPx: number, licence: AssetLi
   light: LIGHT,
 });
 
-/** A sphere whose picture (and its licence) ships in astraeus-data and is registered by name; without it the sphere is a flat colour. */
+/** A sphere whose picture (and its licence) ships in astraeus-data and is named by the look; without it in the viewer's pictures the sphere is a flat colour. */
 /** A planet drawn with its rings: the ring bands (and their recorded sources) belong to the planet's one catalogue definition. */
 const ringed = (visual: BodyVisual, rings: RingSystem): BodyVisual => Object.freeze({ ...visual, rings });
 
-const pictured = (picture: string, color: string, roughness: number, textureYawRad = 0): BodyVisual => withPicture(picture, { kind: "sphere", material: Object.freeze({ color, roughness, metalness: 0 }), textureYawRad, light: LIGHT });
+const pictured = (picture: string, color: string, roughness: number, textureYawRad = 0): BodyVisual => Object.freeze({ kind: "sphere", picture, material: Object.freeze({ color, roughness, metalness: 0 }), textureYawRad, light: LIGHT });
 
 /** Phobos and Deimos: grey spheres at their mean radius, with no map (the donor draws them as dots; no map of either is shipped). */
 const greyBall = (color: string): BodyVisual => Object.freeze({ kind: "sphere", material: Object.freeze({ color, roughness: 0.97, metalness: 0 }), light: LIGHT });

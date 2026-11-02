@@ -1,7 +1,8 @@
 // Scene React hooks: host-layer lifetime, sky stars loading and the scene views.
 import { useEffect, useMemo } from "react";
 import type { WebGLRenderer } from "three";
-import { loadStarCatalogue } from "../assets/sky";
+import { NO_PICTURES } from "../assets/pictures";
+import { loadStarCatalogue, milkyWayPicture } from "../assets/sky";
 import type { SceneRuntime } from "./AstraeusScene";
 import { compositionPathView, createPathViews } from "./PathView";
 import { BodySetView } from "./BodySetView";
@@ -58,7 +59,7 @@ export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)), [runtime.composition, runtime.resolver, runtime.catalogue]);
-  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null }) : null), [runtime.sky, gl]);
+  const skyView = useMemo(() => (runtime.sky?.visible ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, pictureSet: milkyWayPicture(runtime.pictures ?? NO_PICTURES) }) : null), [runtime.sky, runtime.pictures, gl]);
   const bodySetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)), [runtime.bodySets]);
   const orbitSetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)), [runtime.bodySets]);
   useEffect(() => () => { for (const view of bodySetViews) view.dispose(); }, [bodySetViews]);
