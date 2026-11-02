@@ -59,6 +59,6 @@ export interface ViewerPort {
   detach(): void;
   /** The viewer reports the clock's current reading; the link tells the host only when it differs from the last one. */
   publish(state: ViewerState, cause: ViewerChangeCause): void;
-  /** The viewer's selected object changed. `byMove`: the viewer dropped it because the clock or the view moved (the cause is whatever last moved them); otherwise the visitor chose it. */
+  /** The viewer's selected object changed. `byMove`: the selection followed a move of the clock or the view (a drop, or a view rule's framing target; the cause is whatever last moved them); otherwise the visitor chose it. */
   publishSelection(state: ViewerState, byMove: boolean): void;
 }

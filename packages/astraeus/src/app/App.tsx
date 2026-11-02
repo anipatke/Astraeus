@@ -9,7 +9,7 @@ import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
-import { AstraeusShell } from "../shell/AstraeusShell";
+import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
@@ -365,11 +365,11 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   }, [runtime, definition]);
   // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
   const hostAttached = useRef(false);
-  // `byMove`: the shell dropped the object because time or the view moved; the link names whatever last moved them (a host call, the visitor or playback).
-  const updateSelectedObject = useCallback((objectId: string, byMove?: boolean) => {
+  // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
+  const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
     const changed = controls.current.selectedObjectId !== objectId;
     controls.current.selectedObjectId = objectId;
-    if (changed && hostAttached.current) host?.publishSelection(stateNow(), byMove === true);
+    if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
   }, [host, stateNow]);
   useEffect(() => {
     const id = window.setInterval(() => {
