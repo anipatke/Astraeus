@@ -1,17 +1,35 @@
+/*
+ * Every rule in this sheet and in app/style.css sits under the viewer's root class, so a host page's own html, body and elements are never styled by
+ * the viewer (O-055 T-256). The root holds the viewer's custom properties, base colour and font; it fills the mount element, which `mount` and
+ * `AstraeusScene` make a containing block. A rule written as `.astraeus-shell :where(.x) ...` keeps the weight it had before the prefix existed, so it
+ * still ties or loses to controls.css, the bar sheets and the phone and embedded sheets exactly as it did; `:where()` adds no weight of its own.
+ */
 .astraeus-shell {
   position: absolute;
   inset: 0;
+  background: #000;
   color: var(--ui-color, #f0e6da);
   color-scheme: dark;
   font-family: var(--ui-font, system-ui, sans-serif);
   font-size: 14px;
   line-height: 1.4;
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ui-color: #f0e6da;
+  --ui-muted: #c7bdb3;
+  --ui-subtle: #a99e94;
+  --ui-border: rgba(240, 230, 218, .18);
+  --ui-panel: rgba(13, 13, 13, .94);
+  --ui-accent: #fc6323;
+  --ui-data: #b1a1df;
+  --perf-good: #6fcf8f;
+  --perf-warn: #f0b84a;
+  --perf-bad: #ff6b5e;
 }
 
-.shell-canvas { position: absolute; inset: 0; }
+.astraeus-shell .shell-canvas { position: absolute; inset: 0; }
 
 /* Top-left column: toolbar, then the info panel, bounded above the timeline. */
-.shell-top {
+.astraeus-shell .shell-top {
   position: absolute;
   z-index: 5;
   top: 12px;
@@ -24,10 +42,10 @@
   max-height: calc(100% - 12px - var(--shell-timeline-space, 150px));
   pointer-events: none;
 }
-.shell-top > * { pointer-events: auto; }
-.provenance-detail[hidden] { display: none !important; }
+.astraeus-shell .shell-top > * { pointer-events: auto; }
+.astraeus-shell .provenance-detail[hidden] { display: none !important; }
 
-.info-panel {
+.astraeus-shell .info-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -42,30 +60,30 @@
   box-sizing: border-box;
   backdrop-filter: blur(12px);
 }
-.info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.info-panel-header h2 { margin: 6px 0 0; font-size: 16px; line-height: 1.3; }
+.astraeus-shell .info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.astraeus-shell .info-panel-header h2 { margin: 6px 0 0; font-size: 16px; line-height: 1.3; }
 /* Fact cards ported from Planetary Explorer's FeatureDetails (badge, then one small box per detail), in the shell's one UI font (O-039 T-134, I-058). */
-.info-panel-subtitle { margin: 0; }
-.info-panel-badge { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 3px 10px; border: 1px solid color-mix(in srgb, var(--ui-data, #b1a1df) 45%, transparent); border-radius: 999px; color: var(--ui-data, #b1a1df); font-size: 12px; line-height: 1.3; text-transform: capitalize; overflow-wrap: anywhere; }
-.info-panel-description { margin: 0; color: var(--ui-muted, #c7bdb3); }
-.info-panel-facts { display: grid; gap: 8px; margin: 0; min-width: 0; }
-.info-panel-fact { min-width: 0; padding: 8px 12px; border: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); border-radius: 12px; background: rgba(0, 0, 0, .2); text-align: left; }
-.info-panel-fact dt { margin: 0; color: var(--ui-muted, #c7bdb3); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
-.info-panel-fact dd { margin: 4px 0 0; color: var(--ui-color, #f0e6da); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+.astraeus-shell :where(.info-panel-subtitle) { margin: 0; }
+.astraeus-shell :where(.info-panel-badge) { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 3px 10px; border: 1px solid color-mix(in srgb, var(--ui-data, #b1a1df) 45%, transparent); border-radius: 999px; color: var(--ui-data, #b1a1df); font-size: 12px; line-height: 1.3; text-transform: capitalize; overflow-wrap: anywhere; }
+.astraeus-shell :where(.info-panel-description) { margin: 0; color: var(--ui-muted, #c7bdb3); }
+.astraeus-shell .info-panel-facts { display: grid; gap: 8px; margin: 0; min-width: 0; }
+.astraeus-shell .info-panel-fact { min-width: 0; padding: 8px 12px; border: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); border-radius: 12px; background: rgba(0, 0, 0, .2); text-align: left; }
+.astraeus-shell .info-panel-fact dt { margin: 0; color: var(--ui-muted, #c7bdb3); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.astraeus-shell .info-panel-fact dd { margin: 4px 0 0; color: var(--ui-color, #f0e6da); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.astraeus-shell .info-panel-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
 
-.provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.astraeus-shell .provenance { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .astraeus-shell .provenance-badge { display: inline-block; }
-.provenance-detail { margin: 0; font-size: 13px; }
-.provenance-detail dt { margin-top: 6px; color: var(--ui-color, #f0e6da); font-weight: 600; }
-.provenance-detail dd { margin: 2px 0 0; color: var(--ui-muted, #c7bdb3); overflow-wrap: anywhere; }
-.provenance-detail ul { margin: 0; padding-left: 18px; }
-.provenance-detail li + li { margin-top: 4px; }
+.astraeus-shell .provenance-detail { margin: 0; font-size: 13px; }
+.astraeus-shell .provenance-detail dt { margin-top: 6px; color: var(--ui-color, #f0e6da); font-weight: 600; }
+.astraeus-shell .provenance-detail dd { margin: 2px 0 0; color: var(--ui-muted, #c7bdb3); overflow-wrap: anywhere; }
+.astraeus-shell .provenance-detail ul { margin: 0; padding-left: 18px; }
+.astraeus-shell .provenance-detail li + li { margin-top: 4px; }
 
-.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.astraeus-shell :where(.visually-hidden) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.scene-labels { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
-.astraeus-label {
+.astraeus-shell .scene-labels { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
+.astraeus-shell .astraeus-label {
   position: absolute;
   z-index: 1;
   display: block;
@@ -83,14 +101,14 @@
   pointer-events: none;
 }
 
-.astraeus-label[hidden] { display: none !important; }
-.scene-object-label { z-index: 1; }
+.astraeus-shell .astraeus-label[hidden] { display: none !important; }
+.astraeus-shell .scene-object-label { z-index: 1; }
 
 .astraeus-shell input { color: inherit; font: inherit; }
-.developer-tools summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
+.astraeus-shell :where(.developer-tools) summary:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 .astraeus-shell input:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
 
-.developer-tools {
+.astraeus-shell .developer-tools {
   position: absolute;
   /* Diagnostics must receive input above the toolbar and its information sheet. */
   z-index: 6;
@@ -117,11 +135,11 @@
   backdrop-filter: blur(12px);
 }
 
-.developer-tools[hidden] { display: none !important; }
+.astraeus-shell .developer-tools[hidden] { display: none !important; }
 
 
 /* Metric Visuals: the number leads; the shape is small, quiet and only drawn against a real reference. */
-.metric {
+.astraeus-shell .metric {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -132,52 +150,52 @@
   border-radius: 7px;
   background: rgba(0, 0, 0, .22);
 }
-.metric-label { color: var(--ui-muted, #c7bdb3); font-size: 11px; line-height: 1.3; }
-.metric-body { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; min-width: 0; }
-.metric-reading { display: inline-flex; align-items: baseline; gap: 5px; min-width: 0; }
-.metric-value { color: var(--ui-color, #f0e6da); font: 600 19px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.metric-unit { color: var(--ui-muted, #c7bdb3); font-size: 12px; }
-.metric-context { color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; }
-.metric-scale { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; font-variant-numeric: tabular-nums; }
-.metric-readings { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.metric-coordinates .metric-value { font-size: 14px; }
+.astraeus-shell :where(.metric-label) { color: var(--ui-muted, #c7bdb3); font-size: 11px; line-height: 1.3; }
+.astraeus-shell .metric-body { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; min-width: 0; }
+.astraeus-shell :where(.metric-reading) { display: inline-flex; align-items: baseline; gap: 5px; min-width: 0; }
+.astraeus-shell :where(.metric-value) { color: var(--ui-color, #f0e6da); font: 600 19px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.astraeus-shell :where(.metric-unit) { color: var(--ui-muted, #c7bdb3); font-size: 12px; }
+.astraeus-shell :where(.metric-context) { color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; }
+.astraeus-shell :where(.metric-scale) { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; color: var(--ui-subtle, #a99e94); font-size: 11px; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.astraeus-shell :where(.metric-readings) { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.astraeus-shell .metric-coordinates .metric-value { font-size: 14px; }
 
-.metric-visual { flex: 0 0 auto; overflow: visible; }
-.metric-arc { width: 46px; height: 39px; }
-.metric-glyph { width: 30px; height: 30px; }
-.metric-bar { flex: 1 0 100%; width: 100%; height: 14px; }
-.metric-relation { width: 74px; height: 20px; }
-.metric-horizon-glyph { width: 34px; height: 34px; }
-.metric-track,
-.metric-fill { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.metric-track { stroke: #34302c; stroke-width: 5px; }
-.metric-fill { stroke: var(--ui-accent, #fc6323); stroke-width: 5px; }
-.metric-fill-light { stroke: #e9d6a8; }
-.metric-marker { stroke: var(--ui-data, #b1a1df); stroke-width: 2px; vector-effect: non-scaling-stroke; }
-.metric-disc { fill: #2a2724; stroke: rgba(240, 230, 218, .35); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-lit { fill: #e9d6a8; }
-.metric-track-thin { stroke-width: 2px; }
-.metric-link { stroke: var(--ui-subtle, #a99e94); stroke-width: 1.5px; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
-.metric-break { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
-.metric-dot { fill: var(--ui-accent, #fc6323); }
-.metric-horizon { fill: none; stroke: #e9d6a8; stroke-width: 2px; vector-effect: non-scaling-stroke; }
-.metric-band { fill: rgba(177, 161, 223, .35); stroke: var(--ui-data, #b1a1df); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-centre { stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
-.metric-axis,
-.metric-outline { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
-.metric-outline { stroke: rgba(240, 230, 218, .45); }
-.metric-radar { width: 56px; height: 42px; }
-.metric-view-frame { fill: rgba(255, 255, 255, .03); stroke: rgba(240, 230, 218, .22); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-view-axis { stroke: rgba(240, 230, 218, .16); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-view-origin { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-view-reference { fill: var(--ui-data, #b1a1df); }
-.metric-view-link { stroke: var(--ui-accent, #fc6323); stroke-opacity: .55; stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.metric-view-origin-tick,
-.metric-view-reference-tick,
-.metric-view-object-tick { stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.metric-view-origin-tick { stroke: rgba(240, 230, 218, .6); stroke-width: 1px; }
-.metric-view-reference-tick { stroke: var(--ui-data, #b1a1df); }
-.metric-view-object-tick { stroke: var(--ui-accent, #fc6323); }
+.astraeus-shell .metric-visual { flex: 0 0 auto; overflow: visible; }
+.astraeus-shell .metric-arc { width: 46px; height: 39px; }
+.astraeus-shell .metric-glyph { width: 30px; height: 30px; }
+.astraeus-shell .metric-bar { flex: 1 0 100%; width: 100%; height: 14px; }
+.astraeus-shell .metric-relation { width: 74px; height: 20px; }
+.astraeus-shell .metric-horizon-glyph { width: 34px; height: 34px; }
+.astraeus-shell .metric-track,
+.astraeus-shell .metric-fill { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-track { stroke: #34302c; stroke-width: 5px; }
+.astraeus-shell .metric-fill { stroke: var(--ui-accent, #fc6323); stroke-width: 5px; }
+.astraeus-shell .metric-fill-light { stroke: #e9d6a8; }
+.astraeus-shell .metric-marker { stroke: var(--ui-data, #b1a1df); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-disc { fill: #2a2724; stroke: rgba(240, 230, 218, .35); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-lit { fill: #e9d6a8; }
+.astraeus-shell .metric-track-thin { stroke-width: 2px; }
+.astraeus-shell .metric-link { stroke: var(--ui-subtle, #a99e94); stroke-width: 1.5px; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-break { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-dot { fill: var(--ui-accent, #fc6323); }
+.astraeus-shell .metric-horizon { fill: none; stroke: #e9d6a8; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-band { fill: rgba(177, 161, 223, .35); stroke: var(--ui-data, #b1a1df); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-centre { stroke: var(--ui-color, #f0e6da); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-axis,
+.astraeus-shell .metric-outline { fill: none; stroke: var(--ui-data, #b1a1df); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-outline { stroke: rgba(240, 230, 218, .45); }
+.astraeus-shell .metric-radar { width: 56px; height: 42px; }
+.astraeus-shell .metric-view-frame { fill: rgba(255, 255, 255, .03); stroke: rgba(240, 230, 218, .22); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-view-axis { stroke: rgba(240, 230, 218, .16); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-view-origin { fill: none; stroke: var(--ui-color, #f0e6da); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-view-reference { fill: var(--ui-data, #b1a1df); }
+.astraeus-shell .metric-view-link { stroke: var(--ui-accent, #fc6323); stroke-opacity: .55; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-view-origin-tick,
+.astraeus-shell .metric-view-reference-tick,
+.astraeus-shell .metric-view-object-tick { stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.astraeus-shell .metric-view-origin-tick { stroke: rgba(240, 230, 218, .6); stroke-width: 1px; }
+.astraeus-shell .metric-view-reference-tick { stroke: var(--ui-data, #b1a1df); }
+.astraeus-shell .metric-view-object-tick { stroke: var(--ui-accent, #fc6323); }
 
 /* Keep scroll areas visually tied to the rest of the dark control surface. */
 .astraeus-shell * { scrollbar-color: #66584a #181716; scrollbar-width: thin; }
@@ -187,15 +205,15 @@
 .astraeus-shell *::-webkit-scrollbar-thumb:hover { background: #90745d; }
 
 @media (min-width: 701px) and (max-width: 900px) {
-  .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
+  .astraeus-shell .shell-top { max-width: calc(100vw - 16px); --shell-timeline-space: 184px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .developer-tools { scroll-behavior: auto; transition: none !important; }
+  .astraeus-shell .developer-tools { scroll-behavior: auto; transition: none !important; }
 }
 
 /* Story panels: a side panel beside the scene on a wide screen, a bottom sheet on a phone. Look after Planetary Explorer's SidePanel and BottomSheet. */
-.story-panel {
+.astraeus-shell .story-panel {
   position: absolute;
   z-index: 4;
   top: 56px;
@@ -215,25 +233,25 @@
   backdrop-filter: blur(12px);
   animation: story-panel-in 300ms ease-out;
 }
-.sheet-handle { display: none; }
-.story-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.story-panel h2 { margin: 0; font-size: 17px; line-height: 1.3; }
-.story-panel-body p { margin: 0 0 8px; color: var(--ui-color, #f0e6da); }
-.story-panel-body p:last-child { margin-bottom: 0; }
+.astraeus-shell .sheet-handle { display: none; }
+.astraeus-shell .story-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.astraeus-shell .story-panel h2 { margin: 0; font-size: 17px; line-height: 1.3; }
+.astraeus-shell :where(.story-panel-body) p { margin: 0 0 8px; color: var(--ui-color, #f0e6da); }
+.astraeus-shell .story-panel-body p:last-child { margin-bottom: 0; }
 /* Sources: a collapsible section, closed until tapped, in the information and story panels. */
-.sources-section { align-self: stretch; border-top: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); }
-.sources-section summary { margin-top: 2px; }
-.sources-count { color: var(--ui-subtle, #a99e94); font-weight: 400; }
-.sources-section[open] summary svg { transform: rotate(180deg); }
-.sources-section ul { margin: 0 0 8px; padding-left: 18px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-.sources-details { margin: 0 0 8px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; }
-.sources-details p { margin: 6px 0; }
-.sources-section li + li { margin-top: 3px; }
-.story-panel-close { font-size: 20px; line-height: 1; }
-.story-panel-continue { align-self: flex-start; }
+.astraeus-shell .sources-section { align-self: stretch; border-top: 1px solid var(--ui-border, rgba(240, 230, 218, .18)); }
+.astraeus-shell .sources-section summary { margin-top: 2px; }
+.astraeus-shell :where(.sources-count) { color: var(--ui-subtle, #a99e94); font-weight: 400; }
+.astraeus-shell .sources-section[open] summary svg { transform: rotate(180deg); }
+.astraeus-shell .sources-section ul { margin: 0 0 8px; padding-left: 18px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.astraeus-shell .sources-details { margin: 0 0 8px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; }
+.astraeus-shell :where(.sources-details) p { margin: 6px 0; }
+.astraeus-shell .sources-section li + li { margin-top: 3px; }
+.astraeus-shell :where(.story-panel-close) { font-size: 20px; line-height: 1; }
+.astraeus-shell :where(.story-panel-continue) { align-self: flex-start; }
 
 /* The badge: monospace caps pill, tinted by how far to trust the facts. */
-.story-badge {
+.astraeus-shell :where(.story-badge) {
   display: inline-block;
   padding: 2px 8px;
   border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
@@ -244,13 +262,13 @@
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.story-badge[data-badge="observed"] { border-color: color-mix(in srgb, #a4c639 55%, transparent); color: #a4c639; }
-.story-badge[data-badge="modelled"] { border-color: color-mix(in srgb, var(--ui-data, #b1a1df) 60%, transparent); color: var(--ui-data, #b1a1df); }
-.story-badge[data-badge="illustrative"] { border-color: color-mix(in srgb, var(--ui-accent, #fc6323) 55%, transparent); color: var(--ui-accent, #fc6323); }
+.astraeus-shell .story-badge[data-badge="observed"] { border-color: color-mix(in srgb, #a4c639 55%, transparent); color: #a4c639; }
+.astraeus-shell .story-badge[data-badge="modelled"] { border-color: color-mix(in srgb, var(--ui-data, #b1a1df) 60%, transparent); color: var(--ui-data, #b1a1df); }
+.astraeus-shell .story-badge[data-badge="illustrative"] { border-color: color-mix(in srgb, var(--ui-accent, #fc6323) 55%, transparent); color: var(--ui-accent, #fc6323); }
 
 /* Scene markers and the timeline marker for a panel: after Planetary Explorer's HotspotMarker (a ringed dot that fills when open). */
-.story-markers { position: absolute; z-index: 3; inset: 0; overflow: hidden; pointer-events: none; }
-.story-marker {
+.astraeus-shell .story-markers { position: absolute; z-index: 3; inset: 0; overflow: hidden; pointer-events: none; }
+.astraeus-shell .story-marker {
   position: absolute;
   top: 0;
   left: 0;
@@ -266,14 +284,14 @@
   pointer-events: auto;
   touch-action: none;
 }
-.story-marker::before { position: absolute; inset: -10px; content: ""; }
-.story-marker[aria-pressed="true"] { background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 8px var(--ui-accent, #fc6323), 0 0 16px color-mix(in srgb, var(--ui-accent, #fc6323) 40%, transparent); }
-.story-marker[hidden] { display: none !important; }
+.astraeus-shell .story-marker::before { position: absolute; inset: -10px; content: ""; }
+.astraeus-shell .story-marker[aria-pressed="true"] { background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 8px var(--ui-accent, #fc6323), 0 0 16px color-mix(in srgb, var(--ui-accent, #fc6323) 40%, transparent); }
+.astraeus-shell .story-marker[hidden] { display: none !important; }
 
 
 /* Tagged places on a body: the donor's HotspotMarker look (10 px ringed dot in the category colour; 14 px and filled when its information is open). */
-.feature-markers { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
-.feature-marker {
+.astraeus-shell .feature-markers { position: absolute; z-index: 2; inset: 0; overflow: hidden; pointer-events: none; }
+.astraeus-shell .feature-marker {
   position: absolute;
   top: 0;
   left: 0;
@@ -294,9 +312,9 @@
   transition: width 150ms ease, height 150ms ease, opacity 150ms ease, background 150ms ease, box-shadow 150ms ease;
 }
 /* 44 px square around the 10 px dot. */
-.feature-marker::before { position: absolute; inset: -19px; content: ""; }
-.feature-marker:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
-.feature-marker[aria-pressed="true"] {
+.astraeus-shell .feature-marker::before { position: absolute; inset: -19px; content: ""; }
+.astraeus-shell .feature-marker:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; }
+.astraeus-shell .feature-marker[aria-pressed="true"] {
   width: 14px;
   height: 14px;
   opacity: 1;
@@ -304,7 +322,7 @@
   box-shadow: 0 0 8px var(--feature-color, #fff), 0 0 16px color-mix(in srgb, var(--feature-color, #fff) 40%, transparent);
 }
 /* The place's name on hover or keyboard focus (a tap opens its information, which is headed by the name). */
-.feature-marker::after {
+.astraeus-shell .feature-marker::after {
   position: absolute;
   bottom: 120%;
   left: 50%;
@@ -321,12 +339,12 @@
   pointer-events: none;
 }
 /* Near the left, right or top edge the name flips inward so it never spills off the screen. */
-.feature-marker[data-edge-x="left"]::after { left: 0; transform: none; }
-.feature-marker[data-edge-x="right"]::after { right: 0; left: auto; transform: none; }
-.feature-marker[data-edge-y="top"]::after { top: 120%; bottom: auto; }
-.feature-marker::after { max-width: min(220px, 60vw); overflow: hidden; text-overflow: ellipsis; }
-.feature-marker:hover::after, .feature-marker:focus-visible::after { opacity: 1; }
-.feature-marker[hidden] { display: none !important; }
+.astraeus-shell .feature-marker[data-edge-x="left"]::after { left: 0; transform: none; }
+.astraeus-shell .feature-marker[data-edge-x="right"]::after { right: 0; left: auto; transform: none; }
+.astraeus-shell .feature-marker[data-edge-y="top"]::after { top: 120%; bottom: auto; }
+.astraeus-shell .feature-marker::after { max-width: min(220px, 60vw); overflow: hidden; text-overflow: ellipsis; }
+.astraeus-shell .feature-marker:hover::after, .astraeus-shell .feature-marker:focus-visible::after { opacity: 1; }
+.astraeus-shell .feature-marker[hidden] { display: none !important; }
 
 /* On a wide screen the diagnostics step left of an open story panel instead of covering it. */
 @media (min-width: 701px) {
@@ -337,13 +355,13 @@
 @keyframes story-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .story-panel { animation: none; }
+  .astraeus-shell .story-panel { animation: none; }
 }
 
 /* ---- The moon panel (O-025 T-099): a planet's moons by family. Wide screens: a button and a sheet in the shell-top column (under the toolbar, in the information panel's
    area, so the two never overlap and opening one closes the other); phones: a section of the top drawer. ---- */
-.moons-toggle { flex: 0 0 auto; min-height: 44px; }
-.moons-sheet {
+.astraeus-shell :where(.moons-toggle) { flex: 0 0 auto; min-height: 44px; }
+.astraeus-shell .moons-sheet {
   display: none;
   flex: 0 1 auto;
   flex-direction: column;
@@ -358,21 +376,21 @@
   box-sizing: border-box;
   backdrop-filter: blur(12px);
 }
-.moons-sheet[data-open="true"] { display: flex; animation: moons-sheet-in var(--drawer-ms, 240ms) ease; }
+.astraeus-shell .moons-sheet[data-open="true"] { display: flex; animation: moons-sheet-in var(--drawer-ms, 240ms) ease; }
 @keyframes moons-sheet-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
-.moon-panel { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.moon-panel ul { margin: 0; padding: 0; list-style: none; }
-.moon-panel h3, .moon-panel h4 { margin: 0; font-size: 14px; }
-.moon-search { display: grid; gap: 4px; }
-.moon-search-label { color: var(--ui-muted, #c7bdb3); font-size: 12px; }
-.moon-note { margin: 0 0 4px; color: var(--ui-muted, #c7bdb3); font-size: 13px; }
-.moon-families { display: flex; flex-direction: column; gap: 4px; }
-.moon-families[hidden] { display: none; }
-.moon-count, .moon-row-detail { color: var(--ui-muted, #c7bdb3); font-size: 12px; font-weight: 400; }
-.moon-pictures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.moon-picture { flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 4px; width: 100%; padding: 6px 2px; font-size: 12px; }
-.moon-disc { width: 44px; height: 44px; border-radius: 50%; background-color: #222; background-repeat: no-repeat; background-size: 300% 100%; background-position: 50% 50%; }
-.moon-family[data-lit="true"], .moon-featured[data-lit="true"] { border-radius: 10px; box-shadow: inset 3px 0 0 var(--ui-accent, #fc6323); }
-.moon-panel .collapsible-body { padding-left: 4px; }
-[data-phone="true"] .moon-panel { max-height: max(120px, calc(var(--controls-drawer-max, 60dvh) - 270px)); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; }
-@media (prefers-reduced-motion: reduce) { .moons-sheet { animation: none !important; } }
+.astraeus-shell .moon-panel { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.astraeus-shell .moon-panel ul { margin: 0; padding: 0; list-style: none; }
+.astraeus-shell .moon-panel h3, .astraeus-shell .moon-panel h4 { margin: 0; font-size: 14px; }
+.astraeus-shell .moon-search { display: grid; gap: 4px; }
+.astraeus-shell :where(.moon-search-label) { color: var(--ui-muted, #c7bdb3); font-size: 12px; }
+.astraeus-shell :where(.moon-note) { margin: 0 0 4px; color: var(--ui-muted, #c7bdb3); font-size: 13px; }
+.astraeus-shell .moon-families { display: flex; flex-direction: column; gap: 4px; }
+.astraeus-shell :where(.moon-families)[hidden] { display: none; }
+.astraeus-shell :where(.moon-count), .astraeus-shell :where(.moon-row-detail) { color: var(--ui-muted, #c7bdb3); font-size: 12px; font-weight: 400; }
+.astraeus-shell .moon-pictures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.astraeus-shell :where(.moon-picture) { flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 4px; width: 100%; padding: 6px 2px; font-size: 12px; }
+.astraeus-shell :where(.moon-disc) { width: 44px; height: 44px; border-radius: 50%; background-color: #222; background-repeat: no-repeat; background-size: 300% 100%; background-position: 50% 50%; }
+.astraeus-shell .moon-family[data-lit="true"], .astraeus-shell .moon-featured[data-lit="true"] { border-radius: 10px; box-shadow: inset 3px 0 0 var(--ui-accent, #fc6323); }
+.astraeus-shell .moon-panel .collapsible-body { padding-left: 4px; }
+.astraeus-shell[data-phone="true"] .moon-panel { max-height: max(120px, calc(var(--controls-drawer-max, 60dvh) - 270px)); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .astraeus-shell .moons-sheet { animation: none !important; } }

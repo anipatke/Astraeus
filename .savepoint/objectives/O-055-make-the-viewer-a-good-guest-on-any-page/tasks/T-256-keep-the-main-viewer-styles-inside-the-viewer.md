@@ -2,9 +2,10 @@
 id: T-256
 title: Keep the main viewer styles inside the viewer
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-255, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-256, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T09:49:15Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -57,8 +58,20 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Throwaway scripts (outside the repo): `/tmp/claude-1000/-home-user-code-Astraeus/6ace7dd6-3481-4a4c-93b6-30c2035a8bd4/scratchpad/cascade.mjs` (lists, for every declaration pair in the bundle order app/style, TopBar, TimelineBar, controls, shell/style, phone, embedded, where the winner flips once the plain prefix adds one class of weight), `apply.mjs` (rewrites selectors), `verify.mjs` (compares HEAD against the working tree).
+
+- **Cascade listing (before editing).** Plain `.astraeus-shell ` prefix: 148 winner flips (same-value pairs dropped), all with the rewritten rule newly winning against an already-scoped or other-sheet rule. Groups: (a) `.hud button|input|select` and their `:hover` / `[aria-pressed]` forms against controls.css `.astraeus-shell button|select|.ui-icon|.ui-bare|.ui-pill|.ui-ghost|.ui-accent|.ui-row` (min-height, padding, border, radius, background, color, font) and `.astraeus-shell input[type=...]` (box-sizing, width, min-height); (b) `.moons-toggle`, `.moon-picture`, `.story-panel-close`, `.story-panel-continue` (button classes at weight 0,1,0, which lost to controls.css `.astraeus-shell button` at 0,1,1: min-height, padding, font, line-height) ; (c) span and paragraph rules (`.info-panel-badge`, `.story-badge`, `.metric-*`, `.moon-*`, `.visually-hidden`, `.sources-*`, `.info-panel-description`, `.story-panel-body p`, `.developer-heading p`, `.telemetry-state > span`, `.hud .overlay div`) against TopBar.css, TimelineBar.css and phone.css tag selectors such as `.scale-explanation-panel p`, `.timeline-event-list summary span`, `.drawer-handle span`. The listing is by class and tag, not by real element, so group (c) is mostly pairs that never meet on one element; they are resolved the same way for safety.
+- **Resolution.** Each rewritten rule that gained weight was written as `.astraeus-shell :where(.first-class) rest` (or `.astraeus-shell:where([data-phone="true"]) ...`), which keeps its pre-prefix weight exactly, so it ties or loses to the other sheets as before; order is unchanged. Iterated to a fixed point: 42 selectors needed it (listed in `w3.json` beside the scripts). The other rules take the plain prefix. A comment above the root rule in shell/style.css explains the form.
+- **Cascade kept (after).** `verify.mjs` over HEAD versus the working tree: same declaration count and values in both files (the root rule's 12 added declarations excluded), `0 flips`. Not a browser computed-style listing at 375x667 / 1280x720; the Task's method (a stylesheet pair listing) did not need one. Limits: heuristic subject overlap (class subset or same tag, class to tag via className usage in the TSX), coarse property families, media conditions ignored, so a pair on an element the heuristic cannot see could be missed; the Full Check's `npm run check:browser` control-style comparison is the backstop.
+- **Page rules.** `:root`, `html, body, #app` and `#app` removed from app/style.css. Their custom properties, `color-scheme` (already there), `background: #000`, colour and 14px base font are now on `.astraeus-shell` once (shell/style.css root rule). `height: 100%; margin: 0` are the page's: app.html gained `html, body, #app { height: 100%; margin: 0; background: #000 }`, `html { color-scheme: dark }`, `#app { position: relative; overflow: hidden }` (the site mounts `App` directly, not through `mount`); both examples already set `html, body, #app` size and background, and `mount` / `AstraeusScene` now supply the containing block (new `src/api/containingBlock.ts`: `position: relative` when static, `overflow: hidden` when visible; empty computed values, as in a test DOM, count as the defaults). No example file needed an edit.
+- **Scoped.** `node tools/api-rules.mjs css | grep -E "(app|shell)/style.css"` lists nothing; 227 `selector` entries removed from apiIsolation.allowlist.json (389 to 162).
+- **DOM test.** New `packages/astraeus/tests/viewerStyles.test.ts` (happy-dom, injects the source sheets into a `<style>` itself): 9 tests, both entry paths (`mount`, `AstraeusScene`) table-driven, plus an environment control that an unscoped rule does restyle the host button. Run 10 times: 10/10 pass. Against the HEAD stylesheets it fails 4 of 9 (host body/button restyled, no custom properties on the root), so it can fail. Existing DOM layout tests (domShell, domPhone, domEmbedded, appScreenDom) pass unchanged.
+- **Nothing public moved.** `git diff --exit-code -- packages/astraeus/api-surface.lock.json` clean; apiSurface, apiRules, allowlistGrowth tests 32/32. CHANGELOG Unreleased entry with migration line added.
+- **Gates.** `npm run lint` pass; `npm run typecheck` pass; `npm run build` pass; `npm test` 199 files, 2485 passed, 1 skipped; `node tools/build-example.mjs hello-scene` and `hello-react` build; `npm run check:pack` pass; `npm run check:react-consumer` pass. No browser run.
+- **scenePin / viewerLinkPin.** No entries changed.
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- The root rule now also carries `background: #000` and the `--ui-*` / `--perf-*` properties (previously on the host's `:root` / `#app`); Design.md's note on the viewer's page-level styles should say the viewer owns none. Selectors that needed `:where()` to keep their old weight (42, pre-prefix specificity) are the places T-257 should look at first when it prefixes the bar, phone and embedded sheets; once those are scoped the weights can be rebalanced and the `:where()` forms retired. Deferred to T-258.

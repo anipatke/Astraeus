@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Astraeus</title>
     <style>
+      /* The page owns its own size and background; the viewer no longer styles html, body or #app (O-055 T-256). */
+      html, body, #app { height: 100%; margin: 0; background: #000; }
+      html { color-scheme: dark; }
+      #app { position: relative; overflow: hidden; }
       #boot { position: fixed; inset: 0; z-index: 50; pointer-events: none; display: grid; place-content: center; justify-items: center; gap: 18px; background: #000; color: #c7bdb3; font: 13px/1.2 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: .12em; text-transform: uppercase; opacity: 1; transition: opacity var(--boot-fade, .6s) ease; }
       #boot[data-state="done"] { opacity: 0; pointer-events: none; }
       #boot svg { width: 96px; height: 96px; overflow: visible; }

@@ -2,6 +2,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, t
 import "../app/style.css";
 import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
+import { makeContainingBlock } from "./containingBlock";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
@@ -107,5 +108,8 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
     return () => { open = false; };
   }, [scene, link, handle]);
 
-  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} /> : null}</div>;
+  // The viewer's root fills this wrapper, so it is the containing block (unless the host's own class or style positions it already).
+  const wrapper = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (wrapper.current !== null) makeContainingBlock(wrapper.current); }, []);
+  return <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} /> : null}</div>;
 }

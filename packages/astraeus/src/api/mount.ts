@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import "../app/style.css";
 import { App } from "../app/App";
+import { makeContainingBlock } from "./containingBlock";
 import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
@@ -44,6 +45,8 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   const { definition, ready: loaded } = prepareScene(scene, options.data);
   // Its own stacking context, so the viewer's z-index values cannot rise above the host page's overlays.
   element.style.isolation = "isolate";
+  // The viewer's root fills this element (position: absolute; inset: 0), so the element is its containing block; the viewer no longer styles the host's #app.
+  makeContainingBlock(element);
   const root = createRoot(element);
   let open = true;
   const link = new ViewerLink();
