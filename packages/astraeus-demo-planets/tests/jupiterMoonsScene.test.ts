@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PICTURES } from "astraeus-data";
 import { bodySetsOf, mountedBodiesOf, visualOverridesOf } from "astraeus/app/experienceDefinition";
 import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
 import { JUPITER_RINGS } from "astraeus/assets/bodies/jupiterRings";
@@ -26,7 +27,7 @@ describe("Jupiter's moons in the Jupiter scene", () => {
     expect(set.extraOrbits?.families).toEqual(["galilean", "galilean", "galilean"]);
     expect(jupiterIoExplorer.composition?.paths?.map((path) => path.body)).toEqual(["io"]);
     expect(set.families.map((family) => family.id)).toEqual(JUPITER_MOON_CATALOGUE.families.map((family) => family.id));
-    for (const id of ["io", "europa", "ganymede", "callisto"]) expect(catalogue.get(id).visual.texture?.licence?.licence, id).toBe("public domain");
+    for (const id of ["io", "europa", "ganymede", "callisto"]) expect(PICTURES[catalogue.get(id).visual.picture!]?.licence?.licence, id).toBe("public domain");
   });
 
   it("keeps its window inside the fits, needs only its year's chunks, and ships the two years before for the slow moons' orbit lines", () => {

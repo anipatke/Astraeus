@@ -13,8 +13,8 @@ import { $, byLabel, change, mountShell, press, pressKey, selectObject, swipe, t
 let m: Mounted;
 afterEach(() => { m.unmount(); });
 const drawers = () => ({
-  controls: $(m.container, "#controls-drawer").getAttribute("data-open") === "true",
-  timeline: $(m.container, "#timeline-drawer").getAttribute("data-open") === "true",
+  controls: $(m.container, ".controls-drawer").getAttribute("data-open") === "true",
+  timeline: $(m.container, ".timeline-drawer").getAttribute("data-open") === "true",
 });
 const pill = () => $(m.container, "button.controls-pill");
 const controlsHandle = () => $(m.container, "button.drawer-handle-bottom");
@@ -23,7 +23,7 @@ const phone = (options = {}) => { m = mountShell({ phone: true, ...options }); }
 
 describe("the phone shows only its small chrome (browser-phone: layout)", () => {
   it("shows the name pill with the picked object, the cog, and both drawers closed", () => {
-    phone();
+    phone({ developerTools: "Advanced readouts" });
     expect(m.container.querySelector("main")!.getAttribute("data-phone")).toBe("true");
     expect(pill().textContent).toContain("Earth");
     expect(byLabel(m.container, "Developer mode")).toBeTruthy();
@@ -68,19 +68,19 @@ describe("the top drawer (browser-phone: top drawer; browser-shell: phone object
   });
   it("keeps the object list inside the drawer, which carries the closed state for the stylesheet to hide", () => {
     phone();
-    expect($(m.container, "#controls-drawer").contains($(m.container, "select.object-picker"))).toBe(true);
-    expect($(m.container, "#controls-drawer").getAttribute("data-open")).toBe("false");
+    expect($(m.container, ".controls-drawer").contains($(m.container, "select.object-picker"))).toBe(true);
+    expect($(m.container, ".controls-drawer").getAttribute("data-open")).toBe("false");
   });
 });
 
 describe("the timeline drawer (browser-phone: timeline drawer)", () => {
   it("opens and closes on a tap on its handle, showing the events context and the Up next list", () => {
     phone();
-    expect($(m.container, "#timeline-drawer").getAttribute("data-open")).toBe("false");
+    expect($(m.container, ".timeline-drawer").getAttribute("data-open")).toBe("false");
     press(timelineHandle());
     expect(drawers()).toEqual({ controls: false, timeline: true });
-    expect($(m.container, "#timeline-drawer").textContent).toMatch(/Just happened|Up next/);
-    expect($(m.container, "#timeline-drawer").textContent).toMatch(/Up next/);
+    expect($(m.container, ".timeline-drawer").textContent).toMatch(/Just happened|Up next/);
+    expect($(m.container, ".timeline-drawer").textContent).toMatch(/Up next/);
     press(timelineHandle());
     expect(drawers().timeline).toBe(false);
   });
@@ -129,12 +129,12 @@ describe("the information sheet (browser-phone: information sheet)", () => {
   const openInfo = () => { phone(); selectObject(m.container, "survey-marker"); press(byLabel(m.container, "Close information")); press(pill()); press(byLabel(m.container, /^Information about /)); };
   it("opening information closes the top drawer", () => {
     openInfo();
-    expect(m.container.querySelector("#info-panel")).not.toBeNull();
+    expect(m.container.querySelector(".info-panel")).not.toBeNull();
     expect(drawers().controls).toBe(false);
   });
   it("keeps its sources in the page, closed, and one tap opens them", () => {
     openInfo();
-    const sources = $(m.container, "#info-panel .sources-section") as HTMLDetailsElement;
+    const sources = $(m.container, ".info-panel .sources-section") as HTMLDetailsElement;
     expect(sources.open).toBe(false);
     expect(sources.querySelectorAll("li").length).toBeGreaterThan(0);
     press($(sources, "summary"));
@@ -142,11 +142,11 @@ describe("the information sheet (browser-phone: information sheet)", () => {
   });
   it("is dismissed by a swipe down on the sheet, and a short drag keeps it", () => {
     openInfo();
-    const sheet = $(m.container, "#info-panel");
+    const sheet = $(m.container, ".info-panel");
     touchDrag(sheet, 30);
-    expect(m.container.querySelector("#info-panel")).not.toBeNull();
+    expect(m.container.querySelector(".info-panel")).not.toBeNull();
     touchDrag(sheet, 160);
-    expect(m.container.querySelector("#info-panel")).toBeNull();
+    expect(m.container.querySelector(".info-panel")).toBeNull();
   });
 });
 
@@ -204,7 +204,7 @@ describe("the developer folds (browser-phone: developer groups)", () => {
     document.body.appendChild(host);
     const render = () => {
       const root = createRoot(host);
-      act(() => root.render(createElement(Collapsible, { id: "t143-group", title: "Group", defaultOpen: false, children: createElement("p", null, "inside") })));
+      act(() => root.render(createElement(Collapsible, { fold: "t143-group", title: "Group", defaultOpen: false, children: createElement("p", null, "inside") })));
       return root;
     };
     window.localStorage.clear();

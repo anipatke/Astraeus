@@ -73,8 +73,8 @@ describe("the sizes the stylesheets promise (browser-controls, browser-embedded,
 
   it("gives the drawer handles and the speed slider a 44 px touch height", () => {
     const phone = css("phone.css");
-    expect(phone).toMatch(/\.drawer-handle \{[^}]*height: 44px/);
-    expect(phone).toMatch(/\.timeline-speed-slider input \{[^}]*min-height: 44px/);
+    expect(phone).toMatch(/\.drawer-handle\)? \{[^}]*height: 44px/);
+    expect(phone).toMatch(/\.timeline-speed-slider\)? input \{[^}]*min-height: 44px/);
   });
 
   it("draws every control from the one shared size and font, not its own", () => {

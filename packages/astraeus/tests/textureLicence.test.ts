@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { textureOf } from "../src/assets/pictures";
+import { PICTURES } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
 import { textureRightsProblem, type AssetLicence, type TextureRef } from "../src/assets/licence";
 
@@ -20,7 +22,7 @@ describe("texture rights (PROV-02)", () => {
   it("holds for every texture the catalogue references; no texture is local-only now", () => {
     const textures: [string, TextureRef][] = [];
     for (const id of catalogue.ids()) {
-      const texture = catalogue.get(id).visual.texture;
+      const texture = textureOf(catalogue.get(id).visual, PICTURES);
       if (texture !== undefined) textures.push([id, texture]);
     }
     expect(textures.map(([id]) => id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);

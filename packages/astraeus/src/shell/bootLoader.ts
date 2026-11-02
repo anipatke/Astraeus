@@ -1,5 +1,5 @@
-// The loading screen is plain markup and styles in app.html (so it shows before any script); this module only ends it.
-// It knows nothing of any demo: `hideBootLoader` is called on each scene's first drawn frame (`showBootLoader` brings the cover back for a switch), and `failBootLoader` when the start fails.
+// The loading cover belongs to the host page (the demo site owns its markup, showing and failure); this module only fades out the one a host hands in.
+// It knows nothing of any demo or page: `hideBootLoader` is called on each scene's first drawn frame with the host's cover, and never looks one up.
 
 export const BOOT_FADE_DEFAULT_SECONDS = 0.6;
 export const BOOT_FADE_LIMITS = { min: 0, max: 3 } as const;
@@ -25,42 +25,21 @@ export function saveBootFadeSeconds(seconds: number): void {
   try { window.localStorage.setItem(STORAGE_KEY, String(clampFade(seconds))); } catch { /* not saved */ }
 }
 
-// The loader's markup as the page first had it, kept so a switch inside the page can bring the cover back after it was removed.
-const bootTemplate: HTMLElement | null = typeof document === "undefined" ? null : (document.getElementById("boot")?.cloneNode(true) as HTMLElement | null) ?? null;
+/**
+ * What a host hands the viewer so its first frame can hide the host's loading cover: called once when a scene mounts, it returns the way to reach the cover at hide time
+ * (null once the cover is not that mounting's to hide). The engine never looks a cover up on the page.
+ */
+export type CoverClaim = () => () => HTMLElement | null;
 
-// How many times the cover has been brought back, so a scene mounted before the latest showing cannot hide it (I-074).
-let showings = 0;
-// The removal a hide scheduled after its fade, cancelled when the cover is shown again before it runs (I-074).
-let removal: number | undefined;
+// The removal each cover's hide scheduled after its fade, cancelled when the same cover is hidden again (the host brings it back and a later scene hides it, I-074).
+const removals = new WeakMap<HTMLElement, number>();
 
-/** The cover's current showing; a scene notes it when it mounts and hands it to `hideBootLoader`. */
-export function bootShowing(): number {
-  return showings;
-}
-
-/** Brings the loading cover back (a switch inside the page); a no-op when the page never had one. Hidden again by `hideBootLoader` on the next scene's first frame. */
-export function showBootLoader(): void {
-  showings += 1;
-  if (removal !== undefined) { window.clearTimeout(removal); removal = undefined; }
-  const existing = document.getElementById("boot");
-  if (existing !== null) { existing.style.removeProperty("--boot-fade"); existing.dataset.state = "loading"; return; }
-  if (bootTemplate === null) return;
-  const boot = bootTemplate.cloneNode(true) as HTMLElement;
-  boot.dataset.state = "loading";
-  document.body.prepend(boot);
-}
-
-/** Fades the loader out and removes it. Safe to call more than once. A scene passes the showing it mounted under; a later showing is not its to hide. */
-export function hideBootLoader(showing: number = showings, seconds: number = bootFadeSeconds("")): void {
-  const boot = document.getElementById("boot");
-  if (showing !== showings || boot === null || boot.dataset.state === "done" || boot.dataset.state === "failed") return;
+/** Fades the handed cover out and removes it. Safe to call more than once; a cover that is absent, done or failed is left alone. */
+export function hideBootLoader(cover: () => HTMLElement | null, seconds: number = bootFadeSeconds("")): void {
+  const boot = cover();
+  if (boot === null || boot.dataset.state === "done" || boot.dataset.state === "failed") return;
   boot.style.setProperty("--boot-fade", `${seconds}s`);
   boot.dataset.state = "done";
-  removal = window.setTimeout(() => { removal = undefined; boot.remove(); }, seconds * 1000 + 100);
-}
-
-/** Replaces the loader's animation with its failure message. */
-export function failBootLoader(): void {
-  const boot = document.getElementById("boot");
-  if (boot !== null) boot.dataset.state = "failed";
+  window.clearTimeout(removals.get(boot));
+  removals.set(boot, window.setTimeout(() => { removals.delete(boot); if (boot.dataset.state === "done") boot.remove(); }, seconds * 1000 + 100));
 }

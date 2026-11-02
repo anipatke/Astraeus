@@ -1,44 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Group, PerspectiveCamera } from "three";
-import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";
 import { readableScale, trueScale } from "../src/core/scalePolicy";
 import type { BodyId } from "../src/core/body";
-import { catalogue } from "../src/assets/catalogue";
 import { createOrbitCameraState } from "../src/app/CameraController";
-import { FloatingOrigin } from "../src/app/floatingOrigin";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
-import { createSceneResolver } from "../src/app/sceneLayout";
+import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
-import { DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
-const T0 = Date.UTC(2026, 0, 1);
-const BODIES: BodyId[] = ["earth", "moon"];
-const resolver = createSceneResolver(createOrbAstronomyAdapter());
-
-function fakeCanvas(): HTMLCanvasElement {
-  return { dataset: {}, style: { cursor: "" }, getBoundingClientRect: () => ({ left: 0, top: 0 }) } as unknown as HTMLCanvasElement;
-}
-
-function makeContext(over: { controls?: Partial<SceneControls>; runtime?: Partial<SceneRuntime>; clock?: SimulationClock } = {}) {
-  const clock = over.clock ?? new SimulationClock(T0);
-  const runtime = { clock, resolver, bodies: BODIES, sceneCenter: "earth", trackedBodies: [], groups: [], cameraReach: {}, ...over.runtime } as SceneRuntime;
-  const controls = { policy: readableScale, cameraRequest: null, showAnchorLabels: false, showMilkyWay: false, bodyMarker: DEFAULT_BODY_MARKER, starBrightness: 1, milkyWayBrightness: 1, labelObjects: [{ id: "earth", label: "Earth" }], selectedObjectId: "earth", frameStats: null, groupFills: [], ...over.controls } as SceneControls;
-  const groups = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
-  const orients = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
-  const layers: FrameLayers = { bodySetLabels: { current: [] }, anchorLabels: { current: null }, sceneLabels: { current: null }, storyMarkers: { current: null }, featureMarkers: { current: null } };
-  const camera = new PerspectiveCamera(45, 1, 0.05, 1000);
-  const ctx: FrameContext = {
-    runtime, controls, readout: { current: null }, catalogue, camera, canvas: fakeCanvas(), size: { width: 800, height: 600 }, origin: new FloatingOrigin(),
-    orbit: createOrbitCameraState(16, "earth"), state: createFrameState(controls.policy.id), delta: 0.016, assets: BODIES.map((id) => catalogue.get(id)),
-    bodyRefs: { groups, orients, parts: new Map() }, lightRefs: new Map(), placement: { resolver, center: "earth" },
-    views: { trackedViews: [], groupViews: [], sunCentredViews: [], compositionPaths: [], skyView: null, bodySetViews: [], orbitSetViews: [] },
-    layers, bodyFamilies: [], bodyIdFor: (id) => (catalogue.has(id) ? id : null), readoutPair: { parent: "earth", child: "moon" }, pairLabels: undefined,
-  };
-  return { ctx, clock, groups };
-}
+import { makeContext, T0 } from "./helpers/frameContext";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -113,14 +84,18 @@ describe("placeScene", () => {
 });
 
 describe("stepAndPoseCamera", () => {
-  it("hides the boot loader and uses the start view on the first frame only", () => {
-    const raf = vi.fn();
+  it("hides the handed loading cover and uses the start view on the first frame only", () => {
+    const raf = vi.fn((fn: FrameRequestCallback) => { fn(0); return 1; });
     vi.stubGlobal("requestAnimationFrame", raf);
     const startView = { focus: "moon", azimuthDeg: 30, elevationDeg: 10, distance: 5 };
-    const { ctx } = makeContext({ controls: { startView } });
+    const made = makeContext({ controls: { startView } });
+    const cover = { dataset: { state: "loading" }, style: { setProperty: () => undefined }, remove: () => undefined } as unknown as HTMLElement;
+    vi.stubGlobal("window", { setTimeout: () => 1, clearTimeout: () => undefined, localStorage: { getItem: () => null } });
+    const ctx = { ...made.ctx, state: createFrameState(made.ctx.controls.policy.id, () => () => cover) };
     const placed = placeScene(ctx, T0);
     stepAndPoseCamera(ctx, T0, placed);
     expect(raf).toHaveBeenCalledTimes(1);
+    expect(cover.dataset.state).toBe("done");
     expect(ctx.orbit.focus).toBe("moon");
     expect(ctx.state.started).toBe(true);
     expect(ctx.controls.viewReadout?.focus).toBe("moon");
@@ -129,6 +104,15 @@ describe("stepAndPoseCamera", () => {
     expect(raf).toHaveBeenCalledTimes(1);
     expect(ctx.orbit.focus).toBe("earth");
     expect(ctx.state.lastUp).toBe(EQUATORIAL_UP);
+  });
+
+  it("asks for no animation frame on the first frame when the host handed no cover (mount and AstraeusScene)", () => {
+    const raf = vi.fn();
+    vi.stubGlobal("requestAnimationFrame", raf);
+    const { ctx } = makeContext();
+    stepAndPoseCamera(ctx, T0, placeScene(ctx, T0));
+    expect(ctx.state.started).toBe(true);
+    expect(raf).not.toHaveBeenCalled();
   });
 
   it("places the bodies about the origin and poses the camera", () => {

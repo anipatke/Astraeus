@@ -2,6 +2,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, t
 import "../app/style.css";
 import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
+import { makeContainingBlock } from "./containingBlock";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
@@ -34,6 +35,8 @@ export interface AstraeusSceneProps {
   readonly onEventZone?: (change: EventZoneChange) => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
   readonly address?: boolean;
+  /** Whether the viewer shows the Developer toggle and drawer (default false: no cog, and the drawer's code is never fetched). Read when the viewer is built. "Copy view link" lives in the drawer, so `address` without this has no copy button; a switch placed `"developer"` shows only when this is on. */
+  readonly developerTools?: boolean;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
   /** Style for the wrapper element. */
@@ -54,7 +57,7 @@ const cameraValueKey = (camera: CameraTarget): string => JSON.stringify(Object.e
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, developerTools, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange, onEventZone });
@@ -105,5 +108,8 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
     return () => { open = false; };
   }, [scene, link, handle]);
 
-  return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} host={link} /> : null}</div>;
+  // The viewer's root fills this wrapper, so it is the containing block (unless the host's own class or style positions it already).
+  const wrapper = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (wrapper.current !== null) makeContainingBlock(wrapper.current); }, []);
+  return <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} /> : null}</div>;
 }

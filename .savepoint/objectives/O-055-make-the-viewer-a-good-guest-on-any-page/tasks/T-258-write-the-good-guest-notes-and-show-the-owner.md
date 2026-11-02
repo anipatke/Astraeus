@@ -2,9 +2,10 @@
 id: T-258
 title: Write the good-guest notes and show the owner
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-257, requires: clear}]
 owner_validation: {required: true}
+check_waiver: {task: T-258, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T10:05:11Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -59,8 +60,14 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 
 ## Technical Evidence
 
-Pending execution.
+- Docs: README section "Several viewers on one page", sizing note under `mount`, `developerTools` rows already present (T-253); CHANGELOG O-055 migration paragraph above the per-step lines; Design.md "Good guest (O-055)" paragraph, tests row, O-053 isolation bullets (allowlist empty).
+- Repair found by `check:engine-alone`: T-254's `viewerIds.test.ts` read the site's `driver.mjs`, which the engine-alone copy lacks. Moved that describe unchanged (path adjusted) to `packages/astraeus-site/tests/driverNoIds.test.ts`.
+- `test:full`: 200 files, 2494 passed, 1 skipped. `npm test`: same. `check:pack` pass; `check:node-consumer` pass (9 tests); `check:engine-alone` pass (after the move); `check:react-consumer` pass (react 19.3.1); `build-example` hello-scene and hello-react built; `lint`, `typecheck`, `build` pass.
+- `grep -l '"O-055"' packages/astraeus-site/tests/*.allowlist.json` prints nothing; `apiIsolation.allowlist.json` `breaks: []`; `git diff --exit-code api-surface.lock.json` clean; apiSurface, apiRules, allowlistGrowth, packageBoundaries: 4 files, 40 tests pass. No browser run.
+
+- Owner look (2026-11-02T10:05:11Z, session o055-run-20261102): the owner was given the steps for `localhost:5490/` (embedded showers and planets views on the landing page) and `localhost:5490/app.html?experience=planets|jupiter-io|showers|synthetic` at 375x667 and 1280x720 (top bar, timeline, info, story and moons panels, phone drawers, Developer drawer; nothing overlapping or different) and answered "looks OK".
 
 ## Drift Notes
 
-Record architecture deltas here.
+- Deferred notes from T-250..T-257 all reconciled in Design.md "Good guest (O-055)": T-250 duplicate-id observation (non-architectural, resolved by T-253/T-254); T-251 moon store, T-252 pictures, T-253 developerTools, T-254 useId ids (internal renames non-architectural), T-255 claimCover/viewerKeys/markers, T-256 root-owned styles and containing block, T-257 `:where()` at 31 sites and `:is(main)` (reflected). The `featureMarkers` vs `pointerAndFeatureLayerDom.test.ts` naming note is non-architectural.
+- A site test now holds the driver no-ids check (engine-alone cannot read site files).

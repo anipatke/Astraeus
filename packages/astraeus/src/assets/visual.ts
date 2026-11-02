@@ -27,6 +27,10 @@ export interface BodyVisual {
   readonly kind: "sphere" | "marker";
   /** Sphere only; absent means a flat colour from the material. */
   readonly texture?: TextureRef;
+  /** Sphere only: the name of a picture the viewer is given by a data package (`titan`), used when there is no `texture`; absent from the viewer's pictures means a flat colour. */
+  readonly picture?: string;
+  /** Sphere only: the name of a larger picture for wide viewports (`venus-8k`), used as the texture's desktop file when the viewer holds it. */
+  readonly desktopPicture?: string;
   readonly material: BodyMaterialConfig;
   /** Presentation-only yaw about the body's pole, aligning the image to the body-fixed axes. */
   readonly textureYawRad?: number;

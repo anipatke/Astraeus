@@ -25,7 +25,7 @@ for (const m of creditsHtml.matchAll(/<div class="row"><div><h3>(.*?)<\/h3><span
 }
 
 const bodyRecord = (id: string): AssetLicence => {
-  const licence = catalogue.get(id).visual.texture?.licence;
+  const licence = (catalogue.get(id).visual.texture ?? PICTURES[catalogue.get(id).visual.picture ?? id])?.licence;
   if (licence === undefined) throw new Error(`${id} has no texture licence`);
   return licence;
 };

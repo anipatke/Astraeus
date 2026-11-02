@@ -38,6 +38,19 @@ describe("the page title", () => {
     expect(host.style.isolation).toBe("isolate");
     act(() => { handle.unmount(); });
   });
+  it("unmount puts back the inline isolation, position and overflow the host element had (O-055 C-144)", async () => {
+    host.style.overflow = "auto";
+    const handle = mount(host, new Scene());
+    await drawn(handle);
+    expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["isolate", "relative", "auto"]);
+    act(() => { handle.unmount(); });
+    expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["", "", "auto"]);
+    host.style.position = "fixed";
+    const again = mount(host, new Scene());
+    await drawn(again);
+    act(() => { again.unmount(); });
+    expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["", "fixed", "auto"]);
+  });
   it("is left alone by AstraeusScene, whose wrapper is isolated", async () => {
     root = createRoot(host);
     await act(async () => { root!.render(createElement(AstraeusScene, { scene: new Scene() })); await Promise.resolve(); });
@@ -79,7 +92,7 @@ describe("an Escape the host already handled", () => {
   it("leaves an open phone drawer open, and an unprevented one closes it", () => {
     m = mountShell({ phone: true });
     press($(m.container, "button.controls-pill"));
-    const open = () => $(m.container, "#controls-drawer").getAttribute("data-open") === "true";
+    const open = () => $(m.container, ".controls-drawer").getAttribute("data-open") === "true";
     const release = hostTakesEscape();
     pressKey(document, "Escape");
     expect(open()).toBe(true);

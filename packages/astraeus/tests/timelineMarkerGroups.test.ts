@@ -63,7 +63,7 @@ describe("TimelineBar marker groups", () => {
     act(() => {
       root.render(createElement(TimelineBar, {
         experience, snapshot: { timeUtcMs: START, playing: false, rate: 1 }, onTogglePlayback: () => undefined, onRateChange: () => undefined, onSeek: () => undefined,
-        onEventSeek: (e) => seeks.push(e.id), onEventInfo: (e) => infos.push(e.id), onWindowSeek: () => undefined, onWindowInfo: () => undefined,
+        onEventSeek: (e) => seeks.push(e.id), onEventInfo: (e) => infos.push(e.id), onWindowSeek: () => undefined, onWindowInfo: () => undefined, infoPanelId: "info",
       }));
     });
     return { seeks, infos };

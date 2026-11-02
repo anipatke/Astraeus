@@ -3,7 +3,7 @@ import type { DirectionalLight, PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { BodyAsset, BodyCatalogue } from "../assets/catalogue";
-import { bootShowing, hideBootLoader } from "../shell/bootLoader";
+import { hideBootLoader, type CoverClaim } from "../shell/bootLoader";
 import type { AnchorLabelLayer } from "./AnchorLabels";
 import type { BodyParts } from "./BodyView";
 import { drawnRadii } from "./bodyDraw";
@@ -39,8 +39,8 @@ const REBASE_THRESHOLD = 1;
 /** What survives from one frame to the next. The component owns one and hands it to every frame. */
 export interface FrameState {
   started: boolean;
-  /** The loading cover's showing this scene mounted under; its first frame hides only that one (I-074). */
-  readonly coverShowing: number;
+  /** The host's loading cover as this scene claimed it when it mounted (absent: the host has none); its first frame hides only that one (I-074). */
+  readonly cover: (() => HTMLElement | null) | null;
   /** The composition's span of the previous frame, in scaled units. */
   spanScaled: number;
   lastPolicyId: ScalePolicy["id"];
@@ -72,9 +72,9 @@ export interface DrawnMemo {
   quietFrames: number;
 }
 
-export function createFrameState(policyId: ScalePolicy["id"]): FrameState {
+export function createFrameState(policyId: ScalePolicy["id"], claimCover?: CoverClaim): FrameState {
   return {
-    started: false, coverShowing: bootShowing(), spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
+    started: false, cover: claimCover?.() ?? null, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
     drawThisFrame: true, framesDrawn: 0, wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
   };
@@ -198,7 +198,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
-  if (firstFrame) requestAnimationFrame(() => hideBootLoader(state.coverShowing, controls.loadFadeSeconds));
+  if (firstFrame && state.cover !== null) { const cover = state.cover; requestAnimationFrame(() => hideBootLoader(cover, controls.loadFadeSeconds)); }
   controls.viewReadout = viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance);
   return { targets };
 }

@@ -16,6 +16,8 @@ interface Props {
   readonly onCameraPreset: (preset: ExperienceCameraPreset) => void;
   readonly infoOpen: boolean;
   readonly onToggleInfo: () => void;
+  /** The id of the information panel the Info button opens, made once per viewer by the shell. */
+  readonly infoPanelId: string;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
@@ -28,6 +30,8 @@ interface Props {
 }
 
 interface DeveloperProps {
+  /** The id of the drawer this cog opens, made once per viewer by the shell. */
+  readonly drawerId: string;
   readonly developerMode: boolean;
   readonly onDeveloperModeChange: (enabled: boolean) => void;
 }
@@ -64,7 +68,7 @@ export function TopBar({ scaleId, onScaleChange, scaleChoices, switcher, display
 }
 
 /** Developer mode stays public, as a cog on its own at the top right of the shell. */
-export function DeveloperToggle({ developerMode, onDeveloperModeChange }: DeveloperProps) {
+export function DeveloperToggle({ developerMode, onDeveloperModeChange, drawerId }: DeveloperProps) {
   return (
     <button
       className="developer-mode-toggle ui-icon ui-pill"
@@ -73,7 +77,7 @@ export function DeveloperToggle({ developerMode, onDeveloperModeChange }: Develo
       title="Developer mode"
       aria-pressed={developerMode}
       aria-expanded={developerMode}
-      aria-controls="developer-tools"
+      aria-controls={drawerId}
       onClick={() => onDeveloperModeChange(!developerMode)}
     >
       <CogIcon />

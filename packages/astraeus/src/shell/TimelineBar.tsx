@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
@@ -34,6 +34,8 @@ interface Props {
   readonly glowLook?: TimelineGlowLook;
   /** On a phone the timeline has a drawer (speed slider, events) under its two lines; absent: the larger-screen bar. */
   readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
+  /** The id of the information panel the event buttons open, made once per viewer by the shell. */
+  readonly infoPanelId: string;
 }
 
 /** The Auto choice of the speed menu: just "Auto", or with the speed pacing is running at now. */
@@ -70,7 +72,8 @@ interface TrackMarker {
   readonly activate: () => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer, infoPanelId }: Props) {
+  const drawerId = `${useId()}-timeline-drawer`;
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
   const gradients = useMemo(() => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }), [profile, glowLook]);
@@ -199,7 +202,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   return (
     <section className="timeline-bar" aria-label="Timeline controls" data-drawer-open={drawer?.open}>
       {drawer !== undefined && (
-        <button type="button" className="drawer-handle drawer-handle-top ui-bare" aria-label="Timeline drawer" aria-expanded={drawer.open} aria-controls="timeline-drawer" {...handle}><span /></button>
+        <button type="button" className="drawer-handle drawer-handle-top ui-bare" aria-label="Timeline drawer" aria-expanded={drawer.open} aria-controls={drawerId} {...handle}><span /></button>
       )}
       <div className="timeline-main-row">
         <div className="timeline-transport">
@@ -240,13 +243,13 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         {drawer === undefined && (
           <details className="timeline-event-list">
             <summary className="ui-button" title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
-            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
+            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
           </details>
         )}
       </div>
       {drawer !== undefined && (
         <div
-          id="timeline-drawer"
+          id={drawerId}
           className="timeline-drawer"
           role="region"
           aria-label="Timeline details"
@@ -268,7 +271,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
               />
               <output>{speedText}</output>
             </div>
-            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} />
+            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
           </div>
         </div>
       )}
@@ -287,13 +290,14 @@ interface ExpandedProps {
   readonly onEventSeek: (event: TimelineEvent) => void;
   readonly onEventInfo: (event: TimelineEvent) => void;
   readonly onWindowInfo: (window: TimelineWindow) => void;
+  readonly infoPanelId: string;
 }
 
 /**
  * The timeline's expanded content: "Just happened / Up next / Inside" and the full event list.
  * On larger screens it opens from the Events button; the phone drawer shows the same content when expanded.
  */
-export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInfo, onWindowInfo }: ExpandedProps) {
+export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInfo, onWindowInfo, infoPanelId }: ExpandedProps) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
   const inside = windowContextAt(experience.windows ?? [], snapshot.timeUtcMs);
   return (
@@ -307,7 +311,7 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
               className="timeline-event-current ui-row"
               data-closes-drawer=""
               aria-label={`Information about ${context.current.label}`}
-              aria-controls="info-panel"
+              aria-controls={infoPanelId}
               onClick={() => { if (context.current !== null) onEventInfo(context.current); }}
             >
               <strong>Just happened:</strong> {context.current.label} <span aria-hidden="true">ⓘ</span>
@@ -321,7 +325,7 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
             className="timeline-event-current timeline-window-current ui-row"
             data-closes-drawer=""
             aria-label={`Information about ${window.label}`}
-            aria-controls="info-panel"
+            aria-controls={infoPanelId}
             onClick={() => onWindowInfo(window)}
           >
             <strong>Inside:</strong> {window.label}

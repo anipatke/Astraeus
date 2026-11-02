@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { textureOf } from "../src/assets/pictures";
+import { PICTURES } from "astraeus-data";
 import ioFixture from "./fixtures/io-horizons.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES, JUPITER, MARS, MERCURY } from "../src/core/bodies";
@@ -105,7 +107,7 @@ describe("Io about Jupiter", () => {
     expect(jupiterIoSystem.bodies).toEqual(["jupiter", "io"]);
     expect(jupiterIoSystem.defaultCenter).toBe("jupiter");
     expect(jupiterIoSystem.paths?.[0].spanMs).toBeCloseTo(IO_PERIOD_DAYS * 86_400_000, 0);
-    expect(catalogue.get("io").visual.texture?.licence?.licence).toBe("public domain");
+    expect(textureOf(catalogue.get("io").visual, PICTURES)?.licence?.licence).toBe("public domain");
   });
 });
 

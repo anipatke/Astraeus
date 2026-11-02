@@ -73,13 +73,13 @@ describe("SkyAndSunSettings", () => {
     expect(controls.current.milkyWayBrightness).toBe(0.25);
     expect(out("star-brightness-value")).toBe("1.50");
     expect(out("milky-way-brightness-value")).toBe("0.25");
-    expect(container.querySelector('[aria-labelledby="setting-group-glow"]')).toBeNull(); // no Sun halo: no glow group
+    expect(container.querySelector('[data-setting-group="glow"]')).toBeNull(); // no Sun halo: no glow group
   });
 
   it("leaves the sky group out when the sky is not shown", () => {
     show(createElement(Host, { controls: liveControls(), visible: false, glow: null }));
-    expect(container.querySelector("#setting-group-sky")).toBeNull();
-    expect(container.querySelector("#setting-group-lighting")).not.toBeNull();
+    expect(container.querySelector('[data-setting-group="sky"]')).toBeNull();
+    expect(container.querySelector('[data-setting-group="lighting"]')).not.toBeNull();
   });
 
   it("changes the Sun halo's size, brightness and reach on the live look", () => {
@@ -212,6 +212,6 @@ describe("UnderTheHoodSettings", () => {
   });
   it("leaves out the Data group when there are no alternates", () => {
     show(createElement(UnderTheHoodSettings, { hud: null, frames: null, fills: [], fpsHistory: [], alternates: undefined }));
-    expect(container.querySelector("#setting-group-data")).toBeNull();
+    expect(container.querySelector('[data-setting-group="data"]')).toBeNull();
   });
 });

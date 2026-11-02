@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PICTURES } from "astraeus-data";
 import { Object3D, Vector3 } from "three";
 import { applyOrientation } from "astraeus/app/sceneLayout";
 import { latLonToXYZ } from "astraeus/app/FeatureMarkers";
@@ -59,7 +60,7 @@ describe("Iapetus map orientation", () => {
 
   it("puts two gazetteer features on the map column the marker frame expects", () => {
     const yaw = IAPETUS_VISUAL.textureYawRad ?? 0;
-    const width = IAPETUS_VISUAL.texture!.widthPx;
+    const width = PICTURES[IAPETUS_VISUAL.picture!]!.widthPx;
     const column = (markerLonDeg: number): number => (((0.5 + markerLonDeg / 360) % 1) + 1) % 1 * width;
     const stored = (name: string): number => features.features.find((f) => f.name === name)!.longitude;
     for (const [name, { west }] of Object.entries(GAZETTEER_WEST)) {
@@ -88,7 +89,7 @@ function columnOf(markerLonDeg: number, width: number): number {
 
 function expectPlacesOnTheirTerrain(visual: BodyVisual, shownLon: (name: string, stored: number) => number, body: string, places: readonly Place[], toleranceDeg: number): void {
   const yaw = visual.textureYawRad ?? 0;
-  const width = visual.texture!.widthPx;
+  const width = PICTURES[visual.picture!]!.widthPx;
   const stored = STORED_FEATURES(body);
   for (const { name, west } of places) {
     const expected = columnOf(-west - (yaw * 180) / Math.PI, width);

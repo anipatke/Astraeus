@@ -2,9 +2,10 @@
 id: T-250
 title: Put two viewers on one page in one test
 objective: O-055
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-250, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T08:54:26Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -57,8 +58,23 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Built 2026-11-02. New `packages/astraeus/tests/twoViewers.test.ts` (happy-dom; the 3D canvas is a stand-in that hands each viewer's scene controls back through its own element; real Scene, real prepareScene; flushSync for React; waits are `ready` / `onReady` promises and `vi.waitFor`).
+Entry paths: `mount`, `AstraeusScene` (own React root); pairings `mount + mount`, `AstraeusScene + AstraeusScene`, `mount + AstraeusScene` via `describe.each`.
+
+| Done When | Evidence |
+|---|---|
+| Test file, adapters, three pairings, real-signal waits | twoViewers.test.ts: `mountAdapter`, `sceneAdapter`, `PAIRINGS`; 3 pairings x 9 passing cases. |
+| setTime/setRate/setView/setPlaying/setCamera on A change A's reads and A's listeners, leave B's reads and listeners; one table | `SETTERS: Record<keyof Setter, Row>` (type fails if a handle setter is missing) plus a test comparing the table keys to the handle's `set*` keys; 5 rows x 3 pairings pass. |
+| onSelect hears only A | "A's visitor choosing an object is heard by A's onSelect only" x 3 pass (object menu change event). |
+| Unmount A leaves B working; remount beside B | "unmounting A leaves B's handle working..." and "mounting A again beside B works..." x 3 pass. |
+| Id-repeat case marked, names T-254 | `it.fails("T-254 fixes: no element id repeats...")` x 3; run unmarked it fails with `["developer-tools"]` repeated (right reason). |
+| Named it.todo placeholders per pairing | T-251, T-252, T-253, T-255 (Escape; loading cover) = 5 todos x 3 pairings = 15 todo. |
+| Nothing public moved | `git diff --exit-code -- packages/astraeus/api-surface.lock.json` clean; apiSurface/apiRules/allowlistGrowth tests: 3 files, 32 tests pass. No source change, no CHANGELOG. |
+| Gates | lint clean, typecheck clean, build ok, `npm test`: 192 files passed, 2378 tests passed, 3 expected fail, 15 todo, 1 skipped. New file run 10x in a loop: 27 passed / 3 expected fail / 15 todo each time, 0 failures. No browser run. |
+
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- None architectural. Observation for T-258: at default settings the only repeated id between two viewers is `developer-tools` (`AstraeusShell.tsx`); other fixed ids (info-panel, controls-drawer, timeline-drawer, moons-panel) appear only when their panels render.

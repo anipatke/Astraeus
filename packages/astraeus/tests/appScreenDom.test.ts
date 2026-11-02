@@ -27,7 +27,7 @@ const controls = () => sceneProps.latest!.controls;
 /** Opens the page at an address, as a visitor or a copied link does. */
 const visit = (search: string) => window.history.replaceState(null, "", `/app.html${search}`);
 async function open(definition: ExperienceDefinition = syntheticDefinition, onOpenAddress?: (address: string) => void): Promise<void> {
-  await act(async () => { root.render(createElement(App, { definition, address: true, ...(onOpenAddress === undefined ? {} : { onOpenAddress }) })); });
+  await act(async () => { root.render(createElement(App, { definition, address: true, developerTools: true, ...(onOpenAddress === undefined ? {} : { onOpenAddress }) })); });
 }
 const button = (name: string | RegExp) => [...container.querySelectorAll("button")].find((b) => (typeof name === "string" ? b.textContent === name : name.test(b.textContent ?? "")))!;
 /** Lets the on-demand panels a press just asked for arrive. */
@@ -149,9 +149,9 @@ describe("the Developer tools", () => {
   it("stay unloaded until opened, then show a loading note, then the folds with the first open", async () => {
     await open();
     expect(container.querySelector(".hud")).toBeNull();
-    expect(container.querySelector("#developer-tools")!.hasAttribute("hidden")).toBe(true);
+    expect(container.querySelector(".developer-tools")!.hasAttribute("hidden")).toBe(true);
     await openDeveloper();
-    expect(container.querySelector("#developer-tools")!.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector(".developer-tools")!.hasAttribute("hidden")).toBe(false);
     expect(container.querySelector(".developer-heading h2")!.textContent).toBe("Developer tools");
     const titles = [...container.querySelectorAll(".dev-group")].map((g) => g.querySelector("summary, h3, button")?.textContent);
     expect(titles.join("|")).toMatch(/Camera and view/);

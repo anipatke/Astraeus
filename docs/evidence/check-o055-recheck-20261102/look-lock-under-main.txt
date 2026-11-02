@@ -1,0 +1,88 @@
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+ ❯ packages/astraeus/tests/computedLook.test.ts (17 tests | 16 failed | 1 skipped) 5021ms
+   ❯ look lock: every element's computed style matches the checked-in baseline (17)
+     × desktop / site order / synthetic 507ms
+     × desktop / site order / listed 284ms
+     × desktop / mount order / synthetic 315ms
+     × desktop / mount order / listed 272ms
+     × phone / site order / synthetic 343ms
+     × phone / site order / listed 287ms
+     × phone / mount order / synthetic 323ms
+     × phone / mount order / listed 276ms
+     × embedded-desktop / site order / synthet… 295ms
+     × embedded-desktop / site order / listed 270ms
+     × embedded-desktop / mount order / synthe… 322ms
+     × embedded-desktop / mount order / listed 270ms
+     × embedded-phone / site order / synthetic 329ms
+     × embedded-phone / site order / listed 290ms
+     × embedded-phone / mount order / synthetic 329ms
+     × embedded-phone / mount order / listed 306ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > desktop / site order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > desktop / site order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > desktop / mount order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > desktop / mount order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > phone / site order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > phone / site order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > phone / mount order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > phone / mount order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-desktop / site order / synthet…
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-desktop / site order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-desktop / mount order / synthe…
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-desktop / mount order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-phone / site order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-phone / site order / listed
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-phone / mount order / synthetic
+ FAIL  packages/astraeus/tests/computedLook.test.ts > look lock: every element's computed style matches the checked-in baseline > embedded-phone / mount order / listed
+AssertionError: computed look changed; if intended run npm run look:lock and review the baseline diff: expected [ …(23) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "0 html | height: \"\" -> \"100%\"",
++   "0 html | margin-top: \"\" -> \"0px\"",
++   "0 html | margin-right: \"\" -> \"0px\"",
++   "0 html | margin-bottom: \"\" -> \"0px\"",
++   "0 html | margin-left: \"\" -> \"0px\"",
++   "0 html | font-family: \"\\\"Times New Roman\\\"\" -> \"system-ui, -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", sans-serif\"",
++   "0 html | font-size: \"16px\" -> \"14px\"",
++   "0 html | color: \"\" -> \"#f0e6da\"",
++   "0 html | background-color: \"\" -> \"#000\"",
++   "0 html | background-image: \"\" -> \"initial\"",
++   "0 html | color-scheme: \"\" -> \"dark\"",
++   "1  | height: \"\" -> \"100%\"",
++   "1  | margin-top: \"\" -> \"0px\"",
++   "1  | margin-right: \"\" -> \"0px\"",
++   "1  | margin-bottom: \"\" -> \"0px\"",
++   "1  | margin-left: \"\" -> \"0px\"",
++   "1  | font-family: \"\\\"Times New Roman\\\"\" -> \"system-ui, -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", sans-serif\"",
++   "1  | font-size: \"16px\" -> \"14px\"",
++   "1  | color: \"\" -> \"#f0e6da\"",
++   "1  | background-color: \"\" -> \"#000\"",
++   "1  | background-image: \"\" -> \"initial\"",
++   "2 div > main.astraeus-shell | background-color: \"#000\" -> \"\"",
++   "2 div > main.astraeus-shell | background-image: \"initial\" -> \"\"",
++ ]
+
+ ❯ packages/astraeus/tests/computedLook.test.ts:124:108
+    122|     }
+    123|     for (const key of keys) if (!now.has(key)) diffs.push(`${key} | el…
+    124|     expect(diffs, "computed look changed; if intended run npm run look…
+       |                                                                                                            ^
+    125|   });
+    126|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  16 failed | 1 skipped (17)
+   Start at  21:47:26
+   Duration  6.07s (tests 84%, transform 10%, import 3%, environment 2%, setup 1%)
+

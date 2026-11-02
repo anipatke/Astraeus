@@ -6,7 +6,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { AstraeusScene, Scene, SceneError, earth, moon, mount, readableScale, saturn, titan, trueScale, type DataSource } from "astraeus";
 import { dataSource as pictureData } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
-import { clearPictures, pictureOf, registerPictures } from "../src/assets/pictures";
+import { textureOf } from "../src/assets/pictures";
+import { describeBody } from "../src/app/bodyDraw";
 import { installData } from "../src/api/data";
 import { drawn, mountShell } from "./domSetup";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
@@ -105,20 +106,25 @@ describe("moons and the data packages (O-036 T-161)", () => {
     expect(mountedBodiesOf(scene.toDefinition([positions(), pictureData]))).toEqual(["saturn", "titan"]);
   });
 
-  it("registers a package's pictures when it is installed, and without them a moon has no map (no invented data)", async () => {
-    clearPictures();
-    try {
-      expect(catalogue.get("titan").visual.texture).toBeUndefined();
-      expect(catalogue.get("venus").visual.texture?.desktop).toBeUndefined();
-      await installData([pictureData], [], { startUtcMs: 0, endUtcMs: 1 });
-      const texture = catalogue.get("titan").visual.texture;
-      expect(texture?.url).toBeTruthy();
-      expect(texture?.licence?.attribution).toContain("NASA/JPL");
-      expect(catalogue.get("venus").visual.texture?.desktop?.widthPx).toBe(8192);
-      expect(pictureOf("milky-way")).toBeDefined();
-    } finally {
-      registerPictures(pictureData.pictures!);
-    }
+  it("hands a package's pictures to the viewer's own definition, and without the package a moon has no map (no invented data)", async () => {
+    const scene = new Scene().addBody(saturn).addBody(titan);
+    const withPictures = scene.toDefinition([positions(), pictureData]);
+    const without = scene.toDefinition([positions()]);
+    expect(Object.keys(without.pictures ?? {})).toEqual([]);
+    expect(describeBody(catalogue.get("titan"), trueScale, false, without.pictures).textureUrl).toBeUndefined();
+    expect(Object.keys(withPictures.pictures ?? {})).toEqual(expect.arrayContaining(["titan", "venus-8k", "milky-way"]));
+    const texture = textureOf(catalogue.get("titan").visual, withPictures.pictures ?? {});
+    expect(texture?.url).toBeTruthy();
+    expect(texture?.licence?.attribution).toContain("NASA/JPL");
+    expect(textureOf(catalogue.get("venus").visual, withPictures.pictures ?? {})?.desktop?.widthPx).toBe(8192);
+    expect(textureOf(catalogue.get("venus").visual, without.pictures ?? {})?.desktop).toBeUndefined();
+    // Nothing leaked to the page: the first definition's pictures are not in the second's.
+    expect(without.pictures).not.toBe(withPictures.pictures);
+  });
+
+  it("refuses a package's picture that has no licence or local-only declaration", async () => {
+    const bad: DataSource = { name: "bad-pictures", provides: [], pictures: { titan: { url: "x.jpg", widthPx: 1, heightPx: 1 } } };
+    await expect(installData([bad], [], { startUtcMs: 0, endUtcMs: 1 })).rejects.toMatchObject({ code: "bad-data" });
   });
 });
 

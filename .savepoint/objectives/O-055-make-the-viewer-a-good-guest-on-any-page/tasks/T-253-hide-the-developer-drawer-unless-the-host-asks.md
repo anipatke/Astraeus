@@ -2,9 +2,10 @@
 id: T-253
 title: Hide the Developer drawer unless the host asks
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-252, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-253, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T09:22:14Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -59,8 +60,22 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Built under the O-055 run (check waived). Changed: `src/api/mount.ts` and `src/api/AstraeusScene.tsx` (the option, doc comments, passed to `App`), `src/app/App.tsx` (`developerTools` prop; drawer node named `drawer`, passed to the shell through `drawerWhen`), `src/shell/AstraeusShell.tsx` (new `DeveloperDrawer`: toggle and aside drawn only when the shell is given `developerTools` content), `packages/astraeus-site/src/main.tsx` (`developerTools` passed to `App`), README (mount options row, AstraeusScene props row, `setSwitches` row, Page address), CHANGELOG Unreleased, `api-surface.lock.json` (two new members plus the `AstraeusScene` signature text).
+
+Entry paths to the drawer (each a row of `tests/developerToolsOption.test.ts`, 13 tests, each checks toggle, aside, `copy-link` absence and whether the drawer module loaded via a per-row `doMock` counter): mount default / true / false / `address: true` alone; mount with a `"developer"`-placed switch, default and on; AstraeusScene default / true / false; AstraeusScene with a developer switch, default; `App` as the site uses it (address + developerTools) and `App` without; plus a rebuild-with-new-scene test for both values. Two viewers: `twoViewers.test.ts` real case per pairing (3), one on and one off.
+
+Existing tests edited (option passed so the drawer opens): `appScreenDom.test.ts` `open` (App gets `developerTools: true`); `addressDom.test.ts` `open` (same); `domPhone.test.ts` cog test and `domShell.test.ts` focus test (`mountShell({ developerTools: "Advanced readouts" })`: the shell now draws no cog without content); `apiRules.test.ts` README-lacking and invented-name replacements follow the new `address?, developerTools? })` text; `twoViewers.test.ts` duplicate-id `it.fails` split (see Drift Notes).
+
+Gates from the repo root: `npm run lint` clean (complexity at most 20); `npm run typecheck` clean; `npm run build` ok; `npm test` 195 files, 2428 passed, 3 expected fail, 1 skipped, 6 todo; `npm run check:pack` pass; `npm run check:react-consumer` pass. The new/changed DOM test files ran 10 times in a loop: 10 of 10 clean (57 passed, 3 expected fail, 6 todo each). `apiSurface`, `apiRules` and `allowlistGrowth` tests pass inside `npm test`. No browser run, no allowlist entry added or removed, no deep-import count raised.
+
+## Behaviour pins changed on purpose
+
+None in scenePin / viewerLinkPin.
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- (T-258 integration) The shell's Developer toggle and drawer are now drawn only when the shell is handed `developerTools` content; `App` hands it only when its `developerTools` option is true. Design.md's description of the Developer drawer as always present needs the option.
+- (T-258 integration) The only repeated fixed element id between two default viewers was `developer-tools` (and the cog's `aria-controls`); with the drawer off it is gone, so the T-250 duplicate-id `it.fails` became a passing default-options case plus an `it.fails` for both viewers with the drawer on. T-254 still owns scoping the remaining ids and removes that `.fails`.
+- (T-258 integration) `address: true` without `developerTools` reads the address but has no copy button (owner-confirmed); documented in README.

@@ -2,8 +2,6 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import { loadPlanetSeries } from "./src/core/planetSeries";
-import { PICTURES } from "astraeus-data";
-import { registerPictures } from "./src/assets/pictures";
 import { JUPITER_MOON_SYSTEM, loadJupiterMoons } from "./src/core/bodies/jupiterMoons";
 import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLANET_MOON_DEFINITIONS, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM } from "./src/core/bodies/planetMoons";
 import { readBytes } from "./tools/import/test-io.mjs";
@@ -13,9 +11,8 @@ await loadPlanetSeries();
 
 // Folders are resolved with node:path, not `new URL(..., import.meta.url)`: under the pretend page (happy-dom) Vite rewrites that form into a web asset address.
 
-// The moon positions and the pictures ship in the data packages, not the engine: tests register the pictures and read each system's index and 2016 chunks
+// The moon positions ship in the data packages, not the engine (the pictures too, and a test hands those to the viewer under test): tests read each system's index and 2016 chunks
 // from the installed packages (astraeus-data, astraeus-data-<planet>), the way a customer hands them to `mount`.
-registerPictures(PICTURES);
 const require = createRequire(import.meta.url);
 const dataFolder = (planet: string) => `${dirname(require.resolve(`astraeus-data-${planet}/package.json`))}/data/${planet}-moons/`;
 for (const [system, planet] of [[JUPITER_MOON_SYSTEM, "jupiter"], [MARS_MOON_SYSTEM, "mars"], [SATURN_MOON_SYSTEM, "saturn"], [NEPTUNE_MOON_SYSTEM, "neptune"], [PLUTO_MOON_SYSTEM, "pluto"]] as const) {

@@ -1,0 +1,5 @@
+349 elements x 56 properties; 4 differences
+181 div.collapsible-body > section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle | color: "#fc6323" -> "#c7bdb3"
+182 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > span | color: "#fc6323" -> "#c7bdb3"
+183 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > svg | color: "#fc6323" -> "#c7bdb3"
+184 h4.collapsible-heading > button.ui-row.collapsible-toggle > svg > path | color: "#fc6323" -> "#c7bdb3"

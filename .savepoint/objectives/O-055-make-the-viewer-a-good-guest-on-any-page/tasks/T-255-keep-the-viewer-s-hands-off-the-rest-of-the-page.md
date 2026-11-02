@@ -2,9 +2,10 @@
 id: T-255
 title: Keep the viewer's hands off the rest of the page
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-254, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-255, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T09:39:49Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -58,8 +59,20 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Built under the O-055 run (Task check waived by the owner's run rules).
+
+Entry paths and tests:
+- Loading cover: engine `hideBootLoader(cover, seconds)` takes a getter and never looks up the page; `App` prop `claimCover` -> `AstraeusScene` prop -> `createFrameState(policy, claim)` (claimed at scene mount) -> `runFrame` first frame. Site: new `packages/astraeus-site/src/bootCover.ts` (show, fail, claim; clone and prepend moved here), wired in `main.tsx`. Table rows in `packages/astraeus/tests/bootLoader.test.ts` (hide+remove, failed left, no cover, I-074 show during fade, stale removal timer, page `#boot` untouched with no claim, claim once at mount) and `packages/astraeus-site/tests/bootCover.test.ts` (show existing, show after removal, fail, I-074 claim, page without cover). `sceneFrame.test.ts` first-frame test updated: handed cover hidden; no cover asks for no frame. `twoViewers.test.ts` per pairing: page `#boot` untouched, no viewer handed a claim (mount and AstraeusScene).
+- Escape: listeners found by grep: `useDrawers.ts`, `StoryPanelView.tsx`, `DisplaySwitches.tsx` (the only document keydown listeners; React onKeyDown ones in InfoPanel, ScaleControl, MoonsSheet, TimelineMarkerGroups are element-scoped). New `shell/viewerKeys.ts` `keyIsForViewer(event, part)`: target inside the part's `.astraeus-shell` or body/document/documentElement. `escapeScope.test.ts`: 3 listeners x {inside A, inside B, page body, host input} on two real shells, plus the document itself with one viewer and two. `twoViewers.test.ts` per pairing: real phone drawer, host input / A / B / body.
+- Markers: `FeatureMarkers.#measureOccluders` queries `this.#root.closest(.astraeus-shell)` only. Case added in `pointerAndFeatureLayerDom.test.ts` (that file holds the layer tests; the Task named featureMarkers.test.ts, which has no layer DOM tests): other viewer's panel over the same area hides nothing; own panel does.
+- Grep `document.|window.` lookups in src/shell and src/app (excluding createElement, listeners, title): none remain except `viewerKeys.ts` comparing the event target to document/body, and `ScaleControl.tsx` `document.activeElement` compared with its own items (a focus read, not a page-element lookup).
+- Allowlist: `id` entry for shell/bootLoader.ts removed from apiIsolation.allowlist.json (no id entries left). `DEEP_IMPORT_COUNTS["astraeus-site"]` 93 -> 92. api-surface.lock.json unchanged (git diff --exit-code clean). CHANGELOG Unreleased entry added.
+- Gates: `npm run lint` clean; `npm run typecheck` clean; `npm run build` ok; `npm test` 198 files, 2476 passed, 1 skipped; `npm run check:pack` pass; `npm run check:react-consumer` pass. apiSurface/apiRules/allowlistGrowth/packageBoundaries tests pass. New DOM test files (escapeScope, bootLoader, bootCover, twoViewers, pointerAndFeatureLayerDom) run 10x: 89 tests, zero failures each run. No browser run.
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- T-258 (integration): the loading cover is now the host's: the engine exposes only an internal `claimCover` prop (App -> AstraeusScene -> FrameState.cover); showing/failing live in `packages/astraeus-site/src/bootCover.ts`. Design.md should say the engine never looks up page elements.
+- T-258: viewer-scoped keys: `shell/viewerKeys.ts` (`VIEWER_ROOT_CLASS`, `keyIsForViewer`); every document key listener of the viewer uses it; `useDrawers` now takes the viewer root ref. Marker layer measures within its viewer root.
+- Plan named `featureMarkers.test.ts` for the markers case; the occluder tests live in `pointerAndFeatureLayerDom.test.ts`.

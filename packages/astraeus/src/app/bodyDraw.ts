@@ -2,6 +2,7 @@ import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Group
 import { dotMaterial } from "./dotMaterial";
 import type { BodyAsset } from "../assets/catalogue";
 import { textureUrlFor } from "../assets/licence";
+import { NO_PICTURES, textureOf, type Pictures } from "../assets/pictures";
 import type { AtmosphereConfig, BodyMaterialConfig } from "../assets/visual";
 import type { CelestialBodyDefinition } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
@@ -101,16 +102,18 @@ export interface BodyDrawPlan {
 
 /**
  * `desktopTextures` (the experience definition's opt-in, default off) lets a body with a desktop texture variant use it from its
- * minimum viewport width up; without it the base file is used at any width.
+ * minimum viewport width up; without it the base file is used at any width. `pictures` are the ones this viewer was given: a look that names a picture
+ * the viewer does not hold is drawn as a flat colour.
  */
-export function describeBody(asset: BodyAsset, policy: ScalePolicy, desktopTextures = false): BodyDrawPlan {
+export function describeBody(asset: BodyAsset, policy: ScalePolicy, desktopTextures = false, pictures: Pictures = NO_PICTURES): BodyDrawPlan {
   const { definition, visual } = asset;
+  const texture = textureOf(visual, pictures);
   const radii = drawnRadii(definition, policy);
   return {
     kind: visual.kind,
     radii,
     poleScale: radii.equatorial === 0 ? 1 : radii.polar / radii.equatorial,
-    ...(visual.texture === undefined ? {} : { textureUrl: textureUrlFor(visual.texture, !desktopTextures ? 0 : typeof window === "undefined" ? undefined : window.innerWidth) }),
+    ...(texture === undefined ? {} : { textureUrl: textureUrlFor(texture, !desktopTextures ? 0 : typeof window === "undefined" ? undefined : window.innerWidth) }),
     material: visual.material,
     ...(visual.atmosphere === undefined ? {} : { atmosphere: visual.atmosphere }),
   };

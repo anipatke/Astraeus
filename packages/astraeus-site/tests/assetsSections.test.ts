@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { PICTURES } from "astraeus-data";
 import { catalogue } from "astraeus/assets/catalogue";
 import assets from "../assets.html?raw";
 import index from "../index.html?raw";
 import { MOON_PLANETS, generatedBlocks, markers } from "../tools/site/assets-sections.mjs";
 import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
+
+/** The licence record of a body's map: the engine's own texture, else the picture its look names in astraeus-data. */
+const licenceOf = (id: string): string | undefined => {
+  const visual = catalogue.get(id).visual;
+  return (visual.texture ?? PICTURES[visual.picture ?? id])?.licence?.licence;
+};
 
 /**
  * T-120: the planet moon sections and the tagged-places section of assets.html are generated from the data by tools/site/assets-sections.mjs
@@ -76,7 +83,7 @@ describe("home shelf and demo card (T-120)", () => {
     for (const g of globes) {
       const id = /<b>(.*?)<\/b>/.exec(g)?.[1].toLowerCase() ?? "";
       const chip = /<\/b><span>(.*?)<\/span>/.exec(g)?.[1] ?? "";
-      const licence = catalogue.get(id).visual.texture?.licence?.licence;
+      const licence = licenceOf(id);
       if (licence === undefined) throw new Error(`${id} has no texture licence`);
       const expected = licence === "public domain" ? (id === "earth" ? "NASA Earth Observatory" : "Public domain") : licence.startsWith("NASA/JPL") ? "NASA/JPL" : licence;
       expect(chip, id).toBe(expected);

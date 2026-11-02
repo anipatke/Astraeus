@@ -11,6 +11,8 @@ interface Props {
   readonly onCameraPreset: (preset: ExperienceCameraPreset) => void;
   readonly infoOpen: boolean;
   readonly onToggleInfo: () => void;
+  /** The id of the information panel the Info button opens, made once per viewer by the shell. */
+  readonly infoPanelId: string;
 }
 
 export function ObjectControls({
@@ -22,6 +24,7 @@ export function ObjectControls({
   onCameraPreset,
   infoOpen,
   onToggleInfo,
+  infoPanelId,
 }: Props) {
   const selected = experience.objects.find((object) => object.id === selectedObjectId);
   const selectedAvailable = selected !== undefined && isObjectAvailable(selected, timeUtcMs);
@@ -86,7 +89,7 @@ export function ObjectControls({
         aria-label={selected === undefined ? "Information" : `Information about ${selected.label}`}
         title={selected === undefined ? "Information" : `Information about ${selected.label}`}
         aria-expanded={infoOpen}
-        aria-controls="info-panel"
+        aria-controls={infoPanelId}
         disabled={!selectedAvailable}
         onClick={onToggleInfo}
       >

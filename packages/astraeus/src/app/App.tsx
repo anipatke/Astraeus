@@ -19,10 +19,10 @@ import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
-import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
+import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds, type CoverClaim } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
-import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
@@ -140,6 +140,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
       desktopTextures: definition.desktopTextures === true,
+      ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),
@@ -215,13 +216,18 @@ function initialSceneControls(
   };
 }
 
+/** The Developer drawer when the host asked for developer tools, else nothing (the shell then draws no toggle and no drawer). */
+const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode => (asked === true ? drawer : undefined);
+
 /**
  * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
+ * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
+ * `claimCover`: the demo site's loading cover; the first frame fades the element it returns. Internal: `mount` and `AstraeusScene` pass none, so a host page's own `#boot` is never touched.
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true, address, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly host?: ViewerPort }) {
+export function App({ definition, onOpenAddress, writeTitle = true, address, developerTools, host, claimCover }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort; readonly claimCover?: CoverClaim }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -469,10 +475,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   });
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (
-    <section key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} aria-labelledby={`developer-${section.id}-heading`}>
-      <h3 id={`developer-${section.id}-heading`}>{section.heading}</h3>
+    <HudSection key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} level={3} heading={section.heading}>
       {section.render(experienceRuntime)}
-    </section>
+    </HudSection>
   );
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, orbitPaths.length, storyMarkerSpecs.length);
@@ -533,7 +538,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       id: "timeline", title: "Timeline and stories",
       body: (
         <>
-          <SettingGroup id="timeline-glow" title="Timeline glow">
+          <SettingGroup name="timeline-glow" title="Timeline glow">
             <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
             <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={timelineGlow.playedColor} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
             {([
@@ -566,7 +571,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
             <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
           </SettingButtons>
           {orbitSliders.main.map(orbitSlider)}
-          <Collapsible id="orbit-fine-tune" title="Fine-tune" level={4} nested>
+          <Collapsible fold="orbit-fine-tune" title="Fine-tune" level={4} nested>
             {orbitSliders.fine.map(orbitSlider)}
           </Collapsible>
           <SettingButtons>
@@ -622,7 +627,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     },
   ];
   const presentGroups = groups.filter((group) => group !== null);
-  const developerTools = (
+  const drawer = (
     <PanelLoadBoundary>
     <Suspense fallback={<p className="developer-loading" role="status">Loading developer tools...</p>}>
     <div className="hud">
@@ -631,7 +636,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
         <p>Live readouts, controls and diagnostics for this scene.</p>
       </header>
       {presentGroups.map((group, index) => (
-        <Collapsible key={group.id} id={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
+        <Collapsible key={group.id} fold={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
           {group.body}
         </Collapsible>
       ))}
@@ -672,7 +677,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
       metricsFor={metricsFor}
-      developerTools={developerTools}
+      developerTools={drawerWhen(developerTools, drawer)}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
       timelineGlow={timelineGlow}
       phoneLayout={phoneLayout}
@@ -686,7 +691,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} />
       </div>
     </AstraeusShell>
   );

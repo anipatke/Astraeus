@@ -3,6 +3,7 @@ import { Vector3, type Group, type PerspectiveCamera } from "three";
 
 const worldPosition = new Vector3();
 import type { BodyAsset } from "../assets/catalogue";
+import type { Pictures } from "../assets/pictures";
 import type { ScalePolicy } from "../core/scalePolicy";
 import { AtmosphereGlow } from "./AtmosphereGlow";
 import { BodyMesh } from "./BodyMesh";
@@ -27,6 +28,8 @@ interface BodyViewProps {
   readonly markerPx?: number;
   /** The experience's opt-in to desktop texture variants (default off). */
   readonly desktopTextures?: boolean;
+  /** The pictures this viewer was given; a look naming a picture not held here is a flat colour. */
+  readonly pictures?: Pictures;
   /** The live halo settings for a body whose record has a glow. */
   readonly glowLook?: GlowLook;
   /** The group the scene positions. */
@@ -43,8 +46,8 @@ interface BodyViewProps {
  * Draws any catalogued body from its visual record: a sphere or spheroid with an optional atmosphere, or a marker. A sphere also carries a
  * hidden marker at the same place; the scene shows it instead of the sphere when the sphere would be smaller than a few pixels.
  */
-export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, desktopTextures = false, groupRef, orientRef, onParts, ringLookOf }: BodyViewProps) {
-  const plan = describeBody(asset, policy, desktopTextures);
+export function BodyView({ asset, policy, layer, markerLayer, markerPx = DEFAULT_BODY_MARKER.markerPx, glowLook, desktopTextures = false, pictures, groupRef, orientRef, onParts, ringLookOf }: BodyViewProps) {
+  const plan = describeBody(asset, policy, desktopTextures, pictures);
   // A body with a halo draws no marker dot: the halo is its marker.
   const marker = useMemo(() => (plan.kind === "marker" && asset.visual.glow === undefined ? createMarker(asset, layer).group : null), [asset, plan.kind, layer]);
   const standIn = useMemo(() => (plan.kind === "sphere" ? createMarker(asset, markerLayer, undefined, markerPx).group : null), [asset, plan.kind, markerLayer, markerPx]);

@@ -1,0 +1,38 @@
+L2: plant the I-140 flip, run 'npm run look:lock', inspect what a reviewer sees in the baseline diff, then restore both files
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+exit=0
+ .../tests/fixtures/computed-look.baseline.json     | 24 +++++++++++-----------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+-    "inline-flex␟␟␟␟␟␟100%␟␟36px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#fc6323␟trans
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "inline-flex␟␟␟␟␟␟100%␟␟36px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#c7bdb3␟trans
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "inline-flex␟␟␟␟␟␟100%␟␟36px␟␟␟␟␟␟␟␟0px␟12px␟0px␟12px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#fc6323␟tra
++    "inline-flex␟␟␟␟␟␟100%␟␟36px␟␟␟␟␟␟␟␟0px␟12px␟0px␟12px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟13px␟500␟1.2␟␟␟left␟␟#c7bdb3␟tra
+-    "inline-flex␟␟␟␟␟␟100%␟␟44px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#fc6323␟trans
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "inline-flex␟␟␟␟␟␟100%␟␟44px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#c7bdb3␟trans
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "inline-flex␟␟␟␟␟␟100%␟␟44px␟␟␟␟␟␟␟␟0px␟12px␟0px␟12px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#fc6323␟tra
++    "inline-flex␟␟␟␟␟␟100%␟␟44px␟␟␟␟␟␟␟␟0px␟12px␟0px␟12px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟14px␟500␟1.2␟␟␟left␟␟#c7bdb3␟tra
+-    "inline-flex␟␟␟␟␟␟100%␟␟30px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#fc6323␟trans
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#fc6323␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "inline-flex␟␟␟␟␟␟100%␟␟30px␟␟␟␟␟␟␟␟5px␟9px␟5px␟9px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#c7bdb3␟trans
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
++    "␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#c7bdb3␟␟␟␟␟␟␟␟␟␟␟␟␟
+-    "inline-flex␟␟␟␟␟␟100%␟␟30px␟␟␟␟␟␟␟␟0px␟10px␟0px␟10px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#fc6323␟tra
++    "inline-flex␟␟␟␟␟␟100%␟␟30px␟␟␟␟␟␟␟␟0px␟10px␟0px␟10px␟system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif␟12px␟500␟1.2␟␟␟left␟␟#c7bdb3␟tra
+-- then npm test of the lock on the regenerated baseline:
+      Tests  16 passed | 1 skipped (17)
+restored clean
+-- L3: LOOK_UPDATE=1 in the environment during a plain test run (flip planted, then restored):
+      Tests  17 passed (17)
+ M packages/astraeus/src/app/style.css
+ M packages/astraeus/tests/fixtures/computed-look.baseline.json
+restored clean

@@ -2,7 +2,6 @@ import { VENUS } from "../../core/bodies/venus";
 import type { AssetLicence, TextureRef } from "../licence";
 import type { BodyMaterialConfig, BodyVisual } from "../visual";
 import venus2kUrl from "../textures/venus-2k-balanced.jpg";
-import { pictureOf } from "../pictures";
 
 /** Donor material (planetary-explorer src/entities/venus.ts, commit 84f8d3ee). */
 export const VENUS_MATERIAL: BodyMaterialConfig = Object.freeze({ color: "#f6e1b9", emissive: "#4f2e16", emissiveIntensity: 0.04, roughness: 0.9, metalness: 0.04 });
@@ -27,16 +26,13 @@ export const VENUS_TEXTURE: TextureRef = Object.freeze<TextureRef>({
   widthPx: 2048,
   heightPx: 1024,
   licence: VENUS_TEXTURE_LICENCE,
-  /** The 8k file ships in astraeus-data (name "venus-8k"); without it the 2k file is used at every width. */
-  get desktop() {
-    const large = pictureOf("venus-8k");
-    return large === undefined ? undefined : { url: large.url, widthPx: large.widthPx, heightPx: large.heightPx, minViewportWidth: 768 };
-  },
 });
 
 export const VENUS_VISUAL: BodyVisual = Object.freeze({
   kind: "sphere",
   texture: VENUS_TEXTURE,
+  /** The 8k file ships in astraeus-data (name "venus-8k"); a viewer without it uses the 2k file at every width. */
+  desktopPicture: "venus-8k",
   material: VENUS_MATERIAL,
   textureYawRad: 0,
   light: VENUS_LIGHT,

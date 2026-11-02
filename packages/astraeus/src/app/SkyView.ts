@@ -1,6 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Group, Mesh, Points, ShaderMaterial, NoColorSpace, TextureLoader, Vector3 } from "three";
 import type { Camera, PerspectiveCamera, Texture } from "three";
-import { MILKY_WAY_PICTURE, type PictureSet, type StarRow } from "../assets/sky";
+import { milkyWayPicture, type PictureSet, type StarRow } from "../assets/sky";
 import { buildPictureMesh, buildStarBuffers } from "./skyModel";
 
 // Both draws sit before everything else in the first pass (the layer-0 pass), ignore depth, and write none.
@@ -77,8 +77,10 @@ export interface SkyViewOptions {
   readonly milkyWay?: boolean;
   /** Legacy: ready textures, one per tile (a test may pass empty ones). Overrides `picture`. */
   readonly pictures?: readonly Texture[];
-  /** The picture to draw, as a tile grid; defaults to the Milky Way picture. `null` draws none until `requestPicture` is called. */
+  /** The picture to draw, as a tile grid; defaults to `pictureSet`. `null` draws none until `requestPicture` is called. */
   readonly picture?: PictureSet | null;
+  /** The Milky Way picture of the pictures this viewer was given (`milkyWayPicture(pictures)`); defaults to none, so a sky given no pictures draws no picture. */
+  readonly pictureSet?: PictureSet;
 }
 
 /**
@@ -98,6 +100,7 @@ export class SkyView {
   #brightness: number;
   #maxAnisotropy: number;
   #held = false;
+  readonly #set: PictureSet;
 
   /** `options.picture` is the tile set; the scene passes the one it resolved, a test may pass `pictures` (empty textures). */
   constructor(options: SkyViewOptions) {
@@ -105,8 +108,9 @@ export class SkyView {
     this.#pictureOn = options.milkyWay ?? false;
     this.#brightness = milkyWayBrightness;
     this.#maxAnisotropy = maxAnisotropy;
-    if (options.pictures !== undefined) this.#build(MILKY_WAY_PICTURE, options.pictures);
-    else if (options.picture !== null) this.#build(options.picture ?? MILKY_WAY_PICTURE);
+    this.#set = options.pictureSet ?? milkyWayPicture({});
+    if (options.pictures !== undefined) this.#build(this.#set, options.pictures);
+    else if (options.picture !== null) this.#build(options.picture ?? this.#set);
     this.#starMaterial = new ShaderMaterial({
       vertexShader: STAR_VERTEX,
       fragmentShader: STAR_FRAGMENT,
@@ -170,7 +174,7 @@ export class SkyView {
 
   /** Builds the Milky Way picture the first time it is wanted (nothing is decoded while the picture stays off); a no-op once a picture is held. */
   requestPicture(): void {
-    if (!this.#held) this.#build(MILKY_WAY_PICTURE);
+    if (!this.#held) this.#build(this.#set);
   }
 
   /** Sets the star strength in place (0 to 2); no rebuild. */

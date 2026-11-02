@@ -29,7 +29,7 @@ describe("Collapsible storage", () => {
 });
 
 describe("Collapsible markup", () => {
-  const render = (defaultOpen: boolean) => renderToStaticMarkup(createElement(Collapsible, { id: "x", title: "Orbit lines", defaultOpen, children: createElement("p", null, "inside") }));
+  const render = (defaultOpen: boolean) => renderToStaticMarkup(createElement(Collapsible, { fold: "x", title: "Orbit lines", defaultOpen, children: createElement("p", null, "inside") }));
   it("is a heading button with aria-expanded, naming its body", () => {
     const html = render(true);
     expect(html).toMatch(/<h3[^>]*><button[^>]*aria-expanded="true"[^>]*aria-controls="[^"]+"/);

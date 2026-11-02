@@ -1,0 +1,58 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "../../../vitest.config" without a file extension (docs/evidence/check-o055-20261102/vitest.probe.config.ts:5:18). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.0.3 /home/user/code/Astraeus
+
+(node:377210) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 1)
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:377210) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 2)
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: HTTP 503 europa/2023.bin
+ ❯ Object.go docs/evidence/check-o055-20261102/probes/moons.probe.test.ts:21:66
+
+ ❯ docs/evidence/check-o055-20261102/probes/moons.probe.test.ts:23:124
+ ❯ releaseAll docs/evidence/check-o055-20261102/probes/moons.probe.test.ts:23:107
+ ❯ docs/evidence/check-o055-20261102/probes/moons.probe.test.ts:44:5
+ ❯ node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20
+
+This error originated in "docs/evidence/check-o055-20261102/probes/moons.probe.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "a chunk that fails under one request rejects it (and any request sharing it), leaves the other's moons, and a retry fetches only what is missing". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+MoonOutOfSpanError: io's positions cover 1950-01-01 to 2030-01-01, but the scene runs 2031-01-01 to 2031-02-01
+ ❯ assertWithinSpan packages/astraeus/src/core/bodies/moonSystem.ts:89:103
+     87|   for (const body of request.bodies) {
+     88|     const span = set.boundsOf(body);
+     89|     if (request.window.startUtcMs < span.startUtcMs || request.window.…
+       |                                                                                                       ^
+     90|   }
+     91| }
+ ❯ loadRequest packages/astraeus/src/core/bodies/moonSystem.ts:248:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { body: 'io', span: { startUtcMs: -631151999000, endUtcMs: 1893456000000 }, window: { startUtcMs: 1924992000000, endUtcMs: 1927670400000 } }
+This error originated in "docs/evidence/check-o055-20261102/probes/moons.probe.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "an out-of-span request started beside a good one rejects with MoonOutOfSpanError and fetches nothing of its own; the good one completes". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  7 passed (7)
+      Tests  77 passed (77)
+     Errors  2 errors
+   Start at  21:24:44
+   Duration  2.19s (transform 61%, tests 19%, setup 10%, import 7%, environment 3%)
+
+  Transform  transforming modules took 3.70s · 61% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

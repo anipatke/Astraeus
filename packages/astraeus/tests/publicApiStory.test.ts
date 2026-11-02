@@ -139,7 +139,7 @@ describe("setTimeline", () => {
       expect(clock.now()).toBe(T0 + 7 * MIN);
       m = mountShell({ experience: definition.experience });
       expect(m.container.querySelector(".timeline-bar")).toBeNull();
-      expect(m.container.querySelector("#timeline-drawer")).toBeNull();
+      expect(m.container.querySelector(".timeline-drawer")).toBeNull();
       expect($(m.container, "main").getAttribute("data-timeline-hidden")).toBe("true");
     });
     it("frozen at the time of setTime when no moment is given", () => {

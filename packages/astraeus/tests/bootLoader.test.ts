@@ -1,26 +1,22 @@
+// @vitest-environment happy-dom
+// The loading cover (O-055 T-255): the engine fades out only the cover a host hands it and never looks one up on the page. Showing it again and failing it belong to the demo
+// site (`packages/astraeus-site/tests/bootCover.test.ts`). The first-frame path is one table: what the handed cover does under each situation.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds, bootShowing, failBootLoader, hideBootLoader, saveBootFadeSeconds, showBootLoader } from "../src/shell/bootLoader";
+import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds, hideBootLoader, saveBootFadeSeconds } from "../src/shell/bootLoader";
+import { createFrameState } from "../src/app/sceneFrame";
 
-// No DOM in the test environment: a minimal stand-in for the one element, the page and its storage.
-let boot: { dataset: Record<string, string>; style: { setProperty: (name: string, value: string) => void; removeProperty: (name: string) => void }; remove: () => void } | null;
-let removed: boolean;
-let stored: Map<string, string>;
+let cover: HTMLElement;
+const coverOf = (): HTMLElement | null => cover.isConnected ? cover : null;
 beforeEach(() => {
-  removed = false;
-  stored = new Map();
-  boot = { dataset: { state: "loading" }, style: { setProperty: () => undefined, removeProperty: () => undefined }, remove: () => { removed = true; } };
+  window.localStorage.clear();
+  cover = document.createElement("div");
+  cover.dataset.state = "loading";
+  document.body.append(cover);
   vi.useFakeTimers();
-  vi.stubGlobal("document", { getElementById: (id: string) => (id === "boot" ? boot : null) });
-  vi.stubGlobal("window", {
-    location: { search: "" },
-    localStorage: { getItem: (key: string) => stored.get(key) ?? null, setItem: (key: string, value: string) => { stored.set(key, value); } },
-    setTimeout: (fn: () => void, ms: number) => setTimeout(fn, ms),
-    clearTimeout: (id: ReturnType<typeof setTimeout>) => clearTimeout(id),
-  });
 });
-afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+afterEach(() => { vi.useRealTimers(); document.body.innerHTML = ""; });
 
-describe("loading screen", () => {
+describe("loading fade time", () => {
   it("fades for the default time, a saved time, or the address's time, kept in range", () => {
     expect(bootFadeSeconds("")).toBe(BOOT_FADE_DEFAULT_SECONDS);
     saveBootFadeSeconds(1.5);
@@ -28,42 +24,68 @@ describe("loading screen", () => {
     expect(bootFadeSeconds("?loadfade=0.2")).toBe(0.2);
     expect(bootFadeSeconds("?loadfade=99")).toBe(3);
   });
-  it("hides once, then removes itself after the fade", () => {
-    hideBootLoader();
-    expect(boot?.dataset.state).toBe("done");
-    hideBootLoader();
-    expect(removed).toBe(false);
-    vi.advanceTimersByTime(1000);
-    expect(removed).toBe(true);
+});
+
+describe("the first frame hides the handed cover", () => {
+  it("hides once, sets the fade, then removes the cover after the fade", () => {
+    hideBootLoader(coverOf, 0.5);
+    expect(cover.dataset.state).toBe("done");
+    expect(cover.style.getPropertyValue("--boot-fade")).toBe("0.5s");
+    hideBootLoader(coverOf, 0.5);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(599);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(2);
+    expect(cover.isConnected).toBe(false);
   });
-  it("shows the failure message instead of hiding", () => {
-    failBootLoader();
-    hideBootLoader();
-    expect(boot?.dataset.state).toBe("failed");
-  });
-  it("does nothing when the page has no loader", () => {
-    boot = null;
-    expect(() => { hideBootLoader(); failBootLoader(); }).not.toThrow();
-  });
-  it("stays when a switch brings it back during the fade, and a later hide still fades and removes it (I-074)", () => {
-    hideBootLoader();
-    vi.advanceTimersByTime(300);
-    showBootLoader();
+  it("leaves a failed cover showing its message", () => {
+    cover.dataset.state = "failed";
+    hideBootLoader(coverOf);
     vi.advanceTimersByTime(5000);
-    expect(removed).toBe(false);
-    expect(boot?.dataset.state).toBe("loading");
-    hideBootLoader();
-    expect(boot?.dataset.state).toBe("done");
-    vi.advanceTimersByTime(1000);
-    expect(removed).toBe(true);
+    expect(cover.dataset.state).toBe("failed");
+    expect(cover.isConnected).toBe(true);
   });
-  it("is not hidden by a scene mounted before the latest showing (I-074)", () => {
-    const oldScene = bootShowing();
-    showBootLoader();
-    const newScene = bootShowing();
-    hideBootLoader(oldScene);
-    expect(boot?.dataset.state).toBe("loading");
-    hideBootLoader(newScene);
-    expect(boot?.dataset.state).toBe("done");
+  it("does nothing when the host hands in no cover element (a later showing took it away, or the page has none)", () => {
+    expect(() => hideBootLoader(() => null)).not.toThrow();
+    expect(cover.dataset.state).toBe("loading");
+  });
+  it("stays when the host brings it back during the fade, and a later hide still fades and removes it (I-074)", () => {
+    hideBootLoader(coverOf);
+    vi.advanceTimersByTime(300);
+    cover.dataset.state = "loading"; // the host's show-again
+    vi.advanceTimersByTime(5000);
+    expect(cover.isConnected).toBe(true);
+    expect(cover.dataset.state).toBe("loading");
+    hideBootLoader(coverOf);
+    expect(cover.dataset.state).toBe("done");
+    vi.advanceTimersByTime(1000);
+    expect(cover.isConnected).toBe(false);
+  });
+  it("a hide after a show-again is not cut short by the earlier hide's removal timer", () => {
+    hideBootLoader(coverOf, 1);
+    vi.advanceTimersByTime(300);
+    cover.dataset.state = "loading";
+    vi.advanceTimersByTime(100);
+    hideBootLoader(coverOf, 1); // would fade until 1400 ms; the first timer (1100 ms) must not remove it early
+    vi.advanceTimersByTime(750);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(400);
+    expect(cover.isConnected).toBe(false);
+  });
+  it("an element the engine was not handed is never touched: a page's own #boot beside a scene that claims no cover", () => {
+    cover.id = "boot";
+    const state = createFrameState("solar-system");
+    expect(state.cover).toBeNull();
+    vi.advanceTimersByTime(5000);
+    expect(document.getElementById("boot")).toBe(cover);
+    expect(cover.dataset.state).toBe("loading");
+  });
+  it("a scene claims the cover once, when it mounts, and keeps what the claim gave it", () => {
+    const reach = () => cover;
+    const claim = vi.fn(() => reach);
+    const state = createFrameState("solar-system", claim);
+    createFrameState("solar-system", claim);
+    expect(claim).toHaveBeenCalledTimes(2);
+    expect(state.cover).toBe(reach);
   });
 });

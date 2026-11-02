@@ -33,7 +33,8 @@ describe("a window outside a body's span", () => {
     const request = { window, bodies: ["io"], chunkUrls: {} };
     const first = system.load(request);
     await expect(first).rejects.toBeInstanceOf(MoonOutOfSpanError);
-    expect(system.load(request)).toBe(first);
+    // T-251: each request now runs its own checks (the index is read once, not the promise), so the repeat is a new promise that refuses the same way.
+    await expect(system.load(request)).rejects.toBeInstanceOf(MoonOutOfSpanError);
     await expect(first).rejects.toThrow(/io's positions cover 1952-01-01 to 1958-01-01/);
   });
 

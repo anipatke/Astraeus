@@ -14,6 +14,7 @@ import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 import type { SkySettings } from "../assets/sky";
+import type { Pictures } from "../assets/pictures";
 import { validateBodySet, type BodySetLayer } from "./bodySet";
 import type { DisplaySwitchSettings } from "./displaySwitches";
 import type { ViewSettings } from "./views";
@@ -178,6 +179,8 @@ export interface ExperienceDefinition {
    * viewport gets the base file, so a page that only shows a body in passing does not download the large map.
    */
   readonly desktopTextures?: boolean;
+  /** The pictures of the data packages this viewer was given, by name (`titan`, `venus-8k`, `milky-way`). Absent: none, so a body is a flat colour and the sky has no Milky Way picture; nothing is shared between viewers. */
+  readonly pictures?: Pictures;
   /** Per-body presentation overrides; state is untouched. */
   readonly visualOverrides?: Readonly<Record<BodyId, VisualOverride>>;
   /** The scale choices offered, in order; the first is the starting one. Default: true and readable scale. */

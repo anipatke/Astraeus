@@ -4,7 +4,7 @@ import { MOON_SYSTEMS } from "../core/bodies/listedMoonBodies";
 import { MoonOutOfSpanError } from "../core/bodies/moonSystem";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { SceneError } from "./errors";
-import { registerPictures, type Pictures } from "../assets/pictures";
+import { picturesProblem, type Pictures } from "../assets/pictures";
 
 /** Moon positions a data package (`astraeus-data-<planet>`) hands to the engine: where its index is read from and the URL of every chunk file it ships. */
 export interface MoonPositions {
@@ -15,7 +15,7 @@ export interface MoonPositions {
   readonly chunkUrls: Readonly<Record<string, string>>;
 }
 
-/** What `mount` needs from a data package: what it provides, and optionally pictures to register, moon positions to hand to the engine, and a load step. */
+/** What `mount` needs from a data package: what it provides, and optionally pictures for the viewer, moon positions to hand to the engine, and a load step. */
 export interface DataSource {
   readonly name: string;
   readonly provides: readonly BodyId[];
@@ -25,12 +25,13 @@ export interface DataSource {
 }
 
 /**
- * Hands the packages' pictures and moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
+ * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
 export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue): Promise<void> {
   for (const source of data) {
-    if (source.pictures !== undefined) registerPictures(source.pictures);
+    const problem = source.pictures === undefined ? null : picturesProblem(source.pictures);
+    if (problem !== null) throw new SceneError("bad-data", `${source.name}: ${problem}`);
     const positions = source.moonPositions;
     if (positions === undefined) continue;
     const system = MOON_SYSTEMS[positions.centre];
