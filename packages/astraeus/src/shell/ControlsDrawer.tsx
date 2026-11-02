@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { ChevronIcon } from "./topBarIcons";
 import { useDrawerSwipe } from "./useDrawerSwipe";
 
@@ -17,6 +17,7 @@ interface Props {
  * under it closes it by a tap or a swipe up. The controls stay mounted while it is closed (state survives) but are hidden from sight and focus.
  */
 export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, children }: Props) {
+  const drawerId = `${useId()}-controls-drawer`;
   const opening = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(true), onSwipe: (direction) => { if (direction === "down") onOpenChange(true); } });
   const closing = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(false), onSwipe: (direction) => { if (direction === "up") onOpenChange(false); } });
   return (
@@ -26,14 +27,14 @@ export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, ch
         className="controls-pill ui-pill"
         aria-label={`Show controls: ${label}`}
         aria-expanded={open}
-        aria-controls="controls-drawer"
+        aria-controls={drawerId}
         {...opening}
       >
         <span className="controls-pill-name">{label}</span>
         <ChevronIcon />
       </button>
       <div
-        id="controls-drawer"
+        id={drawerId}
         className="controls-drawer"
         role="region"
         aria-label="Controls"

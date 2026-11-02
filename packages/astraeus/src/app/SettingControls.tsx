@@ -1,12 +1,25 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 /** A titled group of developer settings. The title names the group for assistive technology too. */
-export function SettingGroup({ id, title, children }: { readonly id: string; readonly title: string; readonly children: ReactNode }) {
+export function SettingGroup({ name, title, children }: { readonly name: string; readonly title: string; readonly children: ReactNode }) {
+  const titleId = `${useId()}-title`;
   return (
-    <div className="setting-group" role="group" aria-labelledby={`setting-group-${id}`}>
-      <h4 id={`setting-group-${id}`}>{title}</h4>
+    <div className="setting-group" role="group" aria-labelledby={titleId} data-setting-group={name}>
+      <h4 id={titleId}>{title}</h4>
       {children}
     </div>
+  );
+}
+
+/** A developer-drawer section named by its own heading; the heading id is made per viewer. */
+export function HudSection({ className = "hud-section", level, heading, testId, children }: { readonly className?: string; readonly level: 3 | 4; readonly heading: ReactNode; readonly testId?: string; readonly children: ReactNode }) {
+  const headingId = `${useId()}-heading`;
+  const Heading = level === 3 ? "h3" : "h4";
+  return (
+    <section className={className} aria-labelledby={headingId} data-testid={testId}>
+      <Heading id={headingId}>{heading}</Heading>
+      {children}
+    </section>
   );
 }
 

@@ -44,9 +44,9 @@ describe("events (browser-shell: Events)", () => {
     m = mountShell();
     press($(m.container, ".timeline-expanded li button"));
     press($(m.container, ".timeline-event-current"));
-    expect($(m.container, "#info-panel").getAttribute("data-info-kind")).toBe("event");
+    expect($(m.container, ".info-panel").getAttribute("data-info-kind")).toBe("event");
     press(byLabel(m.container, "Close information"));
-    expect(m.container.querySelector("#info-panel")).toBeNull();
+    expect(m.container.querySelector(".info-panel")).toBeNull();
   });
 });
 
@@ -86,7 +86,7 @@ describe("information, provenance and Sources (browser-shell: Information panel)
 
   it("opens for the picked marker with Metric Visuals and a provenance badge that opens its detail", () => {
     pickMarker();
-    const panel = $(m.container, "#info-panel");
+    const panel = $(m.container, ".info-panel");
     expect(panel.getAttribute("data-info-id")).toBe("survey-marker");
     expect(panel.querySelectorAll(".metric").length).toBeGreaterThan(0);
     const badge = $(panel, ".provenance-badge");
@@ -100,11 +100,11 @@ describe("information, provenance and Sources (browser-shell: Information panel)
 
   it("closes on Escape, and from its own Close button", () => {
     pickMarker();
-    pressKey($(m.container, "#info-panel .info-panel-close"), "Escape");
-    expect(m.container.querySelector("#info-panel")).toBeNull();
+    pressKey($(m.container, ".info-panel .info-panel-close"), "Escape");
+    expect(m.container.querySelector(".info-panel")).toBeNull();
     press($(m.container, ".object-info-toggle"));
     press(byLabel(m.container, "Close information"));
-    expect(m.container.querySelector("#info-panel")).toBeNull();
+    expect(m.container.querySelector(".info-panel")).toBeNull();
   });
 
   it("toggles from the Info button", () => {
@@ -113,7 +113,7 @@ describe("information, provenance and Sources (browser-shell: Information panel)
     press(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     press(toggle);
-    expect(m.container.querySelector("#info-panel")).toBeNull();
+    expect(m.container.querySelector(".info-panel")).toBeNull();
   });
 });
 
@@ -123,7 +123,7 @@ describe("the two scales (browser-shell: Both scales)", () => {
     const picker = $(m.container, "select.object-picker") as HTMLSelectElement;
     picker.value = "moon";
     picker.dispatchEvent(new window.Event("change", { bubbles: true }));
-    const metrics = () => text($(m.container, "#info-panel .info-panel-metrics"));
+    const metrics = () => text($(m.container, ".info-panel .info-panel-metrics"));
     const trueReadout = metrics();
     expect(m.scale()).toBe("true-scale");
     const toggle = () => $(m.container, ".scale-toggle");
@@ -157,7 +157,7 @@ describe("the developer cog (browser-shell, browser-layout, browser-embedded: De
   it("starts closed, opens its panel on a press and closes it on a second", () => {
     m = mountShell({ developerTools: "Advanced readouts" });
     const cog = byLabel(m.container, "Developer mode");
-    const panel = $(m.container, "#developer-tools");
+    const panel = $(m.container, ".developer-tools");
     expect(cog.getAttribute("aria-pressed")).toBe("false");
     expect(panel.hidden).toBe(true);
     press(cog);

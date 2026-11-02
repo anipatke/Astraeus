@@ -287,21 +287,30 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(snapshot(b.handle)).toEqual(before);
   });
 
-  // T-253 put the Developer drawer behind `developerTools`, and its fixed `developer-tools` id was the only one drawn twice, so two default viewers now share no id.
-  // With the drawer on in both, other fixed ids may still repeat: T-254 gives every id an owner-scoped name; then the second case passes and `.fails` comes off.
+  const repeatedIds = (): string[] => {
+    const ids = [...document.body.querySelectorAll("[id]")].map((el) => el.id);
+    return ids.filter((id, index) => ids.indexOf(id) !== index);
+  };
   it("no element id repeats in a document holding both viewers (default options)", async () => {
     await openPair(pairing);
-    const ids = [...document.body.querySelectorAll("[id]")].map((el) => el.id);
-    expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
+    expect(repeatedIds()).toEqual([]);
   });
 
-  it.fails("T-254 fixes: no element id repeats when both viewers show the Developer drawer", async () => {
+  // T-254: every id is made per viewer, so with both viewers showing their info panel and their Developer drawer (every fold open) no id repeats.
+  it("T-254: no element id repeats when both viewers show the Developer drawer and the info panel", async () => {
     const first = await pairing.first.open({ developerTools: true });
     open.push(first);
     const second = await pairing.second.open({ developerTools: true });
     open.push(second);
-    const ids = [...document.body.querySelectorAll("[id]")].map((el) => el.id);
-    expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
+    for (const viewer of [first, second]) {
+      viewer.element.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]')!.click();
+      viewer.element.querySelector<HTMLButtonElement>(".object-info-toggle")!.click();
+      await vi.waitFor(() => expect(viewer.element.querySelector(".developer-heading")).not.toBeNull());
+      await vi.waitFor(() => expect(viewer.element.querySelector(".info-panel")).not.toBeNull());
+      for (let pass = 0; pass < 3; pass += 1) for (const fold of viewer.element.querySelectorAll<HTMLButtonElement>('.developer-tools button[aria-expanded="false"]')) fold.click();
+    }
+    expect(document.body.querySelectorAll(".info-panel")).toHaveLength(2);
+    expect(repeatedIds()).toEqual([]);
   });
 
   it("T-251: two scenes of the same planet's moons at different years both get their moons", async () => {
@@ -342,7 +351,7 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     const without = await pairing.second.open({ developerTools: false });
     open.push(without);
     const cog = (viewer: Viewer) => viewer.element.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]');
-    const drawer = (viewer: Viewer) => viewer.element.querySelector("#developer-tools");
+    const drawer = (viewer: Viewer) => viewer.element.querySelector(".developer-tools");
     expect(cog(withTools)).not.toBeNull();
     expect(cog(without)).toBeNull();
     expect(drawer(without)).toBeNull();

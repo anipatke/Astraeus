@@ -79,7 +79,7 @@ describe("an Escape the host already handled", () => {
   it("leaves an open phone drawer open, and an unprevented one closes it", () => {
     m = mountShell({ phone: true });
     press($(m.container, "button.controls-pill"));
-    const open = () => $(m.container, "#controls-drawer").getAttribute("data-open") === "true";
+    const open = () => $(m.container, ".controls-drawer").getAttribute("data-open") === "true";
     const release = hostTakesEscape();
     pressKey(document, "Escape");
     expect(open()).toBe(true);

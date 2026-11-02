@@ -2,9 +2,10 @@
 id: T-254
 title: Give every viewer element its own id
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-253, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-254, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T09:30:32Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -57,8 +58,27 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (path, reason): `packages/astraeus/src/shell/Collapsible.tsx` and `src/app/SettingControls.tsx` (their `id` props were what the scan flagged for the fold and setting-group call sites), `packages/astraeus/tests/domSetup.ts` and `developerToolsOption.test.ts` (to build the new test on the same stand-ins), `docs/agents/browser-policy.md` (Context File).
+
+Changes. Ids made with `useId` in the nearest owner: `AstraeusShell` makes the info panel id once and passes it to `InfoPanel` (`id`), `TopBar` -> `ObjectControls` and `TimelineBar` -> `TimelineExpanded` (`infoPanelId`); `DeveloperDrawer` makes the drawer id and passes it to `DeveloperToggle` (`drawerId`); `MoonsSheet`, `ControlsDrawer`, `TimelineBar` (drawer), `InfoPanel`/`StoryPanelView` (title) make their own. `Collapsible`'s `id` prop is now `fold` (it was a storage key and `data-fold` hook, never a DOM id; the DOM ids were already `useId`) and `SettingGroup`'s `id` is now `name`, drawn as `data-setting-group` with a `useId` title id. New `HudSection` (SettingControls.tsx) draws the three developer-drawer sections' per-viewer heading ids (`App` sections, `FrameRateSection`, Scene instrumentation). 35 allowlist entries removed (`apiIsolation.allowlist.json` 425 -> 390; only the `bootLoader.ts` `#boot` lookup remains for T-255). `node tools/api-rules.mjs ids` lists only that entry.
+
+Entry paths covered (each in the table tests): `mount`, `AstraeusScene`, `App` (default synthetic definition); wide screen and phone; info panel, story panel, Developer drawer with every fold open, controls and timeline drawers (phone), moon sheet and moon list (shell with a moon list, wide and phone).
+
+Tests moved off fixed ids (class / `data-*` within the viewer): `domShell`, `domPhone`, `displaySwitches`, `appScreenDom`, `publicApiStory`, `hostPageDom`, `developerSettingsDom`, `developerToolsOption`, `twoViewers`, `packages/astraeus-demo-planets/tests/domMoonPanel.test.ts`. Updated for the renamed props: `collapsible`, `domPhone` (Collapsible `fold`), `infoCards` (`id`), `timelineMarkerGroups` (`infoPanelId`). `packages/astraeus-site/tests/homePage.test.ts` looks up the demo site's own page nodes (`fit-data`, `fit-photos`, `fit-recipe`), not a viewer part, so it is unchanged. Driver (`packages/astraeus-site/tools/validate/driver.mjs`): `#info-panel` -> `.info-panel` (HOOK.infoPanel, infoClose, the five other uses) and `button[aria-controls="moons-panel"]` -> `button.moons-toggle` (two places); `browserDriverGuard.test.ts` passes. No browser run.
+
+| Done When | Evidence |
+|---|---|
+| 35 `.tsx` id entries fixed with `useId`, removed from the allowlist; shared ids made once in the common owner; bootLoader entry stays; `idLiteralBreaks()` lists only it | `node tools/api-rules.mjs ids` prints only `shell/bootLoader.ts: document.getElementById("boot")`; allowlist 425 -> 390 (35 removed, pure deletion); `apiRules`, `apiSurface`, `allowlistGrowth` tests pass inside `npm test` |
+| aria pairs resolve inside the same viewer, one table, through mount, AstraeusScene, App | `packages/astraeus/tests/viewerIds.test.ts` (APP_PAIRS, MOON_PAIRS, plus a sweep of every `aria-controls`/`labelledby`/`describedby`/`for` in the viewer): 16 tests pass; ran 10x with `twoViewers.test.ts`, 63 passed each time |
+| twoViewers id-repeat case passes for every pairing, `it.fails` removed, both viewers with info panel, Developer drawer (folds open) | `twoViewers.test.ts`: "T-254: no element id repeats when both viewers show the Developer drawer and the info panel" over all pairings; passes (47 passed, 6 todo); marker removed. The story panel, moons panel and phone drawers are in the viewerIds table instead (the two-viewer scene has no story panel or moon list) |
+| Tests find parts by role, class or `data-*`; driver finds the info panel by class; guard passes | files listed above; viewerIds test "the browser driver finds parts without ids" fails on any `#id` in driver.mjs other than `#boot` (T-255) and the site page's `#curve-fits`, and the driver selectors are the ones the pair table finds in the rendered DOM (`.info-panel`, `.moons-toggle`, `.moons-sheet`, `.controls-drawer`, `.timeline-drawer`, `.developer-tools`) |
+| Nothing public moved | `git diff --exit-code -- packages/astraeus/api-surface.lock.json` empty; the three named test files pass inside `npm test`; no CHANGELOG entry needed (no public surface change) |
+| Gates | `npm run lint` clean; `npm run typecheck` clean; `npm run build` ok; `npm test`: 196 files, 2447 passed, 1 skipped, 6 todo |
+
+Unverified: the driver change itself (no browser run, per the Task); the phone controls/timeline drawers' pairs are proved in jsdom-style happy-dom, not a browser.
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- Collapsible's `id` prop became `fold` and SettingGroup's `id` became `name` (internal, not public API), plus new `HudSection`; tests find developer groups by `[data-setting-group]` and `[data-fold-toggle]` rather than ids. For T-258: not architectural beyond "every viewer element id is made per viewer with `useId` in the nearest owner and passed down" (API-03).

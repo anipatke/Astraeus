@@ -149,9 +149,9 @@ describe("the Developer tools", () => {
   it("stay unloaded until opened, then show a loading note, then the folds with the first open", async () => {
     await open();
     expect(container.querySelector(".hud")).toBeNull();
-    expect(container.querySelector("#developer-tools")!.hasAttribute("hidden")).toBe(true);
+    expect(container.querySelector(".developer-tools")!.hasAttribute("hidden")).toBe(true);
     await openDeveloper();
-    expect(container.querySelector("#developer-tools")!.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector(".developer-tools")!.hasAttribute("hidden")).toBe(false);
     expect(container.querySelector(".developer-heading h2")!.textContent).toBe("Developer tools");
     const titles = [...container.querySelectorAll(".dev-group")].map((g) => g.querySelector("summary, h3, button")?.textContent);
     expect(titles.join("|")).toMatch(/Camera and view/);

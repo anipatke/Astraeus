@@ -111,7 +111,7 @@ describe("the moon panel", () => {
 describe("the moons sheet and the information panel (browser-moon-panel M7)", () => {
   let shell: Mounted | undefined;
   afterEach(() => { shell?.unmount(); shell = undefined; });
-  const sheetOpen = (m: Mounted) => $(m.container, "#moons-panel").getAttribute("data-open");
+  const sheetOpen = (m: Mounted) => $(m.container, ".moons-sheet").getAttribute("data-open");
 
   it("draws the moon list after its on-demand load when the experience has moon families, and not otherwise (I-089)", async () => {
     shell = mountShell({ experience: jupiterIoExplorer.experience });
@@ -129,12 +129,12 @@ describe("the moons sheet and the information panel (browser-moon-panel M7)", ()
     const toggle = $(shell.container, ".moons-toggle");
     press(toggle);
     expect(sheetOpen(shell)).toBe("true");
-    expect(shell.container.querySelector("#info-panel")).toBeNull();
+    expect(shell.container.querySelector(".info-panel")).toBeNull();
     selectObject(shell.container, "io");
-    expect(shell.container.querySelector("#info-panel")).not.toBeNull();
+    expect(shell.container.querySelector(".info-panel")).not.toBeNull();
     expect(sheetOpen(shell)).toBe("false");
     press(toggle);
     expect(sheetOpen(shell)).toBe("true");
-    expect(shell.container.querySelector("#info-panel")).toBeNull();
+    expect(shell.container.querySelector(".info-panel")).toBeNull();
   });
 });

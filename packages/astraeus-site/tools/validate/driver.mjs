@@ -15,8 +15,8 @@ import assert from "node:assert/strict";
 
 /** Structural hooks used only where a control has no accessible name or data attribute. One place, so one repair. */
 const HOOK = {
-  infoPanel: "#info-panel",
-  infoClose: "#info-panel .info-panel-close",
+  infoPanel: ".info-panel",
+  infoClose: ".info-panel .info-panel-close",
   provenanceBadge: ".provenance-badge",
   provenanceDetail: ".provenance",
   sourcesSection: ".sources-section",
@@ -75,7 +75,7 @@ export async function closeTimelineDrawer(page) {
   if ((await handle.count()) > 0 && (await handle.getAttribute("aria-expanded")) === "true") { await handle.click(); await page.locator(`${HOOK.timelineDrawer}[data-open="false"]`).waitFor({ state: "attached" }); }
 }
 /** Waits until no drawer or sheet is still sliding (a control that is about to be hidden still counts as showing while it moves). */
-const drawersSettled = (page) => page.waitForFunction((hooks) => [...document.querySelectorAll(hooks)].every((element) => element.getAnimations().every((animation) => animation.playState !== "running")), `${HOOK.controlsDrawer}, ${HOOK.timelineDrawer}, #info-panel, ${HOOK.storyPanel}`);
+const drawersSettled = (page) => page.waitForFunction((hooks) => [...document.querySelectorAll(hooks)].every((element) => element.getAnimations().every((animation) => animation.playState !== "running")), `${HOOK.controlsDrawer}, ${HOOK.timelineDrawer}, .info-panel, ${HOOK.storyPanel}`);
 /** Makes the control a locator names reachable: opens the top drawer, then the timeline drawer, until it shows. Returns the locator. */
 async function reveal(page, locator) {
   if (await isPhoneLayout(page)) await drawersSettled(page);
@@ -674,7 +674,7 @@ export const seekPositionIso = (page) => seekSlider(page).evaluate((input) => ne
 export const closeStoryPanelIfOpen = (page, timeout = 1500) => page.locator(".story-panel-close").click({ timeout }).catch(() => {});
 export const closeStoryPanelNow = (page) => page.evaluate(() => { for (const b of document.querySelectorAll('button[aria-label="Close story panel"]')) b.click(); });
 /** Closes any open panel (story or information) from inside the page, whatever is covering it. */
-export const closeAllPanelsNow = (page) => page.evaluate(() => { for (const b of document.querySelectorAll('button[aria-label="Close story panel"], #info-panel .info-panel-close')) b.click(); });
+export const closeAllPanelsNow = (page) => page.evaluate(() => { for (const b of document.querySelectorAll('button[aria-label="Close story panel"], .info-panel .info-panel-close')) b.click(); });
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // The Scale control, as the top bar presents it (a toggle for two scales, a menu for three, nothing at all for one scale) and its ⓘ explanation
@@ -887,7 +887,7 @@ export const waitForFrameGraphLine = (page, options) => frameRate(page).locator(
 
 /** The bounds of the shell's main parts that are showing: `{selector, left, top, right, bottom}` each. */
 export const shellBounds = async (page) => { await drawersSettled(page); return page.evaluate(() => {
-  const selectors = [".shell-toolbar", ".developer-mode-toggle", ".timeline-bar", "#info-panel"];
+  const selectors = [".shell-toolbar", ".developer-mode-toggle", ".timeline-bar", ".info-panel"];
   return selectors.flatMap((selector) => {
     const element = document.querySelector(selector);
     if (!element || getComputedStyle(element).display === "none" || getComputedStyle(element).visibility === "hidden") return [];
@@ -950,7 +950,7 @@ export async function controlsPillName(page) {
 /** Boxes of the parts of the phone layout, for reading: pill, top drawer, timeline bar, timeline handle, play button. */
 export const phoneBoxes = async (page) => { await drawersSettled(page); return page.evaluate(({ pill, drawer, handle, controlsHandle }) => {
   const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
-  return { pill: box(pill), drawer: box(drawer), bar: box(".timeline-bar"), handle: box(handle), controlsHandle: box(controlsHandle), play: box(".timeline-play"), cog: box(".developer-mode-toggle"), sheet: box("#info-panel"), story: box(".story-panel") };
+  return { pill: box(pill), drawer: box(drawer), bar: box(".timeline-bar"), handle: box(handle), controlsHandle: box(controlsHandle), play: box(".timeline-play"), cog: box(".developer-mode-toggle"), sheet: box(".info-panel"), story: box(".story-panel") };
 }, { pill: HOOK.controlsPill, drawer: HOOK.controlsDrawer, handle: HOOK.timelineHandle, controlsHandle: HOOK.controlsHandle }); };
 
 /** Presses the pill and the handles (a tap). */
@@ -1395,7 +1395,7 @@ export const moonPanel = (page) => page.getByRole("region", { name: /'s moons$/ 
 /** Opens the moon panel: the toggle button on a wide screen, the top drawer on a phone. */
 export async function openMoonPanel(page) {
   if (await isPhoneLayout(page)) { await openControlsDrawer(page); await drawersSettled(page); return; }
-  const toggle = page.locator('button[aria-controls="moons-panel"]');
+  const toggle = page.locator('button.moons-toggle');
   if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="true"]`).waitFor();
   await page.waitForFunction((hook) => document.querySelector(hook).getAnimations().every((animation) => animation.playState !== "running"), MOON_SHEET);
@@ -1403,7 +1403,7 @@ export async function openMoonPanel(page) {
 /** Closes the moon panel (its toggle on a wide screen; the drawer's handle on a phone). */
 export async function closeMoonPanel(page) {
   if (await isPhoneLayout(page)) { await closeControlsDrawer(page); return; }
-  const toggle = page.locator('button[aria-controls="moons-panel"]');
+  const toggle = page.locator('button.moons-toggle');
   if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="false"]`).waitFor({ state: "attached" });
 }
@@ -1664,7 +1664,7 @@ export async function switchPanelFit(page) {
     const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
     const panel = box(document.querySelector(panelHook));
     const crosses = (other) => other.left < panel.right - 0.5 && panel.left < other.right - 0.5 && other.top < panel.bottom - 0.5 && panel.top < other.bottom - 0.5;
-    const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", info: "#info-panel", story: ".story-panel", pill: "button.controls-pill" };
+    const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", info: ".info-panel", story: ".story-panel", pill: "button.controls-pill" };
     const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
     return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
   }, [HOOK.switchPanel]);

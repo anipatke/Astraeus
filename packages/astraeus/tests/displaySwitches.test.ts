@@ -149,7 +149,7 @@ describe("the top bar and the switch panel", () => {
   });
   it("puts the same controls in the phone drawer, closing the drawer after a bar switch", () => {
     m = mountShell({ phone: true, displaySwitches: items() });
-    const drawer = $(m.container, "#controls-drawer");
+    const drawer = $(m.container, ".controls-drawer");
     press($(m.container, "button.controls-pill"));
     expect(drawer.getAttribute("data-open")).toBe("true");
     expect(drawer.querySelector('[aria-label="Orbit lines"]')).not.toBeNull();

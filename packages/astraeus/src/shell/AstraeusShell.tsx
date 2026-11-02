@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
@@ -62,11 +62,12 @@ function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & 
 /** The wide-screen moons toggle and the sheet it opens under the toolbar. */
 /** The Developer cog and its drawer; drawn only when the host gave the drawer's content (absent: neither, so an outside page never sees a developer cog). */
 function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { readonly developerMode: boolean; readonly onDeveloperModeChange: (enabled: boolean) => void; readonly children: ReactNode }) {
+  const drawerId = `${useId()}-developer-tools`;
   if (children === undefined) return null;
   return (
     <>
-      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} />
-      <aside className="developer-tools" id="developer-tools" data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
+      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} drawerId={drawerId} />
+      <aside className="developer-tools" id={drawerId} data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
         {developerMode ? children : null}
       </aside>
     </>
@@ -74,12 +75,13 @@ function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { r
 }
 
 function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly onToggle: () => void; readonly onClose: () => void; readonly children: ReactNode }) {
+  const sheetId = `${useId()}-moons-panel`;
   return (
     <>
-      <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls="moons-panel" onClick={onToggle}>
+      <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls={sheetId} onClick={onToggle}>
         {planetLabel} moons
       </button>
-      <aside id="moons-panel" className="moons-sheet" data-open={open} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+      <aside id={sheetId} className="moons-sheet" data-open={open} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
         {children}
       </aside>
     </>
@@ -218,6 +220,7 @@ export function AstraeusShell({
   pickRequest,
   children,
 }: Props) {
+  const infoPanelId = `${useId()}-info-panel`;
   const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
   const phone = usePhone();
   /** Fixed for the page: a frame does not appear or vanish while the app runs. */
@@ -399,6 +402,7 @@ export function AstraeusShell({
       onCameraPreset={activatePreset}
       infoOpen={info?.kind === "object"}
       onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
+      infoPanelId={infoPanelId}
       scaleId={scaleId}
       onScaleChange={onScaleChange}
       scaleChoices={scaleChoices}
@@ -423,7 +427,7 @@ export function AstraeusShell({
       <div className="shell-top">
         {!phone && topBar}
         {!phone && moonPanel !== null && <MoonsSheet planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} onToggle={toggleMoons} onClose={() => setMoonsOpen(false)}>{moonPanel}</MoonsSheet>}
-        {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} />}
+        {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} id={infoPanelId} />}
       </div>
       {story.openPanel !== null && (
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
@@ -445,6 +449,7 @@ export function AstraeusShell({
         onWindowSeek={seekToWindow}
         onWindowInfo={(window) => setInfo({ kind: "window", id: window.id })}
         glowLook={timelineGlow}
+        infoPanelId={infoPanelId}
         drawer={phone ? { open: timelineOpen, onOpenChange: openTimeline, swipeThresholdPx: phoneLayout.swipeThresholdPx } : undefined}
       />
     </main>

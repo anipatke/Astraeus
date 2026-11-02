@@ -18,7 +18,7 @@ beforeEach(() => { pretendScreen({}); window.localStorage.clear(); vi.resetModul
 afterEach(() => { stop(); host.remove(); window.history.replaceState(null, "", "/"); });
 
 const toggle = () => host.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]');
-const aside = () => host.querySelector("#developer-tools");
+const aside = () => host.querySelector(".developer-tools");
 /** The viewer's modules, loaded fresh (so the mock above counts this row only). */
 async function modules() {
   const [{ createElement: h }, { createRoot }, { flushSync }, { Scene }, bodies, api, scene, app, synthetic] = await Promise.all([
@@ -90,7 +90,7 @@ describe("developerTools: every entry path to the Developer drawer", () => {
       toggle()!.click();
       await vi.waitFor(() => expect(host.querySelector(".developer-heading h2")?.textContent).toBe("Developer tools"));
       // The folds draw their bodies only when open: open them all, and the panels' module is fetched by the first one drawn.
-      for (const fold of host.querySelectorAll<HTMLButtonElement>('#developer-tools button[aria-expanded="false"]')) fold.click();
+      for (const fold of host.querySelectorAll<HTMLButtonElement>('.developer-tools button[aria-expanded="false"]')) fold.click();
       await vi.waitFor(() => expect(loads.drawer).toBe(1));
     } else {
       await new Promise((resolve) => setTimeout(resolve, 20)); // a negative: give any stray fetch a turn to start

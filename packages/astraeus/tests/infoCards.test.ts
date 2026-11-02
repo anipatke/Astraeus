@@ -19,7 +19,7 @@ const view: InfoView = {
 } as InfoView;
 
 describe("info cards", () => {
-  const html = renderToStaticMarkup(createElement(InfoPanel, { view, metrics: [], onClose: () => undefined }));
+  const html = renderToStaticMarkup(createElement(InfoPanel, { view, metrics: [], onClose: () => undefined, id: "info" }));
 
   it("shows the subtitle as a badge", () => {
     expect(html).toMatch(/<span class="info-panel-badge">crater on Callisto<\/span>/);

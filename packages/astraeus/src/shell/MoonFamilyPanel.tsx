@@ -75,11 +75,11 @@ export function MoonFamilyPanel({ list, highlightedFamily, onHighlight, onSelect
             const { named, unnamed } = splitNamed(family.moons);
             return (
               <div key={family.id} className="moon-family" data-moon-family={family.id} data-lit={highlightedFamily === family.id}>
-                <Collapsible id={`moons-${family.id}`} title={`${family.label} (${family.moons.length})`} remember={false} nested onOpenChange={(open) => toggleLight(family, open)}>
+                <Collapsible fold={`moons-${family.id}`} title={`${family.label} (${family.moons.length})`} remember={false} nested onOpenChange={(open) => toggleLight(family, open)}>
                   <p className="moon-note">{family.description}</p>
                   {named.length > 0 && <ul className="moon-list">{named.map((moon) => moonButton(moon))}</ul>}
                   {unnamed.length > 0 && (
-                    <Collapsible id={`moons-${family.id}-unnamed`} title={`+${unnamed.length} unnamed`} remember={false} level={4} nested>
+                    <Collapsible fold={`moons-${family.id}-unnamed`} title={`+${unnamed.length} unnamed`} remember={false} level={4} nested>
                       <ul className="moon-list">{unnamed.map((moon) => moonButton(moon))}</ul>
                     </Collapsible>
                   )}

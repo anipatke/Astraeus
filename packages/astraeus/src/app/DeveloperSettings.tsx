@@ -12,7 +12,7 @@ import type { FrameSnapshot } from "./frameStats";
 import type { ExperienceDefinition } from "./experienceDefinition";
 import { formatView, type StartView } from "./viewLink";
 import type { ViewUp } from "./viewUp";
-import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 
 /** The Developer tools' settings bodies that App.tsx hands whole to its folds; each only reads its props and writes the scene's live controls. */
 type Controls = MutableRefObject<SceneControls>;
@@ -24,7 +24,7 @@ export function StoryPanelSettings({ storyAutoOpen, setStoryAutoOpen, storyPause
   readonly setStoryPauseSeconds: (seconds: number) => void;
 }) {
   return (
-    <SettingGroup id="story-panels" title="Story panels">
+    <SettingGroup name="story-panels" title="Story panels">
               <SettingButtons>
                 <button aria-pressed={storyAutoOpen} onClick={() => setStoryAutoOpen(!storyAutoOpen)}>Open panels automatically</button>
               </SettingButtons>
@@ -48,14 +48,14 @@ export function MoonsAndRingsSettings({ bodySets, ringSystems, setLook, changeSe
   return (
         <>
           {bodySets.length > 0 && (
-            <SettingGroup id="body-set-dots" title="Small moons">
+            <SettingGroup name="body-set-dots" title="Small moons">
               <SettingSlider label="Dot size (px)" ariaLabel="Small moon dot size" testId="body-set-dot-px" display={setLook.dotPx.toFixed(1)} min={BODY_SET_LOOK_LIMITS.dotPx.min} max={BODY_SET_LOOK_LIMITS.dotPx.max} step={0.5} value={setLook.dotPx} onChange={(dotPx) => changeSetLook({ dotPx })} />
               <SettingColor label="Dot colour" ariaLabel="Small moon dot colour" testId="body-set-dot-color" value={setLook.dotColor} onChange={(dotColor) => changeSetLook({ dotColor })} />
               <SettingSlider label="Name when ball is (px)" ariaLabel="Small moon name distance" testId="body-set-label-px" display={setLook.labelNearPx.toFixed(0)} min={BODY_SET_LOOK_LIMITS.labelNearPx.min} max={BODY_SET_LOOK_LIMITS.labelNearPx.max} step={1} value={setLook.labelNearPx} onChange={(labelNearPx) => changeSetLook({ labelNearPx })} />
             </SettingGroup>
           )}
           {bodySets.length > 0 && (
-            <SettingGroup id="body-set-orbits" title="Moon orbits by family">
+            <SettingGroup name="body-set-orbits" title="Moon orbits by family">
               <SettingButtons>
                 <button aria-pressed={setLook.orbitsOn} onClick={() => changeSetLook({ orbitsOn: !setLook.orbitsOn })}>Moon orbits</button>
               </SettingButtons>
@@ -72,7 +72,7 @@ export function MoonsAndRingsSettings({ bodySets, ringSystems, setLook, changeSe
             </SettingGroup>
           )}
           {ringSystems.map((rings) => (
-            <SettingGroup key={rings.body} id={`rings-${rings.body}`} title="Rings">
+            <SettingGroup key={rings.body} name={`rings-${rings.body}`} title="Rings">
               {ringBandsWithLook(rings, ringLook).map((band) => (
                 <div key={band.id}>
                   <SettingColor label={band.label} ariaLabel={`${band.label} colour`} testId={`ring-${band.id}-color`} value={band.color} onChange={(color) => changeRing(band.id, { color })} />
@@ -105,13 +105,13 @@ export function SkyAndSunSettings({ illuminateAll, setIlluminateAll, visible, gl
 }) {
   return (
         <>
-          <SettingGroup id="lighting" title="Lighting">
+          <SettingGroup name="lighting" title="Lighting">
             <SettingButtons>
               <button aria-pressed={illuminateAll} aria-label="Illuminate all" onClick={() => { controls.current.illuminateAll = !illuminateAll; setIlluminateAll(!illuminateAll); }}>Illuminate all</button>
             </SettingButtons>
           </SettingGroup>
           {visible && (
-            <SettingGroup id="sky" title="Sky">
+            <SettingGroup name="sky" title="Sky">
               <SettingButtons>
                 <button aria-pressed={milkyWayOn} onClick={() => { controls.current.showMilkyWay = !milkyWayOn; setMilkyWayOn(!milkyWayOn); }}>Milky Way picture</button>
               </SettingButtons>
@@ -122,7 +122,7 @@ export function SkyAndSunSettings({ illuminateAll, setIlluminateAll, visible, gl
             </SettingGroup>
           )}
           {glowShown !== null && (
-            <SettingGroup id="glow" title="Sun glow">
+            <SettingGroup name="glow" title="Sun glow">
               <SettingSlider label="Glow size (px)" ariaLabel="Sun glow size" testId="sun-glow-size-value" display={glowShown.sizePx.toFixed(0)} min={GLOW_LIMITS.sizePx.min} max={GLOW_LIMITS.sizePx.max} step={1} value={glowShown.sizePx}
                 onChange={(value) => { controls.current.glowLook!.sizePx = value; setGlowShown({ ...controls.current.glowLook! }); }} />
               <SettingSlider label="Glow brightness" ariaLabel="Sun glow brightness" testId="sun-glow-brightness-value" display={glowShown.brightness.toFixed(2)} min={GLOW_LIMITS.brightness.min} max={GLOW_LIMITS.brightness.max} step={0.05} value={glowShown.brightness}
@@ -197,14 +197,13 @@ export function UnderTheHoodSettings({ hud, frames, fills, fpsHistory, alternate
   return (
         <>
           {hud !== null && (
-            <section className="hud-section" aria-labelledby="developer-scene-heading">
-              <h4 id="developer-scene-heading">Scene instrumentation</h4>
+            <HudSection level={4} heading="Scene instrumentation">
               <DebugOverlay readout={hud} />
-            </section>
+            </HudSection>
           )}
           <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
           {alternates !== undefined && alternates.length > 0 && (
-            <SettingGroup id="data" title="Data">
+            <SettingGroup name="data" title="Data">
               <SettingButtons>
                 {alternates?.map((alternate) => (
                   <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {

@@ -22,7 +22,7 @@ import { PanelLoadBoundary } from "./PanelLoadBoundary";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
-import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
@@ -474,10 +474,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   });
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (
-    <section key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} aria-labelledby={`developer-${section.id}-heading`}>
-      <h3 id={`developer-${section.id}-heading`}>{section.heading}</h3>
+    <HudSection key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} level={3} heading={section.heading}>
       {section.render(experienceRuntime)}
-    </section>
+    </HudSection>
   );
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, orbitPaths.length, storyMarkerSpecs.length);
@@ -538,7 +537,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       id: "timeline", title: "Timeline and stories",
       body: (
         <>
-          <SettingGroup id="timeline-glow" title="Timeline glow">
+          <SettingGroup name="timeline-glow" title="Timeline glow">
             <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
             <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={timelineGlow.playedColor} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
             {([
@@ -571,7 +570,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
             <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
           </SettingButtons>
           {orbitSliders.main.map(orbitSlider)}
-          <Collapsible id="orbit-fine-tune" title="Fine-tune" level={4} nested>
+          <Collapsible fold="orbit-fine-tune" title="Fine-tune" level={4} nested>
             {orbitSliders.fine.map(orbitSlider)}
           </Collapsible>
           <SettingButtons>
@@ -636,7 +635,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
         <p>Live readouts, controls and diagnostics for this scene.</p>
       </header>
       {presentGroups.map((group, index) => (
-        <Collapsible key={group.id} id={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
+        <Collapsible key={group.id} fold={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
           {group.body}
         </Collapsible>
       ))}

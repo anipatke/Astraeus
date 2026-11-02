@@ -1,3 +1,4 @@
+import { HudSection } from "./SettingControls";
 import { FRAME_BUDGET_MS, fpsTone, frameTone, type FrameSnapshot, type Tone } from "./frameStats";
 
 export interface GroupFill {
@@ -63,8 +64,7 @@ function overTone(frames: FrameSnapshot): Tone {
 
 export function FrameRateSection({ frames, fills, fpsHistory = [] }: { readonly frames: FrameSnapshot | null; readonly fills: readonly GroupFill[]; readonly fpsHistory?: readonly number[] }) {
   return (
-    <section className="hud-section hud-section-frame" aria-labelledby="developer-frame-rate-heading" data-testid="frame-rate">
-      <h4 id="developer-frame-rate-heading">Frame rate</h4>
+    <HudSection className="hud-section hud-section-frame" level={4} heading="Frame rate" testId="frame-rate">
       <div className="frame-body">
       {frames === null || frames.frames === 0 ? <p>Measuring…</p> : (
         <dl className="frame-readouts" aria-label="Frame timing">
@@ -82,6 +82,6 @@ export function FrameRateSection({ frames, fills, fpsHistory = [] }: { readonly 
       )}
       </div>
       <p>These figures are for this browser and machine, measured over the last second or so.</p>
-    </section>
+    </HudSection>
   );
 }
