@@ -2,16 +2,21 @@
 id: I-138
 title: The listener scan does not cover the selection part
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-141
   actor: {role: checker, session: o054-check-20261101}
   at: '2026-11-01T09:55:00Z'
 tasks: [T-244, T-247]
-checks: [C-141, C-142]
+checks: [C-141, C-142, C-143]
 guardrail_ids: [TEST-01, API-02]
 severity: low
+resolution:
+  disposition: verified
+  check: C-143
+  actor: {role: checker, session: o054-recheck2-20261102}
+  at: '2026-11-02T08:33:00Z'
 history:
   - at: '2026-11-01T09:55:00Z'
     actor: {role: checker, session: o054-check-20261101}
@@ -27,6 +32,11 @@ history:
     kind: rechecked
     note: 'Recheck C-142 (NEEDS WORK, for I-137) at HEAD 9f5a726d: Proof Needed met. The scan set is derived (viewerCamera, viewerClock, viewerLink, viewerSelection, viewerZones) with the known four guarded; planted break B (for-of loop in ViewerSelection.publish) fails 2 listeners.test.ts cases (scan names viewerSelection.ts; the throwing-onSelect link case); variant [...this.#listeners].forEach fails the callListeners( requirement and the link case; both restored, git diff --quiet. Left open only because C-142 is NEEDS WORK; verified closure goes with the CLEAR Check, as for I-049/C-092.'
     check: C-142
+  - at: '2026-11-02T08:33:00Z'
+    actor: {role: checker, session: o054-recheck2-20261102}
+    kind: rechecked
+    note: 'Recheck C-143 (CLEAR) at HEAD 46d73ad0: repair unchanged since C-142, where Proof Needed was met. Planted break B (for-of loop in ViewerSelection.publish) re-run: listeners.test.ts + lifecycle.test.ts 2 failed, 42 passed (scan names viewerSelection.ts; throwing-onSelect link case); restored, git diff --quiet. Verified.'
+    check: C-143
 ---
 
 # I-138: The listener scan does not cover the selection part

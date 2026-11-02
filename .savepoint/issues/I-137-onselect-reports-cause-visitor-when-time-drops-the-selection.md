@@ -2,16 +2,21 @@
 id: I-137
 title: onSelect reports cause visitor when time drops the selection
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-141
   actor: {role: checker, session: o054-check-20261101}
   at: '2026-11-01T09:55:00Z'
 tasks: [T-247]
-checks: [C-141, C-142]
+checks: [C-141, C-142, C-143]
 guardrail_ids: [API-02, ARCH-02]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-143
+  actor: {role: checker, session: o054-recheck2-20261102}
+  at: '2026-11-02T08:33:00Z'
 history:
   - at: '2026-11-01T09:55:00Z'
     actor: {role: checker, session: o054-check-20261101}
@@ -31,6 +36,11 @@ history:
     actor: {role: executor, session: o054-repair-2}
     kind: repair_attempted
     note: 'Second repair (executor, o054-repair-2; owner 2026-11-02 ''make the fix''), fixing C-142 R8. Root cause: the shell''s onSelectionChange took an optional byMove flag that only the fallback drop set, so any other move-driven path defaulted to visitor. Now the argument is a required SelectionOrigin (''visitor'' | ''move'') in AstraeusShell, so a new path cannot omit it; App.updateSelectedObject publishes with origin === ''move''. Path table (path -> who moved it -> expected cause): (1) menu choice selectObject -> visitor -> visitor; (2) activatePreset (Focus/Follow button, scene pick via pickObject, moon panel, event marker) -> visitor -> visitor; (3) mirror effect onSelectionChange(selectedObjectId) -> no change vs the ref, never reports; (4) fallback drop in the move-driven effect (object hidden by a view, or unavailable at the new time) -> last mover of clock/view -> host for setTime/setView, playback for ticks, visitor for a visitor seek or view button; marked ''move''; (5) applyViewRule framing target (view camera focus/follow, only called from the move-driven effect) -> last mover of the view -> same as (4); was unmarked, now ''move'' (the regression); (6) star/sky object-list change (O2 in C-142): reaches only (4) via the experience dependency, so it takes the last mover; not separately driven (no DOM path). Tests: selectionCauseDom.test.ts is now table-driven, 9 rows x mount and AstraeusScene on a real Scene + real prepareScene: host setView plain drop, visitor view switch plain drop, host setView to a framing view, visitor switch to a framing view, host setTime past end, playback past end, visitor seek, visitor pick, no change. Red before: with src stashed, the two host-framing-view rows fail (got [pa visitor, earth host], pb report missing/visitor) and the other 16 pass; green after: 18 of 18. Gates: lint, typecheck, build pass; npm test 191 files, 2351 passed, 1 skipped; selectionCauseDom + viewerHostDom + lifecycle 10x loop, 84 passed each run, 0 failures. Design T-247 note and viewerPort doc comment updated; public surface unchanged (no lock change). Not verified: browser (not run); not a Check; sky object-list path (6) not driven.'
+  - at: '2026-11-02T08:33:00Z'
+    actor: {role: checker, session: o054-recheck2-20261102}
+    kind: rechecked
+    note: 'Recheck C-143 (CLEAR) at HEAD 46d73ad0: C-142 R8 fixed. onSelectionChange now takes a required SelectionOrigin (visitor|move); an omitted origin fails tsc (planted onSelectionChange(target.id) at AstraeusShell.tsx:292 gives TS2554). Independent enumeration of every selection path in src/shell and src/app (selectObject, activatePreset via Focus/Follow, moon panel, canvas pick, event seek -> visitor; mirror effect never reports; fallback drop and applyViewRule -> move) matches the builder table. Probe zzC143probe (real Scene, mount and AstraeusScene): P6a host setTime -> host; P6b/P6b2 playback -> playback; P6c visitor seek -> visitor; P6d visitor pick -> visitor; P6e host then visitor view drop -> host, visitor; P6f no change -> no report; V1 host setView to a focus-rule view -> [earth host, pb host] (C-142: pb visitor); follow rule, stay rule, unavailable framing target, while playing, then visitor pick or seek all correct. selectionCauseDom fails exactly the 2 host framing rows on f8646234 source and passes 18/18 on HEAD. Gates pass (test:full x2 2351 passed; check:browser once). Verified.'
+    check: C-143
 ---
 
 # I-137: onSelect reports cause visitor when time drops the selection
