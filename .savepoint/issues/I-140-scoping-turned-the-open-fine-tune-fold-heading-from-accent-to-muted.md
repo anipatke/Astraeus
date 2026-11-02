@@ -2,16 +2,22 @@
 id: I-140
 title: Scoping turned the open Fine-tune fold heading from accent to muted
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-144
   actor: {role: checker, session: o055-check-20261102}
   at: '2026-11-02T10:45:00Z'
 tasks: [T-256, T-257]
-checks: [C-144]
+checks: [C-144, C-145]
 guardrail_ids: [API-03, TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-145
+  actor: {role: checker, session: o055-recheck-20261102}
+  at: '2026-11-02T11:05:00Z'
+  reason: 'C-145 CLEAR: open nested fold heading is accent again (C-144 cascade probe 16/16 cells, 0 differences vs main); computedLook.test.ts fails on the planted flip (8/8 synthetic cells, element named) and on the all-:where font-weight variant; its baseline equals main''s look apart from the intended page-rule moves.'
 history:
   - at: '2026-11-02T10:45:00Z'
     actor: {role: checker, session: o055-check-20261102}
@@ -23,6 +29,11 @@ history:
     kind: repair_attempted
     check: C-144
     note: 'Repair, not verified. (1) packages/astraeus/src/app/style.css: the nested-fold rule is split; font-weight keeps `.astraeus-shell .hud .collapsible-nested .collapsible-toggle`, the colour is `.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle` so `button[aria-expanded=true]:not(.ui-bare)` wins as on main (an all-:where() first attempt flipped font-weight 500 to 650; the lock caught it). (2) New packages/astraeus/tests/computedLook.test.ts renders the real App (4 layouts x site/mount bundle order x synthetic/listed definition, every fold and panel open, 16 scenarios) and compares every element''s computed style (56 properties) with the checked-in tests/fixtures/computed-look.baseline.json; `npm run look:lock` (tools/look-lock.mjs) regenerates it for an intended look change. Red before: with the colour rule back at `.astraeus-shell .hud .collapsible-nested .collapsible-toggle`, 8 of 16 scenarios fail naming `button.ui-row.collapsible-toggle | color: #fc6323 -> #c7bdb3`. Green after: 16 pass. Baseline checked against main: the C-144 cascade probe (main sheets vs tree) passes 19/19 with 0 differences after the fix. npm test 203 files, 2514 passed, 2 skipped; check:engine-alone 138 files, 1536 passed; the new test file 10 of 10 runs green. Limits: happy-dom cascade, no :hover/:focus; the baseline records the current look, so it proves no flip from here on, and equality with main was shown by the probe, not by the baseline.'
+  - at: '2026-11-02T11:05:00Z'
+    actor: {role: checker, session: o055-recheck-20261102}
+    kind: rechecked
+    check: C-145
+    note: 'Verified by C-145 CLEAR (Full Objective re-check of O-055 at 009554b0): cascade probe 56/56 (0 differences in all 16 cells); M1 and M1b mutations fail the look lock; L1 shows the baseline is main''s look apart from the intended html/body/root-background moves. Regeneration weak points (look:lock rewrites without a prompt; LOOK_UPDATE=1 in env bypasses the lock) recorded as C-145 Observation 2, non-blocking.'
 ---
 
 # I-140: Scoping turned the open Fine-tune fold heading from accent to muted

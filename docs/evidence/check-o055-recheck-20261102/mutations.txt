@@ -1,0 +1,94 @@
+Run: npx vitest run packages/astraeus/tests/computedLook.test.ts packages/astraeus/tests/loadingCoverFrame.test.ts packages/astraeus-site/tests/loadingCoverChain.test.ts (each mutation applied with sed, then git checkout -- packages)
+=== baseline (unmutated)
+ Test Files  3 passed (3)
+      Tests  19 passed | 1 skipped (20)
+=== M1 I-140: colour back on the (0,4,0) rule (the 86001f4d form)
+-.astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; }
++.astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; color: var(--ui-muted); }
+     × desktop / site order / synthetic 512ms
+     × desktop / mount order / synthetic 328ms
+     × phone / site order / synthetic 349ms
+     × phone / mount order / synthetic 325ms
+     × embedded-desktop / site order / synthet… 300ms
+     × embedded-desktop / mount order / synthe… 325ms
+     × embedded-phone / site order / synthetic 330ms
+     × embedded-phone / mount order / synthetic 326ms
++   "181 div.collapsible-body > section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "182 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > span | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "183 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > svg | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "184 h4.collapsible-heading > button.ui-row.collapsible-toggle > svg > path | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "188 div.collapsible-body > section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "189 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > span | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "190 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > svg | color: \"#fc6323\" -> \"#c7bdb3\"",
++   "191 h4.collapsible-heading > button.ui-row.collapsible-toggle > svg > path | color: \"#fc6323\" -> \"#c7bdb3\"",
+ Test Files  1 failed | 2 passed (3)
+      Tests  8 failed | 11 passed | 1 skipped (20)
+restored clean
+=== M1b: font-weight rule also under :where (the repair's rejected first attempt)
+-.astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; }
++.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle { font-weight: 500; }
+     × desktop / site order / synthetic 513ms
+     × desktop / mount order / synthetic 324ms
+     × phone / site order / synthetic 336ms
+     × phone / mount order / synthetic 325ms
+     × embedded-desktop / site order / synthet… 298ms
+     × embedded-desktop / mount order / synthe… 329ms
+     × embedded-phone / site order / synthetic 329ms
+     × embedded-phone / mount order / synthetic 325ms
++   "181 div.collapsible-body > section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle | font-weight: \"500\" -> \"650\"",
++   "182 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > span | font-weight: \"500\" -> \"650\"",
++   "183 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > svg | font-weight: \"500\" -> \"650\"",
++   "184 h4.collapsible-heading > button.ui-row.collapsible-toggle > svg > path | font-weight: \"500\" -> \"650\"",
++   "188 div.collapsible-body > section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle | font-weight: \"500\" -> \"650\"",
++   "189 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > span | font-weight: \"500\" -> \"650\"",
++   "190 section.collapsible.collapsible-nested > h4.collapsible-heading > button.ui-row.collapsible-toggle > svg | font-weight: \"500\" -> \"650\"",
++   "191 h4.collapsible-heading > button.ui-row.collapsible-toggle > svg > path | font-weight: \"500\" -> \"650\"",
+ Test Files  1 failed | 2 passed (3)
+      Tests  8 failed | 11 passed | 1 skipped (20)
+restored clean
+=== M2 I-141: AstraeusScene drops the claim
+-  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.claimCover));
++  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id));
+     × App's claimCover reaches the scene's frame state, and the first frame hides that cover 40ms
+     × the page's #boot is the cover the scene's frame state holds 685ms
+AssertionError: App did not hand claimCover to the scene, or the scene never claimed it: expected "vi.fn()" to be called at least once
+     38|     expect(claimCover, "App did not hand claimCover to the scene, or t…
+     40|     expect(state.cover?.(), "the scene's frame state holds no cover").…
+AssertionError: the scene's frame state holds no cover: the claim was dropped between main.tsx and createFrameState: expected null not to be null
+     26|     expect(cover, "the scene's frame state holds no cover: the claim w…
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 17 passed | 1 skipped (20)
+restored clean
+=== M3 I-141: App does not pass claimCover to the scene
+-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} />
++        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale}  />
+     × App's claimCover reaches the scene's frame state, and the first frame hides that cover 39ms
+     × the page's #boot is the cover the scene's frame state holds 686ms
+AssertionError: App did not hand claimCover to the scene, or the scene never claimed it: expected "vi.fn()" to be called at least once
+     38|     expect(claimCover, "App did not hand claimCover to the scene, or t…
+     40|     expect(state.cover?.(), "the scene's frame state holds no cover").…
+AssertionError: the scene's frame state holds no cover: the claim was dropped between main.tsx and createFrameState: expected null not to be null
+     26|     expect(cover, "the scene's frame state holds no cover: the claim w…
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 17 passed | 1 skipped (20)
+restored clean
+=== M4 I-141: main.tsx does not pass cover.claim
+-  root.render(<StrictMode><App key={mounts} definition={definition} address developerTools claimCover={cover.claim} onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
++  root.render(<StrictMode><App key={mounts} definition={definition} address developerTools onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
+     × the page's #boot is the cover the scene's frame state holds 713ms
+AssertionError: the scene's frame state holds no cover: the claim was dropped between main.tsx and createFrameState: expected null not to be null
+     26|     expect(cover, "the scene's frame state holds no cover: the claim w…
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 18 passed | 1 skipped (20)
+restored clean
+=== M5 I-141 (adjacent: first-frame link): the first frame never hides the claimed cover
+-  if (firstFrame && state.cover !== null) { const cover = state.cover; requestAnimationFrame(() => hideBootLoader(cover, controls.loadFadeSeconds)); }
++  if (false && firstFrame && state.cover !== null) { const cover = state.cover; requestAnimationFrame(() => hideBootLoader(cover, controls.loadFadeSeconds)); }
+     × App's claimCover reaches the scene's frame state, and the first frame hides that cover 50ms
+AssertionError: expected 'loading' to be 'done' // Object.is equality
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 18 passed | 1 skipped (20)
+restored clean
+=== L1 look lock under MAIN's sheets (old-sheets = git show main:...) in place of the tree's: only intended html/body/root-background moves may differ
+restored clean
+      Tests  16 failed | 1 skipped (17)

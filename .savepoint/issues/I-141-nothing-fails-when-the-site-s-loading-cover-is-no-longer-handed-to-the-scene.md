@@ -2,16 +2,22 @@
 id: I-141
 title: Nothing fails when the site's loading cover is no longer handed to the scene
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-144
   actor: {role: checker, session: o055-check-20261102}
   at: '2026-11-02T10:50:00Z'
 tasks: [T-255]
-checks: [C-144]
+checks: [C-144, C-145]
 guardrail_ids: [TEST-01, TEST-03, API-03]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-145
+  actor: {role: checker, session: o055-recheck-20261102}
+  at: '2026-11-02T11:05:00Z'
+  reason: 'C-145 CLEAR: the loading-cover hand-off is tested at every link; dropping the claim in AstraeusScene, the App pass-through, main.tsx cover.claim, or the first-frame hide each fails a test.'
 history:
   - at: '2026-11-02T10:50:00Z'
     actor: {role: checker, session: o055-check-20261102}
@@ -23,6 +29,11 @@ history:
     kind: repair_attempted
     check: C-144
     note: 'Repair, not verified. Two tests through the real chain, canvas stubbed only: packages/astraeus-site/tests/loadingCoverChain.test.ts imports the real src/main.tsx (synthetic experience, a #boot on the page) and proves the scene''s frame state holds the page''s #boot; packages/astraeus/tests/loadingCoverFrame.test.ts renders the real App with a claimCover, proves it reaches the real AstraeusScene''s frame state, and runs the engine''s own first-frame step (stepAndPoseCamera) on that state to see the cover go to data-state=done; it also covers no-claim. Mutations, each restored with git checkout: dropping the claim in AstraeusScene.tsx fails both files; dropping `claimCover={claimCover}` in App.tsx fails both; dropping `claimCover={cover.claim}` in main.tsx fails the site test. Green on the restored tree. The shared frame-context builder moved from sceneFrame.test.ts to tests/helpers/frameContext.ts. Gates: npm test 203 files, 2514 passed; engine-alone 138 files, 1536 passed; both files 10 of 10 green. Not done: a browser step reading the cover (browser scripts excluded from this repair).'
+  - at: '2026-11-02T11:05:00Z'
+    actor: {role: checker, session: o055-recheck-20261102}
+    kind: rechecked
+    check: C-145
+    note: 'Verified by C-145 CLEAR (Full Objective re-check of O-055 at 009554b0): mutations M2 (AstraeusScene claim), M3 (App claimCover) fail loadingCoverFrame and loadingCoverChain; M4 (main.tsx cover.claim) fails loadingCoverChain; M5 (first-frame hide disabled) fails loadingCoverFrame. No browser step reads the cover (allowed by Proof Needed).'
 ---
 
 # I-141: Nothing fails when the site's loading cover is no longer handed to the scene
