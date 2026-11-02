@@ -2,8 +2,7 @@
 id: T-258
 title: Write the good-guest notes and show the owner
 objective: O-055
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-257, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-258, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T10:05:11Z'}

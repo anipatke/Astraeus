@@ -1,0 +1,59 @@
+ ✓ docs/evidence/check-o055-20261102/probes/moons.probe.test.ts > P-MOON-1 overlapping loads of one planet > three overlapping requests in flight together each get their chunks, every chunk fetched once 8ms
+ ✓ docs/evidence/check-o055-20261102/probes/moons.probe.test.ts > P-MOON-1 overlapping loads of one planet > a chunk that fails under one request rejects it (and any request sharing it), leaves the other's moons, and a retry fetches only what is missing 14ms
+ ✓ docs/evidence/check-o055-20261102/probes/moons.probe.test.ts > P-MOON-1 overlapping loads of one planet > an out-of-span request started beside a good one rejects with MoonOutOfSpanError and fetches nothing of its own; the good one completes 7ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-2 host rules (:root, html, body, button, generic classes) with mount then async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 the environment can see the forms the sheets use > :where() applies 7ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 the environment can see the forms the sheets use > :is() applies 1ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 the environment can see the forms the sheets use > root attribute applies 1ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-2 host rules (:root, html, body, button, generic classes) with AstraeusScene then async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-2 host rules (:root, html, body, button, generic classes) with mount then async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-2 host rules (:root, html, body, button, generic classes) with AstraeusScene then async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through mount > static, visible (no host style) 7ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through mount > absolute from a host class 6ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through mount > fixed + auto from a host class 5ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through mount > sticky + clip from a host class 11ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through AstraeusScene > static, visible (no host style) 8ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through AstraeusScene > absolute from a host class 8ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through AstraeusScene > fixed + auto from a host class 5ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-BOX-1 containing block through AstraeusScene > sticky + clip from a host class 5ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 mount (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 mount (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 AstraeusScene (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 AstraeusScene (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 mount (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 mount (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 AstraeusScene (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-PIC-1 AstraeusScene (all pictures) beside async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-ID-1 AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-KEY-1 Escape origins, mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-KEY-1 Escape origins, AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-KEY-1 Escape origins, mount + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-KEY-1 Escape origins, AstraeusScene + async (o = {}) => {
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-3 host rules reaching into a viewer through mount > records which host properties a viewer part takes from generic host rules 9ms
+ ✓ docs/evidence/check-o055-20261102/probes/guest.probe.test.ts > P-STYLE-3 host rules reaching into a viewer through AstraeusScene > records which host properties a viewer part takes from generic host rules 8ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: desktop > site order, synthetic definition, every part opened: every element's computed style is the same 693ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: desktop > site order, listed definition, every part opened: every element's computed style is the same 410ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: desktop > mount order, synthetic definition, every part opened: every element's computed style is the same 474ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: desktop > mount order, listed definition, every part opened: every element's computed style is the same 388ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: phone > site order, synthetic definition, every part opened: every element's computed style is the same 482ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: phone > site order, listed definition, every part opened: every element's computed style is the same 418ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: phone > mount order, synthetic definition, every part opened: every element's computed style is the same 487ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: phone > mount order, listed definition, every part opened: every element's computed style is the same 405ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded desktop > site order, synthetic definition, every part opened: every element's computed style is the same 473ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded desktop > site order, listed definition, every part opened: every element's computed style is the same 388ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded desktop > mount order, synthetic definition, every part opened: every element's computed style is the same 457ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded desktop > mount order, listed definition, every part opened: every element's computed style is the same 381ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded phone > site order, synthetic definition, every part opened: every element's computed style is the same 474ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded phone > site order, listed definition, every part opened: every element's computed style is the same 397ms
+ × docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded phone > mount order, synthetic definition, every part opened: every element's computed style is the same 470ms
+ ✓ docs/evidence/check-o055-20261102/probes/cascade.probe.test.ts > P-STYLE-1 computed styles, main sheets vs HEAD sheets: embedded phone > mount order, listed definition, every part opened: every element's computed style is the same 402ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 2 passed (3)
+      Tests  8 failed | 48 passed (56)

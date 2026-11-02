@@ -1,0 +1,8 @@
+Objective: O-055
+Snapshot: sha256:4d40003cc78523a7be4341564c19a0a2a3541a76bf4db6c65df0115828170325 (created)
+Code Health does not block clearance.
+- complexity via lizard-csv [optional]: reported only; no finding: no blocking finding.
+- coverage via vitest-v8-coverage [optional]: reported only; stale: the evidence is stale.
+- dependency_vulnerabilities via osv-scanner-json [optional]: reported only; no finding: no blocking finding.
+- duplication via jscpd-json [optional]: reported only; no finding: no blocking finding.
+- tests via vitest-junit [optional]: reported only; stale: the evidence is stale.
