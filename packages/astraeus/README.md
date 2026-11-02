@@ -40,7 +40,7 @@ scene.camera.follow("probe", { distance: 110 });
 mount(document.getElementById("app"), scene);
 ```
 
-The element needs a size (for example `height: 100%` all the way up). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app, grown into a small made-up story with every call below, is in the repository at `examples/hello-scene`.
+The element needs a size (for example `height: 100%` all the way up). The viewer styles nothing outside its element: it sets no style on `html`, `body` or `#app`, so give the element its size (and, for a full-page viewer, your own `html, body { height: 100%; margin: 0 }` and background) yourself; it makes its own element a containing block (`position: relative` if static, `overflow: hidden` if visible). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app, grown into a small made-up story with every call below, is in the repository at `examples/hello-scene`.
 
 ### A probe across the solar system
 
@@ -244,6 +244,10 @@ mounted.setRate("auto");  // ... until it is released
 ## Inside someone else's page
 
 The viewer is built to sit in a host page without taking it over. It never changes `document.title`. It isolates its own layers (`isolation: isolate` on the element given to `mount` and on the `AstraeusScene` wrapper), so its `z-index` values (0 to 9) stay inside the viewer and cannot cover or sit under your page's layers; `mount` does not restore the element's old `isolation` on `unmount`. Its Escape handlers (story panel, phone drawer, switch panel) ignore a keydown your page already stopped with `preventDefault()`. It honours `prefers-reduced-motion`: the viewer's own animations and transitions are switched off.
+
+### Several viewers on one page
+
+You can mount more than one viewer on a page. Each keeps its own data (moon positions load per planet and are shared only as fetched files), its own pictures (a viewer draws only the pictures of the data packages passed to it), its own element ids (generated; do not select viewer parts by id) and its own styles (every rule sits under the viewer's root class `.astraeus-shell`, so nothing leaks to or from your page). Give each element a size. Escape closes a viewer's drawer, story panel or switch panel only when pressed inside that viewer or on the bare page, never in another viewer or in your own controls (call the handle yourself for those). The viewer never looks up page elements outside its own, and the Developer drawer is not drawn unless you pass `developerTools`. Panel sizes follow the browser window, not the viewer's element, so a small viewer keeps the desktop layout of its panels.
 
 A scene with no `setTime`, `setTimeline` or trajectory opens on the current time, with a window of a month around it.
 
