@@ -116,7 +116,7 @@ export interface MoonSystem {
   provideIndex(loadIndex: () => Promise<unknown>): void;
   /** Hands in a set built elsewhere (tests read the committed chunks from disk). */
   install(ephemeris: ChebyshevEphemeris | null): void;
-  /** Loads the index and only the chunks the window needs, once per page: a second call returns the first one's promise. */
+  /** Reads the index once, then fetches and decodes the chunks this request needs that the set does not hold or another request is not already fetching. */
   load(load: MoonSystemLoad): Promise<ChebyshevEphemeris>;
   /** One osculating orbital period (ms) of a body about the centre at `timeUtcMs`, from its fitted state; Infinity when unbound. */
   osculatingPeriodMs(ephemeris: ChebyshevEphemeris, body: BodyId, timeUtcMs: number): number;
@@ -156,7 +156,12 @@ export interface MappedMoonFacts {
 export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
   let installed: ChebyshevEphemeris | null = null;
   let loadIndex = config.loadIndex;
-  let loading: Promise<ChebyshevEphemeris> | null = null;
+  /** The set built from the index, shared by every request (the index is read once); `held` is true when a set was handed in whole by `install`. */
+  let building: Promise<ChebyshevEphemeris> | null = null;
+  let held = false;
+  /** Chunk paths already decoded into the set, and those being fetched now (shared by every request, so a path is fetched once). */
+  let added = new Set<string>();
+  let fetching = new Map<string, Promise<void>>();
   const tidalLockNote = `The orientation is an approximate tidal lock keeping the near side towards ${config.centreLabel}, with no libration.`;
 
   const ephemeris = (): ChebyshevEphemeris => {
@@ -173,6 +178,79 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
         sliceStarted = performance.now();
       }
     }
+  };
+
+  const reset = (): void => { building = null; added = new Set(); fetching = new Map(); };
+
+  const indexSet = (): Promise<ChebyshevEphemeris> => {
+    building ??= (async () => {
+      if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
+      return new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
+    })();
+    const own = building;
+    own.catch(() => { if (building === own) building = null; });
+    return own;
+  };
+
+  /** Fetches and decodes the chunks of `items` the set does not hold and no request is already fetching; resolves when all of them are in. */
+  const ensureChunks = async (set: ChebyshevEphemeris, items: readonly { body: BodyId; path: string }[], request: MoonSystemLoad): Promise<void> => {
+    const fetchBytes = request.fetchBytes ?? fetchBytesOf;
+    const waiting: Promise<void>[] = [];
+    const mine: { body: BodyId; path: string }[] = [];
+    for (const item of items) {
+      const inFlight = fetching.get(item.path);
+      if (inFlight !== undefined) waiting.push(inFlight);
+      else if (!added.has(item.path) && !mine.some(({ path }) => path === item.path)) mine.push(item);
+    }
+    if (mine.length > 0) {
+      const batch = (async () => {
+        await decodeInto(set, mine, await Promise.all(mine.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
+        for (const { path } of mine) added.add(path);
+      })();
+      for (const { path } of mine) fetching.set(path, batch);
+      const done = (): void => { for (const { path } of mine) if (fetching.get(path) === batch) fetching.delete(path); };
+      batch.then(done, done);
+      waiting.push(batch);
+    }
+    await Promise.all(waiting);
+  };
+
+  /** The chunks before the window the bodies' orbit lines need (about one period back, shipped ones only). */
+  const historyChunks = (set: ChebyshevEphemeris, request: MoonSystemLoad, history: NonNullable<MoonSystemLoad["history"]>): { body: BodyId; path: string }[] => {
+    const start = request.window.startUtcMs;
+    const out: { body: BodyId; path: string }[] = [];
+    for (const body of history.bodies) {
+      const lookback = Math.min(history.maxMs, HISTORY_MARGIN * osculatingPeriodMs(set, body, start));
+      const from = Math.floor(Math.max(start - lookback, set.boundsOf(body).startUtcMs));
+      for (const chunk of set.chunksFor([body], from, start)) if (request.chunkUrls[chunk.path] !== undefined) out.push(chunk);
+    }
+    return out;
+  };
+
+  /** A moon's orbit ring is centred on the clock, so at the window's last instant it reads ahead of it: the year after the window, where the build ships it (never required). */
+  const afterChunks = (set: ChebyshevEphemeris, request: MoonSystemLoad): { body: BodyId; path: string }[] => {
+    const end = request.window.endUtcMs;
+    const out: { body: BodyId; path: string }[] = [];
+    for (const body of request.bodies) {
+      const limit = set.boundsOf(body).endUtcMs;
+      if (limit <= end) continue;
+      for (const chunk of set.chunksFor([body], end, Math.min(limit, end + AFTER_WINDOW_MS))) if (request.chunkUrls[chunk.path] !== undefined) out.push(chunk);
+    }
+    return out;
+  };
+
+  const loadRequest = async (request: MoonSystemLoad): Promise<ChebyshevEphemeris> => {
+    if (held) {
+      assertWithinSpan(installed!, request);
+      return installed!;
+    }
+    const set = await indexSet();
+    assertWithinSpan(set, request);
+    await ensureChunks(set, chunksNeeded(set, request), request);
+    if (request.history !== undefined) await ensureChunks(set, historyChunks(set, request, request.history), request);
+    await ensureChunks(set, afterChunks(set, request), request);
+    if (!held) installed = set;
+    return set;
   };
 
   const osculatingPeriodMs = (set: ChebyshevEphemeris, body: BodyId, timeUtcMs: number): number => {
@@ -216,55 +294,10 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
     install(set: ChebyshevEphemeris | null) {
       installed = set;
-      loading = null;
+      held = set !== null;
+      reset();
     },
-    load(request: MoonSystemLoad): Promise<ChebyshevEphemeris> {
-      if (installed !== null) {
-        try {
-          assertWithinSpan(installed, request);
-        } catch (error) {
-          return Promise.reject(error);
-        }
-        return Promise.resolve(installed);
-      }
-      loading ??= (async () => {
-        if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
-        const set = new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
-        assertWithinSpan(set, request);
-        const needed = chunksNeeded(set, request);
-        const fetchBytes = request.fetchBytes ?? fetchBytesOf;
-        await decodeInto(set, needed, await Promise.all(needed.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
-        if (request.history !== undefined) {
-          const loaded = new Set(needed.map(({ path }) => path));
-          const start = request.window.startUtcMs;
-          const extra: { body: BodyId; path: string }[] = [];
-          for (const body of request.history.bodies) {
-            const lookback = Math.min(request.history.maxMs, HISTORY_MARGIN * osculatingPeriodMs(set, body, start));
-            const from = Math.floor(Math.max(start - lookback, set.boundsOf(body).startUtcMs));
-            for (const chunk of set.chunksFor([body], from, start)) {
-              if (loaded.has(chunk.path) || request.chunkUrls[chunk.path] === undefined) continue;
-              loaded.add(chunk.path);
-              extra.push(chunk);
-            }
-          }
-          await decodeInto(set, extra, await Promise.all(extra.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
-        }
-        // A moon's orbit ring is centred on the clock, so at the window's last instant it reads ahead of it: also load the year after the window where the build ships it (never required).
-        const end = request.window.endUtcMs;
-        const after: { body: BodyId; path: string }[] = [];
-        for (const body of request.bodies) {
-          const limit = set.boundsOf(body).endUtcMs;
-          if (limit <= end) continue;
-          for (const chunk of set.chunksFor([body], end, Math.min(limit, end + AFTER_WINDOW_MS))) {
-            if (!needed.some(({ path }) => path === chunk.path) && request.chunkUrls[chunk.path] !== undefined && !after.some(({ path }) => path === chunk.path)) after.push(chunk);
-          }
-        }
-        await decodeInto(set, after, await Promise.all(after.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
-        installed = set;
-        return set;
-      })();
-      return loading;
-    },
+    load: (request: MoonSystemLoad): Promise<ChebyshevEphemeris> => loadRequest(request),
     osculatingPeriodMs,
     trajectory,
     binding: (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter) => trajectory(body, adapter, rotation) }),

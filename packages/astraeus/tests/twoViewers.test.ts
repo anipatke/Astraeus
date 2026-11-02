@@ -13,8 +13,12 @@ vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOrigin
 
 import { createElement as h, type ReactElement } from "react";
 import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
-import { earth, moon } from "../src/api/bodies";
+import { createRoot, type Root } from "react-dom/client";
+import { earth, io, jupiter, moon } from "../src/api/bodies";
+import { JUPITER_MOON_SYSTEM } from "../src/core/bodies/jupiterMoons";
+import type { DataSource } from "../src/api/data";
+import { readBytes, readJson } from "../tools/import/test-io.mjs";
+import { moonDataFolder } from "./moonData";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
@@ -42,34 +46,54 @@ interface Viewer {
   readonly element: HTMLElement;
   unmount(): void;
 }
-interface Adapter { readonly name: string; open(): Promise<Viewer>; }
+/** A viewer opens with the made-up scene unless it is given another (and the data packages that scene needs). */
+interface OpenWith { readonly scene?: Scene; readonly data?: readonly DataSource[]; }
+interface Adapter {
+  readonly name: string;
+  open(options?: OpenWith): Promise<Viewer>;
+  /** Gives an open viewer a new scene the way a host does with this path (a rebuilt `<AstraeusScene>`; `mount` has no rebuild: unmount and mount again), resolving once the new scene is ready. */
+  replace(viewer: Viewer, options: OpenWith): Promise<Viewer>;
+}
 
 const newElement = (): HTMLElement => { const element = document.createElement("div"); document.body.append(element); return element; };
 
 const mountAdapter: Adapter = {
   name: "mount",
-  async open() {
+  async open(options = {}) {
     const element = newElement();
-    const mounted = mount(element, makeScene());
+    const mounted = mount(element, options.scene ?? makeScene(), options.data === undefined ? {} : { data: options.data });
     await mounted.ready;
     return { handle: mounted, element, unmount: () => mounted.unmount() };
+  },
+  async replace(viewer, options) {
+    viewer.unmount();
+    return this.open(options);
   },
 };
 
 const sceneAdapter: Adapter = {
   name: "AstraeusScene",
-  async open() {
+  async open(options = {}) {
     const element = newElement();
     const root = createRoot(element);
     const ref: { current: ViewerHandle | null } = { current: null };
-    const ready = new Promise<void>((resolve, reject) => {
-      const el: ReactElement = h(AstraeusScene, { scene: makeScene(), ref, onReady: () => resolve(), onError: reject });
-      flushSync(() => root.render(el));
-    });
-    await ready;
-    return { handle: ref.current!, element, unmount: () => flushSync(() => root.unmount()) };
+    const opened = await renderScene(root, ref, options);
+    return { handle: ref.current!, element, unmount: () => flushSync(() => root.unmount()), ...(opened ? { root, ref } : {}) } as Viewer;
+  },
+  async replace(viewer, options) {
+    const { root, ref } = viewer as Viewer & { root: Root; ref: { current: ViewerHandle | null } };
+    await renderScene(root, ref, options);
+    return viewer;
   },
 };
+
+/** Renders (or re-renders) `<AstraeusScene>` in a root and resolves when that scene's `onReady` fires. */
+function renderScene(root: Root, ref: { current: ViewerHandle | null }, options: OpenWith): Promise<boolean> {
+  return new Promise<boolean>((resolve, reject) => {
+    const el: ReactElement = h(AstraeusScene, { scene: options.scene ?? makeScene(), ref, ...(options.data === undefined ? {} : { data: options.data }), onReady: () => resolve(true), onError: reject });
+    flushSync(() => root.render(el));
+  });
+}
 
 interface Pairing { readonly name: string; readonly first: Adapter; readonly second: Adapter; }
 const PAIRINGS: readonly Pairing[] = [
@@ -155,6 +179,47 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+/** A planet's moon data from the committed fits, behind a counting fetch (the real `prepareScene` reaches `installData`; only the network is stubbed). */
+function stubMoonData() {
+  const folder = moonDataFolder("jupiter");
+  const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
+  const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
+  const fetched: string[] = [];
+  JUPITER_MOON_SYSTEM.install(null);
+  vi.stubGlobal("fetch", async (url: string) => {
+    if (!url.startsWith(folder)) throw new Error("offline");
+    fetched.push(url);
+    const bytes = readBytes(url) as Uint8Array;
+    return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+  });
+  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  return {
+    data,
+    fetched,
+    /** Io answers in both years, and no chunk file was fetched twice. */
+    expectBoth: () => {
+      const set = JUPITER_MOON_SYSTEM.ephemeris();
+      expect(() => set.stateOf("io", Date.parse("2020-03-15T00:00:00Z"))).not.toThrow();
+      expect(() => set.stateOf("io", Date.parse("2023-03-15T00:00:00Z"))).not.toThrow();
+      expect(new Set(fetched).size).toBe(fetched.length);
+    },
+  };
+}
+const jupiterScene = (year: number) => new Scene().addBody(jupiter).addBody(io)
+  .setTimeline({ start: Date.UTC(year, 2, 1), end: Date.UTC(year, 2, 20), rate: 60, rates: [60, 3600] });
+
+describe.each([mountAdapter, sceneAdapter])("one viewer given a new scene: $name", (adapter) => {
+  it("T-251: the new scene's moons load though an earlier scene of the same planet loaded first", async () => {
+    const moons = stubMoonData();
+    const viewer = await adapter.open({ scene: jupiterScene(2020), data: moons.data });
+    open.push(viewer);
+    expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("io", Date.parse("2023-03-15T00:00:00Z"))).toThrow();
+    const next = await adapter.replace(viewer, { scene: jupiterScene(2023), data: moons.data });
+    open[open.indexOf(viewer)] = next;
+    moons.expectBoth();
+  });
+});
+
 describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
   describe.each(Object.entries(SETTERS))("%s on viewer A", (_name, row) => {
     it("changes A's reads and listeners, and leaves B's reads and listeners as they were", async () => {
@@ -224,7 +289,15 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(repeated).toEqual([]);
   });
 
-  it.todo("T-251: two scenes of the same planet's moons at different years both get their moons");
+  it("T-251: two scenes of the same planet's moons at different years both get their moons", async () => {
+    const moons = stubMoonData();
+    const first = await pairing.first.open({ scene: jupiterScene(2020), data: moons.data });
+    open.push(first);
+    const second = await pairing.second.open({ scene: jupiterScene(2023), data: moons.data });
+    open.push(second);
+    moons.expectBoth();
+  });
+
   it.todo("T-252: each viewer draws only its own data packages' pictures");
   it.todo("T-253: developerTools on one viewer and off on the other");
   it.todo("T-255: Escape closes only the panel of the viewer it was pressed in");

@@ -2,9 +2,10 @@
 id: T-251
 title: Load the moon data every scene needs
 objective: O-055
-status: planned
+status: done
 depends_on: [{task: T-250, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-251, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o055-run-20261102}, recorded_at: '2026-11-02T08:59:16Z'}
 planned_by: {role: planner, session: o055-planning-20261102}
 ---
 
@@ -56,8 +57,17 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Built at stage build, finished at audit (no Check written).
+
+- `moonSystem.ts` `load` split into `indexSet` (index read once, shared; a failed read is not remembered), `ensureChunks` (per-path in-flight map plus an `added` set, so a chunk is fetched once and a failed fetch is retried), `historyChunks`, `afterChunks` and `loadRequest` (assertWithinSpan on every request; required, history, then year-after stages). `install(set)` keeps its meaning (a set handed in whole: later loads only check the span); `install(null)` resets the store.
+- New `tests/moonLoadTwice.test.ts` (real Jupiter fits, counting `fetchBytes`): rows 1-5 table-driven (later window; new moon; second started in flight; history look-back; year-after), (6) identical load fetches nothing, (6b) same chunk wanted at once fetched once, (7) out-of-span second load rejects with `MoonOutOfSpanError`, set usable, no fetch; failed fetch retried; public path via `installData` (two windows in turn, then together).
+- `twoViewers.test.ts`: T-251 todo became a real case per pairing (mount+mount, React+React, mount+React) plus a "new scene" case for `AstraeusScene` rebuild (re-render with new `scene`) and `mount` (unmount and mount again). Seam: real `prepareScene` -> `installData` with a `DataSource` over the committed Jupiter fits and a stubbed global `fetch` (counts files); only the network is stubbed. Adapters gained `open(options)` and `replace`.
+- Existing moon tests unchanged except `dataSpans.test.ts`: it asserted `system.load(request)` returned the first promise; each request now runs its own checks, so it asserts the repeat rejects with `MoonOutOfSpanError` too.
+- Without the fix 12 of the new cases fail (verified with moonSystem.ts stashed); with it all pass. twoViewers + moonLoadTwice run 10x: 42 passed, 3 expected fail (T-254 ids), 12 todo, every time.
+- Gates: lint clean; typecheck clean; build ok; `npm test` 193 files, 2393 passed | 3 expected fail | 1 skipped | 12 todo. `git diff --exit-code -- packages/astraeus/api-surface.lock.json` empty; apiSurface, apiRules, allowlistGrowth: 32 passed. No allowlist entry added or removed (none concerned moon loading). No browser run.
 
 ## Drift Notes
 
 Record architecture deltas here; T-258 reconciles them into Design.md.
+
+- (T-258) Design.md "Journeys across years (O-047)": moon loading is now per request over one shared append-only store per planet (index once, per-chunk in-flight dedupe); `load` no longer returns the first call's promise.
