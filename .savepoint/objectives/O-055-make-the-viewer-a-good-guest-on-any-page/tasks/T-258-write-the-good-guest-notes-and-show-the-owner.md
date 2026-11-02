@@ -65,7 +65,6 @@ Focused tests while iterating; at hand-off the configured lint, typecheck, build
 - Repair found by `check:engine-alone`: T-254's `viewerIds.test.ts` read the site's `driver.mjs`, which the engine-alone copy lacks. Moved that describe unchanged (path adjusted) to `packages/astraeus-site/tests/driverNoIds.test.ts`.
 - `test:full`: 200 files, 2494 passed, 1 skipped. `npm test`: same. `check:pack` pass; `check:node-consumer` pass (9 tests); `check:engine-alone` pass (after the move); `check:react-consumer` pass (react 19.3.1); `build-example` hello-scene and hello-react built; `lint`, `typecheck`, `build` pass.
 - `grep -l '"O-055"' packages/astraeus-site/tests/*.allowlist.json` prints nothing; `apiIsolation.allowlist.json` `breaks: []`; `git diff --exit-code api-surface.lock.json` clean; apiSurface, apiRules, allowlistGrowth, packageBoundaries: 4 files, 40 tests pass. No browser run.
-- Owner look: PENDING (User Check at 375x667 and 1280x720 on localhost:5490). Not recorded by the builder.
 
 - Owner look (2026-11-02T10:05:11Z, session o055-run-20261102): the owner was given the steps for `localhost:5490/` (embedded showers and planets views on the landing page) and `localhost:5490/app.html?experience=planets|jupiter-io|showers|synthetic` at 375x667 and 1280x720 (top bar, timeline, info, story and moons panels, phone drawers, Developer drawer; nothing overlapping or different) and answered "looks OK".
 
