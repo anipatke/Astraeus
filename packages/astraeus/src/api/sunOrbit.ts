@@ -4,7 +4,8 @@ import { BUILT_IN_SAMPLING, EARTH_EPHEMERIS } from "../core/bodies";
 import { fillKeplerRangeKm, keplerElementsFromStates, type KeplerElements } from "../core/keplerElements";
 import { createState, EQJ } from "../core/state";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { createEarthSunTrajectory, fullTurnSpanMs, type EccentricSampling } from "../core/sunCentredSources";
+import { PlanetFitsUncoveredError } from "../core/planetSeries";
+import { createEarthSunTrajectory, fullTurnSpanMs, NoFullTurnError, type EccentricSampling } from "../core/sunCentredSources";
 import type { Trajectory } from "../core/trajectory";
 import { rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { SceneError } from "./errors";
@@ -143,7 +144,7 @@ function turnSpan(source: Trajectory, startUtcMs: number): { readonly startUtcMs
     return { startUtcMs, endUtcMs: startUtcMs + fullTurnSpanMs(source, startUtcMs, TURN_STEP_MS, TURN_MAX_STEPS) };
   } catch (error) {
     // No full turn in the search, or the source's years end first (the planet series): the source does not cover a whole turn.
-    if (error instanceof TimeScaleOutOfRangeError || (error instanceof RangeError && /no full turn|do not cover/.test(error.message))) return undefined;
+    if (error instanceof TimeScaleOutOfRangeError || error instanceof NoFullTurnError || error instanceof PlanetFitsUncoveredError) return undefined;
     throw error;
   }
 }

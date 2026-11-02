@@ -1,6 +1,6 @@
 // O-058 T-238: pins ViewerLink's every member against a fake control, so the split into clock, views, camera and zones is checked
 // beyond the DOM tests: the NOT_OPEN guard, whenAttached, detach and close, the listener copying, and the publish order (change, then zones).
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { SceneError } from "../src/api/errors";
 import { ViewerLink, type EventZoneChange, type ViewerChange } from "../src/api/viewerLink";
 import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
@@ -11,34 +11,36 @@ const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` fir
 
 function fake(opts: { paced?: boolean; views?: string[] } = {}) {
   const calls: string[] = [];
+  let pose = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
   let state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, ...(opts.views?.length ? { view: opts.views[0] } : {}), ...(opts.paced ? { auto: true, zones: [] } : {}) };
   const control: ViewerControl = {
     window: { startUtcMs: START, endUtcMs: END },
     events: [{ id: "e1", type: "flyby", object: "moon", startUtcMs: START, endUtcMs: START + 5 } as never, { id: "e2" } as never],
     rates: [1, 60], paced: opts.paced ?? false,
+    playable: true, setPlaying: (p) => { calls.push(`playing ${p}`); state = { ...state, playing: p }; },
     read: () => state,
     seek: (t) => { calls.push(`seek ${t}`); state = { ...state, timeUtcMs: t }; },
     setRate: (r) => { calls.push(`rate ${r}`); state = { ...state, rate: r === "auto" ? 1 : r, ...(opts.paced ? { auto: r === "auto" } : {}) }; },
     views: opts.views ?? [],
     setView: (id) => { calls.push(`view ${id}`); state = { ...state, view: id }; },
     cameraTargets: () => ["earth", "moon"],
-    readCamera: () => ({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 }),
+    readCamera: () => pose,
     setCamera: (request) => { calls.push(`camera ${JSON.stringify(request)}`); },
   };
-  return { control, calls, set: (next: Partial<ViewerState>) => { state = { ...state, ...next }; return state; } };
+  return { control, calls, move: (next: Partial<typeof pose>) => { pose = { ...pose, ...next }; }, set: (next: Partial<ViewerState>) => { state = { ...state, ...next }; return state; } };
 }
 const code = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return undefined; };
 
 describe("ViewerLink before attach and after detach", () => {
-  it("reads undefined and refuses every setter with missing-data and the NOT_OPEN message", () => {
+  it("reads undefined and refuses every setter with not-mounted and the NOT_OPEN message", () => {
     const link = new ViewerLink();
     const reads = [link.time, link.rate, link.playing, link.eventZones, link.view, link.camera];
     expect(reads).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
     expect(link.rateSource).toBe("scene");
-    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
-    expect(code(() => link.setRate(1))).toBe(`missing-data: setRate: ${NOT_OPEN}`);
-    expect(code(() => link.setView("a"))).toBe(`missing-data: setView: ${NOT_OPEN}`);
-    expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`missing-data: setCamera: ${NOT_OPEN}`);
+    expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
+    expect(code(() => link.setRate(1))).toBe(`not-mounted: setRate: ${NOT_OPEN}`);
+    expect(code(() => link.setView("a"))).toBe(`not-mounted: setView: ${NOT_OPEN}`);
+    expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`not-mounted: setCamera: ${NOT_OPEN}`);
   });
 
   it("reads after attach and goes back to undefined after detach", () => {
@@ -50,7 +52,7 @@ describe("ViewerLink before attach and after detach", () => {
     expect(link.camera).toEqual({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 });
     link.detach();
     expect([link.time, link.rate, link.playing, link.view, link.eventZones, link.camera]).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
-    expect(code(() => link.setTime(START))).toBe(`missing-data: setTime: ${NOT_OPEN}`);
+    expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
   });
 
   it("eventZones is empty (not undefined) when attached to a control with no zones field", () => {
@@ -80,7 +82,7 @@ describe("ViewerLink whenAttached, detach and close", () => {
     expect(again).toBe(true);
   });
 
-  it("after close: a wait armed before it never resolves, and all callbacks stop", async () => {
+  it("after close: a wait armed before it rejects not-mounted, and all callbacks stop", async () => {
     const link = new ViewerLink();
     const f = fake({ paced: true });
     const changes: ViewerChange[] = [];
@@ -88,9 +90,9 @@ describe("ViewerLink whenAttached, detach and close", () => {
     link.onChange((c) => changes.push(c));
     link.onEventZone((z) => zones.push(z));
     let later = false;
-    void link.whenAttached().then(() => { later = true; });
+    const outcome = link.whenAttached().then(() => { later = true; return "resolved"; }, (error: unknown) => (error instanceof SceneError ? error.code : String(error)));
     link.close();
-    await Promise.resolve(); await Promise.resolve();
+    expect(await outcome).toBe("not-mounted");
     expect(later).toBe(false);
     link.attach(f.control);
     link.publish(f.set({ timeUtcMs: START + 99, zones: ["e1"] }), "playback");
@@ -273,5 +275,90 @@ describe("ViewerLink publishing", () => {
     stopZ();
     link.publish(f.set({ zones: [] }), "playback");
     expect(zlog).toEqual(["z"]);
+  });
+});
+
+describe("ViewerLink selection (O-054 T-247)", () => {
+  it("reads the opening selection without reporting it, reports a change and a drop (no object) once each, and ignores a publish before attach and after detach", () => {
+    const link = new ViewerLink();
+    const heard: Array<{ object?: string; timeUtcMs: number; cause: string }> = [];
+    link.onSelect((c) => heard.push(c));
+    const { control, set } = fake();
+    link.publish(set({ selected: "moon" }), "visitor");
+    expect(heard).toEqual([]); // not attached yet
+    link.attach(control);
+    expect(link.selected).toBe("moon");
+    link.publish(set({ selected: "moon" }), "playback");
+    expect(heard).toEqual([]);
+    link.publish(set({ selected: "earth" }), "visitor");
+    link.publish(set({ selected: undefined }), "playback");
+    link.publish(set({ selected: undefined }), "playback");
+    expect(heard).toEqual([{ object: "earth", timeUtcMs: START + 10, cause: "visitor" }, { timeUtcMs: START + 10, cause: "playback" }]);
+    expect(link.selected).toBeUndefined();
+    link.detach();
+    link.publish(set({ selected: "moon" }), "visitor");
+    expect(heard.length).toBe(2);
+    link.attach(control); // back again: the new opening selection is read, not reported
+    expect(link.selected).toBe("moon");
+    link.publish(set({ selected: "moon" }), "playback");
+    expect(heard.length).toBe(2);
+  });
+});
+
+describe("ViewerLink camera (O-054 T-248)", () => {
+  afterEach(() => { vi.useRealTimers(); });
+  const pub = (link: ViewerLink, set: (n: Partial<ViewerState>) => ViewerState) => link.publish(set({}), "playback");
+  it("reads the opening pose without reporting it, reports each field changed alone once, and reports nothing for an unchanged pose", () => {
+    vi.useFakeTimers({ toFake: ["performance"] });
+    const link = new ViewerLink();
+    const heard: unknown[] = [];
+    link.onCameraChange((p) => heard.push(p));
+    const { control, set, move } = fake();
+    pub(link, set); // before attach
+    link.attach(control);
+    pub(link, set);
+    expect(heard).toEqual([]);
+    for (const [i, change] of ([{ focus: "moon" }, { azimuthDeg: 9 }, { elevationDeg: 8 }, { distance: 7 }] as const).entries()) {
+      vi.advanceTimersByTime(100);
+      move(change);
+      pub(link, set);
+      pub(link, set); // unchanged since the report
+      expect(heard.length, JSON.stringify(change)).toBe(i + 1);
+    }
+    expect(heard[3]).toEqual({ focus: "moon", azimuthDeg: 9, elevationDeg: 8, distance: 7 });
+  });
+  it("an easing pose reports at most once per 100 ms tick and stops when it settles", () => {
+    vi.useFakeTimers({ toFake: ["performance"] });
+    const link = new ViewerLink();
+    const heard: Array<{ azimuthDeg: number }> = [];
+    link.onCameraChange((p) => heard.push(p));
+    const { control, set, move } = fake();
+    link.attach(control);
+    for (let az = 10; az <= 15; az += 1) { move({ azimuthDeg: az }); pub(link, set); vi.advanceTimersByTime(20); } // six changes in 120 ms: two reports
+    expect(heard.map((p) => p.azimuthDeg)).toEqual([10, 14]);
+    for (let i = 0; i < 5; i += 1) { vi.advanceTimersByTime(100); pub(link, set); } // the next tick reports where it settled (15), then nothing
+    expect(heard.map((p) => p.azimuthDeg)).toEqual([10, 14, 15]);
+  });
+  it("hears nothing after detach or close, a stopped listener is not called, and a throwing listener spares the others", () => {
+    vi.useFakeTimers({ toFake: ["performance"] });
+    vi.stubGlobal("reportError", vi.fn());
+    const link = new ViewerLink();
+    const heard: number[] = [];
+    link.onCameraChange(() => { throw new Error("boom"); });
+    link.onCameraChange((p) => heard.push(p.azimuthDeg));
+    const stop = link.onCameraChange(() => heard.push(-1));
+    const { control, set, move } = fake();
+    link.attach(control);
+    stop();
+    vi.advanceTimersByTime(100); move({ azimuthDeg: 5 }); pub(link, set);
+    expect(heard).toEqual([5]);
+    link.detach(); vi.advanceTimersByTime(100); move({ azimuthDeg: 6 }); pub(link, set);
+    expect(heard).toEqual([5]);
+    link.attach(control); // the new opening pose is read, not reported
+    vi.advanceTimersByTime(100); pub(link, set);
+    expect(heard).toEqual([5]);
+    link.close(); vi.advanceTimersByTime(100); move({ azimuthDeg: 7 }); pub(link, set);
+    expect(heard).toEqual([5]);
+    vi.unstubAllGlobals();
   });
 });

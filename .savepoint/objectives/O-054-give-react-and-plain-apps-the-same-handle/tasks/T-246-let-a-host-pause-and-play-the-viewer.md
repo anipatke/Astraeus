@@ -2,9 +2,10 @@
 id: T-246
 title: Let a host pause and play the viewer
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-245, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-246, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T09:11:41Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -58,8 +59,18 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Built under the O-054 run (step check waived). Frozen-time finding: with `setTimeline({ none: true })` the shell does not draw the timeline bar at all (`ShellTimeline` returns null for `hideTimeline`), so the visitor has no play button; `setPlaying` therefore throws `bad-timeline` there. Added `ViewerControl.playable` (= `!hideTimeline`) and `setPlaying`, both attached in App.tsx from the existing `setPlaying` handler (same one the shell's `onSetPlaying` uses; no second clock).
+
+Cases: `lifecycle.test.ts` "setPlaying: pauses and plays, onChange hears cause host, a non-boolean throws bad-timeline, and unmount makes it not-mounted" on mount and AstraeusScene (member table now has `playing`, `setPlaying`); `viewerHostDom.test.ts` "playing through the host": play button and `setPlaying` in step with causes host/visitor and aria-label, non-boolean / not-mounted / leave-and-remount, no-timeline scene throws `bad-timeline`. `viewerHandleType.test.ts` unedited and passing. Note: the synthetic scene opens playing (the default), and an unchanged `setPlaying` produces no `onChange` (the link's existing dedupe).
+
+Pin changes: none to pinned behaviour. Test fakes of `ViewerControl` in viewerLinkPin, listeners, viewerHostDom, viewerHostReady gained the two new required members (no pinned entry changed).
+
+Gates: api:lock regenerated (+20 lines); apiSurface, apiRules, allowlistGrowth, packageBoundaries 4 files / 40 tests pass; lint clean; typecheck clean; build ok; npm test 190 files, 2310 passed, 1 skipped, 4 todo. No allowlist entries added or removed. README rows and CHANGELOG entry (with migration line) added. No browser run.
+
+Flake follow-up (coordinator report: "lifecycle: AstraeusScene under StrictMode > onReady fires once..." failed 1 of 6, `opened.handle` undefined). Cause: test-timing artefact, not a product race. The React driver in `tests/lifecycle.test.ts` (introduced by T-243) waited for React's commit with `await Promise.resolve(); await tick(0)` (a real 0 ms timer) and then read `ref.current`; `root.render` outside `act` commits on React's scheduler, which on a loaded machine can run after that timer, so the ref was still null. Fix: `root.render` is wrapped in `flushSync`, so the commit has happened when `open` returns and the fixed waits are gone (no retries, no longer timeouts). Evidence: before, 3 failures in 12 unloaded runs (two on first attempts) and 1 of 8 under 4 busy-loop CPU hogs on a copy of the old driver; after, 30 consecutive runs of `npx vitest run packages/astraeus/tests/lifecycle.test.ts` with 0 failures. Product code (ViewerLink.reopen, whenAttached, AstraeusScene effects) unchanged.
 
 ## Drift Notes
 
 Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+New required `ViewerControl` members `playable` and `setPlaying` (viewerPort.ts); `ViewerHandle` gains `playing`/`setPlaying`. Design.md "Public API shape" reconciliation is accounted for in T-249.

@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactElement, type Ref } from "react";
 import "../app/style.css";
 import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { prepareScene } from "./prepared";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
+import { viewerHandleOf, type ViewerHandle } from "./viewerHandle";
 import { ViewerLink, type CameraTarget, type EventZoneChange, type ViewerChange } from "./viewerLink";
 
 /** Props of `AstraeusScene`. */
@@ -13,8 +14,10 @@ export interface AstraeusSceneProps {
   readonly scene: Scene;
   /** Data packages the scene's bodies need, such as moon pictures or positions. Read when the scene is built, so a new array alone does not rebuild. */
   readonly data?: readonly DataSource[];
-  /** Called once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again after each rebuild). */
-  readonly onReady?: () => void;
+  /** The viewer's handle (the same `ViewerHandle` `mount` returns): one object for the component's life, also across a rebuild with a new `scene`. Reads are undefined and calls throw `not-mounted` until the viewer is drawn and after unmount. A React 19 ref prop. */
+  readonly ref?: Ref<ViewerHandle>;
+  /** Called with the handle once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again, with the same handle, after each rebuild). */
+  readonly onReady?: (handle: ViewerHandle) => void;
   /** Called when the scene cannot be built (a `SceneError`) or its data fails to load. */
   readonly onError?: (error: Error) => void;
   /** Moves the viewer to this moment (ISO text, a `Date` or Unix milliseconds) once it is drawn, and again whenever the moment changes. Outside the timeline reports `bad-time` to `onError`. Not a controlled value: the viewer keeps running from there, so the current time arrives through `onChange`. */
@@ -40,6 +43,9 @@ export interface AstraeusSceneProps {
 const FILL: CSSProperties = { width: "100%", height: "100%" };
 const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new Error(String(cause)));
 
+/** A camera target as text by value: keys in sorted order, so the same pose with its keys in another order is the same key. */
+const cameraValueKey = (camera: CameraTarget): string => JSON.stringify(Object.entries(camera).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+
 /**
  * The full viewer `mount` draws, as a React component: `<AstraeusScene scene={scene} data={[...]} />`. Waits for the scene's data, then draws; cleans up on unmount.
  * @example
@@ -48,13 +54,16 @@ const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange, onEventZone });
   latest.current = { data, onReady, onError, onChange, onEventZone };
   const [link] = useState(() => new ViewerLink());
+  const [handle] = useState(() => viewerHandleOf(link));
+  useImperativeHandle(ref, () => handle, [handle]);
   useEffect(() => {
+    link.reopen(); // StrictMode replays this effect after its cleanup closed the link: only a real unmount leaves it closed
     const stop = link.onChange((change) => latest.current.onChange?.(change));
     const stopZones = link.onEventZone((change) => latest.current.onEventZone?.(change));
     return () => { stop(); stopZones(); link.close(); };
@@ -66,7 +75,7 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
   const apply = (set: () => void) => {
     try { set(); } catch (cause) { latest.current.onError?.(asError(cause)); }
   };
-  const cameraKey = camera === undefined ? undefined : JSON.stringify(camera);
+  const cameraKey = camera === undefined ? undefined : cameraValueKey(camera);
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
   const drawn = definition !== undefined;
@@ -86,7 +95,7 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
           if (!open) return;
           setDefinition(prepared.definition);
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
-          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(); });
+          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(handle); }, () => undefined); // a closed link (unmounted) rejects the wait: onReady does not fire
         },
         (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
       );
@@ -94,7 +103,7 @@ export function AstraeusScene({ scene, data, onReady, onError, time, rate, view,
       latest.current.onError?.(asError(cause));
     }
     return () => { open = false; };
-  }, [scene, link]);
+  }, [scene, link, handle]);
 
   return <div className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} host={link} /> : null}</div>;
 }

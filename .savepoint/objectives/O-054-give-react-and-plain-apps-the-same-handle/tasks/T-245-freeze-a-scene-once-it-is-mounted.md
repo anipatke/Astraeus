@@ -2,9 +2,10 @@
 id: T-245
 title: Freeze a scene once it is mounted
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-244, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-245, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T09:01:31Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -59,8 +60,12 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Changed: packages/astraeus/src/api/sceneFreeze.ts (new, WeakSet markMounted/isMounted; keeps the freeze off the public surface), scene.ts (private #editable guard first in the 12 mutators, passed to the camera), planCamera.ts (guard in #open/setReach/fitOrbit), prepared.ts (markMounted after a successful toDefinition), errors.ts (scene-mounted), tests/lifecycle.test.ts, README error table, api-surface.lock.json, CHANGELOG Unreleased.
+Tests (tests/lifecycle.test.ts): "a mounted scene is frozen" on both paths (mount, AstraeusScene; edit after ready/onReady throws scene-mounted, failed empty build stays editable, reads answer, edit after unmount still throws); table test enumerating Scene.prototype and SceneCamera.prototype by name (add/set/follow/lookAt/fitOrbit) expecting scene-mounted after mount, reads and camera getters still answer; toDefinition alone does not freeze; same scene mounts into a second element and both draw.
+Pins: scenePin.test.ts and viewerLinkPin.test.ts pass unchanged, no entry changed.
+Callers: grep of packages/astraeus-demo-*, astraeus-site, examples: all edits to scenes precede mount (examples/hello-scene/src/main.js, hello-react/src/main.jsx); no edit after mount.
+Gates: npm run lint, typecheck, build pass; npm test 2305 passed, 1 skipped, 6 todo (T-246..T-248 placeholders); npm run check:react-consumer pass; api:lock and api:errors regenerated. No browser run.
 
 ## Drift Notes
 
-Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+Drift (T-249): Design.md should note the scene freeze (scene-mounted; WeakSet in sceneFreeze.ts, guard in Scene/SceneCamera mutators, set by prepareScene). Not yet reflected in Design.md.

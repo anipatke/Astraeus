@@ -15,6 +15,8 @@ export interface ViewerState {
   readonly view?: string;
   /** Only in a scene with pacing: the ids of the events whose pacing zone holds the time, among the zones the showing view has. */
   readonly zones?: readonly string[];
+  /** The id of the object whose information the viewer has selected; absent when nothing is selected. */
+  readonly selected?: string;
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */
@@ -33,6 +35,10 @@ export interface ViewerControl {
   readonly paced: boolean;
   /** A number is a chosen speed; `"auto"` gives the rate back to the scene's pacing. */
   setRate(rate: number | "auto"): void;
+  /** True: the visitor has a play control; false in a scene without a timeline (`setTimeline({ none: true })`), where `setPlaying` is refused. */
+  readonly playable: boolean;
+  /** Plays or pauses the one clock, as the visitor's play button does. */
+  setPlaying(playing: boolean): void;
   /** The ids of the scene's views, in order; empty without views. */
   readonly views: readonly string[];
   /** Switches to the view with this id (one of `views`), as a visitor's button does. */
@@ -53,4 +59,6 @@ export interface ViewerPort {
   detach(): void;
   /** The viewer reports the clock's current reading; the link tells the host only when it differs from the last one. */
   publish(state: ViewerState, cause: ViewerChangeCause): void;
+  /** The viewer's selected object changed. `byMove`: the selection followed a move of the clock or the view (a drop, or a view rule's framing target; the cause is whatever last moved them); otherwise the visitor chose it. */
+  publishSelection(state: ViewerState, byMove: boolean): void;
 }

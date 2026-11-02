@@ -1,0 +1,42 @@
+{
+  "name": "journey-views",
+  "at": "2026-11-01T10:11:28.191Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "fit": {
+          "insideWindow": true,
+          "overlaps": [],
+          "smallestButtonPx": 36
+        },
+        "still": [
+          1.057,
+          0.976,
+          1.057,
+          0.976
+        ],
+        "hostHeard": 83
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "fit": {
+          "insideWindow": true,
+          "overlaps": [],
+          "smallestButtonPx": 44
+        },
+        "still": [
+          2.283,
+          0.873,
+          2.283,
+          0.873
+        ],
+        "hostHeard": 84
+      }
+    }
+  ],
+  "errors": []
+}

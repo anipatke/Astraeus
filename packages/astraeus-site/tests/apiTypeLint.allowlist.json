@@ -319,7 +319,7 @@
     },
     {
       "rule": "time",
-      "site": "MountedScene.time: number | undefined",
+      "site": "ViewerHandle.time: number | undefined",
       "reason": "a moment not typed TimeInput",
       "finding": "F4",
       "removedBy": "O-057"
@@ -403,7 +403,7 @@
     },
     {
       "rule": "unit",
-      "site": "MountedScene.time: time",
+      "site": "ViewerHandle.time: time",
       "reason": "a number without its unit in its name",
       "finding": "F4",
       "removedBy": "O-057"

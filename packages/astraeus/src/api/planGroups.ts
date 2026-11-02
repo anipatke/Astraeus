@@ -39,7 +39,7 @@ export class GroupPlan {
 
   addActivity(input: ActivityInput): void {
     const plan = planActivity(input);
-    if (this.activities.has(plan.window.id)) throw new SceneError("bad-activity", `addActivity("${plan.window.id}"): an activity with that id is already in the scene`);
+    if (this.activities.has(plan.window.id)) throw new SceneError("duplicate-id", `addActivity("${plan.window.id}"): an activity with that id is already in the scene`);
     this.activities.set(plan.window.id, plan);
   }
 

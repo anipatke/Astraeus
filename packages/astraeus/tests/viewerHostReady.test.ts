@@ -16,12 +16,13 @@ vi.mock("../src/api/prepared", async () => {
   };
 });
 
-import { createElement as h } from "react";
+import { createElement as h, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
+import type { ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 
@@ -70,22 +71,31 @@ describe("mount: ready means usable", () => {
     prepared.fail = true;
     const handle = mount(host, new Scene());
     await expect(handle.ready).rejects.toThrow("load failed");
-    expect(codeOf(() => handle.setTime(MID))).toBe("missing-data");
+    expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
     handle.unmount();
   });
 
-  it("unmount before the viewer is drawn leaves nothing usable: reads are undefined and calls throw missing-data", async () => {
+  it("(a) unmount before the data load finishes: ready rejects not-mounted, reads are undefined and calls throw not-mounted", async () => {
     const handle = mount(host, new Scene());
     handle.unmount();
-    await handle.ready;
+    await expect(handle.ready).rejects.toMatchObject({ code: "not-mounted" });
     expect(handle.time).toBeUndefined();
-    expect(codeOf(() => handle.setTime(MID))).toBe("missing-data");
-    expect(codeOf(() => handle.setView("a"))).toBe("missing-data");
+    expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
+    expect(codeOf(() => handle.setView("a"))).toBe("not-mounted");
+  });
+
+  it("(b) unmount after the load but before the viewer attaches: ready rejects not-mounted instead of staying pending", async () => {
+    const handle = mount(host, new Scene());
+    await Promise.resolve(); await Promise.resolve(); // the load has settled and the viewer is rendering; its effect has not run
+    handle.unmount();
+    const outcome = await Promise.race([handle.ready.then(() => "resolved", (error: unknown) => (error instanceof SceneError ? error.code : String(error))), new Promise<string>((r) => setTimeout(() => r("pending"), 200))]);
+    expect(outcome).toBe("not-mounted");
+    expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
   });
 });
 
 describe("ViewerLink.whenAttached", () => {
-  const control = { events: [], window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
+  const control = { events: [], window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
   const settled = async (promise: Promise<void>): Promise<boolean> => Promise.race([promise.then(() => true), new Promise<boolean>((r) => setTimeout(() => r(false), 20))]);
 
   it("waits for attach, is resolved after it, and waits again after a detach (a rebuild)", async () => {
@@ -99,11 +109,11 @@ describe("ViewerLink.whenAttached", () => {
     expect(await settled(link.whenAttached())).toBe(false);
   });
 
-  it("never resolves after close when it had not attached", async () => {
+  it("rejects not-mounted on close when it had not attached", async () => {
     const link = new ViewerLink();
     const wait = link.whenAttached();
     link.close();
-    expect(await settled(wait)).toBe(false);
+    await expect(wait).rejects.toMatchObject({ code: "not-mounted" });
   });
 });
 
@@ -121,5 +131,28 @@ describe("AstraeusScene: onReady fires after the link attaches", () => {
     await done;
     expect(atReady).toEqual({ drawn: true, changes: 1 });
     root.unmount();
+  });
+
+  it("StrictMode (outside act): onReady fires once per build, only after the link attached, and a listener added through the handle still hears changes after the replayed effects", async () => {
+    const calls: Array<{ handle: ViewerHandle; time: number | undefined }> = [];
+    const ref: { current: ViewerHandle | null } = { current: null };
+    const root = createRoot(host);
+    const done = new Promise<void>((resolve) => {
+      root.render(h(StrictMode, null, h(AstraeusScene, {
+        scene: new Scene(), ref,
+        onReady: (handle: ViewerHandle) => { calls.push({ handle, time: handle.time }); resolve(); },
+      })));
+    });
+    await done;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(calls).toHaveLength(1);
+    expect(calls[0].time).toBeDefined();
+    expect(calls[0].handle).toBe(ref.current);
+    const seen: ViewerChange[] = [];
+    calls[0].handle.onChange((c) => seen.push(c));
+    calls[0].handle.setTime(MID);
+    expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
+    root.unmount();
+    expect(calls[0].handle.time).toBeUndefined();
   });
 });

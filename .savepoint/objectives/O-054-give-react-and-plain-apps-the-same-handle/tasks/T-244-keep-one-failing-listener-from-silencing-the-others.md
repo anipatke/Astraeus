@@ -2,9 +2,10 @@
 id: T-244
 title: Keep one failing listener from silencing the others
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-243, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-244, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T08:57:57Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -57,8 +58,9 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Changed: new `src/api/listeners.ts` (`callListeners`: runs a copy of the set, collects throws, reports each with `reportError` else a `setTimeout` rethrow); `viewerClock.ts`, `viewerZones.ts` use it; doc comments on `ViewerHandle.onChange`/`onEventZone`; CHANGELOG entry; new `tests/listeners.test.ts` (helper, no-reportError fallback with fake timers, self-stop/add during call, ViewerLink onChange and onEventZone throwing-first cases, source scan); `lifecycle.test.ts` T-244 todo replaced by two real cases on mount and AstraeusScene.
+Gates: focused 3 files 43 passed; O-053 four tests 40 passed; lint clean; typecheck clean; build ok; npm test 190 files, 2300 passed, 1 skipped, 8 todo. `npm run api:lock` ran; the lock did not change (doc comments are not in it). No pin entries changed; viewerLinkPin unedited. No browser run.
 
 ## Drift Notes
 
-Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+New internal module `src/api/listeners.ts` (listener helper used by the clock and zones parts); no Design.md change yet. Accounted for in T-249 (Design.md reconciliation).

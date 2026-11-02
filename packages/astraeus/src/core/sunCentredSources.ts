@@ -180,6 +180,14 @@ export function samplePathKm(source: Trajectory, span: TimeBounds, count: number
   return samplePositionsKm(source, pathTimesUtcMs(span, count), center);
 }
 
+/** The turn search found no full turn within its steps; a `RangeError` so existing range handlers still see it. */
+export class NoFullTurnError extends RangeError {
+  constructor(maxSteps: number, stepMs: number) {
+    super(`no full turn within ${maxSteps} steps of ${stepMs} ms`);
+    this.name = "NoFullTurnError";
+  }
+}
+
 /**
  * How long a state source takes to sweep one full turn about its centre, found by walking forward from `startUtcMs` in `stepMs` steps,
  * adding the angle between successive positions, and interpolating inside the step that completes the turn. For a path that should
@@ -198,5 +206,5 @@ export function fullTurnSpanMs(source: Trajectory, startUtcMs: number, stepMs: n
     swept += angle;
     previous = next;
   }
-  throw new RangeError(`no full turn within ${maxSteps} steps of ${stepMs} ms`);
+  throw new NoFullTurnError(maxSteps, stepMs);
 }

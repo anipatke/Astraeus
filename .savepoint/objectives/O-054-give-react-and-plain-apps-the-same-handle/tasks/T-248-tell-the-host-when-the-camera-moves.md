@@ -2,9 +2,10 @@
 id: T-248
 title: Tell the host when the camera moves
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-247, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-248, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T09:24:11Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -57,8 +58,12 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Built by a Sonnet builder, 2026-11-01. Changed: src/api/viewerCamera.ts (last pose, 80 ms gap, publish, onCameraChange), viewerLink.ts (reset on attach/detach, publish, clearListeners on close), viewerHandle.ts; tests lifecycle.test.ts (real onCameraChange case on mount and AstraeusScene; READS/LISTENERS tables; mock now captures scene controls), viewerLinkPin.test.ts (3 cases: each field alone, easing rate limit with fake timers, detach/close/stop/throwing listener), hostCameraDom.test.ts (DOM ease-then-settle, stop, unmount); README, CHANGELOG, api-surface.lock.json. No pin entries changed (fake control's readCamera became settable with the same default).
+Gates: lint clean; typecheck clean; build ok; npm test 190 files, 2324 passed, 1 skipped; apiSurface/apiRules/allowlistGrowth/packageBoundaries 40 passed; check:pack pass; check:react-consumer pass. No browser run. No allowlist entry added or removed.
+Limitations: rate limit is the viewer's 100 ms tick plus an 80 ms minimum gap between reports; a change inside the gap is reported on the next tick.
 
 ## Drift Notes
 
 Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+- ViewerCamera is now stateful (last pose, report time, listeners) and ViewerLink.publish calls it as its fourth part after clock, zones, selection; the camera signal rides the existing 100 ms viewer publish (no new frame-loop work). Accounted for in T-249.

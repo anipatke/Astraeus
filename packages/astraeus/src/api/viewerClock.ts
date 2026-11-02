@@ -1,5 +1,6 @@
 import type { ViewerChangeCause, ViewerState } from "../app/viewerPort";
 import { SceneError } from "./errors";
+import { callListeners } from "./listeners";
 import { toUtcMs, type TimeInput } from "./time";
 import type { LinkAccess, RateSource, ViewerChange } from "./viewerLink";
 
@@ -54,19 +55,29 @@ export class ViewerClock {
     this.#rateSource = "chosen";
   }
 
+  /** Plays or pauses the viewer through its own play handler. Throws `bad-timeline` for a non-boolean and in a scene without a timeline (`setTimeline({ none: true })`), where a visitor has no play control either. */
+  setPlaying(playing: boolean): void {
+    const control = this.access.open("setPlaying");
+    if (typeof playing !== "boolean") throw new SceneError("bad-timeline", `setPlaying: expected true or false, got ${String(playing)}`);
+    if (!control.playable) throw new SceneError("bad-timeline", "setPlaying: the scene has no timeline (setTimeline({ none: true })), so there is no play control; a visitor cannot play or pause it either");
+    control.setPlaying(playing);
+  }
+
   /** Calls `listener` whenever the time, speed or playing state changes; returns the function that stops it. */
   onChange(listener: (change: ViewerChange) => void): () => void {
     this.#listeners.add(listener);
     return () => { this.#listeners.delete(listener); };
   }
 
-  publish(state: ViewerState, cause: ViewerChangeCause): void {
+  /** Tells the listeners of a change in the reading; returns whether there was one. */
+  publish(state: ViewerState, cause: ViewerChangeCause): boolean {
     const last = this.#last;
-    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return;
+    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return false;
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
     const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), cause };
-    for (const listener of [...this.#listeners]) listener(change);
+    callListeners(this.#listeners, change);
+    return true;
   }
 }

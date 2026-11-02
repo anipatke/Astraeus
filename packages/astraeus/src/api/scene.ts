@@ -23,6 +23,7 @@ import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
+import { isMounted } from "./sceneFreeze";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, type Tracked } from "./planPaths";
@@ -160,11 +161,17 @@ export class Scene {
   #scaleOnly = false;
 
   constructor() {
-    this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id));
+    this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
+  }
+
+  /** Refuses an edit once a viewer has taken the scene. */
+  #editable(): void {
+    if (isMounted(this)) throw new SceneError("scene-mounted", "this scene was edited after a viewer took it; build a new scene instead");
   }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
+    this.#editable();
     this.#plan.addBody(body, options);
     return this;
   }
@@ -178,12 +185,14 @@ export class Scene {
    * scene.addBody(sun).addBodyFromElements(record, { orbit: true, showLabel: false });
    */
   addBodyFromElements(record: ElementsBodyRecord, options: AddBodyOptions = {}): this {
+    this.#editable();
     this.#plan.addFromElements(record, options);
     return this;
   }
 
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
   addTrajectory(input: TrajectoryInput): this {
+    this.#editable();
     const id = input.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
@@ -215,29 +224,33 @@ export class Scene {
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
   addGroup(input: GroupInput): this {
+    this.#editable();
     this.#groupPlan.addGroup(input);
     return this;
   }
 
   /**
    * Adds a period of activity to the timeline: a rate curve the timeline glows by, its peak mark, and where each stretch comes from. A group's `{ kind: "rate" }` readout shows its live rate
-   * (unavailable outside the period) against the peak. Without `setTimeline`, the timeline spans the activities. A repeated id, or a bad curve, peak, source or moment, throws `bad-activity`.
+   * (unavailable outside the period) against the peak. Without `setTimeline`, the timeline spans the activities. A repeated id throws `duplicate-id`; a bad curve, peak, source or moment throws `bad-activity`.
    * @example
    * scene.addActivity({ id: "burst", label: "Burst", unit: "per hour", start: "2026-08-01", end: "2026-08-20", peak: "2026-08-12", samples: [{ time: "2026-08-01", value: 2 }, { time: "2026-08-12", value: 100 }, { time: "2026-08-20", value: 5 }] });
    */
   addActivity(input: ActivityInput): this {
+    this.#editable();
     this.#groupPlan.addActivity(input);
     return this;
   }
 
   /** Sets the moment the scene opens at. */
   setTime(time: TimeInput): this {
+    this.#editable();
     this.#timeline.setTime(time);
     return this;
   }
 
   /** Chooses the opening scale: `trueScale`, `readableScale` or `solarSystemScale` (true distances, the enlarged bodies drawn larger; it needs a Sun-centred scene with an enlarged body, else the scene throws `bad-scale`); the viewer can switch to the other (in a Sun-centred scene with an enlarged body, the second choice is the Solar system scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
   setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
+    this.#editable();
     if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
     this.#scale = scale;
     this.#scaleOnly = options.only === true;
@@ -246,6 +259,7 @@ export class Scene {
 
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
+    this.#editable();
     this.#story.addEvents(events, options);
     return this;
   }
@@ -255,12 +269,14 @@ export class Scene {
    * (a panel with an `object` still has its marker on that object). `at.utc` may be any instant inside the timeline, in any year. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field.
    */
   addStoryPanels(panels: StoryPanelsInput): this {
+    this.#editable();
     this.#story.addPanels(panels);
     return this;
   }
 
   /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`), `pacing` (playback that slows for encounters and speeds up for cruise: spans `{ from, to, rate }` and event rules `{ near: { type, within }, rate }`, easing between speeds; a speed the visitor or host picks wins until `setRate("auto")`; see `PacingInput`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
+    this.#editable();
     this.#timeline.setTimeline(timeline);
     return this;
   }
@@ -274,6 +290,7 @@ export class Scene {
    * scene.setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false }, milkyWay: { place: "developer", on: false } });
    */
   setSwitches(switches: SwitchesInput): this {
+    this.#editable();
     this.#viewPlan.setSwitches(switches);
     return this;
   }
@@ -288,6 +305,7 @@ export class Scene {
    * scene.setViews([{ id: "a", label: "Probe A", paths: ["probe-a"] }, { id: "b", label: "Probe B", paths: ["probe-b"] }, { id: "both", label: "Both" }], { place: "top-bar" });
    */
   setViews(views: readonly ViewInput[], options: ViewsOptions): this {
+    this.#editable();
     this.#viewPlan.setViews(views, options);
     return this;
   }

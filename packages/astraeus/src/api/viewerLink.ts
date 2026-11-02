@@ -3,6 +3,7 @@ import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
+import { ViewerSelection, type SelectionChange } from "./viewerSelection";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
@@ -16,7 +17,7 @@ export interface ViewerChange {
   readonly playing: boolean;
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
-  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate` or `setView`. */
+  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate`, `setPlaying` or `setView`. */
   readonly cause: ViewerChangeCause;
 }
 
@@ -59,29 +60,30 @@ export type RateSource = "scene" | "chosen";
 export interface LinkAccess {
   /** The attached control, or undefined before the viewer is drawn and after it is gone. */
   control(): ViewerControl | undefined;
-  /** The attached control; before the viewer is drawn or after it is gone, throws `missing-data` naming `what`. */
+  /** The attached control; before the viewer is drawn or after it is gone, throws `not-mounted` naming `what`. */
   open(what: string): ViewerControl;
 }
 
 const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` first";
 
-interface Wait { readonly promise: Promise<void>; resolve: () => void; done: boolean }
+interface Wait { readonly promise: Promise<void>; resolve: () => void; reject: (reason: Error) => void; done: boolean }
 function newWait(): Wait {
   const wait = { done: false } as Wait;
-  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve) => { wait.resolve = resolve; });
+  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve, reject) => { wait.resolve = resolve; wait.reject = reject; });
+  wait.promise.catch(() => undefined); // a wait nobody holds when the link closes is not an unhandled rejection
   return wait;
 }
 
 /**
  * Joins a host page to a mounted viewer's one clock: reads, sets and change callbacks. Created by `mount` and `AstraeusScene`; the viewer attaches
- * its clock controls when it opens and detaches when it closes. The clock, views, camera and zones are separate parts it delegates to.
+ * its clock controls when it opens and detaches when it closes. The clock, views, camera, zones and selection are separate parts it delegates to.
  */
 export class ViewerLink implements ViewerPort {
   #control: ViewerControl | undefined;
   readonly #access: LinkAccess = {
     control: () => this.#control,
     open: (what) => {
-      if (this.#control === undefined) throw new SceneError("missing-data", `${what}: ${NOT_OPEN}`);
+      if (this.#control === undefined) throw new SceneError("not-mounted", `${what}: ${NOT_OPEN}`);
       return this.#control;
     },
   };
@@ -89,12 +91,18 @@ export class ViewerLink implements ViewerPort {
   readonly #views = new ViewerViews(this.#access);
   readonly #camera = new ViewerCamera(this.#access);
   readonly #zones = new ViewerZones(this.#access);
+  readonly #selection = new ViewerSelection(this.#access);
   #wait = newWait();
+  /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
+  #mover: ViewerChangeCause = "playback";
   #closed = false;
 
   attach(control: ViewerControl): void {
     this.#control = control;
     this.#clock.reset(control.read());
+    this.#selection.reset(control.read());
+    this.#mover = "playback";
+    this.#camera.reset();
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -103,20 +111,33 @@ export class ViewerLink implements ViewerPort {
   detach(): void {
     this.#control = undefined;
     this.#clock.reset(undefined);
+    this.#selection.reset(undefined);
+    this.#mover = "playback";
+    this.#camera.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
+  }
+
+  /** Takes a closed link back into use: a host effect that was cleaned up and replayed (React StrictMode) before the viewer drew. Waits for the next attach, never for the earlier one. */
+  reopen(): void {
+    if (!this.#closed) return;
+    this.#closed = false;
+    this.#wait = newWait();
   }
 
   /** Stops all callbacks for good (the host unmounted). */
   close(): void {
     this.#closed = true;
+    if (!this.#wait.done) this.#wait.reject(new SceneError("not-mounted", "the viewer was unmounted before it was drawn"));
     this.detach();
     this.#clock.clearListeners();
     this.#zones.clearListeners();
+    this.#selection.clearListeners();
+    this.#camera.clearListeners();
   }
 
   /**
-   * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. After `close` it
-   * never resolves (a closed link is not usable). A detach (the viewer rebuilt) arms a fresh wait.
+   * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. A `close` before it attached rejects it with
+   * `not-mounted` (a closed link is not usable); it never stays pending. A detach (the viewer rebuilt) arms a fresh wait.
    */
   whenAttached(): Promise<void> { return this.#wait.promise; }
 
@@ -126,20 +147,30 @@ export class ViewerLink implements ViewerPort {
   get playing(): boolean | undefined { return this.#clock.playing; }
   get eventZones(): readonly string[] | undefined { return this.#zones.eventZones; }
   get view(): string | undefined { return this.#views.view; }
+  get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
 
-  // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones.
+  // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones, viewerSelection.
   setView(id: string): void { this.#views.setView(id); this.#afterHost(); }
   setTime(time: TimeInput): void { this.#clock.setTime(time); this.#afterHost(); }
   setRate(rate: number | "auto"): void { this.#clock.setRate(rate); this.#afterHost(); }
+  setPlaying(playing: boolean): void { this.#clock.setPlaying(playing); this.#afterHost(); }
   setCamera(target: CameraTarget): void { this.#camera.setCamera(target); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
+  onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
+  onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
+
   publish(state: ViewerState, cause: ViewerChangeCause): void {
-    this.#clock.publish(state, cause);
+    if (this.#clock.publish(state, cause)) this.#mover = cause;
     this.#zones.publish(state, cause);
+    this.#selection.publish(state, cause);
+    this.#camera.publish();
   }
+
+  /** The selection changed. A drop by time or the view names whatever last moved them (`onChange` names the same), so the cause is never a second opinion. */
+  publishSelection(state: ViewerState, byMove: boolean): void { this.#selection.publish(state, byMove ? this.#mover : "visitor"); }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */
   #afterHost(): void { this.publish(this.#access.open("publish").read(), "host"); }

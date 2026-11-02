@@ -2,9 +2,10 @@
 id: T-247
 title: Tell the host which object is selected
 objective: O-054
-status: planned
+status: done
 depends_on: [{task: T-246, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-247, reason: 'Owner said "Mark it done and orchestrate the next one" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o054-run-20261101}, recorded_at: '2026-11-01T09:20:18Z'}
 planned_by: {role: planner, session: o054-planning-20261101}
 ---
 
@@ -58,8 +59,13 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution: named cases, results, files read and changed, and limitations, recorded after the work lands.
+Changed: src/app/viewerPort.ts (ViewerState.selected), src/app/App.tsx (stateNow carries selected; updateSelectedObject publishes a changed selection at once with cause visitor once the host is attached), src/api/viewerSelection.ts (new), viewerLink.ts, viewerHandle.ts, index.ts (SelectionChange), README rows + Selection paragraph, CHANGELOG entry with migration line, api-surface.lock.json.
+Tests: viewerHostDom.test.ts "the selected object through the host" (5 cases: opening read not reported; visitor pick heard once at once; no report when unchanged; view switch drop reported; stop and unmount); viewerLinkPin.test.ts "ViewerLink selection" (pre-attach ignored, drop without object, detach/re-attach); lifecycle.test.ts onSelect case real on mount, AstraeusScene (both drivers via describe.each) and READS/LISTENERS tables carry selected/onSelect.
+Gates: lint, typecheck, build, npm test (all pass), the four API tests (40 pass), check:pack, check:react-consumer pass. No pin entries changed.
+Limitations: SelectionChange uses `timeUtcMs`, not `time` (API-04 type lint rejects a bare `time: number` and I did not grow the allowlist). A host setView that drops the selection reports cause host (App marks the switch; cleared after the commit). Dropping to nothing cannot be produced through the DOM (the synthetic scene always has a fallback object), so it is tested at link level.
 
 ## Drift Notes
 
 Record any architecture delta here and name T-249 (Design.md reconciliation) as where it is accounted for (AGENTS.md, Deferred Design reconciliation).
+
+- T-249: ViewerState gained optional `selected`; the host link has a fifth part (viewerSelection.ts) beside clock, views, camera and zones, published after zones. SelectionChange field is `timeUtcMs` (API-04), unlike ViewerChange.time (allowlisted). Host-caused view drops report cause host via App's selectionCause ref.

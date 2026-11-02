@@ -9,7 +9,7 @@ import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
-import { AstraeusShell } from "../shell/AstraeusShell";
+import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
@@ -336,9 +336,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   controls.current.onStoryMarker = requestPanel;
   controls.current.onFeatureMarker = requestFeature;
   controls.current.onPickObject = requestPick;
-  const updateSelectedObject = useCallback((objectId: string) => {
-    controls.current.selectedObjectId = objectId;
-  }, []);
   const updateScale = useCallback((id: ScaleId) => {
     controls.current.policy = scalePolicyFor(id, suppliedPolicies);
     setScale(id);
@@ -363,8 +360,17 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       ...snapshot,
       ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true, zones: activeEventZones(runtime.pacing.zones, controls.current.pace?.shown, snapshot.timeUtcMs) }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
+      ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
     };
   }, [runtime, definition]);
+  // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
+  const hostAttached = useRef(false);
+  // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
+  const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
+    const changed = controls.current.selectedObjectId !== objectId;
+    controls.current.selectedObjectId = objectId;
+    if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
+  }, [host, stateNow]);
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps with the scene, so the shown time never rests past the end while looping.
@@ -397,6 +403,8 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     setPaceAuto(rate === "auto");
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
+  // The same play handler the visitor's button reaches, so a host and a visitor share one clock.
+  const hostSetPlaying = setPlaying;
   // The objects a host may point the camera at: those the showing view shows (read live, so a view switch is already counted).
   const cameraTargets = useCallback((): readonly string[] => {
     const hidden = controls.current.viewHidden?.objects;
@@ -409,9 +417,10 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
   useEffect(() => {
     if (host === undefined) return undefined;
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
-    return () => host.detach();
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience]);
+    hostAttached.current = true;
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
+    return () => { hostAttached.current = false; host.detach(); };
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

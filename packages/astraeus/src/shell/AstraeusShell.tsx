@@ -73,6 +73,9 @@ function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readon
   );
 }
 
+/** Who moved the selection: the visitor, or a move of time or the view (named by whatever last moved them). */
+export type SelectionOrigin = "visitor" | "move";
+
 interface Props {
   readonly experience: ExperienceConfig;
   readonly snapshot: ClockSnapshot;
@@ -86,7 +89,8 @@ interface Props {
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
-  readonly onSelectionChange: (objectId: string) => void;
+  /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
+  readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
@@ -244,7 +248,7 @@ export function AstraeusShell({
   };
 
   useEffect(() => {
-    onSelectionChange(selectedObjectId);
+    onSelectionChange(selectedObjectId, "visitor");
   }, [onSelectionChange, selectedObjectId]);
 
   // A view switch is told from other changes of the experience by the view's id changing.
@@ -255,7 +259,7 @@ export function AstraeusShell({
     if (selected === undefined || !isObjectAvailable(selected, snapshot.timeUtcMs)) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
-      onSelectionChange(fallbackId);
+      onSelectionChange(fallbackId, "move");
       // The card of an object the view took away closes with it.
       if (switchRule !== undefined && selected === undefined) setInfo((now) => (now?.kind === "object" ? null : now));
     }
@@ -285,7 +289,7 @@ export function AstraeusShell({
     const preset = asked !== undefined && asked.request.kind !== "overview" && target === undefined ? findCameraPreset(experience, "overview") : asked;
     if (target !== undefined) {
       setSelectedObjectId(target.id);
-      onSelectionChange(target.id);
+      onSelectionChange(target.id, "move"); // only the move-driven effect applies a view rule
     }
     setActivePresetId(preset?.id ?? null);
     if (preset !== undefined) onCameraRequest(preset.request);
@@ -320,7 +324,7 @@ export function AstraeusShell({
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
     setSelectedObjectId(id);
-    onSelectionChange(id);
+    onSelectionChange(id, "visitor");
     setInfo({ kind: "object" });
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     if (active?.request.kind === "focus" || active?.request.kind === "follow") {
@@ -342,7 +346,7 @@ export function AstraeusShell({
       const target = availableObjectById(experience, preset.request.target, atUtcMs);
       if (target === undefined) return;
       setSelectedObjectId(target.id);
-      onSelectionChange(target.id);
+      onSelectionChange(target.id, "visitor");
     }
     setActivePresetId(preset.id);
     onCameraRequest(preset.request);

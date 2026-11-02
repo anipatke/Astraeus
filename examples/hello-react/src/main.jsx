@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { AstraeusScene, Scene, earth, moon } from "astraeus";
 
@@ -26,10 +26,17 @@ const scene = new Scene()
 scene.camera.follow("probe", { distance: 110 });
 
 function App() {
-  // The engine only says when playback enters a flyby; this page decides what the camera does, here by following the probe of the encounter. (To put the camera back afterwards, read `camera` from a `mount` handle; see the vanilla example.)
-  const [camera, setCamera] = useState({ follow: "probe" });
-  const onEventZone = ({ entered, object }) => { if (entered && object) setCamera({ follow: object }); };
-  return <AstraeusScene scene={scene} camera={camera} onEventZone={onEventZone} onError={console.error} />;
+  // The handle comes through `ref` (`onReady(handle)` gives the same one). The engine only says when playback enters or leaves a flyby; this page decides what the camera does: follow the probe of the encounter, then put the camera back.
+  const handle = useRef(null);
+  const saved = useRef(undefined);
+  const onEventZone = ({ entered, object, via }) => {
+    const viewer = handle.current;
+    if (!viewer) return;
+    if (entered) { saved.current = viewer.camera; if (object) viewer.setCamera({ follow: object }); }
+    else if (via === "time" && saved.current) viewer.setCamera(saved.current); // after a view switch the view's own camera rule owns the camera
+    if (!entered) saved.current = undefined;
+  };
+  return <AstraeusScene ref={handle} scene={scene} onEventZone={onEventZone} onError={console.error} />;
 }
 
 createRoot(document.getElementById("app")).render(<App />);

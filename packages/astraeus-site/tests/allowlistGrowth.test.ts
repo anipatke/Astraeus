@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+// Counted per group (file, section, rule, finding, removing Objective), owner 2026-11-01: a re-key inside a group passes, a new break or a new group needs an owner approval.
 // The O-053 allowlists and DEEP_IMPORT_COUNTS can only shrink (C-137 O2, owner decision 2026-11-01). Each current allowlist entry must already be in the base version of the file (git
 // `main`, or the ref in ALLOWLIST_BASE), or carry `approved: { by: "owner", at, reason }`; a DEEP_IMPORT_COUNTS value may not be higher than in the base version. A file that the base
 // does not have yet (the branch that first adds it) is skipped with a note, as is the whole check when git or the base ref is unavailable (a shallow CI checkout).
@@ -36,11 +37,44 @@ export function allowlistEntries(json: Json): Map<string, Approval | undefined> 
 
 const approvalOk = (approval: Approval | undefined): boolean => approval?.by === "owner" && /^\d{4}-\d{2}-\d{2}/.test(approval.at ?? "") && (approval.reason ?? "").length > 10;
 
-/** Entries in `now` that are not in `base` and have no owner approval. */
+/**
+ * The group an entry counts in (owner decision 2026-11-01, "count per finding, not per name"): its section, rule or kind, finding and removing Objective, whichever the entry carries; a `public`
+ * map entry is grouped by its section alone. A re-key inside a group (a type renamed, a member moved) keeps the count; a new break in a group, or a new group, raises it.
+ */
+export function entryGroup(section: string, item: Json | undefined): string {
+  if (item === undefined) return section;
+  return [section, item.rule ?? "", item.finding ?? "", item.removedBy ?? ""].join("|");
+}
+
+/** Groups whose count is above the base's by more than the owner-approved entries added to them, each with the unapproved added entries. */
 export function growthOffences(base: Json, now: Json, label: string): string[] {
+  const count = (json: Json): Map<string, number> => {
+    const out = new Map<string, number>();
+    for (const [section, value] of Object.entries(json)) {
+      if (section === "_about" || section === "approvedPublic") continue;
+      const items: (Json | undefined)[] = Array.isArray(value) ? (value as Json[]) : Object.keys(value as object).map(() => undefined);
+      for (const item of items) { const group = entryGroup(section, item); out.set(group, (out.get(group) ?? 0) + 1); }
+    }
+    return out;
+  };
   const before = allowlistEntries(base);
-  return [...allowlistEntries(now)].filter(([key, approval]) => !before.has(key) && !approvalOk(approval))
-    .map(([key]) => `${label}: new entry without an owner approval (approved: {by: "owner", at, reason}): ${key.slice(0, 160)}`);
+  const baseCount = count(base);
+  const added = new Map<string, { approved: number; unapproved: string[] }>();
+  for (const [section, value] of Object.entries(now)) {
+    if (section === "_about" || section === "approvedPublic") continue;
+    const items: [string, Json | undefined][] = Array.isArray(value) ? (value as Json[]).map((item) => [entryGroup(section, item), item]) : Object.keys(value as object).map((name) => [entryGroup(section, undefined), { name } as Json]);
+    for (const [group, item] of items) {
+      const key = Array.isArray(value) ? (() => { const { approved: _a, ...rest } = item!; return `${section} ${JSON.stringify(rest)}`; })() : `${section}.${item!.name as string}=${JSON.stringify((value as Json)[item!.name as string])}`;
+      if (before.has(key)) continue;
+      const approval = Array.isArray(value) ? (item!.approved as Approval | undefined) : (now.approvedPublic as Record<string, Approval> | undefined)?.[item!.name as string];
+      const entry = added.get(group) ?? { approved: 0, unapproved: [] };
+      if (approvalOk(approval)) entry.approved += 1; else entry.unapproved.push(key.slice(0, 160));
+      added.set(group, entry);
+    }
+  }
+  const nowCount = count(now);
+  return [...nowCount].filter(([group, n]) => n - (baseCount.get(group) ?? 0) > (added.get(group)?.approved ?? 0))
+    .map(([group, n]) => `${label}: group ${group} grew from ${baseCount.get(group) ?? 0} to ${n} without an owner approval (approved: {by: "owner", at, reason}); added: ${(added.get(group)?.unapproved ?? []).join("; ")}`);
 }
 
 /** The `DEEP_IMPORT_COUNTS` literal of packageBoundaries.test.ts, as name -> count. */
@@ -73,13 +107,17 @@ describe("allowlists only shrink (O-053, compared with the base branch)", () => 
     expect(countOffences(baseCounts, deepImportCounts(readFileSync(join(__dirname, "packageBoundaries.test.ts"), "utf8")))).toEqual([]);
   });
 
-  it("names a new entry, accepts an approved one and a lowered count, rejects a raised one (made-up data)", () => {
+  it("counts per group: a re-key passes, a new break or group fails, an approved one passes (made-up data)", () => {
     const approved = { by: "owner", at: "2026-11-01", reason: "a reason that is long enough" };
-    const base = { _about: "x", breaks: [{ rule: "id", site: "a" }], public: { view: "A" } };
-    const now = { _about: "x", breaks: [{ rule: "id", site: "a" }, { rule: "id", site: "b" }, { rule: "id", site: "c", approved }], public: { view: "A", extra: "B" } };
-    expect(growthOffences(base, now, "f")).toEqual([expect.stringContaining('"site":"b"'), expect.stringContaining("public.extra=")]);
-    expect(growthOffences(base, { ...now, approvedPublic: { extra: approved }, breaks: now.breaks.slice(0, 1) }, "f")).toEqual([]);
-    expect(growthOffences(base, { ...now, breaks: [{ rule: "id", site: "c", approved: { ...approved, by: "agent" } }] }, "f")).toHaveLength(2);
+    const g = { rule: "id", finding: "F3", removedBy: "O-055" };
+    const base = { _about: "x", breaks: [{ ...g, site: "a" }], public: { view: "A" } };
+    expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "renamed" }] }, "f")).toEqual([]);
+    expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, site: "b" }] }, "f")).toEqual([expect.stringContaining("grew from 1 to 2")]);
+    expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, rule: "unit", site: "b" }] }, "f")).toHaveLength(1);
+    expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, site: "b", approved }] }, "f")).toEqual([]);
+    expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, site: "b", approved: { ...approved, by: "agent" } }] }, "f")).toHaveLength(1);
+    expect(growthOffences(base, { ...base, public: { view: "A", extra: "B" } }, "f")).toEqual([expect.stringContaining("public")]);
+    expect(growthOffences(base, { ...base, public: { view: "A", extra: "B" }, approvedPublic: { extra: approved } }, "f")).toEqual([]);
     expect(countOffences({ a: 5, b: 3 }, { a: 6, b: 2, c: 1 })).toHaveLength(2);
     expect(deepImportCounts('const DEEP_IMPORT_COUNTS: Record<string, number> = {\n  "a-b": 12, // x\n  "c": 3,\n};')).toEqual({ "a-b": 12, c: 3 });
   });

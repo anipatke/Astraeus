@@ -2,18 +2,24 @@
 export type SceneErrorCode =
   /** A body or path id is not in the catalogue or the scene. */
   | "unknown-body"
-  /** An id is already used in the scene, so the new body, path, group or orbit line cannot take it. */
+  /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */
   | "duplicate-id"
   /** A moment is not a valid time, or lies outside the span it must fall in. */
   | "bad-time"
   /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */
   | "bad-trajectory"
+  /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */
+  | "bad-data"
   /** The scale is not one of the engine's scales, or does not suit this scene. */
   | "bad-scale"
-  /** Position data a body needs was not given to the viewer: pass its data package, or open the viewer first. */
+  /** Position data a body needs was not given to the viewer: pass its data package. */
   | "missing-data"
+  /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */
+  | "not-mounted"
   /** The timeline reaches outside the years a body's data package covers. */
   | "out-of-span"
+  /** The scene was edited after a viewer took it; build a new scene instead. */
+  | "scene-mounted"
   /** The scene has no bodies to show. */
   | "empty-scene"
   /** An orbital-elements record, or the element to mount into, is malformed. */
@@ -36,7 +42,7 @@ export type SceneErrorCode =
   | "bad-body"
   /** A point group is malformed or refers to a body that is not in the scene. */
   | "bad-group"
-  /** An activity curve is malformed or repeated. */
+  /** An activity curve is malformed. */
   | "bad-activity"
   /** A camera call or pose is malformed, or names an object the view cannot show. */
   | "bad-camera"

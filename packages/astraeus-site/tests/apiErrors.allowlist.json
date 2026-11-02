@@ -7,27 +7,6 @@
       "reason": "Recognises an internal error by its message text (and names the non-public loadPlanetSeries())",
       "finding": "F6",
       "removedBy": "O-056"
-    },
-    {
-      "rule": "message",
-      "site": "sunOrbit.ts: /no full turn|do not cover/.test(error.message)",
-      "reason": "Recognises an internal RangeError by its message text",
-      "finding": "F8",
-      "removedBy": "O-054"
-    },
-    {
-      "rule": "throw",
-      "site": "data.ts: throw new RangeError(`${source.name}: no moon system for \"${positions.centre}\"`);",
-      "reason": "Throws a RangeError, not a SceneError, when a moon list names a planet without a moon system",
-      "finding": "F8",
-      "removedBy": "O-054"
-    },
-    {
-      "rule": "throw",
-      "site": "pathProvenance.ts: throw new Error(\"body must be a body id\");",
-      "reason": "Throws a plain Error inside the span planner; planSpans catches it and rethrows bad-trajectory, but the throw itself is not a SceneError",
-      "finding": "F8",
-      "removedBy": "O-054"
     }
   ]
 }
