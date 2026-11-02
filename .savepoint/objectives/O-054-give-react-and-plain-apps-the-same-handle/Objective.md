@@ -1,7 +1,7 @@
 ---
 id: O-054
 title: Give React and plain apps the same handle
-status: planned
+status: done
 depends_on: [O-058]
 release: G-016
 priority: high
