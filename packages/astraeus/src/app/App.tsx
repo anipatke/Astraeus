@@ -216,13 +216,17 @@ function initialSceneControls(
   };
 }
 
+/** The Developer drawer when the host asked for developer tools, else nothing (the shell then draws no toggle and no drawer). */
+const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode => (asked === true ? drawer : undefined);
+
 /**
  * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
+ * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true, address, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly host?: ViewerPort }) {
+export function App({ definition, onOpenAddress, writeTitle = true, address, developerTools, host }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -623,7 +627,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
     },
   ];
   const presentGroups = groups.filter((group) => group !== null);
-  const developerTools = (
+  const drawer = (
     <PanelLoadBoundary>
     <Suspense fallback={<p className="developer-loading" role="status">Loading developer tools...</p>}>
     <div className="hud">
@@ -673,7 +677,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, hos
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
       metricsFor={metricsFor}
-      developerTools={developerTools}
+      developerTools={drawerWhen(developerTools, drawer)}
       storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
       timelineGlow={timelineGlow}
       phoneLayout={phoneLayout}

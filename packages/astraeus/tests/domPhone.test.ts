@@ -23,7 +23,7 @@ const phone = (options = {}) => { m = mountShell({ phone: true, ...options }); }
 
 describe("the phone shows only its small chrome (browser-phone: layout)", () => {
   it("shows the name pill with the picked object, the cog, and both drawers closed", () => {
-    phone();
+    phone({ developerTools: "Advanced readouts" });
     expect(m.container.querySelector("main")!.getAttribute("data-phone")).toBe("true");
     expect(pill().textContent).toContain("Earth");
     expect(byLabel(m.container, "Developer mode")).toBeTruthy();

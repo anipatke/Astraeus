@@ -53,7 +53,7 @@ interface Viewer {
   unmount(): void;
 }
 /** A viewer opens with the made-up scene unless it is given another (and the data packages that scene needs). */
-interface OpenWith { readonly scene?: Scene; readonly data?: readonly DataSource[]; }
+interface OpenWith { readonly scene?: Scene; readonly data?: readonly DataSource[]; readonly developerTools?: boolean; }
 interface Adapter {
   readonly name: string;
   open(options?: OpenWith): Promise<Viewer>;
@@ -67,7 +67,7 @@ const mountAdapter: Adapter = {
   name: "mount",
   async open(options = {}) {
     const element = newElement();
-    const mounted = mount(element, options.scene ?? makeScene(), options.data === undefined ? {} : { data: options.data });
+    const mounted = mount(element, options.scene ?? makeScene(), { ...(options.data === undefined ? {} : { data: options.data }), ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }) });
     await mounted.ready;
     return { handle: mounted, element, unmount: () => mounted.unmount() };
   },
@@ -96,7 +96,7 @@ const sceneAdapter: Adapter = {
 /** Renders (or re-renders) `<AstraeusScene>` in a root and resolves when that scene's `onReady` fires. */
 function renderScene(root: Root, ref: { current: ViewerHandle | null }, options: OpenWith): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    const el: ReactElement = h(AstraeusScene, { scene: options.scene ?? makeScene(), ref, ...(options.data === undefined ? {} : { data: options.data }), onReady: () => resolve(true), onError: reject });
+    const el: ReactElement = h(AstraeusScene, { scene: options.scene ?? makeScene(), ref, ...(options.data === undefined ? {} : { data: options.data }), ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }), onReady: () => resolve(true), onError: reject });
     flushSync(() => root.render(el));
   });
 }
@@ -287,12 +287,21 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(snapshot(b.handle)).toEqual(before);
   });
 
-  // Expected to fail today: both viewers draw the same fixed ids (info-panel, controls-drawer, ...). T-254 gives every id an owner-scoped name; then this passes and `.fails` comes off.
-  it.fails("T-254 fixes: no element id repeats in a document holding both viewers", async () => {
+  // T-253 put the Developer drawer behind `developerTools`, and its fixed `developer-tools` id was the only one drawn twice, so two default viewers now share no id.
+  // With the drawer on in both, other fixed ids may still repeat: T-254 gives every id an owner-scoped name; then the second case passes and `.fails` comes off.
+  it("no element id repeats in a document holding both viewers (default options)", async () => {
     await openPair(pairing);
     const ids = [...document.body.querySelectorAll("[id]")].map((el) => el.id);
-    const repeated = ids.filter((id, index) => ids.indexOf(id) !== index);
-    expect(repeated).toEqual([]);
+    expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
+  });
+
+  it.fails("T-254 fixes: no element id repeats when both viewers show the Developer drawer", async () => {
+    const first = await pairing.first.open({ developerTools: true });
+    open.push(first);
+    const second = await pairing.second.open({ developerTools: true });
+    open.push(second);
+    const ids = [...document.body.querySelectorAll("[id]")].map((el) => el.id);
+    expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
   });
 
   it("T-251: two scenes of the same planet's moons at different years both get their moons", async () => {
@@ -326,7 +335,25 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
   });
 
-  it.todo("T-253: developerTools on one viewer and off on the other");
+  // T-253: one viewer with the Developer tools on and one off; only the first has the cog and the drawer, and opening it opens nothing in the other.
+  it("T-253: developerTools on one viewer and off on the other", async () => {
+    const withTools = await pairing.first.open({ developerTools: true });
+    open.push(withTools);
+    const without = await pairing.second.open({ developerTools: false });
+    open.push(without);
+    const cog = (viewer: Viewer) => viewer.element.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]');
+    const drawer = (viewer: Viewer) => viewer.element.querySelector("#developer-tools");
+    expect(cog(withTools)).not.toBeNull();
+    expect(cog(without)).toBeNull();
+    expect(drawer(without)).toBeNull();
+    cog(withTools)!.click();
+    await vi.waitFor(() => expect(cog(withTools)!.getAttribute("aria-expanded")).toBe("true"));
+    await vi.waitFor(() => expect(withTools.element.querySelector(".developer-heading")).not.toBeNull());
+    expect(without.element.querySelector(".developer-heading, .developer-tools")).toBeNull();
+    expect(cog(without)).toBeNull();
+    expect(drawer(without)).toBeNull();
+  });
+
   it.todo("T-255: Escape closes only the panel of the viewer it was pressed in");
   it.todo("T-255: the loading cover is not touched by an outside host's viewer");
 });

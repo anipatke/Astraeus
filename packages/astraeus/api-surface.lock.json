@@ -823,6 +823,11 @@
           "name": "address",
           "optional": true,
           "signature": "boolean | undefined"
+        },
+        {
+          "name": "developerTools",
+          "optional": true,
+          "signature": "boolean | undefined"
         }
       ]
     },
@@ -1012,7 +1017,7 @@
     },
     "AstraeusScene": {
       "kind": "function",
-      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, className, style }: AstraeusSceneProps): ReactElement",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
       "constructors": [],
       "members": []
     },
@@ -1078,6 +1083,11 @@
         },
         {
           "name": "address",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "developerTools",
           "optional": true,
           "signature": "boolean | undefined"
         },

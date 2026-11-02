@@ -16,6 +16,8 @@ export interface MountOptions {
   readonly onChange?: (change: ViewerChange) => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). See the README's "Page address" section. */
   readonly address?: boolean;
+  /** Whether the viewer shows the Developer toggle and drawer (default false: an outside page gets no developer cog and the drawer's code is never fetched). The "Copy view link" button lives in the drawer, so `address: true` without this has no copy button. A switch placed `"developer"` shows only when this is on. */
+  readonly developerTools?: boolean;
 }
 
 /** What `mount` returns: the viewer handle plus `ready` and `unmount`. */
@@ -49,7 +51,7 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const attached = loaded.then(() => {
     if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
-    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, host: link }));
+    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, developerTools: options.developerTools === true, host: link }));
     return link.whenAttached();
   });
   // Only the expected "taken down early" rejection (`not-mounted`) is marked handled, so a host that never awaits `ready` is not sent an unhandled rejection for it;

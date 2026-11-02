@@ -35,7 +35,7 @@ let container: HTMLElement;
 let root: Root;
 const controls = () => sceneProps.latest!.controls;
 const visit = (search: string) => window.history.replaceState(null, "", `/page.html${search}`);
-const open = async (address?: boolean) => { await act(async () => { root.render(createElement(App, { definition, ...(address === undefined ? {} : { address }) })); }); };
+const open = async (address?: boolean) => { await act(async () => { root.render(createElement(App, { definition, developerTools: true, ...(address === undefined ? {} : { address }) })); }); };
 const pressed = () => [...container.querySelectorAll<HTMLElement>("[data-view-id]")].filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.viewId);
 const openDeveloper = async () => {
   press(byLabel(container, "Developer mode"));

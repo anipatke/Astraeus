@@ -171,7 +171,7 @@ describe("the developer cog (browser-shell, browser-layout, browser-embedded: De
 
 describe("keyboard focus and touch sizes (browser-layout: focus, primary controls)", () => {
   it("every primary control is a real button or select that Tab can reach", () => {
-    m = mountShell();
+    m = mountShell({ developerTools: "Advanced readouts" });
     for (const selector of [".object-info-toggle", ".timeline-play", ".timeline-next", ".timeline-previous", "select.object-picker", ".scale-toggle", ".developer-mode-toggle"]) {
       const element = $(m.container, selector);
       expect(["BUTTON", "SELECT"], selector).toContain(element.tagName);

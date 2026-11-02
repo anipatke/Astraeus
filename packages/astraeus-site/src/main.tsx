@@ -122,7 +122,7 @@ const navigation = createAddressNavigation({
 });
 function mount(definition: ExperienceDefinition): void {
   mounts += 1;
-  root.render(<StrictMode><App key={mounts} definition={definition} address onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
+  root.render(<StrictMode><App key={mounts} definition={definition} address developerTools onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
 }
 window.addEventListener("popstate", navigation.popped);
 buildDefinition().then(mount).catch((error: unknown) => { failBootLoader(); throw error; });

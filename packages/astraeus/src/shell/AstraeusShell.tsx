@@ -60,6 +60,19 @@ function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & 
 }
 
 /** The wide-screen moons toggle and the sheet it opens under the toolbar. */
+/** The Developer cog and its drawer; drawn only when the host gave the drawer's content (absent: neither, so an outside page never sees a developer cog). */
+function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { readonly developerMode: boolean; readonly onDeveloperModeChange: (enabled: boolean) => void; readonly children: ReactNode }) {
+  if (children === undefined) return null;
+  return (
+    <>
+      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} />
+      <aside className="developer-tools" id="developer-tools" data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
+        {developerMode ? children : null}
+      </aside>
+    </>
+  );
+}
+
 function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly onToggle: () => void; readonly onClose: () => void; readonly children: ReactNode }) {
   return (
     <>
@@ -104,6 +117,7 @@ interface Props {
   readonly viewCamera?: { readonly id: string; readonly rule: ViewCameraRule };
   /** Live measurements for an object's info panel, from the app's own State; empty when it has none. */
   readonly metricsFor?: (objectId: string, timeUtcMs: number) => readonly Metric[];
+  /** The Developer drawer's content; absent: the shell shows no Developer toggle and no drawer (the host did not ask for developer tools). */
   readonly developerTools?: ReactNode;
   /** The live story-panel settings (auto-open, pause length); absent: the experience's own defaults. */
   readonly storyPanelSettings?: StoryPanelSettings;
@@ -414,10 +428,7 @@ export function AstraeusShell({
       {story.openPanel !== null && (
         <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
       )}
-      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} />
-      <aside className="developer-tools" id="developer-tools" data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
-        {developerMode ? developerTools : null}
-      </aside>
+      <DeveloperDrawer developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange}>{developerTools}</DeveloperDrawer>
       <ShellTimeline
         hidden={experience.hideTimeline === true}
         experience={experience}
