@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { keyIsForViewer } from "./viewerKeys";
 import { Sources } from "./Sources";
 import { BADGE_LABELS, type PanelBadge, type StoryPanel } from "./storyPanels";
 import { useSwipeToDismiss } from "./useSwipeToDismiss";
@@ -27,7 +28,7 @@ export function StoryPanelView({ panel, holding, onClose, onContinue }: Props) {
   useSwipeToDismiss(sheet, onClose);
   useZoomThrough(sheet);
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") onClose(); };
+    const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape" && keyIsForViewer(event, sheet.current)) onClose(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);

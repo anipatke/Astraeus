@@ -76,6 +76,15 @@ describe("attachScenePointer", () => {
   });
 });
 
+/** A panel of `className` covering the whole 800 x 800 layer, inside `viewer`. */
+function panelOver(viewer: HTMLElement, className: string): HTMLElement {
+  const panel = document.createElement("div");
+  panel.className = className;
+  viewer.appendChild(panel);
+  vi.spyOn(panel, "getBoundingClientRect").mockReturnValue({ left: 0, top: 0, right: 800, bottom: 800, width: 800, height: 800, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+  return panel;
+}
+
 describe("FeatureMarkerLayer", () => {
   const specs: FeatureMarkerSpec[] = [
     { key: "io:near", bodyId: "io", name: "Near Crater", color: "#ff0000", latitude: 0, longitude: -90 },
@@ -88,8 +97,10 @@ describe("FeatureMarkerLayer", () => {
   const sphere = new Group();
   const hostOf = (bodyId: string): FeatureHost | null => (bodyId === "io" ? { sphere, radius: 1 } : null);
   let host: HTMLElement;
-  beforeEach(() => { host = document.createElement("div"); document.body.appendChild(host); });
-  afterEach(() => { host.remove(); vi.restoreAllMocks(); });
+  let shell: HTMLElement;
+  // The layer sits inside its viewer's root, as in the real shell; the layer measures only that root's panels.
+  beforeEach(() => { shell = document.createElement("main"); shell.className = "astraeus-shell"; host = document.createElement("div"); shell.appendChild(host); document.body.appendChild(shell); });
+  afterEach(() => { shell.remove(); vi.restoreAllMocks(); });
   const button = (key: string) => host.querySelector<HTMLButtonElement>(`[data-feature-key="${key}"]`)!;
 
   it("builds one named, hidden button per place and shows only the near-side place of a drawn body, at its screen spot", () => {
@@ -134,14 +145,27 @@ describe("FeatureMarkerLayer", () => {
     expect(button("io:near").dataset.edgeX).toBe("left");
     expect(button("io:near").dataset.edgeY).toBe("");
     // A panel over the middle of the layer covers the near place at the next measure.
-    const panel = document.createElement("div");
-    panel.className = "info-panel";
-    document.body.appendChild(panel);
-    vi.spyOn(panel, "getBoundingClientRect").mockReturnValue({ left: 0, top: 0, right: 800, bottom: 800, width: 800, height: 800, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    const panel = panelOver(shell, "info-panel");
     vi.spyOn(performance, "now").mockReturnValue(1e9);
     layer.update(hostOf, camera, 45, 800, 800, null, 1);
     expect(button("io:near").hidden).toBe(true);
     panel.remove();
+  });
+
+  it("T-255: measures only its own viewer's panels: another viewer's panel over the same area hides nothing here", () => {
+    const layer = new FeatureMarkerLayer(host, specs, vi.fn());
+    const other = document.createElement("main");
+    other.className = "astraeus-shell";
+    document.body.appendChild(other);
+    const stranger = panelOver(other, "info-panel");
+    vi.spyOn(performance, "now").mockReturnValue(1e9);
+    layer.update(hostOf, camera, 45, 800, 800, null, 1);
+    expect(button("io:near").hidden).toBe(false);
+    const own = panelOver(shell, "story-panel");
+    vi.spyOn(performance, "now").mockReturnValue(2e9);
+    layer.update(hostOf, camera, 45, 800, 800, null, 1);
+    expect(button("io:near").hidden).toBe(true);
+    stranger.remove(); own.remove(); other.remove();
   });
 
   it("tells the caller which place was pressed without letting the press reach the camera, and removes itself on dispose", () => {

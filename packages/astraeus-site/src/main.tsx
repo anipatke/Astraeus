@@ -9,7 +9,7 @@ import { chooseShower, showerEntryName, type ShowerEntry } from "./showerSwitch"
 import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planetSystems";
 import { createAddressNavigation } from "astraeus/app/addressNavigation";
-import { failBootLoader, showBootLoader } from "astraeus/shell/bootLoader";
+import { createBootCover } from "./bootCover";
 import "astraeus/app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
@@ -108,21 +108,22 @@ async function buildDefinition(): Promise<ExperienceDefinition> {
   // The moon maps, the 8k Venus map and the Milky Way ship in astraeus-data, not the engine; the site hands them to its one viewer through the definition.
   return { ...definition, pictures: { ...PICTURES, ...definition.pictures } };
 }
+const cover = createBootCover(document);
 const root = createRoot(app);
 // Each build is mounted under a new key, so the old app unmounts whole (its canvas and the scene's GPU resources are disposed) before the new one starts.
 let mounts = 0;
 const navigation = createAddressNavigation({
   push: (address) => window.history.pushState(null, "", address),
-  showCover: showBootLoader,
+  showCover: cover.show,
   rebuild: async (isCurrent) => {
     const definition = await buildDefinition();
     if (isCurrent()) mount(definition);
   },
-  fail: (error) => { failBootLoader(); throw error; },
+  fail: (error) => { cover.fail(); throw error; },
 });
 function mount(definition: ExperienceDefinition): void {
   mounts += 1;
-  root.render(<StrictMode><App key={mounts} definition={definition} address developerTools onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
+  root.render(<StrictMode><App key={mounts} definition={definition} address developerTools claimCover={cover.claim} onOpenAddress={navigation.open} host={hostLink} /></StrictMode>);
 }
 window.addEventListener("popstate", navigation.popped);
-buildDefinition().then(mount).catch((error: unknown) => { failBootLoader(); throw error; });
+buildDefinition().then(mount).catch((error: unknown) => { cover.fail(); throw error; });

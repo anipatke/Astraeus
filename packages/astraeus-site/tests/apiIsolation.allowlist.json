@@ -2,13 +2,6 @@
   "_about": "API-03 viewer isolation scans (tools/api-rules.mjs idLiteralBreaks, styleSelectorBreaks). One entry per break: reason, review finding (docs/architecture/api-review-2026-11-01.md), Objective expected to remove it. `id`: a fixed element id literal in src/shell or src/app. `selector`: `file.css: selector` for a selector in any stylesheet under packages/astraeus/src (derived, not listed) that is not under the viewer's root class (.astraeus-shell) or that names :root, html, body or #app. An entry that no longer matches a break fails the test; entries may only be removed.",
   "breaks": [
     {
-      "rule": "id",
-      "site": "shell/bootLoader.ts: document.getElementById(\"boot\")",
-      "reason": "A fixed id: a second viewer on the page repeats it; make it per viewer (useId)",
-      "finding": "F3",
-      "removedBy": "O-055"
-    },
-    {
       "rule": "selector",
       "site": "app/style.css: :root",
       "reason": "Styles the host page itself (:root, html, body or #app)",

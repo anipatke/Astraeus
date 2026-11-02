@@ -7,8 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const controlsOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneControls>());
 const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
+const coverClaimOf = vi.hoisted(() => new WeakMap<Element, unknown>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); } } }),
+  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime; claimCover?: unknown }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); coverClaimOf.set(el, props.claimCover); } } }),
 }));
 vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 
@@ -363,6 +364,37 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(drawer(without)).toBeNull();
   });
 
-  it.todo("T-255: Escape closes only the panel of the viewer it was pressed in");
-  it.todo("T-255: the loading cover is not touched by an outside host's viewer");
+  // T-255: the document-level Escape listeners act only for the viewer the key was pressed in (every listener x every origin is the table in escapeScope.test.ts).
+  it("T-255: Escape pressed inside A's open phone drawer closes A's and leaves B's open; on the page body it closes both; in a host input neither", async () => {
+    pretendScreen({ phone: true });
+    const [a, b] = await openPair(pairing);
+    const drawerOpen = (v: Viewer) => v.element.querySelector(".controls-drawer")!.getAttribute("data-open") === "true";
+    const openBoth = () => { for (const v of [a, b]) { if (!drawerOpen(v)) flushSync(() => v.element.querySelector<HTMLButtonElement>("button.controls-pill")!.click()); } };
+    const escape = (target: Element) => flushSync(() => { target.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })); });
+    const input = document.createElement("input");
+    document.body.append(input);
+    openBoth();
+    expect([drawerOpen(a), drawerOpen(b)]).toEqual([true, true]);
+    escape(input);
+    expect([drawerOpen(a), drawerOpen(b)]).toEqual([true, true]);
+    escape(a.element.querySelector("main")!);
+    expect([drawerOpen(a), drawerOpen(b)]).toEqual([false, true]);
+    openBoth();
+    escape(b.element.querySelector("main")!);
+    expect([drawerOpen(a), drawerOpen(b)]).toEqual([true, false]);
+    openBoth();
+    escape(document.body);
+    expect([drawerOpen(a), drawerOpen(b)]).toEqual([false, false]);
+  });
+  it("T-255: a page's own #boot is never touched, and neither viewer is handed a loading cover", async () => {
+    const boot = document.createElement("div");
+    boot.id = "boot";
+    boot.dataset.state = "loading";
+    document.body.append(boot);
+    const [a, b] = await openPair(pairing);
+    for (const v of [a, b]) expect(coverClaimOf.get(v.element.querySelector("[data-testid=scene]")!)).toBeUndefined();
+    vi.advanceTimersByTime(5000);
+    expect(document.getElementById("boot")).toBe(boot);
+    expect(boot.dataset.state).toBe("loading");
+  });
 });

@@ -5,6 +5,7 @@ import { Vector3, type Camera, type Object3D } from "three";
 import { projectedRadiusPx } from "./bodyDraw";
 import type { BodyFeatureSet } from "../shell/bodyFeatures";
 import { featureColor, featureKey } from "../shell/bodyFeatures";
+import { VIEWER_ROOT_CLASS } from "../shell/viewerKeys";
 
 /** The donor's `latLonToXYZ`, verbatim: a point on a sphere of `radius`, in the body's own frame (Three.js SphereGeometry UV layout). */
 export function latLonToXYZ(lat: number, lon: number, radius: number): [number, number, number] {
@@ -232,7 +233,9 @@ export class FeatureMarkerLayer {
     if (now - this.#measuredAt < OCCLUDER_REFRESH_MS) return;
     this.#measuredAt = now;
     const origin = this.#root.getBoundingClientRect();
-    this.#occluders = [...document.querySelectorAll(FEATURE_OCCLUDER_SELECTOR)].flatMap((element) => {
+    // Only this viewer's own panels count: a second viewer on the page has its own (O-055).
+    const viewer = this.#root.closest(`.${VIEWER_ROOT_CLASS}`);
+    this.#occluders = [...(viewer?.querySelectorAll(FEATURE_OCCLUDER_SELECTOR) ?? [])].flatMap((element) => {
       if (this.#root.contains(element)) return [];
       const box = element.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) return [];

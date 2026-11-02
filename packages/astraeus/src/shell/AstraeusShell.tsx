@@ -227,7 +227,7 @@ export function AstraeusShell({
   const [embedded] = useState(isEmbedded);
   const root = useRef<HTMLElement | null>(null);
   // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
-  const { controlsOpen, timelineOpen, openControls, openTimeline } = useDrawers(phone, () => {
+  const { controlsOpen, timelineOpen, openControls, openTimeline } = useDrawers(phone, root, () => {
     if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
   });
   useTimelineSpace(root, phone);

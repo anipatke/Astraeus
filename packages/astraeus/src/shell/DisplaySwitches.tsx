@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { keyIsForViewer } from "./viewerKeys";
 import { ButtonText, OrbitIcon, SwitchesIcon } from "./topBarIcons";
 
 /** One display switch a story placed: where it shows, and whether it is on now. */
@@ -66,7 +67,7 @@ function SwitchPanel({ switches, viewChoice }: { readonly switches: readonly Dis
   useEffect(() => {
     if (!open) return undefined;
     const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    const escape = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape") setOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape" && keyIsForViewer(event, root.current)) setOpen(false); };
     document.addEventListener("pointerdown", outside);
     document.addEventListener("keydown", escape);
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
