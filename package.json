@@ -23,6 +23,7 @@
     "build:example": "node tools/build-example.mjs",
     "measure:example": "node tools/measure-example.mjs",
     "api:lock": "node tools/api-surface.mjs",
+    "look:lock": "node tools/look-lock.mjs",
     "api:errors": "node tools/api-rules.mjs readme",
     "lint": "node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js packages tools"
   },

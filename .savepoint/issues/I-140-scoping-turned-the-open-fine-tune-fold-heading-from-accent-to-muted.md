@@ -18,6 +18,11 @@ history:
     kind: observed
     check: C-144
     note: 'C-144 probe P-STYLE-1 (computed styles of the rendered App under the main-branch sheets vs the HEAD sheets) finds exactly one changed look in every layout and both bundle orders: an open nested Developer-drawer fold heading is #fc6323 on main and #c7bdb3 on HEAD.'
+  - at: '2026-11-02T12:00:00Z'
+    actor: {role: executor, session: o055-repair-20261102}
+    kind: repair_attempted
+    check: C-144
+    note: 'Repair, not verified. (1) packages/astraeus/src/app/style.css: the nested-fold rule is split; font-weight keeps `.astraeus-shell .hud .collapsible-nested .collapsible-toggle`, the colour is `.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle` so `button[aria-expanded=true]:not(.ui-bare)` wins as on main (an all-:where() first attempt flipped font-weight 500 to 650; the lock caught it). (2) New packages/astraeus/tests/computedLook.test.ts renders the real App (4 layouts x site/mount bundle order x synthetic/listed definition, every fold and panel open, 16 scenarios) and compares every element''s computed style (56 properties) with the checked-in tests/fixtures/computed-look.baseline.json; `npm run look:lock` (tools/look-lock.mjs) regenerates it for an intended look change. Red before: with the colour rule back at `.astraeus-shell .hud .collapsible-nested .collapsible-toggle`, 8 of 16 scenarios fail naming `button.ui-row.collapsible-toggle | color: #fc6323 -> #c7bdb3`. Green after: 16 pass. Baseline checked against main: the C-144 cascade probe (main sheets vs tree) passes 19/19 with 0 differences after the fix. npm test 203 files, 2514 passed, 2 skipped; check:engine-alone 138 files, 1536 passed; the new test file 10 of 10 runs green. Limits: happy-dom cascade, no :hover/:focus; the baseline records the current look, so it proves no flip from here on, and equality with main was shown by the probe, not by the baseline.'
 ---
 
 # I-140: Scoping turned the open Fine-tune fold heading from accent to muted

@@ -59,7 +59,6 @@ function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & 
   return hidden ? null : <TimelineBar {...bar} />;
 }
 
-/** The wide-screen moons toggle and the sheet it opens under the toolbar. */
 /** The Developer cog and its drawer; drawn only when the host gave the drawer's content (absent: neither, so an outside page never sees a developer cog). */
 function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { readonly developerMode: boolean; readonly onDeveloperModeChange: (enabled: boolean) => void; readonly children: ReactNode }) {
   const drawerId = `${useId()}-developer-tools`;
@@ -74,6 +73,7 @@ function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { r
   );
 }
 
+/** The wide-screen moons toggle and the sheet it opens under the toolbar. */
 function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly onToggle: () => void; readonly onClose: () => void; readonly children: ReactNode }) {
   const sheetId = `${useId()}-moons-panel`;
   return (

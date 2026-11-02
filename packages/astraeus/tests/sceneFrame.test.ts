@@ -1,44 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Group, PerspectiveCamera } from "three";
-import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";
 import { readableScale, trueScale } from "../src/core/scalePolicy";
 import type { BodyId } from "../src/core/body";
-import { catalogue } from "../src/assets/catalogue";
 import { createOrbitCameraState } from "../src/app/CameraController";
-import { FloatingOrigin } from "../src/app/floatingOrigin";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext, type FrameLayers } from "../src/app/sceneFrame";
-import { createSceneResolver } from "../src/app/sceneLayout";
+import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
-import { DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
-const T0 = Date.UTC(2026, 0, 1);
-const BODIES: BodyId[] = ["earth", "moon"];
-const resolver = createSceneResolver(createOrbAstronomyAdapter());
-
-function fakeCanvas(): HTMLCanvasElement {
-  return { dataset: {}, style: { cursor: "" }, getBoundingClientRect: () => ({ left: 0, top: 0 }) } as unknown as HTMLCanvasElement;
-}
-
-function makeContext(over: { controls?: Partial<SceneControls>; runtime?: Partial<SceneRuntime>; clock?: SimulationClock } = {}) {
-  const clock = over.clock ?? new SimulationClock(T0);
-  const runtime = { clock, resolver, bodies: BODIES, sceneCenter: "earth", trackedBodies: [], groups: [], cameraReach: {}, ...over.runtime } as SceneRuntime;
-  const controls = { policy: readableScale, cameraRequest: null, showAnchorLabels: false, showMilkyWay: false, bodyMarker: DEFAULT_BODY_MARKER, starBrightness: 1, milkyWayBrightness: 1, labelObjects: [{ id: "earth", label: "Earth" }], selectedObjectId: "earth", frameStats: null, groupFills: [], ...over.controls } as SceneControls;
-  const groups = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
-  const orients = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
-  const layers: FrameLayers = { bodySetLabels: { current: [] }, anchorLabels: { current: null }, sceneLabels: { current: null }, storyMarkers: { current: null }, featureMarkers: { current: null } };
-  const camera = new PerspectiveCamera(45, 1, 0.05, 1000);
-  const ctx: FrameContext = {
-    runtime, controls, readout: { current: null }, catalogue, camera, canvas: fakeCanvas(), size: { width: 800, height: 600 }, origin: new FloatingOrigin(),
-    orbit: createOrbitCameraState(16, "earth"), state: createFrameState(controls.policy.id), delta: 0.016, assets: BODIES.map((id) => catalogue.get(id)),
-    bodyRefs: { groups, orients, parts: new Map() }, lightRefs: new Map(), placement: { resolver, center: "earth" },
-    views: { trackedViews: [], groupViews: [], sunCentredViews: [], compositionPaths: [], skyView: null, bodySetViews: [], orbitSetViews: [] },
-    layers, bodyFamilies: [], bodyIdFor: (id) => (catalogue.has(id) ? id : null), readoutPair: { parent: "earth", child: "moon" }, pairLabels: undefined,
-  };
-  return { ctx, clock, groups };
-}
+import { makeContext, T0 } from "./helpers/frameContext";
 
 afterEach(() => vi.unstubAllGlobals());
 

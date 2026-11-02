@@ -50,7 +50,9 @@
 .astraeus-shell .dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 10px; }
 .astraeus-shell .dev-group-cards .hud-section-clock { column-span: all; }
 .astraeus-shell .collapsible-nested { margin: 4px 0 8px; border-left: 2px solid var(--ui-border); padding-left: 8px; }
-.astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; color: var(--ui-muted); }
+.astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; }
+/* The colour sits at (0,2,0) on purpose: on main this rule (0,3,0) lost to controls.css `button[aria-expanded="true"]:not(.ui-bare)` (0,3,1), so an open nested fold stays accent (I-140). */
+.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle { color: var(--ui-muted); }
 @media (prefers-reduced-motion: reduce) { .astraeus-shell .hud .collapsible-toggle svg { transition: none; } }
 .astraeus-shell .setting-group { margin: 0 0 12px; padding: 0; border: 0; min-width: 0; }
 .astraeus-shell .setting-group:last-child { margin-bottom: 0; }

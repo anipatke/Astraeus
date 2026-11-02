@@ -18,6 +18,11 @@ history:
     kind: observed
     check: C-144
     note: 'C-144 mutation probe: `createFrameState(props.controls.policy.id, props.claimCover)` changed to `createFrameState(props.controls.policy.id)` in packages/astraeus/src/app/AstraeusScene.tsx; `npx vitest run`: 200 files, 2494 passed, 1 skipped; `tsc --noEmit` clean. Restored with git checkout.'
+  - at: '2026-11-02T12:00:00Z'
+    actor: {role: executor, session: o055-repair-20261102}
+    kind: repair_attempted
+    check: C-144
+    note: 'Repair, not verified. Two tests through the real chain, canvas stubbed only: packages/astraeus-site/tests/loadingCoverChain.test.ts imports the real src/main.tsx (synthetic experience, a #boot on the page) and proves the scene''s frame state holds the page''s #boot; packages/astraeus/tests/loadingCoverFrame.test.ts renders the real App with a claimCover, proves it reaches the real AstraeusScene''s frame state, and runs the engine''s own first-frame step (stepAndPoseCamera) on that state to see the cover go to data-state=done; it also covers no-claim. Mutations, each restored with git checkout: dropping the claim in AstraeusScene.tsx fails both files; dropping `claimCover={claimCover}` in App.tsx fails both; dropping `claimCover={cover.claim}` in main.tsx fails the site test. Green on the restored tree. The shared frame-context builder moved from sceneFrame.test.ts to tests/helpers/frameContext.ts. Gates: npm test 203 files, 2514 passed; engine-alone 138 files, 1536 passed; both files 10 of 10 green. Not done: a browser step reading the cover (browser scripts excluded from this repair).'
 ---
 
 # I-141: Nothing fails when the site's loading cover is no longer handed to the scene

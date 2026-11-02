@@ -44,9 +44,10 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   if (!(element instanceof Object) || typeof element.appendChild !== "function") throw new SceneError("bad-element", "mount: the first argument must be an element of the page");
   const { definition, ready: loaded } = prepareScene(scene, options.data);
   // Its own stacking context, so the viewer's z-index values cannot rise above the host page's overlays.
+  const isolation = element.style.isolation;
   element.style.isolation = "isolate";
   // The viewer's root fills this element (position: absolute; inset: 0), so the element is its containing block; the viewer no longer styles the host's #app.
-  makeContainingBlock(element);
+  const restoreBlock = makeContainingBlock(element);
   const root = createRoot(element);
   let open = true;
   const link = new ViewerLink();
@@ -73,6 +74,9 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
       open = false;
       link.close();
       root.unmount();
+      // The host element goes back to the inline isolation, position and overflow it had before `mount`.
+      restoreBlock();
+      element.style.isolation = isolation;
     },
   });
 }
