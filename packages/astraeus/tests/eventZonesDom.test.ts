@@ -259,7 +259,7 @@ describe("event zones from withinSeconds", () => {
     const handle = mount(host, zoned(events, { ...(pacing === undefined ? {} : { pacing }) }));
     await drawn(handle);
     const seen = listen(handle);
-    act(() => handle.setTime(T0 + 19.5 * DAY)); 
+    act(() => handle.setTime(T0 + 19.5 * DAY));
     act(() => handle.setTime(T0 + 30 * DAY));
     expect(handle.eventZones).toEqual([]);
     expect(seen.map(short)).toEqual(["enter za host", "leave za host"]);

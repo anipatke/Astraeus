@@ -2,7 +2,9 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { gzipSync } from "node:zlib";
 import { beforeAll, describe, expect, it } from "vitest";
+import { PAGES } from "../tools/validate/load-budget.mjs";
 import { collectExports, renderApiPage, undocumentedExports } from "../tools/site/api-reference.mjs";
 
 describe("API reference", () => {
@@ -14,6 +16,14 @@ describe("API reference", () => {
 
   it("has a doc comment on every export of the public entry", () => {
     expect(items.filter((item) => item.doc === "").map((item) => item.name)).toEqual([]);
+  });
+
+  it("keeps the generated page within the api/index.html raw and gzip limits of load-budget.mjs (I-142)", () => {
+    const limit = PAGES.find((page) => page.id === "api/index.html");
+    if (limit === undefined) throw new Error("load-budget.mjs lists no api/index.html page");
+    const page = Buffer.from(renderApiPage(items));
+    expect(page.length).toBeLessThanOrEqual(limit.rawLimit);
+    expect(gzipSync(page).length).toBeLessThanOrEqual(limit.gzipLimit);
   });
 
   it("names an export that has no doc comment (proved on a made-up entry)", () => {
