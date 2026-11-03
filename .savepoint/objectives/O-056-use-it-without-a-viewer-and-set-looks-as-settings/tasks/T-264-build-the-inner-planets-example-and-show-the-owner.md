@@ -2,9 +2,10 @@
 id: T-264
 title: Build the inner planets example and show the owner
 objective: O-056
-status: planned
+status: done
 depends_on: [{task: T-263, requires: clear}]
 owner_validation: {required: true}
+check_waiver: {task: T-264, reason: 'Owner said "Orchestrate o56" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o056-run-20261103}, recorded_at: '2026-11-03T10:45:35Z'}
 planned_by: {role: planner, session: o056-planning-20261103}
 ---
 
@@ -58,8 +59,23 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- New `examples/hello-planets/` (Vite, plain `mount`, no React, no data package, packed tarball): met. Sun, Mercury, Venus, Earth, Mars with `orbit: true` and `enlarge: 60`, `solarSystemScale`, `camera.fitOrbit(mars)`, `scene.setLook` defaults, a `range` readout (distance from the Sun) on Earth; three sliders (star brightness, Sun glow brightness, Sun glow size) and a scale button drive `handle.setLook` / `handle.setScale`. The controls are a strip under the viewer (flex column), so nothing overlaps by construction; narrow screens use a two-column grid. No Milky Way slider: the picture needs `astraeus-data`, absent here (stated in code comment, README, CHANGELOG).
+- `npm run build:example` builds it (EXAMPLES in `tools/build-example.mjs`); browser step `hello-planets` added to `run-browser.mjs`, port list in `runner.mjs`, script `check-hello-planets.mjs`, driver functions `setHostSlider`, `pressHostButton`, `hostControlText`, `hostControlsFit`. The whole suite was NOT run. The one new script was run once alone against a preview on port 5483 at 1280x720 and 375x667: ok, no errors (stars slider read back 0.4 from the sky, scale solar-system to true-scale, no overlap, Earth card names the Sun). Engine budget: `node tools/measure-example.mjs` (hello-scene) first-open 1,685,581 raw / 484,411 gzip, under 1,735,000 / 497,000; `engine-budget.mjs` unchanged.
+- README ("Your own controls" section plus pointers; `scene.load`, `scene.check`, reads, `LookInput` with address table, handle members, event zones were already in from T-259..T-263) and CHANGELOG (Unreleased has an entry per step and the `toDefinition` migration table): met.
+- Design: one O-056 paragraph in Interfaces and Data Flow, map rows (`examples/hello-planets`, new tests), the `public` settings map drift line and "Allowlist growth" bullet updated, and a drift accounting list covering T-259..T-263 (reflected or non-architectural with reasons; API-04 vs lint named as a tension for O-057): met.
+- Owner validation: NOT recorded; pending the owner look (coordinator).
+- Surface: no public API change in this step, so `api:lock` not regenerated (apiSurface test passes in `npm test`).
+- Gates (all pass): `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (207 files, 2605 passed, 2 skipped), `npm run check:pack` (pass), `npm run build:example` (all three examples built).
+
+Files read beyond Context Files: `docs/architecture` none; `packages/astraeus-site/tools/validate/harness.mjs`, `runner.mjs`, `driver.mjs` (sections) to wire the step; `docs/agents/build.md`, `docs/BROWSER_CHECKS.md` (edited).
+Files changed: examples/hello-planets/{.gitignore,package.json,index.html,src/main.js}; tools/build-example.mjs; packages/astraeus-site/tools/validate/{run-browser.mjs,runner.mjs,driver.mjs,check-hello-planets.mjs}; packages/astraeus/{README.md,CHANGELOG.md}; .savepoint/Design.md; docs/BROWSER_CHECKS.md; docs/agents/build.md; this Task file.
+
+Showing the owner (coordinator): `cd /home/user/code/Astraeus && node tools/build-example.mjs hello-planets && npx vite preview examples/hello-planets --port 5490 --strictPort --host localhost` then open http://localhost:5490/ (or use another free port; 5490 is the owner's preview port, stop whatever holds it first). Check at 375x667 and 1280x720.
+
+Limitations: the preview I started on port 5483 for the single script run could not be stopped by me (kill was denied); it may still be running (`pgrep -af "vite preview examples/hello-planets"`). The look itself is unjudged (owner). The hello-planets first download was not measured against any budget (none exists for it).
+- Owner look (2026-11-03T10:45:35Z, session o056-run-20261103): the owner was given http://localhost:5490/ (`vite preview examples/hello-planets`, built from dbbaaa45 plus this step's work) to check at 375x667 and 1280x720 — five bodies with orbit lines filling the view, the three sliders acting live, the scale button, Earth's distance-from-Sun readout, no overlaps — and answered "looks right".
 
 ## Drift Notes
 
-None expected beyond the reconciliation itself.
+None beyond the reconciliation itself; the browser step needed `runner.mjs` EXAMPLE_NAMES and four driver helpers, noted in the Technical Evidence.

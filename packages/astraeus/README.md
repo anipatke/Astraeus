@@ -40,7 +40,7 @@ scene.camera.follow("probe", { distance: 110 });
 mount(document.getElementById("app"), scene);
 ```
 
-The element needs a size (for example `height: 100%` all the way up). The viewer styles nothing outside its element: it sets no style on `html`, `body` or `#app`, so give the element its size (and, for a full-page viewer, your own `html, body { height: 100%; margin: 0 }` and background) yourself; it makes its own element a containing block (`position: relative` if static, `overflow: hidden` if visible). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app, grown into a small made-up story with every call below, is in the repository at `examples/hello-scene`.
+The element needs a size (for example `height: 100%` all the way up). The viewer styles nothing outside its element: it sets no style on `html`, `body` or `#app`, so give the element its size (and, for a full-page viewer, your own `html, body { height: 100%; margin: 0 }` and background) yourself; it makes its own element a containing block (`position: relative` if static, `overflow: hidden` if visible). The probe's circle and the Moon's own orbit (tilted to it, because the circle lies in the reference frame's x-y plane) are both drawn. The finished app, grown into a small made-up story with every call below, is in the repository at `examples/hello-scene`; `examples/hello-planets` shows the same calls with a page's own controls.
 
 ### A probe across the solar system
 
@@ -68,6 +68,10 @@ mount(document.getElementById("app"), scene);
 ```
 
 Positions are about the scene centre (here the Sun, the first body) unless `center` says otherwise. `lineFixedTo: "sun"` keeps the line still against the Sun while the planets move (`lineFixedTo: "auto"` picks the Sun or a planet for each stretch from the path's own samples, or give a list such as `[{ start, end, body: "earth" }]`); `plane` turns the ecliptic vectors into the engine's equatorial frame once; `solarSystemScale` keeps the distances true and draws the named bodies larger; the probe's name shows at any distance in a Sun-centred scene. The repository's dev site opens a fuller version at `?experience=synthetic-probe`, and a made-up 1977-to-170-AU journey past Jupiter and Saturn (moons at their dates, paced playback, provenance by stretch) at `?experience=synthetic-journey`.
+
+### Your own controls
+
+The viewer's looks, scale and switches are settings, so a page can draw its own controls and drive them through the handle: `handle.look` and `handle.setLook(look)` (star brightness, Sun glow size and brightness and so on; see `scene.setLook` below for the ranges), `handle.scale` and `handle.setScale(id)` (one of `scene.scales`), `handle.switches` and `handle.setSwitch(id, on)`. The repository's `examples/hello-planets` is a plain `mount` app of the Sun to Mars with no data package and three sliders and a scale button of its own under the viewer; it has no Milky Way slider because the Milky Way picture comes from `astraeus-data`, which it does not install.
 
 ## The public API
 

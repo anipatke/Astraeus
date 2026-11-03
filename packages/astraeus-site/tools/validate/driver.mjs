@@ -1716,3 +1716,25 @@ export const hostSetView = (page, id) => page.evaluate((view) => window.astraeus
 /** Starts recording what the host link hears from the viewer, as { view, cause, time } lines. */
 export const watchHostChanges = (page) => page.evaluate(() => { window.hostChanges = []; window.astraeusHost.onChange((change) => window.hostChanges.push({ view: change.view, cause: change.cause, time: change.time })); });
 export const hostChanges = (page) => page.evaluate(() => window.hostChanges ?? []);
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The host page's own controls (O-056 T-264): examples/hello-planets draws sliders and a scale button of its own (`data-host="<id>"`) beside the viewer.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+const hostControl = (page, id) => page.locator(`[data-host="${id}"]`);
+/** Sets one of the host page's sliders the way a visitor dragging it would (value, then an input event). */
+export const setHostSlider = (page, id, value) => hostControl(page, id).evaluate((input, next) => { input.value = String(next); input.dispatchEvent(new Event("input", { bubbles: true })); }, value);
+/** Presses one of the host page's buttons. */
+export const pressHostButton = (page, id) => hostControl(page, id).click();
+/** The text of one of the host page's controls. */
+export const hostControlText = (page, id) => hostControl(page, id).innerText();
+/** The host controls against the viewer and the window: every control inside the window, none overlapping another or the viewer's canvas, and no sideways scroll. */
+export const hostControlsFit = (page) => page.evaluate(() => {
+  const boxOf = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+  const crosses = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+  const controls = [...document.querySelectorAll("[data-host]")].map((element) => ({ id: element.dataset.host, ...boxOf(element) }));
+  const canvas = boxOf(document.querySelector("canvas"));
+  const overlaps = controls.flatMap((a, i) => [...controls.slice(i + 1).filter((b) => crosses(a, b)).map((b) => `${a.id}/${b.id}`), ...(crosses(a, canvas) ? [`${a.id}/canvas`] : [])]);
+  const outside = controls.filter((c) => c.left < 0 || c.top < 0 || c.right > innerWidth || c.bottom > innerHeight).map((c) => c.id);
+  return { count: controls.length, overlaps, outside, sideways: document.documentElement.scrollWidth > innerWidth + 1 };
+});

@@ -11,6 +11,7 @@ const STEPS = [
   { name: "views", script: "journey-views.mjs", scene: "synthetic-views (made-up, two probes, three views): a visitor switch and a host setView at desktop and phone size, the stay rule holds the camera still" },
   { name: "hello-scene", script: "check-hello-scene.mjs", example: "hello-scene", env: { HELLO_STORY: "1" }, scene: "examples/hello-scene from the packed tarballs: the made-up story (anchors, events, one panel, looking at the probe), Earth and Moon drawn, time set, desktop and phone" },
   { name: "hello-react", script: "check-hello-scene.mjs", example: "hello-react", scene: "examples/hello-react (AstraeusScene) from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone" },
+  { name: "hello-planets", script: "check-hello-planets.mjs", example: "hello-planets", scene: "examples/hello-planets from the packed tarballs: the Sun to Mars drawn, the page's own sliders and scale button drive the viewer, Earth's distance from the Sun, no overlap, desktop and phone" },
   { name: "public-build-assets", script: "public-build-assets.mjs", public: true, noBrowser: true },
   { name: "public-addresses", script: "public-addresses.mjs", public: true, noBrowser: true },
 ];

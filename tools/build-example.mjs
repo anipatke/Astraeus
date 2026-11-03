@@ -1,4 +1,4 @@
-// Builds the example app (O-036 T-162): `node tools/build-example.mjs`. examples/hello-scene and examples/hello-react live outside the workspaces and install the PACKED tarballs
+// Builds the example app (O-036 T-162): `node tools/build-example.mjs`. examples/hello-scene, examples/hello-react and examples/hello-planets live outside the workspaces and install the PACKED tarballs
 // of the engine (built by tools/build-packages.mjs, packed with `npm pack` from each package's dist/), never a workspace link, so it proves what a customer gets.
 //   1. build the packages, 2. pack `astraeus` into each example's .packs (git-ignored), 3. npm install the tarball and vite there, 4. vite build -> examples/<name>/dist. `node tools/build-example.mjs hello-react` builds one.
 // Serve one with `npm run preview` inside the example (or `npx vite preview examples/hello-scene --port 5496`).
@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 /** The example apps, each outside the workspaces and installed from the packed tarballs. */
-export const EXAMPLES = ["hello-scene", "hello-react"];
+export const EXAMPLES = ["hello-scene", "hello-react", "hello-planets"];
 /** The packages the examples install: the engine only (it draws Earth, the Moon and a path with no data package). */
 export const EXAMPLE_PACKAGES = ["astraeus"];
 
