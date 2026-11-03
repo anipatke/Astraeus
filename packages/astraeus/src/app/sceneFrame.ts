@@ -219,7 +219,10 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
   const { controls, camera, canvas, size, views } = ctx;
   const markerBodies = swapSmallBodiesToMarkers(ctx.assets, ctx.bodyRefs, camera, camera.fov, size.height, controls.policy, controls.bodyMarker);
   publishSceneData(canvas, { markerBodies, viewUp: viewUpOf(ctx), markerMinSpherePx: controls.bodyMarker.minSpherePx });
-  if (views.skyView !== null) updateSky(views.skyView, camera, canvas, controls, controls.frameStats !== null);
+  if (views.skyView !== null) {
+    if (controls.skyVisible !== undefined) views.skyView.group.visible = controls.skyVisible;
+    if (controls.skyVisible !== false) updateSky(views.skyView, camera, canvas, controls, controls.frameStats !== null);
+  }
 }
 
 /** Stage 5: places every view about the floating origin and publishes the views' readouts. Returns the hover brightness gain. */

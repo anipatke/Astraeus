@@ -27,3 +27,15 @@ export interface LookInput {
   /** How long the host's loading cover fades out at the first drawn frame, in seconds, 0 to 3. Default 0.6 (a value saved from the Developer drawer stands in its place). */
   readonly loadFadeSeconds?: number;
 }
+
+/** The looks a running viewer shows, every one filled in (`ViewerHandle.look`): the scene's `setLook`, the page address and the Developer drawer laid over the defaults. `sunGlow` is absent in a scene without the Sun. */
+export interface LookRead {
+  readonly starBrightness: number;
+  readonly milkyWay: boolean;
+  readonly milkyWayBrightness: number;
+  readonly skyVisible: boolean;
+  readonly sunGlow?: { readonly sizePx: number; readonly brightness: number; readonly scale: number };
+  readonly markerSwapRadiusPx: number;
+  readonly featureMinBodyPx: number;
+  readonly loadFadeSeconds: number;
+}

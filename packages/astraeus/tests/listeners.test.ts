@@ -5,6 +5,7 @@ import { callListeners } from "../src/api/listeners";
 import type { SelectionChange } from "../src/api/viewerSelection";
 import { ViewerLink, type EventZoneChange, type ViewerChange } from "../src/api/viewerLink";
 import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
+import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
 const START = Date.UTC(2020, 0, 1);
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
@@ -47,10 +48,10 @@ describe("callListeners", () => {
 });
 
 function fakeControl(): { control: ViewerControl; state: ViewerState } {
-  const state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, auto: true, zones: [] };
+  const state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, auto: true, zones: [], ...FAKE_PRESENTATION };
   const control = {
     window: { startUtcMs: START, endUtcMs: START + 1e6 }, events: [{ id: "e1", type: "flyby", object: "moon" }], rates: [1], paced: true, playable: true, setPlaying: () => undefined,
-    read: () => state, seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => ({}), setCamera: () => undefined,
+    read: () => state, seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => ({}), setCamera: () => undefined, ...FAKE_PRESENTATION_CONTROL,
   } as unknown as ViewerControl;
   return { control, state };
 }

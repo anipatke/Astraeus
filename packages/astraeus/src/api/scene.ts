@@ -60,6 +60,8 @@ export interface AddBodyOptions {
   readonly color?: string;
   /** Known limits shown with the body's provenance, replacing the catalogue's own; a list of non-empty texts. A bad value throws `bad-body`. */
   readonly knownLimitations?: readonly string[];
+  /** Bars for the body's info card, in order: the same list a path takes (`addTrajectory`'s `readouts`), measured from the scene's centre body. They replace the catalogue's own distance rows. A bad readout throws `bad-readout`; a named body must be in the scene. */
+  readonly readouts?: readonly ReadoutInput[];
 }
 
 /** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */

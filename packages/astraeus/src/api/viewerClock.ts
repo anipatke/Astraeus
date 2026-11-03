@@ -4,6 +4,11 @@ import { callListeners } from "./listeners";
 import { toUtcMs, type TimeInput } from "./time";
 import type { LinkAccess, RateSource, ViewerChange } from "./viewerLink";
 
+/** Whether two readings agree on the scale, the looks and the switches (small values, compared by content). */
+function sameLooks(a: ViewerState, b: ViewerState): boolean {
+  return a.scale === b.scale && JSON.stringify(a.look) === JSON.stringify(b.look) && JSON.stringify(a.switches) === JSON.stringify(b.switches);
+}
+
 /** The host link's clock: time, rate and playing reads, `setTime`, `setRate`, the rate source and the `onChange` callbacks. */
 export class ViewerClock {
   #last: ViewerState | undefined;
@@ -72,11 +77,11 @@ export class ViewerClock {
   /** Tells the listeners of a change in the reading; returns whether there was one. */
   publish(state: ViewerState, cause: ViewerChangeCause): boolean {
     const last = this.#last;
-    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view) return false;
+    if (last !== undefined && last.timeUtcMs === state.timeUtcMs && last.rate === state.rate && last.playing === state.playing && last.auto === state.auto && last.view === state.view && sameLooks(last, state)) return false;
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
-    const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), cause };
+    const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), scale: state.scale, look: state.look, ...(Object.keys(state.switches).length === 0 ? {} : { switches: state.switches }), cause };
     callListeners(this.#listeners, change);
     return true;
   }

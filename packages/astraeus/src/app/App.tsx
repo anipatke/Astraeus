@@ -12,7 +12,7 @@ import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGr
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
-import { scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
+import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type StartView } from "./viewLink";
 import { createOrbitCameraState } from "./CameraController";
 import { START_CAMERA_DISTANCE } from "./sceneFraming";
@@ -33,29 +33,19 @@ import { AstraeusScene, type SceneControls } from "./AstraeusScene";
 import { HOVER_BRIGHTNESS_DEFAULT } from "./scenePicking";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
-import { resolveSkySettings, withSkyObject, type StarStatus } from "./skyModel";
+import { withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
-import { displaySwitchItems, orbitStart } from "./displaySwitches";
+import { displaySwitchItems, hostReachable, orbitStart, type SwitchBindings } from "./displaySwitches";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
-import { resolveLook, type LookInput } from "./look";
+import { resolveLook } from "./look";
+import { applyLook, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
+import type { LookInput } from "../api/look";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
-
-/** The sky settings in force: the experience's own, then the look (the scene's `setLook`, with the address over it). The Milky Way switch's start sits between the two. */
-function skySettingsOf(definition: ExperienceDefinition, look: LookInput) {
-  const settings = resolveSkySettings(definition.sky);
-  return {
-    ...settings,
-    milkyWay: look.milkyWay ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay,
-    starBrightness: look.starBrightness ?? settings.starBrightness,
-    milkyWayBrightness: look.milkyWayBrightness ?? settings.milkyWayBrightness,
-    visible: look.skyVisible ?? settings.visible,
-  };
-}
 
 /** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
 export function hiddenLabelsFrom(search: string, objects: readonly { readonly id: string; readonly showLabel?: boolean }[]): Set<string> {
@@ -169,8 +159,8 @@ function shownEventsOf(definition: Pick<ExperienceDefinition, "views">, viewId: 
 }
 
 /** Whether the experience has anything the Display controls (markers, labels, timeline, phone layout) act on. */
-function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, orbitPathCount: number, storyMarkerCount: number): boolean {
-  return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || runtime.sky.visible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
+function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, skyVisible: boolean, orbitPathCount: number, storyMarkerCount: number): boolean {
+  return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || skyVisible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
     || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
 }
 
@@ -202,6 +192,7 @@ function initialSceneControls(
     ...(definition.pacing === undefined ? {} : { paceAuto: true, pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView }),
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
+    skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
     starBrightness: runtime.sky.starBrightness,
@@ -269,7 +260,9 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   const [viewId, setViewId] = useState(() => startViewId(definition, search));
   const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
   const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
-  const shellExperience = useMemo(() => withSkyObject(viewExperience, runtime.sky.visible, starStatus), [viewExperience, runtime.sky.visible, starStatus]);
+  // Whether the sky is drawn: the look's `skyVisible`, live (a host's `setLook` changes it).
+  const [skyVisible, setSkyVisible] = useState(runtime.sky.visible);
+  const shellExperience = useMemo(() => withSkyObject(viewExperience, skyVisible, starStatus), [viewExperience, skyVisible, starStatus]);
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
@@ -366,10 +359,15 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     setViewId(id);
   }, [definition, experience, runtime]);
   const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
+  // The presentation a host reads and sets (looks, switches, scale), rebuilt every render over the live controls; the stable callbacks below call through it.
+  const live = useRef<LivePresentation | null>(null);
   const stateNow = useCallback((): ViewerState => {
     const snapshot = runtime.clock.snapshot();
     return {
       ...snapshot,
+      scale: controls.current.policy.id,
+      look: lookReadOf(controls.current),
+      switches: live.current?.switches() ?? {},
       ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true, zones: activeEventZones(runtime.pacing.zones, controls.current.pace?.shown, snapshot.timeUtcMs) }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
       ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
@@ -377,6 +375,8 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   }, [runtime, definition]);
   // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
   const hostAttached = useRef(false);
+  // The presentation (scale, looks, switches) last told to the host, to find what a visitor changed.
+  const shownKey = useRef<string | null>(null);
   // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
   const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
     const changed = controls.current.selectedObjectId !== objectId;
@@ -427,12 +427,17 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     return { ...(controls.current.viewReadout ?? opening) };
   }, [opening]);
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
+  const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
+  const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
+  const hostSetScale = useCallback((id: string) => live.current?.setScale(id), []);
+  const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera });
+    shownKey.current = null; // the presentation is read afresh after each attach
+    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying]);
+  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -468,17 +473,37 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       host?.publish(stateNow(), "visitor");
     },
   };
-  const displaySwitches = displaySwitchItems({
+  const bindingsNow = (): SwitchBindings => ({
     settings: definition.displaySwitches,
-    orbit: { present: orbitPaths.length > 0, look: orbitShown, set: setOrbit },
-    moons: { present: bodySets.length > 0, look: setLook, set: changeSetLook },
-    sky: { present: runtime.sky.visible, on: milkyWayOn, set: (on) => { controls.current.showMilkyWay = on; setMilkyWayOn(on); } },
+    orbit: { present: orbitPaths.length > 0, look: { ...orbitDefault, ...controls.current.orbitLook }, set: setOrbit },
+    moons: { present: bodySets.length > 0, look: controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK, set: changeSetLook },
+    sky: { present: controls.current.skyVisible !== false, on: controls.current.showMilkyWay, set: (on) => { controls.current.showMilkyWay = on; setMilkyWayOn(on); } },
     labels: {
-      objectIds: experience.objects.map((object) => object.id), hidden: hiddenLabels,
+      objectIds: experience.objects.map((object) => object.id), hidden: controls.current.hiddenLabels ?? hiddenLabels,
       setHidden: (hidden) => { controls.current.hiddenLabels = new Set(hidden); setHiddenLabels(new Set(hidden)); },
-      anchorsPresent: runtime.trackedBodies.length > 0, anchors: anchorLabels, setAnchors: (on) => { controls.current.showAnchorLabels = on; setAnchorLabels(on); },
+      anchorsPresent: runtime.trackedBodies.length > 0, anchors: controls.current.showAnchorLabels, setAnchors: (on) => { controls.current.showAnchorLabels = on; setAnchorLabels(on); },
     },
   });
+  const displaySwitches = displaySwitchItems(bindingsNow());
+  live.current = presentationOf({
+    setLook: (look) => {
+      const read = applyLook(controls.current, definition, glowBase, look);
+      setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
+      if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
+      setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
+    },
+    setScale: updateScale,
+    items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
+  });
+  // A change the visitor made (the scale or a switch in the shell, a slider or button in the Developer drawer) is told to the host once the screen has it; a host call has already been told, so this finds nothing new.
+  useEffect(() => {
+    if (!hostAttached.current) return;
+    const state = stateNow();
+    const key = JSON.stringify([state.scale, state.look, state.switches]);
+    const changed = shownKey.current !== null && shownKey.current !== key;
+    shownKey.current = key;
+    if (changed) host?.publish(state, "visitor");
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels]);
   const sections = definition.developerSections ?? [];
   const renderSection = (section: DeveloperSection) => (
     <HudSection key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} level={3} heading={section.heading}>
@@ -486,7 +511,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     </HudSection>
   );
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
-  const showDisplay = showsDisplayControls(definition, runtime, orbitPaths.length, storyMarkerSpecs.length);
+  const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
   const orbitSliders = {
     main: [
@@ -531,7 +556,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
         <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
           onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
         <SettingSlider label="Loading fade (s, next load)" ariaLabel="Loading fade" testId="load-fade-value" display={loadFade.toFixed(1)} min={BOOT_FADE_LIMITS.min} max={BOOT_FADE_LIMITS.max} step={0.1} value={loadFade}
-          onChange={(value) => { saveBootFadeSeconds(value); setLoadFade(value); }} />
+          onChange={(value) => { saveBootFadeSeconds(value); controls.current.loadFadeSeconds = value; setLoadFade(value); }} />
         <ViewLinkGroup offered={address === true} onCopy={() => void copyViewLink()} viewNow={viewNow} viewLink={viewLink} scale={scale} upChoice={upChoice} />
         <SettingButtons>
           <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
@@ -592,10 +617,10 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
         <MoonsAndRingsSettings bodySets={bodySets} ringSystems={ringSystems} setLook={setLook} changeSetLook={changeSetLook} ringLook={ringLook} changeRing={changeRing} controls={controls} setSetLook={setSetLook} setRingLook={setRingLook} />
       ),
     },
-    !(runtime.sky.visible || glowShown !== null) ? null : {
+    !(skyVisible || glowShown !== null) ? null : {
       id: "sky-sun", title: "Sky and Sun",
       body: (
-        <SkyAndSunSettings illuminateAll={illuminateAll} setIlluminateAll={setIlluminateAll} visible={runtime.sky.visible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
+        <SkyAndSunSettings illuminateAll={illuminateAll} setIlluminateAll={setIlluminateAll} visible={skyVisible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
       ),
     },
     {

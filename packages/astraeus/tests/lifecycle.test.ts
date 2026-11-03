@@ -125,13 +125,16 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected"] as const;
+const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
   setPlaying: (handle) => handle.setPlaying(true),
   setView: (handle) => handle.setView("a"),
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
+  setLook: (handle) => handle.setLook({ starBrightness: 1.2 }),
+  setScale: (handle) => handle.setScale("readable-scale"),
+  setSwitch: (handle) => handle.setSwitch("labels", false),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
 const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange"] as const;
@@ -305,6 +308,31 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
     expectUnusable(handle);
   });
+  it("setLook, setScale and setSwitch: set then read, onChange hears cause host, a bad argument throws its code, and unmount makes them not-mounted", async () => {
+    openNow();
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    const handle = opened.handle!;
+    expect(handle.look?.starBrightness).toBe(1);
+    const heard: Array<{ scale: string; stars: number; cause: string }> = [];
+    handle.onChange((c) => heard.push({ scale: c.scale, stars: c.look.starBrightness, cause: c.cause }));
+    handle.setLook({ starBrightness: 1.5, sunGlow: { sizePx: 90 } });
+    expect(handle.look?.starBrightness).toBe(1.5);
+    handle.setLook({ markerSwapRadiusPx: 5 }); // the whole look is replaced: the star brightness is back to its default
+    expect(handle.look).toMatchObject({ starBrightness: 1, markerSwapRadiusPx: 5 });
+    handle.setScale("readable-scale");
+    expect(handle.scale).toBe("readable-scale");
+    expect(heard.map((c) => c.cause)).toEqual(["host", "host", "host"]);
+    expect(heard.map((c) => c.stars)).toEqual([1.5, 1, 1]);
+    expect(heard.at(-1)?.scale).toBe("readable-scale");
+    expect(codeOf(() => handle.setLook({ starBrightness: 9 }))).toBe("bad-look");
+    expect(codeOf(() => handle.setScale("nope"))).toBe("bad-scale");
+    expect(codeOf(() => handle.setSwitch("labels", false))).toBe("bad-switch"); // this scene placed no switches
+    expect(handle.switches).toEqual({});
+    opened.unmount();
+    expectUnusable(handle);
+  });
+
   it("onSelect: reads the opening selection without reporting it, hears a visitor's pick once, and hears nothing after unmount", async () => {
     openNow();
     const opened = await driver.open(new Scene());

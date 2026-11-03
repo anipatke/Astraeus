@@ -1,3 +1,4 @@
+import type { LookInput, LookRead } from "./look";
 import type { TimeInput } from "./time";
 import type { SelectionChange } from "./viewerSelection";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
@@ -45,6 +46,18 @@ export interface ViewerHandle {
    * The pose the viewer opens with is read from `camera`, not reported. The engine moves nothing in response. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */
   onCameraChange(listener: (camera: CameraPose) => void): () => void;
+  /** The looks in force, every one filled in (the scene's `setLook`, the page address and the Developer drawer over the defaults); undefined until `ready` has resolved and after `unmount`. */
+  readonly look: LookRead | undefined;
+  /** Sets the whole look, checked as `Scene.setLook` checks it (a look not named takes its default; a bad one throws `bad-look`); before `ready` or after `unmount` throws `not-mounted`. It wins over the same look in the page address, which only starts the viewer. Presentation only. `onChange` hears it with `cause: "host"`. */
+  setLook(look: LookInput): void;
+  /** The id of the scale showing; undefined until `ready` has resolved and after `unmount`. */
+  readonly scale: string | undefined;
+  /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
+  setScale(id: string): void;
+  /** The display switches the scene placed (`setSwitches`, wherever it placed them) that have something to act on, each on or off, by id (`orbitLines`, `labels`, `milkyWay`); empty when it placed none; undefined until `ready` has resolved and after `unmount`. */
+  readonly switches: Readonly<Record<string, boolean>> | undefined;
+  /** Turns a display switch the scene placed on or off, as the visitor's switch does; an id it did not place, or a non-boolean, throws `bad-switch`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
+  setSwitch(id: string, on: boolean): void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -60,6 +73,12 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get camera() { return link.camera; },
     get eventZones() { return link.eventZones; },
     get selected() { return link.selected; },
+    get look() { return link.look; },
+    get scale() { return link.scale; },
+    get switches() { return link.switches; },
+    setLook: (look) => link.setLook(look),
+    setScale: (id) => link.setScale(id),
+    setSwitch: (id, on) => link.setSwitch(id, on),
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
     setTime: (time) => link.setTime(time),

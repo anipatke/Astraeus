@@ -13,7 +13,8 @@ import { readyMade, type BodyRef } from "./bodies";
 import type { DataSource } from "./data";
 import { SceneError } from "./errors";
 import { checkLabelReach } from "./planPaths";
-import type { AddBodyOptions } from "./scene";
+import type { AddBodyOptions, ReadoutInput } from "./scene";
+import { readoutsOf } from "./planPaths";
 import { frozenList, type SceneBodyRead } from "./sceneReads";
 
 
@@ -71,6 +72,7 @@ export class BodyPlan {
   readonly labelReaches = new Map<string, number>();
   readonly shape = new Map<BodyId, Shape>();
   readonly notes = new Map<BodyId, string>();
+  readonly readouts = new Map<BodyId, readonly ReadoutInput[]>();
   readonly looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   catalogue: BodyCatalogue = builtInCatalogue;
   readonly #taken: (id: string) => boolean;
@@ -122,6 +124,7 @@ export class BodyPlan {
     if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
+    if (options.readouts !== undefined) this.readouts.set(id, readoutsOf(id, options.readouts, call));
     if (options.labelReach !== undefined) this.labelReaches.set(id, options.labelReach);
     if (options.orbit === true) this.orbits.add(id);
     if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });

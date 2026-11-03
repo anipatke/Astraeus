@@ -15,6 +15,24 @@ const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return err
 const resolver = () => createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
 const metricsOf = (scene: Scene, objectId: string, timeUtcMs: number) => scene.toDefinition().createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(objectId, timeUtcMs);
 
+describe("body readouts (O-056 T-262)", () => {
+  const moonWith = (readouts: ReadoutInput[]) => new Scene().addBody(earth).addBody(moon, { readouts });
+  it("draw on the body's info card by the same code as a path's, in the order given, replacing the catalogue's own rows", () => {
+    const at = T0 + MIN;
+    const rows = metricsOf(moonWith([{ kind: "altitude", above: "earth" }, { kind: "range" }, { kind: "distance", to: "earth" }]), "moon", at) as any[];
+    expect(rows.map((row) => row.id)).toEqual(["moon-altitude-earth", "moon-range", "moon-to-earth"]);
+    const away = Math.hypot(...resolver().stateOf("moon", at, "earth").positionKm);
+    expect(rows[1].value).toBeCloseTo(away, 3);
+    expect(rows[0].value).toBeCloseTo(away - catalogue.get("earth").definition.radiusKm, 3);
+    expect(metricsOf(new Scene().addBody(earth).addBody(moon), "moon", at).map((row) => row.id)).not.toContain("moon-altitude-earth");
+  });
+  it("refuse a bad readout with bad-readout, and a named body the scene does not hold when the scene is built", () => {
+    expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { readouts: [{ kind: "temperature" } as never] }))).toMatch(/^bad-readout: addBody\("moon"\).*temperature/);
+    expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { readouts: "range" as never }))).toMatch(/^bad-readout: .*list/);
+    expect(codeOf(() => new Scene().addBody(moon, { readouts: [{ kind: "distance", to: "sun" }] }).toDefinition())).toMatch(/^bad-readout: addBody\("moon"\).*sun.*not been added/);
+  });
+});
+
 describe("anchors", () => {
   const scene = () => new Scene().addBody(earth).addBody(moon).addTrajectory({ ...probe, anchors: [{ id: "second", time: T0 + 2 * MIN }, { id: "first", time: new Date(T0 + MIN) }] });
 

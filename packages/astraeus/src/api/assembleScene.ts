@@ -18,7 +18,7 @@ import { SceneError } from "./errors";
 import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
-import { autoPaths, checkReadouts, pathCover, type Tracked } from "./planPaths";
+import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import type { StoryPlan } from "./planStory";
 import type { TimelinePlan } from "./planTimeline";
 import type { ViewPlan } from "./planViews";
@@ -94,6 +94,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const sunCentred = plan.checkSunCentred(ids);
   plan.checkSolarSystemScale(parts.scale, sunCentred);
   for (const entry of trackedMap.values()) checkReadouts(entry, ids);
+  for (const [id, readouts] of plan.readouts) checkNamedReadouts(id, readouts, ids, "addBody");
   const entries = [...trackedMap.values()];
   const tracked = entries.map((entry) => entry.body);
   const timeline = timelinePlan.setting;
@@ -150,8 +151,9 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     trackedBodies: tracked,
     createMetrics: ({ resolver }) => {
       const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
-      const readouts = createReadoutMetrics([...trackedMap.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-      return (objectId: string, timeUtcMs: number): readonly Metric[] => (groupPlan.groups.has(objectId) ? groupPlan.metrics(objectId, timeUtcMs) : trackedMap.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
+      const bodyReadouts = [...plan.readouts].map(([id, specs]) => ({ id, label: plan.bodies.get(id)!.label, center: ids[0]!, readouts: specs }));
+      const readouts = createReadoutMetrics([...trackedMap.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver, undefined, bodyReadouts);
+      return (objectId: string, timeUtcMs: number): readonly Metric[] => (groupPlan.groups.has(objectId) ? groupPlan.metrics(objectId, timeUtcMs) : trackedMap.has(objectId) || plan.readouts.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
     },
     prepare: async () => {
       if (fault.error !== undefined) throw fault.error;

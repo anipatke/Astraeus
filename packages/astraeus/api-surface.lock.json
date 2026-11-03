@@ -242,6 +242,11 @@
           "name": "knownLimitations",
           "optional": true,
           "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
         }
       ]
     },
@@ -1133,6 +1138,53 @@
         }
       ]
     },
+    "LookRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "starBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "milkyWay",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "milkyWayBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "skyVisible",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "sunGlow",
+          "optional": true,
+          "signature": "{ readonly sizePx: number; readonly brightness: number; readonly scale: number; } | undefined"
+        },
+        {
+          "name": "markerSwapRadiusPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "featureMinBodyPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loadFadeSeconds",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
     "SunGlowLook": {
       "kind": "interface",
       "signature": "",
@@ -1344,6 +1396,36 @@
           "signature": "(listener: (camera: CameraPose) => void): () => void"
         },
         {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1429,6 +1511,36 @@
           "name": "onCameraChange",
           "optional": false,
           "signature": "(listener: (camera: CameraPose) => void): () => void"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
         },
         {
           "name": "onChange",
@@ -1571,6 +1683,21 @@
           "name": "view",
           "optional": true,
           "signature": "string | undefined"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead"
+        },
+        {
+          "name": "switches",
+          "optional": true,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
         },
         {
           "name": "cause",

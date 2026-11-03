@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SceneError } from "../src/api/errors";
 import { ViewerLink, type EventZoneChange, type ViewerChange } from "../src/api/viewerLink";
 import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
+import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
 const START = Date.UTC(2020, 0, 1);
 const END = Date.UTC(2020, 0, 2);
@@ -12,7 +13,7 @@ const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` fir
 function fake(opts: { paced?: boolean; views?: string[] } = {}) {
   const calls: string[] = [];
   let pose = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
-  let state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, ...(opts.views?.length ? { view: opts.views[0] } : {}), ...(opts.paced ? { auto: true, zones: [] } : {}) };
+  let state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, ...FAKE_PRESENTATION, ...(opts.views?.length ? { view: opts.views[0] } : {}), ...(opts.paced ? { auto: true, zones: [] } : {}) };
   const control: ViewerControl = {
     window: { startUtcMs: START, endUtcMs: END },
     events: [{ id: "e1", type: "flyby", object: "moon", startUtcMs: START, endUtcMs: START + 5 } as never, { id: "e2" } as never],
@@ -26,6 +27,7 @@ function fake(opts: { paced?: boolean; views?: string[] } = {}) {
     cameraTargets: () => ["earth", "moon"],
     readCamera: () => pose,
     setCamera: (request) => { calls.push(`camera ${JSON.stringify(request)}`); },
+    ...FAKE_PRESENTATION_CONTROL,
   };
   return { control, calls, move: (next: Partial<typeof pose>) => { pose = { ...pose, ...next }; }, set: (next: Partial<ViewerState>) => { state = { ...state, ...next }; return state; } };
 }
@@ -41,6 +43,27 @@ describe("ViewerLink before attach and after detach", () => {
     expect(code(() => link.setRate(1))).toBe(`not-mounted: setRate: ${NOT_OPEN}`);
     expect(code(() => link.setView("a"))).toBe(`not-mounted: setView: ${NOT_OPEN}`);
     expect(code(() => link.setCamera({ follow: "earth" }))).toBe(`not-mounted: setCamera: ${NOT_OPEN}`);
+  });
+
+  it("the look, scale and switch calls: not-mounted before attach, then checked (bad-look, bad-scale, bad-switch) before the control hears them", () => {
+    const link = new ViewerLink();
+    expect([link.look, link.scale, link.switches]).toEqual([undefined, undefined, undefined]);
+    expect(code(() => link.setLook({}))).toBe(`not-mounted: setLook: ${NOT_OPEN}`);
+    expect(code(() => link.setScale("true-scale"))).toBe(`not-mounted: setScale: ${NOT_OPEN}`);
+    expect(code(() => link.setSwitch("labels", true))).toBe(`not-mounted: setSwitch: ${NOT_OPEN}`);
+    const { control } = fake();
+    const heard: string[] = [];
+    link.attach({ ...control, setLook: (look) => heard.push(`look ${JSON.stringify(look)}`), setScale: (id) => heard.push(`scale ${id}`), setSwitch: (id, on) => heard.push(`switch ${id} ${on}`), read: () => ({ ...control.read(), switches: { labels: true } }) });
+    expect(link.switches).toEqual({ labels: true });
+    expect(code(() => link.setLook({ starBrightness: 3 }))).toMatch(/^bad-look: setLook: starBrightness/);
+    expect(code(() => link.setScale("solar-system"))).toMatch(/^bad-scale: setScale: "solar-system".*true-scale, readable-scale/);
+    expect(code(() => link.setSwitch("milkyWay", true))).toMatch(/^bad-switch: setSwitch: "milkyWay".*labels/);
+    expect(code(() => link.setSwitch("labels", "yes" as never))).toMatch(/^bad-switch: .*true or false/);
+    expect(heard).toEqual([]);
+    link.setLook({ starBrightness: 1.5 });
+    link.setScale("readable-scale");
+    link.setSwitch("labels", false);
+    expect(heard).toEqual(['look {"starBrightness":1.5}', "scale readable-scale", "switch labels false"]);
   });
 
   it("reads after attach and goes back to undefined after detach", () => {
@@ -138,7 +161,7 @@ describe("ViewerLink setters", () => {
     expect(f.calls).toEqual([]);
     link.setTime(new Date(START + 500));
     expect(f.calls).toEqual([`seek ${START + 500}`]);
-    expect(seen).toEqual([{ time: START + 500, rate: 1, playing: false, cause: "host" }]);
+    expect(seen).toMatchObject([{ time: START + 500, rate: 1, playing: false, cause: "host" }]);
     link.setTime(START + 500); // same reading: no second report
     expect(seen.length).toBe(1);
   });
@@ -154,7 +177,7 @@ describe("ViewerLink setters", () => {
     plain.onChange((c) => seen.push(c));
     plain.setRate(60);
     expect(plain.rateSource).toBe("chosen");
-    expect(seen).toEqual([{ time: START + 10, rate: 60, playing: false, cause: "host" }]);
+    expect(seen).toMatchObject([{ time: START + 10, rate: 60, playing: false, cause: "host" }]);
 
     const paced = new ViewerLink();
     const p = fake({ paced: true });
@@ -178,7 +201,7 @@ describe("ViewerLink setters", () => {
     link.onChange((c) => seen.push(c));
     link.setView("b");
     expect(f.calls).toEqual(["view b"]);
-    expect(seen).toEqual([{ time: START + 10, rate: 1, playing: false, view: "b", cause: "host" }]);
+    expect(seen).toMatchObject([{ time: START + 10, rate: 1, playing: false, view: "b", cause: "host" }]);
     expect(link.view).toBe("b");
   });
 

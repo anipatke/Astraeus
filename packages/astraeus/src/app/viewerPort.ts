@@ -2,6 +2,7 @@ import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
 import type { StartView } from "./viewLink";
+import type { LookInput, LookRead } from "../api/look";
 
 /** The one clock's reading as a host sees it. */
 export interface ViewerState {
@@ -17,6 +18,12 @@ export interface ViewerState {
   readonly zones?: readonly string[];
   /** The id of the object whose information the viewer has selected; absent when nothing is selected. */
   readonly selected?: string;
+  /** The id of the scale showing. */
+  readonly scale: string;
+  /** The looks in force, every one filled in. */
+  readonly look: LookRead;
+  /** The display switches the scene placed (those with something to act on), each on or off; empty when it placed none. */
+  readonly switches: Readonly<Record<string, boolean>>;
 }
 
 /** Who moved the clock: the clock running (`playback`), a person at the controls (`visitor`) or the host page (`host`). */
@@ -43,6 +50,14 @@ export interface ViewerControl {
   readonly views: readonly string[];
   /** Switches to the view with this id (one of `views`), as a visitor's button does. */
   setView(id: string): void;
+  /** The ids of the scales the viewer offers, in order. */
+  readonly scales: readonly string[];
+  /** Switches to the scale with this id (one of `scales`), as a visitor's scale buttons do. */
+  setScale(id: string): void;
+  /** Sets the whole look (already checked); a look not named takes its default. A live set wins over the page address, which only starts the viewer. */
+  setLook(look: LookInput): void;
+  /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */
+  setSwitch(id: string, on: boolean): void;
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
   cameraTargets(): readonly string[];
   /** The camera as the viewer's view link writes it; undefined until the scene has drawn its first frame. */

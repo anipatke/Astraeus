@@ -1,6 +1,8 @@
 import type { ViewerChangeCause, ViewerPort, ViewerState } from "../app/viewerPort";
 import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";
+import type { LookInput, LookRead } from "./look";
+import { ViewerLooks } from "./viewerLooks";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
 import { ViewerSelection, type SelectionChange } from "./viewerSelection";
@@ -17,7 +19,13 @@ export interface ViewerChange {
   readonly playing: boolean;
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
-  /** `playback`: the clock ran on; `visitor`: someone used the timeline or the view choice; `host`: the host page called `setTime`, `setRate`, `setPlaying` or `setView`. */
+  /** The id of the scale showing. */
+  readonly scale: string;
+  /** The looks in force, every one filled in (what `look` reads). */
+  readonly look: LookRead;
+  /** Only in a scene that placed display switches: each placed switch, on or off (what `switches` reads). */
+  readonly switches?: Readonly<Record<string, boolean>>;
+  /** `playback`: the clock ran on; `visitor`: someone used the timeline, the view choice, the scale, a display switch or the Developer drawer's looks; `host`: the host page called `setTime`, `setRate`, `setPlaying`, `setView`, `setScale`, `setSwitch` or `setLook`. */
   readonly cause: ViewerChangeCause;
 }
 
@@ -92,6 +100,7 @@ export class ViewerLink implements ViewerPort {
   readonly #camera = new ViewerCamera(this.#access);
   readonly #zones = new ViewerZones(this.#access);
   readonly #selection = new ViewerSelection(this.#access);
+  readonly #looks = new ViewerLooks(this.#access);
   #wait = newWait();
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
@@ -150,12 +159,19 @@ export class ViewerLink implements ViewerPort {
   get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
 
+  get look(): LookRead | undefined { return this.#looks.look; }
+  get scale(): string | undefined { return this.#looks.scale; }
+  get switches(): Readonly<Record<string, boolean>> | undefined { return this.#looks.switches; }
+
   // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones, viewerSelection.
   setView(id: string): void { this.#views.setView(id); this.#afterHost(); }
   setTime(time: TimeInput): void { this.#clock.setTime(time); this.#afterHost(); }
   setRate(rate: number | "auto"): void { this.#clock.setRate(rate); this.#afterHost(); }
   setPlaying(playing: boolean): void { this.#clock.setPlaying(playing); this.#afterHost(); }
   setCamera(target: CameraTarget): void { this.#camera.setCamera(target); }
+  setLook(look: LookInput): void { this.#looks.setLook(look); this.#afterHost(); }
+  setScale(id: string): void { this.#looks.setScale(id); this.#afterHost(); }
+  setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
