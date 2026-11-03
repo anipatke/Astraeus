@@ -1,7 +1,8 @@
 import { Group, PerspectiveCamera, SphereGeometry } from "three";
 import { describe, expect, it } from "vitest";
 import { readJson } from "../tools/import/test-io.mjs";
-import { featureMarkerSpecs, featureMinBodyPxFromSearch, isFeatureVisible, latLonToXYZ, placeBodyFeatures, DEFAULT_FEATURE_MIN_BODY_PX, MARKER_RADIUS_MULTIPLIER } from "../src/app/FeatureMarkers";
+import { resolveLook } from "../src/app/look";
+import { featureMarkerSpecs, featureMinBodyPxOf, isFeatureVisible, latLonToXYZ, placeBodyFeatures, DEFAULT_FEATURE_MIN_BODY_PX, MARKER_RADIUS_MULTIPLIER } from "../src/app/FeatureMarkers";
 import { bodyFeatureSet, featureKey, type BodyFeatureSet } from "../src/shell/bodyFeatures";
 import { createProvenance } from "../src/core/provenance";
 import { infoView } from "../src/shell/infoModel";
@@ -107,9 +108,9 @@ describe("T-103: which markers show", () => {
   });
 
   it("reads the narrowest width from ?featurepx= and ignores an unusable value", () => {
-    expect(featureMinBodyPxFromSearch("")).toBe(DEFAULT_FEATURE_MIN_BODY_PX);
-    expect(featureMinBodyPxFromSearch("?featurepx=120")).toBe(120);
-    expect(featureMinBodyPxFromSearch("?featurepx=0")).toBe(0);
+    expect(featureMinBodyPxOf(resolveLook(undefined, ""))).toBe(DEFAULT_FEATURE_MIN_BODY_PX);
+    expect(featureMinBodyPxOf(resolveLook(undefined, "?featurepx=120"))).toBe(120);
+    expect(featureMinBodyPxOf(resolveLook(undefined, "?featurepx=0"))).toBe(0);
   });
 });
 

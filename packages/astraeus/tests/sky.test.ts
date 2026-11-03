@@ -15,7 +15,8 @@ import {
   type StarRow,
 } from "../src/assets/sky";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
-import { SkyView, SKY_PROBE_DIRECTION, brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "../src/app/SkyView";
+import { SkyView, SKY_PROBE_DIRECTION } from "../src/app/SkyView";
+import { resolveLook } from "../src/app/look";
 import { listedObjects } from "../src/shell/objectModel";
 import { buildPictureMesh, buildStarBuffers, resolveSkySettings, skyObject, starRenderDirection, withSkyObject } from "../src/app/skyModel";
 import { PICTURES } from "astraeus-data";
@@ -275,15 +276,15 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
     expect(() => resolveSkySettings({ starBrightness: -1 })).toThrow(/sky.starBrightness/);
     expect(() => resolveSkySettings({ starBrightness: 2.01 })).toThrow(/sky.starBrightness/);
     expect(() => resolveSkySettings({ milkyWayBrightness: Number.NaN })).toThrow(/sky.milkyWayBrightness/);
-    expect(skyHiddenBySearch("?sky=off")).toBe(true);
-    expect(skyHiddenBySearch("?experience=x")).toBe(false);
+    expect(resolveLook(undefined, "?sky=off").skyVisible).toBe(false);
+    expect(resolveLook(undefined, "?experience=x").skyVisible).toBeUndefined();
   });
 
   it("switches the Milky Way picture on and off without touching the stars", () => {
-    expect(milkyWayFromSearch("?milkyway=off")).toBe(false);
-    expect(milkyWayFromSearch("?milkyway=on")).toBe(true);
-    expect(milkyWayFromSearch("?sky=off")).toBeNull();
-    expect(milkyWayFromSearch("?milkyway=maybe")).toBeNull();
+    expect(resolveLook(undefined, "?milkyway=off").milkyWay).toBe(false);
+    expect(resolveLook(undefined, "?milkyway=on").milkyWay).toBe(true);
+    expect(resolveLook(undefined, "?sky=off").milkyWay).toBeUndefined();
+    expect(resolveLook(undefined, "?milkyway=maybe").milkyWay).toBeUndefined();
     const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 1, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE, milkyWay: false });
     view.setStars(MADE_UP);
     const meshes = () => view.group.children.filter((child) => child.type === "Mesh");
@@ -302,12 +303,12 @@ describe("rights and the shell item (Done When 4, PROV-02)", () => {
 
   it("reads brightness from the address, ignoring bad values with a warning, and changes the uniforms in place", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(brightnessFromSearch("?stars=1.4", "stars")).toBe(1.4);
-    expect(brightnessFromSearch("?stars=0", "stars")).toBe(0);
-    expect(brightnessFromSearch("?milkywaybrightness=0.8", "milkywaybrightness")).toBe(0.8);
-    expect(brightnessFromSearch("?experience=x", "stars")).toBeNull();
+    expect(resolveLook(undefined, "?stars=1.4").starBrightness).toBe(1.4);
+    expect(resolveLook(undefined, "?stars=0").starBrightness).toBe(0);
+    expect(resolveLook(undefined, "?milkywaybrightness=0.8").milkyWayBrightness).toBe(0.8);
+    expect(resolveLook(undefined, "?experience=x").starBrightness).toBeUndefined();
     expect(warn).not.toHaveBeenCalled();
-    for (const bad of ["?stars=3", "?stars=-1", "?stars=abc", "?stars="]) expect(brightnessFromSearch(bad, "stars")).toBeNull();
+    for (const bad of ["?stars=3", "?stars=-1", "?stars=abc", "?stars="]) expect(resolveLook(undefined, bad).starBrightness).toBeUndefined();
     expect(warn).toHaveBeenCalledTimes(4);
     warn.mockRestore();
     const view = new SkyView({ starBrightness: 1.2, milkyWayBrightness: 0.5, pixelRatio: 1, pictures: [new Texture()], pictureSet: WITH_PICTURE });

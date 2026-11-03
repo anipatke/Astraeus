@@ -5,6 +5,7 @@ import { Vector3, type Camera, type Object3D } from "three";
 import { projectedRadiusPx } from "./bodyDraw";
 import type { BodyFeatureSet } from "../shell/bodyFeatures";
 import { featureColor, featureKey } from "../shell/bodyFeatures";
+import type { LookInput } from "./look";
 import { VIEWER_ROOT_CLASS } from "../shell/viewerKeys";
 
 /** The donor's `latLonToXYZ`, verbatim: a point on a sphere of `radius`, in the body's own frame (Three.js SphereGeometry UV layout). */
@@ -45,20 +46,13 @@ export const MARKER_RADIUS_MULTIPLIER = 1.02;
 
 /**
  * Presentation only. A body drawn narrower than this many screen pixels shows no markers (they would crowd into a smudge); the donor's
- * moon fills the screen, so it has no such rule. Live through `?featurepx=`.
+ * moon fills the screen, so it has no such rule. Set through `Scene.setLook` (`featureMinBodyPx`), or live through `?featurepx=`.
  */
 export const DEFAULT_FEATURE_MIN_BODY_PX = 60;
 
-/** `?featurepx=<n>` sets the narrowest body that still shows its markers; an unusable value keeps the default with a console warning. */
-export function featureMinBodyPxFromSearch(search: string, fallback: number = DEFAULT_FEATURE_MIN_BODY_PX): number {
-  const raw = new URLSearchParams(search).get("featurepx");
-  if (raw === null) return fallback;
-  const value = raw.trim() === "" ? Number.NaN : Number(raw);
-  if (!Number.isFinite(value) || value < 0 || value > 2000) {
-    console.warn(`?featurepx=${raw} ignored: the value must be a number from 0 to 2000`);
-    return fallback;
-  }
-  return value;
+/** The narrowest body that still shows its markers: the look's `featureMinBodyPx`, else the default. */
+export function featureMinBodyPxOf(look: LookInput): number {
+  return look.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX;
 }
 
 /**

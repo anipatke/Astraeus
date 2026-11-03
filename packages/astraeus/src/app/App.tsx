@@ -26,7 +26,7 @@ import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider }
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
-import { featureMarkerSpecs, featureMinBodyPxFromSearch } from "./FeatureMarkers";
+import { featureMarkerSpecs, featureMinBodyPxOf } from "./FeatureMarkers";
 import type { GroupFill } from "./FrameRateSection";
 import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
@@ -39,19 +39,22 @@ import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, orbitStart } from "./displaySwitches";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
-import { baseGlowOf, glowLookFromSearch, markerSettingsFromSearch } from "./bodyDraw";
-import { brightnessFromSearch, milkyWayFromSearch, skyHiddenBySearch } from "./SkyView";
+import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
+import { resolveLook, type LookInput } from "./look";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
 
-/** The sky settings in force: the experience's own, hidden when the address says `?sky=off`. */
-function skySettingsOf(definition: ExperienceDefinition, search: string) {
+/** The sky settings in force: the experience's own, then the look (the scene's `setLook`, with the address over it). The Milky Way switch's start sits between the two. */
+function skySettingsOf(definition: ExperienceDefinition, look: LookInput) {
   const settings = resolveSkySettings(definition.sky);
-  const milkyWay = milkyWayFromSearch(search) ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay;
-  const starBrightness = brightnessFromSearch(search, "stars") ?? settings.starBrightness;
-  const milkyWayBrightness = brightnessFromSearch(search, "milkywaybrightness") ?? settings.milkyWayBrightness;
-  return { ...settings, milkyWay, starBrightness, milkyWayBrightness, visible: settings.visible && !skyHiddenBySearch(search) };
+  return {
+    ...settings,
+    milkyWay: look.milkyWay ?? definition.displaySwitches?.milkyWay?.on ?? settings.milkyWay,
+    starBrightness: look.starBrightness ?? settings.starBrightness,
+    milkyWayBrightness: look.milkyWayBrightness ?? settings.milkyWayBrightness,
+    visible: look.skyVisible ?? settings.visible,
+  };
 }
 
 /** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
@@ -127,6 +130,8 @@ function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
 function buildRuntime(definition: ExperienceDefinition, search: string) {
     const adapter = createOrbAstronomyAdapter();
+    // The looks in force: the scene's, with the address over them; the one source every look reader below uses.
+    const look = resolveLook(definition.look, search);
     // A copied view link carries the time it was copied at.
     const clock = openClock(definition, timeFromSearch(search), shownEventsOf(definition, startViewId(definition, search)));
     // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
@@ -147,7 +152,8 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       bodySets: bodySetsOf(definition),
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
-      sky: skySettingsOf(definition, search),
+      look,
+      sky: skySettingsOf(definition, look),
       loopWindow: definition.experience.window,
       ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
       ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
@@ -196,8 +202,8 @@ function initialSceneControls(
     ...(definition.pacing === undefined ? {} : { paceAuto: true, pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView }),
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
-    bodyMarker: markerSettingsFromSearch(search),
-    ...(glowBase === null ? {} : { glowLook: glowLookFromSearch(search, glowBase) }),
+    bodyMarker: markerSettingsOf(runtime.look),
+    ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
     illuminateAll: DEFAULT_ILLUMINATE_ALL,
@@ -205,10 +211,10 @@ function initialSceneControls(
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
     viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
-    loadFadeSeconds: bootFadeSeconds(search),
+    loadFadeSeconds: bootFadeSeconds(runtime.look),
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
-    featureMinBodyPx: featureMinBodyPxFromSearch(search),
+    featureMinBodyPx: featureMinBodyPxOf(runtime.look),
     selectedObjectId: initialObjectIdOf(definition),
     frameStats: null,
     groupFills: [],
@@ -312,7 +318,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   const [hoverBrightness, setHoverBrightness] = useState(HOVER_BRIGHTNESS_DEFAULT);
   const [starBrightness, setStarBrightness] = useState(runtime.sky.starBrightness);
   const [milkyWayBrightness, setMilkyWayBrightness] = useState(runtime.sky.milkyWayBrightness);
-  const [loadFade, setLoadFade] = useState(() => bootFadeSeconds(search));
+  const [loadFade, setLoadFade] = useState(() => bootFadeSeconds(runtime.look));
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);

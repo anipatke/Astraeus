@@ -254,29 +254,3 @@ export class SkyView {
 
 /** The probe direction in the render frame, for tests and the browser check. */
 export const SKY_PROBE_DIRECTION: readonly [number, number, number] = [PROBE_DIRECTION.x, PROBE_DIRECTION.y, PROBE_DIRECTION.z];
-
-/** `?milkyway=off` or `?milkyway=on` overrides the experience's picture setting for a comparison; anything else is null (no override). */
-export function milkyWayFromSearch(search: string): boolean | null {
-  const value = new URLSearchParams(search).get("milkyway");
-  return value === "off" ? false : value === "on" ? true : null;
-}
-
-/**
- * A brightness override from the address (`?stars=1.4`, `?milkywaybrightness=0.8`): null when absent. A value that is not a number
- * from 0 to 2 is ignored with a console warning, never thrown.
- */
-export function brightnessFromSearch(search: string, key: "stars" | "milkywaybrightness"): number | null {
-  const raw = new URLSearchParams(search).get(key);
-  if (raw === null) return null;
-  const value = raw.trim() === "" ? Number.NaN : Number(raw);
-  if (!Number.isFinite(value) || value < 0 || value > 2) {
-    console.warn(`?${key}=${raw} ignored: the value must be a number from 0 to 2`);
-    return null;
-  }
-  return value;
-}
-
-/** `?sky=off` hides the sky for a comparison; anything else keeps the experience's own setting. */
-export function skyHiddenBySearch(search: string): boolean {
-  return new URLSearchParams(search).get("sky") === "off";
-}

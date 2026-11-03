@@ -14,6 +14,7 @@ import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 import type { SkySettings } from "../assets/sky";
+import type { LookInput } from "./look";
 import type { Pictures } from "../assets/pictures";
 import { validateBodySet, type BodySetLayer } from "./bodySet";
 import type { DisplaySwitchSettings } from "./displaySwitches";
@@ -219,6 +220,8 @@ export interface ExperienceDefinition {
   readonly startView?: import("./viewLink").StartView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
+  /** The looks the scene set (`Scene.setLook`); the page address (when on) overrides them, see `app/look.ts`. Presentation only. */
+  readonly look?: LookInput;
   /** Many small bodies drawn as batches (dots with a pixel floor, balls close up, names on demand, orbit lines by family). Absent: none. */
   readonly bodySets?: readonly BodySetLayer[];
   /** Data to load before the scene mounts (for example the curve-fit chunks of the window). The entry awaits it once. */

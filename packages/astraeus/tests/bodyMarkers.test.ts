@@ -6,7 +6,8 @@ import { solarSystemPolicyForTest } from "./scalePolicies";
 import { trueScale } from "../src/core/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../src/core/bodies";
-import { createMarker, DEFAULT_BODY_MARKER, drawnRadii, drawsAsMarker, markerOf, markerSettingsFromSearch, projectedRadiusPx } from "../src/app/bodyDraw";
+import { createMarker, DEFAULT_BODY_MARKER, drawnRadii, drawsAsMarker, markerOf, markerSettingsOf, projectedRadiusPx } from "../src/app/bodyDraw";
+import { resolveLook } from "../src/app/look";
 import { TRACK_LAYER } from "../src/app/TrackedBodyView";
 import { assignBodyLayers } from "../src/app/sceneFraming";
 import { syntheticSun } from "../src/synthetic/syntheticRingDefinition";
@@ -96,9 +97,9 @@ describe("the marker never changes State or metrics", () => {
 describe("marker settings are settings", () => {
   it("default to a 3 px threshold and a 6 px dot, and read ?markerpx= from the address", () => {
     expect(DEFAULT_BODY_MARKER).toEqual({ minSpherePx: 3, markerPx: 6 });
-    expect(markerSettingsFromSearch("")).toEqual(DEFAULT_BODY_MARKER);
-    expect(markerSettingsFromSearch("?markerpx=8")).toEqual({ minSpherePx: 8, markerPx: 6 });
-    expect(markerSettingsFromSearch("?markerpx=0")).toEqual({ minSpherePx: 0, markerPx: 6 });
+    expect(markerSettingsOf(resolveLook(undefined, ""))).toEqual(DEFAULT_BODY_MARKER);
+    expect(markerSettingsOf(resolveLook(undefined, "?markerpx=8"))).toEqual({ minSpherePx: 8, markerPx: 6 });
+    expect(markerSettingsOf(resolveLook(undefined, "?markerpx=0"))).toEqual({ minSpherePx: 0, markerPx: 6 });
   });
 
   it("ignore an unusable ?markerpx= with a warning", () => {
@@ -106,7 +107,7 @@ describe("marker settings are settings", () => {
     const original = console.warn;
     console.warn = (message: string) => warnings.push(message);
     try {
-      for (const bad of ["?markerpx=", "?markerpx=abc", "?markerpx=-1", "?markerpx=101"]) expect(markerSettingsFromSearch(bad)).toEqual(DEFAULT_BODY_MARKER);
+      for (const bad of ["?markerpx=", "?markerpx=abc", "?markerpx=-1", "?markerpx=101"]) expect(markerSettingsOf(resolveLook(undefined, bad))).toEqual(DEFAULT_BODY_MARKER);
     } finally {
       console.warn = original;
     }

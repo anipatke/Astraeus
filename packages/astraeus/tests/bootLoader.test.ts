@@ -2,6 +2,7 @@
 // The loading cover (O-055 T-255): the engine fades out only the cover a host hands it and never looks one up on the page. Showing it again and failing it belong to the demo
 // site (`packages/astraeus-site/tests/bootCover.test.ts`). The first-frame path is one table: what the handed cover does under each situation.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveLook } from "../src/app/look";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds, hideBootLoader, saveBootFadeSeconds } from "../src/shell/bootLoader";
 import { createFrameState } from "../src/app/sceneFrame";
 
@@ -18,11 +19,11 @@ afterEach(() => { vi.useRealTimers(); document.body.innerHTML = ""; });
 
 describe("loading fade time", () => {
   it("fades for the default time, a saved time, or the address's time, kept in range", () => {
-    expect(bootFadeSeconds("")).toBe(BOOT_FADE_DEFAULT_SECONDS);
+    expect(bootFadeSeconds(resolveLook(undefined, ""))).toBe(BOOT_FADE_DEFAULT_SECONDS);
     saveBootFadeSeconds(1.5);
-    expect(bootFadeSeconds("")).toBe(1.5);
-    expect(bootFadeSeconds("?loadfade=0.2")).toBe(0.2);
-    expect(bootFadeSeconds("?loadfade=99")).toBe(3);
+    expect(bootFadeSeconds(resolveLook(undefined, ""))).toBe(1.5);
+    expect(bootFadeSeconds(resolveLook(undefined, "?loadfade=0.2"))).toBe(0.2);
+    expect(bootFadeSeconds(resolveLook(undefined, "?loadfade=3"))).toBe(3);
   });
 });
 

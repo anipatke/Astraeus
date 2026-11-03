@@ -47,7 +47,9 @@ export type SceneErrorCode =
   /** A camera call or pose is malformed, or names an object the view cannot show. */
   | "bad-camera"
   /** A scene view is malformed, repeated, or not one of the scene's views. */
-  | "bad-view";
+  | "bad-view"
+  /** A look (`setLook`) is unknown or out of its range. */
+  | "bad-look";
 
 /** The one error the public API throws for bad input; the message names the offending value. */
 export class SceneError extends RangeError {

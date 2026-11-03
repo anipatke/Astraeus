@@ -8,6 +8,7 @@ import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
+import type { LookInput } from "./look";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { Metric } from "../shell/metrics";
@@ -33,6 +34,7 @@ export interface ScenePlanners {
   readonly camera: SceneCamera;
   readonly scale: ScalePolicy;
   readonly scaleOnly: boolean;
+  readonly look: LookInput | undefined;
 }
 
 /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
@@ -141,6 +143,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     composition: createComposition(plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
     scaleChoices: plan.scaleChoices(parts.scale, parts.scaleOnly),
     ...viewPlan.switchesEntry(),
+    ...(parts.look === undefined ? {} : { look: parts.look }),
     ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),

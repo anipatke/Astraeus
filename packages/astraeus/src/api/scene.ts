@@ -34,6 +34,8 @@ import { toUtcMs, type TimeInput } from "./time";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
 import type { SwitchesInput } from "./switches";
+import type { LookInput } from "./look";
+import { checkedLook } from "./lookInput";
 import type { ViewInput, ViewsOptions } from "./views";
 import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
@@ -168,6 +170,7 @@ export class Scene {
   readonly #sources = new Map<BodyId, Trajectory>();
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
+  #look: LookInput | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
@@ -303,6 +306,19 @@ export class Scene {
     return this;
   }
 
+  /**
+   * Sets the looks, presentation settings that change how the scene is drawn and never where anything is (`LookInput`: star, Milky Way and Sun glow brightness, marker and feature-marker sizes in pixels, the
+   * loading-cover fade in seconds, the sky shown or hidden). Replaces the whole look: a look not named keeps its default. A page address parameter, when the viewer's `address` option is on, overrides the look
+   * it names. An unknown look or a value out of its range throws `bad-look` here.
+   * @example
+   * scene.setLook({ starBrightness: 1.4, markerSwapRadiusPx: 5, loadFadeSeconds: 1 });
+   */
+  setLook(look: LookInput): this {
+    this.#editable();
+    this.#look = checkedLook(look);
+    return this;
+  }
+
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
     this.#editable();
@@ -431,6 +447,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look }, data);
   }
 }
