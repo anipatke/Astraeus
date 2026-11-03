@@ -9,10 +9,9 @@ function clampFade(seconds: number): number {
   return Number.isFinite(seconds) ? Math.min(BOOT_FADE_LIMITS.max, Math.max(BOOT_FADE_LIMITS.min, seconds)) : BOOT_FADE_DEFAULT_SECONDS;
 }
 
-/** The fade time in force: `?loadfade=<seconds>` in `search` (the address text the viewer may read, see `app/address.ts`), else the saved setting, else the default. */
-export function bootFadeSeconds(search: string): number {
-  const asked = new URLSearchParams(search).get("loadfade");
-  if (asked !== null && asked.trim() !== "") return clampFade(Number(asked));
+/** The fade time in force: the look's `loadFadeSeconds` (the scene's, or the address's over it), else the saved setting, else the default. */
+export function bootFadeSeconds(look: { readonly loadFadeSeconds?: number } = {}): number {
+  if (look.loadFadeSeconds !== undefined) return clampFade(look.loadFadeSeconds);
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved !== null) return clampFade(Number(saved));
@@ -35,7 +34,7 @@ export type CoverClaim = () => () => HTMLElement | null;
 const removals = new WeakMap<HTMLElement, number>();
 
 /** Fades the handed cover out and removes it. Safe to call more than once; a cover that is absent, done or failed is left alone. */
-export function hideBootLoader(cover: () => HTMLElement | null, seconds: number = bootFadeSeconds("")): void {
+export function hideBootLoader(cover: () => HTMLElement | null, seconds: number = bootFadeSeconds()): void {
   const boot = cover();
   if (boot === null || boot.dataset.state === "done" || boot.dataset.state === "failed") return;
   boot.style.setProperty("--boot-fade", `${seconds}s`);

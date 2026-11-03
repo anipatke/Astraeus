@@ -1,5 +1,5 @@
 import type { BodyId } from "../core/body";
-import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../core/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
@@ -8,6 +8,7 @@ import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
 import { bodyMetrics } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
+import type { LookInput } from "./look";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { Metric } from "../shell/metrics";
@@ -17,7 +18,7 @@ import { SceneError } from "./errors";
 import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
-import { autoPaths, checkReadouts, pathCover, type Tracked } from "./planPaths";
+import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import type { StoryPlan } from "./planStory";
 import type { TimelinePlan } from "./planTimeline";
 import type { ViewPlan } from "./planViews";
@@ -33,6 +34,7 @@ export interface ScenePlanners {
   readonly camera: SceneCamera;
   readonly scale: ScalePolicy;
   readonly scaleOnly: boolean;
+  readonly look: LookInput | undefined;
 }
 
 /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
@@ -92,6 +94,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const sunCentred = plan.checkSunCentred(ids);
   plan.checkSolarSystemScale(parts.scale, sunCentred);
   for (const entry of trackedMap.values()) checkReadouts(entry, ids);
+  for (const [id, readouts] of plan.readouts) checkNamedReadouts(id, readouts, ids, "addBody");
   const entries = [...trackedMap.values()];
   const tracked = entries.map((entry) => entry.body);
   const timeline = timelinePlan.setting;
@@ -139,16 +142,18 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
     ...picturesEntry(data),
     composition: createComposition(plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-    scaleChoices: scaleChoicesOf(parts.scale, parts.scaleOnly, plan.enlargedInSun(sunCentred)),
+    scaleChoices: plan.scaleChoices(parts.scale, parts.scaleOnly),
     ...viewPlan.switchesEntry(),
+    ...(parts.look === undefined ? {} : { look: parts.look }),
     ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),
     trackedBodies: tracked,
     createMetrics: ({ resolver }) => {
       const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
-      const readouts = createReadoutMetrics([...trackedMap.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver);
-      return (objectId: string, timeUtcMs: number): readonly Metric[] => (groupPlan.groups.has(objectId) ? groupPlan.metrics(objectId, timeUtcMs) : trackedMap.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
+      const bodyReadouts = [...plan.readouts].map(([id, specs]) => ({ id, label: plan.bodies.get(id)!.label, center: ids[0]!, readouts: specs }));
+      const readouts = createReadoutMetrics([...trackedMap.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver, undefined, bodyReadouts);
+      return (objectId: string, timeUtcMs: number): readonly Metric[] => (groupPlan.groups.has(objectId) ? groupPlan.metrics(objectId, timeUtcMs) : trackedMap.has(objectId) || plan.readouts.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));
     },
     prepare: async () => {
       if (fault.error !== undefined) throw fault.error;
@@ -168,14 +173,4 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
 function picturesEntry(data: readonly DataSource[]): Pick<ExperienceDefinition, "pictures"> {
   const pictures = mergePictures(data.map((source) => source.pictures));
   return Object.keys(pictures).length === 0 ? {} : { pictures };
-}
-
-/**
- * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
- * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
- */
-function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): readonly string[] {
-  const offered = [trueScale, enlarged ? solarSystemScale : readableScale];
-  const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
-  return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }

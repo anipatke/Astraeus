@@ -28,6 +28,7 @@ import type { SelectionChange } from "../src/api/viewerSelection";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { speedsOf } from "../src/shell/timelineModel";
 import { $, byLabel, change, drawn, press } from "./domSetup";
+import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -46,6 +47,37 @@ beforeEach(() => {
 afterEach(() => { prepared.views = undefined; prepared.noTimeline = false; prepared.markerUntil = undefined; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
+
+describe("presentation through the host (O-056 T-262)", () => {
+  it("a visitor's scale choice is read back by handle.scale and heard once with cause visitor; the host's own is heard with cause host", async () => {
+    const heard: Array<{ scale: string; cause: string }> = [];
+    const handle = mount(host, new Scene(), { onChange: (c: ViewerChange) => heard.push({ scale: c.scale, cause: c.cause }) });
+    await drawn(handle);
+    const before = handle.scale;
+    press($(host, ".scale-toggle"));
+    expect(handle.scale).not.toBe(before);
+    expect(heard.filter((c) => c.cause === "visitor").map((c) => c.scale)).toEqual([handle.scale]);
+    act(() => handle.setScale(before!));
+    expect(handle.scale).toBe(before);
+    expect(heard.at(-1)).toEqual({ scale: before, cause: "host" });
+    expect(heard.filter((c) => c.cause === "visitor")).toHaveLength(1);
+    handle.unmount();
+  });
+
+  it("a live setLook replaces the whole look, and wins over the same look in the page address", async () => {
+    window.history.replaceState(null, "", "/?stars=0.5");
+    try {
+      const handle = mount(host, new Scene(), { address: true });
+      await drawn(handle);
+      expect(handle.look?.starBrightness).toBe(0.5);
+      act(() => handle.setLook({ markerSwapRadiusPx: 7 }));
+      expect(handle.look).toMatchObject({ starBrightness: 1, markerSwapRadiusPx: 7 });
+      handle.unmount();
+    } finally {
+      window.history.replaceState(null, "", "/");
+    }
+  });
+});
 
 describe("the mount handle", () => {
   it("reads nothing and refuses to set before the viewer is drawn", () => {
@@ -272,8 +304,8 @@ describe("playing through the host (O-054 T-246)", () => {
 describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
-    let state = { timeUtcMs: MID, rate: RATES[0], playing: false };
-    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined };
+    let state = { timeUtcMs: MID, rate: RATES[0], playing: false, ...FAKE_PRESENTATION };
+    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined, ...FAKE_PRESENTATION_CONTROL };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");

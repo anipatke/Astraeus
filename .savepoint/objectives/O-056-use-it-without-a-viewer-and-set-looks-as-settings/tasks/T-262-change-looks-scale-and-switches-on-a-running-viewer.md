@@ -2,9 +2,10 @@
 id: T-262
 title: Change looks, scale and switches on a running viewer
 objective: O-056
-status: planned
+status: done
 depends_on: [{task: T-261, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-262, reason: 'Owner said "Orchestrate o56" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o056-run-20261103}, recorded_at: '2026-11-03T10:32:39Z'}
 planned_by: {role: planner, session: o056-planning-20261103}
 ---
 
@@ -57,8 +58,18 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Done When item -> evidence.
+
+1. Handle members (kept to the verb grammar: reads are nouns, calls are `set*`): `look` / `setLook(look: LookInput)`, `scale` / `setScale(id)`, `switches` / `setSwitch(id, on)`; types `LookRead` (new, exported) and `ViewerChange` now carries `scale`, `look`, `switches?`. One builder (`viewerHandleOf`), one part (`src/api/viewerLooks.ts`, checks: `checkedLook` -> `bad-look`; id not in `control.scales` -> `bad-scale`; unknown id or non-boolean -> `bad-switch`). Reads are compared in `ViewerClock.publish` like `view` (`sameLooks`). Host calls report `host` through `ViewerLink.#afterHost`. Tests: `viewerLinkPin.test.ts` (not-mounted, checks, control hears only valid calls), `lifecycle.test.ts` (both paths: set then read, cause host, bad codes, not-mounted before ready/after unmount; the member table lists the new reads and calls).
+2. Visitor seam: `App.tsx` reads scale, looks and switches from the scene's live controls (`stateNow`: `controls.policy.id`, `lookReadOf(controls)`, `live.current.switches()`), so the shell's scale button, the shell's switches and every Developer-drawer slider/button are read back by the handle. One effect tells the host `visitor` once the screen has the change (`shownKey`); a host call has already been told, so it finds nothing new. The drawer's loading-fade slider now also writes `controls.loadFadeSeconds`. Test: `viewerHostDom.test.ts` "a visitor's scale choice ... visitor".
+3. `AddBodyOptions.readouts`: `readoutsOf` (shared with paths, now takes the call name) validates; `checkNamedReadouts` (shared with paths) checks named bodies at build; `createReadoutMetrics` gained a `bodies` argument and one inner `barsOf` used for paths and bodies (no copy). Replaces the catalogue's own distance rows (recorded decision, avoids duplicate metric ids). Tests: `publicApiPaths.test.ts` "body readouts".
+4. `lifecycle.test.ts` (both paths) and `twoViewers.test.ts` SETTERS table (typed; `makeScene` now places the `labels` switch) cover every new member: not-mounted, set then read, A does not change B.
+5. Surface: `npm run api:lock` regenerated (diff: the three reads and three setters on the two handle shapes, `readouts` on AddBodyOptions, `scale`/`look`/`switches` on ViewerChange, `LookRead`); `npm run api:errors` run; CHANGELOG Unreleased and README API tables (handle rows, `onChange` row, `addBody` row) updated. `apiSurface`, `apiRules`, `allowlistGrowth` pass.
+6. Decisions: a live `setLook` goes through the one resolver `resolveLook(input, "")` and wins over the page address (the address only starts the viewer); it replaces the whole look. `skyVisible` is live: `SceneControls.skyVisible` hides the sky view's group; the sky is built when `runtime.sky.live` (App always sets it) so a sky that starts hidden can be shown. `switches` lists every placed switch with something to act on, including those placed `developer` (`hostReachable`).
+7. Gates: `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass, `npm test` pass (207 files, 2593 passed, 2 skipped). One earlier full run showed an "Unhandled Errors" block (not reproduced; two reruns clean); no `loadingCoverChain` failure seen in the reruns. No browser run. `npm run look:lock` not run; defaults unchanged.
 
 ## Drift Notes
 
-Record architecture deltas here; T-264 reconciles them into Design.md.
+- Design.md (T-264 to reconcile): the viewer seam (`ViewerState`, `ViewerControl`) now carries scale, look and switches; the live look is held in the scene's controls and read back from them (`liveLook.ts`), not in a second store. A live `setLook` wins over the address. `ViewerChange` gained `scale`, `look`, `switches?` (existing exact-match tests in `viewerLinkPin.test.ts` now use `toMatchObject`).
+- `ViewerLink.publish` sets the internal "mover" cause to whatever last changed the reading, so a look/scale/switch change now counts as a mover for a later selection drop's cause; selection drops by time or view still follow the clock or view the same way, but a drop after a paused look change would name that change's cause. Not asserted by any test; flagged for the Check.
+- Sky is now built for every viewer (not only when visible) only when `runtime.sky.live`; the App sets it, so a viewer opened with the sky hidden now loads the star catalogue (hidden, not drawn).

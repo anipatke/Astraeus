@@ -1,0 +1,6 @@
+I-142 test mutation probes (2026-11-03T11:14:32Z-11:14:37Z), each on packages/astraeus-site/tools/validate/load-budget.mjs, restored from a copy; `git diff --quiet` clean after each.
+Command: npx vitest run packages/astraeus-site/tests/apiReference.test.ts -t "I-142"
+Unmutated (whole file): 4 passed.
+M1 rawLimit 118_926 (one below the page): FAIL "AssertionError: expected 118927 to be less than or equal to 118926"
+M2 gzipLimit 20_000: FAIL "AssertionError: expected 26965 to be less than or equal to 20000"
+M3 rawLimit 118_927, gzipLimit 26_965 (exact limits): pass (limit inclusive, as load-budget.mjs treats "over")

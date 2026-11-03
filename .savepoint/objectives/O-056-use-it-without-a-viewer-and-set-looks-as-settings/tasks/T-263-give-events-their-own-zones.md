@@ -2,9 +2,10 @@
 id: T-263
 title: Give events their own zones
 objective: O-056
-status: planned
+status: done
 depends_on: [{task: T-262, requires: clear}]
 owner_validation: {required: false}
+check_waiver: {task: T-263, reason: 'Owner said "Orchestrate o56" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o056-run-20261103}, recorded_at: '2026-11-03T10:37:56Z'}
 planned_by: {role: planner, session: o056-planning-20261103}
 ---
 
@@ -56,8 +57,19 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (also read `tests/eventZonesDom.test.ts`, `tests/pacingViews.test.ts`, `tests/scenePin.test.ts` as the tests that exercise the changed code).
+
+| Done When | Evidence |
+|---|---|
+| `EventInput.withinSeconds`, bad value throws `bad-event` naming the event | `src/api/story.ts` (`eventsOf` checks, stores `withinMs` on `TimelineEvent`); test "withinSeconds %s throws bad-event naming the event" (0, -5, NaN, Infinity, "60"). |
+| Zones reported without pacing; `via` and view filter kept | `core/pacing.ts` `eventZonesOf`; `ExperienceDefinition.eventZones`; `App.tsx` `stateNow` now reads `runtime.eventZones` with the showing view's events (no longer `pacing`-gated). Tests in `eventZonesDom.test.ts` "event zones from withinSeconds": enter/leave via `time` without pacing and beside an unrelated rule; own plus rule zones together; view hides an event's zone. All 13 earlier tests in that file pass unchanged. |
+| Pacing rule uses event's `withinSeconds`, else its `within`; one zone list | `zoneAround(event, default)` in `core/pacing.ts` is the only place a zone is cut; `pacingFor` and `eventZonesOf` both use it. Test "a pacing rule uses the event's own withinSeconds". `pacingViews.test.ts` and other pacing tests pass unchanged. |
+| `twoViewers`, `lifecycle` green | In the full `npm test` run. |
+| Surface | `npm run api:lock`: lock diff adds only `withinSeconds` on `EventInput` and `SceneEventRead`; `api:errors` no change (no new code); CHANGELOG Unreleased entry; README `addEvents`, `scene.events` and Event zones paragraph updated. `apiSurface`, `apiRules`, `allowlistGrowth` pass. |
+| Gates | `npm run lint` clean; `npm run typecheck` clean; `npm run build` ok; `npm test`: 207 files passed, 2605 passed, 2 skipped (log `/tmp/claude-1000/-home-user-code-Astraeus/7d0c4483-c4ed-4937-a995-e725ceffa34a/scratchpad/o056/npmtest-T-263.log`). The first run failed one test, `scenePin.test.ts`, which pins the definition output: the new `eventZones` field appeared in pinned scenes. The fixture `tests/fixtures/scenePin.json` was regenerated; its diff is 136 added lines and no removals. No browser run. |
 
 ## Drift Notes
 
-Record architecture deltas here; T-264 reconciles them into Design.md.
+- Architecture delta for T-264: `ExperienceDefinition` gains `eventZones` (every event zone, a superset of the event zones in `pacing.zones`); the host zone report reads it instead of `pacing.zones`. `TimelineEvent` gains `withinMs`. `core/pacing.ts` gains `EventZone`, `zoneAround`, `eventZonesOf`; `zoneInView`/`zonesInView` are generic over `EventZone`.
+- `scenePin.json` fixture regenerated (additions only), since it pins `toDefinition` output, which O-057 removes.
+- Zone order in `eventZones` is rule zones first, then own zones; not part of the contract.

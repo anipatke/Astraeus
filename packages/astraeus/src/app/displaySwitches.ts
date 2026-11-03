@@ -71,3 +71,9 @@ export function displaySwitchItems(bindings: SwitchBindings): readonly DisplaySw
     return [{ id, label: DISPLAY_SWITCH_LABELS[id], place, on: state[id].on, onToggle: state[id].toggle }];
   });
 }
+
+/** The settings with every placed switch counted as shown: a host reads and sets a switch placed only in the Developer drawer too. */
+export function hostReachable(settings: DisplaySwitchSettings | undefined): DisplaySwitchSettings | undefined {
+  if (settings === undefined) return undefined;
+  return Object.fromEntries(Object.entries(settings).map(([id, setting]) => [id, { ...setting, place: "panel" }]));
+}

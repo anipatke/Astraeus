@@ -13,6 +13,46 @@
           "signature": "SceneCamera"
         },
         {
+          "name": "bodies",
+          "optional": false,
+          "signature": "readonly SceneBodyRead[]"
+        },
+        {
+          "name": "paths",
+          "optional": false,
+          "signature": "readonly ScenePathRead[]"
+        },
+        {
+          "name": "groups",
+          "optional": false,
+          "signature": "readonly SceneGroupRead[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly SceneEventRead[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly ScenePanelRead[]"
+        },
+        {
+          "name": "views",
+          "optional": false,
+          "signature": "SceneViewsRead | undefined"
+        },
+        {
+          "name": "scales",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "timeline",
+          "optional": false,
+          "signature": "SceneTimelineRead"
+        },
+        {
           "name": "addBody",
           "optional": false,
           "signature": "(body: BodyRef | BodyId, options?: AddBodyOptions): Scene"
@@ -48,6 +88,11 @@
           "signature": "(scale: ScalePolicy, options?: { readonly only?: boolean; }): Scene"
         },
         {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): Scene"
+        },
+        {
           "name": "addEvents",
           "optional": false,
           "signature": "(events: readonly EventInput[], options?: AddEventsOptions): Scene"
@@ -81,6 +126,16 @@
           "name": "provenanceOf",
           "optional": false,
           "signature": "(id: string): Provenance"
+        },
+        {
+          "name": "load",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): Promise<void>"
+        },
+        {
+          "name": "check",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): void"
         },
         {
           "name": "missingData",
@@ -187,6 +242,11 @@
           "name": "knownLimitations",
           "optional": true,
           "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
         }
       ]
     },
@@ -242,6 +302,309 @@
           "name": "prepare",
           "optional": true,
           "signature": "(() => Promise<void>) | undefined"
+        }
+      ]
+    },
+    "SceneLoadOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "readonly DataSource[] | undefined"
+        }
+      ]
+    },
+    "SceneBodyRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "parent",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "orbit",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "enlarge",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "ScenePathRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneGroupRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\""
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneEventRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        }
+      ]
+    },
+    "ScenePanelRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "badge",
+          "optional": false,
+          "signature": "\"observed\" | \"modelled\" | \"illustrative\""
+        },
+        {
+          "name": "details",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "sources",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "SceneViewRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "SceneViewsRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "startId",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\""
+        },
+        {
+          "name": "items",
+          "optional": false,
+          "signature": "readonly SceneViewRead[]"
+        }
+      ]
+    },
+    "SceneTimelineRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "openUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "rates",
+          "optional": false,
+          "signature": "readonly number[]"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loop",
+          "optional": false,
+          "signature": "boolean"
         }
       ]
     },
@@ -678,6 +1041,11 @@
           "name": "object",
           "optional": true,
           "signature": "string | undefined"
+        },
+        {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },
@@ -732,6 +1100,122 @@
       "signature": "{ readonly [id in DisplaySwitchId]?: { readonly place: DisplaySwitchPlace; readonly on?: boolean } }",
       "constructors": [],
       "members": []
+    },
+    "LookInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "starBrightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "milkyWay",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "milkyWayBrightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "skyVisible",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "sunGlow",
+          "optional": true,
+          "signature": "SunGlowLook | undefined"
+        },
+        {
+          "name": "markerSwapRadiusPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "featureMinBodyPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "loadFadeSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "LookRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "starBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "milkyWay",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "milkyWayBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "skyVisible",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "sunGlow",
+          "optional": true,
+          "signature": "{ readonly sizePx: number; readonly brightness: number; readonly scale: number; } | undefined"
+        },
+        {
+          "name": "markerSwapRadiusPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "featureMinBodyPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loadFadeSeconds",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "SunGlowLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "sizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "brightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "scale",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
     },
     "ViewsOptions": {
       "kind": "interface",
@@ -922,6 +1406,36 @@
           "signature": "(listener: (camera: CameraPose) => void): () => void"
         },
         {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1007,6 +1521,36 @@
           "name": "onCameraChange",
           "optional": false,
           "signature": "(listener: (camera: CameraPose) => void): () => void"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
         },
         {
           "name": "onChange",
@@ -1151,6 +1695,21 @@
           "signature": "string | undefined"
         },
         {
+          "name": "scale",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead"
+        },
+        {
+          "name": "switches",
+          "optional": true,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
           "name": "cause",
           "optional": false,
           "signature": "ViewerChangeCause"
@@ -1254,7 +1813,7 @@
     },
     "SceneErrorCode": {
       "kind": "type",
-      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed, repeated or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\"",
+      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed, repeated or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\"",
       "constructors": [],
       "members": []
     },

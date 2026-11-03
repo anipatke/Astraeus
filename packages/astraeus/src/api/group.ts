@@ -1,6 +1,6 @@
 import type { BodyId } from "../core/body";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import { createListedOrbitGroup, type ListedMember } from "../core/listedOrbitGroup";
+import { createListedOrbitGroup, listedGroupProvenance, type ListedMember } from "../core/listedOrbitGroup";
 import { createProvenance, type Provenance } from "../core/provenance";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import type { TimeBounds } from "../core/trajectory";
@@ -151,6 +151,27 @@ const CLUMP_LIMIT = (catalogue: BodyCatalogue, near: BodyId, fraction: number): 
 
 const AS_SUPPLIED = createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "The orbits were passed to addGroup." });
 
+/** The provenance the caller gave a group, else the "as supplied" notice. */
+function groupSource(input: GroupInput): Provenance {
+  return input.provenance ?? AS_SUPPLIED;
+}
+
+/** The provenance a group's card shows (`Scene.groups`): the engine's illustrative statement over the caller's source. */
+export function groupCardProvenance(input: GroupInput): Provenance {
+  return listedGroupProvenance(groupSource(input), input.clump !== undefined);
+}
+
+/** The words on a group's card: the caller's, else a sentence stating the count. */
+export function groupDescription(input: GroupInput, count: number): string {
+  return input.description ?? `${count} listed orbit${count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`;
+}
+
+/** The known limits on a group's card: the caller's, then the engine's own about placement, the clump and motion. */
+export function groupLimitations(input: GroupInput, catalogue: BodyCatalogue): readonly string[] {
+  const clump = input.clump;
+  return [...(input.knownLimitations ?? []), PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT];
+}
+
 /** Builds the draw layer: the listed-orbit group and its one shell item. `center` and `openUtcMs` come from the finished scene; a group error from the engine is renamed `bad-group`. */
 export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, center: BodyId, openUtcMs: number, window: TimeBounds): GroupLayer {
   const { id, input } = plan;
@@ -173,7 +194,7 @@ export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, ce
         ...(clump === undefined ? {} : { concentration: { around: catalogue.get(clump.near).source!.create(createOrbAstronomyAdapter()), fraction: clump.fraction, widthDeg: clump.widthDeg } }),
       },
       bounds: window,
-      provenance: input.provenance ?? AS_SUPPLIED,
+      provenance: groupSource(input),
     }, createOrbTwoBodyAdapter());
     const color = input.color ?? GROUP_COLOR;
     return {
@@ -187,8 +208,8 @@ export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, ce
         label: plan.label,
         color,
         labelPriority: 80,
-        description: input.description ?? `${group.count} listed orbit${group.count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`,
-        knownLimitations: [...(input.knownLimitations ?? []), PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT],
+        description: groupDescription(input, group.count),
+        knownLimitations: groupLimitations(input, catalogue),
       },
     };
   } catch (error) {

@@ -47,11 +47,17 @@ export function entryGroup(section: string, item: Json | undefined): string {
 }
 
 /** Groups whose count is above the base's by more than the owner-approved entries added to them, each with the unapproved added entries. */
+/**
+ * The `public` section of `apiSettings.allowlist.json` records resolved mappings (address parameter to the public setting that now sets it), not breaks, so it never counts as growth
+ * (owner decision 2026-11-03, O-056 T-261). Only the break sections, such as `addressOnly`, are judged.
+ */
+const UNCOUNTED_SECTION = "public";
+
 export function growthOffences(base: Json, now: Json, label: string): string[] {
   const count = (json: Json): Map<string, number> => {
     const out = new Map<string, number>();
     for (const [section, value] of Object.entries(json)) {
-      if (section === "_about" || section === "approvedPublic") continue;
+      if (section === "_about" || section === "approvedPublic" || section === UNCOUNTED_SECTION) continue;
       const items: (Json | undefined)[] = Array.isArray(value) ? (value as Json[]) : Object.keys(value as object).map(() => undefined);
       for (const item of items) { const group = entryGroup(section, item); out.set(group, (out.get(group) ?? 0) + 1); }
     }
@@ -61,7 +67,7 @@ export function growthOffences(base: Json, now: Json, label: string): string[] {
   const baseCount = count(base);
   const added = new Map<string, { approved: number; unapproved: string[] }>();
   for (const [section, value] of Object.entries(now)) {
-    if (section === "_about" || section === "approvedPublic") continue;
+    if (section === "_about" || section === "approvedPublic" || section === UNCOUNTED_SECTION) continue;
     const items: [string, Json | undefined][] = Array.isArray(value) ? (value as Json[]).map((item) => [entryGroup(section, item), item]) : Object.keys(value as object).map((name) => [entryGroup(section, undefined), { name } as Json]);
     for (const [group, item] of items) {
       const key = Array.isArray(value) ? (() => { const { approved: _a, ...rest } = item!; return `${section} ${JSON.stringify(rest)}`; })() : `${section}.${item!.name as string}=${JSON.stringify((value as Json)[item!.name as string])}`;
@@ -116,8 +122,15 @@ describe("allowlists only shrink (O-053, compared with the base branch)", () => 
     expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, rule: "unit", site: "b" }] }, "f")).toHaveLength(1);
     expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, site: "b", approved }] }, "f")).toEqual([]);
     expect(growthOffences(base, { ...base, breaks: [{ ...g, site: "a" }, { ...g, site: "b", approved: { ...approved, by: "agent" } }] }, "f")).toHaveLength(1);
-    expect(growthOffences(base, { ...base, public: { view: "A", extra: "B" } }, "f")).toEqual([expect.stringContaining("public")]);
-    expect(growthOffences(base, { ...base, public: { view: "A", extra: "B" }, approvedPublic: { extra: approved } }, "f")).toEqual([]);
+    // The `public` section holds resolved mappings, not breaks: it never counts (owner 2026-11-03).
+    const settings = { _about: "x", public: { view: "A" }, addressOnly: [{ param: "stars", finding: "F11", removedBy: "O-056" }] };
+    const cases: readonly [string, Record<string, unknown>, number][] = [
+      ["a new public entry passes", { ...settings, public: { view: "A", extra: "B" } }, 0],
+      ["moving an entry from addressOnly to public passes", { ...settings, public: { view: "A", stars: "L.s" }, addressOnly: [] }, 0],
+      ["a new addressOnly entry without approval fails", { ...settings, addressOnly: [...settings.addressOnly, { param: "sky", finding: "F11", removedBy: "O-056" }] }, 1],
+      ["a new addressOnly entry with owner approval passes", { ...settings, addressOnly: [...settings.addressOnly, { param: "sky", finding: "F11", removedBy: "O-056", approved }] }, 0],
+    ];
+    for (const [name, now, offences] of cases) expect(growthOffences(settings, now, "f"), name).toHaveLength(offences);
     expect(countOffences({ a: 5, b: 3 }, { a: 6, b: 2, c: 1 })).toHaveLength(2);
     expect(deepImportCounts('const DEEP_IMPORT_COUNTS: Record<string, number> = {\n  "a-b": 12, // x\n  "c": 3,\n};')).toEqual({ "a-b": 12, c: 3 });
   });

@@ -7,68 +7,17 @@
     "show": "MountedScene.setView",
     "up": "FollowView.up",
     "loop": "TimelineInput.loop",
-    "labels": "AddBodyOptions.showLabel"
+    "labels": "AddBodyOptions.showLabel",
+    "featurepx": "LookInput.featureMinBodyPx",
+    "loadfade": "LookInput.loadFadeSeconds",
+    "markerpx": "LookInput.markerSwapRadiusPx",
+    "milkyway": "LookInput.milkyWay",
+    "milkywaybrightness": "LookInput.milkyWayBrightness",
+    "sky": "LookInput.skyVisible",
+    "stars": "LookInput.starBrightness",
+    "sunbrightness": "SunGlowLook.brightness",
+    "sunglow": "SunGlowLook.sizePx",
+    "sunglowscale": "SunGlowLook.scale"
   },
-  "addressOnly": [
-    {
-      "param": "featurepx",
-      "reason": "feature marker size: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "loadfade",
-      "reason": "load fade time: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "markerpx",
-      "reason": "marker size: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "milkyway",
-      "reason": "Milky Way on or off: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "milkywaybrightness",
-      "reason": "Milky Way brightness: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "sky",
-      "reason": "sky hidden for a comparison: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "stars",
-      "reason": "star brightness: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "sunbrightness",
-      "reason": "Sun glow brightness: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "sunglow",
-      "reason": "Sun glow size: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    },
-    {
-      "param": "sunglowscale",
-      "reason": "Sun glow scale: reachable only through the page address or the Developer drawer",
-      "finding": "F11",
-      "removedBy": "O-056"
-    }
-  ]
+  "addressOnly": []
 }

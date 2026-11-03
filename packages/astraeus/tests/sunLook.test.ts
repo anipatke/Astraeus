@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { baseGlowOf, DEFAULT_GLOW_SCALE, drawnRadii, GLOW_LIMITS, glowLookFromSearch, glowSizePx, pxToUnits, projectedRadiusPx } from "../src/app/bodyDraw";
+import { baseGlowOf, DEFAULT_GLOW_SCALE, drawnRadii, GLOW_LIMITS, glowLookOf, glowSizePx, pxToUnits, projectedRadiusPx } from "../src/app/bodyDraw";
+import { resolveLook } from "../src/app/look";
+const glowLookFromSearch = (search: string, base: Parameters<typeof glowLookOf>[1]) => glowLookOf(resolveLook(undefined, search), base);
 import { focusLimits, focusRadius } from "../src/app/sceneFraming";
 import { createSolarSystemScale } from "../src/core/scalePolicy";
 import { textureRightsProblem } from "../src/assets/licence";

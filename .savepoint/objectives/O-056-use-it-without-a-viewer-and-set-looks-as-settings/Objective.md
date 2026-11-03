@@ -1,7 +1,7 @@
 ---
 id: O-056
 title: Use it without a viewer and set looks as settings
-status: planned
+status: in_progress
 depends_on: [O-055]
 release: G-016
 priority: high

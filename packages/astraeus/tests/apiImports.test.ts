@@ -17,6 +17,7 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/catalogueItem": "the definition contract: catalogue entries a body layer resolves",
   "app/planetNeeds": "the definition contract: which planet series a definition needs loaded",
   "app/displaySwitches": "the definition contract: display switch ids and places (the viewer's own settings shape)",
+  "app/look": "the look table: the one place each look's address parameter and range are written, which setLook checks against",
   "app/views": "the definition contract: view places and camera rules (the viewer's own settings shape)",
   "shell/metrics": "the definition contract: the Metric and RateMetric types",
   "shell/experience": "the definition contract: ExperienceObject and ExperienceConfig, what the scene hands the shell",

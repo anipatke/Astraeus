@@ -2,9 +2,10 @@
 id: T-259
 title: Load data and check a scene without a viewer
 objective: O-056
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
+check_waiver: {task: T-259, reason: 'Owner said "Orchestrate o56" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o056-run-20261103}, recorded_at: '2026-11-03T09:53:28Z'}
 planned_by: {role: planner, session: o056-planning-20261103}
 ---
 
@@ -59,8 +60,23 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| `Scene.load` loads planet series and per-moon chunks, rejects `missing-data` / `out-of-span`, twice harmless, allowed on frozen scene | `scene.ts` `load` = `toDefinition(data).prepare()` (the path `mount` uses; `installData` -> shared moon-system store); `tests/cold/sceneLoad.test.ts`: planet + Io state and provenance after load, load twice, load after `toDefinition`, rows for missing package / out-of-span (1900 window) / empty scene |
+| Before `load`, `stateOf` throws `missing-data` naming `scene.load`, no internals; message-text match replaced by typed error | `NotLoadedError` (core/planetSeries.ts) thrown by planet series and moon system; `stateOf` catches by type; cold test rows for planet and Io; allowlist entry in `apiErrors.allowlist.json` removed (list now empty); `scenePin.json` regenerated (error name `NotLoadedError`; moon stateOf before load is now a `SceneError` `missing-data`) |
+| `Scene.check` throws what `mount` throws; table test; does not freeze | `tests/sceneCheck.test.ts`: 9 rows (empty-scene, missing-data, bad-view, bad-event, bad-group, bad-scale, bad-readout, bad-timeline, bad-panels) each assert `check`, `mount` and `prepareScene` (shared by `<AstraeusScene>`) throw the equal name/code/message; second test shows check leaves scene editable |
+| No-preload engine test file, own Vitest project | `vitest.config.ts` now has projects `preloaded` (setup file) and `cold` (`packages/astraeus/tests/cold/**`, no setup); `tests/cold/sceneLoad.test.ts` (8 cases, fresh module graph per case) |
+| `check:node-consumer` cold-start on packed package | `tools/check-node-consumer.mjs` now builds and unpacks `astraeus` and `astraeus-data-jupiter`; new case: `io` stateOf throws `scene.load`, `check`, `await load({ data: [dataSource] })`, Jupiter and Io state and Io provenance; run: pass (10 tests) |
+| Surface: lock, CHANGELOG, README, allowlists | `npm run api:lock` diff = `Scene.load`, `Scene.check`, `SceneLoadOptions` only; CHANGELOG Unreleased entry; README table rows and `stateOf` row; `apiSurface`, `apiRules`, `allowlistGrowth` pass (one allowlist group shrank to empty) |
+| Gates | `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass, `npm test` 205 files / 2532 passed 2 skipped, `npm run check:pack` pass, `npm run check:node-consumer` pass. No browser run. |
+
+Extra reads (none beyond Context Files). Files read: those listed plus `core/bodies/moonSystem.ts`, `api/prepared.ts`, `api/index.ts`, `astraeus-data-jupiter/src/index.ts`, `tools/build-packages.mjs` header, `tests/scenePin.test.ts`, `astraeus-site/tests/apiErrors.allowlist.json`.
+
+Limitations: the cold engine test builds the Jupiter `DataSource` from the package's shipped `index.json` and chunk files, because a source checkout has no generated `src/chunks.js` (so the package's own `dataSource` cannot be imported unbuilt); the packed `dataSource` is exercised by `check:node-consumer`. `AstraeusScene` is covered through the shared `prepareScene`, not mounted in a test.
 
 ## Drift Notes
 
 Record architecture deltas here; T-264 reconciles them into Design.md.
+- Moon chunk addresses of the form `file:` could not be read in Node (Node's `fetch` refuses them), so `core/bodies/moonSystem.ts` `fetchBytesOf` now reads them through `process.getBuiltinModule("node:fs/promises")`. Design.md "Answers for sites" should say a Node app can `await scene.load({ data })` with a data package's own `dataSource`. Deferred to T-264.
+- New internal typed error `NotLoadedError` (core/planetSeries.ts) for "data not loaded yet"; `Scene.stateOf` maps it to `missing-data`. Design "Numbers work without a viewer" is now true for `load`/`check`; the `toDefinition` route is unchanged until O-057. Deferred to T-264.
+- `vitest.config.ts` has two projects (`preloaded`, `cold`) in place of one config with a setup file; tests dropped in `packages/astraeus/tests/cold/` run without the preload. Test-tooling note for Design/verification docs; deferred to T-264.

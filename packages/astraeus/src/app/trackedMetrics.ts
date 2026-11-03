@@ -1,7 +1,7 @@
 import type { BodyId } from "../core/body";
 import type { StateResolver } from "../core/stateResolver";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
-import type { CenteredPosition } from "../core/state";
+import { EQJ, type CenteredPosition } from "../core/state";
 import { discrepancyAt, trackedReadouts, type TrackedBody, type TrackedReadout } from "./mission";
 import type {
   AltitudeMetric,
@@ -146,20 +146,32 @@ export interface PathReadouts {
   readonly readouts: readonly ReadoutSpec[];
 }
 
+/** A catalogued body that asks for readouts (`addBody(x, { readouts })`): measured from `center`, the scene's centre body, like a path from its own centre. */
+export interface BodyReadouts {
+  readonly id: BodyId;
+  readonly label: string;
+  readonly center: BodyId;
+  readonly readouts: readonly ReadoutSpec[];
+}
+
 const targetOf = (id: BodyId, source: BodyCatalogue): ReadoutTarget => ({ id, label: source.get(id).definition.label, radiusKm: source.get(id).definition.radiusKm });
 
+/** The current-position row of a catalogued body about its centre, the shape a path's row has (speed unknown without a velocity). */
+function bodyRow(resolver: StateResolver, { id, label, center }: BodyReadouts, timeUtcMs: number): TrackedReadout {
+  const state = id === center ? { frame: EQJ, center, positionKm: new Float64Array(3), velocityKmS: undefined } : resolver.stateOf(id, timeUtcMs, center);
+  const [x, y, z] = state.positionKm;
+  return { id, label, positionKm: [x!, y!, z!], rangeFromEarthKm: Math.hypot(x!, y!, z!), speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS), frame: state.frame, center: state.center };
+}
+
 /**
- * The info card's bars for paths that ask for readouts, from State only. Range is from the path's centre body; a named body is read from the
+ * The info card's bars for paths (and catalogued bodies) that ask for readouts, from State only. Range is from the path's centre body; a named body is read from the
  * resolver about that centre, so it shares the path's frame. A path outside its bounds and any other id have none.
  */
-export function createReadoutMetrics(paths: readonly PathReadouts[], resolver: StateResolver, source: BodyCatalogue = builtInCatalogue) {
+export function createReadoutMetrics(paths: readonly PathReadouts[], resolver: StateResolver, source: BodyCatalogue = builtInCatalogue, bodies: readonly BodyReadouts[] = []) {
   const peaks = new Map(paths.map(({ body }) => [body.id, peakAnchorSpeedKmS(body)]));
-  return (objectId: string, timeUtcMs: number): readonly Metric[] => {
-    const path = paths.find(({ body }) => body.id === objectId);
-    const row = path === undefined ? undefined : trackedReadouts([path.body], timeUtcMs)[0];
-    if (path === undefined || row === undefined) return [];
+  const barsOf = (row: TrackedReadout, specs: readonly ReadoutSpec[], timeUtcMs: number): readonly Metric[] => {
     const stateOf = (id: BodyId): CenteredPosition => (id === row.center ? { body: id, center: row.center, timeUtcMs, frame: row.frame, positionKm: new Float64Array(3) } : resolver.stateOf(id, timeUtcMs, row.center));
-    return path.readouts.map((spec): Metric => {
+    return specs.map((spec): Metric => {
       switch (spec.kind) {
         case "range": return spacecraftRangeMetric(row, spec.marker === undefined ? null : referenceInSameFrame(`${targetOf(spec.marker, source).label} now`, row, stateOf(spec.marker)));
         case "speed": return spacecraftSpeedMetric(row, peaks.get(row.id) ?? null);
@@ -167,5 +179,12 @@ export function createReadoutMetrics(paths: readonly PathReadouts[], resolver: S
         case "altitude": return pathAltitudeMetric(row, targetOf(spec.above, source), stateOf(spec.above));
       }
     });
+  };
+  return (objectId: string, timeUtcMs: number): readonly Metric[] => {
+    const body = bodies.find(({ id }) => id === objectId);
+    if (body !== undefined) return barsOf(bodyRow(resolver, body, timeUtcMs), body.readouts, timeUtcMs);
+    const path = paths.find((candidate) => candidate.body.id === objectId);
+    const row = path === undefined ? undefined : trackedReadouts([path.body], timeUtcMs)[0];
+    return path === undefined || row === undefined ? [] : barsOf(row, path.readouts, timeUtcMs);
   };
 }

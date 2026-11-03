@@ -1,0 +1,12 @@
+COLD stateOf mars: missing-data: stateOf("mars"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)
+COLD stateOf venus: missing-data: stateOf("venus"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)
+COLD stateOf earth: ok
+COLD stateOf saturn: missing-data: stateOf("saturn"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)
+COLD stateOf moon: ok
+COLD provenanceOf mars: ok
+COLD out-of-span: out-of-span: saturn is outside the years the built-in planet series covers: it covers 1950-01-01 to 2045-01-01, but the scene runs 1945-01-01 to 1946-01-01; set the timeline inside that span
+COLD titan no data: missing-data: titan needs the astraeus-data-saturn package: install it and pass it as mount(element, scene, { data: [...] })
+COLD timeline: ok
+COLD check: ok
+ Test Files  2 passed (2)
+      Tests  63 passed (63)

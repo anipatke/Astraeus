@@ -6,6 +6,7 @@ import { NO_PICTURES, textureOf, type Pictures } from "../assets/pictures";
 import type { AtmosphereConfig, BodyMaterialConfig } from "../assets/visual";
 import type { CelestialBodyDefinition } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
+import type { LookInput } from "./look";
 
 /** The two radii a body is drawn with, in scaled units. Equal for a sphere. */
 export interface DrawnRadii {
@@ -29,7 +30,7 @@ export function drawnRadii(definition: CelestialBodyDefinition, policy: ScalePol
 
 /**
  * How a body that would be a speck is drawn. Look-and-feel numbers, not rules: they change how a body is shown, never where it is,
- * so they are settings with defaults (Developer > Display settings, or `?markerpx=` in the address).
+ * so they are settings with defaults (Developer > Display settings, `Scene.setLook`, or `?markerpx=` in the address).
  */
 export interface BodyMarkerSettings {
   /** A sphere whose drawn radius is under this many screen pixels is drawn as a marker instead. 0 never swaps. */
@@ -51,16 +52,9 @@ export function drawsAsMarker(radiusPx: number, settings: BodyMarkerSettings = D
   return radiusPx < settings.minSpherePx;
 }
 
-/** `?markerpx=<n>` sets the swap threshold for a comparison; an unusable value keeps the default with a console warning. */
-export function markerSettingsFromSearch(search: string, base: BodyMarkerSettings = DEFAULT_BODY_MARKER): BodyMarkerSettings {
-  const raw = new URLSearchParams(search).get("markerpx");
-  if (raw === null) return base;
-  const value = raw.trim() === "" ? Number.NaN : Number(raw);
-  if (!Number.isFinite(value) || value < 0 || value > 100) {
-    console.warn(`?markerpx=${raw} ignored: the value must be a number from 0 to 100`);
-    return base;
-  }
-  return { ...base, minSpherePx: value };
+/** The marker settings in force: the default with the look's `markerSwapRadiusPx` laid over it. */
+export function markerSettingsOf(look: LookInput, base: BodyMarkerSettings = DEFAULT_BODY_MARKER): BodyMarkerSettings {
+  return look.markerSwapRadiusPx === undefined ? base : { ...base, minSpherePx: look.markerSwapRadiusPx };
 }
 
 /** A marker's colour and screen size: the experience's choice, else the record's, else the settings' default. */
@@ -134,24 +128,9 @@ export const DEFAULT_GLOW_SCALE = 2.5;
 export const GLOW_BEHIND_DISC_PX = 24;
 export const GLOW_LIMITS = { sizePx: { min: 0, max: 400 }, brightness: { min: 0, max: 2 }, scale: { min: 1, max: 6 } } as const;
 
-function boundedParam(search: string, name: string, limit: { min: number; max: number }, fallback: number): number {
-  const raw = new URLSearchParams(search).get(name);
-  if (raw === null) return fallback;
-  const value = raw.trim() === "" ? Number.NaN : Number(raw);
-  if (!Number.isFinite(value) || value < limit.min || value > limit.max) {
-    console.warn(`?${name}=${raw} ignored: the value must be a number from ${limit.min} to ${limit.max}`);
-    return fallback;
-  }
-  return value;
-}
-
-/** `?sunglow=<px>`, `?sunbrightness=<0..2>` and `?sunglowscale=<1..6>` override the record's halo; an unusable value keeps it with a console warning. */
-export function glowLookFromSearch(search: string, base: GlowLook): GlowLook {
-  return {
-    sizePx: boundedParam(search, "sunglow", GLOW_LIMITS.sizePx, base.sizePx),
-    brightness: boundedParam(search, "sunbrightness", GLOW_LIMITS.brightness, base.brightness),
-    scale: boundedParam(search, "sunglowscale", GLOW_LIMITS.scale, base.scale),
-  };
+/** The halo in force: the record's `base` with the look's `sunGlow` values laid over it. */
+export function glowLookOf(look: LookInput, base: GlowLook): GlowLook {
+  return { sizePx: look.sunGlow?.sizePx ?? base.sizePx, brightness: look.sunGlow?.brightness ?? base.brightness, scale: look.sunGlow?.scale ?? base.scale };
 }
 
 /** The first halo any of these bodies' records carries: what the live settings start from. */

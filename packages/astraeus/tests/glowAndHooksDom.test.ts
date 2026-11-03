@@ -7,7 +7,8 @@ import { DefaultLoadingManager, PerspectiveCamera, Vector3 } from "three";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { AnchorLabelLayer, projectToScreen } from "../src/app/AnchorLabels";
-import { applyGlowLook, baseGlowOf, createGlow, DEFAULT_GLOW_SCALE, glowLookFromSearch, glowSizePx, pxToUnits, releaseGlowTexture, type GlowLook } from "../src/app/bodyDraw";
+import { resolveLook } from "../src/app/look";
+import { applyGlowLook, baseGlowOf, createGlow, DEFAULT_GLOW_SCALE, glowLookOf, glowSizePx, pxToUnits, releaseGlowTexture, type GlowLook } from "../src/app/bodyDraw";
 import { createFrameState } from "../src/app/sceneFrame";
 import { bodyIdOf, refFor, useDrawWakes } from "../src/app/sceneContentsHooks";
 import { useHostLayer } from "../src/app/sceneHooks";
@@ -42,9 +43,9 @@ describe("halo settings", () => {
 
   it("lets the address override each setting, and warns and keeps the base for an unusable value", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(glowLookFromSearch("?sunglow=120&sunbrightness=1.5&sunglowscale=3", look)).toEqual({ sizePx: 120, brightness: 1.5, scale: 3 });
-    expect(glowLookFromSearch("", look)).toEqual(look);
-    expect(glowLookFromSearch("?sunglow=900&sunbrightness=abc&sunglowscale=", look)).toEqual(look);
+    expect(glowLookOf(resolveLook(undefined, "?sunglow=120&sunbrightness=1.5&sunglowscale=3"), look)).toEqual({ sizePx: 120, brightness: 1.5, scale: 3 });
+    expect(glowLookOf(resolveLook(undefined, ""), look)).toEqual(look);
+    expect(glowLookOf(resolveLook(undefined, "?sunglow=900&sunbrightness=abc&sunglowscale="), look)).toEqual(look);
     expect(warn).toHaveBeenCalledTimes(3);
   });
 });

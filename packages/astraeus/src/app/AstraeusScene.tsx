@@ -80,8 +80,8 @@ export interface SceneRuntime {
   readonly paths?: readonly PathLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
-  /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. */
-  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean };
+  /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. `live`: the host may show a sky that starts hidden (`SceneControls.skyVisible`), so it is built either way. */
+  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly live?: boolean };
 }
 
 export interface SceneControls {
@@ -106,6 +106,8 @@ export interface SceneControls {
   /** Presentation only: live sky strengths, 0 to 2, set from Developer > Display settings. */
   starBrightness: number;
   milkyWayBrightness: number;
+  /** Presentation only: false hides the whole sky (stars and Milky Way) without rebuilding it (live; `Scene.setLook({ skyVisible })`). Absent: shown. */
+  skyVisible?: boolean;
   /** Presentation only: light every body from the camera's side, keeping its shading (Developer > Sky and Sun). Off: true sunlight. */
   illuminateAll: boolean;
   /** Looping playback is on (live; set from the experience, `?loop=` and Developer > Display settings). Needs `SceneRuntime.loopWindow`. */

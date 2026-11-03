@@ -1,0 +1,4 @@
+512- ✓ |preloaded| packages/astraeus-site/tests/loadingCoverChain.test.ts (1 test) 711ms
+513-   ✓ the site's loading cover reaches the scene (1)
+514-     ✓ the page's #boot is the cover the scene's frame state holds 709ms
+515:DOMException [AbortError]: The operation was aborted.

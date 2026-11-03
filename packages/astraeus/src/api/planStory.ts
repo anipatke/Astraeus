@@ -5,6 +5,7 @@ import type { StoryPanelSet } from "../core/storyPanels";
 import type { ExperienceConfig } from "../shell/experience";
 import { checkEventObjects, eventProvenanceOf, eventsOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelsInput } from "./story";
 import type { Tracked } from "./planPaths";
+import { frozenList, type SceneEventRead, type ScenePanelRead } from "./sceneReads";
 
 /** What a `Scene` has planned for its story layer: events, where their times come from, and story panels. */
 export class StoryPlan {
@@ -37,6 +38,24 @@ export class StoryPlan {
     const anchors = new Map<string, number>();
     for (const { body } of tracked) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
     return panelsOf(this.#panels, { events: this.events, anchors, objectIds, window });
+  }
+
+  /** The events sorted by time, each with its own provenance, else the batch's. */
+  eventReads(): readonly SceneEventRead[] {
+    return frozenList(this.events.map(({ id, label, timeUtcMs, type, object, withinMs }): SceneEventRead => {
+      const provenance = this.#eventOwnProvenance.get(id) ?? this.#eventProvenance;
+      return { id, label, timeUtcMs, ...(type === undefined ? {} : { type }), ...(object === undefined ? {} : { object }), ...(withinMs === undefined ? {} : { withinSeconds: withinMs / 1000 }), ...(provenance === undefined ? {} : { provenance }) };
+    }));
+  }
+
+  /** The story panels as the public list states them (resolved as `panels` resolves them); empty when none were added. */
+  panelReads(window: TimeBounds, tracked: Iterable<Tracked>, objectIds: readonly string[]): readonly ScenePanelRead[] {
+    const set = this.panels(window, tracked, objectIds);
+    return frozenList((set?.panels ?? []).map(({ id, timeUtcMs, title, body, badge, details, sources, objectId }): ScenePanelRead => ({
+      id, timeUtcMs, title, badge,
+      body: Object.freeze([...body]), details: Object.freeze([...details]), sources: Object.freeze([...sources]),
+      ...(objectId === undefined ? {} : { object: objectId }),
+    })));
   }
 
   /** The event provenance entries of the experience: the batch's, and each event's own. */

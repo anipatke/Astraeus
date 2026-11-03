@@ -3,6 +3,8 @@ import type { TimeBounds } from "../core/trajectory";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
+import type { SceneTimelineRead } from "./sceneReads";
+import { eventZonesOf } from "../core/pacing";
 import { pacingFor, timelineOf, type TimelineInput, type TimelineSetting } from "./story";
 
 const DAY_MS = 86_400_000;
@@ -39,6 +41,19 @@ export class TimelinePlan {
     return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
   }
 
+  /** The timeline as the public read states it, over the spans of the paths and activities. */
+  read(spans: readonly TimeBounds[]): SceneTimelineRead {
+    const { window, startUtcMs } = this.span(spans);
+    return Object.freeze({
+      windowStartUtcMs: window.startUtcMs,
+      windowEndUtcMs: window.endUtcMs,
+      openUtcMs: startUtcMs,
+      rates: Object.freeze([...this.rates()]),
+      rate: this.clock(startUtcMs).rate,
+      loop: this.setting?.none !== true && this.setting?.loop === true,
+    });
+  }
+
   /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */
   clock(startUtcMs: number): ExperienceDefinition["clock"] {
     const timeline = this.setting;
@@ -46,10 +61,11 @@ export class TimelinePlan {
   }
 
   /** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */
-  pacing(events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing"> {
+  pacing(events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing" | "eventZones"> {
     const timeline = this.setting;
     const pacing = timeline === undefined ? undefined : pacingFor(timeline, events, timeline.rate ?? 60);
-    return pacing === undefined ? {} : { pacing };
+    const eventZones = eventZonesOf(events, pacing?.zones ?? []);
+    return { ...(pacing === undefined ? {} : { pacing }), ...(eventZones.length === 0 ? {} : { eventZones }) };
   }
 }
 

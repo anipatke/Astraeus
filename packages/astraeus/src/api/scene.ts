@@ -6,7 +6,7 @@ import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "..
 import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import type { Trajectory } from "../core/trajectory";
+import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import type { ElementsBodyRecord } from "../core/elementsBody";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -19,18 +19,23 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { isMounted } from "./sceneFreeze";
+import type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
-import { buildTracked, type Tracked } from "./planPaths";
+import { buildTracked, pathReads, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
 import type { SwitchesInput } from "./switches";
+import type { LookInput } from "./look";
+import { checkedLook } from "./lookInput";
 import type { ViewInput, ViewsOptions } from "./views";
 import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
@@ -55,6 +60,8 @@ export interface AddBodyOptions {
   readonly color?: string;
   /** Known limits shown with the body's provenance, replacing the catalogue's own; a list of non-empty texts. A bad value throws `bad-body`. */
   readonly knownLimitations?: readonly string[];
+  /** Bars for the body's info card, in order: the same list a path takes (`addTrajectory`'s `readouts`), measured from the scene's centre body. They replace the catalogue's own distance rows. A bad readout throws `bad-readout`; a named body must be in the scene. */
+  readonly readouts?: readonly ReadoutInput[];
 }
 
 /** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */
@@ -134,6 +141,12 @@ export interface FollowView {
   readonly up?: "equatorial" | "ecliptic";
 }
 
+/** Options of `Scene.load` and `Scene.check`: the data packages `mount` would be given. */
+export interface SceneLoadOptions {
+  /** Data packages the scene's bodies need, such as moon positions; nothing is looked up behind the caller's back. */
+  readonly data?: readonly DataSource[];
+}
+
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 /**
@@ -159,6 +172,7 @@ export class Scene {
   readonly #sources = new Map<BodyId, Trajectory>();
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
+  #look: LookInput | undefined;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
@@ -168,6 +182,43 @@ export class Scene {
   #editable(): void {
     if (isMounted(this)) throw new SceneError("scene-mounted", "this scene was edited after a viewer took it; build a new scene instead");
   }
+
+  /** The bodies the scene holds, in the order added (the first is the scene's centre): id, label, the body it circles, whether its orbit line is on, and how much it is enlarged. A fresh frozen list on every read; it answers on a scene a viewer has taken. */
+  get bodies(): readonly SceneBodyRead[] { return this.#plan.reads(); }
+
+  /** The paths the scene holds (`addTrajectory`), in the order added: id, label, centre body and provenance. A fresh frozen list on every read. */
+  get paths(): readonly ScenePathRead[] { return pathReads(this.#tracked.values()); }
+
+  /** The groups the scene holds (`addGroup`), in the order added: id, label, orbit count, centre body, plane and the provenance the group's card shows. A fresh frozen list on every read. */
+  get groups(): readonly SceneGroupRead[] { return this.#groupPlan.reads(this.#sceneFirst()); }
+
+  /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
+  get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
+
+  /** The story panels (`addStoryPanels`), sorted by time with their times resolved against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
+  get panels(): readonly ScenePanelRead[] {
+    const { window } = this.#timelineSpan();
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
+  }
+
+  /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id and label; undefined when none were named. */
+  get views(): SceneViewsRead | undefined { return this.#viewPlan.read(); }
+
+  /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
+  get scales(): readonly string[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }
+
+  /** The timeline the scene opens with: its span and opening moment in UTC milliseconds (`windowStartUtcMs`, `windowEndUtcMs`, `openUtcMs`), the speeds offered (`rates`), the opening `rate` and whether playback wraps (`loop`). With no span or moment set and no path or activity, the span is a month about the moment of the read. A moment outside a span set with `setTimeline` throws `bad-timeline`, as `mount` would. */
+  get timeline(): SceneTimelineRead { return this.#timeline.read(this.#spans()); }
+
+  /** The spans of the paths and activities, which the timeline follows when nothing sets it. */
+  #spans(): readonly TimeBounds[] {
+    return [...[...this.#tracked.values()].map(({ body }) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)];
+  }
+
+  #timelineSpan(): { readonly window: TimeBounds; readonly startUtcMs: number } { return this.#timeline.span(this.#spans()); }
+
+  /** The scene's first body, the centre of a group that names none. */
+  #sceneFirst(): BodyId { return this.#plan.bodies.keys().next().value ?? FALLBACK_SCENE_CENTRE; }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
@@ -257,6 +308,19 @@ export class Scene {
     return this;
   }
 
+  /**
+   * Sets the looks, presentation settings that change how the scene is drawn and never where anything is (`LookInput`: star, Milky Way and Sun glow brightness, marker and feature-marker sizes in pixels, the
+   * loading-cover fade in seconds, the sky shown or hidden). Replaces the whole look: a look not named keeps its default. A page address parameter, when the viewer's `address` option is on, overrides the look
+   * it names. An unknown look or a value out of its range throws `bad-look` here.
+   * @example
+   * scene.setLook({ starBrightness: 1.4, markerSwapRadiusPx: 5, loadFadeSeconds: 1 });
+   */
+  setLook(look: LookInput): this {
+    this.#editable();
+    this.#look = checkedLook(look);
+    return this;
+  }
+
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
     this.#editable();
@@ -314,7 +378,7 @@ export class Scene {
    * The state of a body in the scene at a moment (position in km always; velocity in km/s only where the body's source provides it), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
    * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a distance from the Sun, come from here. `velocityKmS` is set only for a path whose
    * samples or provider carry velocities and for a moon from fitted data (Io); planets, Earth, the Sun, the built-in comet and elements bodies give position only, so check it before use. An id the scene does not hold throws `unknown-body`. Ready-made and elements bodies answer at any date (they have no data cut-off); only a moment outside an
-   * `addTrajectory` path throws `bad-time`. A planet before the planet series have loaded (they load at mount) throws `missing-data`.
+   * `addTrajectory` path throws `bad-time`. A planet or fitted moon before its data has loaded (`await scene.load({ data })`, or mount the scene and await `ready`) throws `missing-data`.
    * @example
    * const sunDistanceKm = Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm);
    */
@@ -329,7 +393,7 @@ export class Scene {
     try {
       return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#plan.catalogue.get(id).definition.parentId);
     } catch (error) {
-      if (entry === undefined && error instanceof Error && error.message.startsWith("the planet series are not loaded")) throw new SceneError("missing-data", `stateOf("${id}"): ${error.message}`);
+      if (error instanceof NotLoadedError) throw new SceneError("missing-data", `stateOf("${id}"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)`);
       throw error;
     }
   }
@@ -356,6 +420,28 @@ export class Scene {
     return createStateResolver(this.#plan.catalogue.definitions(), this.#plan.catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
   }
 
+  /**
+   * Loads what `stateOf` and `provenanceOf` need without a viewer: the planet series and, for each moon the scene holds, the chunks its data package provides for the scene's window.
+   * Pass the same `data` as `mount`. Rejects with `missing-data` when a body needs a package not passed, with `out-of-span` when the window reaches outside the years covered, and with
+   * the scene's own build error as `check` does. Harmless to call twice; allowed on a scene a viewer has taken; a later `mount` re-uses what it loaded. Works in plain Node.
+   * @example
+   * await scene.load({ data: [jupiterData] });
+   * const io = scene.stateOf("io", "2016-03-01T00:00:00Z");
+   */
+  async load(options: SceneLoadOptions = {}): Promise<void> {
+    await this.toDefinition(options.data).prepare?.();
+  }
+
+  /**
+   * Runs the checks `mount` runs before it draws and throws the same `SceneError` for a build fault (an empty scene, a body whose data package is not in `data`, a bad view or panel, ...).
+   * Nothing is loaded and the scene is not frozen. Faults that need the planet or moon data (`out-of-span`) arrive from `load`, as they arrive from `mount`'s `ready`.
+   * @example
+   * scene.check({ data: [jupiterData] }); // throws what mount(element, scene, { data }) would throw
+   */
+  check(options: SceneLoadOptions = {}): void {
+    this.toDefinition(options.data);
+  }
+
   /** The data packages the added bodies need that `data` does not provide. */
   missingData(data: readonly DataSource[] = []): readonly string[] {
     return this.#plan.missingData(data);
@@ -363,6 +449,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look }, data);
   }
 }

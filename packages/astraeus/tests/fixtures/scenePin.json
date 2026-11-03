@@ -141,6 +141,50 @@
      ]
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "traveller-io",
+      "fromUtcMs": 286837200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292021200000
+     },
+     {
+      "eventId": "traveller-jupiter",
+      "fromUtcMs": 286848000000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292032000000
+     },
+     {
+      "eventId": "traveller-europa",
+      "fromUtcMs": 286855200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292039200000
+     },
+     {
+      "eventId": "traveller-ganymede",
+      "fromUtcMs": 286869600000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292053600000
+     },
+     {
+      "eventId": "traveller-saturn",
+      "fromUtcMs": 340243200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 345427200000
+     },
+     {
+      "eventId": "traveller-uranus",
+      "fromUtcMs": 504316800000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 509500800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -1590,13 +1634,13 @@
     "uranus": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -1604,13 +1648,13 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -1618,13 +1662,13 @@
     "ariel": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -1632,13 +1676,13 @@
     "umbriel": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -1646,13 +1690,13 @@
     "titania": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -1660,13 +1704,13 @@
     "oberon": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -2004,70 +2048,80 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "ariel": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"ariel\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"ariel\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "umbriel": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"umbriel\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"umbriel\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "titania": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"titania\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"titania\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "oberon": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"oberon\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"oberon\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -4293,13 +4347,13 @@
     "uranus": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -4307,13 +4361,13 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -4359,14 +4413,16 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ]
@@ -10036,6 +10092,36 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767481200000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767488400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767826800000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767834000000
+     },
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767484200000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767485400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767829800000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767831000000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -13577,6 +13663,22 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "event-a",
+      "fromUtcMs": 1767234600000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767238200000
+     },
+     {
+      "eventId": "event-b",
+      "fromUtcMs": 1767256200000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767259800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -18126,13 +18228,13 @@
     "jupiter": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18140,13 +18242,13 @@
     "io": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18154,13 +18256,13 @@
     "europa": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18168,13 +18270,13 @@
     "callisto": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18220,42 +18322,48 @@
     "io": [
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "europa": [
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
     "callisto": [
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ]
@@ -18469,13 +18577,13 @@
     "uranus": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18483,13 +18591,13 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "Error",
+       "name": "NotLoadedError",
        "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
@@ -18535,14 +18643,16 @@
     "miranda": [
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
-       "name": "Error",
-       "message": "Uranus's moon fits are not loaded: await the system's load before mounting a scene with its moons"
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"miranda\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ]
@@ -25014,6 +25124,36 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767481200000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767488400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767826800000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767834000000
+     },
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767484200000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767485400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767829800000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767831000000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -27276,7 +27416,7 @@
      "fitOrbit": {
       "farthestKm": {
        "error": {
-        "name": "Error",
+        "name": "NotLoadedError",
         "message": "the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet"
        }
       }
@@ -28118,7 +28258,7 @@
      "fitOrbit": {
       "farthestKm": {
        "error": {
-        "name": "Error",
+        "name": "NotLoadedError",
         "message": "the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet"
        }
       }
@@ -29072,6 +29212,22 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "event-a",
+      "fromUtcMs": 1767234600000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767238200000
+     },
+     {
+      "eventId": "event-b",
+      "fromUtcMs": 1767256200000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767259800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -30399,7 +30555,7 @@
    "error": {
     "name": "SceneError",
     "code": "missing-data",
-    "message": "stateOf(\"mars\"): the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet"
+    "message": "stateOf(\"mars\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
    }
   },
   "out-of-span: planets and a window outside the planet series (prepare rejects)": {

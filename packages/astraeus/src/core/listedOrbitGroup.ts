@@ -211,6 +211,16 @@ const PHASE_NOTE = "Each orbit's shape and orientation come from its record, but
   + "that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.";
 const CONCENTRATION_NOTE = "A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.";
 
+/** The provenance a group's own card carries: always illustrative, since the position along each orbit is a drawing choice; the source's type stays in the accuracy line. */
+export function listedGroupProvenance(source: Provenance, concentrated: boolean): Provenance {
+  return createProvenance({
+    sourceType: "illustrative",
+    sources: source.sources,
+    accuracy: `${source.accuracy} Orbit elements are as listed (${source.sourceType}); the position along each orbit is illustrative.`.trim(),
+    notes: `${source.notes} ${PHASE_NOTE}${concentrated ? ` ${CONCENTRATION_NOTE}` : ""}`.trim(),
+  });
+}
+
 /**
  * A group drawn from a list of measured orbits: each member has its own elements, record time and source record id. Only the
  * position along each orbit is chosen here (see ListedPhase); every member then moves on its own ellipse by two-body motion.
@@ -238,12 +248,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
   })), input.plane, center, adapter);
 
   const recordIds = input.members.map((member) => member.recordId);
-  const provenance = createProvenance({
-    sourceType: "illustrative",
-    sources: input.provenance.sources,
-    accuracy: `${input.provenance.accuracy} Orbit elements are as listed (${input.provenance.sourceType}); the position along each orbit is illustrative.`.trim(),
-    notes: `${input.provenance.notes} ${PHASE_NOTE}${concentration === undefined ? "" : ` ${CONCENTRATION_NOTE}`}`.trim(),
-  });
+  const provenance = listedGroupProvenance(input.provenance, concentration !== undefined);
 
   let kepler: KeplerElements | null = null;
   const group: ListedOrbitGroup & { fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void } = {

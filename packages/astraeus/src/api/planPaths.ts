@@ -15,6 +15,7 @@ import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from
 import { SceneError } from "./errors";
 import { toUtcMs } from "./time";
 import type { AnchorInput, ReadoutInput, TrajectoryInput } from "./scene";
+import { frozenList, type ScenePathRead } from "./sceneReads";
 
 const DEFAULT_COLOR = "#ffd27a";
 const PROVIDER_PATH_SAMPLES = 128;
@@ -31,6 +32,11 @@ export interface Tracked {
   readonly knownLimitations?: readonly string[];
   readonly provenanceSpans?: readonly WindowProvenanceSpan[];
   readonly readouts: readonly ReadoutInput[];
+}
+
+/** The paths in the order added, as the public list states them. */
+export function pathReads(tracked: Iterable<Tracked>): readonly ScenePathRead[] {
+  return frozenList([...tracked].map(({ body, center, description, knownLimitations }): ScenePathRead => ({ id: body.id, label: body.label, center, provenance: body.provenance!, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(knownLimitations ?? [])]) }))); // addTrajectory always sets a provenance
 }
 
 /** Validates and stores one path about `center`. */
@@ -111,13 +117,13 @@ function readoutBody(spec: ReadoutInput): BodyId | undefined {
 }
 
 /** Checks each readout's kind and the catalogued body it names; whether the scene holds that body is checked when the definition is built. */
-function readoutsOf(id: string, readouts: readonly ReadoutInput[] = []): readonly ReadoutInput[] {
-  if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readouts must be a list`);
+export function readoutsOf(id: string, readouts: readonly ReadoutInput[] = [], call = "addTrajectory"): readonly ReadoutInput[] {
+  if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `${call}("${id}"): readouts must be a list`);
   for (const spec of readouts) {
-    if (!READOUT_KINDS.includes(spec?.kind)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout kind "${String(spec?.kind)}" is not one of ${READOUT_KINDS.join(", ")}`);
+    if (!READOUT_KINDS.includes(spec?.kind)) throw new SceneError("bad-readout", `${call}("${id}"): readout kind "${String(spec?.kind)}" is not one of ${READOUT_KINDS.join(", ")}`);
     const named = readoutBody(spec);
-    if (spec.kind !== "range" && spec.kind !== "speed" && named === undefined) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} needs ${spec.kind === "distance" ? "`to`" : "`above`"}, the body to measure against`);
-    if (named !== undefined && !builtInCatalogue.has(named)) throw new SceneError("bad-readout", `addTrajectory("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
+    if (spec.kind !== "range" && spec.kind !== "speed" && named === undefined) throw new SceneError("bad-readout", `${call}("${id}"): readout ${spec.kind} needs ${spec.kind === "distance" ? "`to`" : "`above`"}, the body to measure against`);
+    if (named !== undefined && !builtInCatalogue.has(named)) throw new SceneError("bad-readout", `${call}("${id}"): readout ${spec.kind} names "${named}", which is not a catalogued body`);
   }
   return readouts;
 }
@@ -197,8 +203,13 @@ export function checkReadouts(entry: Tracked, ids: readonly BodyId[]): void {
   for (const { index, body } of lineBodies(entry.body.lineFixedTo)) {
     if (!ids.includes(body)) throw new SceneError("bad-trajectory", `addTrajectory("${entry.body.id}"): lineFixedTo${index === null ? "" : `[${index}]`} names "${body}", which has not been added to the scene`);
   }
-  for (const spec of entry.readouts) {
+  checkNamedReadouts(entry.body.id, entry.readouts, ids, "addTrajectory");
+}
+
+/** The readouts of a path or a body name only bodies the scene holds. */
+export function checkNamedReadouts(id: string, readouts: readonly ReadoutInput[], ids: readonly BodyId[], call: string): void {
+  for (const spec of readouts) {
     const named = readoutBody(spec);
-    if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `addTrajectory("${entry.body.id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
+    if (named !== undefined && !ids.includes(named)) throw new SceneError("bad-readout", `${call}("${id}"): readout ${spec.kind} names "${named}", which has not been added to the scene`);
   }
 }

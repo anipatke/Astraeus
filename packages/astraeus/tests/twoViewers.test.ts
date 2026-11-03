@@ -45,6 +45,7 @@ const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
   .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" })
+  .setSwitches({ labels: { place: "top-bar" } })
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
 
 /** One opened viewer, the same shape through either path. */
@@ -122,7 +123,7 @@ const total = (heard: Heard): number => heard.changes.length + heard.selects.len
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected,
+  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
@@ -151,6 +152,9 @@ const SETTERS: Record<keyof Setter, Row> = {
   setRate: { call: (v) => v.handle.setRate(3600), reads: (hd) => expect(hd.rate).toBe(3600), hears: "changes" },
   setPlaying: { call: (v) => v.handle.setPlaying(true), reads: (hd) => expect(hd.playing).toBe(true), hears: "changes" },
   setView: { call: (v) => v.handle.setView("b"), reads: (hd) => expect(hd.view).toBe("b"), hears: "changes" },
+  setLook: { call: (v) => v.handle.setLook({ starBrightness: 1.5 }), reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5), hears: "changes" },
+  setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
+  setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
     settle: (v) => { expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" }); standAt(v, CAMERA_POSE); vi.advanceTimersByTime(300); },
